@@ -43,6 +43,7 @@ export interface MainHeaderInPageAction {
   onClick: () => void | Promise<void>
   variant?: ButtonVariant
   startIcon?: IconName
+  endIcon?: IconName
   disabled?: boolean
   dataTest?: string
 }

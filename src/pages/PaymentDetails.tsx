@@ -1,10 +1,9 @@
 import { gql } from '@apollo/client'
 import { Icon, IconName } from 'lago-design-system'
-import { ReactNode, useCallback } from 'react'
+import { ReactNode } from 'react'
 import { generatePath, Link, useParams } from 'react-router-dom'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
-import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
@@ -13,6 +12,8 @@ import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { buildPaymentDocumentData } from '~/components/emails/buildDocumentData'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MainHeaderAction } from '~/components/MainHeader/types'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { addToast } from '~/core/apolloClient'
 import { buildGoCardlessPaymentUrl, buildStripePaymentUrl } from '~/core/constants/externalUrls'
@@ -21,16 +22,10 @@ import {
   payablePaymentStatusMapping,
   paymentStatusMapping,
 } from '~/core/constants/statusInvoiceMapping'
-import {
-  CustomerDetailsTabsOptions,
-  CustomerInvoiceDetailsTabsOptionsEnum,
-} from '~/core/constants/tabsOptions'
+import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
-  CREATE_INVOICE_PAYMENT_ROUTE,
-  CREATE_PAYMENT_ROUTE,
   CUSTOMER_DETAILS_ROUTE,
-  CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   PAYMENTS_ROUTE,
 } from '~/core/router'
@@ -47,12 +42,11 @@ import {
   useGetPaymentDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
-import { MenuPopper, PageHeader } from '~/styles'
+import { MenuPopper } from '~/styles'
 
 gql`
   fragment InvoiceForPaymentDetails on Invoice {
@@ -175,7 +169,6 @@ const PaymentDetails = () => {
   const { translate } = useInternationalization()
   const { timezone } = useOrganizationInfos()
   const { customerId, paymentId } = useParams()
-  const { goBack } = useLocationHistory()
 
   const { data = {}, loading } = useGetPaymentDetailsQuery({
     variables: {
@@ -203,22 +196,6 @@ const PaymentDetails = () => {
     !!payment?.customer?.billingEntity?.emailSettings?.includes(
       BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
     )
-
-  const goToPreviousRoute = useCallback(
-    () =>
-      goBack(
-        !!customerId
-          ? generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-              customerId: customerId as string,
-              tab: CustomerDetailsTabsOptions.payments,
-            })
-          : generatePath(PAYMENTS_ROUTE),
-        {
-          exclude: [CREATE_PAYMENT_ROUTE, CREATE_INVOICE_PAYMENT_ROUTE],
-        },
-      ),
-    [customerId, goBack],
-  )
 
   const paymentFormattedDate = (dateString: string) => {
     const formattedDate = intlFormatDateTime(dateString, {
@@ -253,151 +230,91 @@ const PaymentDetails = () => {
     })
   }
 
+  const headerEntity = {
+    viewName: intlFormatNumber(
+      deserializeAmount(payment?.amountCents, payment?.amountCurrency || CurrencyEnum.Usd),
+      { currency: payment?.amountCurrency },
+    ),
+    metadata: payment?.id || '',
+    badges: payment?.payablePaymentStatus
+      ? [payablePaymentStatusMapping({ payablePaymentStatus: payment.payablePaymentStatus })]
+      : [],
+  }
+
+  const headerActions: MainHeaderAction[] = [
+    {
+      type: 'dropdown',
+      label: translate('text_626162c62f790600f850b6fe'),
+      dataTest: 'payment-details-actions',
+      items: [
+        {
+          label: translate('text_1737029625089rtcf3ah5khq'),
+          onClick: (closePopper) => {
+            if (!payment?.id) return
+
+            copyToClipboard(payment.id)
+            addToast({
+              severity: 'info',
+              translateKey: translate('text_17370296250897n2pakp5v33'),
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1741334392622fl3ozwejrul'),
+          hidden: !canDownloadPaymentReceipts || canDownloadXmlFile,
+          disabled: !payment?.paymentReceipt?.id,
+          onClick: (closePopper) => {
+            downloadPaymentReceipts({
+              paymentReceiptId: payment?.paymentReceipt?.id,
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1762529003426q0xqqentmsc'),
+          hidden: !canDownloadXmlFile,
+          disabled: !payment?.paymentReceipt?.id,
+          onClick: (closePopper) => {
+            downloadPaymentReceipts({
+              paymentReceiptId: payment?.paymentReceipt?.id,
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_17625290034260szr7wfl8cs'),
+          hidden: !canDownloadXmlFile,
+          disabled: !payment?.paymentReceipt?.id,
+          onClick: (closePopper) => {
+            downloadPaymentXmlReceipts({
+              paymentReceiptId: payment?.paymentReceipt?.id,
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1770392315728uyw3zhs7kzh'),
+          hidden: !canResendEmail,
+          onClick: (closePopper) => {
+            resendEmail()
+            closePopper()
+          },
+        },
+      ],
+    },
+  ]
+
   return (
     <div>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <Button icon="arrow-left" variant="quaternary" onClick={goToPreviousRoute} />
-          {loading ? (
-            <Skeleton variant="text" className="w-40" />
-          ) : (
-            <Typography
-              variant="bodyHl"
-              color="textSecondary"
-              noWrap
-              data-test="coupon-details-name"
-            >
-              {payment?.id}
-            </Typography>
-          )}
-        </PageHeader.Group>
-        <Popper
-          PopperProps={{ placement: 'bottom-end' }}
-          opener={
-            <Button endIcon="chevron-down" data-test="coupon-details-actions">
-              {translate('text_626162c62f790600f850b6fe')}
-            </Button>
-          }
-        >
-          {({ closePopper }) => (
-            <MenuPopper>
-              <Button
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  if (!payment?.id) return
-
-                  copyToClipboard(payment.id)
-                  addToast({
-                    severity: 'info',
-                    translateKey: translate('text_17370296250897n2pakp5v33'),
-                  })
-                  closePopper()
-                }}
-              >
-                {translate('text_1737029625089rtcf3ah5khq')}
-              </Button>
-
-              {canDownloadPaymentReceipts && !canDownloadXmlFile && (
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  disabled={!payment?.paymentReceipt?.id}
-                  onClick={() => {
-                    downloadPaymentReceipts({
-                      paymentReceiptId: payment?.paymentReceipt?.id,
-                    })
-
-                    closePopper()
-                  }}
-                >
-                  {translate('text_1741334392622fl3ozwejrul')}
-                </Button>
-              )}
-
-              {canDownloadXmlFile && (
-                <>
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    disabled={!payment?.paymentReceipt?.id}
-                    onClick={() => {
-                      downloadPaymentReceipts({
-                        paymentReceiptId: payment?.paymentReceipt?.id,
-                      })
-
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_1762529003426q0xqqentmsc')}
-                  </Button>
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    disabled={!payment?.paymentReceipt?.id}
-                    onClick={() => {
-                      downloadPaymentXmlReceipts({
-                        paymentReceiptId: payment?.paymentReceipt?.id,
-                      })
-
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_17625290034260szr7wfl8cs')}
-                  </Button>
-                </>
-              )}
-              {canResendEmail && (
-                <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
-                  {translate('text_1770392315728uyw3zhs7kzh')}
-                </Button>
-              )}
-            </MenuPopper>
-          )}
-        </Popper>
-      </PageHeader.Wrapper>
+      <MainHeader.Configure
+        breadcrumb={[{ label: translate('text_6672ebb8b1b50be550eccbed'), path: PAYMENTS_ROUTE }]}
+        entity={headerEntity}
+        actions={headerActions}
+        isLoading={loading}
+      />
 
       <div className="flex flex-col gap-12 px-12 pb-20 pt-8">
-        <div className="flex items-center gap-4">
-          <Avatar variant="connector" size="large">
-            <Icon name="coin-dollar" color="dark" size="large" />
-          </Avatar>
-          <div>
-            <div className="flex flex-row items-center gap-2">
-              {loading ? (
-                <Skeleton variant="text" className="w-60" />
-              ) : (
-                <Typography variant="headline" color="grey700" noWrap>
-                  {intlFormatNumber(
-                    deserializeAmount(
-                      payment?.amountCents,
-                      payment?.amountCurrency || CurrencyEnum.Usd,
-                    ),
-                    {
-                      currency: payment?.amountCurrency,
-                    },
-                  )}
-                </Typography>
-              )}
-              {payment?.payablePaymentStatus && (
-                <Status
-                  {...payablePaymentStatusMapping({
-                    payablePaymentStatus: payment?.payablePaymentStatus,
-                  })}
-                />
-              )}
-            </div>
-
-            {loading ? (
-              <Skeleton variant="text" className="w-30" />
-            ) : (
-              <Typography variant="body" color="grey600" noWrap>
-                {payment?.id}
-              </Typography>
-            )}
-          </div>
-        </div>
-
         <div className="pb-12 shadow-b">
           <div className="mb-4 flex items-center justify-between">
             <Typography variant="subhead1">{translate('text_634687079be251fdb43833b7')}</Typography>

@@ -74,6 +74,7 @@ const ActionItem: FC<{ action: MainHeaderAction }> = ({ action }) => {
         <Button
           variant={action.variant ?? 'secondary'}
           startIcon={action.startIcon}
+          endIcon={action.endIcon}
           disabled={action.disabled}
           onClick={action.onClick}
           data-test={action.dataTest}
