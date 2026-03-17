@@ -4,7 +4,7 @@ import { generatePath, useLocation, useNavigate } from 'react-router-dom'
 import { NavigationTab } from '~/components/designSystem/NavigationTab'
 import { Typography } from '~/components/designSystem/Typography'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE } from '~/core/router'
+import { ANALYTICS_V2_ROUTE, ANALYTICS_V2_TABS_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -26,9 +26,9 @@ const NewAnalytics = () => {
   // Redirect to revenue-streams when URL is exactly /analytics
   // Cause we support old and new analytics routes, this is needed
   useEffect(() => {
-    if (pathname === ANALYTIC_ROUTE) {
+    if (pathname === ANALYTICS_V2_ROUTE) {
       navigate(
-        generatePath(ANALYTIC_TABS_ROUTE, {
+        generatePath(ANALYTICS_V2_TABS_ROUTE, {
           tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
         }),
         { replace: true },
@@ -49,13 +49,13 @@ const NewAnalytics = () => {
         tabs={[
           {
             title: translate('text_1739203651003n5f5qzxnhin'),
-            link: generatePath(ANALYTIC_TABS_ROUTE, {
+            link: generatePath(ANALYTICS_V2_TABS_ROUTE, {
               tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
             }),
             match: [
-              ANALYTIC_ROUTE,
-              generatePath(ANALYTIC_ROUTE),
-              generatePath(ANALYTIC_TABS_ROUTE, {
+              ANALYTICS_V2_ROUTE,
+              generatePath(ANALYTICS_V2_ROUTE),
+              generatePath(ANALYTICS_V2_TABS_ROUTE, {
                 tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
               }),
             ],
@@ -63,7 +63,7 @@ const NewAnalytics = () => {
           },
           {
             title: translate('text_6553885df387fd0097fd738c'),
-            link: generatePath(ANALYTIC_TABS_ROUTE, {
+            link: generatePath(ANALYTICS_V2_TABS_ROUTE, {
               tab: NewAnalyticsTabsOptionsEnum.mrr,
             }),
             component: <Mrr />,
@@ -72,7 +72,7 @@ const NewAnalytics = () => {
             ? [
                 {
                   title: translate('text_17465414264635ktqocy7leo'),
-                  link: generatePath(ANALYTIC_TABS_ROUTE, {
+                  link: generatePath(ANALYTICS_V2_TABS_ROUTE, {
                     tab: NewAnalyticsTabsOptionsEnum.usage,
                   }),
                   component: <Usage />,
@@ -81,14 +81,14 @@ const NewAnalytics = () => {
             : []),
           {
             title: translate('text_1744192691931osnm4ckcvzj'),
-            link: generatePath(ANALYTIC_TABS_ROUTE, {
+            link: generatePath(ANALYTICS_V2_TABS_ROUTE, {
               tab: NewAnalyticsTabsOptionsEnum.prepaidCredits,
             }),
             component: <PrepaidCredits />,
           },
           {
             title: translate('text_1745933666707rlg89cuv1i0'),
-            link: generatePath(ANALYTIC_TABS_ROUTE, {
+            link: generatePath(ANALYTICS_V2_TABS_ROUTE, {
               tab: NewAnalyticsTabsOptionsEnum.invoices,
             }),
             component: <Invoices />,
