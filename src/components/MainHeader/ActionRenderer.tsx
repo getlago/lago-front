@@ -3,6 +3,7 @@ import { FC } from 'react'
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
+import { Tooltip } from '~/components/designSystem/Tooltip'
 import { MenuPopper } from '~/styles'
 
 import { ACTIONS_BLOCK_TEST_ID } from './mainHeaderTestIds'
@@ -50,19 +51,32 @@ const ActionItem: FC<{ action: MainHeaderAction }> = ({ action }) => {
         >
           {({ closePopper }) => (
             <MenuPopper>
-              {visibleItems.map((item) => (
-                <Button
-                  key={item.label}
-                  variant="quaternary"
-                  align="left"
-                  disabled={item.disabled}
-                  danger={item.danger}
-                  onClick={() => item.onClick(closePopper)}
-                  data-test={item.dataTest}
-                >
-                  {item.label}
-                </Button>
-              ))}
+              {visibleItems.map((item) => {
+                const button = (
+                  <Button
+                    key={item.label}
+                    variant="quaternary"
+                    align="left"
+                    disabled={item.disabled}
+                    danger={item.danger}
+                    endIcon={item.endIcon}
+                    onClick={() => item.onClick(closePopper)}
+                    data-test={item.dataTest}
+                  >
+                    {item.label}
+                  </Button>
+                )
+
+                if (item.tooltip) {
+                  return (
+                    <Tooltip key={item.label} placement="left" title={item.tooltip}>
+                      {button}
+                    </Tooltip>
+                  )
+                }
+
+                return button
+              })}
             </MenuPopper>
           )}
         </Popper>

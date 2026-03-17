@@ -2,12 +2,13 @@ import { gql } from '@apollo/client'
 import { useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { Button } from '~/components/designSystem/Button'
 import {
+  AvailableFiltersEnum,
+  AvailableQuickFilters,
+  Filters,
   formatFiltersForInvoiceQuery,
   isOutstandingUrlParams,
 } from '~/components/designSystem/Filters'
-import { Typography } from '~/components/designSystem/Typography'
 import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
 import {
   UpdateInvoicePaymentStatusDialog,
@@ -19,6 +20,7 @@ import {
 } from '~/components/invoices/FinalizeInvoiceDialog'
 import InvoicesList from '~/components/invoices/InvoicesList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -30,6 +32,7 @@ import {
   InvoiceListItemFragmentDoc,
   InvoiceStatusTypeEnum,
   LagoApiError,
+  PremiumIntegrationTypeEnum,
   useCreateInvoicesDataExportMutation,
   useGetInvoicesListLazyQuery,
   useRetryAllInvoicePaymentsMutation,
@@ -38,7 +41,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { PageHeader } from '~/styles'
 
 gql`
   query getInvoicesList(
@@ -139,9 +141,13 @@ const formatAmountCurrency = (
 const InvoicesPage = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { organization } = useOrganizationInfos()
+  const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
   const [searchParams] = useSearchParams()
   const amountCurrency = organization?.defaultCurrency
+
+  const hasAccessToRevenueShare = hasOrganizationPremiumAddon(
+    PremiumIntegrationTypeEnum.RevenueShare,
+  )
 
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
@@ -220,44 +226,72 @@ const InvoicesPage = () => {
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_63ac86d797f728a87b2f9f85')}
-        </Typography>
+      <MainHeader.Configure
+        entity={{ viewName: translate('text_63ac86d797f728a87b2f9f85') }}
+        actions={[
+          {
+            type: 'action' as const,
+            label: translate('text_66b21236c939426d07ff98ca'),
+            variant: 'secondary' as const,
+            disabled: !invoicesTotalCount,
+            onClick: () => {
+              exportInvoicesDialogRef.current?.openDialog()
+            },
+          },
+          ...(isOutstandingUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX }) &&
+          hasPermissions(['invoicesSend'])
+            ? [
+                {
+                  type: 'action' as const,
+                  label: translate('text_63ac86d797f728a87b2f9fc4'),
+                  variant: 'primary' as const,
+                  disabled: !invoicesTotalCount,
+                  onClick: async () => {
+                    const { errors } = await retryAll({ variables: { input: {} } })
 
-        <PageHeader.Group>
-          <SearchInput
-            onChange={invoiceDebounceSearch}
-            placeholder={translate('text_63c68131568d582a38233e84')}
-          />
-          <Button
-            variant="secondary"
-            disabled={!invoicesTotalCount}
-            onClick={exportInvoicesDialogRef.current?.openDialog}
+                    if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
+                      addToast({
+                        severity: 'info',
+                        translateKey: 'text_63b6d06df1a53b7e2ad973ad',
+                      })
+                    }
+                  },
+                },
+              ]
+            : []),
+        ]}
+        filtersSection={
+          <Filters.Provider
+            filtersNamePrefix={INVOICE_LIST_FILTER_PREFIX}
+            quickFiltersType={AvailableQuickFilters.invoiceStatus}
+            availableFilters={[
+              AvailableFiltersEnum.amount,
+              AvailableFiltersEnum.billingEntityIds,
+              AvailableFiltersEnum.status,
+              AvailableFiltersEnum.invoiceType,
+              AvailableFiltersEnum.paymentStatus,
+              AvailableFiltersEnum.currency,
+              AvailableFiltersEnum.issuingDate,
+              AvailableFiltersEnum.customerExternalId,
+              AvailableFiltersEnum.paymentDisputeLost,
+              AvailableFiltersEnum.paymentOverdue,
+              AvailableFiltersEnum.settlementType,
+              ...(hasAccessToRevenueShare ? [AvailableFiltersEnum.selfBilled] : []),
+            ]}
           >
-            {translate('text_66b21236c939426d07ff98ca')}
-          </Button>
-
-          {isOutstandingUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX }) &&
-            hasPermissions(['invoicesSend']) && (
-              <Button
-                disabled={!invoicesTotalCount}
-                onClick={async () => {
-                  const { errors } = await retryAll({ variables: { input: {} } })
-
-                  if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
-                    addToast({
-                      severity: 'info',
-                      translateKey: 'text_63b6d06df1a53b7e2ad973ad',
-                    })
-                  }
-                }}
-              >
-                {translate('text_63ac86d797f728a87b2f9fc4')}
-              </Button>
-            )}
-        </PageHeader.Group>
-      </PageHeader.Wrapper>
+            <div className="flex flex-col gap-4">
+              <Filters.QuickFilters />
+              <div className="flex flex-col gap-3 md:flex-row md:items-center">
+                <SearchInput
+                  onChange={invoiceDebounceSearch}
+                  placeholder={translate('text_63c68131568d582a38233e84')}
+                />
+                <Filters.Component />
+              </div>
+            </div>
+          </Filters.Provider>
+        }
+      />
 
       <InvoicesList
         error={error}

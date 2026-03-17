@@ -34,6 +34,8 @@ export interface MainHeaderDropdownItem {
   hidden?: boolean
   danger?: boolean
   dataTest?: string
+  endIcon?: IconName
+  tooltip?: string
 }
 
 /** Grey/inline button that performs an action in the current view */
@@ -52,7 +54,7 @@ export type MainHeaderAction = MainHeaderDropdownAction | MainHeaderInPageAction
 
 // ─── Entity config ──────────────────────────────────────────────
 
-export type MainHeaderBadge = Pick<StatusProps, 'type' | 'label' | 'labelVariables'>
+export type MainHeaderBadge = Pick<StatusProps, 'type' | 'label' | 'labelVariables' | 'endIcon'>
 
 export interface MainHeaderEntityConfig {
   /** Display name — rendered as headline Typography */
