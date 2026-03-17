@@ -98,7 +98,9 @@
   /* Inline code */
   code {
     @apply rounded bg-grey-100 px-1 py-0.5 text-sm leading-6;
-    font-family: IBM Plex Mono, monospace;
+    font-family:
+      IBM Plex Mono,
+      monospace;
   }
 
   /* Code block */
@@ -193,5 +195,23 @@
 
   .link-card__url {
     @apply truncate text-xs text-grey-500;
+  }
+
+  /* Template selector */
+  .template-list {
+    @apply flex flex-col;
+  }
+
+  .template-item {
+    @apply flex cursor-pointer items-center gap-2 rounded px-1 py-0.5 text-left transition-colors hover:bg-grey-100;
+  }
+
+  .template-item__icon {
+    @apply h-4 w-4 shrink-0 text-grey-400;
+  }
+
+  .template-item__name {
+    @apply text-base leading-6 text-grey-400;
+    letter-spacing: -0.16px;
   }
 }
