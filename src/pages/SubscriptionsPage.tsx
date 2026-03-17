@@ -129,7 +129,7 @@ const SubscriptionsPage = () => {
             filtersNamePrefix={SUBSCRIPTION_LIST_FILTER_PREFIX}
             availableFilters={SubscriptionAvailableFilters}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center">
               <SearchInput
                 onChange={debouncedSearch}
                 placeholder={translate('text_1751378926655m4bfald61u4')}

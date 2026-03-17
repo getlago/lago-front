@@ -3,25 +3,29 @@ import { useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
-import { Button } from '~/components/designSystem/Button'
-import { formatFiltersForCreditNotesQuery } from '~/components/designSystem/Filters'
-import { Typography } from '~/components/designSystem/Typography'
+import {
+  AvailableFiltersEnum,
+  Filters,
+  formatFiltersForCreditNotesQuery,
+} from '~/components/designSystem/Filters'
 import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast } from '~/core/apolloClient'
+import { CREDIT_NOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreditNoteExportTypeEnum,
   CreditNotesForTableFragmentDoc,
   CreditNoteTableItemFragmentDoc,
   CurrencyEnum,
+  PremiumIntegrationTypeEnum,
   useCreateCreditNotesDataExportMutation,
   useGetCreditNotesListLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { PageHeader } from '~/styles'
 
 gql`
   query getCreditNotesList(
@@ -103,9 +107,12 @@ const formatAmountCurrency = (
 const CreditNotesPage = () => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
-  const { organization } = useOrganizationInfos()
+  const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
 
   const amountCurrency = organization?.defaultCurrency
+  const hasAccessToRevenueShare = hasOrganizationPremiumAddon(
+    PremiumIntegrationTypeEnum.RevenueShare,
+  )
 
   const exportCreditNotesDialogRef = useRef<ExportDialogRef>(null)
 
@@ -168,25 +175,46 @@ const CreditNotesPage = () => {
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_66461ada56a84401188e8c63')}
-        </Typography>
-
-        <PageHeader.Group>
-          <SearchInput
-            onChange={creditNoteDebounceSearch}
-            placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
-          />
-          <Button
-            variant="secondary"
-            disabled={!dataCreditNotes?.creditNotes?.metadata.totalCount}
-            onClick={exportCreditNotesDialogRef.current?.openDialog}
+      <MainHeader.Configure
+        entity={{ viewName: translate('text_66461ada56a84401188e8c63') }}
+        actions={[
+          {
+            type: 'action' as const,
+            label: translate('text_1773761094529kr57s3qq8j3'),
+            variant: 'secondary' as const,
+            disabled: !dataCreditNotes?.creditNotes?.metadata.totalCount,
+            onClick: () => {
+              exportCreditNotesDialogRef.current?.openDialog()
+            },
+          },
+        ]}
+        filtersSection={
+          <Filters.Provider
+            filtersNamePrefix={CREDIT_NOTE_LIST_FILTER_PREFIX}
+            availableFilters={[
+              AvailableFiltersEnum.amount,
+              AvailableFiltersEnum.billingEntityIds,
+              AvailableFiltersEnum.creditNoteCreditStatus,
+              AvailableFiltersEnum.creditNoteType,
+              AvailableFiltersEnum.currency,
+              AvailableFiltersEnum.customerExternalId,
+              AvailableFiltersEnum.invoiceNumber,
+              AvailableFiltersEnum.issuingDate,
+              AvailableFiltersEnum.creditNoteReason,
+              AvailableFiltersEnum.creditNoteRefundStatus,
+              ...(hasAccessToRevenueShare ? [AvailableFiltersEnum.selfBilled] : []),
+            ]}
           >
-            {translate('text_66b21236c939426d07ff98ca')}
-          </Button>
-        </PageHeader.Group>
-      </PageHeader.Wrapper>
+            <div className="flex flex-col gap-3 md:flex-row md:items-center">
+              <SearchInput
+                onChange={creditNoteDebounceSearch}
+                placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
+              />
+              <Filters.Component />
+            </div>
+          </Filters.Provider>
+        }
+      />
 
       <CreditNotesTable
         creditNotes={dataCreditNotes?.creditNotes?.collection}

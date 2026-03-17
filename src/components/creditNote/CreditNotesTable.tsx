@@ -7,14 +7,12 @@ import {
   VoidCreditNoteDialog,
   VoidCreditNoteDialogRef,
 } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
-import { AvailableFiltersEnum, Filters } from '~/components/designSystem/Filters'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table, TableColumn, TableContainerSize } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { buildCreditNoteDocumentData } from '~/components/emails/buildDocumentData'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
-import { CREDIT_NOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -26,16 +24,13 @@ import {
   CreditNoteForVoidCreditNoteDialogFragmentDoc,
   CreditNoteTableItemFragment,
   GetCreditNotesListQuery,
-  PremiumIntegrationTypeEnum,
   TimezoneEnum,
   useDownloadCreditNoteMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
-import { tw } from '~/styles/utils'
 
 const { disablePdfGeneration } = envGlobalVar()
 
@@ -114,8 +109,6 @@ type TCreditNoteTableProps = {
   variables: LazyQueryHookOptions['variables'] | undefined
   customerTimezone?: TimezoneEnum
   tableContainerSize?: ResponsiveStyleValue<TableContainerSize>
-  showFilters?: boolean
-  filtersContainerClassName?: string
 }
 
 const CreditNotesTable = ({
@@ -127,20 +120,14 @@ const CreditNotesTable = ({
   customerTimezone,
   error,
   tableContainerSize,
-  showFilters = true,
-  filtersContainerClassName,
 }: TCreditNoteTableProps) => {
   const { translate } = useInternationalization()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
-  const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const { hasPermissions } = usePermissions()
   const { showResendEmailDialog } = useResendEmailDialog()
 
   const { handleDownloadFile } = useDownloadFile()
 
-  const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
-    PremiumIntegrationTypeEnum.RevenueShare,
-  )
   const [downloadCreditNote, { loading: loadingCreditNoteDownload }] =
     useDownloadCreditNoteMutation({
       onCompleted({ downloadCreditNote: data }) {
@@ -151,35 +138,7 @@ const CreditNotesTable = ({
   const showCustomerName = !customerTimezone
 
   return (
-    <div className="overflow-y-auto">
-      {showFilters && (
-        <div
-          className={tw(
-            'box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3',
-            filtersContainerClassName,
-          )}
-        >
-          <Filters.Provider
-            filtersNamePrefix={CREDIT_NOTE_LIST_FILTER_PREFIX}
-            availableFilters={[
-              AvailableFiltersEnum.amount,
-              AvailableFiltersEnum.billingEntityIds,
-              AvailableFiltersEnum.creditNoteCreditStatus,
-              AvailableFiltersEnum.creditNoteType,
-              AvailableFiltersEnum.currency,
-              AvailableFiltersEnum.customerExternalId,
-              AvailableFiltersEnum.invoiceNumber,
-              AvailableFiltersEnum.issuingDate,
-              AvailableFiltersEnum.creditNoteReason,
-              AvailableFiltersEnum.creditNoteRefundStatus,
-              ...(hasAccessToRevenueShare ? [AvailableFiltersEnum.selfBilled] : []),
-            ]}
-          >
-            <Filters.Component />
-          </Filters.Provider>
-        </div>
-      )}
-
+    <div className="border-t border-grey-300">
       <InfiniteScroll
         onBottom={() => {
           const { currentPage = 0, totalPages = 0 } = metadata || {}
