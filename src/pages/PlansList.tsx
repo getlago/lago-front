@@ -93,17 +93,14 @@ const PlansList = () => {
       <MainHeader.Configure
         entity={{ viewName: translate('text_62442e40cea25600b0b6d84a') }}
         actions={[
-          ...(canCreatePlans
-            ? [
-                {
-                  type: 'action' as const,
-                  label: translate('text_62442e40cea25600b0b6d84c'),
-                  variant: 'primary' as const,
-                  onClick: () => navigate(CREATE_PLAN_ROUTE),
-                  dataTest: 'create-plan',
-                },
-              ]
-            : []),
+          {
+            type: 'action',
+            label: translate('text_62442e40cea25600b0b6d84c'),
+            variant: 'primary',
+            hidden: !canCreatePlans,
+            onClick: () => navigate(CREATE_PLAN_ROUTE),
+            dataTest: 'create-plan',
+          },
         ]}
         filtersSection={
           <SearchInput

@@ -4,11 +4,6 @@ import { useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
-import {
-  AvailableFiltersEnum,
-  AvailableQuickFilters,
-  Filters,
-} from '~/components/designSystem/Filters'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Status, StatusType } from '~/components/designSystem/Status'
@@ -34,7 +29,6 @@ import { getMostRecentPaymentMethodId } from '~/components/invoices/utils/getMos
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import {
   invoiceStatusMapping,
   isInvoicePartiallyPaid,
@@ -61,7 +55,6 @@ import {
   Invoice,
   InvoiceStatusTypeEnum,
   LagoApiError,
-  PremiumIntegrationTypeEnum,
   useDownloadInvoiceItemMutation,
   useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
@@ -97,14 +90,11 @@ const InvoicesList = ({
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const actions = usePermissionsInvoiceActions()
-  const { hasFeatureFlag, organization: { premiumIntegrations } = {} } = useOrganizationInfos()
+  const { hasFeatureFlag } = useOrganizationInfos()
   const { showResendEmailDialog } = useResendEmailDialog()
 
   const { handleDownloadFile } = useDownloadFile()
 
-  const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
-    PremiumIntegrationTypeEnum.RevenueShare,
-  )
   const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
@@ -383,31 +373,7 @@ const InvoicesList = ({
   }
 
   return (
-    <>
-      <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
-        <Filters.Provider
-          filtersNamePrefix={INVOICE_LIST_FILTER_PREFIX}
-          quickFiltersType={AvailableQuickFilters.invoiceStatus}
-          availableFilters={[
-            AvailableFiltersEnum.amount,
-            AvailableFiltersEnum.billingEntityIds,
-            AvailableFiltersEnum.status,
-            AvailableFiltersEnum.invoiceType,
-            AvailableFiltersEnum.paymentStatus,
-            AvailableFiltersEnum.currency,
-            AvailableFiltersEnum.issuingDate,
-            AvailableFiltersEnum.customerExternalId,
-            AvailableFiltersEnum.paymentDisputeLost,
-            AvailableFiltersEnum.paymentOverdue,
-            AvailableFiltersEnum.settlementType,
-            ...(hasAccessToRevenueShare ? [AvailableFiltersEnum.selfBilled] : []),
-          ]}
-        >
-          <Filters.QuickFilters />
-          <Filters.Component />
-        </Filters.Provider>
-      </div>
-
+    <div className="border-t border-grey-300">
       <InfiniteScroll
         onBottom={() => {
           const { currentPage = 0, totalPages = 0 } = metadata || {}
@@ -632,7 +598,7 @@ const InvoicesList = ({
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
-    </>
+    </div>
   )
 }
 

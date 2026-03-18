@@ -71,17 +71,14 @@ const BillableMetricsList = () => {
       <MainHeader.Configure
         entity={{ viewName: translate('text_623b497ad05b960101be3438') }}
         actions={[
-          ...(hasPermissions(['billableMetricsCreate'])
-            ? [
-                {
-                  type: 'action' as const,
-                  label: translate('text_623b497ad05b960101be343a'),
-                  variant: 'primary' as const,
-                  onClick: () => navigate(CREATE_BILLABLE_METRIC_ROUTE),
-                  dataTest: 'create-bm',
-                },
-              ]
-            : []),
+          {
+            type: 'action',
+            label: translate('text_623b497ad05b960101be343a'),
+            variant: 'primary',
+            hidden: !hasPermissions(['billableMetricsCreate']),
+            onClick: () => navigate(CREATE_BILLABLE_METRIC_ROUTE),
+            dataTest: 'create-bm',
+          },
         ]}
         filtersSection={
           <SearchInput

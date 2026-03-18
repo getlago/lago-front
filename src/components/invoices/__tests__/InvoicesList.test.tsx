@@ -712,16 +712,6 @@ describe('InvoicesList', () => {
     })
   })
 
-  describe('Filters', () => {
-    it('renders filters component', async () => {
-      await renderInvoicesList()
-
-      // Filters quick filter buttons should be present
-      // The quick filters render buttons for different invoice statuses
-      expect(screen.getByText('text_63ac86d797f728a87b2f9f8b')).toBeInTheDocument() // "All" filter
-    })
-  })
-
   describe('Empty States', () => {
     it('renders correct empty state title when no search term', async () => {
       await renderInvoicesList({

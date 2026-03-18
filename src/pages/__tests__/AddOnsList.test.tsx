@@ -102,7 +102,11 @@ describe('AddOnsList', () => {
 
         expect(mockMainHeaderConfigure).toHaveBeenCalledWith(
           expect.objectContaining({
-            actions: [],
+            actions: expect.arrayContaining([
+              expect.objectContaining({
+                hidden: true,
+              }),
+            ]),
           }),
         )
       })

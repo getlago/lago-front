@@ -162,6 +162,58 @@ describe('ActionsBlock', () => {
     })
   })
 
+  describe('GIVEN a hidden top-level action', () => {
+    const actions: MainHeaderAction[] = [
+      {
+        type: 'action',
+        label: 'Visible',
+        onClick: jest.fn(),
+        dataTest: 'visible-button',
+      },
+      {
+        type: 'action',
+        label: 'Hidden',
+        onClick: jest.fn(),
+        hidden: true,
+        dataTest: 'hidden-button',
+      },
+    ]
+
+    describe('WHEN the component renders', () => {
+      it('THEN should display the visible action and hide the hidden one', () => {
+        render(<ActionsBlock actions={actions} />)
+
+        expect(screen.getByTestId('visible-button')).toBeInTheDocument()
+        expect(screen.queryByTestId('hidden-button')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN all top-level actions are hidden', () => {
+    const actions: MainHeaderAction[] = [
+      {
+        type: 'action',
+        label: 'Hidden 1',
+        onClick: jest.fn(),
+        hidden: true,
+      },
+      {
+        type: 'action',
+        label: 'Hidden 2',
+        onClick: jest.fn(),
+        hidden: true,
+      },
+    ]
+
+    describe('WHEN the component renders', () => {
+      it('THEN should render nothing', () => {
+        const { container } = render(<ActionsBlock actions={actions} />)
+
+        expect(container.innerHTML).toBe('')
+      })
+    })
+  })
+
   describe('GIVEN a dropdown where all items are hidden', () => {
     const actions: MainHeaderAction[] = [
       {
@@ -175,11 +227,10 @@ describe('ActionsBlock', () => {
     ]
 
     describe('WHEN the component renders', () => {
-      it('THEN should render nothing for that action', () => {
+      it('THEN should render nothing', () => {
         const { container } = render(<ActionsBlock actions={actions} />)
 
-        // The dropdown with all hidden items returns null, but the container div still renders
-        expect(container.querySelector('[data-test="actions-block"]')).toBeInTheDocument()
+        expect(container.innerHTML).toBe('')
       })
     })
   })
@@ -209,6 +260,124 @@ describe('ActionsBlock', () => {
         render(<ActionsBlock actions={actions} />)
 
         expect(screen.getByTestId(testId)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN an action with endIcon', () => {
+    const actions: MainHeaderAction[] = [
+      {
+        type: 'action',
+        label: 'Premium Action',
+        onClick: jest.fn(),
+        endIcon: 'sparkles',
+        dataTest: 'premium-button',
+      },
+    ]
+
+    describe('WHEN the component renders', () => {
+      it('THEN should render the button with the correct data-test', () => {
+        render(<ActionsBlock actions={actions} />)
+
+        expect(screen.getByTestId('premium-button')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a dropdown item with endIcon', () => {
+    const actions: MainHeaderAction[] = [
+      {
+        type: 'dropdown',
+        label: 'Actions',
+        dataTest: 'dropdown-endicon',
+        items: [
+          {
+            label: 'Premium item',
+            onClick: jest.fn(),
+            endIcon: 'sparkles',
+            dataTest: 'premium-item',
+          },
+        ],
+      },
+    ]
+
+    describe('WHEN the dropdown is opened', () => {
+      it('THEN should display the dropdown item', async () => {
+        const user = userEvent.setup()
+
+        render(<ActionsBlock actions={actions} />)
+
+        await user.click(screen.getByTestId('dropdown-endicon'))
+
+        expect(screen.getByTestId('premium-item')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a dropdown item with tooltip', () => {
+    const actions: MainHeaderAction[] = [
+      {
+        type: 'dropdown',
+        label: 'Actions',
+        dataTest: 'dropdown-tooltip',
+        items: [
+          {
+            label: 'Disabled item',
+            onClick: jest.fn(),
+            disabled: true,
+            tooltip: 'This action is not available',
+            dataTest: 'tooltip-item',
+          },
+        ],
+      },
+    ]
+
+    describe('WHEN the dropdown is opened', () => {
+      it('THEN should display the disabled dropdown item', async () => {
+        const user = userEvent.setup()
+
+        render(<ActionsBlock actions={actions} />)
+
+        await user.click(screen.getByTestId('dropdown-tooltip'))
+
+        expect(screen.getByTestId('tooltip-item')).toBeInTheDocument()
+        expect(screen.getByTestId('tooltip-item')).toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN a dropdown with mixed items (tooltip and no tooltip)', () => {
+    const actions: MainHeaderAction[] = [
+      {
+        type: 'dropdown',
+        label: 'Actions',
+        dataTest: 'dropdown-mixed',
+        items: [
+          {
+            label: 'Normal item',
+            onClick: jest.fn(),
+            dataTest: 'normal-item',
+          },
+          {
+            label: 'Tooltip item',
+            onClick: jest.fn(),
+            tooltip: 'Some help text',
+            dataTest: 'item-with-tooltip',
+          },
+        ],
+      },
+    ]
+
+    describe('WHEN the dropdown is opened', () => {
+      it('THEN should display both items', async () => {
+        const user = userEvent.setup()
+
+        render(<ActionsBlock actions={actions} />)
+
+        await user.click(screen.getByTestId('dropdown-mixed'))
+
+        expect(screen.getByTestId('normal-item')).toBeInTheDocument()
+        expect(screen.getByTestId('item-with-tooltip')).toBeInTheDocument()
       })
     })
   })

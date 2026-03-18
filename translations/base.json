@@ -1141,7 +1141,7 @@
   "text_66b21236c939426d07ff993d": "Advanced - Fees information of invoices",
   "text_66b21236c939426d07ff993e": "Export detailed breakdown of all fees for each invoice.",
   "text_66b21236c939426d07ff9940": "Generate export",
-  "text_66b21236c939426d07ff98ca": "Export",
+  "text_66b21236c939426d07ff98ca": "Export invoices",
   "text_66b323b63e76c400f78cd342": "Export generation in progress.\nPlease check your inbox.",
   "text_65a6b4e3cb38d9b70ec54092": "Edit fee",
   "text_65a6b4e2cb38d9b70ec53c25": "Edit {{name}}",
@@ -3914,5 +3914,6 @@
   "text_1772037888232uwswdk5tahg": "No security logs with the current filters",
   "text_1772037888232iziwtsooe9f": "Try updating your filtering options or remove them completely",
   "text_17730476805600nudrokzkk5": "Security Logs",
-  "text_1773415705134l01iamqr6fk": "{{email}} successfully logged in using a new device"
+  "text_1773415705134l01iamqr6fk": "{{email}} successfully logged in using a new device",
+  "text_1773761094529kr57s3qq8j3": "Export credit notes"
 }

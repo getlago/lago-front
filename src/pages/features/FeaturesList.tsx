@@ -111,16 +111,13 @@ const FeaturesList = () => {
       <MainHeader.Configure
         entity={{ viewName: translate('text_1752692673070k7z0mmf0494') }}
         actions={[
-          ...(hasPermissions(['featuresCreate'])
-            ? [
-                {
-                  type: 'action' as const,
-                  label: translate('text_1752693359315fi592i0bpyz'),
-                  variant: 'primary' as const,
-                  onClick: () => navigate(CREATE_FEATURE_ROUTE),
-                },
-              ]
-            : []),
+          {
+            type: 'action',
+            label: translate('text_1752693359315fi592i0bpyz'),
+            variant: 'primary',
+            hidden: !hasPermissions(['featuresCreate']),
+            onClick: () => navigate(CREATE_FEATURE_ROUTE),
+          },
         ]}
         filtersSection={
           <SearchInput

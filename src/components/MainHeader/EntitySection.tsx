@@ -54,6 +54,7 @@ export const EntitySection: FC<{ entity?: MainHeaderEntityConfig; isLoading?: bo
               type={badge.type}
               label={badge.label}
               labelVariables={badge.labelVariables}
+              endIcon={badge.endIcon}
             />
           ))}
         </div>

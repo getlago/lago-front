@@ -41,7 +41,7 @@ export function useCustomersListHeaderFilters({
     >
       <div className="flex flex-col gap-4">
         <Filters.QuickFilters />
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center">
           <SearchInput
             onChange={debouncedSearch}
             placeholder={translate('text_63befc65efcd9374da45b801')}

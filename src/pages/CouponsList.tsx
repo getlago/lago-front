@@ -113,17 +113,14 @@ const CouponsList = () => {
       <MainHeader.Configure
         entity={{ viewName: translate('text_62865498824cc10126ab2956') }}
         actions={[
-          ...(canCreateCoupons
-            ? [
-                {
-                  type: 'action' as const,
-                  label: translate('text_62865498824cc10126ab2954'),
-                  variant: 'primary' as const,
-                  onClick: () => navigate(CREATE_COUPON_ROUTE),
-                  dataTest: 'add-coupon',
-                },
-              ]
-            : []),
+          {
+            type: 'action',
+            label: translate('text_62865498824cc10126ab2954'),
+            variant: 'primary',
+            hidden: !canCreateCoupons,
+            onClick: () => navigate(CREATE_COUPON_ROUTE),
+            dataTest: 'add-coupon',
+          },
         ]}
         filtersSection={
           <SearchInput
