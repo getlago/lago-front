@@ -2,9 +2,14 @@ import { screen } from '@testing-library/react'
 
 import { MainHeaderConfig } from '~/components/MainHeader/types'
 import { addToast } from '~/core/apolloClient'
+import {
+  CREATE_INVOICE_PAYMENT_ROUTE,
+  CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
+  CUSTOMER_INVOICE_VOID_ROUTE,
+} from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { CurrencyEnum, InvoiceStatusTypeEnum, InvoiceTaxStatusTypeEnum } from '~/generated/graphql'
-import { render } from '~/test-utils'
+import { render, testMockNavigateFn } from '~/test-utils'
 
 import CustomerInvoiceDetails from '../CustomerInvoiceDetails'
 
@@ -133,24 +138,48 @@ const mockSyncIntegrationInvoice = jest.fn()
 const mockSyncHubspotIntegrationInvoice = jest.fn()
 const mockSyncSalesforceIntegrationInvoice = jest.fn()
 
+const mockUseIntegrationsListQuery = jest.fn().mockReturnValue({ data: null })
+
+// Capture mutation options to test onError/onCompleted callbacks
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockMutationOptions: Record<string, any> = {}
+
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useGetInvoiceDetailsQuery: () => mockUseGetInvoiceDetailsQuery(),
   useGetInvoiceFeesQuery: () => mockUseGetInvoiceFeesQuery(),
   useGetInvoiceCustomerQuery: () => mockUseGetInvoiceCustomerQuery(),
-  useIntegrationsListForCustomerInvoiceDetailsQuery: () => ({ data: null }),
-  useRefreshInvoiceMutation: () => [mockRefreshInvoice, { loading: false }],
-  useRetryInvoiceMutation: () => [mockRetryInvoice, { loading: false }],
-  useRetryTaxProviderVoidingMutation: () => [mockRetryTaxProviderVoiding, { loading: false }],
-  useSyncIntegrationInvoiceMutation: () => [mockSyncIntegrationInvoice, { loading: false }],
-  useSyncHubspotIntegrationInvoiceMutation: () => [
-    mockSyncHubspotIntegrationInvoice,
-    { loading: false },
-  ],
-  useSyncSalesforceInvoiceMutation: () => [
-    mockSyncSalesforceIntegrationInvoice,
-    { loading: false },
-  ],
+  useIntegrationsListForCustomerInvoiceDetailsQuery: () => mockUseIntegrationsListQuery(),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  useRefreshInvoiceMutation: (options: any) => {
+    mockMutationOptions.refreshInvoice = options || {}
+    return [mockRefreshInvoice, { loading: false }]
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  useRetryInvoiceMutation: (options: any) => {
+    mockMutationOptions.retryInvoice = options || {}
+    return [mockRetryInvoice, { loading: false }]
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  useRetryTaxProviderVoidingMutation: (options: any) => {
+    mockMutationOptions.retryTaxProviderVoiding = options || {}
+    return [mockRetryTaxProviderVoiding, { loading: false }]
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  useSyncIntegrationInvoiceMutation: (options: any) => {
+    mockMutationOptions.syncIntegration = options || {}
+    return [mockSyncIntegrationInvoice, { loading: false }]
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  useSyncHubspotIntegrationInvoiceMutation: (options: any) => {
+    mockMutationOptions.syncHubspot = options || {}
+    return [mockSyncHubspotIntegrationInvoice, { loading: false }]
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  useSyncSalesforceInvoiceMutation: (options: any) => {
+    mockMutationOptions.syncSalesforce = options || {}
+    return [mockSyncSalesforceIntegrationInvoice, { loading: false }]
+  },
 }))
 
 const mockDownloadInvoice = jest.fn()
@@ -246,6 +275,8 @@ describe('CustomerInvoiceDetails', () => {
     mockHasPermissions.mockReturnValue(true)
     mockUseCurrentUser.mockReturnValue({ isPremium: true })
     mockUseInvoiceAuthorizations.mockReturnValue(mockDefaultAuthorizationsReturn)
+    mockUseIntegrationsListQuery.mockReturnValue({ data: null })
+    Object.keys(mockMutationOptions).forEach((key) => delete mockMutationOptions[key])
 
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
@@ -645,6 +676,314 @@ describe('CustomerInvoiceDetails', () => {
         render(<CustomerInvoiceDetails />)
 
         expect(screen.getByTestId('active-tab-content')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN all dropdown action items', () => {
+    describe('WHEN each onClick handler is invoked', () => {
+      it('THEN all items should call closePopper', async () => {
+        render(<CustomerInvoiceDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          for (const item of dropdownAction.items) {
+            const mockClose = jest.fn()
+
+            await item.onClick(mockClose)
+            expect(mockClose).toHaveBeenCalled()
+          }
+        }
+      })
+    })
+
+    describe('WHEN the void item is clicked', () => {
+      it('THEN should navigate to the void invoice route', async () => {
+        render(<CustomerInvoiceDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          // Void is item 16 (0-indexed in items array)
+          const mockClose = jest.fn()
+
+          await dropdownAction.items[16].onClick(mockClose)
+
+          expect(testMockNavigateFn).toHaveBeenCalledWith(
+            CUSTOMER_INVOICE_VOID_ROUTE.replace(':customerId', 'customer-123').replace(
+              ':invoiceId',
+              'invoice-123',
+            ),
+          )
+        }
+      })
+    })
+
+    describe('WHEN the credit note item is clicked as a premium user', () => {
+      it('THEN should navigate to the credit note route', async () => {
+        render(<CustomerInvoiceDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          const mockClose = jest.fn()
+
+          // Credit note is item 7
+          await dropdownAction.items[7].onClick(mockClose)
+
+          expect(testMockNavigateFn).toHaveBeenCalledWith(
+            CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE.replace(
+              ':customerId',
+              'customer-123',
+            ).replace(':invoiceId', 'invoice-123'),
+          )
+        }
+      })
+    })
+
+    describe('WHEN the record payment item is clicked as a premium user', () => {
+      it('THEN should navigate to the create payment route', async () => {
+        render(<CustomerInvoiceDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          const mockClose = jest.fn()
+
+          // Record payment is item 8
+          await dropdownAction.items[8].onClick(mockClose)
+
+          expect(testMockNavigateFn).toHaveBeenCalledWith(
+            CREATE_INVOICE_PAYMENT_ROUTE.replace(':invoiceId', 'invoice-123'),
+          )
+        }
+      })
+    })
+  })
+
+  describe('GIVEN the user is not premium and clicks dropdown items', () => {
+    beforeEach(() => {
+      mockUseCurrentUser.mockReturnValue({ isPremium: false })
+    })
+
+    describe('WHEN the credit note item is clicked', () => {
+      it('THEN should not navigate to credit note route', async () => {
+        render(<CustomerInvoiceDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          const mockClose = jest.fn()
+
+          // Credit note is item 7 — non-premium opens premium warning instead
+          await dropdownAction.items[7].onClick(mockClose)
+
+          expect(testMockNavigateFn).not.toHaveBeenCalledWith(
+            expect.stringContaining('credit-note'),
+          )
+        }
+      })
+    })
+
+    describe('WHEN the record payment item is clicked', () => {
+      it('THEN should not navigate to payment route', async () => {
+        render(<CustomerInvoiceDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          const mockClose = jest.fn()
+
+          // Record payment is item 8 — non-premium opens premium warning
+          await dropdownAction.items[8].onClick(mockClose)
+
+          expect(testMockNavigateFn).not.toHaveBeenCalledWith(expect.stringContaining('payment'))
+        }
+      })
+    })
+  })
+
+  describe('GIVEN customer has integration connections', () => {
+    beforeEach(() => {
+      mockUseGetInvoiceCustomerQuery.mockReturnValue({
+        data: {
+          customer: {
+            ...mockCustomerData.customer,
+            netsuiteCustomer: {
+              id: 'ns-cust-1',
+              integrationId: 'ns-int-1',
+              externalCustomerId: 'ext-1',
+            },
+            hubspotCustomer: { id: 'hs-cust-1', integrationId: 'hs-int-1' },
+            salesforceCustomer: { id: 'sf-cust-1', integrationId: 'sf-int-1' },
+            avalaraCustomer: { id: 'av-cust-1', integrationId: 'av-int-1' },
+          },
+        },
+        loading: false,
+      })
+
+      mockUseIntegrationsListQuery.mockReturnValue({
+        data: {
+          integrations: {
+            collection: [
+              { __typename: 'NetsuiteIntegration', id: 'ns-int-1' },
+              { __typename: 'HubspotIntegration', id: 'hs-int-1' },
+              { __typename: 'SalesforceIntegration', id: 'sf-int-1' },
+              { __typename: 'AvalaraIntegration', id: 'av-int-1' },
+            ],
+          },
+        },
+      })
+    })
+
+    describe('WHEN the component renders', () => {
+      it('THEN should process integration data without error', () => {
+        render(<CustomerInvoiceDetails />)
+
+        // The component filters and finds integrations internally
+        // This test verifies the filter/find callbacks execute without error
+        expect(capturedConfig?.entity?.viewName).toBe('INV-001')
+      })
+    })
+
+    describe('WHEN all dropdown items are exercised with integrations', () => {
+      it('THEN all items should call closePopper', async () => {
+        // Enable sync authorization flags for integration-related items
+        mockUseInvoiceAuthorizations.mockReturnValue({
+          ...mockDefaultAuthorizationsReturn,
+          authorizations: {
+            ...mockDefaultAuthorizations,
+            canSyncAccountingIntegration: true,
+            canSyncCRMIntegration: true,
+          },
+        })
+
+        render(<CustomerInvoiceDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          for (const item of dropdownAction.items) {
+            const mockClose = jest.fn()
+
+            await item.onClick(mockClose)
+            expect(mockClose).toHaveBeenCalled()
+          }
+        }
+      })
+    })
+  })
+
+  describe('GIVEN mutation callbacks', () => {
+    describe('WHEN refreshInvoice encounters a tax error', () => {
+      it('THEN should show a danger toast', () => {
+        render(<CustomerInvoiceDetails />)
+
+        const onError = mockMutationOptions.refreshInvoice?.onError
+
+        expect(onError).toBeDefined()
+
+        onError?.({
+          graphQLErrors: [{ extensions: { details: { taxError: ['Tax calculation failed'] } } }],
+        })
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      })
+    })
+
+    describe('WHEN retryInvoice completes successfully', () => {
+      it('THEN should call refetch', async () => {
+        const mockRefetch = jest.fn()
+
+        mockUseGetInvoiceDetailsQuery.mockReturnValue({
+          data: mockInvoiceData,
+          loading: false,
+          error: null,
+          refetch: mockRefetch,
+        })
+
+        render(<CustomerInvoiceDetails />)
+
+        const onCompleted = mockMutationOptions.retryInvoice?.onCompleted
+
+        expect(onCompleted).toBeDefined()
+
+        await onCompleted?.({ retryInvoice: { id: 'invoice-123' } })
+
+        expect(mockRefetch).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN retryInvoice encounters a tax error', () => {
+      it('THEN should show a danger toast', () => {
+        render(<CustomerInvoiceDetails />)
+
+        const onError = mockMutationOptions.retryInvoice?.onError
+
+        expect(onError).toBeDefined()
+
+        onError?.({
+          graphQLErrors: [{ extensions: { details: { taxError: ['Tax error'] } } }],
+        })
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      })
+    })
+
+    describe('WHEN retryTaxProviderVoiding completes successfully', () => {
+      it('THEN should show a success toast', () => {
+        render(<CustomerInvoiceDetails />)
+
+        const onCompleted = mockMutationOptions.retryTaxProviderVoiding?.onCompleted
+
+        expect(onCompleted).toBeDefined()
+
+        onCompleted?.({ retryTaxProviderVoiding: { id: 'invoice-123' } })
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
+    })
+
+    describe('WHEN syncIntegrationInvoice completes successfully', () => {
+      it('THEN should show a success toast', () => {
+        render(<CustomerInvoiceDetails />)
+
+        const onCompleted = mockMutationOptions.syncIntegration?.onCompleted
+
+        expect(onCompleted).toBeDefined()
+
+        onCompleted?.({ syncIntegrationInvoice: { invoiceId: 'invoice-123' } })
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
+    })
+
+    describe('WHEN syncHubspotIntegrationInvoice completes successfully', () => {
+      it('THEN should show a success toast', () => {
+        render(<CustomerInvoiceDetails />)
+
+        const onCompleted = mockMutationOptions.syncHubspot?.onCompleted
+
+        expect(onCompleted).toBeDefined()
+
+        onCompleted?.({ syncHubspotIntegrationInvoice: { invoiceId: 'invoice-123' } })
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
+    })
+
+    describe('WHEN syncSalesforceInvoice completes successfully', () => {
+      it('THEN should show a success toast', () => {
+        render(<CustomerInvoiceDetails />)
+
+        const onCompleted = mockMutationOptions.syncSalesforce?.onCompleted
+
+        expect(onCompleted).toBeDefined()
+
+        onCompleted?.({ syncSalesforceInvoice: { invoiceId: 'invoice-123' } })
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
       })
     })
   })
