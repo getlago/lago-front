@@ -20,6 +20,7 @@ import { Markdown } from 'tiptap-markdown'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { downloadEditorPdf } from './downloadEditorPdf'
 import { LinkCard } from './extensions/LinkCard'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
 import { PlanBlock } from './extensions/PlanBlock'
@@ -47,6 +48,7 @@ interface RichTextEditorProps {
   content?: string
   templates?: EditorTemplate[]
   getMarkdownRef?: React.MutableRefObject<(() => string) | null>
+  downloadPdfRef?: React.MutableRefObject<(() => void) | null>
   onPlanBlocksChange?: (planIds: string[]) => void
 }
 
@@ -57,9 +59,11 @@ const RichTextEditor = ({
   content,
   templates,
   getMarkdownRef,
+  downloadPdfRef,
   onPlanBlocksChange,
 }: RichTextEditorProps) => {
   const { translate } = useInternationalization()
+  const editorWrapperRef = useRef<HTMLDivElement>(null)
   const onPlanBlocksChangeRef = useRef(onPlanBlocksChange)
   const [plans, setPlans] = useState<Record<string, EntityData>>(plansFromProps)
 
@@ -224,7 +228,9 @@ const RichTextEditor = ({
     },
   })
 
-  const isPreview = mode === 'preview'
+  const [modeOverride, setModeOverride] = useState<RichTextEditorMode | null>(null)
+  const activeMode = modeOverride ?? mode
+  const isPreview = activeMode === 'preview'
 
   useEffect(() => {
     if (editor) {
@@ -233,8 +239,8 @@ const RichTextEditor = ({
   }, [editor, isPreview])
 
   const contextValue = useMemo(
-    () => ({ mode, mentionValues, plans, setPlan }),
-    [mode, mentionValues, plans, setPlan],
+    () => ({ mode: activeMode, mentionValues, plans, setPlan }),
+    [activeMode, mentionValues, plans, setPlan],
   )
 
   useEffect(() => {
@@ -256,6 +262,39 @@ const RichTextEditor = ({
     }
   }, [editor, getMarkdownRef])
 
+  useEffect(() => {
+    if (!downloadPdfRef) return
+
+    downloadPdfRef.current = () => {
+      if (mode === 'preview') {
+        // Already in preview mode, capture directly
+        downloadEditorPdf(editorWrapperRef.current)
+      } else {
+        // Temporarily switch to preview so mentions resolve and plans render as tables
+        setModeOverride('preview')
+      }
+    }
+
+    return () => {
+      if (downloadPdfRef) {
+        downloadPdfRef.current = null
+      }
+    }
+  }, [downloadPdfRef, mode])
+
+  // When modeOverride is set to 'preview', wait for React to re-render,
+  // then capture the PDF and restore the original mode.
+  useEffect(() => {
+    if (modeOverride !== 'preview') return
+
+    const raf = requestAnimationFrame(() => {
+      downloadEditorPdf(editorWrapperRef.current)
+      setModeOverride(null)
+    })
+
+    return () => cancelAnimationFrame(raf)
+  }, [modeOverride])
+
   if (!editor) return null
 
   return (
@@ -263,6 +302,7 @@ const RichTextEditor = ({
       <div
         className="rich-text-editor relative h-full max-h-screen overflow-auto"
         data-test={RICH_TEXT_EDITOR_TEST_ID}
+        ref={editorWrapperRef}
       >
         {!isPreview && <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />}
         <div
