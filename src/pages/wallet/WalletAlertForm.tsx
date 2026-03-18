@@ -21,6 +21,7 @@ import {
   LagoApiError,
   ThresholdInput,
   useCreateWalletAlertMutation,
+  useGetWalletAlertsQuery,
   useGetWalletAlertToEditQuery,
   useGetWalletDetailsQuery,
   useUpdateWalletAlertMutation,
@@ -71,6 +72,13 @@ const WalletAlertForm = () => {
     skip: !walletId,
   })
 
+  const { data: existingAlertsData, loading: existingAlertsLoading } = useGetWalletAlertsQuery({
+    variables: {
+      walletId: walletId as string,
+    },
+    skip: !walletId,
+  })
+
   const {
     data: alertData,
     loading: alertLoading,
@@ -81,7 +89,11 @@ const WalletAlertForm = () => {
     context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
 
-  const isLoading = loading || alertLoading
+  const isLoading = loading || alertLoading || existingAlertsLoading
+
+  const existingAlertsTypes = useMemo(() => {
+    return existingAlertsData?.walletAlerts?.collection?.map((al) => al.alertType)
+  }, [existingAlertsData?.walletAlerts?.collection])
 
   const existingAlert = alertData?.walletAlert
   const currency = data?.wallet?.currency || CurrencyEnum.Usd
@@ -263,6 +275,32 @@ const WalletAlertForm = () => {
     formikProps.setFieldValue(`thresholds.${index}.${key}`, newValue)
   }
 
+  const defaultTypesData = useMemo(
+    () => [
+      {
+        label: translate('text_1773051593209b2tulsrwgoq'),
+        value: AlertTypeEnum.WalletCreditsBalance,
+      },
+      {
+        label: translate('text_1773051593209u4yacfcm339'),
+        value: AlertTypeEnum.WalletCreditsOngoingBalance,
+      },
+      {
+        label: translate('text_17730515932099j2rzezwwf0'),
+        value: AlertTypeEnum.WalletBalanceAmount,
+      },
+      {
+        label: translate('text_1773051593209gg3667wtxse'),
+        value: AlertTypeEnum.WalletOngoingBalanceAmount,
+      },
+    ],
+    [translate],
+  )
+
+  const comboboxData = useMemo(() => {
+    return defaultTypesData?.filter((item) => !existingAlertsTypes?.includes(item.value))
+  }, [defaultTypesData, existingAlertsTypes])
+
   return (
     <>
       <CenteredPage.Wrapper>
@@ -346,24 +384,7 @@ const WalletAlertForm = () => {
                       disabled={isEdition}
                       disableClearable={isEdition}
                       value={formikProps.values.alertType}
-                      data={[
-                        {
-                          label: translate('text_1773051593209b2tulsrwgoq'),
-                          value: AlertTypeEnum.WalletCreditsBalance,
-                        },
-                        {
-                          label: translate('text_1773051593209u4yacfcm339'),
-                          value: AlertTypeEnum.WalletCreditsOngoingBalance,
-                        },
-                        {
-                          label: translate('text_17730515932099j2rzezwwf0'),
-                          value: AlertTypeEnum.WalletBalanceAmount,
-                        },
-                        {
-                          label: translate('text_1773051593209gg3667wtxse'),
-                          value: AlertTypeEnum.WalletOngoingBalanceAmount,
-                        },
-                      ]}
+                      data={comboboxData}
                       onChange={(value) => {
                         const newFormikValues = {
                           ...formikProps.values,
