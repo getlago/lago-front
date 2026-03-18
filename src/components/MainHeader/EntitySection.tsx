@@ -1,4 +1,4 @@
-import { Icon } from 'lago-design-system'
+import { Icon, IconName } from 'lago-design-system'
 import { FC } from 'react'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -32,10 +32,17 @@ export const EntitySection: FC<{ entity?: MainHeaderEntityConfig; isLoading?: bo
   if (!entity) return null
 
   return (
-    <>
+    <div className="flex items-center gap-4">
       {entity.icon && (
-        <Avatar variant="connector" size="large">
-          <Icon name={entity.icon} color="dark" size="large" />
+        <Avatar
+          variant={typeof entity.icon === 'string' ? 'connector' : 'connector-full'}
+          size="large"
+        >
+          {typeof entity.icon === 'string' ? (
+            <Icon name={entity.icon as IconName} color="dark" size="large" />
+          ) : (
+            entity.icon
+          )}
         </Avatar>
       )}
       <div data-test={ENTITY_SECTION_TEST_ID}>
@@ -62,6 +69,6 @@ export const EntitySection: FC<{ entity?: MainHeaderEntityConfig; isLoading?: bo
           <Typography data-test={ENTITY_SECTION_METADATA_TEST_ID}>{entity.metadata}</Typography>
         )}
       </div>
-    </>
+    </div>
   )
 }

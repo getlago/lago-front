@@ -15,6 +15,7 @@ function configSnapshot(config: MainHeaderConfig): string {
     if (typeof value === 'function') return undefined
     if (key === 'content') return undefined
     if (key === 'filtersSection') return undefined
+    if (key === 'icon' && typeof value !== 'string') return undefined
 
     return value
   })

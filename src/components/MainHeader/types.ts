@@ -64,8 +64,8 @@ export interface MainHeaderEntityConfig {
   metadata?: string
   /** Status badges displayed next to the entity name */
   badges?: MainHeaderBadge[]
-  /** Arbitrary icon rendered in a connector Avatar (e.g. integrations) */
-  icon?: IconName
+  /** Arbitrary icon rendered in a connector Avatar (e.g. integrations). Can be an IconName string or a ReactNode (e.g. SVG component) */
+  icon?: IconName | ReactNode
 }
 
 // ─── Breadcrumb ──────────────────────────────────────────────────

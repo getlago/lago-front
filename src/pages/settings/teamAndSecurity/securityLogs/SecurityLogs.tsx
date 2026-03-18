@@ -6,7 +6,6 @@ import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { LogsLayout } from '~/components/developers/LogsLayout'
-import { SettingsPageHeaderContainer } from '~/components/layouts/Settings'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { SECURITY_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -93,11 +92,6 @@ const SecurityLogs = () => {
       className="flex flex-col gap-4 px-12 pb-20 pt-10"
       data-test={SECURITY_LOGS_CONTAINER_TEST_ID}
     >
-      <SettingsPageHeaderContainer>
-        <Typography variant="headline">{translate('text_1771855827236eqkaiznri70')}</Typography>
-        <Typography>{translate('text_1771855926675ji0pee3p6a6')}</Typography>
-      </SettingsPageHeaderContainer>
-
       <LogsLayout.CTASection className="shadow-b">
         <div>
           <Filters.Provider

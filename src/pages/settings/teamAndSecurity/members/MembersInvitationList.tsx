@@ -202,7 +202,6 @@ const MembersInvitationList = () => {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         type="invitations"
-        openCreateInviteDialog={openCreateInviteDialog}
       />
       <InfiniteScroll onBottom={handleInfiniteScrolling}>
         <Table
