@@ -1,7 +1,14 @@
 import { screen } from '@testing-library/react'
 
 import { MainHeaderConfig } from '~/components/MainHeader/types'
-import { CUSTOMER_DETAILS_ROUTE, SUBSCRIPTIONS_ROUTE } from '~/core/router'
+import { addToast } from '~/core/apolloClient'
+import {
+  CUSTOMER_DETAILS_ROUTE,
+  SUBSCRIPTIONS_ROUTE,
+  UPDATE_SUBSCRIPTION,
+  UPGRADE_DOWNGRADE_SUBSCRIPTION,
+} from '~/core/router'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { StatusTypeEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
@@ -34,10 +41,19 @@ jest.mock('~/hooks/usePermissions', () => ({
   }),
 }))
 
+const mockUseCurrentUser = jest.fn().mockReturnValue({ isPremium: true })
+
 jest.mock('~/hooks/useCurrentUser', () => ({
-  useCurrentUser: () => ({
-    isPremium: true,
-  }),
+  useCurrentUser: () => mockUseCurrentUser(),
+}))
+
+jest.mock('~/core/utils/copyToClipboard', () => ({
+  copyToClipboard: jest.fn(),
+}))
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
 }))
 
 jest.mock('~/hooks/core/useLocationHistory', () => ({
@@ -85,11 +101,12 @@ jest.mock('~/generated/graphql', () => ({
 }))
 
 const mockCanEditSubscription = jest.fn().mockReturnValue(true)
+const mockIsStatusEditable = jest.fn().mockReturnValue(true)
 
 jest.mock('~/hooks/useSubscriptionPermissionsActions', () => ({
   useSubscriptionPermissionsActions: () => ({
     canEditSubscription: mockCanEditSubscription,
-    isStatusEditable: jest.fn().mockReturnValue(true),
+    isStatusEditable: mockIsStatusEditable,
   }),
 }))
 
@@ -99,10 +116,13 @@ describe('SubscriptionDetails', () => {
     capturedConfig = null
     mockHasPermissions.mockReturnValue(true)
     mockCanEditSubscription.mockReturnValue(true)
+    mockIsStatusEditable.mockReturnValue(true)
+    mockUseCurrentUser.mockReturnValue({ isPremium: true })
 
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({
+      customerId: 'customer-1',
       subscriptionId: 'subscription-1',
     })
 
@@ -281,6 +301,196 @@ describe('SubscriptionDetails', () => {
 
           expect(testMockNavigateFn).toHaveBeenCalledWith(SUBSCRIPTIONS_ROUTE)
         }
+      })
+    })
+  })
+
+  describe('GIVEN the page is loading', () => {
+    beforeEach(() => {
+      mockUseGetSubscriptionForDetailsQuery.mockReturnValue({
+        data: null,
+        loading: true,
+        error: null,
+      })
+    })
+
+    describe('WHEN the component renders', () => {
+      it('THEN should set isLoading on MainHeader config', () => {
+        render(<SubscriptionDetails />)
+
+        expect(capturedConfig?.isLoading).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN tab configuration', () => {
+    describe('WHEN all conditions are met (premium, permissions, active status)', () => {
+      it('THEN should configure 6 tabs', () => {
+        render(<SubscriptionDetails />)
+
+        expect(capturedConfig?.tabs).toHaveLength(6)
+      })
+    })
+
+    describe('WHEN the subscription status is not editable', () => {
+      beforeEach(() => {
+        mockIsStatusEditable.mockReturnValue(false)
+      })
+
+      it('THEN should hide the usage tab', () => {
+        render(<SubscriptionDetails />)
+
+        // Usage tab is at index 3
+        const usageTab = capturedConfig?.tabs?.[3]
+
+        expect(usageTab?.hidden).toBe(true)
+      })
+    })
+
+    describe('WHEN user is not premium', () => {
+      beforeEach(() => {
+        mockUseCurrentUser.mockReturnValue({ isPremium: false })
+      })
+
+      it('THEN should hide the activity logs tab', () => {
+        render(<SubscriptionDetails />)
+
+        // Activity logs tab is at index 5
+        const activityLogsTab = capturedConfig?.tabs?.[5]
+
+        expect(activityLogsTab?.hidden).toBe(true)
+      })
+    })
+
+    describe('WHEN user does not have auditLogsView permission', () => {
+      beforeEach(() => {
+        mockHasPermissions.mockReturnValue(false)
+      })
+
+      it('THEN should hide the activity logs tab', () => {
+        render(<SubscriptionDetails />)
+
+        const activityLogsTab = capturedConfig?.tabs?.[5]
+
+        expect(activityLogsTab?.hidden).toBe(true)
+      })
+    })
+
+    describe('WHEN subscription has no externalId', () => {
+      beforeEach(() => {
+        mockUseGetSubscriptionForDetailsQuery.mockReturnValue({
+          data: {
+            subscription: { ...mockSubscription, externalId: '' },
+          },
+          loading: false,
+          error: null,
+        })
+      })
+
+      it('THEN should hide the activity logs tab', () => {
+        render(<SubscriptionDetails />)
+
+        const activityLogsTab = capturedConfig?.tabs?.[5]
+
+        expect(activityLogsTab?.hidden).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN the dropdown actions', () => {
+    describe('WHEN clicking the update subscription item', () => {
+      it('THEN should navigate to the update subscription route', () => {
+        render(<SubscriptionDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          const updateItem = dropdownAction.items.find(
+            (i) => i.dataTest === SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
+          )
+
+          updateItem?.onClick(jest.fn())
+
+          expect(testMockNavigateFn).toHaveBeenCalledWith(
+            UPDATE_SUBSCRIPTION.replace(':customerId', 'customer-1').replace(
+              ':subscriptionId',
+              'subscription-1',
+            ),
+          )
+        }
+      })
+    })
+
+    describe('WHEN clicking the upgrade/downgrade item', () => {
+      it('THEN should navigate to the upgrade/downgrade route', () => {
+        render(<SubscriptionDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          const upgradeItem = dropdownAction.items.find(
+            (i) => i.dataTest === SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,
+          )
+
+          upgradeItem?.onClick(jest.fn())
+
+          expect(testMockNavigateFn).toHaveBeenCalledWith(
+            UPGRADE_DOWNGRADE_SUBSCRIPTION.replace(':customerId', 'customer-1').replace(
+              ':subscriptionId',
+              'subscription-1',
+            ),
+          )
+        }
+      })
+    })
+
+    describe('WHEN clicking the copy external ID item', () => {
+      it('THEN should copy the external ID to clipboard and show toast', () => {
+        render(<SubscriptionDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          // Copy external ID item has no dataTest, find it by checking copyToClipboard call
+          const copyItem = dropdownAction.items.find((item) => {
+            const mockClose = jest.fn()
+
+            item.onClick(mockClose)
+            if ((copyToClipboard as jest.Mock).mock.calls.length > 0) {
+              return true
+            }
+            return false
+          })
+
+          expect(copyItem).toBeDefined()
+          expect(copyToClipboard).toHaveBeenCalledWith('ext-123')
+          expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'info' }))
+        }
+      })
+    })
+  })
+
+  describe('GIVEN the subscription is accessed from plan context', () => {
+    beforeEach(() => {
+      const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+
+      useParamsMock.mockReturnValue({
+        planId: 'plan-1',
+        subscriptionId: 'subscription-1',
+      })
+    })
+
+    describe('WHEN the component renders', () => {
+      it('THEN should still configure tabs', () => {
+        render(<SubscriptionDetails />)
+
+        expect(capturedConfig?.tabs).toHaveLength(6)
+      })
+
+      it('THEN should still display the active tab content', () => {
+        render(<SubscriptionDetails />)
+
+        expect(screen.getByTestId('active-tab-content')).toBeInTheDocument()
       })
     })
   })

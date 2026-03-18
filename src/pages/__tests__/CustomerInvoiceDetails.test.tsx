@@ -3,7 +3,7 @@ import { screen } from '@testing-library/react'
 import { MainHeaderConfig } from '~/components/MainHeader/types'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { CurrencyEnum, InvoiceStatusTypeEnum } from '~/generated/graphql'
+import { CurrencyEnum, InvoiceStatusTypeEnum, InvoiceTaxStatusTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import CustomerInvoiceDetails from '../CustomerInvoiceDetails'
@@ -35,10 +35,10 @@ jest.mock('~/hooks/core/useLocationHistory', () => ({
   }),
 }))
 
+const mockUseCurrentUser = jest.fn().mockReturnValue({ isPremium: true })
+
 jest.mock('~/hooks/useCurrentUser', () => ({
-  useCurrentUser: () => ({
-    isPremium: true,
-  }),
+  useCurrentUser: () => mockUseCurrentUser(),
 }))
 
 const mockHasPermissions = jest.fn().mockReturnValue(true)
@@ -165,29 +165,35 @@ jest.mock('~/pages/invoiceDetails/common/useDownloadInvoice', () => ({
   }),
 }))
 
+const mockDefaultAuthorizations = {
+  canRetryInvoice: false,
+  canFinalizeInvoice: false,
+  canDownloadOnlyPdf: true,
+  canDownloadPdfAndXml: false,
+  canResendEmail: false,
+  canIssueCreditNote: true,
+  canRecordPayment: true,
+  canUpdatePaymentStatus: true,
+  canVoid: true,
+  canRegenerate: false,
+  canGeneratePaymentUrl: false,
+  canSyncAccountingIntegration: false,
+  canSyncCRMIntegration: false,
+  canDispute: false,
+  canSyncTaxIntegration: false,
+}
+
+const mockDefaultAuthorizationsReturn = {
+  authorizations: mockDefaultAuthorizations,
+  hasTaxProviderError: false,
+  errorMessage: undefined,
+  canRecordPayment: true,
+}
+
+const mockUseInvoiceAuthorizations = jest.fn().mockReturnValue(mockDefaultAuthorizationsReturn)
+
 jest.mock('~/pages/invoiceDetails/common/useInvoiceAuthorizations', () => ({
-  useInvoiceAuthorizations: () => ({
-    authorizations: {
-      canRetryInvoice: false,
-      canFinalizeInvoice: false,
-      canDownloadOnlyPdf: true,
-      canDownloadPdfAndXml: false,
-      canResendEmail: false,
-      canIssueCreditNote: true,
-      canRecordPayment: true,
-      canUpdatePaymentStatus: true,
-      canVoid: true,
-      canRegenerate: false,
-      canGeneratePaymentUrl: false,
-      canSyncAccountingIntegration: false,
-      canSyncCRMIntegration: false,
-      canDispute: false,
-      canSyncTaxIntegration: false,
-    },
-    hasTaxProviderError: false,
-    errorMessage: undefined,
-    canRecordPayment: true,
-  }),
+  useInvoiceAuthorizations: () => mockUseInvoiceAuthorizations(),
 }))
 
 jest.mock('~/pages/InvoiceOverview', () => ({
@@ -238,6 +244,8 @@ describe('CustomerInvoiceDetails', () => {
     jest.clearAllMocks()
     capturedConfig = null
     mockHasPermissions.mockReturnValue(true)
+    mockUseCurrentUser.mockReturnValue({ isPremium: true })
+    mockUseInvoiceAuthorizations.mockReturnValue(mockDefaultAuthorizationsReturn)
 
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
@@ -425,6 +433,218 @@ describe('CustomerInvoiceDetails', () => {
         // Finalized status with no pending tax should have credit notes tab
         // overview + payments + credit notes + activity logs (if premium)
         expect(tabs?.length).toBeGreaterThanOrEqual(3)
+      })
+
+      it('THEN should include all four tabs (overview, payments, credit notes, activity logs)', () => {
+        render(<CustomerInvoiceDetails />)
+
+        // Finalized + no pending tax + premium + auditLogsView
+        expect(capturedConfig?.tabs).toHaveLength(4)
+      })
+    })
+  })
+
+  describe('GIVEN the invoice is in draft status', () => {
+    beforeEach(() => {
+      mockUseGetInvoiceDetailsQuery.mockReturnValue({
+        data: {
+          invoice: { ...mockInvoiceData.invoice, status: InvoiceStatusTypeEnum.Draft },
+        },
+        loading: false,
+        error: null,
+        refetch: jest.fn(),
+      })
+    })
+
+    describe('WHEN tabs are configured', () => {
+      it('THEN should include only overview and activity logs tabs', () => {
+        render(<CustomerInvoiceDetails />)
+
+        // Draft: no payments, no credit notes → overview + activity logs
+        expect(capturedConfig?.tabs).toHaveLength(2)
+      })
+    })
+  })
+
+  describe('GIVEN the invoice is in pending status', () => {
+    beforeEach(() => {
+      mockUseGetInvoiceDetailsQuery.mockReturnValue({
+        data: {
+          invoice: { ...mockInvoiceData.invoice, status: InvoiceStatusTypeEnum.Pending },
+        },
+        loading: false,
+        error: null,
+        refetch: jest.fn(),
+      })
+    })
+
+    describe('WHEN tabs are configured', () => {
+      it('THEN should include overview, payments, and activity logs but not credit notes', () => {
+        render(<CustomerInvoiceDetails />)
+
+        // Pending: overview + payments + activity logs = 3 (no credit notes)
+        expect(capturedConfig?.tabs).toHaveLength(3)
+      })
+    })
+  })
+
+  describe('GIVEN the invoice has pending tax status', () => {
+    beforeEach(() => {
+      mockUseGetInvoiceDetailsQuery.mockReturnValue({
+        data: {
+          invoice: {
+            ...mockInvoiceData.invoice,
+            taxStatus: InvoiceTaxStatusTypeEnum.Pending,
+          },
+        },
+        loading: false,
+        error: null,
+        refetch: jest.fn(),
+      })
+    })
+
+    describe('WHEN tabs are configured', () => {
+      it('THEN should not include credit notes tab', () => {
+        render(<CustomerInvoiceDetails />)
+
+        // Finalized + tax pending: overview + payments + activity logs = 3
+        expect(capturedConfig?.tabs).toHaveLength(3)
+      })
+    })
+  })
+
+  describe('GIVEN the user does not have auditLogsView permission', () => {
+    beforeEach(() => {
+      mockHasPermissions.mockReturnValue(false)
+    })
+
+    describe('WHEN tabs are configured for a finalized invoice', () => {
+      it('THEN should not include activity logs tab', () => {
+        render(<CustomerInvoiceDetails />)
+
+        // Finalized without activity logs: overview + payments + credit notes = 3
+        expect(capturedConfig?.tabs).toHaveLength(3)
+      })
+    })
+  })
+
+  describe('GIVEN the user is not premium', () => {
+    beforeEach(() => {
+      mockUseCurrentUser.mockReturnValue({ isPremium: false })
+    })
+
+    describe('WHEN tabs are configured for a finalized invoice', () => {
+      it('THEN should not include activity logs tab', () => {
+        render(<CustomerInvoiceDetails />)
+
+        // Finalized without activity logs: overview + payments + credit notes = 3
+        expect(capturedConfig?.tabs).toHaveLength(3)
+      })
+    })
+  })
+
+  describe('GIVEN the invoice badge warning icon', () => {
+    describe('WHEN the invoice has a payment dispute', () => {
+      it('THEN should show warning icon on badge', () => {
+        mockUseGetInvoiceDetailsQuery.mockReturnValue({
+          data: {
+            invoice: {
+              ...mockInvoiceData.invoice,
+              paymentDisputeLostAt: '2024-01-01T00:00:00Z',
+            },
+          },
+          loading: false,
+          error: null,
+          refetch: jest.fn(),
+        })
+
+        render(<CustomerInvoiceDetails />)
+
+        expect(capturedConfig?.entity?.badges?.[0]?.endIcon).toBe('warning-unfilled')
+      })
+    })
+
+    describe('WHEN the invoice has error details', () => {
+      it('THEN should show warning icon on badge', () => {
+        mockUseGetInvoiceDetailsQuery.mockReturnValue({
+          data: {
+            invoice: {
+              ...mockInvoiceData.invoice,
+              errorDetails: [{ errorCode: 'tax_error', errorDetails: 'Tax failed' }],
+            },
+          },
+          loading: false,
+          error: null,
+          refetch: jest.fn(),
+        })
+
+        render(<CustomerInvoiceDetails />)
+
+        expect(capturedConfig?.entity?.badges?.[0]?.endIcon).toBe('warning-unfilled')
+      })
+    })
+
+    describe('WHEN the invoice is taxProviderVoidable', () => {
+      it('THEN should show warning icon on badge', () => {
+        mockUseGetInvoiceDetailsQuery.mockReturnValue({
+          data: {
+            invoice: {
+              ...mockInvoiceData.invoice,
+              taxProviderVoidable: true,
+            },
+          },
+          loading: false,
+          error: null,
+          refetch: jest.fn(),
+        })
+
+        render(<CustomerInvoiceDetails />)
+
+        expect(capturedConfig?.entity?.badges?.[0]?.endIcon).toBe('warning-unfilled')
+      })
+    })
+
+    describe('WHEN no warning conditions are present', () => {
+      it('THEN should not show warning icon on badge', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(capturedConfig?.entity?.badges?.[0]?.endIcon).toBeUndefined()
+      })
+    })
+  })
+
+  describe('GIVEN a query error occurs', () => {
+    beforeEach(() => {
+      mockUseGetInvoiceDetailsQuery.mockReturnValue({
+        data: null,
+        loading: false,
+        error: new Error('Failed'),
+        refetch: jest.fn(),
+      })
+    })
+
+    describe('WHEN the component renders', () => {
+      it('THEN should not display the active tab content', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(screen.queryByTestId('active-tab-content')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the invoice authorization returns an error message', () => {
+    beforeEach(() => {
+      mockUseInvoiceAuthorizations.mockReturnValue({
+        ...mockDefaultAuthorizationsReturn,
+        errorMessage: 'text_some_error_key',
+      })
+    })
+
+    describe('WHEN the component renders', () => {
+      it('THEN should still display the active tab content', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(screen.getByTestId('active-tab-content')).toBeInTheDocument()
       })
     })
   })
