@@ -52,7 +52,10 @@ type WalletAlertsProps = {
   wallet: WalletDetailsFragment
 }
 
-const WALLET_ALERT_ACTIONS_DATA_TEST = 'wallet-alert-actions-data-test'
+export const WALLET_ALERT_ACTIONS_DATA_TEST = 'wallet-alert-actions-data-test'
+export const WALLET_ALERTS_LOADING_TEST_ID = 'wallet-alerts-loading'
+export const WALLET_ALERTS_EMPTY_TEST_ID = 'wallet-alerts-empty'
+export const WALLET_ALERTS_LIST_TEST_ID = 'wallet-alerts-list'
 
 const WALLET_ALERT_TYPE_TRANSLATION_MAP: Record<string, string> = {
   [AlertTypeEnum.WalletBalanceAmount]: 'text_17730515932099j2rzezwwf0',
@@ -141,7 +144,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
       )}
 
       {isPremium && loading && (
-        <div>
+        <div data-test={WALLET_ALERTS_LOADING_TEST_ID}>
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={`key-skeleton-line-${i}`} className="mt-7 flex">
               <Skeleton variant="text" className="mr-[6.4%]" />
@@ -154,11 +157,13 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
       )}
 
       {isPremium && !loading && !alerts?.length && (
-        <Typography variant="body">{translate('text_1773051593208hl4ku8oq9rf')}</Typography>
+        <Typography data-test={WALLET_ALERTS_EMPTY_TEST_ID} variant="body">
+          {translate('text_1773051593208hl4ku8oq9rf')}
+        </Typography>
       )}
 
       {isPremium && !loading && !!alerts?.length && (
-        <div className="flex flex-col gap-4">
+        <div data-test={WALLET_ALERTS_LIST_TEST_ID} className="flex flex-col gap-4">
           {alerts.map((currentAlert) => (
             <Accordion
               key={`wallet-alerts-${currentAlert.id}`}

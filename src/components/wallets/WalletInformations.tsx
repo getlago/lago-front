@@ -17,6 +17,9 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { tw } from '~/styles/utils'
 
+export const WALLET_INFORMATIONS_CONTAINER_TEST_ID = 'wallet-informations-container'
+export const WALLET_INFORMATIONS_NO_RECURRING_TEST_ID = 'wallet-informations-no-recurring'
+
 type WalletInformationsProps = {
   wallet?: WalletDetailsFragment | null
 }
@@ -82,7 +85,7 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
   const chipContainerClassName = 'flex gap-3 mt-1'
 
   return (
-    <div className="flex flex-col gap-12">
+    <div data-test={WALLET_INFORMATIONS_CONTAINER_TEST_ID} className="flex flex-col gap-12">
       <section className={sectionClassName}>
         <SectionTitle
           title={translate('text_1772536695408sm7gfyxpi58')}
@@ -225,7 +228,11 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
         )}
 
         {isPremium && !recurring && (
-          <Typography variant="caption" color="grey600">
+          <Typography
+            data-test={WALLET_INFORMATIONS_NO_RECURRING_TEST_ID}
+            variant="caption"
+            color="grey600"
+          >
             {translate('text_1773043324341vyv0cdxzlys')}
           </Typography>
         )}

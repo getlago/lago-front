@@ -79,6 +79,9 @@ gql`
   ${WalletInfosForTransactionsFragmentDoc}
 `
 
+export const CUSTOMER_WALLET_LIST_LOADING_TEST_ID = 'customer-wallet-list-loading'
+export const CUSTOMER_WALLET_LIST_EMPTY_TEST_ID = 'customer-wallet-list-empty'
+
 interface CustomerWalletListProps {
   customerId: string
   customerTimezone?: TimezoneEnum
@@ -149,7 +152,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
       />
 
       {loading && (
-        <div className="flex flex-col gap-4">
+        <div data-test={CUSTOMER_WALLET_LIST_LOADING_TEST_ID} className="flex flex-col gap-4">
           {[1, 2, 3].map((i) => (
             <Skeleton key={`customer-wallet-list-${i}`} variant="text" />
           ))}
@@ -157,7 +160,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
       )}
 
       {!loading && !walletsCollection.length && (
-        <Typography className="text-grey-500">
+        <Typography data-test={CUSTOMER_WALLET_LIST_EMPTY_TEST_ID} className="text-grey-500">
           {translate('text_62d175066d2dbf1d50bc9386')}
         </Typography>
       )}

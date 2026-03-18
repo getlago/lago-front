@@ -26,6 +26,8 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { tw } from '~/styles/utils'
 
+export const WALLET_TRANSACTIONS_CONTAINER_TEST_ID = 'wallet-transactions-container'
+
 const TODAY = DateTime.now().toISODate()
 
 interface WalletTransactionsProps {
@@ -91,7 +93,7 @@ export const WalletTransactions: FC<WalletTransactionsProps> = ({
   }, [lastOngoingBalanceSyncAt, lastBalanceSyncAt])
 
   return (
-    <div className="flex w-full flex-col">
+    <div data-test={WALLET_TRANSACTIONS_CONTAINER_TEST_ID} className="flex w-full flex-col">
       <div className="flex flex-row items-end gap-8 px-0 pb-4 shadow-b">
         <div className="flex flex-col gap-1">
           <div className="flex items-center [&_*]:flex">
