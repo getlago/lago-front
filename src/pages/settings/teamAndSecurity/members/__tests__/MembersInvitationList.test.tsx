@@ -518,7 +518,9 @@ describe('MembersInvitationList', () => {
 
       await waitFor(() => {
         // Invite button translation key - use getAllByText since it appears in both MembersFilters and Table placeholder
-        expect(screen.getAllByText('text_63208b630aaf8df6bbfb265b').length).toBeGreaterThanOrEqual(1)
+        expect(screen.getAllByText('text_63208b630aaf8df6bbfb265b').length).toBeGreaterThanOrEqual(
+          1,
+        )
       })
     })
   })

@@ -712,8 +712,6 @@ describe('InvoicesList', () => {
     })
   })
 
-
-
   describe('Empty States', () => {
     it('renders correct empty state title when no search term', async () => {
       await renderInvoicesList({
