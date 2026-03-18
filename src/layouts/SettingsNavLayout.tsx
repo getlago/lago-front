@@ -15,6 +15,8 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSystem/VerticalMenu'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MainHeaderProvider } from '~/components/MainHeader/MainHeaderContext'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   BILLING_ENTITY_CREATE_ROUTE,
@@ -267,9 +269,12 @@ const SettingsNavLayout = () => {
         </NavLayout.Nav>
       </ClickAwayListener>
 
-      <NavLayout.ContentWrapper ref={contentRef}>
-        <Outlet />
-      </NavLayout.ContentWrapper>
+      <MainHeaderProvider>
+        <NavLayout.ContentWrapper ref={contentRef}>
+          <MainHeader />
+          <Outlet />
+        </NavLayout.ContentWrapper>
+      </MainHeaderProvider>
     </NavLayout.NavWrapper>
   )
 }
