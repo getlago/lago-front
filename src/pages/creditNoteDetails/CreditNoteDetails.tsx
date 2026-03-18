@@ -360,7 +360,7 @@ const CreditNoteDetails = () => {
         }),
       ],
       content: (
-        <DetailsPage.Container className="max-w-none">
+        <DetailsPage.Container>
           <CreditNoteDetailsOverview
             loadingCreditNoteDownload={loadingCreditNoteDownload}
             downloadCreditNote={downloadCreditNote}
@@ -396,7 +396,7 @@ const CreditNoteDetails = () => {
         }),
       ],
       content: (
-        <DetailsPage.Container className="max-w-none">
+        <DetailsPage.Container>
           <CreditNoteDetailsExternalSync retryTaxSync={retryTaxSync} />
         </DetailsPage.Container>
       ),
@@ -428,7 +428,7 @@ const CreditNoteDetails = () => {
         }),
       ],
       content: (
-        <DetailsPage.Container className="max-w-none">
+        <DetailsPage.Container>
           <CreditNoteDetailsActivityLogs creditNoteId={creditNoteId as string} />
         </DetailsPage.Container>
       ),
