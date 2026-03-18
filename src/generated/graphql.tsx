@@ -2658,6 +2658,7 @@ export type Customer = {
   deletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   displayName: Scalars['String']['output'];
   email?: Maybe<Scalars['String']['output']>;
+  errorDetails?: Maybe<Array<ErrorDetail>>;
   excludeFromDunningCampaign: Scalars['Boolean']['output'];
   externalId: Scalars['String']['output'];
   externalSalesforceId?: Maybe<Scalars['String']['output']>;
@@ -4336,6 +4337,7 @@ export enum IntegrationTypeEnum {
   EventsTargetingWallets = 'events_targeting_wallets',
   ForecastedUsage = 'forecasted_usage',
   FromEmail = 'from_email',
+  GranularLifetimeUsage = 'granular_lifetime_usage',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
   LifetimeUsage = 'lifetime_usage',
@@ -6719,6 +6721,7 @@ export enum PremiumIntegrationTypeEnum {
   EventsTargetingWallets = 'events_targeting_wallets',
   ForecastedUsage = 'forecasted_usage',
   FromEmail = 'from_email',
+  GranularLifetimeUsage = 'granular_lifetime_usage',
   Hubspot = 'hubspot',
   IssueReceipts = 'issue_receipts',
   LifetimeUsage = 'lifetime_usage',
