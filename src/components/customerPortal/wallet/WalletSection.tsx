@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 
+import { useCustomerPortalData } from '~/components/customerPortal/common/hooks/useCustomerPortalData'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderWalletSection } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
@@ -11,10 +12,15 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone/utils'
 import {
   CustomerPortalWalletInfoFragment,
-  useGetPortalCustomerDataQuery,
   useGetPortalWalletsQuery,
   WalletStatusEnum,
 } from '~/generated/graphql'
+
+export const WALLET_SECTION_ERROR_TEST_ID = 'wallet-section-error'
+export const WALLET_SECTION_CONTENT_TEST_ID = 'wallet-section-content'
+export const WALLET_SECTION_WALLET_ITEM_TEST_ID = 'wallet-section-wallet-item'
+export const WALLET_SECTION_VIEW_BUTTON_TEST_ID = 'wallet-section-view-button'
+export const WALLET_SECTION_LOAD_MORE_TEST_ID = 'wallet-section-load-more'
 
 gql`
   fragment CustomerPortalWalletInfo on CustomerPortalWallet {
@@ -33,13 +39,6 @@ gql`
     lastBalanceSyncAt
     paidTopUpMinAmountCents
     paidTopUpMaxAmountCents
-  }
-
-  query getPortalCustomerData {
-    customerPortalUser {
-      applicableTimezone
-      premium
-    }
   }
 
   query getPortalWallets($limit: Int, $page: Int, $status: WalletStatusEnum) {
@@ -81,13 +80,13 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
   const { translate, documentLocale } = useCustomerPortalTranslate()
 
   const {
-    data: customerPortalUserData,
+    data: customerPortalData,
     loading: customerPortalUserLoading,
     error: customerPortalUserError,
     refetch: customerPortalUserRefetch,
-  } = useGetPortalCustomerDataQuery()
+  } = useCustomerPortalData()
 
-  const customerPortalUser = customerPortalUserData?.customerPortalUser
+  const customerPortalUser = customerPortalData?.customerPortalUser
   const customerTimezone = customerPortalUser?.applicableTimezone
   const isPremium = !!customerPortalUser?.premium
 
@@ -117,7 +116,7 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
 
   if (isError) {
     return (
-      <section>
+      <section data-test={WALLET_SECTION_ERROR_TEST_ID}>
         <SectionTitle title={translate('text_1728377307159q3otzyv9tey')} />
 
         <SectionError refresh={refreshSection} />
@@ -130,7 +129,7 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
   }
 
   return (
-    <div>
+    <div data-test={WALLET_SECTION_CONTENT_TEST_ID}>
       <SectionTitle
         title={translate('text_1728377307159q3otzyv9tey')}
         className="justify-between"
@@ -147,6 +146,7 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
             <div
               className="mt-6 flex flex-col gap-1 pb-4 shadow-b"
               key={`customer-portal-wallet-${index}`}
+              data-test={WALLET_SECTION_WALLET_ITEM_TEST_ID}
             >
               <div className="flex items-center justify-between gap-6">
                 <Typography variant="captionHl" color="grey600">
@@ -154,7 +154,12 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
                   {translate('text_1728377307160cbszddumfkg')}
                 </Typography>
 
-                <Button variant="inline" size="medium" onClick={() => viewWallet(wallet.id)}>
+                <Button
+                  variant="inline"
+                  size="medium"
+                  data-test={WALLET_SECTION_VIEW_BUTTON_TEST_ID}
+                  onClick={() => viewWallet(wallet.id)}
+                >
                   {translate('text_1728377307160cludx1c0cfb')}
                 </Button>
               </div>
@@ -232,6 +237,7 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
           variant="inline"
           size="medium"
           startIcon="chevron-down"
+          data-test={WALLET_SECTION_LOAD_MORE_TEST_ID}
           onClick={() =>
             fetchMore({
               variables: { page: currentPage + 1 },

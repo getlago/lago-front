@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { useEffect, useState } from 'react'
-import { object, string } from 'yup'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useState } from 'react'
 
+import { useCustomerPortalData } from '~/components/customerPortal/common/hooks/useCustomerPortalData'
 import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
 import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionError from '~/components/customerPortal/common/SectionError'
@@ -10,17 +10,17 @@ import { LoaderCustomerInformationPage } from '~/components/customerPortal/commo
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Alert } from '~/components/designSystem/Alert'
-import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import { Checkbox, ComboBoxField, TextInputField } from '~/components/form'
+import { Checkbox } from '~/components/form'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import {
   CustomerTypeEnum,
-  UpdateCustomerInput,
   UpdateCustomerPortalCustomerInput,
-  useGetPortalCustomerInfosQuery,
   useUpdatePortalCustomerMutation,
 } from '~/generated/graphql'
+import { useAppForm } from '~/hooks/forms/useAppform'
+
+import { editCustomerBillingValidationSchema, mapCustomerToFormValues } from './validationSchema'
 
 type EditCustomerBillingFormProps = {
   customer?: UpdateCustomerPortalCustomerInput | null
@@ -38,12 +38,26 @@ gql`
 const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFormProps) => {
   const { translate } = useCustomerPortalTranslate()
 
-  const [isShippingEqualBillingAddress, setIsShippingEqualBillingAddress] = useState(false)
+  const initialValues = mapCustomerToFormValues(customer)
+  const shipping = initialValues.shippingAddress
+
+  const addressFieldsMatch =
+    !!shipping &&
+    shipping.addressLine1 === initialValues.addressLine1 &&
+    shipping.addressLine2 === initialValues.addressLine2 &&
+    shipping.city === initialValues.city &&
+    shipping.country === initialValues.country &&
+    shipping.state === initialValues.state &&
+    shipping.zipcode === initialValues.zipcode
+
+  const [isShippingEqualBillingAddress, setIsShippingEqualBillingAddress] =
+    useState(addressFieldsMatch)
 
   const [
     updatePortalCustomer,
     { loading: updatePortalCustomerLoading, error: updatePortalCustomerError },
   ] = useUpdatePortalCustomerMutation({
+    refetchQueries: ['getCustomerPortalData'],
     onCompleted(res) {
       if (res) {
         onSuccess?.()
@@ -51,172 +65,185 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
     },
   })
 
-  const formikProps = useFormik<Partial<UpdateCustomerInput>>({
-    initialValues: {
-      customerType: customer?.customerType ?? null,
-      name: customer?.name ?? '',
-      firstname: customer?.firstname ?? '',
-      lastname: customer?.lastname ?? '',
-      legalName: customer?.legalName ?? undefined,
-      taxIdentificationNumber: customer?.taxIdentificationNumber ?? undefined,
-      email: customer?.email ?? undefined,
-
-      addressLine1: customer?.addressLine1 ?? undefined,
-      addressLine2: customer?.addressLine2 ?? undefined,
-      zipcode: customer?.zipcode ?? undefined,
-      city: customer?.city ?? undefined,
-      state: customer?.state ?? undefined,
-      country: customer?.country ?? undefined,
-
-      shippingAddress: customer?.shippingAddress ?? undefined,
+  const form = useAppForm({
+    defaultValues: initialValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: editCustomerBillingValidationSchema,
     },
-    validationSchema: object().shape({
-      customerType: string().oneOf(Object.values(CustomerTypeEnum)).nullable(),
-      name: string(),
-      firstname: string(),
-      lastname: string(),
-      email: string().email('text_620bc4d4269a55014d493fc3'),
-    }),
-    onSubmit: async (values) => {
+    onSubmit: async ({ value }) => {
+      const { shippingAddress, ...rest } = value
+
+      const normalizedShippingAddress = shippingAddress
+        ? Object.fromEntries(
+            Object.entries(shippingAddress).map(([key, v]) => [
+              key,
+              v === undefined || v === '' ? null : v,
+            ]),
+          )
+        : shippingAddress
+
       updatePortalCustomer({
         variables: {
           input: {
-            ...values,
+            ...rest,
+            shippingAddress: normalizedShippingAddress,
           },
         },
       })
     },
   })
 
-  useEffect(() => {
-    if (isShippingEqualBillingAddress) {
-      formikProps.setFieldValue('shippingAddress', {
-        addressLine1: formikProps.values.addressLine1,
-        addressLine2: formikProps.values.addressLine2,
-        city: formikProps.values.city,
-        country: formikProps.values.country,
-        state: formikProps.values.state,
-        zipcode: formikProps.values.zipcode,
-      })
-    }
+  const syncShippingAddress = () => {
+    const values = form.store.state.values
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    formikProps.values.addressLine1,
-    formikProps.values.addressLine2,
-    formikProps.values.city,
-    formikProps.values.country,
-    formikProps.values.state,
-    formikProps.values.zipcode,
-    isShippingEqualBillingAddress,
-  ])
+    form.setFieldValue('shippingAddress', {
+      addressLine1: values.addressLine1,
+      addressLine2: values.addressLine2,
+      city: values.city,
+      country: values.country,
+      state: values.state,
+      zipcode: values.zipcode,
+    })
+  }
+
+  const billingAddressChangeListener = {
+    onChange: () => {
+      if (isShippingEqualBillingAddress) {
+        syncShippingAddress()
+      }
+    },
+  }
 
   if (!customer) {
     return null
   }
 
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    form.handleSubmit()
+  }
+
   return (
-    <div className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <Typography variant="subhead2" color="grey700">
         {translate('text_1728377307159eu0ihwiyrf0')}
       </Typography>
 
-      <ComboBoxField
-        name="customerType"
-        label={translate('text_1726128938631ioz4orixel3')}
-        placeholder={translate('text_17261289386318j0nhr1ms3t')}
-        formikProps={formikProps}
-        PopperProps={{ displayInDialog: true }}
-        data={Object.values(CustomerTypeEnum).map((customerValue) => ({
-          value: customerValue,
-          label: translate(TRANSLATIONS_MAP_CUSTOMER_TYPE[customerValue]),
-        }))}
-      />
+      <form.AppField name="customerType">
+        {(field) => (
+          <field.ComboBoxField
+            label={translate('text_1726128938631ioz4orixel3')}
+            placeholder={translate('text_17261289386318j0nhr1ms3t')}
+            PopperProps={{ displayInDialog: true }}
+            data={Object.values(CustomerTypeEnum).map((customerValue) => ({
+              value: customerValue,
+              label: translate(TRANSLATIONS_MAP_CUSTOMER_TYPE[customerValue]),
+            }))}
+          />
+        )}
+      </form.AppField>
 
-      <TextInputField
-        name="name"
-        label={translate('text_634687079be251fdb43833cb')}
-        placeholder={translate('text_1728654170904707saidat0f')}
-        formikProps={formikProps}
-      />
+      <form.AppField name="name">
+        {(field) => (
+          <field.TextInputField
+            label={translate('text_634687079be251fdb43833cb')}
+            placeholder={translate('text_1728654170904707saidat0f')}
+          />
+        )}
+      </form.AppField>
 
       <div className="grid grid-cols-2 gap-4">
-        <TextInputField
-          name="firstname"
-          label={translate('text_1726128938631ggtf2ggqs4b')}
-          placeholder={translate('text_1726128938631ntcpbzv7x7s')}
-          formikProps={formikProps}
-        />
+        <form.AppField name="firstname">
+          {(field) => (
+            <field.TextInputField
+              label={translate('text_1726128938631ggtf2ggqs4b')}
+              placeholder={translate('text_1726128938631ntcpbzv7x7s')}
+            />
+          )}
+        </form.AppField>
 
-        <TextInputField
-          name="lastname"
-          label={translate('text_1726128938631ymctg83bygm')}
-          placeholder={translate('text_1726128938631xmpsba9ssuo')}
-          formikProps={formikProps}
-        />
+        <form.AppField name="lastname">
+          {(field) => (
+            <field.TextInputField
+              label={translate('text_1726128938631ymctg83bygm')}
+              placeholder={translate('text_1726128938631xmpsba9ssuo')}
+            />
+          )}
+        </form.AppField>
       </div>
 
-      <TextInputField
-        name="legalName"
-        label={translate('text_626c0c09812bbc00e4c59e01')}
-        placeholder={translate('text_626c0c09812bbc00e4c59e03')}
-        formikProps={formikProps}
-      />
-      <TextInputField
-        name="taxIdentificationNumber"
-        label={translate('text_648053ee819b60364c675d05')}
-        placeholder={translate('text_648053ee819b60364c675d0b')}
-        formikProps={formikProps}
-      />
-      <TextInputField
-        name="email"
-        beforeChangeFormatter={['lowercase']}
-        label={translate('text_626c0c09812bbc00e4c59e09')}
-        placeholder={translate('text_626c0c09812bbc00e4c59e0b')}
-        formikProps={formikProps}
-      />
+      <form.AppField name="legalName">
+        {(field) => (
+          <field.TextInputField
+            label={translate('text_626c0c09812bbc00e4c59e01')}
+            placeholder={translate('text_626c0c09812bbc00e4c59e03')}
+          />
+        )}
+      </form.AppField>
+      <form.AppField name="taxIdentificationNumber">
+        {(field) => (
+          <field.TextInputField
+            label={translate('text_648053ee819b60364c675d05')}
+            placeholder={translate('text_648053ee819b60364c675d0b')}
+          />
+        )}
+      </form.AppField>
+      <form.AppField name="email">
+        {(field) => (
+          <field.TextInputField
+            beforeChangeFormatter={['lowercase']}
+            label={translate('text_626c0c09812bbc00e4c59e09')}
+            placeholder={translate('text_626c0c09812bbc00e4c59e0b')}
+          />
+        )}
+      </form.AppField>
 
       <Typography variant="subhead2" color="grey700" className="mt-12">
         {translate('text_1728377307159y9afykbx2q9')}
       </Typography>
 
-      <TextInputField
-        name="addressLine1"
-        label={translate('text_626c0c09812bbc00e4c59e1b')}
-        placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
-        formikProps={formikProps}
-      />
-      <TextInputField
-        name="addressLine2"
-        placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
-        formikProps={formikProps}
-      />
+      <form.AppField name="addressLine1" listeners={billingAddressChangeListener}>
+        {(field) => (
+          <field.TextInputField
+            label={translate('text_626c0c09812bbc00e4c59e1b')}
+            placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
+          />
+        )}
+      </form.AppField>
+      <form.AppField name="addressLine2" listeners={billingAddressChangeListener}>
+        {(field) => (
+          <field.TextInputField placeholder={translate('text_626c0c09812bbc00e4c59e1f')} />
+        )}
+      </form.AppField>
 
       <div className="grid grid-cols-2 gap-4">
-        <TextInputField
-          name="zipcode"
-          placeholder={translate('text_626c0c09812bbc00e4c59e21')}
-          formikProps={formikProps}
-        />
-        <TextInputField
-          name="city"
-          placeholder={translate('text_626c0c09812bbc00e4c59e23')}
-          formikProps={formikProps}
-        />
+        <form.AppField name="zipcode" listeners={billingAddressChangeListener}>
+          {(field) => (
+            <field.TextInputField placeholder={translate('text_626c0c09812bbc00e4c59e21')} />
+          )}
+        </form.AppField>
+        <form.AppField name="city" listeners={billingAddressChangeListener}>
+          {(field) => (
+            <field.TextInputField placeholder={translate('text_626c0c09812bbc00e4c59e23')} />
+          )}
+        </form.AppField>
       </div>
 
-      <TextInputField
-        name="state"
-        placeholder={translate('text_626c0c09812bbc00e4c59e25')}
-        formikProps={formikProps}
-      />
-      <ComboBoxField
-        data={countryDataForCombobox}
-        name="country"
-        placeholder={translate('text_626c0c09812bbc00e4c59e27')}
-        formikProps={formikProps}
-        PopperProps={{ displayInDialog: true }}
-      />
+      <form.AppField name="state" listeners={billingAddressChangeListener}>
+        {(field) => (
+          <field.TextInputField placeholder={translate('text_626c0c09812bbc00e4c59e25')} />
+        )}
+      </form.AppField>
+      <form.AppField name="country" listeners={billingAddressChangeListener}>
+        {(field) => (
+          <field.ComboBoxField
+            data={countryDataForCombobox}
+            placeholder={translate('text_626c0c09812bbc00e4c59e27')}
+            PopperProps={{ displayInDialog: true }}
+          />
+        )}
+      </form.AppField>
 
       <Typography variant="subhead2" color="grey700" className="mt-8">
         {translate('text_667d708c1359b49f5a5a8230')}
@@ -225,51 +252,81 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       <Checkbox
         label={translate('text_667d708c1359b49f5a5a8234')}
         value={isShippingEqualBillingAddress}
-        onChange={() => setIsShippingEqualBillingAddress((prev) => !prev)}
+        onChange={() => {
+          const next = !isShippingEqualBillingAddress
+
+          setIsShippingEqualBillingAddress(next)
+          if (next) {
+            syncShippingAddress()
+          }
+        }}
       />
-      <TextInputField
-        name="shippingAddress.addressLine1"
-        label={translate('text_626c0c09812bbc00e4c59e1b')}
-        placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
-        formikProps={formikProps}
-        disabled={isShippingEqualBillingAddress}
-      />
-      <TextInputField
-        name="shippingAddress.addressLine2"
-        placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
-        formikProps={formikProps}
-        disabled={isShippingEqualBillingAddress}
-      />
+      <form.AppField name="shippingAddress.addressLine1">
+        {(field) => (
+          <field.TextInputField
+            label={translate('text_626c0c09812bbc00e4c59e1b')}
+            placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
+            disabled={isShippingEqualBillingAddress}
+          />
+        )}
+      </form.AppField>
+      <form.AppField name="shippingAddress.addressLine2">
+        {(field) => (
+          <field.TextInputField
+            placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
+            disabled={isShippingEqualBillingAddress}
+          />
+        )}
+      </form.AppField>
 
       <div className="grid grid-cols-2 gap-4">
-        <TextInputField
-          name="shippingAddress.zipcode"
-          placeholder={translate('text_626c0c09812bbc00e4c59e21')}
-          formikProps={formikProps}
-          disabled={isShippingEqualBillingAddress}
-        />
-        <TextInputField
-          name="shippingAddress.city"
-          placeholder={translate('text_626c0c09812bbc00e4c59e23')}
-          formikProps={formikProps}
-          disabled={isShippingEqualBillingAddress}
-        />
+        <form.AppField name="shippingAddress.zipcode">
+          {(field) => (
+            <field.TextInputField
+              placeholder={translate('text_626c0c09812bbc00e4c59e21')}
+              disabled={isShippingEqualBillingAddress}
+            />
+          )}
+        </form.AppField>
+        <form.AppField name="shippingAddress.city">
+          {(field) => (
+            <field.TextInputField
+              placeholder={translate('text_626c0c09812bbc00e4c59e23')}
+              disabled={isShippingEqualBillingAddress}
+            />
+          )}
+        </form.AppField>
       </div>
 
-      <TextInputField
-        name="shippingAddress.state"
-        placeholder={translate('text_626c0c09812bbc00e4c59e25')}
-        formikProps={formikProps}
-        disabled={isShippingEqualBillingAddress}
-      />
-      <ComboBoxField
-        data={countryDataForCombobox}
+      <form.AppField name="shippingAddress.state">
+        {(field) => (
+          <field.TextInputField
+            placeholder={translate('text_626c0c09812bbc00e4c59e25')}
+            disabled={isShippingEqualBillingAddress}
+          />
+        )}
+      </form.AppField>
+      <form.AppField
         name="shippingAddress.country"
-        placeholder={translate('text_626c0c09812bbc00e4c59e27')}
-        formikProps={formikProps}
-        disabled={isShippingEqualBillingAddress}
-        PopperProps={{ displayInDialog: true }}
-      />
+        listeners={{
+          onChange: ({ value }) => {
+            // ComboBoxFieldForTanstack clears to undefined, but nested fields
+            // need an explicit setFieldValue to propagate properly
+            if (value === undefined) {
+              form.setFieldValue('shippingAddress.country', null)
+            }
+          },
+        }}
+      >
+        {(field) => (
+          <field.ComboBoxField
+            data={countryDataForCombobox}
+            placeholder={translate('text_626c0c09812bbc00e4c59e27')}
+            disabled={isShippingEqualBillingAddress}
+            PopperProps={{ displayInDialog: true }}
+          />
+        )}
+      </form.AppField>
 
       {updatePortalCustomerError && (
         <Alert className="mt-8" type="danger" data-test="error-alert">
@@ -279,20 +336,20 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
 
       <div className="flex justify-end">
         <div>
-          <Button
-            className="mt-8"
-            size="medium"
-            disabled={!formikProps.isValid}
-            loading={formikProps.isSubmitting || updatePortalCustomerLoading}
-            fullWidth
-            data-test="submit"
-            onClick={formikProps.submitForm}
-          >
-            {translate('text_17283773071596dmecu79kx4')}
-          </Button>
+          <form.AppForm>
+            <form.SubmitButton
+              className="mt-8"
+              size="medium"
+              loading={updatePortalCustomerLoading}
+              fullWidth
+              data-test="submit"
+            >
+              {translate('text_17283773071596dmecu79kx4')}
+            </form.SubmitButton>
+          </form.AppForm>
         </div>
       </div>
-    </div>
+    </form>
   )
 }
 
@@ -305,7 +362,7 @@ const CustomerInformationPage = () => {
     loading: portalCustomerInfosLoading,
     error: portalCustomerInfosError,
     refetch: portalCustomerInfosRefetch,
-  } = useGetPortalCustomerInfosQuery()
+  } = useCustomerPortalData()
 
   const customerPortalUser = portalCustomerInfosData?.customerPortalUser
 

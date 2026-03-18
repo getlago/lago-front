@@ -1,5 +1,4 @@
-import { gql } from '@apollo/client'
-
+import { useCustomerPortalData } from '~/components/customerPortal/common/hooks/useCustomerPortalData'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderCustomerInformationSection } from '~/components/customerPortal/common/SectionLoading'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
@@ -7,43 +6,14 @@ import useCustomerPortalTranslate from '~/components/customerPortal/common/useCu
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatAddress } from '~/core/formats/formatAddress'
-import {
-  CustomerAddressInput,
-  CustomerPortalCustomer,
-  CustomerTypeEnum,
-  useGetPortalCustomerInfosQuery,
-} from '~/generated/graphql'
+import { CustomerAddressInput, CustomerPortalCustomer, CustomerTypeEnum } from '~/generated/graphql'
 
-gql`
-  query getPortalCustomerInfos {
-    customerPortalUser {
-      id
-      customerType
-      name
-      firstname
-      lastname
-      legalName
-      legalNumber
-      taxIdentificationNumber
-      email
-      addressLine1
-      addressLine2
-      state
-      country
-      city
-      zipcode
-
-      shippingAddress {
-        addressLine1
-        addressLine2
-        city
-        country
-        state
-        zipcode
-      }
-    }
-  }
-`
+export const PORTAL_CUSTOMER_INFOS_TEST_ID = 'portal-customer-infos'
+export const PORTAL_CUSTOMER_INFOS_ERROR_TEST_ID = 'portal-customer-infos-error'
+export const PORTAL_CUSTOMER_INFOS_LOADING_TEST_ID = 'portal-customer-infos-loading'
+export const PORTAL_CUSTOMER_INFOS_CONTENT_TEST_ID = 'portal-customer-infos-content'
+export const PORTAL_CUSTOMER_INFOS_IDENTICAL_ADDRESSES_TEST_ID =
+  'portal-customer-infos-identical-addresses'
 
 const FieldTitle = ({ title }: { title: string }) => (
   <Typography variant="body" color="grey600">
@@ -120,7 +90,7 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
     loading: portalCustomerInfosLoading,
     error: portalCustomerInfosError,
     refetch: portalCustomerInfosRefetch,
-  } = useGetPortalCustomerInfosQuery()
+  } = useCustomerPortalData()
 
   const customerPortalUser = portalCustomerInfosData?.customerPortalUser as CustomerPortalCustomer
 
@@ -175,7 +145,7 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
 
   if (isError) {
     return (
-      <section>
+      <section data-test={PORTAL_CUSTOMER_INFOS_ERROR_TEST_ID}>
         <SectionTitle title={translate('text_6419c64eace749372fc72b07')} />
 
         <SectionError refresh={() => portalCustomerInfosRefetch()} />
@@ -195,7 +165,10 @@ const PortalCustomerInfos = ({ viewEditInformation }: PortalCustomerInfosProps) 
       {isLoading && <LoaderCustomerInformationSection />}
 
       {!isLoading && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
+        <div
+          className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8"
+          data-test={PORTAL_CUSTOMER_INFOS_CONTENT_TEST_ID}
+        >
           <div className="flex flex-col gap-4">
             {customerFields
               .filter(

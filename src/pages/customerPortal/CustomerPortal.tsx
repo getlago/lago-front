@@ -1,9 +1,9 @@
-import { gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 
 import CustomerPortalLoading from '~/components/customerPortal/common/CustomerPortalLoading'
 import CustomerPortalSidebar from '~/components/customerPortal/common/CustomerPortalSidebar'
+import { useCustomerPortalData } from '~/components/customerPortal/common/hooks/useCustomerPortalData'
 import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import {
@@ -15,23 +15,12 @@ import {
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { hasDefinedGQLError } from '~/core/apolloClient'
-import { PremiumIntegrationTypeEnum, useGetPortalOrgaInfosQuery } from '~/generated/graphql'
+import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { tw } from '~/styles/utils'
 
 export const CUSTOMER_PORTAL_ERROR_STATE_TEST_ID = 'customer-portal-error-state'
 export const CUSTOMER_PORTAL_LOADING_STATE_TEST_ID = 'customer-portal-loading-state'
 export const CUSTOMER_PORTAL_CONTENT_STATE_TEST_ID = 'customer-portal-content-state'
-
-gql`
-  query getPortalOrgaInfos {
-    customerPortalOrganization {
-      id
-      name
-      logoUrl
-      premiumIntegrations
-    }
-  }
-`
 
 const CustomerPortal = () => {
   const isInsideIframe = window.top !== window.self
@@ -54,10 +43,12 @@ const CustomerPortal = () => {
   const { pathname } = useCustomerPortalNavigation()
 
   const {
-    data: portalOrgaInfosData,
-    loading: portalOrgasInfoLoading,
-    error: portalOrgasInfoError,
-  } = useGetPortalOrgaInfosQuery()
+    data: portalData,
+    loading: portalDataLoading,
+    error: portalDataError,
+  } = useCustomerPortalData()
+
+  const portalOrganization = portalData?.customerPortalOrganization
 
   const containerClassName = tw(
     'flex flex-col bg-white md:flex-row',
@@ -73,10 +64,9 @@ const CustomerPortal = () => {
 
   const pageContainerClassName = tw(showSidebar && 'max-w-2xl')
 
-  const showPoweredBy =
-    !portalOrgaInfosData?.customerPortalOrganization?.premiumIntegrations?.includes(
-      PremiumIntegrationTypeEnum.RemoveBrandingWatermark,
-    )
+  const showPoweredBy = !portalOrganization?.premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.RemoveBrandingWatermark,
+  )
 
   useEffect(() => {
     customerPortalContentRef.current?.scrollTo?.(0, 0)
@@ -87,11 +77,11 @@ const CustomerPortal = () => {
       <div data-test={CUSTOMER_PORTAL_ERROR_STATE_TEST_ID} className={containerClassName}>
         {showSidebar && (
           <CustomerPortalSidebar
-            organizationName={portalOrgaInfosData?.customerPortalOrganization?.name}
-            organizationLogoUrl={portalOrgaInfosData?.customerPortalOrganization?.logoUrl}
+            organizationName={portalOrganization?.name}
+            organizationLogoUrl={portalOrganization?.logoUrl}
             showPoweredBy={showPoweredBy}
-            isLoading={portalOrgasInfoLoading}
-            isError={portalOrgasInfoError}
+            isLoading={portalDataLoading}
+            isError={portalDataError}
           />
         )}
 
@@ -142,18 +132,18 @@ const CustomerPortal = () => {
     <div data-test={CUSTOMER_PORTAL_CONTENT_STATE_TEST_ID} className={containerClassName}>
       {showSidebar && (
         <CustomerPortalSidebar
-          organizationName={portalOrgaInfosData?.customerPortalOrganization?.name}
-          organizationLogoUrl={portalOrgaInfosData?.customerPortalOrganization?.logoUrl}
-          isLoading={portalOrgasInfoLoading}
-          isError={portalOrgasInfoError}
+          organizationName={portalOrganization?.name}
+          organizationLogoUrl={portalOrganization?.logoUrl}
+          isLoading={portalDataLoading}
+          isError={portalDataError}
         />
       )}
 
       <div className={contentContainerClassName} ref={customerPortalContentRef}>
         <div className={contentInnerContainerClassName}>
-          {portalOrgasInfoLoading && <CustomerPortalLoading />}
+          {portalDataLoading && <CustomerPortalLoading />}
 
-          {!portalOrgasInfoLoading && (
+          {!portalDataLoading && (
             <div className={pageContainerClassName}>
               <Outlet />
             </div>
