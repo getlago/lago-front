@@ -9,11 +9,11 @@ import { Button } from '~/components/designSystem/Button'
 import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { AmountInputField, TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
-import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
+import { WALLET_DETAILS_ROUTE } from '~/core/router'
 import { CurrencyEnum, useCreateCustomerWalletTransactionMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { WalletDetailsTabsOptionsEnum } from '~/pages/wallet/WalletDetails'
 
 gql`
   mutation createCustomerWalletTransaction($input: CreateCustomerWalletTransactionInput!) {
@@ -93,9 +93,10 @@ export const VoidWalletDialog = forwardRef<VoidWalletDialogRef>((_, ref) => {
       })
 
       navigate(
-        generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+        generatePath(WALLET_DETAILS_ROUTE, {
+          walletId: localData?.walletId as string,
           customerId: customerId as string,
-          tab: CustomerDetailsTabsOptions.wallet,
+          tab: WalletDetailsTabsOptionsEnum.overview,
         }),
       )
     },
