@@ -72,7 +72,7 @@ const generateTabs = ({
     link: generatePath(INTEGRATIONS_ROUTE, {
       integrationGroup: IntegrationsTabsOptionsEnum.Lago,
     }),
-    match: [FULL_INTEGRATIONS_ROUTE, FULL_INTEGRATIONS_ROUTE_ID],
+    match: [INTEGRATIONS_ROUTE, FULL_INTEGRATIONS_ROUTE, FULL_INTEGRATIONS_ROUTE_ID],
     hidden: !hasPermissions(['organizationIntegrationsView']),
   },
   {
