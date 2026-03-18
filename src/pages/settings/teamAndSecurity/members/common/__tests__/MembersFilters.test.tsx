@@ -58,7 +58,6 @@ const defaultProps: MembersFiltersProps = {
   searchQuery: '',
   setSearchQuery: jest.fn(),
   type: 'members',
-  openCreateInviteDialog: jest.fn(),
 }
 
 async function prepare({
@@ -141,7 +140,7 @@ describe('MembersFilters', () => {
       const openCreateInviteDialog = jest.fn()
       const user = userEvent.setup()
 
-      await prepare({ props: { ...defaultProps, openCreateInviteDialog } })
+      await prepare({ props: { ...defaultProps } })
 
       const createButton = screen.getByTestId('create-invite-button')
 
