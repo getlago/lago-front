@@ -6,14 +6,13 @@ import { Button } from '~/components/designSystem/Button'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
-import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,
   SettingsListItemHeader,
   SettingsListWrapper,
   SettingsPaddedContainer,
-  SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import {
   DeleteCustomSectionDialog,
   DeleteCustomSectionDialogRef,
@@ -105,18 +104,14 @@ const InvoiceSections = () => {
 
   return (
     <>
-      <PageBannerHeaderWithBurgerMenu>
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_63ac86d797f728a87b2f9f85')}
-        </Typography>
-      </PageBannerHeaderWithBurgerMenu>
+      <MainHeader.Configure
+        entity={{
+          viewName: translate('text_63ac86d797f728a87b2f9f85'),
+          metadata: translate('text_1732553358445p7rg0i0dzws'),
+        }}
+      />
 
       <SettingsPaddedContainer>
-        <SettingsPageHeaderContainer>
-          <Typography variant="headline">{translate('text_63ac86d797f728a87b2f9f85')}</Typography>
-          <Typography>{translate('text_1732553358445p7rg0i0dzws')}</Typography>
-        </SettingsPageHeaderContainer>
-
         <SettingsListWrapper>
           {canViewPricingUnits && (
             <SettingsListItem className={tw({ 'pb-0 shadow-inherit': hasPricingUnits })}>
