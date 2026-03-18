@@ -136,7 +136,7 @@ const WalletDetails = () => {
 
   const wallet = data?.wallet
 
-  const title = translate('text_62da6ec24a8e24e44f8128b2', {
+  const createdAtTitle = translate('text_62da6ec24a8e24e44f8128b2', {
     createdAt: intlFormatDateTimeOrgaTZ(wallet?.createdAt).date,
   })
 
@@ -168,7 +168,7 @@ const WalletDetails = () => {
           />
 
           <Typography variant="bodyHl" color="grey700" noWrap>
-            {title}
+            {createdAtTitle}
           </Typography>
         </PageHeader.Group>
 
@@ -193,7 +193,7 @@ const WalletDetails = () => {
       <DetailsPage.Header
         isLoading={loading}
         icon="wallet"
-        title={title}
+        title={wallet?.name || createdAtTitle || '-'}
         description={wallet?.code || ''}
       />
 
