@@ -230,35 +230,33 @@ const InvoicesPage = () => {
         entity={{ viewName: translate('text_63ac86d797f728a87b2f9f85') }}
         actions={[
           {
-            type: 'action' as const,
+            type: 'action',
             label: translate('text_66b21236c939426d07ff98ca'),
-            variant: 'secondary' as const,
+            variant: 'secondary',
             disabled: !invoicesTotalCount,
             onClick: () => {
               exportInvoicesDialogRef.current?.openDialog()
             },
           },
-          ...(isOutstandingUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX }) &&
-          hasPermissions(['invoicesSend'])
-            ? [
-                {
-                  type: 'action' as const,
-                  label: translate('text_63ac86d797f728a87b2f9fc4'),
-                  variant: 'primary' as const,
-                  disabled: !invoicesTotalCount,
-                  onClick: async () => {
-                    const { errors } = await retryAll({ variables: { input: {} } })
+          {
+            type: 'action',
+            label: translate('text_63ac86d797f728a87b2f9fc4'),
+            variant: 'primary',
+            hidden:
+              !isOutstandingUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX }) ||
+              !hasPermissions(['invoicesSend']),
+            disabled: !invoicesTotalCount,
+            onClick: async () => {
+              const { errors } = await retryAll({ variables: { input: {} } })
 
-                    if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
-                      addToast({
-                        severity: 'info',
-                        translateKey: 'text_63b6d06df1a53b7e2ad973ad',
-                      })
-                    }
-                  },
-                },
-              ]
-            : []),
+              if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
+                addToast({
+                  severity: 'info',
+                  translateKey: 'text_63b6d06df1a53b7e2ad973ad',
+                })
+              }
+            },
+          },
         ]}
         filtersSection={
           <Filters.Provider

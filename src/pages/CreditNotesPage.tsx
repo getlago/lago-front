@@ -179,9 +179,9 @@ const CreditNotesPage = () => {
         entity={{ viewName: translate('text_66461ada56a84401188e8c63') }}
         actions={[
           {
-            type: 'action' as const,
+            type: 'action',
             label: translate('text_1773761094529kr57s3qq8j3'),
-            variant: 'secondary' as const,
+            variant: 'secondary',
             disabled: !dataCreditNotes?.creditNotes?.metadata.totalCount,
             onClick: () => {
               exportCreditNotesDialogRef.current?.openDialog()

@@ -96,17 +96,14 @@ const AddOnsList = () => {
       <MainHeader.Configure
         entity={{ viewName: translate('text_629728388c4d2300e2d3809b') }}
         actions={[
-          ...(canCreateAddOns
-            ? [
-                {
-                  type: 'action' as const,
-                  label: translate('text_629728388c4d2300e2d38085'),
-                  variant: 'primary' as const,
-                  onClick: () => navigate(CREATE_ADD_ON_ROUTE),
-                  dataTest: 'create-addon-cta',
-                },
-              ]
-            : []),
+          {
+            type: 'action',
+            label: translate('text_629728388c4d2300e2d38085'),
+            variant: 'primary',
+            hidden: !canCreateAddOns,
+            onClick: () => navigate(CREATE_ADD_ON_ROUTE),
+            dataTest: 'create-addon-cta',
+          },
         ]}
         filtersSection={
           <SearchInput

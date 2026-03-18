@@ -162,6 +162,58 @@ describe('ActionsBlock', () => {
     })
   })
 
+  describe('GIVEN a hidden top-level action', () => {
+    const actions: MainHeaderAction[] = [
+      {
+        type: 'action',
+        label: 'Visible',
+        onClick: jest.fn(),
+        dataTest: 'visible-button',
+      },
+      {
+        type: 'action',
+        label: 'Hidden',
+        onClick: jest.fn(),
+        hidden: true,
+        dataTest: 'hidden-button',
+      },
+    ]
+
+    describe('WHEN the component renders', () => {
+      it('THEN should display the visible action and hide the hidden one', () => {
+        render(<ActionsBlock actions={actions} />)
+
+        expect(screen.getByTestId('visible-button')).toBeInTheDocument()
+        expect(screen.queryByTestId('hidden-button')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN all top-level actions are hidden', () => {
+    const actions: MainHeaderAction[] = [
+      {
+        type: 'action',
+        label: 'Hidden 1',
+        onClick: jest.fn(),
+        hidden: true,
+      },
+      {
+        type: 'action',
+        label: 'Hidden 2',
+        onClick: jest.fn(),
+        hidden: true,
+      },
+    ]
+
+    describe('WHEN the component renders', () => {
+      it('THEN should render nothing', () => {
+        const { container } = render(<ActionsBlock actions={actions} />)
+
+        expect(container.innerHTML).toBe('')
+      })
+    })
+  })
+
   describe('GIVEN a dropdown where all items are hidden', () => {
     const actions: MainHeaderAction[] = [
       {
@@ -175,11 +227,10 @@ describe('ActionsBlock', () => {
     ]
 
     describe('WHEN the component renders', () => {
-      it('THEN should render nothing for that action', () => {
+      it('THEN should render nothing', () => {
         const { container } = render(<ActionsBlock actions={actions} />)
 
-        // The dropdown with all hidden items returns null, but the container div still renders
-        expect(container.querySelector('[data-test="actions-block"]')).toBeInTheDocument()
+        expect(container.innerHTML).toBe('')
       })
     })
   })

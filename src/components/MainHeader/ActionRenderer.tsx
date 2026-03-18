@@ -9,6 +9,14 @@ import { MenuPopper } from '~/styles'
 import { ACTIONS_BLOCK_TEST_ID } from './mainHeaderTestIds'
 import { MainHeaderAction } from './types'
 
+/** Returns true when a top-level action should be rendered. */
+const isVisible = (action: MainHeaderAction): boolean => {
+  if (action.type === 'action') return !action.hidden
+  if (action.type === 'dropdown') return action.items.some((item) => !item.hidden)
+
+  return true
+}
+
 /**
  * Renders the full actions block: skeleton during loading, action buttons otherwise.
  */
@@ -18,14 +26,16 @@ export const ActionsBlock: FC<{ actions?: MainHeaderAction[]; isLoading?: boolea
 }) => {
   if (isLoading) return <Skeleton variant="text" className="w-30" />
 
-  if (!actions || actions.length === 0) return null
+  const visibleActions = actions?.filter(isVisible)
+
+  if (!visibleActions || visibleActions.length === 0) return null
 
   return (
     <div
       className="flex shrink-0 items-center justify-center gap-4"
       data-test={ACTIONS_BLOCK_TEST_ID}
     >
-      {actions.map((action) => (
+      {visibleActions.map((action) => (
         <ActionItem key={action.label} action={action} />
       ))}
     </div>
@@ -37,8 +47,6 @@ const ActionItem: FC<{ action: MainHeaderAction }> = ({ action }) => {
   switch (action.type) {
     case 'dropdown': {
       const visibleItems = action.items.filter((item) => !item.hidden)
-
-      if (visibleItems.length === 0) return null
 
       return (
         <Popper

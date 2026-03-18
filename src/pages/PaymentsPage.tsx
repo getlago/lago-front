@@ -68,9 +68,9 @@ const PaymentsPage = () => {
         entity={{ viewName: translate('text_6672ebb8b1b50be550eccbed') }}
         actions={[
           {
-            type: 'action' as const,
+            type: 'action',
             label: translate('text_1737471851634wpeojigr27w'),
-            variant: 'primary' as const,
+            variant: 'primary',
             endIcon: isPremium ? undefined : 'sparkles',
             onClick: () => {
               if (isPremium) {

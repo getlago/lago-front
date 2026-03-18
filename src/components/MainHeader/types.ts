@@ -46,6 +46,7 @@ export interface MainHeaderInPageAction {
   variant?: ButtonVariant
   startIcon?: IconName
   endIcon?: IconName
+  hidden?: boolean
   disabled?: boolean
   dataTest?: string
 }
