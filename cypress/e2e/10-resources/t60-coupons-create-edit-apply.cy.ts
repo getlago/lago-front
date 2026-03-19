@@ -1,4 +1,7 @@
-import { ENTITY_SECTION_VIEW_NAME_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
+import {
+  DESKTOP_ACTIONS_BLOCK_TEST_ID,
+  ENTITY_SECTION_VIEW_NAME_TEST_ID,
+} from '~/components/MainHeader/mainHeaderTestIds'
 
 import { customerName } from '../../support/reusableConstants'
 
@@ -13,7 +16,7 @@ describe('Coupons', () => {
 
   it('should be able create a coupon with plan limitation', () => {
     cy.visit('/coupons')
-    cy.get(`[data-test="add-coupon"]`).click()
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="add-coupon"]`).click()
     cy.get('input[name="name"]').type(couponName)
     cy.get('input[name="code"]').should('have.value', couponCode)
     cy.get('input[name="amountCents"]').type('30')

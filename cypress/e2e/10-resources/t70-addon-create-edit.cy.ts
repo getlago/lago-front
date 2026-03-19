@@ -1,4 +1,7 @@
-import { ENTITY_SECTION_VIEW_NAME_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
+import {
+  DESKTOP_ACTIONS_BLOCK_TEST_ID,
+  ENTITY_SECTION_VIEW_NAME_TEST_ID,
+} from '~/components/MainHeader/mainHeaderTestIds'
 
 describe('Add On', () => {
   beforeEach(() => {
@@ -14,7 +17,7 @@ describe('Add On', () => {
   it('should be able create an add on with all attributes filled', () => {
     // Navigation
     cy.visit('/add-ons')
-    cy.get(`[data-test="create-addon-cta"]`).click()
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-addon-cta"]`).click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/add-on')
 
     // Basic form infos
