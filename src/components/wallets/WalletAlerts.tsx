@@ -134,7 +134,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
   }
 
   return (
-    <div className="">
+    <div>
       {!isPremium && (
         <PremiumFeature
           title={translate('text_1773043324342l1bo3jcx5ps')}
@@ -277,7 +277,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                     data={
                       currentAlert?.thresholds?.filter((threshold) => !threshold.recurring) || []
                     }
-                    headerCellClassName="rouded-xl bg-grey-100"
+                    headerCellClassName="rounded-xl bg-grey-100"
                     columns={[
                       {
                         size: 228,

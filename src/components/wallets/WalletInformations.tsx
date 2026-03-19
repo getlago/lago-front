@@ -292,7 +292,7 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
                   ]),
               {
                 label: translate('text_1772536695408pz0actopowa'),
-                value: wallet?.expirationAt
+                value: recurring?.expirationAt
                   ? intlFormatDateTimeOrgaTZ(recurring?.expirationAt)?.date
                   : '-',
               },

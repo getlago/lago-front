@@ -10,6 +10,7 @@ import {
   AmountValueFormatter,
   Switch,
   TextInput,
+  ValueFormatter,
   ValueFormatterType,
 } from '~/components/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
@@ -49,16 +50,16 @@ const ValueInput = ({
   unitsLabel?: string
   allowNegativeValues?: boolean
 }) => {
-  const beforeChangeFormatter = [
-    ...(allowNegativeValues ? [] : ['positiveNumber']),
-    ...(shouldHandleUnits ? ['int'] : []),
-  ]
-
   if (shouldHandleUnits) {
+    const beforeChangeFormatter: ValueFormatterType[] = [
+      ...(allowNegativeValues ? [] : [ValueFormatter.positiveNumber]),
+      ValueFormatter.int,
+    ]
+
     return (
       <TextInput
         variant="outlined"
-        beforeChangeFormatter={beforeChangeFormatter as ValueFormatterType[]}
+        beforeChangeFormatter={beforeChangeFormatter}
         error={shouldDisplayError}
         value={value}
         onChange={onChange}
@@ -74,11 +75,15 @@ const ValueInput = ({
     )
   }
 
+  const beforeChangeFormatter: AmountValueFormatter[] = allowNegativeValues
+    ? []
+    : [ValueFormatter.positiveNumber]
+
   return (
     <AmountInput
       variant="outlined"
       error={shouldDisplayError}
-      beforeChangeFormatter={beforeChangeFormatter as AmountValueFormatter[]}
+      beforeChangeFormatter={beforeChangeFormatter}
       currency={currency}
       value={value}
       onChange={onChange}

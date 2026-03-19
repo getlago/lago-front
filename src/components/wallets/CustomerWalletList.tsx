@@ -6,7 +6,7 @@ import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status, StatusType } from '~/components/designSystem/Status'
-import { Table } from '~/components/designSystem/Table'
+import { Table, TableColumn } from '~/components/designSystem/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { PageSectionTitle } from '~/components/layouts/Section'
@@ -18,6 +18,7 @@ import { CREATE_WALLET_ROUTE, WALLET_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
+  CustomerWalletFragment,
   TimezoneEnum,
   useGetCustomerWalletListQuery,
   WalletForUpdateFragmentDoc,
@@ -99,6 +100,128 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
   const walletsCollection = data?.wallets?.collection || []
   const hasMoreThanActiveWalletsLimit =
     (data?.wallets?.metadata?.customerActiveWalletsCount || 0) >= ACTIVE_WALLET_COUNT_LIMIT
+
+  const columns: TableColumn<CustomerWalletFragment>[] = [
+    {
+      key: 'status',
+      title: translate('text_1772536695408q802eishgnx'),
+      content: ({ status }) => (
+        <div className="pl-1">
+          {status === WalletStatusEnum.Active && (
+            <Status type={StatusType.success} label={translate('text_624efab67eb2570101d1180e')} />
+          )}
+
+          {status === WalletStatusEnum.Terminated && (
+            <Status type={StatusType.danger} label={translate('text_62e2a2f2a79d60429eff3035')} />
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'id',
+      maxSpace: true,
+      title: translate('text_1772536695408sddzumtfq2t'),
+      content: ({ createdAt, currency, name, rateAmount }) => (
+        <div className="flex flex-col">
+          <Typography variant="bodyHl" color="grey700">
+            {name ||
+              translate('text_62da6ec24a8e24e44f8128b2', {
+                createdAt: intlFormatDateTimeOrgaTZ(createdAt).date,
+              })}
+          </Typography>
+          <Typography variant="caption" color="grey600">
+            {`${translate('text_62da6ec24a8e24e44f812872', {
+              rateAmount: intlFormatNumber(Number(rateAmount) || 0, {
+                currencyDisplay: 'symbol',
+                currency,
+              }),
+            })}`}
+          </Typography>
+        </div>
+      ),
+    },
+    {
+      key: 'balanceCents',
+      title: translate('text_1772536695408yws01ove0kv'),
+      textAlign: 'right',
+      content: ({ balanceCents, currency, creditsBalance }) => {
+        const amount = formatCredits({
+          credits: creditsBalance?.toString(),
+        })
+
+        const amountCents = formatAmount({
+          amountCents: deserializeAmount(balanceCents, currency || CurrencyEnum.Usd)?.toString(),
+          currency: currency,
+        })
+
+        return (
+          <div className="flex flex-col">
+            <Typography color="grey700" variant="body" noWrap>
+              {amountCents}
+            </Typography>
+
+            <Typography color="grey600" variant="caption" noWrap>
+              {translate(
+                'text_62da6ec24a8e24e44f812896',
+                {
+                  amount: amount,
+                },
+                Number(amount) || 0,
+              )}
+            </Typography>
+          </div>
+        )
+      },
+    },
+    {
+      key: 'ongoingBalanceCents',
+      title: translate('text_17725366954080ut3kxr0kvl'),
+      textAlign: 'right',
+      content: ({ currency, creditsOngoingBalance, ongoingBalanceCents, status }) => {
+        const amount = formatCredits({
+          credits: creditsOngoingBalance?.toString(),
+        })
+
+        const amountCents = formatAmount({
+          amountCents: deserializeAmount(
+            ongoingBalanceCents,
+            currency || CurrencyEnum.Usd,
+          )?.toString(),
+          currency: currency,
+        })
+
+        const isWalletActive = status === WalletStatusEnum.Active
+
+        return !isWalletActive ? null : (
+          <div className="flex flex-col">
+            <Typography color="grey700" variant="body" noWrap>
+              {amountCents}
+            </Typography>
+
+            <Typography color="grey600" variant="caption" noWrap>
+              {translate(
+                'text_62da6ec24a8e24e44f812896',
+                {
+                  amount: amount,
+                },
+                Number(amount) || 0,
+              )}
+            </Typography>
+          </div>
+        )
+      },
+    },
+    {
+      key: 'priority',
+      title: translate('text_1772536695408m4r9zfc2tcw'),
+      textAlign: 'right',
+      content: ({ priority }) => (
+        <Typography variant="caption" color="grey600">
+          {priority || '-'}
+        </Typography>
+      ),
+    },
+  ]
 
   if (!loading && !!error) {
     return (
@@ -191,136 +314,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
                 tab: WalletDetailsTabsOptionsEnum.overview,
               })
             }
-            columns={[
-              {
-                key: 'status',
-                title: translate('text_1772536695408q802eishgnx'),
-                content: ({ status }) => (
-                  <div className="pl-1">
-                    {status === WalletStatusEnum.Active && (
-                      <Status
-                        type={StatusType.success}
-                        label={translate('text_624efab67eb2570101d1180e')}
-                      />
-                    )}
-
-                    {status === WalletStatusEnum.Terminated && (
-                      <Status
-                        type={StatusType.danger}
-                        label={translate('text_62e2a2f2a79d60429eff3035')}
-                      />
-                    )}
-                  </div>
-                ),
-              },
-              {
-                key: 'id',
-                maxSpace: true,
-                title: translate('text_1772536695408sddzumtfq2t'),
-                content: ({ createdAt, currency, name, rateAmount }) => (
-                  <div className="flex flex-col">
-                    <Typography variant="bodyHl" color="grey700">
-                      {name ||
-                        translate('text_62da6ec24a8e24e44f8128b2', {
-                          createdAt: intlFormatDateTimeOrgaTZ(createdAt).date,
-                        })}
-                    </Typography>
-                    <Typography variant="caption" color="grey600">
-                      {`${translate('text_62da6ec24a8e24e44f812872', {
-                        rateAmount: intlFormatNumber(Number(rateAmount) || 0, {
-                          currencyDisplay: 'symbol',
-                          currency,
-                        }),
-                      })}`}
-                    </Typography>
-                  </div>
-                ),
-              },
-              {
-                key: 'balanceCents',
-                title: translate('text_1772536695408yws01ove0kv'),
-                textAlign: 'right',
-                content: ({ balanceCents, currency, creditsBalance }) => {
-                  const amount = formatCredits({
-                    credits: creditsBalance?.toString(),
-                  })
-
-                  const amountCents = formatAmount({
-                    amountCents: deserializeAmount(
-                      balanceCents,
-                      currency || CurrencyEnum.Usd,
-                    )?.toString(),
-                    currency: currency,
-                  })
-
-                  return (
-                    <div className="flex flex-col">
-                      <Typography color="grey700" variant="body" noWrap>
-                        {amountCents}
-                      </Typography>
-
-                      <Typography color="grey600" variant="caption" noWrap>
-                        {translate(
-                          'text_62da6ec24a8e24e44f812896',
-                          {
-                            amount: amount,
-                          },
-                          Number(amount) || 0,
-                        )}
-                      </Typography>
-                    </div>
-                  )
-                },
-              },
-              {
-                key: 'ongoingBalanceCents',
-                title: translate('text_17725366954080ut3kxr0kvl'),
-                textAlign: 'right',
-                content: ({ currency, creditsOngoingBalance, ongoingBalanceCents, status }) => {
-                  const amount = formatCredits({
-                    credits: creditsOngoingBalance?.toString(),
-                  })
-
-                  const amountCents = formatAmount({
-                    amountCents: deserializeAmount(
-                      ongoingBalanceCents,
-                      currency || CurrencyEnum.Usd,
-                    )?.toString(),
-                    currency: currency,
-                  })
-
-                  const isWalletActive = status === WalletStatusEnum.Active
-
-                  return !isWalletActive ? null : (
-                    <div className="flex flex-col">
-                      <Typography color="grey700" variant="body" noWrap>
-                        {amountCents}
-                      </Typography>
-
-                      <Typography color="grey600" variant="caption" noWrap>
-                        {translate(
-                          'text_62da6ec24a8e24e44f812896',
-                          {
-                            amount: amount,
-                          },
-                          Number(amount) || 0,
-                        )}
-                      </Typography>
-                    </div>
-                  )
-                },
-              },
-              {
-                key: 'priority',
-                title: translate('text_1772536695408m4r9zfc2tcw'),
-                textAlign: 'right',
-                content: ({ priority }) => (
-                  <Typography variant="caption" color="grey600">
-                    {priority || '-'}
-                  </Typography>
-                ),
-              },
-            ]}
+            columns={columns}
             actionColumn={({ creditsBalance, currency, id, rateAmount, status }) => {
               return (
                 <WalletActions
