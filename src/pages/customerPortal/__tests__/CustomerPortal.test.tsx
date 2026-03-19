@@ -9,7 +9,7 @@ import CustomerPortal, {
 } from '../CustomerPortal'
 
 const mockUseCustomerPortalTranslate = jest.fn()
-const mockUseGetPortalOrgaInfosQuery = jest.fn()
+const mockUseCustomerPortalData = jest.fn()
 const mockHasDefinedGQLError = jest.fn()
 
 jest.mock('~/components/customerPortal/common/useCustomerPortalTranslate', () => ({
@@ -22,9 +22,8 @@ jest.mock('~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
   default: () => ({ pathname: '/test' }),
 }))
 
-jest.mock('~/generated/graphql', () => ({
-  ...jest.requireActual('~/generated/graphql'),
-  useGetPortalOrgaInfosQuery: () => mockUseGetPortalOrgaInfosQuery(),
+jest.mock('~/components/customerPortal/common/hooks/useCustomerPortalData', () => ({
+  useCustomerPortalData: () => mockUseCustomerPortalData(),
 }))
 
 jest.mock('~/core/apolloClient', () => ({
@@ -75,7 +74,7 @@ const setupDefaultMocks = () => {
     isUnauthenticated: false,
   })
 
-  mockUseGetPortalOrgaInfosQuery.mockReturnValue({
+  mockUseCustomerPortalData.mockReturnValue({
     data: {
       customerPortalOrganization: {
         id: 'org-1',

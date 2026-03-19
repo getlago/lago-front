@@ -36,7 +36,7 @@ export const validationSchema = z.object({
       city: z.string(),
       state: z.string(),
       zipcode: z.string(),
-      country: z.enum(CountryCode).nullable(),
+      country: z.enum(CountryCode).nullable().optional(),
     })
     .optional(),
   isShippingEqualBillingAddress: z.boolean().optional(),
@@ -47,7 +47,7 @@ export const validationSchema = z.object({
       city: z.string(),
       state: z.string(),
       zipcode: z.string(),
-      country: z.enum(CountryCode).nullable(),
+      country: z.enum(CountryCode).nullable().optional(),
     })
     .optional(),
   timezone: z.enum(TimezoneEnum).optional(),

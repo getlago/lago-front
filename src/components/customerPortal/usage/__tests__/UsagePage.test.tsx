@@ -9,7 +9,7 @@ import { render } from '~/test-utils'
 import UsagePage from '../UsagePage'
 
 const mockNavigate = jest.fn()
-const mockUseGetPortalOrgaInfosQuery = jest.fn()
+const mockUseCustomerPortalData = jest.fn()
 const mockUseGetSubscriptionForPortalQuery = jest.fn()
 const mockUseGetCustomerUsageForPortalQuery = jest.fn()
 const mockUseGetCustomerProjectedUsageForPortalQuery = jest.fn()
@@ -62,9 +62,12 @@ jest.mock('~/components/subscriptions/SubscriptionCurrentUsageTable', () => ({
   ),
 }))
 
+jest.mock('~/components/customerPortal/common/hooks/useCustomerPortalData', () => ({
+  useCustomerPortalData: () => mockUseCustomerPortalData(),
+}))
+
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useGetPortalOrgaInfosQuery: jest.fn(() => mockUseGetPortalOrgaInfosQuery()),
   useGetSubscriptionForPortalQuery: jest.fn(() => mockUseGetSubscriptionForPortalQuery()),
   useGetCustomerUsageForPortalQuery: jest.fn(() => mockUseGetCustomerUsageForPortalQuery()),
   useGetCustomerProjectedUsageForPortalQuery: jest.fn(() =>
@@ -85,7 +88,7 @@ const createNoActiveSubscriptionError = (): ApolloError =>
   }) as unknown as ApolloError
 
 const setupDefaultMocks = () => {
-  mockUseGetPortalOrgaInfosQuery.mockReturnValue({
+  mockUseCustomerPortalData.mockReturnValue({
     data: {
       customerPortalOrganization: {
         premiumIntegrations: [],
@@ -178,7 +181,7 @@ describe('UsagePage', () => {
     it('should show toast and redirect when usageErrorProjected has NoActiveSubscription error', async () => {
       const noActiveSubscriptionError = createNoActiveSubscriptionError()
 
-      mockUseGetPortalOrgaInfosQuery.mockReturnValue({
+      mockUseCustomerPortalData.mockReturnValue({
         data: {
           customerPortalOrganization: {
             premiumIntegrations: ['projected_usage'],

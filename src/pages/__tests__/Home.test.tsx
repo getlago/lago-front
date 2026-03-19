@@ -1,6 +1,10 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import type { Location } from 'react-router-dom'
 
+import {
+  ORGANIZATION_LS_KEY_ID,
+  REDIRECT_AFTER_LOGIN_LS_KEY,
+} from '~/core/constants/localStorageKeys'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 
 // Import Home component after all mocks are set up
@@ -10,6 +14,7 @@ import Home from '../Home'
 const mockNavigate = jest.fn()
 const mockUseLocation = jest.fn()
 const mockGetItemFromLS = jest.fn()
+const mockRemoveItemFromLS = jest.fn()
 const mockHasPermissions = jest.fn()
 const mockFindFirstViewPermission = jest.fn()
 const mockHasOrganizationPremiumAddon = jest.fn()
@@ -29,6 +34,7 @@ jest.mock('react-router-dom', () => ({
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
   getItemFromLS: (key: string) => mockGetItemFromLS(key),
+  removeItemFromLS: (key: string) => mockRemoveItemFromLS(key),
 }))
 
 jest.mock('~/hooks/useCurrentUser', () => ({
@@ -54,6 +60,7 @@ describe('Home', () => {
   beforeEach(() => {
     mockNavigate.mockClear()
     mockGetItemFromLS.mockClear()
+    mockRemoveItemFromLS.mockClear()
     mockHasPermissions.mockClear()
     mockFindFirstViewPermission.mockClear()
     mockHasOrganizationPremiumAddon.mockClear()
@@ -89,7 +96,11 @@ describe('Home', () => {
           orgId: 'org-a',
         },
       })
-      mockGetItemFromLS.mockReturnValue('org-a')
+      mockGetItemFromLS.mockImplementation((key: string) => {
+        if (key === ORGANIZATION_LS_KEY_ID) return 'org-a'
+
+        return undefined
+      })
 
       renderHook(() => Home())
 
@@ -105,7 +116,11 @@ describe('Home', () => {
           orgId: null,
         },
       })
-      mockGetItemFromLS.mockReturnValue('org-a')
+      mockGetItemFromLS.mockImplementation((key: string) => {
+        if (key === ORGANIZATION_LS_KEY_ID) return 'org-a'
+
+        return undefined
+      })
 
       renderHook(() => Home())
 
@@ -121,7 +136,11 @@ describe('Home', () => {
           orgId: 'org-a',
         },
       })
-      mockGetItemFromLS.mockReturnValue('org-b')
+      mockGetItemFromLS.mockImplementation((key: string) => {
+        if (key === ORGANIZATION_LS_KEY_ID) return 'org-b'
+
+        return undefined
+      })
       mockHasPermissions.mockImplementation((perms: string[]) => {
         return perms.includes('customersView')
       })
@@ -145,7 +164,11 @@ describe('Home', () => {
           orgId: 'org-a',
         },
       })
-      mockGetItemFromLS.mockReturnValue('org-a')
+      mockGetItemFromLS.mockImplementation((key: string) => {
+        if (key === ORGANIZATION_LS_KEY_ID) return 'org-a'
+
+        return undefined
+      })
       mockHasPermissions.mockImplementation((perms: string[]) => {
         return perms.includes('customersView')
       })
@@ -157,6 +180,82 @@ describe('Home', () => {
         // Should fall through to default navigation
         expect(mockNavigate).toHaveBeenCalledWith('/customers', { replace: true })
         expect(mockNavigate).not.toHaveBeenCalledWith(rootLocation, { replace: true })
+      })
+    })
+  })
+
+  describe('GIVEN a redirect path is stored in localStorage from SSO login', () => {
+    const ssoRedirectPath = '/customers/123/information'
+
+    beforeEach(() => {
+      mockUseLocation.mockReturnValue({ state: null })
+      mockGetItemFromLS.mockImplementation((key: string) => {
+        if (key === REDIRECT_AFTER_LOGIN_LS_KEY) return ssoRedirectPath
+
+        return undefined
+      })
+    })
+
+    describe('WHEN the component renders after SSO login', () => {
+      it('THEN should navigate to the stored redirect path', async () => {
+        renderHook(() => Home())
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(ssoRedirectPath, { replace: true })
+        })
+      })
+
+      it('THEN should remove the redirect path from localStorage', async () => {
+        renderHook(() => Home())
+
+        await waitFor(() => {
+          expect(mockRemoveItemFromLS).toHaveBeenCalledWith(REDIRECT_AFTER_LOGIN_LS_KEY)
+        })
+      })
+    })
+
+    describe('WHEN there is also a saved location in router state', () => {
+      it('THEN should prioritize the localStorage redirect over router state', async () => {
+        const savedLocation: Location = {
+          pathname: '/different-page',
+          search: '',
+          hash: '',
+          state: null,
+          key: 'saved-key',
+        }
+
+        mockUseLocation.mockReturnValue({
+          state: { from: savedLocation, orgId: null },
+        })
+
+        renderHook(() => Home())
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(ssoRedirectPath, { replace: true })
+          expect(mockNavigate).not.toHaveBeenCalledWith(savedLocation, { replace: true })
+        })
+      })
+    })
+  })
+
+  describe('GIVEN no redirect path is stored in localStorage', () => {
+    beforeEach(() => {
+      mockUseLocation.mockReturnValue({ state: null })
+      mockGetItemFromLS.mockReturnValue(undefined)
+    })
+
+    describe('WHEN the component renders', () => {
+      it('THEN should not call removeItemFromLS for redirect key', async () => {
+        mockHasPermissions.mockReturnValue(true)
+        mockHasOrganizationPremiumAddon.mockReturnValue(false)
+
+        renderHook(() => Home())
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalled()
+        })
+
+        expect(mockRemoveItemFromLS).not.toHaveBeenCalledWith(REDIRECT_AFTER_LOGIN_LS_KEY)
       })
     })
   })
