@@ -20,10 +20,11 @@ const isVisible = (action: MainHeaderAction): boolean => {
 /**
  * Renders the full actions block: skeleton during loading, action buttons otherwise.
  */
-export const ActionsBlock: FC<{ actions?: MainHeaderAction[]; isLoading?: boolean }> = ({
-  actions,
-  isLoading,
-}) => {
+export const ActionsBlock: FC<{
+  actions?: MainHeaderAction[]
+  isLoading?: boolean
+  dataTest?: string
+}> = ({ actions, isLoading, dataTest }) => {
   if (isLoading) return <Skeleton variant="text" className="w-30" />
 
   const visibleActions = actions?.filter(isVisible)
@@ -33,7 +34,7 @@ export const ActionsBlock: FC<{ actions?: MainHeaderAction[]; isLoading?: boolea
   return (
     <div
       className="flex shrink-0 items-center justify-center gap-4"
-      data-test={ACTIONS_BLOCK_TEST_ID}
+      data-test={dataTest ?? ACTIONS_BLOCK_TEST_ID}
     >
       {visibleActions.map((action) => (
         <ActionItem key={action.label} action={action} />

@@ -5,7 +5,11 @@ import { Breadcrumb } from './Breadcrumb'
 import { EntitySection } from './EntitySection'
 import { MainHeaderConfigure } from './MainHeaderConfigure'
 import { useMainHeaderReader } from './MainHeaderContext'
-import { MAIN_HEADER_FILTERS_TEST_ID, MAIN_HEADER_TEST_ID } from './mainHeaderTestIds'
+import {
+  DESKTOP_ACTIONS_BLOCK_TEST_ID,
+  MAIN_HEADER_FILTERS_TEST_ID,
+  MAIN_HEADER_TEST_ID,
+} from './mainHeaderTestIds'
 import { NavigationTabBar } from './NavigationTabBar'
 
 /**
@@ -45,7 +49,11 @@ const MainHeaderComponent: FC = () => {
             )}
           </div>
 
-          <ActionsBlock actions={actions} isLoading={isLoading} />
+          <ActionsBlock
+            actions={actions}
+            isLoading={isLoading}
+            dataTest={DESKTOP_ACTIONS_BLOCK_TEST_ID}
+          />
         </div>
 
         {/* Mobile — entity section below the sticky bar */}
