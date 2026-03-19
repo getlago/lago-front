@@ -1,5 +1,5 @@
 import { useMemo, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
@@ -12,13 +12,12 @@ import {
   SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
   SettingsPaddedContainer,
-  SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { BILLING_ENTITY_ROUTE } from '~/core/router/SettingRoutes'
 import { BillingEntity, useGetBillingEntityQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import { BillingEntityTab } from '~/pages/settings/BillingEntity/BillingEntity'
-import BillingEntityHeader from '~/pages/settings/BillingEntity/components/BillingEntityHeader'
 import {
   ApplyInvoiceCustomSectionDialog,
   ApplyInvoiceCustomSectionDialogRef,
@@ -74,18 +73,23 @@ const BillingEntityInvoiceCustomSections = () => {
 
   return (
     <>
-      <BillingEntityHeader
-        billingEntity={billingEntity as BillingEntity}
-        tab={BillingEntityTab.INVOICE_CUSTOM_SECTIONS}
-        loading={loading}
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: billingEntity?.name || '',
+            path: generatePath(BILLING_ENTITY_ROUTE, {
+              billingEntityCode: billingEntityCode as string,
+            }),
+          },
+        ]}
+        entity={{
+          viewName: translate('text_1749024634192ov41w9fp6r2'),
+          metadata: translate('text_1749024634192jeeb8l2bxk0'),
+        }}
+        isLoading={loading}
       />
 
       <SettingsPaddedContainer>
-        <SettingsPageHeaderContainer>
-          <Typography variant="headline">{translate('text_1749024634192ov41w9fp6r2')}</Typography>
-          <Typography>{translate('text_1749024634192jeeb8l2bxk0')}</Typography>
-        </SettingsPageHeaderContainer>
-
         {!!loading && <SettingsListItemLoadingSkeleton count={2} />}
 
         {!loading && (

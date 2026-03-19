@@ -51,7 +51,20 @@ export interface MainHeaderInPageAction {
   dataTest?: string
 }
 
-export type MainHeaderAction = MainHeaderDropdownAction | MainHeaderInPageAction
+/** Arbitrary ReactNode rendered as-is in the actions area */
+export interface MainHeaderCustomAction {
+  type: 'custom'
+  label: string
+  content: ReactNode
+  hidden?: boolean
+  /** Serializable value included in the config snapshot to trigger re-renders when the content changes (e.g. a toggle state). */
+  snapshotKey?: string | number | boolean
+}
+
+export type MainHeaderAction =
+  | MainHeaderDropdownAction
+  | MainHeaderInPageAction
+  | MainHeaderCustomAction
 
 // ─── Entity config ──────────────────────────────────────────────
 

@@ -11,7 +11,7 @@ import { MainHeaderAction } from './types'
 
 /** Returns true when a top-level action should be rendered. */
 const isVisible = (action: MainHeaderAction): boolean => {
-  if (action.type === 'action') return !action.hidden
+  if (action.type === 'action' || action.type === 'custom') return !action.hidden
   if (action.type === 'dropdown') return action.items.some((item) => !item.hidden)
 
   return true
@@ -104,5 +104,8 @@ const ActionItem: FC<{ action: MainHeaderAction }> = ({ action }) => {
           {action.label}
         </Button>
       )
+
+    case 'custom':
+      return <>{action.content}</>
   }
 }

@@ -1,16 +1,15 @@
-import { useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
 import {
   SettingsListItemLoadingSkeleton,
   SettingsPaddedContainer,
-  SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { BILLING_ENTITY_ROUTE } from '~/core/router/SettingRoutes'
 import { BillingEntity, useGetBillingEntityQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { BillingEntityTab } from '~/pages/settings/BillingEntity/BillingEntity'
-import BillingEntityHeader from '~/pages/settings/BillingEntity/components/BillingEntityHeader'
 import InformationBlock from '~/pages/settings/BillingEntity/sections/general/InformationBlock'
 import TimezoneBlock from '~/pages/settings/BillingEntity/sections/general/TimezoneBlock'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -47,17 +46,23 @@ const BillingEntityGeneral = () => {
 
   return (
     <>
-      <BillingEntityHeader
-        billingEntity={billingEntity as BillingEntity}
-        tab={BillingEntityTab.GENERAL}
-        loading={billingEntityLoading}
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: billingEntity?.name || '',
+            path: generatePath(BILLING_ENTITY_ROUTE, {
+              billingEntityCode: billingEntityCode as string,
+            }),
+          },
+        ]}
+        entity={{
+          viewName: translate('text_1742230191029o8hfgeebxl5'),
+          metadata: translate('text_6380d7e60f081e5b777c4b22'),
+        }}
+        isLoading={billingEntityLoading}
       />
 
       <SettingsPaddedContainer>
-        <SettingsPageHeaderContainer>
-          <Typography variant="headline">{translate('text_1742230191029o8hfgeebxl5')}</Typography>
-          <Typography>{translate('text_6380d7e60f081e5b777c4b22')}</Typography>
-        </SettingsPageHeaderContainer>
 
         {!!billingEntityLoading && <SettingsListItemLoadingSkeleton count={5} />}
 

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
@@ -12,8 +12,8 @@ import {
   SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
   SettingsPaddedContainer,
-  SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   EditBillingEntityDocumentLocaleDialog,
@@ -51,10 +51,10 @@ import {
   INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS,
   INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS,
 } from '~/core/constants/issuingDatePolicy'
+import { BILLING_ENTITY_ROUTE } from '~/core/router/SettingRoutes'
 import { DocumentLocales } from '~/core/translations/documentLocales'
 import { getBillingEntityNumberPreview } from '~/core/utils/billingEntityNumberPreview'
 import {
-  BillingEntity,
   BillingEntityDocumentNumberingEnum,
   BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum,
   BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum,
@@ -69,8 +69,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
-import { BillingEntityTab } from '~/pages/settings/BillingEntity/BillingEntity'
-import BillingEntityHeader from '~/pages/settings/BillingEntity/components/BillingEntityHeader'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 const MAX_FOOTER_LENGTH_DISPLAY_LIMIT = 200
@@ -427,18 +425,23 @@ const BillingEntityInvoiceSettings = () => {
 
   return (
     <>
-      <BillingEntityHeader
-        billingEntity={billingEntity as BillingEntity}
-        tab={BillingEntityTab.INVOICE_SETTINGS}
-        loading={loading}
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: billingEntity?.name || '',
+            path: generatePath(BILLING_ENTITY_ROUTE, {
+              billingEntityCode: billingEntityCode as string,
+            }),
+          },
+        ]}
+        entity={{
+          viewName: translate('text_62ab2d0396dd6b0361614d24'),
+          metadata: translate('text_637f819eff19cd55a56d55e2'),
+        }}
+        isLoading={loading}
       />
 
       <SettingsPaddedContainer>
-        <SettingsPageHeaderContainer>
-          <Typography variant="headline">{translate('text_62ab2d0396dd6b0361614d24')}</Typography>
-          <Typography>{translate('text_637f819eff19cd55a56d55e2')}</Typography>
-        </SettingsPageHeaderContainer>
-
         <SettingsListWrapper>
           {!!loading && <SettingsListItemLoadingSkeleton count={6} />}
 
