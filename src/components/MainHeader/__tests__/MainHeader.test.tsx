@@ -18,6 +18,7 @@ import { MainHeaderConfig } from '../types'
 const mockUseMainHeaderReader = jest.fn()
 
 jest.mock('../MainHeaderContext', () => ({
+  ...jest.requireActual('../MainHeaderContext'),
   useMainHeaderReader: () => mockUseMainHeaderReader(),
 }))
 
