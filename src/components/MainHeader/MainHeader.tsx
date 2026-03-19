@@ -35,7 +35,7 @@ const MainHeaderComponent: FC = () => {
       <header data-test={MAIN_HEADER_TEST_ID}>
         {/* Desktop layout — entity + actions inline */}
         <div className="hidden px-12 pt-12 md:flex md:items-start md:justify-between md:gap-4">
-          <div className="min-w-0">
+          <div className="flex min-w-0 flex-col gap-2">
             {hasBreadcrumb && <Breadcrumb items={breadcrumb} />}
 
             {hasEntity && (

@@ -3,12 +3,10 @@ import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Popper } from '~/components/designSystem/Popper'
-import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
-import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import {
   AddHubspotDialog,
   AddHubspotDialogRef,
@@ -27,7 +25,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Hubspot from '~/public/images/hubspot.svg'
-import { MenuPopper, PageHeader, PopperOpener } from '~/styles'
+import { MenuPopper, PopperOpener } from '~/styles'
 
 gql`
   fragment HubspotIntegrations on HubspotIntegration {
@@ -76,34 +74,32 @@ const HubspotIntegrations = () => {
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <ButtonLink
-            to={generatePath(INTEGRATIONS_ROUTE, {
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: translate('text_62b1edddbf5f461ab9712750'),
+            path: generatePath(INTEGRATIONS_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-            })}
-            type="button"
-            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
-          />
-          {loading ? (
-            <Skeleton variant="text" className="w-30" />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_1727189568053s79ks5q07tr')}
-            </Typography>
-          )}
-        </PageHeader.Group>
-        <Button variant="primary" onClick={() => addHubspotDialogRef.current?.openDialog()}>
-          {translate('text_65846763e6140b469140e235')}
-        </Button>
-      </PageHeader.Wrapper>
-
-      <IntegrationsPage.Header
+            }),
+          },
+        ]}
+        entity={{
+          viewName: translate('text_1727189568053s79ks5q07tr'),
+          metadata: translate('text_1727281892403opxm269y6mv'),
+          badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
+          icon: <Hubspot />,
+        }}
+        actions={[
+          {
+            type: 'action',
+            label: translate('text_65846763e6140b469140e235'),
+            variant: 'primary',
+            onClick: () => {
+              addHubspotDialogRef.current?.openDialog()
+            },
+          },
+        ]}
         isLoading={loading}
-        integrationLogo={<Hubspot />}
-        integrationName={translate('text_1727189568053s79ks5q07tr')}
-        integrationChip={translate('text_62b1edddbf5f461ab971270d')}
-        integrationDescription={translate('text_1727281892403opxm269y6mv')}
       />
 
       <IntegrationsPage.Container>

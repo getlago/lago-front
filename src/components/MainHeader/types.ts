@@ -2,7 +2,7 @@ import { IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
 
 import { ButtonVariant } from '~/components/designSystem/Button'
-import { StatusProps } from '~/components/designSystem/Status'
+import { StatusProps, StatusType } from '~/components/designSystem/Status'
 
 import { NavigationTabBarItem } from './NavigationTabBar'
 
@@ -55,7 +55,10 @@ export type MainHeaderAction = MainHeaderDropdownAction | MainHeaderInPageAction
 
 // ─── Entity config ──────────────────────────────────────────────
 
-export type MainHeaderBadge = Pick<StatusProps, 'type' | 'label' | 'labelVariables' | 'endIcon'>
+export type MainHeaderBadge = Pick<StatusProps, 'label' | 'labelVariables' | 'endIcon'> & {
+  /** Accepts both the StatusType enum and string literals like 'default', 'success', etc. */
+  type: `${StatusType}`
+}
 
 export interface MainHeaderEntityConfig {
   /** Display name — rendered as headline Typography */

@@ -3,12 +3,10 @@ import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Popper } from '~/components/designSystem/Popper'
-import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
-import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import {
   AddAvalaraDialog,
   AddAvalaraDialogRef,
@@ -29,7 +27,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { AvalaraIntegrationDetailsTabs } from '~/pages/settings/AvalaraIntegrationDetails'
 import Avalara from '~/public/images/avalara.svg'
-import { MenuPopper, PageHeader, PopperOpener } from '~/styles'
+import { MenuPopper, PopperOpener } from '~/styles'
 
 // import { AvalaraIntegrationDetailsTabs } from './AvalaraIntegrationDetails'
 
@@ -79,39 +77,32 @@ const AvalaraIntegrations = () => {
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <ButtonLink
-            to={generatePath(INTEGRATIONS_ROUTE, {
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: translate('text_62b1edddbf5f461ab9712750'),
+            path: generatePath(INTEGRATIONS_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-            })}
-            type="button"
-            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
-          />
-          {loading ? (
-            <Skeleton variant="text" className="w-30" />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_1744293609277s53zn6jcoq4')}
-            </Typography>
-          )}
-        </PageHeader.Group>
-        <Button
-          variant="primary"
-          onClick={() => {
-            addAvalaraDialogRef.current?.openDialog()
-          }}
-        >
-          {translate('text_65846763e6140b469140e235')}
-        </Button>
-      </PageHeader.Wrapper>
-
-      <IntegrationsPage.Header
+            }),
+          },
+        ]}
+        entity={{
+          viewName: translate('text_1744293609277s53zn6jcoq4'),
+          metadata: translate('text_6668821d94e4da4dfd8b3840'),
+          badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
+          icon: <Avalara />,
+        }}
+        actions={[
+          {
+            type: 'action',
+            label: translate('text_65846763e6140b469140e235'),
+            variant: 'primary',
+            onClick: () => {
+              addAvalaraDialogRef.current?.openDialog()
+            },
+          },
+        ]}
         isLoading={loading}
-        integrationLogo={<Avalara />}
-        integrationName={translate('text_1744293609277s53zn6jcoq4')}
-        integrationChip={translate('text_62b1edddbf5f461ab971270d')}
-        integrationDescription={translate('text_6668821d94e4da4dfd8b3840')}
       />
 
       <IntegrationsPage.Container>
