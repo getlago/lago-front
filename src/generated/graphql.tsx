@@ -6947,6 +6947,10 @@ export type Query = {
   aiConversation?: Maybe<AiConversationWithMessages>;
   /** Query the latest AI conversations of current organization */
   aiConversations?: Maybe<AiConversationCollection>;
+  /** Query a single subscription alert */
+  alert?: Maybe<Alert>;
+  /** Query alerts of a subscription */
+  alerts: AlertCollection;
   /** Query the API key */
   apiKey: ApiKey;
   /** Query the API keys of current organization */
@@ -7203,6 +7207,18 @@ export type QueryAiConversationArgs = {
 
 export type QueryAiConversationsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryAlertArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryAlertsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  subscriptionExternalId: Scalars['String']['input'];
 };
 
 
