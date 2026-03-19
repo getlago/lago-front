@@ -156,6 +156,7 @@ const CrmProvidersAccordion = withForm({
       const providerType = getCrmProviderFromCode(value)
 
       form.setFieldValue('crmCustomer.providerType', providerType)
+      form.setFieldValue('crmCustomer.id', undefined)
     }
 
     return (
