@@ -229,6 +229,38 @@ describe('validationSchema', () => {
       expect(result.success).toBe(true)
     })
 
+    it('accepts undefined country in address (cleared combobox)', () => {
+      const billingResult = validationSchema.safeParse({
+        externalId: 'customer-123',
+        billingAddress: {
+          addressLine1: '123 Main St',
+          addressLine2: '',
+          city: 'City',
+          state: 'State',
+          zipcode: '12345',
+          country: undefined,
+        },
+        metadata: [],
+      })
+
+      expect(billingResult.success).toBe(true)
+
+      const shippingResult = validationSchema.safeParse({
+        externalId: 'customer-123',
+        shippingAddress: {
+          addressLine1: '456 Oak Ave',
+          addressLine2: '',
+          city: 'City',
+          state: 'State',
+          zipcode: '12345',
+          country: undefined,
+        },
+        metadata: [],
+      })
+
+      expect(shippingResult.success).toBe(true)
+    })
+
     it('validates isShippingEqualBillingAddress flag', () => {
       const result = validationSchema.safeParse({
         externalId: 'customer-123',
