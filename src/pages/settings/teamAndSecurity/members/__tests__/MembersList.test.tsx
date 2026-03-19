@@ -266,12 +266,6 @@ describe('MembersList', () => {
       expect(screen.getByPlaceholderText('text_1767713872664devzn1r2wql')).toBeInTheDocument()
     })
 
-    it('renders create invite button', async () => {
-      await prepare()
-
-      expect(screen.getByTestId('create-invite-button')).toBeInTheDocument()
-    })
-
     it('renders members table after loading', async () => {
       await prepare()
 
@@ -346,8 +340,8 @@ describe('MembersList', () => {
       await prepare({ mocks: [emptyMock, rolesListMock] })
 
       await waitFor(() => {
-        // Empty state should show invite button
-        expect(screen.getByTestId('create-invite-button')).toBeInTheDocument()
+        // Empty state title should be visible
+        expect(screen.getByText('text_176771435162557p8hyixafi')).toBeInTheDocument()
       })
     })
   })
@@ -479,12 +473,34 @@ describe('MembersList', () => {
   })
 
   describe('Create Invite Button', () => {
-    it('renders create invite button in header', async () => {
-      await prepare()
+    it('renders invite button in empty state', async () => {
+      const emptyMock = {
+        request: {
+          query: GetMembersDocument,
+          variables: { limit: 20 },
+        },
+        result: {
+          data: {
+            memberships: {
+              __typename: 'MembershipCollection',
+              metadata: {
+                __typename: 'MembershipsCollectionMetadata',
+                currentPage: 1,
+                totalPages: 1,
+                totalCount: 0,
+                adminCount: 0,
+              },
+              collection: [],
+            },
+          },
+        },
+      }
 
-      const button = screen.getByTestId('create-invite-button')
+      await prepare({ mocks: [emptyMock, rolesListMock] })
 
-      expect(button).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByText('text_63208b630aaf8df6bbfb265b')).toBeInTheDocument()
+      })
     })
   })
 
