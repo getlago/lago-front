@@ -32,7 +32,11 @@ const Members = () => {
             label={translate('text_63208b630aaf8df6bbfb2657')}
             sublabel={translate('text_63208b630aaf8df6bbfb2659')}
             action={
-              <Button variant="inline" onClick={openCreateInviteDialog}>
+              <Button
+                variant="inline"
+                onClick={openCreateInviteDialog}
+                data-test="create-invite-button"
+              >
                 {translate('text_63208b630aaf8df6bbfb265b')}
               </Button>
             }
