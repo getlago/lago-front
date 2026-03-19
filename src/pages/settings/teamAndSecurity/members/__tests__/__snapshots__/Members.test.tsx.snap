@@ -32,7 +32,7 @@ exports[`Members Snapshot matches snapshot 1`] = `
           </div>
           <button
             class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation button-inline min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
-            data-test="button"
+            data-test="create-invite-button"
             tabindex="0"
             type="button"
           >
