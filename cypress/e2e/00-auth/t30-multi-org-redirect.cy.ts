@@ -111,7 +111,7 @@ describe('Multi-organization redirect flows', () => {
       cy.contains(testUsers.userA.org1Name).click()
       // 3. Create a customer in Org1
       cy.visit('/customers')
-      cy.get(`[data-test="${CREATE_CUSTOMER_DATA_TEST}"]`, { timeout: 10000 }).click()
+      cy.get(`[data-test="${CREATE_CUSTOMER_DATA_TEST}"]`, { timeout: 10000 }).first().click()
       cy.get('input[name="name"]').type('Customer Org1 Multi-Org Test')
       cy.get('input[name="externalId"]').type(`customer-org1-${Date.now()}`)
       cy.get(`[data-test="${SUBMIT_CUSTOMER_DATA_TEST}"]`).click()
@@ -143,7 +143,7 @@ describe('Multi-organization redirect flows', () => {
       // 2. Navigate to a deep page (e.g., customers/:id)
       // Create a customer to get a deep link
       cy.visit('/customers')
-      cy.get(`[data-test="${CREATE_CUSTOMER_DATA_TEST}"]`, { timeout: 10000 }).click()
+      cy.get(`[data-test="${CREATE_CUSTOMER_DATA_TEST}"]`, { timeout: 10000 }).first().click()
       cy.get('input[name="name"]').type('Customer for Org Switch Test')
       cy.get('input[name="externalId"]').type(`customer-org-switch-${Date.now()}`)
       cy.get(`[data-test="${SUBMIT_CUSTOMER_DATA_TEST}"]`).click()
