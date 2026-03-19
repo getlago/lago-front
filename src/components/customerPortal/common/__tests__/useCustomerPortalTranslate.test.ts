@@ -13,11 +13,11 @@ jest.mock('~/hooks/auth/useIsAuthenticated', () => ({
   }),
 }))
 
-const mockUseGetPortalLocaleQuery = jest.fn()
+const mockUseGetCustomerPortalDataQuery = jest.fn()
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useGetPortalLocaleQuery: (...args: unknown[]) => mockUseGetPortalLocaleQuery(...args),
+  useGetCustomerPortalDataQuery: (...args: unknown[]) => mockUseGetCustomerPortalDataQuery(...args),
 }))
 
 jest.mock('~/hooks/core/useContextualLocale', () => ({
@@ -34,7 +34,7 @@ describe('useCustomerPortalTranslate', () => {
   describe('GIVEN the hook is used in a portal context', () => {
     describe('WHEN the query is still loading', () => {
       it('THEN should return isUnauthenticated as false', () => {
-        mockUseGetPortalLocaleQuery.mockReturnValue({
+        mockUseGetCustomerPortalDataQuery.mockReturnValue({
           data: undefined,
           error: undefined,
           loading: true,
@@ -49,7 +49,7 @@ describe('useCustomerPortalTranslate', () => {
 
     describe('WHEN the query returns a valid user', () => {
       it('THEN should return isUnauthenticated as false', () => {
-        mockUseGetPortalLocaleQuery.mockReturnValue({
+        mockUseGetCustomerPortalDataQuery.mockReturnValue({
           data: {
             customerPortalUser: {
               id: 'user-1',
@@ -70,7 +70,7 @@ describe('useCustomerPortalTranslate', () => {
 
     describe('WHEN the query returns null for customerPortalUser', () => {
       it('THEN should return isUnauthenticated as true', () => {
-        mockUseGetPortalLocaleQuery.mockReturnValue({
+        mockUseGetCustomerPortalDataQuery.mockReturnValue({
           data: { customerPortalUser: null },
           error: undefined,
           loading: false,
@@ -84,7 +84,7 @@ describe('useCustomerPortalTranslate', () => {
 
     describe('WHEN the query returns no data at all', () => {
       it('THEN should return isUnauthenticated as false', () => {
-        mockUseGetPortalLocaleQuery.mockReturnValue({
+        mockUseGetCustomerPortalDataQuery.mockReturnValue({
           data: undefined,
           error: undefined,
           loading: false,
@@ -100,7 +100,7 @@ describe('useCustomerPortalTranslate', () => {
       it('THEN should return the error', () => {
         const mockError = new Error('Network error')
 
-        mockUseGetPortalLocaleQuery.mockReturnValue({
+        mockUseGetCustomerPortalDataQuery.mockReturnValue({
           data: undefined,
           error: mockError,
           loading: false,

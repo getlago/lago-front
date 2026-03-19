@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { useEffect, useState } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
+import { useCustomerPortalData } from '~/components/customerPortal/common/hooks/useCustomerPortalData'
 import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
 import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
@@ -24,7 +25,6 @@ import {
   SubscriptionCurrentUsageTableComponentCustomerUsageFragmentDoc,
   useGetCustomerProjectedUsageForPortalQuery,
   useGetCustomerUsageForPortalQuery,
-  useGetPortalOrgaInfosQuery,
   useGetSubscriptionForPortalQuery,
 } from '~/generated/graphql'
 
@@ -91,7 +91,6 @@ gql`
 const UsagePage = () => {
   const { goHome } = useCustomerPortalNavigation()
   const { translate, documentLocale } = useCustomerPortalTranslate()
-  const customerId = 'cdef1dac-c55f-4d25-985b-cb25c2c8edc1'
   const { itemId, token } = useParams()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<number>(0)
@@ -100,9 +99,9 @@ const UsagePage = () => {
 
   const subscriptionId = itemId
 
-  const { data: organization, loading: organizationLoading } = useGetPortalOrgaInfosQuery()
+  const { data: portalData, loading: organizationLoading } = useCustomerPortalData()
 
-  const customerPortalOrganization = organization?.customerPortalOrganization
+  const customerPortalOrganization = portalData?.customerPortalOrganization
 
   const hasAccessToProjectedUsage = customerPortalOrganization?.premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.ProjectedUsage,
@@ -163,6 +162,7 @@ const UsagePage = () => {
   }, [usageError, navigate, token, translate, usageErrorProjected])
 
   const customerPortalSubscription = customerPortalSubscriptionData?.customerPortalSubscription
+  const customerId = customerPortalSubscription?.customer?.id
 
   return (
     <div>
