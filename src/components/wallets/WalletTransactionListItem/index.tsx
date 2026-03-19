@@ -53,6 +53,7 @@ export type WalletTransactionListItemProps = {
   transaction: LocalWalletTransaction
   isWalletActive: boolean
   onClick?: () => void
+  rowClassName?: string
 }
 
 export const WalletTransactionListItem = ({

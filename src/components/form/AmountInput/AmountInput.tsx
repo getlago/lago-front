@@ -10,7 +10,7 @@ import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 
-type AmountValueFormatter = Exclude<
+export type AmountValueFormatter = Exclude<
   keyof typeof ValueFormatter,
   'int' | 'decimal' | 'triDecimal' | 'quadDecimal'
 >
