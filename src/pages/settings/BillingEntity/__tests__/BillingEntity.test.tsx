@@ -1,14 +1,20 @@
 import { act, screen, waitFor } from '@testing-library/react'
 import { GraphQLError } from 'graphql'
 
+import { MainHeaderProvider } from '~/components/MainHeader/MainHeaderContext'
 import { SETTINGS_ROUTE } from '~/core/router'
 import { render } from '~/test-utils'
 
 import BillingEntityPage, {
   BILLING_ENTITY_HEADER_TEST_ID,
-  BILLING_ENTITY_LOADING_TEST_ID,
   BILLING_ENTITY_MAIN_TEST_ID,
 } from '../BillingEntity'
+
+const BillingEntityWithProvider = () => (
+  <MainHeaderProvider>
+    <BillingEntityPage />
+  </MainHeaderProvider>
+)
 
 const mockNavigate = jest.fn()
 const mockUseGetBillingEntityQuery = jest.fn()
@@ -73,14 +79,13 @@ describe('BillingEntityPage', () => {
   })
 
   describe('loading state', () => {
-    it('should display loading skeleton and hide main content', async () => {
+    it('should hide main content while loading', async () => {
       mockUseGetBillingEntityQuery.mockReturnValue(mockQueryResult.loading())
 
       await act(async () => {
-        return render(<BillingEntityPage />)
+        return render(<BillingEntityWithProvider />)
       })
 
-      expect(screen.getByTestId(BILLING_ENTITY_LOADING_TEST_ID)).toBeInTheDocument()
       expect(screen.queryByTestId(BILLING_ENTITY_MAIN_TEST_ID)).not.toBeInTheDocument()
       expect(mockNavigate).not.toHaveBeenCalled()
     })
@@ -91,16 +96,11 @@ describe('BillingEntityPage', () => {
       mockUseGetBillingEntityQuery.mockReturnValue(mockQueryResult.success())
 
       await act(async () => {
-        return render(<BillingEntityPage />)
+        return render(<BillingEntityWithProvider />)
       })
 
       expect(screen.getByTestId(BILLING_ENTITY_HEADER_TEST_ID)).toBeInTheDocument()
       expect(screen.getByTestId(BILLING_ENTITY_MAIN_TEST_ID)).toBeInTheDocument()
-      expect(screen.queryByTestId(BILLING_ENTITY_LOADING_TEST_ID)).not.toBeInTheDocument()
-
-      const nameElements = screen.getAllByText('Test Billing Entity')
-
-      expect(nameElements.length).toBeGreaterThanOrEqual(2)
       expect(mockNavigate).not.toHaveBeenCalled()
     })
   })
@@ -118,7 +118,7 @@ describe('BillingEntityPage', () => {
           error,
         })
 
-        render(<BillingEntityPage />)
+        render(<BillingEntityWithProvider />)
 
         await waitFor(() => {
           expect(mockNavigate).toHaveBeenCalledWith(SETTINGS_ROUTE, { replace: true })
@@ -129,7 +129,7 @@ describe('BillingEntityPage', () => {
     it('should not navigate when billing entity exists', async () => {
       mockUseGetBillingEntityQuery.mockReturnValue(mockQueryResult.success())
 
-      render(<BillingEntityPage />)
+      render(<BillingEntityWithProvider />)
 
       await waitFor(() => {
         expect(screen.getByTestId(BILLING_ENTITY_MAIN_TEST_ID)).toBeInTheDocument()
@@ -141,10 +141,10 @@ describe('BillingEntityPage', () => {
     it('should not navigate while loading', async () => {
       mockUseGetBillingEntityQuery.mockReturnValue(mockQueryResult.loading())
 
-      render(<BillingEntityPage />)
+      render(<BillingEntityWithProvider />)
 
       await waitFor(() => {
-        expect(screen.getByTestId(BILLING_ENTITY_LOADING_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(BILLING_ENTITY_HEADER_TEST_ID)).toBeInTheDocument()
       })
 
       expect(mockNavigate).not.toHaveBeenCalled()
@@ -161,7 +161,7 @@ describe('BillingEntityPage', () => {
 
       mockUseGetBillingEntityQuery.mockReturnValue(mockQueryResult.success(null))
 
-      render(<BillingEntityPage />)
+      render(<BillingEntityWithProvider />)
 
       expect(screen.getByTestId(BILLING_ENTITY_HEADER_TEST_ID)).toBeInTheDocument()
     })

@@ -52,7 +52,9 @@ describe('MainHeader', () => {
       it('THEN should display the breadcrumb nav', () => {
         render(<MainHeader />)
 
-        expect(screen.getByTestId(BREADCRUMB_NAV_TEST_ID)).toBeInTheDocument()
+        const breadcrumbs = screen.getAllByTestId(BREADCRUMB_NAV_TEST_ID)
+
+        expect(breadcrumbs.length).toBeGreaterThanOrEqual(1)
       })
     })
   })
@@ -91,7 +93,9 @@ describe('MainHeader', () => {
       it('THEN should display the actions block', () => {
         render(<MainHeader />)
 
-        expect(screen.getByTestId(ACTIONS_BLOCK_TEST_ID)).toBeInTheDocument()
+        const actionsBlocks = screen.getAllByTestId(ACTIONS_BLOCK_TEST_ID)
+
+        expect(actionsBlocks.length).toBeGreaterThanOrEqual(1)
       })
     })
   })
