@@ -1,7 +1,6 @@
 import { generatePath, useParams } from 'react-router-dom'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { Typography } from '~/components/designSystem/Typography'
 import {
   SettingsListItemLoadingSkeleton,
   SettingsPaddedContainer,
@@ -63,7 +62,6 @@ const BillingEntityGeneral = () => {
       />
 
       <SettingsPaddedContainer>
-
         {!!billingEntityLoading && <SettingsListItemLoadingSkeleton count={5} />}
 
         {!billingEntityLoading && billingEntity && (
