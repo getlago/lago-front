@@ -7,8 +7,11 @@ import { BREADCRUMB_NAV_TEST_ID } from '../Breadcrumb'
 import { MainHeader } from '../MainHeader'
 import {
   ACTIONS_BLOCK_TEST_ID,
+  ENTITY_SECTION_METADATA_TEST_ID,
+  ENTITY_SECTION_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
   MAIN_HEADER_FILTERS_TEST_ID,
+  MAIN_HEADER_TEST_ID,
 } from '../mainHeaderTestIds'
 import { MainHeaderConfig } from '../types'
 
@@ -160,6 +163,119 @@ describe('MainHeader', () => {
 
         expect(screen.getByTestId(MAIN_HEADER_FILTERS_TEST_ID)).toBeInTheDocument()
         expect(screen.getByTestId('custom-filter')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a config with entity metadata', () => {
+    const config: MainHeaderConfig = {
+      entity: {
+        viewName: 'Acme Corp',
+        metadata: 'acme-corp-code',
+      },
+    }
+
+    beforeEach(() => {
+      mockUseMainHeaderReader.mockReturnValue({ config })
+    })
+
+    describe('WHEN the component renders', () => {
+      it('THEN should display the entity metadata', () => {
+        render(<MainHeader />)
+
+        const metadataElements = screen.getAllByTestId(ENTITY_SECTION_METADATA_TEST_ID)
+
+        expect(metadataElements.length).toBeGreaterThanOrEqual(1)
+        expect(metadataElements[0]).toHaveTextContent('acme-corp-code')
+      })
+    })
+  })
+
+  describe('GIVEN a config with entity badges', () => {
+    const config: MainHeaderConfig = {
+      entity: {
+        viewName: 'Integration X',
+        badges: [{ type: 'success', label: 'Connected' }],
+      },
+    }
+
+    beforeEach(() => {
+      mockUseMainHeaderReader.mockReturnValue({ config })
+    })
+
+    describe('WHEN the component renders', () => {
+      it('THEN should display the entity section with badges', () => {
+        render(<MainHeader />)
+
+        const entitySections = screen.getAllByTestId(ENTITY_SECTION_TEST_ID)
+
+        expect(entitySections.length).toBeGreaterThanOrEqual(1)
+      })
+    })
+  })
+
+  describe('GIVEN a config with entity icon', () => {
+    const config: MainHeaderConfig = {
+      entity: {
+        viewName: 'Stripe',
+        icon: 'plug',
+      },
+    }
+
+    beforeEach(() => {
+      mockUseMainHeaderReader.mockReturnValue({ config })
+    })
+
+    describe('WHEN the component renders', () => {
+      it('THEN should display the entity section', () => {
+        render(<MainHeader />)
+
+        const entitySections = screen.getAllByTestId(ENTITY_SECTION_TEST_ID)
+
+        expect(entitySections.length).toBeGreaterThanOrEqual(1)
+        expect(entitySections[0]).toHaveTextContent('Stripe')
+      })
+    })
+  })
+
+  describe('GIVEN a config with isLoading true', () => {
+    const config: MainHeaderConfig = {
+      isLoading: true,
+    }
+
+    beforeEach(() => {
+      mockUseMainHeaderReader.mockReturnValue({ config })
+    })
+
+    describe('WHEN the component renders', () => {
+      it('THEN should render the header element', () => {
+        render(<MainHeader />)
+
+        expect(screen.getByTestId(MAIN_HEADER_TEST_ID)).toBeInTheDocument()
+      })
+
+      it('THEN should not display the entity view name', () => {
+        render(<MainHeader />)
+
+        expect(screen.queryByTestId(ENTITY_SECTION_VIEW_NAME_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a config without entity or isLoading', () => {
+    const config: MainHeaderConfig = {
+      breadcrumb: [{ label: 'Settings', path: '/settings' }],
+    }
+
+    beforeEach(() => {
+      mockUseMainHeaderReader.mockReturnValue({ config })
+    })
+
+    describe('WHEN the component renders', () => {
+      it('THEN should not display the entity section', () => {
+        render(<MainHeader />)
+
+        expect(screen.queryByTestId(ENTITY_SECTION_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

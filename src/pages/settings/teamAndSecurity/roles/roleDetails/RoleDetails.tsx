@@ -26,6 +26,11 @@ import RoleTypeChip from '../common/RoleTypeChip'
 import { useRoleActions } from '../hooks/useRoleActions'
 import { useRoleDetails } from '../hooks/useRoleDetails'
 
+export const ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID = 'role-details-actions-dropdown'
+export const ROLE_DETAILS_DUPLICATE_ACTION_TEST_ID = 'role-details-duplicate-action'
+export const ROLE_DETAILS_EDIT_ACTION_TEST_ID = 'role-details-edit-action'
+export const ROLE_DETAILS_DELETE_ACTION_TEST_ID = 'role-details-delete-action'
+
 const RoleDetails = () => {
   const { translate } = useInternationalization()
   const { roleId } = useParams<string>()
@@ -85,9 +90,11 @@ const RoleDetails = () => {
           {
             type: 'dropdown',
             label: translate('text_634687079be251fdb438338f'),
+            dataTest: ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID,
             items: [
               {
                 label: translate('text_64fa170e02f348164797a6af'),
+                dataTest: ROLE_DETAILS_DUPLICATE_ACTION_TEST_ID,
                 onClick: (closePopper) => {
                   if (!hasPremiumAddon) {
                     openPremiumDialog()
@@ -101,6 +108,7 @@ const RoleDetails = () => {
               },
               {
                 label: translate('text_63aa15caab5b16980b21b0b8'),
+                dataTest: ROLE_DETAILS_EDIT_ACTION_TEST_ID,
                 onClick: (closePopper) => {
                   navigateToEdit(roleId)
                   closePopper()
@@ -110,6 +118,7 @@ const RoleDetails = () => {
               },
               {
                 label: translate('text_6261640f28a49700f1290df5'),
+                dataTest: ROLE_DETAILS_DELETE_ACTION_TEST_ID,
                 onClick: (closePopper) => {
                   if (role) openDeleteRoleDialog(role)
                   closePopper()
