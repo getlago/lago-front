@@ -123,13 +123,21 @@ describe('useCustomerDetailsHeaderActions', () => {
     })
 
     describe('WHEN user has no permissions', () => {
-      it('THEN should only return the portal URL action', () => {
+      it('THEN should hide all permission-gated dropdown items', () => {
         mockHasPermissions.mockReturnValue(false)
 
         const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
 
-        expect(result.current).toHaveLength(1)
+        expect(result.current).toHaveLength(2)
         expect(result.current[0]).toMatchObject({ type: 'action' })
+
+        const dropdownAction = result.current[1] as MainHeaderDropdownAction
+        // All permission-gated items (indexes 1-6) should be hidden
+        const permissionGatedItems = dropdownAction.items.slice(1)
+
+        permissionGatedItems.forEach((item) => {
+          expect(item.hidden).toBe(true)
+        })
       })
     })
 
