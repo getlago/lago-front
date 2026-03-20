@@ -13,6 +13,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FeatureEntitlementFormValues } from '~/components/plans/drawers/FeatureEntitlementDrawer'
 import { MinimumCommitmentFormValues } from '~/components/plans/drawers/MinimumCommitmentDrawer'
+import { ProgressiveBillingFormValues } from '~/components/plans/drawers/progressiveBilling/constants'
 import { SubscriptionFeeFormValues } from '~/components/plans/drawers/SubscriptionFeeDrawer'
 import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
@@ -231,6 +232,11 @@ const CreatePlan = () => {
     })
   }
 
+  const handleProgressiveBillingSave = (values: ProgressiveBillingFormValues) => {
+    formikProps.setFieldValue('nonRecurringUsageThresholds', values.nonRecurringUsageThresholds)
+    formikProps.setFieldValue('recurringUsageThreshold', values.recurringUsageThreshold)
+  }
+
   const handleEntitlementDrawerSave = (values: FeatureEntitlementFormValues) => {
     const current = formikProps.values.entitlements || []
     const existingIndex = current.findIndex((e) => e.featureCode === values.featureCode)
@@ -332,8 +338,8 @@ const CreatePlan = () => {
 
                 <CenteredPage.SubsectionWrapper>
                   <ProgressiveBillingSection
-                    isInitiallyOpen={type === FORM_TYPE_ENUM.creation}
                     formikProps={formikProps}
+                    onDrawerSave={handleProgressiveBillingSave}
                   />
                   <CommitmentsSection
                     formikProps={formikProps}
