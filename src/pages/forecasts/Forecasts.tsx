@@ -12,7 +12,6 @@ import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { ForecastsOverviewSection } from '~/pages/forecasts/ForecastsOverviewSection'
-import { PageHeader } from '~/styles'
 
 export const BadgeAI = ({
   badgeClassName,
@@ -47,12 +46,6 @@ const Forecasts = () => {
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <Typography variant="bodyHl" color="grey700" noWrap>
-          {translate('text_1753014457040hxp6wkphkvw')}
-        </Typography>
-      </PageHeader.Wrapper>
-
       <FullscreenPage.Wrapper>
         <div className="flex items-center gap-2">
           <Typography variant="headline" color="grey700">
