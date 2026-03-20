@@ -58,17 +58,14 @@ const NewAnalytics = () => {
         }),
         content: <Mrr />,
       },
-      ...(hasAccessToUsage
-        ? [
-            {
-              title: translate('text_17465414264635ktqocy7leo'),
-              link: generatePath(ANALYTICS_V2_TABS_ROUTE, {
-                tab: NewAnalyticsTabsOptionsEnum.usage,
-              }),
-              content: <Usage />,
-            },
-          ]
-        : []),
+      {
+        title: translate('text_17465414264635ktqocy7leo'),
+        link: generatePath(ANALYTICS_V2_TABS_ROUTE, {
+          tab: NewAnalyticsTabsOptionsEnum.usage,
+        }),
+        hidden: !hasAccessToUsage,
+        content: <Usage />,
+      },
       {
         title: translate('text_1744192691931osnm4ckcvzj'),
         link: generatePath(ANALYTICS_V2_TABS_ROUTE, {
