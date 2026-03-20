@@ -9,7 +9,7 @@ interface FieldErrorTooltipProps {
 }
 
 export const FieldErrorTooltip = ({ children, title }: FieldErrorTooltipProps) => {
-  const errorMessage = useFieldError({ noBoolean: true, translateErrors: true })
+  const errorMessage = useFieldError({ noBoolean: true, translateErrors: true, firstOnly: true })
   const displayTitle = title || errorMessage
 
   return (

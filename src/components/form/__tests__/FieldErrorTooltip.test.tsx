@@ -54,6 +54,7 @@ describe('FieldErrorTooltip', () => {
         expect(mockUseFieldError).toHaveBeenCalledWith({
           noBoolean: true,
           translateErrors: true,
+          firstOnly: true,
         })
       })
     })
