@@ -7,7 +7,6 @@ import { CreditNoteDetailsExternalSync } from '~/components/creditNote/CreditNot
 import { CreditNoteDetailsOverview } from '~/components/creditNote/CreditNoteDetailsOverview'
 import {
   CREDIT_NOTE_TYPE_TRANSLATIONS_MAP,
-  CreditNoteType,
   getCreditNoteTypes,
 } from '~/components/creditNote/utils'
 import {
@@ -329,7 +328,7 @@ const CreditNoteDetails = () => {
     })} • ${creditNote?.id}`,
     badges: creditNoteTypes.map((type) => ({
       type: StatusType.default,
-      label: translate(CREDIT_NOTE_TYPE_TRANSLATIONS_MAP[type as CreditNoteType]),
+      label: translate(CREDIT_NOTE_TYPE_TRANSLATIONS_MAP[type]),
     })),
   }
 
