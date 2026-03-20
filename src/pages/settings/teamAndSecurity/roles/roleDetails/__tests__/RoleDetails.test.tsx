@@ -17,6 +17,8 @@ import RoleDetails, {
   ROLE_DETAILS_EDIT_ACTION_TEST_ID,
 } from '../RoleDetails'
 
+const MEMBERS_COUNT_TEST_VALUE = 3
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
@@ -38,14 +40,18 @@ const RoleDetailsWithHeader = () => (
   </>
 )
 
-const render = (ui: React.ReactElement) =>
+const render = (ui: React.ReactElement, useParams: Record<string, string> = { roleId: '1' }) =>
   rtlRender(ui, {
     wrapper: ({ children }) => (
-      <AllTheProviders useParams={{ roleId: '1' }}>
+      <AllTheProviders useParams={useParams}>
         <MainHeaderProvider>{children}</MainHeaderProvider>
       </AllTheProviders>
     ),
   })
+
+const mockMemberships = Array.from({ length: MEMBERS_COUNT_TEST_VALUE }, (_, i) => ({
+  id: `member-${i}`,
+}))
 
 jest.mock('../../hooks/useRoleDetails', () => ({
   useRoleDetails: () => ({
@@ -55,7 +61,7 @@ jest.mock('../../hooks/useRoleDetails', () => ({
       code: 'custom-role-code',
       description: 'A custom role description',
       admin: false,
-      memberships: [],
+      memberships: mockMemberships,
       permissions: ['PlansView'],
     },
     isLoadingRole: false,
@@ -149,6 +155,22 @@ describe('RoleDetails', () => {
         expect(screen.getByTestId(ROLE_DETAILS_EDIT_ACTION_TEST_ID)).toBeInTheDocument()
         expect(screen.getByTestId(ROLE_DETAILS_DELETE_ACTION_TEST_ID)).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('GIVEN the roleId is missing from params', () => {
+    it('THEN should display "Role ID is missing"', async () => {
+      await act(() => render(<RoleDetailsWithHeader />, {}))
+
+      expect(screen.getByText('Role ID is missing')).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the role has members', () => {
+    it('THEN should render members count with link', async () => {
+      await act(() => render(<RoleDetailsWithHeader />))
+
+      expect(screen.getByText(String(MEMBERS_COUNT_TEST_VALUE))).toBeInTheDocument()
     })
   })
 
