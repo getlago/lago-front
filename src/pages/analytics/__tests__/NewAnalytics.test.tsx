@@ -107,40 +107,22 @@ describe('NewAnalytics', () => {
     })
 
     describe('WHEN user does not have revenue analytics addon', () => {
-      it('THEN should configure 4 tabs without usage', () => {
+      it('THEN should hide the usage tab', () => {
         mockHasOrganizationPremiumAddon.mockReturnValue(false)
 
         render(<NewAnalytics />)
 
-        expect(capturedConfig?.tabs).toHaveLength(4)
+        expect(capturedConfig?.tabs).toHaveLength(5)
 
-        const tabLinks = capturedConfig?.tabs?.map((tab) => tab.link)
+        const usageTab = capturedConfig?.tabs?.find(
+          (tab) =>
+            tab.link ===
+            generatePath(ANALYTICS_V2_TABS_ROUTE, {
+              tab: NewAnalyticsTabsOptionsEnum.usage,
+            }),
+        )
 
-        expect(tabLinks).toContain(
-          generatePath(ANALYTICS_V2_TABS_ROUTE, {
-            tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
-          }),
-        )
-        expect(tabLinks).toContain(
-          generatePath(ANALYTICS_V2_TABS_ROUTE, {
-            tab: NewAnalyticsTabsOptionsEnum.mrr,
-          }),
-        )
-        expect(tabLinks).toContain(
-          generatePath(ANALYTICS_V2_TABS_ROUTE, {
-            tab: NewAnalyticsTabsOptionsEnum.prepaidCredits,
-          }),
-        )
-        expect(tabLinks).toContain(
-          generatePath(ANALYTICS_V2_TABS_ROUTE, {
-            tab: NewAnalyticsTabsOptionsEnum.invoices,
-          }),
-        )
-        expect(tabLinks).not.toContain(
-          generatePath(ANALYTICS_V2_TABS_ROUTE, {
-            tab: NewAnalyticsTabsOptionsEnum.usage,
-          }),
-        )
+        expect(usageTab?.hidden).toBe(true)
       })
     })
 
