@@ -157,7 +157,7 @@ const PlanDetails = () => {
               }),
             ],
             content: (
-              <DetailsPage.Container className="max-w-full">
+              <DetailsPage.Container>
                 <PlanSubscriptionList planCode={plan?.code} />
               </DetailsPage.Container>
             ),

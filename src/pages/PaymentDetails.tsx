@@ -12,6 +12,7 @@ import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { buildPaymentDocumentData } from '~/components/emails/buildDocumentData'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
@@ -314,7 +315,7 @@ const PaymentDetails = () => {
         isLoading={loading}
       />
 
-      <div className="flex flex-col gap-12 px-12 pb-20 pt-8">
+      <DetailsPage.Container className="pt-8">
         <div className="pb-12 shadow-b">
           <div className="mb-4 flex items-center justify-between">
             <Typography variant="subhead1">{translate('text_634687079be251fdb43833b7')}</Typography>
@@ -638,7 +639,7 @@ const PaymentDetails = () => {
             }}
           />
         </div>
-      </div>
+      </DetailsPage.Container>
     </div>
   )
 }

@@ -238,7 +238,7 @@ const SubscriptionDetails = () => {
           getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.activityLogs),
         ],
         content: (
-          <DetailsPage.Container className="max-w-none">
+          <DetailsPage.Container>
             <SubscriptionActivityLogs externalSubscriptionId={subscription?.externalId || ''} />
           </DetailsPage.Container>
         ),

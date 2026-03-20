@@ -2,13 +2,8 @@ import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { Button } from '~/components/designSystem/Button'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
-import { NavigationTab } from '~/components/designSystem/NavigationTab'
-import { Popper } from '~/components/designSystem/Popper'
-import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Typography } from '~/components/designSystem/Typography'
-import { IntegrationsPage } from '~/components/layouts/Integrations'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
@@ -40,7 +35,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NetsuiteAdditionalMappings } from '~/pages/settings/integrations/NetsuiteAdditionalMappings'
 import Netsuite from '~/public/images/netsuite.svg'
-import { MenuPopper, PageHeader } from '~/styles'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -101,6 +95,7 @@ const NetsuiteIntegrationDetails = () => {
     skip: !integrationId,
   })
   const netsuiteIntegration = data?.integration as NetsuiteIntegrationDetailsFragment | undefined
+  const activeTabContent = useMainHeaderTabContent()
   const deleteDialogCallback = () => {
     if ((data?.integrations?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
       navigate(
@@ -117,112 +112,92 @@ const NetsuiteIntegrationDetails = () => {
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <ButtonLink
-            to={generatePath(NETSUITE_INTEGRATION_ROUTE, {
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: translate('text_62b1edddbf5f461ab9712750'),
+            path: generatePath(INTEGRATIONS_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-            })}
-            type="button"
-            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
-          />
-          {loading ? (
-            <Skeleton variant="text" className="w-30" />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary">
-              {netsuiteIntegration?.name}
-            </Typography>
-          )}
-        </PageHeader.Group>
-        {netsuiteIntegration && (
-          <Popper
-            PopperProps={{ placement: 'bottom-end' }}
-            opener={
-              <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
-            }
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
-                <Button
-                  variant="quaternary"
-                  fullWidth
-                  align="left"
-                  onClick={() => {
-                    addNetsuiteDialogRef.current?.openDialog({
-                      provider: netsuiteIntegration,
-                      deleteModalRef: deleteDialogRef,
-                      deleteDialogCallback,
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_65845f35d7d69c3ab4793dac')}
-                </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  fullWidth
-                  onClick={() => {
+            }),
+          },
+          {
+            label: translate('text_67db6a10cb0b8031ca538909'),
+            path: generatePath(NETSUITE_INTEGRATION_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            }),
+          },
+        ]}
+        entity={{
+          viewName: netsuiteIntegration?.name || '',
+          metadata: `${translate('text_661ff6e56ef7e1b7c542b239')} • ${translate('text_661ff6e56ef7e1b7c542b245')}`,
+          badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
+          icon: <Netsuite />,
+        }}
+        actions={[
+          {
+            type: 'dropdown',
+            label: translate('text_626162c62f790600f850b6fe'),
+            items: [
+              {
+                label: translate('text_65845f35d7d69c3ab4793dac'),
+                onClick: (closePopper) => {
+                  addNetsuiteDialogRef.current?.openDialog({
+                    provider: netsuiteIntegration,
+                    deleteModalRef: deleteDialogRef,
+                    deleteDialogCallback,
+                  })
+                  closePopper()
+                },
+              },
+              {
+                label: translate('text_65845f35d7d69c3ab4793dad'),
+                onClick: (closePopper) => {
+                  if (netsuiteIntegration) {
                     deleteDialogRef.current?.openDialog({
                       provider: netsuiteIntegration,
                       callback: deleteDialogCallback,
                     })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_65845f35d7d69c3ab4793dad')}
-                </Button>
-              </MenuPopper>
-            )}
-          </Popper>
-        )}
-      </PageHeader.Wrapper>
+                  }
+                  closePopper()
+                },
+              },
+            ],
+          },
+        ]}
+        tabs={[
+          {
+            title: translate('text_62728ff857d47b013204c726'),
+            link: generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
+              integrationId,
+              tab: NetsuiteIntegrationDetailsTabs.Settings,
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            }),
+            content: <NetsuiteIntegrationSettings />,
+          },
+          {
+            title: translate('text_1761319649394ft46yvka31r'),
+            link: generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
+              integrationId,
+              tab: NetsuiteIntegrationDetailsTabs.Items,
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            }),
+            content: <NetsuiteIntegrationItemsList integrationId={netsuiteIntegration?.id ?? ''} />,
+          },
+          {
+            title: translate('text_1762436248915jmmwifqjtqd'),
+            link: generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
+              integrationId,
+              tab: NetsuiteIntegrationDetailsTabs.AdditionalMappings,
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            }),
+            content: <NetsuiteAdditionalMappings integrationId={netsuiteIntegration?.id ?? ''} />,
+          },
+        ]}
+        isLoading={loading}
+      />
 
-      {netsuiteIntegration && (
-        <IntegrationsPage.Header
-          isLoading={loading}
-          integrationLogo={<Netsuite />}
-          integrationName={netsuiteIntegration?.name}
-          integrationChip={translate('text_62b1edddbf5f461ab971270d')}
-          integrationDescription={`${translate('text_661ff6e56ef7e1b7c542b239')} • ${translate('text_661ff6e56ef7e1b7c542b245')}`}
-        />
-      )}
+      <>{activeTabContent}</>
 
-      {netsuiteIntegration && (
-        <NavigationTab
-          className="px-4 md:px-12"
-          loading={loading}
-          tabs={[
-            {
-              title: translate('text_62728ff857d47b013204c726'),
-              link: generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
-                integrationId,
-                tab: NetsuiteIntegrationDetailsTabs.Settings,
-                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-              }),
-              component: <NetsuiteIntegrationSettings />,
-            },
-            {
-              title: translate('text_1761319649394ft46yvka31r'),
-              link: generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
-                integrationId,
-                tab: NetsuiteIntegrationDetailsTabs.Items,
-                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-              }),
-              component: <NetsuiteIntegrationItemsList integrationId={netsuiteIntegration.id} />,
-            },
-            {
-              title: translate('text_1762436248915jmmwifqjtqd'),
-              link: generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
-                integrationId,
-                tab: NetsuiteIntegrationDetailsTabs.AdditionalMappings,
-                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-              }),
-              component: <NetsuiteAdditionalMappings integrationId={netsuiteIntegration.id} />,
-            },
-          ]}
-        />
-      )}
       <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
       <DeleteNetsuiteIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />

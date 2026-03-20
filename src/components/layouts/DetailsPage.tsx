@@ -10,13 +10,7 @@ const DetailsPageContainer: FC<PropsWithChildren<{ className?: string }>> = ({
   className,
   children,
 }) => {
-  return (
-    <div
-      className={tw('box-content flex max-w-168 flex-col gap-12 px-4 pb-20 md:px-12', className)}
-    >
-      {children}
-    </div>
-  )
+  return <div className={tw('flex flex-col gap-12 px-12 pb-20', className)}>{children}</div>
 }
 
 const DetailsPageHeader: FC<{

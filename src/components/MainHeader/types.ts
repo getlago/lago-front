@@ -2,7 +2,7 @@ import { IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
 
 import { ButtonVariant } from '~/components/designSystem/Button'
-import { StatusProps } from '~/components/designSystem/Status'
+import { StatusProps, StatusType } from '~/components/designSystem/Status'
 
 import { NavigationTabBarItem } from './NavigationTabBar'
 
@@ -51,11 +51,27 @@ export interface MainHeaderInPageAction {
   dataTest?: string
 }
 
-export type MainHeaderAction = MainHeaderDropdownAction | MainHeaderInPageAction
+/** Arbitrary ReactNode rendered as-is in the actions area */
+export interface MainHeaderCustomAction {
+  type: 'custom'
+  label: string
+  content: ReactNode
+  hidden?: boolean
+  /** Serializable value included in the config snapshot to trigger re-renders when the content changes (e.g. a toggle state). */
+  snapshotKey?: string | number | boolean
+}
+
+export type MainHeaderAction =
+  | MainHeaderDropdownAction
+  | MainHeaderInPageAction
+  | MainHeaderCustomAction
 
 // ─── Entity config ──────────────────────────────────────────────
 
-export type MainHeaderBadge = Pick<StatusProps, 'type' | 'label' | 'labelVariables' | 'endIcon'>
+export type MainHeaderBadge = Pick<StatusProps, 'label' | 'labelVariables' | 'endIcon'> & {
+  /** Accepts both the StatusType enum and string literals like 'default', 'success', etc. */
+  type: `${StatusType}`
+}
 
 export interface MainHeaderEntityConfig {
   /** Display name — rendered as headline Typography */
@@ -64,8 +80,8 @@ export interface MainHeaderEntityConfig {
   metadata?: string
   /** Status badges displayed next to the entity name */
   badges?: MainHeaderBadge[]
-  /** Arbitrary icon rendered in a connector Avatar (e.g. integrations) */
-  icon?: IconName
+  /** Arbitrary icon rendered in a connector Avatar (e.g. integrations). Can be an IconName string or a ReactNode (e.g. SVG component) */
+  icon?: IconName | ReactNode
 }
 
 // ─── Breadcrumb ──────────────────────────────────────────────────

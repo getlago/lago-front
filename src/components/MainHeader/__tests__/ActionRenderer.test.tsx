@@ -314,6 +314,25 @@ describe('ActionsBlock', () => {
     })
   })
 
+  describe('GIVEN a custom action', () => {
+    const actions: MainHeaderAction[] = [
+      {
+        type: 'custom',
+        label: 'Custom Action',
+        content: <div data-test="custom-content">Custom rendered content</div>,
+      },
+    ]
+
+    describe('WHEN the component renders', () => {
+      it('THEN should render the custom content', () => {
+        render(<ActionsBlock actions={actions} />)
+
+        expect(screen.getByTestId('custom-content')).toBeInTheDocument()
+        expect(screen.getByText('Custom rendered content')).toBeInTheDocument()
+      })
+    })
+  })
+
   describe('GIVEN a dropdown item with tooltip', () => {
     const actions: MainHeaderAction[] = [
       {

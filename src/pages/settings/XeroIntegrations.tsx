@@ -3,12 +3,10 @@ import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Popper } from '~/components/designSystem/Popper'
-import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
-import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { AddXeroDialog, AddXeroDialogRef } from '~/components/settings/integrations/AddXeroDialog'
 import {
   DeleteXeroIntegrationDialog,
@@ -25,7 +23,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Xero from '~/public/images/xero.svg'
-import { MenuPopper, PageHeader, PopperOpener } from '~/styles'
+import { MenuPopper, PopperOpener } from '~/styles'
 
 import { XeroIntegrationDetailsTabs } from './XeroIntegrationDetails'
 
@@ -75,39 +73,32 @@ const XeroIntegrations = () => {
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <ButtonLink
-            to={generatePath(INTEGRATIONS_ROUTE, {
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: translate('text_62b1edddbf5f461ab9712750'),
+            path: generatePath(INTEGRATIONS_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-            })}
-            type="button"
-            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
-          />
-          {loading ? (
-            <Skeleton variant="text" className="w-30" />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_6672ebb8b1b50be550eccaf8')}
-            </Typography>
-          )}
-        </PageHeader.Group>
-        <Button
-          variant="primary"
-          onClick={() => {
-            addXeroDialogRef.current?.openDialog()
-          }}
-        >
-          {translate('text_65846763e6140b469140e235')}
-        </Button>
-      </PageHeader.Wrapper>
-
-      <IntegrationsPage.Header
+            }),
+          },
+        ]}
+        entity={{
+          viewName: translate('text_6672ebb8b1b50be550eccaf8'),
+          metadata: translate('text_6672ebb8b1b50be550ecca7e'),
+          badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
+          icon: <Xero />,
+        }}
+        actions={[
+          {
+            type: 'action',
+            label: translate('text_65846763e6140b469140e235'),
+            variant: 'primary',
+            onClick: () => {
+              addXeroDialogRef.current?.openDialog()
+            },
+          },
+        ]}
         isLoading={loading}
-        integrationLogo={<Xero />}
-        integrationName={translate('text_6672ebb8b1b50be550eccaf8')}
-        integrationDescription={translate('text_6672ebb8b1b50be550ecca7e')}
-        integrationChip={translate('text_62b1edddbf5f461ab971270d')}
       />
 
       <IntegrationsPage.Container>

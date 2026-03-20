@@ -2,11 +2,9 @@ import { gql } from '@apollo/client'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
-import { Popper } from '~/components/designSystem/Popper'
-import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Typography } from '~/components/designSystem/Typography'
+import { StatusType } from '~/components/designSystem/Status'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { AUTHENTICATION_ROUTE } from '~/core/router'
 import {
   AddOktaIntegrationDialogFragmentDoc,
@@ -19,7 +17,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Okta from '~/public/images/okta.svg'
-import { MenuPopper, PageHeader } from '~/styles'
 
 import { useAddOktaDialog } from './dialogs/AddOktaDialog'
 import { useDeleteOktaIntegrationDialog } from './dialogs/DeleteOktaIntegrationDialog'
@@ -88,69 +85,55 @@ const OktaAuthenticationDetails = () => {
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <ButtonLink
-            to={AUTHENTICATION_ROUTE}
-            type="button"
-            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
-          />
-          {loading ? (
-            <Skeleton variant="text" className="w-30" />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_664c732c264d7eed1c74fda2')}
-            </Typography>
-          )}
-        </PageHeader.Group>
-        <Popper
-          PopperProps={{ placement: 'bottom-end' }}
-          opener={
-            <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
-          }
-        >
-          {({ closePopper }) => (
-            <MenuPopper>
-              <Button
-                variant="quaternary"
-                fullWidth
-                align="left"
-                onClick={() => {
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: translate('text_664c732c264d7eed1c74fd96'),
+            path: AUTHENTICATION_ROUTE,
+          },
+        ]}
+        entity={{
+          viewName: translate('text_664c732c264d7eed1c74fda2'),
+          metadata: translate('text_664c732c264d7eed1c74fdbd'),
+          icon: <Okta />,
+          badges: [
+            {
+              label: translate('text_62b1edddbf5f461ab971270d'),
+              type: StatusType.default,
+            },
+          ],
+        }}
+        actions={[
+          {
+            type: 'dropdown',
+            label: translate('text_626162c62f790600f850b6fe'),
+            items: [
+              {
+                label: translate('text_664c732c264d7eed1c74fdaa'),
+                onClick: (closePopper) => {
                   closePopper()
                   openAddOktaDialog({
                     integration,
                     callback: onEditCallback,
                     deleteCallback: onDeleteCallback,
                   })
-                }}
-              >
-                {translate('text_664c732c264d7eed1c74fdaa')}
-              </Button>
-              <Button
-                variant="quaternary"
-                align="left"
-                fullWidth
-                disabled={!hasOtherAuthenticationMethodsThanOkta}
-                onClick={() => {
+                },
+              },
+              {
+                label: translate('text_664c732c264d7eed1c74fdb0'),
+                onClick: (closePopper) => {
                   closePopper()
                   openDeleteOktaIntegrationDialog({
                     integration,
                     callback: onDeleteCallback,
                   })
-                }}
-              >
-                {translate('text_664c732c264d7eed1c74fdb0')}
-              </Button>
-            </MenuPopper>
-          )}
-        </Popper>
-      </PageHeader.Wrapper>
-      <IntegrationsPage.Header
+                },
+                disabled: !hasOtherAuthenticationMethodsThanOkta,
+              },
+            ],
+          },
+        ]}
         isLoading={loading}
-        integrationLogo={<Okta />}
-        integrationName={translate('text_664c732c264d7eed1c74fda2')}
-        integrationChip={translate('text_62b1edddbf5f461ab971270d')}
-        integrationDescription={translate('text_664c732c264d7eed1c74fdbd')}
       />
 
       <IntegrationsPage.Container>

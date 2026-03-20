@@ -152,7 +152,7 @@ const CouponDetails = () => {
               tab: CouponDetailsTabsOptionsEnum.activityLogs,
             }),
             content: (
-              <DetailsPage.Container className="max-w-none">
+              <DetailsPage.Container>
                 <CouponDetailsActivityLogs couponId={couponId as string} />
               </DetailsPage.Container>
             ),

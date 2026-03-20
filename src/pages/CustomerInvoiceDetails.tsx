@@ -25,6 +25,7 @@ import { InvoiceActivityLogs } from '~/components/invoices/InvoiceActivityLogs'
 import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteList'
 import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
@@ -1003,7 +1004,7 @@ const CustomerInvoiceDetails = () => {
           image={<ErrorImage width="136" height="104" />}
         />
       ) : (
-        <div className="px-4 pb-20 pt-8 md:px-12">{activeTabContent}</div>
+        <DetailsPage.Container>{activeTabContent}</DetailsPage.Container>
       )}
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />

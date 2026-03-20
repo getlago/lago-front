@@ -14,10 +14,10 @@ import {
   SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
   SettingsPaddedContainer,
-  SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { BILLING_ENTITY_EMAIL_SCENARIOS_CONFIG_ROUTE } from '~/core/router'
+import { BILLING_ENTITY_EMAIL_SCENARIOS_CONFIG_ROUTE, BILLING_ENTITY_ROUTE } from '~/core/router'
 import {
   BillingEntity,
   BillingEntityEmailSettingsEnum,
@@ -29,8 +29,6 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useEmailConfig } from '~/hooks/useEmailConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { BillingEntityTab } from '~/pages/settings/BillingEntity/BillingEntity'
-import BillingEntityHeader from '~/pages/settings/BillingEntity/components/BillingEntityHeader'
 
 const EmailScenarioTitleLookup: Record<BillingEntityEmailSettingsEnum, string> = {
   [BillingEntityEmailSettingsEnum.InvoiceFinalized]: 'text_6408b5ae7f629d008bc8af7d',
@@ -102,18 +100,23 @@ const BillingEntityEmailScenarios = () => {
 
   return (
     <>
-      <BillingEntityHeader
-        billingEntity={billingEntity as BillingEntity}
-        tab={BillingEntityTab.EMAIL_SCENARIOS}
-        loading={loading}
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: billingEntity?.name || '',
+            path: generatePath(BILLING_ENTITY_ROUTE, {
+              billingEntityCode: billingEntityCode as string,
+            }),
+          },
+        ]}
+        entity={{
+          viewName: translate('text_6408b5ae7f629d008bc8af79'),
+          metadata: translate('text_6408b5ae7f629d008bc8af7b'),
+        }}
+        isLoading={loading}
       />
 
       <SettingsPaddedContainer>
-        <SettingsPageHeaderContainer>
-          <Typography variant="headline">{translate('text_6408b5ae7f629d008bc8af79')}</Typography>
-          <Typography>{translate('text_6408b5ae7f629d008bc8af7b')}</Typography>
-        </SettingsPageHeaderContainer>
-
         <SettingsListWrapper>
           {!!loading ? (
             <SettingsListItemLoadingSkeleton count={2} />

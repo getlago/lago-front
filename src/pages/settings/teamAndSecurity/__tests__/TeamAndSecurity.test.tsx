@@ -1,9 +1,17 @@
 import { cleanup, screen, waitFor } from '@testing-library/react'
 
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { initializeTranslations } from '~/core/apolloClient'
 import { render } from '~/test-utils'
 
 import TeamAndSecurity from '../TeamAndSecurity'
+
+const TeamAndSecurityWithHeader = () => (
+  <>
+    <MainHeader />
+    <TeamAndSecurity />
+  </>
+)
 
 const mockHasPermissions = jest.fn()
 const mockHasOrganizationPremiumAddon = jest.fn()
@@ -59,13 +67,15 @@ describe('TeamAndSecurity', () => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
     mockHasOrganizationPremiumAddon.mockReturnValue(true)
+    // Default URL for tab resolution
+    window.history.pushState({}, '', '/settings/team-and-security/members')
   })
 
   afterEach(cleanup)
 
   describe('with all permissions', () => {
     it('renders the page header', async () => {
-      render(<TeamAndSecurity />)
+      render(<TeamAndSecurityWithHeader />)
 
       await waitFor(() => {
         expect(document.body.textContent).toBeTruthy()
@@ -73,7 +83,7 @@ describe('TeamAndSecurity', () => {
     })
 
     it('renders 4 navigation tabs', async () => {
-      render(<TeamAndSecurity />)
+      render(<TeamAndSecurityWithHeader />)
 
       await waitFor(() => {
         const tabs = screen.getAllByRole('tab')
@@ -83,7 +93,7 @@ describe('TeamAndSecurity', () => {
     })
 
     it('renders Members tab label', async () => {
-      render(<TeamAndSecurity />)
+      render(<TeamAndSecurityWithHeader />)
 
       await waitFor(() => {
         const tabs = screen.getAllByRole('tab')
@@ -93,7 +103,7 @@ describe('TeamAndSecurity', () => {
     })
 
     it('renders Roles & permissions tab label', async () => {
-      render(<TeamAndSecurity />)
+      render(<TeamAndSecurityWithHeader />)
 
       await waitFor(() => {
         const tabs = screen.getAllByRole('tab')
@@ -103,7 +113,7 @@ describe('TeamAndSecurity', () => {
     })
 
     it('renders Authentication tab label', async () => {
-      render(<TeamAndSecurity />)
+      render(<TeamAndSecurityWithHeader />)
 
       await waitFor(() => {
         const tabs = screen.getAllByRole('tab')
@@ -113,7 +123,7 @@ describe('TeamAndSecurity', () => {
     })
 
     it('renders first tab as selected by default', async () => {
-      render(<TeamAndSecurity />)
+      render(<TeamAndSecurityWithHeader />)
 
       await waitFor(() => {
         const tabs = screen.getAllByRole('tab')
@@ -123,7 +133,8 @@ describe('TeamAndSecurity', () => {
     })
 
     it('renders the first tab panel content (Members)', async () => {
-      render(<TeamAndSecurity />)
+      window.history.pushState({}, '', '/settings/team-and-security/members')
+      render(<TeamAndSecurityWithHeader />)
 
       await waitFor(() => {
         expect(screen.getByTestId('members-tab')).toBeInTheDocument()
@@ -137,7 +148,7 @@ describe('TeamAndSecurity', () => {
         return !permissions.includes('organizationMembersView')
       })
 
-      render(<TeamAndSecurity />)
+      render(<TeamAndSecurityWithHeader />)
 
       await waitFor(() => {
         const tabs = screen.getAllByRole('tab')
@@ -152,7 +163,7 @@ describe('TeamAndSecurity', () => {
         return !permissions.includes('rolesView')
       })
 
-      render(<TeamAndSecurity />)
+      render(<TeamAndSecurityWithHeader />)
 
       await waitFor(() => {
         const tabs = screen.getAllByRole('tab')
@@ -168,7 +179,7 @@ describe('TeamAndSecurity', () => {
         return !permissions.includes('authenticationMethodsView')
       })
 
-      render(<TeamAndSecurity />)
+      render(<TeamAndSecurityWithHeader />)
 
       await waitFor(() => {
         const tabs = screen.getAllByRole('tab')
@@ -183,7 +194,7 @@ describe('TeamAndSecurity', () => {
         return !permissions.includes('securityLogsView')
       })
 
-      render(<TeamAndSecurity />)
+      render(<TeamAndSecurityWithHeader />)
 
       await waitFor(() => {
         const tabs = screen.getAllByRole('tab')
@@ -196,7 +207,7 @@ describe('TeamAndSecurity', () => {
     it('hides Security logs tab when SecurityLogs premium addon is not available', async () => {
       mockHasOrganizationPremiumAddon.mockReturnValue(false)
 
-      render(<TeamAndSecurity />)
+      render(<TeamAndSecurityWithHeader />)
 
       await waitFor(() => {
         const tabs = screen.getAllByRole('tab')
@@ -213,7 +224,7 @@ describe('TeamAndSecurity', () => {
         return permissions.every((p: string) => allowedPermissions.includes(p))
       })
 
-      render(<TeamAndSecurity />)
+      render(<TeamAndSecurityWithHeader />)
 
       await waitFor(() => {
         const tabs = screen.getAllByRole('tab')
@@ -224,11 +235,12 @@ describe('TeamAndSecurity', () => {
     })
 
     it('shows only Security logs tab when only securityLogsView is permitted', async () => {
+      window.history.pushState({}, '', '/settings/team-and-security/logs')
       mockHasPermissions.mockImplementation((permissions: string[]) => {
         return permissions.every((p: string) => p === 'securityLogsView')
       })
 
-      render(<TeamAndSecurity />)
+      render(<TeamAndSecurityWithHeader />)
 
       await waitFor(() => {
         expect(screen.getByTestId('security-logs-tab')).toBeInTheDocument()
@@ -236,11 +248,12 @@ describe('TeamAndSecurity', () => {
     })
 
     it('renders the first visible tab content when Members is hidden', async () => {
+      window.history.pushState({}, '', '/settings/team-and-security/roles')
       mockHasPermissions.mockImplementation((permissions: string[]) => {
         return !permissions.includes('organizationMembersView')
       })
 
-      render(<TeamAndSecurity />)
+      render(<TeamAndSecurityWithHeader />)
 
       await waitFor(() => {
         expect(screen.getByTestId('roles-tab')).toBeInTheDocument()

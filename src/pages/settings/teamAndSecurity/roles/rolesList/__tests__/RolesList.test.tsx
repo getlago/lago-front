@@ -75,7 +75,7 @@ describe('RolesList', () => {
   it('renders page header', async () => {
     await act(() => render(<RolesList />))
 
-    expect(screen.getAllByText('text_1765448879791epmkg4xijkn')).toHaveLength(2)
+    expect(screen.getAllByText('text_1765448879791epmkg4xijkn')).toHaveLength(1)
   })
 
   it('renders roles table with correct columns', async () => {
