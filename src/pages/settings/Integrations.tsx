@@ -192,6 +192,7 @@ const Integrations = () => {
 
   const { data, loading } = useIntegrationsSettingQuery({
     variables: { limit: 1000 },
+    nextFetchPolicy: 'cache-and-network',
   })
 
   const { data: billingEntitiesData } = useGetBillingEntitiesQuery()
