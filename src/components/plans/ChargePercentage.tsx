@@ -105,8 +105,8 @@ export const ChargePercentage = memo(({ premiumWarningDialogRef }: ChargePercent
                 disabled={disabled}
                 label={translate('text_62ff5d01a306e274d4ffcc1e')}
                 InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
+                  startAdornment: (
+                    <InputAdornment position="start">
                       {chargePricingUnitShortName || getCurrencySymbol(currency)}
                     </InputAdornment>
                   ),
@@ -199,8 +199,8 @@ export const ChargePercentage = memo(({ premiumWarningDialogRef }: ChargePercent
                 disabled={disabled}
                 label={translate('text_62ff5d01a306e274d4ffcc48')}
                 InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
+                  startAdornment: (
+                    <InputAdornment position="start">
                       {chargePricingUnitShortName || getCurrencySymbol(currency)}
                     </InputAdornment>
                   ),
@@ -265,8 +265,8 @@ export const ChargePercentage = memo(({ premiumWarningDialogRef }: ChargePercent
                       : undefined
                   }
                   InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
+                    startAdornment: (
+                      <InputAdornment position="start">
                         {chargePricingUnitShortName || getCurrencySymbol(currency)}
                       </InputAdornment>
                     ),
@@ -332,8 +332,8 @@ export const ChargePercentage = memo(({ premiumWarningDialogRef }: ChargePercent
                       : undefined
                   }
                   InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
+                    startAdornment: (
+                      <InputAdornment position="start">
                         {chargePricingUnitShortName || getCurrencySymbol(currency)}
                       </InputAdornment>
                     ),

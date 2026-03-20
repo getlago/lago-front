@@ -151,8 +151,8 @@ export const MinimumCommitmentDrawer = forwardRef<
                     label={translate('text_65d601bffb11e0f9d1d9f571')}
                     InputProps={{
                       inputRef: amountRef,
-                      endAdornment: (
-                        <InputAdornment position="end">
+                      startAdornment: (
+                        <InputAdornment position="start">
                           {getCurrencySymbol(currency || CurrencyEnum.Usd)}
                         </InputAdornment>
                       ),

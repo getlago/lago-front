@@ -1,4 +1,5 @@
 import InputAdornment from '@mui/material/InputAdornment'
+import { Icon } from 'lago-design-system'
 import _omit from 'lodash/omit'
 
 import { Button } from '~/components/designSystem/Button'
@@ -16,6 +17,7 @@ export const ComboBoxInput = ({
   label,
   description,
   name,
+  loading,
   searchQuery,
   placeholder,
   infoText,
@@ -77,12 +79,18 @@ export const ComboBoxInput = ({
                 }}
               />
             )}
-            <Button
-              variant="quaternary"
-              size="small"
-              icon="chevron-up-down"
-              onClick={restParams.disabled ? undefined : () => inputProps.onMouseDown()}
-            />
+            {loading ? (
+              <span className="flex size-6 items-center justify-center">
+                <Icon name="processing" animation="spin" size="small" />
+              </span>
+            ) : (
+              <Button
+                variant="quaternary"
+                size="small"
+                icon="chevron-up-down"
+                onClick={restParams.disabled ? undefined : () => inputProps.onMouseDown()}
+              />
+            )}
           </InputAdornment>
         ),
         startAdornment: startAdornmentValue && (
