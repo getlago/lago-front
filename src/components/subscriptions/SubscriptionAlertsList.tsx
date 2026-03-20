@@ -25,7 +25,11 @@ import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
   query getAlertsOfSubscription($subscriptionExternalId: String!, $limit: Int, $page: Int) {
-    alerts(subscriptionExternalId: $subscriptionExternalId, limit: $limit, page: $page) {
+    subscriptionAlerts(
+      subscriptionExternalId: $subscriptionExternalId
+      limit: $limit
+      page: $page
+    ) {
       collection {
         id
         code
@@ -149,7 +153,7 @@ export const SubscriptionAlertsList = ({
 
         {!!isPremium && (
           <>
-            {!alertsLoading && !alertsData?.alerts.collection.length ? (
+            {!alertsLoading && !alertsData?.subscriptionAlerts.collection.length ? (
               <Typography variant="body" color="grey500">
                 {translate('text_1746523849026ljzi79afhmr')}
               </Typography>
@@ -157,7 +161,7 @@ export const SubscriptionAlertsList = ({
               <Table
                 name="alerts-list"
                 containerSize={0}
-                data={alertsData?.alerts.collection || []}
+                data={alertsData?.subscriptionAlerts.collection || []}
                 hasError={!!alertsError}
                 isLoading={alertsLoading}
                 rowSize={72}

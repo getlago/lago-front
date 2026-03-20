@@ -127,13 +127,19 @@ interface DetailsInfoItemProps {
   label: string
   value: ReactNode | string
   className?: string
+  valueClassName?: string
 }
 
-const DetailsPageInfoGridItem: FC<DetailsInfoItemProps> = ({ label, value, className }) => {
+const DetailsPageInfoGridItem: FC<DetailsInfoItemProps> = ({
+  label,
+  value,
+  className,
+  valueClassName,
+}) => {
   return (
     <div className={tw(className)}>
       <Typography variant="caption">{label}</Typography>
-      <Typography variant="body" color="grey700">
+      <Typography className={valueClassName} variant="body" color="grey700">
         {value}
       </Typography>
     </div>
@@ -150,6 +156,7 @@ const DetailsPageInfoGrid: FC<{ grid: Array<DetailsInfoItemProps | false> }> = (
               key={`details-info-grid-${item.label}-${index}`}
               label={item.label}
               value={item.value}
+              valueClassName={item.valueClassName}
             />
           )
         }

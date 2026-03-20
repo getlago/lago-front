@@ -19,7 +19,7 @@ import { addToast } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
+import { CUSTOMER_DETAILS_TAB_ROUTE, WALLET_DETAILS_ROUTE } from '~/core/router'
 import {
   deserializeAmount,
   getCurrencyPrecision,
@@ -48,6 +48,7 @@ import { TopUpSection } from '~/pages/wallet/components/TopUpSection'
 import { walletFormSchema } from '~/pages/wallet/form'
 import { TWalletDataForm } from '~/pages/wallet/types'
 import { transformRecurringTransactionRule } from '~/pages/wallet/utils/transformRecurringTransactionRule'
+import { WalletDetailsTabsOptionsEnum } from '~/pages/wallet/WalletDetails'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 const WALLET_DEFAULT_PRIORITY = 50
@@ -200,13 +201,24 @@ const CreateWallet = () => {
     customerData?.customer?.currency || organization?.defaultCurrency || CurrencyEnum.Usd
 
   const navigateToCustomerWalletTab = useCallback(
-    () =>
-      navigate(
+    (id?: string) => {
+      if (id) {
+        return navigate(
+          generatePath(WALLET_DETAILS_ROUTE, {
+            walletId: id,
+            customerId: customerId,
+            tab: WalletDetailsTabsOptionsEnum.overview,
+          }),
+        )
+      }
+
+      return navigate(
         generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
           customerId: customerId,
           tab: CustomerDetailsTabsOptions.wallet,
         }),
-      ),
+      )
+    },
     [customerId, navigate],
   )
 
@@ -423,13 +435,15 @@ const CreateWallet = () => {
         if (!!errors?.length) return
       }
 
-      navigateToCustomerWalletTab()
+      navigateToCustomerWalletTab(walletId)
     },
   })
 
   const onAbort = useCallback(() => {
-    formikProps.dirty ? warningDialogRef.current?.openDialog() : navigateToCustomerWalletTab()
-  }, [formikProps.dirty, navigateToCustomerWalletTab])
+    formikProps.dirty
+      ? warningDialogRef.current?.openDialog()
+      : navigateToCustomerWalletTab(walletId)
+  }, [formikProps.dirty, navigateToCustomerWalletTab, walletId])
 
   return (
     <>
@@ -517,7 +531,7 @@ const CreateWallet = () => {
         title={translate('text_665deda4babaf700d603ea13')}
         description={translate('text_665dedd557dc3c00c62eb83d')}
         continueText={translate('text_645388d5bdbd7b00abffa033')}
-        onContinue={() => navigateToCustomerWalletTab()}
+        onContinue={() => navigateToCustomerWalletTab(wallet?.id)}
       />
 
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
