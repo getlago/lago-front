@@ -49,11 +49,19 @@ export const downloadEditorPdf = (wrapperElement: HTMLDivElement | null): void =
   // Force backgrounds to print (browsers strip them by default)
   const printStyle = iframeDoc.createElement('style')
 
-  printStyle.textContent = `@media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; } }`
+  printStyle.textContent = `
+    @page { margin: 0; }
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+    }
+    body { margin: 0; padding: 0; }
+    .print-padding { padding: 20mm; }
+  `
   iframeDoc.head.appendChild(printStyle)
 
-  // Wrap the cloned content in the same class scope so CSS selectors match
-  iframeDoc.body.innerHTML = `<div class="rich-text-editor">${proseMirror.outerHTML}</div>`
+  // Wrap the cloned content in a padded div — @page margin:0 hides browser headers/footers,
+  // and the inner padding restores the visual margin
+  iframeDoc.body.innerHTML = `<div class="print-padding"><div class="rich-text-editor">${proseMirror.outerHTML}</div></div>`
 
   // Give stylesheets a moment to load, then print
   setTimeout(() => {
