@@ -14,6 +14,7 @@ import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/Delete
 import { SearchInput } from '~/components/SearchInput'
 import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import { CREATE_PLAN_ROUTE, PLAN_DETAILS_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
 import { DeletePlanDialogFragmentDoc, usePlansLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -37,6 +38,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         ...PlanItem
@@ -88,10 +90,15 @@ const PlansList = () => {
     }
   }
 
+  const plansTotalCount = data?.plans?.metadata?.totalCount
+
   return (
     <>
       <MainHeader.Configure
-        entity={{ viewName: translate('text_62442e40cea25600b0b6d84a') }}
+        entity={{
+          viewName: translate('text_62442e40cea25600b0b6d84a'),
+          metadata: formatCountToMetadata(plansTotalCount, translate),
+        }}
         actions={[
           {
             type: 'action',

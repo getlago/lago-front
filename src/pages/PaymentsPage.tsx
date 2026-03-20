@@ -6,6 +6,7 @@ import { PaymentsList } from '~/components/invoices/PaymentsList'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { SearchInput } from '~/components/SearchInput'
+import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import { CREATE_PAYMENT_ROUTE } from '~/core/router'
 import { PaymentForPaymentsListFragmentDoc, useGetPaymentsListLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -62,10 +63,15 @@ const PaymentsPage = () => {
   const { debouncedSearch: paymentsDebounceSearch, isLoading: paymentsIsLoading } =
     useDebouncedSearch(getPayments, loading)
 
+  const paymentsTotalCount = data?.payments?.metadata?.totalCount
+
   return (
     <>
       <MainHeader.Configure
-        entity={{ viewName: translate('text_6672ebb8b1b50be550eccbed') }}
+        entity={{
+          viewName: translate('text_6672ebb8b1b50be550eccbed'),
+          metadata: formatCountToMetadata(paymentsTotalCount, translate),
+        }}
         actions={[
           {
             type: 'action',

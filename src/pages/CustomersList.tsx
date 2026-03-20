@@ -14,6 +14,7 @@ import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
+import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import { CREATE_CUSTOMER_ROUTE, CUSTOMER_DETAILS_ROUTE, UPDATE_CUSTOMER_ROUTE } from '~/core/router'
 import {
   AddCustomerDrawerFragmentDoc,
@@ -78,6 +79,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         ...CustomerItem
@@ -121,10 +123,15 @@ const CustomersList = () => {
   const headerActions = useCustomersListHeaderActions()
   const headerFilters = useCustomersListHeaderFilters({ debouncedSearch })
 
+  const customersTotalCount = data?.customers?.metadata?.totalCount
+
   return (
     <>
       <MainHeader.Configure
-        entity={{ viewName: translate('text_624efab67eb2570101d117a5') }}
+        entity={{
+          viewName: translate('text_624efab67eb2570101d117a5'),
+          metadata: formatCountToMetadata(customersTotalCount, translate),
+        }}
         actions={headerActions}
         filtersSection={headerFilters}
       />

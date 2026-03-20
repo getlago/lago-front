@@ -15,6 +15,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import {
   BILLABLE_METRIC_DETAILS_ROUTE,
   CREATE_BILLABLE_METRIC_ROUTE,
@@ -39,6 +40,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         ...BillableMetricItem
@@ -66,10 +68,15 @@ const BillableMetricsList = () => {
   const canUpdateBillableMetrics = hasPermissions(['billableMetricsUpdate'])
   const canDeleteBillableMetrics = hasPermissions(['billableMetricsDelete'])
 
+  const billableMetricsTotalCount = data?.billableMetrics?.metadata?.totalCount
+
   return (
     <>
       <MainHeader.Configure
-        entity={{ viewName: translate('text_623b497ad05b960101be3438') }}
+        entity={{
+          viewName: translate('text_623b497ad05b960101be3438'),
+          metadata: formatCountToMetadata(billableMetricsTotalCount, translate),
+        }}
         actions={[
           {
             type: 'action',

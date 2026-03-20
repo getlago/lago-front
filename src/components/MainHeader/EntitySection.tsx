@@ -66,8 +66,10 @@ export const EntitySection: FC<{ entity?: MainHeaderEntityConfig; isLoading?: bo
             />
           ))}
         </div>
-        {entity.metadata && (
+        {entity.metadata ? (
           <Typography data-test={ENTITY_SECTION_METADATA_TEST_ID}>{entity.metadata}</Typography>
+        ) : (
+          isLoading && <Skeleton variant="text" className="w-20" />
         )}
       </div>
     </div>
