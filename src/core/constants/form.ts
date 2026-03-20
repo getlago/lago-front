@@ -29,7 +29,11 @@ export const MUI_BUTTON_BASE_ROOT_CLASSNAME = 'MuiButtonBase-root'
 export const SEARCH_METERED_CHARGE_INPUT_CLASSNAME = 'searchMeteredChargeInput'
 export const SEARCH_ADD_ON_FOR_FIXED_CHARGES_SECTION_INPUT_CLASSNAME =
   'searchAddOnForFixedChargesSectionInput'
+export const SEARCH_ADD_ON_IN_FIXED_CHARGE_DRAWER_INPUT_CLASSNAME =
+  'searchAddOnInFixedChargeDrawerInput'
 export const SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME = 'searchRecurringChargeInput'
+export const SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME =
+  'searchBillableMetricInUsageChargeDrawerInput'
 export const SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME = 'searchTaxForPlanInput'
 export const SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME = 'searchTaxForChargeInput'
 export const SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME = 'searchTaxForMinCommitmentInput'
@@ -71,6 +75,8 @@ export const ALL_CHARGE_MODELS = {
   ...ChargeModelEnum,
   ...FixedChargeChargeModelEnum,
 } as const
+
+export type AnyChargeModel = ChargeModelEnum | FixedChargeChargeModelEnum
 // Filters
 export const ALL_FILTER_VALUES = '__ALL_FILTER_VALUES__'
 
@@ -101,10 +107,7 @@ export enum LocalTaxProviderErrorsEnum {
   GenericErrorMessage = 'text_17238318811307ghoc4v7mt9',
 }
 
-export const chargeModelLookupTranslation: Record<
-  (typeof ALL_CHARGE_MODELS)[keyof typeof ALL_CHARGE_MODELS],
-  string
-> = {
+export const chargeModelLookupTranslation: Record<AnyChargeModel, string> = {
   graduated: 'text_65201b8216455901fe273e11',
   graduated_percentage: 'text_65201b8216455901fe273e32',
   package: 'text_65201b8216455901fe273de5',

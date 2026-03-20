@@ -1,8 +1,7 @@
-import { FormikProps } from 'formik'
+import type { AnyFormApi } from '@tanstack/react-form'
 import { useEffect, useMemo } from 'react'
 
-import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
-import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
+import { LocalChargeFilterInput } from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { GraduatedRangeInput, PropertiesInput } from '~/generated/graphql'
 import { formataAnyToValueForChargeFormArrays } from '~/hooks/plans/utils'
@@ -17,18 +16,14 @@ type InfoCalculationRow = {
 }
 
 type UseGraduatedChargeForm = ({
-  chargeCursor,
-  chargeIndex,
   disabled,
   propertyCursor,
-  setFieldValue,
+  form,
   valuePointer,
 }: {
-  chargeCursor: ChargeCursor
-  chargeIndex: number
   disabled?: boolean
   propertyCursor: string
-  setFieldValue: FormikProps<PlanFormInput>['setFieldValue']
+  form: Pick<AnyFormApi, 'setFieldValue'>
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }) => {
   handleUpdate: (rangeIndex: number, fieldName: string, value?: number | string | string[]) => void
@@ -54,14 +49,13 @@ export const DEFAULT_GRADUATED_CHARGES = [
 ]
 
 export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
-  chargeCursor,
-  chargeIndex,
   disabled,
-  setFieldValue,
+  form,
   propertyCursor,
   valuePointer,
 }) => {
-  const formikIdentifier = `${chargeCursor}.${chargeIndex}.${propertyCursor}.graduatedRanges`
+  const setFieldValue = (path: string, value: unknown) => form.setFieldValue(path, value)
+  const formikIdentifier = `${propertyCursor}.graduatedRanges`
   const graduatedRanges = useMemo(() => valuePointer?.graduatedRanges || [], [valuePointer])
 
   useEffect(() => {
@@ -159,10 +153,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
         [],
       )
 
-      setFieldValue(
-        `${chargeCursor}.${chargeIndex}.${propertyCursor}.graduatedRanges`,
-        newGraduatedRanges,
-      )
+      setFieldValue(`${propertyCursor}.graduatedRanges`, newGraduatedRanges)
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       if (fieldName !== 'toValue') {

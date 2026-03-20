@@ -1,18 +1,14 @@
 import { gql } from '@apollo/client'
-import { FormikProps, FormikState } from 'formik'
-import _get from 'lodash/get'
 import { memo, useCallback, useRef } from 'react'
 
 import { JsonEditor } from '~/components/form'
-import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import {
   EditCustomChargeDrawer,
   EditCustomChargeDrawerRef,
 } from '~/components/plans/EditCustomChargeDrawer'
+import { useChargeFormContext, usePropertyValues } from '~/contexts/ChargeFormContext'
 import { PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { LocalChargeFilterInput, PlanFormInput } from './types'
 
 gql`
   fragment CustomCharge on Properties {
@@ -20,58 +16,43 @@ gql`
   }
 `
 
-interface CustomChargeProps {
-  chargeCursor: ChargeCursor
-  chargeErrors: FormikState<PlanFormInput>['errors']
-  chargeIndex: number
-  disabled?: boolean
-  propertyCursor: string
-  setFieldValue: FormikProps<PlanFormInput>['setFieldValue']
-  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
-}
+export const CUSTOM_CHARGE_JSON_EDITOR_TEST_ID = 'custom-charge-json-editor'
 
-export const CustomCharge = memo(
-  ({
-    chargeCursor,
-    chargeErrors,
-    chargeIndex,
-    disabled,
-    propertyCursor,
-    setFieldValue,
-    valuePointer,
-  }: CustomChargeProps) => {
-    const { translate } = useInternationalization()
-    const drawerRef = useRef<EditCustomChargeDrawerRef>(null)
+export const CustomCharge = memo(() => {
+  const { form, propertyCursor, disabled } = useChargeFormContext()
+  const { translate } = useInternationalization()
+  const drawerRef = useRef<EditCustomChargeDrawerRef>(null)
+  const valuePointer = usePropertyValues(form, propertyCursor)
 
-    const propertyInput: keyof PropertiesInput = 'customProperties'
-    const inputId = `${chargeCursor}.${chargeIndex}.${propertyCursor}.${propertyInput}`
+  const propertyInput: keyof PropertiesInput = 'customProperties'
+  const inputId = `${propertyCursor}.${propertyInput}`
 
-    const handleUpdate = useCallback(
-      (value: string) => {
-        setFieldValue(inputId, value)
-      },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [inputId],
-    )
+  const handleUpdate = useCallback(
+    (value: string) => {
+      form.setFieldValue(inputId, value)
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [inputId],
+  )
 
-    return (
-      <>
+  return (
+    <>
+      <div data-test={CUSTOM_CHARGE_JSON_EDITOR_TEST_ID}>
         <JsonEditor
           name={`${propertyCursor}.${propertyInput}`}
           label={translate('text_663dea5702b60301d8d06502')}
           value={valuePointer?.customProperties}
           disabled={disabled}
-          error={_get(chargeErrors, inputId)}
           onExpand={() =>
             drawerRef.current?.openDrawer({
               customProperties: valuePointer?.customProperties,
             })
           }
         />
-        <EditCustomChargeDrawer ref={drawerRef} onSubmit={(value) => handleUpdate(value)} />
-      </>
-    )
-  },
-)
+      </div>
+      <EditCustomChargeDrawer ref={drawerRef} onSubmit={(value) => handleUpdate(value)} />
+    </>
+  )
+})
 
 CustomCharge.displayName = 'CustomCharge'
