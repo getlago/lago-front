@@ -288,7 +288,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
 
       {hasPremiumIntegration && !displayProgressiveBillingAccordion && (
         <Button
-          align="left"
+          fitContent
           variant="inline"
           startIcon="plus"
           disabled={displayProgressiveBillingAccordion}

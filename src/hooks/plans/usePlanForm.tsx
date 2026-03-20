@@ -160,7 +160,7 @@ export const usePlanForm: ({
       invoiceDisplayName: plan?.invoiceDisplayName || undefined,
       payInAdvance: plan?.payInAdvance || false,
       amountCents: isNaN(plan?.amountCents)
-        ? ''
+        ? '0'
         : String(deserializeAmount(plan?.amountCents || 0, initialCurrency)),
       amountCurrency: initialCurrency,
       trialPeriod: plan?.trialPeriod ?? 0,

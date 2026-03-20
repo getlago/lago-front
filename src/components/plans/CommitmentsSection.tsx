@@ -93,16 +93,16 @@ export const CommitmentsSection = ({ formikProps, onDrawerSave }: CommitmentsSec
             <SelectorActions
               actions={[
                 {
-                  icon: 'pen',
-                  tooltipCopy: translate('text_63e51ef4985f0ebd75c212fc'),
-                  onClick: () => openMinimumCommitmentDrawer(),
-                },
-                {
                   icon: 'trash',
                   tooltipCopy: translate('text_63aa085d28b8510cd46443ff'),
                   onClick: () => {
                     formikProps.setFieldValue('minimumCommitment', {})
                   },
+                },
+                {
+                  icon: 'pen',
+                  tooltipCopy: translate('text_63e51ef4985f0ebd75c212fc'),
+                  onClick: () => openMinimumCommitmentDrawer(),
                 },
               ]}
             />
@@ -122,7 +122,7 @@ export const CommitmentsSection = ({ formikProps, onDrawerSave }: CommitmentsSec
 
       {!hasCommitment && isPremium && (
         <Button
-          align="left"
+          fitContent
           variant="inline"
           startIcon="plus"
           data-test={ADD_MINIMUM_COMMITMENT_TEST_ID}

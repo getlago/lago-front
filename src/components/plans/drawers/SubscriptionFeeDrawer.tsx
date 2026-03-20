@@ -22,7 +22,7 @@ export interface SubscriptionFeeFormValues {
 }
 
 const subscriptionFeeSchema = z.object({
-  amountCents: z.string().min(1, 'text_1771342994699klxu2paz7g8'),
+  amountCents: z.string().min(1, 'text_624ea7c29103fd010732ab7d'),
   payInAdvance: z.boolean(),
   trialPeriod: z.number(),
   invoiceDisplayName: z.string().optional(),

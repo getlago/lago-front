@@ -4,7 +4,7 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Chip } from '~/components/designSystem/Chip'
 import { JsonEditor } from '~/components/form'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { ALL_CHARGE_MODELS } from '~/core/constants/form'
+import { ALL_CHARGE_MODELS, AnyChargeModel } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   AppliedPricingUnit,
@@ -61,7 +61,7 @@ export const PlanDetailsChargeWrapperSwitch = memo(
     // Memoize the configuration object to avoid recreating it on every render
     // Only recreate when dependencies change
     const chargeModelConfigs: Record<
-      (typeof ALL_CHARGE_MODELS)[keyof typeof ALL_CHARGE_MODELS],
+      AnyChargeModel,
       {
         isVisible: boolean
         content: JSX.Element
