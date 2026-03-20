@@ -33,7 +33,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
-const sortAndFormatThresholds = (
+export const sortAndFormatThresholds = (
   thresholds: AlertThreshold[],
   currency: CurrencyEnum,
   shouldHandleUnits: boolean,
@@ -72,7 +72,7 @@ gql`
   }
 
   query getSubscriptionAlertToEdit($id: ID!) {
-    alert(id: $id) {
+    subscriptionAlert(id: $id) {
       id
       alertType
       billableMetric {
@@ -91,7 +91,7 @@ gql`
   }
 
   query getExistingAlertsOfSubscription($subscriptionExternalId: String!, $limit: Int) {
-    alerts(subscriptionExternalId: $subscriptionExternalId, limit: $limit) {
+    subscriptionAlerts(subscriptionExternalId: $subscriptionExternalId, limit: $limit) {
       collection {
         id
         alertType
@@ -164,7 +164,7 @@ const AlertForm = () => {
       },
       skip:
         !subscriptionData?.subscription?.plan?.id ||
-        (isEdition && alertData?.alert?.alertType === AlertTypeEnum.CurrentUsageAmount),
+        (isEdition && alertData?.subscriptionAlert?.alertType === AlertTypeEnum.CurrentUsageAmount),
     })
 
   const isLoading =
@@ -173,7 +173,7 @@ const AlertForm = () => {
     existingAlertsLoading ||
     subscriptionBillableMetricsLoading
 
-  const existingAlert = alertData?.alert
+  const existingAlert = alertData?.subscriptionAlert
   const currency = subscriptionData?.subscription?.plan?.amountCurrency || CurrencyEnum.Usd
 
   const onLeave = useCallback(
@@ -343,7 +343,7 @@ const AlertForm = () => {
     return (subscriptionBillableMetricsData?.billableMetrics?.collection || []).map((item) => {
       const { id, code, name } = item
 
-      const hasAlertOnBillableMetric = existingAlertsData?.alerts.collection.some(
+      const hasAlertOnBillableMetric = existingAlertsData?.subscriptionAlerts?.collection.some(
         (alert) =>
           alert.billableMetricId === id && alert.alertType === formikProps.values.alertType,
       )
@@ -366,28 +366,29 @@ const AlertForm = () => {
     })
   }, [
     subscriptionBillableMetricsData?.billableMetrics?.collection,
-    existingAlertsData?.alerts.collection,
+    existingAlertsData?.subscriptionAlerts?.collection,
     formikProps.values.alertType,
   ])
 
   const { hasUsageAmountAlert, hasLifetimeUsageAmountAlert } = useMemo(() => {
-    if (!existingAlertsData?.alerts.collection.length) {
+    if (!existingAlertsData?.subscriptionAlerts?.collection.length) {
       return { hasUsageAmountAlert: false }
     }
 
-    const localHasUsageAmountAlert = existingAlertsData?.alerts.collection.some(
+    const localHasUsageAmountAlert = existingAlertsData?.subscriptionAlerts?.collection.some(
       (alert) => alert.alertType === AlertTypeEnum.CurrentUsageAmount,
     )
 
-    const localHasLifetimeUsageAmountAlert = existingAlertsData?.alerts.collection.some(
-      (alert) => alert.alertType === AlertTypeEnum.LifetimeUsageAmount,
-    )
+    const localHasLifetimeUsageAmountAlert =
+      existingAlertsData?.subscriptionAlerts?.collection.some(
+        (alert) => alert.alertType === AlertTypeEnum.LifetimeUsageAmount,
+      )
 
     return {
       hasUsageAmountAlert: localHasUsageAmountAlert,
       hasLifetimeUsageAmountAlert: localHasLifetimeUsageAmountAlert,
     }
-  }, [existingAlertsData?.alerts.collection])
+  }, [existingAlertsData?.subscriptionAlerts?.collection])
 
   const hasAnyNonRecurringThresholdError = useMemo(() => {
     const localNonRecurringThresholds = formikProps.values.thresholds.filter(

@@ -36,6 +36,7 @@ interface ChargeTableProps<T> {
   className?: string
   onDeleteRow?: (row: DataType<T>, index: number) => unknown
   deleteTooltipContent?: string
+  headerCellClassName?: string
 }
 
 export const ChargeTable = <T extends Record<string, unknown>>({
@@ -45,6 +46,7 @@ export const ChargeTable = <T extends Record<string, unknown>>({
   data,
   onDeleteRow,
   deleteTooltipContent,
+  headerCellClassName,
 }: ChargeTableProps<T>) => {
   const { translate } = useInternationalization()
 
@@ -70,6 +72,7 @@ export const ChargeTable = <T extends Record<string, unknown>>({
                   className={tw(
                     CELL_HEIGHT,
                     'border-b border-r border-solid border-grey-300 text-left',
+                    headerCellClassName,
                   )}
                   style={sizeStyle}
                   key={`table-${name}-head-${i}`}
