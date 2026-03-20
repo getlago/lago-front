@@ -35,19 +35,22 @@ describe('getIntegration', () => {
   })
 
   describe('hadInitialIntegrationCustomer detection', () => {
-    it('should return true when customer has existing integration of same type', () => {
+    it('should return true when customer has existing integration of same type and integration still exists', () => {
       const integrationCustomers: Array<AddCustomerDrawerFragment['xeroCustomer']> = [
         {
           __typename: 'XeroCustomer',
           id: 'customer-1',
           integrationType: IntegrationTypeEnum.Xero,
           integrationId: 'integration-1',
+          integrationCode: 'xero_code',
           externalCustomerId: 'ext-customer-1',
           syncWithProvider: true,
         },
       ]
 
-      getAllIntegrationForAnIntegrationTypeMock.mockReturnValue([])
+      getAllIntegrationForAnIntegrationTypeMock.mockReturnValue([
+        { __typename: 'XeroIntegration', id: 'xero-1', code: 'xero_code', name: 'Xero' },
+      ])
 
       const result = getIntegration({
         integrationType: IntegrationTypeEnum.Xero,
@@ -56,6 +59,32 @@ describe('getIntegration', () => {
       })
 
       expect(result.hadInitialIntegrationCustomer).toBe(true)
+    })
+
+    it('should return false when customer has integration but it was deleted', () => {
+      const integrationCustomers: Array<AddCustomerDrawerFragment['xeroCustomer']> = [
+        {
+          __typename: 'XeroCustomer',
+          id: 'customer-1',
+          integrationType: IntegrationTypeEnum.Xero,
+          integrationId: 'integration-1',
+          integrationCode: 'deleted_xero_code',
+          externalCustomerId: 'ext-customer-1',
+          syncWithProvider: true,
+        },
+      ]
+
+      getAllIntegrationForAnIntegrationTypeMock.mockReturnValue([
+        { __typename: 'XeroIntegration', id: 'xero-2', code: 'new_xero_code', name: 'New Xero' },
+      ])
+
+      const result = getIntegration({
+        integrationType: IntegrationTypeEnum.Xero,
+        integrationCustomers,
+        allIntegrationsData: undefined,
+      })
+
+      expect(result.hadInitialIntegrationCustomer).toBe(false)
     })
 
     it('should return false when customer has no integration of same type', () => {
@@ -112,6 +141,7 @@ describe('getIntegration', () => {
           id: 'customer-1',
           integrationType: IntegrationTypeEnum.Netsuite,
           integrationId: 'integration-1',
+          integrationCode: 'netsuite_code',
           externalCustomerId: 'ext-customer-1',
           syncWithProvider: true,
         },
@@ -120,6 +150,7 @@ describe('getIntegration', () => {
           id: 'customer-2',
           integrationType: IntegrationTypeEnum.Xero,
           integrationId: 'integration-2',
+          integrationCode: 'xero_code',
           externalCustomerId: 'ext-customer-2',
           syncWithProvider: false,
         },
@@ -128,12 +159,15 @@ describe('getIntegration', () => {
           id: 'customer-3',
           integrationType: IntegrationTypeEnum.Anrok,
           integrationId: 'integration-3',
+          integrationCode: 'anrok_code',
           externalCustomerId: 'ext-customer-3',
           syncWithProvider: true,
         },
       ]
 
-      getAllIntegrationForAnIntegrationTypeMock.mockReturnValue([])
+      getAllIntegrationForAnIntegrationTypeMock.mockReturnValue([
+        { __typename: 'XeroIntegration', id: 'xero-1', code: 'xero_code', name: 'Xero' },
+      ])
 
       const result = getIntegration({
         integrationType: IntegrationTypeEnum.Xero,
@@ -300,12 +334,20 @@ describe('getIntegration', () => {
             id: 'customer-1',
             integrationType,
             integrationId: 'integration-1',
+            integrationCode: 'test_code',
             externalCustomerId: 'ext-customer-1',
             syncWithProvider: true,
           },
         ]
 
-        getAllIntegrationForAnIntegrationTypeMock.mockReturnValue([])
+        getAllIntegrationForAnIntegrationTypeMock.mockReturnValue([
+          {
+            __typename: expectedTypename.replace('Customer', 'Integration'),
+            id: 'int-1',
+            code: 'test_code',
+            name: 'Test',
+          },
+        ])
 
         const result = getIntegration({
           integrationType,
@@ -330,6 +372,7 @@ describe('getIntegration', () => {
           id: 'customer-1',
           integrationType: IntegrationTypeEnum.Xero,
           integrationId: 'integration-1',
+          integrationCode: 'xero_code_1',
           externalCustomerId: 'ext-customer-1',
           syncWithProvider: true,
         },
@@ -426,13 +469,16 @@ describe('getIntegration', () => {
           id: 'customer-1',
           integrationType: IntegrationTypeEnum.Xero,
           integrationId: 'integration-1',
+          integrationCode: 'xero_code',
           externalCustomerId: 'ext-customer-1',
           syncWithProvider: true,
         },
         null,
       ] as Array<IntegrationCustomer | null>
 
-      getAllIntegrationForAnIntegrationTypeMock.mockReturnValue([])
+      getAllIntegrationForAnIntegrationTypeMock.mockReturnValue([
+        { __typename: 'XeroIntegration', id: 'xero-1', code: 'xero_code', name: 'Xero' },
+      ])
 
       const result = getIntegration({
         integrationType: IntegrationTypeEnum.Xero,
