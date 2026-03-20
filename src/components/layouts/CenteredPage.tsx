@@ -3,6 +3,12 @@ import { PropsWithChildren } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
 
+// Test ID constants
+export const PAGE_SECTION_TITLE_TEST_ID = 'page-section-title'
+export const PAGE_SECTION_TITLE_DESCRIPTION_TEST_ID = 'page-section-title-description'
+export const SUBSECTION_TITLE_TEST_ID = 'subsection-title'
+export const SUBSECTION_TITLE_DESCRIPTION_TEST_ID = 'subsection-title-description'
+
 export const PageBannerHeaderWithBurgerMenu = ({ children }: PropsWithChildren) => {
   return (
     <header className="sticky top-0 z-navBar flex h-nav items-center justify-between gap-2 bg-white px-17 shadow-b md:px-12">
@@ -65,13 +71,45 @@ const PageSectionTitle = ({
   description?: string | JSX.Element
 }) => {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2" data-test={PAGE_SECTION_TITLE_TEST_ID}>
       <Typography variant="subhead1" color="grey700">
         {title}
       </Typography>
       {description &&
         (typeof description === 'string' ? (
-          <Typography variant="caption" color="grey600">
+          <Typography
+            variant="caption"
+            color="grey600"
+            data-test={PAGE_SECTION_TITLE_DESCRIPTION_TEST_ID}
+          >
+            {description}
+          </Typography>
+        ) : (
+          description
+        ))}
+    </div>
+  )
+}
+
+const SubsectionTitle = ({
+  title,
+  description,
+}: {
+  title: string
+  description?: string | JSX.Element
+}) => {
+  return (
+    <div className="flex flex-col gap-1" data-test={SUBSECTION_TITLE_TEST_ID}>
+      <Typography variant="captionHl" color="grey700">
+        {title}
+      </Typography>
+      {description &&
+        (typeof description === 'string' ? (
+          <Typography
+            variant="caption"
+            color="grey600"
+            data-test={SUBSECTION_TITLE_DESCRIPTION_TEST_ID}
+          >
             {description}
           </Typography>
         ) : (
@@ -105,5 +143,6 @@ export const CenteredPage = {
   PageSectionTitle,
   PageTitle,
   SectionWrapper,
+  SubsectionTitle,
   SubsectionWrapper,
 }

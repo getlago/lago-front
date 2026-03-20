@@ -926,16 +926,13 @@ const CreateSubscription = () => {
                               <FixedChargesSection
                                 alreadyExistingFixedChargesIds={alreadyExistingPlanFixedChargesIds}
                                 canBeEdited={formType === FORM_TYPE_ENUM.edition}
-                                editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                                 formikProps={planFormikProps}
                                 isEdition={formType === FORM_TYPE_ENUM.edition}
                                 isInSubscriptionForm={isInSubscriptionForm}
-                                premiumWarningDialogRef={premiumWarningDialogRef}
                               />
 
                               <UsageChargesSection
                                 alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
-                                editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
                                 formikProps={planFormikProps}
                                 isEdition={formType === FORM_TYPE_ENUM.edition}
                                 isInSubscriptionForm={isInSubscriptionForm}

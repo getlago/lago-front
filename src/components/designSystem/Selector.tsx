@@ -176,7 +176,11 @@ export const SelectorActions = ({ actions }: { actions: SelectorActionItem[] }) 
       <ConditionalWrapper
         key={index}
         condition={!!tooltipCopy}
-        validWrapper={(children) => <Tooltip title={tooltipCopy ?? ''}>{children}</Tooltip>}
+        validWrapper={(children) => (
+          <Tooltip title={tooltipCopy ?? ''} placement="top-end">
+            {children}
+          </Tooltip>
+        )}
         invalidWrapper={(children) => <>{children}</>}
       >
         <Button

@@ -1,9 +1,5 @@
-import { FormikProps, FormikState } from 'formik'
 import { memo, RefObject } from 'react'
 
-import { Switch } from '~/components/form'
-import FixedChargesUnits from '~/components/plans/chargeAccordion/FixedChargesUnits'
-import { isFixedChargeInput, isUsageChargeInput } from '~/components/plans/chargeAccordion/utils'
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { CustomCharge } from '~/components/plans/CustomCharge'
 import { DynamicCharge } from '~/components/plans/DynamicCharge'
@@ -12,177 +8,64 @@ import { GraduatedPercentageChargeTable } from '~/components/plans/GraduatedPerc
 import { PackageCharge } from '~/components/plans/PackageCharge'
 import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { StandardCharge } from '~/components/plans/StandardCharge'
-import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
+import { LocalFixedChargeInput, LocalUsageChargeInput } from '~/components/plans/types'
 import { VolumeChargeTable } from '~/components/plans/VolumeChargeTable'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { ChargeFormProvider } from '~/contexts/ChargeFormContext'
 import { ALL_CHARGE_MODELS } from '~/core/constants/form'
-import { CurrencyEnum, PropertiesInput } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-export type ChargeCursor = keyof Pick<PlanFormInput, 'charges' | 'fixedCharges'>
+import { CurrencyEnum } from '~/generated/graphql'
 
 interface ChargeWrapperSwitchProps {
-  chargeCursor: ChargeCursor
-  chargeErrors: FormikState<PlanFormInput>['errors']
-  chargeIndex: number
+  chargeType: 'fixed' | 'usage'
   chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
   disabled?: boolean
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: any
   isEdition: boolean
-  filterIndex?: number
-  formikProps: FormikProps<PlanFormInput>
+  localCharge: LocalFixedChargeInput | LocalUsageChargeInput
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
   propertyCursor: string
-  setFieldValue: FormikProps<PlanFormInput>['setFieldValue']
-  valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }
 
 export const ChargeWrapperSwitch = memo(
   ({
-    chargeCursor,
-    chargeErrors,
-    chargeIndex,
+    chargeType,
     chargePricingUnitShortName,
     currency,
     disabled,
-    filterIndex,
-    formikProps,
-    isEdition,
+    form,
+    localCharge,
     premiumWarningDialogRef,
     propertyCursor,
-    setFieldValue,
-    valuePointer,
   }: ChargeWrapperSwitchProps) => {
-    const { translate } = useInternationalization()
-    const localCharge = formikProps.values[chargeCursor]?.[chargeIndex]
-    const isFixedCharge = isFixedChargeInput(chargeCursor, localCharge)
-    const isUsageCharge = isUsageChargeInput(chargeCursor, localCharge)
+    const isUsageCharge = chargeType === 'usage'
 
     return (
-      <div className="m-4 flex flex-col gap-6">
-        {localCharge?.chargeModel === ALL_CHARGE_MODELS.Standard && (
-          <>
-            <StandardCharge
-              chargeCursor={chargeCursor}
-              chargeIndex={chargeIndex}
-              chargePricingUnitShortName={chargePricingUnitShortName}
-              currency={currency}
-              disabled={disabled}
-              propertyCursor={propertyCursor}
-              setFieldValue={setFieldValue}
-              valuePointer={valuePointer}
-            />
-          </>
-        )}
-        {localCharge?.chargeModel === ALL_CHARGE_MODELS.Package && (
-          <PackageCharge
-            chargeCursor={chargeCursor}
-            chargeErrors={chargeErrors}
-            chargeIndex={chargeIndex}
-            chargePricingUnitShortName={chargePricingUnitShortName}
-            currency={currency}
-            disabled={disabled}
-            propertyCursor={propertyCursor}
-            setFieldValue={setFieldValue}
-            valuePointer={valuePointer}
-          />
-        )}
-        {localCharge?.chargeModel === ALL_CHARGE_MODELS.Graduated && (
-          <GraduatedChargeTable
-            chargeCursor={chargeCursor}
-            chargeIndex={chargeIndex}
-            chargePricingUnitShortName={chargePricingUnitShortName}
-            currency={currency}
-            disabled={disabled}
-            propertyCursor={propertyCursor}
-            setFieldValue={setFieldValue}
-            valuePointer={valuePointer}
-          />
-        )}
-        {localCharge?.chargeModel === ALL_CHARGE_MODELS.GraduatedPercentage && (
-          <GraduatedPercentageChargeTable
-            chargeCursor={chargeCursor}
-            chargeIndex={chargeIndex}
-            chargePricingUnitShortName={chargePricingUnitShortName}
-            currency={currency}
-            disabled={disabled}
-            propertyCursor={propertyCursor}
-            setFieldValue={setFieldValue}
-            valuePointer={valuePointer}
-          />
-        )}
-        {localCharge?.chargeModel === ALL_CHARGE_MODELS.Percentage && (
-          <ChargePercentage
-            chargeCursor={chargeCursor}
-            chargeErrors={chargeErrors}
-            chargeIndex={chargeIndex}
-            chargePricingUnitShortName={chargePricingUnitShortName}
-            currency={currency}
-            disabled={disabled}
-            filterIndex={filterIndex}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-            propertyCursor={propertyCursor}
-            setFieldValue={setFieldValue}
-            valuePointer={valuePointer}
-          />
-        )}
-        {localCharge?.chargeModel === ALL_CHARGE_MODELS.Volume && (
-          <VolumeChargeTable
-            chargeCursor={chargeCursor}
-            chargeIndex={chargeIndex}
-            chargePricingUnitShortName={chargePricingUnitShortName}
-            currency={currency}
-            disabled={disabled}
-            propertyCursor={propertyCursor}
-            setFieldValue={setFieldValue}
-            valuePointer={valuePointer}
-          />
-        )}
-        {localCharge?.chargeModel === ALL_CHARGE_MODELS.Custom && (
-          <CustomCharge
-            chargeCursor={chargeCursor}
-            chargeErrors={chargeErrors}
-            chargeIndex={chargeIndex}
-            disabled={disabled}
-            propertyCursor={propertyCursor}
-            setFieldValue={setFieldValue}
-            valuePointer={valuePointer}
-          />
-        )}
-        {localCharge?.chargeModel === ALL_CHARGE_MODELS.Dynamic && <DynamicCharge />}
+      <ChargeFormProvider
+        form={form}
+        propertyCursor={propertyCursor}
+        currency={currency}
+        disabled={disabled}
+        chargePricingUnitShortName={chargePricingUnitShortName}
+      >
+        <div className="flex flex-col gap-6">
+          {localCharge?.chargeModel === ALL_CHARGE_MODELS.Standard && <StandardCharge />}
+          {localCharge?.chargeModel === ALL_CHARGE_MODELS.Package && <PackageCharge />}
+          {localCharge?.chargeModel === ALL_CHARGE_MODELS.Graduated && <GraduatedChargeTable />}
+          {localCharge?.chargeModel === ALL_CHARGE_MODELS.GraduatedPercentage && (
+            <GraduatedPercentageChargeTable />
+          )}
+          {localCharge?.chargeModel === ALL_CHARGE_MODELS.Percentage && (
+            <ChargePercentage premiumWarningDialogRef={premiumWarningDialogRef} />
+          )}
+          {localCharge?.chargeModel === ALL_CHARGE_MODELS.Volume && <VolumeChargeTable />}
+          {localCharge?.chargeModel === ALL_CHARGE_MODELS.Custom && <CustomCharge />}
+          {localCharge?.chargeModel === ALL_CHARGE_MODELS.Dynamic && <DynamicCharge />}
 
-        {isUsageCharge && (
-          <PricingGroupKeys
-            disabled={disabled}
-            handleUpdate={(name, value) => {
-              setFieldValue(`${chargeCursor}.${chargeIndex}.${name}`, value)
-            }}
-            propertyCursor={propertyCursor}
-            valuePointer={valuePointer}
-          />
-        )}
-
-        {isFixedCharge && (
-          <>
-            <FixedChargesUnits
-              onChange={(value) => setFieldValue(`${chargeCursor}.${chargeIndex}.units`, value)}
-              value={localCharge.units}
-            />
-
-            {isEdition && (
-              <Switch
-                name={`${chargeCursor}.${chargeIndex}.applyUnitsImmediately`}
-                label={translate('text_1760721761361octnb0dfqm5')}
-                subLabel={translate('text_1760721761361lqhc17vjr2b')}
-                onChange={(value) =>
-                  setFieldValue(`${chargeCursor}.${chargeIndex}.applyUnitsImmediately`, value)
-                }
-                checked={localCharge.applyUnitsImmediately || false}
-              />
-            )}
-          </>
-        )}
-      </div>
+          {isUsageCharge && <PricingGroupKeys />}
+        </div>
+      </ChargeFormProvider>
     )
   },
 )
