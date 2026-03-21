@@ -51,7 +51,7 @@
     "@graphql-codegen/cli": "6.2.1",
     "@graphql-codegen/typescript": "5.0.9",
     "@graphql-codegen/typescript-operations": "5.0.9",
-    "@graphql-codegen/typescript-react-apollo": "4.4.0",
+    "@graphql-codegen/typescript-react-apollo": "4.4.1",
     "@parcel/watcher": "2.5.6",
     "@sentry/vite-plugin": "5.1.1",
     "@svgr/core": "8.1.0",
@@ -113,7 +113,7 @@
     "vite-plugin-wasm": "3.5.0"
   },
   "dependencies": {
-    "@apollo/client": "3.14.0",
+    "@apollo/client": "3.14.1",
     "@ebay/nice-modal-react": "1.2.13",
     "@fragaria/address-formatter": "6.7.1",
     "@llm-ui/code": "0.13.3",
