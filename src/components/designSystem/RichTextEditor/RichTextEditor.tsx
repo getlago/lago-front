@@ -47,7 +47,7 @@ const RichTextEditor = () => {
       Mention.configure({
         HTMLAttributes: { class: 'variable-mention' },
       }),
-      SlashCommands,
+      SlashCommands.configure({ translate }),
     ],
     editorProps: {
       attributes: {
