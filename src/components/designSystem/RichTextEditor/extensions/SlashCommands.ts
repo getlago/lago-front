@@ -11,36 +11,42 @@ export interface SlashCommandItem {
   command: (editor: Editor) => void
 }
 
-export const slashCommandItems: SlashCommandItem[] = [
+interface SlashCommandDefinition {
+  titleKey: string
+  descriptionKey: string
+  command: (editor: Editor) => void
+}
+
+export const slashCommandDefinitions: SlashCommandDefinition[] = [
   {
-    title: 'Heading 1',
-    description: 'Large section heading',
+    titleKey: 'text_1774281559656dn2u208gh80',
+    descriptionKey: 'text_1774281559656pla0xamsvmf',
     command: (editor) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
   },
   {
-    title: 'Heading 2',
-    description: 'Medium section heading',
+    titleKey: 'text_1774281559657ec0exeaqqd3',
+    descriptionKey: 'text_1774281559657q7h8pu6455p',
     command: (editor) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
   },
   {
-    title: 'Heading 3',
-    description: 'Small section heading',
+    titleKey: 'text_1774281559657t0kkn628zdy',
+    descriptionKey: 'text_1774281559657o48ilt0rq5y',
     command: (editor) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
   },
   {
-    title: 'Bullet List',
-    description: 'Unordered list',
+    titleKey: 'text_1774281559657cbz20fzcjka',
+    descriptionKey: 'text_17742815596575m8mqwrg1qy',
     command: (editor) => editor.chain().focus().toggleBulletList().run(),
   },
   {
-    title: 'Table',
-    description: 'Insert a 3x3 table',
+    titleKey: 'text_1774281559657yc3z031hm6x',
+    descriptionKey: 'text_1774281559657y9saycc2aev',
     command: (editor) =>
       editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
   },
   {
-    title: 'Code Block',
-    description: 'Insert a code block',
+    titleKey: 'text_1774281559657l4kkx9ws4mz',
+    descriptionKey: 'text_1774281559657qdknwsvn5ka',
     command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
   },
 ]
@@ -50,6 +56,7 @@ export const SlashCommands = Extension.create({
 
   addOptions() {
     return {
+      translate: ((key: string) => key) as (key: string) => string,
       suggestion: {
         char: '/',
         command: ({
@@ -63,11 +70,6 @@ export const SlashCommands = Extension.create({
         }) => {
           editor.chain().focus().deleteRange(range).run()
           props.command(editor)
-        },
-        items: ({ query }: { query: string }) => {
-          return slashCommandItems.filter((item) =>
-            item.title.toLowerCase().includes(query.toLowerCase()),
-          )
         },
         render: () => {
           let renderer: ReactRenderer<SlashMenuRef>
@@ -116,10 +118,23 @@ export const SlashCommands = Extension.create({
   },
 
   addProseMirrorPlugins() {
+    const { translate } = this.options
+
     return [
       Suggestion({
         editor: this.editor,
         ...this.options.suggestion,
+        items: ({ query }: { query: string }) => {
+          const resolvedItems: SlashCommandItem[] = slashCommandDefinitions.map((def) => ({
+            title: translate(def.titleKey),
+            description: translate(def.descriptionKey),
+            command: def.command,
+          }))
+
+          return resolvedItems.filter((item) =>
+            item.title.toLowerCase().includes(query.toLowerCase()),
+          )
+        },
       }),
     ]
   },
