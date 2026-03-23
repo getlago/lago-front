@@ -1,85 +1,28 @@
-import type { SuggestionKeyDownProps } from '@tiptap/suggestion'
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
-
-import { Button } from '~/components/designSystem/Button'
-import { Typography } from '~/components/designSystem/Typography'
-import { MenuPopper } from '~/styles/designSystem/PopperComponents'
+import { forwardRef } from 'react'
 
 import type { SlashCommandItem } from './extensions/SlashCommands'
+import { SuggestionList, type SuggestionListRef } from './SuggestionList'
 
 export const SLASH_MENU_CONTAINER_TEST_ID = 'slash-menu-container'
 export const SLASH_MENU_ITEM_TEST_ID = 'slash-menu-item'
 
-export interface SlashMenuRef {
-  onKeyDown: (props: SuggestionKeyDownProps) => boolean
-}
+export type SlashMenuRef = SuggestionListRef
 
 interface SlashMenuProps {
   items: SlashCommandItem[]
   command: (item: SlashCommandItem) => void
 }
 
-export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, command }, ref) => {
-  const [selectedIndex, setSelectedIndex] = useState(0)
-  const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
-
-  useEffect(() => setSelectedIndex(0), [items])
-
-  useEffect(() => {
-    itemRefs.current[selectedIndex]?.scrollIntoView({ block: 'nearest' })
-  }, [selectedIndex])
-
-  const setItemRef = useCallback(
-    (index: number) => (el: HTMLButtonElement | null) => {
-      itemRefs.current[index] = el
-    },
-    [],
-  )
-
-  useImperativeHandle(ref, () => ({
-    onKeyDown: ({ event }: { event: KeyboardEvent }) => {
-      if (event.key === 'ArrowUp') {
-        setSelectedIndex((prev) => (prev - 1 + items.length) % items.length)
-        return true
-      }
-      if (event.key === 'ArrowDown') {
-        setSelectedIndex((prev) => (prev + 1) % items.length)
-        return true
-      }
-      if (event.key === 'Enter') {
-        command(items[selectedIndex])
-        return true
-      }
-      return false
-    },
-  }))
-
-  if (!items.length) return null
-
-  return (
-    <div
-      data-test={SLASH_MENU_CONTAINER_TEST_ID}
-      className="max-h-64 w-64 overflow-y-auto rounded-xl bg-grey-100 shadow-md"
-    >
-      <MenuPopper>
-        {items.map((item, index) => (
-          <Button
-            ref={setItemRef(index)}
-            key={item.title}
-            data-test={`${SLASH_MENU_ITEM_TEST_ID}-${index}`}
-            variant={index === selectedIndex ? 'secondary' : 'quaternary'}
-            align="left"
-            fullWidth
-            onClick={() => command(item)}
-          >
-            <Typography variant="bodyHl" color="grey700">
-              {item.title}
-            </Typography>
-          </Button>
-        ))}
-      </MenuPopper>
-    </div>
-  )
-})
+export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, command }, ref) => (
+  <SuggestionList
+    ref={ref}
+    items={items}
+    command={command}
+    getKey={(item) => item.title}
+    getLabel={(item) => item.title}
+    containerTestId={SLASH_MENU_CONTAINER_TEST_ID}
+    itemTestId={SLASH_MENU_ITEM_TEST_ID}
+  />
+))
 
 SlashMenu.displayName = 'SlashMenu'
