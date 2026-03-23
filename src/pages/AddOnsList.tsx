@@ -12,6 +12,7 @@ import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
+import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   ADD_ON_DETAILS_ROUTE,
@@ -41,6 +42,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         id
@@ -91,10 +93,15 @@ const AddOnsList = () => {
     }
   }
 
+  const addOnsTotalCount = data?.addOns?.metadata?.totalCount
+
   return (
     <>
       <MainHeader.Configure
-        entity={{ viewName: translate('text_629728388c4d2300e2d3809b') }}
+        entity={{
+          viewName: translate('text_629728388c4d2300e2d3809b'),
+          metadata: formatCountToMetadata(addOnsTotalCount, translate),
+        }}
         actions={[
           {
             type: 'action',

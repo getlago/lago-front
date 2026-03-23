@@ -20,6 +20,7 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import { COUPON_DETAILS_ROUTE, CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
 import {
   CouponCaptionFragmentDoc,
@@ -53,6 +54,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         ...CouponItem
@@ -108,10 +110,15 @@ const CouponsList = () => {
     }
   }
 
+  const couponsTotalCount = data?.coupons?.metadata?.totalCount
+
   return (
     <>
       <MainHeader.Configure
-        entity={{ viewName: translate('text_62865498824cc10126ab2956') }}
+        entity={{
+          viewName: translate('text_62865498824cc10126ab2956'),
+          metadata: formatCountToMetadata(couponsTotalCount, translate),
+        }}
         actions={[
           {
             type: 'action',

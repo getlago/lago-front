@@ -25,6 +25,7 @@ import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/Prem
 import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
+import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
@@ -227,7 +228,10 @@ const InvoicesPage = () => {
   return (
     <>
       <MainHeader.Configure
-        entity={{ viewName: translate('text_63ac86d797f728a87b2f9f85') }}
+        entity={{
+          viewName: translate('text_63ac86d797f728a87b2f9f85'),
+          metadata: formatCountToMetadata(invoicesTotalCount, translate),
+        }}
         actions={[
           {
             type: 'action',

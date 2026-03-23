@@ -15,6 +15,7 @@ import {
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { FeatureDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import {
   CREATE_FEATURE_ROUTE,
   FEATURE_DETAILS_ROUTE,
@@ -43,6 +44,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
@@ -106,10 +108,15 @@ const FeaturesList = () => {
     [featuresVariables?.searchTerm, translate, navigate],
   )
 
+  const featuresTotalCount = featuresData?.features?.metadata?.totalCount
+
   return (
     <>
       <MainHeader.Configure
-        entity={{ viewName: translate('text_1752692673070k7z0mmf0494') }}
+        entity={{
+          viewName: translate('text_1752692673070k7z0mmf0494'),
+          metadata: formatCountToMetadata(featuresTotalCount, translate),
+        }}
         actions={[
           {
             type: 'action',

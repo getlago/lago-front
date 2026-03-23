@@ -18,6 +18,7 @@ import { TimezoneDate } from '~/components/TimezoneDate'
 import { SUBSCRIPTION_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
 import { StatusTypeEnum, Subscription, useGetSubscriptionsListLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -120,10 +121,15 @@ const SubscriptionsPage = () => {
       (key) => key !== 'page' && key !== 'limit' && !!variables[key as keyof typeof variables],
     )
 
+  const subscriptionsTotalCount = data?.subscriptions?.metadata?.totalCount
+
   return (
     <>
       <MainHeader.Configure
-        entity={{ viewName: translate('text_6250304370f0f700a8fdc28d') }}
+        entity={{
+          viewName: translate('text_6250304370f0f700a8fdc28d'),
+          metadata: formatCountToMetadata(subscriptionsTotalCount, translate),
+        }}
         filtersSection={
           <Filters.Provider
             filtersNamePrefix={SUBSCRIPTION_LIST_FILTER_PREFIX}

@@ -13,6 +13,7 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast } from '~/core/apolloClient'
 import { CREDIT_NOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
+import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreditNoteExportTypeEnum,
@@ -176,7 +177,10 @@ const CreditNotesPage = () => {
   return (
     <>
       <MainHeader.Configure
-        entity={{ viewName: translate('text_66461ada56a84401188e8c63') }}
+        entity={{
+          viewName: translate('text_66461ada56a84401188e8c63'),
+          metadata: formatCountToMetadata(creditNotesTotalCount, translate),
+        }}
         actions={[
           {
             type: 'action',

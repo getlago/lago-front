@@ -3,7 +3,12 @@ import { generatePath } from 'react-router-dom'
 
 import { MainHeaderConfig } from '~/components/MainHeader/types'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { ANALYTICS_V2_ROUTE, ANALYTICS_V2_TABS_ROUTE } from '~/core/router'
+import {
+  ANALYTIC_ROUTE,
+  ANALYTIC_TABS_ROUTE,
+  ANALYTICS_V2_ROUTE,
+  ANALYTICS_V2_TABS_ROUTE,
+} from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
@@ -109,6 +114,7 @@ describe('NewAnalytics', () => {
     describe('WHEN user does not have revenue analytics addon', () => {
       it('THEN should hide the usage tab', () => {
         mockHasOrganizationPremiumAddon.mockReturnValue(false)
+        window.history.pushState({}, '', ANALYTICS_V2_ROUTE)
 
         render(<NewAnalytics />)
 
@@ -129,6 +135,7 @@ describe('NewAnalytics', () => {
     describe('WHEN user has revenue analytics addon', () => {
       it('THEN should configure 5 tabs including usage', () => {
         mockHasOrganizationPremiumAddon.mockReturnValue(true)
+        window.history.pushState({}, '', ANALYTICS_V2_ROUTE)
 
         render(<NewAnalytics />)
 
@@ -155,7 +162,9 @@ describe('NewAnalytics', () => {
     })
 
     describe('WHEN the revenue streams tab is configured', () => {
-      it('THEN should include match routes for the default analytics route', () => {
+      it('THEN should include match routes for the analytics-v2 route', () => {
+        window.history.pushState({}, '', ANALYTICS_V2_ROUTE)
+
         render(<NewAnalytics />)
 
         const revenueStreamsTab = capturedConfig?.tabs?.find(
@@ -173,10 +182,31 @@ describe('NewAnalytics', () => {
           }),
         )
       })
+
+      it('THEN should include match routes for the analytics route', () => {
+        window.history.pushState({}, '', ANALYTIC_ROUTE)
+
+        render(<NewAnalytics />)
+
+        const revenueStreamsTab = capturedConfig?.tabs?.find(
+          (tab) =>
+            tab.link ===
+            generatePath(ANALYTIC_TABS_ROUTE, {
+              tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
+            }),
+        )
+
+        expect(revenueStreamsTab?.match).toContain(ANALYTIC_ROUTE)
+        expect(revenueStreamsTab?.match).toContain(
+          generatePath(ANALYTIC_TABS_ROUTE, {
+            tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
+          }),
+        )
+      })
     })
   })
 
-  describe('GIVEN the pathname is the base analytics route', () => {
+  describe('GIVEN the pathname is the base analytics-v2 route', () => {
     describe('WHEN the component mounts', () => {
       it('THEN should redirect to revenue-streams tab', () => {
         window.history.pushState({}, '', ANALYTICS_V2_ROUTE)
@@ -193,13 +223,46 @@ describe('NewAnalytics', () => {
     })
   })
 
-  describe('GIVEN the pathname is a specific tab route', () => {
+  describe('GIVEN the pathname is the base analytics route', () => {
     describe('WHEN the component mounts', () => {
+      it('THEN should redirect to revenue-streams tab', () => {
+        window.history.pushState({}, '', ANALYTIC_ROUTE)
+
+        render(<NewAnalytics />)
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith(
+          generatePath(ANALYTIC_TABS_ROUTE, {
+            tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
+          }),
+          { replace: true },
+        )
+      })
+    })
+  })
+
+  describe('GIVEN the pathname is a specific tab route', () => {
+    describe('WHEN the component mounts on analytics-v2 tab', () => {
       it('THEN should not redirect', () => {
         window.history.pushState(
           {},
           '',
           generatePath(ANALYTICS_V2_TABS_ROUTE, {
+            tab: NewAnalyticsTabsOptionsEnum.mrr,
+          }),
+        )
+
+        render(<NewAnalytics />)
+
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the component mounts on analytics tab', () => {
+      it('THEN should not redirect', () => {
+        window.history.pushState(
+          {},
+          '',
+          generatePath(ANALYTIC_TABS_ROUTE, {
             tab: NewAnalyticsTabsOptionsEnum.mrr,
           }),
         )
