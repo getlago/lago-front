@@ -174,8 +174,10 @@ const AlertForm = () => {
       skip:
         !subscriptionData?.subscription?.plan?.id ||
         (isEdition &&
-          (alertData?.subscriptionAlert?.alertType === AlertTypeEnum.CurrentUsageAmount ||
-            alertData?.subscriptionAlert?.alertType === AlertTypeEnum.LifetimeUsageAmount)),
+          (alertLoading ||
+            !alertData?.subscriptionAlert ||
+            alertData.subscriptionAlert.alertType === AlertTypeEnum.CurrentUsageAmount ||
+            alertData.subscriptionAlert.alertType === AlertTypeEnum.LifetimeUsageAmount)),
     })
 
   const isLoading =
@@ -293,10 +295,9 @@ const AlertForm = () => {
     onSubmit: async ({ billableMetricId, alertType, thresholds, ...values }) => {
       const formattedThresholds = thresholds?.map((threshold) => ({
         ...threshold,
-        value:
-          isUnitsAlertType(alertType)
-            ? threshold.value.split('.')[0]
-            : String(serializeAmount(threshold.value, currency)),
+        value: isUnitsAlertType(alertType)
+          ? threshold.value.split('.')[0]
+          : String(serializeAmount(threshold.value, currency)),
       }))
 
       // Edition
