@@ -12,10 +12,10 @@ import {
   DeleteFeatureDialog,
   DeleteFeatureDialogRef,
 } from '~/components/features/DeleteFeatureDialog'
+import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { FeatureDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import {
   CREATE_FEATURE_ROUTE,
   FEATURE_DETAILS_ROUTE,
@@ -116,16 +116,19 @@ const FeaturesList = () => {
         entity={{
           viewName: translate('text_1752692673070k7z0mmf0494'),
           metadata: formatCountToMetadata(featuresTotalCount, translate),
+          metadataLoading: isLoading,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_1752693359315fi592i0bpyz'),
-            variant: 'primary',
-            hidden: !hasPermissions(['featuresCreate']),
-            onClick: () => navigate(CREATE_FEATURE_ROUTE),
-          },
-        ]}
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_1752693359315fi592i0bpyz'),
+              variant: 'primary',
+              hidden: !hasPermissions(['featuresCreate']),
+              onClick: () => navigate(CREATE_FEATURE_ROUTE),
+            },
+          ],
+        }}
         filtersSection={
           <SearchInput
             onChange={debouncedSearch}

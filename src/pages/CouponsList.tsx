@@ -16,11 +16,11 @@ import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import { COUPON_DETAILS_ROUTE, CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
 import {
   CouponCaptionFragmentDoc,
@@ -118,17 +118,20 @@ const CouponsList = () => {
         entity={{
           viewName: translate('text_62865498824cc10126ab2956'),
           metadata: formatCountToMetadata(couponsTotalCount, translate),
+          metadataLoading: isLoading,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_62865498824cc10126ab2954'),
-            variant: 'primary',
-            hidden: !canCreateCoupons,
-            onClick: () => navigate(CREATE_COUPON_ROUTE),
-            dataTest: 'add-coupon',
-          },
-        ]}
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_62865498824cc10126ab2954'),
+              variant: 'primary',
+              hidden: !canCreateCoupons,
+              onClick: () => navigate(CREATE_COUPON_ROUTE),
+              dataTest: 'add-coupon',
+            },
+          ],
+        }}
         filtersSection={
           <SearchInput
             onChange={debouncedSearch}

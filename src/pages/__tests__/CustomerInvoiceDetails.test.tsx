@@ -334,8 +334,8 @@ describe('CustomerInvoiceDetails', () => {
       it('THEN should configure MainHeader with a dropdown action', () => {
         render(<CustomerInvoiceDetails />)
 
-        expect(capturedConfig?.actions).toHaveLength(1)
-        expect(capturedConfig?.actions?.[0].type).toBe('dropdown')
+        expect(capturedConfig?.actions?.items).toHaveLength(1)
+        expect(capturedConfig?.actions?.items[0].type).toBe('dropdown')
       })
 
       it('THEN should configure MainHeader with tabs', () => {
@@ -373,10 +373,10 @@ describe('CustomerInvoiceDetails', () => {
     })
 
     describe('WHEN the component renders', () => {
-      it('THEN should set isLoading on MainHeader config', () => {
+      it('THEN should set actionsLoading on MainHeader config', () => {
         render(<CustomerInvoiceDetails />)
 
-        expect(capturedConfig?.isLoading).toBe(true)
+        expect(capturedConfig?.actions?.loading).toBe(true)
       })
     })
   })
@@ -392,10 +392,10 @@ describe('CustomerInvoiceDetails', () => {
     })
 
     describe('WHEN the component renders', () => {
-      it('THEN should not set isLoading on MainHeader config', () => {
+      it('THEN should not set actionsLoading on MainHeader config', () => {
         render(<CustomerInvoiceDetails />)
 
-        expect(capturedConfig?.isLoading).toBeFalsy()
+        expect(capturedConfig?.actions?.loading).toBeFalsy()
       })
     })
   })
@@ -405,7 +405,7 @@ describe('CustomerInvoiceDetails', () => {
       it('THEN should copy the invoice ID to clipboard', () => {
         render(<CustomerInvoiceDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           // The copy ID item is always visible (no hidden flag)
@@ -431,7 +431,7 @@ describe('CustomerInvoiceDetails', () => {
       it('THEN should have a download item that is not hidden', () => {
         render(<CustomerInvoiceDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const visibleItems = dropdownAction.items.filter((item) => !item.hidden)
@@ -685,7 +685,7 @@ describe('CustomerInvoiceDetails', () => {
       it('THEN all items should call closePopper', async () => {
         render(<CustomerInvoiceDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           for (const item of dropdownAction.items) {
@@ -702,7 +702,7 @@ describe('CustomerInvoiceDetails', () => {
       it('THEN should navigate to the void invoice route', async () => {
         render(<CustomerInvoiceDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           // Void is item 16 (0-indexed in items array)
@@ -724,7 +724,7 @@ describe('CustomerInvoiceDetails', () => {
       it('THEN should navigate to the credit note route', async () => {
         render(<CustomerInvoiceDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const mockClose = jest.fn()
@@ -746,7 +746,7 @@ describe('CustomerInvoiceDetails', () => {
       it('THEN should navigate to the create payment route', async () => {
         render(<CustomerInvoiceDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const mockClose = jest.fn()
@@ -771,7 +771,7 @@ describe('CustomerInvoiceDetails', () => {
       it('THEN should not navigate to credit note route', async () => {
         render(<CustomerInvoiceDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const mockClose = jest.fn()
@@ -790,7 +790,7 @@ describe('CustomerInvoiceDetails', () => {
       it('THEN should not navigate to payment route', async () => {
         render(<CustomerInvoiceDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const mockClose = jest.fn()
@@ -861,7 +861,7 @@ describe('CustomerInvoiceDetails', () => {
 
         render(<CustomerInvoiceDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           for (const item of dropdownAction.items) {

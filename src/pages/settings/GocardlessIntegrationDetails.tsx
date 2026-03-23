@@ -130,69 +130,73 @@ const GocardlessIntegrationDetails = () => {
         ]}
         entity={{
           viewName: gocardlessPaymentProvider?.name || '',
+          viewNameLoading: loading,
           metadata: `${translate('text_634ea0ecc6147de10ddb6648')} • ${translate('text_62b1edddbf5f461ab971271f')}`,
+          metadataLoading: loading,
           badges: isConnectionEstablished
             ? [{ type: 'default', label: translate('text_634ea0ecc6147de10ddb662d') }]
             : [],
           icon: <GoCardless />,
         }}
-        actions={[
-          {
-            type: 'dropdown',
-            label: translate('text_626162c62f790600f850b6fe'),
-            items: [
-              {
-                label: translate('text_65845f35d7d69c3ab4793dac'),
-                hidden: !canEditIntegration,
-                onClick: (closePopper) => {
-                  addDialogRef.current?.openDialog({
-                    provider: gocardlessPaymentProvider,
-                    deleteModalRef: deleteDialogRef,
-                    deleteDialogCallback,
-                  })
-                  closePopper()
-                },
-              },
-              {
-                label: translate('text_658567dffff71e31ea5f0d33'),
-                hidden: !canEditIntegration,
-                onClick: (closePopper) => {
-                  setTimeout(() => {
-                    const myWindow = window.open('', '_blank')
-
-                    if (myWindow?.location?.href) {
-                      myWindow.location.href = buildGocardlessAuthUrl(
-                        lagoOauthProxyUrl,
-                        gocardlessPaymentProvider.name,
-                        gocardlessPaymentProvider.code,
-                      )
-                      closePopper()
-                      return myWindow?.focus()
-                    }
-
-                    myWindow?.close()
-                    addToast({
-                      severity: 'danger',
-                      translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+        actions={{
+          items: [
+            {
+              type: 'dropdown',
+              label: translate('text_626162c62f790600f850b6fe'),
+              items: [
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dac'),
+                  hidden: !canEditIntegration,
+                  onClick: (closePopper) => {
+                    addDialogRef.current?.openDialog({
+                      provider: gocardlessPaymentProvider,
+                      deleteModalRef: deleteDialogRef,
+                      deleteDialogCallback,
                     })
-                  }, 0)
+                    closePopper()
+                  },
                 },
-              },
-              {
-                label: translate('text_65845f35d7d69c3ab4793dad'),
-                hidden: !canDeleteIntegration,
-                onClick: (closePopper) => {
-                  deleteDialogRef.current?.openDialog({
-                    provider: gocardlessPaymentProvider,
-                    callback: deleteDialogCallback,
-                  })
-                  closePopper()
+                {
+                  label: translate('text_658567dffff71e31ea5f0d33'),
+                  hidden: !canEditIntegration,
+                  onClick: (closePopper) => {
+                    setTimeout(() => {
+                      const myWindow = window.open('', '_blank')
+
+                      if (myWindow?.location?.href) {
+                        myWindow.location.href = buildGocardlessAuthUrl(
+                          lagoOauthProxyUrl,
+                          gocardlessPaymentProvider.name,
+                          gocardlessPaymentProvider.code,
+                        )
+                        closePopper()
+                        return myWindow?.focus()
+                      }
+
+                      myWindow?.close()
+                      addToast({
+                        severity: 'danger',
+                        translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+                      })
+                    }, 0)
+                  },
                 },
-              },
-            ],
-          },
-        ]}
-        isLoading={loading}
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dad'),
+                  hidden: !canDeleteIntegration,
+                  onClick: (closePopper) => {
+                    deleteDialogRef.current?.openDialog({
+                      provider: gocardlessPaymentProvider,
+                      callback: deleteDialogCallback,
+                    })
+                    closePopper()
+                  },
+                },
+              ],
+            },
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

@@ -75,7 +75,6 @@ const RoleDetails = () => {
   return (
     <>
       <MainHeader.Configure
-        isLoading={isLoadingRole}
         breadcrumb={[
           {
             label: translate('text_177073440645951fhlh2ofdc'),
@@ -84,53 +83,58 @@ const RoleDetails = () => {
         ]}
         entity={{
           viewName: displayName || '',
+          viewNameLoading: isLoadingRole,
           metadata: role?.code || '',
+          metadataLoading: isLoadingRole,
         }}
-        actions={[
-          {
-            type: 'dropdown',
-            label: translate('text_634687079be251fdb438338f'),
-            dataTest: ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID,
-            items: [
-              {
-                label: translate('text_64fa170e02f348164797a6af'),
-                dataTest: ROLE_DETAILS_DUPLICATE_ACTION_TEST_ID,
-                onClick: (closePopper) => {
-                  if (!hasPremiumAddon) {
-                    openPremiumDialog()
-                  } else {
-                    navigateToDuplicate(roleId)
-                  }
-                  closePopper()
+        actions={{
+          items: [
+            {
+              type: 'dropdown',
+              label: translate('text_634687079be251fdb438338f'),
+              dataTest: ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID,
+              items: [
+                {
+                  label: translate('text_64fa170e02f348164797a6af'),
+                  dataTest: ROLE_DETAILS_DUPLICATE_ACTION_TEST_ID,
+                  onClick: (closePopper) => {
+                    if (!hasPremiumAddon) {
+                      openPremiumDialog()
+                    } else {
+                      navigateToDuplicate(roleId)
+                    }
+                    closePopper()
+                  },
+                  disabled: hasPremiumAddon ? !canBeDuplicated : false,
+                  endIcon: !hasPremiumAddon ? 'sparkles' : undefined,
                 },
-                disabled: hasPremiumAddon ? !canBeDuplicated : false,
-                endIcon: !hasPremiumAddon ? 'sparkles' : undefined,
-              },
-              {
-                label: translate('text_63aa15caab5b16980b21b0b8'),
-                dataTest: ROLE_DETAILS_EDIT_ACTION_TEST_ID,
-                onClick: (closePopper) => {
-                  navigateToEdit(roleId)
-                  closePopper()
+                {
+                  label: translate('text_63aa15caab5b16980b21b0b8'),
+                  dataTest: ROLE_DETAILS_EDIT_ACTION_TEST_ID,
+                  onClick: (closePopper) => {
+                    navigateToEdit(roleId)
+                    closePopper()
+                  },
+                  disabled: !canBeEdited,
+                  hidden: isSystem || !hasPremiumAddon,
                 },
-                disabled: !canBeEdited,
-                hidden: isSystem || !hasPremiumAddon,
-              },
-              {
-                label: translate('text_6261640f28a49700f1290df5'),
-                dataTest: ROLE_DETAILS_DELETE_ACTION_TEST_ID,
-                onClick: (closePopper) => {
-                  if (role) openDeleteRoleDialog(role)
-                  closePopper()
+                {
+                  label: translate('text_6261640f28a49700f1290df5'),
+                  dataTest: ROLE_DETAILS_DELETE_ACTION_TEST_ID,
+                  onClick: (closePopper) => {
+                    if (role) openDeleteRoleDialog(role)
+                    closePopper()
+                  },
+                  disabled: !canBeDeleted,
+                  hidden: isSystem || !hasPremiumAddon,
+                  danger: true,
+                  tooltip: !canBeDeleted ? translate('text_1767002012431la8gv2iqucp') : undefined,
                 },
-                disabled: !canBeDeleted,
-                hidden: isSystem || !hasPremiumAddon,
-                danger: true,
-                tooltip: !canBeDeleted ? translate('text_1767002012431la8gv2iqucp') : undefined,
-              },
-            ],
-          },
-        ]}
+              ],
+            },
+          ],
+          loading: isLoadingRole,
+        }}
       />
       <DetailsPage.Container className="max-w-192">
         <div className="flex flex-col gap-8">

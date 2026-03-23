@@ -90,8 +90,8 @@ describe('PaymentsPage', () => {
       it('THEN should configure MainHeader with one action', () => {
         render(<PaymentsPage />)
 
-        expect(capturedConfig?.actions).toHaveLength(1)
-        expect(capturedConfig?.actions?.[0].type).toBe('action')
+        expect(capturedConfig?.actions?.items).toHaveLength(1)
+        expect(capturedConfig?.actions?.items[0].type).toBe('action')
       })
 
       it('THEN should configure MainHeader with a filtersSection', () => {
@@ -107,7 +107,7 @@ describe('PaymentsPage', () => {
       it('THEN the action should not have endIcon sparkles', () => {
         render(<PaymentsPage />)
 
-        const action = capturedConfig?.actions?.[0]
+        const action = capturedConfig?.actions?.items[0]
 
         expect(action?.type === 'action' && action.endIcon).toBeUndefined()
       })
@@ -115,7 +115,7 @@ describe('PaymentsPage', () => {
       it('THEN clicking the action should navigate', () => {
         render(<PaymentsPage />)
 
-        const action = capturedConfig?.actions?.[0]
+        const action = capturedConfig?.actions?.items[0]
 
         if (action?.type === 'action') {
           action.onClick()
@@ -135,7 +135,7 @@ describe('PaymentsPage', () => {
       it('THEN the action should have endIcon sparkles', () => {
         render(<PaymentsPage />)
 
-        const action = capturedConfig?.actions?.[0]
+        const action = capturedConfig?.actions?.items[0]
 
         expect(action?.type === 'action' && action.endIcon).toBe('sparkles')
       })
@@ -143,7 +143,7 @@ describe('PaymentsPage', () => {
       it('THEN clicking the action should not navigate', () => {
         render(<PaymentsPage />)
 
-        const action = capturedConfig?.actions?.[0]
+        const action = capturedConfig?.actions?.items[0]
 
         if (action?.type === 'action') {
           action.onClick()

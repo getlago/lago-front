@@ -94,7 +94,9 @@ const OktaAuthenticationDetails = () => {
         ]}
         entity={{
           viewName: translate('text_664c732c264d7eed1c74fda2'),
+          viewNameLoading: loading,
           metadata: translate('text_664c732c264d7eed1c74fdbd'),
+          metadataLoading: loading,
           icon: <Okta />,
           badges: [
             {
@@ -103,37 +105,39 @@ const OktaAuthenticationDetails = () => {
             },
           ],
         }}
-        actions={[
-          {
-            type: 'dropdown',
-            label: translate('text_626162c62f790600f850b6fe'),
-            items: [
-              {
-                label: translate('text_664c732c264d7eed1c74fdaa'),
-                onClick: (closePopper) => {
-                  closePopper()
-                  openAddOktaDialog({
-                    integration,
-                    callback: onEditCallback,
-                    deleteCallback: onDeleteCallback,
-                  })
+        actions={{
+          items: [
+            {
+              type: 'dropdown',
+              label: translate('text_626162c62f790600f850b6fe'),
+              items: [
+                {
+                  label: translate('text_664c732c264d7eed1c74fdaa'),
+                  onClick: (closePopper) => {
+                    closePopper()
+                    openAddOktaDialog({
+                      integration,
+                      callback: onEditCallback,
+                      deleteCallback: onDeleteCallback,
+                    })
+                  },
                 },
-              },
-              {
-                label: translate('text_664c732c264d7eed1c74fdb0'),
-                onClick: (closePopper) => {
-                  closePopper()
-                  openDeleteOktaIntegrationDialog({
-                    integration,
-                    callback: onDeleteCallback,
-                  })
+                {
+                  label: translate('text_664c732c264d7eed1c74fdb0'),
+                  onClick: (closePopper) => {
+                    closePopper()
+                    openDeleteOktaIntegrationDialog({
+                      integration,
+                      callback: onDeleteCallback,
+                    })
+                  },
+                  disabled: !hasOtherAuthenticationMethodsThanOkta,
                 },
-                disabled: !hasOtherAuthenticationMethodsThanOkta,
-              },
-            ],
-          },
-        ]}
-        isLoading={loading}
+              ],
+            },
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

@@ -119,43 +119,47 @@ const SalesforceIntegrationDetails = () => {
         ]}
         entity={{
           viewName: salesforceIntegration?.name || '',
+          viewNameLoading: loading,
           metadata: translate('text_1731510123491gx2nw155ce0'),
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Salesforce />,
         }}
-        actions={[
-          {
-            type: 'dropdown',
-            label: translate('text_626162c62f790600f850b6fe'),
-            items: [
-              {
-                label: translate('text_65845f35d7d69c3ab4793dac'),
-                onClick: (closePopper) => {
-                  addSalesforceDialogRef.current?.openDialog({
-                    provider: salesforceIntegration,
-                    deleteModalRef: deleteSalesforceDialogRef,
-                    deleteDialogCallback,
-                  })
-                  closePopper()
-                },
-              },
-              {
-                label: translate('text_65845f35d7d69c3ab4793dad'),
-                hidden: !salesforceIntegration,
-                onClick: (closePopper) => {
-                  if (salesforceIntegration) {
-                    deleteSalesforceDialogRef.current?.openDialog({
+        actions={{
+          items: [
+            {
+              type: 'dropdown',
+              label: translate('text_626162c62f790600f850b6fe'),
+              items: [
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dac'),
+                  onClick: (closePopper) => {
+                    addSalesforceDialogRef.current?.openDialog({
                       provider: salesforceIntegration,
-                      callback: deleteDialogCallback,
+                      deleteModalRef: deleteSalesforceDialogRef,
+                      deleteDialogCallback,
                     })
-                  }
-                  closePopper()
+                    closePopper()
+                  },
                 },
-              },
-            ],
-          },
-        ]}
-        isLoading={loading}
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dad'),
+                  hidden: !salesforceIntegration,
+                  onClick: (closePopper) => {
+                    if (salesforceIntegration) {
+                      deleteSalesforceDialogRef.current?.openDialog({
+                        provider: salesforceIntegration,
+                        callback: deleteDialogCallback,
+                      })
+                    }
+                    closePopper()
+                  },
+                },
+              ],
+            },
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

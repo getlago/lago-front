@@ -122,7 +122,7 @@ describe('InvoicesPage', () => {
       it('THEN should configure MainHeader with at least one action', () => {
         render(<InvoicesPage />)
 
-        expect(capturedConfig?.actions?.length).toBeGreaterThanOrEqual(1)
+        expect(capturedConfig?.actions?.items?.length).toBeGreaterThanOrEqual(1)
       })
 
       it('THEN should configure MainHeader with a filtersSection', () => {
@@ -138,7 +138,7 @@ describe('InvoicesPage', () => {
       it('THEN the first action (export) should not be disabled', () => {
         render(<InvoicesPage />)
 
-        const exportAction = capturedConfig?.actions?.[0]
+        const exportAction = capturedConfig?.actions?.items[0]
 
         expect(exportAction?.type === 'action' && exportAction.disabled).toBeFalsy()
       })

@@ -261,7 +261,9 @@ const SubscriptionDetails = () => {
     viewName: translate('text_6529666e71f6ce006d2bf011', {
       planName: subscription?.plan.name,
     }),
+    viewNameLoading: isSubscriptionLoading,
     metadata: subscription?.plan.code || '',
+    metadataLoading: isSubscriptionLoading,
   }
 
   const headerActions: MainHeaderAction[] = [
@@ -361,9 +363,8 @@ const SubscriptionDetails = () => {
           { label: translate('text_6250304370f0f700a8fdc28d'), path: SUBSCRIPTIONS_ROUTE },
         ]}
         entity={headerEntity}
-        actions={headerActions}
+        actions={{ items: headerActions, loading: isSubscriptionLoading }}
         tabs={tabs}
-        isLoading={isSubscriptionLoading}
       />
 
       <>{activeTabContent}</>

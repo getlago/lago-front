@@ -92,8 +92,8 @@ describe('CreditNotesPage', () => {
       it('THEN should configure MainHeader with one export action', () => {
         render(<CreditNotesPage />)
 
-        expect(capturedConfig?.actions).toHaveLength(1)
-        expect(capturedConfig?.actions?.[0].type).toBe('action')
+        expect(capturedConfig?.actions?.items).toHaveLength(1)
+        expect(capturedConfig?.actions?.items[0].type).toBe('action')
       })
 
       it('THEN should configure MainHeader with a filtersSection', () => {
@@ -109,7 +109,7 @@ describe('CreditNotesPage', () => {
       it('THEN the export action should not be disabled', () => {
         render(<CreditNotesPage />)
 
-        const action = capturedConfig?.actions?.[0]
+        const action = capturedConfig?.actions?.items[0]
 
         expect(action?.type === 'action' && action.disabled).toBeFalsy()
       })

@@ -94,22 +94,26 @@ const MoneyhashIntegrations = () => {
         ]}
         entity={{
           viewName: translate('text_1733427981129n3wxjui0bex'),
+          viewNameLoading: loading,
           metadata: translate('text_62b1edddbf5f461ab971271f'),
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Moneyhash />,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_65846763e6140b469140e235'),
-            variant: 'primary',
-            hidden: !canCreateIntegration,
-            onClick: () => {
-              addMoneyhashDialogRef.current?.openDialog()
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_65846763e6140b469140e235'),
+              variant: 'primary',
+              hidden: !canCreateIntegration,
+              onClick: () => {
+                addMoneyhashDialogRef.current?.openDialog()
+              },
             },
-          },
-        ]}
-        isLoading={loading}
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

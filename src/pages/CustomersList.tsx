@@ -12,9 +12,9 @@ import { formatFiltersForCustomerQuery } from '~/components/designSystem/Filters
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
-import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import { CREATE_CUSTOMER_ROUTE, CUSTOMER_DETAILS_ROUTE, UPDATE_CUSTOMER_ROUTE } from '~/core/router'
 import {
   AddCustomerDrawerFragmentDoc,
@@ -131,8 +131,9 @@ const CustomersList = () => {
         entity={{
           viewName: translate('text_624efab67eb2570101d117a5'),
           metadata: formatCountToMetadata(customersTotalCount, translate),
+          metadataLoading: isLoading,
         }}
-        actions={headerActions}
+        actions={{ items: headerActions }}
         filtersSection={headerFilters}
       />
 

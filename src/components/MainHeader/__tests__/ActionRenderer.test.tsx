@@ -8,10 +8,10 @@ import { ACTIONS_BLOCK_TEST_ID } from '../mainHeaderTestIds'
 import { MainHeaderAction } from '../types'
 
 describe('ActionsBlock', () => {
-  describe('GIVEN isLoading is true', () => {
+  describe('GIVEN loading is true', () => {
     describe('WHEN the component renders', () => {
       it('THEN should not render the actions container', () => {
-        const { container } = render(<ActionsBlock isLoading={true} />)
+        const { container } = render(<ActionsBlock actions={{ items: [], loading: true }} />)
 
         expect(screen.queryByTestId(ACTIONS_BLOCK_TEST_ID)).not.toBeInTheDocument()
         // Skeleton should be rendered (an animate-pulse div)
@@ -31,7 +31,7 @@ describe('ActionsBlock', () => {
 
     describe('WHEN actions is an empty array', () => {
       it('THEN should render nothing', () => {
-        const { container } = render(<ActionsBlock actions={[]} />)
+        const { container } = render(<ActionsBlock actions={{ items: [] }} />)
 
         expect(container.innerHTML).toBe('')
       })
@@ -51,13 +51,13 @@ describe('ActionsBlock', () => {
 
     describe('WHEN the component renders', () => {
       it('THEN should display the actions container', () => {
-        render(<ActionsBlock actions={actions} />)
+        render(<ActionsBlock actions={{ items: actions }} />)
 
         expect(screen.getByTestId(ACTIONS_BLOCK_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should display the action button', () => {
-        render(<ActionsBlock actions={actions} />)
+        render(<ActionsBlock actions={{ items: actions }} />)
 
         expect(screen.getByTestId('edit-button')).toBeInTheDocument()
       })
@@ -67,7 +67,7 @@ describe('ActionsBlock', () => {
       it('THEN should call the onClick handler', async () => {
         const user = userEvent.setup()
 
-        render(<ActionsBlock actions={actions} />)
+        render(<ActionsBlock actions={{ items: actions }} />)
 
         await user.click(screen.getByTestId('edit-button'))
 
@@ -90,7 +90,7 @@ describe('ActionsBlock', () => {
 
     describe('WHEN the component renders', () => {
       it('THEN should render the button with the correct data-test', () => {
-        render(<ActionsBlock actions={actions} />)
+        render(<ActionsBlock actions={{ items: actions }} />)
 
         expect(screen.getByTestId('add-button')).toBeInTheDocument()
       })
@@ -110,7 +110,7 @@ describe('ActionsBlock', () => {
 
     describe('WHEN the component renders', () => {
       it('THEN should render a disabled button', () => {
-        render(<ActionsBlock actions={actions} />)
+        render(<ActionsBlock actions={{ items: actions }} />)
 
         expect(screen.getByTestId('disabled-button')).toBeDisabled()
       })
@@ -142,7 +142,7 @@ describe('ActionsBlock', () => {
 
     describe('WHEN the component renders', () => {
       it('THEN should display the dropdown trigger button', () => {
-        render(<ActionsBlock actions={actions} />)
+        render(<ActionsBlock actions={{ items: actions }} />)
 
         expect(screen.getByTestId('dropdown-trigger')).toBeInTheDocument()
       })
@@ -152,7 +152,7 @@ describe('ActionsBlock', () => {
       it('THEN should show visible items and hide hidden items', async () => {
         const user = userEvent.setup()
 
-        render(<ActionsBlock actions={actions} />)
+        render(<ActionsBlock actions={{ items: actions }} />)
 
         await user.click(screen.getByTestId('dropdown-trigger'))
 
@@ -181,7 +181,7 @@ describe('ActionsBlock', () => {
 
     describe('WHEN the component renders', () => {
       it('THEN should display the visible action and hide the hidden one', () => {
-        render(<ActionsBlock actions={actions} />)
+        render(<ActionsBlock actions={{ items: actions }} />)
 
         expect(screen.getByTestId('visible-button')).toBeInTheDocument()
         expect(screen.queryByTestId('hidden-button')).not.toBeInTheDocument()
@@ -207,7 +207,7 @@ describe('ActionsBlock', () => {
 
     describe('WHEN the component renders', () => {
       it('THEN should render nothing', () => {
-        const { container } = render(<ActionsBlock actions={actions} />)
+        const { container } = render(<ActionsBlock actions={{ items: actions }} />)
 
         expect(container.innerHTML).toBe('')
       })
@@ -228,7 +228,7 @@ describe('ActionsBlock', () => {
 
     describe('WHEN the component renders', () => {
       it('THEN should render nothing', () => {
-        const { container } = render(<ActionsBlock actions={actions} />)
+        const { container } = render(<ActionsBlock actions={{ items: actions }} />)
 
         expect(container.innerHTML).toBe('')
       })
@@ -257,7 +257,7 @@ describe('ActionsBlock', () => {
         ['save button', 'save-button'],
         ['cancel button', 'cancel-button'],
       ])('THEN should display the %s', (_, testId) => {
-        render(<ActionsBlock actions={actions} />)
+        render(<ActionsBlock actions={{ items: actions }} />)
 
         expect(screen.getByTestId(testId)).toBeInTheDocument()
       })
@@ -277,7 +277,7 @@ describe('ActionsBlock', () => {
 
     describe('WHEN the component renders', () => {
       it('THEN should render the button with the correct data-test', () => {
-        render(<ActionsBlock actions={actions} />)
+        render(<ActionsBlock actions={{ items: actions }} />)
 
         expect(screen.getByTestId('premium-button')).toBeInTheDocument()
       })
@@ -305,7 +305,7 @@ describe('ActionsBlock', () => {
       it('THEN should display the dropdown item', async () => {
         const user = userEvent.setup()
 
-        render(<ActionsBlock actions={actions} />)
+        render(<ActionsBlock actions={{ items: actions }} />)
 
         await user.click(screen.getByTestId('dropdown-endicon'))
 
@@ -325,7 +325,7 @@ describe('ActionsBlock', () => {
 
     describe('WHEN the component renders', () => {
       it('THEN should render the custom content', () => {
-        render(<ActionsBlock actions={actions} />)
+        render(<ActionsBlock actions={{ items: actions }} />)
 
         expect(screen.getByTestId('custom-content')).toBeInTheDocument()
         expect(screen.getByText('Custom rendered content')).toBeInTheDocument()
@@ -355,7 +355,7 @@ describe('ActionsBlock', () => {
       it('THEN should display the disabled dropdown item', async () => {
         const user = userEvent.setup()
 
-        render(<ActionsBlock actions={actions} />)
+        render(<ActionsBlock actions={{ items: actions }} />)
 
         await user.click(screen.getByTestId('dropdown-tooltip'))
 
@@ -391,7 +391,7 @@ describe('ActionsBlock', () => {
       it('THEN should display both items', async () => {
         const user = userEvent.setup()
 
-        render(<ActionsBlock actions={actions} />)
+        render(<ActionsBlock actions={{ items: actions }} />)
 
         await user.click(screen.getByTestId('dropdown-mixed'))
 

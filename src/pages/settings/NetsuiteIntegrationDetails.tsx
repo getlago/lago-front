@@ -129,41 +129,46 @@ const NetsuiteIntegrationDetails = () => {
         ]}
         entity={{
           viewName: netsuiteIntegration?.name || '',
+          viewNameLoading: loading,
           metadata: `${translate('text_661ff6e56ef7e1b7c542b239')} • ${translate('text_661ff6e56ef7e1b7c542b245')}`,
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Netsuite />,
         }}
-        actions={[
-          {
-            type: 'dropdown',
-            label: translate('text_626162c62f790600f850b6fe'),
-            items: [
-              {
-                label: translate('text_65845f35d7d69c3ab4793dac'),
-                onClick: (closePopper) => {
-                  addNetsuiteDialogRef.current?.openDialog({
-                    provider: netsuiteIntegration,
-                    deleteModalRef: deleteDialogRef,
-                    deleteDialogCallback,
-                  })
-                  closePopper()
-                },
-              },
-              {
-                label: translate('text_65845f35d7d69c3ab4793dad'),
-                onClick: (closePopper) => {
-                  if (netsuiteIntegration) {
-                    deleteDialogRef.current?.openDialog({
+        actions={{
+          items: [
+            {
+              type: 'dropdown',
+              label: translate('text_626162c62f790600f850b6fe'),
+              items: [
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dac'),
+                  onClick: (closePopper) => {
+                    addNetsuiteDialogRef.current?.openDialog({
                       provider: netsuiteIntegration,
-                      callback: deleteDialogCallback,
+                      deleteModalRef: deleteDialogRef,
+                      deleteDialogCallback,
                     })
-                  }
-                  closePopper()
+                    closePopper()
+                  },
                 },
-              },
-            ],
-          },
-        ]}
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dad'),
+                  onClick: (closePopper) => {
+                    if (netsuiteIntegration) {
+                      deleteDialogRef.current?.openDialog({
+                        provider: netsuiteIntegration,
+                        callback: deleteDialogCallback,
+                      })
+                    }
+                    closePopper()
+                  },
+                },
+              ],
+            },
+          ],
+          loading,
+        }}
         tabs={[
           {
             title: translate('text_62728ff857d47b013204c726'),
@@ -193,7 +198,6 @@ const NetsuiteIntegrationDetails = () => {
             content: <NetsuiteAdditionalMappings integrationId={netsuiteIntegration?.id ?? ''} />,
           },
         ]}
-        isLoading={loading}
       />
 
       <>{activeTabContent}</>

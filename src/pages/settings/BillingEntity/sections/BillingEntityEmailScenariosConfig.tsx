@@ -76,41 +76,45 @@ const BillingEntityEmailScenariosConfig = () => {
             }),
           },
         ]}
-        actions={[
-          {
-            type: 'custom',
-            label: 'email-toggle',
-            hidden: !hasPermissions(['billingEntitiesUpdate']),
-            snapshotKey: type ? emailSettings?.includes(type) : false,
-            content: (
-              <div className="flex flex-row items-center gap-3">
-                <Typography variant="caption">
-                  {translate('text_6408b5ae7f629d008bc8af7c')}
-                </Typography>
-                <Switch
-                  name={`switch-config-${type}`}
-                  checked={type && emailSettings?.includes(type)}
-                  onChange={async (value, e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
+        actions={{
+          items: [
+            {
+              type: 'custom',
+              label: 'email-toggle',
+              hidden: !hasPermissions(['billingEntitiesUpdate']),
+              snapshotKey: type ? emailSettings?.includes(type) : false,
+              content: (
+                <div className="flex flex-row items-center gap-3">
+                  <Typography variant="caption">
+                    {translate('text_6408b5ae7f629d008bc8af7c')}
+                  </Typography>
+                  <Switch
+                    name={`switch-config-${type}`}
+                    checked={type && emailSettings?.includes(type)}
+                    onChange={async (value, e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
 
-                    if (hasAccess) {
-                      await updateEmailSettings(type as BillingEntityEmailSettingsEnum, value)
-                    } else {
-                      premiumWarningDialogRef.current?.openDialog()
-                    }
-                  }}
-                />
-                {!hasAccess && <Icon name="sparkles" />}
-              </div>
-            ),
-          },
-        ]}
+                      if (hasAccess) {
+                        await updateEmailSettings(type as BillingEntityEmailSettingsEnum, value)
+                      } else {
+                        premiumWarningDialogRef.current?.openDialog()
+                      }
+                    }}
+                  />
+                  {!hasAccess && <Icon name="sparkles" />}
+                </div>
+              ),
+            },
+          ],
+          loading,
+        }}
         entity={{
           viewName: translate(translationsKey.title),
+          viewNameLoading: loading,
           metadata: translate(translationsKey.subtitle),
+          metadataLoading: loading,
         }}
-        isLoading={loading}
       />
 
       <div className="min-height-minus-nav flex flex-col overflow-auto">

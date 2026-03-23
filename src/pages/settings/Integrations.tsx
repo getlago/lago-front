@@ -296,7 +296,9 @@ const Integrations = () => {
       <MainHeader.Configure
         entity={{
           viewName: translate('text_62b1edddbf5f461ab9712750'),
+          viewNameLoading: loading,
           metadata: translate('text_62b1edddbf5f461ab9712765'),
+          metadataLoading: loading,
         }}
         tabs={[
           {
@@ -841,7 +843,6 @@ const Integrations = () => {
             ),
           },
         ]}
-        isLoading={loading}
       />
 
       <>{activeTabContent}</>

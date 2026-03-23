@@ -87,9 +87,10 @@ const BillingEntityDunningCampaigns = () => {
         ]}
         entity={{
           viewName: translate('text_1750663218390k1j07z0kda6'),
+          viewNameLoading: loading,
           metadata: translate('text_17506632183909ttm5ngxpil'),
+          metadataLoading: loading,
         }}
-        isLoading={loading}
       />
 
       <SettingsPaddedContainer>

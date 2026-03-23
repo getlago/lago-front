@@ -138,26 +138,30 @@ const LagoTaxManagementIntegration = () => {
         ]}
         entity={{
           viewName: translate('text_657078c28394d6b1ae1b9713'),
+          viewNameLoading: loading,
           metadata: translate('text_657078c28394d6b1ae1b971f'),
+          metadataLoading: loading,
           badges: hasConnectedBillingEntities
             ? [{ type: 'default', label: translate('text_62b1edddbf5f461ab97127ad') }]
             : [],
           icon: <LagoTaxManagement />,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_657078c28394d6b1ae1b971b'),
-            variant: 'secondary',
-            hidden: !hasPermissions(['billingEntitiesUpdate']),
-            disabled: loading,
-            dataTest: LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID,
-            onClick: () => {
-              deleteConnectionRef.current?.openDialog()
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_657078c28394d6b1ae1b971b'),
+              variant: 'secondary',
+              hidden: !hasPermissions(['billingEntitiesUpdate']),
+              disabled: loading,
+              dataTest: LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID,
+              onClick: () => {
+                deleteConnectionRef.current?.openDialog()
+              },
             },
-          },
-        ]}
-        isLoading={loading}
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

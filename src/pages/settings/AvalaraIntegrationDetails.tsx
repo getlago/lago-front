@@ -124,39 +124,44 @@ const AvalaraIntegrationDetails = () => {
         ]}
         entity={{
           viewName: avalaraIntegration?.name || '',
+          viewNameLoading: loading,
           metadata: `${translate('text_1744293609277s53zn6jcoq4')} • ${translate('text_6668821d94e4da4dfd8b3840')}`,
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Avalara />,
         }}
-        actions={[
-          {
-            type: 'dropdown',
-            label: translate('text_626162c62f790600f850b6fe'),
-            items: [
-              {
-                label: translate('text_65845f35d7d69c3ab4793dac'),
-                onClick: (closePopper) => {
-                  addAvalaraDialogRef.current?.openDialog({
-                    integration: avalaraIntegration,
-                    deleteModalRef: deleteDialogRef,
-                    deleteDialogCallback,
-                  })
-                  closePopper()
+        actions={{
+          items: [
+            {
+              type: 'dropdown',
+              label: translate('text_626162c62f790600f850b6fe'),
+              items: [
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dac'),
+                  onClick: (closePopper) => {
+                    addAvalaraDialogRef.current?.openDialog({
+                      integration: avalaraIntegration,
+                      deleteModalRef: deleteDialogRef,
+                      deleteDialogCallback,
+                    })
+                    closePopper()
+                  },
                 },
-              },
-              {
-                label: translate('text_65845f35d7d69c3ab4793dad'),
-                onClick: (closePopper) => {
-                  deleteDialogRef.current?.openDialog({
-                    provider: avalaraIntegration,
-                    callback: deleteDialogCallback,
-                  })
-                  closePopper()
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dad'),
+                  onClick: (closePopper) => {
+                    deleteDialogRef.current?.openDialog({
+                      provider: avalaraIntegration,
+                      callback: deleteDialogCallback,
+                    })
+                    closePopper()
+                  },
                 },
-              },
-            ],
-          },
-        ]}
+              ],
+            },
+          ],
+          loading,
+        }}
         tabs={[
           {
             title: translate('text_62728ff857d47b013204c726'),
@@ -177,7 +182,6 @@ const AvalaraIntegrationDetails = () => {
             content: <AvalaraIntegrationItemsList integrationId={avalaraIntegration?.id} />,
           },
         ]}
-        isLoading={loading}
       />
       <>{activeTabContent}</>
       <AddAvalaraDialog ref={addAvalaraDialogRef} />

@@ -97,22 +97,26 @@ const StripeIntegrations = () => {
         ]}
         entity={{
           viewName: translate('text_62b1edddbf5f461ab971277d'),
+          viewNameLoading: loading,
           metadata: translate('text_62b1edddbf5f461ab971271f'),
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Stripe />,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_65846763e6140b469140e235'),
-            variant: 'primary',
-            hidden: !canCreateIntegration,
-            onClick: () => {
-              addStripeDialogRef.current?.openDialog()
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_65846763e6140b469140e235'),
+              variant: 'primary',
+              hidden: !canCreateIntegration,
+              onClick: () => {
+                addStripeDialogRef.current?.openDialog()
+              },
             },
-          },
-        ]}
-        isLoading={loading}
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

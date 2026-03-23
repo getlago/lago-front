@@ -135,42 +135,46 @@ const FlutterwaveIntegrationDetails = () => {
         ]}
         entity={{
           viewName: flutterwavePaymentProvider?.name || '',
+          viewNameLoading: loading,
           metadata: translate('text_17498039535197vam0ybv9qz'),
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_1749724395108m0swrna0zt4') }],
           icon: <Flutterwave />,
         }}
-        actions={[
-          {
-            type: 'dropdown',
-            label: translate('text_626162c62f790600f850b6fe'),
-            items: [
-              {
-                label: translate('text_65845f35d7d69c3ab4793dac'),
-                hidden: !canEditIntegration,
-                onClick: (closePopper) => {
-                  addDialogRef.current?.openDialog({
-                    provider: flutterwavePaymentProvider,
-                    deleteModalRef: deleteDialogRef,
-                    deleteDialogCallback,
-                  })
-                  closePopper()
+        actions={{
+          items: [
+            {
+              type: 'dropdown',
+              label: translate('text_626162c62f790600f850b6fe'),
+              items: [
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dac'),
+                  hidden: !canEditIntegration,
+                  onClick: (closePopper) => {
+                    addDialogRef.current?.openDialog({
+                      provider: flutterwavePaymentProvider,
+                      deleteModalRef: deleteDialogRef,
+                      deleteDialogCallback,
+                    })
+                    closePopper()
+                  },
                 },
-              },
-              {
-                label: translate('text_65845f35d7d69c3ab4793dad'),
-                hidden: !canDeleteIntegration,
-                onClick: (closePopper) => {
-                  deleteDialogRef.current?.openDialog({
-                    provider: flutterwavePaymentProvider,
-                    callback: deleteDialogCallback,
-                  })
-                  closePopper()
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dad'),
+                  hidden: !canDeleteIntegration,
+                  onClick: (closePopper) => {
+                    deleteDialogRef.current?.openDialog({
+                      provider: flutterwavePaymentProvider,
+                      callback: deleteDialogCallback,
+                    })
+                    closePopper()
+                  },
                 },
-              },
-            ],
-          },
-        ]}
-        isLoading={loading}
+              ],
+            },
+          ],
+          loading,
+        }}
       />
 
       <div className="mb-12 flex max-w-[672px] flex-col gap-8 px-4 py-0 md:px-12">

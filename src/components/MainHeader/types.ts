@@ -66,6 +66,15 @@ export type MainHeaderAction =
   | MainHeaderInPageAction
   | MainHeaderCustomAction
 
+// ─── Actions config ─────────────────────────────────────────────
+
+export interface MainHeaderActionsConfig {
+  /** Action button definitions */
+  items: MainHeaderAction[]
+  /** Show a skeleton instead of the actions block */
+  loading?: boolean
+}
+
 // ─── Entity config ──────────────────────────────────────────────
 
 export type MainHeaderBadge = Pick<StatusProps, 'label' | 'labelVariables' | 'endIcon'> & {
@@ -76,8 +85,12 @@ export type MainHeaderBadge = Pick<StatusProps, 'label' | 'labelVariables' | 'en
 export interface MainHeaderEntityConfig {
   /** Display name — rendered as headline Typography */
   viewName: string
+  /** Show a skeleton instead of the title + badges row */
+  viewNameLoading?: boolean
   /** Secondary text below the name (e.g. externalId, amount) */
   metadata?: string
+  /** Show a skeleton instead of the metadata line */
+  metadataLoading?: boolean
   /** Status badges displayed next to the entity name */
   badges?: MainHeaderBadge[]
   /** Arbitrary icon rendered in a connector Avatar (e.g. integrations). Can be an IconName string or a ReactNode (e.g. SVG component) */
@@ -99,8 +112,8 @@ export interface MainHeaderConfig {
   /** Breadcrumb trail rendered above the entity name */
   breadcrumb?: BreadcrumbItem[]
 
-  /** Action buttons rendered on the right side of the header */
-  actions?: MainHeaderAction[]
+  /** Actions section — items + optional loading skeleton */
+  actions?: MainHeaderActionsConfig
 
   /** Entity section — viewName is the page/entity heading. Optional during loading. */
   entity?: MainHeaderEntityConfig
@@ -110,7 +123,4 @@ export interface MainHeaderConfig {
 
   /** Filter — pages include their own providers */
   filtersSection?: ReactNode
-
-  /** Global loading state — shows skeletons for title and entity */
-  isLoading?: boolean
 }

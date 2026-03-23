@@ -56,9 +56,10 @@ const BillingEntityGeneral = () => {
         ]}
         entity={{
           viewName: translate('text_1742230191029o8hfgeebxl5'),
+          viewNameLoading: billingEntityLoading,
           metadata: translate('text_6380d7e60f081e5b777c4b22'),
+          metadataLoading: billingEntityLoading,
         }}
-        isLoading={billingEntityLoading}
       />
 
       <SettingsPaddedContainer>

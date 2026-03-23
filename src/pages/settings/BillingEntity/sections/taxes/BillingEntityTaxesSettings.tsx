@@ -98,9 +98,10 @@ const BillingEntityTaxesSettings = () => {
         ]}
         entity={{
           viewName: translate('text_1743241419870gwqt1b54uuq'),
+          viewNameLoading: loading,
           metadata: translate('text_17432414198709y2y2ua9zxt'),
+          metadataLoading: loading,
         }}
-        isLoading={loading}
       />
 
       <SettingsPaddedContainer>

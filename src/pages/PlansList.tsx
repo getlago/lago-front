@@ -9,12 +9,12 @@ import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import { CREATE_PLAN_ROUTE, PLAN_DETAILS_ROUTE, UPDATE_PLAN_ROUTE } from '~/core/router'
 import { DeletePlanDialogFragmentDoc, usePlansLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -98,17 +98,20 @@ const PlansList = () => {
         entity={{
           viewName: translate('text_62442e40cea25600b0b6d84a'),
           metadata: formatCountToMetadata(plansTotalCount, translate),
+          metadataLoading: isLoading,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_62442e40cea25600b0b6d84c'),
-            variant: 'primary',
-            hidden: !canCreatePlans,
-            onClick: () => navigate(CREATE_PLAN_ROUTE),
-            dataTest: 'create-plan',
-          },
-        ]}
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_62442e40cea25600b0b6d84c'),
+              variant: 'primary',
+              hidden: !canCreatePlans,
+              onClick: () => navigate(CREATE_PLAN_ROUTE),
+              dataTest: 'create-plan',
+            },
+          ],
+        }}
         filtersSection={
           <SearchInput
             onChange={debouncedSearch}

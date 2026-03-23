@@ -3,10 +3,10 @@ import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { PaymentsList } from '~/components/invoices/PaymentsList'
+import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { SearchInput } from '~/components/SearchInput'
-import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import { CREATE_PAYMENT_ROUTE } from '~/core/router'
 import { PaymentForPaymentsListFragmentDoc, useGetPaymentsListLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -71,22 +71,25 @@ const PaymentsPage = () => {
         entity={{
           viewName: translate('text_6672ebb8b1b50be550eccbed'),
           metadata: formatCountToMetadata(paymentsTotalCount, translate),
+          metadataLoading: paymentsIsLoading,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_1737471851634wpeojigr27w'),
-            variant: 'primary',
-            endIcon: isPremium ? undefined : 'sparkles',
-            onClick: () => {
-              if (isPremium) {
-                navigate(CREATE_PAYMENT_ROUTE)
-              } else {
-                premiumWarningDialogRef.current?.openDialog()
-              }
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_1737471851634wpeojigr27w'),
+              variant: 'primary',
+              endIcon: isPremium ? undefined : 'sparkles',
+              onClick: () => {
+                if (isPremium) {
+                  navigate(CREATE_PAYMENT_ROUTE)
+                } else {
+                  premiumWarningDialogRef.current?.openDialog()
+                }
+              },
             },
-          },
-        ]}
+          ],
+        }}
         filtersSection={
           <SearchInput
             onChange={paymentsDebounceSearch}

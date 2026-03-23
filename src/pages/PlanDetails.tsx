@@ -116,9 +116,11 @@ const PlanDetails = () => {
         breadcrumb={[{ label: translate('text_62442e40cea25600b0b6d84a'), path: PLANS_ROUTE }]}
         entity={{
           viewName: translate('text_65281f686a80b400c8e2f6ad', { planName: plan?.name }),
+          viewNameLoading: isPlanLoading,
           metadata: plan?.code || '',
+          metadataLoading: isPlanLoading,
         }}
-        actions={actions}
+        actions={{ items: actions, loading: isPlanLoading }}
         tabs={[
           {
             title: translate('text_628cf761cbe6820138b8f2e4'),
@@ -172,7 +174,6 @@ const PlanDetails = () => {
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
-        isLoading={isPlanLoading}
       />
 
       <>{activeTabContent}</>

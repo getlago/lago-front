@@ -21,10 +21,10 @@ const MainHeaderComponent: FC = () => {
 
   if (!config) return null
 
-  const { breadcrumb, actions, entity, tabs, filtersSection, isLoading } = config
+  const { breadcrumb, actions, entity, tabs, filtersSection } = config
 
   const hasBreadcrumb = breadcrumb && breadcrumb.length > 0
-  const hasEntity = !!entity || isLoading
+  const hasEntity = !!entity
 
   return (
     <>
@@ -32,7 +32,7 @@ const MainHeaderComponent: FC = () => {
       <div className="sticky top-0 z-navBar flex h-nav min-h-nav items-center gap-4 bg-white pl-17 pr-4 shadow-b md:hidden">
         {hasBreadcrumb && <Breadcrumb items={breadcrumb} />}
         <div className="ml-auto">
-          <ActionsBlock actions={actions} isLoading={isLoading} />
+          <ActionsBlock actions={actions} />
         </div>
       </div>
 
@@ -44,22 +44,18 @@ const MainHeaderComponent: FC = () => {
 
             {hasEntity && (
               <div className="pb-6">
-                <EntitySection entity={entity} isLoading={isLoading} />
+                <EntitySection entity={entity} />
               </div>
             )}
           </div>
 
-          <ActionsBlock
-            actions={actions}
-            isLoading={isLoading}
-            dataTest={DESKTOP_ACTIONS_BLOCK_TEST_ID}
-          />
+          <ActionsBlock actions={actions} dataTest={DESKTOP_ACTIONS_BLOCK_TEST_ID} />
         </div>
 
         {/* Mobile — entity section below the sticky bar */}
         {hasEntity && (
           <div className="px-12 pb-4 pt-12 md:hidden">
-            <EntitySection entity={entity} isLoading={isLoading} />
+            <EntitySection entity={entity} />
           </div>
         )}
 

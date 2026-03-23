@@ -128,61 +128,66 @@ const XeroIntegrationDetails = () => {
         ]}
         entity={{
           viewName: xeroIntegration?.name || '',
+          viewNameLoading: loading,
           metadata: `${translate('text_6672ebb8b1b50be550eccaf8')} • ${translate('text_661ff6e56ef7e1b7c542b245')}`,
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Xero />,
         }}
-        actions={[
-          {
-            type: 'dropdown',
-            label: translate('text_626162c62f790600f850b6fe'),
-            items: [
-              {
-                label: translate('text_65845f35d7d69c3ab4793dac'),
-                onClick: (closePopper) => {
-                  addXeroDialogRef.current?.openDialog({
-                    provider: xeroIntegration,
-                    deleteModalRef: deleteDialogRef,
-                    deleteDialogCallback,
-                  })
-                  closePopper()
-                },
-              },
-              {
-                label: translate('text_62b31e1f6a5b8b1b745ece41'),
-                onClick: async (closePopper) => {
-                  const nango = new Nango({ publicKey: nangoPublicKey })
-
-                  try {
-                    await nango.auth('xero', xeroIntegration?.connectionId)
-
-                    addToast({
-                      message: translate('text_174677760992972pm9p2l5on'),
-                      severity: 'success',
+        actions={{
+          items: [
+            {
+              type: 'dropdown',
+              label: translate('text_626162c62f790600f850b6fe'),
+              items: [
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dac'),
+                  onClick: (closePopper) => {
+                    addXeroDialogRef.current?.openDialog({
+                      provider: xeroIntegration,
+                      deleteModalRef: deleteDialogRef,
+                      deleteDialogCallback,
                     })
-                  } catch {
-                    addToast({
-                      message: translate('text_62b31e1f6a5b8b1b745ece48'),
-                      severity: 'danger',
-                    })
-                  } finally {
                     closePopper()
-                  }
+                  },
                 },
-              },
-              {
-                label: translate('text_65845f35d7d69c3ab4793dad'),
-                onClick: (closePopper) => {
-                  deleteDialogRef.current?.openDialog({
-                    provider: xeroIntegration,
-                    callback: deleteDialogCallback,
-                  })
-                  closePopper()
+                {
+                  label: translate('text_62b31e1f6a5b8b1b745ece41'),
+                  onClick: async (closePopper) => {
+                    const nango = new Nango({ publicKey: nangoPublicKey })
+
+                    try {
+                      await nango.auth('xero', xeroIntegration?.connectionId)
+
+                      addToast({
+                        message: translate('text_174677760992972pm9p2l5on'),
+                        severity: 'success',
+                      })
+                    } catch {
+                      addToast({
+                        message: translate('text_62b31e1f6a5b8b1b745ece48'),
+                        severity: 'danger',
+                      })
+                    } finally {
+                      closePopper()
+                    }
+                  },
                 },
-              },
-            ],
-          },
-        ]}
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dad'),
+                  onClick: (closePopper) => {
+                    deleteDialogRef.current?.openDialog({
+                      provider: xeroIntegration,
+                      callback: deleteDialogCallback,
+                    })
+                    closePopper()
+                  },
+                },
+              ],
+            },
+          ],
+          loading,
+        }}
         tabs={[
           {
             title: translate('text_62728ff857d47b013204c726'),
@@ -203,7 +208,6 @@ const XeroIntegrationDetails = () => {
             content: <XeroIntegrationItemsList integrationId={xeroIntegration?.id} />,
           },
         ]}
-        isLoading={loading}
       />
 
       <>{activeTabContent}</>

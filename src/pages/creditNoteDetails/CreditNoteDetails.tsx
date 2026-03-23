@@ -314,6 +314,7 @@ const CreditNoteDetails = () => {
 
   const headerEntity = {
     viewName: creditNote?.number || '',
+    viewNameLoading: loading,
     metadata: `${translate('text_637655cb50f04bf1c8379cf2', {
       amount: intlFormatNumber(
         deserializeAmount(
@@ -326,6 +327,7 @@ const CreditNoteDetails = () => {
         },
       ),
     })} • ${creditNote?.id}`,
+    metadataLoading: loading,
     badges: creditNoteTypes.map((type) => ({
       type: StatusType.default,
       label: translate(CREDIT_NOTE_TYPE_TRANSLATIONS_MAP[type]),
@@ -442,9 +444,8 @@ const CreditNoteDetails = () => {
           { label: translate('text_66461ada56a84401188e8c63'), path: CREDIT_NOTES_ROUTE },
         ]}
         entity={headerEntity}
-        actions={headerActions}
+        actions={{ items: headerActions, loading }}
         tabs={tabs}
-        isLoading={loading}
       />
 
       {hasError ? (

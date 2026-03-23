@@ -87,21 +87,25 @@ const NetsuiteIntegrations = () => {
         ]}
         entity={{
           viewName: translate('text_661ff6e56ef7e1b7c542b239'),
+          viewNameLoading: loading,
           metadata: translate('text_661ff6e56ef7e1b7c542b1e6'),
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Netsuite />,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_65846763e6140b469140e235'),
-            variant: 'primary',
-            onClick: () => {
-              addNetsuiteDialogRef.current?.openDialog()
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_65846763e6140b469140e235'),
+              variant: 'primary',
+              onClick: () => {
+                addNetsuiteDialogRef.current?.openDialog()
+              },
             },
-          },
-        ]}
-        isLoading={loading}
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

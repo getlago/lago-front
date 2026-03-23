@@ -151,8 +151,8 @@ describe('SubscriptionDetails', () => {
       it('THEN should configure MainHeader with a dropdown action', () => {
         render(<SubscriptionDetails />)
 
-        expect(capturedConfig?.actions).toHaveLength(1)
-        expect(capturedConfig?.actions?.[0].type).toBe('dropdown')
+        expect(capturedConfig?.actions?.items).toHaveLength(1)
+        expect(capturedConfig?.actions?.items[0].type).toBe('dropdown')
       })
 
       it('THEN should display the active tab content', () => {
@@ -184,7 +184,7 @@ describe('SubscriptionDetails', () => {
     ])('THEN should hide $buttonName dropdown item', ({ buttonTestId }) => {
       render(<SubscriptionDetails />)
 
-      const dropdownAction = capturedConfig?.actions?.[0]
+      const dropdownAction = capturedConfig?.actions?.items[0]
 
       if (dropdownAction?.type === 'dropdown') {
         const item = dropdownAction.items.find((i) => i.dataTest === buttonTestId)
@@ -222,7 +222,7 @@ describe('SubscriptionDetails', () => {
     ])('THEN should hide $buttonName dropdown item', ({ buttonTestId }) => {
       render(<SubscriptionDetails />)
 
-      const dropdownAction = capturedConfig?.actions?.[0]
+      const dropdownAction = capturedConfig?.actions?.items[0]
 
       if (dropdownAction?.type === 'dropdown') {
         const item = dropdownAction.items.find((i) => i.dataTest === buttonTestId)
@@ -237,7 +237,7 @@ describe('SubscriptionDetails', () => {
       it('THEN terminate onClick should call openTerminateCustomerSubscriptionDialog', () => {
         render(<SubscriptionDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const terminateItem = dropdownAction.items.find(
@@ -259,7 +259,7 @@ describe('SubscriptionDetails', () => {
       it('THEN the termination callback should navigate to customer details when customer is not deleted', () => {
         render(<SubscriptionDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const terminateItem = dropdownAction.items.find(
@@ -285,7 +285,7 @@ describe('SubscriptionDetails', () => {
       it('THEN the termination callback should navigate to subscriptions list', () => {
         render(<SubscriptionDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const terminateItem = dropdownAction.items.find(
@@ -315,10 +315,10 @@ describe('SubscriptionDetails', () => {
     })
 
     describe('WHEN the component renders', () => {
-      it('THEN should set isLoading on MainHeader config', () => {
+      it('THEN should set actionsLoading on MainHeader config', () => {
         render(<SubscriptionDetails />)
 
-        expect(capturedConfig?.isLoading).toBe(true)
+        expect(capturedConfig?.actions?.loading).toBe(true)
       })
     })
   })
@@ -402,7 +402,7 @@ describe('SubscriptionDetails', () => {
       it('THEN should navigate to the update subscription route', () => {
         render(<SubscriptionDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const updateItem = dropdownAction.items.find(
@@ -425,7 +425,7 @@ describe('SubscriptionDetails', () => {
       it('THEN should navigate to the upgrade/downgrade route', () => {
         render(<SubscriptionDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const upgradeItem = dropdownAction.items.find(
@@ -448,7 +448,7 @@ describe('SubscriptionDetails', () => {
       it('THEN should copy the external ID to clipboard and show toast', () => {
         render(<SubscriptionDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           // Copy external ID item has no dataTest, find it by checking copyToClipboard call

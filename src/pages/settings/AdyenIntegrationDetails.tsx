@@ -126,42 +126,46 @@ const AdyenIntegrationDetails = () => {
         ]}
         entity={{
           viewName: adyenPaymentProvider?.name || '',
+          viewNameLoading: loading,
           metadata: `${translate('text_645d071272418a14c1c76a6d')} • ${translate('text_62b1edddbf5f461ab971271f')}`,
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Adyen />,
         }}
-        actions={[
-          {
-            type: 'dropdown',
-            label: translate('text_626162c62f790600f850b6fe'),
-            items: [
-              {
-                label: translate('text_65845f35d7d69c3ab4793dac'),
-                hidden: !canEditIntegration,
-                onClick: (closePopper) => {
-                  addAdyenDialogRef.current?.openDialog({
-                    provider: adyenPaymentProvider,
-                    deleteModalRef: deleteDialogRef,
-                    deleteDialogCallback,
-                  })
-                  closePopper()
+        actions={{
+          items: [
+            {
+              type: 'dropdown',
+              label: translate('text_626162c62f790600f850b6fe'),
+              items: [
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dac'),
+                  hidden: !canEditIntegration,
+                  onClick: (closePopper) => {
+                    addAdyenDialogRef.current?.openDialog({
+                      provider: adyenPaymentProvider,
+                      deleteModalRef: deleteDialogRef,
+                      deleteDialogCallback,
+                    })
+                    closePopper()
+                  },
                 },
-              },
-              {
-                label: translate('text_65845f35d7d69c3ab4793dad'),
-                hidden: !canDeleteIntegration,
-                onClick: (closePopper) => {
-                  deleteDialogRef.current?.openDialog({
-                    provider: adyenPaymentProvider,
-                    callback: deleteDialogCallback,
-                  })
-                  closePopper()
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dad'),
+                  hidden: !canDeleteIntegration,
+                  onClick: (closePopper) => {
+                    deleteDialogRef.current?.openDialog({
+                      provider: adyenPaymentProvider,
+                      callback: deleteDialogCallback,
+                    })
+                    closePopper()
+                  },
                 },
-              },
-            ],
-          },
-        ]}
-        isLoading={loading}
+              ],
+            },
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

@@ -2,7 +2,7 @@ import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 /**
  * Formats a totalCount into a metadata string (e.g. "42 results").
- * Returns undefined when count is not yet available.
+ * Returns `undefined` if count is absent.
  */
 export const formatCountToMetadata = (
   count: number | undefined | null,

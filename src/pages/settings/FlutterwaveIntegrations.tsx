@@ -90,22 +90,26 @@ const FlutterwaveIntegrations = () => {
         ]}
         entity={{
           viewName: translate('text_1749725331374clf07sez01f'),
+          viewNameLoading: loading,
           metadata: translate('text_62b1edddbf5f461ab971271f'),
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_634ea0ecc6147de10ddb662d') }],
           icon: <Flutterwave />,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_65846763e6140b469140e235'),
-            variant: 'primary',
-            hidden: !canCreateIntegration,
-            onClick: () => {
-              addDialogRef.current?.openDialog()
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_65846763e6140b469140e235'),
+              variant: 'primary',
+              hidden: !canCreateIntegration,
+              onClick: () => {
+                addDialogRef.current?.openDialog()
+              },
             },
-          },
-        ]}
-        isLoading={loading}
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

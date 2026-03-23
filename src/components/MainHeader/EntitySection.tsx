@@ -16,19 +16,7 @@ import { MainHeaderEntityConfig } from './types'
 /**
  * Entity section — renders as a fragment so the parent controls layout.
  */
-export const EntitySection: FC<{ entity?: MainHeaderEntityConfig; isLoading?: boolean }> = ({
-  entity,
-  isLoading,
-}) => {
-  if (isLoading) {
-    return (
-      <>
-        <Skeleton variant="text" className="w-50" />
-        <Skeleton variant="text" className="w-32" />
-      </>
-    )
-  }
-
+export const EntitySection: FC<{ entity?: MainHeaderEntityConfig }> = ({ entity }) => {
   if (!entity) return null
 
   return (
@@ -48,25 +36,32 @@ export const EntitySection: FC<{ entity?: MainHeaderEntityConfig; isLoading?: bo
       )}
       <div data-test={ENTITY_SECTION_TEST_ID}>
         <div className="flex items-center gap-2">
-          <Typography
-            color="textSecondary"
-            variant="headline"
-            forceBreak
-            data-test={ENTITY_SECTION_VIEW_NAME_TEST_ID}
-          >
-            {entity.viewName}
-          </Typography>
-          {entity.badges?.map((badge) => (
-            <Status
-              key={`${badge.type}-${badge.label}`}
-              type={badge.type as StatusType}
-              label={badge.label}
-              labelVariables={badge.labelVariables}
-              endIcon={badge.endIcon}
-            />
-          ))}
+          {entity.viewNameLoading ? (
+            <Skeleton variant="text" className="w-50" />
+          ) : (
+            <>
+              <Typography
+                color="textSecondary"
+                variant="headline"
+                forceBreak
+                data-test={ENTITY_SECTION_VIEW_NAME_TEST_ID}
+              >
+                {entity.viewName}
+              </Typography>
+              {entity.badges?.map((badge) => (
+                <Status
+                  key={`${badge.type}-${badge.label}`}
+                  type={badge.type as StatusType}
+                  label={badge.label}
+                  labelVariables={badge.labelVariables}
+                  endIcon={badge.endIcon}
+                />
+              ))}
+            </>
+          )}
         </div>
-        {entity.metadata && (
+        {entity.metadataLoading && <Skeleton variant="text" className="w-24" />}
+        {!entity.metadataLoading && entity.metadata && (
           <Typography data-test={ENTITY_SECTION_METADATA_TEST_ID}>{entity.metadata}</Typography>
         )}
       </div>
