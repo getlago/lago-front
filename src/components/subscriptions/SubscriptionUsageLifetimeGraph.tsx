@@ -101,16 +101,16 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
   translate,
   locale,
 }: SubscriptionUsageLifetimeGraphComponentProps) => {
-  const hasProgressiveBillingPremiumIntegration = !!organization?.premiumIntegrations?.includes(
-    PremiumIntegrationTypeEnum.ProgressiveBilling,
-  )
+  const hasLifetimeUsagePremiumIntegration =
+    !!organization?.premiumIntegrations?.includes(PremiumIntegrationTypeEnum.LifetimeUsage) ||
+    !!organization?.premiumIntegrations?.includes(PremiumIntegrationTypeEnum.ProgressiveBilling)
 
   const isLoading = subscriptionLoading || organizationLoading
   const currency = subscription?.customer?.currency || CurrencyEnum.Usd
-  const isBlurred = !isLoading && (!hasProgressiveBillingPremiumIntegration || !organization)
+  const isBlurred = !isLoading && (!hasLifetimeUsagePremiumIntegration || !organization)
   const customerTimezone = subscription?.customer?.applicableTimezone
 
-  const lifetimeUsage = hasProgressiveBillingPremiumIntegration
+  const lifetimeUsage = hasLifetimeUsagePremiumIntegration
     ? subscription?.lifetimeUsage
     : subscriptionLifetimeUsageFakeData
 
@@ -140,7 +140,7 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
           <Typography
             variant="caption"
             color="grey600"
-            blur={!hasProgressiveBillingPremiumIntegration}
+            blur={!hasLifetimeUsagePremiumIntegration}
             noWrap
           >
             {translate('text_633dae57ca9a923dd53c2097', {
@@ -186,7 +186,7 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
         {!hasError &&
           isSubscriptionActive &&
           isLifetimeUsageEmpty &&
-          hasProgressiveBillingPremiumIntegration && (
+          hasLifetimeUsagePremiumIntegration && (
             <Typography
               variant="body"
               color="grey600"
@@ -312,7 +312,7 @@ export const SubscriptionUsageLifetimeGraphComponent = ({
             </div>
 
             {/* Non premium block */}
-            {!isLoading && !hasProgressiveBillingPremiumIntegration && (
+            {!isLoading && !hasLifetimeUsagePremiumIntegration && (
               <div className="flex flex-row items-center justify-between gap-4 rounded-sm bg-grey-100 px-6 py-4">
                 <div className="flex flex-col">
                   <div className="flex flex-row items-center gap-2">
