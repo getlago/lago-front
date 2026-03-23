@@ -8,6 +8,11 @@ const mockHasPermissions = jest.fn()
 const mockIsPremium = jest.fn()
 const mockUseGetCouponForDetailsQuery = jest.fn()
 
+const mockCanCreate = jest.fn()
+const mockCanEdit = jest.fn()
+const mockCanTerminate = jest.fn()
+const mockCanDelete = jest.fn()
+
 jest.mock('~/components/MainHeader/MainHeader', () => ({
   MainHeader: {
     Configure: (props: Record<string, unknown>) => {
@@ -49,6 +54,15 @@ jest.mock('~/components/coupons/utils', () => ({
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+jest.mock('~/hooks/usePermissionsCouponActions', () => ({
+  usePermissionsCouponActions: () => ({
+    canCreate: mockCanCreate,
+    canEdit: mockCanEdit,
+    canTerminate: mockCanTerminate,
+    canDelete: mockCanDelete,
+  }),
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -93,6 +107,11 @@ describe('CouponDetails', () => {
 
     useParamsMock.mockReturnValue({ couponId: 'coupon-123' })
     mockIsPremium.mockReturnValue(true)
+    mockHasPermissions.mockReturnValue(true)
+    mockCanCreate.mockReturnValue(true)
+    mockCanEdit.mockReturnValue(true)
+    mockCanTerminate.mockReturnValue(true)
+    mockCanDelete.mockReturnValue(true)
     mockUseGetCouponForDetailsQuery.mockReturnValue({
       data: { coupon: mockActiveCoupon },
       loading: false,
@@ -102,8 +121,6 @@ describe('CouponDetails', () => {
   describe('GIVEN the component is rendered with data', () => {
     describe('WHEN the coupon is loaded', () => {
       it('THEN should configure MainHeader with breadcrumb', () => {
-        mockHasPermissions.mockReturnValue(true)
-
         render(<CouponDetails />)
 
         expect(mockMainHeaderConfigure).toHaveBeenCalledWith(
@@ -119,8 +136,6 @@ describe('CouponDetails', () => {
       })
 
       it('THEN should configure MainHeader with entity name and metadata', () => {
-        mockHasPermissions.mockReturnValue(true)
-
         render(<CouponDetails />)
 
         expect(mockMainHeaderConfigure).toHaveBeenCalledWith(
@@ -146,8 +161,6 @@ describe('CouponDetails', () => {
       })
 
       it('THEN should configure tabs', () => {
-        mockHasPermissions.mockReturnValue(true)
-
         render(<CouponDetails />)
 
         const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTabConfig[]
@@ -159,9 +172,7 @@ describe('CouponDetails', () => {
 
   describe('GIVEN user has all permissions and coupon is active', () => {
     describe('WHEN actions are configured', () => {
-      it('THEN should include dropdown with edit, terminate, and delete items', () => {
-        mockHasPermissions.mockReturnValue(true)
-
+      it('THEN should include dropdown with edit, terminate, and delete items all visible', () => {
         render(<CouponDetails />)
 
         const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
@@ -193,14 +204,14 @@ describe('CouponDetails', () => {
 
   describe('GIVEN the coupon is terminated', () => {
     describe('WHEN actions are configured', () => {
-      it('THEN should have disabled edit and terminate actions', () => {
+      it('THEN should hide the terminate action but keep edit visible', () => {
+        mockCanTerminate.mockReturnValue(false)
         mockUseGetCouponForDetailsQuery.mockReturnValue({
           data: {
             coupon: { ...mockActiveCoupon, status: CouponStatusEnum.Terminated },
           },
           loading: false,
         })
-        mockHasPermissions.mockReturnValue(true)
 
         render(<CouponDetails />)
 
@@ -208,9 +219,11 @@ describe('CouponDetails', () => {
           ?.items as MainHeaderDropdownAction[]
         const editItem = actions[0]?.items[0]
         const terminateItem = actions[0]?.items[1]
+        const deleteItem = actions[0]?.items[2]
 
-        expect(editItem?.disabled).toBe(true)
-        expect(terminateItem?.disabled).toBe(true)
+        expect(editItem?.hidden).toBe(false)
+        expect(terminateItem?.hidden).toBe(true)
+        expect(deleteItem?.hidden).toBe(false)
       })
     })
   })
@@ -218,7 +231,8 @@ describe('CouponDetails', () => {
   describe('GIVEN user has no couponsUpdate permission', () => {
     describe('WHEN actions are configured', () => {
       it('THEN should hide the edit and terminate actions', () => {
-        mockHasPermissions.mockImplementation((perms: string[]) => !perms.includes('couponsUpdate'))
+        mockCanEdit.mockReturnValue(false)
+        mockCanTerminate.mockReturnValue(false)
 
         render(<CouponDetails />)
 
@@ -236,7 +250,7 @@ describe('CouponDetails', () => {
   describe('GIVEN user has no couponsDelete permission', () => {
     describe('WHEN actions are configured', () => {
       it('THEN should hide the delete action', () => {
-        mockHasPermissions.mockImplementation((perms: string[]) => !perms.includes('couponsDelete'))
+        mockCanDelete.mockReturnValue(false)
 
         render(<CouponDetails />)
 
@@ -245,6 +259,36 @@ describe('CouponDetails', () => {
         const deleteItem = actions[0]?.items[2]
 
         expect(deleteItem?.hidden).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN user is not premium', () => {
+    describe('WHEN tabs are configured', () => {
+      it('THEN should hide the activity logs tab', () => {
+        mockIsPremium.mockReturnValue(false)
+
+        render(<CouponDetails />)
+
+        const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTabConfig[]
+        const activityLogsTab = tabs.find((t) => t.hidden === true)
+
+        expect(activityLogsTab).toBeDefined()
+      })
+    })
+  })
+
+  describe('GIVEN user does not have auditLogsView permission', () => {
+    describe('WHEN tabs are configured', () => {
+      it('THEN should hide the activity logs tab', () => {
+        mockHasPermissions.mockReturnValue(false)
+
+        render(<CouponDetails />)
+
+        const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTabConfig[]
+        const activityLogsTab = tabs.find((t) => t.hidden === true)
+
+        expect(activityLogsTab).toBeDefined()
       })
     })
   })

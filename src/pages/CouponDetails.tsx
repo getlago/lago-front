@@ -17,7 +17,6 @@ import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTa
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
 import {
-  CouponStatusEnum,
   DeleteCouponFragmentDoc,
   TerminateCouponFragmentDoc,
   useGetCouponForDetailsQuery,
@@ -25,6 +24,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
+import { usePermissionsCouponActions } from '~/hooks/usePermissionsCouponActions'
 
 gql`
   fragment CouponDetailsForHeader on Coupon {
@@ -52,10 +52,11 @@ gql`
 
 const CouponDetails = () => {
   const navigate = useNavigate()
-  const { hasPermissions } = usePermissions()
   const { translate } = useInternationalization()
   const { couponId } = useParams()
   const { isPremium } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
+  const couponActions = usePermissionsCouponActions()
 
   const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
   const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
@@ -69,8 +70,6 @@ const CouponDetails = () => {
 
   const coupon = data?.coupon
 
-  const isTerminated = coupon?.status === CouponStatusEnum.Terminated
-
   const actions: MainHeaderAction[] = [
     {
       type: 'dropdown',
@@ -80,8 +79,7 @@ const CouponDetails = () => {
         {
           label: translate('text_625fd39a15394c0117e7d792'),
           dataTest: 'coupon-details-edit',
-          hidden: !hasPermissions(['couponsUpdate']),
-          disabled: isTerminated,
+          hidden: !couponActions.canEdit(),
           onClick: (closePopper) => {
             navigate(generatePath(UPDATE_COUPON_ROUTE, { couponId: couponId as string }))
             closePopper()
@@ -89,8 +87,7 @@ const CouponDetails = () => {
         },
         {
           label: translate('text_62876a50ea3bba00b56d2cbc'),
-          hidden: !coupon || !hasPermissions(['couponsUpdate']),
-          disabled: isTerminated,
+          hidden: !coupon || !couponActions.canTerminate(coupon),
           onClick: (closePopper) => {
             if (coupon) terminateDialogRef.current?.openDialog(coupon)
             closePopper()
@@ -98,7 +95,7 @@ const CouponDetails = () => {
         },
         {
           label: translate('text_629728388c4d2300e2d38182'),
-          hidden: !coupon || !hasPermissions(['couponsDelete']),
+          hidden: !coupon || !couponActions.canDelete(),
           dataTest: 'coupon-details-delete',
           onClick: (closePopper) => {
             if (!coupon) return

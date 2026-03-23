@@ -24,14 +24,14 @@ import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE, CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
 import {
   CouponCaptionFragmentDoc,
-  CouponStatusEnum,
+  CouponsQuery,
   DeleteCouponFragmentDoc,
   useCouponsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { usePermissions } from '~/hooks/usePermissions'
+import { usePermissionsCouponActions } from '~/hooks/usePermissionsCouponActions'
 
 gql`
   fragment CouponItem on Coupon {
@@ -68,11 +68,13 @@ gql`
   ${DeleteCouponFragmentDoc}
 `
 
+type CouponItem = CouponsQuery['coupons']['collection'][number]
+
 const CouponsList = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const actions = usePermissionsCouponActions()
   const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
   const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
   const [getCoupons, { data, error, loading, fetchMore, variables }] = useCouponsLazyQuery({
@@ -84,10 +86,6 @@ const CouponsList = () => {
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCoupons, loading)
   const list = data?.coupons?.collection || []
 
-  const canCreateCoupons = hasPermissions(['couponsCreate'])
-  const canUpdateCoupons = hasPermissions(['couponsUpdate'])
-  const canDeleteCoupons = hasPermissions(['couponsDelete'])
-
   const getEmptyState = (): Partial<GenericPlaceholderProps> => {
     if (variables?.searchTerm) {
       return {
@@ -95,7 +93,7 @@ const CouponsList = () => {
         subtitle: translate('text_63beebbf4f60e2f553232775'),
       }
     }
-    if (canCreateCoupons) {
+    if (actions.canCreate()) {
       return {
         title: translate('text_62865498824cc10126ab296c'),
         subtitle: translate('text_62865498824cc10126ab2971'),
@@ -108,6 +106,49 @@ const CouponsList = () => {
       title: translate('text_664dec926bfdb6007a036b78'),
       subtitle: translate('text_62865498824cc10126ab2971'),
     }
+  }
+
+  const getActionsForActionsColumn = ({
+    coupon,
+  }: {
+    coupon: CouponItem
+  }): Array<ActionItem<CouponItem>> => {
+    const result: Array<ActionItem<CouponItem>> = []
+
+    if (actions.canEdit()) {
+      result.push({
+        startIcon: 'pen',
+        title: translate('text_625fd39a15394c0117e7d792'),
+        dataTest: 'edit-coupon',
+        onAction: () => navigate(generatePath(UPDATE_COUPON_ROUTE, { couponId: coupon.id })),
+      })
+    }
+
+    if (actions.canTerminate(coupon)) {
+      result.push({
+        startIcon: 'switch',
+        title: translate('text_62876a50ea3bba00b56d2cbc'),
+        dataTest: 'terminate-coupon',
+        onAction: () => {
+          terminateDialogRef.current?.openDialog(coupon)
+        },
+      })
+    }
+
+    if (actions.canDelete()) {
+      result.push({
+        startIcon: 'trash',
+        title: translate('text_629728388c4d2300e2d38182'),
+        dataTest: 'delete-coupon',
+        onAction: () => {
+          deleteDialogRef.current?.openDialog({
+            couponId: coupon.id,
+          })
+        },
+      })
+    }
+
+    return result
   }
 
   const couponsTotalCount = data?.coupons?.metadata?.totalCount
@@ -217,49 +258,8 @@ const CouponsList = () => {
               content: ({ status }) => <Status {...couponStatusMapping(status)} />,
             },
           ]}
-          actionColumnTooltip={
-            canUpdateCoupons && canDeleteCoupons
-              ? () => translate('text_62876a50ea3bba00b56d2c76')
-              : undefined
-          }
-          actionColumn={(coupon) => {
-            const { id, status } = coupon
-            const actions: ActionItem<typeof coupon>[] = []
-
-            if (canUpdateCoupons) {
-              actions.push({
-                startIcon: 'pen',
-                title: translate('text_625fd39a15394c0117e7d792'),
-                onAction: () => navigate(generatePath(UPDATE_COUPON_ROUTE, { couponId: id })),
-                disabled: status === CouponStatusEnum.Terminated,
-                tooltip: translate('text_62878d88ea3bba00b56d3412'),
-                tooltipListener: status !== CouponStatusEnum.Terminated,
-              })
-
-              actions.push({
-                startIcon: 'switch',
-                title: translate('text_62876a50ea3bba00b56d2cbc'),
-                onAction: () => {
-                  terminateDialogRef.current?.openDialog(coupon)
-                },
-                disabled: status === CouponStatusEnum.Terminated,
-                tooltip: translate('text_62878d88ea3bba00b56d33cf'),
-                tooltipListener: status !== CouponStatusEnum.Terminated,
-              })
-            }
-
-            if (canDeleteCoupons) {
-              actions.push({
-                startIcon: 'trash',
-                title: translate('text_629728388c4d2300e2d38182'),
-                onAction: () => {
-                  deleteDialogRef.current?.openDialog({ couponId: id })
-                },
-              })
-            }
-
-            return actions
-          }}
+          actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
+          actionColumn={(coupon) => getActionsForActionsColumn({ coupon })}
           placeholder={{
             errorState: !!variables?.searchTerm
               ? {
