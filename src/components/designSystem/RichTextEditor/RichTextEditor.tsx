@@ -71,14 +71,14 @@ const RichTextEditor = () => {
             let popup: TippyInstance[]
 
             return {
-              onStart: (props: SuggestionProps<MentionItem>) => {
+              onStart: (startProps: SuggestionProps<MentionItem>) => {
                 renderer = new ReactRenderer(MentionList, {
-                  props,
-                  editor: props.editor,
+                  props: startProps,
+                  editor: startProps.editor,
                 })
 
                 popup = tippy('body', {
-                  getReferenceClientRect: props.clientRect as () => DOMRect,
+                  getReferenceClientRect: startProps.clientRect as () => DOMRect,
                   appendTo: () => document.body,
                   content: renderer.element,
                   showOnCreate: true,
@@ -87,20 +87,20 @@ const RichTextEditor = () => {
                   placement: 'bottom-start',
                 })
               },
-              onUpdate: (props: SuggestionProps<MentionItem>) => {
-                renderer.updateProps(props)
+              onUpdate: (updateProps: SuggestionProps<MentionItem>) => {
+                renderer.updateProps(updateProps)
 
                 popup[0].setProps({
-                  getReferenceClientRect: props.clientRect as () => DOMRect,
+                  getReferenceClientRect: updateProps.clientRect as () => DOMRect,
                 })
               },
-              onKeyDown: (props: SuggestionKeyDownProps) => {
-                if (props.event.key === 'Escape') {
+              onKeyDown: (keyDownProps: SuggestionKeyDownProps) => {
+                if (keyDownProps.event.key === 'Escape') {
                   popup[0].hide()
                   return true
                 }
 
-                return renderer.ref?.onKeyDown(props) ?? false
+                return renderer.ref?.onKeyDown(keyDownProps) ?? false
               },
               onExit: () => {
                 popup[0].destroy()

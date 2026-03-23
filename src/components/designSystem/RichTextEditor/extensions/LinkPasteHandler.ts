@@ -1,6 +1,6 @@
 import { Extension } from '@tiptap/core'
-import { ReactRenderer } from '@tiptap/react'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
+import { ReactRenderer } from '@tiptap/react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
 import { LinkPastePopup } from '../LinkPastePopup'
@@ -40,7 +40,6 @@ export const LinkPasteHandler = Extension.create({
 
             // Find the DOM element of the just-inserted link to anchor the popup
             const { from } = editor.state.selection
-            const resolvedPos = editor.state.doc.resolve(from)
             const linkStart = from - text.length
             const linkEnd = from
 

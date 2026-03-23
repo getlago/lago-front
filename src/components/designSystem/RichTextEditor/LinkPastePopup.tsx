@@ -4,6 +4,11 @@ import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 
+export const LINK_PASTE_POPUP_TEST_ID = 'link-paste-popup'
+export const LINK_PASTE_POPUP_URL_TEST_ID = 'link-paste-popup-url'
+export const LINK_PASTE_POPUP_CARD_BUTTON_TEST_ID = 'link-paste-popup-card-button'
+export const LINK_PASTE_POPUP_TEXT_BUTTON_TEST_ID = 'link-paste-popup-text-button'
+
 interface LinkPastePopupProps {
   url: string
   onDisplayAsCard: () => void
@@ -46,14 +51,21 @@ export const LinkPastePopup = ({ url, onDisplayAsCard, onKeepAsText }: LinkPaste
   }, [selectedIndex, execute])
 
   return (
-    <div className="w-72 overflow-hidden rounded-xl bg-white shadow-md">
+    <div
+      data-test={LINK_PASTE_POPUP_TEST_ID}
+      className="w-72 overflow-hidden rounded-xl bg-white shadow-md"
+    >
       <MenuPopper>
-        <div className="border-b border-grey-200 px-3 py-2">
+        <div
+          data-test={LINK_PASTE_POPUP_URL_TEST_ID}
+          className="border-b border-grey-200 px-3 py-2"
+        >
           <Typography variant="captionHl" color="grey600" noWrap>
             {url}
           </Typography>
         </div>
         <Button
+          data-test={LINK_PASTE_POPUP_CARD_BUTTON_TEST_ID}
           variant={selectedIndex === 0 ? 'secondary' : 'quaternary'}
           align="left"
           fullWidth
@@ -64,6 +76,7 @@ export const LinkPastePopup = ({ url, onDisplayAsCard, onKeepAsText }: LinkPaste
           </Typography>
         </Button>
         <Button
+          data-test={LINK_PASTE_POPUP_TEXT_BUTTON_TEST_ID}
           variant={selectedIndex === 1 ? 'secondary' : 'quaternary'}
           align="left"
           fullWidth

@@ -1,4 +1,4 @@
-import { Node, mergeAttributes } from '@tiptap/core'
+import { mergeAttributes, Node } from '@tiptap/core'
 
 export interface LinkCardAttributes {
   href: string
@@ -43,16 +43,8 @@ export const LinkCard = Node.create({
           rel: 'noopener noreferrer',
           class: 'link-card__anchor',
         },
-        [
-          'span',
-          { class: 'link-card__domain' },
-          domain,
-        ],
-        [
-          'span',
-          { class: 'link-card__url' },
-          href,
-        ],
+        ['span', { class: 'link-card__domain' }, domain],
+        ['span', { class: 'link-card__url' }, href],
       ],
     ]
   },

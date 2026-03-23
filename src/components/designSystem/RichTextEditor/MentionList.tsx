@@ -5,6 +5,9 @@ import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 
+export const MENTION_LIST_CONTAINER_TEST_ID = 'mention-list-container'
+export const MENTION_LIST_ITEM_TEST_ID = 'mention-list-item'
+
 export interface MentionItem {
   id: string
   label: string
@@ -58,12 +61,16 @@ export const MentionList = forwardRef<MentionListRef, MentionListProps>(
     if (!items.length) return null
 
     return (
-      <div className="max-h-64 w-64 overflow-y-auto rounded-xl bg-white shadow-md">
+      <div
+        data-test={MENTION_LIST_CONTAINER_TEST_ID}
+        className="max-h-64 w-64 overflow-y-auto rounded-xl bg-white shadow-md"
+      >
         <MenuPopper>
           {items.map((item, index) => (
             <Button
               ref={setItemRef(index)}
               key={item.id}
+              data-test={`${MENTION_LIST_ITEM_TEST_ID}-${index}`}
               variant={index === selectedIndex ? 'secondary' : 'quaternary'}
               align="left"
               fullWidth

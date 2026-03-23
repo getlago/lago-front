@@ -115,8 +115,14 @@ describe('SlashCommands', () => {
       ])('WHEN "%s" command is called THEN should invoke editor chain', (_, index) => {
         const mockEditor = createMockEditor()
 
+<<<<<<< HEAD
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         slashCommandDefinitions[index as number].command(mockEditor as any)
+=======
+        slashCommandItems[index].command(
+          mockEditor as unknown as Parameters<(typeof slashCommandItems)[number]['command']>[0],
+        )
+>>>>>>> 174b2a673 (test: add more tests)
 
         expect(mockEditor.chain).toHaveBeenCalled()
         expect(mockEditor.runMock).toHaveBeenCalled()
