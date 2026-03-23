@@ -9,6 +9,7 @@ import {
   FORM_DIALOG_OPENING_DIALOG_NAME,
 } from '~/components/dialogs/const'
 import FormDialogOpeningDialog from '~/components/dialogs/FormDialogOpeningDialog'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { initializeTranslations } from '~/core/apolloClient'
 import { GetOktaIntegrationDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
@@ -69,6 +70,7 @@ async function prepare({ mocks = successMocks }: { mocks?: TestMocksType } = {})
   await act(() =>
     render(
       <NiceModalWrapper>
+        <MainHeader />
         <OktaAuthenticationDetails />
       </NiceModalWrapper>,
       { mocks },

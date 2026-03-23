@@ -7,36 +7,27 @@ import { CreditNoteDetailsExternalSync } from '~/components/creditNote/CreditNot
 import { CreditNoteDetailsOverview } from '~/components/creditNote/CreditNoteDetailsOverview'
 import {
   CREDIT_NOTE_TYPE_TRANSLATIONS_MAP,
-  CreditNoteType,
   getCreditNoteTypes,
 } from '~/components/creditNote/utils'
 import {
   VoidCreditNoteDialog,
   VoidCreditNoteDialogRef,
 } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
-import { Button } from '~/components/designSystem/Button'
-import { Chip } from '~/components/designSystem/Chip'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { NavigationTab } from '~/components/designSystem/NavigationTab'
-import { Popper } from '~/components/designSystem/Popper'
-import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Typography } from '~/components/designSystem/Typography'
+import { StatusType } from '~/components/designSystem/Status'
 import { buildCreditNoteDocumentData } from '~/components/emails/buildDocumentData'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MainHeaderAction } from '~/components/MainHeader/types'
+import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
-import {
-  CreditNoteDetailsTabsOptionsEnum,
-  CustomerDetailsTabsOptions,
-  CustomerInvoiceDetailsTabsOptionsEnum,
-} from '~/core/constants/tabsOptions'
+import { CreditNoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
+  CREDIT_NOTES_ROUTE,
   CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
-  CUSTOMER_DETAILS_TAB_ROUTE,
-  CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE,
-  CUSTOMER_INVOICE_DETAILS_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -49,13 +40,11 @@ import {
   useSyncIntegrationCreditNoteMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 import { useDownloadCreditNote } from '~/pages/creditNoteDetails/common/useDownloadCreditNote'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { MenuPopper, PageHeader } from '~/styles'
 
 import CreditNoteDetailsMetadata from './creditNoteDetailsMetadata/CreditNoteDetailsMetadata'
 
@@ -115,11 +104,11 @@ gql`
 
 const CreditNoteDetails = () => {
   const { translate } = useInternationalization()
-  const { goBack } = useLocationHistory()
   const { hasPermissions } = usePermissions()
   const { customerId, invoiceId, creditNoteId } = useParams()
   const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
   const { isPremium } = useCurrentUser()
+  const activeTabContent = useMainHeaderTabContent()
 
   const {
     downloadCreditNote,
@@ -173,22 +162,6 @@ const CreditNoteDetails = () => {
     await retryTaxReporting()
   }
 
-  const onGoBack = () => {
-    goBack(
-      invoiceId
-        ? generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-            customerId: customerId as string,
-            invoiceId,
-            tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-          })
-        : generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-            customerId: customerId as string,
-            tab: CustomerDetailsTabsOptions.creditNotes,
-          }),
-      { exclude: [CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE] },
-    )
-  }
-
   const hasIntegration = {
     netsuite:
       !!creditNote?.customer.netsuiteCustomer?.integrationId && creditNote?.externalIntegrationId,
@@ -236,154 +209,245 @@ const CreditNoteDetails = () => {
     })
   }
 
+  const headerActions: MainHeaderAction[] = [
+    {
+      type: 'dropdown',
+      label: translate('text_637655cb50f04bf1c8379ce8'),
+      items: [
+        {
+          label: translate('text_637655cb50f04bf1c8379cee'),
+          onClick: (closePopper) => {
+            copyToClipboard(creditNote?.id || '')
+            addToast({
+              severity: 'info',
+              translateKey: 'text_63766b1c4eeb35667c48f26d',
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_637655cb50f04bf1c8379cea'),
+          hidden: !actions.canDownload || !!canDownloadXmlFile,
+          disabled: !!loadingCreditNoteDownload,
+          onClick: async (closePopper) => {
+            await downloadCreditNote({
+              variables: { input: { id: creditNote?.id || '' } },
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_17604478530211cbzl70dt83'),
+          hidden: !actions.canDownload || !canDownloadXmlFile,
+          disabled: !!loadingCreditNoteDownload,
+          onClick: async (closePopper) => {
+            await downloadCreditNote({
+              variables: { input: { id: creditNote?.id || '' } },
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1760447853022mkp6gwgqukb'),
+          hidden: !canDownloadXmlFile,
+          disabled: !!loadingCreditNoteXmlDownload,
+          onClick: async (closePopper) => {
+            await downloadCreditNoteXml({
+              variables: { input: { id: creditNote?.id || '' } },
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1770392315728uyw3zhs7kzh'),
+          hidden: !actions.canResendEmail,
+          onClick: (closePopper) => {
+            resendEmail()
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_637655cb50f04bf1c8379cec'),
+          hidden: !actions.canVoid,
+          onClick: (closePopper) => {
+            if (!creditNote?.id) return
+
+            voidCreditNoteDialogRef.current?.openDialog({
+              id: creditNote?.id,
+              totalAmountCents: creditNote?.totalAmountCents,
+              currency: creditNote?.currency,
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate(
+            creditNote?.customer.netsuiteCustomer
+              ? 'text_665d742ee9853200e3a6be7f'
+              : 'text_66911d4b4b3c3e005c62ab49',
+          ),
+          hidden: !actions.canSync,
+          disabled: loadingSyncIntegrationCreditNote,
+          onClick: async (closePopper) => {
+            await syncIntegrationCreditNote()
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_17270681462632d46dh3r1vu'),
+          hidden: !actions.canRetryTaxSync,
+          disabled: loadingSyncIntegrationCreditNote,
+          onClick: async (closePopper) => {
+            await retryTaxSync()
+            closePopper()
+          },
+        },
+      ],
+    },
+  ]
+
+  const creditNoteTypes = getCreditNoteTypes({
+    creditAmountCents: creditNote?.creditAmountCents,
+    refundAmountCents: creditNote?.refundAmountCents,
+    offsetAmountCents: creditNote?.offsetAmountCents,
+  })
+
+  const headerEntity = {
+    viewName: creditNote?.number || '',
+    metadata: `${translate('text_637655cb50f04bf1c8379cf2', {
+      amount: intlFormatNumber(
+        deserializeAmount(
+          creditNote?.totalAmountCents || 0,
+          creditNote?.currency || CurrencyEnum.Usd,
+        ),
+        {
+          currencyDisplay: 'symbol',
+          currency: creditNote?.currency || CurrencyEnum.Usd,
+        },
+      ),
+    })} • ${creditNote?.id}`,
+    badges: creditNoteTypes.map((type) => ({
+      type: StatusType.default,
+      label: translate(CREDIT_NOTE_TYPE_TRANSLATIONS_MAP[type]),
+    })),
+  }
+
+  const tabs = [
+    {
+      title: translate('text_637655cb50f04bf1c8379cfa'),
+      link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
+        customerId: customerId as string,
+        invoiceId: invoiceId as string,
+        creditNoteId: creditNoteId as string,
+        tab: CreditNoteDetailsTabsOptionsEnum.overview,
+      }),
+      match: [
+        generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
+          customerId: customerId as string,
+          invoiceId: invoiceId as string,
+          creditNoteId: creditNoteId as string,
+        }),
+        generatePath(CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE, {
+          customerId: customerId as string,
+          creditNoteId: creditNoteId as string,
+        }),
+        generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
+          customerId: customerId as string,
+          invoiceId: invoiceId as string,
+          creditNoteId: creditNoteId as string,
+          tab: CreditNoteDetailsTabsOptionsEnum.overview,
+        }),
+      ],
+      content: (
+        <DetailsPage.Container>
+          <CreditNoteDetailsOverview
+            loadingCreditNoteDownload={loadingCreditNoteDownload}
+            downloadCreditNote={downloadCreditNote}
+            downloadCreditNoteXml={downloadCreditNoteXml}
+          />
+          <CreditNoteDetailsMetadata creditNote={creditNote} />
+        </DetailsPage.Container>
+      ),
+    },
+    {
+      title: translate('text_17489570558986035g3zp16t'),
+      link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
+        customerId: customerId as string,
+        invoiceId: invoiceId as string,
+        creditNoteId: creditNoteId as string,
+        tab: CreditNoteDetailsTabsOptionsEnum.externalSync,
+      }),
+      match: [
+        generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
+          customerId: customerId as string,
+          invoiceId: invoiceId as string,
+          creditNoteId: creditNoteId as string,
+        }),
+        generatePath(CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE, {
+          customerId: customerId as string,
+          creditNoteId: creditNoteId as string,
+        }),
+        generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
+          customerId: customerId as string,
+          invoiceId: invoiceId as string,
+          creditNoteId: creditNoteId as string,
+          tab: CreditNoteDetailsTabsOptionsEnum.externalSync,
+        }),
+      ],
+      content: (
+        <DetailsPage.Container>
+          <CreditNoteDetailsExternalSync retryTaxSync={retryTaxSync} />
+        </DetailsPage.Container>
+      ),
+      hidden: !canShowExternalSyncTab,
+    },
+    {
+      title: translate('text_1747314141347qq6rasuxisl'),
+      link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
+        customerId: customerId as string,
+        invoiceId: invoiceId as string,
+        creditNoteId: creditNoteId as string,
+        tab: CreditNoteDetailsTabsOptionsEnum.activityLogs,
+      }),
+      match: [
+        generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
+          customerId: customerId as string,
+          invoiceId: invoiceId as string,
+          creditNoteId: creditNoteId as string,
+        }),
+        generatePath(CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE, {
+          customerId: customerId as string,
+          creditNoteId: creditNoteId as string,
+        }),
+        generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
+          customerId: customerId as string,
+          invoiceId: invoiceId as string,
+          creditNoteId: creditNoteId as string,
+          tab: CreditNoteDetailsTabsOptionsEnum.activityLogs,
+        }),
+      ],
+      content: (
+        <DetailsPage.Container>
+          <CreditNoteDetailsActivityLogs creditNoteId={creditNoteId as string} />
+        </DetailsPage.Container>
+      ),
+      hidden: !creditNoteId || !isPremium || !hasPermissions(['auditLogsView']),
+    },
+  ]
+
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <Button icon="arrow-left" variant="quaternary" onClick={onGoBack} />
-          {loading ? (
-            <Skeleton variant="text" className="w-30" />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary">
-              {creditNote?.number}
-            </Typography>
-          )}
-        </PageHeader.Group>
+      <MainHeader.Configure
+        breadcrumb={[
+          { label: translate('text_66461ada56a84401188e8c63'), path: CREDIT_NOTES_ROUTE },
+        ]}
+        entity={headerEntity}
+        actions={headerActions}
+        tabs={tabs}
+        isLoading={loading}
+      />
 
-        {!hasError && !loading && (
-          <Popper
-            PopperProps={{ placement: 'bottom-end' }}
-            opener={
-              <Button endIcon="chevron-down">{translate('text_637655cb50f04bf1c8379ce8')}</Button>
-            }
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
-                {actions.canCopy && (
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    onClick={() => {
-                      copyToClipboard(creditNote?.id || '')
-                      addToast({
-                        severity: 'info',
-                        translateKey: 'text_63766b1c4eeb35667c48f26d',
-                      })
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_637655cb50f04bf1c8379cee')}
-                  </Button>
-                )}
-                {actions.canDownload && !canDownloadXmlFile && (
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    disabled={!!loadingCreditNoteDownload}
-                    onClick={async () => {
-                      await downloadCreditNote({
-                        variables: { input: { id: creditNote?.id || '' } },
-                      })
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_637655cb50f04bf1c8379cea')}
-                  </Button>
-                )}
-                {actions.canDownload && canDownloadXmlFile && (
-                  <>
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      disabled={!!loadingCreditNoteDownload}
-                      onClick={async () => {
-                        await downloadCreditNote({
-                          variables: { input: { id: creditNote?.id || '' } },
-                        })
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_17604478530211cbzl70dt83')}
-                    </Button>
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      disabled={!!loadingCreditNoteXmlDownload}
-                      onClick={async () => {
-                        await downloadCreditNoteXml({
-                          variables: { input: { id: creditNote?.id || '' } },
-                        })
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_1760447853022mkp6gwgqukb')}
-                    </Button>
-                  </>
-                )}
-                {actions.canResendEmail && (
-                  <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
-                    {translate('text_1770392315728uyw3zhs7kzh')}
-                  </Button>
-                )}
-                {actions.canVoid && (
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    onClick={async () => {
-                      if (!creditNote?.id) return
-
-                      voidCreditNoteDialogRef.current?.openDialog({
-                        id: creditNote?.id,
-                        totalAmountCents: creditNote?.totalAmountCents,
-                        currency: creditNote?.currency,
-                      })
-
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_637655cb50f04bf1c8379cec')}
-                  </Button>
-                )}
-
-                {actions.canSync && (
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    disabled={loadingSyncIntegrationCreditNote}
-                    onClick={async () => {
-                      await syncIntegrationCreditNote()
-
-                      closePopper()
-                    }}
-                  >
-                    {translate(
-                      creditNote?.customer.netsuiteCustomer
-                        ? 'text_665d742ee9853200e3a6be7f'
-                        : 'text_66911d4b4b3c3e005c62ab49',
-                    )}
-                  </Button>
-                )}
-                {actions.canRetryTaxSync && (
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    disabled={loadingSyncIntegrationCreditNote}
-                    onClick={async () => {
-                      await retryTaxSync()
-
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_17270681462632d46dh3r1vu')}
-                  </Button>
-                )}
-              </MenuPopper>
-            )}
-          </Popper>
-        )}
-      </PageHeader.Wrapper>
-
-      {hasError && (
+      {hasError ? (
         <GenericPlaceholder
           title={translate('text_634812d6f16b31ce5cbf4111')}
           subtitle={translate('text_634812d6f16b31ce5cbf411f')}
@@ -392,151 +456,8 @@ const CreditNoteDetails = () => {
           buttonAction={() => location.reload()}
           image={<ErrorImage width="136" height="104" />}
         />
-      )}
-
-      {!hasError && (
-        <>
-          <DetailsPage.Header
-            className="shadow-none shadow-inherit"
-            isLoading={loading}
-            icon="document"
-            title={
-              <div className="flex flex-row items-center gap-2">
-                <Typography variant="headline" color="grey700">
-                  {creditNote?.number}
-                </Typography>
-                {getCreditNoteTypes({
-                  creditAmountCents: creditNote?.creditAmountCents,
-                  refundAmountCents: creditNote?.refundAmountCents,
-                  offsetAmountCents: creditNote?.offsetAmountCents,
-                }).map((type) => (
-                  <Chip
-                    key={type}
-                    label={translate(CREDIT_NOTE_TYPE_TRANSLATIONS_MAP[type as CreditNoteType])}
-                  />
-                ))}
-              </div>
-            }
-            description={`${translate('text_637655cb50f04bf1c8379cf2', {
-              amount: intlFormatNumber(
-                deserializeAmount(
-                  creditNote?.totalAmountCents || 0,
-                  creditNote?.currency || CurrencyEnum.Usd,
-                ),
-                {
-                  currencyDisplay: 'symbol',
-                  currency: creditNote?.currency || CurrencyEnum.Usd,
-                },
-              ),
-            })} • ${creditNote?.id}`}
-          />
-
-          <NavigationTab
-            className="mx-12"
-            tabs={[
-              {
-                title: translate('text_637655cb50f04bf1c8379cfa'),
-                link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
-                  customerId: customerId as string,
-                  invoiceId: invoiceId as string,
-                  creditNoteId: creditNoteId as string,
-                  tab: CreditNoteDetailsTabsOptionsEnum.overview,
-                }),
-                match: [
-                  generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
-                    customerId: customerId as string,
-                    invoiceId: invoiceId as string,
-                    creditNoteId: creditNoteId as string,
-                  }),
-                  generatePath(CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE, {
-                    customerId: customerId as string,
-                    creditNoteId: creditNoteId as string,
-                  }),
-                  generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
-                    customerId: customerId as string,
-                    invoiceId: invoiceId as string,
-                    creditNoteId: creditNoteId as string,
-                    tab: CreditNoteDetailsTabsOptionsEnum.overview,
-                  }),
-                ],
-                component: (
-                  <DetailsPage.Container className="max-w-none">
-                    <CreditNoteDetailsOverview
-                      loadingCreditNoteDownload={loadingCreditNoteDownload}
-                      downloadCreditNote={downloadCreditNote}
-                      downloadCreditNoteXml={downloadCreditNoteXml}
-                    />
-                    <CreditNoteDetailsMetadata creditNote={creditNote} />
-                  </DetailsPage.Container>
-                ),
-              },
-              {
-                title: translate('text_17489570558986035g3zp16t'),
-                link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
-                  customerId: customerId as string,
-                  invoiceId: invoiceId as string,
-                  creditNoteId: creditNoteId as string,
-                  tab: CreditNoteDetailsTabsOptionsEnum.externalSync,
-                }),
-                match: [
-                  generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
-                    customerId: customerId as string,
-                    invoiceId: invoiceId as string,
-                    creditNoteId: creditNoteId as string,
-                  }),
-                  generatePath(CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE, {
-                    customerId: customerId as string,
-                    creditNoteId: creditNoteId as string,
-                  }),
-                  generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
-                    customerId: customerId as string,
-                    invoiceId: invoiceId as string,
-                    creditNoteId: creditNoteId as string,
-                    tab: CreditNoteDetailsTabsOptionsEnum.externalSync,
-                  }),
-                ],
-                component: (
-                  <DetailsPage.Container className="max-w-none">
-                    <CreditNoteDetailsExternalSync retryTaxSync={retryTaxSync} />
-                  </DetailsPage.Container>
-                ),
-                hidden: !canShowExternalSyncTab,
-              },
-              {
-                title: translate('text_1747314141347qq6rasuxisl'),
-                link: generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
-                  customerId: customerId as string,
-                  invoiceId: invoiceId as string,
-                  creditNoteId: creditNoteId as string,
-                  tab: CreditNoteDetailsTabsOptionsEnum.activityLogs,
-                }),
-                match: [
-                  generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
-                    customerId: customerId as string,
-                    invoiceId: invoiceId as string,
-                    creditNoteId: creditNoteId as string,
-                  }),
-                  generatePath(CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE, {
-                    customerId: customerId as string,
-                    creditNoteId: creditNoteId as string,
-                  }),
-                  generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE, {
-                    customerId: customerId as string,
-                    invoiceId: invoiceId as string,
-                    creditNoteId: creditNoteId as string,
-                    tab: CreditNoteDetailsTabsOptionsEnum.activityLogs,
-                  }),
-                ],
-                component: (
-                  <DetailsPage.Container className="max-w-none">
-                    <CreditNoteDetailsActivityLogs creditNoteId={creditNoteId as string} />
-                  </DetailsPage.Container>
-                ),
-                hidden: !creditNoteId || !isPremium || !hasPermissions(['auditLogsView']),
-              },
-            ]}
-          />
-        </>
+      ) : (
+        <>{activeTabContent}</>
       )}
 
       <VoidCreditNoteDialog ref={voidCreditNoteDialogRef} />

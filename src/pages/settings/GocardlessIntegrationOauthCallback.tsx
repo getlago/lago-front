@@ -2,12 +2,9 @@ import { gql } from '@apollo/client'
 import { useEffect } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Spinner } from '~/components/designSystem/Spinner'
-import { Typography } from '~/components/designSystem/Typography'
-import { IntegrationsPage } from '~/components/layouts/Integrations'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { GOCARDLESS_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
@@ -18,7 +15,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Gocardless from '~/public/images/gocardless.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { PageHeader } from '~/styles'
 
 gql`
   fragment GocardlessIntegrationOauthCallback on GocardlessProvider {
@@ -86,32 +82,22 @@ const GocardlessIntegrationOauthCallback = () => {
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <ButtonLink
-            disabled={loading}
-            to={generatePath(INTEGRATIONS_ROUTE, {
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: translate('text_62b1edddbf5f461ab9712750'),
+            path: generatePath(INTEGRATIONS_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-            })}
-            type="button"
-            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
-          />
-          {loading ? (
-            <Skeleton variant="text" className="w-30" />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_634ea0ecc6147de10ddb6625')}
-            </Typography>
-          )}
-        </PageHeader.Group>
-      </PageHeader.Wrapper>
-
-      <IntegrationsPage.Header
+            }),
+          },
+        ]}
+        entity={{
+          viewName: translate('text_634ea0ecc6147de10ddb6625'),
+          metadata: translate('text_62b1edddbf5f461ab971271f'),
+          badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
+          icon: <Gocardless />,
+        }}
         isLoading={loading}
-        integrationLogo={<Gocardless />}
-        integrationName={translate('text_634ea0ecc6147de10ddb6625')}
-        integrationChip={translate('text_62b1edddbf5f461ab971270d')}
-        integrationDescription={translate('text_62b1edddbf5f461ab971271f')}
       />
 
       {loading || !error ? (

@@ -2,6 +2,7 @@ import {
   CREATE_CUSTOMER_DATA_TEST,
   SUBMIT_CUSTOMER_DATA_TEST,
 } from '~/components/customers/utils/dataTestConstants'
+import { DESKTOP_ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
 
 import { customerName } from '../../support/reusableConstants'
 
@@ -12,7 +13,10 @@ describe('Create customer', () => {
 
   it('should create customer', () => {
     const randomNumber = Math.round(Math.random() * 1000)
-    cy.get(`[data-test="${CREATE_CUSTOMER_DATA_TEST}"]`).click()
+
+    cy.get(
+      `[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="${CREATE_CUSTOMER_DATA_TEST}"]`,
+    ).click()
 
     cy.url().should('include', '/customer/create')
 
@@ -33,7 +37,9 @@ describe('Create customer', () => {
       const randomNumber = Math.round(Math.random() * 1000)
       const randomId = `Customer ${randomNumber}`
 
-      cy.get(`[data-test="${CREATE_CUSTOMER_DATA_TEST}"]`).click()
+      cy.get(
+        `[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="${CREATE_CUSTOMER_DATA_TEST}"]`,
+      ).click()
       cy.get('input[name="name"]').type(randomId)
       cy.get(`[data-test="${SUBMIT_CUSTOMER_DATA_TEST}"]`).click()
       // Check validation for external ID

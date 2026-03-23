@@ -10,13 +10,10 @@ import {
   TerminateCouponDialogRef,
 } from '~/components/coupons/TerminateCouponDialog'
 import { formatCouponValue } from '~/components/coupons/utils'
-import { Button } from '~/components/designSystem/Button'
-import { NavigationTab } from '~/components/designSystem/NavigationTab'
-import { Popper } from '~/components/designSystem/Popper'
-import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Tooltip } from '~/components/designSystem/Tooltip'
-import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MainHeaderAction } from '~/components/MainHeader/types'
+import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
 import {
@@ -28,7 +25,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
-import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
   fragment CouponDetailsForHeader on Coupon {
@@ -73,121 +69,69 @@ const CouponDetails = () => {
 
   const coupon = data?.coupon
 
-  const shouldShowActions = hasPermissions(['couponsCreate', 'couponsUpdate', 'couponsDelete'])
+  const isTerminated = coupon?.status === CouponStatusEnum.Terminated
+
+  const actions: MainHeaderAction[] = [
+    {
+      type: 'dropdown',
+      label: translate('text_626162c62f790600f850b6fe'),
+      dataTest: 'coupon-details-actions',
+      items: [
+        {
+          label: translate('text_625fd39a15394c0117e7d792'),
+          dataTest: 'coupon-details-edit',
+          hidden: !hasPermissions(['couponsUpdate']),
+          disabled: isTerminated,
+          onClick: (closePopper) => {
+            navigate(generatePath(UPDATE_COUPON_ROUTE, { couponId: couponId as string }))
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_62876a50ea3bba00b56d2cbc'),
+          hidden: !coupon || !hasPermissions(['couponsUpdate']),
+          disabled: isTerminated,
+          onClick: (closePopper) => {
+            if (coupon) terminateDialogRef.current?.openDialog(coupon)
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_629728388c4d2300e2d38182'),
+          hidden: !coupon || !hasPermissions(['couponsDelete']),
+          dataTest: 'coupon-details-delete',
+          onClick: (closePopper) => {
+            if (!coupon) return
+
+            deleteDialogRef.current?.openDialog({
+              couponId: coupon.id,
+              callback: () => {
+                navigate(COUPONS_ROUTE)
+              },
+            })
+            closePopper()
+          },
+        },
+      ],
+    },
+  ]
+
+  const activeTabContent = useMainHeaderTabContent()
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group className="overflow-hidden">
-          <Button
-            icon="arrow-left"
-            variant="quaternary"
-            onClick={() => {
-              navigate(COUPONS_ROUTE)
-            }}
-          />
-          {loading && !coupon ? (
-            <Skeleton variant="text" className="w-50" />
-          ) : (
-            <Typography
-              variant="bodyHl"
-              color="textSecondary"
-              noWrap
-              data-test="coupon-details-name"
-            >
-              {coupon?.name}
-            </Typography>
-          )}
-        </PageHeader.Group>
-
-        {shouldShowActions && (
-          <Popper
-            PopperProps={{ placement: 'bottom-end' }}
-            opener={
-              <Button endIcon="chevron-down" data-test="coupon-details-actions">
-                {translate('text_626162c62f790600f850b6fe')}
-              </Button>
-            }
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
-                <Tooltip
-                  title={translate('text_62878d88ea3bba00b56d3412')}
-                  disableHoverListener={coupon?.status !== CouponStatusEnum.Terminated}
-                >
-                  <Button
-                    fullWidth
-                    data-test="coupon-details-edit"
-                    variant="quaternary"
-                    align="left"
-                    disabled={coupon?.status === CouponStatusEnum.Terminated}
-                    onClick={() => {
-                      navigate(generatePath(UPDATE_COUPON_ROUTE, { couponId: couponId as string }))
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_625fd39a15394c0117e7d792')}
-                  </Button>
-                </Tooltip>
-                {coupon && (
-                  <>
-                    <Tooltip
-                      title={translate('text_62878d88ea3bba00b56d33cf')}
-                      disableHoverListener={coupon?.status !== CouponStatusEnum.Terminated}
-                    >
-                      <Button
-                        fullWidth
-                        variant="quaternary"
-                        align="left"
-                        disabled={coupon?.status === CouponStatusEnum.Terminated}
-                        onClick={() => {
-                          terminateDialogRef.current?.openDialog(coupon)
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_62876a50ea3bba00b56d2cbc')}
-                      </Button>
-                    </Tooltip>
-                    <Button
-                      fullWidth
-                      data-test="coupon-details-delete"
-                      variant="quaternary"
-                      align="left"
-                      onClick={() => {
-                        deleteDialogRef.current?.openDialog({
-                          couponId: coupon.id,
-                          callback: () => {
-                            navigate(COUPONS_ROUTE)
-                          },
-                        })
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_629728388c4d2300e2d38182')}
-                    </Button>
-                  </>
-                )}
-              </MenuPopper>
-            )}
-          </Popper>
-        )}
-      </PageHeader.Wrapper>
-
-      <DetailsPage.Header
-        isLoading={loading}
-        icon="coupon"
-        title={coupon?.name || ''}
-        description={`${formatCouponValue({
-          couponType: coupon?.couponType,
-          percentageRate: coupon?.percentageRate,
-          amountCents: coupon?.amountCents,
-          amountCurrency: coupon?.amountCurrency,
-        })} ${coupon?.frequency}`}
-      />
-
-      <NavigationTab
-        className="px-4 md:px-12"
-        loading={loading}
+      <MainHeader.Configure
+        breadcrumb={[{ label: translate('text_62865498824cc10126ab2956'), path: COUPONS_ROUTE }]}
+        entity={{
+          viewName: coupon?.name || '',
+          metadata: `${formatCouponValue({
+            couponType: coupon?.couponType,
+            percentageRate: coupon?.percentageRate,
+            amountCents: coupon?.amountCents,
+            amountCurrency: coupon?.amountCurrency,
+          })} ${coupon?.frequency}`,
+        }}
+        actions={actions}
         tabs={[
           {
             title: translate('text_628cf761cbe6820138b8f2e4'),
@@ -195,7 +139,7 @@ const CouponDetails = () => {
               couponId: couponId as string,
               tab: CouponDetailsTabsOptionsEnum.overview,
             }),
-            component: (
+            content: (
               <DetailsPage.Container>
                 <CouponDetailsOverview />
               </DetailsPage.Container>
@@ -207,15 +151,18 @@ const CouponDetails = () => {
               couponId: couponId as string,
               tab: CouponDetailsTabsOptionsEnum.activityLogs,
             }),
-            component: (
-              <DetailsPage.Container className="max-w-none">
+            content: (
+              <DetailsPage.Container>
                 <CouponDetailsActivityLogs couponId={couponId as string} />
               </DetailsPage.Container>
             ),
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
+        isLoading={loading}
       />
+
+      <>{activeTabContent}</>
 
       <DeleteCouponDialog ref={deleteDialogRef} />
       <TerminateCouponDialog ref={terminateDialogRef} />

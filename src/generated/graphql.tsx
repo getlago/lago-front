@@ -12715,7 +12715,7 @@ export type AddOnsQueryVariables = Exact<{
 }>;
 
 
-export type AddOnsQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customersCount: number, createdAt: any }> } };
+export type AddOnsQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, amountCurrency: CurrencyEnum, amountCents: any, customersCount: number, createdAt: any }> } };
 
 export type GetSubscriptionInfosQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -12779,7 +12779,7 @@ export type BillableMetricsQueryVariables = Exact<{
 }>;
 
 
-export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any }> } };
+export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any }> } };
 
 export type CouponDetailsForHeaderFragment = { __typename?: 'Coupon', name: string, status: CouponStatusEnum, couponType: CouponTypeEnum, percentageRate?: number | null, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, frequency: CouponFrequency };
 
@@ -12799,7 +12799,7 @@ export type CouponsQueryVariables = Exact<{
 }>;
 
 
-export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customersCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number }> } };
+export type CouponsQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, customersCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, appliedCouponsCount: number }> } };
 
 export type EditBillableMetricFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, expression?: string | null, description?: string | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, hasSubscriptions: boolean, hasPlans: boolean, recurring: boolean, roundingFunction?: RoundingFunctionEnum | null, roundingPrecision?: number | null, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string> }> | null };
 
@@ -13087,7 +13087,7 @@ export type CustomersQueryVariables = Exact<{
 }>;
 
 
-export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, createdAt: any, activeSubscriptionsCount: number, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, customerType?: CustomerTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string }, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null }> } };
+export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, createdAt: any, activeSubscriptionsCount: number, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, customerType?: CustomerTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string }, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null }> } };
 
 export type GetinviteQueryVariables = Exact<{
   token: Scalars['String']['input'];
@@ -13225,7 +13225,7 @@ export type PlansQueryVariables = Exact<{
 }>;
 
 
-export type PlansQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, activeSubscriptionsCount: number, createdAt: any, draftInvoicesCount: number }> } };
+export type PlansQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, activeSubscriptionsCount: number, createdAt: any, draftInvoicesCount: number }> } };
 
 export type SubscriptionForSubscriptionsListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, payInAdvance: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null };
 
@@ -13550,7 +13550,7 @@ export type GetFeaturesListQueryVariables = Exact<{
 }>;
 
 
-export type GetFeaturesListQuery = { __typename?: 'Query', features: { __typename?: 'FeatureObjectCollection', collection: Array<{ __typename?: 'FeatureObject', id: string, name?: string | null, code: string, createdAt: any, subscriptionsCount: number }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
+export type GetFeaturesListQuery = { __typename?: 'Query', features: { __typename?: 'FeatureObjectCollection', collection: Array<{ __typename?: 'FeatureObject', id: string, name?: string | null, code: string, createdAt: any, subscriptionsCount: number }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type GetForecastsQueryVariables = Exact<{
   billableMetricCode?: InputMaybe<Scalars['String']['input']>;
@@ -32343,6 +32343,7 @@ export const AddOnsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       id
@@ -32716,6 +32717,7 @@ export const BillableMetricsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       ...BillableMetricItem
@@ -32815,6 +32817,7 @@ export const CouponsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       ...CouponItem
@@ -34294,6 +34297,7 @@ export const CustomersDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       ...CustomerItem
@@ -34888,6 +34892,7 @@ export const PlansDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       ...PlanItem
@@ -36492,6 +36497,7 @@ export const GetFeaturesListDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }

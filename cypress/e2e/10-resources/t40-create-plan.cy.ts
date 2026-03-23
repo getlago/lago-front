@@ -1,3 +1,5 @@
+import { DESKTOP_ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
+
 import { planWithChargesName } from '../../support/reusableConstants'
 
 describe('Create plan', () => {
@@ -6,7 +8,9 @@ describe('Create plan', () => {
   })
 
   it('should be able to access plans', () => {
-    cy.get('[data-test="create-plan"]').should('exist')
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).should(
+      'exist',
+    )
     cy.get('[data-test="empty-state"]').should('exist')
   })
 
@@ -15,7 +19,9 @@ describe('Create plan', () => {
     const planName = `plan ${randomId}`
     const planCode = `plan_${randomId}`
 
-    cy.get('[data-test="create-plan"]').click({ force: true })
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
+      force: true,
+    })
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
     cy.get('input[name="name"]').type(planName)
     cy.get('input[name="code"]').should('have.value', planCode)
@@ -28,7 +34,9 @@ describe('Create plan', () => {
   })
 
   it.skip('should be able to create a plan with all 0 dimension charges and submit', () => {
-    cy.get('[data-test="create-plan"]').click({ force: true })
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
+      force: true,
+    })
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
     cy.get('input[name="name"]').type(planWithChargesName)
     cy.get('[data-test="submit"]').should('be.disabled')
@@ -151,7 +159,9 @@ describe('Create plan', () => {
       const planCode = `plan_${randomId}`
 
       // Default plan data
-      cy.get('[data-test="create-plan"]').click({ force: true })
+      cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
+        force: true,
+      })
       cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
       cy.get('input[name="name"]').type(planName)
       cy.get('input[name="code"]').should('have.value', planCode)

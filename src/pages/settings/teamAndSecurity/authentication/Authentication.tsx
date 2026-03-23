@@ -8,13 +8,12 @@ import { Chip } from '~/components/designSystem/Chip'
 import { Popper } from '~/components/designSystem/Popper'
 import { Selector } from '~/components/designSystem/Selector'
 import { Tooltip } from '~/components/designSystem/Tooltip'
-import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   SettingsListItem,
+  SettingsListItemHeader,
   SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
-  SettingsPageHeaderContainer,
   SettingsWithTabsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { OKTA_AUTHENTICATION_ROUTE } from '~/core/router'
@@ -275,16 +274,15 @@ const Authentication = () => {
 
   return (
     <SettingsWithTabsPaddedContainer>
-      <SettingsPageHeaderContainer>
-        <Typography variant="headline">{translate('text_664c732c264d7eed1c74fd96')}</Typography>
-        <Typography>{translate('text_664c732c264d7eed1c74fd9c')}</Typography>
-      </SettingsPageHeaderContainer>
-
       <SettingsListWrapper>
+        <SettingsListItemHeader
+          label={translate('text_664c732c264d7eed1c74fd96')}
+          sublabel={translate('text_664c732c264d7eed1c74fd9c')}
+        />
         {organizationLoading ? (
           <SettingsListItemLoadingSkeleton count={3} />
         ) : (
-          <SettingsListItem>
+          <SettingsListItem className="gap-4">
             <Selector
               title={translate('text_1752157864304mscddgsda6b')}
               subtitle={translate('text_1752157864305xgsua4ux0s7')}

@@ -3,11 +3,8 @@ import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
-import { Popper } from '~/components/designSystem/Popper'
-import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import {
   AddHubspotDialog,
   AddHubspotDialogRef,
@@ -27,7 +24,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Hubspot from '~/public/images/hubspot.svg'
-import { MenuPopper, PageHeader } from '~/styles'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -105,73 +101,60 @@ const HubspotIntegrationDetails = () => {
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <ButtonLink
-            to={generatePath(HUBSPOT_INTEGRATION_ROUTE, {
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: translate('text_62b1edddbf5f461ab9712750'),
+            path: generatePath(INTEGRATIONS_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-            })}
-            type="button"
-            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
-          />
-          {loading ? (
-            <Skeleton variant="text" className="w-30" />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary">
-              {hubspotIntegration?.name}
-            </Typography>
-          )}
-        </PageHeader.Group>
-        <Popper
-          PopperProps={{ placement: 'bottom-end' }}
-          opener={
-            <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
-          }
-        >
-          {({ closePopper }) => (
-            <MenuPopper>
-              <Button
-                variant="quaternary"
-                fullWidth
-                align="left"
-                onClick={() => {
+            }),
+          },
+          {
+            label: translate('text_67db6a10cb0b8031ca538909'),
+            path: generatePath(HUBSPOT_INTEGRATION_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            }),
+          },
+        ]}
+        entity={{
+          viewName: hubspotIntegration?.name || '',
+          metadata: translate('text_1727281892403opxm269y6mv'),
+          badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
+          icon: <Hubspot />,
+        }}
+        actions={[
+          {
+            type: 'dropdown',
+            label: translate('text_626162c62f790600f850b6fe'),
+            items: [
+              {
+                label: translate('text_65845f35d7d69c3ab4793dac'),
+                onClick: (closePopper) => {
                   addHubspotDialogRef.current?.openDialog({
                     provider: hubspotIntegration,
                     deleteModalRef: deleteHubspotDialogRef,
                     deleteDialogCallback,
                   })
                   closePopper()
-                }}
-              >
-                {translate('text_65845f35d7d69c3ab4793dac')}
-              </Button>
-              {hubspotIntegration && (
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  fullWidth
-                  onClick={() => {
+                },
+              },
+              {
+                label: translate('text_65845f35d7d69c3ab4793dad'),
+                hidden: !hubspotIntegration,
+                onClick: (closePopper) => {
+                  if (hubspotIntegration) {
                     deleteHubspotDialogRef.current?.openDialog({
                       provider: hubspotIntegration,
                       callback: deleteDialogCallback,
                     })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_65845f35d7d69c3ab4793dad')}
-                </Button>
-              )}
-            </MenuPopper>
-          )}
-        </Popper>
-      </PageHeader.Wrapper>
-
-      <IntegrationsPage.Header
+                  }
+                  closePopper()
+                },
+              },
+            ],
+          },
+        ]}
         isLoading={loading}
-        integrationLogo={<Hubspot />}
-        integrationName={hubspotIntegration?.name || ''}
-        integrationChip={translate('text_62b1edddbf5f461ab971270d')}
-        integrationDescription={translate('text_1727281892403opxm269y6mv')}
       />
 
       <IntegrationsPage.Container>

@@ -6,17 +6,15 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
-import { NavigationTab } from '~/components/designSystem/NavigationTab'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
-import { Typography } from '~/components/designSystem/Typography'
-import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,
   SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
   SettingsPaddedContainer,
-  SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   AddAdyenDialog,
@@ -194,6 +192,7 @@ const Integrations = () => {
 
   const { data, loading } = useIntegrationsSettingQuery({
     variables: { limit: 1000 },
+    nextFetchPolicy: 'cache-and-network',
   })
 
   const { data: billingEntitiesData } = useGetBillingEntitiesQuery()
@@ -256,6 +255,8 @@ const Integrations = () => {
     (integration) => integration.__typename === 'SalesforceIntegration',
   )
 
+  const activeTabContent = useMainHeaderTabContent()
+
   const getEndContent = ({
     showSparkles,
     showConnectedBadge,
@@ -292,26 +293,24 @@ const Integrations = () => {
 
   return (
     <>
-      <PageBannerHeaderWithBurgerMenu>
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_62b1edddbf5f461ab9712733')}
-        </Typography>
-      </PageBannerHeaderWithBurgerMenu>
-
-      <SettingsPaddedContainer className="gap-8">
-        <SettingsPageHeaderContainer>
-          <Typography variant="headline">{translate('text_62b1edddbf5f461ab9712750')}</Typography>
-          <Typography>{translate('text_62b1edddbf5f461ab9712765')}</Typography>
-        </SettingsPageHeaderContainer>
-
-        <NavigationTab
-          tabs={[
-            {
-              title: translate('text_1733303404276jppxvximavl'),
-              link: generatePath(INTEGRATIONS_ROUTE, {
+      <MainHeader.Configure
+        entity={{
+          viewName: translate('text_62b1edddbf5f461ab9712750'),
+          metadata: translate('text_62b1edddbf5f461ab9712765'),
+        }}
+        tabs={[
+          {
+            title: translate('text_1733303404276jppxvximavl'),
+            link: generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            }),
+            match: [
+              generatePath(INTEGRATIONS_ROUTE, {
                 integrationGroup: IntegrationsTabsOptionsEnum.Lago,
               }),
-              component: (
+            ],
+            content: (
+              <SettingsPaddedContainer className="gap-8">
                 <SettingsListWrapper>
                   {!!loading ? (
                     <SettingsListItemLoadingSkeleton count={2} />
@@ -716,14 +715,21 @@ const Integrations = () => {
                     </SettingsListItem>
                   )}
                 </SettingsListWrapper>
-              ),
-            },
-            {
-              title: translate('text_173330340427732b341qnuny'),
-              link: generatePath(INTEGRATIONS_ROUTE, {
+              </SettingsPaddedContainer>
+            ),
+          },
+          {
+            title: translate('text_173330340427732b341qnuny'),
+            link: generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Community,
+            }),
+            match: [
+              generatePath(INTEGRATIONS_ROUTE, {
                 integrationGroup: IntegrationsTabsOptionsEnum.Community,
               }),
-              component: (
+            ],
+            content: (
+              <SettingsPaddedContainer className="gap-8">
                 <SettingsListWrapper>
                   <Alert type="warning">{translate('text_1736764955395763x9k5gqkj')}</Alert>
                   {!!loading ? (
@@ -831,12 +837,14 @@ const Integrations = () => {
                     </SettingsListItem>
                   )}
                 </SettingsListWrapper>
-              ),
-            },
-          ]}
-          loading={loading}
-        />
-      </SettingsPaddedContainer>
+              </SettingsPaddedContainer>
+            ),
+          },
+        ]}
+        isLoading={loading}
+      />
+
+      <>{activeTabContent}</>
 
       <AddAnrokDialog ref={addAnrokDialogRef} />
       <AddAvalaraDialog ref={addAvalaraDialogRef} />

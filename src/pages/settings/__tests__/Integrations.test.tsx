@@ -201,6 +201,7 @@ const customRender = (
   })
 
 async function prepare({ mocks = emptyIntegrationsMock() }: { mocks?: TestMocksType } = {}) {
+  window.history.pushState({}, '', '/settings/integrations/lago')
   await act(() => customRender(<Integrations />, { mocks }))
 }
 

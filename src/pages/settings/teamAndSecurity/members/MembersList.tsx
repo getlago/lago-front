@@ -163,12 +163,7 @@ const MemberList = () => {
 
   return (
     <div>
-      <MembersFilters
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        type="members"
-        openCreateInviteDialog={openCreateInviteDialog}
-      />
+      <MembersFilters searchQuery={searchQuery} setSearchQuery={setSearchQuery} type="members" />
       <InfiniteScroll onBottom={handleInfiniteScrolling}>
         <Table
           name="members-setting-members-list"

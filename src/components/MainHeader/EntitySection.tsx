@@ -1,16 +1,17 @@
-import { Icon } from 'lago-design-system'
+import { Icon, IconName } from 'lago-design-system'
 import { FC } from 'react'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Status } from '~/components/designSystem/Status'
+import { Status, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 
+import {
+  ENTITY_SECTION_METADATA_TEST_ID,
+  ENTITY_SECTION_TEST_ID,
+  ENTITY_SECTION_VIEW_NAME_TEST_ID,
+} from './mainHeaderTestIds'
 import { MainHeaderEntityConfig } from './types'
-
-export const ENTITY_SECTION_TEST_ID = 'entity-section'
-export const ENTITY_SECTION_VIEW_NAME_TEST_ID = 'entity-section-view-name'
-export const ENTITY_SECTION_METADATA_TEST_ID = 'entity-section-metadata'
 
 /**
  * Entity section — renders as a fragment so the parent controls layout.
@@ -31,10 +32,18 @@ export const EntitySection: FC<{ entity?: MainHeaderEntityConfig; isLoading?: bo
   if (!entity) return null
 
   return (
-    <>
+    <div className="flex items-center gap-3">
       {entity.icon && (
-        <Avatar variant="connector" size="large">
-          <Icon name={entity.icon} color="dark" size="large" />
+        <Avatar
+          variant={typeof entity.icon === 'string' ? 'connector' : 'connector-full'}
+          size="large"
+          className="!size-[52px] !min-w-[52px]"
+        >
+          {typeof entity.icon === 'string' ? (
+            <Icon name={entity.icon as IconName} color="dark" size="large" />
+          ) : (
+            entity.icon
+          )}
         </Avatar>
       )}
       <div data-test={ENTITY_SECTION_TEST_ID}>
@@ -50,9 +59,10 @@ export const EntitySection: FC<{ entity?: MainHeaderEntityConfig; isLoading?: bo
           {entity.badges?.map((badge) => (
             <Status
               key={`${badge.type}-${badge.label}`}
-              type={badge.type}
+              type={badge.type as StatusType}
               label={badge.label}
               labelVariables={badge.labelVariables}
+              endIcon={badge.endIcon}
             />
           ))}
         </div>
@@ -60,6 +70,6 @@ export const EntitySection: FC<{ entity?: MainHeaderEntityConfig; isLoading?: bo
           <Typography data-test={ENTITY_SECTION_METADATA_TEST_ID}>{entity.metadata}</Typography>
         )}
       </div>
-    </>
+    </div>
   )
 }

@@ -12,7 +12,6 @@ import {
   SettingsListItemHeader,
   SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
-  SettingsPageHeaderContainer,
   SettingsWithTabsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { RoleItem, rolesNameMapping, systemRoles } from '~/core/constants/roles'
@@ -164,11 +163,6 @@ const RolesList = () => {
 
   return (
     <SettingsWithTabsPaddedContainer>
-      <SettingsPageHeaderContainer>
-        <Typography variant="headline">{translate('text_1765448879791epmkg4xijkn')}</Typography>
-        <Typography>{translate('text_1765449274238uzkq6xxdcev')}</Typography>
-      </SettingsPageHeaderContainer>
-
       <SettingsListWrapper>
         {isLoadingRoles && <SettingsListItemLoadingSkeleton />}
         {!isLoadingRoles && (

@@ -182,12 +182,6 @@ describe('MembersInvitationList', () => {
       expect(screen.getByPlaceholderText('text_1767713872664lwivpxg5xlb')).toBeInTheDocument()
     })
 
-    it('renders create invite button', async () => {
-      await prepare()
-
-      expect(screen.getByTestId('create-invite-button')).toBeInTheDocument()
-    })
-
     it('renders invitations table after loading', async () => {
       await prepare()
 
@@ -261,8 +255,8 @@ describe('MembersInvitationList', () => {
       await prepare({ mocks: [emptyMock, rolesListMock] })
 
       await waitFor(() => {
-        // Empty state should show invite button
-        expect(screen.getByTestId('create-invite-button')).toBeInTheDocument()
+        // Empty state title should be visible
+        expect(screen.getByText('text_17671750294886x8eq8lizmt')).toBeInTheDocument()
       })
     })
   })
@@ -517,8 +511,10 @@ describe('MembersInvitationList', () => {
       await prepare({ mocks: [emptyMock, rolesListMock] })
 
       await waitFor(() => {
-        // Invite button translation key
-        expect(screen.getByText('text_63208b630aaf8df6bbfb265b')).toBeInTheDocument()
+        // Invite button translation key - use getAllByText since it appears in both MembersFilters and Table placeholder
+        expect(screen.getAllByText('text_63208b630aaf8df6bbfb265b').length).toBeGreaterThanOrEqual(
+          1,
+        )
       })
     })
   })

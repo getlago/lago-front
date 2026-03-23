@@ -11,14 +11,13 @@ import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
-import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,
   SettingsListItemHeader,
   SettingsListWrapper,
   SettingsPaddedContainer,
-  SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { DeleteTaxDialog, DeleteTaxDialogRef } from '~/components/taxes/DeleteTaxDialog'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_TAX_ROUTE, UPDATE_TAX_ROUTE } from '~/core/router'
@@ -88,18 +87,14 @@ const TaxesSettings = () => {
 
   return (
     <>
-      <PageBannerHeaderWithBurgerMenu>
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_645bb193927b375079d28a8f')}
-        </Typography>
-      </PageBannerHeaderWithBurgerMenu>
+      <MainHeader.Configure
+        entity={{
+          viewName: translate('text_645bb193927b375079d28ab5'),
+          metadata: translate('text_645bb193927b375079d28b7e'),
+        }}
+      />
 
       <SettingsPaddedContainer>
-        <SettingsPageHeaderContainer>
-          <Typography variant="headline">{translate('text_645bb193927b375079d28ab5')}</Typography>
-          <Typography>{translate('text_645bb193927b375079d28b7e')}</Typography>
-        </SettingsPageHeaderContainer>
-
         {!loading && hasTaxProvider && (
           <Alert type="info">
             <Typography variant="body" color="grey700">

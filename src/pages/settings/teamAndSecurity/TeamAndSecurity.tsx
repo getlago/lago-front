@@ -1,9 +1,8 @@
 import { useEffect, useMemo } from 'react'
 import { generatePath, matchPath, useLocation, useNavigate } from 'react-router-dom'
 
-import { NavigationTab } from '~/components/designSystem/NavigationTab'
-import { Typography } from '~/components/designSystem/Typography'
-import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import {
   TEAM_AND_SECURITY_GROUP_ROUTE,
   TEAM_AND_SECURITY_ROOT_ROUTE,
@@ -51,7 +50,7 @@ const TeamAndSecurity = () => {
         link: generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
           group: teamAndSecurityGroupOptions.members,
         }),
-        component: <Members />,
+        content: <Members />,
         hidden: !hasPermissions(['organizationMembersView']),
       },
       {
@@ -64,7 +63,7 @@ const TeamAndSecurity = () => {
         link: generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
           group: teamAndSecurityGroupOptions.roles,
         }),
-        component: <RolesList />,
+        content: <RolesList />,
         hidden: !hasPermissions(['rolesView']),
       },
       {
@@ -77,7 +76,7 @@ const TeamAndSecurity = () => {
         link: generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
           group: teamAndSecurityGroupOptions.authentication,
         }),
-        component: <Authentication />,
+        content: <Authentication />,
         hidden: !hasPermissions(['authenticationMethodsView']),
       },
       {
@@ -90,7 +89,7 @@ const TeamAndSecurity = () => {
         link: generatePath(TEAM_AND_SECURITY_GROUP_ROUTE, {
           group: teamAndSecurityGroupOptions.logs,
         }),
-        component: <SecurityLogs />,
+        content: <SecurityLogs />,
         hidden:
           !hasPermissions(['securityLogsView']) ||
           !hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.SecurityLogs),
@@ -117,15 +116,18 @@ const TeamAndSecurity = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, tabs])
 
+  const tabContent = useMainHeaderTabContent()
+
   return (
     <>
-      <PageBannerHeaderWithBurgerMenu>
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_177073440645951fhlh2ofdc')}
-        </Typography>
-      </PageBannerHeaderWithBurgerMenu>
+      <MainHeader.Configure
+        entity={{
+          viewName: translate('text_177073440645951fhlh2ofdc'),
+        }}
+        tabs={tabs}
+      />
 
-      <NavigationTab className="px-4 md:px-12" tabs={tabs} />
+      <>{tabContent}</>
     </>
   )
 }

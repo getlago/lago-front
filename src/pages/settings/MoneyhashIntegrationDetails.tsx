@@ -5,11 +5,9 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
-import { Chip } from '~/components/designSystem/Chip'
-import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
@@ -35,7 +33,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import Moneyhash from '~/public/images/moneyhash.svg'
-import { MenuPopper, PageHeader } from '~/styles'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -107,95 +104,60 @@ const MoneyhashIntegrationDetails = () => {
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <ButtonLink
-            to={MONEYHASH_INTEGRATION_ROUTE}
-            type="button"
-            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
-          />
-          {loading ? (
-            <Skeleton variant="text" className="w-30" />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary">
-              {moneyhashPaymentProvider?.name}
-            </Typography>
-          )}
-        </PageHeader.Group>
-        {(canEditIntegration || canDeleteIntegration) && (
-          <Popper
-            PopperProps={{ placement: 'bottom-end' }}
-            opener={
-              <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
-            }
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
-                {canEditIntegration && (
-                  <Button
-                    fullWidth
-                    variant="quaternary"
-                    align="left"
-                    onClick={() => {
-                      addMoneyhashDialogRef.current?.openDialog({
-                        provider: moneyhashPaymentProvider,
-                        deleteModalRef: deleteDialogRef,
-                        deleteDialogCallback,
-                      })
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_65845f35d7d69c3ab4793dac')}
-                  </Button>
-                )}
-                {canDeleteIntegration && (
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    fullWidth
-                    onClick={() => {
-                      deleteDialogRef.current?.openDialog({
-                        provider: moneyhashPaymentProvider,
-                        callback: deleteDialogCallback,
-                      })
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_65845f35d7d69c3ab4793dad')}
-                  </Button>
-                )}
-              </MenuPopper>
-            )}
-          </Popper>
-        )}
-      </PageHeader.Wrapper>
-      <div className="flex items-center px-4 py-8 md:px-12">
-        {loading ? (
-          <>
-            <Skeleton className="mr-4" variant="connectorAvatar" size="large" />
-            <div>
-              <Skeleton className="mb-1 w-50" variant="text" />
-              <Skeleton className="w-32" variant="text" />
-            </div>
-          </>
-        ) : (
-          <>
-            <Avatar className="mr-4" variant="connector-full" size="large">
-              <Moneyhash />
-            </Avatar>
-            <div>
-              <div className="flex items-center gap-2">
-                <Typography variant="headline">{moneyhashPaymentProvider?.name}</Typography>
-                <Chip label={translate('text_62b1edddbf5f461ab971270d')} />
-              </div>
-              <Typography>
-                {translate('text_1733427981129n3wxjui0bex')}&nbsp;•&nbsp;
-                {translate('text_62b1edddbf5f461ab971271f')}
-              </Typography>
-            </div>
-          </>
-        )}
-      </div>
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: translate('text_62b1edddbf5f461ab9712750'),
+            path: generatePath(INTEGRATIONS_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Community,
+            }),
+          },
+          {
+            label: translate('text_67db6a10cb0b8031ca538909'),
+            path: generatePath(MONEYHASH_INTEGRATION_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Community,
+            }),
+          },
+        ]}
+        entity={{
+          viewName: moneyhashPaymentProvider?.name || '',
+          metadata: `${translate('text_1733427981129n3wxjui0bex')} • ${translate('text_62b1edddbf5f461ab971271f')}`,
+          badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
+          icon: <Moneyhash />,
+        }}
+        actions={[
+          {
+            type: 'dropdown',
+            label: translate('text_626162c62f790600f850b6fe'),
+            items: [
+              {
+                label: translate('text_65845f35d7d69c3ab4793dac'),
+                hidden: !canEditIntegration,
+                onClick: (closePopper) => {
+                  addMoneyhashDialogRef.current?.openDialog({
+                    provider: moneyhashPaymentProvider,
+                    deleteModalRef: deleteDialogRef,
+                    deleteDialogCallback,
+                  })
+                  closePopper()
+                },
+              },
+              {
+                label: translate('text_65845f35d7d69c3ab4793dad'),
+                hidden: !canDeleteIntegration,
+                onClick: (closePopper) => {
+                  deleteDialogRef.current?.openDialog({
+                    provider: moneyhashPaymentProvider,
+                    callback: deleteDialogCallback,
+                  })
+                  closePopper()
+                },
+              },
+            ],
+          },
+        ]}
+        isLoading={loading}
+      />
       <section className="max-w-168 px-4 md:px-12">
         <div className="relative flex h-nav items-center justify-between">
           <Typography variant="subhead1">{translate('text_645d071272418a14c1c76a9a')}</Typography>

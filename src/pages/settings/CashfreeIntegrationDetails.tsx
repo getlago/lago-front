@@ -5,12 +5,11 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
-import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import {
   AddCashfreeDialog,
   AddCashfreeDialogRef,
@@ -34,7 +33,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import Cashfree from '~/public/images/cashfree.svg'
-import { MenuPopper, PageHeader } from '~/styles'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -117,80 +115,59 @@ const CashfreeIntegrationDetails = () => {
 
   return (
     <div>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <ButtonLink
-            to={generatePath(CASHFREE_INTEGRATION_ROUTE, {
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: translate('text_62b1edddbf5f461ab9712750'),
+            path: generatePath(INTEGRATIONS_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Community,
-            })}
-            type="button"
-            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
-          />
-          {loading ? (
-            <Skeleton variant="text" className="w-30" />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary">
-              {cashfreePaymentProvider?.name}
-            </Typography>
-          )}
-        </PageHeader.Group>
-        {(canEditIntegration || canDeleteIntegration) && (
-          <Popper
-            PopperProps={{ placement: 'bottom-end' }}
-            opener={
-              <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
-            }
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
-                {canEditIntegration && (
-                  <>
-                    <Button
-                      variant="quaternary"
-                      fullWidth
-                      align="left"
-                      onClick={() => {
-                        addDialogRef.current?.openDialog({
-                          provider: cashfreePaymentProvider,
-                          deleteModalRef: deleteDialogRef,
-                          deleteDialogCallback,
-                        })
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_65845f35d7d69c3ab4793dac')}
-                    </Button>
-                  </>
-                )}
-
-                {canDeleteIntegration && (
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    fullWidth
-                    onClick={() => {
-                      deleteDialogRef.current?.openDialog({
-                        provider: cashfreePaymentProvider,
-                        callback: deleteDialogCallback,
-                      })
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_65845f35d7d69c3ab4793dad')}
-                  </Button>
-                )}
-              </MenuPopper>
-            )}
-          </Popper>
-        )}
-      </PageHeader.Wrapper>
-
-      <IntegrationsPage.Header
+            }),
+          },
+          {
+            label: translate('text_67db6a10cb0b8031ca538909'),
+            path: generatePath(CASHFREE_INTEGRATION_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Community,
+            }),
+          },
+        ]}
+        entity={{
+          viewName: cashfreePaymentProvider?.name || '',
+          metadata: `${translate('text_1727619878796wmgcntkfycn')} • ${translate('text_62b1edddbf5f461ab971271f')}`,
+          badges: [{ type: 'default', label: translate('text_634ea0ecc6147de10ddb662d') }],
+          icon: <Cashfree />,
+        }}
+        actions={[
+          {
+            type: 'dropdown',
+            label: translate('text_626162c62f790600f850b6fe'),
+            items: [
+              {
+                label: translate('text_65845f35d7d69c3ab4793dac'),
+                hidden: !canEditIntegration,
+                onClick: (closePopper) => {
+                  addDialogRef.current?.openDialog({
+                    provider: cashfreePaymentProvider,
+                    deleteModalRef: deleteDialogRef,
+                    deleteDialogCallback,
+                  })
+                  closePopper()
+                },
+              },
+              {
+                label: translate('text_65845f35d7d69c3ab4793dad'),
+                hidden: !canDeleteIntegration,
+                onClick: (closePopper) => {
+                  deleteDialogRef.current?.openDialog({
+                    provider: cashfreePaymentProvider,
+                    callback: deleteDialogCallback,
+                  })
+                  closePopper()
+                },
+              },
+            ],
+          },
+        ]}
         isLoading={loading}
-        integrationLogo={<Cashfree />}
-        integrationName={cashfreePaymentProvider?.name}
-        integrationChip={translate('text_634ea0ecc6147de10ddb662d')}
-        integrationDescription={`${translate('text_1727619878796wmgcntkfycn')} • ${translate('text_62b1edddbf5f461ab971271f')}`}
       />
 
       <div className="mb-12 flex max-w-[672px] flex-col gap-8 px-4 py-0 md:px-12">

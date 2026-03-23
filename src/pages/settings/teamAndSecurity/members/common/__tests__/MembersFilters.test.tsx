@@ -58,7 +58,6 @@ const defaultProps: MembersFiltersProps = {
   searchQuery: '',
   setSearchQuery: jest.fn(),
   type: 'members',
-  openCreateInviteDialog: jest.fn(),
 }
 
 async function prepare({
@@ -90,12 +89,6 @@ describe('MembersFilters', () => {
 
       // "All roles" is the default text
       expect(screen.getByText(/all roles/i)).toBeInTheDocument()
-    })
-
-    it('renders the create invite button', async () => {
-      await prepare()
-
-      expect(screen.getByTestId('create-invite-button')).toBeInTheDocument()
     })
 
     it('renders correct placeholder for members type', async () => {
@@ -133,21 +126,6 @@ describe('MembersFilters', () => {
       const searchInput = screen.getByRole('textbox')
 
       expect(searchInput).toHaveValue('test@example.com')
-    })
-  })
-
-  describe('Create Invite Button', () => {
-    it('calls openCreateInviteDialog when clicked', async () => {
-      const openCreateInviteDialog = jest.fn()
-      const user = userEvent.setup()
-
-      await prepare({ props: { ...defaultProps, openCreateInviteDialog } })
-
-      const createButton = screen.getByTestId('create-invite-button')
-
-      await user.click(createButton)
-
-      expect(openCreateInviteDialog).toHaveBeenCalledTimes(1)
     })
   })
 

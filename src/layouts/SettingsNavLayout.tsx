@@ -15,6 +15,8 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSystem/VerticalMenu'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MainHeaderProvider } from '~/components/MainHeader/MainHeaderContext'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   BILLING_ENTITY_CREATE_ROUTE,
@@ -32,6 +34,7 @@ import {
   HOME_ROUTE,
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
+  OKTA_AUTHENTICATION_ROUTE,
   ROLE_CREATE_ROUTE,
   ROLE_DETAILS_ROUTE,
   ROLE_EDIT_ROUTE,
@@ -70,7 +73,7 @@ const generateTabs = ({
     link: generatePath(INTEGRATIONS_ROUTE, {
       integrationGroup: IntegrationsTabsOptionsEnum.Lago,
     }),
-    match: [FULL_INTEGRATIONS_ROUTE, FULL_INTEGRATIONS_ROUTE_ID],
+    match: [INTEGRATIONS_ROUTE, FULL_INTEGRATIONS_ROUTE, FULL_INTEGRATIONS_ROUTE_ID],
     hidden: !hasPermissions(['organizationIntegrationsView']),
   },
   {
@@ -81,6 +84,7 @@ const generateTabs = ({
       TEAM_AND_SECURITY_GROUP_ROUTE,
       TEAM_AND_SECURITY_TAB_ROUTE,
       ROLE_DETAILS_ROUTE,
+      OKTA_AUTHENTICATION_ROUTE,
     ],
     hidden:
       !hasPermissions(['organizationMembersView']) &&
@@ -267,9 +271,12 @@ const SettingsNavLayout = () => {
         </NavLayout.Nav>
       </ClickAwayListener>
 
-      <NavLayout.ContentWrapper ref={contentRef}>
-        <Outlet />
-      </NavLayout.ContentWrapper>
+      <MainHeaderProvider>
+        <NavLayout.ContentWrapper ref={contentRef}>
+          <MainHeader />
+          <Outlet />
+        </NavLayout.ContentWrapper>
+      </MainHeaderProvider>
     </NavLayout.NavWrapper>
   )
 }
