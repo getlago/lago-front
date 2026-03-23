@@ -18,6 +18,10 @@ import { SlashCommands } from './extensions/SlashCommands'
 import './richTextEditor.css'
 import Toolbar from './Toolbar'
 
+export const RICH_TEXT_EDITOR_TEST_ID = 'rich-text-editor'
+export const RICH_TEXT_EDITOR_TOOLBAR_TEST_ID = 'rich-text-editor-toolbar'
+export const RICH_TEXT_EDITOR_CONTENT_TEST_ID = 'rich-text-editor-content'
+
 const RichTextEditor = () => {
   const editor = useEditor({
     extensions: [
@@ -52,7 +56,10 @@ const RichTextEditor = () => {
   if (!editor) return null
 
   return (
-    <div className="rich-text-editor relative h-full max-h-screen overflow-auto">
+    <div
+      data-test={RICH_TEXT_EDITOR_TEST_ID}
+      className="rich-text-editor relative h-full max-h-screen overflow-auto"
+    >
       <Toolbar editor={editor} />
       <EditorContent editor={editor} />
     </div>
