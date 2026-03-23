@@ -8,6 +8,23 @@ import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 
 import { Typography } from '../Typography'
 
+export const TOOLBAR_CONTAINER_TEST_ID = 'toolbar-container'
+export const TOOLBAR_UNDO_BUTTON_TEST_ID = 'toolbar-undo-button'
+export const TOOLBAR_REDO_BUTTON_TEST_ID = 'toolbar-redo-button'
+export const TOOLBAR_BOLD_BUTTON_TEST_ID = 'toolbar-bold-button'
+export const TOOLBAR_ITALIC_BUTTON_TEST_ID = 'toolbar-italic-button'
+export const TOOLBAR_UNDERLINE_BUTTON_TEST_ID = 'toolbar-underline-button'
+export const TOOLBAR_STRIKE_BUTTON_TEST_ID = 'toolbar-strike-button'
+export const TOOLBAR_CODE_BUTTON_TEST_ID = 'toolbar-code-button'
+export const TOOLBAR_HIGHLIGHT_BUTTON_TEST_ID = 'toolbar-highlight-button'
+export const TOOLBAR_SUPERSCRIPT_BUTTON_TEST_ID = 'toolbar-superscript-button'
+export const TOOLBAR_SUBSCRIPT_BUTTON_TEST_ID = 'toolbar-subscript-button'
+export const TOOLBAR_TABLE_BUTTON_TEST_ID = 'toolbar-table-button'
+export const TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID = 'toolbar-code-block-button'
+export const TOOLBAR_LINK_APPLY_BUTTON_TEST_ID = 'toolbar-link-apply-button'
+export const TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID = 'toolbar-link-remove-button'
+export const TOOLBAR_LINK_INPUT_TEST_ID = 'toolbar-link-input'
+
 type ToolbarProps = {
   editor: Editor
 }
@@ -176,9 +193,13 @@ const Toolbar = ({ editor }: ToolbarProps) => {
   }
 
   return (
-    <div className="sticky top-0 z-10 flex flex-wrap gap-1 bg-white p-2 shadow-b">
+    <div
+      data-test={TOOLBAR_CONTAINER_TEST_ID}
+      className="sticky top-0 z-10 flex flex-wrap gap-1 bg-white p-2 shadow-b"
+    >
       {/* Undo / Redo */}
       <Button
+        data-test={TOOLBAR_UNDO_BUTTON_TEST_ID}
         variant="secondary"
         disabled={!editorState.canUndo}
         onClick={() => editor.chain().focus().undo().run()}
@@ -186,6 +207,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
         Undo
       </Button>
       <Button
+        data-test={TOOLBAR_REDO_BUTTON_TEST_ID}
         variant="secondary"
         disabled={!editorState.canRedo}
         onClick={() => editor.chain().focus().redo().run()}
@@ -229,36 +251,42 @@ const Toolbar = ({ editor }: ToolbarProps) => {
 
       {/* Inline formatting */}
       <Button
+        data-test={TOOLBAR_BOLD_BUTTON_TEST_ID}
         variant={editorState.isBold ? 'primary' : 'secondary'}
         onClick={() => editor.chain().focus().toggleBold().run()}
       >
         B
       </Button>
       <Button
+        data-test={TOOLBAR_ITALIC_BUTTON_TEST_ID}
         variant={editorState.isItalic ? 'primary' : 'secondary'}
         onClick={() => editor.chain().focus().toggleItalic().run()}
       >
         I
       </Button>
       <Button
+        data-test={TOOLBAR_UNDERLINE_BUTTON_TEST_ID}
         variant={editorState.isUnderline ? 'primary' : 'secondary'}
         onClick={() => editor.chain().focus().toggleUnderline().run()}
       >
         U
       </Button>
       <Button
+        data-test={TOOLBAR_STRIKE_BUTTON_TEST_ID}
         variant={editorState.isStrike ? 'primary' : 'secondary'}
         onClick={() => editor.chain().focus().toggleStrike().run()}
       >
         S
       </Button>
       <Button
+        data-test={TOOLBAR_CODE_BUTTON_TEST_ID}
         variant={editorState.isCode ? 'primary' : 'secondary'}
         onClick={() => editor.chain().focus().toggleCode().run()}
       >
         {'<>'}
       </Button>
       <Button
+        data-test={TOOLBAR_HIGHLIGHT_BUTTON_TEST_ID}
         variant={editorState.isHighlight ? 'primary' : 'secondary'}
         onClick={() => editor.chain().focus().toggleHighlight().run()}
       >
@@ -269,12 +297,14 @@ const Toolbar = ({ editor }: ToolbarProps) => {
 
       {/* Superscript / Subscript */}
       <Button
+        data-test={TOOLBAR_SUPERSCRIPT_BUTTON_TEST_ID}
         variant={editorState.isSuperscript ? 'primary' : 'secondary'}
         onClick={() => editor.chain().focus().toggleSuperscript().run()}
       >
         X<sup className="text-[8px]">2</sup>
       </Button>
       <Button
+        data-test={TOOLBAR_SUBSCRIPT_BUTTON_TEST_ID}
         variant={editorState.isSubscript ? 'primary' : 'secondary'}
         onClick={() => editor.chain().focus().toggleSubscript().run()}
       >
@@ -369,6 +399,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
                 URL
               </Typography>
               <input
+                data-test={TOOLBAR_LINK_INPUT_TEST_ID}
                 type="text"
                 value={linkInput}
                 onChange={(e) => setLinkInput(e.target.value)}
@@ -382,11 +413,16 @@ const Toolbar = ({ editor }: ToolbarProps) => {
                 className="rounded border border-grey-300 px-3 py-1.5 text-sm outline-none focus:border-blue-600"
               />
               <div className="flex gap-2">
-                <Button variant="primary" onClick={() => handleSetLink(closePopper)}>
+                <Button
+                  data-test={TOOLBAR_LINK_APPLY_BUTTON_TEST_ID}
+                  variant="primary"
+                  onClick={() => handleSetLink(closePopper)}
+                >
                   Apply
                 </Button>
                 {editorState.isLink && (
                   <Button
+                    data-test={TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID}
                     variant="secondary"
                     onClick={() => {
                       editor.chain().focus().unsetLink().run()
@@ -407,6 +443,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
 
       {/* Table */}
       <Button
+        data-test={TOOLBAR_TABLE_BUTTON_TEST_ID}
         variant={'secondary'}
         onClick={() =>
           editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
@@ -415,6 +452,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
         Table
       </Button>
       <Button
+        data-test={TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID}
         variant={editorState.isCodeBlock ? 'primary' : 'secondary'}
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
       >
