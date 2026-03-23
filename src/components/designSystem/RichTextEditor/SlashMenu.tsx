@@ -7,6 +7,9 @@ import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 
 import type { SlashCommandItem } from './extensions/SlashCommands'
 
+export const SLASH_MENU_CONTAINER_TEST_ID = 'slash-menu-container'
+export const SLASH_MENU_ITEM_TEST_ID = 'slash-menu-item'
+
 export interface SlashMenuRef {
   onKeyDown: (props: SuggestionKeyDownProps) => boolean
 }
@@ -42,11 +45,15 @@ export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, comm
   if (!items.length) return null
 
   return (
-    <div className="max-h-64 w-64 overflow-y-auto rounded-xl bg-white shadow-md">
+    <div
+      data-test={SLASH_MENU_CONTAINER_TEST_ID}
+      className="max-h-64 w-64 overflow-y-auto rounded-xl bg-white shadow-md"
+    >
       <MenuPopper>
         {items.map((item, index) => (
           <Button
             key={item.title}
+            data-test={`${SLASH_MENU_ITEM_TEST_ID}-${index}`}
             variant={index === selectedIndex ? 'secondary' : 'quaternary'}
             align="left"
             fullWidth
