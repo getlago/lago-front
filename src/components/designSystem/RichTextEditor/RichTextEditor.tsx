@@ -14,6 +14,8 @@ import Underline from '@tiptap/extension-underline'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+
 import { SlashCommands } from './extensions/SlashCommands'
 import './richTextEditor.css'
 import Toolbar from './Toolbar'
@@ -23,6 +25,8 @@ export const RICH_TEXT_EDITOR_TOOLBAR_TEST_ID = 'rich-text-editor-toolbar'
 export const RICH_TEXT_EDITOR_CONTENT_TEST_ID = 'rich-text-editor-content'
 
 const RichTextEditor = () => {
+  const { translate } = useInternationalization()
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -38,7 +42,7 @@ const RichTextEditor = () => {
       TableCell,
       TableHeader,
       Placeholder.configure({
-        placeholder: 'Type / for commands...',
+        placeholder: translate('text_1774281162711nymiwumt66k'),
       }),
       Mention.configure({
         HTMLAttributes: { class: 'variable-mention' },
@@ -50,7 +54,7 @@ const RichTextEditor = () => {
         class: 'max-w-none focus:outline-none min-h-[300px] p-4',
       },
     },
-    content: '<p>Start typing here...</p>',
+    content: '',
   })
 
   if (!editor) return null
