@@ -5,6 +5,7 @@ import { Editor } from '@tiptap/react'
 import { render } from '~/test-utils'
 
 import Toolbar, {
+  TOOLBAR_ALIGN_DROPDOWN_TEST_ID,
   TOOLBAR_BOLD_BUTTON_TEST_ID,
   TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID,
   TOOLBAR_CODE_BUTTON_TEST_ID,
@@ -14,11 +15,13 @@ import Toolbar, {
   TOOLBAR_LINK_APPLY_BUTTON_TEST_ID,
   TOOLBAR_LINK_INPUT_TEST_ID,
   TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID,
+  TOOLBAR_LIST_DROPDOWN_TEST_ID,
   TOOLBAR_REDO_BUTTON_TEST_ID,
   TOOLBAR_STRIKE_BUTTON_TEST_ID,
   TOOLBAR_SUBSCRIPT_BUTTON_TEST_ID,
   TOOLBAR_SUPERSCRIPT_BUTTON_TEST_ID,
   TOOLBAR_TABLE_BUTTON_TEST_ID,
+  TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID,
   TOOLBAR_UNDERLINE_BUTTON_TEST_ID,
   TOOLBAR_UNDO_BUTTON_TEST_ID,
 } from '../Toolbar'
@@ -321,6 +324,94 @@ describe('Toolbar', () => {
 
         expect(screen.queryByTestId(TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
+    })
+  })
+
+  describe('GIVEN the text styling dropdown', () => {
+    const openDropdown = async (overrides: Record<string, boolean> = {}) => {
+      const user = userEvent.setup()
+      const { editor, runMock } = createMockEditor(overrides)
+
+      await act(() => render(<Toolbar editor={editor} />))
+      await user.click(screen.getByTestId(TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID))
+
+      return { user, editor, runMock }
+    }
+
+    it.each([
+      ['paragraph', `${TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}-paragraph`],
+      ['heading-1', `${TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}-heading-1`],
+      ['heading-2', `${TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}-heading-2`],
+      ['heading-3', `${TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}-heading-3`],
+    ])('WHEN clicking %s THEN should call editor chain', async (_, itemTestId) => {
+      const { user, editor, runMock } = await openDropdown()
+
+      await waitFor(() => {
+        expect(screen.getByTestId(itemTestId)).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByTestId(itemTestId))
+
+      expect(editor.chain).toHaveBeenCalled()
+      expect(runMock).toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN the list styling dropdown', () => {
+    const openDropdown = async (overrides: Record<string, boolean> = {}) => {
+      const user = userEvent.setup()
+      const { editor, runMock } = createMockEditor(overrides)
+
+      await act(() => render(<Toolbar editor={editor} />))
+      await user.click(screen.getByTestId(TOOLBAR_LIST_DROPDOWN_TEST_ID))
+
+      return { user, editor, runMock }
+    }
+
+    it.each([
+      ['bulletList', `${TOOLBAR_LIST_DROPDOWN_TEST_ID}-bulletList`],
+      ['orderedList', `${TOOLBAR_LIST_DROPDOWN_TEST_ID}-orderedList`],
+    ])('WHEN clicking %s THEN should call editor chain', async (_, itemTestId) => {
+      const { user, editor, runMock } = await openDropdown()
+
+      await waitFor(() => {
+        expect(screen.getByTestId(itemTestId)).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByTestId(itemTestId))
+
+      expect(editor.chain).toHaveBeenCalled()
+      expect(runMock).toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN the text align dropdown', () => {
+    const openDropdown = async (overrides: Record<string, boolean> = {}) => {
+      const user = userEvent.setup()
+      const { editor, runMock } = createMockEditor(overrides)
+
+      await act(() => render(<Toolbar editor={editor} />))
+      await user.click(screen.getByTestId(TOOLBAR_ALIGN_DROPDOWN_TEST_ID))
+
+      return { user, editor, runMock }
+    }
+
+    it.each([
+      ['left', `${TOOLBAR_ALIGN_DROPDOWN_TEST_ID}-left`],
+      ['center', `${TOOLBAR_ALIGN_DROPDOWN_TEST_ID}-center`],
+      ['right', `${TOOLBAR_ALIGN_DROPDOWN_TEST_ID}-right`],
+      ['justify', `${TOOLBAR_ALIGN_DROPDOWN_TEST_ID}-justify`],
+    ])('WHEN clicking %s THEN should call editor chain', async (_, itemTestId) => {
+      const { user, editor, runMock } = await openDropdown()
+
+      await waitFor(() => {
+        expect(screen.getByTestId(itemTestId)).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByTestId(itemTestId))
+
+      expect(editor.chain).toHaveBeenCalled()
+      expect(runMock).toHaveBeenCalled()
     })
   })
 })
