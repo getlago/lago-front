@@ -155,21 +155,11 @@ const Toolbar = ({ editor }: ToolbarProps) => {
     return null
   }
 
-  const getActualAlignment = () => {
-    if (editorState.isAlignCenter) return 'center'
-    if (editorState.isAlignRight) return 'right'
-    if (editorState.isAlignJustify) return 'justify'
-    return 'left'
-  }
-
   const actualTextStylingLabel =
     possibleTextStylings.find((s) => s.value === getActualTextStyling())?.label ?? 'M'
 
   const actualListLabel =
     possibleListStylings.find((s) => s.value === getActualListStyling())?.label ?? '•'
-
-  const actualAlignmentLabel =
-    possibleAlignments.find((s) => s.value === getActualAlignment())?.name ?? 'Left'
 
   const handleSetLink = (closePopper: () => void) => {
     if (linkInput) {
@@ -298,7 +288,9 @@ const Toolbar = ({ editor }: ToolbarProps) => {
         PopperProps={{ placement: 'bottom-start' }}
         opener={
           <Button
-            variant={editorState.isBulletList || editorState.isOrderedList ? 'primary' : 'secondary'}
+            variant={
+              editorState.isBulletList || editorState.isOrderedList ? 'primary' : 'secondary'
+            }
             endIcon="chevron-down"
           >
             {actualListLabel}
@@ -390,10 +382,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
                 className="rounded border border-grey-300 px-3 py-1.5 text-sm outline-none focus:border-blue-600"
               />
               <div className="flex gap-2">
-                <Button
-                  variant="primary"
-                  onClick={() => handleSetLink(closePopper)}
-                >
+                <Button variant="primary" onClick={() => handleSetLink(closePopper)}>
                   Apply
                 </Button>
                 {editorState.isLink && (
