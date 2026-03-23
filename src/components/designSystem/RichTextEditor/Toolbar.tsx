@@ -24,6 +24,9 @@ export const TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID = 'toolbar-code-block-button'
 export const TOOLBAR_LINK_APPLY_BUTTON_TEST_ID = 'toolbar-link-apply-button'
 export const TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID = 'toolbar-link-remove-button'
 export const TOOLBAR_LINK_INPUT_TEST_ID = 'toolbar-link-input'
+export const TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID = 'toolbar-text-styling-dropdown'
+export const TOOLBAR_LIST_DROPDOWN_TEST_ID = 'toolbar-list-dropdown'
+export const TOOLBAR_ALIGN_DROPDOWN_TEST_ID = 'toolbar-align-dropdown'
 
 type ToolbarProps = {
   editor: Editor
@@ -39,13 +42,22 @@ type DropdownItem = {
 
 const Separator = () => <div className="mx-1 w-px bg-grey-300" />
 
-const ToolbarDropdown = ({ items, opener }: { items: DropdownItem[]; opener: ReactElement }) => (
+const ToolbarDropdown = ({
+  items,
+  opener,
+  'data-test': dataTest,
+}: {
+  items: DropdownItem[]
+  opener: ReactElement
+  'data-test'?: string
+}) => (
   <Popper PopperProps={{ placement: 'bottom-start' }} opener={opener}>
     {({ closePopper }) => (
       <MenuPopper>
         {items.map((item) => (
           <Button
             key={item.value}
+            data-test={dataTest ? `${dataTest}-${item.value}` : undefined}
             variant="quaternary"
             align="left"
             onClick={() => {
@@ -274,9 +286,14 @@ const Toolbar = ({ editor }: ToolbarProps) => {
 
       {/* Text styling dropdown */}
       <ToolbarDropdown
+        data-test={TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}
         items={textStylings}
         opener={
-          <Button variant="secondary" endIcon="chevron-down">
+          <Button
+            data-test={TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}
+            variant="secondary"
+            endIcon="chevron-down"
+          >
             {activeTextLabel}
           </Button>
         }
@@ -298,9 +315,11 @@ const Toolbar = ({ editor }: ToolbarProps) => {
 
       {/* List dropdown */}
       <ToolbarDropdown
+        data-test={TOOLBAR_LIST_DROPDOWN_TEST_ID}
         items={listStylings}
         opener={
           <Button
+            data-test={TOOLBAR_LIST_DROPDOWN_TEST_ID}
             variant={
               editorState.isBulletList || editorState.isOrderedList ? 'primary' : 'secondary'
             }
@@ -313,9 +332,14 @@ const Toolbar = ({ editor }: ToolbarProps) => {
 
       {/* Text align dropdown */}
       <ToolbarDropdown
+        data-test={TOOLBAR_ALIGN_DROPDOWN_TEST_ID}
         items={alignments}
         opener={
-          <Button variant="secondary" endIcon="chevron-down">
+          <Button
+            data-test={TOOLBAR_ALIGN_DROPDOWN_TEST_ID}
+            variant="secondary"
+            endIcon="chevron-down"
+          >
             <Icon name="content-left-align" />
           </Button>
         }
