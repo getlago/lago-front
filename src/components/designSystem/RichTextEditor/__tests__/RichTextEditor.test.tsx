@@ -77,13 +77,15 @@ describe('RichTextEditor', () => {
   describe('GIVEN the editor fails to initialize', () => {
     describe('WHEN useEditor returns null', () => {
       it('THEN should render nothing', async () => {
-        const { useEditor } = jest.requireMock('@tiptap/react')
+        const tiptap = jest.requireMock('@tiptap/react')
 
-        useEditor.mockReturnValueOnce(null)
+        tiptap.useEditor.mockReturnValue(null)
 
         const { container } = await act(() => render(<RichTextEditor />))
 
         expect(container.innerHTML).toBe('')
+
+        tiptap.useEditor.mockReturnValue(mockEditor)
       })
     })
   })
