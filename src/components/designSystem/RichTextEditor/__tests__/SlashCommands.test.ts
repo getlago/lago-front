@@ -53,5 +53,45 @@ describe('SlashCommands', () => {
         })
       })
     })
+
+    describe('GIVEN a command is executed', () => {
+      const createMockEditor = () => {
+        const runMock = jest.fn()
+        const chainMethods: Record<string, jest.Mock> = {}
+
+        const handler: ProxyHandler<Record<string, jest.Mock>> = {
+          get: (_target, prop: string) => {
+            if (prop === 'run') return runMock
+            if (!chainMethods[prop]) {
+              chainMethods[prop] = jest.fn().mockReturnValue(new Proxy({}, handler))
+            }
+
+            return chainMethods[prop]
+          },
+        }
+
+        return {
+          chain: jest.fn().mockReturnValue(new Proxy({}, handler)),
+          runMock,
+        }
+      }
+
+      it.each([
+        ['Heading 1', 0],
+        ['Heading 2', 1],
+        ['Heading 3', 2],
+        ['Bullet List', 3],
+        ['Table', 4],
+        ['Code Block', 5],
+      ])('WHEN "%s" command is called THEN should invoke editor chain', (_, index) => {
+        const mockEditor = createMockEditor()
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        slashCommandItems[index].command(mockEditor as any)
+
+        expect(mockEditor.chain).toHaveBeenCalled()
+        expect(mockEditor.runMock).toHaveBeenCalled()
+      })
+    })
   })
 })
