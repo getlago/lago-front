@@ -8,7 +8,8 @@ import { isTabActive } from './utils'
 /**
  * Hook to resolve the active tab's content from the MainHeader config.
  * Matches the current URL against each tab's link/match patterns.
- * Returns the content of the first matching tab, or null.
+ * Returns the content of the first matching tab, or the first visible
+ * tab's content as a fallback to prevent blank pages.
  *
  * Safe to use in pages that also mount <MainHeader.Configure> because
  * Configure only calls setConfig when its serializable fingerprint changes,
@@ -21,8 +22,9 @@ export const useMainHeaderTabContent = (): ReactNode | null => {
   return useMemo(() => {
     if (!config?.tabs) return null
 
-    const activeTab = config.tabs.find((tab: MainHeaderTab) => isTabActive(tab, pathname))
+    const visibleTabs = config.tabs.filter((tab: MainHeaderTab) => !tab.hidden)
+    const activeTab = visibleTabs.find((tab: MainHeaderTab) => isTabActive(tab, pathname))
 
-    return activeTab?.content ?? null
+    return activeTab?.content ?? visibleTabs[0]?.content ?? null
   }, [config?.tabs, pathname])
 }
