@@ -1,34 +1,63 @@
-import { slashCommandItems } from '../extensions/SlashCommands'
+import { slashCommandDefinitions } from '../extensions/SlashCommands'
+
+const mockTranslate = (key: string): string => {
+  const translations: Record<string, string> = {
+    text_1774281559656dn2u208gh80: 'Heading 1',
+    text_1774281559656pla0xamsvmf: 'Large section heading',
+    text_1774281559657ec0exeaqqd3: 'Heading 2',
+    text_1774281559657q7h8pu6455p: 'Medium section heading',
+    text_1774281559657t0kkn628zdy: 'Heading 3',
+    text_1774281559657o48ilt0rq5y: 'Small section heading',
+    text_1774281559657cbz20fzcjka: 'Bullet List',
+    text_17742815596575m8mqwrg1qy: 'Unordered list',
+    text_1774281559657yc3z031hm6x: 'Table',
+    text_1774281559657y9saycc2aev: 'Insert a 3x3 table',
+    text_1774281559657l4kkx9ws4mz: 'Code Block',
+    text_1774281559657qdknwsvn5ka: 'Insert a code block',
+  }
+
+  return translations[key] ?? key
+}
+
+const resolveItems = () =>
+  slashCommandDefinitions.map((def) => ({
+    title: mockTranslate(def.titleKey),
+    description: mockTranslate(def.descriptionKey),
+    command: def.command,
+  }))
 
 describe('SlashCommands', () => {
-  describe('slashCommandItems', () => {
-    describe('GIVEN the slash command items are defined', () => {
-      it('THEN should contain all expected commands', () => {
-        const titles = slashCommandItems.map((item) => item.title)
+  describe('slashCommandDefinitions', () => {
+    describe('GIVEN the slash command definitions are defined', () => {
+      it('THEN should contain all expected translation keys', () => {
+        const titleKeys = slashCommandDefinitions.map((def) => def.titleKey)
 
-        expect(titles).toEqual([
-          'Heading 1',
-          'Heading 2',
-          'Heading 3',
-          'Bullet List',
-          'Table',
-          'Code Block',
+        expect(titleKeys).toEqual([
+          'text_1774281559656dn2u208gh80',
+          'text_1774281559657ec0exeaqqd3',
+          'text_1774281559657t0kkn628zdy',
+          'text_1774281559657cbz20fzcjka',
+          'text_1774281559657yc3z031hm6x',
+          'text_1774281559657l4kkx9ws4mz',
         ])
       })
 
-      it.each(slashCommandItems)(
-        'THEN each item "$title" should have a description and command',
-        (item) => {
-          expect(item.description).toBeTruthy()
-          expect(typeof item.command).toBe('function')
+      it.each(slashCommandDefinitions)(
+        'THEN each definition should have a descriptionKey and command',
+        (def) => {
+          expect(def.descriptionKey).toBeTruthy()
+          expect(typeof def.command).toBe('function')
         },
       )
     })
 
     describe('GIVEN the suggestion config', () => {
-      describe('WHEN filtering items with a query', () => {
-        const filterItems = (query: string) =>
-          slashCommandItems.filter((item) => item.title.toLowerCase().includes(query.toLowerCase()))
+      describe('WHEN filtering resolved items with a query', () => {
+        const filterItems = (query: string) => {
+          const items = resolveItems()
+
+          return items.filter((item) => item.title.toLowerCase().includes(query.toLowerCase()))
+        }
 
         it('THEN should return all items for empty query', () => {
           expect(filterItems('')).toHaveLength(6)
@@ -87,7 +116,7 @@ describe('SlashCommands', () => {
         const mockEditor = createMockEditor()
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        slashCommandItems[index].command(mockEditor as any)
+        slashCommandDefinitions[index as number].command(mockEditor as any)
 
         expect(mockEditor.chain).toHaveBeenCalled()
         expect(mockEditor.runMock).toHaveBeenCalled()
