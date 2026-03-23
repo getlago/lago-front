@@ -40,12 +40,12 @@ jest.mock('~/components/coupons/CouponDetailsActivityLogs', () => ({
   CouponDetailsActivityLogs: () => null,
 }))
 
-jest.mock('~/components/coupons/DeleteCouponDialog', () => ({
-  DeleteCouponDialog: () => null,
+jest.mock('~/components/coupons/useDeleteCoupon', () => ({
+  useDeleteCoupon: () => ({ openDialog: jest.fn() }),
 }))
 
-jest.mock('~/components/coupons/TerminateCouponDialog', () => ({
-  TerminateCouponDialog: () => null,
+jest.mock('~/components/coupons/useTerminateCoupon', () => ({
+  useTerminateCoupon: () => ({ openDialog: jest.fn() }),
 }))
 
 jest.mock('~/components/coupons/utils', () => ({
@@ -196,8 +196,8 @@ describe('CouponDetails', () => {
         const editItem = actions[0]?.items[0]
         const terminateItem = actions[0]?.items[1]
 
-        expect(editItem?.disabled).toBe(false)
-        expect(terminateItem?.disabled).toBe(false)
+        expect(editItem?.disabled).toBeFalsy()
+        expect(terminateItem?.disabled).toBeFalsy()
       })
     })
   })

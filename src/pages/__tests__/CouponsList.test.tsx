@@ -35,12 +35,12 @@ jest.mock('~/components/SearchInput', () => ({
   SearchInput: () => null,
 }))
 
-jest.mock('~/components/coupons/DeleteCouponDialog', () => ({
-  DeleteCouponDialog: () => null,
+jest.mock('~/components/coupons/useDeleteCoupon', () => ({
+  useDeleteCoupon: () => ({ openDialog: jest.fn() }),
 }))
 
-jest.mock('~/components/coupons/TerminateCouponDialog', () => ({
-  TerminateCouponDialog: () => null,
+jest.mock('~/components/coupons/useTerminateCoupon', () => ({
+  useTerminateCoupon: () => ({ openDialog: jest.fn() }),
 }))
 
 jest.mock('~/components/coupons/CouponCaption', () => ({

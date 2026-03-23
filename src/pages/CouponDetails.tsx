@@ -1,14 +1,10 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { CouponDetailsActivityLogs } from '~/components/coupons/CouponDetailsActivityLogs'
 import { CouponDetailsOverview } from '~/components/coupons/CouponDetailsOverview'
-import { DeleteCouponDialog, DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
-import {
-  TerminateCouponDialog,
-  TerminateCouponDialogRef,
-} from '~/components/coupons/TerminateCouponDialog'
+import { useDeleteCoupon } from '~/components/coupons/useDeleteCoupon'
+import { useTerminateCoupon } from '~/components/coupons/useTerminateCoupon'
 import { formatCouponValue } from '~/components/coupons/utils'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
@@ -57,9 +53,8 @@ const CouponDetails = () => {
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const couponActions = usePermissionsCouponActions()
-
-  const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
-  const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
+  const { openDialog: openDeleteDialog } = useDeleteCoupon()
+  const { openDialog: openTerminateDialog } = useTerminateCoupon()
 
   const { data, loading } = useGetCouponForDetailsQuery({
     variables: {
@@ -89,7 +84,7 @@ const CouponDetails = () => {
           label: translate('text_62876a50ea3bba00b56d2cbc'),
           hidden: !coupon || !couponActions.canTerminate(coupon),
           onClick: (closePopper) => {
-            if (coupon) terminateDialogRef.current?.openDialog(coupon)
+            if (coupon) openTerminateDialog({ id: coupon.id, name: coupon.name })
             closePopper()
           },
         },
@@ -100,8 +95,10 @@ const CouponDetails = () => {
           onClick: (closePopper) => {
             if (!coupon) return
 
-            deleteDialogRef.current?.openDialog({
+            openDeleteDialog({
               couponId: coupon.id,
+              couponName: coupon.name,
+              appliedCouponsCount: coupon.appliedCouponsCount,
               callback: () => {
                 navigate(COUPONS_ROUTE)
               },
@@ -161,9 +158,6 @@ const CouponDetails = () => {
       />
 
       <>{activeTabContent}</>
-
-      <DeleteCouponDialog ref={deleteDialogRef} />
-      <TerminateCouponDialog ref={terminateDialogRef} />
     </>
   )
 }

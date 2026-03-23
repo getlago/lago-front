@@ -1,14 +1,10 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
-import { DeleteCouponDialog, DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
-import {
-  TerminateCouponDialog,
-  TerminateCouponDialogRef,
-} from '~/components/coupons/TerminateCouponDialog'
+import { useDeleteCoupon } from '~/components/coupons/useDeleteCoupon'
+import { useTerminateCoupon } from '~/components/coupons/useTerminateCoupon'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
@@ -26,6 +22,7 @@ import {
   CouponCaptionFragmentDoc,
   CouponsQuery,
   DeleteCouponFragmentDoc,
+  TerminateCouponFragmentDoc,
   useCouponsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -60,12 +57,14 @@ gql`
         ...CouponItem
         ...CouponCaption
         ...DeleteCoupon
+        ...TerminateCoupon
       }
     }
   }
 
   ${CouponCaptionFragmentDoc}
   ${DeleteCouponFragmentDoc}
+  ${TerminateCouponFragmentDoc}
 `
 
 type CouponItem = CouponsQuery['coupons']['collection'][number]
@@ -75,8 +74,8 @@ const CouponsList = () => {
   const navigate = useNavigate()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const actions = usePermissionsCouponActions()
-  const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
-  const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
+  const { openDialog: openDeleteDialog } = useDeleteCoupon()
+  const { openDialog: openTerminateDialog } = useTerminateCoupon()
   const [getCoupons, { data, error, loading, fetchMore, variables }] = useCouponsLazyQuery({
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
@@ -130,7 +129,7 @@ const CouponsList = () => {
         title: translate('text_62876a50ea3bba00b56d2cbc'),
         dataTest: 'terminate-coupon',
         onAction: () => {
-          terminateDialogRef.current?.openDialog(coupon)
+          openTerminateDialog({ id: coupon.id, name: coupon.name })
         },
       })
     }
@@ -141,8 +140,10 @@ const CouponsList = () => {
         title: translate('text_629728388c4d2300e2d38182'),
         dataTest: 'delete-coupon',
         onAction: () => {
-          deleteDialogRef.current?.openDialog({
+          openDeleteDialog({
             couponId: coupon.id,
+            couponName: coupon.name,
+            appliedCouponsCount: coupon.appliedCouponsCount,
           })
         },
       })
@@ -167,7 +168,7 @@ const CouponsList = () => {
               type: 'action',
               label: translate('text_62865498824cc10126ab2954'),
               variant: 'primary',
-              hidden: !canCreateCoupons,
+              hidden: !actions.canCreate(),
               onClick: () => navigate(CREATE_COUPON_ROUTE),
               dataTest: 'add-coupon',
             },
@@ -278,9 +279,6 @@ const CouponsList = () => {
           }}
         />
       </InfiniteScroll>
-
-      <DeleteCouponDialog ref={deleteDialogRef} />
-      <TerminateCouponDialog ref={terminateDialogRef} />
     </>
   )
 }
