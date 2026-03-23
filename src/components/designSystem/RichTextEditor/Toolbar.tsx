@@ -1,6 +1,6 @@
 import { Editor, useEditorState } from '@tiptap/react'
 import { Icon } from 'lago-design-system'
-import { useState } from 'react'
+import { ReactElement, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
@@ -29,7 +29,41 @@ type ToolbarProps = {
   editor: Editor
 }
 
+type DropdownItem = {
+  name: string
+  value: string
+  label?: string
+  isActive: boolean
+  onButtonClick: () => void
+}
+
 const Separator = () => <div className="mx-1 w-px bg-grey-300" />
+
+const ToolbarDropdown = ({ items, opener }: { items: DropdownItem[]; opener: ReactElement }) => (
+  <Popper PopperProps={{ placement: 'bottom-start' }} opener={opener}>
+    {({ closePopper }) => (
+      <MenuPopper>
+        {items.map((item) => (
+          <Button
+            key={item.value}
+            variant="quaternary"
+            align="left"
+            onClick={() => {
+              item.onButtonClick()
+              closePopper()
+            }}
+          >
+            <div className="flex items-center gap-2">
+              {item.label && <Typography>{item.label}</Typography>}
+              <Typography color="grey700">{item.name}</Typography>
+              {item.isActive && <Icon name="checkmark" />}
+            </div>
+          </Button>
+        ))}
+      </MenuPopper>
+    )}
+  </Popper>
+)
 
 const Toolbar = ({ editor }: ToolbarProps) => {
   const [linkInput, setLinkInput] = useState('')
@@ -49,7 +83,6 @@ const Toolbar = ({ editor }: ToolbarProps) => {
       isH1: e.isActive('heading', { level: 1 }),
       isH2: e.isActive('heading', { level: 2 }),
       isH3: e.isActive('heading', { level: 3 }),
-      isHeading: e.isActive('heading'),
       isLink: e.isActive('link'),
       isSuperscript: e.isActive('superscript'),
       isSubscript: e.isActive('subscript'),
@@ -63,120 +96,142 @@ const Toolbar = ({ editor }: ToolbarProps) => {
     }),
   })
 
-  const possibleTextStylings = [
+  const textStylings: DropdownItem[] = [
     {
       name: 'Paragraph',
       value: 'paragraph',
       label: 'T',
       isActive: editorState.isParagraph,
-      onButtonClick: () => {
-        editor.chain().focus().setParagraph().run()
-      },
+      onButtonClick: () => editor.chain().focus().setParagraph().run(),
     },
     {
       name: 'Heading 1',
       value: 'heading-1',
       label: 'H1',
       isActive: editorState.isH1,
-      onButtonClick: () => {
-        editor.chain().focus().setHeading({ level: 1 }).run()
-      },
+      onButtonClick: () => editor.chain().focus().setHeading({ level: 1 }).run(),
     },
     {
       name: 'Heading 2',
       value: 'heading-2',
       label: 'H2',
       isActive: editorState.isH2,
-      onButtonClick: () => {
-        editor.chain().focus().setHeading({ level: 2 }).run()
-      },
+      onButtonClick: () => editor.chain().focus().setHeading({ level: 2 }).run(),
     },
     {
       name: 'Heading 3',
       value: 'heading-3',
       label: 'H3',
       isActive: editorState.isH3,
-      onButtonClick: () => {
-        editor.chain().focus().setHeading({ level: 3 }).run()
-      },
+      onButtonClick: () => editor.chain().focus().setHeading({ level: 3 }).run(),
     },
   ]
 
-  const possibleListStylings = [
+  const listStylings: DropdownItem[] = [
     {
       name: 'Bullet List',
       value: 'bulletList',
       label: '•',
       isActive: editorState.isBulletList,
-      onButtonClick: () => {
-        editor.chain().focus().toggleBulletList().run()
-      },
+      onButtonClick: () => editor.chain().focus().toggleBulletList().run(),
     },
     {
       name: 'Ordered List',
       value: 'orderedList',
       label: '1.',
       isActive: editorState.isOrderedList,
-      onButtonClick: () => {
-        editor.chain().focus().toggleOrderedList().run()
-      },
+      onButtonClick: () => editor.chain().focus().toggleOrderedList().run(),
     },
   ]
 
-  const possibleAlignments = [
+  const alignments: DropdownItem[] = [
     {
       name: 'Left',
       value: 'left',
       isActive: editorState.isAlignLeft,
-      onButtonClick: () => {
-        editor.chain().focus().setTextAlign('left').run()
-      },
+      onButtonClick: () => editor.chain().focus().setTextAlign('left').run(),
     },
     {
       name: 'Center',
       value: 'center',
       isActive: editorState.isAlignCenter,
-      onButtonClick: () => {
-        editor.chain().focus().setTextAlign('center').run()
-      },
+      onButtonClick: () => editor.chain().focus().setTextAlign('center').run(),
     },
     {
       name: 'Right',
       value: 'right',
       isActive: editorState.isAlignRight,
-      onButtonClick: () => {
-        editor.chain().focus().setTextAlign('right').run()
-      },
+      onButtonClick: () => editor.chain().focus().setTextAlign('right').run(),
     },
     {
       name: 'Justify',
       value: 'justify',
       isActive: editorState.isAlignJustify,
-      onButtonClick: () => {
-        editor.chain().focus().setTextAlign('justify').run()
-      },
+      onButtonClick: () => editor.chain().focus().setTextAlign('justify').run(),
     },
   ]
 
-  const getActualTextStyling = () => {
-    if (editorState.isH1) return 'heading-1'
-    if (editorState.isH2) return 'heading-2'
-    if (editorState.isH3) return 'heading-3'
-    if (editorState.isParagraph) return 'paragraph'
-    return 'multiple'
-  }
+  const inlineFormattings = [
+    {
+      testId: TOOLBAR_BOLD_BUTTON_TEST_ID,
+      isActive: editorState.isBold,
+      onClick: () => editor.chain().focus().toggleBold().run(),
+      children: 'B',
+    },
+    {
+      testId: TOOLBAR_ITALIC_BUTTON_TEST_ID,
+      isActive: editorState.isItalic,
+      onClick: () => editor.chain().focus().toggleItalic().run(),
+      children: 'I',
+    },
+    {
+      testId: TOOLBAR_UNDERLINE_BUTTON_TEST_ID,
+      isActive: editorState.isUnderline,
+      onClick: () => editor.chain().focus().toggleUnderline().run(),
+      children: 'U',
+    },
+    {
+      testId: TOOLBAR_STRIKE_BUTTON_TEST_ID,
+      isActive: editorState.isStrike,
+      onClick: () => editor.chain().focus().toggleStrike().run(),
+      children: 'S',
+    },
+    {
+      testId: TOOLBAR_CODE_BUTTON_TEST_ID,
+      isActive: editorState.isCode,
+      onClick: () => editor.chain().focus().toggleCode().run(),
+      children: '<>',
+    },
+    {
+      testId: TOOLBAR_HIGHLIGHT_BUTTON_TEST_ID,
+      isActive: editorState.isHighlight,
+      onClick: () => editor.chain().focus().toggleHighlight().run(),
+      children: <Icon name="sparkles" />,
+    },
+    {
+      testId: TOOLBAR_SUPERSCRIPT_BUTTON_TEST_ID,
+      isActive: editorState.isSuperscript,
+      onClick: () => editor.chain().focus().toggleSuperscript().run(),
+      children: (
+        <>
+          X<sup className="text-[8px]">2</sup>
+        </>
+      ),
+    },
+    {
+      testId: TOOLBAR_SUBSCRIPT_BUTTON_TEST_ID,
+      isActive: editorState.isSubscript,
+      onClick: () => editor.chain().focus().toggleSubscript().run(),
+      children: (
+        <>
+          X<sub className="text-[8px]">2</sub>
+        </>
+      ),
+    },
+  ]
 
-  const getActualListStyling = () => {
-    if (editorState.isBulletList) return 'bulletList'
-    if (editorState.isOrderedList) return 'orderedList'
-    return null
-  }
-
-  const actualTextStylingLabel =
-    possibleTextStylings.find((s) => s.value === getActualTextStyling())?.label ?? 'M'
-
-  const actualListLabel =
-    possibleListStylings.find((s) => s.value === getActualListStyling())?.label ?? '•'
+  const activeTextLabel = textStylings.find((s) => s.isActive)?.label ?? 'M'
+  const activeListLabel = listStylings.find((s) => s.isActive)?.label ?? '•'
 
   const handleSetLink = (closePopper: () => void) => {
     if (linkInput) {
@@ -218,104 +273,32 @@ const Toolbar = ({ editor }: ToolbarProps) => {
       <Separator />
 
       {/* Text styling dropdown */}
-      <Popper
-        PopperProps={{ placement: 'bottom-start' }}
+      <ToolbarDropdown
+        items={textStylings}
         opener={
           <Button variant="secondary" endIcon="chevron-down">
-            {actualTextStylingLabel}
+            {activeTextLabel}
           </Button>
         }
-      >
-        {({ closePopper }) => (
-          <MenuPopper>
-            {possibleTextStylings.map((styling) => (
-              <Button
-                key={styling.value}
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  styling.onButtonClick()
-                  closePopper()
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <Typography>{styling.label}</Typography>
-                  <Typography color="grey700">{styling.name}</Typography>
-                  {styling.isActive && <Icon name="checkmark" />}
-                </div>
-              </Button>
-            ))}
-          </MenuPopper>
-        )}
-      </Popper>
+      />
 
       {/* Inline formatting */}
-      <Button
-        data-test={TOOLBAR_BOLD_BUTTON_TEST_ID}
-        variant={editorState.isBold ? 'primary' : 'secondary'}
-        onClick={() => editor.chain().focus().toggleBold().run()}
-      >
-        B
-      </Button>
-      <Button
-        data-test={TOOLBAR_ITALIC_BUTTON_TEST_ID}
-        variant={editorState.isItalic ? 'primary' : 'secondary'}
-        onClick={() => editor.chain().focus().toggleItalic().run()}
-      >
-        I
-      </Button>
-      <Button
-        data-test={TOOLBAR_UNDERLINE_BUTTON_TEST_ID}
-        variant={editorState.isUnderline ? 'primary' : 'secondary'}
-        onClick={() => editor.chain().focus().toggleUnderline().run()}
-      >
-        U
-      </Button>
-      <Button
-        data-test={TOOLBAR_STRIKE_BUTTON_TEST_ID}
-        variant={editorState.isStrike ? 'primary' : 'secondary'}
-        onClick={() => editor.chain().focus().toggleStrike().run()}
-      >
-        S
-      </Button>
-      <Button
-        data-test={TOOLBAR_CODE_BUTTON_TEST_ID}
-        variant={editorState.isCode ? 'primary' : 'secondary'}
-        onClick={() => editor.chain().focus().toggleCode().run()}
-      >
-        {'<>'}
-      </Button>
-      <Button
-        data-test={TOOLBAR_HIGHLIGHT_BUTTON_TEST_ID}
-        variant={editorState.isHighlight ? 'primary' : 'secondary'}
-        onClick={() => editor.chain().focus().toggleHighlight().run()}
-      >
-        <Icon name="sparkles" />
-      </Button>
-
-      <Separator />
-
-      {/* Superscript / Subscript */}
-      <Button
-        data-test={TOOLBAR_SUPERSCRIPT_BUTTON_TEST_ID}
-        variant={editorState.isSuperscript ? 'primary' : 'secondary'}
-        onClick={() => editor.chain().focus().toggleSuperscript().run()}
-      >
-        X<sup className="text-[8px]">2</sup>
-      </Button>
-      <Button
-        data-test={TOOLBAR_SUBSCRIPT_BUTTON_TEST_ID}
-        variant={editorState.isSubscript ? 'primary' : 'secondary'}
-        onClick={() => editor.chain().focus().toggleSubscript().run()}
-      >
-        X<sub className="text-[8px]">2</sub>
-      </Button>
+      {inlineFormattings.map((fmt) => (
+        <Button
+          key={fmt.testId}
+          data-test={fmt.testId}
+          variant={fmt.isActive ? 'primary' : 'secondary'}
+          onClick={fmt.onClick}
+        >
+          {fmt.children}
+        </Button>
+      ))}
 
       <Separator />
 
       {/* List dropdown */}
-      <Popper
-        PopperProps={{ placement: 'bottom-start' }}
+      <ToolbarDropdown
+        items={listStylings}
         opener={
           <Button
             variant={
@@ -323,63 +306,20 @@ const Toolbar = ({ editor }: ToolbarProps) => {
             }
             endIcon="chevron-down"
           >
-            {actualListLabel}
+            {activeListLabel}
           </Button>
         }
-      >
-        {({ closePopper }) => (
-          <MenuPopper>
-            {possibleListStylings.map((styling) => (
-              <Button
-                key={styling.value}
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  styling.onButtonClick()
-                  closePopper()
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <Typography>{styling.label}</Typography>
-                  <Typography color="grey700">{styling.name}</Typography>
-                  {styling.isActive && <Icon name="checkmark" />}
-                </div>
-              </Button>
-            ))}
-          </MenuPopper>
-        )}
-      </Popper>
+      />
 
       {/* Text align dropdown */}
-      <Popper
-        PopperProps={{ placement: 'bottom-start' }}
+      <ToolbarDropdown
+        items={alignments}
         opener={
           <Button variant="secondary" endIcon="chevron-down">
             <Icon name="content-left-align" />
           </Button>
         }
-      >
-        {({ closePopper }) => (
-          <MenuPopper>
-            {possibleAlignments.map((alignment) => (
-              <Button
-                key={alignment.value}
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  alignment.onButtonClick()
-                  closePopper()
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <Typography color="grey700">{alignment.name}</Typography>
-                  {alignment.isActive && <Icon name="checkmark" />}
-                </div>
-              </Button>
-            ))}
-          </MenuPopper>
-        )}
-      </Popper>
+      />
 
       <Separator />
 
@@ -444,7 +384,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
       {/* Table */}
       <Button
         data-test={TOOLBAR_TABLE_BUTTON_TEST_ID}
-        variant={'secondary'}
+        variant="secondary"
         onClick={() =>
           editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
         }
