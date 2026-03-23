@@ -3979,5 +3979,17 @@
   "text_1773063868176jh122suh1lx": "Credits threshold",
   "text_1773223136519pcuvc8zwoyf": "This threshold overlaps with previous one, please set a value lower than {{value}}",
   "text_17740184000000_total_results": "{{count}} result|{{count}} results",
-  "text_1774281162711nymiwumt66k": "Type / for commands..."
+  "text_1774281162711nymiwumt66k": "Type / for commands...",
+  "text_1774281559656dn2u208gh80": "Heading 1",
+  "text_1774281559656pla0xamsvmf": "Large section heading",
+  "text_1774281559657ec0exeaqqd3": "Heading 2",
+  "text_1774281559657q7h8pu6455p": "Medium section heading",
+  "text_1774281559657t0kkn628zdy": "Heading 3",
+  "text_1774281559657o48ilt0rq5y": "Small section heading",
+  "text_1774281559657cbz20fzcjka": "Bullet List",
+  "text_17742815596575m8mqwrg1qy": "Unordered list",
+  "text_1774281559657yc3z031hm6x": "Table",
+  "text_1774281559657y9saycc2aev": "Insert a 3x3 table",
+  "text_1774281559657l4kkx9ws4mz": "Code Block",
+  "text_1774281559657qdknwsvn5ka": "Insert a code block"
 }
