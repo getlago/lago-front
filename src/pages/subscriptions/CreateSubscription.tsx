@@ -293,7 +293,8 @@ const CreateSubscription = () => {
     initialValues: {
       planId: formType !== FORM_TYPE_ENUM.upgradeDowngrade ? subscription?.plan?.id || '' : '',
       name: formType !== FORM_TYPE_ENUM.upgradeDowngrade ? subscription?.name || '' : '',
-      externalId: subscription?.externalId || '',
+      // TODO: Remove 'activation_rules_test' prefix — temporary mock trigger for BE branch poc/sub-activation-rules-fe
+      externalId: subscription?.externalId || 'activation_rules_test',
       subscriptionAt: subscription?.subscriptionAt || currentDateRef?.current,
       endingAt: subscription?.endingAt || undefined,
       billingTime: subscription?.billingTime || BillingTimeEnum.Calendar,
