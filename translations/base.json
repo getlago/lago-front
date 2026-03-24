@@ -3987,5 +3987,15 @@
   "text_17742745557593afwzzmtgnb": "Timeout duration",
   "text_1774274555759s8j4kpfuyci": "The user must complete a successful payment before the validation times out.",
   "text_17742745557598h0labk74v1": "hours",
-  "text_1774274555759a263xou43bp": "Incomplete"
+  "text_1774274555759a263xou43bp": "Incomplete",
+  "text_1774352080433yerw1efzlhz": "This subscription requires a successful payment to become active. Go to the customer's payment view to review past payments.",
+  "text_1774352080433gd3ir29lpxr": "This subscription has been canceled because the payment failed.",
+  "text_1774352080433ykzd2e2f6uu": "This subscription has expired because no successful payment was made before the timeout.",
+  "text_17743520804341uzgeu20x8b": "Activation rule",
+  "text_1774352080434jni2qajf3vs": "Activates on successful payment",
+  "text_17743520804341zw721mkq81": "Subscription times out",
+  "text_17743520804347dc97damzag": "No timeout defined",
+  "text_17743520804348kmg5y4ur98": "In {{hours}} hours",
+  "text_1774352080434o5cfv45lvgz": "In less than 1 hour",
+  "text_1774352110215n8rzudylrf3": "Expired"
 }
