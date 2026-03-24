@@ -46,6 +46,13 @@ gql`
         id
         name
       }
+      activationRules {
+        lagoId
+        type
+        timeoutHours
+        status
+        expiresAt
+      }
       customer {
         id
         activeSubscriptionsCount
@@ -77,6 +84,13 @@ gql`
       selectedInvoiceCustomSections {
         id
         name
+      }
+      activationRules {
+        lagoId
+        type
+        timeoutHours
+        status
+        expiresAt
       }
       customer {
         id

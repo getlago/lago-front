@@ -69,6 +69,23 @@ export type ActivityLogCollection = {
 /** Activity log resource */
 export type ActivityLogResourceObject = BillableMetric | BillingEntity | Coupon | CreditNote | Customer | FeatureObject | Invoice | PaymentReceipt | PaymentRequest | Plan | Subscription | Wallet;
 
+/** Activation rule input for subscription creation/update */
+export type ActivationRuleInput = {
+  timeoutHours?: InputMaybe<Scalars['Int']['input']>;
+  type: ActivationRuleTypeEnum;
+};
+
+export enum ActivationRuleStatusEnum {
+  Active = 'active',
+  Failed = 'failed',
+  Pending = 'pending',
+  Succeeded = 'succeeded'
+}
+
+export enum ActivationRuleTypeEnum {
+  Payment = 'payment'
+}
+
 /** Activity Logs source enums */
 export enum ActivitySourceEnum {
   Api = 'api',
@@ -2094,6 +2111,7 @@ export type CreateSubscriptionChargeFilterInput = {
 
 /** Create Subscription input arguments */
 export type CreateSubscriptionInput = {
+  activationRules?: InputMaybe<Array<ActivationRuleInput>>;
   billingTime: BillingTimeEnum;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
@@ -3169,6 +3187,7 @@ export type DataExportCreditNoteFiltersInput = {
   refundStatus?: InputMaybe<Array<CreditNoteRefundStatusEnum>>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
+  types?: InputMaybe<Array<CreditNoteTypeEnum>>;
 };
 
 export enum DataExportFormatTypeEnum {
@@ -8326,6 +8345,7 @@ export type SetAsDefaultInput = {
 export enum StatusTypeEnum {
   Active = 'active',
   Canceled = 'canceled',
+  Incomplete = 'incomplete',
   Pending = 'pending',
   Terminated = 'terminated'
 }
@@ -8340,11 +8360,25 @@ export type StripeProvider = {
   supports3ds?: Maybe<Scalars['Boolean']['output']>;
 };
 
+/** SubscriptionActivationRule type */
+export type SubscriptionActivationRule = {
+  __typename?: 'SubscriptionActivationRule';
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  expiresAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  lagoId: Scalars['ID']['output'];
+  status: ActivationRuleStatusEnum;
+  timeoutHours?: Maybe<Scalars['Int']['output']>;
+  type: ActivationRuleTypeEnum;
+  updatedAt: Scalars['ISO8601DateTime']['output'];
+};
+
 export type Subscription = {
   __typename?: 'Subscription';
+  activationRules?: Maybe<Array<SubscriptionActivationRule>>;
   activityLogs?: Maybe<Array<ActivityLog>>;
   billingTime?: Maybe<BillingTimeEnum>;
   canceledAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  cancellationReason?: Maybe<Scalars['String']['output']>;
   charges?: Maybe<Array<Charge>>;
   createdAt: Scalars['ISO8601DateTime']['output'];
   currentBillingPeriodEndingAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -9511,6 +9545,7 @@ export type UpdateSubscriptionFixedChargeInput = {
 
 /** Update Subscription input arguments */
 export type UpdateSubscriptionInput = {
+  activationRules?: InputMaybe<Array<ActivationRuleInput>>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   endingAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
@@ -12325,14 +12360,14 @@ export type CreateSubscriptionMutationVariables = Exact<{
 }>;
 
 
-export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, subscriptionAt?: any | null, endingAt?: any | null, name?: string | null, externalId: string, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string }, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null }, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } } | null };
+export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, subscriptionAt?: any | null, endingAt?: any | null, name?: string | null, externalId: string, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, activationRules?: Array<{ __typename?: 'SubscriptionActivationRule', lagoId: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }> | null, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string }, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null }, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } } | null };
 
 export type UpdateSubscriptionMutationVariables = Exact<{
   input: UpdateSubscriptionInput;
 }>;
 
 
-export type UpdateSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, subscriptionAt?: any | null, endingAt?: any | null, name?: string | null, externalId: string, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string }, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null }, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } } | null };
+export type UpdateSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, subscriptionAt?: any | null, endingAt?: any | null, name?: string | null, externalId: string, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, activationRules?: Array<{ __typename?: 'SubscriptionActivationRule', lagoId: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }> | null, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, creditNotesCreditsAvailableCount: number, creditNotesBalanceAmountCents: any, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string }, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null }, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } } | null };
 
 export type PaymentMethodsQueryVariables = Exact<{
   externalCustomerId: Scalars['ID']['input'];
@@ -13227,7 +13262,7 @@ export type PlansQueryVariables = Exact<{
 
 export type PlansQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, activeSubscriptionsCount: number, createdAt: any, draftInvoicesCount: number }> } };
 
-export type SubscriptionForSubscriptionsListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, payInAdvance: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null };
+export type SubscriptionForSubscriptionsListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, cancellationReason?: string | null, activationRules?: Array<{ __typename?: 'SubscriptionActivationRule', lagoId: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }> | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, payInAdvance: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null };
 
 export type GetSubscriptionsListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -14731,7 +14766,7 @@ export type GetSubscriptionForCreateSubscriptionQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionForCreateSubscriptionQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, billingTime?: BillingTimeEnum | null, periodEndDate?: any | null, status?: StatusTypeEnum | null, startedAt?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } } | null };
+export type GetSubscriptionForCreateSubscriptionQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, billingTime?: BillingTimeEnum | null, periodEndDate?: any | null, status?: StatusTypeEnum | null, startedAt?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null, activationRules?: Array<{ __typename?: 'SubscriptionActivationRule', lagoId: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }> | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } } | null };
 
 export type GetSubscriptionForDetailsQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -18629,6 +18664,14 @@ export const SubscriptionForSubscriptionsListFragmentDoc = gql`
   subscriptionAt
   endingAt
   terminatedAt
+  cancellationReason
+  activationRules {
+    lagoId
+    type
+    timeoutHours
+    status
+    expiresAt
+  }
   customer {
     id
     name
@@ -30285,6 +30328,13 @@ export const CreateSubscriptionDocument = gql`
       id
       name
     }
+    activationRules {
+      lagoId
+      type
+      timeoutHours
+      status
+      expiresAt
+    }
     customer {
       id
       activeSubscriptionsCount
@@ -30343,6 +30393,13 @@ export const UpdateSubscriptionDocument = gql`
     selectedInvoiceCustomSections {
       id
       name
+    }
+    activationRules {
+      lagoId
+      type
+      timeoutHours
+      status
+      expiresAt
     }
     customer {
       id
@@ -40842,6 +40899,13 @@ export const GetSubscriptionForCreateSubscriptionDocument = gql`
       id
       name
       code
+    }
+    activationRules {
+      lagoId
+      type
+      timeoutHours
+      status
+      expiresAt
     }
     plan {
       id
