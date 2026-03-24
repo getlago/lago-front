@@ -1,10 +1,12 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { addToast } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   FeatureForDeleteFeatureDialogFragment,
+  GetFeaturesListDocument,
   useDestroyFeatureMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -35,6 +37,7 @@ export const DeleteFeatureDialog = forwardRef<DeleteFeatureDialogRef>((_, ref) =
   const { translate } = useInternationalization()
   const dialogRef = useRef<WarningDialogRef>(null)
   const [dialogData, setDialogData] = useState<DeleteFeatureDialogProps | undefined>(undefined)
+  const client = useApolloClient()
 
   const [destroyFeature] = useDestroyFeatureMutation({
     onCompleted({ destroyFeature: destroyedFeature }) {
@@ -46,10 +49,16 @@ export const DeleteFeatureDialog = forwardRef<DeleteFeatureDialogRef>((_, ref) =
           severity: 'success',
         })
 
+        evictFromCache(client, {
+          id: destroyedFeature.id,
+          __typename: 'FeatureObject',
+          listFieldName: 'features',
+          listQueryDocument: GetFeaturesListDocument,
+        })
+
         dialogData?.callback?.()
       }
     },
-    refetchQueries: ['getFeaturesList'],
   })
 
   useImperativeHandle(ref, () => ({
