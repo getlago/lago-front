@@ -47,6 +47,7 @@ import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { FeatureEntitlementSection } from '~/components/subscriptions/FeatureEntitlementSection'
 import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
+import { SubscriptionActivationRuleSection } from '~/components/subscriptions/SubscriptionActivationRuleSection'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -55,6 +56,10 @@ import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
 } from '~/core/router'
+import {
+  deserializeActivationRules,
+  serializeActivationRules,
+} from '~/core/serializers/serializeActivationRules'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   AddSubscriptionPlanFragmentDoc,
@@ -141,6 +146,13 @@ gql`
         id
         name
         code
+      }
+      activationRules {
+        lagoId
+        type
+        timeoutHours
+        status
+        expiresAt
       }
       plan {
         id
@@ -293,6 +305,7 @@ const CreateSubscription = () => {
         invoiceCustomSections: subscription?.selectedInvoiceCustomSections || [],
         skipInvoiceCustomSections: subscription?.skipInvoiceCustomSections || false,
       },
+      ...deserializeActivationRules(subscription?.activationRules),
     },
     validationSchema: object().shape({
       planId: string().required(''),
@@ -335,11 +348,17 @@ const CreateSubscription = () => {
     validateOnMount: true,
     enableReinitialize: true,
     onSubmit: async (values, formikBag) => {
-      const { invoiceCustomSection, ...restValues } = values
+      const {
+        invoiceCustomSection,
+        activationRuleType,
+        activationRuleTimeoutHours,
+        ...restValues
+      } = values
 
       const localValues = {
         id: formType === FORM_TYPE_ENUM.edition ? subscription?.id : undefined,
         ...restValues,
+        activationRules: serializeActivationRules(activationRuleType, activationRuleTimeoutHours),
         invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
       }
       const rootElement = document.getElementById('root')
@@ -839,6 +858,13 @@ const CreateSubscription = () => {
                               customer={customer}
                               formikProps={subscriptionFormikProps}
                               viewType={ViewTypeEnum.Subscription}
+                            />
+
+                            <SubscriptionActivationRuleSection
+                              formikProps={subscriptionFormikProps}
+                              customerExternalId={customer?.externalId || ''}
+                              formType={formType}
+                              subscriptionStatus={subscription?.status}
                             />
                           </Card>
                         </div>
