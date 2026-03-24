@@ -5,7 +5,11 @@ import CouponsList from '../CouponsList'
 
 const mockMainHeaderConfigure = jest.fn()
 const mockTableProps = jest.fn()
-const mockHasPermissions = jest.fn()
+
+const mockCanCreate = jest.fn()
+const mockCanEdit = jest.fn()
+const mockCanTerminate = jest.fn()
+const mockCanDelete = jest.fn()
 
 jest.mock('~/components/MainHeader/MainHeader', () => ({
   MainHeader: {
@@ -31,12 +35,12 @@ jest.mock('~/components/SearchInput', () => ({
   SearchInput: () => null,
 }))
 
-jest.mock('~/components/coupons/DeleteCouponDialog', () => ({
-  DeleteCouponDialog: () => null,
+jest.mock('~/components/coupons/useDeleteCoupon', () => ({
+  useDeleteCoupon: () => ({ openDialog: jest.fn() }),
 }))
 
-jest.mock('~/components/coupons/TerminateCouponDialog', () => ({
-  TerminateCouponDialog: () => null,
+jest.mock('~/components/coupons/useTerminateCoupon', () => ({
+  useTerminateCoupon: () => ({ openDialog: jest.fn() }),
 }))
 
 jest.mock('~/components/coupons/CouponCaption', () => ({
@@ -53,8 +57,13 @@ jest.mock('react-router-dom', () => ({
   generatePath: jest.fn((route: string) => route),
 }))
 
-jest.mock('~/hooks/usePermissions', () => ({
-  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+jest.mock('~/hooks/usePermissionsCouponActions', () => ({
+  usePermissionsCouponActions: () => ({
+    canCreate: mockCanCreate,
+    canEdit: mockCanEdit,
+    canTerminate: mockCanTerminate,
+    canDelete: mockCanDelete,
+  }),
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -89,13 +98,15 @@ jest.mock('~/core/constants/statusCouponMapping', () => ({
 describe('CouponsList', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockCanCreate.mockReturnValue(true)
+    mockCanEdit.mockReturnValue(true)
+    mockCanTerminate.mockReturnValue(true)
+    mockCanDelete.mockReturnValue(true)
   })
 
   describe('GIVEN the component is rendered', () => {
     describe('WHEN user has couponsCreate permission', () => {
-      it('THEN should pass a create action to MainHeader.Configure', () => {
-        mockHasPermissions.mockImplementation((perms: string[]) => perms.includes('couponsCreate'))
-
+      it('THEN should pass a visible create action to MainHeader.Configure', () => {
         render(<CouponsList />)
 
         expect(mockMainHeaderConfigure).toHaveBeenCalledWith(
@@ -114,8 +125,8 @@ describe('CouponsList', () => {
     })
 
     describe('WHEN user has no create permission', () => {
-      it('THEN should pass empty actions to MainHeader.Configure', () => {
-        mockHasPermissions.mockReturnValue(false)
+      it('THEN should pass hidden create action to MainHeader.Configure', () => {
+        mockCanCreate.mockReturnValue(false)
 
         render(<CouponsList />)
 
@@ -134,8 +145,6 @@ describe('CouponsList', () => {
     })
 
     it('THEN should configure entity with view name', () => {
-      mockHasPermissions.mockReturnValue(false)
-
       render(<CouponsList />)
 
       expect(mockMainHeaderConfigure).toHaveBeenCalledWith(
@@ -151,8 +160,6 @@ describe('CouponsList', () => {
   describe('GIVEN user has all row-level permissions', () => {
     describe('WHEN actionColumn is called for an active coupon', () => {
       it('THEN should return edit, terminate, and delete actions', () => {
-        mockHasPermissions.mockReturnValue(true)
-
         render(<CouponsList />)
 
         const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
@@ -173,14 +180,14 @@ describe('CouponsList', () => {
     })
 
     describe('WHEN actionColumn is called for a terminated coupon', () => {
-      it('THEN should have disabled edit and terminate actions', () => {
-        mockHasPermissions.mockReturnValue(true)
+      it('THEN should omit the terminate action', () => {
+        mockCanTerminate.mockReturnValue(false)
 
         render(<CouponsList />)
 
         const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
           item: Record<string, unknown>,
-        ) => { startIcon: string; disabled: boolean }[]
+        ) => { startIcon: string }[]
 
         const actions = actionColumn({
           id: 'coupon-1',
@@ -188,8 +195,9 @@ describe('CouponsList', () => {
           status: CouponStatusEnum.Terminated,
         })
 
-        expect(actions[0]).toEqual(expect.objectContaining({ startIcon: 'pen', disabled: true }))
-        expect(actions[1]).toEqual(expect.objectContaining({ startIcon: 'switch', disabled: true }))
+        expect(actions).toHaveLength(2)
+        expect(actions[0]).toEqual(expect.objectContaining({ startIcon: 'pen' }))
+        expect(actions[1]).toEqual(expect.objectContaining({ startIcon: 'trash' }))
       })
     })
   })
@@ -197,7 +205,9 @@ describe('CouponsList', () => {
   describe('GIVEN user has no row-level permissions', () => {
     describe('WHEN actionColumn is called for a row item', () => {
       it('THEN should return empty array', () => {
-        mockHasPermissions.mockReturnValue(false)
+        mockCanEdit.mockReturnValue(false)
+        mockCanTerminate.mockReturnValue(false)
+        mockCanDelete.mockReturnValue(false)
 
         render(<CouponsList />)
 
@@ -217,9 +227,9 @@ describe('CouponsList', () => {
   })
 
   describe('GIVEN user has only couponsUpdate permission', () => {
-    describe('WHEN actionColumn is called', () => {
+    describe('WHEN actionColumn is called for an active coupon', () => {
       it('THEN should return edit and terminate actions but not delete', () => {
-        mockHasPermissions.mockImplementation((perms: string[]) => perms.includes('couponsUpdate'))
+        mockCanDelete.mockReturnValue(false)
 
         render(<CouponsList />)
 
@@ -243,7 +253,8 @@ describe('CouponsList', () => {
   describe('GIVEN user has only couponsDelete permission', () => {
     describe('WHEN actionColumn is called', () => {
       it('THEN should return only the delete action', () => {
-        mockHasPermissions.mockImplementation((perms: string[]) => perms.includes('couponsDelete'))
+        mockCanEdit.mockReturnValue(false)
+        mockCanTerminate.mockReturnValue(false)
 
         render(<CouponsList />)
 
