@@ -32,6 +32,7 @@ import Toolbar from './Toolbar'
 export const RICH_TEXT_EDITOR_TEST_ID = 'rich-text-editor'
 export const RICH_TEXT_EDITOR_TOOLBAR_TEST_ID = 'rich-text-editor-toolbar'
 export const RICH_TEXT_EDITOR_CONTENT_TEST_ID = 'rich-text-editor-content'
+export const RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID = 'rich-text-editor-save-button'
 
 export type RichTextEditorMode = 'edit' | 'preview'
 
@@ -216,7 +217,9 @@ const RichTextEditor = ({
         <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
         {!isPreview && onSave && (
           <div className="flex justify-end p-4">
-            <Button onClick={handleSave}>Save</Button>
+            <Button data-test={RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID} onClick={handleSave}>
+              Save
+            </Button>
           </div>
         )}
       </div>

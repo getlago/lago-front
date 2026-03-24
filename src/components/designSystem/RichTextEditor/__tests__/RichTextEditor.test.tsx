@@ -2,7 +2,10 @@ import { act, cleanup, screen } from '@testing-library/react'
 
 import { render } from '~/test-utils'
 
-import RichTextEditor, { RICH_TEXT_EDITOR_TEST_ID } from '../RichTextEditor'
+import RichTextEditor, {
+  RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID,
+  RICH_TEXT_EDITOR_TEST_ID,
+} from '../RichTextEditor'
 
 // Capture the config passed to SlashCommands.configure()
 let capturedSlashCommandsConfig: Record<string, unknown> = {}
@@ -18,8 +21,15 @@ jest.mock('../extensions/SlashCommands', () => ({
   slashCommandDefinitions: [],
 }))
 
+const mockGetMarkdown = jest.fn().mockReturnValue('# Hello World')
+
 const mockEditor = {
   setEditable: jest.fn(),
+  storage: {
+    markdown: {
+      getMarkdown: mockGetMarkdown,
+    },
+  } as Record<string, unknown>,
   isActive: jest.fn().mockReturnValue(false),
   can: jest.fn().mockReturnValue({
     undo: jest.fn().mockReturnValue(false),
@@ -289,6 +299,72 @@ describe('RichTextEditor', () => {
     it('THEN should pass a translate function to SlashCommands.configure', () => {
       expect(capturedSlashCommandsConfig.translate).toBeDefined()
       expect(typeof capturedSlashCommandsConfig.translate).toBe('function')
+    })
+  })
+
+  describe('GIVEN the onSave prop is provided', () => {
+    describe('WHEN the component renders in edit mode', () => {
+      it('THEN should render the save button', async () => {
+        const onSave = jest.fn()
+
+        await act(() => render(<RichTextEditor onSave={onSave} />))
+
+        expect(screen.getByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the component renders in preview mode', () => {
+      it('THEN should not render the save button', async () => {
+        const onSave = jest.fn()
+
+        await act(() => render(<RichTextEditor mode="preview" onSave={onSave} />))
+
+        expect(screen.queryByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the save button is clicked', () => {
+      it('THEN should call onSave with the markdown content', async () => {
+        const onSave = jest.fn()
+
+        await act(() => render(<RichTextEditor onSave={onSave} />))
+
+        const saveButton = screen.getByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)
+
+        await act(() => saveButton.click())
+
+        expect(mockGetMarkdown).toHaveBeenCalled()
+        expect(onSave).toHaveBeenCalledWith('# Hello World')
+      })
+    })
+
+    describe('WHEN the storage does not have markdown', () => {
+      it('THEN should not call onSave', async () => {
+        const onSave = jest.fn()
+        const originalStorage = mockEditor.storage
+
+        mockEditor.storage = {}
+
+        await act(() => render(<RichTextEditor onSave={onSave} />))
+
+        const saveButton = screen.getByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)
+
+        await act(() => saveButton.click())
+
+        expect(onSave).not.toHaveBeenCalled()
+
+        mockEditor.storage = originalStorage
+      })
+    })
+  })
+
+  describe('GIVEN the onSave prop is not provided', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should not render the save button', async () => {
+        await act(() => render(<RichTextEditor />))
+
+        expect(screen.queryByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      })
     })
   })
 })
