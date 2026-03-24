@@ -114,21 +114,21 @@ describe('AddOnDetails', () => {
         )
       })
 
-      it('THEN should pass isLoading false to MainHeader.Configure', () => {
+      it('THEN should pass loading false to MainHeader.Configure', () => {
         mockHasPermissions.mockReturnValue(true)
 
         render(<AddOnDetails />)
 
         expect(mockMainHeaderConfigure).toHaveBeenCalledWith(
           expect.objectContaining({
-            isLoading: false,
+            actions: expect.objectContaining({ loading: false }),
           }),
         )
       })
     })
 
     describe('WHEN add-on is still loading', () => {
-      it('THEN should pass isLoading true to MainHeader.Configure', () => {
+      it('THEN should pass loading true to MainHeader.Configure', () => {
         mockUseGetAddOnForDetailsQuery.mockReturnValue({
           data: null,
           loading: true,
@@ -139,7 +139,7 @@ describe('AddOnDetails', () => {
 
         expect(mockMainHeaderConfigure).toHaveBeenCalledWith(
           expect.objectContaining({
-            isLoading: true,
+            actions: expect.objectContaining({ loading: true }),
           }),
         )
       })
@@ -153,8 +153,8 @@ describe('AddOnDetails', () => {
 
         render(<AddOnDetails />)
 
-        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]
-          ?.actions as MainHeaderDropdownAction[]
+        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
+          ?.items as MainHeaderDropdownAction[]
 
         expect(actions).toHaveLength(1)
         expect(actions[0]?.type).toBe('dropdown')
@@ -173,8 +173,8 @@ describe('AddOnDetails', () => {
 
         render(<AddOnDetails />)
 
-        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]
-          ?.actions as MainHeaderDropdownAction[]
+        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
+          ?.items as MainHeaderDropdownAction[]
         const editItem = actions[0]?.items[0]
 
         expect(editItem?.hidden).toBe(true)
@@ -189,8 +189,8 @@ describe('AddOnDetails', () => {
 
         render(<AddOnDetails />)
 
-        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]
-          ?.actions as MainHeaderDropdownAction[]
+        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
+          ?.items as MainHeaderDropdownAction[]
         const deleteItem = actions[0]?.items[1]
 
         expect(deleteItem?.hidden).toBe(true)

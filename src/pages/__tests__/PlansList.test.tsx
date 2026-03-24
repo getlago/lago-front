@@ -87,12 +87,14 @@ describe('PlansList', () => {
 
         expect(mockMainHeaderConfigure).toHaveBeenCalledWith(
           expect.objectContaining({
-            actions: expect.arrayContaining([
-              expect.objectContaining({
-                type: 'action',
-                dataTest: 'create-plan',
-              }),
-            ]),
+            actions: expect.objectContaining({
+              items: expect.arrayContaining([
+                expect.objectContaining({
+                  type: 'action',
+                  dataTest: 'create-plan',
+                }),
+              ]),
+            }),
           }),
         )
       })
@@ -106,11 +108,13 @@ describe('PlansList', () => {
 
         expect(mockMainHeaderConfigure).toHaveBeenCalledWith(
           expect.objectContaining({
-            actions: expect.arrayContaining([
-              expect.objectContaining({
-                hidden: true,
-              }),
-            ]),
+            actions: expect.objectContaining({
+              items: expect.arrayContaining([
+                expect.objectContaining({
+                  hidden: true,
+                }),
+              ]),
+            }),
           }),
         )
       })
