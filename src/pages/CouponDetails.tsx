@@ -1,14 +1,10 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { CouponDetailsActivityLogs } from '~/components/coupons/CouponDetailsActivityLogs'
 import { CouponDetailsOverview } from '~/components/coupons/CouponDetailsOverview'
-import { DeleteCouponDialog, DeleteCouponDialogRef } from '~/components/coupons/DeleteCouponDialog'
-import {
-  TerminateCouponDialog,
-  TerminateCouponDialogRef,
-} from '~/components/coupons/TerminateCouponDialog'
+import { useDeleteCoupon } from '~/components/coupons/useDeleteCoupon'
+import { useTerminateCoupon } from '~/components/coupons/useTerminateCoupon'
 import { formatCouponValue } from '~/components/coupons/utils'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
@@ -17,7 +13,6 @@ import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTa
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
 import {
-  CouponStatusEnum,
   DeleteCouponFragmentDoc,
   TerminateCouponFragmentDoc,
   useGetCouponForDetailsQuery,
@@ -25,6 +20,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
+import { usePermissionsCouponActions } from '~/hooks/usePermissionsCouponActions'
 
 gql`
   fragment CouponDetailsForHeader on Coupon {
@@ -52,13 +48,13 @@ gql`
 
 const CouponDetails = () => {
   const navigate = useNavigate()
-  const { hasPermissions } = usePermissions()
   const { translate } = useInternationalization()
   const { couponId } = useParams()
   const { isPremium } = useCurrentUser()
-
-  const deleteDialogRef = useRef<DeleteCouponDialogRef>(null)
-  const terminateDialogRef = useRef<TerminateCouponDialogRef>(null)
+  const { hasPermissions } = usePermissions()
+  const couponActions = usePermissionsCouponActions()
+  const { openDialog: openDeleteDialog } = useDeleteCoupon()
+  const { openDialog: openTerminateDialog } = useTerminateCoupon()
 
   const { data, loading } = useGetCouponForDetailsQuery({
     variables: {
@@ -69,8 +65,6 @@ const CouponDetails = () => {
 
   const coupon = data?.coupon
 
-  const isTerminated = coupon?.status === CouponStatusEnum.Terminated
-
   const actions: MainHeaderAction[] = [
     {
       type: 'dropdown',
@@ -80,8 +74,7 @@ const CouponDetails = () => {
         {
           label: translate('text_625fd39a15394c0117e7d792'),
           dataTest: 'coupon-details-edit',
-          hidden: !hasPermissions(['couponsUpdate']),
-          disabled: isTerminated,
+          hidden: !couponActions.canEdit(),
           onClick: (closePopper) => {
             navigate(generatePath(UPDATE_COUPON_ROUTE, { couponId: couponId as string }))
             closePopper()
@@ -89,22 +82,23 @@ const CouponDetails = () => {
         },
         {
           label: translate('text_62876a50ea3bba00b56d2cbc'),
-          hidden: !coupon || !hasPermissions(['couponsUpdate']),
-          disabled: isTerminated,
+          hidden: !coupon || !couponActions.canTerminate(coupon),
           onClick: (closePopper) => {
-            if (coupon) terminateDialogRef.current?.openDialog(coupon)
+            if (coupon) openTerminateDialog({ id: coupon.id, name: coupon.name })
             closePopper()
           },
         },
         {
           label: translate('text_629728388c4d2300e2d38182'),
-          hidden: !coupon || !hasPermissions(['couponsDelete']),
+          hidden: !coupon || !couponActions.canDelete(),
           dataTest: 'coupon-details-delete',
           onClick: (closePopper) => {
             if (!coupon) return
 
-            deleteDialogRef.current?.openDialog({
+            openDeleteDialog({
               couponId: coupon.id,
+              couponName: coupon.name,
+              appliedCouponsCount: coupon.appliedCouponsCount,
               callback: () => {
                 navigate(COUPONS_ROUTE)
               },
@@ -164,9 +158,6 @@ const CouponDetails = () => {
       />
 
       <>{activeTabContent}</>
-
-      <DeleteCouponDialog ref={deleteDialogRef} />
-      <TerminateCouponDialog ref={terminateDialogRef} />
     </>
   )
 }

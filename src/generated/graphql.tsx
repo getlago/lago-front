@@ -523,6 +523,20 @@ export type AppliedCoupon = {
   terminatedAt: Scalars['ISO8601DateTime']['output'];
 };
 
+/** AppliedCouponCollection type */
+export type AppliedCouponCollection = {
+  __typename?: 'AppliedCouponCollection';
+  /** A collection of paginated AppliedCouponCollection */
+  collection: Array<AppliedCoupon>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+export enum AppliedCouponStatusEnum {
+  Active = 'active',
+  Terminated = 'terminated'
+}
+
 export type AppliedPricingUnit = {
   __typename?: 'AppliedPricingUnit';
   conversionRate: Scalars['Float']['output'];
@@ -1012,7 +1026,7 @@ export enum CommitmentTypeEnum {
 export enum CountryCode {
   /** Andorra */
   Ad = 'AD',
-  /** United Arab Emirates (the) */
+  /** United Arab Emirates */
   Ae = 'AE',
   /** Afghanistan */
   Af = 'AF',
@@ -1072,7 +1086,7 @@ export enum CountryCode {
   Bq = 'BQ',
   /** Brazil */
   Br = 'BR',
-  /** Bahamas (the) */
+  /** Bahamas */
   Bs = 'BS',
   /** Bhutan */
   Bt = 'BT',
@@ -1086,19 +1100,19 @@ export enum CountryCode {
   Bz = 'BZ',
   /** Canada */
   Ca = 'CA',
-  /** Cocos (Keeling) Islands (the) */
+  /** Cocos (Keeling) Islands */
   Cc = 'CC',
-  /** Congo (the Democratic Republic of the) */
+  /** Congo (Democratic Republic of the) */
   Cd = 'CD',
-  /** Central African Republic (the) */
+  /** Central African Republic */
   Cf = 'CF',
-  /** Congo (the) */
+  /** Congo */
   Cg = 'CG',
   /** Switzerland */
   Ch = 'CH',
   /** Côte d'Ivoire */
   Ci = 'CI',
-  /** Cook Islands (the) */
+  /** Cook Islands */
   Ck = 'CK',
   /** Chile */
   Cl = 'CL',
@@ -1130,7 +1144,7 @@ export enum CountryCode {
   Dk = 'DK',
   /** Dominica */
   Dm = 'DM',
-  /** Dominican Republic (the) */
+  /** Dominican Republic */
   Do = 'DO',
   /** Algeria */
   Dz = 'DZ',
@@ -1152,17 +1166,17 @@ export enum CountryCode {
   Fi = 'FI',
   /** Fiji */
   Fj = 'FJ',
-  /** Falkland Islands (the) [Malvinas] */
+  /** Falkland Islands (Malvinas) */
   Fk = 'FK',
   /** Micronesia (Federated States of) */
   Fm = 'FM',
-  /** Faroe Islands (the) */
+  /** Faroe Islands */
   Fo = 'FO',
   /** France */
   Fr = 'FR',
   /** Gabon */
   Ga = 'GA',
-  /** United Kingdom of Great Britain and Northern Ireland (the) */
+  /** United Kingdom of Great Britain and Northern Ireland */
   Gb = 'GB',
   /** Grenada */
   Gd = 'GD',
@@ -1178,7 +1192,7 @@ export enum CountryCode {
   Gi = 'GI',
   /** Greenland */
   Gl = 'GL',
-  /** Gambia (the) */
+  /** Gambia */
   Gm = 'GM',
   /** Guinea */
   Gn = 'GN',
@@ -1220,7 +1234,7 @@ export enum CountryCode {
   Im = 'IM',
   /** India */
   In = 'IN',
-  /** British Indian Ocean Territory (the) */
+  /** British Indian Ocean Territory */
   Io = 'IO',
   /** Iraq */
   Iq = 'IQ',
@@ -1246,21 +1260,21 @@ export enum CountryCode {
   Kh = 'KH',
   /** Kiribati */
   Ki = 'KI',
-  /** Comoros (the) */
+  /** Comoros */
   Km = 'KM',
   /** Saint Kitts and Nevis */
   Kn = 'KN',
-  /** Korea (the Democratic People's Republic of) */
+  /** Korea (Democratic People's Republic of) */
   Kp = 'KP',
-  /** Korea (the Republic of) */
+  /** Korea (Republic of) */
   Kr = 'KR',
   /** Kuwait */
   Kw = 'KW',
-  /** Cayman Islands (the) */
+  /** Cayman Islands */
   Ky = 'KY',
   /** Kazakhstan */
   Kz = 'KZ',
-  /** Lao People's Democratic Republic (the) */
+  /** Lao People's Democratic Republic */
   La = 'LA',
   /** Lebanon */
   Lb = 'LB',
@@ -1286,7 +1300,7 @@ export enum CountryCode {
   Ma = 'MA',
   /** Monaco */
   Mc = 'MC',
-  /** Moldova (the Republic of) */
+  /** Moldova (Republic of) */
   Md = 'MD',
   /** Montenegro */
   Me = 'ME',
@@ -1294,7 +1308,7 @@ export enum CountryCode {
   Mf = 'MF',
   /** Madagascar */
   Mg = 'MG',
-  /** Marshall Islands (the) */
+  /** Marshall Islands */
   Mh = 'MH',
   /** North Macedonia */
   Mk = 'MK',
@@ -1306,7 +1320,7 @@ export enum CountryCode {
   Mn = 'MN',
   /** Macao */
   Mo = 'MO',
-  /** Northern Mariana Islands (the) */
+  /** Northern Mariana Islands */
   Mp = 'MP',
   /** Martinique */
   Mq = 'MQ',
@@ -1332,7 +1346,7 @@ export enum CountryCode {
   Na = 'NA',
   /** New Caledonia */
   Nc = 'NC',
-  /** Niger (the) */
+  /** Niger */
   Ne = 'NE',
   /** Norfolk Island */
   Nf = 'NF',
@@ -1340,7 +1354,7 @@ export enum CountryCode {
   Ng = 'NG',
   /** Nicaragua */
   Ni = 'NI',
-  /** Netherlands (the) */
+  /** Netherlands */
   Nl = 'NL',
   /** Norway */
   No = 'NO',
@@ -1362,7 +1376,7 @@ export enum CountryCode {
   Pf = 'PF',
   /** Papua New Guinea */
   Pg = 'PG',
-  /** Philippines (the) */
+  /** Philippines */
   Ph = 'PH',
   /** Pakistan */
   Pk = 'PK',
@@ -1390,7 +1404,7 @@ export enum CountryCode {
   Ro = 'RO',
   /** Serbia */
   Rs = 'RS',
-  /** Russian Federation (the) */
+  /** Russian Federation */
   Ru = 'RU',
   /** Rwanda */
   Rw = 'RW',
@@ -1400,7 +1414,7 @@ export enum CountryCode {
   Sb = 'SB',
   /** Seychelles */
   Sc = 'SC',
-  /** Sudan (the) */
+  /** Sudan */
   Sd = 'SD',
   /** Sweden */
   Se = 'SE',
@@ -1436,11 +1450,11 @@ export enum CountryCode {
   Sy = 'SY',
   /** Eswatini */
   Sz = 'SZ',
-  /** Turks and Caicos Islands (the) */
+  /** Turks and Caicos Islands */
   Tc = 'TC',
   /** Chad */
   Td = 'TD',
-  /** French Southern Territories (the) */
+  /** French Southern Territories */
   Tf = 'TF',
   /** Togo */
   Tg = 'TG',
@@ -1464,7 +1478,7 @@ export enum CountryCode {
   Tt = 'TT',
   /** Tuvalu */
   Tv = 'TV',
-  /** Taiwan (Province of China) */
+  /** Taiwan, Province of China */
   Tw = 'TW',
   /** Tanzania, United Republic of */
   Tz = 'TZ',
@@ -1472,15 +1486,15 @@ export enum CountryCode {
   Ua = 'UA',
   /** Uganda */
   Ug = 'UG',
-  /** United States Minor Outlying Islands (the) */
+  /** United States Minor Outlying Islands */
   Um = 'UM',
-  /** United States of America (the) */
+  /** United States of America */
   Us = 'US',
   /** Uruguay */
   Uy = 'UY',
   /** Uzbekistan */
   Uz = 'UZ',
-  /** Holy See (the) */
+  /** Holy See */
   Va = 'VA',
   /** Saint Vincent and the Grenadines */
   Vc = 'VC',
@@ -6978,6 +6992,8 @@ export type Query = {
   apiLog?: Maybe<ApiLog>;
   /** Query api logs of an organization */
   apiLogs?: Maybe<ApiLogCollection>;
+  /** Query applied coupons of an organization */
+  appliedCoupons: AppliedCouponCollection;
   /** Query a single billable metric of an organization */
   billableMetric?: Maybe<BillableMetric>;
   /** Query billable metrics of an organization */
@@ -7269,6 +7285,15 @@ export type QueryApiLogsArgs = {
   requestPaths?: InputMaybe<Array<Scalars['String']['input']>>;
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+};
+
+
+export type QueryAppliedCouponsArgs = {
+  couponCode?: InputMaybe<Array<Scalars['String']['input']>>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  status?: InputMaybe<AppliedCouponStatusEnum>;
 };
 
 
@@ -10176,13 +10201,6 @@ export type GetCouponForDetailsOverviewQueryVariables = Exact<{
 export type GetCouponForDetailsOverviewQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, name: string, code?: string | null, couponType: CouponTypeEnum, amountCurrency?: CurrencyEnum | null, status: CouponStatusEnum, frequency: CouponFrequency, reusable: boolean, expirationAt?: any | null, amountCents?: any | null, percentageRate?: number | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null } | null };
 
 export type DeleteCouponFragment = { __typename?: 'Coupon', id: string, name: string, appliedCouponsCount: number };
-
-export type GetCouponToDeleteQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type GetCouponToDeleteQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, name: string, appliedCouponsCount: number } | null };
 
 export type DeleteCouponMutationVariables = Exact<{
   input: DestroyCouponInput;
@@ -20730,49 +20748,6 @@ export type GetCouponForDetailsOverviewQueryHookResult = ReturnType<typeof useGe
 export type GetCouponForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetCouponForDetailsOverviewLazyQuery>;
 export type GetCouponForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetCouponForDetailsOverviewSuspenseQuery>;
 export type GetCouponForDetailsOverviewQueryResult = Apollo.QueryResult<GetCouponForDetailsOverviewQuery, GetCouponForDetailsOverviewQueryVariables>;
-export const GetCouponToDeleteDocument = gql`
-    query getCouponToDelete($id: ID!) {
-  coupon(id: $id) {
-    ...DeleteCoupon
-  }
-}
-    ${DeleteCouponFragmentDoc}`;
-
-/**
- * __useGetCouponToDeleteQuery__
- *
- * To run a query within a React component, call `useGetCouponToDeleteQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCouponToDeleteQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCouponToDeleteQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetCouponToDeleteQuery(baseOptions: Apollo.QueryHookOptions<GetCouponToDeleteQuery, GetCouponToDeleteQueryVariables> & ({ variables: GetCouponToDeleteQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCouponToDeleteQuery, GetCouponToDeleteQueryVariables>(GetCouponToDeleteDocument, options);
-      }
-export function useGetCouponToDeleteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCouponToDeleteQuery, GetCouponToDeleteQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCouponToDeleteQuery, GetCouponToDeleteQueryVariables>(GetCouponToDeleteDocument, options);
-        }
-// @ts-ignore
-export function useGetCouponToDeleteSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCouponToDeleteQuery, GetCouponToDeleteQueryVariables>): Apollo.UseSuspenseQueryResult<GetCouponToDeleteQuery, GetCouponToDeleteQueryVariables>;
-export function useGetCouponToDeleteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCouponToDeleteQuery, GetCouponToDeleteQueryVariables>): Apollo.UseSuspenseQueryResult<GetCouponToDeleteQuery | undefined, GetCouponToDeleteQueryVariables>;
-export function useGetCouponToDeleteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCouponToDeleteQuery, GetCouponToDeleteQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetCouponToDeleteQuery, GetCouponToDeleteQueryVariables>(GetCouponToDeleteDocument, options);
-        }
-export type GetCouponToDeleteQueryHookResult = ReturnType<typeof useGetCouponToDeleteQuery>;
-export type GetCouponToDeleteLazyQueryHookResult = ReturnType<typeof useGetCouponToDeleteLazyQuery>;
-export type GetCouponToDeleteSuspenseQueryHookResult = ReturnType<typeof useGetCouponToDeleteSuspenseQuery>;
-export type GetCouponToDeleteQueryResult = Apollo.QueryResult<GetCouponToDeleteQuery, GetCouponToDeleteQueryVariables>;
 export const DeleteCouponDocument = gql`
     mutation deleteCoupon($input: DestroyCouponInput!) {
   destroyCoupon(input: $input) {
@@ -32888,12 +32863,14 @@ export const CouponsDocument = gql`
       ...CouponItem
       ...CouponCaption
       ...DeleteCoupon
+      ...TerminateCoupon
     }
   }
 }
     ${CouponItemFragmentDoc}
 ${CouponCaptionFragmentDoc}
-${DeleteCouponFragmentDoc}`;
+${DeleteCouponFragmentDoc}
+${TerminateCouponFragmentDoc}`;
 
 /**
  * __useCouponsQuery__
