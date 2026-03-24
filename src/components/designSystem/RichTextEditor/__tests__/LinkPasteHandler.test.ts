@@ -1,5 +1,21 @@
 import { LinkPasteHandler } from '../extensions/LinkPasteHandler'
 
+const mockDestroyPopup = jest.fn()
+const mockDestroyRenderer = jest.fn()
+const mockRendererElement = document.createElement('div')
+
+jest.mock('tippy.js', () => ({
+  __esModule: true,
+  default: jest.fn().mockImplementation(() => [{ destroy: mockDestroyPopup }]),
+}))
+
+jest.mock('@tiptap/react', () => ({
+  ReactRenderer: jest.fn().mockImplementation(() => ({
+    element: mockRendererElement,
+    destroy: mockDestroyRenderer,
+  })),
+}))
+
 describe('LinkPasteHandler', () => {
   describe('GIVEN the extension is created', () => {
     it('THEN should have the name "linkPasteHandler"', () => {
@@ -200,6 +216,125 @@ describe('LinkPasteHandler', () => {
         const event = { clipboardData: null }
 
         expect(handlePaste(null, event)).toBe(false)
+      })
+    })
+  })
+
+  describe('GIVEN the popup click-to-close handler', () => {
+    const createMockEditor = () => {
+      const runMock = jest.fn()
+      const chainMethods: Record<string, jest.Mock> = {}
+
+      const handler: ProxyHandler<Record<string, jest.Mock>> = {
+        get: (_target, prop: string) => {
+          if (prop === 'run') return runMock
+          if (!chainMethods[prop]) {
+            chainMethods[prop] = jest.fn().mockReturnValue(new Proxy({}, handler))
+          }
+
+          return chainMethods[prop]
+        },
+      }
+
+      return {
+        chain: jest.fn().mockReturnValue(new Proxy({}, handler)),
+        state: { selection: { from: 25 } },
+        view: {
+          coordsAtPos: jest.fn().mockReturnValue({ left: 100, top: 200, bottom: 220 }),
+        },
+        runMock,
+      }
+    }
+
+    const getHandlePaste = (mockEditor: ReturnType<typeof createMockEditor>) => {
+      const config = LinkPasteHandler.config
+      const addPlugins = config.addProseMirrorPlugins as unknown as (this: {
+        editor: unknown
+      }) => Array<{ props: { handlePaste: (_view: unknown, event: unknown) => boolean } }>
+
+      const plugins = addPlugins.call({ editor: mockEditor })
+
+      return plugins[0].props.handlePaste
+    }
+
+    const pasteUrlAndTriggerRaf = (mockEditor: ReturnType<typeof createMockEditor>) => {
+      const rafSpy = jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+        cb(0)
+
+        return 0
+      })
+
+      const handlePaste = getHandlePaste(mockEditor)
+
+      handlePaste(null, { clipboardData: { getData: () => 'https://example.com' } })
+
+      rafSpy.mockRestore()
+    }
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    describe('WHEN a click occurs outside the popup with a Node target', () => {
+      it('THEN should destroy the popup and renderer', () => {
+        const mockEditor = createMockEditor()
+
+        pasteUrlAndTriggerRaf(mockEditor)
+
+        // Click outside the renderer element (a different DOM node)
+        const outsideElement = document.createElement('div')
+
+        document.dispatchEvent(new MouseEvent('click', { bubbles: true }) as MouseEvent)
+
+        // Use Object.defineProperty to set the target since MouseEvent target is read-only
+        const clickEvent = new MouseEvent('click', { bubbles: true })
+
+        Object.defineProperty(clickEvent, 'target', { value: outsideElement })
+        document.dispatchEvent(clickEvent)
+
+        expect(mockDestroyPopup).toHaveBeenCalled()
+        expect(mockDestroyRenderer).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN a click occurs with a non-Node target', () => {
+      it('THEN should not trigger cleanup', () => {
+        const mockEditor = createMockEditor()
+
+        pasteUrlAndTriggerRaf(mockEditor)
+
+        // Dispatch a click event with a non-Node target (e.g., null)
+        const clickEvent = new MouseEvent('click', { bubbles: true })
+
+        Object.defineProperty(clickEvent, 'target', { value: null })
+        document.dispatchEvent(clickEvent)
+
+        expect(mockDestroyPopup).not.toHaveBeenCalled()
+        expect(mockDestroyRenderer).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN a click occurs inside the popup element', () => {
+      it('THEN should not trigger cleanup', () => {
+        const mockEditor = createMockEditor()
+
+        pasteUrlAndTriggerRaf(mockEditor)
+
+        // Click inside the renderer element
+        const childElement = document.createElement('button')
+
+        mockRendererElement.appendChild(childElement)
+
+        const clickEvent = new MouseEvent('click', { bubbles: true })
+
+        Object.defineProperty(clickEvent, 'target', { value: childElement })
+        document.dispatchEvent(clickEvent)
+
+        expect(mockDestroyPopup).not.toHaveBeenCalled()
+        expect(mockDestroyRenderer).not.toHaveBeenCalled()
+
+        // Cleanup
+        mockRendererElement.removeChild(childElement)
       })
     })
   })
