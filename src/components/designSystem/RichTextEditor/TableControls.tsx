@@ -292,7 +292,8 @@ const TableControls = ({ editor }: TableControlsProps) => {
           {/* Row delete buttons — left of each row */}
           {layout.rows.map((row, i) => (
             <div
-              key={`row-${i}`}
+              key={`row-${row.cellPos}`}
+              role="presentation"
               className={`absolute flex w-[22px] flex-col items-center justify-center gap-0.5 transition-opacity duration-150 ease-in-out ${
                 hoveredRow === i
                   ? 'pointer-events-auto opacity-100'
@@ -321,7 +322,8 @@ const TableControls = ({ editor }: TableControlsProps) => {
           {/* Column delete buttons — top of each column */}
           {layout.cols.map((col, i) => (
             <div
-              key={`col-${i}`}
+              key={`col-${col.cellPos}`}
+              role="presentation"
               className={`absolute flex h-[22px] flex-row items-center justify-center gap-0.5 transition-opacity duration-150 ease-in-out ${
                 hoveredCol === i
                   ? 'pointer-events-auto opacity-100'
