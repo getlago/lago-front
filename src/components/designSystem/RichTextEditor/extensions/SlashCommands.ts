@@ -120,17 +120,17 @@ export const SlashCommands = Extension.create({
   addProseMirrorPlugins() {
     const { translate } = this.options
 
+    const resolvedItems: SlashCommandItem[] = slashCommandDefinitions.map((def) => ({
+      title: translate(def.titleKey),
+      description: translate(def.descriptionKey),
+      command: def.command,
+    }))
+
     return [
       Suggestion({
         editor: this.editor,
         ...this.options.suggestion,
         items: ({ query }: { query: string }) => {
-          const resolvedItems: SlashCommandItem[] = slashCommandDefinitions.map((def) => ({
-            title: translate(def.titleKey),
-            description: translate(def.descriptionKey),
-            command: def.command,
-          }))
-
           return resolvedItems.filter((item) =>
             item.title.toLowerCase().includes(query.toLowerCase()),
           )
