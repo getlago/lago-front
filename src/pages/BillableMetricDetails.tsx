@@ -119,9 +119,11 @@ const BillableMetricDetails = () => {
         ]}
         entity={{
           viewName: billableMetric?.name || '',
+          viewNameLoading: loading,
           metadata: billableMetric?.code || '',
+          metadataLoading: loading,
         }}
-        actions={actions}
+        actions={{ items: actions, loading }}
         tabs={[
           {
             title: translate('text_628cf761cbe6820138b8f2e4'),
@@ -149,7 +151,6 @@ const BillableMetricDetails = () => {
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
-        isLoading={loading}
       />
 
       <>{activeTabContent}</>

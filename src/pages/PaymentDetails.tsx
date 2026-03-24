@@ -236,7 +236,9 @@ const PaymentDetails = () => {
       deserializeAmount(payment?.amountCents, payment?.amountCurrency || CurrencyEnum.Usd),
       { currency: payment?.amountCurrency },
     ),
+    viewNameLoading: loading,
     metadata: payment?.id || '',
+    metadataLoading: loading,
     badges: payment?.payablePaymentStatus
       ? [payablePaymentStatusMapping({ payablePaymentStatus: payment.payablePaymentStatus })]
       : [],
@@ -311,8 +313,7 @@ const PaymentDetails = () => {
       <MainHeader.Configure
         breadcrumb={[{ label: translate('text_6672ebb8b1b50be550eccbed'), path: PAYMENTS_ROUTE }]}
         entity={headerEntity}
-        actions={headerActions}
-        isLoading={loading}
+        actions={{ items: headerActions, loading }}
       />
 
       <DetailsPage.Container className="pt-8">

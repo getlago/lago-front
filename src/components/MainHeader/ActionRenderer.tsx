@@ -7,7 +7,7 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { MenuPopper } from '~/styles'
 
 import { ACTIONS_BLOCK_TEST_ID } from './mainHeaderTestIds'
-import { MainHeaderAction } from './types'
+import { MainHeaderAction, MainHeaderActionsConfig } from './types'
 
 /** Returns true when a top-level action should be rendered. */
 const isVisible = (action: MainHeaderAction): boolean => {
@@ -21,13 +21,12 @@ const isVisible = (action: MainHeaderAction): boolean => {
  * Renders the full actions block: skeleton during loading, action buttons otherwise.
  */
 export const ActionsBlock: FC<{
-  actions?: MainHeaderAction[]
-  isLoading?: boolean
+  actions?: MainHeaderActionsConfig
   dataTest?: string
-}> = ({ actions, isLoading, dataTest }) => {
-  if (isLoading) return <Skeleton variant="text" className="w-30" />
+}> = ({ actions, dataTest }) => {
+  if (actions?.loading) return <Skeleton variant="text" className="w-30" />
 
-  const visibleActions = actions?.filter(isVisible)
+  const visibleActions = actions?.items.filter(isVisible)
 
   if (!visibleActions || visibleActions.length === 0) return null
 

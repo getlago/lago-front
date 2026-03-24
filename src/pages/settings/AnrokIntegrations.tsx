@@ -87,21 +87,25 @@ const AnrokIntegrations = () => {
         ]}
         entity={{
           viewName: translate('text_6668821d94e4da4dfd8b3834'),
+          viewNameLoading: loading,
           metadata: translate('text_6668821d94e4da4dfd8b3840'),
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Anrok />,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_65846763e6140b469140e235'),
-            variant: 'primary',
-            onClick: () => {
-              addAnrokDialogRef.current?.openDialog()
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_65846763e6140b469140e235'),
+              variant: 'primary',
+              onClick: () => {
+                addAnrokDialogRef.current?.openDialog()
+              },
             },
-          },
-        ]}
-        isLoading={loading}
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

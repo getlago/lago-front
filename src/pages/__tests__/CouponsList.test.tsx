@@ -100,12 +100,14 @@ describe('CouponsList', () => {
 
         expect(mockMainHeaderConfigure).toHaveBeenCalledWith(
           expect.objectContaining({
-            actions: expect.arrayContaining([
-              expect.objectContaining({
-                type: 'action',
-                dataTest: 'add-coupon',
-              }),
-            ]),
+            actions: expect.objectContaining({
+              items: expect.arrayContaining([
+                expect.objectContaining({
+                  type: 'action',
+                  dataTest: 'add-coupon',
+                }),
+              ]),
+            }),
           }),
         )
       })
@@ -119,11 +121,13 @@ describe('CouponsList', () => {
 
         expect(mockMainHeaderConfigure).toHaveBeenCalledWith(
           expect.objectContaining({
-            actions: expect.arrayContaining([
-              expect.objectContaining({
-                hidden: true,
-              }),
-            ]),
+            actions: expect.objectContaining({
+              items: expect.arrayContaining([
+                expect.objectContaining({
+                  hidden: true,
+                }),
+              ]),
+            }),
           }),
         )
       })

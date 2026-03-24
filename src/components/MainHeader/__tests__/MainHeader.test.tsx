@@ -86,7 +86,9 @@ describe('MainHeader', () => {
 
   describe('GIVEN a config with actions', () => {
     const config: MainHeaderConfig = {
-      actions: [{ type: 'action', label: 'Save', onClick: jest.fn(), dataTest: 'save-action' }],
+      actions: {
+        items: [{ type: 'action', label: 'Save', onClick: jest.fn(), dataTest: 'save-action' }],
+      },
     }
 
     beforeEach(() => {
@@ -239,9 +241,10 @@ describe('MainHeader', () => {
     })
   })
 
-  describe('GIVEN a config with isLoading true', () => {
+  describe('GIVEN a config with entity loading flags', () => {
     const config: MainHeaderConfig = {
-      isLoading: true,
+      entity: { viewName: '', viewNameLoading: true },
+      actions: { items: [], loading: true },
     }
 
     beforeEach(() => {
@@ -263,7 +266,7 @@ describe('MainHeader', () => {
     })
   })
 
-  describe('GIVEN a config without entity or isLoading', () => {
+  describe('GIVEN a config without entity', () => {
     const config: MainHeaderConfig = {
       breadcrumb: [{ label: 'Settings', path: '/settings' }],
     }

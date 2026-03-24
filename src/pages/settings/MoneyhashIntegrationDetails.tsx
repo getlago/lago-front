@@ -121,42 +121,46 @@ const MoneyhashIntegrationDetails = () => {
         ]}
         entity={{
           viewName: moneyhashPaymentProvider?.name || '',
+          viewNameLoading: loading,
           metadata: `${translate('text_1733427981129n3wxjui0bex')} • ${translate('text_62b1edddbf5f461ab971271f')}`,
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Moneyhash />,
         }}
-        actions={[
-          {
-            type: 'dropdown',
-            label: translate('text_626162c62f790600f850b6fe'),
-            items: [
-              {
-                label: translate('text_65845f35d7d69c3ab4793dac'),
-                hidden: !canEditIntegration,
-                onClick: (closePopper) => {
-                  addMoneyhashDialogRef.current?.openDialog({
-                    provider: moneyhashPaymentProvider,
-                    deleteModalRef: deleteDialogRef,
-                    deleteDialogCallback,
-                  })
-                  closePopper()
+        actions={{
+          items: [
+            {
+              type: 'dropdown',
+              label: translate('text_626162c62f790600f850b6fe'),
+              items: [
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dac'),
+                  hidden: !canEditIntegration,
+                  onClick: (closePopper) => {
+                    addMoneyhashDialogRef.current?.openDialog({
+                      provider: moneyhashPaymentProvider,
+                      deleteModalRef: deleteDialogRef,
+                      deleteDialogCallback,
+                    })
+                    closePopper()
+                  },
                 },
-              },
-              {
-                label: translate('text_65845f35d7d69c3ab4793dad'),
-                hidden: !canDeleteIntegration,
-                onClick: (closePopper) => {
-                  deleteDialogRef.current?.openDialog({
-                    provider: moneyhashPaymentProvider,
-                    callback: deleteDialogCallback,
-                  })
-                  closePopper()
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dad'),
+                  hidden: !canDeleteIntegration,
+                  onClick: (closePopper) => {
+                    deleteDialogRef.current?.openDialog({
+                      provider: moneyhashPaymentProvider,
+                      callback: deleteDialogCallback,
+                    })
+                    closePopper()
+                  },
                 },
-              },
-            ],
-          },
-        ]}
-        isLoading={loading}
+              ],
+            },
+          ],
+          loading,
+        }}
       />
       <section className="max-w-168 px-4 md:px-12">
         <div className="relative flex h-nav items-center justify-between">

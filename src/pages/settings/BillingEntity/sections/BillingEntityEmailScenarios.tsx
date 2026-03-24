@@ -111,9 +111,10 @@ const BillingEntityEmailScenarios = () => {
         ]}
         entity={{
           viewName: translate('text_6408b5ae7f629d008bc8af79'),
+          viewNameLoading: loading,
           metadata: translate('text_6408b5ae7f629d008bc8af7b'),
+          metadataLoading: loading,
         }}
-        isLoading={loading}
       />
 
       <SettingsPaddedContainer>

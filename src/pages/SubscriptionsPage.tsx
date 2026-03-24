@@ -11,6 +11,7 @@ import {
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
+import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { SubscriptionsList } from '~/components/subscriptions/SubscriptionsList'
@@ -18,7 +19,6 @@ import { TimezoneDate } from '~/components/TimezoneDate'
 import { SUBSCRIPTION_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
 import { StatusTypeEnum, Subscription, useGetSubscriptionsListLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -129,6 +129,7 @@ const SubscriptionsPage = () => {
         entity={{
           viewName: translate('text_6250304370f0f700a8fdc28d'),
           metadata: formatCountToMetadata(subscriptionsTotalCount, translate),
+          metadataLoading: isLoading,
         }}
         filtersSection={
           <Filters.Provider

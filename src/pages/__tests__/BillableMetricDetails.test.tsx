@@ -128,14 +128,14 @@ describe('BillableMetricDetails', () => {
         )
       })
 
-      it('THEN should pass isLoading false to MainHeader.Configure', () => {
+      it('THEN should pass loading false to MainHeader.Configure', () => {
         mockHasPermissions.mockReturnValue(true)
 
         render(<BillableMetricDetails />)
 
         expect(mockMainHeaderConfigure).toHaveBeenCalledWith(
           expect.objectContaining({
-            isLoading: false,
+            actions: expect.objectContaining({ loading: false }),
           }),
         )
       })
@@ -159,8 +159,8 @@ describe('BillableMetricDetails', () => {
 
         render(<BillableMetricDetails />)
 
-        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]
-          ?.actions as MainHeaderDropdownAction[]
+        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
+          ?.items as MainHeaderDropdownAction[]
 
         expect(actions).toHaveLength(1)
         expect(actions[0]?.type).toBe('dropdown')
@@ -181,8 +181,8 @@ describe('BillableMetricDetails', () => {
 
         render(<BillableMetricDetails />)
 
-        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]
-          ?.actions as MainHeaderDropdownAction[]
+        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
+          ?.items as MainHeaderDropdownAction[]
         const editItem = actions[0]?.items[0]
 
         expect(editItem?.hidden).toBe(true)
@@ -199,8 +199,8 @@ describe('BillableMetricDetails', () => {
 
         render(<BillableMetricDetails />)
 
-        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]
-          ?.actions as MainHeaderDropdownAction[]
+        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
+          ?.items as MainHeaderDropdownAction[]
         const duplicateItem = actions[0]?.items[2]
 
         expect(duplicateItem?.hidden).toBe(true)
@@ -217,8 +217,8 @@ describe('BillableMetricDetails', () => {
 
         render(<BillableMetricDetails />)
 
-        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]
-          ?.actions as MainHeaderDropdownAction[]
+        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
+          ?.items as MainHeaderDropdownAction[]
         const deleteItem = actions[0]?.items[3]
 
         expect(deleteItem?.hidden).toBe(true)

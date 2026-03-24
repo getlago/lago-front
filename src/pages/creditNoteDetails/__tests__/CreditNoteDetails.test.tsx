@@ -194,8 +194,8 @@ describe('CreditNoteDetails', () => {
       it('THEN should configure MainHeader with a dropdown action', () => {
         render(<CreditNoteDetails />)
 
-        expect(capturedConfig?.actions).toHaveLength(1)
-        expect(capturedConfig?.actions?.[0].type).toBe('dropdown')
+        expect(capturedConfig?.actions?.items).toHaveLength(1)
+        expect(capturedConfig?.actions?.items[0].type).toBe('dropdown')
       })
 
       it('THEN should configure MainHeader with tabs', () => {
@@ -217,10 +217,10 @@ describe('CreditNoteDetails', () => {
     })
 
     describe('WHEN the component renders', () => {
-      it('THEN should set isLoading on MainHeader config', () => {
+      it('THEN should set actionsLoading on MainHeader config', () => {
         render(<CreditNoteDetails />)
 
-        expect(capturedConfig?.isLoading).toBe(true)
+        expect(capturedConfig?.actions?.loading).toBe(true)
       })
     })
   })
@@ -235,10 +235,10 @@ describe('CreditNoteDetails', () => {
     })
 
     describe('WHEN the component renders', () => {
-      it('THEN should not set isLoading on MainHeader config', () => {
+      it('THEN should not set actionsLoading on MainHeader config', () => {
         render(<CreditNoteDetails />)
 
-        expect(capturedConfig?.isLoading).toBeFalsy()
+        expect(capturedConfig?.actions?.loading).toBeFalsy()
       })
     })
   })
@@ -248,7 +248,7 @@ describe('CreditNoteDetails', () => {
       it('THEN should copy the credit note ID to clipboard', () => {
         render(<CreditNoteDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           // First item is copy ID
@@ -266,7 +266,7 @@ describe('CreditNoteDetails', () => {
       it('THEN should have a non-hidden download item', () => {
         render(<CreditNoteDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const visibleItems = dropdownAction.items.filter((item) => !item.hidden)
@@ -279,7 +279,7 @@ describe('CreditNoteDetails', () => {
       it('THEN clicking download should call downloadCreditNote', () => {
         render(<CreditNoteDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           // Download item (not hidden when canDownload and no xmlUrl)
@@ -301,7 +301,7 @@ describe('CreditNoteDetails', () => {
       it('THEN should have a visible void item', () => {
         render(<CreditNoteDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const visibleItems = dropdownAction.items.filter((item) => !item.hidden)
@@ -327,7 +327,7 @@ describe('CreditNoteDetails', () => {
 
         render(<CreditNoteDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const nonVoidableVisibleItems = dropdownAction.items.filter((item) => !item.hidden)
@@ -342,7 +342,7 @@ describe('CreditNoteDetails', () => {
                 error: null,
               })
               render(<CreditNoteDetails />)
-              const dd = capturedConfig?.actions?.[0]
+              const dd = capturedConfig?.actions?.items[0]
 
               if (dd?.type === 'dropdown') {
                 return dd.items.filter((item) => !item.hidden).length
@@ -371,7 +371,7 @@ describe('CreditNoteDetails', () => {
 
         render(<CreditNoteDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const visibleItems = dropdownAction.items.filter((item) => !item.hidden)
@@ -395,7 +395,7 @@ describe('CreditNoteDetails', () => {
 
         render(<CreditNoteDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           // XML download item (index 3 in the items array)
@@ -429,7 +429,7 @@ describe('CreditNoteDetails', () => {
 
         render(<CreditNoteDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const visibleItems = dropdownAction.items.filter((item) => !item.hidden)
@@ -463,7 +463,7 @@ describe('CreditNoteDetails', () => {
 
         render(<CreditNoteDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           // Sync item should not be hidden
@@ -496,7 +496,7 @@ describe('CreditNoteDetails', () => {
 
         render(<CreditNoteDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           // Sync item is at index 6
@@ -532,7 +532,7 @@ describe('CreditNoteDetails', () => {
 
         render(<CreditNoteDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           // Retry tax sync item (index 7)
@@ -563,7 +563,7 @@ describe('CreditNoteDetails', () => {
 
         render(<CreditNoteDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const retryItem = dropdownAction.items[7]
@@ -695,7 +695,7 @@ describe('CreditNoteDetails', () => {
 
         render(<CreditNoteDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           // Download item (index 1) should be hidden
@@ -715,7 +715,7 @@ describe('CreditNoteDetails', () => {
 
         render(<CreditNoteDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           // Void item (index 5) should be hidden

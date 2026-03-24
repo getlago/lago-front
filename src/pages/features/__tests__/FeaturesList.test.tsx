@@ -83,12 +83,14 @@ describe('FeaturesList', () => {
 
         expect(mockMainHeaderConfigure).toHaveBeenCalledWith(
           expect.objectContaining({
-            actions: expect.arrayContaining([
-              expect.objectContaining({
-                type: 'action',
-                variant: 'primary',
-              }),
-            ]),
+            actions: expect.objectContaining({
+              items: expect.arrayContaining([
+                expect.objectContaining({
+                  type: 'action',
+                  variant: 'primary',
+                }),
+              ]),
+            }),
           }),
         )
       })
@@ -102,11 +104,13 @@ describe('FeaturesList', () => {
 
         expect(mockMainHeaderConfigure).toHaveBeenCalledWith(
           expect.objectContaining({
-            actions: expect.arrayContaining([
-              expect.objectContaining({
-                hidden: true,
-              }),
-            ]),
+            actions: expect.objectContaining({
+              items: expect.arrayContaining([
+                expect.objectContaining({
+                  hidden: true,
+                }),
+              ]),
+            }),
           }),
         )
       })

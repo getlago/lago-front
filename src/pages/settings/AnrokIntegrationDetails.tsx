@@ -127,39 +127,44 @@ const AnrokIntegrationDetails = () => {
         ]}
         entity={{
           viewName: anrokIntegration?.name || '',
+          viewNameLoading: loading,
           metadata: `${translate('text_6668821d94e4da4dfd8b3834')} • ${translate('text_6668821d94e4da4dfd8b3840')}`,
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Anrok />,
         }}
-        actions={[
-          {
-            type: 'dropdown',
-            label: translate('text_626162c62f790600f850b6fe'),
-            items: [
-              {
-                label: translate('text_65845f35d7d69c3ab4793dac'),
-                onClick: (closePopper) => {
-                  addAnrokDialogRef.current?.openDialog({
-                    integration: anrokIntegration,
-                    deleteModalRef: deleteDialogRef,
-                    deleteDialogCallback,
-                  })
-                  closePopper()
+        actions={{
+          items: [
+            {
+              type: 'dropdown',
+              label: translate('text_626162c62f790600f850b6fe'),
+              items: [
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dac'),
+                  onClick: (closePopper) => {
+                    addAnrokDialogRef.current?.openDialog({
+                      integration: anrokIntegration,
+                      deleteModalRef: deleteDialogRef,
+                      deleteDialogCallback,
+                    })
+                    closePopper()
+                  },
                 },
-              },
-              {
-                label: translate('text_65845f35d7d69c3ab4793dad'),
-                onClick: (closePopper) => {
-                  deleteDialogRef.current?.openDialog({
-                    provider: anrokIntegration,
-                    callback: deleteDialogCallback,
-                  })
-                  closePopper()
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dad'),
+                  onClick: (closePopper) => {
+                    deleteDialogRef.current?.openDialog({
+                      provider: anrokIntegration,
+                      callback: deleteDialogCallback,
+                    })
+                    closePopper()
+                  },
                 },
-              },
-            ],
-          },
-        ]}
+              ],
+            },
+          ],
+          loading,
+        }}
         tabs={[
           {
             title: translate('text_62728ff857d47b013204c726'),
@@ -180,7 +185,6 @@ const AnrokIntegrationDetails = () => {
             content: <AnrokIntegrationItemsList integrationId={anrokIntegration?.id} />,
           },
         ]}
-        isLoading={loading}
       />
       <>{activeTabContent}</>
       <AddAnrokDialog ref={addAnrokDialogRef} />

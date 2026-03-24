@@ -10,9 +10,9 @@ import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
-import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   ADD_ON_DETAILS_ROUTE,
@@ -101,17 +101,20 @@ const AddOnsList = () => {
         entity={{
           viewName: translate('text_629728388c4d2300e2d3809b'),
           metadata: formatCountToMetadata(addOnsTotalCount, translate),
+          metadataLoading: isLoading,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_629728388c4d2300e2d38085'),
-            variant: 'primary',
-            hidden: !canCreateAddOns,
-            onClick: () => navigate(CREATE_ADD_ON_ROUTE),
-            dataTest: 'create-addon-cta',
-          },
-        ]}
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_629728388c4d2300e2d38085'),
+              variant: 'primary',
+              hidden: !canCreateAddOns,
+              onClick: () => navigate(CREATE_ADD_ON_ROUTE),
+              dataTest: 'create-addon-cta',
+            },
+          ],
+        }}
         filtersSection={
           <SearchInput
             onChange={debouncedSearch}

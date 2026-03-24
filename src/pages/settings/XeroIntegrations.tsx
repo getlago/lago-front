@@ -84,21 +84,25 @@ const XeroIntegrations = () => {
         ]}
         entity={{
           viewName: translate('text_6672ebb8b1b50be550eccaf8'),
+          viewNameLoading: loading,
           metadata: translate('text_6672ebb8b1b50be550ecca7e'),
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Xero />,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_65846763e6140b469140e235'),
-            variant: 'primary',
-            onClick: () => {
-              addXeroDialogRef.current?.openDialog()
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_65846763e6140b469140e235'),
+              variant: 'primary',
+              onClick: () => {
+                addXeroDialogRef.current?.openDialog()
+              },
             },
-          },
-        ]}
-        isLoading={loading}
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

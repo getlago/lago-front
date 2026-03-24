@@ -12,10 +12,10 @@ import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import {
   BILLABLE_METRIC_DETAILS_ROUTE,
   CREATE_BILLABLE_METRIC_ROUTE,
@@ -76,17 +76,20 @@ const BillableMetricsList = () => {
         entity={{
           viewName: translate('text_623b497ad05b960101be3438'),
           metadata: formatCountToMetadata(billableMetricsTotalCount, translate),
+          metadataLoading: isLoading,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_623b497ad05b960101be343a'),
-            variant: 'primary',
-            hidden: !hasPermissions(['billableMetricsCreate']),
-            onClick: () => navigate(CREATE_BILLABLE_METRIC_ROUTE),
-            dataTest: 'create-bm',
-          },
-        ]}
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_623b497ad05b960101be343a'),
+              variant: 'primary',
+              hidden: !hasPermissions(['billableMetricsCreate']),
+              onClick: () => navigate(CREATE_BILLABLE_METRIC_ROUTE),
+              dataTest: 'create-bm',
+            },
+          ],
+        }}
         filtersSection={
           <SearchInput
             onChange={debouncedSearch}

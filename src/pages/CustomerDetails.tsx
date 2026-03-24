@@ -153,7 +153,7 @@ const CustomerDetails = () => {
     addCouponDialogRef,
   })
 
-  const entity = useCustomerDetailsHeaderEntity({ customer })
+  const entity = useCustomerDetailsHeaderEntity({ customer, loading })
 
   const tabs = useCustomerDetailsHeaderTabs({
     customerId: customerId as string,
@@ -171,10 +171,9 @@ const CustomerDetails = () => {
         breadcrumb={[
           { label: translate('text_624efab67eb2570101d117a5'), path: CUSTOMERS_LIST_ROUTE },
         ]}
-        actions={actions}
+        actions={{ items: actions, loading }}
         entity={entity}
         tabs={tabs}
-        isLoading={loading}
       />
 
       {/* Tab content */}

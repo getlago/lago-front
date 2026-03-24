@@ -124,14 +124,16 @@ const CouponDetails = () => {
         breadcrumb={[{ label: translate('text_62865498824cc10126ab2956'), path: COUPONS_ROUTE }]}
         entity={{
           viewName: coupon?.name || '',
+          viewNameLoading: loading,
           metadata: `${formatCouponValue({
             couponType: coupon?.couponType,
             percentageRate: coupon?.percentageRate,
             amountCents: coupon?.amountCents,
             amountCurrency: coupon?.amountCurrency,
           })} ${coupon?.frequency}`,
+          metadataLoading: loading,
         }}
-        actions={actions}
+        actions={{ items: actions, loading }}
         tabs={[
           {
             title: translate('text_628cf761cbe6820138b8f2e4'),
@@ -159,7 +161,6 @@ const CouponDetails = () => {
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
-        isLoading={loading}
       />
 
       <>{activeTabContent}</>

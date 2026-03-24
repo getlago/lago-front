@@ -88,21 +88,25 @@ const SalesforceIntegrations = () => {
         ]}
         entity={{
           viewName: translate('text_1731507195246vu9kt6xnhv6'),
+          viewNameLoading: loading,
           metadata: translate('text_1731510123491gx2nw155ce0'),
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Salesforce />,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_65846763e6140b469140e235'),
-            variant: 'primary',
-            onClick: () => {
-              addSalesforceDialogRef.current?.openDialog()
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_65846763e6140b469140e235'),
+              variant: 'primary',
+              onClick: () => {
+                addSalesforceDialogRef.current?.openDialog()
+              },
             },
-          },
-        ]}
-        isLoading={loading}
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

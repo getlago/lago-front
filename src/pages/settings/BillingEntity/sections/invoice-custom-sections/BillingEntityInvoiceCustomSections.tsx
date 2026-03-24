@@ -84,9 +84,10 @@ const BillingEntityInvoiceCustomSections = () => {
         ]}
         entity={{
           viewName: translate('text_1749024634192ov41w9fp6r2'),
+          viewNameLoading: loading,
           metadata: translate('text_1749024634192jeeb8l2bxk0'),
+          metadataLoading: loading,
         }}
-        isLoading={loading}
       />
 
       <SettingsPaddedContainer>

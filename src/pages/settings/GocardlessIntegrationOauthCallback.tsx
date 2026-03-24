@@ -93,11 +93,12 @@ const GocardlessIntegrationOauthCallback = () => {
         ]}
         entity={{
           viewName: translate('text_634ea0ecc6147de10ddb6625'),
+          viewNameLoading: loading,
           metadata: translate('text_62b1edddbf5f461ab971271f'),
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Gocardless />,
         }}
-        isLoading={loading}
       />
 
       {loading || !error ? (

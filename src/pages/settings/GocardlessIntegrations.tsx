@@ -97,22 +97,26 @@ const GocardlessIntegrations = () => {
         ]}
         entity={{
           viewName: translate('text_634ea0ecc6147de10ddb6625'),
+          viewNameLoading: loading,
           metadata: translate('text_62b1edddbf5f461ab971271f'),
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Gocardless />,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_65846763e6140b469140e235'),
-            variant: 'primary',
-            hidden: !canCreateIntegration,
-            onClick: () => {
-              addGocardlessDialogRef.current?.openDialog()
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_65846763e6140b469140e235'),
+              variant: 'primary',
+              hidden: !canCreateIntegration,
+              onClick: () => {
+                addGocardlessDialogRef.current?.openDialog()
+              },
             },
-          },
-        ]}
-        isLoading={loading}
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

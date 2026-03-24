@@ -9,11 +9,11 @@ import {
   formatFiltersForCreditNotesQuery,
 } from '~/components/designSystem/Filters'
 import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
+import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast } from '~/core/apolloClient'
 import { CREDIT_NOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
-import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreditNoteExportTypeEnum,
@@ -180,18 +180,22 @@ const CreditNotesPage = () => {
         entity={{
           viewName: translate('text_66461ada56a84401188e8c63'),
           metadata: formatCountToMetadata(creditNotesTotalCount, translate),
+          metadataLoading: creditNoteIsLoading,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_1773761094529kr57s3qq8j3'),
-            variant: 'secondary',
-            disabled: !dataCreditNotes?.creditNotes?.metadata.totalCount,
-            onClick: () => {
-              exportCreditNotesDialogRef.current?.openDialog()
+        actions={{
+          loading: creditNoteIsLoading,
+          items: [
+            {
+              type: 'action',
+              label: translate('text_1773761094529kr57s3qq8j3'),
+              variant: 'secondary',
+              disabled: !dataCreditNotes?.creditNotes?.metadata.totalCount,
+              onClick: () => {
+                exportCreditNotesDialogRef.current?.openDialog()
+              },
             },
-          },
-        ]}
+          ],
+        }}
         filtersSection={
           <Filters.Provider
             filtersNamePrefix={CREDIT_NOTE_LIST_FILTER_PREFIX}

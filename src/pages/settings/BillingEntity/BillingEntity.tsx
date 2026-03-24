@@ -37,9 +37,10 @@ const BillingEntityPage = () => {
         <MainHeader.Configure
           entity={{
             viewName: billingEntity?.name || '',
+            viewNameLoading: billingEntityLoading,
             metadata: translate('text_1742230191029w4pfyxjda2f'),
+            metadataLoading: billingEntityLoading,
           }}
-          isLoading={billingEntityLoading}
         />
       </div>
 

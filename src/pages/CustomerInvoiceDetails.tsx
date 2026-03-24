@@ -712,6 +712,7 @@ const CustomerInvoiceDetails = () => {
 
   const headerEntity = {
     viewName: number || '',
+    viewNameLoading: isLoading,
     metadata: `${translate('text_634687079be251fdb43833ad', {
       totalAmount: intlFormatNumber(
         deserializeAmount(totalAmountCents || 0, currency || CurrencyEnum.Usd),
@@ -721,6 +722,7 @@ const CustomerInvoiceDetails = () => {
         },
       ),
     })} • ${invoiceId}`,
+    metadataLoading: isLoading,
     badges: status
       ? [
           {
@@ -965,9 +967,8 @@ const CustomerInvoiceDetails = () => {
       <MainHeader.Configure
         breadcrumb={[{ label: translate('text_63ac86d797f728a87b2f9f85'), path: INVOICES_ROUTE }]}
         entity={headerEntity}
-        actions={headerActions}
+        actions={{ items: headerActions, loading: isLoading }}
         tabs={tabsOptions}
-        isLoading={isLoading}
       />
 
       {!!errorMessage && (

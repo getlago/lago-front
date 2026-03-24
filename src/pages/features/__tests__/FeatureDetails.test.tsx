@@ -119,14 +119,14 @@ describe('FeatureDetails', () => {
         )
       })
 
-      it('THEN should pass isLoading false to MainHeader.Configure', () => {
+      it('THEN should pass loading false to MainHeader.Configure', () => {
         mockHasPermissions.mockReturnValue(true)
 
         render(<FeatureDetails />)
 
         expect(mockMainHeaderConfigure).toHaveBeenCalledWith(
           expect.objectContaining({
-            isLoading: false,
+            actions: expect.objectContaining({ loading: false }),
           }),
         )
       })
@@ -150,8 +150,8 @@ describe('FeatureDetails', () => {
 
         render(<FeatureDetails />)
 
-        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]
-          ?.actions as MainHeaderDropdownAction[]
+        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
+          ?.items as MainHeaderDropdownAction[]
 
         expect(actions).toHaveLength(1)
         expect(actions[0]?.type).toBe('dropdown')
@@ -174,8 +174,8 @@ describe('FeatureDetails', () => {
 
         render(<FeatureDetails />)
 
-        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]
-          ?.actions as MainHeaderDropdownAction[]
+        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
+          ?.items as MainHeaderDropdownAction[]
 
         expect(actions).toEqual([])
       })
@@ -191,8 +191,8 @@ describe('FeatureDetails', () => {
 
         render(<FeatureDetails />)
 
-        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]
-          ?.actions as MainHeaderDropdownAction[]
+        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
+          ?.items as MainHeaderDropdownAction[]
 
         expect(actions).toHaveLength(1)
         expect(actions[0]?.items[0]?.hidden).toBe(true)
@@ -209,8 +209,8 @@ describe('FeatureDetails', () => {
 
         render(<FeatureDetails />)
 
-        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]
-          ?.actions as MainHeaderDropdownAction[]
+        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
+          ?.items as MainHeaderDropdownAction[]
 
         expect(actions).toHaveLength(1)
         expect(actions[0]?.items[1]?.hidden).toBe(true)

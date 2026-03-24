@@ -20,12 +20,12 @@ import {
 } from '~/components/invoices/FinalizeInvoiceDialog'
 import InvoicesList from '~/components/invoices/InvoicesList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
+import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
-import { formatCountToMetadata } from '~/core/formats/formatCountToMetadata'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
@@ -231,37 +231,41 @@ const InvoicesPage = () => {
         entity={{
           viewName: translate('text_63ac86d797f728a87b2f9f85'),
           metadata: formatCountToMetadata(invoicesTotalCount, translate),
+          metadataLoading: invoiceIsLoading,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_66b21236c939426d07ff98ca'),
-            variant: 'secondary',
-            disabled: !invoicesTotalCount,
-            onClick: () => {
-              exportInvoicesDialogRef.current?.openDialog()
+        actions={{
+          loading: invoiceIsLoading,
+          items: [
+            {
+              type: 'action',
+              label: translate('text_66b21236c939426d07ff98ca'),
+              variant: 'secondary',
+              disabled: !invoicesTotalCount,
+              onClick: () => {
+                exportInvoicesDialogRef.current?.openDialog()
+              },
             },
-          },
-          {
-            type: 'action',
-            label: translate('text_63ac86d797f728a87b2f9fc4'),
-            variant: 'primary',
-            hidden:
-              !isOutstandingUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX }) ||
-              !hasPermissions(['invoicesSend']),
-            disabled: !invoicesTotalCount,
-            onClick: async () => {
-              const { errors } = await retryAll({ variables: { input: {} } })
+            {
+              type: 'action',
+              label: translate('text_63ac86d797f728a87b2f9fc4'),
+              variant: 'primary',
+              hidden:
+                !isOutstandingUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX }) ||
+                !hasPermissions(['invoicesSend']),
+              disabled: !invoicesTotalCount,
+              onClick: async () => {
+                const { errors } = await retryAll({ variables: { input: {} } })
 
-              if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
-                addToast({
-                  severity: 'info',
-                  translateKey: 'text_63b6d06df1a53b7e2ad973ad',
-                })
-              }
+                if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
+                  addToast({
+                    severity: 'info',
+                    translateKey: 'text_63b6d06df1a53b7e2ad973ad',
+                  })
+                }
+              },
             },
-          },
-        ]}
+          ],
+        }}
         filtersSection={
           <Filters.Provider
             filtersNamePrefix={INVOICE_LIST_FILTER_PREFIX}

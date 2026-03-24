@@ -94,9 +94,11 @@ const FeatureDetails = () => {
         breadcrumb={[{ label: translate('text_1752692673070k7z0mmf0494'), path: FEATURES_ROUTE }]}
         entity={{
           viewName: feature?.name || '-',
+          viewNameLoading: isFeatureLoading,
           metadata: feature?.code || '',
+          metadataLoading: isFeatureLoading,
         }}
-        actions={actions}
+        actions={{ items: actions, loading: isFeatureLoading }}
         tabs={[
           {
             title: translate('text_628cf761cbe6820138b8f2e4'),
@@ -120,7 +122,6 @@ const FeatureDetails = () => {
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
-        isLoading={isFeatureLoading}
       />
 
       <>{activeTabContent}</>

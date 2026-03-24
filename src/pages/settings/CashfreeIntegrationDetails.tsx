@@ -132,42 +132,46 @@ const CashfreeIntegrationDetails = () => {
         ]}
         entity={{
           viewName: cashfreePaymentProvider?.name || '',
+          viewNameLoading: loading,
           metadata: `${translate('text_1727619878796wmgcntkfycn')} • ${translate('text_62b1edddbf5f461ab971271f')}`,
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_634ea0ecc6147de10ddb662d') }],
           icon: <Cashfree />,
         }}
-        actions={[
-          {
-            type: 'dropdown',
-            label: translate('text_626162c62f790600f850b6fe'),
-            items: [
-              {
-                label: translate('text_65845f35d7d69c3ab4793dac'),
-                hidden: !canEditIntegration,
-                onClick: (closePopper) => {
-                  addDialogRef.current?.openDialog({
-                    provider: cashfreePaymentProvider,
-                    deleteModalRef: deleteDialogRef,
-                    deleteDialogCallback,
-                  })
-                  closePopper()
+        actions={{
+          items: [
+            {
+              type: 'dropdown',
+              label: translate('text_626162c62f790600f850b6fe'),
+              items: [
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dac'),
+                  hidden: !canEditIntegration,
+                  onClick: (closePopper) => {
+                    addDialogRef.current?.openDialog({
+                      provider: cashfreePaymentProvider,
+                      deleteModalRef: deleteDialogRef,
+                      deleteDialogCallback,
+                    })
+                    closePopper()
+                  },
                 },
-              },
-              {
-                label: translate('text_65845f35d7d69c3ab4793dad'),
-                hidden: !canDeleteIntegration,
-                onClick: (closePopper) => {
-                  deleteDialogRef.current?.openDialog({
-                    provider: cashfreePaymentProvider,
-                    callback: deleteDialogCallback,
-                  })
-                  closePopper()
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dad'),
+                  hidden: !canDeleteIntegration,
+                  onClick: (closePopper) => {
+                    deleteDialogRef.current?.openDialog({
+                      provider: cashfreePaymentProvider,
+                      callback: deleteDialogCallback,
+                    })
+                    closePopper()
+                  },
                 },
-              },
-            ],
-          },
-        ]}
-        isLoading={loading}
+              ],
+            },
+          ],
+          loading,
+        }}
       />
 
       <div className="mb-12 flex max-w-[672px] flex-col gap-8 px-4 py-0 md:px-12">

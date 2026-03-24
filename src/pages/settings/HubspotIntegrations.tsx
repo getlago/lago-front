@@ -85,21 +85,25 @@ const HubspotIntegrations = () => {
         ]}
         entity={{
           viewName: translate('text_1727189568053s79ks5q07tr'),
+          viewNameLoading: loading,
           metadata: translate('text_1727281892403opxm269y6mv'),
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Hubspot />,
         }}
-        actions={[
-          {
-            type: 'action',
-            label: translate('text_65846763e6140b469140e235'),
-            variant: 'primary',
-            onClick: () => {
-              addHubspotDialogRef.current?.openDialog()
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_65846763e6140b469140e235'),
+              variant: 'primary',
+              onClick: () => {
+                addHubspotDialogRef.current?.openDialog()
+              },
             },
-          },
-        ]}
-        isLoading={loading}
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

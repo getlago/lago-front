@@ -118,43 +118,47 @@ const HubspotIntegrationDetails = () => {
         ]}
         entity={{
           viewName: hubspotIntegration?.name || '',
+          viewNameLoading: loading,
           metadata: translate('text_1727281892403opxm269y6mv'),
+          metadataLoading: loading,
           badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
           icon: <Hubspot />,
         }}
-        actions={[
-          {
-            type: 'dropdown',
-            label: translate('text_626162c62f790600f850b6fe'),
-            items: [
-              {
-                label: translate('text_65845f35d7d69c3ab4793dac'),
-                onClick: (closePopper) => {
-                  addHubspotDialogRef.current?.openDialog({
-                    provider: hubspotIntegration,
-                    deleteModalRef: deleteHubspotDialogRef,
-                    deleteDialogCallback,
-                  })
-                  closePopper()
-                },
-              },
-              {
-                label: translate('text_65845f35d7d69c3ab4793dad'),
-                hidden: !hubspotIntegration,
-                onClick: (closePopper) => {
-                  if (hubspotIntegration) {
-                    deleteHubspotDialogRef.current?.openDialog({
+        actions={{
+          items: [
+            {
+              type: 'dropdown',
+              label: translate('text_626162c62f790600f850b6fe'),
+              items: [
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dac'),
+                  onClick: (closePopper) => {
+                    addHubspotDialogRef.current?.openDialog({
                       provider: hubspotIntegration,
-                      callback: deleteDialogCallback,
+                      deleteModalRef: deleteHubspotDialogRef,
+                      deleteDialogCallback,
                     })
-                  }
-                  closePopper()
+                    closePopper()
+                  },
                 },
-              },
-            ],
-          },
-        ]}
-        isLoading={loading}
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dad'),
+                  hidden: !hubspotIntegration,
+                  onClick: (closePopper) => {
+                    if (hubspotIntegration) {
+                      deleteHubspotDialogRef.current?.openDialog({
+                        provider: hubspotIntegration,
+                        callback: deleteDialogCallback,
+                      })
+                    }
+                    closePopper()
+                  },
+                },
+              ],
+            },
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

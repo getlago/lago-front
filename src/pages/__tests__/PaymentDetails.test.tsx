@@ -162,8 +162,8 @@ describe('PaymentDetails', () => {
       it('THEN should configure MainHeader with a dropdown action', () => {
         render(<PaymentDetails />)
 
-        expect(capturedConfig?.actions).toHaveLength(1)
-        expect(capturedConfig?.actions?.[0].type).toBe('dropdown')
+        expect(capturedConfig?.actions?.items).toHaveLength(1)
+        expect(capturedConfig?.actions?.items[0].type).toBe('dropdown')
       })
 
       it('THEN should configure MainHeader with entity badges', () => {
@@ -195,10 +195,10 @@ describe('PaymentDetails', () => {
     })
 
     describe('WHEN the component renders', () => {
-      it('THEN should set isLoading on MainHeader config', () => {
+      it('THEN should set actionsLoading on MainHeader config', () => {
         render(<PaymentDetails />)
 
-        expect(capturedConfig?.isLoading).toBe(true)
+        expect(capturedConfig?.actions?.loading).toBe(true)
       })
     })
   })
@@ -208,7 +208,7 @@ describe('PaymentDetails', () => {
       it('THEN should copy the payment ID to clipboard', () => {
         render(<PaymentDetails />)
 
-        const dropdownAction = capturedConfig?.actions?.[0]
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
         if (dropdownAction?.type === 'dropdown') {
           const copyItem = dropdownAction.items[0]

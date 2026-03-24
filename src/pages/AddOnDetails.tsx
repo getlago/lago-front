@@ -97,10 +97,11 @@ const AddOnDetails = () => {
         breadcrumb={[{ label: translate('text_629728388c4d2300e2d3809b'), path: ADD_ONS_ROUTE }]}
         entity={{
           viewName: addOn?.name || '',
+          viewNameLoading: isAddOnLoading,
           metadata: translate('text_629728388c4d2300e2d3810b', { amountWithCurrency }),
+          metadataLoading: isAddOnLoading,
         }}
-        actions={actions}
-        isLoading={isAddOnLoading}
+        actions={{ items: actions, loading: isAddOnLoading }}
       />
 
       <DetailsPage.Container>

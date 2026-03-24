@@ -5,12 +5,22 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 interface UseCustomerDetailsHeaderEntityParams {
   customer: CustomerDetailsFragment | undefined | null
+  loading?: boolean
 }
 
 export function useCustomerDetailsHeaderEntity({
   customer,
+  loading,
 }: UseCustomerDetailsHeaderEntityParams): MainHeaderEntityConfig | undefined {
   const { translate } = useInternationalization()
+
+  if (!customer && loading) {
+    return {
+      viewName: '',
+      viewNameLoading: true,
+      metadataLoading: true,
+    }
+  }
 
   if (!customer) return undefined
 
