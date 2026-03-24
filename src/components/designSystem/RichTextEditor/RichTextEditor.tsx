@@ -30,7 +30,10 @@ const RichTextEditor = () => {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Link.configure({ openOnClick: false }),
+      Link.configure({
+        openOnClick: false,
+        validate: (href) => /^https?:\/\//.test(href),
+      }),
       Underline,
       Superscript,
       Subscript,
