@@ -22,6 +22,8 @@ export const serializeActivationRules = (
   activationRuleType: ActivationRuleFormEnum,
   activationRuleTimeoutHours: string,
 ): CreateSubscriptionInput['activationRules'] => {
+  // "Activate immediately" is the default BE behavior — no activation rule needed.
+  // Only ActivationRuleTypeEnum.Payment exists in the GraphQL schema.
   if (activationRuleType !== ActivationRuleFormEnum.OnPayment) return undefined
 
   return [

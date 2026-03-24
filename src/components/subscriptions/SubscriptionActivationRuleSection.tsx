@@ -11,6 +11,9 @@ import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 
 import { ActivationRuleFormEnum, SubscriptionFormInput } from '../../pages/subscriptions/types'
 
+export const ACTIVATION_RULE_RADIO_GROUP_TEST_ID = 'activation-rule-radio-group'
+export const ACTIVATION_RULE_TIMEOUT_INPUT_TEST_ID = 'activation-rule-timeout-input'
+
 type SubscriptionActivationRuleSectionProps = {
   formikProps: FormikProps<SubscriptionFormInput>
   customerExternalId: string
@@ -51,7 +54,7 @@ export const SubscriptionActivationRuleSection = ({
 
   return (
     <>
-      <div className="[&_legend]:mb-3">
+      <div className="[&_legend]:mb-3" data-test={ACTIVATION_RULE_RADIO_GROUP_TEST_ID}>
         <RadioGroupField
           name="activationRuleType"
           formikProps={formikProps}
