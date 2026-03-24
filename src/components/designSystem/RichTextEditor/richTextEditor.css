@@ -1,12 +1,12 @@
 /* Strip default tippy styling so the SlashMenu controls its own appearance */
-.tippy-box {
+.rich-text-editor .tippy-box {
   background: transparent;
   border: none;
   border-radius: 0;
   box-shadow: none;
 }
 
-.tippy-content {
+.rich-text-editor .tippy-content {
   padding: 0;
 }
 
