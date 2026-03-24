@@ -82,6 +82,34 @@ describe('LinkCard', () => {
         expect(domainSpan[2]).toBe('not-a-valid-url')
       })
     })
+
+    describe('WHEN called with null href', () => {
+      it('THEN should safely convert to empty string', () => {
+        const renderHTML = getRenderHTML()
+
+        const result = renderHTML({ HTMLAttributes: { href: null } })
+
+        const outerDiv = result as unknown[]
+        const anchor = outerDiv[2] as unknown[]
+        const anchorAttrs = anchor[1] as Record<string, string>
+
+        expect(anchorAttrs.href).toBe('')
+      })
+    })
+
+    describe('WHEN called with undefined href', () => {
+      it('THEN should safely convert to empty string', () => {
+        const renderHTML = getRenderHTML()
+
+        const result = renderHTML({ HTMLAttributes: { href: undefined } })
+
+        const outerDiv = result as unknown[]
+        const anchor = outerDiv[2] as unknown[]
+        const anchorAttrs = anchor[1] as Record<string, string>
+
+        expect(anchorAttrs.href).toBe('')
+      })
+    })
   })
 
   describe('GIVEN the parseHTML function', () => {

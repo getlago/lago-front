@@ -32,11 +32,16 @@ const mockEditor = {
     domAtPos: jest.fn().mockReturnValue({ node: document.createElement('div') }),
     posAtDOM: jest.fn().mockReturnValue(0),
   },
-  storage: {
-    markdown: {
-      getMarkdown: mockGetMarkdown,
-    },
-  } as Record<string, unknown>,
+  extensionManager: {
+    extensions: [
+      {
+        name: 'markdown',
+        storage: {
+          getMarkdown: mockGetMarkdown,
+        },
+      },
+    ],
+  } as { extensions: Array<{ name: string; storage: unknown }> },
   isActive: jest.fn().mockReturnValue(false),
   can: jest.fn().mockReturnValue({
     undo: jest.fn().mockReturnValue(false),
@@ -350,12 +355,12 @@ describe('RichTextEditor', () => {
       })
     })
 
-    describe('WHEN the storage does not have markdown', () => {
+    describe('WHEN the markdown extension is not found', () => {
       it('THEN should not call onSave', async () => {
         const onSave = jest.fn()
-        const originalStorage = mockEditor.storage
+        const originalExtensions = mockEditor.extensionManager.extensions
 
-        mockEditor.storage = {}
+        mockEditor.extensionManager.extensions = []
 
         await act(() => render(<RichTextEditor onSave={onSave} />))
 
@@ -365,7 +370,26 @@ describe('RichTextEditor', () => {
 
         expect(onSave).not.toHaveBeenCalled()
 
-        mockEditor.storage = originalStorage
+        mockEditor.extensionManager.extensions = originalExtensions
+      })
+    })
+
+    describe('WHEN the markdown extension storage has no getMarkdown function', () => {
+      it('THEN should not call onSave', async () => {
+        const onSave = jest.fn()
+        const originalExtensions = mockEditor.extensionManager.extensions
+
+        mockEditor.extensionManager.extensions = [{ name: 'markdown', storage: {} }]
+
+        await act(() => render(<RichTextEditor onSave={onSave} />))
+
+        const saveButton = screen.getByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)
+
+        await act(() => saveButton.click())
+
+        expect(onSave).not.toHaveBeenCalled()
+
+        mockEditor.extensionManager.extensions = originalExtensions
       })
     })
   })
