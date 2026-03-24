@@ -3,19 +3,21 @@ import { DateTime } from 'luxon'
 import { generatePath, Link } from 'react-router-dom'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
-import { Alert } from '~/components/designSystem/Alert'
 import { Status } from '~/components/designSystem/Status'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMapping'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/core/router'
 import {
-  NextSubscriptionTypeEnum,
-  StatusTypeEnum,
-  SubscriptionForSubscriptionInformationsFragment,
-} from '~/generated/graphql'
+  formatSubscriptionEndDate,
+  getPaymentActivationRule,
+  getTimeoutDisplayValue,
+  shouldShowTimeoutField,
+} from '~/core/utils/subscriptionUtils'
+import { SubscriptionForSubscriptionInformationsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+
+import { SubscriptionDetailAlerts } from './SubscriptionDetailAlerts'
 
 gql`
   fragment SubscriptionForSubscriptionInformations on Subscription {
@@ -27,6 +29,14 @@ gql`
     terminatedAt
     nextSubscriptionAt
     nextSubscriptionType
+    cancellationReason
+    activationRules {
+      lagoId
+      type
+      timeoutHours
+      status
+      expiresAt
+    }
     nextPlan {
       id
       name
@@ -49,33 +59,17 @@ gql`
   }
 `
 
-const SubscriptionEndOrTerminatedAt = ({
-  subscription,
-}: {
-  subscription?: SubscriptionForSubscriptionInformationsFragment | null
-}) => {
-  if (subscription?.status === StatusTypeEnum.Terminated) {
-    return DateTime.fromISO(subscription?.terminatedAt).toFormat('LLL. dd, yyyy')
-  }
-
-  if (subscription?.endingAt) {
-    return DateTime.fromISO(subscription?.endingAt).toFormat('LLL. dd, yyyy')
-  }
-
-  return '-'
-}
-
 export const SubscriptionInformations = ({
   subscription,
 }: {
   subscription?: SubscriptionForSubscriptionInformationsFragment | null
 }) => {
   const { translate } = useInternationalization()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   const isCustomerDeleted = !!subscription?.customer?.deletedAt
+  const hasPaymentActivationRule = !!getPaymentActivationRule(subscription)
 
-  const customerNameForDispay = [
+  const customerNameForDisplay = [
     subscription?.customer?.displayName || subscription?.customer?.externalId,
     isCustomerDeleted ? translate('text_1764874328964clrgkmh7i9h') : '',
   ]
@@ -88,15 +82,8 @@ export const SubscriptionInformations = ({
         {translate('text_6335e8900c69f8ebdfef5312')}
       </DetailsPage.SectionTitle>
       <div className="flex flex-col gap-4">
-        {!!subscription?.nextPlan?.id &&
-          subscription?.nextSubscriptionType === NextSubscriptionTypeEnum.Downgrade && (
-            <Alert type="info">
-              {translate('text_62681c60582e4f00aa82938a', {
-                planName: subscription?.nextPlan?.name,
-                dateStartNewPlan: intlFormatDateTimeOrgaTZ(subscription?.nextSubscriptionAt).date,
-              })}
-            </Alert>
-          )}
+        <SubscriptionDetailAlerts subscription={subscription} />
+
         <DetailsPage.InfoGridItem
           label={translate('text_65201c5a175a4b0238abf298')}
           value={subscription?.externalId}
@@ -119,7 +106,7 @@ export const SubscriptionInformations = ({
                   )}
                   invalidWrapper={(children) => <>{children}</>}
                 >
-                  {customerNameForDispay}
+                  {customerNameForDisplay}
                 </ConditionalWrapper>
               ),
             },
@@ -133,7 +120,15 @@ export const SubscriptionInformations = ({
             },
             {
               label: translate('text_65201c5a175a4b0238abf2a0'),
-              value: <SubscriptionEndOrTerminatedAt subscription={subscription} />,
+              value: formatSubscriptionEndDate(subscription),
+            },
+            hasPaymentActivationRule && {
+              label: translate('text_17743520804341uzgeu20x8b'),
+              value: translate('text_1774352080434jni2qajf3vs'),
+            },
+            shouldShowTimeoutField(subscription) && {
+              label: translate('text_17743520804341zw721mkq81'),
+              value: getTimeoutDisplayValue(subscription, translate),
             },
             !!subscription?.plan?.parent?.id && {
               label: translate('text_65201c5a175a4b0238abf2a2'),
