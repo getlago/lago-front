@@ -47,7 +47,7 @@ export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, comm
   return (
     <div
       data-test={SLASH_MENU_CONTAINER_TEST_ID}
-      className="max-h-64 w-64 overflow-y-auto rounded-xl bg-white shadow-md"
+      className="max-h-64 w-64 overflow-y-auto rounded-xl bg-grey-100 shadow-md"
     >
       <MenuPopper>
         {items.map((item, index) => (
