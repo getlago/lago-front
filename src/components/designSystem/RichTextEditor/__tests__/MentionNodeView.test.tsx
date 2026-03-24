@@ -133,7 +133,7 @@ describe('MentionNodeView', () => {
         const element = screen.getByTestId(MENTION_NODE_VIEW_RESOLVED_TEST_ID)
 
         expect(element).toBeInTheDocument()
-        expect(element).toHaveTextContent('{Acme Corp}')
+        expect(element).toHaveTextContent('Acme Corp')
       })
 
       it('THEN should not display the @label', () => {

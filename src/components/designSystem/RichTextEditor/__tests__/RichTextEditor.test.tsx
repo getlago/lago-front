@@ -8,6 +8,10 @@ import RichTextEditor, { RICH_TEXT_EDITOR_TEST_ID } from '../RichTextEditor'
 // Capture the config passed to SlashCommands.configure()
 let capturedSlashCommandsConfig: Record<string, unknown> = {}
 
+jest.mock('../extensions/PlanBlock', () => ({
+  PlanBlock: 'plan-block-extension',
+}))
+
 jest.mock('../extensions/SlashCommands', () => ({
   SlashCommands: {
     configure: jest.fn((config: Record<string, unknown>) => {
@@ -314,6 +318,63 @@ describe('RichTextEditor', () => {
     it('THEN should pass a translate function to SlashCommands.configure', () => {
       expect(capturedSlashCommandsConfig.translate).toBeDefined()
       expect(typeof capturedSlashCommandsConfig.translate).toBe('function')
+    })
+  })
+
+  describe('GIVEN the getMarkdownRef prop is provided', () => {
+    describe('WHEN the editor is initialized', () => {
+      it('THEN should assign a function to getMarkdownRef.current', async () => {
+        const getMarkdownRef = { current: null } as React.MutableRefObject<(() => string) | null>
+
+        await act(() => render(<RichTextEditor getMarkdownRef={getMarkdownRef} />))
+
+        expect(typeof getMarkdownRef.current).toBe('function')
+      })
+
+      it('THEN should return markdown content when called', async () => {
+        const getMarkdownRef = { current: null } as React.MutableRefObject<(() => string) | null>
+
+        await act(() => render(<RichTextEditor getMarkdownRef={getMarkdownRef} />))
+
+        const result = getMarkdownRef.current?.()
+
+        expect(mockGetMarkdown).toHaveBeenCalled()
+        expect(result).toBe('# Hello World')
+      })
+    })
+
+    describe('WHEN the markdown extension is not found', () => {
+      it('THEN should return undefined', async () => {
+        const getMarkdownRef = { current: null } as React.MutableRefObject<(() => string) | null>
+        const originalExtensions = mockEditor.extensionManager.extensions
+
+        mockEditor.extensionManager.extensions = []
+
+        await act(() => render(<RichTextEditor getMarkdownRef={getMarkdownRef} />))
+
+        const result = getMarkdownRef.current?.()
+
+        expect(result).toBeUndefined()
+
+        mockEditor.extensionManager.extensions = originalExtensions
+      })
+    })
+
+    describe('WHEN the markdown extension storage has no getMarkdown function', () => {
+      it('THEN should return undefined', async () => {
+        const getMarkdownRef = { current: null } as React.MutableRefObject<(() => string) | null>
+        const originalExtensions = mockEditor.extensionManager.extensions
+
+        mockEditor.extensionManager.extensions = [{ name: 'markdown', storage: {} }]
+
+        await act(() => render(<RichTextEditor getMarkdownRef={getMarkdownRef} />))
+
+        const result = getMarkdownRef.current?.()
+
+        expect(result).toBeUndefined()
+
+        mockEditor.extensionManager.extensions = originalExtensions
+      })
     })
   })
 

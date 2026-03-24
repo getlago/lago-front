@@ -12,6 +12,11 @@ import PlanBlockDrawerContent from './PlanBlockDrawerContent'
 
 import { useRichTextEditorContext } from '../RichTextEditorContext'
 
+export const PLAN_BLOCK_VIEW_TEST_ID = 'plan-block-view'
+export const PLAN_BLOCK_VIEW_EMPTY_TEST_ID = 'plan-block-view-empty'
+export const PLAN_BLOCK_VIEW_PREVIEW_TABLE_TEST_ID = 'plan-block-view-preview-table'
+export const PLAN_BLOCK_VIEW_UNRESOLVED_TEST_ID = 'plan-block-view-unresolved'
+
 const FORM_ID = 'plan-block-form'
 const FORM_SUBMIT_BUTTON_TEST_ID = 'plan-block-submit-button'
 
@@ -109,7 +114,7 @@ export const PlanBlockView = ({ node, updateAttributes, selected }: NodeViewProp
   if (isPreview) {
     return (
       <NodeViewWrapper>
-        <table>
+        <table data-test={PLAN_BLOCK_VIEW_PREVIEW_TABLE_TEST_ID}>
           <thead>
             <tr>
               <th>{planName ? 'Plan name' : 'Plan ID'}</th>
@@ -134,6 +139,7 @@ export const PlanBlockView = ({ node, updateAttributes, selected }: NodeViewProp
           className={`plan-block plan-block--empty ${selected ? 'plan-block--selected' : ''}`}
           onClick={handleClick}
           tabIndex={0}
+          data-test={PLAN_BLOCK_VIEW_EMPTY_TEST_ID}
         >
           <span className="plan-block__placeholder">Select a plan</span>
         </button>
@@ -146,13 +152,14 @@ export const PlanBlockView = ({ node, updateAttributes, selected }: NodeViewProp
       <button
         className={`plan-block ${selected ? 'plan-block--selected' : ''}`}
         onClick={handleClick}
+        data-test={PLAN_BLOCK_VIEW_TEST_ID}
       >
         {planName ? (
           <span>
             {planName} ({planCode})
           </span>
         ) : (
-          <div className="plan-block__unresolved">
+          <div className="plan-block__unresolved" data-test={PLAN_BLOCK_VIEW_UNRESOLVED_TEST_ID}>
             <span>Plan: {planId}</span>
           </div>
         )}
