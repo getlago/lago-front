@@ -1,6 +1,12 @@
 import { Editor, useEditorState } from '@tiptap/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+export const TABLE_CONTROLS_WRAPPER_TEST_ID = 'table-controls-wrapper'
+export const TABLE_CONTROLS_DELETE_ROW_BUTTON_TEST_ID = 'table-controls-delete-row-button'
+export const TABLE_CONTROLS_DELETE_COL_BUTTON_TEST_ID = 'table-controls-delete-col-button'
+export const TABLE_CONTROLS_ADD_COL_BUTTON_TEST_ID = 'table-controls-add-col-button'
+export const TABLE_CONTROLS_ADD_ROW_BUTTON_TEST_ID = 'table-controls-add-row-button'
+
 type TableControlsProps = {
   editor: Editor
 }
@@ -276,7 +282,11 @@ const TableControls = ({ editor }: TableControlsProps) => {
   }
 
   return (
-    <div ref={wrapperRef} className="pointer-events-none absolute inset-0">
+    <div
+      ref={wrapperRef}
+      className="pointer-events-none absolute inset-0"
+      data-test={TABLE_CONTROLS_WRAPPER_TEST_ID}
+    >
       {isInTable && layout && (
         <>
           {/* Row delete buttons — left of each row */}
@@ -298,6 +308,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
             >
               <button
                 type="button"
+                data-test={`${TABLE_CONTROLS_DELETE_ROW_BUTTON_TEST_ID}-${i}`}
                 className="flex size-[18px] items-center justify-center rounded bg-red-100 text-xs font-medium leading-none text-red-600 transition-colors hover:bg-red-200 hover:text-red-700"
                 title="Delete row"
                 onClick={() => focusCellAndRun(row.cellPos, (chain) => chain.deleteRow())}
@@ -326,6 +337,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
             >
               <button
                 type="button"
+                data-test={`${TABLE_CONTROLS_DELETE_COL_BUTTON_TEST_ID}-${i}`}
                 className="flex size-[18px] items-center justify-center rounded bg-red-100 text-xs font-medium leading-none text-red-600 transition-colors hover:bg-red-200 hover:text-red-700"
                 title="Delete column"
                 onClick={() => focusCellAndRun(col.cellPos, (chain) => chain.deleteColumn())}
@@ -338,6 +350,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
           {/* Add column button — right edge */}
           <button
             type="button"
+            data-test={TABLE_CONTROLS_ADD_COL_BUTTON_TEST_ID}
             className={`absolute flex w-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 transition-[opacity,background-color,color] duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700 ${
               addColVisible ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
             }`}
@@ -363,6 +376,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
           {/* Add row button — bottom edge */}
           <button
             type="button"
+            data-test={TABLE_CONTROLS_ADD_ROW_BUTTON_TEST_ID}
             className={`absolute flex h-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 transition-[opacity,background-color,color] duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700 ${
               addRowVisible ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
             }`}
