@@ -191,10 +191,19 @@ const RichTextEditor = ({
   if (!editor) return null
 
   const handleSave = () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const markdown = (editor.storage as any).markdown.getMarkdown() as string
+    const storage = editor.storage
 
-    onSave?.(markdown)
+    if (
+      'markdown' in storage &&
+      storage.markdown &&
+      typeof storage.markdown === 'object' &&
+      'getMarkdown' in storage.markdown &&
+      typeof storage.markdown.getMarkdown === 'function'
+    ) {
+      const markdown: string = storage.markdown.getMarkdown()
+
+      onSave?.(markdown)
+    }
   }
 
   return (
