@@ -27,6 +27,9 @@ export const TOOLBAR_LINK_INPUT_TEST_ID = 'toolbar-link-input'
 export const TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID = 'toolbar-text-styling-dropdown'
 export const TOOLBAR_LIST_DROPDOWN_TEST_ID = 'toolbar-list-dropdown'
 export const TOOLBAR_ALIGN_DROPDOWN_TEST_ID = 'toolbar-align-dropdown'
+export const TOOLBAR_IMAGE_BUTTON_TEST_ID = 'toolbar-image-button'
+export const TOOLBAR_IMAGE_INPUT_TEST_ID = 'toolbar-image-input'
+export const TOOLBAR_IMAGE_INSERT_BUTTON_TEST_ID = 'toolbar-image-insert-button'
 
 type ToolbarProps = {
   editor: Editor
@@ -435,7 +438,11 @@ const Toolbar = ({ editor }: ToolbarProps) => {
       {/* Image */}
       <Popper
         PopperProps={{ placement: 'bottom-start' }}
-        opener={<Button variant="secondary">Image</Button>}
+        opener={
+          <Button data-test={TOOLBAR_IMAGE_BUTTON_TEST_ID} variant="secondary">
+            Image
+          </Button>
+        }
       >
         {({ closePopper }) => (
           <MenuPopper>
@@ -444,6 +451,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
                 Image URL
               </Typography>
               <input
+                data-test={TOOLBAR_IMAGE_INPUT_TEST_ID}
                 type="text"
                 value={imageInput}
                 onChange={(e) => setImageInput(e.target.value)}
@@ -456,7 +464,11 @@ const Toolbar = ({ editor }: ToolbarProps) => {
                 placeholder="https://example.com/image.png"
                 className="rounded border border-grey-300 px-3 py-1.5 text-sm outline-none focus:border-blue-600"
               />
-              <Button variant="primary" onClick={() => handleInsertImage(closePopper)}>
+              <Button
+                data-test={TOOLBAR_IMAGE_INSERT_BUTTON_TEST_ID}
+                variant="primary"
+                onClick={() => handleInsertImage(closePopper)}
+              >
                 Insert
               </Button>
             </div>

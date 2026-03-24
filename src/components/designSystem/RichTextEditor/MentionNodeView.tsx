@@ -2,6 +2,9 @@ import { NodeViewProps, NodeViewWrapper } from '@tiptap/react'
 
 import { useRichTextEditorContext } from './RichTextEditorContext'
 
+export const MENTION_NODE_VIEW_TEST_ID = 'mention-node-view'
+export const MENTION_NODE_VIEW_RESOLVED_TEST_ID = 'mention-node-view-resolved'
+
 export const MentionNodeView = ({ node }: NodeViewProps) => {
   const { mode, mentionValues } = useRichTextEditorContext()
 
@@ -13,7 +16,11 @@ export const MentionNodeView = ({ node }: NodeViewProps) => {
 
     if (resolvedValue) {
       return (
-        <NodeViewWrapper as="span" className="variable-mention variable-mention--resolved">
+        <NodeViewWrapper
+          as="span"
+          className="variable-mention variable-mention--resolved"
+          data-test={MENTION_NODE_VIEW_RESOLVED_TEST_ID}
+        >
           {`{${resolvedValue}}`}
         </NodeViewWrapper>
       )
@@ -21,7 +28,7 @@ export const MentionNodeView = ({ node }: NodeViewProps) => {
   }
 
   return (
-    <NodeViewWrapper as="span" className="variable-mention">
+    <NodeViewWrapper as="span" className="variable-mention" data-test={MENTION_NODE_VIEW_TEST_ID}>
       @{label}
     </NodeViewWrapper>
   )

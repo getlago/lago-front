@@ -157,9 +157,12 @@ const RichTextEditor = ({ mode = 'edit', mentionValues = {} }: RichTextEditorPro
 
   return (
     <RichTextEditorProvider value={contextValue}>
-      <div className="rich-text-editor relative h-full max-h-screen overflow-auto">
-        {!isPreview && <Toolbar editor={editor} />}
-        <EditorContent editor={editor} />
+      <div
+        className="rich-text-editor relative h-full max-h-screen overflow-auto"
+        data-test={RICH_TEXT_EDITOR_TEST_ID}
+      >
+        {!isPreview && <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />}
+        <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
       </div>
     </RichTextEditorProvider>
   )

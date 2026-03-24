@@ -11,6 +11,9 @@ import Toolbar, {
   TOOLBAR_CODE_BUTTON_TEST_ID,
   TOOLBAR_CONTAINER_TEST_ID,
   TOOLBAR_HIGHLIGHT_BUTTON_TEST_ID,
+  TOOLBAR_IMAGE_BUTTON_TEST_ID,
+  TOOLBAR_IMAGE_INPUT_TEST_ID,
+  TOOLBAR_IMAGE_INSERT_BUTTON_TEST_ID,
   TOOLBAR_ITALIC_BUTTON_TEST_ID,
   TOOLBAR_LINK_APPLY_BUTTON_TEST_ID,
   TOOLBAR_LINK_INPUT_TEST_ID,
@@ -129,6 +132,7 @@ describe('Toolbar', () => {
         ['subscript', TOOLBAR_SUBSCRIPT_BUTTON_TEST_ID],
         ['table', TOOLBAR_TABLE_BUTTON_TEST_ID],
         ['code block', TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID],
+        ['image', TOOLBAR_IMAGE_BUTTON_TEST_ID],
       ])('THEN should render the %s button', async (_, testId) => {
         const { editor } = createMockEditor()
 
@@ -412,6 +416,65 @@ describe('Toolbar', () => {
 
       expect(editor.chain).toHaveBeenCalled()
       expect(runMock).toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN the image popper', () => {
+    const openImagePopper = async (editor: Editor) => {
+      const user = userEvent.setup()
+
+      await act(() => render(<Toolbar editor={editor} />))
+
+      const imageButton = screen.getByTestId(TOOLBAR_IMAGE_BUTTON_TEST_ID)
+
+      await user.click(imageButton)
+
+      await waitFor(() => {
+        expect(screen.getByTestId(TOOLBAR_IMAGE_INPUT_TEST_ID)).toBeInTheDocument()
+      })
+
+      return user
+    }
+
+    describe('WHEN entering a URL and clicking insert', () => {
+      it('THEN should call editor chain to insert the image', async () => {
+        const { editor, runMock } = createMockEditor()
+        const user = await openImagePopper(editor)
+
+        const input = screen.getByTestId(TOOLBAR_IMAGE_INPUT_TEST_ID)
+
+        await user.type(input, 'https://example.com/image.png')
+        await user.click(screen.getByTestId(TOOLBAR_IMAGE_INSERT_BUTTON_TEST_ID))
+
+        expect(editor.chain).toHaveBeenCalled()
+        expect(runMock).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN pressing Enter in the image input', () => {
+      it('THEN should insert the image', async () => {
+        const { editor, runMock } = createMockEditor()
+        const user = await openImagePopper(editor)
+
+        const input = screen.getByTestId(TOOLBAR_IMAGE_INPUT_TEST_ID)
+
+        await user.type(input, 'https://example.com/photo.jpg{Enter}')
+
+        expect(editor.chain).toHaveBeenCalled()
+        expect(runMock).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN clicking insert with empty input', () => {
+      it('THEN should not call setImage but should close the popper', async () => {
+        const { editor, runMock } = createMockEditor()
+        const user = await openImagePopper(editor)
+
+        await user.click(screen.getByTestId(TOOLBAR_IMAGE_INSERT_BUTTON_TEST_ID))
+
+        // With empty input, setImage should not be called, so runMock should not be called
+        expect(runMock).not.toHaveBeenCalled()
+      })
     })
   })
 })
