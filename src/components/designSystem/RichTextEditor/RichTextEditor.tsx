@@ -26,6 +26,14 @@ export const RICH_TEXT_EDITOR_CONTENT_TEST_ID = 'rich-text-editor-content'
 
 const RichTextEditor = () => {
   const { translate } = useInternationalization()
+  const variableItems = [
+    { id: 'customerName', label: 'Customer Name' },
+    { id: 'planName', label: 'Plan Name' },
+    { id: 'amountDue', label: 'Amount Due' },
+    { id: 'invoiceNumber', label: 'Invoice Number' },
+    { id: 'dueDate', label: 'Due Date' },
+    { id: 'companyName', label: 'Company Name' },
+  ]
 
   const editor = useEditor({
     extensions: [
@@ -49,6 +57,20 @@ const RichTextEditor = () => {
       }),
       Mention.configure({
         HTMLAttributes: { class: 'variable-mention' },
+        suggestion: {
+          char: '@',
+          items: ({ query }) =>
+            variableItems.filter((v) => v.label.toLowerCase().includes(query.toLowerCase())),
+          // render: () => { ... }
+          // Same popup pattern as SlashMenu — build a MentionList component
+        },
+        renderHTML({ node }) {
+          return [
+            'span',
+            { 'data-type': 'mention', 'data-id': node.attrs.id, class: 'variable-mention' },
+            `@${node.attrs.label ?? node.attrs.id}`,
+          ]
+        },
       }),
       SlashCommands.configure({ translate }),
     ],
