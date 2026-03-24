@@ -60,7 +60,7 @@ const renderMentionNodeView = ({
   mentionValues = {} as Record<string, string>,
 } = {}) => {
   return render(
-    <RichTextEditorProvider value={{ mode, mentionValues }}>
+    <RichTextEditorProvider value={{ mode, mentionValues, plans: {}, setPlan: () => {} }}>
       <MentionNodeView {...defaultProps} node={node} />
     </RichTextEditorProvider>,
   )

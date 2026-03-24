@@ -50,8 +50,8 @@ export const slashCommandDefinitions: SlashCommandDefinition[] = [
     command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
   },
   {
-    title: 'Plan',
-    description: 'Insert a plan block',
+    titleKey: 'text_1774369903715y1h6gjc2bmd',
+    descriptionKey: 'text_1774369903715o2j58u6slmw',
     command: (editor) => {
       editor
         .chain()
