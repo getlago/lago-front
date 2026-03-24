@@ -356,9 +356,10 @@ export type Alert = {
   direction: DirectionEnum;
   id: Scalars['ID']['output'];
   name?: Maybe<Scalars['String']['output']>;
-  subscriptionExternalId: Scalars['String']['output'];
+  subscriptionExternalId?: Maybe<Scalars['String']['output']>;
   thresholds?: Maybe<Array<AlertThreshold>>;
   updatedAt: Scalars['ISO8601DateTime']['output'];
+  walletId?: Maybe<Scalars['String']['output']>;
 };
 
 /** AlertCollection type */
@@ -994,7 +995,7 @@ export enum CommitmentTypeEnum {
 export enum CountryCode {
   /** Andorra */
   Ad = 'AD',
-  /** United Arab Emirates (the) */
+  /** United Arab Emirates */
   Ae = 'AE',
   /** Afghanistan */
   Af = 'AF',
@@ -1054,7 +1055,7 @@ export enum CountryCode {
   Bq = 'BQ',
   /** Brazil */
   Br = 'BR',
-  /** Bahamas (the) */
+  /** Bahamas */
   Bs = 'BS',
   /** Bhutan */
   Bt = 'BT',
@@ -1068,19 +1069,19 @@ export enum CountryCode {
   Bz = 'BZ',
   /** Canada */
   Ca = 'CA',
-  /** Cocos (Keeling) Islands (the) */
+  /** Cocos (Keeling) Islands */
   Cc = 'CC',
-  /** Congo (the Democratic Republic of the) */
+  /** Congo (Democratic Republic of the) */
   Cd = 'CD',
-  /** Central African Republic (the) */
+  /** Central African Republic */
   Cf = 'CF',
-  /** Congo (the) */
+  /** Congo */
   Cg = 'CG',
   /** Switzerland */
   Ch = 'CH',
   /** Côte d'Ivoire */
   Ci = 'CI',
-  /** Cook Islands (the) */
+  /** Cook Islands */
   Ck = 'CK',
   /** Chile */
   Cl = 'CL',
@@ -1112,7 +1113,7 @@ export enum CountryCode {
   Dk = 'DK',
   /** Dominica */
   Dm = 'DM',
-  /** Dominican Republic (the) */
+  /** Dominican Republic */
   Do = 'DO',
   /** Algeria */
   Dz = 'DZ',
@@ -1134,17 +1135,17 @@ export enum CountryCode {
   Fi = 'FI',
   /** Fiji */
   Fj = 'FJ',
-  /** Falkland Islands (the) [Malvinas] */
+  /** Falkland Islands (Malvinas) */
   Fk = 'FK',
   /** Micronesia (Federated States of) */
   Fm = 'FM',
-  /** Faroe Islands (the) */
+  /** Faroe Islands */
   Fo = 'FO',
   /** France */
   Fr = 'FR',
   /** Gabon */
   Ga = 'GA',
-  /** United Kingdom of Great Britain and Northern Ireland (the) */
+  /** United Kingdom of Great Britain and Northern Ireland */
   Gb = 'GB',
   /** Grenada */
   Gd = 'GD',
@@ -1160,7 +1161,7 @@ export enum CountryCode {
   Gi = 'GI',
   /** Greenland */
   Gl = 'GL',
-  /** Gambia (the) */
+  /** Gambia */
   Gm = 'GM',
   /** Guinea */
   Gn = 'GN',
@@ -1202,7 +1203,7 @@ export enum CountryCode {
   Im = 'IM',
   /** India */
   In = 'IN',
-  /** British Indian Ocean Territory (the) */
+  /** British Indian Ocean Territory */
   Io = 'IO',
   /** Iraq */
   Iq = 'IQ',
@@ -1228,21 +1229,21 @@ export enum CountryCode {
   Kh = 'KH',
   /** Kiribati */
   Ki = 'KI',
-  /** Comoros (the) */
+  /** Comoros */
   Km = 'KM',
   /** Saint Kitts and Nevis */
   Kn = 'KN',
-  /** Korea (the Democratic People's Republic of) */
+  /** Korea (Democratic People's Republic of) */
   Kp = 'KP',
-  /** Korea (the Republic of) */
+  /** Korea (Republic of) */
   Kr = 'KR',
   /** Kuwait */
   Kw = 'KW',
-  /** Cayman Islands (the) */
+  /** Cayman Islands */
   Ky = 'KY',
   /** Kazakhstan */
   Kz = 'KZ',
-  /** Lao People's Democratic Republic (the) */
+  /** Lao People's Democratic Republic */
   La = 'LA',
   /** Lebanon */
   Lb = 'LB',
@@ -1268,7 +1269,7 @@ export enum CountryCode {
   Ma = 'MA',
   /** Monaco */
   Mc = 'MC',
-  /** Moldova (the Republic of) */
+  /** Moldova (Republic of) */
   Md = 'MD',
   /** Montenegro */
   Me = 'ME',
@@ -1276,7 +1277,7 @@ export enum CountryCode {
   Mf = 'MF',
   /** Madagascar */
   Mg = 'MG',
-  /** Marshall Islands (the) */
+  /** Marshall Islands */
   Mh = 'MH',
   /** North Macedonia */
   Mk = 'MK',
@@ -1288,7 +1289,7 @@ export enum CountryCode {
   Mn = 'MN',
   /** Macao */
   Mo = 'MO',
-  /** Northern Mariana Islands (the) */
+  /** Northern Mariana Islands */
   Mp = 'MP',
   /** Martinique */
   Mq = 'MQ',
@@ -1314,7 +1315,7 @@ export enum CountryCode {
   Na = 'NA',
   /** New Caledonia */
   Nc = 'NC',
-  /** Niger (the) */
+  /** Niger */
   Ne = 'NE',
   /** Norfolk Island */
   Nf = 'NF',
@@ -1322,7 +1323,7 @@ export enum CountryCode {
   Ng = 'NG',
   /** Nicaragua */
   Ni = 'NI',
-  /** Netherlands (the) */
+  /** Netherlands */
   Nl = 'NL',
   /** Norway */
   No = 'NO',
@@ -1344,7 +1345,7 @@ export enum CountryCode {
   Pf = 'PF',
   /** Papua New Guinea */
   Pg = 'PG',
-  /** Philippines (the) */
+  /** Philippines */
   Ph = 'PH',
   /** Pakistan */
   Pk = 'PK',
@@ -1372,7 +1373,7 @@ export enum CountryCode {
   Ro = 'RO',
   /** Serbia */
   Rs = 'RS',
-  /** Russian Federation (the) */
+  /** Russian Federation */
   Ru = 'RU',
   /** Rwanda */
   Rw = 'RW',
@@ -1382,7 +1383,7 @@ export enum CountryCode {
   Sb = 'SB',
   /** Seychelles */
   Sc = 'SC',
-  /** Sudan (the) */
+  /** Sudan */
   Sd = 'SD',
   /** Sweden */
   Se = 'SE',
@@ -1418,11 +1419,11 @@ export enum CountryCode {
   Sy = 'SY',
   /** Eswatini */
   Sz = 'SZ',
-  /** Turks and Caicos Islands (the) */
+  /** Turks and Caicos Islands */
   Tc = 'TC',
   /** Chad */
   Td = 'TD',
-  /** French Southern Territories (the) */
+  /** French Southern Territories */
   Tf = 'TF',
   /** Togo */
   Tg = 'TG',
@@ -1446,7 +1447,7 @@ export enum CountryCode {
   Tt = 'TT',
   /** Tuvalu */
   Tv = 'TV',
-  /** Taiwan (Province of China) */
+  /** Taiwan, Province of China */
   Tw = 'TW',
   /** Tanzania, United Republic of */
   Tz = 'TZ',
@@ -1454,15 +1455,15 @@ export enum CountryCode {
   Ua = 'UA',
   /** Uganda */
   Ug = 'UG',
-  /** United States Minor Outlying Islands (the) */
+  /** United States Minor Outlying Islands */
   Um = 'UM',
-  /** United States of America (the) */
+  /** United States of America */
   Us = 'US',
   /** Uruguay */
   Uy = 'UY',
   /** Uzbekistan */
   Uz = 'UZ',
-  /** Holy See (the) */
+  /** Holy See */
   Va = 'VA',
   /** Saint Vincent and the Grenadines */
   Vc = 'VC',
@@ -1758,6 +1759,19 @@ export type CreateCustomerPortalWalletTransactionInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   paidCredits?: InputMaybe<Scalars['String']['input']>;
+  walletId: Scalars['ID']['input'];
+};
+
+/** Autogenerated input type of CreateCustomerWalletAlert */
+export type CreateCustomerWalletAlertInput = {
+  alertType: AlertTypeEnum;
+  billableMetricId?: InputMaybe<Scalars['ID']['input']>;
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  subscriptionId?: InputMaybe<Scalars['ID']['input']>;
+  thresholds: Array<ThresholdInput>;
   walletId: Scalars['ID']['input'];
 };
 
@@ -2064,6 +2078,7 @@ export type CreateSubscriptionAlertInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   subscriptionId: Scalars['ID']['input'];
   thresholds: Array<ThresholdInput>;
+  walletId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 /** Create subscription charge filter input arguments */
@@ -3154,6 +3169,7 @@ export type DataExportCreditNoteFiltersInput = {
   refundStatus?: InputMaybe<Array<CreditNoteRefundStatusEnum>>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
+  types?: InputMaybe<Array<CreditNoteTypeEnum>>;
 };
 
 export enum DataExportFormatTypeEnum {
@@ -3312,6 +3328,13 @@ export type DestroyCustomerPayload = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['ID']['output']>;
+};
+
+/** Autogenerated input type of DestroyCustomerWalletAlert */
+export type DestroyCustomerWalletAlertInput = {
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
 };
 
 /** Autogenerated input type of DestroyDunningCampaign */
@@ -4913,6 +4936,8 @@ export type Mutation = {
   createCustomerPortalWalletTransaction?: Maybe<CustomerPortalWalletTransactionCollection>;
   /** Creates a new Customer Wallet */
   createCustomerWallet?: Maybe<Wallet>;
+  /** Creates a new Alert for wallet */
+  createCustomerWalletAlert?: Maybe<Alert>;
   /** Creates a new Customer Wallet Transaction */
   createCustomerWalletTransaction?: Maybe<WalletTransactionCollection>;
   /** Creates a new dunning campaign */
@@ -4985,6 +5010,8 @@ export type Mutation = {
   destroyCoupon?: Maybe<DestroyCouponPayload>;
   /** Delete a Customer */
   destroyCustomer?: Maybe<DestroyCustomerPayload>;
+  /** Deletes an alert */
+  destroyCustomerWalletAlert?: Maybe<Alert>;
   /** Deletes a dunning campaign */
   destroyDunningCampaign?: Maybe<DestroyDunningCampaignPayload>;
   /** Destroys an existing feature */
@@ -5146,6 +5173,8 @@ export type Mutation = {
   updateCustomerPortalCustomer?: Maybe<CustomerPortalCustomer>;
   /** Updates a new Customer Wallet */
   updateCustomerWallet?: Maybe<Wallet>;
+  /** Updates an alert */
+  updateCustomerWalletAlert?: Maybe<Alert>;
   /** Updates a dunning campaign and its thresholds */
   updateDunningCampaign?: Maybe<DunningCampaign>;
   /** Updates an existing feature */
@@ -5345,6 +5374,11 @@ export type MutationCreateCustomerWalletArgs = {
 };
 
 
+export type MutationCreateCustomerWalletAlertArgs = {
+  input: CreateCustomerWalletAlertInput;
+};
+
+
 export type MutationCreateCustomerWalletTransactionArgs = {
   input: CreateCustomerWalletTransactionInput;
 };
@@ -5522,6 +5556,11 @@ export type MutationDestroyCouponArgs = {
 
 export type MutationDestroyCustomerArgs = {
   input: DestroyCustomerInput;
+};
+
+
+export type MutationDestroyCustomerWalletAlertArgs = {
+  input: DestroyCustomerWalletAlertInput;
 };
 
 
@@ -5932,6 +5971,11 @@ export type MutationUpdateCustomerPortalCustomerArgs = {
 
 export type MutationUpdateCustomerWalletArgs = {
   input: UpdateCustomerWalletInput;
+};
+
+
+export type MutationUpdateCustomerWalletAlertArgs = {
+  input: UpdateCustomerWalletAlertInput;
 };
 
 
@@ -6904,7 +6948,7 @@ export type Query = {
   aiConversation?: Maybe<AiConversationWithMessages>;
   /** Query the latest AI conversations of current organization */
   aiConversations?: Maybe<AiConversationCollection>;
-  /** Query a single alert */
+  /** Query a single subscription alert */
   alert?: Maybe<Alert>;
   /** Query alerts of a subscription */
   alerts: AlertCollection;
@@ -7080,6 +7124,10 @@ export type Query = {
   securityLogs?: Maybe<SecurityLogCollection>;
   /** Query a single subscription of an organization */
   subscription?: Maybe<Subscription>;
+  /** Query a single subscription alert */
+  subscriptionAlert?: Maybe<Alert>;
+  /** Query alerts of a subscription */
+  subscriptionAlerts: AlertCollection;
   /** Retrieve an entitlement of a subscriptions */
   subscriptionEntitlement: SubscriptionEntitlement;
   /** Query entitlements of a subscriptions */
@@ -7094,6 +7142,10 @@ export type Query = {
   taxes: TaxCollection;
   /** Query a single wallet of an organization */
   wallet?: Maybe<Wallet>;
+  /** Query a single wallet alert */
+  walletAlert?: Maybe<Alert>;
+  /** Query alerts of a wallet */
+  walletAlerts: AlertCollection;
   /** Query a single wallet transaction */
   walletTransaction?: Maybe<WalletTransaction>;
   /** Query wallet transaction consumptions for an inbound transaction */
@@ -7794,6 +7846,18 @@ export type QuerySubscriptionArgs = {
 };
 
 
+export type QuerySubscriptionAlertArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QuerySubscriptionAlertsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  subscriptionExternalId: Scalars['String']['input'];
+};
+
+
 export type QuerySubscriptionEntitlementArgs = {
   featureCode: Scalars['String']['input'];
   subscriptionId: Scalars['ID']['input'];
@@ -7833,6 +7897,18 @@ export type QueryTaxesArgs = {
 
 export type QueryWalletArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryWalletAlertArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryWalletAlertsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  walletId: Scalars['String']['input'];
 };
 
 
@@ -9062,6 +9138,17 @@ export type UpdateCustomerPortalCustomerInput = {
   state?: InputMaybe<Scalars['String']['input']>;
   taxIdentificationNumber?: InputMaybe<Scalars['String']['input']>;
   zipcode?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Autogenerated input type of UpdateCustomerWalletAlert */
+export type UpdateCustomerWalletAlertInput = {
+  billableMetricId?: InputMaybe<Scalars['ID']['input']>;
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  thresholds?: InputMaybe<Array<ThresholdInput>>;
 };
 
 /** Update Wallet Input */
@@ -12956,7 +13043,7 @@ export type GetInvoiceDraftDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceDraftDetailsQuery = { __typename?: 'Query', invoiceDraft?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, offsettableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, totalDueAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, email?: string | null, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, logoUrl?: string | null }, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval } }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, currency: CurrencyEnum, preciseUnitAmount: number, adjustedFee: boolean, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceDisplayName?: string | null, invoiceName?: string | null, units: number, invoiceId?: string | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, chargeModel: ChargeModelEnum, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, subscription?: { __typename?: 'Subscription', id: string } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean } | null }> | null } | null };
+export type GetInvoiceDraftDetailsQuery = { __typename?: 'Query', invoiceDraft?: { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, offsettableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, totalDueAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, currency: CurrencyEnum, preciseUnitAmount: number, adjustedFee: boolean, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceDisplayName?: string | null, invoiceName?: string | null, units: number, succeededAt?: any | null, description?: string | null, invoiceId?: string | null, eventsCount?: any | null, adjustedFeeType?: AdjustedFeeTypeEnum | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, interval: PlanInterval, name: string } } | null, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, chargeModel: ChargeModelEnum, minAmountCents: any, prorated: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any, id: string } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean } | null, addOn?: { __typename?: 'AddOn', id: string } | null, walletTransaction?: { __typename?: 'WalletTransaction', id: string, name?: string | null, wallet?: { __typename?: 'Wallet', id: string, name?: string | null } | null } | null, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number }> | null, amountDetails?: { __typename?: 'FeeAmountDetails', freeUnits?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, fixedFeeTotalAmount?: string | null, freeEvents?: number | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', toValue?: any | null, flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null }> | null, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, email?: string | null, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, logoUrl?: string | null }, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval } }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null } | null };
 
 export type CustomerForRequestOverduePaymentFormFragment = { __typename?: 'Customer', email?: string | null };
 
@@ -33910,9 +33997,17 @@ export const GetInvoiceDraftDetailsDocument = gql`
   invoiceDraft(id: $id) {
     id
     ...AllInvoiceDetailsForCustomerInvoiceDetails
+    fees {
+      ...FeeDetailsForInvoiceOverview
+      ...FeeForInvoiceDetailsTable
+      ...FeeForInvoiceDetailsTableFooter
+    }
   }
 }
-    ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}`;
+    ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
+${FeeDetailsForInvoiceOverviewFragmentDoc}
+${FeeForInvoiceDetailsTableFragmentDoc}
+${FeeForInvoiceDetailsTableFooterFragmentDoc}`;
 
 /**
  * __useGetInvoiceDraftDetailsQuery__

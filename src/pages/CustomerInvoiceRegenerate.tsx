@@ -82,6 +82,12 @@ gql`
     invoiceDraft(id: $id) {
       id
       ...AllInvoiceDetailsForCustomerInvoiceDetails
+
+      fees {
+        ...FeeDetailsForInvoiceOverview
+        ...FeeForInvoiceDetailsTable
+        ...FeeForInvoiceDetailsTableFooter
+      }
     }
   }
 
