@@ -45,5 +45,9 @@ export const ADD_MIN_MAX_AMOUNT_DATA_TEST = 'add-min-max-amount'
 export const ADD_MIN_TOPUP_OPTION_DATA_TEST = 'add-min-topup-option'
 export const ADD_MAX_TOPUP_OPTION_DATA_TEST = 'add-max-topup-option'
 
+// TopUpTypeSelector
+export const TOPUP_TYPE_PREPAID_CREDITS_DATA_TEST = 'topup-type-prepaid-credits'
+export const TOPUP_TYPE_FREE_CREDITS_DATA_TEST = 'topup-type-free-credits'
+
 // ScopeSection
 export const SHOW_LIMIT_INPUT_DATA_TEST = 'show-limit-input'
