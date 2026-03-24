@@ -100,7 +100,9 @@
   /* Inline code — match captionCode MUI variant */
   code {
     @apply rounded bg-grey-100 px-1 py-0.5 text-sm leading-6;
-    font-family: IBM Plex Mono, monospace;
+    font-family:
+      IBM Plex Mono,
+      monospace;
   }
 
   /* Code block */
@@ -126,5 +128,9 @@
 
   th {
     @apply bg-grey-100 font-medium;
+  }
+
+  .variable-mention {
+    @apply rounded bg-grey-300 px-1.5 py-0.5 text-base;
   }
 }

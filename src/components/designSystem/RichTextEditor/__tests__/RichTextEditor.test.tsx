@@ -35,6 +35,20 @@ const mockEditor = {
   }),
 }
 
+// Capture the config passed to Mention.configure()
+let capturedMentionConfig: Record<string, unknown> = {}
+
+jest.mock('@tiptap/extension-mention', () => ({
+  __esModule: true,
+  default: {
+    configure: jest.fn((config: Record<string, unknown>) => {
+      capturedMentionConfig = config
+
+      return 'mention-extension'
+    }),
+  },
+}))
+
 jest.mock('@tiptap/react', () => ({
   ...jest.requireActual('@tiptap/react'),
   useEditor: jest.fn().mockImplementation(() => mockEditor),
@@ -86,6 +100,115 @@ describe('RichTextEditor', () => {
         expect(container.innerHTML).toBe('')
 
         tiptap.useEditor.mockReturnValue(mockEditor)
+      })
+    })
+  })
+
+  describe('GIVEN the mention extension is configured', () => {
+    beforeEach(async () => {
+      await act(() => render(<RichTextEditor />))
+    })
+
+    it('THEN should set the trigger character to @', () => {
+      const suggestion = capturedMentionConfig.suggestion as { char: string }
+
+      expect(suggestion.char).toBe('@')
+    })
+
+    it('THEN should set the variable-mention CSS class', () => {
+      const attrs = capturedMentionConfig.HTMLAttributes as { class: string }
+
+      expect(attrs.class).toBe('variable-mention')
+    })
+
+    describe('WHEN filtering items with an empty query', () => {
+      it('THEN should return all 6 variable items', () => {
+        const suggestion = capturedMentionConfig.suggestion as {
+          items: (args: { query: string }) => { id: string; label: string }[]
+        }
+        const results = suggestion.items({ query: '' })
+
+        expect(results).toHaveLength(6)
+      })
+    })
+
+    describe('WHEN filtering items with a matching query', () => {
+      it.each([
+        ['name', 3, ['Customer Name', 'Plan Name', 'Company Name']],
+        ['invoice', 1, ['Invoice Number']],
+        ['due', 2, ['Amount Due', 'Due Date']],
+      ])(
+        'THEN should return matching items for query "%s"',
+        (query, expectedCount, expectedLabels) => {
+          const suggestion = capturedMentionConfig.suggestion as {
+            items: (args: { query: string }) => { id: string; label: string }[]
+          }
+          const results = suggestion.items({ query })
+
+          expect(results).toHaveLength(expectedCount)
+          expect(results.map((r) => r.label)).toEqual(expectedLabels)
+        },
+      )
+    })
+
+    describe('WHEN filtering items case-insensitively', () => {
+      it('THEN should match regardless of case', () => {
+        const suggestion = capturedMentionConfig.suggestion as {
+          items: (args: { query: string }) => { id: string; label: string }[]
+        }
+        const upper = suggestion.items({ query: 'PLAN' })
+        const lower = suggestion.items({ query: 'plan' })
+        const mixed = suggestion.items({ query: 'PlAn' })
+
+        expect(upper).toHaveLength(1)
+        expect(lower).toHaveLength(1)
+        expect(mixed).toHaveLength(1)
+        expect(upper[0].label).toBe('Plan Name')
+      })
+    })
+
+    describe('WHEN filtering items with a non-matching query', () => {
+      it('THEN should return an empty array', () => {
+        const suggestion = capturedMentionConfig.suggestion as {
+          items: (args: { query: string }) => { id: string; label: string }[]
+        }
+        const results = suggestion.items({ query: 'nonexistent' })
+
+        expect(results).toHaveLength(0)
+      })
+    })
+
+    describe('WHEN renderHTML is called with a node that has a label', () => {
+      it('THEN should render a span with @label text', () => {
+        const renderHTML = capturedMentionConfig.renderHTML as (args: {
+          node: { attrs: { id: string; label?: string } }
+        }) => unknown[]
+
+        const result = renderHTML({
+          node: { attrs: { id: 'customerName', label: 'Customer Name' } },
+        })
+
+        expect(result).toEqual([
+          'span',
+          { 'data-type': 'mention', 'data-id': 'customerName', class: 'variable-mention' },
+          '@Customer Name',
+        ])
+      })
+    })
+
+    describe('WHEN renderHTML is called with a node that has no label', () => {
+      it('THEN should fallback to @id text', () => {
+        const renderHTML = capturedMentionConfig.renderHTML as (args: {
+          node: { attrs: { id: string; label?: string } }
+        }) => unknown[]
+
+        const result = renderHTML({ node: { attrs: { id: 'customerName' } } })
+
+        expect(result).toEqual([
+          'span',
+          { 'data-type': 'mention', 'data-id': 'customerName', class: 'variable-mention' },
+          '@customerName',
+        ])
       })
     })
   })
