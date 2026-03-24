@@ -35,7 +35,7 @@ import {
   LagoApiError,
   useFetchDraftInvoiceTaxesMutation,
   useGetCustomerQuery,
-  useGetInvoiceDetailsQuery,
+  useGetInvoiceDraftDetailsQuery,
   useGetInvoiceFeesQuery,
   usePreviewAdjustedFeeMutation,
   useRegenerateInvoiceMutation,
@@ -78,6 +78,13 @@ gql`
     }
   }
 
+  query getInvoiceDraftDetails($id: ID!) {
+    invoiceDraft(id: $id) {
+      id
+      ...AllInvoiceDetailsForCustomerInvoiceDetails
+    }
+  }
+
   ${FeeForInvoiceDetailsTableFragmentDoc}
 `
 
@@ -114,26 +121,21 @@ const CustomerInvoiceRegenerate = () => {
   const deleteAdjustedFeeDialogRef = useRef<DeleteAdjustedFeeDialogRef>(null)
   const editFeeDrawerRef = useRef<EditFeeDrawerRef>(null)
 
-  const { data, loading, error } = useGetInvoiceDetailsQuery({
+  const { data, loading, error } = useGetInvoiceDraftDetailsQuery({
     variables: { id: invoiceId as string },
     skip: !invoiceId,
   })
 
   const { data: fullCustomer } = useGetCustomerQuery({
     variables: {
-      id: data?.invoice?.customer?.id as string,
+      id: data?.invoiceDraft?.customer?.id as string,
     },
-    skip: !data?.invoice?.customer?.id,
+    skip: !data?.invoiceDraft?.customer?.id,
   })
 
-  const { data: fullFeesInvoice } = useGetInvoiceFeesQuery({
-    variables: { id: invoiceId as string },
-    skip: !invoiceId,
-  })
+  const fullFees = data?.invoiceDraft?.fees
 
-  const fullFees = fullFeesInvoice?.invoice?.fees
-
-  const invoice = data?.invoice
+  const invoice = data?.invoiceDraft
   const customer = invoice?.customer
   const billingEntity = invoice?.billingEntity
   const hasTaxProvider =
