@@ -498,12 +498,14 @@ export type AppliedCoupon = {
   amountCurrency?: Maybe<CurrencyEnum>;
   coupon: Coupon;
   createdAt: Scalars['ISO8601DateTime']['output'];
+  customer: Customer;
   frequency: CouponFrequency;
   frequencyDuration?: Maybe<Scalars['Int']['output']>;
   frequencyDurationRemaining?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   percentageRate?: Maybe<Scalars['Float']['output']>;
-  terminatedAt: Scalars['ISO8601DateTime']['output'];
+  status: AppliedCouponStatusEnum;
+  terminatedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
 };
 
 /** AppliedCouponCollection type */
@@ -10157,6 +10159,15 @@ export type CouponDetailsActivityLogsQueryVariables = Exact<{
 
 export type CouponDetailsActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
 
+export type GetAppliedCouponsForCouponDetailsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  couponCode?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type GetAppliedCouponsForCouponDetailsQuery = { __typename?: 'Query', appliedCoupons: { __typename?: 'AppliedCouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AppliedCoupon', id: string, status: AppliedCouponStatusEnum, createdAt: any, terminatedAt?: any | null, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code?: string | null }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } }> } };
+
 export type CouponDetailsForOverviewFragment = { __typename?: 'Coupon', name: string, code?: string | null, couponType: CouponTypeEnum, amountCurrency?: CurrencyEnum | null, status: CouponStatusEnum, frequency: CouponFrequency, reusable: boolean, expirationAt?: any | null, amountCents?: any | null, percentageRate?: number | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null };
 
 export type GetCouponForDetailsOverviewQueryVariables = Exact<{
@@ -10367,7 +10378,7 @@ export type AddCouponMutationVariables = Exact<{
 }>;
 
 
-export type AddCouponMutation = { __typename?: 'Mutation', createAppliedCoupon?: { __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code?: string | null } } | null };
+export type AddCouponMutation = { __typename?: 'Mutation', createAppliedCoupon?: { __typename?: 'AppliedCoupon', id: string } | null };
 
 export type CustomerActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -10377,6 +10388,15 @@ export type CustomerActivityLogsQueryVariables = Exact<{
 
 
 export type CustomerActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+
+export type GetAppliedCouponsForCustomerQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetAppliedCouponsForCustomerQuery = { __typename?: 'Query', appliedCoupons: { __typename?: 'AppliedCouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AppliedCoupon', id: string, status: AppliedCouponStatusEnum, createdAt: any, terminatedAt?: any | null, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code?: string | null } }> } };
 
 export type GetCustomerCreditNotesQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
@@ -10598,24 +10618,6 @@ export type VoidCreditNoteMutationVariables = Exact<{
 
 
 export type VoidCreditNoteMutation = { __typename?: 'Mutation', voidCreditNote?: { __typename?: 'CreditNote', id: string } | null };
-
-export type CustomerCouponFragment = { __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code?: string | null } };
-
-export type CustomerAppliedCouponsFragment = { __typename?: 'Customer', id: string, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code?: string | null } }> | null };
-
-export type GetCustomerCouponsQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type GetCustomerCouponsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, appliedCoupons?: Array<{ __typename?: 'AppliedCoupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code?: string | null } }> | null } | null };
-
-export type RemoveCouponMutationVariables = Exact<{
-  input: TerminateAppliedCouponInput;
-}>;
-
-
-export type RemoveCouponMutation = { __typename?: 'Mutation', terminateAppliedCoupon?: { __typename?: 'AppliedCoupon', id: string } | null };
 
 export type GetCustomerOverdueBalancesQueryVariables = Exact<{
   externalCustomerId: Scalars['String']['input'];
@@ -12701,6 +12703,13 @@ export type GetRolesListQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetRolesListQuery = { __typename?: 'Query', roles: Array<{ __typename?: 'Role', id: string, name: string, description?: string | null, permissions: Array<PermissionEnum>, admin: boolean, code: string, memberships: Array<{ __typename?: 'Membership', id: string, revokedAt?: any | null, user: { __typename?: 'User', id: string, email?: string | null } }> }> };
 
+export type RemoveCouponMutationVariables = Exact<{
+  input: TerminateAppliedCouponInput;
+}>;
+
+
+export type RemoveCouponMutation = { __typename?: 'Mutation', terminateAppliedCoupon?: { __typename?: 'AppliedCoupon', id: string } | null };
+
 export type GetWebhookEndpointQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -12800,14 +12809,14 @@ export type BillableMetricsQueryVariables = Exact<{
 
 export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any }> } };
 
-export type CouponDetailsForHeaderFragment = { __typename?: 'Coupon', name: string, status: CouponStatusEnum, couponType: CouponTypeEnum, percentageRate?: number | null, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, frequency: CouponFrequency };
+export type CouponDetailsForHeaderFragment = { __typename?: 'Coupon', name: string, code?: string | null, status: CouponStatusEnum, couponType: CouponTypeEnum, percentageRate?: number | null, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, frequency: CouponFrequency };
 
 export type GetCouponForDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCouponForDetailsQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, name: string, status: CouponStatusEnum, couponType: CouponTypeEnum, percentageRate?: number | null, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, frequency: CouponFrequency, appliedCouponsCount: number } | null };
+export type GetCouponForDetailsQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, name: string, code?: string | null, status: CouponStatusEnum, couponType: CouponTypeEnum, percentageRate?: number | null, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, frequency: CouponFrequency, appliedCouponsCount: number } | null };
 
 export type CouponItemFragment = { __typename?: 'Coupon', id: string, name: string, customersCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
 
@@ -14981,6 +14990,18 @@ export const CouponCaptionFragmentDoc = gql`
   frequencyDuration
 }
     `;
+export const AppliedCouponCaptionFragmentDoc = gql`
+    fragment AppliedCouponCaption on AppliedCoupon {
+  id
+  amountCurrency
+  amountCents
+  amountCentsRemaining
+  percentageRate
+  frequency
+  frequencyDuration
+  frequencyDurationRemaining
+}
+    `;
 export const CouponDetailsForOverviewFragmentDoc = gql`
     fragment CouponDetailsForOverview on Coupon {
   name
@@ -15474,37 +15495,6 @@ export const CreditNoteForVoidCreditNoteDialogFragmentDoc = gql`
   currency
 }
     `;
-export const AppliedCouponCaptionFragmentDoc = gql`
-    fragment AppliedCouponCaption on AppliedCoupon {
-  id
-  amountCurrency
-  amountCents
-  amountCentsRemaining
-  percentageRate
-  frequency
-  frequencyDuration
-  frequencyDurationRemaining
-}
-    `;
-export const CustomerCouponFragmentDoc = gql`
-    fragment CustomerCoupon on AppliedCoupon {
-  id
-  ...AppliedCouponCaption
-  coupon {
-    id
-    name
-    code
-  }
-}
-    ${AppliedCouponCaptionFragmentDoc}`;
-export const CustomerAppliedCouponsFragmentDoc = gql`
-    fragment CustomerAppliedCoupons on Customer {
-  id
-  appliedCoupons {
-    ...CustomerCoupon
-  }
-}
-    ${CustomerCouponFragmentDoc}`;
 export const EditCustomerIssuingDatePolicyDialogFragmentDoc = gql`
     fragment EditCustomerIssuingDatePolicyDialog on Customer {
   id
@@ -17607,6 +17597,7 @@ export const BillableMetricItemFragmentDoc = gql`
 export const CouponDetailsForHeaderFragmentDoc = gql`
     fragment CouponDetailsForHeader on Coupon {
   name
+  code
   status
   couponType
   percentageRate
@@ -20654,6 +20645,72 @@ export type CouponDetailsActivityLogsQueryHookResult = ReturnType<typeof useCoup
 export type CouponDetailsActivityLogsLazyQueryHookResult = ReturnType<typeof useCouponDetailsActivityLogsLazyQuery>;
 export type CouponDetailsActivityLogsSuspenseQueryHookResult = ReturnType<typeof useCouponDetailsActivityLogsSuspenseQuery>;
 export type CouponDetailsActivityLogsQueryResult = Apollo.QueryResult<CouponDetailsActivityLogsQuery, CouponDetailsActivityLogsQueryVariables>;
+export const GetAppliedCouponsForCouponDetailsDocument = gql`
+    query getAppliedCouponsForCouponDetails($page: Int, $limit: Int, $couponCode: [String!]) {
+  appliedCoupons(page: $page, limit: $limit, couponCode: $couponCode) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      status
+      ...AppliedCouponCaption
+      createdAt
+      terminatedAt
+      coupon {
+        id
+        name
+        code
+      }
+      customer {
+        id
+        name
+        displayName
+        externalId
+      }
+    }
+  }
+}
+    ${AppliedCouponCaptionFragmentDoc}`;
+
+/**
+ * __useGetAppliedCouponsForCouponDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetAppliedCouponsForCouponDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAppliedCouponsForCouponDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAppliedCouponsForCouponDetailsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      couponCode: // value for 'couponCode'
+ *   },
+ * });
+ */
+export function useGetAppliedCouponsForCouponDetailsQuery(baseOptions?: Apollo.QueryHookOptions<GetAppliedCouponsForCouponDetailsQuery, GetAppliedCouponsForCouponDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAppliedCouponsForCouponDetailsQuery, GetAppliedCouponsForCouponDetailsQueryVariables>(GetAppliedCouponsForCouponDetailsDocument, options);
+      }
+export function useGetAppliedCouponsForCouponDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAppliedCouponsForCouponDetailsQuery, GetAppliedCouponsForCouponDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAppliedCouponsForCouponDetailsQuery, GetAppliedCouponsForCouponDetailsQueryVariables>(GetAppliedCouponsForCouponDetailsDocument, options);
+        }
+// @ts-ignore
+export function useGetAppliedCouponsForCouponDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAppliedCouponsForCouponDetailsQuery, GetAppliedCouponsForCouponDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAppliedCouponsForCouponDetailsQuery, GetAppliedCouponsForCouponDetailsQueryVariables>;
+export function useGetAppliedCouponsForCouponDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAppliedCouponsForCouponDetailsQuery, GetAppliedCouponsForCouponDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAppliedCouponsForCouponDetailsQuery | undefined, GetAppliedCouponsForCouponDetailsQueryVariables>;
+export function useGetAppliedCouponsForCouponDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAppliedCouponsForCouponDetailsQuery, GetAppliedCouponsForCouponDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAppliedCouponsForCouponDetailsQuery, GetAppliedCouponsForCouponDetailsQueryVariables>(GetAppliedCouponsForCouponDetailsDocument, options);
+        }
+export type GetAppliedCouponsForCouponDetailsQueryHookResult = ReturnType<typeof useGetAppliedCouponsForCouponDetailsQuery>;
+export type GetAppliedCouponsForCouponDetailsLazyQueryHookResult = ReturnType<typeof useGetAppliedCouponsForCouponDetailsLazyQuery>;
+export type GetAppliedCouponsForCouponDetailsSuspenseQueryHookResult = ReturnType<typeof useGetAppliedCouponsForCouponDetailsSuspenseQuery>;
+export type GetAppliedCouponsForCouponDetailsQueryResult = Apollo.QueryResult<GetAppliedCouponsForCouponDetailsQuery, GetAppliedCouponsForCouponDetailsQueryVariables>;
 export const GetCouponForDetailsOverviewDocument = gql`
     query getCouponForDetailsOverview($id: ID!) {
   coupon(id: $id) {
@@ -21785,10 +21842,9 @@ export const AddCouponDocument = gql`
     mutation addCoupon($input: CreateAppliedCouponInput!) {
   createAppliedCoupon(input: $input) {
     id
-    ...CustomerCoupon
   }
 }
-    ${CustomerCouponFragmentDoc}`;
+    `;
 export type AddCouponMutationFn = Apollo.MutationFunction<AddCouponMutation, AddCouponMutationVariables>;
 
 /**
@@ -21870,6 +21926,70 @@ export type CustomerActivityLogsQueryHookResult = ReturnType<typeof useCustomerA
 export type CustomerActivityLogsLazyQueryHookResult = ReturnType<typeof useCustomerActivityLogsLazyQuery>;
 export type CustomerActivityLogsSuspenseQueryHookResult = ReturnType<typeof useCustomerActivityLogsSuspenseQuery>;
 export type CustomerActivityLogsQueryResult = Apollo.QueryResult<CustomerActivityLogsQuery, CustomerActivityLogsQueryVariables>;
+export const GetAppliedCouponsForCustomerDocument = gql`
+    query getAppliedCouponsForCustomer($page: Int, $limit: Int, $externalCustomerId: String) {
+  appliedCoupons(
+    page: $page
+    limit: $limit
+    externalCustomerId: $externalCustomerId
+  ) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      status
+      ...AppliedCouponCaption
+      createdAt
+      terminatedAt
+      coupon {
+        id
+        name
+        code
+      }
+    }
+  }
+}
+    ${AppliedCouponCaptionFragmentDoc}`;
+
+/**
+ * __useGetAppliedCouponsForCustomerQuery__
+ *
+ * To run a query within a React component, call `useGetAppliedCouponsForCustomerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAppliedCouponsForCustomerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAppliedCouponsForCustomerQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *   },
+ * });
+ */
+export function useGetAppliedCouponsForCustomerQuery(baseOptions?: Apollo.QueryHookOptions<GetAppliedCouponsForCustomerQuery, GetAppliedCouponsForCustomerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAppliedCouponsForCustomerQuery, GetAppliedCouponsForCustomerQueryVariables>(GetAppliedCouponsForCustomerDocument, options);
+      }
+export function useGetAppliedCouponsForCustomerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAppliedCouponsForCustomerQuery, GetAppliedCouponsForCustomerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAppliedCouponsForCustomerQuery, GetAppliedCouponsForCustomerQueryVariables>(GetAppliedCouponsForCustomerDocument, options);
+        }
+// @ts-ignore
+export function useGetAppliedCouponsForCustomerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAppliedCouponsForCustomerQuery, GetAppliedCouponsForCustomerQueryVariables>): Apollo.UseSuspenseQueryResult<GetAppliedCouponsForCustomerQuery, GetAppliedCouponsForCustomerQueryVariables>;
+export function useGetAppliedCouponsForCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAppliedCouponsForCustomerQuery, GetAppliedCouponsForCustomerQueryVariables>): Apollo.UseSuspenseQueryResult<GetAppliedCouponsForCustomerQuery | undefined, GetAppliedCouponsForCustomerQueryVariables>;
+export function useGetAppliedCouponsForCustomerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAppliedCouponsForCustomerQuery, GetAppliedCouponsForCustomerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAppliedCouponsForCustomerQuery, GetAppliedCouponsForCustomerQueryVariables>(GetAppliedCouponsForCustomerDocument, options);
+        }
+export type GetAppliedCouponsForCustomerQueryHookResult = ReturnType<typeof useGetAppliedCouponsForCustomerQuery>;
+export type GetAppliedCouponsForCustomerLazyQueryHookResult = ReturnType<typeof useGetAppliedCouponsForCustomerLazyQuery>;
+export type GetAppliedCouponsForCustomerSuspenseQueryHookResult = ReturnType<typeof useGetAppliedCouponsForCustomerSuspenseQuery>;
+export type GetAppliedCouponsForCustomerQueryResult = Apollo.QueryResult<GetAppliedCouponsForCustomerQuery, GetAppliedCouponsForCustomerQueryVariables>;
 export const GetCustomerCreditNotesDocument = gql`
     query getCustomerCreditNotes($customerId: ID!, $page: Int, $limit: Int, $searchTerm: String) {
   creditNotes(
@@ -22875,85 +22995,6 @@ export function useVoidCreditNoteMutation(baseOptions?: Apollo.MutationHookOptio
 export type VoidCreditNoteMutationHookResult = ReturnType<typeof useVoidCreditNoteMutation>;
 export type VoidCreditNoteMutationResult = Apollo.MutationResult<VoidCreditNoteMutation>;
 export type VoidCreditNoteMutationOptions = Apollo.BaseMutationOptions<VoidCreditNoteMutation, VoidCreditNoteMutationVariables>;
-export const GetCustomerCouponsDocument = gql`
-    query getCustomerCoupons($id: ID!) {
-  customer(id: $id) {
-    id
-    name
-    displayName
-    ...CustomerAppliedCoupons
-  }
-}
-    ${CustomerAppliedCouponsFragmentDoc}`;
-
-/**
- * __useGetCustomerCouponsQuery__
- *
- * To run a query within a React component, call `useGetCustomerCouponsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCustomerCouponsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCustomerCouponsQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetCustomerCouponsQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables> & ({ variables: GetCustomerCouponsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>(GetCustomerCouponsDocument, options);
-      }
-export function useGetCustomerCouponsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>(GetCustomerCouponsDocument, options);
-        }
-// @ts-ignore
-export function useGetCustomerCouponsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>;
-export function useGetCustomerCouponsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerCouponsQuery | undefined, GetCustomerCouponsQueryVariables>;
-export function useGetCustomerCouponsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>(GetCustomerCouponsDocument, options);
-        }
-export type GetCustomerCouponsQueryHookResult = ReturnType<typeof useGetCustomerCouponsQuery>;
-export type GetCustomerCouponsLazyQueryHookResult = ReturnType<typeof useGetCustomerCouponsLazyQuery>;
-export type GetCustomerCouponsSuspenseQueryHookResult = ReturnType<typeof useGetCustomerCouponsSuspenseQuery>;
-export type GetCustomerCouponsQueryResult = Apollo.QueryResult<GetCustomerCouponsQuery, GetCustomerCouponsQueryVariables>;
-export const RemoveCouponDocument = gql`
-    mutation removeCoupon($input: TerminateAppliedCouponInput!) {
-  terminateAppliedCoupon(input: $input) {
-    id
-  }
-}
-    `;
-export type RemoveCouponMutationFn = Apollo.MutationFunction<RemoveCouponMutation, RemoveCouponMutationVariables>;
-
-/**
- * __useRemoveCouponMutation__
- *
- * To run a mutation, you first call `useRemoveCouponMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRemoveCouponMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [removeCouponMutation, { data, loading, error }] = useRemoveCouponMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useRemoveCouponMutation(baseOptions?: Apollo.MutationHookOptions<RemoveCouponMutation, RemoveCouponMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<RemoveCouponMutation, RemoveCouponMutationVariables>(RemoveCouponDocument, options);
-      }
-export type RemoveCouponMutationHookResult = ReturnType<typeof useRemoveCouponMutation>;
-export type RemoveCouponMutationResult = Apollo.MutationResult<RemoveCouponMutation>;
-export type RemoveCouponMutationOptions = Apollo.BaseMutationOptions<RemoveCouponMutation, RemoveCouponMutationVariables>;
 export const GetCustomerOverdueBalancesDocument = gql`
     query getCustomerOverdueBalances($externalCustomerId: String!, $currency: CurrencyEnum, $expireCache: Boolean) {
   paymentRequests(externalCustomerId: $externalCustomerId) {
@@ -32124,6 +32165,39 @@ export type GetRolesListQueryHookResult = ReturnType<typeof useGetRolesListQuery
 export type GetRolesListLazyQueryHookResult = ReturnType<typeof useGetRolesListLazyQuery>;
 export type GetRolesListSuspenseQueryHookResult = ReturnType<typeof useGetRolesListSuspenseQuery>;
 export type GetRolesListQueryResult = Apollo.QueryResult<GetRolesListQuery, GetRolesListQueryVariables>;
+export const RemoveCouponDocument = gql`
+    mutation removeCoupon($input: TerminateAppliedCouponInput!) {
+  terminateAppliedCoupon(input: $input) {
+    id
+  }
+}
+    `;
+export type RemoveCouponMutationFn = Apollo.MutationFunction<RemoveCouponMutation, RemoveCouponMutationVariables>;
+
+/**
+ * __useRemoveCouponMutation__
+ *
+ * To run a mutation, you first call `useRemoveCouponMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveCouponMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeCouponMutation, { data, loading, error }] = useRemoveCouponMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useRemoveCouponMutation(baseOptions?: Apollo.MutationHookOptions<RemoveCouponMutation, RemoveCouponMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveCouponMutation, RemoveCouponMutationVariables>(RemoveCouponDocument, options);
+      }
+export type RemoveCouponMutationHookResult = ReturnType<typeof useRemoveCouponMutation>;
+export type RemoveCouponMutationResult = Apollo.MutationResult<RemoveCouponMutation>;
+export type RemoveCouponMutationOptions = Apollo.BaseMutationOptions<RemoveCouponMutation, RemoveCouponMutationVariables>;
 export const GetWebhookEndpointDocument = gql`
     query getWebhookEndpoint($id: ID!) {
   webhookEndpoint(id: $id) {

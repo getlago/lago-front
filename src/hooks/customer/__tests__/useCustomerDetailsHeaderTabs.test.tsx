@@ -66,8 +66,8 @@ jest.mock('~/components/customers/CustomerSettings', () => ({
   CustomerSettings: () => null,
 }))
 
-jest.mock('~/components/customers/overview/CustomerCoupons', () => ({
-  CustomerCoupons: () => null,
+jest.mock('~/components/customers/CustomerAppliedCouponsList', () => ({
+  CustomerAppliedCouponsList: () => null,
 }))
 
 jest.mock('~/components/customers/overview/CustomerSubscriptionsList', () => ({
@@ -118,20 +118,21 @@ describe('useCustomerDetailsHeaderTabs', () => {
         const { result } = renderHook(() => useCustomerDetailsHeaderTabs(defaultParams))
 
         expect(result.current).toBeDefined()
-        // overview, wallet, usage, invoices, payments, credit notes, information, settings, activity logs
-        expect(result.current).toHaveLength(9)
+        // overview, coupons, wallet, usage, invoices, payments, credit notes, information, settings, activity logs
+        expect(result.current).toHaveLength(10)
       })
 
       it.each([
         ['overview', 0],
-        ['wallet', 1],
-        ['usage', 2],
-        ['invoices', 3],
-        ['payments', 4],
-        ['credit notes', 5],
-        ['information', 6],
-        ['settings', 7],
-        ['activity logs', 8],
+        ['coupons', 1],
+        ['wallet', 2],
+        ['usage', 3],
+        ['invoices', 4],
+        ['payments', 5],
+        ['credit notes', 6],
+        ['information', 7],
+        ['settings', 8],
+        ['activity logs', 9],
       ])('THEN should include the %s tab at index %i', (_, index) => {
         const { result } = renderHook(() => useCustomerDetailsHeaderTabs(defaultParams))
 
@@ -151,8 +152,8 @@ describe('useCustomerDetailsHeaderTabs', () => {
 
         const { result } = renderHook(() => useCustomerDetailsHeaderTabs(defaultParams))
 
-        // Usage tab is index 2
-        expect(result.current?.[2].hidden).toBe(true)
+        // Usage tab is index 3
+        expect(result.current?.[3].hidden).toBe(true)
       })
     })
 
@@ -166,8 +167,8 @@ describe('useCustomerDetailsHeaderTabs', () => {
 
         const { result } = renderHook(() => useCustomerDetailsHeaderTabs(defaultParams))
 
-        // Settings tab is index 7
-        expect(result.current?.[7].hidden).toBe(true)
+        // Settings tab is index 8
+        expect(result.current?.[8].hidden).toBe(true)
       })
     })
 
@@ -180,8 +181,8 @@ describe('useCustomerDetailsHeaderTabs', () => {
 
         const { result } = renderHook(() => useCustomerDetailsHeaderTabs(params))
 
-        // Credit notes tab is index 5
-        expect(result.current?.[5].hidden).toBe(true)
+        // Credit notes tab is index 6
+        expect(result.current?.[6].hidden).toBe(true)
       })
     })
 
@@ -194,8 +195,8 @@ describe('useCustomerDetailsHeaderTabs', () => {
 
         const { result } = renderHook(() => useCustomerDetailsHeaderTabs(params))
 
-        // Activity logs tab is index 8
-        expect(result.current?.[8].hidden).toBe(true)
+        // Activity logs tab is index 9
+        expect(result.current?.[9].hidden).toBe(true)
       })
     })
 
@@ -203,7 +204,7 @@ describe('useCustomerDetailsHeaderTabs', () => {
       it('THEN should set the correct dataTest value', () => {
         const { result } = renderHook(() => useCustomerDetailsHeaderTabs(defaultParams))
 
-        expect(result.current?.[1].dataTest).toBe('wallet-tab')
+        expect(result.current?.[2].dataTest).toBe('wallet-tab')
       })
     })
   })

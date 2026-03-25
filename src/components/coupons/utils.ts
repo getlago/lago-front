@@ -1,6 +1,21 @@
+import { StatusType } from '~/components/designSystem/Status'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { CouponTypeEnum, CurrencyEnum } from '~/generated/graphql'
+import { AppliedCouponStatusEnum, CouponTypeEnum, CurrencyEnum } from '~/generated/graphql'
+
+export const APPLIED_COUPON_STATUS_CONFIG: Record<
+  AppliedCouponStatusEnum,
+  { type: StatusType; label: string }
+> = {
+  [AppliedCouponStatusEnum.Active]: {
+    type: StatusType.success,
+    label: 'text_624efab67eb2570101d1180e',
+  },
+  [AppliedCouponStatusEnum.Terminated]: {
+    type: StatusType.danger,
+    label: 'text_62e2a2f2a79d60429eff3035',
+  },
+}
 
 export function formatCouponValue(params: {
   couponType?: CouponTypeEnum | null

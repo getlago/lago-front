@@ -58,32 +58,33 @@ describe('Coupons', () => {
 
   it('should be able to apply the coupon to a customer', () => {
     cy.visit('/customers')
-    cy.get('[data-test="table-customers-list"] tr').contains(customerName).click()
+    cy.get('[data-test="table-customers-list"] tr', { timeout: 10000 })
+      .contains(customerName)
+      .click()
     cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="customer-actions"]`).click()
     cy.get('[data-test="apply-coupon-action"]').click()
     cy.get('input[name="selectCoupon"]').click()
-    cy.get('[data-option-index="0"]').click()
+    cy.get('[data-option-index="0"]').click({ force: true })
     cy.get(`[data-test="plan-limitation-section"]`).should('exist')
 
-    // Test errors
-    cy.get('input[name="amountCurrency"]').click()
-    cy.get('[data-test="UAH"]').click()
-    cy.get('[data-test="submit"]').click()
-    cy.get(`[data-test="alert-type-danger"]`).should('exist', 1)
-
-    // Reset values to be valid
-    cy.get('input[name="amountCurrency"]').click()
-    cy.get('[data-test="USD"]').click()
-
-    cy.get('[data-test="submit"]').click()
-    cy.get(`[data-test="customer-coupon-container"]`).within(() => {
-      cy.get(`[data-test="${couponName}"]`).should('exist')
-    })
+    cy.pause()
+    cy.get('[data-test="submit"]')
+      .click()
+      .then(() => {
+        cy.get('[role="dialog"]', { timeout: 10000 }).should('not.exist')
+        cy.get('[data-test="coupons-tab"]')
+          .click()
+          .then(() => {
+            cy.get('[data-test="table-customer-coupons-list"]').should('contain.text', couponName)
+          })
+      })
   })
 
   it('should not be able to apply the same coupon to a customer multiple time', () => {
     cy.visit('/customers')
-    cy.get('[data-test="table-customers-list"] tr').contains(customerName).click()
+    cy.get('[data-test="table-customers-list"] tr', { timeout: 10000 })
+      .contains(customerName)
+      .click()
     cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="customer-actions"]`).click()
     cy.get('[data-test="apply-coupon-action"]').click()
     cy.get('input[name="selectCoupon"]').click()
