@@ -11,9 +11,9 @@ import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
 import TextAlign from '@tiptap/extension-text-align'
 import Underline from '@tiptap/extension-underline'
-import { EditorContent, ReactRenderer, useEditor } from '@tiptap/react'
+import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import type { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/suggestion'
+import { useEffect, useMemo } from 'react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -21,16 +21,26 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { LinkCard } from './extensions/LinkCard'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
 import { SlashCommands } from './extensions/SlashCommands'
-import { type MentionItem, MentionList, type MentionListRef } from './MentionList'
+import { MentionList, type MentionListRef } from './MentionList'
+import { MentionNodeView } from './MentionNodeView'
 import './richTextEditor.css'
+import { RichTextEditorProvider } from './RichTextEditorContext'
 import Toolbar from './Toolbar'
 
 export const RICH_TEXT_EDITOR_TEST_ID = 'rich-text-editor'
 export const RICH_TEXT_EDITOR_TOOLBAR_TEST_ID = 'rich-text-editor-toolbar'
 export const RICH_TEXT_EDITOR_CONTENT_TEST_ID = 'rich-text-editor-content'
 
-const RichTextEditor = () => {
+export type RichTextEditorMode = 'edit' | 'preview'
+
+interface RichTextEditorProps {
+  mode?: RichTextEditorMode
+  mentionValues?: Record<string, string>
+}
+
+const RichTextEditor = ({ mode = 'edit', mentionValues = {} }: RichTextEditorProps) => {
   const { translate } = useInternationalization()
+
   const variableItems = [
     { id: 'customerName', label: 'Customer Name' },
     { id: 'planName', label: 'Plan Name' },
@@ -60,7 +70,11 @@ const RichTextEditor = () => {
       Placeholder.configure({
         placeholder: translate('text_1774281162711nymiwumt66k'),
       }),
-      Mention.configure({
+      Mention.extend({
+        addNodeView() {
+          return ReactNodeViewRenderer(MentionNodeView, { as: 'span' })
+        },
+      }).configure({
         HTMLAttributes: { class: 'variable-mention' },
         suggestion: {
           char: '@',
@@ -71,14 +85,14 @@ const RichTextEditor = () => {
             let popup: TippyInstance[]
 
             return {
-              onStart: (startProps: SuggestionProps<MentionItem>) => {
+              onStart: (suggestionProps) => {
                 renderer = new ReactRenderer(MentionList, {
-                  props: startProps,
-                  editor: startProps.editor,
+                  props: suggestionProps,
+                  editor: suggestionProps.editor,
                 })
 
                 popup = tippy('body', {
-                  getReferenceClientRect: startProps.clientRect as () => DOMRect,
+                  getReferenceClientRect: suggestionProps.clientRect as () => DOMRect,
                   appendTo: () => document.body,
                   content: renderer.element,
                   showOnCreate: true,
@@ -87,14 +101,14 @@ const RichTextEditor = () => {
                   placement: 'bottom-start',
                 })
               },
-              onUpdate: (updateProps: SuggestionProps<MentionItem>) => {
-                renderer.updateProps(updateProps)
+              onUpdate: (suggestionProps) => {
+                renderer.updateProps(suggestionProps)
 
                 popup[0].setProps({
-                  getReferenceClientRect: updateProps.clientRect as () => DOMRect,
+                  getReferenceClientRect: suggestionProps.clientRect as () => DOMRect,
                 })
               },
-              onKeyDown: (keyDownProps: SuggestionKeyDownProps) => {
+              onKeyDown: (keyDownProps) => {
                 if (keyDownProps.event.key === 'Escape') {
                   popup[0].hide()
                   return true
@@ -129,16 +143,28 @@ const RichTextEditor = () => {
     content: '',
   })
 
+  const isPreview = mode === 'preview'
+
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(!isPreview)
+    }
+  }, [editor, isPreview])
+
+  const contextValue = useMemo(() => ({ mode, mentionValues }), [mode, mentionValues])
+
   if (!editor) return null
 
   return (
-    <div
-      data-test={RICH_TEXT_EDITOR_TEST_ID}
-      className="rich-text-editor relative h-full max-h-screen overflow-auto"
-    >
-      <Toolbar editor={editor} />
-      <EditorContent editor={editor} />
-    </div>
+    <RichTextEditorProvider value={contextValue}>
+      <div
+        className="rich-text-editor relative h-full max-h-screen overflow-auto"
+        data-test={RICH_TEXT_EDITOR_TEST_ID}
+      >
+        {!isPreview && <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />}
+        <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
+      </div>
+    </RichTextEditorProvider>
   )
 }
 
