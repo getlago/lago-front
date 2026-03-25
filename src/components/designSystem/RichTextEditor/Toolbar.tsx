@@ -1,12 +1,21 @@
 import { Editor, useEditorState } from '@tiptap/react'
 import { Icon } from 'lago-design-system'
-import { ReactElement, useState } from 'react'
+import { ReactElement } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 
+import ImagePopperForm from './ImagePopperForm'
+import LinkPopperForm from './LinkPopperForm'
+
 import { Typography } from '../Typography'
+
+export {
+  TOOLBAR_LINK_INPUT_TEST_ID,
+  TOOLBAR_LINK_APPLY_BUTTON_TEST_ID,
+  TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID,
+} from './LinkPopperForm'
 
 export const TOOLBAR_CONTAINER_TEST_ID = 'toolbar-container'
 export const TOOLBAR_UNDO_BUTTON_TEST_ID = 'toolbar-undo-button'
@@ -21,12 +30,10 @@ export const TOOLBAR_SUPERSCRIPT_BUTTON_TEST_ID = 'toolbar-superscript-button'
 export const TOOLBAR_SUBSCRIPT_BUTTON_TEST_ID = 'toolbar-subscript-button'
 export const TOOLBAR_TABLE_BUTTON_TEST_ID = 'toolbar-table-button'
 export const TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID = 'toolbar-code-block-button'
-export const TOOLBAR_LINK_APPLY_BUTTON_TEST_ID = 'toolbar-link-apply-button'
-export const TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID = 'toolbar-link-remove-button'
-export const TOOLBAR_LINK_INPUT_TEST_ID = 'toolbar-link-input'
 export const TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID = 'toolbar-text-styling-dropdown'
 export const TOOLBAR_LIST_DROPDOWN_TEST_ID = 'toolbar-list-dropdown'
 export const TOOLBAR_ALIGN_DROPDOWN_TEST_ID = 'toolbar-align-dropdown'
+export const TOOLBAR_IMAGE_BUTTON_TEST_ID = 'toolbar-image-button'
 
 type ToolbarProps = {
   editor: Editor
@@ -78,8 +85,6 @@ const ToolbarDropdown = ({
 )
 
 const Toolbar = ({ editor }: ToolbarProps) => {
-  const [linkInput, setLinkInput] = useState('')
-
   const editorState = useEditorState({
     editor,
     selector: ({ editor: e }) => ({
@@ -245,20 +250,6 @@ const Toolbar = ({ editor }: ToolbarProps) => {
   const activeTextLabel = textStylings.find((s) => s.isActive)?.label ?? 'M'
   const activeListLabel = listStylings.find((s) => s.isActive)?.label ?? '•'
 
-  const handleSetLink = (closePopper: () => void) => {
-    if (linkInput) {
-      editor
-        .chain()
-        .focus()
-        .setLink({ href: linkInput.startsWith('http') ? linkInput : `https://${linkInput}` })
-        .run()
-    } else {
-      editor.chain().focus().unsetLink().run()
-    }
-    setLinkInput('')
-    closePopper()
-  }
-
   return (
     <div
       data-test={TOOLBAR_CONTAINER_TEST_ID}
@@ -358,47 +349,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
       >
         {({ closePopper }) => (
           <MenuPopper>
-            <div className="flex flex-col gap-2 p-3">
-              <Typography variant="captionHl" color="grey700">
-                URL
-              </Typography>
-              <input
-                data-test={TOOLBAR_LINK_INPUT_TEST_ID}
-                type="text"
-                value={linkInput}
-                onChange={(e) => setLinkInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    handleSetLink(closePopper)
-                  }
-                }}
-                placeholder="https://example.com"
-                className="rounded border border-grey-300 px-3 py-1.5 text-sm outline-none focus:border-blue-600"
-              />
-              <div className="flex gap-2">
-                <Button
-                  data-test={TOOLBAR_LINK_APPLY_BUTTON_TEST_ID}
-                  variant="primary"
-                  onClick={() => handleSetLink(closePopper)}
-                >
-                  Apply
-                </Button>
-                {editorState.isLink && (
-                  <Button
-                    data-test={TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID}
-                    variant="secondary"
-                    onClick={() => {
-                      editor.chain().focus().unsetLink().run()
-                      setLinkInput('')
-                      closePopper()
-                    }}
-                  >
-                    Remove
-                  </Button>
-                )}
-              </div>
-            </div>
+            <LinkPopperForm editor={editor} closePopper={closePopper} />
           </MenuPopper>
         )}
       </Popper>
@@ -422,6 +373,22 @@ const Toolbar = ({ editor }: ToolbarProps) => {
       >
         Code
       </Button>
+
+      {/* Image */}
+      <Popper
+        PopperProps={{ placement: 'bottom-start' }}
+        opener={
+          <Button data-test={TOOLBAR_IMAGE_BUTTON_TEST_ID} variant="secondary">
+            Image
+          </Button>
+        }
+      >
+        {({ closePopper }) => (
+          <MenuPopper>
+            <ImagePopperForm editor={editor} closePopper={closePopper} />
+          </MenuPopper>
+        )}
+      </Popper>
     </div>
   )
 }
