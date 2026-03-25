@@ -16,7 +16,6 @@ export {
   TOOLBAR_LINK_APPLY_BUTTON_TEST_ID,
   TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID,
 } from './LinkPopperForm'
-export { TOOLBAR_IMAGE_INPUT_TEST_ID, TOOLBAR_IMAGE_INSERT_BUTTON_TEST_ID } from './ImagePopperForm'
 
 export const TOOLBAR_CONTAINER_TEST_ID = 'toolbar-container'
 export const TOOLBAR_UNDO_BUTTON_TEST_ID = 'toolbar-undo-button'

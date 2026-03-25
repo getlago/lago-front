@@ -1,6 +1,10 @@
+import { revalidateLogic } from '@tanstack/react-form'
 import { Editor } from '@tiptap/react'
+import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
+import { serializeUrl } from '~/core/serializers/serializeUrl'
+import { zodOptionalUrl } from '~/formValidation/zodCustoms'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
@@ -16,15 +20,35 @@ type LinkPopperFormProps = {
 const LinkPopperForm = ({ editor, closePopper }: LinkPopperFormProps) => {
   const { translate } = useInternationalization()
 
+  const schemaValidation = z.object({
+    url: zodOptionalUrl,
+  })
+
   const form = useAppForm({
     defaultValues: { url: '' },
-    onSubmit: async ({ value }) => {
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: schemaValidation,
+    },
+    onSubmit: async ({ value, formApi }) => {
       if (value.url) {
-        editor
-          .chain()
-          .focus()
-          .setLink({ href: value.url.startsWith('http') ? value.url : `https://${value.url}` })
-          .run()
+        const serializedUrl = serializeUrl(value.url)
+
+        if (!serializedUrl) {
+          formApi.setErrorMap({
+            onDynamic: {
+              fields: {
+                url: {
+                  message: 'text_1764239804026ca61hwr3pp9',
+                  path: ['url'],
+                },
+              },
+            },
+          })
+          return
+        }
+
+        editor.chain().focus().setLink({ href: serializedUrl }).run()
       } else {
         editor.chain().focus().unsetLink().run()
       }
