@@ -34,11 +34,6 @@ export const TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID = 'toolbar-text-styling-dropd
 export const TOOLBAR_LIST_DROPDOWN_TEST_ID = 'toolbar-list-dropdown'
 export const TOOLBAR_ALIGN_DROPDOWN_TEST_ID = 'toolbar-align-dropdown'
 export const TOOLBAR_IMAGE_BUTTON_TEST_ID = 'toolbar-image-button'
-<<<<<<< HEAD
-=======
-export const TOOLBAR_IMAGE_INPUT_TEST_ID = 'toolbar-image-input'
-export const TOOLBAR_IMAGE_INSERT_BUTTON_TEST_ID = 'toolbar-image-insert-button'
->>>>>>> e604f91d8 (test: add more tests)
 
 type ToolbarProps = {
   editor: Editor
