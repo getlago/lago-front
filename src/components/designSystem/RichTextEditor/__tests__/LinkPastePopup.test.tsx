@@ -81,9 +81,10 @@ describe('LinkPastePopup', () => {
     describe('WHEN Enter is pressed without navigation', () => {
       it('THEN should call onDisplayAsCard (first item selected by default)', () => {
         render(<LinkPastePopup {...defaultProps} />)
+        const container = screen.getByTestId(LINK_PASTE_POPUP_TEST_ID)
 
         act(() => {
-          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
+          container.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
         })
 
         expect(mockOnDisplayAsCard).toHaveBeenCalledTimes(1)
@@ -93,12 +94,13 @@ describe('LinkPastePopup', () => {
     describe('WHEN ArrowDown then Enter is pressed', () => {
       it('THEN should call onKeepAsText (second item)', () => {
         render(<LinkPastePopup {...defaultProps} />)
+        const container = screen.getByTestId(LINK_PASTE_POPUP_TEST_ID)
 
         act(() => {
-          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
+          container.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
         })
         act(() => {
-          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
+          container.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
         })
 
         expect(mockOnKeepAsText).toHaveBeenCalledTimes(1)
@@ -108,12 +110,13 @@ describe('LinkPastePopup', () => {
     describe('WHEN ArrowUp is pressed from the first item', () => {
       it('THEN should wrap to the last item and call onKeepAsText on Enter', () => {
         render(<LinkPastePopup {...defaultProps} />)
+        const container = screen.getByTestId(LINK_PASTE_POPUP_TEST_ID)
 
         act(() => {
-          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }))
+          container.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
         })
         act(() => {
-          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
+          container.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
         })
 
         expect(mockOnKeepAsText).toHaveBeenCalledTimes(1)
@@ -123,15 +126,16 @@ describe('LinkPastePopup', () => {
     describe('WHEN ArrowDown wraps around past the last item', () => {
       it('THEN should wrap to the first item and call onDisplayAsCard on Enter', () => {
         render(<LinkPastePopup {...defaultProps} />)
+        const container = screen.getByTestId(LINK_PASTE_POPUP_TEST_ID)
 
         act(() => {
-          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
+          container.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
         })
         act(() => {
-          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
+          container.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
         })
         act(() => {
-          document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
+          container.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
         })
 
         expect(mockOnDisplayAsCard).toHaveBeenCalledTimes(1)

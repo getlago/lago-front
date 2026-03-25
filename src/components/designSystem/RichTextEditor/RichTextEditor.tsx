@@ -120,7 +120,6 @@ const RichTextEditor = () => {
       SlashCommands.configure({ translate }),
       LinkCard,
       LinkPasteHandler,
-      SlashCommands,
     ],
     editorProps: {
       attributes: {

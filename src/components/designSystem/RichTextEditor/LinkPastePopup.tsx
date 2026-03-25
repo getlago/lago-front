@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
@@ -19,6 +19,7 @@ const actions = ['displayAsCard', 'keepAsText'] as const
 
 export const LinkPastePopup = ({ url, onDisplayAsCard, onKeepAsText }: LinkPastePopupProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const execute = useCallback(
     (index: number) => {
@@ -32,6 +33,14 @@ export const LinkPastePopup = ({ url, onDisplayAsCard, onKeepAsText }: LinkPaste
   )
 
   useEffect(() => {
+    containerRef.current?.focus()
+  }, [])
+
+  useEffect(() => {
+    const container = containerRef.current
+
+    if (!container) return
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowUp') {
         e.preventDefault()
@@ -45,15 +54,17 @@ export const LinkPastePopup = ({ url, onDisplayAsCard, onKeepAsText }: LinkPaste
       }
     }
 
-    document.addEventListener('keydown', handleKeyDown)
+    container.addEventListener('keydown', handleKeyDown)
 
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    return () => container.removeEventListener('keydown', handleKeyDown)
   }, [selectedIndex, execute])
 
   return (
     <div
+      ref={containerRef}
+      tabIndex={-1}
       data-test={LINK_PASTE_POPUP_TEST_ID}
-      className="w-72 overflow-hidden rounded-xl bg-white shadow-md"
+      className="w-72 overflow-hidden rounded-xl bg-white shadow-md outline-none"
     >
       <MenuPopper>
         <div
