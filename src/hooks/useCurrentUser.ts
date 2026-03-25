@@ -18,6 +18,7 @@ gql`
     premium
     memberships {
       id
+      roles
       ...MembershipPermissions
       organization {
         id
