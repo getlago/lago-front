@@ -19,6 +19,7 @@ jest.mock('../extensions/SlashCommands', () => ({
 }))
 
 const mockEditor = {
+  setEditable: jest.fn(),
   isActive: jest.fn().mockReturnValue(false),
   can: jest.fn().mockReturnValue({
     undo: jest.fn().mockReturnValue(false),
@@ -55,6 +56,13 @@ let capturedMentionConfig: Record<string, unknown> = {}
 jest.mock('@tiptap/extension-mention', () => ({
   __esModule: true,
   default: {
+    extend: jest.fn(() => ({
+      configure: jest.fn((config: Record<string, unknown>) => {
+        capturedMentionConfig = config
+
+        return 'mention-extension'
+      }),
+    })),
     configure: jest.fn((config: Record<string, unknown>) => {
       capturedMentionConfig = config
 
@@ -223,6 +231,52 @@ describe('RichTextEditor', () => {
           { 'data-type': 'mention', 'data-id': 'customerName', class: 'variable-mention' },
           '@customerName',
         ])
+      })
+    })
+  })
+
+  describe('GIVEN the editor is in preview mode', () => {
+    describe('WHEN mode is set to preview', () => {
+      it('THEN should not render the toolbar', async () => {
+        await act(() => render(<RichTextEditor mode="preview" />))
+
+        expect(screen.queryByTestId('toolbar-container')).not.toBeInTheDocument()
+      })
+
+      it('THEN should still render the editor content', async () => {
+        await act(() => render(<RichTextEditor mode="preview" />))
+
+        expect(screen.getByTestId('editor-content')).toBeInTheDocument()
+      })
+
+      it('THEN should set the editor to non-editable', async () => {
+        await act(() => render(<RichTextEditor mode="preview" />))
+
+        expect(mockEditor.setEditable).toHaveBeenCalledWith(false)
+      })
+    })
+  })
+
+  describe('GIVEN the editor is in edit mode', () => {
+    describe('WHEN mode is set to edit', () => {
+      it('THEN should render the toolbar', async () => {
+        await act(() => render(<RichTextEditor mode="edit" />))
+
+        expect(screen.getByTestId('toolbar-container')).toBeInTheDocument()
+      })
+
+      it('THEN should set the editor to editable', async () => {
+        await act(() => render(<RichTextEditor mode="edit" />))
+
+        expect(mockEditor.setEditable).toHaveBeenCalledWith(true)
+      })
+    })
+
+    describe('WHEN mode is not specified', () => {
+      it('THEN should default to edit mode and render the toolbar', async () => {
+        await act(() => render(<RichTextEditor />))
+
+        expect(screen.getByTestId('toolbar-container')).toBeInTheDocument()
       })
     })
   })
