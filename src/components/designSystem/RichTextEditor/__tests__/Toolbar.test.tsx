@@ -1,6 +1,6 @@
 import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { Editor } from '@tiptap/react'
+import { Editor } from '@tiptap/core'
 
 import { render } from '~/test-utils'
 
@@ -12,12 +12,7 @@ import Toolbar, {
   TOOLBAR_CONTAINER_TEST_ID,
   TOOLBAR_HIGHLIGHT_BUTTON_TEST_ID,
   TOOLBAR_IMAGE_BUTTON_TEST_ID,
-  TOOLBAR_IMAGE_INPUT_TEST_ID,
-  TOOLBAR_IMAGE_INSERT_BUTTON_TEST_ID,
   TOOLBAR_ITALIC_BUTTON_TEST_ID,
-  TOOLBAR_LINK_APPLY_BUTTON_TEST_ID,
-  TOOLBAR_LINK_INPUT_TEST_ID,
-  TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID,
   TOOLBAR_LIST_DROPDOWN_TEST_ID,
   TOOLBAR_REDO_BUTTON_TEST_ID,
   TOOLBAR_STRIKE_BUTTON_TEST_ID,
@@ -235,101 +230,7 @@ describe('Toolbar', () => {
     })
   })
 
-  describe('GIVEN the link popper', () => {
-    const openLinkPopper = async (editor: Editor) => {
-      const user = userEvent.setup()
-
-      await act(() => render(<Toolbar editor={editor} />))
-
-      const linkButton = screen.getByTestId('link/medium')
-
-      await user.click(linkButton)
-
-      await waitFor(() => {
-        expect(screen.getByTestId(TOOLBAR_LINK_INPUT_TEST_ID)).toBeInTheDocument()
-      })
-
-      return user
-    }
-
-    describe('WHEN entering a URL with http and clicking apply', () => {
-      it('THEN should call editor chain with the URL', async () => {
-        const { editor, runMock } = createMockEditor()
-        const user = await openLinkPopper(editor)
-
-        const input = screen.getByTestId(TOOLBAR_LINK_INPUT_TEST_ID)
-
-        await user.type(input, 'https://example.com')
-        await user.click(screen.getByTestId(TOOLBAR_LINK_APPLY_BUTTON_TEST_ID))
-
-        expect(editor.chain).toHaveBeenCalled()
-        expect(runMock).toHaveBeenCalled()
-      })
-    })
-
-    describe('WHEN entering a URL without http and clicking apply', () => {
-      it('THEN should call editor chain (prepends https://)', async () => {
-        const { editor, runMock } = createMockEditor()
-        const user = await openLinkPopper(editor)
-
-        const input = screen.getByTestId(TOOLBAR_LINK_INPUT_TEST_ID)
-
-        await user.type(input, 'example.com')
-        await user.click(screen.getByTestId(TOOLBAR_LINK_APPLY_BUTTON_TEST_ID))
-
-        expect(editor.chain).toHaveBeenCalled()
-        expect(runMock).toHaveBeenCalled()
-      })
-    })
-
-    describe('WHEN clicking apply with empty input', () => {
-      it('THEN should call unsetLink via editor chain', async () => {
-        const { editor, runMock } = createMockEditor()
-        const user = await openLinkPopper(editor)
-
-        await user.click(screen.getByTestId(TOOLBAR_LINK_APPLY_BUTTON_TEST_ID))
-
-        expect(editor.chain).toHaveBeenCalled()
-        expect(runMock).toHaveBeenCalled()
-      })
-    })
-
-    describe('WHEN pressing Enter in the link input', () => {
-      it('THEN should apply the link', async () => {
-        const { editor, runMock } = createMockEditor()
-        const user = await openLinkPopper(editor)
-
-        const input = screen.getByTestId(TOOLBAR_LINK_INPUT_TEST_ID)
-
-        await user.type(input, 'https://test.com{Enter}')
-
-        expect(editor.chain).toHaveBeenCalled()
-        expect(runMock).toHaveBeenCalled()
-      })
-    })
-
-    describe('WHEN link is active and remove button is clicked', () => {
-      it('THEN should call unsetLink', async () => {
-        const { editor, runMock } = createMockEditor({ link: true })
-        const user = await openLinkPopper(editor)
-
-        await user.click(screen.getByTestId(TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID))
-
-        expect(editor.chain).toHaveBeenCalled()
-        expect(runMock).toHaveBeenCalled()
-      })
-    })
-
-    describe('WHEN link is not active', () => {
-      it('THEN should not show the remove button', async () => {
-        const { editor } = createMockEditor()
-
-        await openLinkPopper(editor)
-
-        expect(screen.queryByTestId(TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID)).not.toBeInTheDocument()
-      })
-    })
-  })
+  // Link popper form tests moved to LinkPopperForm.test.tsx
 
   describe('GIVEN the text styling dropdown', () => {
     const openDropdown = async (overrides: Record<string, boolean> = {}) => {
@@ -419,62 +320,5 @@ describe('Toolbar', () => {
     })
   })
 
-  describe('GIVEN the image popper', () => {
-    const openImagePopper = async (editor: Editor) => {
-      const user = userEvent.setup()
-
-      await act(() => render(<Toolbar editor={editor} />))
-
-      const imageButton = screen.getByTestId(TOOLBAR_IMAGE_BUTTON_TEST_ID)
-
-      await user.click(imageButton)
-
-      await waitFor(() => {
-        expect(screen.getByTestId(TOOLBAR_IMAGE_INPUT_TEST_ID)).toBeInTheDocument()
-      })
-
-      return user
-    }
-
-    describe('WHEN entering a URL and clicking insert', () => {
-      it('THEN should call editor chain to insert the image', async () => {
-        const { editor, runMock } = createMockEditor()
-        const user = await openImagePopper(editor)
-
-        const input = screen.getByTestId(TOOLBAR_IMAGE_INPUT_TEST_ID)
-
-        await user.type(input, 'https://example.com/image.png')
-        await user.click(screen.getByTestId(TOOLBAR_IMAGE_INSERT_BUTTON_TEST_ID))
-
-        expect(editor.chain).toHaveBeenCalled()
-        expect(runMock).toHaveBeenCalled()
-      })
-    })
-
-    describe('WHEN pressing Enter in the image input', () => {
-      it('THEN should insert the image', async () => {
-        const { editor, runMock } = createMockEditor()
-        const user = await openImagePopper(editor)
-
-        const input = screen.getByTestId(TOOLBAR_IMAGE_INPUT_TEST_ID)
-
-        await user.type(input, 'https://example.com/photo.jpg{Enter}')
-
-        expect(editor.chain).toHaveBeenCalled()
-        expect(runMock).toHaveBeenCalled()
-      })
-    })
-
-    describe('WHEN clicking insert with empty input', () => {
-      it('THEN should not call setImage but should close the popper', async () => {
-        const { editor, runMock } = createMockEditor()
-        const user = await openImagePopper(editor)
-
-        await user.click(screen.getByTestId(TOOLBAR_IMAGE_INSERT_BUTTON_TEST_ID))
-
-        // With empty input, setImage should not be called, so runMock should not be called
-        expect(runMock).not.toHaveBeenCalled()
-      })
-    })
-  })
+  // Image popper form tests moved to ImagePopperForm.test.tsx
 })
