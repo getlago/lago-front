@@ -133,4 +133,20 @@
   .variable-mention {
     @apply rounded bg-grey-300 px-1.5 py-0.5 text-base;
   }
+
+  .link-card {
+    @apply my-2 rounded-lg border border-grey-300 p-3 transition-colors hover:bg-grey-100;
+  }
+
+  .link-card__anchor {
+    @apply flex flex-col gap-1 no-underline;
+  }
+
+  .link-card__domain {
+    @apply text-sm font-medium text-grey-700;
+  }
+
+  .link-card__url {
+    @apply truncate text-xs text-grey-500;
+  }
 }

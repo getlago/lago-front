@@ -4,6 +4,20 @@ import { render } from '~/test-utils'
 
 import RichTextEditor, { RICH_TEXT_EDITOR_TEST_ID } from '../RichTextEditor'
 
+// Capture the config passed to SlashCommands.configure()
+let capturedSlashCommandsConfig: Record<string, unknown> = {}
+
+jest.mock('../extensions/SlashCommands', () => ({
+  SlashCommands: {
+    configure: jest.fn((config: Record<string, unknown>) => {
+      capturedSlashCommandsConfig = config
+
+      return 'slash-commands-extension'
+    }),
+  },
+  slashCommandDefinitions: [],
+}))
+
 const mockEditor = {
   isActive: jest.fn().mockReturnValue(false),
   can: jest.fn().mockReturnValue({
@@ -210,6 +224,17 @@ describe('RichTextEditor', () => {
           '@customerName',
         ])
       })
+    })
+  })
+
+  describe('GIVEN the slash commands extension is configured', () => {
+    beforeEach(async () => {
+      await act(() => render(<RichTextEditor />))
+    })
+
+    it('THEN should pass a translate function to SlashCommands.configure', () => {
+      expect(capturedSlashCommandsConfig.translate).toBeDefined()
+      expect(typeof capturedSlashCommandsConfig.translate).toBe('function')
     })
   })
 })
