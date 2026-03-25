@@ -16,7 +16,7 @@ export const PlanBlock = Node.create({
     return {
       planId: {
         default: '',
-        parseHTML: (element) => element.getAttribute('data-plan-id') ?? '',
+        parseHTML: (element) => element.dataset.planId ?? '',
       },
     }
   },
@@ -45,7 +45,7 @@ export const PlanBlock = Node.create({
         },
         parse: {
           updateDOM(element: HTMLElement) {
-            element.innerHTML = element.innerHTML.replace(
+            element.innerHTML = element.innerHTML.replaceAll(
               /<!--\s*entity:plan:(\S*?)\s*-->/g,
               (_match: string, planId: string) =>
                 `<div data-type="plan-block" data-plan-id="${planId}"></div>`,
