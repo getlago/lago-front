@@ -115,8 +115,7 @@
 
   /* Tables */
   table {
-    @apply my-8 ml-8 border-collapse;
-    width: calc(100% - 2rem);
+    @apply my-8 border-collapse;
   }
 
   th,
@@ -133,6 +132,14 @@
   .selectedCell::after {
     @apply pointer-events-none absolute inset-0 bg-blue-100/40;
     content: '';
+  }
+
+  /* Edit mode — extra margin for table controls */
+  &:not([contenteditable='false']) {
+    table {
+      @apply ml-8;
+      width: calc(100% - 2rem);
+    }
   }
 
   /* Preview mode */

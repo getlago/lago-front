@@ -23,6 +23,8 @@ type TableLayout = {
 }
 
 const HIDE_DELAY = 200
+const CONTROL_OFFSET = 26 // 22px button + 4px gap
+const CONTROL_GAP = 4
 
 const TableControls = ({ editor }: TableControlsProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -263,7 +265,6 @@ const TableControls = ({ editor }: TableControlsProps) => {
       tableEl.removeEventListener('mouseover', handleMouseOver)
       tableEl.removeEventListener('mouseleave', handleMouseLeave)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInTable, editor, layout])
 
   // Cleanup timeouts on unmount
@@ -290,64 +291,66 @@ const TableControls = ({ editor }: TableControlsProps) => {
       {isInTable && layout && (
         <>
           {/* Row delete buttons — left of each row */}
-          {layout.rows.map((row, i) => (
-            <div
-              key={`row-${row.cellPos}`}
-              role="presentation"
-              className={`absolute flex w-[22px] flex-col items-center justify-center gap-0.5 transition-opacity duration-150 ease-in-out ${
-                hoveredRow === i
-                  ? 'pointer-events-auto opacity-100'
-                  : 'pointer-events-none opacity-0'
-              }`}
-              style={{
-                left: layout.tableX - 26,
-                top: row.top,
-                height: row.height,
-              }}
-              onMouseEnter={() => showRow(i)}
-              onMouseLeave={hideRow}
-            >
-              <button
-                type="button"
-                data-test={`${TABLE_CONTROLS_DELETE_ROW_BUTTON_TEST_ID}-${i}`}
-                className="flex size-[18px] items-center justify-center rounded bg-red-100 text-xs font-medium leading-none text-red-600 transition-colors hover:bg-red-200 hover:text-red-700"
-                title="Delete row"
-                onClick={() => focusCellAndRun(row.cellPos, (chain) => chain.deleteRow())}
+          {layout.rows.length > 1 &&
+            layout.rows.map((row, i) => (
+              <div
+                key={`row-${row.cellPos}`}
+                role="presentation"
+                className={`absolute flex w-[22px] flex-col items-center justify-center gap-0.5 transition-opacity duration-150 ease-in-out ${
+                  hoveredRow === i
+                    ? 'pointer-events-auto opacity-100'
+                    : 'pointer-events-none opacity-0'
+                }`}
+                style={{
+                  left: layout.tableX - CONTROL_OFFSET,
+                  top: row.top,
+                  height: row.height,
+                }}
+                onMouseEnter={() => showRow(i)}
+                onMouseLeave={hideRow}
               >
-                −
-              </button>
-            </div>
-          ))}
+                <button
+                  type="button"
+                  data-test={`${TABLE_CONTROLS_DELETE_ROW_BUTTON_TEST_ID}-${i}`}
+                  className="flex size-[18px] items-center justify-center rounded bg-red-100 text-xs font-medium leading-none text-red-600 transition-colors hover:bg-red-200 hover:text-red-700"
+                  title="Delete row"
+                  onClick={() => focusCellAndRun(row.cellPos, (chain) => chain.deleteRow())}
+                >
+                  −
+                </button>
+              </div>
+            ))}
 
           {/* Column delete buttons — top of each column */}
-          {layout.cols.map((col, i) => (
-            <div
-              key={`col-${col.cellPos}`}
-              role="presentation"
-              className={`absolute flex h-[22px] flex-row items-center justify-center gap-0.5 transition-opacity duration-150 ease-in-out ${
-                hoveredCol === i
-                  ? 'pointer-events-auto opacity-100'
-                  : 'pointer-events-none opacity-0'
-              }`}
-              style={{
-                left: col.left,
-                top: layout.tableY - 26,
-                width: col.width,
-              }}
-              onMouseEnter={() => showCol(i)}
-              onMouseLeave={hideCol}
-            >
-              <button
-                type="button"
-                data-test={`${TABLE_CONTROLS_DELETE_COL_BUTTON_TEST_ID}-${i}`}
-                className="flex size-[18px] items-center justify-center rounded bg-red-100 text-xs font-medium leading-none text-red-600 transition-colors hover:bg-red-200 hover:text-red-700"
-                title="Delete column"
-                onClick={() => focusCellAndRun(col.cellPos, (chain) => chain.deleteColumn())}
+          {layout.cols.length > 1 &&
+            layout.cols.map((col, i) => (
+              <div
+                key={`col-${col.cellPos}`}
+                role="presentation"
+                className={`absolute flex h-[22px] flex-row items-center justify-center gap-0.5 transition-opacity duration-150 ease-in-out ${
+                  hoveredCol === i
+                    ? 'pointer-events-auto opacity-100'
+                    : 'pointer-events-none opacity-0'
+                }`}
+                style={{
+                  left: col.left,
+                  top: layout.tableY - CONTROL_OFFSET,
+                  width: col.width,
+                }}
+                onMouseEnter={() => showCol(i)}
+                onMouseLeave={hideCol}
               >
-                −
-              </button>
-            </div>
-          ))}
+                <button
+                  type="button"
+                  data-test={`${TABLE_CONTROLS_DELETE_COL_BUTTON_TEST_ID}-${i}`}
+                  className="flex size-[18px] items-center justify-center rounded bg-red-100 text-xs font-medium leading-none text-red-600 transition-colors hover:bg-red-200 hover:text-red-700"
+                  title="Delete column"
+                  onClick={() => focusCellAndRun(col.cellPos, (chain) => chain.deleteColumn())}
+                >
+                  −
+                </button>
+              </div>
+            ))}
 
           {/* Add column button — right edge */}
           <button
@@ -357,7 +360,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
               addColVisible ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
             }`}
             style={{
-              left: layout.tableX + layout.tableWidth + 4,
+              left: layout.tableX + layout.tableWidth + CONTROL_GAP,
               top: layout.tableY,
               height: layout.tableHeight,
             }}
@@ -384,7 +387,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
             }`}
             style={{
               left: layout.tableX,
-              top: layout.tableY + layout.tableHeight + 4,
+              top: layout.tableY + layout.tableHeight + CONTROL_GAP,
               width: layout.tableWidth,
             }}
             onMouseEnter={showAddRow}

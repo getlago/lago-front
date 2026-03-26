@@ -55,6 +55,44 @@ const createTableDOM = (container: HTMLElement) => {
   return table
 }
 
+// Creates a 1-row x 2-col table
+const createSingleRowTableDOM = (container: HTMLElement) => {
+  const table = document.createElement('table')
+  const tbody = document.createElement('tbody')
+  const tr = document.createElement('tr')
+
+  for (let c = 0; c < 2; c++) {
+    const td = document.createElement('td')
+
+    td.textContent = `r0c${c}`
+    tr.appendChild(td)
+  }
+  tbody.appendChild(tr)
+  table.appendChild(tbody)
+  container.appendChild(table)
+
+  return table
+}
+
+// Creates a 2-row x 1-col table
+const createSingleColTableDOM = (container: HTMLElement) => {
+  const table = document.createElement('table')
+  const tbody = document.createElement('tbody')
+
+  for (let r = 0; r < 2; r++) {
+    const tr = document.createElement('tr')
+    const td = document.createElement('td')
+
+    td.textContent = `r${r}c0`
+    tr.appendChild(td)
+    tbody.appendChild(tr)
+  }
+  table.appendChild(tbody)
+  container.appendChild(table)
+
+  return table
+}
+
 // Mock getBoundingClientRect to return consistent positions
 const mockGetBoundingClientRect = (el: Element, rect: Partial<DOMRect>) => {
   jest.spyOn(el, 'getBoundingClientRect').mockReturnValue({
@@ -161,6 +199,68 @@ const setupDOMForLayout = (wrapperEl: HTMLElement, editor: unknown) => {
   })
 }
 
+// Setup with a 1-row x 2-col table
+const setupDOMForSingleRowLayout = (wrapperEl: HTMLElement, editor: unknown) => {
+  const table = createSingleRowTableDOM(wrapperEl)
+  const firstCell = table.querySelector('td') as HTMLTableCellElement
+
+  ;(editor as { view: { domAtPos: jest.Mock } }).view.domAtPos.mockReturnValue({
+    node: firstCell,
+  })
+
+  let posCounter = 1
+
+  ;(editor as { view: { posAtDOM: jest.Mock } }).view.posAtDOM.mockImplementation(
+    () => posCounter++,
+  )
+
+  mockGetBoundingClientRect(wrapperEl, { x: 0, y: 0, width: 600, height: 400 })
+  mockGetBoundingClientRect(table, { x: 50, y: 50, width: 400, height: 100 })
+
+  const rows = table.querySelectorAll('tr')
+
+  rows.forEach((tr) => {
+    mockGetBoundingClientRect(tr, { x: 50, y: 50, width: 400, height: 100 })
+  })
+
+  const cells = table.querySelectorAll('td')
+
+  cells.forEach((td, i) => {
+    mockGetBoundingClientRect(td, { x: 50 + i * 200, y: 50, width: 200, height: 100 })
+  })
+}
+
+// Setup with a 2-row x 1-col table
+const setupDOMForSingleColLayout = (wrapperEl: HTMLElement, editor: unknown) => {
+  const table = createSingleColTableDOM(wrapperEl)
+  const firstCell = table.querySelector('td') as HTMLTableCellElement
+
+  ;(editor as { view: { domAtPos: jest.Mock } }).view.domAtPos.mockReturnValue({
+    node: firstCell,
+  })
+
+  let posCounter = 1
+
+  ;(editor as { view: { posAtDOM: jest.Mock } }).view.posAtDOM.mockImplementation(
+    () => posCounter++,
+  )
+
+  mockGetBoundingClientRect(wrapperEl, { x: 0, y: 0, width: 600, height: 400 })
+  mockGetBoundingClientRect(table, { x: 50, y: 50, width: 200, height: 200 })
+
+  const rows = table.querySelectorAll('tr')
+
+  rows.forEach((tr, i) => {
+    mockGetBoundingClientRect(tr, { x: 50, y: 50 + i * 100, width: 200, height: 100 })
+  })
+
+  const cells = table.querySelectorAll('td')
+
+  cells.forEach((td, i) => {
+    mockGetBoundingClientRect(td, { x: 50, y: 50 + i * 100, width: 200, height: 100 })
+  })
+}
+
 describe('TableControls', () => {
   afterEach(() => {
     cleanup()
@@ -253,6 +353,84 @@ describe('TableControls', () => {
         await renderWithLayout()
 
         expect(screen.getByTestId(testId)).toBeInTheDocument()
+      })
+
+      describe('WHEN only one row exists', () => {
+        const renderWithSingleRowLayout = async () => {
+          const { editor, runMock } = createMockEditor()
+
+          setupIsInTable(editor, true)
+
+          await act(() => render(<TableControls editor={editor} />))
+
+          const wrapperEl = screen.getByTestId(TABLE_CONTROLS_WRAPPER_TEST_ID)
+
+          setupDOMForSingleRowLayout(wrapperEl, editor)
+
+          const onCalls = (editor.on as jest.Mock).mock.calls
+          const selectionUpdateHandler = onCalls.find(
+            ([event]: [string]) => event === 'selectionUpdate',
+          )?.[1] as (() => void) | undefined
+
+          if (selectionUpdateHandler) {
+            await act(() => selectionUpdateHandler())
+          }
+
+          return { editor, runMock }
+        }
+
+        it('THEN should not render delete row buttons', async () => {
+          await renderWithSingleRowLayout()
+
+          expect(
+            screen.queryByTestId(`${TABLE_CONTROLS_DELETE_ROW_BUTTON_TEST_ID}-0`),
+          ).not.toBeInTheDocument()
+        })
+
+        it('THEN should still render the add row button', async () => {
+          await renderWithSingleRowLayout()
+
+          expect(screen.getByTestId(TABLE_CONTROLS_ADD_ROW_BUTTON_TEST_ID)).toBeInTheDocument()
+        })
+      })
+
+      describe('WHEN only one column exists', () => {
+        const renderWithSingleColLayout = async () => {
+          const { editor, runMock } = createMockEditor()
+
+          setupIsInTable(editor, true)
+
+          await act(() => render(<TableControls editor={editor} />))
+
+          const wrapperEl = screen.getByTestId(TABLE_CONTROLS_WRAPPER_TEST_ID)
+
+          setupDOMForSingleColLayout(wrapperEl, editor)
+
+          const onCalls = (editor.on as jest.Mock).mock.calls
+          const selectionUpdateHandler = onCalls.find(
+            ([event]: [string]) => event === 'selectionUpdate',
+          )?.[1] as (() => void) | undefined
+
+          if (selectionUpdateHandler) {
+            await act(() => selectionUpdateHandler())
+          }
+
+          return { editor, runMock }
+        }
+
+        it('THEN should not render delete column buttons', async () => {
+          await renderWithSingleColLayout()
+
+          expect(
+            screen.queryByTestId(`${TABLE_CONTROLS_DELETE_COL_BUTTON_TEST_ID}-0`),
+          ).not.toBeInTheDocument()
+        })
+
+        it('THEN should still render the add column button', async () => {
+          await renderWithSingleColLayout()
+
+          expect(screen.getByTestId(TABLE_CONTROLS_ADD_COL_BUTTON_TEST_ID)).toBeInTheDocument()
+        })
       })
 
       describe('WHEN the delete row button is clicked', () => {

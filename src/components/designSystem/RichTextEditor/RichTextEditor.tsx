@@ -13,6 +13,7 @@ import TextAlign from '@tiptap/extension-text-align'
 import Underline from '@tiptap/extension-underline'
 import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import { tw } from 'lago-design-system'
 import { useEffect, useMemo } from 'react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 import { Markdown } from 'tiptap-markdown'
@@ -215,7 +216,11 @@ const RichTextEditor = ({
         data-test={RICH_TEXT_EDITOR_TEST_ID}
       >
         {!isPreview && <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />}
-        <div className="relative pb-8 pr-8">
+        <div
+          className={tw('relative', {
+            'pb-8 pr-8': !isPreview,
+          })}
+        >
           <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
           {!isPreview && <TableControls editor={editor} />}
         </div>
