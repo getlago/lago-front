@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import RichTextEditor, {
@@ -20,6 +20,34 @@ const mentionValues: Record<string, string> = {
 
 const EditorTest = () => {
   const [mode, setMode] = useState<RichTextEditorMode>('edit')
+  const getMarkdownRef = useRef<(() => string) | null>(null)
+
+  const handleSave = () => {
+    const markdown = getMarkdownRef.current?.()
+
+    if (markdown) {
+      // eslint-disable-next-line no-console
+      console.log('Editor markdown:', markdown)
+    }
+  }
+
+  const preSavedContent = `# Hello World
+
+This is a pre-saved content with **bold** text, _italic_ text, and a [link](https://www.example.com).
+
+- Item 1
+- Item 2
+- Item 3
+
+{customerName|Customer Name} owes us {amountDue|Amount Due}.
+
+
+<!-- entity:plan:7a7ca2f6-a25d-406c-a021-b6e0b163c92f -->
+
+
+Best,
+{companyName|Company Name}
+`
 
   return (
     <Container>
@@ -34,16 +62,14 @@ const EditorTest = () => {
         >
           {mode === 'edit' ? 'Preview' : 'Edit'}
         </Button>
+        <Button onClick={handleSave}>Save</Button>
       </div>
       <Block>
-        <RichTextEditor
-          mode={mode}
-          mentionValues={mentionValues}
-          onSave={(markdown: string) => {
-            // eslint-disable-next-line no-console
-            console.log('Editor markdown:', markdown)
-          }}
-        />
+        <RichTextEditor mode={mode} mentionValues={mentionValues} getMarkdownRef={getMarkdownRef} />
+      </Block>
+      <Typography variant="subhead1">&#60;RichTextEditor/&#62; with pre-saved content</Typography>
+      <Block>
+        <RichTextEditor mode={mode} mentionValues={mentionValues} content={preSavedContent} />
       </Block>
     </Container>
   )

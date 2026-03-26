@@ -21,7 +21,7 @@ export const MentionNodeView = ({ node }: NodeViewProps) => {
           className="variable-mention variable-mention--resolved"
           data-test={MENTION_NODE_VIEW_RESOLVED_TEST_ID}
         >
-          {`{${resolvedValue}}`}
+          {`${resolvedValue}`}
         </NodeViewWrapper>
       )
     }
