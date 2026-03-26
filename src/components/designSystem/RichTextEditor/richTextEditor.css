@@ -203,6 +203,11 @@
   .link-card__url {
     @apply truncate text-xs text-grey-500;
   }
+
+  /* Template selector */
+  .template-list {
+    @apply flex flex-col;
+  }
 }
 
 /* Table controls — Notion-style hover buttons */
