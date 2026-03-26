@@ -3,7 +3,6 @@ import {
   ADD_ON_DETAILS_ROUTE,
   ADD_ONS_ROUTE,
   ANALYTIC_ROUTE,
-  ANALYTIC_TABS_ROUTE,
   BILLABLE_METRIC_DETAILS_ROUTE,
   BILLABLE_METRICS_ROUTE,
   COUPON_DETAILS_ROUTE,
@@ -28,7 +27,9 @@ import {
   PLANS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
 } from '~/core/router'
+import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { NavLayout } from '~/layouts/NavLayout'
 import { BadgeAI } from '~/pages/forecasts/Forecasts'
@@ -49,14 +50,19 @@ interface MainNavMenuSectionsProps {
 export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSectionsProps) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
+  const { hasOrganizationPremiumAddon } = useOrganizationInfos()
+
+  const hasAccessToAnalyticsDashboardsFeature = hasOrganizationPremiumAddon(
+    PremiumIntegrationTypeEnum.AnalyticsDashboards,
+  )
 
   const getReportsTabs = (): NavTab[] => [
     {
       title: translate('text_6553885df387fd0097fd7384'),
       icon: 'chart-bar',
       link: ANALYTIC_ROUTE,
-      match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
-      hidden: !hasPermissions(['analyticsView']),
+      match: [ANALYTIC_ROUTE],
+      hidden: !hasPermissions(['analyticsView']) || !hasAccessToAnalyticsDashboardsFeature,
     },
     {
       title: translate('text_1753014457040hxp6wkphkvw'),

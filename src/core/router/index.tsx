@@ -19,9 +19,7 @@ const Home = lazyLoad(() => import('~/pages/Home'))
 const Error404 = lazyLoad(() => import('~/pages/Error404'))
 const Forbidden = lazyLoad(() => import('~/pages/Forbidden'))
 const Analytic = lazyLoad(() => import('~/pages/Analytics'))
-const AnalyticsV2 = lazyLoad(() => import('~/pages/AnalyticsV2'))
 const Forecasts = lazyLoad(() => import('~/pages/forecasts/Forecasts'))
-const UsageBillableMetric = lazyLoad(() => import('~/pages/analytics/UsageBillableMetric'))
 
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
@@ -29,10 +27,6 @@ const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
 export const HOME_ROUTE = '/'
 export const FORBIDDEN_ROUTE = '/forbidden'
 export const ANALYTIC_ROUTE = '/analytics'
-export const ANALYTICS_V2_ROUTE = '/analytics-v2'
-export const ANALYTIC_TABS_ROUTE = '/analytics/:tab'
-export const ANALYTICS_V2_TABS_ROUTE = '/analytics-v2/:tab'
-export const ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE = '/analytics/usage/:billableMetricCode'
 export const FORECASTS_ROUTE = '/forecasts'
 export const ERROR_404_ROUTE = '/404'
 
@@ -64,29 +58,9 @@ export const routes: CustomRouteObject[] = [
         element: <Home />,
       },
       {
-        path: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
+        path: [ANALYTIC_ROUTE],
         private: true,
         element: <Analytic />,
-        // IMPORTANT: This is not 100% correct but can be fixed later.
-        // Those 2 permissions are not the same and refer to the old and new analytics access, but are defined with the same restrictions per role
-        // To preserve cached last visited route and prevent broken redirection I prefer to keepboth in the same place and not fix this now.
-        // Maybe analyticsView will be removed in the future
-        permissions: ['analyticsView', 'dataApiView'],
-      },
-      {
-        path: [ANALYTICS_V2_ROUTE, ANALYTICS_V2_TABS_ROUTE],
-        private: true,
-        element: <AnalyticsV2 />,
-        // IMPORTANT: This is not 100% correct but can be fixed later.
-        // Those 2 permissions are not the same and refer to the old and new analytics access, but are defined with the same restrictions per role
-        // To preserve cached last visited route and prevent broken redirection I prefer to keepboth in the same place and not fix this now.
-        // Maybe analyticsView will be removed in the future
-        permissions: ['analyticsView', 'dataApiView'],
-      },
-      {
-        path: ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE,
-        private: true,
-        element: <UsageBillableMetric />,
         permissions: ['analyticsView', 'dataApiView'],
       },
       {

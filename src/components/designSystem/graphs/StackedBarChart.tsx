@@ -14,15 +14,14 @@ import {
 import { NameType, Payload, ValueType } from 'recharts/types/component/DefaultTooltipContent'
 
 import { useAnalyticsState } from '~/components/analytics/AnalyticsStateContext'
-import { toAmountCents } from '~/components/analytics/prepaidCredits/utils'
 import {
   multipleStackedBarChartLoadingFakeBars,
   multipleStackedBarChartLoadingFakeData,
 } from '~/components/designSystem/graphs/fixtures'
 import { Typography } from '~/components/designSystem/Typography'
 import { ChartWrapper } from '~/components/layouts/Charts'
-import { bigNumberShortenNotationFormater } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { bigNumberShortenNotationFormater, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { CurrencyEnum, TimeGranularityEnum, TimezoneEnum } from '~/generated/graphql'
 import { theme } from '~/styles'
@@ -32,6 +31,15 @@ import {
   checkOnlyZeroValues,
   getItemDateFormatedByTimeGranularity,
 } from './utils'
+
+const toAmountCents = (amount: number, currency: CurrencyEnum): string => {
+  return intlFormatNumber(amount, {
+    currency,
+    style: 'currency',
+    currencyDisplay: 'symbol',
+    minimumFractionDigits: getCurrencyPrecision(currency),
+  })
+}
 
 type DataItem = { [key: string]: unknown }
 
