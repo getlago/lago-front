@@ -24,11 +24,13 @@ import { LinkCard } from './extensions/LinkCard'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
 import { PlanBlock } from './extensions/PlanBlock'
 import { SlashCommands } from './extensions/SlashCommands'
+import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
 import { MentionList, type MentionListRef } from './MentionList'
 import { MentionNodeView } from './MentionNodeView'
 import './richTextEditor.css'
 import { EntityData, RichTextEditorProvider } from './RichTextEditorContext'
 import TableControls from './TableControls'
+import type { EditorTemplate } from './TemplateSelector/types'
 import Toolbar from './Toolbar'
 
 export const RICH_TEXT_EDITOR_TEST_ID = 'rich-text-editor'
@@ -43,6 +45,7 @@ interface RichTextEditorProps {
   mentionValues?: Record<string, string>
   plans?: Record<string, EntityData>
   content?: string
+  templates?: EditorTemplate[]
   getMarkdownRef?: React.MutableRefObject<(() => string) | null>
   onPlanBlocksChange?: (planIds: string[]) => void
 }
@@ -52,6 +55,7 @@ const RichTextEditor = ({
   mentionValues = {},
   plans: plansFromProps = {},
   content,
+  templates,
   getMarkdownRef,
   onPlanBlocksChange,
 }: RichTextEditorProps) => {
@@ -180,6 +184,7 @@ const RichTextEditor = ({
       LinkCard,
       LinkPasteHandler,
       PlanBlock,
+      TemplateSelectorExtension.configure({ templates: templates ?? [] }),
       Markdown.configure({
         html: true,
         transformPastedText: true,
@@ -191,7 +196,20 @@ const RichTextEditor = ({
         class: 'max-w-none focus:outline-none min-h-[300px] p-4',
       },
     },
-    content: content ?? '',
+    content:
+      content ??
+      (templates && templates.length > 0
+        ? {
+            type: 'doc',
+            content: [
+              { type: 'paragraph' },
+              {
+                type: 'templateSelector',
+                attrs: { templates },
+              },
+            ],
+          }
+        : ''),
     onUpdate: ({ editor: editorInstance }) => {
       if (!onPlanBlocksChangeRef.current) return
 
