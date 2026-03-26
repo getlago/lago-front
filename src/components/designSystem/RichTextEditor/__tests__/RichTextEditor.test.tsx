@@ -3,13 +3,14 @@ import { Markdown } from 'tiptap-markdown'
 
 import { render } from '~/test-utils'
 
-import RichTextEditor, {
-  RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID,
-  RICH_TEXT_EDITOR_TEST_ID,
-} from '../RichTextEditor'
+import RichTextEditor, { RICH_TEXT_EDITOR_TEST_ID } from '../RichTextEditor'
 
 // Capture the config passed to SlashCommands.configure()
 let capturedSlashCommandsConfig: Record<string, unknown> = {}
+
+jest.mock('../extensions/PlanBlock', () => ({
+  PlanBlock: 'plan-block-extension',
+}))
 
 jest.mock('../extensions/SlashCommands', () => ({
   SlashCommands: {
@@ -320,87 +321,59 @@ describe('RichTextEditor', () => {
     })
   })
 
-  describe('GIVEN the onSave prop is provided', () => {
-    describe('WHEN the component renders in edit mode', () => {
-      it('THEN should render the save button', async () => {
-        const onSave = jest.fn()
+  describe('GIVEN the getMarkdownRef prop is provided', () => {
+    describe('WHEN the editor is initialized', () => {
+      it('THEN should assign a function to getMarkdownRef.current', async () => {
+        const getMarkdownRef = { current: null } as React.MutableRefObject<(() => string) | null>
 
-        await act(() => render(<RichTextEditor onSave={onSave} />))
+        await act(() => render(<RichTextEditor getMarkdownRef={getMarkdownRef} />))
 
-        expect(screen.getByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)).toBeInTheDocument()
+        expect(typeof getMarkdownRef.current).toBe('function')
       })
-    })
 
-    describe('WHEN the component renders in preview mode', () => {
-      it('THEN should not render the save button', async () => {
-        const onSave = jest.fn()
+      it('THEN should return markdown content when called', async () => {
+        const getMarkdownRef = { current: null } as React.MutableRefObject<(() => string) | null>
 
-        await act(() => render(<RichTextEditor mode="preview" onSave={onSave} />))
+        await act(() => render(<RichTextEditor getMarkdownRef={getMarkdownRef} />))
 
-        expect(screen.queryByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)).not.toBeInTheDocument()
-      })
-    })
-
-    describe('WHEN the save button is clicked', () => {
-      it('THEN should call onSave with the markdown content', async () => {
-        const onSave = jest.fn()
-
-        await act(() => render(<RichTextEditor onSave={onSave} />))
-
-        const saveButton = screen.getByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)
-
-        await act(() => saveButton.click())
+        const result = getMarkdownRef.current?.()
 
         expect(mockGetMarkdown).toHaveBeenCalled()
-        expect(onSave).toHaveBeenCalledWith('# Hello World')
+        expect(result).toBe('# Hello World')
       })
     })
 
     describe('WHEN the markdown extension is not found', () => {
-      it('THEN should not call onSave', async () => {
-        const onSave = jest.fn()
+      it('THEN should return undefined', async () => {
+        const getMarkdownRef = { current: null } as React.MutableRefObject<(() => string) | null>
         const originalExtensions = mockEditor.extensionManager.extensions
 
         mockEditor.extensionManager.extensions = []
 
-        await act(() => render(<RichTextEditor onSave={onSave} />))
+        await act(() => render(<RichTextEditor getMarkdownRef={getMarkdownRef} />))
 
-        const saveButton = screen.getByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)
+        const result = getMarkdownRef.current?.()
 
-        await act(() => saveButton.click())
-
-        expect(onSave).not.toHaveBeenCalled()
+        expect(result).toBeUndefined()
 
         mockEditor.extensionManager.extensions = originalExtensions
       })
     })
 
     describe('WHEN the markdown extension storage has no getMarkdown function', () => {
-      it('THEN should not call onSave', async () => {
-        const onSave = jest.fn()
+      it('THEN should return undefined', async () => {
+        const getMarkdownRef = { current: null } as React.MutableRefObject<(() => string) | null>
         const originalExtensions = mockEditor.extensionManager.extensions
 
-        mockEditor.extensionManager.extensions = [{ name: Markdown.name, storage: {} }]
+        mockEditor.extensionManager.extensions = [{ name: 'markdown', storage: {} }]
 
-        await act(() => render(<RichTextEditor onSave={onSave} />))
+        await act(() => render(<RichTextEditor getMarkdownRef={getMarkdownRef} />))
 
-        const saveButton = screen.getByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)
+        const result = getMarkdownRef.current?.()
 
-        await act(() => saveButton.click())
-
-        expect(onSave).not.toHaveBeenCalled()
+        expect(result).toBeUndefined()
 
         mockEditor.extensionManager.extensions = originalExtensions
-      })
-    })
-  })
-
-  describe('GIVEN the onSave prop is not provided', () => {
-    describe('WHEN the component renders', () => {
-      it('THEN should not render the save button', async () => {
-        await act(() => render(<RichTextEditor />))
-
-        expect(screen.queryByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
