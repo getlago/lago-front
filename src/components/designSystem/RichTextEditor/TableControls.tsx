@@ -196,8 +196,9 @@ const TableControls = ({ editor }: TableControlsProps) => {
     if (!tableEl) return
 
     const handleMouseOver = (e: Event) => {
-      const target = e.target as HTMLElement
-      const cell = target.closest('th, td')
+      if (!(e.target instanceof HTMLElement)) return
+
+      const cell = e.target.closest('th, td')
 
       if (!cell) return
 
@@ -359,9 +360,13 @@ const TableControls = ({ editor }: TableControlsProps) => {
           <button
             type="button"
             data-test={TABLE_CONTROLS_ADD_COL_BUTTON_TEST_ID}
-            className={`absolute flex w-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 transition-[opacity,background-color,color] duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700 ${
-              addColVisible ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
-            }`}
+            className={tw(
+              'absolute flex w-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 transition-[opacity,background-color,color] duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700',
+              {
+                'pointer-events-auto opacity-100': addColVisible,
+                'pointer-events-none opacity-0': !addColVisible,
+              },
+            )}
             style={{
               left: layout.tableX + layout.tableWidth + CONTROL_GAP,
               top: layout.tableY,
@@ -385,9 +390,13 @@ const TableControls = ({ editor }: TableControlsProps) => {
           <button
             type="button"
             data-test={TABLE_CONTROLS_ADD_ROW_BUTTON_TEST_ID}
-            className={`absolute flex h-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 transition-[opacity,background-color,color] duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700 ${
-              addRowVisible ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
-            }`}
+            className={tw(
+              'absolute flex h-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 transition-[opacity,background-color,color] duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700',
+              {
+                'pointer-events-auto opacity-100': addRowVisible,
+                'pointer-events-none opacity-0': !addRowVisible,
+              },
+            )}
             style={{
               left: layout.tableX,
               top: layout.tableY + layout.tableHeight + CONTROL_GAP,
