@@ -123,6 +123,15 @@ gql`
   }
 `
 
+const isUnitsAlertType = (type?: AlertTypeEnum | string): boolean =>
+  type === AlertTypeEnum.BillableMetricCurrentUsageUnits ||
+  type === AlertTypeEnum.BillableMetricLifetimeUsageUnits
+
+const isBillableMetricAlertType = (type?: AlertTypeEnum | string): boolean =>
+  type === AlertTypeEnum.BillableMetricCurrentUsageUnits ||
+  type === AlertTypeEnum.BillableMetricCurrentUsageAmount ||
+  type === AlertTypeEnum.BillableMetricLifetimeUsageUnits
+
 const AlertForm = () => {
   const { alertId = '', customerId = '', planId = '', subscriptionId = '' } = useParams()
   const { translate } = useInternationalization()
@@ -164,7 +173,11 @@ const AlertForm = () => {
       },
       skip:
         !subscriptionData?.subscription?.plan?.id ||
-        (isEdition && alertData?.subscriptionAlert?.alertType === AlertTypeEnum.CurrentUsageAmount),
+        (isEdition &&
+          (alertLoading ||
+            !alertData?.subscriptionAlert ||
+            alertData.subscriptionAlert.alertType === AlertTypeEnum.CurrentUsageAmount ||
+            alertData.subscriptionAlert.alertType === AlertTypeEnum.LifetimeUsageAmount)),
     })
 
   const isLoading =
@@ -252,7 +265,7 @@ const AlertForm = () => {
         ? sortAndFormatThresholds(
             existingAlert?.thresholds,
             currency,
-            existingAlert?.alertType === AlertTypeEnum.BillableMetricCurrentUsageUnits,
+            isUnitsAlertType(existingAlert?.alertType),
           )
         : [
             {
@@ -282,10 +295,9 @@ const AlertForm = () => {
     onSubmit: async ({ billableMetricId, alertType, thresholds, ...values }) => {
       const formattedThresholds = thresholds?.map((threshold) => ({
         ...threshold,
-        value:
-          alertType === AlertTypeEnum.BillableMetricCurrentUsageUnits
-            ? threshold.value.split('.')[0]
-            : String(serializeAmount(threshold.value, currency)),
+        value: isUnitsAlertType(alertType)
+          ? threshold.value.split('.')[0]
+          : String(serializeAmount(threshold.value, currency)),
       }))
 
       // Edition
@@ -333,8 +345,7 @@ const AlertForm = () => {
     () =>
       formikProps.values.alertType === AlertTypeEnum.CurrentUsageAmount ||
       formikProps.values.alertType === AlertTypeEnum.LifetimeUsageAmount ||
-      ((formikProps.values.alertType === AlertTypeEnum.BillableMetricCurrentUsageUnits ||
-        formikProps.values.alertType === AlertTypeEnum.BillableMetricCurrentUsageAmount) &&
+      (isBillableMetricAlertType(formikProps.values.alertType) &&
         !!formikProps.values.billableMetricId),
     [formikProps.values.alertType, formikProps.values.billableMetricId],
   )
@@ -372,7 +383,7 @@ const AlertForm = () => {
 
   const { hasUsageAmountAlert, hasLifetimeUsageAmountAlert } = useMemo(() => {
     if (!existingAlertsData?.subscriptionAlerts?.collection.length) {
-      return { hasUsageAmountAlert: false }
+      return { hasUsageAmountAlert: false, hasLifetimeUsageAmountAlert: false }
     }
 
     const localHasUsageAmountAlert = existingAlertsData?.subscriptionAlerts?.collection.some(
@@ -508,6 +519,10 @@ const AlertForm = () => {
                           value: AlertTypeEnum.BillableMetricCurrentUsageUnits,
                         },
                         {
+                          label: translate('text_1774295657000uwtohmkfqaom'),
+                          value: AlertTypeEnum.BillableMetricLifetimeUsageUnits,
+                        },
+                        {
                           label: translate('text_1746631350478l8lfdopffh1'),
                           value: AlertTypeEnum.BillableMetricCurrentUsageAmount,
                         },
@@ -529,10 +544,7 @@ const AlertForm = () => {
                       }}
                     />
 
-                    {(formikProps.values.alertType ===
-                      AlertTypeEnum.BillableMetricCurrentUsageAmount ||
-                      formikProps.values.alertType ===
-                        AlertTypeEnum.BillableMetricCurrentUsageUnits) && (
+                    {isBillableMetricAlertType(formikProps.values.alertType) && (
                       <>
                         <ComboBoxField
                           name="billableMetricId"
@@ -551,10 +563,7 @@ const AlertForm = () => {
                         setThresholds={setThresholds}
                         setThresholdValue={setThresholdValue}
                         currency={currency}
-                        shouldHandleUnits={
-                          formikProps.values.alertType ===
-                          AlertTypeEnum.BillableMetricCurrentUsageUnits
-                        }
+                        shouldHandleUnits={isUnitsAlertType(formikProps.values.alertType)}
                       />
                     )}
                   </div>
