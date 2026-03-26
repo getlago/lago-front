@@ -60,7 +60,7 @@ const renderMentionNodeView = ({
   mentionValues = {} as Record<string, string>,
 } = {}) => {
   return render(
-    <RichTextEditorProvider value={{ mode, mentionValues }}>
+    <RichTextEditorProvider value={{ mode, mentionValues, plans: {}, setPlan: () => {} }}>
       <MentionNodeView {...defaultProps} node={node} />
     </RichTextEditorProvider>,
   )
@@ -133,7 +133,7 @@ describe('MentionNodeView', () => {
         const element = screen.getByTestId(MENTION_NODE_VIEW_RESOLVED_TEST_ID)
 
         expect(element).toBeInTheDocument()
-        expect(element).toHaveTextContent('{Acme Corp}')
+        expect(element).toHaveTextContent('Acme Corp')
       })
 
       it('THEN should not display the @label', () => {
