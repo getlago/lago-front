@@ -1,4 +1,7 @@
 import { NodeViewProps, NodeViewWrapper } from '@tiptap/react'
+import { Icon } from 'lago-design-system'
+
+import { Button } from '~/components/designSystem/Button'
 
 import type { EditorTemplate } from './types'
 
@@ -16,23 +19,17 @@ export const TemplateSelectorView = ({ editor, node }: NodeViewProps) => {
     <NodeViewWrapper>
       <div className="template-list" data-test={TEMPLATE_SELECTOR_VIEW_TEST_ID}>
         {templates.map((template) => (
-          <button
+          <Button
             key={template.id}
-            type="button"
-            className="template-item"
+            className="template-item gap-2"
             data-test={`${TEMPLATE_SELECTOR_ITEM_TEST_ID}-${template.id}`}
+            variant="quaternary"
+            align="left"
             onClick={() => handleSelect(template)}
           >
-            <svg className="template-item__icon" viewBox="0 0 16 16" fill="none">
-              <path
-                d="M3 4.5h10M3 8h10M3 11.5h6"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
+            <Icon name="document" size="small" />
             <span className="template-item__name">{template.name}</span>
-          </button>
+          </Button>
         ))}
       </div>
     </NodeViewWrapper>

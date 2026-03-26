@@ -208,19 +208,6 @@
   .template-list {
     @apply flex flex-col;
   }
-
-  .template-item {
-    @apply flex cursor-pointer items-center gap-2 rounded px-1 py-0.5 text-left transition-colors hover:bg-grey-100;
-  }
-
-  .template-item__icon {
-    @apply h-4 w-4 shrink-0 text-grey-400;
-  }
-
-  .template-item__name {
-    @apply text-base leading-6 text-grey-400;
-    letter-spacing: -0.16px;
-  }
 }
 
 /* Table controls — Notion-style hover buttons */
