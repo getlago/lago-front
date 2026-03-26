@@ -92,7 +92,11 @@ export const LinkPasteHandler = Extension.create({
 
               // Close popup when user clicks elsewhere in the editor
               const handleClick = (e: MouseEvent) => {
-                if (renderer?.element && !renderer.element.contains(e.target as Node)) {
+                if (
+                  renderer?.element &&
+                  e.target instanceof Node &&
+                  !renderer.element.contains(e.target)
+                ) {
                   cleanup()
                   document.removeEventListener('click', handleClick)
                 }

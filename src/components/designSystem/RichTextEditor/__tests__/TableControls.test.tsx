@@ -510,6 +510,32 @@ describe('TableControls', () => {
       return { editor, runMock, table, wrapperEl }
     }
 
+    describe('WHEN mouseOver fires with a non-HTMLElement target', () => {
+      it('THEN should not update any hover state', async () => {
+        jest.useFakeTimers()
+        const { table } = await renderWithLayout()
+
+        // Dispatch a mouseOver where e.target is a text node (not HTMLElement)
+        const textNode = document.createTextNode('hello')
+
+        table.querySelectorAll('td')[0].appendChild(textNode)
+
+        await act(() => {
+          const event = new Event('mouseover', { bubbles: true })
+
+          Object.defineProperty(event, 'target', { value: textNode })
+          table.dispatchEvent(event)
+        })
+
+        // Controls should remain hidden (opacity-0) since the event was ignored
+        const deleteRowBtn = screen.getByTestId(`${TABLE_CONTROLS_DELETE_ROW_BUTTON_TEST_ID}-0`)
+
+        expect(deleteRowBtn.parentElement).toHaveClass('opacity-0')
+
+        jest.useRealTimers()
+      })
+    })
+
     describe('WHEN hovering the first cell of a row', () => {
       it('THEN should show the row delete button', async () => {
         jest.useFakeTimers()
