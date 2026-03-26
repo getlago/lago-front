@@ -1,4 +1,5 @@
 import { act, cleanup, screen } from '@testing-library/react'
+import { Markdown } from 'tiptap-markdown'
 
 import { render } from '~/test-utils'
 
@@ -35,7 +36,7 @@ const mockEditor = {
   extensionManager: {
     extensions: [
       {
-        name: 'markdown',
+        name: Markdown.name,
         storage: {
           getMarkdown: mockGetMarkdown,
         },
@@ -379,7 +380,7 @@ describe('RichTextEditor', () => {
         const onSave = jest.fn()
         const originalExtensions = mockEditor.extensionManager.extensions
 
-        mockEditor.extensionManager.extensions = [{ name: 'markdown', storage: {} }]
+        mockEditor.extensionManager.extensions = [{ name: Markdown.name, storage: {} }]
 
         await act(() => render(<RichTextEditor onSave={onSave} />))
 

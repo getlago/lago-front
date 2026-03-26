@@ -194,7 +194,7 @@ const RichTextEditor = ({
   if (!editor) return null
 
   const handleSave = () => {
-    const markdownExt = editor.extensionManager.extensions.find((ext) => ext.name === 'markdown')
+    const markdownExt = editor.extensionManager.extensions.find((ext) => ext.name === Markdown.name)
     const storage = markdownExt?.storage
 
     if (!storage || typeof storage.getMarkdown !== 'function') return

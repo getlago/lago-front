@@ -8,7 +8,7 @@ export const MENTION_NODE_VIEW_RESOLVED_TEST_ID = 'mention-node-view-resolved'
 export const MentionNodeView = ({ node }: NodeViewProps) => {
   const { mode, mentionValues } = useRichTextEditorContext()
 
-  const id = String(node.attrs.id)
+  const id = String(node.attrs.id ?? '')
   const label = String(node.attrs.label ?? id)
 
   if (mode === 'preview') {

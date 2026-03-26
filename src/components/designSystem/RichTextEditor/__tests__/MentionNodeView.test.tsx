@@ -95,7 +95,7 @@ describe('MentionNodeView', () => {
 
         const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)
 
-        expect(element).toHaveTextContent('@null')
+        expect(element).toHaveTextContent('@')
       })
     })
 

@@ -281,10 +281,7 @@ describe('LinkPasteHandler', () => {
 
         pasteUrlAndTriggerRaf(mockEditor)
 
-        // Click outside the renderer element (a different DOM node)
         const outsideElement = document.createElement('div')
-
-        document.dispatchEvent(new MouseEvent('click', { bubbles: true }) as MouseEvent)
 
         // Use Object.defineProperty to set the target since MouseEvent target is read-only
         const clickEvent = new MouseEvent('click', { bubbles: true })
