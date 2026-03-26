@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { CouponDetailsActivityLogs } from '~/components/coupons/CouponDetailsActivityLogs'
+import { CouponDetailsAppliedCoupons } from '~/components/coupons/CouponDetailsAppliedCoupons'
 import { CouponDetailsOverview } from '~/components/coupons/CouponDetailsOverview'
 import { useDeleteCoupon } from '~/components/coupons/useDeleteCoupon'
 import { useTerminateCoupon } from '~/components/coupons/useTerminateCoupon'
@@ -25,6 +26,7 @@ import { usePermissionsCouponActions } from '~/hooks/usePermissionsCouponActions
 gql`
   fragment CouponDetailsForHeader on Coupon {
     name
+    code
     status
     couponType
     percentageRate
@@ -138,6 +140,18 @@ const CouponDetails = () => {
             content: (
               <DetailsPage.Container>
                 <CouponDetailsOverview />
+              </DetailsPage.Container>
+            ),
+          },
+          {
+            title: translate('text_624efab67eb2570101d117a5'),
+            link: generatePath(COUPON_DETAILS_ROUTE, {
+              couponId: couponId as string,
+              tab: CouponDetailsTabsOptionsEnum.appliedCoupons,
+            }),
+            content: (
+              <DetailsPage.Container>
+                <CouponDetailsAppliedCoupons couponCode={coupon?.code || undefined} />
               </DetailsPage.Container>
             ),
           },
