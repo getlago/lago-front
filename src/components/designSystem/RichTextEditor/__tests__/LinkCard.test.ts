@@ -108,4 +108,66 @@ describe('LinkCard', () => {
       expect(attrs.href).toEqual({ default: null })
     })
   })
+
+  describe('GIVEN the addStorage function', () => {
+    const getStorage = () => {
+      const extensionConfig = LinkCard.config
+      const addStorage = extensionConfig.addStorage as () => {
+        markdown: {
+          serialize: (
+            state: { write: (text: string) => void; closeBlock: (node: unknown) => void },
+            node: { attrs: { href: string } },
+          ) => void
+          parse: Record<string, unknown>
+        }
+      }
+
+      return addStorage()
+    }
+
+    describe('WHEN serialize is called with a URL', () => {
+      it('THEN should write a markdown link with href as both text and URL', () => {
+        const storage = getStorage()
+        const mockWrite = jest.fn()
+        const mockCloseBlock = jest.fn()
+        const node = { attrs: { href: 'https://example.com' } }
+
+        storage.markdown.serialize({ write: mockWrite, closeBlock: mockCloseBlock }, node)
+
+        expect(mockWrite).toHaveBeenCalledWith('[https://example.com](https://example.com)')
+        expect(mockCloseBlock).toHaveBeenCalledWith(node)
+      })
+    })
+
+    describe('WHEN serialize is called with different URLs', () => {
+      it.each([
+        ['https://example.com/path', '[https://example.com/path](https://example.com/path)'],
+        ['https://lago.dev', '[https://lago.dev](https://lago.dev)'],
+        [
+          'https://docs.example.com/api?q=test',
+          '[https://docs.example.com/api?q=test](https://docs.example.com/api?q=test)',
+        ],
+      ])('THEN should serialize %s correctly', (href, expectedMarkdown) => {
+        const storage = getStorage()
+        const mockWrite = jest.fn()
+        const mockCloseBlock = jest.fn()
+
+        storage.markdown.serialize(
+          { write: mockWrite, closeBlock: mockCloseBlock },
+          { attrs: { href } },
+        )
+
+        expect(mockWrite).toHaveBeenCalledWith(expectedMarkdown)
+      })
+    })
+
+    describe('WHEN accessing the parse config', () => {
+      it('THEN should return an object (empty parse rules)', () => {
+        const storage = getStorage()
+
+        expect(storage.markdown.parse).toBeDefined()
+        expect(typeof storage.markdown.parse).toBe('object')
+      })
+    })
+  })
 })
