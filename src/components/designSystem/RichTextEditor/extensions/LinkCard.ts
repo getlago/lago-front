@@ -38,7 +38,7 @@ export const LinkCard = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const href = HTMLAttributes.href as string
+    const href = String(HTMLAttributes.href ?? '')
     let domain = ''
 
     try {
