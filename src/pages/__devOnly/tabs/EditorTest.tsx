@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import RichTextEditor, {
-  RichTextEditorMode,
+  type RichTextEditorMode,
 } from '~/components/designSystem/RichTextEditor/RichTextEditor'
 import { Typography } from '~/components/designSystem/Typography'
 
@@ -36,7 +36,14 @@ const EditorTest = () => {
         </Button>
       </div>
       <Block className="h-80">
-        <RichTextEditor mode={mode} mentionValues={mentionValues} />
+        <RichTextEditor
+          mode={mode}
+          mentionValues={mentionValues}
+          onSave={(markdown: string) => {
+            // eslint-disable-next-line no-console
+            console.log('Editor markdown:', markdown)
+          }}
+        />
       </Block>
     </Container>
   )

@@ -2,7 +2,10 @@ import { act, cleanup, screen } from '@testing-library/react'
 
 import { render } from '~/test-utils'
 
-import RichTextEditor, { RICH_TEXT_EDITOR_TEST_ID } from '../RichTextEditor'
+import RichTextEditor, {
+  RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID,
+  RICH_TEXT_EDITOR_TEST_ID,
+} from '../RichTextEditor'
 
 // Capture the config passed to SlashCommands.configure()
 let capturedSlashCommandsConfig: Record<string, unknown> = {}
@@ -18,8 +21,15 @@ jest.mock('../extensions/SlashCommands', () => ({
   slashCommandDefinitions: [],
 }))
 
+const mockGetMarkdown = jest.fn().mockReturnValue('# Hello World')
+
 const mockEditor = {
   setEditable: jest.fn(),
+  storage: {
+    markdown: {
+      getMarkdown: mockGetMarkdown,
+    },
+  } as Record<string, unknown>,
   isActive: jest.fn().mockReturnValue(false),
   can: jest.fn().mockReturnValue({
     undo: jest.fn().mockReturnValue(false),
@@ -50,19 +60,24 @@ const mockEditor = {
   }),
 }
 
-// Capture the config passed to Mention.configure()
+// Capture the config passed to Mention.extend() and Mention.configure()
 let capturedMentionConfig: Record<string, unknown> = {}
+let capturedMentionExtendConfig: Record<string, unknown> = {}
 
 jest.mock('@tiptap/extension-mention', () => ({
   __esModule: true,
   default: {
-    extend: jest.fn(() => ({
-      configure: jest.fn((config: Record<string, unknown>) => {
-        capturedMentionConfig = config
+    extend: jest.fn((extendConfig: Record<string, unknown>) => {
+      capturedMentionExtendConfig = extendConfig
 
-        return 'mention-extension'
-      }),
-    })),
+      return {
+        configure: jest.fn((config: Record<string, unknown>) => {
+          capturedMentionConfig = config
+
+          return 'mention-extension'
+        }),
+      }
+    }),
     configure: jest.fn((config: Record<string, unknown>) => {
       capturedMentionConfig = config
 
@@ -289,6 +304,271 @@ describe('RichTextEditor', () => {
     it('THEN should pass a translate function to SlashCommands.configure', () => {
       expect(capturedSlashCommandsConfig.translate).toBeDefined()
       expect(typeof capturedSlashCommandsConfig.translate).toBe('function')
+    })
+  })
+
+  describe('GIVEN the onSave prop is provided', () => {
+    describe('WHEN the component renders in edit mode', () => {
+      it('THEN should render the save button', async () => {
+        const onSave = jest.fn()
+
+        await act(() => render(<RichTextEditor onSave={onSave} />))
+
+        expect(screen.getByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the component renders in preview mode', () => {
+      it('THEN should not render the save button', async () => {
+        const onSave = jest.fn()
+
+        await act(() => render(<RichTextEditor mode="preview" onSave={onSave} />))
+
+        expect(screen.queryByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the save button is clicked', () => {
+      it('THEN should call onSave with the markdown content', async () => {
+        const onSave = jest.fn()
+
+        await act(() => render(<RichTextEditor onSave={onSave} />))
+
+        const saveButton = screen.getByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)
+
+        await act(() => saveButton.click())
+
+        expect(mockGetMarkdown).toHaveBeenCalled()
+        expect(onSave).toHaveBeenCalledWith('# Hello World')
+      })
+    })
+
+    describe('WHEN the storage does not have markdown', () => {
+      it('THEN should not call onSave', async () => {
+        const onSave = jest.fn()
+        const originalStorage = mockEditor.storage
+
+        mockEditor.storage = {}
+
+        await act(() => render(<RichTextEditor onSave={onSave} />))
+
+        const saveButton = screen.getByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)
+
+        await act(() => saveButton.click())
+
+        expect(onSave).not.toHaveBeenCalled()
+
+        mockEditor.storage = originalStorage
+      })
+    })
+  })
+
+  describe('GIVEN the onSave prop is not provided', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should not render the save button', async () => {
+        await act(() => render(<RichTextEditor />))
+
+        expect(screen.queryByTestId(RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the mention extension addStorage config', () => {
+    beforeEach(async () => {
+      await act(() => render(<RichTextEditor />))
+    })
+
+    describe('WHEN serialize is called with a mention node that has a label', () => {
+      it('THEN should write the mention in {id|label} format', () => {
+        const addStorage = capturedMentionExtendConfig.addStorage as () => {
+          markdown: {
+            serialize: (
+              state: { write: (text: string) => void },
+              node: { attrs: { id: string; label?: string } },
+            ) => void
+          }
+        }
+        const storage = addStorage()
+        const mockWrite = jest.fn()
+
+        storage.markdown.serialize(
+          { write: mockWrite },
+          { attrs: { id: 'customerName', label: 'Customer Name' } },
+        )
+
+        expect(mockWrite).toHaveBeenCalledWith('{customerName|Customer Name}')
+      })
+    })
+
+    describe('WHEN serialize is called with a mention node that has no label', () => {
+      it('THEN should fallback to using id as the label', () => {
+        const addStorage = capturedMentionExtendConfig.addStorage as () => {
+          markdown: {
+            serialize: (
+              state: { write: (text: string) => void },
+              node: { attrs: { id: string; label?: string } },
+            ) => void
+          }
+        }
+        const storage = addStorage()
+        const mockWrite = jest.fn()
+
+        storage.markdown.serialize({ write: mockWrite }, { attrs: { id: 'planName' } })
+
+        expect(mockWrite).toHaveBeenCalledWith('{planName|planName}')
+      })
+    })
+
+    describe('WHEN parse.updateDOM is called', () => {
+      it('THEN should replace mention placeholders with span elements', () => {
+        const addStorage = capturedMentionExtendConfig.addStorage as () => {
+          markdown: {
+            parse: {
+              updateDOM: (element: HTMLElement) => void
+            }
+          }
+        }
+        const storage = addStorage()
+        const mockElement = {
+          innerHTML: 'Hello {{customerName|Customer Name}}, your plan is {{planName|Pro Plan}}.',
+        } as HTMLElement
+
+        storage.markdown.parse.updateDOM(mockElement)
+
+        expect(mockElement.innerHTML).toContain('data-type="mention"')
+        expect(mockElement.innerHTML).toContain('data-id="customerName"')
+        expect(mockElement.innerHTML).toContain('@Customer Name')
+        expect(mockElement.innerHTML).toContain('data-id="planName"')
+        expect(mockElement.innerHTML).toContain('@Pro Plan')
+      })
+
+      it('THEN should not modify content without mention placeholders', () => {
+        const addStorage = capturedMentionExtendConfig.addStorage as () => {
+          markdown: {
+            parse: {
+              updateDOM: (element: HTMLElement) => void
+            }
+          }
+        }
+        const storage = addStorage()
+        const mockElement = { innerHTML: 'No mentions here.' } as HTMLElement
+
+        storage.markdown.parse.updateDOM(mockElement)
+
+        expect(mockElement.innerHTML).toBe('No mentions here.')
+      })
+    })
+  })
+
+  describe('GIVEN the mention suggestion render callbacks', () => {
+    const getMockSuggestionProps = () => ({
+      editor: mockEditor,
+      clientRect: jest.fn().mockReturnValue({ top: 0, left: 0, width: 100, height: 20 }),
+    })
+
+    beforeEach(async () => {
+      await act(() => render(<RichTextEditor />))
+    })
+
+    describe('WHEN onStart is called', () => {
+      it('THEN should create a renderer and popup', () => {
+        const suggestion = capturedMentionConfig.suggestion as {
+          render: () => {
+            onStart: (props: unknown) => void
+            onUpdate: (props: unknown) => void
+            onKeyDown: (props: { event: KeyboardEvent }) => boolean
+            onExit: () => void
+          }
+        }
+
+        const callbacks = suggestion.render()
+        const props = getMockSuggestionProps()
+
+        expect(() => callbacks.onStart(props)).not.toThrow()
+      })
+    })
+
+    describe('WHEN onUpdate is called after onStart', () => {
+      it('THEN should update the renderer and popup', () => {
+        const suggestion = capturedMentionConfig.suggestion as {
+          render: () => {
+            onStart: (props: unknown) => void
+            onUpdate: (props: unknown) => void
+            onKeyDown: (props: { event: KeyboardEvent }) => boolean
+            onExit: () => void
+          }
+        }
+
+        const callbacks = suggestion.render()
+        const props = getMockSuggestionProps()
+
+        callbacks.onStart(props)
+        expect(() => callbacks.onUpdate(props)).not.toThrow()
+      })
+    })
+
+    describe('WHEN onKeyDown is called with Escape key', () => {
+      it('THEN should return true', () => {
+        const suggestion = capturedMentionConfig.suggestion as {
+          render: () => {
+            onStart: (props: unknown) => void
+            onUpdate: (props: unknown) => void
+            onKeyDown: (props: { event: KeyboardEvent }) => boolean
+            onExit: () => void
+          }
+        }
+
+        const callbacks = suggestion.render()
+
+        callbacks.onStart(getMockSuggestionProps())
+
+        const result = callbacks.onKeyDown({
+          event: new KeyboardEvent('keydown', { key: 'Escape' }),
+        })
+
+        expect(result).toBe(true)
+      })
+    })
+
+    describe('WHEN onKeyDown is called with a non-Escape key', () => {
+      it('THEN should return false when renderer ref has no onKeyDown', () => {
+        const suggestion = capturedMentionConfig.suggestion as {
+          render: () => {
+            onStart: (props: unknown) => void
+            onUpdate: (props: unknown) => void
+            onKeyDown: (props: { event: KeyboardEvent }) => boolean
+            onExit: () => void
+          }
+        }
+
+        const callbacks = suggestion.render()
+
+        callbacks.onStart(getMockSuggestionProps())
+
+        const result = callbacks.onKeyDown({
+          event: new KeyboardEvent('keydown', { key: 'Enter' }),
+        })
+
+        expect(result).toBe(false)
+      })
+    })
+
+    describe('WHEN onExit is called', () => {
+      it('THEN should clean up the popup and renderer', () => {
+        const suggestion = capturedMentionConfig.suggestion as {
+          render: () => {
+            onStart: (props: unknown) => void
+            onUpdate: (props: unknown) => void
+            onKeyDown: (props: { event: KeyboardEvent }) => boolean
+            onExit: () => void
+          }
+        }
+
+        const callbacks = suggestion.render()
+
+        callbacks.onStart(getMockSuggestionProps())
+        expect(() => callbacks.onExit()).not.toThrow()
+      })
     })
   })
 })
