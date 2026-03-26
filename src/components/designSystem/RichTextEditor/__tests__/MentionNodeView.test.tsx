@@ -32,6 +32,14 @@ const nodeWithoutLabel = {
   attrs: { id: 'customerName' },
 } as unknown as NodeViewProps['node']
 
+const nodeWithNullAttrs = {
+  attrs: { id: null, label: null },
+} as unknown as NodeViewProps['node']
+
+const nodeWithUndefinedLabel = {
+  attrs: { id: 'testId', label: undefined },
+} as unknown as NodeViewProps['node']
+
 const defaultProps = {
   node: defaultNode,
   editor: null as never,
@@ -78,6 +86,26 @@ describe('MentionNodeView', () => {
         const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)
 
         expect(element).toHaveTextContent('@customerName')
+      })
+    })
+
+    describe('WHEN rendered with null attrs', () => {
+      it('THEN should safely convert null values using String()', () => {
+        renderMentionNodeView({ node: nodeWithNullAttrs })
+
+        const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)
+
+        expect(element).toHaveTextContent('@')
+      })
+    })
+
+    describe('WHEN rendered with undefined label', () => {
+      it('THEN should fallback to id via String()', () => {
+        renderMentionNodeView({ node: nodeWithUndefinedLabel })
+
+        const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)
+
+        expect(element).toHaveTextContent('@testId')
       })
     })
 
