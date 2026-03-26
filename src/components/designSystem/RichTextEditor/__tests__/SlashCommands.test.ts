@@ -1,4 +1,29 @@
-import { slashCommandDefinitions } from '../extensions/SlashCommands'
+import { slashCommandDefinitions, SlashCommands } from '../extensions/SlashCommands'
+
+const mockDestroyPopup = jest.fn()
+const mockHidePopup = jest.fn()
+const mockSetProps = jest.fn()
+const mockDestroyRenderer = jest.fn()
+const mockUpdateProps = jest.fn()
+const mockRendererElement = document.createElement('div')
+
+jest.mock('tippy.js', () => ({
+  __esModule: true,
+  default: jest
+    .fn()
+    .mockImplementation(() => [
+      { destroy: mockDestroyPopup, hide: mockHidePopup, setProps: mockSetProps },
+    ]),
+}))
+
+jest.mock('@tiptap/react', () => ({
+  ReactRenderer: jest.fn().mockImplementation(() => ({
+    element: mockRendererElement,
+    destroy: mockDestroyRenderer,
+    updateProps: mockUpdateProps,
+    ref: null,
+  })),
+}))
 
 const mockTranslate = (key: string): string => {
   const translations: Record<string, string> = {
@@ -123,6 +148,144 @@ describe('SlashCommands', () => {
 
         expect(mockEditor.chain).toHaveBeenCalled()
         expect(mockEditor.runMock).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the suggestion render lifecycle', () => {
+    const tippy = jest.requireMock('tippy.js').default as jest.Mock
+
+    const getRenderCallbacks = () => {
+      const options = (
+        SlashCommands.config.addOptions as unknown as () => {
+          suggestion: {
+            render: () => {
+              onStart: (props: Record<string, unknown>) => void
+              onUpdate: (props: Record<string, unknown>) => void
+              onKeyDown: (props: { event: { key: string } }) => boolean
+              onExit: () => void
+            }
+          }
+        }
+      )()
+
+      return options.suggestion.render()
+    }
+
+    const createSuggestionProps = (
+      clientRect?: (() => DOMRect) | null,
+    ): Record<string, unknown> => ({
+      editor: {},
+      clientRect,
+    })
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    describe('WHEN onStart is called with a valid clientRect', () => {
+      it('THEN should pass the clientRect result to tippy', () => {
+        const callbacks = getRenderCallbacks()
+        const rect = new DOMRect(10, 20, 100, 50)
+        const props = createSuggestionProps(() => rect)
+
+        callbacks.onStart(props)
+
+        const tippyCall = tippy.mock.calls[0]
+        const getReferenceClientRect = tippyCall[1].getReferenceClientRect as () => DOMRect
+
+        expect(getReferenceClientRect()).toEqual(rect)
+      })
+    })
+
+    describe('WHEN onStart is called with null clientRect', () => {
+      it('THEN should fall back to an empty DOMRect', () => {
+        const callbacks = getRenderCallbacks()
+        const props = createSuggestionProps(null)
+
+        callbacks.onStart(props)
+
+        const tippyCall = tippy.mock.calls[0]
+        const getReferenceClientRect = tippyCall[1].getReferenceClientRect as () => DOMRect
+        const result = getReferenceClientRect()
+
+        expect(result).toBeInstanceOf(DOMRect)
+        expect(result.x).toBe(0)
+        expect(result.y).toBe(0)
+        expect(result.width).toBe(0)
+        expect(result.height).toBe(0)
+      })
+    })
+
+    describe('WHEN onStart is called with undefined clientRect', () => {
+      it('THEN should fall back to an empty DOMRect', () => {
+        const callbacks = getRenderCallbacks()
+        const props = createSuggestionProps(undefined)
+
+        callbacks.onStart(props)
+
+        const tippyCall = tippy.mock.calls[0]
+        const getReferenceClientRect = tippyCall[1].getReferenceClientRect as () => DOMRect
+        const result = getReferenceClientRect()
+
+        expect(result).toBeInstanceOf(DOMRect)
+        expect(result.width).toBe(0)
+      })
+    })
+
+    describe('WHEN onUpdate is called with null clientRect', () => {
+      it('THEN should pass a fallback DOMRect to setProps', () => {
+        const callbacks = getRenderCallbacks()
+
+        // onStart must be called first to initialize renderer/popup
+        callbacks.onStart(createSuggestionProps(() => new DOMRect()))
+
+        callbacks.onUpdate(createSuggestionProps(null))
+
+        const setPropsCall = mockSetProps.mock.calls[0]
+        const getReferenceClientRect = setPropsCall[0].getReferenceClientRect as () => DOMRect
+        const result = getReferenceClientRect()
+
+        expect(result).toBeInstanceOf(DOMRect)
+        expect(result.width).toBe(0)
+      })
+    })
+
+    describe('WHEN onExit is called', () => {
+      it('THEN should destroy popup and renderer', () => {
+        const callbacks = getRenderCallbacks()
+
+        callbacks.onStart(createSuggestionProps(() => new DOMRect()))
+        callbacks.onExit()
+
+        expect(mockDestroyPopup).toHaveBeenCalled()
+        expect(mockDestroyRenderer).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN onKeyDown is called with Escape', () => {
+      it('THEN should hide the popup and return true', () => {
+        const callbacks = getRenderCallbacks()
+
+        callbacks.onStart(createSuggestionProps(() => new DOMRect()))
+
+        const result = callbacks.onKeyDown({ event: { key: 'Escape' } })
+
+        expect(mockHidePopup).toHaveBeenCalled()
+        expect(result).toBe(true)
+      })
+    })
+
+    describe('WHEN onKeyDown is called with a non-Escape key', () => {
+      it('THEN should return false when ref is null', () => {
+        const callbacks = getRenderCallbacks()
+
+        callbacks.onStart(createSuggestionProps(() => new DOMRect()))
+
+        const result = callbacks.onKeyDown({ event: { key: 'Enter' } })
+
+        expect(mockHidePopup).not.toHaveBeenCalled()
+        expect(result).toBe(false)
       })
     })
   })
