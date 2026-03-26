@@ -77,7 +77,7 @@ const RoleDetails = () => {
       <MainHeader.Configure
         breadcrumb={[
           {
-            label: translate('text_177073440645951fhlh2ofdc'),
+            label: translate('text_1765448879791epmkg4xijkn'),
             path: rolesListRoute,
           },
         ]}
