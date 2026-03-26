@@ -1,13 +1,12 @@
 /* Strip default tippy styling so the SlashMenu controls its own appearance */
 .rich-text-editor .tippy-box {
+  @apply border-none shadow-none;
   background: transparent;
-  border: none;
   border-radius: 0;
-  box-shadow: none;
 }
 
 .rich-text-editor .tippy-content {
-  padding: 0;
+  @apply p-0;
 }
 
 /* Restore styles stripped by Tailwind preflight inside the TipTap editor */
@@ -22,7 +21,7 @@
     content: attr(data-placeholder);
   }
 
-  /* Headings — match headline / subhead1 / subhead2 MUI variants */
+  /* Headings */
   h1 {
     @apply my-3 text-2xl font-semibold leading-8 text-grey-700;
     letter-spacing: -0.4px;
@@ -38,7 +37,7 @@
     letter-spacing: -0.4px;
   }
 
-  /* Paragraphs — match MUI body variant (16px/24px/400) */
+  /* Paragraphs */
   p {
     @apply my-1 text-base font-normal leading-6 text-grey-700;
     letter-spacing: -0.16px;
@@ -50,11 +49,11 @@
   }
 
   u {
-    text-decoration: underline;
+    @apply underline;
   }
 
   s {
-    text-decoration: line-through;
+    @apply line-through;
   }
 
   mark {
@@ -72,8 +71,7 @@
   }
 
   a {
-    @apply text-blue-600 underline;
-    cursor: pointer;
+    @apply cursor-pointer text-blue-600 underline;
   }
 
   /* Lists */
@@ -97,7 +95,7 @@
     @apply m-0;
   }
 
-  /* Inline code — match captionCode MUI variant */
+  /* Inline code */
   code {
     @apply rounded bg-grey-100 px-1 py-0.5 text-sm leading-6;
     font-family:
@@ -117,12 +115,12 @@
 
   /* Tables */
   table {
-    @apply my-2 w-full border-collapse;
+    @apply my-8 border-collapse;
   }
 
   th,
   td {
-    @apply min-w-[100px] border border-grey-300 px-3 py-2 text-base leading-6;
+    @apply relative min-w-[100px] border border-grey-300 px-3 py-2 text-base leading-6;
     letter-spacing: -0.16px;
   }
 
@@ -130,7 +128,21 @@
     @apply bg-grey-100 font-medium;
   }
 
-  /* Preview mode — hide placeholder and remove cursor */
+  /* Selected cell highlight */
+  .selectedCell::after {
+    @apply pointer-events-none absolute inset-0 bg-blue-100/40;
+    content: '';
+  }
+
+  /* Edit mode — extra margin for table controls */
+  &:not([contenteditable='false']) {
+    table {
+      @apply ml-8;
+      width: calc(100% - 2rem);
+    }
+  }
+
+  /* Preview mode */
   &[contenteditable='false'] {
     caret-color: transparent;
 
