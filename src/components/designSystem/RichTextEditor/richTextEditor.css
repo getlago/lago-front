@@ -174,17 +174,6 @@
   .link-card__url {
     @apply truncate text-xs text-grey-500;
   }
-
-  /* Selected cell highlight */
-  .selectedCell::after {
-    @apply pointer-events-none absolute inset-0 bg-blue-100/40;
-    content: '';
-  }
-
-  th,
-  td {
-    position: relative;
-  }
 }
 
 /* Table controls — Notion-style hover buttons */
