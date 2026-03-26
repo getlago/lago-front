@@ -25,6 +25,13 @@ const mockGetMarkdown = jest.fn().mockReturnValue('# Hello World')
 
 const mockEditor = {
   setEditable: jest.fn(),
+  on: jest.fn(),
+  off: jest.fn(),
+  state: { selection: { from: 0 } },
+  view: {
+    domAtPos: jest.fn().mockReturnValue({ node: document.createElement('div') }),
+    posAtDOM: jest.fn().mockReturnValue(0),
+  },
   storage: {
     markdown: {
       getMarkdown: mockGetMarkdown,
