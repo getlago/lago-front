@@ -319,6 +319,4 @@ describe('Toolbar', () => {
       expect(runMock).toHaveBeenCalled()
     })
   })
-
-  // Image popper form tests moved to ImagePopperForm.test.tsx
 })
