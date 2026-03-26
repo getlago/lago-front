@@ -59,17 +59,60 @@ export const downloadEditorPdf = (wrapperElement: HTMLDivElement | null): void =
   `
   iframeDoc.head.appendChild(printStyle)
 
-  // Wrap the cloned content in a padded div — @page margin:0 hides browser headers/footers,
-  // and the inner padding restores the visual margin
+  // Wrap the cloned content in a padded div — @page margin: 0 removes default page margins,
+  // and the inner padding restores the visual margin (browser print headers/footers may still appear)
   iframeDoc.body.innerHTML = `<div class="print-padding"><div class="rich-text-editor">${proseMirror.outerHTML}</div></div>`
 
-  // Give stylesheets a moment to load, then print
-  setTimeout(() => {
-    iframe.contentWindow?.print()
+  // Wait for all linked stylesheets to load before printing
+  const stylesheetLinks = Array.from(
+    iframeDoc.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]'),
+  )
 
-    // Clean up after the print dialog closes
-    setTimeout(() => {
-      iframe.remove()
-    }, 1000)
-  }, 500)
+  const waitForStylesheets = Promise.all(
+    stylesheetLinks.map(
+      (link) =>
+        new Promise<void>((resolve) => {
+          if ((link as unknown as { sheet: CSSStyleSheet | null }).sheet) {
+            resolve()
+            return
+          }
+
+          const onDone = (): void => {
+            link.removeEventListener('load', onDone)
+            link.removeEventListener('error', onDone)
+            resolve()
+          }
+
+          link.addEventListener('load', onDone)
+          link.addEventListener('error', onDone)
+        }),
+    ),
+  )
+
+  waitForStylesheets
+    .catch(() => {
+      // If waiting fails, fall through and attempt to print anyway
+    })
+    .finally(() => {
+      const contentWindow = iframe.contentWindow
+
+      if (!contentWindow) {
+        iframe.remove()
+        return
+      }
+
+      const cleanup = (): void => {
+        iframe.remove()
+      }
+
+      // Clean up when printing finishes, with a fallback timeout
+      const fallbackTimeout = globalThis.setTimeout(cleanup, 10_000)
+
+      contentWindow.onafterprint = () => {
+        globalThis.clearTimeout(fallbackTimeout)
+        cleanup()
+      }
+
+      contentWindow.print()
+    })
 }

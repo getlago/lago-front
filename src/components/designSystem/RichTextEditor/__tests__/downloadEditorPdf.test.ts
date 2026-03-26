@@ -13,6 +13,7 @@ describe('downloadEditorPdf', () => {
     mockIframeContentDocument = {
       head: { appendChild: jest.fn() },
       body: { innerHTML: '' },
+      querySelectorAll: jest.fn(() => []),
       createElement: jest.fn((tag: string) => {
         const element: Record<string, unknown> = { tagName: tag }
 
@@ -28,6 +29,8 @@ describe('downloadEditorPdf', () => {
       }),
     } as unknown as Document
 
+    const realCreateElement = Document.prototype.createElement.bind(document)
+
     jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'iframe') {
         return {
@@ -38,7 +41,7 @@ describe('downloadEditorPdf', () => {
         } as unknown as HTMLIFrameElement
       }
 
-      return document.createElement.call(document, tag)
+      return realCreateElement(tag)
     })
 
     jest.spyOn(document.body, 'appendChild').mockImplementation((node) => node)
@@ -113,23 +116,66 @@ describe('downloadEditorPdf', () => {
         expect(printStyle).toBeDefined()
       })
 
-      it('THEN should trigger print after a delay', () => {
+      it('THEN should trigger print after stylesheets resolve', async () => {
         downloadEditorPdf(wrapper)
 
-        expect(mockPrint).not.toHaveBeenCalled()
-
-        jest.advanceTimersByTime(500)
+        // Wait for the promise chain to resolve
+        await Promise.resolve()
+        await Promise.resolve()
 
         expect(mockPrint).toHaveBeenCalledTimes(1)
       })
 
-      it('THEN should remove the iframe after printing', () => {
+      it('THEN should remove the iframe via onafterprint', async () => {
+        const mockContentWindow = {
+          document: mockIframeContentDocument,
+          print: mockPrint,
+          onafterprint: null as (() => void) | null,
+          setTimeout: window.setTimeout,
+          clearTimeout: window.clearTimeout,
+        }
+
+        const realCreateElement = Document.prototype.createElement.bind(document)
+
+        jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
+          if (tag === 'iframe') {
+            return {
+              style: {} as CSSStyleDeclaration,
+              remove: mockIframeRemove,
+              contentDocument: mockIframeContentDocument,
+              contentWindow: mockContentWindow,
+            } as unknown as HTMLIFrameElement
+          }
+
+          return realCreateElement(tag)
+        })
+
         downloadEditorPdf(wrapper)
 
-        jest.advanceTimersByTime(500)
+        await Promise.resolve()
+        await Promise.resolve()
+
+        expect(mockPrint).toHaveBeenCalledTimes(1)
         expect(mockIframeRemove).not.toHaveBeenCalled()
 
-        jest.advanceTimersByTime(1000)
+        // Simulate the browser firing onafterprint
+        mockContentWindow.onafterprint?.()
+
+        expect(mockIframeRemove).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should remove the iframe via fallback timeout if onafterprint does not fire', async () => {
+        downloadEditorPdf(wrapper)
+
+        await Promise.resolve()
+        await Promise.resolve()
+
+        expect(mockPrint).toHaveBeenCalledTimes(1)
+        expect(mockIframeRemove).not.toHaveBeenCalled()
+
+        // Advance past the fallback timeout
+        jest.advanceTimersByTime(10_000)
+
         expect(mockIframeRemove).toHaveBeenCalledTimes(1)
       })
     })

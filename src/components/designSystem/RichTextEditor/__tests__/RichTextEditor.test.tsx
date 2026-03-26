@@ -8,6 +8,12 @@ import RichTextEditor, { RICH_TEXT_EDITOR_TEST_ID } from '../RichTextEditor'
 // Capture the config passed to SlashCommands.configure()
 let capturedSlashCommandsConfig: Record<string, unknown> = {}
 
+const mockDownloadEditorPdf = jest.fn()
+
+jest.mock('../downloadEditorPdf', () => ({
+  downloadEditorPdf: (...args: unknown[]) => mockDownloadEditorPdf(...args),
+}))
+
 jest.mock('../extensions/PlanBlock', () => ({
   PlanBlock: 'plan-block-extension',
 }))
@@ -461,6 +467,70 @@ describe('RichTextEditor', () => {
         storage.markdown.parse.updateDOM(mockElement)
 
         expect(mockElement.innerHTML).toBe('No mentions here.')
+      })
+    })
+  })
+
+  describe('GIVEN the downloadPdfRef prop is provided', () => {
+    beforeEach(() => {
+      mockDownloadEditorPdf.mockClear()
+    })
+
+    describe('WHEN the editor is initialized', () => {
+      it('THEN should assign a function to downloadPdfRef.current', async () => {
+        const downloadPdfRef = { current: null } as React.MutableRefObject<(() => void) | null>
+
+        await act(() => render(<RichTextEditor downloadPdfRef={downloadPdfRef} />))
+
+        expect(typeof downloadPdfRef.current).toBe('function')
+      })
+    })
+
+    describe('WHEN already in preview mode', () => {
+      it('THEN should call downloadEditorPdf directly', async () => {
+        const downloadPdfRef = { current: null } as React.MutableRefObject<(() => void) | null>
+
+        await act(() => render(<RichTextEditor downloadPdfRef={downloadPdfRef} mode="preview" />))
+
+        await act(() => {
+          downloadPdfRef.current?.()
+        })
+
+        expect(mockDownloadEditorPdf).toHaveBeenCalledTimes(1)
+        expect(mockDownloadEditorPdf).toHaveBeenCalledWith(expect.any(HTMLDivElement))
+      })
+    })
+
+    describe('WHEN in edit mode', () => {
+      it('THEN should trigger mode override to preview, capture PDF, and restore mode', async () => {
+        const downloadPdfRef = { current: null } as React.MutableRefObject<(() => void) | null>
+
+        // Mock requestAnimationFrame to invoke callback synchronously
+        const originalRaf = window.requestAnimationFrame
+
+        window.requestAnimationFrame = jest.fn((cb: FrameRequestCallback) => {
+          cb(0)
+
+          return 0
+        })
+
+        await act(() => render(<RichTextEditor downloadPdfRef={downloadPdfRef} mode="edit" />))
+
+        // downloadEditorPdf should not have been called yet
+        expect(mockDownloadEditorPdf).not.toHaveBeenCalled()
+
+        await act(() => {
+          downloadPdfRef.current?.()
+        })
+
+        // After mode override triggers the effect, downloadEditorPdf should be called
+        expect(mockDownloadEditorPdf).toHaveBeenCalledTimes(1)
+        expect(mockDownloadEditorPdf).toHaveBeenCalledWith(expect.any(HTMLDivElement))
+
+        // Toolbar should be visible again (mode restored to edit)
+        expect(screen.getByTestId('toolbar-container')).toBeInTheDocument()
+
+        window.requestAnimationFrame = originalRaf
       })
     })
   })
