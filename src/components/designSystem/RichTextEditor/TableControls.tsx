@@ -1,4 +1,5 @@
 import { Editor, useEditorState } from '@tiptap/react'
+import { tw } from 'lago-design-system'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export const TABLE_CONTROLS_WRAPPER_TEST_ID = 'table-controls-wrapper'
@@ -296,11 +297,13 @@ const TableControls = ({ editor }: TableControlsProps) => {
               <div
                 key={`row-${row.cellPos}`}
                 role="presentation"
-                className={`absolute flex w-[22px] flex-col items-center justify-center gap-0.5 transition-opacity duration-150 ease-in-out ${
-                  hoveredRow === i
-                    ? 'pointer-events-auto opacity-100'
-                    : 'pointer-events-none opacity-0'
-                }`}
+                className={tw(
+                  'absolute flex w-[22px] flex-col items-center justify-center gap-0.5 transition-opacity duration-150 ease-in-out',
+                  {
+                    'pointer-events-auto opacity-100': hoveredRow === i,
+                    'pointer-events-none opacity-0': hoveredRow !== i,
+                  },
+                )}
                 style={{
                   left: layout.tableX - CONTROL_OFFSET,
                   top: row.top,
