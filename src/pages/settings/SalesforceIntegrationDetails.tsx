@@ -3,11 +3,9 @@ import { useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
-import { Popper } from '~/components/designSystem/Popper'
-import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import {
   AddSalesforceDialog,
   AddSalesforceDialogRef,
@@ -27,7 +25,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import Salesforce from '~/public/images/salesforce.svg'
-import { MenuPopper, PageHeader } from '~/styles'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -105,73 +102,64 @@ const SalesforceIntegrationDetails = () => {
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <ButtonLink
-            to={generatePath(SALESFORCE_INTEGRATION_ROUTE, {
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: translate('text_62b1edddbf5f461ab9712750'),
+            path: generatePath(INTEGRATIONS_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-            })}
-            type="button"
-            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
-          />
-          {loading ? (
-            <Skeleton variant="text" className="w-30" />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary">
-              {salesforceIntegration?.name}
-            </Typography>
-          )}
-        </PageHeader.Group>
-        <Popper
-          PopperProps={{ placement: 'bottom-end' }}
-          opener={
-            <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
-          }
-        >
-          {({ closePopper }) => (
-            <MenuPopper>
-              <Button
-                variant="quaternary"
-                fullWidth
-                align="left"
-                onClick={() => {
-                  addSalesforceDialogRef.current?.openDialog({
-                    provider: salesforceIntegration,
-                    deleteModalRef: deleteSalesforceDialogRef,
-                    deleteDialogCallback,
-                  })
-                  closePopper()
-                }}
-              >
-                {translate('text_65845f35d7d69c3ab4793dac')}
-              </Button>
-              {salesforceIntegration && (
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  fullWidth
-                  onClick={() => {
-                    deleteSalesforceDialogRef.current?.openDialog({
+            }),
+          },
+          {
+            label: translate('text_67db6a10cb0b8031ca538909'),
+            path: generatePath(SALESFORCE_INTEGRATION_ROUTE, {
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            }),
+          },
+        ]}
+        entity={{
+          viewName: salesforceIntegration?.name || '',
+          viewNameLoading: loading,
+          metadata: translate('text_1731510123491gx2nw155ce0'),
+          metadataLoading: loading,
+          badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
+          icon: <Salesforce />,
+        }}
+        actions={{
+          items: [
+            {
+              type: 'dropdown',
+              label: translate('text_626162c62f790600f850b6fe'),
+              items: [
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dac'),
+                  onClick: (closePopper) => {
+                    addSalesforceDialogRef.current?.openDialog({
                       provider: salesforceIntegration,
-                      callback: deleteDialogCallback,
+                      deleteModalRef: deleteSalesforceDialogRef,
+                      deleteDialogCallback,
                     })
                     closePopper()
-                  }}
-                >
-                  {translate('text_65845f35d7d69c3ab4793dad')}
-                </Button>
-              )}
-            </MenuPopper>
-          )}
-        </Popper>
-      </PageHeader.Wrapper>
-
-      <IntegrationsPage.Header
-        isLoading={loading}
-        integrationLogo={<Salesforce />}
-        integrationName={salesforceIntegration?.name || ''}
-        integrationChip={translate('text_62b1edddbf5f461ab971270d')}
-        integrationDescription={translate('text_1731510123491gx2nw155ce0')}
+                  },
+                },
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dad'),
+                  hidden: !salesforceIntegration,
+                  onClick: (closePopper) => {
+                    if (salesforceIntegration) {
+                      deleteSalesforceDialogRef.current?.openDialog({
+                        provider: salesforceIntegration,
+                        callback: deleteDialogCallback,
+                      })
+                    }
+                    closePopper()
+                  },
+                },
+              ],
+            },
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

@@ -5,13 +5,12 @@ import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Chip } from '~/components/designSystem/Chip'
 import { DialogRef } from '~/components/designSystem/Dialog'
-import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { WarningDialog } from '~/components/designSystem/WarningDialog'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import {
   AddLagoTaxManagementDialog,
   AddLagoTaxManagementDialogRef,
@@ -29,7 +28,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
-import { PageHeader } from '~/styles'
 
 gql`
   query getTaxesForTaxManagementIntegrationDetailsPage {
@@ -129,43 +127,41 @@ const LagoTaxManagementIntegration = () => {
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <ButtonLink
-            to={generatePath(INTEGRATIONS_ROUTE, {
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: translate('text_62b1edddbf5f461ab9712750'),
+            path: generatePath(INTEGRATIONS_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-            })}
-            type="button"
-            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
-          />
-          {loading ? (
-            <Skeleton variant="text" className="w-30" />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_657078c28394d6b1ae1b9713')}
-            </Typography>
-          )}
-        </PageHeader.Group>
-        {hasPermissions(['billingEntitiesUpdate']) && (
-          <Button
-            data-test={LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID}
-            variant="secondary"
-            disabled={loading}
-            onClick={deleteConnectionRef.current?.openDialog}
-          >
-            {translate('text_657078c28394d6b1ae1b971b')}
-          </Button>
-        )}
-      </PageHeader.Wrapper>
-
-      <IntegrationsPage.Header
-        isLoading={loading}
-        integrationLogo={<LagoTaxManagement />}
-        integrationName={translate('text_657078c28394d6b1ae1b9713')}
-        integrationChip={
-          hasConnectedBillingEntities ? translate('text_62b1edddbf5f461ab97127ad') : undefined
-        }
-        integrationDescription={translate('text_657078c28394d6b1ae1b971f')}
+            }),
+          },
+        ]}
+        entity={{
+          viewName: translate('text_657078c28394d6b1ae1b9713'),
+          viewNameLoading: loading,
+          metadata: translate('text_657078c28394d6b1ae1b971f'),
+          metadataLoading: loading,
+          badges: hasConnectedBillingEntities
+            ? [{ type: 'default', label: translate('text_62b1edddbf5f461ab97127ad') }]
+            : [],
+          icon: <LagoTaxManagement />,
+        }}
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_657078c28394d6b1ae1b971b'),
+              variant: 'secondary',
+              hidden: !hasPermissions(['billingEntitiesUpdate']),
+              disabled: loading,
+              dataTest: LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID,
+              onClick: () => {
+                deleteConnectionRef.current?.openDialog()
+              },
+            },
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

@@ -7,35 +7,27 @@ import {
   DeleteCustomerDialogRef,
 } from '~/components/customers/DeleteCustomerDialog'
 import { computeCustomerInitials } from '~/components/customers/utils'
-import { CREATE_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
 import { Avatar } from '~/components/designSystem/Avatar'
-import { Button } from '~/components/designSystem/Button'
-import {
-  AvailableFiltersEnum,
-  AvailableQuickFilters,
-  CustomerAvailableFilters,
-  Filters,
-  formatFiltersForCustomerQuery,
-} from '~/components/designSystem/Filters'
+import { formatFiltersForCustomerQuery } from '~/components/designSystem/Filters'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
-import { SearchInput } from '~/components/SearchInput'
-import { CUSTOMER_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { CREATE_CUSTOMER_ROUTE, CUSTOMER_DETAILS_ROUTE, UPDATE_CUSTOMER_ROUTE } from '~/core/router'
 import {
   AddCustomerDrawerFragmentDoc,
   CustomerAccountTypeEnum,
   CustomerItemFragmentDoc,
-  PremiumIntegrationTypeEnum,
   useCustomersLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCustomersListHeaderActions } from '~/hooks/customer/useCustomersListHeaderActions'
+import { useCustomersListHeaderFilters } from '~/hooks/customer/useCustomersListHeaderFilters'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { PageHeader } from '~/styles'
 
 gql`
   fragment CustomerItem on Customer {
@@ -87,6 +79,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         ...CustomerItem
@@ -101,7 +94,7 @@ gql`
 const CustomersList = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { intlFormatDateTimeOrgaTZ, hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
@@ -127,51 +120,24 @@ const CustomersList = () => {
 
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCustomers, loading)
 
-  const hasAccessToRevenueShare = hasOrganizationPremiumAddon(
-    PremiumIntegrationTypeEnum.RevenueShare,
-  )
+  const headerActions = useCustomersListHeaderActions()
+  const headerFilters = useCustomersListHeaderFilters({ debouncedSearch })
 
-  const availableFilters = hasAccessToRevenueShare
-    ? CustomerAvailableFilters
-    : CustomerAvailableFilters.filter(
-        (filter) => filter !== AvailableFiltersEnum.customerAccountType,
-      )
+  const customersTotalCount = data?.customers?.metadata?.totalCount
 
   return (
     <>
-      <PageHeader.Wrapper withSide className="gap-4 whitespace-pre">
-        <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate('text_624efab67eb2570101d117a5')}
-        </Typography>
-        <PageHeader.Group>
-          <SearchInput
-            onChange={debouncedSearch}
-            placeholder={translate('text_63befc65efcd9374da45b801')}
-            data-test="search-customers"
-          />
-          {hasPermissions(['customersCreate']) && (
-            <Button
-              data-test={CREATE_CUSTOMER_DATA_TEST}
-              onClick={() => navigate(CREATE_CUSTOMER_ROUTE)}
-            >
-              {translate('text_1734452833961s338w0x3b4s')}
-            </Button>
-          )}
-        </PageHeader.Group>
-      </PageHeader.Wrapper>
+      <MainHeader.Configure
+        entity={{
+          viewName: translate('text_624efab67eb2570101d117a5'),
+          metadata: formatCountToMetadata(customersTotalCount, translate),
+          metadataLoading: isLoading,
+        }}
+        actions={{ items: headerActions }}
+        filtersSection={headerFilters}
+      />
 
-      <div className="overflow-auto">
-        <div className="box-border flex w-full flex-col gap-3 p-4 shadow-b md:px-12 md:py-3">
-          <Filters.Provider
-            filtersNamePrefix={CUSTOMER_LIST_FILTER_PREFIX}
-            quickFiltersType={AvailableQuickFilters.customerAccountType}
-            availableFilters={availableFilters}
-          >
-            <Filters.QuickFilters />
-            <Filters.Component />
-          </Filters.Provider>
-        </div>
-
+      <div className="border-t border-grey-300">
         <InfiniteScroll
           onBottom={() => {
             const { currentPage = 0, totalPages = 0 } = data?.customers?.metadata || {}
@@ -324,7 +290,6 @@ const CustomersList = () => {
           />
         </InfiniteScroll>
       </div>
-
       <DeleteCustomerDialog ref={deleteDialogRef} />
     </>
   )

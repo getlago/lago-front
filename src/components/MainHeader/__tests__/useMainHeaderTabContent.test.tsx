@@ -95,7 +95,7 @@ describe('useMainHeaderTabContent', () => {
     })
 
     describe('WHEN the pathname does not match any tab', () => {
-      it('THEN should return null', () => {
+      it('THEN should fall back to the first visible tab content', () => {
         const { result } = renderHook(
           () => {
             const writer = useMainHeaderWriter()
@@ -110,7 +110,31 @@ describe('useMainHeaderTabContent', () => {
           { wrapper: createWrapper('/unmatched-path') },
         )
 
-        expect(result.current).toBeNull()
+        expect(result.current).toEqual(React.createElement('div', null, 'Overview content'))
+      })
+    })
+
+    describe('WHEN the pathname does not match and first tab is hidden', () => {
+      it('THEN should fall back to the first visible tab content', () => {
+        const hiddenConfig: MainHeaderConfig = {
+          tabs: [{ ...tabOverview, hidden: true }, tabInvoices],
+        }
+
+        const { result } = renderHook(
+          () => {
+            const writer = useMainHeaderWriter()
+            const content = useMainHeaderTabContent()
+
+            React.useEffect(() => {
+              writer.setConfig(hiddenConfig)
+            }, [writer])
+
+            return content
+          },
+          { wrapper: createWrapper('/unmatched-path') },
+        )
+
+        expect(result.current).toEqual(React.createElement('div', null, 'Invoices content'))
       })
     })
   })

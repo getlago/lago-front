@@ -1,6 +1,6 @@
 import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -14,8 +14,9 @@ import {
   SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
   SettingsPaddedContainer,
-  SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { BILLING_ENTITY_ROUTE } from '~/core/router/SettingRoutes'
 import {
   BillingEntity,
   PremiumIntegrationTypeEnum,
@@ -24,8 +25,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { BillingEntityTab } from '~/pages/settings/BillingEntity/BillingEntity'
-import BillingEntityHeader from '~/pages/settings/BillingEntity/components/BillingEntityHeader'
 import {
   ApplyDunningCampaignDialog,
   ApplyDunningCampaignDialogRef,
@@ -77,18 +76,24 @@ const BillingEntityDunningCampaigns = () => {
 
   return (
     <>
-      <BillingEntityHeader
-        billingEntity={billingEntity as BillingEntity}
-        tab={BillingEntityTab.DUNNING_CAMPAIGNS}
-        loading={loading}
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: billingEntity?.name || '',
+            path: generatePath(BILLING_ENTITY_ROUTE, {
+              billingEntityCode: billingEntityCode as string,
+            }),
+          },
+        ]}
+        entity={{
+          viewName: translate('text_1750663218390k1j07z0kda6'),
+          viewNameLoading: loading,
+          metadata: translate('text_17506632183909ttm5ngxpil'),
+          metadataLoading: loading,
+        }}
       />
 
       <SettingsPaddedContainer>
-        <SettingsPageHeaderContainer>
-          <Typography variant="headline">{translate('text_1750663218390k1j07z0kda6')}</Typography>
-          <Typography>{translate('text_17506632183909ttm5ngxpil')}</Typography>
-        </SettingsPageHeaderContainer>
-
         {!!loading && <SettingsListItemLoadingSkeleton count={2} />}
 
         {!loading && (

@@ -1,3 +1,8 @@
+import {
+  DESKTOP_ACTIONS_BLOCK_TEST_ID,
+  ENTITY_SECTION_VIEW_NAME_TEST_ID,
+} from '~/components/MainHeader/mainHeaderTestIds'
+
 describe('Add On', () => {
   beforeEach(() => {
     cy.login()
@@ -12,7 +17,7 @@ describe('Add On', () => {
   it('should be able create an add on with all attributes filled', () => {
     // Navigation
     cy.visit('/add-ons')
-    cy.get(`[data-test="create-addon-cta"]`).click()
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-addon-cta"]`).click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/add-on')
 
     // Basic form infos
@@ -30,7 +35,7 @@ describe('Add On', () => {
 
     // Submit form
     cy.get('[data-test="submit"]').click()
-    cy.get(`[data-test="addon-details-name"]`).should('contain.text', addOnName)
+    cy.get(`[data-test="${ENTITY_SECTION_VIEW_NAME_TEST_ID}"]`).should('contain.text', addOnName)
   })
 
   it('should be able to edit the same coupon', () => {
@@ -38,8 +43,10 @@ describe('Add On', () => {
     cy.visit('/add-ons')
     cy.get(`[data-test="${addOnName}"]`).click()
 
-    cy.get('button[data-test="addon-details-actions"]').click()
-    cy.get('button[data-test="addon-details-edit"]').click()
+    cy.get(
+      `[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="addon-details-actions"]`,
+    ).click()
+    cy.get(`[data-test="addon-details-edit"]`).click()
 
     // // Check taxes are still present
     // cy.get('[data-test="tax-chip-wrapper"]').children().should('have.length', 1)
@@ -49,6 +56,6 @@ describe('Add On', () => {
     cy.get('textarea[name="description"]').should('exist')
     cy.get('input[name="amountCents"]').type('20')
     cy.get('[data-test="submit"]').click()
-    cy.get(`[data-test="addon-details-name"]`).should('contain.text', addOnName)
+    cy.get(`[data-test="${ENTITY_SECTION_VIEW_NAME_TEST_ID}"]`).should('contain.text', addOnName)
   })
 })

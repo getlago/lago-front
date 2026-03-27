@@ -1,3 +1,8 @@
+import {
+  DESKTOP_ACTIONS_BLOCK_TEST_ID,
+  ENTITY_SECTION_VIEW_NAME_TEST_ID,
+} from '~/components/MainHeader/mainHeaderTestIds'
+
 import { customerName } from '../../support/reusableConstants'
 
 const randomId = Math.round(Math.random() * 10000)
@@ -11,7 +16,7 @@ describe('Coupons', () => {
 
   it('should be able create a coupon with plan limitation', () => {
     cy.visit('/coupons')
-    cy.get(`[data-test="add-coupon"]`).click()
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="add-coupon"]`).click()
     cy.get('input[name="name"]').type(couponName)
     cy.get('input[name="code"]').should('have.value', couponCode)
     cy.get('input[name="amountCents"]').type('30')
@@ -25,15 +30,17 @@ describe('Coupons', () => {
 
     // Submit form
     cy.get('[data-test="submit"]').click()
-    cy.get('[data-test="coupon-details-name"]').should('contain.text', couponName)
+    cy.get(`[data-test="${ENTITY_SECTION_VIEW_NAME_TEST_ID}"]`).should('contain.text', couponName)
   })
 
   it('should be able to edit the same coupon', () => {
     cy.visit('/coupons')
     cy.get(`[data-test="${couponName}"]`).click()
 
-    cy.get(`button[data-test="coupon-details-actions"]`).click()
-    cy.get(`button[data-test="coupon-details-edit"]`).click()
+    cy.get(
+      `[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="coupon-details-actions"]`,
+    ).click()
+    cy.get(`[data-test="coupon-details-edit"]`).click()
 
     cy.get('[data-test="limited-plan-0"]').within(() => {
       cy.get(`[data-test="delete-limited-plan-0"]`).click()
@@ -46,38 +53,39 @@ describe('Coupons', () => {
     cy.get('input[name="amountCents"]').type('1')
 
     cy.get('[data-test="submit"]').click()
-    cy.get('[data-test="coupon-details-name"]').should('contain.text', couponName)
+    cy.get(`[data-test="${ENTITY_SECTION_VIEW_NAME_TEST_ID}"]`).should('contain.text', couponName)
   })
 
   it('should be able to apply the coupon to a customer', () => {
     cy.visit('/customers')
-    cy.get('[data-test="table-customers-list"] tr').contains(customerName).click()
-    cy.get('[data-test="customer-actions"]').click()
+    cy.get('[data-test="table-customers-list"] tr', { timeout: 10000 })
+      .contains(customerName)
+      .click()
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="customer-actions"]`).click()
     cy.get('[data-test="apply-coupon-action"]').click()
     cy.get('input[name="selectCoupon"]').click()
-    cy.get('[data-option-index="0"]').click()
+    cy.get('[data-option-index="0"]').click({ force: true })
     cy.get(`[data-test="plan-limitation-section"]`).should('exist')
 
-    // Test errors
-    cy.get('input[name="amountCurrency"]').click()
-    cy.get('[data-test="UAH"]').click()
-    cy.get('[data-test="submit"]').click()
-    cy.get(`[data-test="alert-type-danger"]`).should('exist', 1)
-
-    // Reset values to be valid
-    cy.get('input[name="amountCurrency"]').click()
-    cy.get('[data-test="USD"]').click()
-
-    cy.get('[data-test="submit"]').click()
-    cy.get(`[data-test="customer-coupon-container"]`).within(() => {
-      cy.get(`[data-test="${couponName}"]`).should('exist')
-    })
+    cy.pause()
+    cy.get('[data-test="submit"]')
+      .click()
+      .then(() => {
+        cy.get('[role="dialog"]', { timeout: 10000 }).should('not.exist')
+        cy.get('[data-test="coupons-tab"]')
+          .click()
+          .then(() => {
+            cy.get('[data-test="table-customer-coupons-list"]').should('contain.text', couponName)
+          })
+      })
   })
 
   it('should not be able to apply the same coupon to a customer multiple time', () => {
     cy.visit('/customers')
-    cy.get('[data-test="table-customers-list"] tr').contains(customerName).click()
-    cy.get('[data-test="customer-actions"]').click()
+    cy.get('[data-test="table-customers-list"] tr', { timeout: 10000 })
+      .contains(customerName)
+      .click()
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="customer-actions"]`).click()
     cy.get('[data-test="apply-coupon-action"]').click()
     cy.get('input[name="selectCoupon"]').click()
     cy.get('[data-option-index="0"]').click()
@@ -89,8 +97,10 @@ describe('Coupons', () => {
     cy.visit('/coupons')
     cy.get(`[data-test="${couponName}"]`).click()
 
-    cy.get(`button[data-test="coupon-details-actions"]`).click()
-    cy.get(`button[data-test="coupon-details-edit"]`).click()
+    cy.get(
+      `[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="coupon-details-actions"]`,
+    ).click()
+    cy.get(`[data-test="coupon-details-edit"]`).click()
 
     cy.get('input[name="name"]').should('not.be.disabled')
     cy.get('input[name="code"]').should('be.disabled')

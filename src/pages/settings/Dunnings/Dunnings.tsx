@@ -10,15 +10,14 @@ import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
-import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import {
   SettingsListItem,
   SettingsListItemHeader,
   SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
   SettingsPaddedContainer,
-  SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import {
   DeleteCampaignDialog,
   DeleteCampaignDialogRef,
@@ -104,18 +103,14 @@ const Dunnings = () => {
 
   return (
     <>
-      <PageBannerHeaderWithBurgerMenu>
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_17285747264958mqbtws3em8')}
-        </Typography>
-      </PageBannerHeaderWithBurgerMenu>
+      <MainHeader.Configure
+        entity={{
+          viewName: translate('text_17285747264958mqbtws3em8'),
+          metadata: translate('text_1728574726495473mszb2j27'),
+        }}
+      />
 
       <SettingsPaddedContainer>
-        <SettingsPageHeaderContainer>
-          <Typography variant="headline">{translate('text_17285747264958mqbtws3em8')}</Typography>
-          <Typography>{translate('text_1728574726495473mszb2j27')}</Typography>
-        </SettingsPageHeaderContainer>
-
         {!!loading ? (
           <SettingsListItemLoadingSkeleton count={2} />
         ) : (

@@ -114,7 +114,6 @@ export const CustomerCreditNotesList = ({
           />
         ) : (
           <CreditNotesTable
-            filtersContainerClassName="px-0 md:px-0"
             creditNotes={creditNotes}
             fetchMore={fetchMore}
             isLoading={isLoading}
@@ -122,7 +121,6 @@ export const CustomerCreditNotesList = ({
             customerTimezone={customerTimezone}
             error={error}
             variables={variables}
-            showFilters={false}
           />
         )}
       </div>

@@ -5,6 +5,7 @@ import { configure, render, RenderOptions } from '@testing-library/react'
 import React, { ReactElement, useEffect } from 'react'
 import Router, { BrowserRouter } from 'react-router-dom'
 
+import { MainHeaderProvider } from '~/components/MainHeader/MainHeaderContext'
 import { initializeTranslations } from '~/core/apolloClient'
 import { initializeYup } from '~/formValidation/initializeYup'
 import { theme } from '~/styles'
@@ -48,7 +49,9 @@ export const AllTheProviders = ({
   return (
     <BrowserRouter basename="/">
       <MockedProvider addTypename={forceTypenames} mocks={mocks}>
-        <ThemeProvider theme={theme}>{children}</ThemeProvider>
+        <ThemeProvider theme={theme}>
+          <MainHeaderProvider>{children}</MainHeaderProvider>
+        </ThemeProvider>
       </MockedProvider>
     </BrowserRouter>
   )

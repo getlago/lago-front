@@ -1,17 +1,12 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { useMemo } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
-import { Avatar } from '~/components/designSystem/Avatar'
-import { Button } from '~/components/designSystem/Button'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
-import { NavigationTab } from '~/components/designSystem/NavigationTab'
-import { Popper } from '~/components/designSystem/Popper'
-import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MainHeaderAction } from '~/components/MainHeader/types'
+import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { SubscriptionActivityLogs } from '~/components/subscriptions/SubscriptionActivityLogs'
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
 import { SubscriptionDetailsOverview } from '~/components/subscriptions/SubscriptionDetailsOverview'
@@ -37,11 +32,9 @@ import {
   useGetSubscriptionForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useSubscriptionPermissionsActions } from '~/hooks/useSubscriptionPermissionsActions'
-import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
   query getSubscriptionForDetails($subscriptionId: ID!) {
@@ -91,7 +84,7 @@ const SubscriptionDetails = () => {
       skip: !subscriptionId,
     })
 
-  const { goBack } = useLocationHistory()
+  const activeTabContent = useMainHeaderTabContent()
 
   const subscription = subscriptionResult?.subscription
 
@@ -145,7 +138,7 @@ const SubscriptionDetails = () => {
           getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
           getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
         ],
-        component: (
+        content: (
           <DetailsPage.Container>
             <SubscriptionDetailsOverview />
           </DetailsPage.Container>
@@ -168,7 +161,7 @@ const SubscriptionDetails = () => {
             CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling,
           ),
         ],
-        component: (
+        content: (
           <DetailsPage.Container>
             <SubscriptionProgressiveBillingTab
               subscription={subscription}
@@ -192,35 +185,28 @@ const SubscriptionDetails = () => {
           ),
           getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.entitlements),
         ],
-        component: (
+        content: (
           <DetailsPage.Container>
             <SubscriptionEntitlementsTabContent />
           </DetailsPage.Container>
         ),
       },
-      ...(isStatusEditable(subscription?.status)
-        ? [
-            {
-              title: translate('text_1725983967306cei92rkdtvb'),
-              link: !!customerId
-                ? getCustomerSubscriptionDetailsRoute(
-                    CustomerSubscriptionDetailsTabsOptionsEnum.usage,
-                  )
-                : getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.usage),
-              match: [
-                getCustomerSubscriptionDetailsRoute(
-                  CustomerSubscriptionDetailsTabsOptionsEnum.usage,
-                ),
-                getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.usage),
-              ],
-              component: (
-                <DetailsPage.Container>
-                  <SubscriptionUsageTabContent />
-                </DetailsPage.Container>
-              ),
-            },
-          ]
-        : []),
+      {
+        title: translate('text_1725983967306cei92rkdtvb'),
+        link: !!customerId
+          ? getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.usage)
+          : getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.usage),
+        match: [
+          getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.usage),
+          getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.usage),
+        ],
+        hidden: !isStatusEditable(subscription?.status),
+        content: (
+          <DetailsPage.Container>
+            <SubscriptionUsageTabContent />
+          </DetailsPage.Container>
+        ),
+      },
       {
         title: translate('text_17465238490269pahbvl3s2m'),
         link: !!customerId
@@ -230,7 +216,7 @@ const SubscriptionDetails = () => {
           getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.alerts),
           getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.alerts),
         ],
-        component: (
+        content: (
           <DetailsPage.Container>
             <SubscriptionAlertsList subscriptionExternalId={subscription?.externalId} />
           </DetailsPage.Container>
@@ -251,8 +237,8 @@ const SubscriptionDetails = () => {
           ),
           getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.activityLogs),
         ],
-        component: (
-          <DetailsPage.Container className="max-w-none">
+        content: (
+          <DetailsPage.Container>
             <SubscriptionActivityLogs externalSubscriptionId={subscription?.externalId || ''} />
           </DetailsPage.Container>
         ),
@@ -271,162 +257,117 @@ const SubscriptionDetails = () => {
     hasPermissions,
   ])
 
+  const headerEntity = {
+    viewName: translate('text_6529666e71f6ce006d2bf011', {
+      planName: subscription?.plan.name,
+    }),
+    viewNameLoading: isSubscriptionLoading,
+    metadata: subscription?.plan.code || '',
+    metadataLoading: isSubscriptionLoading,
+  }
+
+  const headerActions: MainHeaderAction[] = [
+    {
+      type: 'dropdown',
+      label: translate('text_626162c62f790600f850b6fe'),
+      dataTest: SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID,
+      items: [
+        {
+          label: translate('text_62d7f6178ec94cd09370e63c'),
+          dataTest: SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
+          hidden: !canEditSubscription(subscription?.status),
+          onClick: (closePopper) => {
+            navigate(
+              generatePath(UPDATE_SUBSCRIPTION, {
+                customerId: subscription?.customer?.id as string,
+                subscriptionId: subscriptionId as string,
+              }),
+            )
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_62d7f6178ec94cd09370e64a'),
+          dataTest: SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,
+          hidden: !canEditSubscription(subscription?.status),
+          onClick: (closePopper) => {
+            navigate(
+              generatePath(UPGRADE_DOWNGRADE_SUBSCRIPTION, {
+                customerId: subscription?.customer?.id as string,
+                subscriptionId: subscriptionId as string,
+              }),
+            )
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_174652384902646b3ma52uws'),
+          hidden: !canCreateOrUpdateAlert,
+          onClick: (closePopper) => {
+            if (isPremium) {
+              navigate(getAlertCreationLink)
+            } else {
+              window.location.href = getAlertCreationLink
+            }
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_62d7f6178ec94cd09370e65b'),
+          onClick: (closePopper) => {
+            copyToClipboard(subscription?.externalId || '')
+
+            addToast({
+              severity: 'info',
+              translateKey: 'text_62d94cc9ccc5eebcc03160a0',
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_62d904b97e690a881f2b867c'),
+          dataTest: SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
+          hidden: !canEditSubscription(subscription?.status),
+          danger: true,
+          onClick: (closePopper) => {
+            openTerminateCustomerSubscriptionDialog({
+              id: subscription?.id as string,
+              name: subscription?.name as string,
+              status: subscription?.status as StatusTypeEnum,
+              payInAdvance: !!subscription?.plan.payInAdvance,
+              callback: (deletedAt) => {
+                const isCustomerDeleted = !!deletedAt
+
+                if (isCustomerDeleted) {
+                  navigate(SUBSCRIPTIONS_ROUTE)
+                } else {
+                  navigate(
+                    generatePath(CUSTOMER_DETAILS_ROUTE, {
+                      customerId: subscription?.customer?.id as string,
+                    }),
+                  )
+                }
+              },
+            })
+            closePopper()
+          },
+        },
+      ],
+    },
+  ]
+
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group className="overflow-hidden">
-          <Button
-            icon="arrow-left"
-            variant="quaternary"
-            onClick={() => goBack(generatePath(SUBSCRIPTIONS_ROUTE))}
-          />
-          {isSubscriptionLoading ? (
-            <Skeleton variant="text" className="w-50" />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary" noWrap>
-              {translate('text_6529666e71f6ce006d2bf011', {
-                planName: subscription?.plan?.parent?.name || subscription?.plan.name,
-              })}
-            </Typography>
-          )}
-        </PageHeader.Group>
-        {!isSubscriptionLoading && (
-          <Popper
-            PopperProps={{ placement: 'bottom-end' }}
-            opener={
-              <Button data-test={SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID} endIcon="chevron-down">
-                {translate('text_626162c62f790600f850b6fe')}
-              </Button>
-            }
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
-                {canEditSubscription(subscription?.status) && (
-                  <>
-                    <Button
-                      data-test={SUBSCRIPTION_DETAILS_UPDATE_TEST_ID}
-                      variant="quaternary"
-                      align="left"
-                      onClick={() => {
-                        navigate(
-                          generatePath(UPDATE_SUBSCRIPTION, {
-                            customerId: subscription?.customer?.id as string,
-                            subscriptionId: subscriptionId as string,
-                          }),
-                        )
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_62d7f6178ec94cd09370e63c')}
-                    </Button>
-                    <Button
-                      data-test={SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID}
-                      variant="quaternary"
-                      align="left"
-                      onClick={() => {
-                        navigate(
-                          generatePath(UPGRADE_DOWNGRADE_SUBSCRIPTION, {
-                            customerId: subscription?.customer?.id as string,
-                            subscriptionId: subscriptionId as string,
-                          }),
-                        )
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_62d7f6178ec94cd09370e64a')}
-                    </Button>
-                  </>
-                )}
-                {canCreateOrUpdateAlert && (
-                  <ButtonLink
-                    type="button"
-                    buttonProps={{
-                      fullWidth: true,
-                      variant: 'quaternary',
-                      align: 'left',
-                      endIcon: !isPremium ? 'sparkles' : undefined,
-                    }}
-                    to={getAlertCreationLink}
-                  >
-                    {translate('text_174652384902646b3ma52uws')}
-                  </ButtonLink>
-                )}
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    copyToClipboard(subscription?.externalId || '')
+      <MainHeader.Configure
+        breadcrumb={[
+          { label: translate('text_6250304370f0f700a8fdc28d'), path: SUBSCRIPTIONS_ROUTE },
+        ]}
+        entity={headerEntity}
+        actions={{ items: headerActions, loading: isSubscriptionLoading }}
+        tabs={tabs}
+      />
 
-                    addToast({
-                      severity: 'info',
-                      translateKey: 'text_62d94cc9ccc5eebcc03160a0',
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_62d7f6178ec94cd09370e65b')}
-                </Button>
-                {canEditSubscription(subscription?.status) && (
-                  <Button
-                    data-test={SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID}
-                    variant="quaternary"
-                    align="left"
-                    onClick={() => {
-                      openTerminateCustomerSubscriptionDialog({
-                        id: subscription?.id as string,
-                        name: subscription?.name as string,
-                        status: subscription?.status as StatusTypeEnum,
-                        payInAdvance: !!subscription?.plan.payInAdvance,
-                        callback: (deletedAt) => {
-                          const isCustomerDeleted = !!deletedAt
-
-                          if (isCustomerDeleted) {
-                            navigate(SUBSCRIPTIONS_ROUTE)
-                          } else {
-                            navigate(
-                              generatePath(CUSTOMER_DETAILS_ROUTE, {
-                                customerId: subscription?.customer?.id as string,
-                              }),
-                            )
-                          }
-                        },
-                      })
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_62d904b97e690a881f2b867c')}
-                  </Button>
-                )}
-              </MenuPopper>
-            )}
-          </Popper>
-        )}
-      </PageHeader.Wrapper>
-
-      <div className="mb-8 flex items-center gap-4 px-12 pt-8">
-        <Avatar variant="connector" size="large">
-          <Icon name="clock" color="dark" size="large" />
-        </Avatar>
-        <div className="flex flex-1 flex-col gap-1 overflow-hidden">
-          {isSubscriptionLoading ? (
-            <>
-              <Skeleton variant="text" className="w-50" />
-              <Skeleton variant="text" className="w-30" />
-            </>
-          ) : (
-            <>
-              <Typography variant="headline" color="grey700" noWrap>
-                {translate('text_6529666e71f6ce006d2bf011', { planName: subscription?.plan.name })}
-              </Typography>
-              <Typography variant="body" color="grey600" noWrap>
-                {subscription?.plan.code}
-              </Typography>
-            </>
-          )}
-        </div>
-      </div>
-
-      <NavigationTab className="px-4 md:px-12" loading={isSubscriptionLoading} tabs={tabs} />
+      <>{activeTabContent}</>
     </>
   )
 }

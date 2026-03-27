@@ -36,7 +36,6 @@ import {
   useFetchDraftInvoiceTaxesMutation,
   useGetCustomerQuery,
   useGetInvoiceDraftDetailsQuery,
-  useGetInvoiceFeesQuery,
   usePreviewAdjustedFeeMutation,
   useRegenerateInvoiceMutation,
   useVoidInvoiceMutation,

@@ -41,16 +41,22 @@ export const getIntegration = <T extends SupportedIntegration>({
     | GetTaxIntegrationsForExternalAppsAccordionQuery
     | GetCrmIntegrationsForExternalAppsAccordionQuery
 }) => {
+  const allIntegrations = getAllIntegrationForAnIntegrationType<T>({
+    integrationType,
+    allIntegrationsData,
+  })
+
   // Check if the customer already has an integration of the same type
-  const hadInitialIntegrationCustomer = !!integrationCustomers?.find(
+  // AND that the referenced integration still exists (it may have been deleted)
+  const initialIntegrationCustomer = integrationCustomers?.find(
     (i) => i?.integrationType === integrationType,
   )
+  const hadInitialIntegrationCustomer =
+    !!initialIntegrationCustomer &&
+    !!allIntegrations?.some((i) => i.code === initialIntegrationCustomer.integrationCode)
 
   return {
     hadInitialIntegrationCustomer,
-    allIntegrations: getAllIntegrationForAnIntegrationType<T>({
-      integrationType,
-      allIntegrationsData,
-    }),
+    allIntegrations,
   }
 }

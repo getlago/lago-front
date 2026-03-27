@@ -5,12 +5,13 @@ import { generatePath, useNavigate } from 'react-router-dom'
 
 import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
@@ -20,12 +21,11 @@ import {
   UPDATE_ADD_ON_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { AddOnItemFragment, useAddOnsLazyQuery } from '~/generated/graphql'
+import { useAddOnsLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { PageHeader } from '~/styles'
 
 gql`
   fragment AddOnItem on AddOn {
@@ -42,6 +42,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         id
@@ -65,7 +66,10 @@ const AddOnsList = () => {
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getAddOns, loading)
   const list = data?.addOns?.collection || []
-  const shouldShowItemActions = hasPermissions(['addonsUpdate', 'addonsDelete'])
+
+  const canCreateAddOns = hasPermissions(['addonsCreate'])
+  const canUpdateAddOns = hasPermissions(['addonsUpdate'])
+  const canDeleteAddOns = hasPermissions(['addonsDelete'])
 
   const getEmptyState = (): Partial<GenericPlaceholderProps> => {
     if (variables?.searchTerm) {
@@ -74,7 +78,7 @@ const AddOnsList = () => {
         subtitle: translate('text_63bee4e10e2d53912bfe4da7'),
       }
     }
-    if (hasPermissions(['addonsCreate'])) {
+    if (canCreateAddOns) {
       return {
         title: translate('text_629728388c4d2300e2d380c9'),
         subtitle: translate('text_629728388c4d2300e2d380df'),
@@ -89,24 +93,35 @@ const AddOnsList = () => {
     }
   }
 
+  const addOnsTotalCount = data?.addOns?.metadata?.totalCount
+
   return (
     <>
-      <PageHeader.Wrapper className="gap-4 *:whitespace-pre" withSide>
-        <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate('text_629728388c4d2300e2d3809b')}
-        </Typography>
-        <PageHeader.Group>
+      <MainHeader.Configure
+        entity={{
+          viewName: translate('text_629728388c4d2300e2d3809b'),
+          metadata: formatCountToMetadata(addOnsTotalCount, translate),
+          metadataLoading: isLoading,
+        }}
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_629728388c4d2300e2d38085'),
+              variant: 'primary',
+              hidden: !canCreateAddOns,
+              onClick: () => navigate(CREATE_ADD_ON_ROUTE),
+              dataTest: 'create-addon-cta',
+            },
+          ],
+        }}
+        filtersSection={
           <SearchInput
             onChange={debouncedSearch}
             placeholder={translate('text_63bee4e10e2d53912bfe4db8')}
           />
-          {hasPermissions(['addonsCreate']) && (
-            <ButtonLink type="button" to={CREATE_ADD_ON_ROUTE} data-test="create-addon-cta">
-              {translate('text_629728388c4d2300e2d38085')}
-            </ButtonLink>
-          )}
-        </PageHeader.Group>
-      </PageHeader.Wrapper>
+        }
+      />
 
       <InfiniteScroll
         onBottom={() => {
@@ -126,7 +141,7 @@ const AddOnsList = () => {
             default: 16,
             md: 48,
           }}
-          containerClassName={tw('h-[calc(100%-theme(space.nav))]')}
+          containerClassName={tw('h-[calc(100%-theme(space.nav))] border-t border-grey-300')}
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
@@ -184,37 +199,38 @@ const AddOnsList = () => {
               ),
             },
           ]}
-          actionColumnTooltip={() => translate('text_629728388c4d2300e2d3810d')}
+          actionColumnTooltip={
+            canUpdateAddOns && canDeleteAddOns
+              ? () => translate('text_629728388c4d2300e2d3810d')
+              : undefined
+          }
           actionColumn={(addOn) => {
-            if (!shouldShowItemActions) return
+            const actions: ActionItem<typeof addOn>[] = []
 
-            return [
-              ...(hasPermissions(['addonsUpdate'])
-                ? [
-                    {
-                      startIcon: 'pen',
-                      title: translate('text_629728388c4d2300e2d3816a'),
-                      onAction: () =>
-                        navigate(generatePath(UPDATE_ADD_ON_ROUTE, { addOnId: addOn.id })),
-                    } as ActionItem<AddOnItemFragment>,
-                  ]
-                : []),
-              ...(hasPermissions(['addonsDelete'])
-                ? [
-                    {
-                      startIcon: 'trash',
-                      title: translate('text_629728388c4d2300e2d38182'),
-                      onAction: () =>
-                        deleteDialogRef.current?.openDialog({
-                          addOn,
-                          callback: () => {
-                            navigate(ADD_ONS_ROUTE)
-                          },
-                        }),
-                    } as ActionItem<AddOnItemFragment>,
-                  ]
-                : []),
-            ]
+            if (canUpdateAddOns) {
+              actions.push({
+                startIcon: 'pen',
+                title: translate('text_629728388c4d2300e2d3816a'),
+                onAction: () => navigate(generatePath(UPDATE_ADD_ON_ROUTE, { addOnId: addOn.id })),
+              })
+            }
+
+            if (canDeleteAddOns) {
+              actions.push({
+                startIcon: 'trash',
+                title: translate('text_629728388c4d2300e2d38182'),
+                onAction: () => {
+                  deleteDialogRef.current?.openDialog({
+                    addOn,
+                    callback: () => {
+                      navigate(ADD_ONS_ROUTE)
+                    },
+                  })
+                },
+              })
+            }
+
+            return actions
           }}
           placeholder={{
             errorState: !!variables?.searchTerm

@@ -2,9 +2,9 @@ import { gql } from '@apollo/client'
 import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { Button } from '~/components/designSystem/Button'
-import { Typography } from '~/components/designSystem/Typography'
 import { PaymentsList } from '~/components/invoices/PaymentsList'
+import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { CREATE_PAYMENT_ROUTE } from '~/core/router'
@@ -12,7 +12,6 @@ import { PaymentForPaymentsListFragmentDoc, useGetPaymentsListLazyQuery } from '
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { PageHeader } from '~/styles'
 
 gql`
   query getPaymentsList(
@@ -64,33 +63,40 @@ const PaymentsPage = () => {
   const { debouncedSearch: paymentsDebounceSearch, isLoading: paymentsIsLoading } =
     useDebouncedSearch(getPayments, loading)
 
+  const paymentsTotalCount = data?.payments?.metadata?.totalCount
+
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_6672ebb8b1b50be550eccbed')}
-        </Typography>
-
-        <PageHeader.Group>
+      <MainHeader.Configure
+        entity={{
+          viewName: translate('text_6672ebb8b1b50be550eccbed'),
+          metadata: formatCountToMetadata(paymentsTotalCount, translate),
+          metadataLoading: paymentsIsLoading,
+        }}
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_1737471851634wpeojigr27w'),
+              variant: 'primary',
+              endIcon: isPremium ? undefined : 'sparkles',
+              onClick: () => {
+                if (isPremium) {
+                  navigate(CREATE_PAYMENT_ROUTE)
+                } else {
+                  premiumWarningDialogRef.current?.openDialog()
+                }
+              },
+            },
+          ],
+        }}
+        filtersSection={
           <SearchInput
             onChange={paymentsDebounceSearch}
             placeholder={translate('text_17370296250897aidak5kjcg')}
           />
-          <Button
-            variant="primary"
-            onClick={() => {
-              if (isPremium) {
-                navigate(CREATE_PAYMENT_ROUTE)
-              } else {
-                premiumWarningDialogRef.current?.openDialog()
-              }
-            }}
-            endIcon={isPremium ? undefined : 'sparkles'}
-          >
-            {translate('text_1737471851634wpeojigr27w')}
-          </Button>
-        </PageHeader.Group>
-      </PageHeader.Wrapper>
+        }
+      />
 
       <PaymentsList
         error={error}

@@ -5,7 +5,7 @@ import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { SettingsPaddedContainer, SettingsPageHeaderContainer } from '~/components/layouts/Settings'
+import { SettingsPaddedContainer } from '~/components/layouts/Settings'
 import {
   BILLING_ENTITY_DUNNING_CAMPAIGNS_ROUTE,
   BILLING_ENTITY_EMAIL_SCENARIOS_ROUTE,
@@ -142,12 +142,7 @@ const BillingEntityMain = ({ billingEntity }: BillingEntityMainProps) => {
 
   return (
     <SettingsPaddedContainer className="gap-0">
-      <SettingsPageHeaderContainer>
-        <Typography variant="headline">{billingEntity?.name}</Typography>
-        <Typography>{translate('text_1742230191029w4pfyxjda2f')}</Typography>
-      </SettingsPageHeaderContainer>
-
-      <Typography variant="subhead1" color="grey700" className="mt-10">
+      <Typography variant="subhead1" color="grey700">
         {translate('text_1742367266660b7aw6idpgux')}
       </Typography>
 

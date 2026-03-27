@@ -2,12 +2,10 @@ import { gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
-import { Button } from '~/components/designSystem/Button'
-import { NavigationTab } from '~/components/designSystem/NavigationTab'
-import { Popper } from '~/components/designSystem/Popper'
-import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MainHeaderAction } from '~/components/MainHeader/types'
+import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import { PlanDetailsActivityLogs } from '~/components/plans/details/PlanDetailsActivityLogs'
 import { PlanDetailsOverview } from '~/components/plans/details/PlanDetailsOverview'
@@ -16,7 +14,6 @@ import { updateDuplicatePlanVar } from '~/core/apolloClient'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CREATE_PLAN_ROUTE,
-  CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   CUSTOMER_SUBSCRIPTION_PLAN_DETAILS,
   PLAN_DETAILS_ROUTE,
   PLANS_ROUTE,
@@ -30,7 +27,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
-import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
   query getPlanForDetails($planId: ID!) {
@@ -61,7 +57,6 @@ const PlanDetails = () => {
     skip: !planId,
   })
   const plan = planResult?.plan
-  const shouldShowActions = hasPermissions(['plansCreate', 'plansUpdate', 'plansDelete'])
 
   useEffect(() => {
     // WARNING: This page should not be used to show overriden plan's details
@@ -71,102 +66,61 @@ const PlanDetails = () => {
     }
   }, [navigate, plan?.parent?.id])
 
+  const actions: MainHeaderAction[] = [
+    {
+      type: 'dropdown',
+      label: translate('text_626162c62f790600f850b6fe'),
+      items: [
+        {
+          label: translate('text_65281f686a80b400c8e2f6b3'),
+          hidden: !hasPermissions(['plansUpdate']),
+          onClick: (closePopper) => {
+            navigate(generatePath(UPDATE_PLAN_ROUTE, { planId: plan?.id as string }))
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_65281f686a80b400c8e2f6b6'),
+          hidden: !hasPermissions(['plansCreate']),
+          onClick: (closePopper) => {
+            updateDuplicatePlanVar({
+              type: 'duplicate',
+              parentId: plan?.id,
+            })
+            navigate(CREATE_PLAN_ROUTE)
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_625fd165963a7b00c8f597b5'),
+          hidden: !hasPermissions(['plansDelete']),
+          onClick: (closePopper) => {
+            deletePlanDialogRef.current?.openDialog({
+              plan: plan as DeletePlanDialogFragment,
+              callback: () => {
+                navigate(PLANS_ROUTE)
+              },
+            })
+            closePopper()
+          },
+        },
+      ],
+    },
+  ]
+
+  const activeTabContent = useMainHeaderTabContent()
+
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group className="overflow-hidden">
-          <Button
-            icon="arrow-left"
-            variant="quaternary"
-            onClick={() => {
-              if (!!customerId && !!subscriptionId) {
-                navigate(
-                  generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                    customerId: customerId as string,
-                    subscriptionId: subscriptionId as string,
-                    tab: PlanDetailsTabsOptionsEnum.overview,
-                  }),
-                )
-              } else {
-                navigate(PLANS_ROUTE)
-              }
-            }}
-          />
-          {isPlanLoading && !plan ? (
-            <div className="w-50">
-              <Skeleton variant="text" className="w-50" />
-            </div>
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary" noWrap>
-              {translate('text_65281f686a80b400c8e2f6ad', { planName: plan?.name })}
-            </Typography>
-          )}
-          <Typography variant="bodyHl" color="textSecondary" noWrap></Typography>
-        </PageHeader.Group>
-        {shouldShowActions && (
-          <Popper
-            PopperProps={{ placement: 'bottom-end' }}
-            opener={
-              <Button endIcon="chevron-down">{translate('text_626162c62f790600f850b6fe')}</Button>
-            }
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    navigate(generatePath(UPDATE_PLAN_ROUTE, { planId: plan?.id as string }))
-                    closePopper()
-                  }}
-                >
-                  {translate('text_65281f686a80b400c8e2f6b3')}
-                </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    updateDuplicatePlanVar({
-                      type: 'duplicate',
-                      parentId: plan?.id,
-                    })
-                    navigate(CREATE_PLAN_ROUTE)
-                    closePopper()
-                  }}
-                >
-                  {translate('text_65281f686a80b400c8e2f6b6')}
-                </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  onClick={() => {
-                    deletePlanDialogRef.current?.openDialog({
-                      plan: plan as DeletePlanDialogFragment,
-                      callback: () => {
-                        navigate(PLANS_ROUTE)
-                      },
-                    })
-                    closePopper()
-                  }}
-                >
-                  {translate('text_625fd165963a7b00c8f597b5')}
-                </Button>
-              </MenuPopper>
-            )}
-          </Popper>
-        )}
-      </PageHeader.Wrapper>
-
-      <DetailsPage.Header
-        isLoading={isPlanLoading}
-        icon="puzzle"
-        title={translate('text_65281f686a80b400c8e2f6ad', { planName: plan?.name })}
-        description={plan?.code || ''}
-      />
-
-      <NavigationTab
-        className="px-4 md:px-12"
-        loading={isPlanLoading}
+      <MainHeader.Configure
+        breadcrumb={[{ label: translate('text_62442e40cea25600b0b6d84a'), path: PLANS_ROUTE }]}
+        entity={{
+          viewName: translate('text_65281f686a80b400c8e2f6ad', { planName: plan?.name }),
+          viewNameLoading: isPlanLoading,
+          metadata: plan?.code || '',
+          metadataLoading: isPlanLoading,
+        }}
+        actions={{ items: actions, loading: isPlanLoading }}
         tabs={[
           {
             title: translate('text_628cf761cbe6820138b8f2e4'),
@@ -186,7 +140,7 @@ const PlanDetails = () => {
                 tab: PlanDetailsTabsOptionsEnum.overview,
               }),
             ],
-            component: (
+            content: (
               <DetailsPage.Container>
                 <PlanDetailsOverview planId={planId} />
               </DetailsPage.Container>
@@ -204,8 +158,8 @@ const PlanDetails = () => {
                 tab: PlanDetailsTabsOptionsEnum.subscriptions,
               }),
             ],
-            component: (
-              <DetailsPage.Container className="max-w-full">
+            content: (
+              <DetailsPage.Container>
                 <PlanSubscriptionList planCode={plan?.code} />
               </DetailsPage.Container>
             ),
@@ -216,11 +170,14 @@ const PlanDetails = () => {
               planId: planId as string,
               tab: PlanDetailsTabsOptionsEnum.activityLogs,
             }),
-            component: <PlanDetailsActivityLogs planId={planId as string} />,
+            content: <PlanDetailsActivityLogs planId={planId as string} />,
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
       />
+
+      <>{activeTabContent}</>
+
       <DeletePlanDialog ref={deletePlanDialogRef} />
     </>
   )

@@ -29,7 +29,7 @@ import { WalletTransactionList } from '~/components/wallets/WalletTransactionLis
 import { WalletTransactionListItem } from '~/components/wallets/WalletTransactionListItem'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CREATE_WALLET_TOP_UP_ROUTE, EDIT_WALLET_ROUTE } from '~/core/router'
+import { CREATE_WALLET_TOP_UP_ROUTE, EDIT_WALLET_ROUTE, WALLET_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { DateFormat, intlFormatDateTime, TimeFormat } from '~/core/timezone/utils'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -47,6 +47,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
+import { WalletDetailsTabsOptionsEnum } from '~/pages/wallet/WalletDetails'
 import { MenuPopper } from '~/styles'
 import { tw } from '~/styles/utils'
 
@@ -292,6 +293,27 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
                           {translate('text_63720bd734e1344aea75b7e9')}
                         </Button>
                       )}
+                      <Button
+                        startIcon="bell"
+                        variant="quaternary"
+                        align="left"
+                        fullWidth
+                        onClick={(e) => {
+                          e.stopPropagation()
+
+                          navigate(
+                            generatePath(WALLET_DETAILS_ROUTE, {
+                              walletId: wallet?.id,
+                              customerId: customerId as string,
+                              tab: WalletDetailsTabsOptionsEnum.alerts,
+                            }),
+                          )
+
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_1772536695408i54gtdrmatk')}
+                      </Button>
                       {isPremium && hasPermissions(['auditLogsView']) && (
                         <Button
                           startIcon="pulse"
@@ -559,11 +581,8 @@ export const WalletAccordion: FC<WalletAccordionProps> = ({
 
       {isWalletActive && (
         <>
-          <TerminateCustomerWalletDialog
-            ref={terminateCustomerWalletDialogRef}
-            walletId={wallet.id}
-          />
-          <VoidWalletDialog ref={voidWalletDialogRef} wallet={wallet} />
+          <TerminateCustomerWalletDialog ref={terminateCustomerWalletDialogRef} />
+          <VoidWalletDialog ref={voidWalletDialogRef} />
         </>
       )}
     </>

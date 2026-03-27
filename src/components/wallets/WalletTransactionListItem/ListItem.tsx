@@ -59,6 +59,7 @@ interface ListItemProps {
   timezone?: TimezoneEnum
   transactionId: string
   onClick?: () => void
+  rowClassName?: string
 }
 export const ListItem: FC<ListItemProps> = ({
   amount,
@@ -80,6 +81,7 @@ export const ListItem: FC<ListItemProps> = ({
   timezone,
   transactionId,
   onClick,
+  rowClassName,
   ...props
 }) => {
   const { translate } = useInternationalization()
@@ -105,6 +107,7 @@ export const ListItem: FC<ListItemProps> = ({
         className={tw(
           'grid grid-cols-4 items-center justify-between gap-2 px-4 py-3',
           isClickable && 'focus-visible:bg-grey-200 focus-visible:ring focus-visible:ring-inset',
+          rowClassName,
         )}
         {...props}
       >

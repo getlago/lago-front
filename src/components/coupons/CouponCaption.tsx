@@ -6,8 +6,9 @@ import { Typography } from '~/components/designSystem/Typography'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
+  AppliedCouponCaptionFragment,
+  CouponCaptionFragment,
   CouponFrequency,
-  CouponItemFragment,
   CouponTypeEnum,
   CurrencyEnum,
 } from '~/generated/graphql'
@@ -36,13 +37,8 @@ gql`
   }
 `
 
-export interface CouponMixedType extends CouponItemFragment {
-  amountCentsRemaining?: number
-  frequencyDurationRemaining?: number
-}
-
 interface CouponCaptionProps {
-  coupon: CouponMixedType
+  coupon: CouponCaptionFragment | AppliedCouponCaptionFragment
   variant?: TypographyProps['variant']
   className?: string
 }
@@ -52,15 +48,11 @@ export const CouponCaption = memo(
     const { translate } = useInternationalization()
 
     const getCaption = () => {
-      const {
-        amountCurrency,
-        amountCents,
-        amountCentsRemaining,
-        percentageRate,
-        frequency,
-        frequencyDuration,
-        frequencyDurationRemaining,
-      } = coupon
+      const { amountCurrency, amountCents, percentageRate, frequency, frequencyDuration } = coupon
+      const amountCentsRemaining =
+        'amountCentsRemaining' in coupon ? coupon.amountCentsRemaining : undefined
+      const frequencyDurationRemaining =
+        'frequencyDurationRemaining' in coupon ? coupon.frequencyDurationRemaining : undefined
       const couponType = amountCents ? CouponTypeEnum.FixedAmount : CouponTypeEnum.Percentage
 
       if (couponType === CouponTypeEnum.FixedAmount && frequency === CouponFrequency.Once) {

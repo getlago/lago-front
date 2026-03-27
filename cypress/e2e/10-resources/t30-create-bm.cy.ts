@@ -1,3 +1,5 @@
+import { DESKTOP_ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
+
 describe('Create billable metrics', () => {
   beforeEach(() => {
     cy.login().visit('/billable-metrics')
@@ -8,7 +10,7 @@ describe('Create billable metrics', () => {
     const bmName = `bm count ${randomId}`
     const bmCode = `bm_count_${randomId}`
 
-    cy.get('button[data-test="create-bm"]').click()
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-bm"]`).click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/billable-metrics')
     cy.get('input[name="name"]').type(bmName)
     cy.get('[data-test="submit"]').should('be.disabled')
@@ -31,7 +33,7 @@ describe('Create billable metrics', () => {
     const bmName = `bm uniq count ${randomId}`
     const bmCode = `bm_uniq_count_${randomId}`
 
-    cy.get('[data-test="create-bm"]').click()
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-bm"]`).click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/billable-metrics')
     cy.get('input[name="name"]').type(bmName)
     cy.get('[data-test="submit"]').should('be.disabled')
@@ -56,7 +58,7 @@ describe('Create billable metrics', () => {
     const bmName = `bm max ${randomId}`
     const bmCode = `bm_max_${randomId}`
 
-    cy.get('[data-test="create-bm"]').click()
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-bm"]`).click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/billable-metrics')
     cy.get('input[name="name"]').type(bmName)
     cy.get('[data-test="submit"]').should('be.disabled')
@@ -80,7 +82,7 @@ describe('Create billable metrics', () => {
     const bmName = `bm sum ${randomId}`
     const bmCode = `bm_sum_${randomId}`
 
-    cy.get('[data-test="create-bm"]').click()
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-bm"]`).click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/billable-metrics')
     cy.get('input[name="name"]').type(bmName)
     cy.get('[data-test="submit"]').should('be.disabled')
@@ -104,7 +106,7 @@ describe('Create billable metrics', () => {
     const bmName = `bm recurring count ${randomId}`
     const bmCode = `bm_recurring_count_${randomId}`
 
-    cy.get('[data-test="create-bm"]').click()
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-bm"]`).click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/billable-metrics')
     cy.get('input[name="name"]').type(bmName)
     cy.get('[data-test="submit"]').should('be.disabled')
@@ -127,7 +129,7 @@ describe('Create billable metrics', () => {
     const bmName = `bm weighted sum ${randomId}`
     const bmCode = `bm_weighted_sum_${randomId}`
 
-    cy.get('[data-test="create-bm"]').click()
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-bm"]`).click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/billable-metrics')
     cy.get('input[name="name"]').type(bmName)
     cy.get('[data-test="submit"]').should('be.disabled')

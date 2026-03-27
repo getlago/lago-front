@@ -3,12 +3,10 @@ import { useRef } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Popper } from '~/components/designSystem/Popper'
-import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
-import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import {
   AddFlutterwaveDialog,
   AddFlutterwaveDialogRef,
@@ -28,7 +26,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import Flutterwave from '~/public/images/flutterwave.svg'
-import { MenuPopper, PageHeader, PopperOpener } from '~/styles'
+import { MenuPopper, PopperOpener } from '~/styles'
 
 gql`
   fragment FlutterwaveIntegrations on FlutterwaveProvider {
@@ -81,42 +79,37 @@ const FlutterwaveIntegrations = () => {
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <ButtonLink
-            to={generatePath(INTEGRATIONS_ROUTE, {
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: translate('text_62b1edddbf5f461ab9712750'),
+            path: generatePath(INTEGRATIONS_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Community,
-            })}
-            type="button"
-            buttonProps={{ variant: 'quaternary', icon: 'arrow-left' }}
-          />
-          {loading ? (
-            <Skeleton className="w-30" variant="text" />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary">
-              {translate('text_1749724395108m0swrna0zt4')}
-            </Typography>
-          )}
-        </PageHeader.Group>
-
-        {canCreateIntegration && (
-          <Button
-            variant="primary"
-            onClick={() => {
-              addDialogRef.current?.openDialog()
-            }}
-          >
-            {translate('text_65846763e6140b469140e235')}
-          </Button>
-        )}
-      </PageHeader.Wrapper>
-
-      <IntegrationsPage.Header
-        isLoading={loading}
-        integrationLogo={<Flutterwave />}
-        integrationName={translate('text_1749725331374clf07sez01f')}
-        integrationChip={translate('text_634ea0ecc6147de10ddb662d')}
-        integrationDescription={translate('text_62b1edddbf5f461ab971271f')}
+            }),
+          },
+        ]}
+        entity={{
+          viewName: translate('text_1749725331374clf07sez01f'),
+          viewNameLoading: loading,
+          metadata: translate('text_62b1edddbf5f461ab971271f'),
+          metadataLoading: loading,
+          badges: [{ type: 'default', label: translate('text_634ea0ecc6147de10ddb662d') }],
+          icon: <Flutterwave />,
+        }}
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_65846763e6140b469140e235'),
+              variant: 'primary',
+              hidden: !canCreateIntegration,
+              onClick: () => {
+                addDialogRef.current?.openDialog()
+              },
+            },
+          ],
+          loading,
+        }}
       />
 
       <IntegrationsPage.Container>

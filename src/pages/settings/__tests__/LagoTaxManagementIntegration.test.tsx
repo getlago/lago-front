@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { useEffect, useReducer } from 'react'
 
 import { WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID } from '~/components/designSystem/WarningDialog'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { CountryCode } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
@@ -78,7 +79,12 @@ const PageWithRefCapture = () => {
     forceUpdate()
   }, [])
 
-  return <LagoTaxManagementIntegration />
+  return (
+    <>
+      <MainHeader />
+      <LagoTaxManagementIntegration />
+    </>
+  )
 }
 
 describe('LagoTaxManagementIntegration', () => {
@@ -99,7 +105,10 @@ describe('LagoTaxManagementIntegration', () => {
       it('THEN should display the remove connection button', async () => {
         await renderPage()
 
-        expect(screen.getByTestId(LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID)).toBeInTheDocument()
+        // MainHeader renders actions in both mobile and desktop layouts
+        expect(
+          screen.getAllByTestId(LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID).length,
+        ).toBeGreaterThanOrEqual(1)
       })
     })
   })
@@ -115,7 +124,7 @@ describe('LagoTaxManagementIntegration', () => {
 
         await renderPage()
 
-        const removeButton = screen.getByTestId(LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID)
+        const removeButton = screen.getAllByTestId(LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID)[0]
 
         await user.click(removeButton)
 
@@ -139,7 +148,7 @@ describe('LagoTaxManagementIntegration', () => {
 
         await renderPage()
 
-        const removeButton = screen.getByTestId(LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID)
+        const removeButton = screen.getAllByTestId(LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID)[0]
 
         await user.click(removeButton)
 
@@ -165,7 +174,7 @@ describe('LagoTaxManagementIntegration', () => {
 
         await renderPage()
 
-        const removeButton = screen.getByTestId(LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID)
+        const removeButton = screen.getAllByTestId(LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID)[0]
 
         await user.click(removeButton)
 
@@ -187,7 +196,7 @@ describe('LagoTaxManagementIntegration', () => {
 
         await renderPage()
 
-        const removeButton = screen.getByTestId(LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID)
+        const removeButton = screen.getAllByTestId(LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID)[0]
 
         await user.click(removeButton)
 

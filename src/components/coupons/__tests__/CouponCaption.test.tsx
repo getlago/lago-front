@@ -1,7 +1,7 @@
 import { act, cleanup, screen } from '@testing-library/react'
 
-import { CouponCaption, CouponMixedType } from '~/components/coupons/CouponCaption'
-import { CouponFrequency, CurrencyEnum } from '~/generated/graphql'
+import { CouponCaption } from '~/components/coupons/CouponCaption'
+import { AppliedCouponCaptionFragment, CouponFrequency, CurrencyEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 const amountCurrency = CurrencyEnum.Usd
@@ -273,7 +273,7 @@ const couponsDataSet = [
   },
 ]
 
-async function prepare(coupon: CouponMixedType = {} as CouponMixedType) {
+async function prepare(coupon: AppliedCouponCaptionFragment = {} as AppliedCouponCaptionFragment) {
   await act(() => render(<CouponCaption coupon={coupon} />))
 }
 
@@ -284,7 +284,7 @@ describe('CouponCaption', () => {
     const { id, result, ...dataSet } = couponsDataSet[i]
 
     it(`renders case ${id}`, async () => {
-      await prepare(dataSet as CouponMixedType)
+      await prepare(dataSet as AppliedCouponCaptionFragment)
 
       expect(screen.getByTestId('coupon-caption')).toHaveTextContent(result)
     })

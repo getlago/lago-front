@@ -219,7 +219,26 @@ describe('mapFromFormToApi', () => {
       expect(result.city).toBeUndefined()
       expect(result.state).toBeUndefined()
       expect(result.zipcode).toBeUndefined()
-      expect(result.country).toBeUndefined()
+      expect(result.country).toBeNull()
+    })
+
+    it('should map undefined billing country to null (cleared combobox)', () => {
+      const formValues: CreateCustomerDefaultValues = {
+        ...emptyCreateCustomerDefaultValues,
+        externalId: 'customer-123',
+        billingAddress: {
+          addressLine1: '123 Main St',
+          addressLine2: '',
+          city: 'New York',
+          state: 'NY',
+          zipcode: '10001',
+          country: undefined,
+        },
+      }
+
+      const result = mapFromFormToApi(formValues, {})
+
+      expect(result.country).toBeNull()
     })
   })
 
@@ -248,6 +267,25 @@ describe('mapFromFormToApi', () => {
         zipcode: '90210',
         country: CountryCode.Us,
       })
+    })
+
+    it('should map undefined shipping country to null (cleared combobox)', () => {
+      const formValues: CreateCustomerDefaultValues = {
+        ...emptyCreateCustomerDefaultValues,
+        externalId: 'customer-123',
+        shippingAddress: {
+          addressLine1: '456 Oak Ave',
+          addressLine2: '',
+          city: 'Los Angeles',
+          state: 'CA',
+          zipcode: '90210',
+          country: undefined,
+        },
+      }
+
+      const result = mapFromFormToApi(formValues, {})
+
+      expect(result.shippingAddress?.country).toBeNull()
     })
 
     it('should return null when shipping address is empty', () => {

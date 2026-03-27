@@ -5,7 +5,14 @@ import { Button } from '~/components/designSystem/Button'
 import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { AmountInput, Switch, TextInput } from '~/components/form'
+import {
+  AmountInput,
+  AmountValueFormatter,
+  Switch,
+  TextInput,
+  ValueFormatter,
+  ValueFormatterType,
+} from '~/components/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, ThresholdInput } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
@@ -14,8 +21,14 @@ export const isThresholdValueValid = (
   index: number,
   value: string,
   previousThreshold: ThresholdInput[],
+  reverse?: boolean,
 ) => {
-  return index > 0 && value !== '' && Number(value) <= Number(previousThreshold[index - 1]?.value)
+  const valueNum = Number(value)
+  const previous = Number(previousThreshold[index - 1]?.value)
+
+  const compared = reverse ? valueNum >= previous : valueNum <= previous
+
+  return index > 0 && value !== '' && compared
 }
 
 const ValueInput = ({
@@ -25,6 +38,8 @@ const ValueInput = ({
   shouldHandleUnits = false,
   translate,
   value,
+  unitsLabel,
+  allowNegativeValues,
 }: {
   currency: CurrencyEnum
   onChange: (value: string) => void
@@ -32,12 +47,19 @@ const ValueInput = ({
   shouldDisplayError?: boolean
   shouldHandleUnits?: boolean
   translate: TranslateFunc
+  unitsLabel?: string
+  allowNegativeValues?: boolean
 }) => {
   if (shouldHandleUnits) {
+    const beforeChangeFormatter: ValueFormatterType[] = [
+      ...(allowNegativeValues ? [] : [ValueFormatter.positiveNumber]),
+      ValueFormatter.int,
+    ]
+
     return (
       <TextInput
         variant="outlined"
-        beforeChangeFormatter={['positiveNumber', 'int']}
+        beforeChangeFormatter={beforeChangeFormatter}
         error={shouldDisplayError}
         value={value}
         onChange={onChange}
@@ -45,7 +67,7 @@ const ValueInput = ({
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
-              {translate('text_6282085b4f283b0102655884')}
+              {unitsLabel || translate('text_6282085b4f283b0102655884')}
             </InputAdornment>
           ),
         }}
@@ -53,11 +75,15 @@ const ValueInput = ({
     )
   }
 
+  const beforeChangeFormatter: AmountValueFormatter[] = allowNegativeValues
+    ? []
+    : [ValueFormatter.positiveNumber]
+
   return (
     <AmountInput
       variant="outlined"
       error={shouldDisplayError}
-      beforeChangeFormatter={['positiveNumber']}
+      beforeChangeFormatter={beforeChangeFormatter}
       currency={currency}
       value={value}
       onChange={onChange}
@@ -76,6 +102,10 @@ const AlertThresholds = ({
   setThresholdValue,
   currency,
   shouldHandleUnits,
+  unitsLabel,
+  unitsTitle,
+  reversedThreshold,
+  allowNegativeValues,
 }: {
   thresholds: ThresholdInput[]
   setThresholds: (thresholds: ThresholdInput[]) => void
@@ -90,6 +120,10 @@ const AlertThresholds = ({
   }) => void
   currency: CurrencyEnum
   shouldHandleUnits: boolean
+  unitsLabel?: string
+  unitsTitle?: string
+  reversedThreshold?: boolean
+  allowNegativeValues?: boolean
 }) => {
   const { translate } = useInternationalization()
 
@@ -176,7 +210,7 @@ const AlertThresholds = ({
                   <Typography className="px-4" variant="captionHl">
                     {translate(
                       shouldHandleUnits
-                        ? 'text_1748858070139kmh56doz3la'
+                        ? unitsTitle || 'text_1748858070139kmh56doz3la'
                         : 'text_1748858044483q61vd2npre7',
                     )}
                   </Typography>
@@ -186,14 +220,22 @@ const AlertThresholds = ({
                     i,
                     row.value,
                     nonRecurringThresholds,
+                    reversedThreshold,
+                  )
+
+                  const tooltipTitle = translate(
+                    reversedThreshold
+                      ? 'text_1773223136519pcuvc8zwoyf'
+                      : 'text_1724252232460i4tv7384iiy',
+                    {
+                      value: nonRecurringThresholds[i - 1]?.value,
+                    },
                   )
 
                   return (
                     <Tooltip
                       placement="top"
-                      title={translate('text_1724252232460i4tv7384iiy', {
-                        value: nonRecurringThresholds[i - 1]?.value,
-                      })}
+                      title={tooltipTitle}
                       disableHoverListener={!shouldDisplayError}
                     >
                       <ValueInput
@@ -209,6 +251,8 @@ const AlertThresholds = ({
                         shouldHandleUnits={shouldHandleUnits}
                         translate={translate}
                         value={row.value}
+                        unitsLabel={unitsLabel}
+                        allowNegativeValues={allowNegativeValues}
                       />
                     </Tooltip>
                   )
@@ -278,6 +322,8 @@ const AlertThresholds = ({
                     shouldHandleUnits={shouldHandleUnits}
                     translate={translate}
                     value={row.value}
+                    unitsLabel={unitsLabel}
+                    allowNegativeValues={allowNegativeValues}
                   />
                 ),
               },

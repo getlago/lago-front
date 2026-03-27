@@ -8,7 +8,7 @@ import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Table } from '~/components/designSystem/Table'
+import { Table, TableContainerSize } from '~/components/designSystem/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import {
@@ -32,6 +32,7 @@ import { CREATE_WALLET_TOP_UP_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { ResponsiveStyleValue } from '~/core/utils/responsiveProps'
 import {
   CurrencyEnum,
   TimezoneEnum,
@@ -98,6 +99,7 @@ interface WalletTransactionListProps {
   wallet: WalletInfosForTransactionsFragment
   footer: ReactNode
   selectedTransaction?: string | null
+  containerSize?: ResponsiveStyleValue<TableContainerSize>
 }
 
 export const WalletTransactionList: FC<WalletTransactionListProps> = ({
@@ -106,6 +108,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
   wallet,
   footer,
   selectedTransaction,
+  containerSize = 16,
 }) => {
   const { translate } = useInternationalization()
   const { customerId } = useParams()
@@ -123,7 +126,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
   const hasData = !!list && !!list?.length
   const hasError = !!error && !loading
   const isLoading = loading && !error
-  const isWalletEmpty = !hasData && wallet?.status !== WalletStatusEnum.Terminated
+  const isWalletEmpty = !hasData && wallet?.id && wallet?.status !== WalletStatusEnum.Terminated
 
   useEffect(() => {
     if (isOpen && !data && !loading && !error) {
@@ -197,7 +200,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
             <Table
               name="wallet-transactions-list"
               data={list || []}
-              containerSize={16}
+              containerSize={containerSize}
               rowSize={72}
               isLoading={isLoading}
               hasError={!!error}

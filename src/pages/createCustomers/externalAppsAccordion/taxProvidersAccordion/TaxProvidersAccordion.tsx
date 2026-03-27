@@ -149,6 +149,7 @@ const TaxProvidersAccordion = withForm({
       const providerType = getTaxProviderFromCode(value)
 
       form.setFieldValue('taxCustomer.providerType', providerType)
+      form.setFieldValue('taxCustomer.id', undefined)
     }
 
     return (

@@ -158,6 +158,9 @@ const AccountingProvidersAccordion = withForm({
       const providerType = getAccountingProviderFromCode(value)
 
       form.setFieldValue('accountingCustomer.providerType', providerType)
+      // Clear the integration customer id when switching integrations
+      // so the backend creates a new link instead of trying to update a stale one
+      form.setFieldValue('accountingCustomer.id', undefined)
     }
 
     return (

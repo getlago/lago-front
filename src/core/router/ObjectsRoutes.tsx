@@ -44,6 +44,8 @@ const CouponDetails = lazyLoad(() => import('~/pages/CouponDetails'))
 const PaymentDetails = lazyLoad(() => import('~/pages/PaymentDetails'))
 const BillableMetricDetails = lazyLoad(() => import('~/pages/BillableMetricDetails'))
 const FeatureDetails = lazyLoad(() => import('~/pages/features/FeatureDetails'))
+const WalletDetails = lazyLoad(() => import('~/pages/wallet/WalletDetails'))
+const WalletAlertForm = lazyLoad(() => import('~/pages/wallet/WalletAlertForm'))
 
 // ----------- Routes -----------
 // Lists
@@ -97,6 +99,11 @@ export const EDIT_WALLET_ROUTE = '/customer/:customerId/wallet/:walletId'
 export const CREATE_WALLET_TOP_UP_ROUTE = '/customer/:customerId/wallet/:walletId/top-up'
 export const VOID_CREATE_WALLET_TOP_UP_ROUTE =
   '/customer/:customerId/wallet/:walletId/top-up/:voidedInvoiceId'
+
+export const WALLET_DETAILS_ROUTE = '/customer/:customerId/wallet-details/:walletId/:tab'
+export const CREATE_ALERT_WALLET_ROUTE = '/customer/:customerId/wallet/:walletId/alert/create'
+export const UPDATE_ALERT_WALLET_ROUTE =
+  '/customer/:customerId/wallet/:walletId/alert/:alertId/edit'
 
 export const CREATE_PAYMENT_ROUTE = '/create/payment'
 export const CREATE_INVOICE_PAYMENT_ROUTE = '/invoice/:invoiceId/create/payment'
@@ -196,6 +203,11 @@ export const objectListRoutes: CustomRouteObject[] = [
     element: <FeaturesList />,
     permissions: ['featuresView'],
   },
+  {
+    path: [WALLET_DETAILS_ROUTE],
+    private: true,
+    element: <WalletDetails />,
+  },
 ]
 
 export const objectCreationRoutes: CustomRouteObject[] = [
@@ -203,7 +215,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     path: [CREATE_CUSTOMER_ROUTE, UPDATE_CUSTOMER_ROUTE],
     private: true,
     element: <CreateCustomer />,
-    permissions: ['customersCreate', 'customersUpdate'],
+    permissionsOr: ['customersCreate', 'customersUpdate'],
   },
   {
     path: [CREATE_API_KEYS_ROUTE, UPDATE_API_KEYS_ROUTE],
@@ -221,13 +233,13 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     path: [CREATE_ADD_ON_ROUTE, UPDATE_ADD_ON_ROUTE],
     private: true,
     element: <CreateAddOn />,
-    permissions: ['addonsCreate', 'addonsUpdate'],
+    permissionsOr: ['addonsCreate', 'addonsUpdate'],
   },
   {
     path: [CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE],
     private: true,
     element: <CreateCoupon />,
-    permissions: ['couponsCreate', 'couponsUpdate'],
+    permissionsOr: ['couponsCreate', 'couponsUpdate'],
   },
   {
     path: [
@@ -237,13 +249,13 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     ],
     private: true,
     element: <CreateBillableMetric />,
-    permissions: ['billableMetricsCreate', 'billableMetricsUpdate'],
+    permissionsOr: ['billableMetricsCreate', 'billableMetricsUpdate'],
   },
   {
     path: [CREATE_PLAN_ROUTE, UPDATE_PLAN_ROUTE],
     private: true,
     element: <CreatePlan />,
-    permissions: ['plansCreate', 'plansUpdate'],
+    permissionsOr: ['plansCreate', 'plansUpdate'],
   },
   {
     path: [CREATE_TAX_ROUTE, UPDATE_TAX_ROUTE],
@@ -261,13 +273,13 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     path: [CREATE_SUBSCRIPTION, UPDATE_SUBSCRIPTION, UPGRADE_DOWNGRADE_SUBSCRIPTION],
     private: true,
     element: <CreateSubscription />,
-    permissions: ['subscriptionsCreate', 'subscriptionsUpdate'],
+    permissionsOr: ['subscriptionsCreate', 'subscriptionsUpdate'],
   },
   {
     path: [CREATE_WALLET_ROUTE, EDIT_WALLET_ROUTE],
     private: true,
     element: <CreateWallet />,
-    permissions: ['walletsCreate', 'walletsUpdate'],
+    permissionsOr: ['walletsCreate', 'walletsUpdate'],
   },
   {
     path: [CREATE_WALLET_TOP_UP_ROUTE, VOID_CREATE_WALLET_TOP_UP_ROUTE],
@@ -290,7 +302,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     ],
     private: true,
     element: <AlertForm />,
-    permissions: ['subscriptionsCreate', 'subscriptionsUpdate'],
+    permissionsOr: ['subscriptionsCreate', 'subscriptionsUpdate'],
   },
   {
     path: [
@@ -301,7 +313,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     ],
     private: true,
     element: <SubscriptionEntitlementForm />,
-    permissions: ['subscriptionsCreate', 'subscriptionsUpdate'],
+    permissionsOr: ['subscriptionsCreate', 'subscriptionsUpdate'],
   },
   {
     path: [
@@ -310,13 +322,19 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     ],
     private: true,
     element: <SubscriptionProgressiveBillingForm />,
-    permissions: ['subscriptionsCreate', 'subscriptionsUpdate'],
+    permissionsOr: ['subscriptionsCreate', 'subscriptionsUpdate'],
   },
   {
     path: [CREATE_FEATURE_ROUTE, UPDATE_FEATURE_ROUTE],
     private: true,
     element: <FeatureForm />,
-    permissions: ['featuresCreate', 'featuresUpdate'],
+    permissionsOr: ['featuresCreate', 'featuresUpdate'],
+  },
+  {
+    path: [CREATE_ALERT_WALLET_ROUTE, UPDATE_ALERT_WALLET_ROUTE],
+    private: true,
+    element: <WalletAlertForm />,
+    permissions: ['walletsUpdate'],
   },
 ]
 

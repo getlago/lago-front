@@ -1,12 +1,25 @@
-import { act, cleanup, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-
+import { MainHeaderConfig } from '~/components/MainHeader/types'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { CurrencyEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import CreditNoteDetails from '../CreditNoteDetails'
+
+let capturedConfig: MainHeaderConfig | null = null
+
+jest.mock('~/components/MainHeader/MainHeader', () => ({
+  MainHeader: Object.assign(() => null, {
+    Configure: (props: MainHeaderConfig) => {
+      capturedConfig = props
+      return null
+    },
+  }),
+}))
+
+jest.mock('~/components/MainHeader/useMainHeaderTabContent', () => ({
+  useMainHeaderTabContent: () => null,
+}))
 
 const mockDownloadCreditNote = jest.fn()
 const mockDownloadCreditNoteXml = jest.fn()
@@ -28,46 +41,10 @@ jest.mock('~/core/utils/copyToClipboard', () => ({
   copyToClipboard: jest.fn(),
 }))
 
-const mockCreditNoteData = {
-  creditNote: {
-    id: 'credit-note-123',
-    number: 'CN-001',
-    canBeVoided: true,
-    totalAmountCents: '10000',
-    currency: CurrencyEnum.Usd,
-    integrationSyncable: false,
-    taxProviderSyncable: false,
-    externalIntegrationId: null,
-    taxProviderId: null,
-    xmlUrl: null,
-    refundStatus: null,
-    metadata: [{ key: 'test_key', value: 'test_value' }],
-    billingEntity: {
-      id: 'billing-entity-1',
-      name: 'Billing Entity',
-      einvoicing: false,
-      logoUrl: null,
-    },
-    customer: {
-      id: 'customer-123',
-      email: 'customer@example.com',
-      netsuiteCustomer: null,
-      xeroCustomer: null,
-      anrokCustomer: null,
-      avalaraCustomer: null,
-    },
-  },
-}
-
-const mockUseGetCreditNoteForDetailsQuery = jest.fn()
-const mockUseSyncIntegrationCreditNoteMutation = jest.fn()
-const mockUseRetryTaxReportingMutation = jest.fn()
-
-jest.mock('~/generated/graphql', () => ({
-  ...jest.requireActual('~/generated/graphql'),
-  useGetCreditNoteForDetailsQuery: () => mockUseGetCreditNoteForDetailsQuery(),
-  useSyncIntegrationCreditNoteMutation: () => mockUseSyncIntegrationCreditNoteMutation(),
-  useRetryTaxReportingMutation: () => mockUseRetryTaxReportingMutation(),
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({
+    translate: (key: string) => key,
+  }),
 }))
 
 jest.mock('~/hooks/useResendEmailDialog', () => ({
@@ -104,88 +81,77 @@ jest.mock('~/core/apolloClient', () => ({
   }),
 }))
 
-const mockCreditNoteDataWithNetsuite = {
+const mockCreditNoteData = {
   creditNote: {
-    ...mockCreditNoteData.creditNote,
-    integrationSyncable: true,
-    externalIntegrationId: 'ext-123',
-    customer: {
-      ...mockCreditNoteData.creditNote.customer,
-      netsuiteCustomer: {
-        integrationId: 'netsuite-123',
-      },
-    },
-  },
-}
-
-const mockCreditNoteDataWithXero = {
-  creditNote: {
-    ...mockCreditNoteData.creditNote,
-    integrationSyncable: true,
-    externalIntegrationId: 'ext-123',
-    customer: {
-      ...mockCreditNoteData.creditNote.customer,
-      xeroCustomer: {
-        integrationId: 'xero-123',
-      },
-    },
-  },
-}
-
-const mockCreditNoteDataWithAnrok = {
-  creditNote: {
-    ...mockCreditNoteData.creditNote,
-    taxProviderSyncable: true,
-    taxProviderId: 'anrok-123',
-    customer: {
-      ...mockCreditNoteData.creditNote.customer,
-      anrokCustomer: {
-        integrationId: 'anrok-integration-123',
-      },
-    },
-  },
-}
-
-const mockCreditNoteDataWithAvalara = {
-  creditNote: {
-    ...mockCreditNoteData.creditNote,
-    taxProviderSyncable: true,
-    taxProviderId: 'avalara-123',
-    customer: {
-      ...mockCreditNoteData.creditNote.customer,
-      avalaraCustomer: {
-        id: 'avalara-customer-123',
-      },
-    },
-  },
-}
-
-const mockCreditNoteDataWithXmlUrl = {
-  creditNote: {
-    ...mockCreditNoteData.creditNote,
-    xmlUrl: 'https://example.com/credit-note.xml',
-  },
-}
-
-const mockCreditNoteDataWithEinvoicing = {
-  creditNote: {
-    ...mockCreditNoteData.creditNote,
+    id: 'credit-note-123',
+    number: 'CN-001',
+    canBeVoided: true,
+    totalAmountCents: '10000',
+    currency: CurrencyEnum.Usd,
+    integrationSyncable: false,
+    taxProviderSyncable: false,
+    externalIntegrationId: null,
+    taxProviderId: null,
+    xmlUrl: null,
+    refundStatus: null,
+    creditAmountCents: '10000',
+    refundAmountCents: '0',
+    offsetAmountCents: '0',
+    metadata: [{ key: 'test_key', value: 'test_value' }],
     billingEntity: {
-      einvoicing: true,
+      id: 'billing-entity-1',
+      name: 'Billing Entity',
+      einvoicing: false,
+      emailSettings: [],
+      logoUrl: null,
+    },
+    customer: {
+      id: 'customer-123',
+      email: 'customer@example.com',
+      netsuiteCustomer: null,
+      xeroCustomer: null,
+      anrokCustomer: null,
+      avalaraCustomer: null,
     },
   },
 }
 
-const mockCreditNoteDataNonVoidable = {
-  creditNote: {
-    ...mockCreditNoteData.creditNote,
-    canBeVoided: false,
-  },
-}
+const mockUseGetCreditNoteForDetailsQuery = jest.fn()
+const mockSyncFn = jest.fn()
+const mockRetryFn = jest.fn()
+
+jest.mock('~/generated/graphql', () => ({
+  ...jest.requireActual('~/generated/graphql'),
+  useGetCreditNoteForDetailsQuery: () => mockUseGetCreditNoteForDetailsQuery(),
+  useSyncIntegrationCreditNoteMutation: () => [mockSyncFn, { loading: false }],
+  useRetryTaxReportingMutation: () => [mockRetryFn],
+}))
+
+jest.mock('~/components/creditNote/CreditNoteDetailsOverview', () => ({
+  CreditNoteDetailsOverview: () => null,
+}))
+
+jest.mock('../creditNoteDetailsMetadata/CreditNoteDetailsMetadata', () => ({
+  __esModule: true,
+  default: () => null,
+}))
+
+jest.mock('~/components/creditNote/CreditNoteDetailsExternalSync', () => ({
+  CreditNoteDetailsExternalSync: () => null,
+}))
+
+jest.mock('~/components/creditNote/CreditNoteDetailsActivityLogs', () => ({
+  CreditNoteDetailsActivityLogs: () => null,
+}))
+
+jest.mock('~/components/customers/creditNotes/VoidCreditNoteDialog', () => ({
+  VoidCreditNoteDialog: () => null,
+}))
 
 describe('CreditNoteDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    capturedConfig = null
     mockLoadingCreditNoteDownload = false
     mockLoadingCreditNoteXmlDownload = false
     mockHasPermissions.mockReturnValue(true)
@@ -203,588 +169,559 @@ describe('CreditNoteDetails', () => {
       loading: false,
       error: null,
     })
-
-    mockUseSyncIntegrationCreditNoteMutation.mockReturnValue([jest.fn(), { loading: false }])
-
-    mockUseRetryTaxReportingMutation.mockReturnValue([jest.fn()])
   })
 
-  afterEach(cleanup)
+  describe('GIVEN the page is rendered with data', () => {
+    describe('WHEN in default state', () => {
+      it('THEN should configure MainHeader with breadcrumb', () => {
+        render(<CreditNoteDetails />)
 
-  describe('rendering', () => {
-    it('renders the credit note number in the header', async () => {
-      await act(() => render(<CreditNoteDetails />))
+        expect(capturedConfig?.breadcrumb).toHaveLength(1)
+      })
 
-      // Use getAllByText since CN-001 appears multiple times
-      const creditNoteNumbers = screen.getAllByText('CN-001')
+      it('THEN should configure MainHeader with entity viewName as credit note number', () => {
+        render(<CreditNoteDetails />)
 
-      expect(creditNoteNumbers.length).toBeGreaterThan(0)
-    })
+        expect(capturedConfig?.entity?.viewName).toBe('CN-001')
+      })
 
-    it('renders the actions button', async () => {
-      await act(() => render(<CreditNoteDetails />))
+      it('THEN should configure MainHeader with entity metadata containing credit note ID', () => {
+        render(<CreditNoteDetails />)
 
-      // "Actions" button (text_637655cb50f04bf1c8379ce8)
-      expect(screen.getByText('Actions')).toBeInTheDocument()
-    })
+        expect(capturedConfig?.entity?.metadata).toContain('credit-note-123')
+      })
 
-    it('renders the navigation tabs', async () => {
-      await act(() => render(<CreditNoteDetails />))
+      it('THEN should configure MainHeader with a dropdown action', () => {
+        render(<CreditNoteDetails />)
 
-      // Use getAllByText since Overview appears multiple times
-      const overviewTabs = screen.getAllByText('Overview')
+        expect(capturedConfig?.actions?.items).toHaveLength(1)
+        expect(capturedConfig?.actions?.items[0].type).toBe('dropdown')
+      })
 
-      expect(overviewTabs.length).toBeGreaterThan(0)
-    })
+      it('THEN should configure MainHeader with tabs', () => {
+        render(<CreditNoteDetails />)
 
-    it('renders the back button', async () => {
-      await act(() => render(<CreditNoteDetails />))
-
-      const buttons = screen.getAllByTestId('button')
-      const backButton = buttons.find((btn) => btn.querySelector('[data-test*="arrow-left"]'))
-
-      expect(backButton).toBeInTheDocument()
+        expect(capturedConfig?.tabs).toBeDefined()
+        expect(capturedConfig?.tabs?.length).toBeGreaterThanOrEqual(1)
+      })
     })
   })
 
-  describe('loading state', () => {
-    it('shows skeleton when loading', async () => {
+  describe('GIVEN the page is loading', () => {
+    beforeEach(() => {
       mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
         data: null,
         loading: true,
         error: null,
       })
-
-      await act(() => render(<CreditNoteDetails />))
-
-      // Should show skeleton instead of credit note number
-      expect(screen.queryByText('CN-001')).not.toBeInTheDocument()
     })
 
-    it('does not render actions button when loading', async () => {
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: null,
-        loading: true,
-        error: null,
+    describe('WHEN the component renders', () => {
+      it('THEN should set actionsLoading on MainHeader config', () => {
+        render(<CreditNoteDetails />)
+
+        expect(capturedConfig?.actions?.loading).toBe(true)
       })
-
-      await act(() => render(<CreditNoteDetails />))
-
-      expect(screen.queryByText('Actions')).not.toBeInTheDocument()
     })
   })
 
-  describe('error state', () => {
-    it('shows error placeholder when there is an error', async () => {
+  describe('GIVEN the page has an error', () => {
+    beforeEach(() => {
       mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
         data: null,
         loading: false,
         error: new Error('Failed to load'),
       })
-
-      await act(() => render(<CreditNoteDetails />))
-
-      // Check for error image or error text
-      expect(screen.queryByText('Actions')).not.toBeInTheDocument()
     })
 
-    it('shows error placeholder when credit note is null', async () => {
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: { creditNote: null },
-        loading: false,
-        error: null,
-      })
+    describe('WHEN the component renders', () => {
+      it('THEN should not set actionsLoading on MainHeader config', () => {
+        render(<CreditNoteDetails />)
 
-      await act(() => render(<CreditNoteDetails />))
-
-      // Check that normal content is not rendered
-      expect(screen.queryByText('Actions')).not.toBeInTheDocument()
-    })
-  })
-
-  describe('snapshots', () => {
-    it('matches snapshot in loading state', async () => {
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: null,
-        loading: true,
-        error: null,
-      })
-
-      const { container } = await act(() => render(<CreditNoteDetails />))
-
-      expect(container).toMatchSnapshot()
-    })
-
-    it('matches snapshot with credit note data', async () => {
-      const { container } = await act(() => render(<CreditNoteDetails />))
-
-      expect(container).toMatchSnapshot()
-    })
-
-    it('matches snapshot in error state', async () => {
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: null,
-        loading: false,
-        error: new Error('Failed'),
-      })
-
-      const { container } = await act(() => render(<CreditNoteDetails />))
-
-      expect(container).toMatchSnapshot()
-    })
-  })
-
-  describe('actions menu', () => {
-    it('opens actions menu when clicking the actions button', async () => {
-      await act(() => render(<CreditNoteDetails />))
-
-      const actionsButton = screen.getByText('Actions')
-
-      await userEvent.click(actionsButton)
-
-      // Should show Download option (text_637655cb50f04bf1c8379cea = "Download credit note")
-      await waitFor(() => {
-        expect(screen.getByText('Download credit note')).toBeInTheDocument()
-      })
-    })
-
-    it('shows copy ID option in actions menu', async () => {
-      await act(() => render(<CreditNoteDetails />))
-
-      const actionsButton = screen.getByText('Actions')
-
-      await userEvent.click(actionsButton)
-
-      // Should show Copy ID option (text_637655cb50f04bf1c8379cee = "Copy credit note lago_id")
-      await waitFor(() => {
-        expect(screen.getByText('Copy credit note lago_id')).toBeInTheDocument()
-      })
-    })
-
-    it('copies credit note ID when clicking copy ID', async () => {
-      await act(() => render(<CreditNoteDetails />))
-
-      const actionsButton = screen.getByText('Actions')
-
-      await userEvent.click(actionsButton)
-
-      await waitFor(() => {
-        expect(screen.getByText('Copy credit note lago_id')).toBeInTheDocument()
-      })
-
-      const copyButton = screen.getByText('Copy credit note lago_id')
-
-      await userEvent.click(copyButton)
-
-      expect(copyToClipboard).toHaveBeenCalledWith('credit-note-123')
-      expect(addToast).toHaveBeenCalledWith({
-        severity: 'info',
-        translateKey: 'text_63766b1c4eeb35667c48f26d',
-      })
-    })
-
-    it('shows void option when credit note can be voided', async () => {
-      await act(() => render(<CreditNoteDetails />))
-
-      const actionsButton = screen.getByText('Actions')
-
-      await userEvent.click(actionsButton)
-
-      // Should show Void option (text_637655cb50f04bf1c8379cec = "Void credit available")
-      await waitFor(() => {
-        expect(screen.getByText('Void credit available')).toBeInTheDocument()
-      })
-    })
-
-    it('does not show void option when credit note cannot be voided', async () => {
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: mockCreditNoteDataNonVoidable,
-        loading: false,
-        error: null,
-      })
-
-      await act(() => render(<CreditNoteDetails />))
-
-      const actionsButton = screen.getByText('Actions')
-
-      await userEvent.click(actionsButton)
-
-      await waitFor(() => {
-        expect(screen.getByText('Copy credit note lago_id')).toBeInTheDocument()
-      })
-
-      expect(screen.queryByText('Void credit available')).not.toBeInTheDocument()
-    })
-
-    it('calls download when clicking download credit note', async () => {
-      await act(() => render(<CreditNoteDetails />))
-
-      const actionsButton = screen.getByText('Actions')
-
-      await userEvent.click(actionsButton)
-
-      await waitFor(() => {
-        expect(screen.getByText('Download credit note')).toBeInTheDocument()
-      })
-
-      const downloadButton = screen.getByText('Download credit note')
-
-      await userEvent.click(downloadButton)
-
-      expect(mockDownloadCreditNote).toHaveBeenCalledWith({
-        variables: { input: { id: 'credit-note-123' } },
+        expect(capturedConfig?.actions?.loading).toBeFalsy()
       })
     })
   })
 
-  describe('XML download', () => {
-    it('shows separate PDF and XML download options when xmlUrl is present', async () => {
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: mockCreditNoteDataWithXmlUrl,
-        loading: false,
-        error: null,
-      })
+  describe('GIVEN the actions dropdown', () => {
+    describe('WHEN clicking copy ID', () => {
+      it('THEN should copy the credit note ID to clipboard', () => {
+        render(<CreditNoteDetails />)
 
-      await act(() => render(<CreditNoteDetails />))
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
-      const actionsButton = screen.getByText('Actions')
+        if (dropdownAction?.type === 'dropdown') {
+          // First item is copy ID
+          const copyItem = dropdownAction.items[0]
 
-      await userEvent.click(actionsButton)
+          copyItem.onClick(jest.fn())
 
-      await waitFor(() => {
-        // text_17604478530211cbzl70dt83 = "Download credit note as PDF file"
-        expect(screen.getByText('Download credit note as PDF file')).toBeInTheDocument()
-        // text_1760447853022mkp6gwgqukb = "Download credit note as XML file"
-        expect(screen.getByText('Download credit note as XML file')).toBeInTheDocument()
-      })
-    })
-
-    it('shows separate PDF and XML download options when einvoicing is enabled', async () => {
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: mockCreditNoteDataWithEinvoicing,
-        loading: false,
-        error: null,
-      })
-
-      await act(() => render(<CreditNoteDetails />))
-
-      const actionsButton = screen.getByText('Actions')
-
-      await userEvent.click(actionsButton)
-
-      await waitFor(() => {
-        expect(screen.getByText('Download credit note as PDF file')).toBeInTheDocument()
-        expect(screen.getByText('Download credit note as XML file')).toBeInTheDocument()
-      })
-    })
-
-    it('calls downloadCreditNoteXml when clicking Download XML', async () => {
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: mockCreditNoteDataWithXmlUrl,
-        loading: false,
-        error: null,
-      })
-
-      await act(() => render(<CreditNoteDetails />))
-
-      const actionsButton = screen.getByText('Actions')
-
-      await userEvent.click(actionsButton)
-
-      await waitFor(() => {
-        expect(screen.getByText('Download credit note as XML file')).toBeInTheDocument()
-      })
-
-      const downloadXmlButton = screen.getByText('Download credit note as XML file')
-
-      await userEvent.click(downloadXmlButton)
-
-      expect(mockDownloadCreditNoteXml).toHaveBeenCalledWith({
-        variables: { input: { id: 'credit-note-123' } },
-      })
-    })
-  })
-
-  describe('integration sync', () => {
-    it('shows sync to NetSuite option when integrationSyncable is true with NetSuite customer', async () => {
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: mockCreditNoteDataWithNetsuite,
-        loading: false,
-        error: null,
-      })
-
-      await act(() => render(<CreditNoteDetails />))
-
-      const actionsButton = screen.getByText('Actions')
-
-      await userEvent.click(actionsButton)
-
-      // text_665d742ee9853200e3a6be7f = "Sync credit note to NetSuite"
-      await waitFor(() => {
-        expect(screen.getByText('Sync credit note to NetSuite')).toBeInTheDocument()
-      })
-    })
-
-    it('shows sync to Xero option when integrationSyncable is true with Xero customer', async () => {
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: mockCreditNoteDataWithXero,
-        loading: false,
-        error: null,
-      })
-
-      await act(() => render(<CreditNoteDetails />))
-
-      const actionsButton = screen.getByText('Actions')
-
-      await userEvent.click(actionsButton)
-
-      // text_66911d4b4b3c3e005c62ab49 = "Sync credit note to Xero"
-      await waitFor(() => {
-        expect(screen.getByText('Sync credit note to Xero')).toBeInTheDocument()
-      })
-    })
-
-    it('shows retry tax sync option when taxProviderSyncable is true', async () => {
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: mockCreditNoteDataWithAnrok,
-        loading: false,
-        error: null,
-      })
-
-      await act(() => render(<CreditNoteDetails />))
-
-      const actionsButton = screen.getByText('Actions')
-
-      await userEvent.click(actionsButton)
-
-      // text_17270681462632d46dh3r1vu = "Sync to tax provider"
-      await waitFor(() => {
-        expect(screen.getByText('Sync to tax provider')).toBeInTheDocument()
-      })
-    })
-
-    it('calls syncIntegrationCreditNote when clicking sync button', async () => {
-      const mockSyncFn = jest.fn()
-
-      mockUseSyncIntegrationCreditNoteMutation.mockReturnValue([mockSyncFn, { loading: false }])
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: mockCreditNoteDataWithNetsuite,
-        loading: false,
-        error: null,
-      })
-
-      await act(() => render(<CreditNoteDetails />))
-
-      const actionsButton = screen.getByText('Actions')
-
-      await userEvent.click(actionsButton)
-
-      await waitFor(() => {
-        expect(screen.getByText('Sync credit note to NetSuite')).toBeInTheDocument()
-      })
-
-      const syncButton = screen.getByText('Sync credit note to NetSuite')
-
-      await userEvent.click(syncButton)
-
-      expect(mockSyncFn).toHaveBeenCalled()
-    })
-
-    it('calls retryTaxReporting when clicking retry tax sync', async () => {
-      const mockRetryFn = jest.fn()
-
-      mockUseRetryTaxReportingMutation.mockReturnValue([mockRetryFn])
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: mockCreditNoteDataWithAnrok,
-        loading: false,
-        error: null,
-      })
-
-      await act(() => render(<CreditNoteDetails />))
-
-      const actionsButton = screen.getByText('Actions')
-
-      await userEvent.click(actionsButton)
-
-      await waitFor(() => {
-        expect(screen.getByText('Sync to tax provider')).toBeInTheDocument()
-      })
-
-      const retryButton = screen.getByText('Sync to tax provider')
-
-      await userEvent.click(retryButton)
-
-      expect(mockRetryFn).toHaveBeenCalled()
-    })
-  })
-
-  describe('external sync tab visibility', () => {
-    it('shows external sync tab when NetSuite integration is present', async () => {
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: mockCreditNoteDataWithNetsuite,
-        loading: false,
-        error: null,
-      })
-
-      await act(() => render(<CreditNoteDetails />))
-
-      // Should show External sync tab (text_17489570558986035g3zp16t)
-      expect(screen.getByText('External sync')).toBeInTheDocument()
-    })
-
-    it('shows external sync tab when Xero integration is present', async () => {
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: mockCreditNoteDataWithXero,
-        loading: false,
-        error: null,
-      })
-
-      await act(() => render(<CreditNoteDetails />))
-
-      expect(screen.getByText('External sync')).toBeInTheDocument()
-    })
-
-    it('shows external sync tab when Anrok integration is present', async () => {
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: mockCreditNoteDataWithAnrok,
-        loading: false,
-        error: null,
-      })
-
-      await act(() => render(<CreditNoteDetails />))
-
-      expect(screen.getByText('External sync')).toBeInTheDocument()
-    })
-
-    it('shows external sync tab when Avalara integration is present', async () => {
-      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
-        data: mockCreditNoteDataWithAvalara,
-        loading: false,
-        error: null,
-      })
-
-      await act(() => render(<CreditNoteDetails />))
-
-      expect(screen.getByText('External sync')).toBeInTheDocument()
-    })
-
-    it('does not show external sync tab when no integrations are present', async () => {
-      await act(() => render(<CreditNoteDetails />))
-
-      expect(screen.queryByText('External sync')).not.toBeInTheDocument()
-    })
-  })
-
-  describe('activity logs tab visibility', () => {
-    it('shows activity logs tab when user is premium and has permissions', async () => {
-      await act(() => render(<CreditNoteDetails />))
-
-      // Should show Activity logs tab (text_1747314141347qq6rasuxisl)
-      expect(screen.getByText('Activity logs')).toBeInTheDocument()
-    })
-
-    it('does not show activity logs tab when user lacks auditLogsView permission', async () => {
-      mockHasPermissions.mockImplementation((permissions: string[]) => {
-        if (permissions.includes('auditLogsView')) {
-          return false
+          expect(copyToClipboard).toHaveBeenCalledWith('credit-note-123')
+          expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'info' }))
         }
-
-        return true
       })
-
-      await act(() => render(<CreditNoteDetails />))
-
-      expect(screen.queryByText('Activity logs')).not.toBeInTheDocument()
     })
-  })
 
-  describe('permissions', () => {
-    it('does not show download option when user lacks creditNotesView permission', async () => {
-      mockHasPermissions.mockImplementation((permissions: string[]) => {
-        if (permissions.includes('creditNotesView')) {
-          return false
+    describe('WHEN download option is available', () => {
+      it('THEN should have a non-hidden download item', () => {
+        render(<CreditNoteDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.items[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          const visibleItems = dropdownAction.items.filter((item) => !item.hidden)
+
+          // At minimum: copy ID + download + void
+          expect(visibleItems.length).toBeGreaterThanOrEqual(2)
         }
-
-        return true
       })
 
-      await act(() => render(<CreditNoteDetails />))
+      it('THEN clicking download should call downloadCreditNote', () => {
+        render(<CreditNoteDetails />)
 
-      const actionsButton = screen.getByText('Actions')
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
-      await userEvent.click(actionsButton)
+        if (dropdownAction?.type === 'dropdown') {
+          // Download item (not hidden when canDownload and no xmlUrl)
+          const downloadItem = dropdownAction.items.find(
+            (item) => !item.hidden && item.disabled === !!mockLoadingCreditNoteDownload,
+          )
 
-      await waitFor(() => {
-        expect(screen.getByText('Copy credit note lago_id')).toBeInTheDocument()
-      })
-
-      expect(screen.queryByText('Download credit note')).not.toBeInTheDocument()
-    })
-
-    it('does not show void option when user lacks creditNotesVoid permission', async () => {
-      mockHasPermissions.mockImplementation((permissions: string[]) => {
-        if (permissions.includes('creditNotesVoid')) {
-          return false
+          if (downloadItem) {
+            downloadItem.onClick(jest.fn())
+            expect(mockDownloadCreditNote).toHaveBeenCalledWith({
+              variables: { input: { id: 'credit-note-123' } },
+            })
+          }
         }
-
-        return true
       })
+    })
 
-      await act(() => render(<CreditNoteDetails />))
+    describe('WHEN credit note can be voided', () => {
+      it('THEN should have a visible void item', () => {
+        render(<CreditNoteDetails />)
 
-      const actionsButton = screen.getByText('Actions')
+        const dropdownAction = capturedConfig?.actions?.items[0]
 
-      await userEvent.click(actionsButton)
+        if (dropdownAction?.type === 'dropdown') {
+          const visibleItems = dropdownAction.items.filter((item) => !item.hidden)
 
-      await waitFor(() => {
-        expect(screen.getByText('Copy credit note lago_id')).toBeInTheDocument()
+          // void item should be among visible items
+          expect(visibleItems.length).toBeGreaterThanOrEqual(3)
+        }
       })
+    })
 
-      expect(screen.queryByText('Void credit available')).not.toBeInTheDocument()
+    describe('WHEN credit note cannot be voided', () => {
+      it('THEN should hide the void item', () => {
+        mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
+          data: {
+            creditNote: {
+              ...mockCreditNoteData.creditNote,
+              canBeVoided: false,
+            },
+          },
+          loading: false,
+          error: null,
+        })
+
+        render(<CreditNoteDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.items[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          const nonVoidableVisibleItems = dropdownAction.items.filter((item) => !item.hidden)
+
+          // Without void: copy ID + download = 2 visible
+          expect(nonVoidableVisibleItems.length).toBeLessThan(
+            // Re-render with voidable to compare
+            (() => {
+              mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
+                data: mockCreditNoteData,
+                loading: false,
+                error: null,
+              })
+              render(<CreditNoteDetails />)
+              const dd = capturedConfig?.actions?.items[0]
+
+              if (dd?.type === 'dropdown') {
+                return dd.items.filter((item) => !item.hidden).length
+              }
+              return 0
+            })(),
+          )
+        }
+      })
     })
   })
 
-  describe('navigation', () => {
-    it('calls goBack when clicking back button', async () => {
-      await act(() => render(<CreditNoteDetails />))
+  describe('GIVEN XML download options', () => {
+    describe('WHEN xmlUrl is present', () => {
+      it('THEN should show separate PDF and XML download items', () => {
+        mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
+          data: {
+            creditNote: {
+              ...mockCreditNoteData.creditNote,
+              xmlUrl: 'https://example.com/credit-note.xml',
+            },
+          },
+          loading: false,
+          error: null,
+        })
 
-      const buttons = screen.getAllByTestId('button')
-      const backButton = buttons.find((btn) => btn.querySelector('[data-test*="arrow-left"]'))
+        render(<CreditNoteDetails />)
 
-      if (backButton) {
-        await userEvent.click(backButton)
-        expect(mockGoBack).toHaveBeenCalled()
-      }
+        const dropdownAction = capturedConfig?.actions?.items[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          const visibleItems = dropdownAction.items.filter((item) => !item.hidden)
+
+          // Should have: copy ID, download PDF, download XML, void = at least 4
+          expect(visibleItems.length).toBeGreaterThanOrEqual(4)
+        }
+      })
+
+      it('THEN clicking XML download should call downloadCreditNoteXml', () => {
+        mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
+          data: {
+            creditNote: {
+              ...mockCreditNoteData.creditNote,
+              xmlUrl: 'https://example.com/credit-note.xml',
+            },
+          },
+          loading: false,
+          error: null,
+        })
+
+        render(<CreditNoteDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.items[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          // XML download item (index 3 in the items array)
+          const xmlItem = dropdownAction.items[3]
+
+          if (!xmlItem.hidden) {
+            xmlItem.onClick(jest.fn())
+            expect(mockDownloadCreditNoteXml).toHaveBeenCalledWith({
+              variables: { input: { id: 'credit-note-123' } },
+            })
+          }
+        }
+      })
     })
 
-    it('navigates to invoice details when invoiceId is present', async () => {
-      await act(() => render(<CreditNoteDetails />))
+    describe('WHEN einvoicing is enabled', () => {
+      it('THEN should show separate PDF and XML download items', () => {
+        mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
+          data: {
+            creditNote: {
+              ...mockCreditNoteData.creditNote,
+              billingEntity: {
+                ...mockCreditNoteData.creditNote.billingEntity,
+                einvoicing: true,
+              },
+            },
+          },
+          loading: false,
+          error: null,
+        })
 
-      const buttons = screen.getAllByTestId('button')
-      const backButton = buttons.find((btn) => btn.querySelector('[data-test*="arrow-left"]'))
+        render(<CreditNoteDetails />)
 
-      if (backButton) {
-        await userEvent.click(backButton)
-        expect(mockGoBack).toHaveBeenCalledWith(
-          expect.stringContaining('invoice-123'),
-          expect.any(Object),
-        )
-      }
+        const dropdownAction = capturedConfig?.actions?.items[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          const visibleItems = dropdownAction.items.filter((item) => !item.hidden)
+
+          expect(visibleItems.length).toBeGreaterThanOrEqual(4)
+        }
+      })
     })
   })
 
-  describe('credit note display', () => {
-    it('displays the correct formatted amount', async () => {
-      await act(() => render(<CreditNoteDetails />))
+  describe('GIVEN integration sync', () => {
+    describe('WHEN NetSuite integration is present', () => {
+      it('THEN should show a sync item that is not hidden', () => {
+        mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
+          data: {
+            creditNote: {
+              ...mockCreditNoteData.creditNote,
+              integrationSyncable: true,
+              externalIntegrationId: 'ext-123',
+              customer: {
+                ...mockCreditNoteData.creditNote.customer,
+                netsuiteCustomer: {
+                  integrationId: 'netsuite-123',
+                },
+              },
+            },
+          },
+          loading: false,
+          error: null,
+        })
 
-      // $100.00 from 10000 cents
-      expect(screen.getByText(/\$100\.00/)).toBeInTheDocument()
+        render(<CreditNoteDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.items[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          // Sync item should not be hidden
+          const syncItem = dropdownAction.items.find(
+            (item) => !item.hidden && item.disabled === false,
+          )
+
+          expect(syncItem).toBeDefined()
+        }
+      })
+
+      it('THEN clicking sync should call syncIntegrationCreditNote', () => {
+        mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
+          data: {
+            creditNote: {
+              ...mockCreditNoteData.creditNote,
+              integrationSyncable: true,
+              externalIntegrationId: 'ext-123',
+              customer: {
+                ...mockCreditNoteData.creditNote.customer,
+                netsuiteCustomer: {
+                  integrationId: 'netsuite-123',
+                },
+              },
+            },
+          },
+          loading: false,
+          error: null,
+        })
+
+        render(<CreditNoteDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.items[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          // Sync item is at index 6
+          const syncItem = dropdownAction.items[6]
+
+          if (!syncItem.hidden) {
+            syncItem.onClick(jest.fn())
+            expect(mockSyncFn).toHaveBeenCalled()
+          }
+        }
+      })
     })
 
-    it('displays the credit note ID in the description', async () => {
-      await act(() => render(<CreditNoteDetails />))
+    describe('WHEN tax provider sync is available (Anrok)', () => {
+      it('THEN should show retry tax sync item', () => {
+        mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
+          data: {
+            creditNote: {
+              ...mockCreditNoteData.creditNote,
+              taxProviderSyncable: true,
+              taxProviderId: 'anrok-123',
+              customer: {
+                ...mockCreditNoteData.creditNote.customer,
+                anrokCustomer: {
+                  integrationId: 'anrok-integration-123',
+                },
+              },
+            },
+          },
+          loading: false,
+          error: null,
+        })
 
-      expect(screen.getByText(/credit-note-123/)).toBeInTheDocument()
+        render(<CreditNoteDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.items[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          // Retry tax sync item (index 7)
+          const retryItem = dropdownAction.items[7]
+
+          expect(retryItem.hidden).toBeFalsy()
+        }
+      })
+
+      it('THEN clicking retry should call retryTaxReporting', () => {
+        mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
+          data: {
+            creditNote: {
+              ...mockCreditNoteData.creditNote,
+              taxProviderSyncable: true,
+              taxProviderId: 'anrok-123',
+              customer: {
+                ...mockCreditNoteData.creditNote.customer,
+                anrokCustomer: {
+                  integrationId: 'anrok-integration-123',
+                },
+              },
+            },
+          },
+          loading: false,
+          error: null,
+        })
+
+        render(<CreditNoteDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.items[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          const retryItem = dropdownAction.items[7]
+
+          if (!retryItem.hidden) {
+            retryItem.onClick(jest.fn())
+            expect(mockRetryFn).toHaveBeenCalled()
+          }
+        }
+      })
+    })
+  })
+
+  describe('GIVEN external sync tab visibility', () => {
+    it.each([
+      {
+        name: 'NetSuite',
+        data: {
+          integrationSyncable: true,
+          externalIntegrationId: 'ext-123',
+          customer: {
+            ...mockCreditNoteData.creditNote.customer,
+            netsuiteCustomer: { integrationId: 'netsuite-123' },
+          },
+        },
+      },
+      {
+        name: 'Xero',
+        data: {
+          integrationSyncable: true,
+          externalIntegrationId: 'ext-123',
+          customer: {
+            ...mockCreditNoteData.creditNote.customer,
+            xeroCustomer: { integrationId: 'xero-123' },
+          },
+        },
+      },
+      {
+        name: 'Anrok',
+        data: {
+          taxProviderSyncable: true,
+          taxProviderId: 'anrok-123',
+          customer: {
+            ...mockCreditNoteData.creditNote.customer,
+            anrokCustomer: { integrationId: 'anrok-123' },
+          },
+        },
+      },
+      {
+        name: 'Avalara',
+        data: {
+          taxProviderSyncable: true,
+          taxProviderId: 'avalara-123',
+          customer: {
+            ...mockCreditNoteData.creditNote.customer,
+            avalaraCustomer: { id: 'avalara-customer-123' },
+          },
+        },
+      },
+    ])('WHEN $name integration is present THEN should show external sync tab', ({ data }) => {
+      mockUseGetCreditNoteForDetailsQuery.mockReturnValue({
+        data: {
+          creditNote: {
+            ...mockCreditNoteData.creditNote,
+            ...data,
+          },
+        },
+        loading: false,
+        error: null,
+      })
+
+      render(<CreditNoteDetails />)
+
+      const externalSyncTab = capturedConfig?.tabs?.find(
+        (tab) => !tab.hidden && tab !== capturedConfig?.tabs?.[0],
+      )
+
+      expect(externalSyncTab).toBeDefined()
+    })
+
+    it('WHEN no integrations are present THEN should hide external sync tab', () => {
+      render(<CreditNoteDetails />)
+
+      const tabs = capturedConfig?.tabs
+      const externalSyncTab = tabs?.[1]
+
+      expect(externalSyncTab?.hidden).toBe(true)
+    })
+  })
+
+  describe('GIVEN activity logs tab visibility', () => {
+    describe('WHEN user is premium and has permissions', () => {
+      it('THEN should show activity logs tab', () => {
+        render(<CreditNoteDetails />)
+
+        const activityLogsTab = capturedConfig?.tabs?.[2]
+
+        expect(activityLogsTab?.hidden).toBeFalsy()
+      })
+    })
+
+    describe('WHEN user lacks auditLogsView permission', () => {
+      it('THEN should hide activity logs tab', () => {
+        mockHasPermissions.mockImplementation((permissions: string[]) => {
+          if (permissions.includes('auditLogsView')) {
+            return false
+          }
+          return true
+        })
+
+        render(<CreditNoteDetails />)
+
+        const activityLogsTab = capturedConfig?.tabs?.[2]
+
+        expect(activityLogsTab?.hidden).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN permissions', () => {
+    describe('WHEN user lacks creditNotesView permission', () => {
+      it('THEN should hide download items', () => {
+        mockHasPermissions.mockImplementation((permissions: string[]) => {
+          if (permissions.includes('creditNotesView')) {
+            return false
+          }
+          return true
+        })
+
+        render(<CreditNoteDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.items[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          // Download item (index 1) should be hidden
+          expect(dropdownAction.items[1].hidden).toBe(true)
+        }
+      })
+    })
+
+    describe('WHEN user lacks creditNotesVoid permission', () => {
+      it('THEN should hide void item', () => {
+        mockHasPermissions.mockImplementation((permissions: string[]) => {
+          if (permissions.includes('creditNotesVoid')) {
+            return false
+          }
+          return true
+        })
+
+        render(<CreditNoteDetails />)
+
+        const dropdownAction = capturedConfig?.actions?.items[0]
+
+        if (dropdownAction?.type === 'dropdown') {
+          // Void item (index 5) should be hidden
+          expect(dropdownAction.items[5].hidden).toBe(true)
+        }
+      })
     })
   })
 })

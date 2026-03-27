@@ -1,19 +1,11 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
-import { Icon } from 'lago-design-system'
 import { useCallback, useMemo, useRef } from 'react'
-import { generatePath, Outlet, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import { Alert } from '~/components/designSystem/Alert'
-import { Avatar } from '~/components/designSystem/Avatar'
-import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { NavigationTab } from '~/components/designSystem/NavigationTab'
-import { Popper } from '~/components/designSystem/Popper'
-import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Status } from '~/components/designSystem/Status'
-import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
@@ -33,6 +25,9 @@ import { InvoiceActivityLogs } from '~/components/invoices/InvoiceActivityLogs'
 import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteList'
 import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
@@ -49,6 +44,7 @@ import {
   CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_VOID_ROUTE,
+  INVOICES_ROUTE,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -100,7 +96,6 @@ import { useDownloadInvoice } from '~/pages/invoiceDetails/common/useDownloadInv
 import { useInvoiceAuthorizations } from '~/pages/invoiceDetails/common/useInvoiceAuthorizations'
 import InvoiceOverview from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { MenuPopper, PageHeader } from '~/styles'
 
 gql`
   fragment AllInvoiceDetailsForCustomerInvoiceDetails on Invoice {
@@ -310,6 +305,7 @@ const CustomerInvoiceDetails = () => {
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
+  const activeTabContent = useMainHeaderTabContent()
 
   const { data, loading, error, refetch } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
@@ -503,6 +499,8 @@ const CustomerInvoiceDetails = () => {
     offsettableAmountCents,
     taxProviderVoidable,
     associatedActiveWalletPresent,
+    paymentDisputeLostAt,
+    errorDetails,
   } = (invoice as AllInvoiceDetailsForCustomerInvoiceDetailsFragment) || {}
 
   const isLoading = loading || customerLoading || feesLoading
@@ -552,7 +550,7 @@ const CustomerInvoiceDetails = () => {
             tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
           }),
         ],
-        component: (
+        content: (
           <InvoiceOverview
             downloadInvoice={downloadInvoice}
             downloadInvoiceXml={downloadInvoiceXml}
@@ -599,7 +597,7 @@ const CustomerInvoiceDetails = () => {
             tab: CustomerInvoiceDetailsTabsOptionsEnum.payments,
           }),
         ],
-        component: (
+        content: (
           <InvoicePaymentList
             canRecordPayment={canRecordPayment}
             premiumWarningDialogRef={premiumWarningDialogRef}
@@ -630,7 +628,7 @@ const CustomerInvoiceDetails = () => {
             tab: CustomerInvoiceDetailsTabsOptionsEnum.creditNotes,
           }),
         ],
-        component: <InvoiceCreditNoteList />,
+        content: <InvoiceCreditNoteList />,
       })
     }
 
@@ -649,7 +647,7 @@ const CustomerInvoiceDetails = () => {
             tab: CustomerInvoiceDetailsTabsOptionsEnum.activityLogs,
           }),
         ],
-        component: (
+        content: (
           <div className="pt-5">
             <InvoiceActivityLogs invoiceId={invoiceId as string} />
           </div>
@@ -707,345 +705,272 @@ const CustomerInvoiceDetails = () => {
     })
   }
 
+  const hasWarningIcon =
+    !!paymentDisputeLostAt ||
+    (!!errorDetails?.length && status !== InvoiceStatusTypeEnum.Failed) ||
+    !!taxProviderVoidable
+
+  const headerEntity = {
+    viewName: number || '',
+    viewNameLoading: isLoading,
+    metadata: `${translate('text_634687079be251fdb43833ad', {
+      totalAmount: intlFormatNumber(
+        deserializeAmount(totalAmountCents || 0, currency || CurrencyEnum.Usd),
+        {
+          currencyDisplay: 'symbol',
+          currency: currency || CurrencyEnum.Usd,
+        },
+      ),
+    })} • ${invoiceId}`,
+    metadataLoading: isLoading,
+    badges: status
+      ? [
+          {
+            ...(status === InvoiceStatusTypeEnum.Finalized
+              ? paymentStatusMapping({ status, paymentStatus })
+              : invoiceStatusMapping({ status })),
+            endIcon: hasWarningIcon ? ('warning-unfilled' as const) : undefined,
+          },
+        ]
+      : [],
+  }
+
+  const headerActions = [
+    {
+      type: 'dropdown' as const,
+      label: translate('text_634687079be251fdb438338f'),
+      items: [
+        {
+          label: translate('text_1724164767403kyknbaw13mg'),
+          hidden: !authorizations.canRetryInvoice,
+          disabled: !!loadingRetryInvoice,
+          onClick: async (closePopper: () => void) => {
+            await retryInvoice()
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_63a41a8eabb9ae67047c1c08'),
+          hidden: !authorizations.canFinalizeInvoice,
+          onClick: (closePopper: () => void) => {
+            finalizeInvoiceRef.current?.openDialog(data?.invoice)
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_63a41a8eabb9ae67047c1c06'),
+          hidden: !authorizations.canFinalizeInvoice,
+          disabled: !!loadingRefreshInvoice,
+          onClick: (closePopper: () => void) => {
+            refreshInvoice()
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_634687079be251fdb4383395'),
+          hidden: !authorizations.canDownloadOnlyPdf,
+          disabled: !!loadingInvoiceDownload,
+          onClick: async (closePopper: () => void) => {
+            await downloadInvoice({
+              variables: { input: { id: invoiceId || '' } },
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1760447853022ebd47gmqjmp'),
+          hidden: !authorizations.canDownloadPdfAndXml,
+          disabled: !!loadingInvoiceDownload,
+          onClick: async (closePopper: () => void) => {
+            await downloadInvoice({
+              variables: { input: { id: invoiceId || '' } },
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1760447853022hb1hdiprvet'),
+          hidden: !authorizations.canDownloadPdfAndXml,
+          disabled: !!loadingInvoiceXmlDownload,
+          onClick: async (closePopper: () => void) => {
+            await downloadInvoiceXml({
+              variables: { input: { id: invoiceId || '' } },
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1770392315728uyw3zhs7kzh'),
+          hidden: !authorizations.canResendEmail,
+          onClick: (closePopper: () => void) => {
+            resendEmail()
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_636bdef6565341dcb9cfb127'),
+          hidden: !authorizations.canIssueCreditNote,
+          disabled: isPremium ? disabledIssueCreditNoteButton : false,
+          endIcon: isPremium ? undefined : ('sparkles' as const),
+          tooltip:
+            isPremium && disabledIssueCreditNoteButtonLabel
+              ? translate(disabledIssueCreditNoteButtonLabel)
+              : undefined,
+          onClick: (closePopper: () => void) => {
+            if (isPremium) {
+              navigate(
+                generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+                  customerId: customerId as string,
+                  invoiceId: invoiceId as string,
+                }),
+              )
+            } else {
+              premiumWarningDialogRef.current?.openDialog()
+            }
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1737471851634wpeojigr27w'),
+          hidden: !authorizations.canRecordPayment,
+          onClick: (closePopper: () => void) => {
+            if (isPremium) {
+              navigate(
+                generatePath(CREATE_INVOICE_PAYMENT_ROUTE, {
+                  invoiceId: invoiceId as string,
+                }),
+              )
+            } else {
+              premiumWarningDialogRef.current?.openDialog()
+            }
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_634687079be251fdb438339b'),
+          onClick: (closePopper: () => void) => {
+            copyToClipboard(invoiceId || '')
+
+            addToast({
+              severity: 'info',
+              translateKey: 'text_6253f11816f710014600ba1f',
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1753384709668qrxbzpbskn8'),
+          hidden: !authorizations.canGeneratePaymentUrl,
+          onClick: async (closePopper: () => void) => {
+            await generatePaymentUrl({
+              variables: { input: { invoiceId: invoiceId as string } },
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_63eba8c65a6c8043feee2a01'),
+          hidden: !authorizations.canUpdatePaymentStatus,
+          onClick: (closePopper: () => void) => {
+            if (invoice) {
+              updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
+            }
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1739289860782ljvy21lcake'),
+          hidden: !authorizations.canUpdatePaymentStatus,
+          onClick: (closePopper: () => void) => {
+            addMetadataDrawerDialogRef.current?.openDrawer()
+            closePopper()
+          },
+        },
+        {
+          label: translate(
+            customer?.netsuiteCustomer
+              ? 'text_6650b36fc702a4014c8788fd'
+              : 'text_6690ef918777230093114d90',
+          ),
+          hidden: !authorizations.canSyncAccountingIntegration,
+          disabled: loadingSyncIntegrationInvoice,
+          onClick: async (closePopper: () => void) => {
+            await syncIntegrationInvoice()
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1729611609136sul07rowhfi'),
+          hidden: !authorizations.canSyncCRMIntegration,
+          disabled: loadingSyncHubspotIntegrationInvoice,
+          onClick: async (closePopper: () => void) => {
+            await syncHubspotIntegrationInvoice()
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_66141e30699a0631f0b2ec71'),
+          hidden: !authorizations.canDispute,
+          onClick: (closePopper: () => void) => {
+            disputeInvoiceDialogRef.current?.openDialog({
+              id: data?.invoice?.id || '',
+            })
+            closePopper()
+          },
+        },
+        {
+          label: invoice?.customer?.deletedAt
+            ? translate('text_65269b43d4d2b15dd929a259')
+            : translate('text_1750678506388d4fr5etxbhh'),
+          hidden: !authorizations.canVoid,
+          onClick: (closePopper: () => void) => {
+            if (customerId && invoiceId) {
+              navigate(
+                generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
+                  customerId,
+                  invoiceId,
+                }),
+              )
+            }
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1750678506388oynw9hd01l9'),
+          hidden: !authorizations.canRegenerate,
+          onClick: (closePopper: () => void) => {
+            if (customerId && invoiceId) {
+              navigate(regeneratePath(data?.invoice as Invoice))
+            }
+            closePopper()
+          },
+        },
+        {
+          label: translate(
+            !!customer?.avalaraCustomer
+              ? 'text_17476469985998lthq87gwaq'
+              : 'text_1724702284063xef0c9kyhyl',
+          ),
+          hidden: !authorizations.canSyncTaxIntegration,
+          disabled: loadingRetryTaxProviderVoiding,
+          onClick: async (closePopper: () => void) => {
+            await retryTaxProviderVoiding()
+            closePopper()
+          },
+        },
+      ],
+    },
+  ]
+
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <Button icon="arrow-left" variant="quaternary" onClick={() => goToPreviousRoute()} />
-          {loading || customerLoading ? (
-            <Skeleton variant="text" className="w-30" />
-          ) : (
-            <Typography variant="bodyHl" color="textSecondary">
-              {number}
-            </Typography>
-          )}
-        </PageHeader.Group>
-        {!hasError && !loading && !customerLoading && (
-          <Popper
-            PopperProps={{ placement: 'bottom-end' }}
-            opener={
-              <Button endIcon="chevron-down">{translate('text_634687079be251fdb438338f')}</Button>
-            }
-          >
-            {({ closePopper }) => {
-              return (
-                <MenuPopper>
-                  {authorizations.canRetryInvoice && (
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      disabled={!!loadingRetryInvoice}
-                      loading={loadingRetryInvoice}
-                      onClick={async () => {
-                        await retryInvoice()
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_1724164767403kyknbaw13mg')}
-                    </Button>
-                  )}
-                  {authorizations.canFinalizeInvoice && (
-                    <>
-                      <Button
-                        variant="quaternary"
-                        align="left"
-                        onClick={async () => {
-                          finalizeInvoiceRef.current?.openDialog(data?.invoice)
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_63a41a8eabb9ae67047c1c08')}
-                      </Button>
-                      <Button
-                        variant="quaternary"
-                        align="left"
-                        disabled={!!loadingRefreshInvoice}
-                        onClick={async () => {
-                          refreshInvoice()
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_63a41a8eabb9ae67047c1c06')}
-                      </Button>
-                    </>
-                  )}
-                  {authorizations.canDownloadOnlyPdf && (
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      disabled={!!loadingInvoiceDownload}
-                      onClick={async () => {
-                        await downloadInvoice({
-                          variables: { input: { id: invoiceId || '' } },
-                        })
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_634687079be251fdb4383395')}
-                    </Button>
-                  )}
-                  {authorizations.canDownloadPdfAndXml && (
-                    <>
-                      <Button
-                        variant="quaternary"
-                        align="left"
-                        disabled={!!loadingInvoiceDownload}
-                        onClick={async () => {
-                          await downloadInvoice({
-                            variables: { input: { id: invoiceId || '' } },
-                          })
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_1760447853022ebd47gmqjmp')}
-                      </Button>
-                      <Button
-                        variant="quaternary"
-                        align="left"
-                        disabled={!!loadingInvoiceXmlDownload}
-                        onClick={async () => {
-                          await downloadInvoiceXml({
-                            variables: { input: { id: invoiceId || '' } },
-                          })
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_1760447853022hb1hdiprvet')}
-                      </Button>
-                    </>
-                  )}
-                  {authorizations.canResendEmail && (
-                    <Button variant="quaternary" align="left" onClick={() => resendEmail()}>
-                      {translate('text_1770392315728uyw3zhs7kzh')}
-                    </Button>
-                  )}
-                  {authorizations.canIssueCreditNote && (
-                    <>
-                      {isPremium ? (
-                        <Tooltip
-                          PopperProps={{
-                            popperOptions: {
-                              modifiers: [
-                                {
-                                  name: 'offset',
-                                  options: {
-                                    offset: [0, 8],
-                                  },
-                                },
-                              ],
-                            },
-                          }}
-                          title={
-                            disabledIssueCreditNoteButtonLabel &&
-                            translate(disabledIssueCreditNoteButtonLabel)
-                          }
-                          placement="left"
-                        >
-                          <Button
-                            className="w-full"
-                            variant="quaternary"
-                            align="left"
-                            disabled={disabledIssueCreditNoteButton}
-                            onClick={async () => {
-                              navigate(
-                                generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
-                                  customerId: customerId as string,
-                                  invoiceId: invoiceId as string,
-                                }),
-                              )
-                            }}
-                          >
-                            {translate('text_636bdef6565341dcb9cfb127')}
-                          </Button>
-                        </Tooltip>
-                      ) : (
-                        <Button
-                          variant="quaternary"
-                          onClick={() => premiumWarningDialogRef.current?.openDialog()}
-                          endIcon="sparkles"
-                        >
-                          {translate('text_636bdef6565341dcb9cfb127')}
-                        </Button>
-                      )}
-                    </>
-                  )}
-                  {authorizations.canRecordPayment && (
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      endIcon={isPremium ? undefined : 'sparkles'}
-                      onClick={() => {
-                        if (isPremium) {
-                          navigate(
-                            generatePath(CREATE_INVOICE_PAYMENT_ROUTE, {
-                              invoiceId: invoiceId as string,
-                            }),
-                          )
-                        } else {
-                          premiumWarningDialogRef.current?.openDialog()
-                        }
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_1737471851634wpeojigr27w')}
-                    </Button>
-                  )}
-                  <Button
-                    variant="quaternary"
-                    align="left"
-                    onClick={() => {
-                      copyToClipboard(invoiceId || '')
+      <MainHeader.Configure
+        breadcrumb={[{ label: translate('text_63ac86d797f728a87b2f9f85'), path: INVOICES_ROUTE }]}
+        entity={headerEntity}
+        actions={{ items: headerActions, loading: isLoading }}
+        tabs={tabsOptions}
+      />
 
-                      addToast({
-                        severity: 'info',
-                        translateKey: 'text_6253f11816f710014600ba1f',
-                      })
-                      closePopper()
-                    }}
-                  >
-                    {translate('text_634687079be251fdb438339b')}
-                  </Button>
-                  {authorizations.canGeneratePaymentUrl && (
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      onClick={async () => {
-                        await generatePaymentUrl({
-                          variables: { input: { invoiceId: invoiceId as string } },
-                        })
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_1753384709668qrxbzpbskn8')}
-                    </Button>
-                  )}
-                  {authorizations.canUpdatePaymentStatus && (
-                    <>
-                      <Button
-                        variant="quaternary"
-                        align="left"
-                        onClick={() => {
-                          !!invoice &&
-                            updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_63eba8c65a6c8043feee2a01')}
-                      </Button>
-                      <Button
-                        variant="quaternary"
-                        align="left"
-                        onClick={() => {
-                          addMetadataDrawerDialogRef.current?.openDrawer()
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_1739289860782ljvy21lcake')}
-                      </Button>
-                    </>
-                  )}
-                  {authorizations.canSyncAccountingIntegration && (
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      disabled={loadingSyncIntegrationInvoice}
-                      onClick={async () => {
-                        await syncIntegrationInvoice()
-                        closePopper()
-                      }}
-                    >
-                      {translate(
-                        customer?.netsuiteCustomer
-                          ? 'text_6650b36fc702a4014c8788fd'
-                          : 'text_6690ef918777230093114d90',
-                      )}
-                    </Button>
-                  )}
-                  {authorizations.canSyncCRMIntegration && (
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      disabled={loadingSyncHubspotIntegrationInvoice}
-                      onClick={async () => {
-                        await syncHubspotIntegrationInvoice()
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_1729611609136sul07rowhfi')}
-                    </Button>
-                  )}
-                  {authorizations.canDispute && (
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      onClick={() => {
-                        disputeInvoiceDialogRef.current?.openDialog({
-                          id: data?.invoice?.id || '',
-                        })
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_66141e30699a0631f0b2ec71')}
-                    </Button>
-                  )}
-                  {authorizations.canVoid && (
-                    <Button
-                      className="w-full"
-                      variant="quaternary"
-                      align="left"
-                      onClick={() => {
-                        if (customerId && invoiceId) {
-                          navigate(
-                            generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
-                              customerId,
-                              invoiceId,
-                            }),
-                          )
-                        }
-                      }}
-                    >
-                      {invoice?.customer?.deletedAt
-                        ? translate('text_65269b43d4d2b15dd929a259')
-                        : translate('text_1750678506388d4fr5etxbhh')}
-                    </Button>
-                  )}
-                  {authorizations.canRegenerate && (
-                    <Button
-                      className="w-full"
-                      variant="quaternary"
-                      align="left"
-                      onClick={() => {
-                        if (customerId && invoiceId) {
-                          navigate(regeneratePath(data?.invoice as Invoice))
-                        }
-                      }}
-                    >
-                      {translate('text_1750678506388oynw9hd01l9')}
-                    </Button>
-                  )}
-                  {authorizations.canSyncTaxIntegration && (
-                    <Button
-                      variant="quaternary"
-                      align="left"
-                      disabled={loadingRetryTaxProviderVoiding}
-                      onClick={async () => {
-                        await retryTaxProviderVoiding()
-                        closePopper()
-                      }}
-                    >
-                      {translate(
-                        !!customer?.avalaraCustomer
-                          ? 'text_17476469985998lthq87gwaq'
-                          : 'text_1724702284063xef0c9kyhyl',
-                      )}
-                    </Button>
-                  )}
-                </MenuPopper>
-              )
-            }}
-          </Popper>
-        )}
-      </PageHeader.Wrapper>
       {!!errorMessage && (
         <Alert fullWidth className="md:px-12" type="warning">
           <Stack>
@@ -1080,67 +1005,9 @@ const CustomerInvoiceDetails = () => {
           image={<ErrorImage width="136" height="104" />}
         />
       ) : (
-        <div className="px-4 pb-20 pt-8 md:px-12">
-          {loading ? (
-            <div className="mb-8 flex items-center">
-              <Skeleton className="mr-4" variant="connectorAvatar" size="large" />
-              <div>
-                <Skeleton variant="text" className="mb-5 w-50" />
-                <Skeleton variant="text" className="w-32" />
-              </div>
-            </div>
-          ) : (
-            <div className="mb-8 flex items-center">
-              <Avatar className="mr-4" size="large" variant="connector">
-                <Icon name="document" color="dark" size="large" />
-              </Avatar>
-              <div>
-                <div className="mb-1 flex items-center">
-                  <Typography className="mr-2" variant="headline" color="grey700">
-                    {number}
-                  </Typography>
-                  <Status
-                    {...(status === InvoiceStatusTypeEnum.Finalized
-                      ? paymentStatusMapping({ status, paymentStatus })
-                      : invoiceStatusMapping({ status }))}
-                    endIcon={
-                      !!data?.invoice?.paymentDisputeLostAt ||
-                      (!!data?.invoice?.errorDetails?.length &&
-                        status !== InvoiceStatusTypeEnum.Failed) ||
-                      taxProviderVoidable
-                        ? 'warning-unfilled'
-                        : undefined
-                    }
-                  />
-                </div>
-                <div className="flex items-center">
-                  <Typography
-                    className="mr-2 flex flex-wrap items-center gap-1"
-                    variant="body"
-                    color="grey600"
-                  >
-                    <span>
-                      {translate('text_634687079be251fdb43833ad', {
-                        totalAmount: intlFormatNumber(
-                          deserializeAmount(totalAmountCents || 0, currency || CurrencyEnum.Usd),
-                          {
-                            currencyDisplay: 'symbol',
-                            currency: currency || CurrencyEnum.Usd,
-                          },
-                        ),
-                      })}
-                    </span>
-                    <span>•</span>
-                    <span>{invoiceId}</span>
-                  </Typography>
-                </div>
-              </div>
-            </div>
-          )}
-          <NavigationTab name="Invoice details tab switcher" tabs={tabsOptions} loading={loading} />
-          <Outlet />
-        </div>
+        <DetailsPage.Container>{activeTabContent}</DetailsPage.Container>
       )}
+
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />

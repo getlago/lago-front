@@ -1,17 +1,16 @@
 import { Icon } from 'lago-design-system'
 import { useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
-import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
-import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import EmailPreview, { DisplayEnum } from '~/components/emails/EmailPreview'
 import { Switch } from '~/components/form'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { LanguageSettingsButton } from '~/components/settings/LanguageSettingsButton'
-import { BILLING_ENTITY_EMAIL_SCENARIOS_ROUTE } from '~/core/router'
+import { BILLING_ENTITY_EMAIL_SCENARIOS_ROUTE, BILLING_ENTITY_ROUTE } from '~/core/router'
 import { LocaleEnum } from '~/core/translations'
 import {
   BillingEntity,
@@ -24,8 +23,6 @@ import { useEmailConfig } from '~/hooks/useEmailConfig'
 import { useEmailPreviewTranslationsKey } from '~/hooks/useEmailPreviewTranslationsKey'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import { BillingEntityTab } from '~/pages/settings/BillingEntity/BillingEntity'
-import BillingEntityHeader from '~/pages/settings/BillingEntity/components/BillingEntityHeader'
 import { EMAIL_SCENARIOS } from '~/pages/settings/BillingEntity/sections/BillingEntityEmailScenarios'
 
 const BillingEntityEmailScenariosConfig = () => {
@@ -64,67 +61,64 @@ const BillingEntityEmailScenariosConfig = () => {
 
   return (
     <>
-      <BillingEntityHeader
-        billingEntity={billingEntity as BillingEntity}
-        customBackPath={BILLING_ENTITY_EMAIL_SCENARIOS_ROUTE}
-        tab={BillingEntityTab.EMAIL_SCENARIOS_CONFIG}
-        customLabel={translate(translationsKey.title)}
-        action={
-          <>
-            {hasPermissions(['billingEntitiesUpdate']) && (
-              <div className="flex flex-row items-center gap-3">
-                <Typography variant="caption">
-                  {translate('text_6408b5ae7f629d008bc8af7c')}
-                </Typography>
-                <Switch
-                  name={`switch-config-${type}`}
-                  checked={type && emailSettings?.includes(type)}
-                  onChange={async (value, e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: billingEntity?.name || '',
+            path: generatePath(BILLING_ENTITY_ROUTE, {
+              billingEntityCode: billingEntityCode as string,
+            }),
+          },
+          {
+            label: translate('text_1742367202528mfhsv0f4fxq'),
+            path: generatePath(BILLING_ENTITY_EMAIL_SCENARIOS_ROUTE, {
+              billingEntityCode: billingEntityCode as string,
+            }),
+          },
+        ]}
+        actions={{
+          items: [
+            {
+              type: 'custom',
+              label: 'email-toggle',
+              hidden: !hasPermissions(['billingEntitiesUpdate']),
+              snapshotKey: type ? emailSettings?.includes(type) : false,
+              content: (
+                <div className="flex flex-row items-center gap-3">
+                  <Typography variant="caption">
+                    {translate('text_6408b5ae7f629d008bc8af7c')}
+                  </Typography>
+                  <Switch
+                    name={`switch-config-${type}`}
+                    checked={type && emailSettings?.includes(type)}
+                    onChange={async (value, e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
 
-                    if (hasAccess) {
-                      await updateEmailSettings(type as BillingEntityEmailSettingsEnum, value)
-                    } else {
-                      premiumWarningDialogRef.current?.openDialog()
-                    }
-                  }}
-                />
-                {!hasAccess && <Icon name="sparkles" />}
-              </div>
-            )}
-          </>
-        }
+                      if (hasAccess) {
+                        await updateEmailSettings(type as BillingEntityEmailSettingsEnum, value)
+                      } else {
+                        premiumWarningDialogRef.current?.openDialog()
+                      }
+                    }}
+                  />
+                  {!hasAccess && <Icon name="sparkles" />}
+                </div>
+              ),
+            },
+          ],
+          loading,
+        }}
+        entity={{
+          viewName: translate(translationsKey.title),
+          viewNameLoading: loading,
+          metadata: translate(translationsKey.subtitle),
+          metadataLoading: loading,
+        }}
       />
 
       <div className="min-height-minus-nav flex flex-col overflow-auto">
-        <div className="flex flex-row items-center gap-4 px-4 py-8 md:px-12">
-          {loading && (
-            <>
-              <Skeleton variant="connectorAvatar" size="large" />
-              <div>
-                <Skeleton variant="text" className="mb-5 w-60" />
-                <Skeleton variant="text" className="w-30" />
-              </div>
-            </>
-          )}
-
-          {!loading && (
-            <>
-              <Avatar variant="connector" size="large">
-                <Icon name="mail" size="large" />
-              </Avatar>
-              <div>
-                <Typography className="mb-1" variant="headline">
-                  {translate(translationsKey.title)}
-                </Typography>
-                <Typography>{translate(translationsKey.subtitle)}</Typography>
-              </div>
-            </>
-          )}
-        </div>
-
-        <Typography className="flex h-18 min-h-18 items-center justify-between px-4 first:not-last:mr-3 md:px-12">
+        <div className="flex h-18 min-h-18 items-center justify-between px-12 first:not-last:mr-3">
           <Typography variant="subhead1" color="grey700" noWrap>
             {translate('text_6407684eaf41130074c4b2f8')}
           </Typography>
@@ -157,14 +151,16 @@ const BillingEntityEmailScenariosConfig = () => {
               </Tooltip>
             </div>
           )}
-        </Typography>
+        </div>
 
-        <EmailPreview
-          billingEntity={billingEntity}
-          loading={loading}
-          type={type}
-          invoiceLanguage={invoiceLanguage}
-        />
+        <div className="px-12">
+          <EmailPreview
+            billingEntity={billingEntity}
+            loading={loading}
+            type={type}
+            invoiceLanguage={invoiceLanguage}
+          />
+        </div>
 
         <PremiumWarningDialog ref={premiumWarningDialogRef} />
       </div>

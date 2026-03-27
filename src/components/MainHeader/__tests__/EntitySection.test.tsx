@@ -3,39 +3,93 @@ import { screen } from '@testing-library/react'
 import { StatusType } from '~/components/designSystem/Status'
 import { render } from '~/test-utils'
 
+import { EntitySection } from '../EntitySection'
 import {
   ENTITY_SECTION_METADATA_TEST_ID,
   ENTITY_SECTION_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
-  EntitySection,
-} from '../EntitySection'
+} from '../mainHeaderTestIds'
 import { MainHeaderEntityConfig } from '../types'
 
 describe('EntitySection', () => {
-  describe('GIVEN isLoading is true', () => {
+  describe('GIVEN no entity', () => {
     describe('WHEN the component renders', () => {
-      it('THEN should display loading skeletons', () => {
-        const { container } = render(<EntitySection isLoading={true} />)
+      it('THEN should render nothing', () => {
+        const { container } = render(<EntitySection />)
+
+        expect(container.innerHTML).toBe('')
+      })
+    })
+  })
+
+  describe('GIVEN an entity with viewNameLoading true', () => {
+    const entity: MainHeaderEntityConfig = {
+      viewName: '',
+      viewNameLoading: true,
+    }
+
+    describe('WHEN the component renders', () => {
+      it('THEN should display a loading skeleton for the title', () => {
+        const { container } = render(<EntitySection entity={entity} />)
+
+        expect(container.querySelector('.animate-pulse')).toBeInTheDocument()
+      })
+
+      it('THEN should not display the view name', () => {
+        render(<EntitySection entity={entity} />)
+
+        expect(screen.queryByTestId(ENTITY_SECTION_VIEW_NAME_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN an entity with metadataLoading true', () => {
+    const entity: MainHeaderEntityConfig = {
+      viewName: 'Customers',
+      metadataLoading: true,
+    }
+
+    describe('WHEN the component renders', () => {
+      it('THEN should display a loading skeleton for metadata', () => {
+        const { container } = render(<EntitySection entity={entity} />)
+
+        expect(container.querySelector('.animate-pulse')).toBeInTheDocument()
+      })
+
+      it('THEN should still display the view name', () => {
+        render(<EntitySection entity={entity} />)
+
+        expect(screen.getByTestId(ENTITY_SECTION_VIEW_NAME_TEST_ID)).toHaveTextContent('Customers')
+      })
+
+      it('THEN should not display the metadata text', () => {
+        render(<EntitySection entity={entity} />)
+
+        expect(screen.queryByTestId(ENTITY_SECTION_METADATA_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN an entity with both viewNameLoading and metadataLoading true', () => {
+    const entity: MainHeaderEntityConfig = {
+      viewName: '',
+      viewNameLoading: true,
+      metadataLoading: true,
+    }
+
+    describe('WHEN the component renders', () => {
+      it('THEN should display skeletons for both title and metadata', () => {
+        const { container } = render(<EntitySection entity={entity} />)
 
         const skeletons = container.querySelectorAll('.animate-pulse')
 
         expect(skeletons.length).toBeGreaterThanOrEqual(2)
       })
 
-      it('THEN should not display entity content', () => {
-        render(<EntitySection isLoading={true} />)
+      it('THEN should not display the view name', () => {
+        render(<EntitySection entity={entity} />)
 
-        expect(screen.queryByTestId(ENTITY_SECTION_TEST_ID)).not.toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN no entity and not loading', () => {
-    describe('WHEN the component renders', () => {
-      it('THEN should render nothing', () => {
-        const { container } = render(<EntitySection />)
-
-        expect(container.innerHTML).toBe('')
+        expect(screen.queryByTestId(ENTITY_SECTION_VIEW_NAME_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
