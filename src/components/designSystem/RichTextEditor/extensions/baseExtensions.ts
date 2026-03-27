@@ -27,7 +27,7 @@ interface BaseExtensionsOptions {
  * using MentionSchema/PlanBlockSchema from their respective .schema.ts files.
  */
 export const getBaseExtensions = (options?: BaseExtensionsOptions): Extensions => [
-  StarterKit,
+  StarterKit.configure({ link: false, underline: false }),
   Link.configure({ openOnClick: false }),
   Underline,
   Superscript,

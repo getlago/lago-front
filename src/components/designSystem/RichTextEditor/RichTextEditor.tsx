@@ -1,5 +1,4 @@
 import Placeholder from '@tiptap/extension-placeholder'
-import { Table } from '@tiptap/extension-table'
 import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '@tiptap/react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
@@ -74,10 +73,9 @@ const RichTextEditor = ({
 
   const editor = useEditor({
     extensions: [
-      ...getBaseExtensions(),
+      ...getBaseExtensions({ tableResizable: true }),
 
       // Editor-specific overrides and additions
-      Table.configure({ resizable: true }),
       Placeholder.configure({
         placeholder: translate('text_1774281162711nymiwumt66k'),
       }),
