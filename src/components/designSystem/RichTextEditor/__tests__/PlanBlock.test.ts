@@ -1,4 +1,8 @@
+import { Editor } from '@tiptap/core'
+import StarterKit from '@tiptap/starter-kit'
+
 import { PlanBlock } from '../extensions/PlanBlock'
+import { getPlanBlockPreviewData, PlanBlockSchema } from '../extensions/PlanBlock.schema'
 
 jest.mock('../PlanBlock/PlanBlockView', () => ({
   PlanBlockView: () => null,
@@ -149,45 +153,90 @@ describe('PlanBlock', () => {
     })
   })
 
-  describe('GIVEN the renderHTML config', () => {
-    const getRenderHTML = () => {
-      return PlanBlock.config.renderHTML as unknown as (props: {
-        HTMLAttributes: Record<string, unknown>
-      }) => unknown[]
+  describe('GIVEN the renderHTML via getHTML()', () => {
+    const getHtmlForPlanBlock = (planId: string, plans?: Record<string, unknown>) => {
+      const editor = new Editor({
+        extensions: [StarterKit, PlanBlockSchema.configure({ plans })],
+        content: {
+          type: 'doc',
+          content: [{ type: 'planBlock', attrs: { planId } }],
+        },
+      })
+      const html = editor.getHTML()
+
+      editor.destroy()
+
+      return html
     }
 
-    describe('WHEN called with a planId', () => {
-      it('THEN should render a div with plan block attributes', () => {
-        const renderHTML = getRenderHTML()
-        const result = renderHTML({ HTMLAttributes: { planId: 'plan-123' } })
+    describe('WHEN called with a planId and no plans data', () => {
+      it('THEN should render a div with fallback label', () => {
+        const html = getHtmlForPlanBlock('plan-123')
 
-        expect(result[0]).toBe('div')
-        expect(result[1]).toEqual(
-          expect.objectContaining({
-            'data-type': 'plan-block',
-            'data-plan-id': 'plan-123',
-            class: 'plan-block',
-          }),
-        )
-        expect(result[2]).toEqual(['span', { class: 'plan-block__label' }, 'Plan: plan-123'])
+        expect(html).toContain('data-type="plan-block"')
+        expect(html).toContain('data-plan-id="plan-123"')
+        expect(html).toContain('Plan: plan-123')
+      })
+    })
+
+    describe('WHEN called with plans data', () => {
+      it('THEN should render a resolved table', () => {
+        const html = getHtmlForPlanBlock('plan-123', {
+          'plan-123': {
+            entityId: 'plan-123',
+            entityType: 'plan',
+            name: 'Pro Plan',
+            code: 'pro_plan',
+          },
+        })
+
+        expect(html).toContain('Plan name')
+        expect(html).toContain('Plan code')
+        expect(html).toContain('Pro Plan')
+        expect(html).toContain('pro_plan')
       })
     })
 
     describe('WHEN called without a planId', () => {
       it('THEN should render fallback text', () => {
-        const renderHTML = getRenderHTML()
-        const result = renderHTML({ HTMLAttributes: { planId: '' } })
+        const html = getHtmlForPlanBlock('')
 
-        expect(result[2]).toEqual(['span', { class: 'plan-block__label' }, 'Select a plan'])
+        expect(html).toContain('Select a plan')
+      })
+    })
+  })
+
+  describe('GIVEN the getPlanBlockPreviewData helper', () => {
+    it('THEN should return plan name/code when plan data is available', () => {
+      const result = getPlanBlockPreviewData('plan-123', { name: 'Pro Plan', code: 'pro_plan' })
+
+      expect(result).toEqual({
+        nameHeader: 'Plan name',
+        codeHeader: 'Plan code',
+        nameValue: 'Pro Plan',
+        codeValue: 'pro_plan',
       })
     })
 
-    describe('WHEN called with null planId', () => {
-      it('THEN should render fallback text', () => {
-        const renderHTML = getRenderHTML()
-        const result = renderHTML({ HTMLAttributes: { planId: null } })
+    it('THEN should fallback to plan ID when no plan data', () => {
+      const result = getPlanBlockPreviewData('plan-123')
 
-        expect(result[2]).toEqual(['span', { class: 'plan-block__label' }, 'Select a plan'])
+      expect(result).toEqual({
+        nameHeader: 'Plan ID',
+        codeHeader: 'Plan ID',
+        nameValue: 'plan-123',
+        codeValue: 'plan-123',
+      })
+    })
+
+    it('THEN should fallback to plan ID for missing name/code', () => {
+      const result = getPlanBlockPreviewData('plan-123', { name: undefined, code: undefined })
+
+      expect(result).toEqual({
+        nameHeader: 'Plan ID',
+        codeHeader: 'Plan ID',
+        nameValue: 'plan-123',
+        codeValue: 'plan-123',
       })
     })
   })

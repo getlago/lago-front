@@ -4,11 +4,7 @@ import { NodeViewProps } from '@tiptap/react'
 import { RichTextEditorMode } from '~/components/designSystem/RichTextEditor/RichTextEditor'
 import { render } from '~/test-utils'
 
-import {
-  MENTION_NODE_VIEW_RESOLVED_TEST_ID,
-  MENTION_NODE_VIEW_TEST_ID,
-  MentionNodeView,
-} from '../MentionNodeView'
+import { MENTION_NODE_VIEW_TEST_ID, MentionNodeView } from '../MentionNodeView'
 import { RichTextEditorProvider } from '../RichTextEditorContext'
 
 jest.mock('@tiptap/react', () => ({
@@ -113,66 +109,6 @@ describe('MentionNodeView', () => {
       it('THEN should still display @label in edit mode', () => {
         renderMentionNodeView({
           mentionValues: { customerName: 'Acme Corp' },
-        })
-
-        const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)
-
-        expect(element).toHaveTextContent('@Customer Name')
-      })
-    })
-  })
-
-  describe('GIVEN the component is in preview mode', () => {
-    describe('WHEN the mention has a resolved value', () => {
-      it('THEN should display the resolved value in curly braces', () => {
-        renderMentionNodeView({
-          mode: 'preview',
-          mentionValues: { customerName: 'Acme Corp' },
-        })
-
-        const element = screen.getByTestId(MENTION_NODE_VIEW_RESOLVED_TEST_ID)
-
-        expect(element).toBeInTheDocument()
-        expect(element).toHaveTextContent('Acme Corp')
-      })
-
-      it('THEN should not display the @label', () => {
-        renderMentionNodeView({
-          mode: 'preview',
-          mentionValues: { customerName: 'Acme Corp' },
-        })
-
-        expect(screen.queryByTestId(MENTION_NODE_VIEW_TEST_ID)).not.toBeInTheDocument()
-      })
-    })
-
-    describe('WHEN the mention has no resolved value', () => {
-      it('THEN should fallback to @label text', () => {
-        renderMentionNodeView({
-          mode: 'preview',
-          mentionValues: {},
-        })
-
-        const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)
-
-        expect(element).toHaveTextContent('@Customer Name')
-      })
-
-      it('THEN should not display the resolved view', () => {
-        renderMentionNodeView({
-          mode: 'preview',
-          mentionValues: {},
-        })
-
-        expect(screen.queryByTestId(MENTION_NODE_VIEW_RESOLVED_TEST_ID)).not.toBeInTheDocument()
-      })
-    })
-
-    describe('WHEN the mention id is not in mentionValues', () => {
-      it('THEN should fallback to @label text', () => {
-        renderMentionNodeView({
-          mode: 'preview',
-          mentionValues: { otherVariable: 'Some Value' },
         })
 
         const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)

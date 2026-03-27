@@ -1,28 +1,19 @@
-import Highlight from '@tiptap/extension-highlight'
-import Image from '@tiptap/extension-image'
-import Link from '@tiptap/extension-link'
-import Mention from '@tiptap/extension-mention'
 import Placeholder from '@tiptap/extension-placeholder'
-import Subscript from '@tiptap/extension-subscript'
-import Superscript from '@tiptap/extension-superscript'
 import { Table } from '@tiptap/extension-table'
-import TableCell from '@tiptap/extension-table-cell'
-import TableHeader from '@tiptap/extension-table-header'
-import TableRow from '@tiptap/extension-table-row'
-import TextAlign from '@tiptap/extension-text-align'
-import Underline from '@tiptap/extension-underline'
 import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
-import { tw } from 'lago-design-system'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
-import { Markdown } from 'tiptap-markdown'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { downloadEditorPdf } from './downloadEditorPdf'
-import { LinkCard } from './extensions/LinkCard'
+import { downloadMarkdownPdf } from './downloadMarkdownPdf'
+import { getBaseExtensions } from './extensions/baseExtensions'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
+import {
+  mentionBaseConfig,
+  MentionSchema,
+  type MentionSchemaOptions,
+} from './extensions/Mention.schema'
 import { PlanBlock } from './extensions/PlanBlock'
 import { SlashCommands } from './extensions/SlashCommands'
 import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
@@ -63,7 +54,6 @@ const RichTextEditor = ({
   onPlanBlocksChange,
 }: RichTextEditorProps) => {
   const { translate } = useInternationalization()
-  const editorWrapperRef = useRef<HTMLDivElement>(null)
   const onPlanBlocksChangeRef = useRef(onPlanBlocksChange)
   const [plans, setPlans] = useState<Record<string, EntityData>>(plansFromProps)
 
@@ -84,51 +74,20 @@ const RichTextEditor = ({
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
-      Link.configure({
-        openOnClick: false,
-        validate: (href) => /^https?:\/\//.test(href),
-      }),
-      Underline,
-      Superscript,
-      Subscript,
-      Highlight,
-      TextAlign.configure({ types: ['heading', 'paragraph'] }),
-      Image,
+      ...getBaseExtensions(),
+
+      // Editor-specific overrides and additions
       Table.configure({ resizable: true }),
-      TableRow,
-      TableCell,
-      TableHeader,
       Placeholder.configure({
         placeholder: translate('text_1774281162711nymiwumt66k'),
       }),
-      Mention.extend({
+      MentionSchema.extend({
         addNodeView() {
           return ReactNodeViewRenderer(MentionNodeView, { as: 'span' })
         },
-        addStorage() {
-          return {
-            markdown: {
-              serialize(
-                state: { write: (text: string) => void },
-                node: { attrs: { id: string; label?: string } },
-              ) {
-                state.write(`{${node.attrs.id}|${node.attrs.label ?? node.attrs.id}}`)
-              },
-              parse: {
-                updateDOM(element: HTMLElement) {
-                  element.innerHTML = element.innerHTML.replaceAll(
-                    /\{(\w+)\|([^}]+)\}/g,
-                    (_match: string, id: string, label: string) =>
-                      `<span data-type="mention" data-id="${id}" class="variable-mention">@${label}</span>`,
-                  )
-                },
-              },
-            },
-          }
-        },
       }).configure({
-        HTMLAttributes: { class: 'variable-mention' },
+        ...mentionBaseConfig,
+        mentionValues,
         suggestion: {
           char: '@',
           items: ({ query }) =>
@@ -176,24 +135,11 @@ const RichTextEditor = ({
             }
           },
         },
-        renderHTML({ node }) {
-          return [
-            'span',
-            { 'data-type': 'mention', 'data-id': node.attrs.id, class: 'variable-mention' },
-            `@${node.attrs.label ?? node.attrs.id}`,
-          ]
-        },
-      }),
+      } as MentionSchemaOptions),
+      PlanBlock.configure({ plans: plansFromProps }),
       SlashCommands.configure({ translate }),
-      LinkCard,
       LinkPasteHandler,
-      PlanBlock,
       TemplateSelectorExtension.configure({ templates: templates ?? [] }),
-      Markdown.configure({
-        html: true,
-        transformPastedText: true,
-        transformCopiedText: true,
-      }),
     ],
     editorProps: {
       attributes: {
@@ -228,9 +174,7 @@ const RichTextEditor = ({
     },
   })
 
-  const [modeOverride, setModeOverride] = useState<RichTextEditorMode | null>(null)
-  const activeMode = modeOverride ?? mode
-  const isPreview = activeMode === 'preview'
+  const isPreview = mode === 'preview'
 
   useEffect(() => {
     if (editor) {
@@ -239,39 +183,41 @@ const RichTextEditor = ({
   }, [editor, isPreview])
 
   const contextValue = useMemo(
-    () => ({ mode: activeMode, mentionValues, plans, setPlan }),
-    [activeMode, mentionValues, plans, setPlan],
+    () => ({ mode, mentionValues, plans, setPlan }),
+    [mode, mentionValues, plans, setPlan],
   )
 
+  const getMarkdown = useCallback((): string | undefined => {
+    if (!editor) return undefined
+
+    const markdownExt = editor.extensionManager.extensions.find((ext) => ext.name === 'markdown')
+    const storage = markdownExt?.storage
+
+    if (!storage || typeof storage.getMarkdown !== 'function') return undefined
+
+    return storage.getMarkdown() as string
+  }, [editor])
+
   useEffect(() => {
-    if (!editor || !getMarkdownRef) return
+    if (!getMarkdownRef) return
 
-    getMarkdownRef.current = () => {
-      const markdownExt = editor.extensionManager.extensions.find((ext) => ext.name === 'markdown')
-      const storage = markdownExt?.storage
-
-      if (!storage || typeof storage.getMarkdown !== 'function') return
-
-      return storage.getMarkdown()
-    }
+    getMarkdownRef.current = () => getMarkdown() ?? ''
 
     return () => {
       if (getMarkdownRef) {
         getMarkdownRef.current = null
       }
     }
-  }, [editor, getMarkdownRef])
+  }, [getMarkdownRef, getMarkdown])
 
   useEffect(() => {
     if (!downloadPdfRef) return
 
     downloadPdfRef.current = () => {
-      if (mode === 'preview') {
-        // Already in preview mode, capture directly
-        downloadEditorPdf(editorWrapperRef.current)
-      } else {
-        // Temporarily switch to preview so mentions resolve and plans render as tables
-        setModeOverride('preview')
+      const markdown = getMarkdown()
+
+      if (markdown) {
+        downloadMarkdownPdf({ markdown, mentionValues, plans })
       }
     }
 
@@ -280,38 +226,36 @@ const RichTextEditor = ({
         downloadPdfRef.current = null
       }
     }
-  }, [downloadPdfRef, mode])
-
-  // When modeOverride is set to 'preview', wait for React to re-render,
-  // then capture the PDF and restore the original mode.
-  useEffect(() => {
-    if (modeOverride !== 'preview') return
-
-    const raf = requestAnimationFrame(() => {
-      downloadEditorPdf(editorWrapperRef.current)
-      setModeOverride(null)
-    })
-
-    return () => cancelAnimationFrame(raf)
-  }, [modeOverride])
+  }, [downloadPdfRef, getMarkdown, mentionValues, plans])
 
   if (!editor) return null
+
+  if (isPreview) {
+    return (
+      <div
+        className="rich-text-editor relative h-full max-h-screen overflow-auto"
+        data-test={RICH_TEXT_EDITOR_TEST_ID}
+      >
+        <div
+          className="ProseMirror"
+          contentEditable={false}
+          data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID}
+          dangerouslySetInnerHTML={{ __html: editor.getHTML() }}
+        />
+      </div>
+    )
+  }
 
   return (
     <RichTextEditorProvider value={contextValue}>
       <div
         className="rich-text-editor relative h-full max-h-screen overflow-auto"
         data-test={RICH_TEXT_EDITOR_TEST_ID}
-        ref={editorWrapperRef}
       >
-        {!isPreview && <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />}
-        <div
-          className={tw('relative', {
-            'pb-8 pr-8': !isPreview,
-          })}
-        >
+        <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />
+        <div className="relative pb-8 pr-8">
           <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
-          {!isPreview && <TableControls editor={editor} />}
+          <TableControls editor={editor} />
         </div>
       </div>
     </RichTextEditorProvider>
