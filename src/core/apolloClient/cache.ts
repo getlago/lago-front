@@ -9,6 +9,7 @@ export const cache = new InMemoryCache({
         // Standard paginated queries - automatically cache by all args except page/limit/offset
         activityLogs: createPaginatedFieldPolicy(),
         addOns: createPaginatedFieldPolicy(),
+        appliedCoupons: createPaginatedFieldPolicy(),
         billableMetrics: createPaginatedFieldPolicy(),
         // billingEntity: createPaginatedFieldPolicy(),
         coupons: createPaginatedFieldPolicy(),
