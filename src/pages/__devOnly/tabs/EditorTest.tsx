@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
+import { downloadMarkdownPdf } from '~/components/designSystem/RichTextEditor/downloadMarkdownPdf'
 import RichTextEditor, {
   type RichTextEditorMode,
 } from '~/components/designSystem/RichTextEditor/RichTextEditor'
@@ -123,6 +124,20 @@ Best,
       <Block>
         <RichTextEditor mode={mode} mentionValues={mentionValues} content={preSavedContent} />
       </Block>
+      <div className="mt-4 flex items-center gap-4">
+        <Typography variant="subhead1">Standalone PDF download (no editor)</Typography>
+        <Button
+          variant="secondary"
+          onClick={() =>
+            downloadMarkdownPdf({
+              markdown: preSavedContent,
+              mentionValues,
+            })
+          }
+        >
+          Download PDF from Markdown
+        </Button>
+      </div>
     </Container>
   )
 }
