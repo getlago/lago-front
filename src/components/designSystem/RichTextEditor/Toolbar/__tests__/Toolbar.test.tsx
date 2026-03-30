@@ -87,6 +87,12 @@ const createMockEditor = (overrides: Record<string, boolean> = {}) => {
   }
 }
 
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({
+    translate: (key: string) => key,
+  }),
+}))
+
 jest.mock('@tiptap/react', () => ({
   ...jest.requireActual('@tiptap/react'),
   useEditorState: jest.fn().mockImplementation(({ editor, selector }) => {
@@ -317,6 +323,34 @@ describe('Toolbar', () => {
 
       expect(editor.chain).toHaveBeenCalled()
       expect(runMock).toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN tooltips on toolbar buttons', () => {
+    describe('WHEN hovering a button', () => {
+      it.each([
+        ['undo', TOOLBAR_UNDO_BUTTON_TEST_ID],
+        ['redo', TOOLBAR_REDO_BUTTON_TEST_ID],
+        ['bold', TOOLBAR_BOLD_BUTTON_TEST_ID],
+        ['italic', TOOLBAR_ITALIC_BUTTON_TEST_ID],
+        ['underline', TOOLBAR_UNDERLINE_BUTTON_TEST_ID],
+        ['strike', TOOLBAR_STRIKE_BUTTON_TEST_ID],
+        ['code', TOOLBAR_CODE_BUTTON_TEST_ID],
+        ['highlight', TOOLBAR_HIGHLIGHT_BUTTON_TEST_ID],
+        ['superscript', TOOLBAR_SUPERSCRIPT_BUTTON_TEST_ID],
+        ['subscript', TOOLBAR_SUBSCRIPT_BUTTON_TEST_ID],
+        ['table', TOOLBAR_TABLE_BUTTON_TEST_ID],
+        ['code block', TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID],
+        ['image', TOOLBAR_IMAGE_BUTTON_TEST_ID],
+      ])('THEN should display a tooltip for the %s button', async (_, testId) => {
+        const user = userEvent.setup({ pointerEventsCheck: 0 })
+        const { editor } = createMockEditor()
+
+        await act(() => render(<Toolbar editor={editor} />))
+        await user.hover(screen.getByTestId(testId))
+
+        expect(await screen.findByRole('tooltip')).toBeInTheDocument()
+      })
     })
   })
 })
