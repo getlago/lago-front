@@ -442,6 +442,7 @@ export const UsageChargeDrawerContent = withForm({
               >
                 {({ canSubmit, isSubmitting }: { canSubmit: boolean; isSubmitting: boolean }) => (
                   <Button
+                    data-test="charge-filter-drawer-save"
                     disabled={!canSubmit || isSubmitting}
                     loading={isSubmitting}
                     onClick={() => filterForm.handleSubmit()}
@@ -652,6 +653,7 @@ export const UsageChargeDrawerContent = withForm({
                 {/* Add filter */}
                 {!!formValues.billableMetric?.filters?.length && (
                   <Button
+                    data-test="add-charge-filter"
                     fitContent
                     align="left"
                     variant="inline"

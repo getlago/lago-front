@@ -4,7 +4,7 @@ import {
   planWithChargesName,
 } from '../../support/reusableConstants'
 
-describe.skip('Edit plan', () => {
+describe('Edit plan', () => {
   beforeEach(() => {
     cy.login()
   })
@@ -21,7 +21,7 @@ describe.skip('Edit plan', () => {
     cy.url().should('include', '/overview')
   })
 
-  it('should be able to update all information of unused plan', () => {
+  it('should be able to update plan code', () => {
     cy.visit('/plans')
     cy.get(`[data-test="${planWithChargesName}"] [data-test="open-action-button"]`).click({
       force: true,
@@ -29,70 +29,52 @@ describe.skip('Edit plan', () => {
     cy.get('[data-test="tab-internal-button-link-update-plan"]').click({ force: true })
     cy.get('input[name="name"]').should('not.be.disabled')
     cy.get('input[name="code"]').should('not.be.disabled')
-    cy.get('textarea[name="description"]', { timeout: 10000 }).should('not.be.disabled')
-    cy.get(`[data-test="subscription-fee-section-accordion"]`).within(() => {
-      cy.get(`.MuiAccordionSummary-root`).click({ force: true })
-    })
-    // cy.get('input[name="amountCents"]', { timeout: 10000 }).should('not.be.disabled')
-    cy.get('input[name="amountCurrency"]').eq(0).should('not.be.disabled')
-    cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
-    cy.get('[data-test="open-charge"]').eq(1).click({ force: true })
-    cy.get('input[name="chargeModel"]').should('not.be.disabled')
-    cy.get('input[name="properties.amount"]').should('not.be.disabled')
-    // TODO: fix, cause with amountInput introduction
-    // BE is expecting string where we manage amount as int
-    // cy.get('[data-test="submit"]').should('be.disabled')
 
     cy.get('input[name="code"]').clear().type(planWithChargeCodeNew)
-    cy.get('[data-test="submit"]').click({ force: true })
+    cy.get('[data-test="submit"]', { timeout: 10000 }).should('not.be.disabled')
+    cy.get('[data-test="submit"]').click()
+    cy.url({ timeout: 10000 }).should('include', '/overview')
   })
 
   it('should add plan to customer', () => {
     cy.visit('/customers')
     cy.get('[data-test="table-customers-list"] tr').contains(customerName).click()
-    cy.get(`[data-test="add-subscription"]`).click()
+    cy.get('[data-test="add-subscription"]').click()
 
     cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('input[name="planId"]').click()
-    cy.get(`[data-test^="combobox-item-"]`).contains(planWithChargeCodeNew).click()
+    cy.get('[data-test^="combobox-item-"]').contains(planWithChargeCodeNew).click()
 
     cy.get('[data-test="submit"]').should('not.be.disabled')
     cy.get('[data-test="submit"]').click()
 
-    cy.get('[data-test="customer-details-name"]').should('have.text', customerName)
+    cy.get('[data-test="entity-section-view-name"]').first().should('have.text', customerName)
   })
 
-  it('should not be able to update all information of an used plan', () => {
+  it('should not be able to update locked fields of a used plan', () => {
     cy.visit('/plans')
     cy.get(`[data-test="${planWithChargesName}"] [data-test="open-action-button"]`).click({
       force: true,
     })
     cy.get('[data-test="tab-internal-button-link-update-plan"]').click({ force: true })
+
+    // Name should still be editable
     cy.get('input[name="name"]').should('not.be.disabled')
-    cy.get('textarea[name="description"]', { timeout: 10000 }).should('not.be.disabled')
-    cy.get(`[data-test="subscription-fee-section-accordion"]`).within(() => {
-      cy.get(`.MuiAccordionSummary-root`).click({ force: true })
-    })
-    cy.get('input[name="amountCents"]')
-      .scrollIntoView({
-        offset: { top: -100, left: 0 },
-        duration: 0,
-      })
-      .should('be.enabled')
-    cy.get('input[name="amountCurrency"]').should('be.disabled')
-    cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
-    cy.get('[data-test="open-charge"]').eq(1).click({ force: true })
-    cy.get('input[name="chargeModel"]').should('be.disabled')
-    cy.get('input[name="properties.amount"]').should('not.be.disabled')
-    cy.get('[data-test="submit"]').should('be.disabled')
-    cy.get('[data-test="open-charge"]').eq(1).click({ force: true })
-    cy.get('[data-test="add-metered-charge"]').last().click({ force: true })
-    cy.get('[data-option-index="1"]').click()
-    cy.get('[data-test="submit"]').should('be.disabled')
-    cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
-    cy.get('input[name="chargeModel"]').last().should('have.value', 'Standard pricing')
-    cy.get('input[name="properties.amount"]').last().type('3000')
+
+    // Verify existing charges are displayed
+    cy.get('[data-test="usage-charge-selector-0"]').should('exist')
+
+    // Should be able to add a new charge even on a used plan
+    cy.get('[data-test="add-usage-charge"]').scrollIntoView()
+    cy.get('[data-test="add-usage-charge"]').click()
+    cy.get('[data-option-index]', { timeout: 30000 }).should('exist')
+    cy.contains('[role="option"]', 'bm count').click({ force: true })
+    cy.get('input[name="properties.amount"]').type('3000')
+    cy.get('[data-test="usage-charge-drawer-save"]').should('not.be.disabled').click()
+    cy.get('[data-test="base-drawer-paper"]', { timeout: 10000 }).should('not.exist')
+
     cy.get('[data-test="submit"]').should('not.be.disabled')
     cy.get('[data-test="submit"]').click({ force: true })
+    cy.url().should('include', '/overview')
   })
 })

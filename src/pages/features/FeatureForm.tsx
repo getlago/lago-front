@@ -393,6 +393,7 @@ const FeatureForm = () => {
             {translate('text_6411e6b530cb47007488b027')}
           </Button>
           <Button
+            data-test="submit"
             variant="primary"
             disabled={!formikProps.isValid || !formikProps.dirty || featureLoading}
             onClick={formikProps.submitForm}

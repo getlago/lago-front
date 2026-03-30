@@ -11,7 +11,7 @@ export type NameAndCodeGroupValues = {
 export type NameAndCodeGroupProps = {
   isDisabled?: boolean
   nameProps?: Partial<TextInputProps>
-  codeProps?: Partial<TextInputProps>
+  codeProps?: Partial<TextInputProps> & { externalError?: string }
   // onFieldChange exist as a bridge for PlanSettingsSection,
   // which uses a local TanStack form while the parent plan form is still on Formik.
   // These props will be removed once the root plan form migrates to TanStack.

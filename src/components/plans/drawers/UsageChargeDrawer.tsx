@@ -287,6 +287,7 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
         }
 
         onSave(localCharge, isCreateModeRef.current ? null : editIndexRef.current)
+
         chargeDrawer.close()
       },
     })
