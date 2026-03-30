@@ -186,12 +186,17 @@ const RichTextEditor = ({
   )
 
   const getMarkdown = useCallback((): string | undefined => {
-    if (!editor) return undefined
+    if (!editor || !editor.storage || !('markdown' in editor.storage)) return undefined
 
-    const markdownExt = editor.extensionManager.extensions.find((ext) => ext.name === 'markdown')
-    const storage = markdownExt?.storage
+    const storage: unknown = editor.storage.markdown
 
-    if (!storage || typeof storage.getMarkdown !== 'function') return undefined
+    if (
+      !storage ||
+      typeof storage !== 'object' ||
+      !('getMarkdown' in storage) ||
+      typeof storage.getMarkdown !== 'function'
+    )
+      return undefined
 
     return storage.getMarkdown() as string
   }, [editor])
