@@ -9,14 +9,14 @@ import ToolbarButton from './ToolbarButton'
 import ToolbarDropdown from './ToolbarDropdown'
 import { DropdownItem } from './types'
 
-import ImagePopperForm from '../ImagePopperForm'
-import LinkPopperForm from '../LinkPopperForm'
+import ImagePopperForm from '../forms/ImagePopperForm'
+import LinkPopperForm from '../forms/LinkPopperForm'
 
 export {
   TOOLBAR_LINK_INPUT_TEST_ID,
   TOOLBAR_LINK_APPLY_BUTTON_TEST_ID,
   TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID,
-} from '../LinkPopperForm'
+} from '../forms/LinkPopperForm'
 
 export const TOOLBAR_CONTAINER_TEST_ID = 'toolbar-container'
 export const TOOLBAR_UNDO_BUTTON_TEST_ID = 'toolbar-undo-button'

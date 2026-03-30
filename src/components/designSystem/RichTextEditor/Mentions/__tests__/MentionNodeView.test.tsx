@@ -4,8 +4,8 @@ import { NodeViewProps } from '@tiptap/react'
 import { RichTextEditorMode } from '~/components/designSystem/RichTextEditor/RichTextEditor'
 import { render } from '~/test-utils'
 
+import { RichTextEditorProvider } from '../../common/RichTextEditorContext'
 import { MENTION_NODE_VIEW_TEST_ID, MentionNodeView } from '../MentionNodeView'
-import { RichTextEditorProvider } from '../RichTextEditorContext'
 
 jest.mock('@tiptap/react', () => ({
   ...jest.requireActual('@tiptap/react'),

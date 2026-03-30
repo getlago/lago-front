@@ -1,4 +1,4 @@
-import { LinkCard } from '../extensions/LinkCard'
+import { LinkCard } from '../LinkCard'
 
 describe('LinkCard', () => {
   describe('GIVEN the LinkCard extension is created', () => {

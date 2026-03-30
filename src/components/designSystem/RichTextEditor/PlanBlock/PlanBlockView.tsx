@@ -10,7 +10,7 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 
 import PlanBlockDrawerContent from './PlanBlockDrawerContent'
 
-import { useRichTextEditorContext } from '../RichTextEditorContext'
+import { useRichTextEditorContext } from '../common/RichTextEditorContext'
 
 export const PLAN_BLOCK_VIEW_TEST_ID = 'plan-block-view'
 export const PLAN_BLOCK_VIEW_EMPTY_TEST_ID = 'plan-block-view-empty'

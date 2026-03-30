@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { downloadMarkdownPdf } from '~/components/designSystem/RichTextEditor/downloadMarkdownPdf'
+import { downloadMarkdownPdf } from '~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf'
 import RichTextEditor, {
   type RichTextEditorMode,
 } from '~/components/designSystem/RichTextEditor/RichTextEditor'

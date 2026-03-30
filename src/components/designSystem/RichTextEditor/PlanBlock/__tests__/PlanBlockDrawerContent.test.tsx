@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react'
 
 import { render } from '~/test-utils'
 
-import PlanBlockDrawerContent from '../PlanBlock/PlanBlockDrawerContent'
+import PlanBlockDrawerContent from '../PlanBlockDrawerContent'
 
 const mockUsePlansQuery = jest.fn()
 
