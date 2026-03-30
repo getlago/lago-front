@@ -5,7 +5,8 @@ import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { downloadMarkdownPdf } from './downloadMarkdownPdf'
+import { downloadMarkdownPdf } from './common/downloadMarkdownPdf'
+import { EntityData, RichTextEditorProvider } from './common/RichTextEditorContext'
 import { getBaseExtensions } from './extensions/baseExtensions'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
 import {
@@ -16,11 +17,10 @@ import {
 import { PlanBlock } from './extensions/PlanBlock'
 import { SlashCommands } from './extensions/SlashCommands'
 import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
-import { MentionList, type MentionListRef } from './MentionList'
-import { MentionNodeView } from './MentionNodeView'
+import { MentionList, type MentionListRef } from './Mentions/MentionList'
+import { MentionNodeView } from './Mentions/MentionNodeView'
 import './richTextEditor.css'
-import { EntityData, RichTextEditorProvider } from './RichTextEditorContext'
-import TableControls from './TableControls'
+import TableControls from './Table/TableControls'
 import type { EditorTemplate } from './TemplateSelector/types'
 import Toolbar from './Toolbar/Toolbar'
 

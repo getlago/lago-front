@@ -1,4 +1,4 @@
-import { slashCommandDefinitions, SlashCommands } from '../extensions/SlashCommands'
+import { slashCommandDefinitions, SlashCommands } from '../SlashCommands'
 
 const mockDestroyPopup = jest.fn()
 const mockHidePopup = jest.fn()

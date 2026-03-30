@@ -1,6 +1,6 @@
 import { mergeAttributes, Node } from '@tiptap/core'
 
-import type { EntityData } from '../RichTextEditorContext'
+import type { EntityData } from '../common/RichTextEditorContext'
 
 export interface PlanBlockAttributes {
   planId: string

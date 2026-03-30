@@ -40,7 +40,7 @@ export const TemplateSelectorExtension = Node.create({
   },
 
   renderHTML() {
-    return ['div', { 'data-type': 'template-selector' }, 0]
+    return ['div', { 'data-type': 'template-selector', style: 'display:none' }]
   },
 
   addProseMirrorPlugins() {

@@ -3,7 +3,7 @@ import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { ReactRenderer } from '@tiptap/react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
-import { LinkPastePopup } from '../LinkPastePopup'
+import { LinkPastePopup } from '../popups/LinkPastePopup'
 
 const URL_REGEX = /^https?:\/\/\S+$/
 

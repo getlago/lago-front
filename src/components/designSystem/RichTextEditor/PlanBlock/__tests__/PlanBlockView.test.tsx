@@ -4,13 +4,13 @@ import { NodeViewProps } from '@tiptap/react'
 
 import { render } from '~/test-utils'
 
+import { EntityData, RichTextEditorProvider } from '../../common/RichTextEditorContext'
 import {
   PLAN_BLOCK_VIEW_EMPTY_TEST_ID,
   PLAN_BLOCK_VIEW_TEST_ID,
   PLAN_BLOCK_VIEW_UNRESOLVED_TEST_ID,
   PlanBlockView,
-} from '../PlanBlock/PlanBlockView'
-import { EntityData, RichTextEditorProvider } from '../RichTextEditorContext'
+} from '../PlanBlockView'
 
 const mockDrawerOpen = jest.fn()
 const mockDrawerClose = jest.fn()

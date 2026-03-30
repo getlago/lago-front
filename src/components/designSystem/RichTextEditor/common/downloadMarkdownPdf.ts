@@ -1,10 +1,11 @@
 import { Editor } from '@tiptap/core'
 
-import { getBaseExtensions } from './extensions/baseExtensions'
-import { configureMention, mentionBaseConfig } from './extensions/Mention.schema'
-import { PlanBlockSchema } from './extensions/PlanBlock.schema'
 import { printHtmlContent } from './printHtmlContent'
 import type { EntityData } from './RichTextEditorContext'
+
+import { getBaseExtensions } from '../extensions/baseExtensions'
+import { configureMention, mentionBaseConfig } from '../extensions/Mention.schema'
+import { PlanBlockSchema } from '../extensions/PlanBlock.schema'
 
 export interface DownloadMarkdownPdfOptions {
   markdown: string

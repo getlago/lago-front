@@ -1,8 +1,8 @@
 import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 
-import { PlanBlock } from '../extensions/PlanBlock'
-import { getPlanBlockPreviewData, PlanBlockSchema } from '../extensions/PlanBlock.schema'
+import { PlanBlock } from '../PlanBlock'
+import { getPlanBlockPreviewData, PlanBlockSchema } from '../PlanBlock.schema'
 
 jest.mock('../PlanBlock/PlanBlockView', () => ({
   PlanBlockView: () => null,

@@ -1,6 +1,6 @@
 import { forwardRef } from 'react'
 
-import { SuggestionList, type SuggestionListRef } from './SuggestionList'
+import { SuggestionList, type SuggestionListRef } from '../common/SuggestionList'
 
 export const MENTION_LIST_CONTAINER_TEST_ID = 'mention-list-container'
 export const MENTION_LIST_ITEM_TEST_ID = 'mention-list-item'
