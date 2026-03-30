@@ -25,7 +25,7 @@ const LinkPopperForm = ({ editor, closePopper }: LinkPopperFormProps) => {
   })
 
   const form = useAppForm({
-    defaultValues: { url: '' },
+    defaultValues: { url: editor.getAttributes('link').href || '' },
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: schemaValidation,
