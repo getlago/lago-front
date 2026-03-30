@@ -6,7 +6,6 @@ import { render } from '~/test-utils'
 
 import {
   PLAN_BLOCK_VIEW_EMPTY_TEST_ID,
-  PLAN_BLOCK_VIEW_PREVIEW_TABLE_TEST_ID,
   PLAN_BLOCK_VIEW_TEST_ID,
   PLAN_BLOCK_VIEW_UNRESOLVED_TEST_ID,
   PlanBlockView,
@@ -256,92 +255,6 @@ describe('PlanBlockView', () => {
         const button = screen.getByTestId(PLAN_BLOCK_VIEW_TEST_ID)
 
         expect(button.className).toContain('plan-block--selected')
-      })
-    })
-  })
-
-  describe('GIVEN the component is in preview mode', () => {
-    describe('WHEN the plan has context data', () => {
-      it('THEN should display a table with plan name and code', () => {
-        renderPlanBlockView({
-          mode: 'preview',
-          attrs: { planId: 'plan-1' },
-          plans: {
-            'plan-1': {
-              entityId: 'plan-1',
-              entityType: 'plan',
-              name: 'Basic Plan',
-              code: 'basic',
-            },
-          },
-        })
-
-        const table = screen.getByTestId(PLAN_BLOCK_VIEW_PREVIEW_TABLE_TEST_ID)
-
-        expect(table).toBeInTheDocument()
-        expect(table).toHaveTextContent('Basic Plan')
-        expect(table).toHaveTextContent('basic')
-      })
-
-      it('THEN should display "Plan name" and "Plan code" headers', () => {
-        renderPlanBlockView({
-          mode: 'preview',
-          attrs: { planId: 'plan-1' },
-          plans: {
-            'plan-1': {
-              entityId: 'plan-1',
-              entityType: 'plan',
-              name: 'Basic Plan',
-              code: 'basic',
-            },
-          },
-        })
-
-        const table = screen.getByTestId(PLAN_BLOCK_VIEW_PREVIEW_TABLE_TEST_ID)
-
-        expect(table).toHaveTextContent('Plan name')
-        expect(table).toHaveTextContent('Plan code')
-      })
-    })
-
-    describe('WHEN the plan has no resolved data', () => {
-      it('THEN should fallback to displaying the plan id', () => {
-        const { usePlansQuery } = jest.requireMock('~/generated/graphql') as {
-          usePlansQuery: jest.Mock
-        }
-
-        usePlansQuery.mockReturnValueOnce({
-          data: { plans: { collection: [] } },
-          loading: false,
-        })
-
-        renderPlanBlockView({
-          mode: 'preview',
-          attrs: { planId: 'unknown-plan' },
-        })
-
-        const table = screen.getByTestId(PLAN_BLOCK_VIEW_PREVIEW_TABLE_TEST_ID)
-
-        expect(table).toHaveTextContent('unknown-plan')
-      })
-    })
-
-    describe('WHEN the button is clicked', () => {
-      it('THEN should not open the drawer', async () => {
-        renderPlanBlockView({
-          mode: 'preview',
-          attrs: { planId: 'plan-1' },
-          plans: {
-            'plan-1': {
-              entityId: 'plan-1',
-              entityType: 'plan',
-              name: 'Basic Plan',
-              code: 'basic',
-            },
-          },
-        })
-
-        expect(mockDrawerOpen).not.toHaveBeenCalled()
       })
     })
   })

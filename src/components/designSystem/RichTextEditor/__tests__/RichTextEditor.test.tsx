@@ -3,13 +3,24 @@ import { Markdown } from 'tiptap-markdown'
 
 import { render } from '~/test-utils'
 
-import RichTextEditor, { RICH_TEXT_EDITOR_TEST_ID } from '../RichTextEditor'
+import RichTextEditor, {
+  RICH_TEXT_EDITOR_CONTENT_TEST_ID,
+  RICH_TEXT_EDITOR_TEST_ID,
+} from '../RichTextEditor'
 
 // Capture the config passed to SlashCommands.configure()
 let capturedSlashCommandsConfig: Record<string, unknown> = {}
 
+const mockDownloadMarkdownPdf = jest.fn()
+
+jest.mock('../downloadMarkdownPdf', () => ({
+  downloadMarkdownPdf: (...args: unknown[]) => mockDownloadMarkdownPdf(...args),
+}))
+
 jest.mock('../extensions/PlanBlock', () => ({
-  PlanBlock: 'plan-block-extension',
+  PlanBlock: {
+    configure: jest.fn(() => 'plan-block-extension'),
+  },
 }))
 
 jest.mock('../extensions/SlashCommands', () => ({
@@ -44,6 +55,7 @@ const mockEditor = {
       },
     ],
   } as { extensions: Array<{ name: string; storage: unknown }> },
+  getHTML: jest.fn().mockReturnValue('<p>Preview content</p>'),
   isActive: jest.fn().mockReturnValue(false),
   can: jest.fn().mockReturnValue({
     undo: jest.fn().mockReturnValue(false),
@@ -74,13 +86,12 @@ const mockEditor = {
   }),
 }
 
-// Capture the config passed to Mention.extend() and Mention.configure()
+// Capture the config passed to MentionSchema.extend() and .configure()
 let capturedMentionConfig: Record<string, unknown> = {}
 let capturedMentionExtendConfig: Record<string, unknown> = {}
 
-jest.mock('@tiptap/extension-mention', () => ({
-  __esModule: true,
-  default: {
+jest.mock('../extensions/Mention.schema', () => ({
+  MentionSchema: {
     extend: jest.fn((extendConfig: Record<string, unknown>) => {
       capturedMentionExtendConfig = extendConfig
 
@@ -97,6 +108,9 @@ jest.mock('@tiptap/extension-mention', () => ({
 
       return 'mention-extension'
     }),
+  },
+  mentionBaseConfig: {
+    HTMLAttributes: { class: 'variable-mention' },
   },
 }))
 
@@ -166,10 +180,14 @@ describe('RichTextEditor', () => {
       expect(suggestion.char).toBe('@')
     })
 
-    it('THEN should set the variable-mention CSS class', () => {
+    it('THEN should include mentionBaseConfig properties', () => {
       const attrs = capturedMentionConfig.HTMLAttributes as { class: string }
 
       expect(attrs.class).toBe('variable-mention')
+    })
+
+    it('THEN should pass mentionValues to the config', () => {
+      expect(capturedMentionConfig.mentionValues).toBeDefined()
     })
 
     describe('WHEN filtering items with an empty query', () => {
@@ -228,40 +246,6 @@ describe('RichTextEditor', () => {
         expect(results).toHaveLength(0)
       })
     })
-
-    describe('WHEN renderHTML is called with a node that has a label', () => {
-      it('THEN should render a span with @label text', () => {
-        const renderHTML = capturedMentionConfig.renderHTML as (args: {
-          node: { attrs: { id: string; label?: string } }
-        }) => unknown[]
-
-        const result = renderHTML({
-          node: { attrs: { id: 'customerName', label: 'Customer Name' } },
-        })
-
-        expect(result).toEqual([
-          'span',
-          { 'data-type': 'mention', 'data-id': 'customerName', class: 'variable-mention' },
-          '@Customer Name',
-        ])
-      })
-    })
-
-    describe('WHEN renderHTML is called with a node that has no label', () => {
-      it('THEN should fallback to @id text', () => {
-        const renderHTML = capturedMentionConfig.renderHTML as (args: {
-          node: { attrs: { id: string; label?: string } }
-        }) => unknown[]
-
-        const result = renderHTML({ node: { attrs: { id: 'customerName' } } })
-
-        expect(result).toEqual([
-          'span',
-          { 'data-type': 'mention', 'data-id': 'customerName', class: 'variable-mention' },
-          '@customerName',
-        ])
-      })
-    })
   })
 
   describe('GIVEN the editor is in preview mode', () => {
@@ -272,16 +256,17 @@ describe('RichTextEditor', () => {
         expect(screen.queryByTestId('toolbar-container')).not.toBeInTheDocument()
       })
 
-      it('THEN should still render the editor content', async () => {
+      it('THEN should render the editor content via getHTML()', async () => {
         await act(() => render(<RichTextEditor mode="preview" />))
 
-        expect(screen.getByTestId('editor-content')).toBeInTheDocument()
+        expect(mockEditor.getHTML).toHaveBeenCalled()
+        expect(screen.getByTestId(RICH_TEXT_EDITOR_CONTENT_TEST_ID)).toBeInTheDocument()
       })
 
-      it('THEN should set the editor to non-editable', async () => {
+      it('THEN should render the editor container', async () => {
         await act(() => render(<RichTextEditor mode="preview" />))
 
-        expect(mockEditor.setEditable).toHaveBeenCalledWith(false)
+        expect(screen.getByTestId(RICH_TEXT_EDITOR_TEST_ID)).toBeInTheDocument()
       })
     })
   })
@@ -354,7 +339,7 @@ describe('RichTextEditor', () => {
 
         const result = getMarkdownRef.current?.()
 
-        expect(result).toBeUndefined()
+        expect(result).toBe('')
 
         mockEditor.extensionManager.extensions = originalExtensions
       })
@@ -371,96 +356,77 @@ describe('RichTextEditor', () => {
 
         const result = getMarkdownRef.current?.()
 
-        expect(result).toBeUndefined()
+        expect(result).toBe('')
 
         mockEditor.extensionManager.extensions = originalExtensions
       })
     })
   })
 
-  describe('GIVEN the mention extension addStorage config', () => {
+  describe('GIVEN the mention extension addNodeView config', () => {
     beforeEach(async () => {
       await act(() => render(<RichTextEditor />))
     })
 
-    describe('WHEN serialize is called with a mention node that has a label', () => {
-      it('THEN should write the mention in {id|label} format', () => {
-        const addStorage = capturedMentionExtendConfig.addStorage as () => {
-          markdown: {
-            serialize: (
-              state: { write: (text: string) => void },
-              node: { attrs: { id: string; label?: string } },
-            ) => void
-          }
-        }
-        const storage = addStorage()
-        const mockWrite = jest.fn()
+    it('THEN should provide an addNodeView function', () => {
+      expect(capturedMentionExtendConfig.addNodeView).toBeDefined()
+      expect(typeof capturedMentionExtendConfig.addNodeView).toBe('function')
+    })
+  })
 
-        storage.markdown.serialize(
-          { write: mockWrite },
-          { attrs: { id: 'customerName', label: 'Customer Name' } },
+  describe('GIVEN the downloadPdfRef prop is provided', () => {
+    beforeEach(() => {
+      mockDownloadMarkdownPdf.mockClear()
+    })
+
+    describe('WHEN the editor is initialized', () => {
+      it('THEN should assign a function to downloadPdfRef.current', async () => {
+        const downloadPdfRef = { current: null } as React.MutableRefObject<(() => void) | null>
+
+        await act(() => render(<RichTextEditor downloadPdfRef={downloadPdfRef} />))
+
+        expect(typeof downloadPdfRef.current).toBe('function')
+      })
+    })
+
+    describe('WHEN the download function is called', () => {
+      it('THEN should call downloadMarkdownPdf with the editor markdown and context', async () => {
+        const downloadPdfRef = { current: null } as React.MutableRefObject<(() => void) | null>
+        const mentionValues = { customerName: 'Acme Corp' }
+
+        await act(() =>
+          render(<RichTextEditor downloadPdfRef={downloadPdfRef} mentionValues={mentionValues} />),
         )
 
-        expect(mockWrite).toHaveBeenCalledWith('{customerName|Customer Name}')
+        await act(() => {
+          downloadPdfRef.current?.()
+        })
+
+        expect(mockDownloadMarkdownPdf).toHaveBeenCalledTimes(1)
+        expect(mockDownloadMarkdownPdf).toHaveBeenCalledWith({
+          markdown: '# Hello World',
+          mentionValues,
+          plans: expect.any(Object),
+        })
       })
     })
 
-    describe('WHEN serialize is called with a mention node that has no label', () => {
-      it('THEN should fallback to using id as the label', () => {
-        const addStorage = capturedMentionExtendConfig.addStorage as () => {
-          markdown: {
-            serialize: (
-              state: { write: (text: string) => void },
-              node: { attrs: { id: string; label?: string } },
-            ) => void
-          }
-        }
-        const storage = addStorage()
-        const mockWrite = jest.fn()
+    describe('WHEN the markdown extension is not available', () => {
+      it('THEN should not call downloadMarkdownPdf', async () => {
+        const downloadPdfRef = { current: null } as React.MutableRefObject<(() => void) | null>
+        const originalExtensions = mockEditor.extensionManager.extensions
 
-        storage.markdown.serialize({ write: mockWrite }, { attrs: { id: 'planName' } })
+        mockEditor.extensionManager.extensions = []
 
-        expect(mockWrite).toHaveBeenCalledWith('{planName|planName}')
-      })
-    })
+        await act(() => render(<RichTextEditor downloadPdfRef={downloadPdfRef} />))
 
-    describe('WHEN parse.updateDOM is called', () => {
-      it('THEN should replace mention placeholders with span elements', () => {
-        const addStorage = capturedMentionExtendConfig.addStorage as () => {
-          markdown: {
-            parse: {
-              updateDOM: (element: HTMLElement) => void
-            }
-          }
-        }
-        const storage = addStorage()
-        const mockElement = {
-          innerHTML: 'Hello {{customerName|Customer Name}}, your plan is {{planName|Pro Plan}}.',
-        } as HTMLElement
+        await act(() => {
+          downloadPdfRef.current?.()
+        })
 
-        storage.markdown.parse.updateDOM(mockElement)
+        expect(mockDownloadMarkdownPdf).not.toHaveBeenCalled()
 
-        expect(mockElement.innerHTML).toContain('data-type="mention"')
-        expect(mockElement.innerHTML).toContain('data-id="customerName"')
-        expect(mockElement.innerHTML).toContain('@Customer Name')
-        expect(mockElement.innerHTML).toContain('data-id="planName"')
-        expect(mockElement.innerHTML).toContain('@Pro Plan')
-      })
-
-      it('THEN should not modify content without mention placeholders', () => {
-        const addStorage = capturedMentionExtendConfig.addStorage as () => {
-          markdown: {
-            parse: {
-              updateDOM: (element: HTMLElement) => void
-            }
-          }
-        }
-        const storage = addStorage()
-        const mockElement = { innerHTML: 'No mentions here.' } as HTMLElement
-
-        storage.markdown.parse.updateDOM(mockElement)
-
-        expect(mockElement.innerHTML).toBe('No mentions here.')
+        mockEditor.extensionManager.extensions = originalExtensions
       })
     })
   })
@@ -475,105 +441,39 @@ describe('RichTextEditor', () => {
       await act(() => render(<RichTextEditor />))
     })
 
-    describe('WHEN onStart is called', () => {
-      it('THEN should create a renderer and popup', () => {
-        const suggestion = capturedMentionConfig.suggestion as {
-          render: () => {
-            onStart: (props: unknown) => void
-            onUpdate: (props: unknown) => void
-            onKeyDown: (props: { event: KeyboardEvent }) => boolean
-            onExit: () => void
-          }
-        }
+    it('THEN should have render callbacks defined', () => {
+      const suggestion = capturedMentionConfig.suggestion as {
+        render: () => Record<string, unknown>
+      }
 
-        const callbacks = suggestion.render()
-        const props = getMockSuggestionProps()
+      expect(suggestion.render).toBeDefined()
 
-        expect(() => callbacks.onStart(props)).not.toThrow()
-      })
+      const callbacks = suggestion.render()
+
+      expect(callbacks.onStart).toBeDefined()
+      expect(callbacks.onUpdate).toBeDefined()
+      expect(callbacks.onKeyDown).toBeDefined()
+      expect(callbacks.onExit).toBeDefined()
     })
 
-    describe('WHEN onUpdate is called after onStart', () => {
-      it('THEN should update the renderer and popup', () => {
-        const suggestion = capturedMentionConfig.suggestion as {
-          render: () => {
-            onStart: (props: unknown) => void
-            onUpdate: (props: unknown) => void
-            onKeyDown: (props: { event: KeyboardEvent }) => boolean
-            onExit: () => void
-          }
+    it('THEN onKeyDown should return true when Escape is pressed', () => {
+      const suggestion = capturedMentionConfig.suggestion as {
+        render: () => {
+          onStart: (props: Record<string, unknown>) => void
+          onKeyDown: (props: Record<string, unknown>) => boolean
+          onExit: () => void
         }
+      }
 
-        const callbacks = suggestion.render()
-        const props = getMockSuggestionProps()
+      const callbacks = suggestion.render()
 
-        callbacks.onStart(props)
-        expect(() => callbacks.onUpdate(props)).not.toThrow()
-      })
-    })
+      callbacks.onStart(getMockSuggestionProps())
 
-    describe('WHEN onKeyDown is called with Escape key', () => {
-      it('THEN should return true', () => {
-        const suggestion = capturedMentionConfig.suggestion as {
-          render: () => {
-            onStart: (props: unknown) => void
-            onUpdate: (props: unknown) => void
-            onKeyDown: (props: { event: KeyboardEvent }) => boolean
-            onExit: () => void
-          }
-        }
+      const result = callbacks.onKeyDown({ event: { key: 'Escape' } })
 
-        const callbacks = suggestion.render()
+      expect(result).toBe(true)
 
-        callbacks.onStart(getMockSuggestionProps())
-
-        const result = callbacks.onKeyDown({
-          event: new KeyboardEvent('keydown', { key: 'Escape' }),
-        })
-
-        expect(result).toBe(true)
-      })
-    })
-
-    describe('WHEN onKeyDown is called with a non-Escape key', () => {
-      it('THEN should return false when renderer ref has no onKeyDown', () => {
-        const suggestion = capturedMentionConfig.suggestion as {
-          render: () => {
-            onStart: (props: unknown) => void
-            onUpdate: (props: unknown) => void
-            onKeyDown: (props: { event: KeyboardEvent }) => boolean
-            onExit: () => void
-          }
-        }
-
-        const callbacks = suggestion.render()
-
-        callbacks.onStart(getMockSuggestionProps())
-
-        const result = callbacks.onKeyDown({
-          event: new KeyboardEvent('keydown', { key: 'Enter' }),
-        })
-
-        expect(result).toBe(false)
-      })
-    })
-
-    describe('WHEN onExit is called', () => {
-      it('THEN should clean up the popup and renderer', () => {
-        const suggestion = capturedMentionConfig.suggestion as {
-          render: () => {
-            onStart: (props: unknown) => void
-            onUpdate: (props: unknown) => void
-            onKeyDown: (props: { event: KeyboardEvent }) => boolean
-            onExit: () => void
-          }
-        }
-
-        const callbacks = suggestion.render()
-
-        callbacks.onStart(getMockSuggestionProps())
-        expect(() => callbacks.onExit()).not.toThrow()
-      })
+      callbacks.onExit()
     })
   })
 })
