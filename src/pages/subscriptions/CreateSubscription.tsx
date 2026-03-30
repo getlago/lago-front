@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useFormik } from 'formik'
 import { Icon } from 'lago-design-system'
+import { debounce } from 'lodash'
 import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -42,7 +43,7 @@ import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { MinimumCommitmentFormValues } from '~/components/plans/drawers/MinimumCommitmentDrawer'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
-import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
+import { PlanSettingsFormValues, PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
@@ -370,6 +371,30 @@ const CreateSubscription = () => {
     planIdToFetch: subscriptionFormikProps.values.planId,
     isUsedInSubscriptionForm: true,
   })
+
+  const planSettingsInitialValues = useMemo<PlanSettingsFormValues>(
+    () => ({
+      name: planFormikProps.initialValues.name ?? '',
+      code: planFormikProps.initialValues.code ?? '',
+      description: planFormikProps.initialValues.description ?? '',
+      interval: planFormikProps.initialValues.interval ?? PlanInterval.Monthly,
+      amountCurrency: planFormikProps.initialValues.amountCurrency ?? CurrencyEnum.Usd,
+      taxes: planFormikProps.initialValues.taxes ?? [],
+    }),
+    [planFormikProps.initialValues],
+  )
+
+  // Have to debounce udpate to formik to avoir form slowlyness for now
+  // While tanstack works very fast, formik code is still there and would affect the rendering so better to delay it a bit
+  const handlePlanSettingsChange = useMemo(
+    () =>
+      debounce((changes: Partial<PlanSettingsFormValues>) => {
+        Object.entries(changes).forEach(([key, value]) => {
+          planFormikProps.setFieldValue(key, value)
+        })
+      }, 100),
+    [planFormikProps],
+  )
 
   const subscriptionPlanId = subscriptionFormikProps.values.planId
   const alreadyExistingPlanFixedChargesIds =
@@ -895,7 +920,8 @@ const CreateSubscription = () => {
                             <PlanSettingsSection
                               isInSubscriptionForm={isInSubscriptionForm}
                               subscriptionFormType={formType}
-                              formikProps={planFormikProps}
+                              initialValuesFromFormik={planSettingsInitialValues}
+                              onSettingsChange={handlePlanSettingsChange}
                             />
                           </CenteredPage.SubsectionWrapper>
                         </Card>
@@ -949,25 +975,23 @@ const CreateSubscription = () => {
                             />
 
                             <CenteredPage.SubsectionWrapper>
-                              <Card className="gap-8">
-                                <CommitmentsSection
-                                  formikProps={planFormikProps}
-                                  onDrawerSave={(values: MinimumCommitmentFormValues) => {
-                                    planFormikProps.setFieldValue('minimumCommitment', {
-                                      ...planFormikProps.values.minimumCommitment,
-                                      ...values,
-                                      commitmentType: CommitmentTypeEnum.MinimumCommitment,
-                                    })
-                                  }}
-                                />
+                              <CommitmentsSection
+                                formikProps={planFormikProps}
+                                onDrawerSave={(values: MinimumCommitmentFormValues) => {
+                                  planFormikProps.setFieldValue('minimumCommitment', {
+                                    ...planFormikProps.values.minimumCommitment,
+                                    ...values,
+                                    commitmentType: CommitmentTypeEnum.MinimumCommitment,
+                                  })
+                                }}
+                              />
 
-                                {formType === FORM_TYPE_ENUM.creation && (
-                                  <>
-                                    <ProgressiveBillingSection />
-                                    <FeatureEntitlementSection />
-                                  </>
-                                )}
-                              </Card>
+                              {formType === FORM_TYPE_ENUM.creation && (
+                                <>
+                                  <ProgressiveBillingSection />
+                                  <FeatureEntitlementSection />
+                                </>
+                              )}
                             </CenteredPage.SubsectionWrapper>
                           </Card>
                         </PlanFormProvider>

@@ -5,7 +5,6 @@ import { forwardRef, useImperativeHandle, useRef } from 'react'
 import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
-import { DRAWER_TRANSITION_DURATION } from '~/components/drawers/const'
 import { useDrawer } from '~/components/drawers/useDrawer'
 import { RemoveChargeWarningDialogRef } from '~/components/plans/RemoveChargeWarningDialog'
 import {
@@ -46,8 +45,6 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 
 import { DEFAULT_VALUES } from './usageChargeDrawerConstants'
 import { UsageChargeDrawerContent } from './UsageChargeDrawerContent'
-
-const COMBOBOX_FOCUS_DELAY = DRAWER_TRANSITION_DURATION + 150
 
 gql`
   fragment BillableMetricForUsageChargeSection on BillableMetric {
@@ -264,6 +261,7 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
     const initialChargeRef = useRef<LocalUsageChargeInput | undefined>(undefined)
     const isCreateModeRef = useRef(false)
     const isUsedInSubscriptionRef = useRef(false)
+    const shouldFocusComboBoxRef = useRef(false)
 
     const form = useAppForm({
       defaultValues: DEFAULT_VALUES,
@@ -318,6 +316,15 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
         title: translate('text_177213328514118gjrdaqs8s'),
         shouldPromptOnClose: () => form.state.isDirty,
         onClose: () => form.reset(),
+        onEntered: () => {
+          if (!shouldFocusComboBoxRef.current) return
+          shouldFocusComboBoxRef.current = false
+          ;(
+            document.querySelector(
+              `.${SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+            ) as HTMLElement
+          )?.click()
+        },
         children: (
           <PlanFormProvider currency={currency} interval={interval}>
             <UsageChargeDrawerContent
@@ -406,20 +413,10 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
           initialChargeRef.current = undefined
           isUsedInSubscriptionRef.current = false
           form.reset(DEFAULT_VALUES, { keepDefaultValues: true })
+          shouldFocusComboBoxRef.current = true
         }
 
         openChargeDrawer()
-
-        // Auto-focus ComboBox in create mode
-        if (!charge) {
-          setTimeout(() => {
-            ;(
-              document.querySelector(
-                `.${SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-              ) as HTMLElement
-            )?.click()
-          }, COMBOBOX_FOCUS_DELAY)
-        }
       },
       closeDrawer: () => {
         chargeDrawer.close()

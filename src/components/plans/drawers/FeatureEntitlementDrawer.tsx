@@ -11,7 +11,6 @@ import {
 } from 'react'
 import { z } from 'zod'
 
-import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Drawer, DrawerRef } from '~/components/designSystem/Drawer'
 import { Selector } from '~/components/designSystem/Selector'
@@ -135,6 +134,12 @@ export const FeatureEntitlementDrawer = forwardRef<
       drawerRef.current?.closeDrawer()
     },
   })
+
+  const focusFeatureInput = useCallback(() => {
+    scrollToAndClickElement({
+      selector: `.${featureSearchClassName} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+    })
+  }, [featureSearchClassName])
 
   useImperativeHandle(ref, () => ({
     openDrawer: (values?: FeatureEntitlementFormValues) => {
@@ -270,6 +275,7 @@ export const FeatureEntitlementDrawer = forwardRef<
     <Drawer
       ref={drawerRef}
       title={translate('text_63e26d8308d03687188221a6')}
+      onEntered={focusFeatureInput}
       showCloseWarningDialog={isDirty}
       onClose={() => {
         form.reset()
@@ -337,11 +343,7 @@ export const FeatureEntitlementDrawer = forwardRef<
                 />
 
                 {values.privileges.length > 0 && (
-                  <div className="flex flex-col gap-4 *:w-full *:flex-1">
-                    <Alert type="info">{translate('text_1753864223060ysekqpoor2y')}</Alert>
-
-                    <PrivilegesTable form={form} featureCode={values.featureCode} />
-                  </div>
+                  <PrivilegesTable form={form} featureCode={values.featureCode} />
                 )}
 
                 {displayAddPrivilegeInput ? (
@@ -368,6 +370,7 @@ export const FeatureEntitlementDrawer = forwardRef<
                   </div>
                 ) : (
                   <Button
+                    fitContent
                     align="left"
                     variant="inline"
                     startIcon="plus"

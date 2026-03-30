@@ -28,8 +28,8 @@ export const StandardCharge = memo(() => {
           disabled={disabled}
           label={translate('text_624453d52e945301380e49b6')}
           InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
+            startAdornment: (
+              <InputAdornment position="start">
                 {chargePricingUnitShortName || getCurrencySymbol(currency)}
               </InputAdornment>
             ),

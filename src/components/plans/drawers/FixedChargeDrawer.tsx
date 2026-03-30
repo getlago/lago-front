@@ -6,7 +6,7 @@ import { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState
 import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
-import { Drawer, DRAWER_TRANSITION_DURATION, DrawerRef } from '~/components/designSystem/Drawer'
+import { Drawer, DrawerRef } from '~/components/designSystem/Drawer'
 import { Selector } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
 import { ComboboxItem } from '~/components/form'
@@ -40,8 +40,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useChargeForm } from '~/hooks/plans/useChargeForm'
-
-const COMBOBOX_FOCUS_DELAY = DRAWER_TRANSITION_DURATION + 150
 
 gql`
   fragment AddOnForFixedChargesSection on AddOn {
@@ -154,6 +152,17 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
     const alertMessageRef = useRef<string | undefined>(undefined)
     const [isCreateMode, setIsCreateMode] = useState(false)
     const isUsedInSubscriptionRef = useRef(false)
+    const shouldFocusComboBoxRef = useRef(false)
+
+    const focusComboBox = useCallback(() => {
+      if (!shouldFocusComboBoxRef.current) return
+      shouldFocusComboBoxRef.current = false
+      ;(
+        document.querySelector(
+          `.${SEARCH_ADD_ON_IN_FIXED_CHARGE_DRAWER_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+        ) as HTMLElement
+      )?.click()
+    }, [])
 
     const [getAddOnsForFixedChargesSection, { loading: addOnsLoading, data: addOnsData }] =
       useGetAddOnsForFixedChargesSectionLazyQuery({
@@ -241,20 +250,13 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
           alertMessageRef.current = undefined
           isUsedInSubscriptionRef.current = false
           form.reset(DEFAULT_VALUES, { keepDefaultValues: true })
+
+          // Pre-fetch add-ons data so it's ready when the ComboBox is focused
+          getAddOnsForFixedChargesSection()
+          shouldFocusComboBoxRef.current = true
         }
 
         drawerRef.current?.openDrawer()
-
-        // Auto-focus ComboBox in create mode
-        if (!charge) {
-          setTimeout(() => {
-            ;(
-              document.querySelector(
-                `.${SEARCH_ADD_ON_IN_FIXED_CHARGE_DRAWER_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-              ) as HTMLElement
-            )?.click()
-          }, COMBOBOX_FOCUS_DELAY)
-        }
       },
       closeDrawer: () => {
         drawerRef.current?.closeDrawer()
@@ -372,6 +374,7 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
       <Drawer
         ref={drawerRef}
         title={translate('text_1772133285141kidk35mbh3o')}
+        onEntered={focusComboBox}
         showCloseWarningDialog={isDirty}
         onClose={() => {
           form.reset()
@@ -384,7 +387,7 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
           <CenteredPage.SectionWrapper>
             <CenteredPage.PageTitle
               title={translate('text_1772133285141kidk35mbh3o')}
-              description={translate('text_1772133285141difuaq9i2kg')}
+              description={translate('text_1760729707268c05r06ip8vg')}
             />
 
             {isCreatePickerScreen ? (

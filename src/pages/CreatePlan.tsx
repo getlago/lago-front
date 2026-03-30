@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { debounce } from 'lodash'
 import { useCallback, useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -21,7 +22,7 @@ import {
   ImpactOverridenSubscriptionsDialog,
   ImpactOverridenSubscriptionsDialogRef,
 } from '~/components/plans/ImpactOverridenSubscriptionsDialog'
-import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
+import { PlanSettingsFormValues, PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
 import { LocalUsageChargeInput } from '~/components/plans/types'
@@ -30,7 +31,7 @@ import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/Prem
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
-import { FORM_TYPE_ENUM } from '~/core/constants/form'
+import { FORM_ERRORS_ENUM, FORM_TYPE_ENUM } from '~/core/constants/form'
 import {
   CustomerSubscriptionDetailsTabsOptionsEnum,
   PlanDetailsTabsOptionsEnum,
@@ -157,7 +158,7 @@ const CreatePlan = () => {
   const { type: actionType } = useDuplicatePlanVar()
   const [searchParams] = useSearchParams()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-  const { formikProps, isEdition, loading, plan, type } = usePlanForm({})
+  const { formikProps, errorCode, isEdition, loading, plan, type } = usePlanForm({})
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const impactOverridenSubscriptionsDialogRef = useRef<ImpactOverridenSubscriptionsDialogRef>(null)
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
@@ -216,6 +217,40 @@ const CreatePlan = () => {
 
     return translate('text_624453d52e945301380e4988')
   }, [isEdition, translate])
+
+  const planSettingsInitialValues = useMemo<PlanSettingsFormValues>(
+    () => ({
+      name: formikProps.initialValues.name ?? '',
+      code: formikProps.initialValues.code ?? '',
+      description: formikProps.initialValues.description ?? '',
+      interval: formikProps.initialValues.interval ?? PlanInterval.Monthly,
+      amountCurrency: formikProps.initialValues.amountCurrency ?? CurrencyEnum.Usd,
+      taxes: formikProps.initialValues.taxes ?? [],
+    }),
+    [formikProps.initialValues],
+  )
+
+  // Have to debounce update to formik to avoid form slowness for now.
+  // While tanstack works very fast, formik code is still there and would affect the rendering so better to delay it a bit.
+  // We accumulate partial changes in a ref so that synchronous calls (e.g. name + code
+  // from NameAndCodeGroup) are batched before the debounced flush fires.
+  const pendingSettingsChangesRef = useRef<Partial<PlanSettingsFormValues>>({})
+
+  const handlePlanSettingsChange = useMemo(() => {
+    const flush = debounce(() => {
+      const changes = { ...pendingSettingsChangesRef.current }
+
+      pendingSettingsChangesRef.current = {}
+      Object.entries(changes).forEach(([key, value]) => {
+        formikProps.setFieldValue(key, value)
+      })
+    }, 100)
+
+    return (changes: Partial<PlanSettingsFormValues>) => {
+      Object.assign(pendingSettingsChangesRef.current, changes)
+      flush()
+    }
+  }, [formikProps])
 
   const handleSubscriptionFeeSave = (values: SubscriptionFeeFormValues) => {
     formikProps.setValues({
@@ -294,8 +329,14 @@ const CreatePlan = () => {
 
                 <PlanSettingsSection
                   canBeEdited={canBeEdited}
-                  formikProps={formikProps}
                   isEdition={isEdition}
+                  initialValuesFromFormik={planSettingsInitialValues}
+                  onSettingsChange={handlePlanSettingsChange}
+                  codeError={
+                    errorCode === FORM_ERRORS_ENUM.existingCode
+                      ? 'text_632a2d437e341dcc76817556'
+                      : undefined
+                  }
                 />
               </CenteredPage.SectionWrapper>
 
@@ -337,13 +378,14 @@ const CreatePlan = () => {
                 />
 
                 <CenteredPage.SubsectionWrapper>
-                  <ProgressiveBillingSection
-                    formikProps={formikProps}
-                    onDrawerSave={handleProgressiveBillingSave}
-                  />
                   <CommitmentsSection
                     formikProps={formikProps}
                     onDrawerSave={handleMinimumCommitmentSave}
+                  />
+
+                  <ProgressiveBillingSection
+                    formikProps={formikProps}
+                    onDrawerSave={handleProgressiveBillingSave}
                   />
 
                   <FeatureEntitlementSection

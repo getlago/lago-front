@@ -80,6 +80,7 @@ gql`
 
 interface UsePlanFormReturn {
   formikProps: FormikProps<PlanFormInput>
+  errorCode?: string
   isEdition: boolean
   loading: boolean
   plan?: (Omit<EditPlanFragment, 'name' | 'code'> & { name?: string; code?: string }) | null
@@ -496,11 +497,12 @@ export const usePlanForm: ({
   return useMemo(
     () => ({
       formikProps,
+      errorCode,
       isEdition,
       loading,
       type,
       plan,
     }),
-    [formikProps, isEdition, loading, type, plan],
+    [formikProps, errorCode, isEdition, loading, type, plan],
   )
 }

@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event'
 
 import { render } from '~/test-utils'
 
-import { VOLUME_CHARGE_TABLE_ADD_TIER_TEST_ID, VolumeChargeTable } from '../VolumeChargeTable'
+import { VOLUME_CHARGE_TABLE_ADD_TIER_TEST_ID } from '../chargeTestIds'
+import { VolumeChargeTable } from '../VolumeChargeTable'
 
 // --- Mocks ---
 

@@ -14,6 +14,15 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { MenuPopper } from '~/styles'
 
+import {
+  CHARGE_PERCENTAGE_ADD_FIXED_FEE_TEST_ID,
+  CHARGE_PERCENTAGE_ADD_FREE_UNITS_TEST_ID,
+  CHARGE_PERCENTAGE_ADD_MAX_CTA_TEST_ID,
+  CHARGE_PERCENTAGE_ADD_MIN_CTA_TEST_ID,
+  CHARGE_PERCENTAGE_ADD_MIN_MAX_TEST_ID,
+  CHARGE_PERCENTAGE_REMOVE_FIXED_FEE_TEST_ID,
+} from './chargeTestIds'
+
 gql`
   fragment PercentageCharge on Properties {
     fixedAmount
@@ -24,14 +33,6 @@ gql`
     perTransactionMaxAmount
   }
 `
-
-// Test ID constants
-export const CHARGE_PERCENTAGE_ADD_FIXED_FEE_TEST_ID = 'add-fixed-fee'
-export const CHARGE_PERCENTAGE_REMOVE_FIXED_FEE_TEST_ID = 'remove-fixed-fee'
-export const CHARGE_PERCENTAGE_ADD_FREE_UNITS_TEST_ID = 'add-free-units'
-export const CHARGE_PERCENTAGE_ADD_MIN_MAX_TEST_ID = 'add-min-max-drowdown-cta'
-export const CHARGE_PERCENTAGE_ADD_MIN_CTA_TEST_ID = 'add-min-cta'
-export const CHARGE_PERCENTAGE_ADD_MAX_CTA_TEST_ID = 'add-max-cta'
 
 interface ChargePercentageProps {
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
@@ -105,8 +106,8 @@ export const ChargePercentage = memo(({ premiumWarningDialogRef }: ChargePercent
                 disabled={disabled}
                 label={translate('text_62ff5d01a306e274d4ffcc1e')}
                 InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
+                  startAdornment: (
+                    <InputAdornment position="start">
                       {chargePricingUnitShortName || getCurrencySymbol(currency)}
                     </InputAdornment>
                   ),
@@ -199,8 +200,8 @@ export const ChargePercentage = memo(({ premiumWarningDialogRef }: ChargePercent
                 disabled={disabled}
                 label={translate('text_62ff5d01a306e274d4ffcc48')}
                 InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
+                  startAdornment: (
+                    <InputAdornment position="start">
                       {chargePricingUnitShortName || getCurrencySymbol(currency)}
                     </InputAdornment>
                   ),
@@ -265,8 +266,8 @@ export const ChargePercentage = memo(({ premiumWarningDialogRef }: ChargePercent
                       : undefined
                   }
                   InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
+                    startAdornment: (
+                      <InputAdornment position="start">
                         {chargePricingUnitShortName || getCurrencySymbol(currency)}
                       </InputAdornment>
                     ),
@@ -332,8 +333,8 @@ export const ChargePercentage = memo(({ premiumWarningDialogRef }: ChargePercent
                       : undefined
                   }
                   InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
+                    startAdornment: (
+                      <InputAdornment position="start">
                         {chargePricingUnitShortName || getCurrencySymbol(currency)}
                       </InputAdornment>
                     ),

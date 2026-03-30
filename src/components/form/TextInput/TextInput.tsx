@@ -275,9 +275,9 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
           </div>
         )}
         {!!description && (
-          <div>
-            <Typography variant="caption">{description}</Typography>
-          </div>
+          <Typography className="mb-3" variant="caption">
+            {description}
+          </Typography>
         )}
         <MuiTextField
           ref={ref}

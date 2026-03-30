@@ -16,9 +16,15 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 const NameAndCodeGroupWrapper = ({
   isDisabled = false,
   defaultValues = { name: '', code: '' },
+  onFieldChange,
+  nameProps,
+  codeProps,
 }: {
   isDisabled?: boolean
   defaultValues?: { name: string; code: string }
+  onFieldChange?: (field: 'name' | 'code', value: string) => void
+  nameProps?: Record<string, unknown>
+  codeProps?: Record<string, unknown>
 }) => {
   const form = useAppForm({
     defaultValues: {
@@ -34,6 +40,9 @@ const NameAndCodeGroupWrapper = ({
           form={form}
           fields={{ name: 'name', code: 'code' }}
           isDisabled={isDisabled}
+          onFieldChange={onFieldChange}
+          nameProps={nameProps}
+          codeProps={codeProps}
         />
       </form>
     </form.AppForm>
@@ -257,6 +266,87 @@ describe('NameAndCodeGroup', () => {
       await user.clear(nameInput)
 
       expect(nameInput).toHaveValue('')
+    })
+  })
+
+  describe('onFieldChange Callback', () => {
+    it('calls onFieldChange with name on name input', async () => {
+      const user = userEvent.setup()
+      const mockOnFieldChange = jest.fn()
+
+      await act(() => render(<NameAndCodeGroupWrapper onFieldChange={mockOnFieldChange} />))
+
+      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
+
+      await user.type(nameInput, 'A')
+
+      expect(mockOnFieldChange).toHaveBeenCalledWith('name', 'A')
+    })
+
+    it('calls onFieldChange with code when name auto-syncs', async () => {
+      const user = userEvent.setup()
+      const mockOnFieldChange = jest.fn()
+
+      await act(() => render(<NameAndCodeGroupWrapper onFieldChange={mockOnFieldChange} />))
+
+      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
+
+      await user.type(nameInput, 'A')
+
+      expect(mockOnFieldChange).toHaveBeenCalledWith('code', 'a')
+    })
+
+    it('calls onFieldChange with code on direct code input', async () => {
+      const user = userEvent.setup()
+      const mockOnFieldChange = jest.fn()
+
+      await act(() => render(<NameAndCodeGroupWrapper onFieldChange={mockOnFieldChange} />))
+
+      const codeInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380d9')
+
+      await user.type(codeInput, 'x')
+
+      expect(mockOnFieldChange).toHaveBeenCalledWith('code', 'x')
+    })
+
+    it('does not call onFieldChange for auto-synced code when disabled', async () => {
+      const user = userEvent.setup()
+      const mockOnFieldChange = jest.fn()
+
+      await act(() =>
+        render(
+          <NameAndCodeGroupWrapper
+            isDisabled={true}
+            defaultValues={{ name: '', code: 'existing' }}
+            onFieldChange={mockOnFieldChange}
+          />,
+        ),
+      )
+
+      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
+
+      await user.type(nameInput, 'A')
+
+      expect(mockOnFieldChange).toHaveBeenCalledWith('name', 'A')
+      expect(mockOnFieldChange).not.toHaveBeenCalledWith('code', expect.any(String))
+    })
+  })
+
+  describe('nameProps and codeProps', () => {
+    it('passes nameProps through to the name TextInputField', async () => {
+      await act(() => render(<NameAndCodeGroupWrapper nameProps={{ autoFocus: true }} />))
+
+      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
+
+      expect(nameInput).toHaveFocus()
+    })
+
+    it('passes codeProps through to the code TextInputField', async () => {
+      await act(() =>
+        render(<NameAndCodeGroupWrapper codeProps={{ placeholder: 'custom-placeholder' }} />),
+      )
+
+      expect(screen.getByPlaceholderText('custom-placeholder')).toBeInTheDocument()
     })
   })
 })

@@ -6,10 +6,10 @@ import {
   CHARGE_PERCENTAGE_ADD_MIN_CTA_TEST_ID,
   CHARGE_PERCENTAGE_ADD_MIN_MAX_TEST_ID,
   CHARGE_PERCENTAGE_REMOVE_FIXED_FEE_TEST_ID,
-} from '~/components/plans/ChargePercentage'
-import { GRADUATED_CHARGE_TABLE_ADD_TIER_TEST_ID } from '~/components/plans/GraduatedChargeTable'
-import { GRADUATED_PERCENTAGE_CHARGE_TABLE_ADD_TIER_TEST_ID } from '~/components/plans/GraduatedPercentageChargeTable'
-import { VOLUME_CHARGE_TABLE_ADD_TIER_TEST_ID } from '~/components/plans/VolumeChargeTable'
+  GRADUATED_CHARGE_TABLE_ADD_TIER_TEST_ID,
+  GRADUATED_PERCENTAGE_CHARGE_TABLE_ADD_TIER_TEST_ID,
+  VOLUME_CHARGE_TABLE_ADD_TIER_TEST_ID,
+} from '~/components/plans/chargeTestIds'
 
 import { planWithChargesName } from '../../support/reusableConstants'
 

@@ -132,7 +132,7 @@ export const ChargeFilterDrawerContent = withForm({
             <div className="flex flex-col gap-3">
               <div className="flex flex-col gap-1">
                 <Typography color="grey700" variant="captionHl">
-                  {translate('text_1773687275957bjkl8w0vrsg')}
+                  {translate('text_65201b8216455901fe273dd5')}
                 </Typography>
                 <Typography color="grey600" variant="caption">
                   {translate('text_1773687275957f97sto0sosz')}

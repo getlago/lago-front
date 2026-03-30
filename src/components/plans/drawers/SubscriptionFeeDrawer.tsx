@@ -151,8 +151,8 @@ export const SubscriptionFeeDrawer = forwardRef<
                     label={translate('text_624453d52e945301380e49b6')}
                     InputProps={{
                       inputRef: amountRef,
-                      endAdornment: (
-                        <InputAdornment position="end">
+                      startAdornment: (
+                        <InputAdornment position="start">
                           {getCurrencySymbol(currency || CurrencyEnum.Usd)}
                         </InputAdornment>
                       ),
