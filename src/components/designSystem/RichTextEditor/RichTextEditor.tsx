@@ -1,3 +1,4 @@
+import { Editor } from '@tiptap/core'
 import Placeholder from '@tiptap/extension-placeholder'
 import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '@tiptap/react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -10,11 +11,13 @@ import { EntityData, RichTextEditorProvider } from './common/RichTextEditorConte
 import { getBaseExtensions } from './extensions/baseExtensions'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
 import {
+  configureMention,
   mentionBaseConfig,
   MentionSchema,
   type MentionSchemaOptions,
 } from './extensions/Mention.schema'
 import { PlanBlock } from './extensions/PlanBlock'
+import { PlanBlockSchema } from './extensions/PlanBlock.schema'
 import { SlashCommands } from './extensions/SlashCommands'
 import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
 import { MentionList, type MentionListRef } from './Mentions/MentionList'
@@ -180,11 +183,6 @@ const RichTextEditor = ({
     }
   }, [editor, isPreview])
 
-  const contextValue = useMemo(
-    () => ({ mode, mentionValues, plans, setPlan }),
-    [mode, mentionValues, plans, setPlan],
-  )
-
   const getMarkdown = useCallback((): string | undefined => {
     if (!editor || !editor.storage || !('markdown' in editor.storage)) return undefined
 
@@ -200,6 +198,36 @@ const RichTextEditor = ({
 
     return storage.getMarkdown() as string
   }, [editor])
+
+  // Generate preview HTML with a fresh headless editor so renderHTML() has current data.
+  // TipTap binds extension options at schema creation time, so mutating them later has no effect.
+  const previewHtml = useMemo(() => {
+    if (!isPreview || !editor) return ''
+
+    const markdown = getMarkdown()
+
+    if (!markdown) return editor.getHTML()
+
+    const previewEditor = new Editor({
+      extensions: [
+        ...getBaseExtensions(),
+        configureMention({ ...mentionBaseConfig, mentionValues }),
+        PlanBlockSchema.configure({ plans: { ...plansFromProps, ...plans } }),
+      ],
+      content: markdown,
+    })
+
+    const html = previewEditor.getHTML()
+
+    previewEditor.destroy()
+
+    return html
+  }, [isPreview, editor, getMarkdown, mentionValues, plansFromProps, plans])
+
+  const contextValue = useMemo(
+    () => ({ mode, mentionValues, plans, setPlan }),
+    [mode, mentionValues, plans, setPlan],
+  )
 
   useEffect(() => {
     if (!getMarkdownRef) return
@@ -243,7 +271,7 @@ const RichTextEditor = ({
           className="ProseMirror"
           contentEditable={false}
           data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID}
-          dangerouslySetInnerHTML={{ __html: editor.getHTML() }}
+          dangerouslySetInnerHTML={{ __html: previewHtml }}
         />
       </div>
     )
