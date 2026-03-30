@@ -1,5 +1,5 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { RefObject, useCallback, useMemo, useRef } from 'react'
+import { RefObject, useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
@@ -34,6 +34,7 @@ import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { ChargeFilterDrawerProvider } from '~/contexts/ChargeFilterDrawerContext'
 import {
   ALL_FILTER_VALUES,
+  chargeModelLookupTranslation,
   FORM_TYPE_ENUM,
   SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
@@ -141,6 +142,14 @@ export const UsageChargeDrawerContent = withForm({
       },
       [getMeteredBillableMetrics, getRecurringBillableMetrics],
     )
+
+    // Pre-fetch billable metrics on mount so data is ready when ComboBox is focused
+    useEffect(() => {
+      if (isCreateMode) {
+        combinedSearchQuery()
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const billableMetricsComboboxData = useMemo(() => {
       const result: ComboboxDataGrouped[] = []
@@ -700,17 +709,28 @@ export const UsageChargeDrawerContent = withForm({
 
                 {!!formValues.billableMetric.recurring && (
                   <div className="flex flex-col gap-4">
+                    <div>
+                      <Typography variant="captionHl" color="grey700">
+                        {translate('text_177488074309762bkd4znl3p')}
+                      </Typography>
+                      <Typography variant="caption" color="grey600">
+                        {translate('text_1774880743098ioxd3oxanxo')}
+                      </Typography>
+                    </div>
+
                     <form.AppField name="prorated">
                       {(field) => (
                         <field.SwitchField
-                          label={translate('text_649c54823c90890062476255')}
+                          label={translate('text_177488074309762bkd4znl3p')}
                           disabled={isInSubscriptionForm || disabled || isProratedOptionDisabled}
                           subLabel={
                             isProratedOptionDisabled
                               ? translate('text_649c54823c9089006247625a', {
-                                  chargeModel: formValues.chargeModel,
+                                  chargeModel: translate(
+                                    chargeModelLookupTranslation[formValues.chargeModel],
+                                  ),
                                 })
-                              : translate('text_649c54823c90890062476259')
+                              : ''
                           }
                         />
                       )}
@@ -760,7 +780,7 @@ export const UsageChargeDrawerContent = withForm({
 
                 <TaxesSelectorSection
                   title={translate('text_1760729707267seik64l67k8')}
-                  description={translate('text_6662c316125d2400f7995ff6')}
+                  description={translate('text_17607297072672w5hid8gl1i')}
                   taxes={formValues.taxes}
                   comboboxSelector={SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME}
                   onUpdate={(newTaxArray) => {

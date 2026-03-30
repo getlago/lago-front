@@ -22,6 +22,7 @@ export type BaseDrawerProps = {
   children: ReactNode
   onClose: () => void
   onExited?: () => void
+  onEntered?: () => void
   className?: string
   actions?: ReactNode
   actionsClassName?: string
@@ -44,6 +45,7 @@ export const BaseDrawer = ({
   children,
   onClose,
   onExited,
+  onEntered,
   className,
   actions,
   actionsClassName,
@@ -108,14 +110,27 @@ export const BaseDrawer = ({
     return () => clearTimeout(timeout)
   }, [state, handleExit])
 
-  // Handle CSS transition end for exit animation
+  // Handle CSS transition end for both enter and exit animations
+  const enteredFiredRef = useRef(false)
+
+  useEffect(() => {
+    if (state === 'mounting') {
+      enteredFiredRef.current = false
+    }
+  }, [state])
+
   const handleTransitionEnd = useCallback(
     (e: React.TransitionEvent) => {
-      if (e.target === paperRef.current && e.propertyName === 'transform' && state === 'closing') {
+      if (e.target !== paperRef.current || e.propertyName !== 'transform') return
+
+      if (state === 'closing') {
         handleExit()
+      } else if (state === 'open' && !enteredFiredRef.current) {
+        enteredFiredRef.current = true
+        onEntered?.()
       }
     },
-    [state, handleExit],
+    [state, handleExit, onEntered],
   )
 
   // Close this drawer when clearAll is called (e.g. on browser navigation)

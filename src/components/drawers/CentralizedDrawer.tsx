@@ -16,6 +16,7 @@ export type CentralizedDrawerProps = {
   fullContentHeight?: boolean
   className?: string
   onClose?: () => void
+  onEntered?: () => void
   shouldPromptOnClose?: () => boolean
 }
 
@@ -29,6 +30,7 @@ const CentralizedDrawer = create(
     fullContentHeight,
     className,
     onClose: onCloseProp,
+    onEntered,
     shouldPromptOnClose,
   }: CentralizedDrawerProps) => {
     const modal = useModal()
@@ -65,6 +67,7 @@ const CentralizedDrawer = create(
         title={title}
         onClose={handleClose}
         onExited={modal.remove}
+        onEntered={onEntered}
         actions={actions}
         actionsClassName={actionsClassName}
         withPadding={withPadding}

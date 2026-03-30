@@ -15,7 +15,7 @@ import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNu
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useGraduatedPercentageChargeForm } from '~/hooks/plans/useGraduatedPercentageChargeForm'
 
-export const GRADUATED_PERCENTAGE_CHARGE_TABLE_ADD_TIER_TEST_ID = 'add-tier'
+import { GRADUATED_PERCENTAGE_CHARGE_TABLE_ADD_TIER_TEST_ID } from './chargeTestIds'
 
 gql`
   fragment GraduatedPercentageCharge on GraduatedPercentageRange {

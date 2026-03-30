@@ -14,7 +14,7 @@ import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNu
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useGraduatedChargeForm } from '~/hooks/plans/useGraduatedChargeForm'
 
-export const GRADUATED_CHARGE_TABLE_ADD_TIER_TEST_ID = 'add-tier'
+import { GRADUATED_CHARGE_TABLE_ADD_TIER_TEST_ID } from './chargeTestIds'
 
 gql`
   fragment GraduatedCharge on GraduatedRange {

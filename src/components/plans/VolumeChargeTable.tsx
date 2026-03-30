@@ -13,7 +13,7 @@ import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useVolumeChargeForm } from '~/hooks/plans/useVolumeChargeForm'
 
-export const VOLUME_CHARGE_TABLE_ADD_TIER_TEST_ID = 'add-tier'
+import { VOLUME_CHARGE_TABLE_ADD_TIER_TEST_ID } from './chargeTestIds'
 
 gql`
   fragment VolumeRanges on VolumeRange {

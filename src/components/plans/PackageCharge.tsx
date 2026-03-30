@@ -40,8 +40,8 @@ export const PackageCharge = memo(() => {
             disabled={disabled}
             label={translate('text_6282085b4f283b0102655870')}
             InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
+              startAdornment: (
+                <InputAdornment position="start">
                   {chargePricingUnitShortName || getCurrencySymbol(currency)}
                 </InputAdornment>
               ),

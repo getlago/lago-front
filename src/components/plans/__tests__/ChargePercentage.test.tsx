@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { CurrencyEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+import { ChargePercentage } from '../ChargePercentage'
 import {
   CHARGE_PERCENTAGE_ADD_FIXED_FEE_TEST_ID,
   CHARGE_PERCENTAGE_ADD_FREE_UNITS_TEST_ID,
@@ -11,8 +12,7 @@ import {
   CHARGE_PERCENTAGE_ADD_MIN_CTA_TEST_ID,
   CHARGE_PERCENTAGE_ADD_MIN_MAX_TEST_ID,
   CHARGE_PERCENTAGE_REMOVE_FIXED_FEE_TEST_ID,
-  ChargePercentage,
-} from '../ChargePercentage'
+} from '../chargeTestIds'
 
 // --- Mocks ---
 

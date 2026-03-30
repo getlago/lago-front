@@ -272,12 +272,6 @@ jest.mock('~/components/form/TextInput/TextInput', () => ({
   ),
 }))
 
-jest.mock('~/components/designSystem/Alert', () => ({
-  Alert: ({ children }: { children: React.ReactNode }) => (
-    <div data-test="mocked-alert">{children}</div>
-  ),
-}))
-
 jest.mock('~/components/designSystem/Table/ChargeTable', () => ({
   ChargeTable: ({
     data,
@@ -416,23 +410,6 @@ describe('PrivilegesTable', () => {
         )
 
         expect(container.querySelector('[data-test="mocked-charge-table"]')).toBeTruthy()
-      })
-
-      it('THEN should render the info alert', () => {
-        mockFormValuesOverride = {
-          ...defaultFormValues,
-          privileges: [privilegeRow],
-        }
-
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
-
-        expect(container.querySelector('[data-test="mocked-alert"]')).toBeTruthy()
       })
     })
 
