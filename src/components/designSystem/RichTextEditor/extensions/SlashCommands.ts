@@ -3,7 +3,7 @@ import { Editor, Range, ReactRenderer } from '@tiptap/react'
 import Suggestion, { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/suggestion'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
-import { SlashMenu, type SlashMenuRef } from '../SlashMenu'
+import { SlashMenu, type SlashMenuRef } from '../SlashMenu/SlashMenu'
 
 export interface SlashCommandItem {
   title: string

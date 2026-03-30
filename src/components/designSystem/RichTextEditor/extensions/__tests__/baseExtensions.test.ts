@@ -1,4 +1,4 @@
-import { getBaseExtensions } from '../extensions/baseExtensions'
+import { getBaseExtensions } from '../baseExtensions'
 
 describe('getBaseExtensions', () => {
   describe('GIVEN no options are provided', () => {

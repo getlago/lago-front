@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 
-import type { RichTextEditorMode } from './RichTextEditor'
+import type { RichTextEditorMode } from '../RichTextEditor'
 
 export type EntityData = {
   entityId: string

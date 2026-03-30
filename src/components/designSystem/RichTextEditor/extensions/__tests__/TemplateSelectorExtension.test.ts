@@ -1,5 +1,5 @@
-import { TemplateSelectorExtension } from '../extensions/TemplateSelectorExtension'
-import type { EditorTemplate } from '../TemplateSelector/types'
+import type { EditorTemplate } from '../../TemplateSelector/types'
+import { TemplateSelectorExtension } from '../TemplateSelectorExtension'
 
 jest.mock('../TemplateSelector/TemplateSelectorView', () => ({
   TemplateSelectorView: () => null,
