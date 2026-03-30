@@ -1,4 +1,4 @@
-import { LinkPasteHandler } from '../extensions/LinkPasteHandler'
+import { LinkPasteHandler } from '../LinkPasteHandler'
 
 const mockDestroyPopup = jest.fn()
 const mockDestroyRenderer = jest.fn()

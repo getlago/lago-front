@@ -1,7 +1,7 @@
 import { forwardRef } from 'react'
 
-import type { SlashCommandItem } from './extensions/SlashCommands'
-import { SuggestionList, type SuggestionListRef } from './SuggestionList'
+import { SuggestionList, type SuggestionListRef } from '../common/SuggestionList'
+import type { SlashCommandItem } from '../extensions/SlashCommands'
 
 export const SLASH_MENU_CONTAINER_TEST_ID = 'slash-menu-container'
 export const SLASH_MENU_ITEM_TEST_ID = 'slash-menu-item'

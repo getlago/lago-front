@@ -8,8 +8,8 @@ import {
   TEMPLATE_SELECTOR_ITEM_TEST_ID,
   TEMPLATE_SELECTOR_VIEW_TEST_ID,
   TemplateSelectorView,
-} from '../TemplateSelector/TemplateSelectorView'
-import type { EditorTemplate } from '../TemplateSelector/types'
+} from '../TemplateSelectorView'
+import type { EditorTemplate } from '../types'
 
 jest.mock('@tiptap/react', () => ({
   ...jest.requireActual('@tiptap/react'),

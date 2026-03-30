@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 
 import { render } from '~/test-utils'
 
-import type { SlashCommandItem } from '../extensions/SlashCommands'
+import type { SlashCommandItem } from '../../extensions/SlashCommands'
 import { SLASH_MENU_CONTAINER_TEST_ID, SLASH_MENU_ITEM_TEST_ID, SlashMenu } from '../SlashMenu'
 
 // scrollIntoView is not available in jsdom

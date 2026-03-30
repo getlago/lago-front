@@ -1,7 +1,7 @@
 import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 
-import { configureMention, mentionBaseConfig, MentionSchema } from '../extensions/Mention.schema'
+import { configureMention, mentionBaseConfig, MentionSchema } from '../Mention.schema'
 
 describe('MentionSchema', () => {
   describe('GIVEN the addStorage markdown config', () => {
