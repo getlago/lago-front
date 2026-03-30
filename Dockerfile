@@ -28,6 +28,7 @@ RUN apk update && apk upgrade libx11 nghttp2 openssl tiff curl busybox
 COPY --from=build /app/dist .
 COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./nginx/gzip.conf /etc/nginx/conf.d/gzip.conf
+COPY ./nginx/csp.conf /etc/nginx/conf.d/csp.conf
 COPY ./.env.sh ./.env.sh
 
 EXPOSE 80
