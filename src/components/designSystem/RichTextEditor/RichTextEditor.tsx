@@ -22,7 +22,7 @@ import './richTextEditor.css'
 import { EntityData, RichTextEditorProvider } from './RichTextEditorContext'
 import TableControls from './TableControls'
 import type { EditorTemplate } from './TemplateSelector/types'
-import Toolbar from './Toolbar'
+import Toolbar from './Toolbar/Toolbar'
 
 export const RICH_TEXT_EDITOR_TEST_ID = 'rich-text-editor'
 export const RICH_TEXT_EDITOR_TOOLBAR_TEST_ID = 'rich-text-editor-toolbar'
