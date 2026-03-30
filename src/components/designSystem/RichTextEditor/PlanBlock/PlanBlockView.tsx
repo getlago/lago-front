@@ -14,7 +14,6 @@ import { useRichTextEditorContext } from '../RichTextEditorContext'
 
 export const PLAN_BLOCK_VIEW_TEST_ID = 'plan-block-view'
 export const PLAN_BLOCK_VIEW_EMPTY_TEST_ID = 'plan-block-view-empty'
-export const PLAN_BLOCK_VIEW_PREVIEW_TABLE_TEST_ID = 'plan-block-view-preview-table'
 export const PLAN_BLOCK_VIEW_UNRESOLVED_TEST_ID = 'plan-block-view-unresolved'
 
 const FORM_ID = 'plan-block-form'
@@ -25,13 +24,12 @@ const validationSchema = z.object({
 })
 
 export const PlanBlockView = ({ node, updateAttributes, selected }: NodeViewProps) => {
-  const { mode, plans, setPlan } = useRichTextEditorContext()
+  const { plans, setPlan } = useRichTextEditorContext()
   const { translate } = useInternationalization()
   const drawer = useFormDrawer()
   const hasAutoOpened = useRef(false)
 
   const planId = String(node.attrs.planId ?? '')
-  const isPreview = mode === 'preview'
   const isEmpty = !planId
 
   const contextPlan = planId ? plans[planId] : undefined
@@ -99,45 +97,19 @@ export const PlanBlockView = ({ node, updateAttributes, selected }: NodeViewProp
   }
 
   useEffect(() => {
-    if (isEmpty && !isPreview && !hasAutoOpened.current) {
+    if (isEmpty && !hasAutoOpened.current) {
       hasAutoOpened.current = true
       openDrawer()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEmpty, isPreview])
-
-  const handleClick = () => {
-    if (isPreview) return
-    openDrawer()
-  }
-
-  if (isPreview) {
-    return (
-      <NodeViewWrapper>
-        <table data-test={PLAN_BLOCK_VIEW_PREVIEW_TABLE_TEST_ID}>
-          <thead>
-            <tr>
-              <th>{planName ? 'Plan name' : 'Plan ID'}</th>
-              <th>{planCode ? 'Plan code' : 'Plan ID'}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{planName ?? planId}</td>
-              <td>{planCode ?? planId}</td>
-            </tr>
-          </tbody>
-        </table>
-      </NodeViewWrapper>
-    )
-  }
+  }, [isEmpty])
 
   if (isEmpty) {
     return (
       <NodeViewWrapper>
         <button
           className={`plan-block plan-block--empty ${selected ? 'plan-block--selected' : ''}`}
-          onClick={handleClick}
+          onClick={openDrawer}
           tabIndex={0}
           data-test={PLAN_BLOCK_VIEW_EMPTY_TEST_ID}
         >
@@ -151,7 +123,7 @@ export const PlanBlockView = ({ node, updateAttributes, selected }: NodeViewProp
     <NodeViewWrapper>
       <button
         className={`plan-block ${selected ? 'plan-block--selected' : ''}`}
-        onClick={handleClick}
+        onClick={openDrawer}
         data-test={PLAN_BLOCK_VIEW_TEST_ID}
       >
         {planName ? (
