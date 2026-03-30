@@ -61,6 +61,7 @@ import Hashtag from '~/icons/hashtag.svg'
 import Heart from '~/icons/heart.svg'
 import History from '~/icons/history.svg'
 import Id from '~/icons/id.svg'
+import Image from '~/icons/image.svg'
 import InfoCircle from '~/icons/info-circle.svg'
 import Key from '~/icons/key.svg'
 import KeyboardEnter from '~/icons/keyboard-enter.svg'
@@ -190,6 +191,7 @@ export const ALL_ICONS = {
   heart: Heart,
   history: History,
   id: Id,
+  image: Image,
   'info-circle': InfoCircle,
   'keyboard-enter': KeyboardEnter,
   'magnifying-glass': MagnifyingGlass,
