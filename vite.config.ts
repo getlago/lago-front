@@ -195,9 +195,9 @@ export default defineConfig(({ mode }) => {
       target: 'esnext',
       rollupOptions: {
         output: {
-          chunkFileNames: 'assets/[name].[hash].js',
-          entryFileNames: 'assets/[name].[hash].js',
-          sourcemapFileNames: 'assets/[name].[hash].js.map',
+          chunkFileNames: '[name].[hash].js',
+          entryFileNames: '[name].[hash].js',
+          sourcemapFileNames: '[name].[hash].js.map',
           manualChunks: {
             'vendor-react': ['react', 'react-dom', 'react-router-dom'],
             'vendor-apollo': ['@apollo/client', 'graphql'],
