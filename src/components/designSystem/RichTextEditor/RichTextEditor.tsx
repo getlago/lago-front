@@ -1,27 +1,18 @@
-import Highlight from '@tiptap/extension-highlight'
-import Image from '@tiptap/extension-image'
-import Link from '@tiptap/extension-link'
-import Mention from '@tiptap/extension-mention'
 import Placeholder from '@tiptap/extension-placeholder'
-import Subscript from '@tiptap/extension-subscript'
-import Superscript from '@tiptap/extension-superscript'
-import { Table } from '@tiptap/extension-table'
-import TableCell from '@tiptap/extension-table-cell'
-import TableHeader from '@tiptap/extension-table-header'
-import TableRow from '@tiptap/extension-table-row'
-import TextAlign from '@tiptap/extension-text-align'
-import Underline from '@tiptap/extension-underline'
 import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
-import { tw } from 'lago-design-system'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
-import { Markdown } from 'tiptap-markdown'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { LinkCard } from './extensions/LinkCard'
+import { downloadMarkdownPdf } from './downloadMarkdownPdf'
+import { getBaseExtensions } from './extensions/baseExtensions'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
+import {
+  mentionBaseConfig,
+  MentionSchema,
+  type MentionSchemaOptions,
+} from './extensions/Mention.schema'
 import { PlanBlock } from './extensions/PlanBlock'
 import { SlashCommands } from './extensions/SlashCommands'
 import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
@@ -47,6 +38,7 @@ interface RichTextEditorProps {
   content?: string
   templates?: EditorTemplate[]
   getMarkdownRef?: React.MutableRefObject<(() => string) | null>
+  downloadPdfRef?: React.MutableRefObject<(() => void) | null>
   onPlanBlocksChange?: (planIds: string[]) => void
 }
 
@@ -57,6 +49,7 @@ const RichTextEditor = ({
   content,
   templates,
   getMarkdownRef,
+  downloadPdfRef,
   onPlanBlocksChange,
 }: RichTextEditorProps) => {
   const { translate } = useInternationalization()
@@ -80,51 +73,19 @@ const RichTextEditor = ({
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
-      Link.configure({
-        openOnClick: false,
-        validate: (href) => /^https?:\/\//.test(href),
-      }),
-      Underline,
-      Superscript,
-      Subscript,
-      Highlight,
-      TextAlign.configure({ types: ['heading', 'paragraph'] }),
-      Image,
-      Table.configure({ resizable: true }),
-      TableRow,
-      TableCell,
-      TableHeader,
+      ...getBaseExtensions({ tableResizable: true }),
+
+      // Editor-specific overrides and additions
       Placeholder.configure({
         placeholder: translate('text_1774281162711nymiwumt66k'),
       }),
-      Mention.extend({
+      MentionSchema.extend({
         addNodeView() {
           return ReactNodeViewRenderer(MentionNodeView, { as: 'span' })
         },
-        addStorage() {
-          return {
-            markdown: {
-              serialize(
-                state: { write: (text: string) => void },
-                node: { attrs: { id: string; label?: string } },
-              ) {
-                state.write(`{${node.attrs.id}|${node.attrs.label ?? node.attrs.id}}`)
-              },
-              parse: {
-                updateDOM(element: HTMLElement) {
-                  element.innerHTML = element.innerHTML.replaceAll(
-                    /\{(\w+)\|([^}]+)\}/g,
-                    (_match: string, id: string, label: string) =>
-                      `<span data-type="mention" data-id="${id}" class="variable-mention">@${label}</span>`,
-                  )
-                },
-              },
-            },
-          }
-        },
       }).configure({
-        HTMLAttributes: { class: 'variable-mention' },
+        ...mentionBaseConfig,
+        mentionValues,
         suggestion: {
           char: '@',
           items: ({ query }) =>
@@ -172,24 +133,11 @@ const RichTextEditor = ({
             }
           },
         },
-        renderHTML({ node }) {
-          return [
-            'span',
-            { 'data-type': 'mention', 'data-id': node.attrs.id, class: 'variable-mention' },
-            `@${node.attrs.label ?? node.attrs.id}`,
-          ]
-        },
-      }),
+      } as MentionSchemaOptions),
+      PlanBlock.configure({ plans: plansFromProps }),
       SlashCommands.configure({ translate }),
-      LinkCard,
       LinkPasteHandler,
-      PlanBlock,
       TemplateSelectorExtension.configure({ templates: templates ?? [] }),
-      Markdown.configure({
-        html: true,
-        transformPastedText: true,
-        transformCopiedText: true,
-      }),
     ],
     editorProps: {
       attributes: {
@@ -237,26 +185,64 @@ const RichTextEditor = ({
     [mode, mentionValues, plans, setPlan],
   )
 
+  const getMarkdown = useCallback((): string | undefined => {
+    if (!editor) return undefined
+
+    const markdownExt = editor.extensionManager.extensions.find((ext) => ext.name === 'markdown')
+    const storage = markdownExt?.storage
+
+    if (!storage || typeof storage.getMarkdown !== 'function') return undefined
+
+    return storage.getMarkdown() as string
+  }, [editor])
+
   useEffect(() => {
-    if (!editor || !getMarkdownRef) return
+    if (!getMarkdownRef) return
 
-    getMarkdownRef.current = () => {
-      const markdownExt = editor.extensionManager.extensions.find((ext) => ext.name === 'markdown')
-      const storage = markdownExt?.storage
-
-      if (!storage || typeof storage.getMarkdown !== 'function') return
-
-      return storage.getMarkdown()
-    }
+    getMarkdownRef.current = () => getMarkdown() ?? ''
 
     return () => {
       if (getMarkdownRef) {
         getMarkdownRef.current = null
       }
     }
-  }, [editor, getMarkdownRef])
+  }, [getMarkdownRef, getMarkdown])
+
+  useEffect(() => {
+    if (!downloadPdfRef) return
+
+    downloadPdfRef.current = () => {
+      const markdown = getMarkdown()
+
+      if (markdown) {
+        downloadMarkdownPdf({ markdown, mentionValues, plans })
+      }
+    }
+
+    return () => {
+      if (downloadPdfRef) {
+        downloadPdfRef.current = null
+      }
+    }
+  }, [downloadPdfRef, getMarkdown, mentionValues, plans])
 
   if (!editor) return null
+
+  if (isPreview) {
+    return (
+      <div
+        className="rich-text-editor relative h-full max-h-screen overflow-auto"
+        data-test={RICH_TEXT_EDITOR_TEST_ID}
+      >
+        <div
+          className="ProseMirror"
+          contentEditable={false}
+          data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID}
+          dangerouslySetInnerHTML={{ __html: editor.getHTML() }}
+        />
+      </div>
+    )
+  }
 
   return (
     <RichTextEditorProvider value={contextValue}>
@@ -264,14 +250,10 @@ const RichTextEditor = ({
         className="rich-text-editor relative h-full max-h-screen overflow-auto"
         data-test={RICH_TEXT_EDITOR_TEST_ID}
       >
-        {!isPreview && <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />}
-        <div
-          className={tw('relative', {
-            'pb-8 pr-8': !isPreview,
-          })}
-        >
+        <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />
+        <div className="relative pb-8 pr-8">
           <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
-          {!isPreview && <TableControls editor={editor} />}
+          <TableControls editor={editor} />
         </div>
       </div>
     </RichTextEditorProvider>
