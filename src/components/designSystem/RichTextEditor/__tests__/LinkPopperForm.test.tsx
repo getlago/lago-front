@@ -39,12 +39,16 @@ const createMockChain = () => {
   return { proxy: new Proxy({}, handler), runMock, chainMethods }
 }
 
-const createMockEditor = (overrides: Record<string, boolean> = {}) => {
+const createMockEditor = (
+  overrides: Record<string, boolean> = {},
+  attributes: Record<string, Record<string, string>> = {},
+) => {
   const { proxy, runMock, chainMethods } = createMockChain()
 
   return {
     editor: {
       isActive: jest.fn((type: string) => overrides[type] ?? false),
+      getAttributes: jest.fn((type: string) => attributes[type] ?? {}),
       chain: jest.fn().mockReturnValue(proxy),
     } as unknown as Editor,
     runMock,
@@ -226,6 +230,43 @@ describe('LinkPopperForm', () => {
       expect(runMock).toHaveBeenCalled()
       expect(closePopper).toHaveBeenCalled()
     })
+
+    it('should pre-fill the URL input with the current link href', async () => {
+      const { editor } = createMockEditor(
+        { link: true },
+        { link: { href: 'https://existing-link.com' } },
+      )
+      const closePopper = jest.fn()
+
+      await act(() => render(<LinkPopperForm editor={editor} closePopper={closePopper} />))
+
+      expect(screen.getByTestId(TOOLBAR_LINK_INPUT_TEST_ID)).toHaveValue(
+        'https://existing-link.com',
+      )
+    })
+
+    it('should allow editing the existing link URL and submitting', async () => {
+      const user = userEvent.setup()
+      const { editor, runMock, chainMethods } = createMockEditor(
+        { link: true },
+        { link: { href: 'https://old-url.com' } },
+      )
+      const closePopper = jest.fn()
+
+      await act(() => render(<LinkPopperForm editor={editor} closePopper={closePopper} />))
+
+      const input = screen.getByTestId(TOOLBAR_LINK_INPUT_TEST_ID)
+
+      await user.clear(input)
+      await user.type(input, 'https://new-url.com')
+      await user.click(screen.getByTestId(TOOLBAR_LINK_APPLY_BUTTON_TEST_ID))
+
+      await waitFor(() => {
+        expect(chainMethods.setLink).toHaveBeenCalled()
+        expect(runMock).toHaveBeenCalled()
+        expect(closePopper).toHaveBeenCalled()
+      })
+    })
   })
 
   describe('WHEN link is not active', () => {
@@ -236,6 +277,15 @@ describe('LinkPopperForm', () => {
       await act(() => render(<LinkPopperForm editor={editor} closePopper={closePopper} />))
 
       expect(screen.queryByTestId(TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('should have empty URL input when no link is active', async () => {
+      const { editor } = createMockEditor()
+      const closePopper = jest.fn()
+
+      await act(() => render(<LinkPopperForm editor={editor} closePopper={closePopper} />))
+
+      expect(screen.getByTestId(TOOLBAR_LINK_INPUT_TEST_ID)).toHaveValue('')
     })
   })
 })
