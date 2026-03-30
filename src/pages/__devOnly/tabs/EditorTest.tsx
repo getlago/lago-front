@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
+import { downloadMarkdownPdf } from '~/components/designSystem/RichTextEditor/downloadMarkdownPdf'
 import RichTextEditor, {
   type RichTextEditorMode,
 } from '~/components/designSystem/RichTextEditor/RichTextEditor'
@@ -45,6 +46,7 @@ const fetchTemplates = (): Promise<EditorTemplate[]> =>
 const EditorTest = () => {
   const [mode, setMode] = useState<RichTextEditorMode>('edit')
   const getMarkdownRef = useRef<(() => string) | null>(null)
+  const downloadPdfRef = useRef<(() => void) | null>(null)
   const [templates, setTemplates] = useState<EditorTemplate[]>([])
   const [templatesLoading, setTemplatesLoading] = useState(true)
 
@@ -96,9 +98,17 @@ Best,
           {mode === 'edit' ? 'Preview' : 'Edit'}
         </Button>
         <Button onClick={handleSave}>Save</Button>
+        <Button variant="secondary" onClick={() => downloadPdfRef.current?.()}>
+          Download PDF
+        </Button>
       </div>
       <Block>
-        <RichTextEditor mode={mode} mentionValues={mentionValues} getMarkdownRef={getMarkdownRef} />
+        <RichTextEditor
+          mode={mode}
+          mentionValues={mentionValues}
+          getMarkdownRef={getMarkdownRef}
+          downloadPdfRef={downloadPdfRef}
+        />
       </Block>
       <Typography className="mt-4" variant="subhead1">
         &#60;RichTextEditor/&#62; with templates (fetched async)
@@ -114,6 +124,20 @@ Best,
       <Block>
         <RichTextEditor mode={mode} mentionValues={mentionValues} content={preSavedContent} />
       </Block>
+      <div className="mt-4 flex items-center gap-4">
+        <Typography variant="subhead1">Standalone PDF download (no editor)</Typography>
+        <Button
+          variant="secondary"
+          onClick={() =>
+            downloadMarkdownPdf({
+              markdown: preSavedContent,
+              mentionValues,
+            })
+          }
+        >
+          Download PDF from Markdown
+        </Button>
+      </div>
     </Container>
   )
 }
