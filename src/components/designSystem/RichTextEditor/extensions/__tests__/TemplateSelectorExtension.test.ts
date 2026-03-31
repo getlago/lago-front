@@ -1,7 +1,7 @@
 import type { EditorTemplate } from '../../TemplateSelector/types'
 import { TemplateSelectorExtension } from '../TemplateSelectorExtension'
 
-jest.mock('../TemplateSelector/TemplateSelectorView', () => ({
+jest.mock('../../TemplateSelector/TemplateSelectorView', () => ({
   TemplateSelectorView: () => null,
 }))
 
@@ -165,8 +165,7 @@ describe('TemplateSelectorExtension', () => {
       const result = renderHTML()
 
       expect(result[0]).toBe('div')
-      expect(result[1]).toEqual({ 'data-type': 'template-selector' })
-      expect(result[2]).toBe(0)
+      expect(result[1]).toEqual({ 'data-type': 'template-selector', style: 'display:none' })
     })
   })
 
