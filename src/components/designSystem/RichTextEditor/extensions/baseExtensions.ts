@@ -13,6 +13,7 @@ import Underline from '@tiptap/extension-underline'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from 'tiptap-markdown'
 
+import { BlockColors } from './BlockColors'
 import { LinkCard } from './LinkCard'
 
 interface BaseExtensionsOptions {
@@ -27,7 +28,7 @@ interface BaseExtensionsOptions {
  * using MentionSchema/PlanBlockSchema from their respective .schema.ts files.
  */
 export const getBaseExtensions = (options?: BaseExtensionsOptions): Extensions => [
-  StarterKit.configure({ link: false, underline: false }),
+  StarterKit.configure({ link: false, underline: false, dropcursor: { color: '#3b82f6' } }),
   Link.configure({ openOnClick: false }),
   Underline,
   Superscript,
@@ -40,5 +41,6 @@ export const getBaseExtensions = (options?: BaseExtensionsOptions): Extensions =
   TableCell,
   TableHeader,
   LinkCard,
+  BlockColors,
   Markdown.configure({ html: true }),
 ]
