@@ -131,9 +131,7 @@ describe('BlockColors', () => {
   describe('GIVEN parseHTML', () => {
     describe('WHEN loading HTML with inline background-color style', () => {
       it('THEN should parse the backgroundColor attribute', () => {
-        const editor = createEditor(
-          '<p style="background-color: rgb(254, 226, 226);">Colored</p>',
-        )
+        const editor = createEditor('<p style="background-color: rgb(254, 226, 226);">Colored</p>')
 
         const firstNode = editor.state.doc.firstChild
 

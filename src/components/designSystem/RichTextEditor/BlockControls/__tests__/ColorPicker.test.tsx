@@ -1,9 +1,16 @@
 import { cleanup, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import tailwindConfig from 'lago-configs/tailwind'
+import resolveConfig from 'tailwindcss/resolveConfig'
 
 import { render } from '~/test-utils'
 
 import ColorPicker from '../ColorPicker'
+
+const fullConfig = resolveConfig(tailwindConfig)
+const themeColors = fullConfig.theme.colors
+const red100 = (themeColors.red as Record<number, string>)[100]
+const blue600 = (themeColors.blue as Record<number, string>)[600]
 
 describe('ColorPicker', () => {
   afterEach(() => {
@@ -13,15 +20,15 @@ describe('ColorPicker', () => {
 
   describe('GIVEN the background variant', () => {
     describe('WHEN rendered', () => {
-      it('THEN should display 8 color swatches plus a clear button', () => {
+      it('THEN should display 6 color swatches plus a clear button', () => {
         const onSelect = jest.fn()
 
         render(<ColorPicker variant="background" activeColor={null} onSelect={onSelect} />)
 
         const buttons = screen.getAllByRole('button')
 
-        // 8 colors + 1 clear button
-        expect(buttons).toHaveLength(9)
+        // 6 colors + 1 clear button
+        expect(buttons).toHaveLength(7)
       })
 
       it('THEN should display the clear button', () => {
@@ -38,7 +45,7 @@ describe('ColorPicker', () => {
         const user = userEvent.setup()
         const onSelect = jest.fn()
 
-        render(<ColorPicker variant="background" activeColor="#fee2e2" onSelect={onSelect} />)
+        render(<ColorPicker variant="background" activeColor={red100} onSelect={onSelect} />)
 
         await user.click(screen.getByTitle('Clear'))
 
@@ -47,7 +54,7 @@ describe('ColorPicker', () => {
     })
 
     describe('WHEN clicking a color swatch', () => {
-      it('THEN should call onSelect with the color value', async () => {
+      it('THEN should call onSelect with the theme color value', async () => {
         const user = userEvent.setup()
         const onSelect = jest.fn()
 
@@ -55,7 +62,7 @@ describe('ColorPicker', () => {
 
         await user.click(screen.getByTitle('Red'))
 
-        expect(onSelect).toHaveBeenCalledWith('#fee2e2')
+        expect(onSelect).toHaveBeenCalledWith(red100)
       })
     })
 
@@ -63,9 +70,8 @@ describe('ColorPicker', () => {
       it('THEN should display a checkmark on the active swatch', () => {
         const onSelect = jest.fn()
 
-        render(<ColorPicker variant="background" activeColor="#fee2e2" onSelect={onSelect} />)
+        render(<ColorPicker variant="background" activeColor={red100} onSelect={onSelect} />)
 
-        // The active swatch should contain an SVG checkmark icon
         const redButton = screen.getByTitle('Red')
         const svg = redButton.querySelector('svg')
 
@@ -75,7 +81,7 @@ describe('ColorPicker', () => {
       it('THEN should not display a checkmark on inactive swatches', () => {
         const onSelect = jest.fn()
 
-        render(<ColorPicker variant="background" activeColor="#fee2e2" onSelect={onSelect} />)
+        render(<ColorPicker variant="background" activeColor={red100} onSelect={onSelect} />)
 
         const blueButton = screen.getByTitle('Blue')
         const svg = blueButton.querySelector('svg')
@@ -92,15 +98,14 @@ describe('ColorPicker', () => {
 
         render(<ColorPicker variant="text" activeColor={null} onSelect={onSelect} />)
 
-        // Each text color swatch has an "A" label
         const labels = screen.getAllByText('A')
 
-        expect(labels).toHaveLength(8)
+        expect(labels).toHaveLength(6)
       })
     })
 
     describe('WHEN clicking a text color swatch', () => {
-      it('THEN should call onSelect with the text color value', async () => {
+      it('THEN should call onSelect with the theme text color value', async () => {
         const user = userEvent.setup()
         const onSelect = jest.fn()
 
@@ -108,7 +113,7 @@ describe('ColorPicker', () => {
 
         await user.click(screen.getByTitle('Blue'))
 
-        expect(onSelect).toHaveBeenCalledWith('#2563eb')
+        expect(onSelect).toHaveBeenCalledWith(blue600)
       })
     })
   })

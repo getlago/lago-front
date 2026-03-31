@@ -1,11 +1,11 @@
 import type { Editor } from '@tiptap/core'
 import { NodeSelection } from '@tiptap/pm/state'
 import { useEditorState } from '@tiptap/react'
-import { Icon } from 'lago-design-system'
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 
 import ColorPicker from './ColorPicker'
@@ -15,6 +15,7 @@ type BlockToolbarProps = {
 }
 
 const BlockToolbar = ({ editor }: BlockToolbarProps) => {
+  const { translate } = useInternationalization()
   const toolbarRef = useRef<HTMLDivElement>(null)
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null)
 
@@ -69,7 +70,7 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
     const blockRect = dom.getBoundingClientRect()
 
     setPosition({
-      top: blockRect.top - containerRect.top - 40,
+      top: blockRect.top - containerRect.top,
       left: blockRect.left - containerRect.left,
     })
   }, [editor, blockSelection])
@@ -79,31 +80,31 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
   return (
     <div
       ref={toolbarRef}
-      className="absolute z-20 flex items-center gap-1 rounded-lg border border-grey-300 bg-white p-1 shadow-md"
+      className="absolute z-20 flex flex-col gap-1 rounded-xl border border-grey-200 bg-white p-2 shadow-md"
       style={{ top: position.top, left: position.left }}
     >
       {/* Delete */}
       <Button
         variant="quaternary"
-        danger
-        icon="trash"
+        startIcon="trash"
         size="small"
+        align="left"
         onClick={() => editor.commands.deleteSelection()}
-      />
-
-      <div className="mx-0.5 h-6 w-px bg-grey-300" />
+      >
+        {translate('text_63ea0f84f400488553caa786')}
+      </Button>
 
       {/* Background color */}
       <Popper
-        PopperProps={{ placement: 'bottom-start' }}
+        PopperProps={{ placement: 'right-start' }}
         opener={
-          <Button variant="quaternary" size="small">
+          <Button variant="quaternary" size="small" align="left" className="w-full">
             <div className="flex items-center gap-2">
               <div
                 className="size-4 rounded border border-grey-300"
                 style={{ backgroundColor: blockSelection.backgroundColor ?? '#ffffff' }}
               />
-              <Icon name="chevron-down" size="small" />
+              <span>{translate('text_1774969464357ic1jobm2vtd')}</span>
             </div>
           </Button>
         }
@@ -124,9 +125,9 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
 
       {/* Text color */}
       <Popper
-        PopperProps={{ placement: 'bottom-start' }}
+        PopperProps={{ placement: 'right-start' }}
         opener={
-          <Button variant="quaternary" size="small">
+          <Button variant="quaternary" size="small" align="left" className="w-full">
             <div className="flex items-center gap-2">
               <span
                 className="text-sm font-bold"
@@ -134,7 +135,7 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
               >
                 A
               </span>
-              <Icon name="chevron-down" size="small" />
+              <span>{translate('text_1774969464357oo1dfrfw06m')}</span>
             </div>
           </Button>
         }

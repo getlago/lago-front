@@ -1,25 +1,38 @@
+import tailwindConfig from 'lago-configs/tailwind'
 import { Icon } from 'lago-design-system'
+import resolveConfig from 'tailwindcss/resolveConfig'
 
+const fullConfig = resolveConfig(tailwindConfig)
+const themeColors = fullConfig.theme.colors
+
+const getColor = (name: string, shade: number): string => {
+  const color = themeColors[name as keyof typeof themeColors]
+
+  if (typeof color === 'object' && color !== null && shade in color) {
+    return (color as Record<number, string>)[shade]
+  }
+
+  return '#000000'
+}
+
+// Background colors — light shades from the Tailwind theme
 const COLORS = [
-  { label: 'Red', value: '#fee2e2' },
-  { label: 'Orange', value: '#ffedd5' },
-  { label: 'Yellow', value: '#fef9c3' },
-  { label: 'Green', value: '#dcfce7' },
-  { label: 'Blue', value: '#dbeafe' },
-  { label: 'Purple', value: '#f3e8ff' },
-  { label: 'Pink', value: '#fce7f3' },
-  { label: 'Grey', value: '#f3f4f6' },
+  { label: 'Red', value: getColor('red', 100) },
+  { label: 'Yellow', value: getColor('yellow', 100) },
+  { label: 'Green', value: getColor('green', 100) },
+  { label: 'Blue', value: getColor('blue', 100) },
+  { label: 'Purple', value: getColor('purple', 100) },
+  { label: 'Grey', value: getColor('grey', 100) },
 ]
 
+// Text colors — dark shades from the Tailwind theme
 const TEXT_COLORS = [
-  { label: 'Red', value: '#dc2626' },
-  { label: 'Orange', value: '#ea580c' },
-  { label: 'Yellow', value: '#ca8a04' },
-  { label: 'Green', value: '#16a34a' },
-  { label: 'Blue', value: '#2563eb' },
-  { label: 'Purple', value: '#9333ea' },
-  { label: 'Pink', value: '#db2777' },
-  { label: 'Grey', value: '#6b7280' },
+  { label: 'Red', value: getColor('red', 600) },
+  { label: 'Yellow', value: getColor('yellow', 600) },
+  { label: 'Green', value: getColor('green', 600) },
+  { label: 'Blue', value: getColor('blue', 600) },
+  { label: 'Purple', value: getColor('purple', 600) },
+  { label: 'Grey', value: getColor('grey', 600) },
 ]
 
 type ColorPickerProps = {
