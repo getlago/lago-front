@@ -80,7 +80,7 @@ jest.mock('~/hooks/forms/useAppform', () => ({
   }),
 }))
 
-jest.mock('../PlanBlock/PlanBlockDrawerContent', () => ({
+jest.mock('../PlanBlockDrawerContent', () => ({
   __esModule: true,
   default: () => <div data-test="plan-block-drawer-content">Drawer Content</div>,
 }))
