@@ -13,7 +13,7 @@ let capturedSlashCommandsConfig: Record<string, unknown> = {}
 
 const mockDownloadMarkdownPdf = jest.fn()
 
-jest.mock('../downloadMarkdownPdf', () => ({
+jest.mock('../common/downloadMarkdownPdf', () => ({
   downloadMarkdownPdf: (...args: unknown[]) => mockDownloadMarkdownPdf(...args),
 }))
 
@@ -45,6 +45,11 @@ const mockEditor = {
     domAtPos: jest.fn().mockReturnValue({ node: document.createElement('div') }),
     posAtDOM: jest.fn().mockReturnValue(0),
   },
+  storage: {
+    markdown: {
+      getMarkdown: mockGetMarkdown,
+    },
+  } as Record<string, unknown>,
   extensionManager: {
     extensions: [
       {
@@ -109,6 +114,7 @@ jest.mock('../extensions/Mention.schema', () => ({
       return 'mention-extension'
     }),
   },
+  configureMention: jest.fn(() => 'configured-mention-extension'),
   mentionBaseConfig: {
     HTMLAttributes: { class: 'variable-mention' },
   },
@@ -259,7 +265,7 @@ describe('RichTextEditor', () => {
       it('THEN should render the editor content via getHTML()', async () => {
         await act(() => render(<RichTextEditor mode="preview" />))
 
-        expect(mockEditor.getHTML).toHaveBeenCalled()
+        expect(mockGetMarkdown).toHaveBeenCalled()
         expect(screen.getByTestId(RICH_TEXT_EDITOR_CONTENT_TEST_ID)).toBeInTheDocument()
       })
 
@@ -331,9 +337,9 @@ describe('RichTextEditor', () => {
     describe('WHEN the markdown extension is not found', () => {
       it('THEN should return undefined', async () => {
         const getMarkdownRef = { current: null } as React.MutableRefObject<(() => string) | null>
-        const originalExtensions = mockEditor.extensionManager.extensions
+        const originalStorage = mockEditor.storage
 
-        mockEditor.extensionManager.extensions = []
+        mockEditor.storage = {}
 
         await act(() => render(<RichTextEditor getMarkdownRef={getMarkdownRef} />))
 
@@ -341,16 +347,16 @@ describe('RichTextEditor', () => {
 
         expect(result).toBe('')
 
-        mockEditor.extensionManager.extensions = originalExtensions
+        mockEditor.storage = originalStorage
       })
     })
 
     describe('WHEN the markdown extension storage has no getMarkdown function', () => {
       it('THEN should return undefined', async () => {
         const getMarkdownRef = { current: null } as React.MutableRefObject<(() => string) | null>
-        const originalExtensions = mockEditor.extensionManager.extensions
+        const originalStorage = mockEditor.storage
 
-        mockEditor.extensionManager.extensions = [{ name: 'markdown', storage: {} }]
+        mockEditor.storage = { markdown: {} }
 
         await act(() => render(<RichTextEditor getMarkdownRef={getMarkdownRef} />))
 
@@ -358,7 +364,7 @@ describe('RichTextEditor', () => {
 
         expect(result).toBe('')
 
-        mockEditor.extensionManager.extensions = originalExtensions
+        mockEditor.storage = originalStorage
       })
     })
   })
@@ -414,9 +420,9 @@ describe('RichTextEditor', () => {
     describe('WHEN the markdown extension is not available', () => {
       it('THEN should not call downloadMarkdownPdf', async () => {
         const downloadPdfRef = { current: null } as React.MutableRefObject<(() => void) | null>
-        const originalExtensions = mockEditor.extensionManager.extensions
+        const originalStorage = mockEditor.storage
 
-        mockEditor.extensionManager.extensions = []
+        mockEditor.storage = {}
 
         await act(() => render(<RichTextEditor downloadPdfRef={downloadPdfRef} />))
 
@@ -426,7 +432,7 @@ describe('RichTextEditor', () => {
 
         expect(mockDownloadMarkdownPdf).not.toHaveBeenCalled()
 
-        mockEditor.extensionManager.extensions = originalExtensions
+        mockEditor.storage = originalStorage
       })
     })
   })
