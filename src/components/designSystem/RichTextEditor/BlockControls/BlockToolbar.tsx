@@ -10,6 +10,11 @@ import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 
 import ColorPicker from './ColorPicker'
 
+export const BLOCK_TOOLBAR_TEST_ID = 'block-toolbar'
+export const BLOCK_TOOLBAR_DELETE_BUTTON_TEST_ID = 'block-toolbar-delete-button'
+export const BLOCK_TOOLBAR_BG_COLOR_BUTTON_TEST_ID = 'block-toolbar-bg-color-button'
+export const BLOCK_TOOLBAR_TEXT_COLOR_BUTTON_TEST_ID = 'block-toolbar-text-color-button'
+
 type BlockToolbarProps = {
   editor: Editor
 }
@@ -82,6 +87,7 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
       ref={toolbarRef}
       className="absolute z-20 flex flex-col gap-1 rounded-xl border border-grey-200 bg-white p-2 shadow-md"
       style={{ top: position.top, left: position.left }}
+      data-test={BLOCK_TOOLBAR_TEST_ID}
     >
       {/* Delete */}
       <Button
@@ -89,6 +95,7 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
         startIcon="trash"
         size="small"
         align="left"
+        data-test={BLOCK_TOOLBAR_DELETE_BUTTON_TEST_ID}
         onClick={() => editor.commands.deleteSelection()}
       >
         {translate('text_63ea0f84f400488553caa786')}
@@ -98,7 +105,13 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
       <Popper
         PopperProps={{ placement: 'right-start' }}
         opener={
-          <Button variant="quaternary" size="small" align="left" className="w-full">
+          <Button
+            variant="quaternary"
+            size="small"
+            align="left"
+            className="w-full"
+            data-test={BLOCK_TOOLBAR_BG_COLOR_BUTTON_TEST_ID}
+          >
             <div className="flex items-center gap-2">
               <div
                 className="size-4 rounded border border-grey-300"
@@ -127,7 +140,13 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
       <Popper
         PopperProps={{ placement: 'right-start' }}
         opener={
-          <Button variant="quaternary" size="small" align="left" className="w-full">
+          <Button
+            variant="quaternary"
+            size="small"
+            align="left"
+            className="w-full"
+            data-test={BLOCK_TOOLBAR_TEXT_COLOR_BUTTON_TEST_ID}
+          >
             <div className="flex items-center gap-2">
               <span
                 className="text-sm font-bold"
