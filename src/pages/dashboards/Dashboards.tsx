@@ -4,12 +4,15 @@ import { useEffect, useMemo, useRef } from 'react'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
-import { envGlobalVar } from '~/core/apolloClient'
+import { envGlobalVar, getItemFromLS } from '~/core/apolloClient'
 import { useSupersetDashboardsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import '~/main.css'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { PageHeader } from '~/styles'
+
+const SUPERSET_TEST_DASHBOARD_TITLE_LS_KEY = 'superset-dashboard-test-name'
+const SUPERSET_DEFAULT_DASHBOARD_TITLE = 'Lago Dashboard'
 
 const { lagoSupersetUrl } = envGlobalVar()
 
@@ -31,9 +34,12 @@ const Dashboards = () => {
 
   const { data, error, loading } = useSupersetDashboardsQuery({})
 
+  const dashboardTitle =
+    getItemFromLS(SUPERSET_TEST_DASHBOARD_TITLE_LS_KEY) || SUPERSET_DEFAULT_DASHBOARD_TITLE
+
   const dashboard = useMemo(() => {
-    return data?.supersetDashboards?.find((d) => d.id === '1')
-  }, [data?.supersetDashboards])
+    return data?.supersetDashboards?.find((d) => d.dashboardTitle === dashboardTitle)
+  }, [data?.supersetDashboards, dashboardTitle])
 
   useEffect(() => {
     if (!dashboard || dashboard?.id === dashboardRef?.current) {
