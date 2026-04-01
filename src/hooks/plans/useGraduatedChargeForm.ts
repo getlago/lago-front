@@ -55,16 +55,16 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
   valuePointer,
 }) => {
   const setFieldValue = (path: string, value: unknown) => form.setFieldValue(path, value)
-  const formikIdentifier = `${propertyCursor}.graduatedRanges`
+  const attributeIdentifier = `${propertyCursor}.graduatedRanges`
   const graduatedRanges = useMemo(() => valuePointer?.graduatedRanges || [], [valuePointer])
 
   useEffect(() => {
     if (!graduatedRanges.length) {
       // if no existing charge, initialize it with 2 pre-filled lines
-      setFieldValue(formikIdentifier, DEFAULT_GRADUATED_CHARGES)
+      setFieldValue(attributeIdentifier, DEFAULT_GRADUATED_CHARGES)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formikIdentifier])
+  }, [attributeIdentifier])
 
   return {
     tableDatas: useMemo(
@@ -157,7 +157,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       if (fieldName !== 'toValue') {
-        setFieldValue(`${formikIdentifier}.${rangeIndex}.${fieldName}`, value)
+        setFieldValue(`${attributeIdentifier}.${rangeIndex}.${fieldName}`, value)
       } else {
         const newGraduatedRanges = graduatedRanges.reduce<GraduatedRangeInput[]>(
           (acc, range, i) => {
@@ -186,7 +186,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
           [],
         )
 
-        setFieldValue(formikIdentifier, newGraduatedRanges)
+        setFieldValue(attributeIdentifier, newGraduatedRanges)
       }
     },
     deleteRange: (rangeIndex) => {
@@ -207,7 +207,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
       // Last row needs to has toValue null
       newGraduatedRanges[newGraduatedRanges.length - 1].toValue = null
 
-      setFieldValue(formikIdentifier, newGraduatedRanges)
+      setFieldValue(attributeIdentifier, newGraduatedRanges)
     },
   }
 }

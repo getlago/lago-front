@@ -2,81 +2,31 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { render, testMockNavigateFn } from '~/test-utils'
+import { createMockPlanForm } from '~/test-utils/createMockPlanForm'
 
 import CreatePlan from '../CreatePlan'
+
+// Initialize cached form (reset in beforeEach)
 
 // --- Mocks ---
 
 const mockSetFieldValue = jest.fn()
-const mockSetValues = jest.fn()
-const mockSubmitForm = jest.fn()
+const mockHandleSubmit = jest.fn()
 
-let mockFormikValues: Record<string, unknown> = {}
 let mockIsEdition = false
 let mockLoading = false
-let mockDirty = false
 let mockPlan: Record<string, unknown> | undefined
 let mockType = 'creation'
-let mockErrorCode: string | undefined
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let mockCachedForm: any
 
 jest.mock('~/hooks/plans/usePlanForm', () => ({
   usePlanForm: () => {
-    const defaultValues = {
-      name: 'Test Plan',
-      code: 'test-plan',
-      description: '',
-      interval: 'monthly',
-      payInAdvance: false,
-      amountCents: '100',
-      amountCurrency: 'USD',
-      trialPeriod: 0,
-      taxes: [],
-      billChargesMonthly: false,
-      billFixedChargesMonthly: false,
-      charges: [],
-      fixedCharges: [],
-      minimumCommitment: {},
-      invoiceDisplayName: '',
-      entitlements: [],
-      ...mockFormikValues,
-    }
+    mockCachedForm.setFieldValue = mockSetFieldValue
+    mockCachedForm.handleSubmit = mockHandleSubmit
 
     return {
-      errorCode: mockErrorCode,
-      formikProps: {
-        values: defaultValues,
-        initialValues: defaultValues,
-        errors: {},
-        touched: {},
-        isSubmitting: false,
-        isValidating: false,
-        submitCount: 0,
-        dirty: mockDirty,
-        isValid: true,
-        status: undefined,
-        handleBlur: jest.fn(),
-        handleChange: jest.fn(),
-        handleReset: jest.fn(),
-        handleSubmit: jest.fn(),
-        resetForm: jest.fn(),
-        setErrors: jest.fn(),
-        setFieldError: jest.fn(),
-        setFieldTouched: jest.fn(),
-        setFieldValue: mockSetFieldValue,
-        setFormikState: jest.fn(),
-        setStatus: jest.fn(),
-        setSubmitting: jest.fn(),
-        setTouched: jest.fn(),
-        setValues: mockSetValues,
-        submitForm: mockSubmitForm,
-        validateForm: jest.fn(),
-        validateField: jest.fn(),
-        getFieldHelpers: jest.fn(),
-        getFieldMeta: jest.fn(),
-        getFieldProps: jest.fn(),
-        registerField: jest.fn(),
-        unregisterField: jest.fn(),
-      },
+      form: mockCachedForm,
       isEdition: mockIsEdition,
       loading: mockLoading,
       plan: mockPlan,
@@ -114,7 +64,8 @@ jest.mock('~/components/plans/SubscriptionFeeSection', () => {
   const React = jest.requireActual('react')
 
   return {
-    SubscriptionFeeSection: (props: { onDrawerSave: (v: unknown) => void }) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    SubscriptionFeeSection: (props: { form: any }) =>
       React.createElement(
         'div',
         { 'data-test': 'subscription-fee-section-mock' },
@@ -122,13 +73,13 @@ jest.mock('~/components/plans/SubscriptionFeeSection', () => {
           'button',
           {
             'data-test': 'trigger-subscription-fee-save',
-            onClick: () =>
-              props.onDrawerSave({
-                amountCents: '500',
-                payInAdvance: true,
-                trialPeriod: 7,
-                invoiceDisplayName: 'Sub Fee',
-              }),
+            onClick: () => {
+              // Simulate drawer save writing to form
+              props.form.setFieldValue('amountCents', '500')
+              props.form.setFieldValue('payInAdvance', true)
+              props.form.setFieldValue('trialPeriod', 7)
+              props.form.setFieldValue('invoiceDisplayName', 'Sub Fee')
+            },
           },
           'Save Fee',
         ),
@@ -167,24 +118,8 @@ jest.mock('~/components/plans/CommitmentsSection', () => {
   const React = jest.requireActual('react')
 
   return {
-    CommitmentsSection: (props: { onDrawerSave: (v: unknown) => void }) =>
-      React.createElement(
-        'div',
-        { 'data-test': 'commitments-section-mock' },
-        React.createElement(
-          'button',
-          {
-            'data-test': 'trigger-commitment-save',
-            onClick: () =>
-              props.onDrawerSave({
-                amountCents: '1000',
-                invoiceDisplayName: 'Commitment',
-                taxes: [],
-              }),
-          },
-          'Save Commitment',
-        ),
-      ),
+    CommitmentsSection: () =>
+      React.createElement('div', { 'data-test': 'commitments-section-mock' }),
   }
 })
 
@@ -192,39 +127,8 @@ jest.mock('~/components/plans/FeatureEntitlementSection', () => {
   const React = jest.requireActual('react')
 
   return {
-    FeatureEntitlementSection: (props: { onDrawerSave: (v: unknown) => void }) =>
-      React.createElement(
-        'div',
-        { 'data-test': 'feature-entitlement-section-mock' },
-        React.createElement(
-          'button',
-          {
-            'data-test': 'trigger-entitlement-save-new',
-            onClick: () =>
-              props.onDrawerSave({
-                featureId: 'feat-1',
-                featureName: 'Feature 1',
-                featureCode: 'feat_1',
-                privileges: [],
-              }),
-          },
-          'Save Entitlement',
-        ),
-        React.createElement(
-          'button',
-          {
-            'data-test': 'trigger-entitlement-save-existing',
-            onClick: () =>
-              props.onDrawerSave({
-                featureId: 'feat-existing',
-                featureName: 'Existing Feature',
-                featureCode: 'existing_code',
-                privileges: [{ privilegeCode: 'p1', value: 'true' }],
-              }),
-          },
-          'Update Entitlement',
-        ),
-      ),
+    FeatureEntitlementSection: () =>
+      React.createElement('div', { 'data-test': 'feature-entitlement-section-mock' }),
   }
 })
 
@@ -302,13 +206,11 @@ jest.mock('~/styles/mainObjectsForm', () => {
 describe('CreatePlan', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockFormikValues = {}
+    mockCachedForm = createMockPlanForm()
     mockIsEdition = false
     mockLoading = false
-    mockDirty = false
     mockPlan = undefined
     mockType = 'creation'
-    mockErrorCode = undefined
     capturedPlanSettingsProps = undefined
   })
 
@@ -375,89 +277,16 @@ describe('CreatePlan', () => {
 
         await user.click(screen.getByTestId('trigger-subscription-fee-save'))
 
-        expect(mockSetValues).toHaveBeenCalledWith(
-          expect.objectContaining({
-            amountCents: '500',
-            payInAdvance: true,
-            trialPeriod: 7,
-            invoiceDisplayName: 'Sub Fee',
-          }),
-        )
+        expect(mockSetFieldValue).toHaveBeenCalledWith('amountCents', '500')
+        expect(mockSetFieldValue).toHaveBeenCalledWith('payInAdvance', true)
+        expect(mockSetFieldValue).toHaveBeenCalledWith('trialPeriod', 7)
+        expect(mockSetFieldValue).toHaveBeenCalledWith('invoiceDisplayName', 'Sub Fee')
       })
     })
   })
 
-  describe('GIVEN the handleMinimumCommitmentSave callback', () => {
-    describe('WHEN the commitment drawer saves', () => {
-      it('THEN should call setFieldValue with minimumCommitment including commitmentType', async () => {
-        const user = userEvent.setup()
-
-        render(<CreatePlan />)
-
-        await user.click(screen.getByTestId('trigger-commitment-save'))
-
-        expect(mockSetFieldValue).toHaveBeenCalledWith(
-          'minimumCommitment',
-          expect.objectContaining({
-            amountCents: '1000',
-            invoiceDisplayName: 'Commitment',
-            commitmentType: 'minimum_commitment',
-          }),
-        )
-      })
-    })
-  })
-
-  describe('GIVEN the handleEntitlementDrawerSave callback', () => {
-    describe('WHEN a new entitlement is saved', () => {
-      it('THEN should append the entitlement to the list', async () => {
-        const user = userEvent.setup()
-
-        render(<CreatePlan />)
-
-        await user.click(screen.getByTestId('trigger-entitlement-save-new'))
-
-        expect(mockSetFieldValue).toHaveBeenCalledWith('entitlements', [
-          {
-            featureId: 'feat-1',
-            featureName: 'Feature 1',
-            featureCode: 'feat_1',
-            privileges: [],
-          },
-        ])
-      })
-    })
-
-    describe('WHEN an existing entitlement is updated', () => {
-      it('THEN should replace the matching entitlement', async () => {
-        const user = userEvent.setup()
-
-        mockFormikValues = {
-          entitlements: [
-            {
-              featureId: 'feat-existing',
-              featureName: 'Old Name',
-              featureCode: 'existing_code',
-              privileges: [],
-            },
-          ],
-        }
-
-        render(<CreatePlan />)
-
-        await user.click(screen.getByTestId('trigger-entitlement-save-existing'))
-
-        expect(mockSetFieldValue).toHaveBeenCalledWith('entitlements', [
-          {
-            featureId: 'feat-existing',
-            featureName: 'Existing Feature',
-            featureCode: 'existing_code',
-            privileges: [{ privilegeCode: 'p1', value: 'true' }],
-          },
-        ])
-      })
-    })
-  })
+  // handleMinimumCommitmentSave and handleEntitlementDrawerSave are now internal to the section components.
+  // Their behavior is tested in CommitmentsSection.test.tsx and FeatureEntitlementSection.test.tsx.
 
   describe('GIVEN the submit button', () => {
     describe('WHEN clicked in creation mode', () => {
@@ -468,14 +297,13 @@ describe('CreatePlan', () => {
 
         await user.click(screen.getByTestId('submit'))
 
-        expect(mockSubmitForm).toHaveBeenCalled()
+        expect(mockHandleSubmit).toHaveBeenCalled()
       })
     })
 
     describe('WHEN the form is in edition mode and not dirty', () => {
       it('THEN should disable the submit button', () => {
         mockIsEdition = true
-        mockDirty = false
 
         render(<CreatePlan />)
 
@@ -502,58 +330,16 @@ describe('CreatePlan', () => {
 
   describe('GIVEN the PlanSettingsSection props', () => {
     describe('WHEN rendered in creation mode', () => {
-      it('THEN should pass initialValuesFromFormik derived from formik initialValues', () => {
+      it('THEN should pass form to PlanSettingsSection', () => {
         render(<CreatePlan />)
 
-        expect(capturedPlanSettingsProps?.initialValuesFromFormik).toEqual(
-          expect.objectContaining({
-            name: 'Test Plan',
-            code: 'test-plan',
-            description: '',
-            interval: 'monthly',
-            amountCurrency: 'USD',
-            taxes: [],
-          }),
-        )
+        expect(capturedPlanSettingsProps?.form).toBeDefined()
       })
 
-      it('THEN should pass onSettingsChange as a function', () => {
+      it('THEN should not pass errorCode (error is handled via form.setFieldMeta)', () => {
         render(<CreatePlan />)
 
-        expect(typeof capturedPlanSettingsProps?.onSettingsChange).toBe('function')
-      })
-
-      it('THEN should not pass codeError when no errorCode', () => {
-        render(<CreatePlan />)
-
-        expect(capturedPlanSettingsProps?.codeError).toBeUndefined()
-      })
-    })
-
-    describe('WHEN errorCode is existingCode', () => {
-      it('THEN should pass codeError to PlanSettingsSection', () => {
-        mockErrorCode = 'existingCode'
-
-        render(<CreatePlan />)
-
-        expect(capturedPlanSettingsProps?.codeError).toBe('text_632a2d437e341dcc76817556')
-      })
-    })
-
-    describe('WHEN onSettingsChange is called', () => {
-      it('THEN should call formikProps.setFieldValue for each changed field', () => {
-        render(<CreatePlan />)
-
-        const onSettingsChange = capturedPlanSettingsProps?.onSettingsChange as (
-          changes: Record<string, unknown>,
-        ) => void
-
-        // Debounced — need to flush
-        onSettingsChange({ name: 'New Name', code: 'new_code' })
-
-        // The handler is debounced, so setFieldValue won't be called synchronously
-        // But we verify the function was passed correctly
-        expect(typeof onSettingsChange).toBe('function')
+        expect(capturedPlanSettingsProps?.errorCode).toBeUndefined()
       })
     })
   })

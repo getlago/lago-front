@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
-import { revalidateLogic } from '@tanstack/react-form'
-import { useEffect, useRef, useState } from 'react'
-import { z } from 'zod'
+import { useStore } from '@tanstack/react-form'
+import { useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -15,7 +14,7 @@ import {
 } from '~/core/constants/form'
 import { CurrencyEnum, PlanInterval, TaxForPlanSettingsSectionFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useAppForm } from '~/hooks/forms/useAppform'
+import { PlanFormType } from '~/hooks/plans/usePlanForm'
 
 gql`
   fragment TaxForPlanSettingsSection on Tax {
@@ -60,15 +59,6 @@ export interface PlanSettingsFormValues {
   taxes: TaxForPlanSettingsSectionFragment[]
 }
 
-const planSettingsSchema = z.object({
-  name: z.string().min(1),
-  code: z.string().min(1),
-  description: z.string(),
-  interval: z.enum(PlanInterval),
-  amountCurrency: z.enum(CurrencyEnum),
-  taxes: z.array(z.custom<TaxForPlanSettingsSectionFragment>()),
-})
-
 const INTERVAL_OPTIONS = [
   PlanInterval.Weekly,
   PlanInterval.Monthly,
@@ -82,61 +72,28 @@ const CURRENCY_DATA = Object.values(CurrencyEnum).map((currencyType) => ({
 }))
 
 type PlanSettingsSectionProps = {
+  form: PlanFormType
   canBeEdited?: boolean
   isInSubscriptionForm?: boolean
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
   isEdition?: boolean
-  initialValuesFromFormik: PlanSettingsFormValues
-  onSettingsChange: (changes: Partial<PlanSettingsFormValues>) => void
-  codeError?: string
 }
 
 export const PLAN_SETTINGS_REMOVE_DESCRIPTION_TEST_ID = 'remove-description'
 
 export const PlanSettingsSection = ({
+  form,
   canBeEdited,
   isInSubscriptionForm,
   subscriptionFormType,
   isEdition,
-  initialValuesFromFormik,
-  onSettingsChange,
-  codeError,
 }: PlanSettingsSectionProps) => {
   const { translate } = useInternationalization()
-  const [shouldDisplayDescription, setShouldDisplayDescription] = useState(
-    !!initialValuesFromFormik.description,
-  )
-  const prevInitialValuesRef = useRef(initialValuesFromFormik)
-
-  const form = useAppForm({
-    defaultValues: initialValuesFromFormik,
-    validationLogic: revalidateLogic(),
-    validators: {
-      onDynamic: planSettingsSchema,
-    },
-    onSubmit: () => {},
-  })
-
-  // Re-initialize when plan data loads (initialValuesFromFormik reference changes)
-  // Will be removed once plan form migrates to TanStack
-  // as the form will be initialized at a higher level
-  useEffect(() => {
-    if (prevInitialValuesRef.current !== initialValuesFromFormik) {
-      form.reset(initialValuesFromFormik, { keepDefaultValues: true })
-      setShouldDisplayDescription(!!initialValuesFromFormik.description)
-      prevInitialValuesRef.current = initialValuesFromFormik
-    }
-  }, [initialValuesFromFormik, form])
-
-  // Glue to make the data sync with formik
-  const handleNameOrCodeChange = (field: 'name' | 'code', value: string) => {
-    onSettingsChange({ [field]: value })
-  }
+  const description = useStore(form.store, (s) => s.values.description)
+  const [shouldDisplayDescription, setShouldDisplayDescription] = useState(!!description)
 
   const handleHideDescription = () => {
     form.setFieldValue('description', '')
-    // Glue to make the data sync with formik
-    onSettingsChange({ description: '' })
     setShouldDisplayDescription(false)
   }
 
@@ -159,21 +116,12 @@ export const PlanSettingsSection = ({
         nameProps={{ autoFocus: !isInSubscriptionForm }}
         codeProps={{
           infoText: translate('text_6661fc17337de3591e29e3cd'),
-          externalError: codeError ? translate(codeError) : undefined,
         }}
-        onFieldChange={handleNameOrCodeChange}
       />
 
       {shouldDisplayDescription && (
         <div className="flex items-center">
-          <form.AppField
-            name="description"
-            listeners={{
-              onChange: ({ value }) => {
-                onSettingsChange({ description: value })
-              },
-            }}
-          >
+          <form.AppField name="description">
             {(field) => (
               <field.TextInputField
                 multiline
@@ -210,14 +158,7 @@ export const PlanSettingsSection = ({
         </Button>
       )}
 
-      <form.AppField
-        name="interval"
-        listeners={{
-          onChange: ({ value }) => {
-            onSettingsChange({ interval: value })
-          },
-        }}
-      >
+      <form.AppField name="interval">
         {(field) => (
           <field.ButtonSelectorField
             disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
@@ -228,14 +169,7 @@ export const PlanSettingsSection = ({
         )}
       </form.AppField>
 
-      <form.AppField
-        name="amountCurrency"
-        listeners={{
-          onChange: ({ value }) => {
-            onSettingsChange({ amountCurrency: value })
-          },
-        }}
-      >
+      <form.AppField name="amountCurrency">
         {(field) => (
           <field.ComboBoxField
             data={CURRENCY_DATA}
@@ -257,7 +191,6 @@ export const PlanSettingsSection = ({
             comboboxSelector={SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME}
             onUpdate={(newTaxArray) => {
               form.setFieldValue('taxes', newTaxArray)
-              onSettingsChange({ taxes: newTaxArray })
             }}
           />
         )}

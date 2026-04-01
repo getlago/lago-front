@@ -52,7 +52,7 @@ export const useGraduatedPercentageChargeForm: UseGraduatedPercentageChargeForm 
   valuePointer,
 }) => {
   const setFieldValue = (path: string, value: unknown) => form.setFieldValue(path, value)
-  const formikIdentifier = `${propertyCursor}.graduatedPercentageRanges`
+  const attributeIdentifier = `${propertyCursor}.graduatedPercentageRanges`
   const graduatedPercentageRanges = useMemo(
     () => valuePointer?.graduatedPercentageRanges || [],
     [valuePointer],
@@ -61,10 +61,10 @@ export const useGraduatedPercentageChargeForm: UseGraduatedPercentageChargeForm 
   useEffect(() => {
     if (!graduatedPercentageRanges.length) {
       // if no existing charge, initialize it with 2 pre-filled lines
-      setFieldValue(formikIdentifier, DEFAULT_GRADUATED_PERCENTAGE_CHARGES)
+      setFieldValue(attributeIdentifier, DEFAULT_GRADUATED_PERCENTAGE_CHARGES)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formikIdentifier])
+  }, [attributeIdentifier])
 
   return {
     tableDatas: useMemo(
@@ -134,7 +134,7 @@ export const useGraduatedPercentageChargeForm: UseGraduatedPercentageChargeForm 
     handleUpdate: (rangeIndex, fieldName, value) => {
       if (fieldName !== 'toValue') {
         setFieldValue(
-          `${formikIdentifier}.${rangeIndex}.${fieldName}`,
+          `${attributeIdentifier}.${rangeIndex}.${fieldName}`,
           value !== '' ? Number(value) : value,
         )
       } else {
@@ -161,7 +161,7 @@ export const useGraduatedPercentageChargeForm: UseGraduatedPercentageChargeForm 
           return acc
         }, [])
 
-        setFieldValue(formikIdentifier, newgraduatedPercentageRanges)
+        setFieldValue(attributeIdentifier, newgraduatedPercentageRanges)
       }
     },
     deleteRange: (rangeIndex) => {
@@ -184,7 +184,7 @@ export const useGraduatedPercentageChargeForm: UseGraduatedPercentageChargeForm 
       // Last row needs to has toValue equal to null (infinite)
       newgraduatedPercentageRanges[newgraduatedPercentageRanges.length - 1].toValue = null
 
-      setFieldValue(formikIdentifier, newgraduatedPercentageRanges)
+      setFieldValue(attributeIdentifier, newgraduatedPercentageRanges)
     },
   }
 }

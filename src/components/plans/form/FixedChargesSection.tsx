@@ -1,12 +1,11 @@
 import { gql } from '@apollo/client'
-import { FormikProps } from 'formik'
+import { useStore } from '@tanstack/react-form'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Tooltip } from '~/components/designSystem/Tooltip'
-import { SwitchField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
   FixedChargeDrawer,
@@ -16,7 +15,7 @@ import {
   RemoveChargeWarningDialog,
   RemoveChargeWarningDialogRef,
 } from '~/components/plans/RemoveChargeWarningDialog'
-import { LocalFixedChargeInput, PlanFormInput } from '~/components/plans/types'
+import { LocalFixedChargeInput } from '~/components/plans/types'
 import { mapChargeIntervalCopy } from '~/components/plans/utils'
 import { useDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import {
@@ -26,6 +25,7 @@ import {
   VolumeRangesFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { PlanFormType } from '~/hooks/plans/usePlanForm'
 
 gql`
   fragment FixedChargesOnPlanForm on Plan {
@@ -65,75 +65,73 @@ gql`
 export const FIXED_CHARGES_ADD_BUTTON_TEST_ID = 'add-fixed-charge'
 
 interface FixedChargesSectionProps {
+  form: PlanFormType
   alreadyExistingFixedChargesIds: string[]
   canBeEdited?: boolean
   isInSubscriptionForm?: boolean
-  formikProps: FormikProps<PlanFormInput>
   isEdition?: boolean
 }
 
 export const FixedChargesSection = ({
+  form,
   alreadyExistingFixedChargesIds,
   canBeEdited,
   isInSubscriptionForm,
-  formikProps,
   isEdition = false,
 }: FixedChargesSectionProps) => {
   const { translate } = useInternationalization()
   const { type: actionType } = useDuplicatePlanVar()
-  const hasAnyFixedCharge = !!formikProps.values.fixedCharges.length
+  const fixedCharges = useStore(form.store, (s) => s.values.fixedCharges)
+  const interval = useStore(form.store, (s) => s.values.interval)
+  const billFixedChargesMonthly = useStore(form.store, (s) => s.values.billFixedChargesMonthly)
+
+  const hasAnyFixedCharge = !!fixedCharges.length
   const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
   const fixedChargeDrawerRef = useRef<FixedChargeDrawerRef>(null)
   const [alreadyUsedAddOnIds, setAlreadyUsedAddOnIds] = useState<Map<string, number>>(new Map())
-  const formFixedCharges = formikProps.values.fixedCharges
 
   const handleDrawerSave = useCallback(
     (charge: LocalFixedChargeInput, index: number | null) => {
-      const newCharges = [...formikProps.values.fixedCharges]
+      const newCharges = [...form.state.values.fixedCharges]
 
       if (index === null) {
         newCharges.push(charge)
       } else {
         newCharges[index] = charge
       }
-      formikProps.setFieldValue('fixedCharges', newCharges)
+      form.setFieldValue('fixedCharges', newCharges)
     },
-    [formikProps],
+    [form],
   )
 
   const handleChargeDelete = useCallback(
     (index: number) => {
-      const newCharges = [...formikProps.values.fixedCharges]
+      const newCharges = [...form.state.values.fixedCharges]
 
       newCharges.splice(index, 1)
-      formikProps.setFieldValue('fixedCharges', newCharges)
+      form.setFieldValue('fixedCharges', newCharges)
     },
-    [formikProps],
+    [form],
   )
 
   useEffect(() => {
     setAlreadyUsedAddOnIds(
-      formFixedCharges?.reduce((prev, curr) => {
+      fixedCharges?.reduce((prev, curr) => {
         const id = curr.addOn.id
 
         return prev.set(id, (prev.get(id) || 0) + 1)
       }, new Map()),
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formFixedCharges?.length])
+  }, [fixedCharges?.length])
 
-  const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(
-    formikProps.values.interval,
-  )
+  const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(interval)
 
   const intervalBadgeCopy = useMemo(() => {
     return translate(
-      mapChargeIntervalCopy(
-        formikProps.values.interval,
-        (isAnnual && !!formikProps.values.billFixedChargesMonthly) || false,
-      ),
+      mapChargeIntervalCopy(interval, (isAnnual && !!billFixedChargesMonthly) || false),
     )
-  }, [translate, formikProps.values.interval, formikProps.values.billFixedChargesMonthly, isAnnual])
+  }, [translate, interval, billFixedChargesMonthly, isAnnual])
 
   if (!hasAnyFixedCharge && isInSubscriptionForm) {
     return null
@@ -150,20 +148,22 @@ export const FixedChargesSection = ({
         />
 
         {!!hasAnyFixedCharge && canApplyChargesMonthly && (
-          <SwitchField
-            label={translate('text_1760729707268reew4lqsqof')}
-            subLabel={translate('text_1760729707268ge00k7a7e84')}
-            name="billFixedChargesMonthly"
-            disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
-            formikProps={formikProps}
-          />
+          <form.AppField name="billFixedChargesMonthly">
+            {(field) => (
+              <field.SwitchField
+                label={translate('text_1760729707268reew4lqsqof')}
+                subLabel={translate('text_1760729707268ge00k7a7e84')}
+                disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
+              />
+            )}
+          </form.AppField>
         )}
 
-        {(!!formFixedCharges?.length || !isInSubscriptionForm) && (
+        {(!!fixedCharges?.length || !isInSubscriptionForm) && (
           <div className="flex flex-col gap-6">
-            {!!formFixedCharges?.length && (
+            {!!fixedCharges?.length && (
               <div className="flex flex-col gap-4">
-                {formFixedCharges.map((fixedCharge: LocalFixedChargeInput, i) => {
+                {fixedCharges.map((fixedCharge: LocalFixedChargeInput, i) => {
                   const isNew = !alreadyExistingFixedChargesIds?.includes(fixedCharge?.id || '')
                   const alreadyUsedChargeAlertMessage =
                     (alreadyUsedAddOnIds.get(fixedCharge.addOn.id) || 0) > 1
@@ -211,11 +211,11 @@ export const FixedChargesSection = ({
 
                                 const deleteCharge = () => {
                                   const localChargesAfterDelete = [
-                                    ...formikProps.values.fixedCharges,
+                                    ...form.state.values.fixedCharges,
                                   ]
 
                                   localChargesAfterDelete.splice(i, 1)
-                                  formikProps.setFieldValue('fixedCharges', localChargesAfterDelete)
+                                  form.setFieldValue('fixedCharges', localChargesAfterDelete)
                                 }
 
                                 if (actionType !== 'duplicate' && isUsedInSubscription) {

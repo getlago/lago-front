@@ -446,7 +446,6 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
                     icon="puzzle"
                     title={formValues.addOn.name}
                     subtitle={formValues.addOn.code}
-                    disabled
                   />
                 </CenteredPage.PageSection>
 

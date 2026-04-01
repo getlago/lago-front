@@ -1,4 +1,4 @@
-import { FormikProps } from 'formik'
+import { useStore } from '@tanstack/react-form'
 import { useMemo, useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
@@ -18,40 +18,46 @@ import {
 import PremiumFeature from '~/components/premium/PremiumFeature'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum } from '~/generated/graphql'
+import { CommitmentTypeEnum, CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { PlanFormType } from '~/hooks/plans/usePlanForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-
-import { PlanFormInput } from './types'
 
 export const OPEN_MINIMUM_COMMITMENT_DRAWER_TEST_ID = 'open-minimum-commitment-drawer'
 export const ADD_MINIMUM_COMMITMENT_TEST_ID = 'add-minimum-commitment'
 
 type CommitmentsSectionProps = {
-  formikProps: FormikProps<PlanFormInput>
-  onDrawerSave: (values: MinimumCommitmentFormValues) => void
+  form: PlanFormType
 }
 
-export const CommitmentsSection = ({ formikProps, onDrawerSave }: CommitmentsSectionProps) => {
+export const CommitmentsSection = ({ form }: CommitmentsSectionProps) => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const minimumCommitmentDrawerRef = useRef<MinimumCommitmentDrawerRef>(null)
 
-  const commitment = formikProps.values.minimumCommitment
+  const commitment = useStore(form.store, (s) => s.values.minimumCommitment)
+  const currency = useStore(form.store, (s) => s.values.amountCurrency) || CurrencyEnum.Usd
+  const interval = useStore(form.store, (s) => s.values.interval)
+
   const hasCommitment = !isNaN(Number(commitment?.amountCents)) && !!commitment?.amountCents
 
   const taxValueForBadgeDisplay = useMemo((): string | undefined => {
     return returnFirstDefinedArrayRatesSumAsString(commitment?.taxes || [])
   }, [commitment?.taxes])
 
-  const currency = formikProps.values.amountCurrency || CurrencyEnum.Usd
-  const interval = formikProps.values.interval
-
   const openMinimumCommitmentDrawer = () => {
     minimumCommitmentDrawerRef.current?.openDrawer({
       amountCents: commitment?.amountCents || '',
       invoiceDisplayName: commitment?.invoiceDisplayName || undefined,
       taxes: commitment?.taxes || [],
+    })
+  }
+
+  const handleDrawerSave = (values: MinimumCommitmentFormValues) => {
+    form.setFieldValue('minimumCommitment', {
+      ...form.state.values.minimumCommitment,
+      ...values,
+      commitmentType: CommitmentTypeEnum.MinimumCommitment,
     })
   }
 
@@ -96,7 +102,7 @@ export const CommitmentsSection = ({ formikProps, onDrawerSave }: CommitmentsSec
                   icon: 'trash',
                   tooltipCopy: translate('text_63aa085d28b8510cd46443ff'),
                   onClick: () => {
-                    formikProps.setFieldValue('minimumCommitment', {})
+                    form.setFieldValue('minimumCommitment', {})
                   },
                 },
                 {
@@ -138,7 +144,7 @@ export const CommitmentsSection = ({ formikProps, onDrawerSave }: CommitmentsSec
         </Button>
       )}
 
-      <MinimumCommitmentDrawer ref={minimumCommitmentDrawerRef} onSave={onDrawerSave} />
+      <MinimumCommitmentDrawer ref={minimumCommitmentDrawerRef} onSave={handleDrawerSave} />
     </CenteredPage.PageSection>
   )
 }

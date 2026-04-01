@@ -4,6 +4,7 @@ exports[`RoleCreateEdit Snapshot Tests matches snapshot after dirty form cancel 
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex min-h-full flex-col"
@@ -283,6 +284,7 @@ exports[`RoleCreateEdit Snapshot Tests matches snapshot after filling form 1`] =
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex min-h-full flex-col"
@@ -564,6 +566,7 @@ exports[`RoleCreateEdit Snapshot Tests matches snapshot in create mode 1`] = `
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex min-h-full flex-col"
@@ -843,6 +846,7 @@ exports[`RoleCreateEdit Snapshot Tests matches snapshot in duplicate mode 1`] = 
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex min-h-full flex-col"
@@ -1122,6 +1126,7 @@ exports[`RoleCreateEdit Snapshot Tests matches snapshot in edit mode 1`] = `
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex min-h-full flex-col"
@@ -1404,6 +1409,7 @@ exports[`RoleCreateEdit Snapshot Tests matches snapshot in loading state 1`] = `
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex min-h-full flex-col"
