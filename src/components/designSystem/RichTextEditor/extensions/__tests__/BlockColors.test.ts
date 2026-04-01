@@ -1,14 +1,18 @@
 import { Editor } from '@tiptap/core'
 import { NodeSelection } from '@tiptap/pm/state'
-import StarterKit from '@tiptap/starter-kit'
 
+import { getBaseExtensions } from '../baseExtensions'
 import { BlockColors } from '../BlockColors'
 
 const createEditor = (content = '') => {
   return new Editor({
-    extensions: [StarterKit, BlockColors],
+    extensions: getBaseExtensions(),
     content,
   })
+}
+
+const getMarkdown = (editor: Editor): string => {
+  return (editor.storage as any).markdown.getMarkdown()
 }
 
 describe('BlockColors', () => {
@@ -183,6 +187,126 @@ describe('BlockColors', () => {
         expect(html).toContain('background-color:')
         expect(html).toContain('color:')
         expect(html).toContain('style=')
+      })
+    })
+  })
+
+  describe('GIVEN markdown serialization with colors', () => {
+    describe('WHEN a colored paragraph is serialized to markdown', () => {
+      it('THEN should output HTML with inline styles', () => {
+        const editor = createEditor('<p>Colored text</p>')
+
+        editor.commands.setTextSelection(1)
+        editor.commands.setBlockBackgroundColor('#fee2e2')
+
+        const markdown = getMarkdown(editor)
+
+        editor.destroy()
+
+        expect(markdown).toContain('background-color')
+        expect(markdown).toContain('Colored text')
+      })
+    })
+
+    describe('WHEN a non-colored paragraph is serialized to markdown', () => {
+      it('THEN should output plain markdown without HTML tags', () => {
+        const editor = createEditor('<p>Plain text</p>')
+
+        const markdown = getMarkdown(editor)
+
+        editor.destroy()
+
+        expect(markdown).toBe('Plain text')
+      })
+    })
+
+    describe('WHEN a colored heading is serialized to markdown', () => {
+      it('THEN should output HTML with inline styles', () => {
+        const editor = createEditor('<h1>Title</h1>')
+
+        editor.commands.setTextSelection(1)
+        editor.commands.setBlockTextColor('#dc2626')
+
+        const markdown = getMarkdown(editor)
+
+        editor.destroy()
+
+        expect(markdown).toContain('color')
+        expect(markdown).toContain('Title')
+      })
+    })
+  })
+
+  describe('GIVEN markdown round-trip with colors', () => {
+    describe('WHEN a colored paragraph is serialized then parsed back', () => {
+      it('THEN should preserve the backgroundColor', () => {
+        const editor = createEditor('<p>Round trip</p>')
+
+        editor.commands.setTextSelection(1)
+        editor.commands.setBlockBackgroundColor('#fee2e2')
+
+        const markdown = getMarkdown(editor)
+
+        editor.destroy()
+
+        const editor2 = createEditor(markdown)
+        const firstNode = editor2.state.doc.firstChild
+
+        editor2.destroy()
+
+        expect(firstNode?.attrs.backgroundColor).toBeTruthy()
+        expect(firstNode?.textContent).toBe('Round trip')
+      })
+    })
+
+    describe('WHEN a paragraph with both colors is serialized then parsed back', () => {
+      it('THEN should preserve both backgroundColor and textColor', () => {
+        const editor = createEditor('<p>Both colors</p>')
+
+        editor.commands.setTextSelection(1)
+        editor.commands.setBlockBackgroundColor('#dbeafe')
+        editor.commands.setBlockTextColor('#2563eb')
+
+        const markdown = getMarkdown(editor)
+
+        editor.destroy()
+
+        const editor2 = createEditor(markdown)
+        const firstNode = editor2.state.doc.firstChild
+
+        editor2.destroy()
+
+        expect(firstNode?.attrs.backgroundColor).toBeTruthy()
+        expect(firstNode?.attrs.textColor).toBeTruthy()
+        expect(firstNode?.textContent).toBe('Both colors')
+      })
+    })
+
+    describe('WHEN a colored paragraph with bold text is serialized then parsed back', () => {
+      it('THEN should preserve both colors and inline formatting', () => {
+        const editor = createEditor('<p>Hello <strong>bold</strong> world</p>')
+
+        editor.commands.setTextSelection(1)
+        editor.commands.setBlockBackgroundColor('#fee2e2')
+
+        const markdown = getMarkdown(editor)
+
+        editor.destroy()
+
+        const editor2 = createEditor(markdown)
+        const firstNode = editor2.state.doc.firstChild
+
+        editor2.destroy()
+
+        expect(firstNode?.attrs.backgroundColor).toBeTruthy()
+        expect(firstNode?.textContent).toBe('Hello bold world')
+
+        const html2 = createEditor(markdown)
+        const outputHtml = html2.getHTML()
+
+        html2.destroy()
+
+        expect(outputHtml).toContain('<strong>bold</strong>')
       })
     })
   })

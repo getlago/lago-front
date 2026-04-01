@@ -1,5 +1,5 @@
-import { Extension } from '@tiptap/core'
-import type { Node as PmNode } from '@tiptap/pm/model'
+import { type Editor, Extension } from '@tiptap/core'
+import { DOMSerializer, type Node as PmNode } from '@tiptap/pm/model'
 import { type EditorState, NodeSelection } from '@tiptap/pm/state'
 
 declare module '@tiptap/core' {
@@ -45,6 +45,43 @@ const resolveTopLevelBlock = (state: EditorState): { pos: number; node: PmNode }
 
   return null
 }
+
+// -- Markdown serialization helpers for color-aware blocks ---------------------
+
+interface MarkdownSerializerState {
+  write: (s: string) => void
+  closeBlock: (n: unknown) => void
+  renderInline: (node: PmNode) => void
+  repeat: (s: string, n: number) => string
+}
+
+type SerializeFn = (
+  this: { editor: Editor },
+  state: MarkdownSerializerState,
+  node: PmNode,
+  parent: PmNode,
+  index: number,
+) => void
+
+/**
+ * Wraps a default markdown serializer so that blocks with `backgroundColor` or
+ * `textColor` are emitted as full HTML (via DOMSerializer), while plain blocks
+ * fall through to the original markdown output.
+ */
+export const createColorAwareSerialize = (defaultSerialize: SerializeFn): SerializeFn =>
+  function (this: { editor: Editor }, state, node, parent, index) {
+    if (node.attrs.backgroundColor || node.attrs.textColor) {
+      const domSerializer = DOMSerializer.fromSchema(this.editor.schema)
+      const dom = domSerializer.serializeNode(node) as HTMLElement
+
+      state.write(dom.outerHTML)
+      state.closeBlock(node)
+    } else {
+      defaultSerialize.call(this, state, node, parent, index)
+    }
+  }
+
+// -- Extension ----------------------------------------------------------------
 
 export const BlockColors = Extension.create({
   name: 'blockColors',
