@@ -27,6 +27,7 @@ import {
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
+  WALLET_DETAILS_ROUTE,
 } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -117,7 +118,12 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       icon: 'user-multiple',
       link: CUSTOMERS_LIST_ROUTE,
       canBeClickedOnActive: true,
-      match: [CUSTOMERS_LIST_ROUTE, CUSTOMER_DETAILS_ROUTE, CUSTOMER_DETAILS_TAB_ROUTE],
+      match: [
+        CUSTOMERS_LIST_ROUTE,
+        CUSTOMER_DETAILS_ROUTE,
+        CUSTOMER_DETAILS_TAB_ROUTE,
+        WALLET_DETAILS_ROUTE,
+      ],
       hidden: !hasPermissions(['customersView']),
     },
     {

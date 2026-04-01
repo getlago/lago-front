@@ -67,6 +67,7 @@ const ActionItem: FC<{ action: MainHeaderAction }> = ({ action }) => {
                     align="left"
                     disabled={item.disabled}
                     danger={item.danger}
+                    startIcon={item.startIcon}
                     endIcon={item.endIcon}
                     onClick={() => item.onClick(closePopper)}
                     data-test={item.dataTest}

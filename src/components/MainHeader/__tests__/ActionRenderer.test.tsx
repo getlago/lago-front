@@ -284,6 +284,36 @@ describe('ActionsBlock', () => {
     })
   })
 
+  describe('GIVEN a dropdown item with startIcon', () => {
+    const actions: MainHeaderAction[] = [
+      {
+        type: 'dropdown',
+        label: 'Actions',
+        dataTest: 'dropdown-starticon',
+        items: [
+          {
+            label: 'Add item',
+            onClick: jest.fn(),
+            startIcon: 'plus',
+            dataTest: 'add-item',
+          },
+        ],
+      },
+    ]
+
+    describe('WHEN the dropdown is opened', () => {
+      it('THEN should display the dropdown item', async () => {
+        const user = userEvent.setup()
+
+        render(<ActionsBlock actions={{ items: actions }} />)
+
+        await user.click(screen.getByTestId('dropdown-starticon'))
+
+        expect(screen.getByTestId('add-item')).toBeInTheDocument()
+      })
+    })
+  })
+
   describe('GIVEN a dropdown item with endIcon', () => {
     const actions: MainHeaderAction[] = [
       {
