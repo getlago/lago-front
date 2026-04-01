@@ -2,17 +2,29 @@ import { Extension } from '@tiptap/core'
 import type { Node as PmNode } from '@tiptap/pm/model'
 import { NodeSelection, Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
+import { ALL_ICONS } from 'lago-design-system'
+import { createElement } from 'react'
+import { flushSync } from 'react-dom'
+import { createRoot } from 'react-dom/client'
 
 const dragHandlePluginKey = new PluginKey('dragHandle')
 
-const GRIP_SVG = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-  <circle cx="5" cy="3" r="1.2" fill="currentColor"/>
-  <circle cx="9" cy="3" r="1.2" fill="currentColor"/>
-  <circle cx="5" cy="7" r="1.2" fill="currentColor"/>
-  <circle cx="9" cy="7" r="1.2" fill="currentColor"/>
-  <circle cx="5" cy="11" r="1.2" fill="currentColor"/>
-  <circle cx="9" cy="11" r="1.2" fill="currentColor"/>
-</svg>`
+const renderIconToHtml = (): string => {
+  const container = document.createElement('div')
+  const root = createRoot(container)
+
+  flushSync(() => {
+    root.render(createElement(ALL_ICONS['double-dots-vertical'], { width: 16, height: 16 }))
+  })
+
+  const html = container.innerHTML
+
+  root.unmount()
+
+  return html
+}
+
+const GRIP_SVG = renderIconToHtml()
 
 export const DragHandle = Extension.create({
   name: 'dragHandle',
