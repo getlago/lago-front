@@ -55,16 +55,16 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
   valuePointer,
 }) => {
   const setFieldValue = (path: string, value: unknown) => form.setFieldValue(path, value)
-  const formikIdentifier = `${propertyCursor}.volumeRanges`
+  const attributeIdentifier = `${propertyCursor}.volumeRanges`
   const volumeRanges = useMemo(() => valuePointer?.volumeRanges || [], [valuePointer])
 
   useEffect(() => {
     if (!volumeRanges.length) {
       // if no existing charge, initialize it with 2 pre-filled lines
-      setFieldValue(formikIdentifier, DEFAULT_VOLUME_CHARGES)
+      setFieldValue(attributeIdentifier, DEFAULT_VOLUME_CHARGES)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formikIdentifier])
+  }, [attributeIdentifier])
 
   return {
     tableDatas: useMemo(
@@ -120,7 +120,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       if (fieldName !== 'toValue') {
-        setFieldValue(`${formikIdentifier}.${rangeIndex}.${fieldName}`, value)
+        setFieldValue(`${attributeIdentifier}.${rangeIndex}.${fieldName}`, value)
       } else {
         const newVolumeRanges = volumeRanges.reduce<VolumeRangeInput[]>((acc, range, i) => {
           if (rangeIndex === i) {
@@ -143,7 +143,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
           return acc
         }, [])
 
-        setFieldValue(formikIdentifier, newVolumeRanges)
+        setFieldValue(attributeIdentifier, newVolumeRanges)
       }
     },
     deleteRange: (rangeIndex) => {
@@ -164,7 +164,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
       // Last row needs to has toValue null
       newVolumeRanges[newVolumeRanges.length - 1].toValue = null
 
-      setFieldValue(formikIdentifier, newVolumeRanges)
+      setFieldValue(attributeIdentifier, newVolumeRanges)
     },
   }
 }

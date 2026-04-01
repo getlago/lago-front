@@ -1,12 +1,11 @@
 import { gql } from '@apollo/client'
-import { FormikProps } from 'formik'
+import { useStore } from '@tanstack/react-form'
 import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Tooltip } from '~/components/designSystem/Tooltip'
-import { SwitchField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
   UsageChargeDrawer,
@@ -18,12 +17,13 @@ import { useDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicateP
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { PlanFormType } from '~/hooks/plans/usePlanForm'
 
 import {
   RemoveChargeWarningDialog,
   RemoveChargeWarningDialogRef,
 } from './RemoveChargeWarningDialog'
-import { LocalUsageChargeInput, PlanFormInput } from './types'
+import { LocalUsageChargeInput } from './types'
 
 gql`
   fragment PlanForUsageChargeAccordion on Plan {
@@ -35,60 +35,67 @@ gql`
 export const USAGE_CHARGES_ADD_BUTTON_TEST_ID = 'add-usage-charge'
 
 interface UsageChargesSectionProps {
+  form: PlanFormType
   alreadyExistingCharges?: LocalUsageChargeInput[] | null
   premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
   canBeEdited?: boolean
   isInSubscriptionForm?: boolean
-  formikProps: FormikProps<PlanFormInput>
   isEdition: boolean
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
 }
 
 export const UsageChargesSection = ({
+  form,
   alreadyExistingCharges,
   canBeEdited,
   isInSubscriptionForm,
-  formikProps,
   isEdition,
   premiumWarningDialogRef,
   subscriptionFormType,
 }: UsageChargesSectionProps) => {
   const { translate } = useInternationalization()
   const { type: actionType } = useDuplicatePlanVar()
-  const hasAnyCharge = !!formikProps.values.charges.length
+
+  // Subscribe to specific slices for granular re-renders
+  const charges = useStore(form.store, (s) => s.values.charges)
+  const interval = useStore(form.store, (s) => s.values.interval)
+  const billChargesMonthly = useStore(form.store, (s) => s.values.billChargesMonthly)
+  const amountCurrency = useStore(form.store, (s) => s.values.amountCurrency)
+
+  const hasAnyCharge = !!charges.length
   const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
   const usageChargeDrawerRef = useRef<UsageChargeDrawerRef>(null)
   const [alreadyUsedBmsIds, setAlreadyUsedBmsIds] = useState<Map<string, number>>(new Map())
 
   const handleDrawerSave = useCallback(
     (charge: LocalUsageChargeInput, index: number | null) => {
-      const newCharges = [...formikProps.values.charges]
+      const newCharges = [...form.state.values.charges]
 
       if (index === null) {
         newCharges.push(charge)
       } else {
         newCharges[index] = charge
       }
-      formikProps.setFieldValue('charges', newCharges)
+      form.setFieldValue('charges', newCharges)
     },
-    [formikProps],
+    [form],
   )
 
   const handleChargeDelete = useCallback(
     (index: number) => {
-      const newCharges = [...formikProps.values.charges]
+      const newCharges = [...form.state.values.charges]
 
       newCharges.splice(index, 1)
-      formikProps.setFieldValue('charges', newCharges)
+      form.setFieldValue('charges', newCharges)
     },
-    [formikProps],
+    [form],
   )
 
   useEffect(() => {
     const BmIdsMap = new Map()
 
-    for (let i = 0; i < formikProps.values.charges.length; i++) {
-      const element = formikProps.values.charges[i]
+    for (let i = 0; i < charges.length; i++) {
+      const element = charges[i]
       const bmId = element.billableMetric.id
 
       if (BmIdsMap.has(bmId)) {
@@ -100,20 +107,13 @@ export const UsageChargesSection = ({
 
     setAlreadyUsedBmsIds(BmIdsMap)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formikProps.values.charges.length])
+  }, [charges.length])
 
-  const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(
-    formikProps.values.interval,
-  )
+  const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(interval)
 
   const intervalBadgeCopy = useMemo(() => {
-    return translate(
-      mapChargeIntervalCopy(
-        formikProps.values.interval,
-        (isAnnual && !!formikProps.values.billChargesMonthly) || false,
-      ),
-    )
-  }, [translate, formikProps.values.interval, formikProps.values.billChargesMonthly, isAnnual])
+    return translate(mapChargeIntervalCopy(interval, (isAnnual && !!billChargesMonthly) || false))
+  }, [translate, interval, billChargesMonthly, isAnnual])
 
   if (!hasAnyCharge && isInSubscriptionForm) {
     return null
@@ -167,10 +167,7 @@ export const UsageChargesSection = ({
                   e.preventDefault()
 
                   const deleteCharge = () => {
-                    const localChargesAfterDelete = [...formikProps.values.charges]
-
-                    localChargesAfterDelete.splice(i, 1)
-                    formikProps.setFieldValue('charges', localChargesAfterDelete)
+                    handleChargeDelete(i)
                   }
 
                   if (actionType !== 'duplicate' && isUsedInSubscription) {
@@ -204,17 +201,19 @@ export const UsageChargesSection = ({
         {!!hasAnyCharge && (
           <>
             {canApplyChargesMonthly && (
-              <SwitchField
-                label={translate('text_62a30bc79dae432fb055330b')}
-                subLabel={translate('text_64358e074a3b7500714f256c')}
-                name="billChargesMonthly"
-                disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
-                formikProps={formikProps}
-              />
+              <form.AppField name="billChargesMonthly">
+                {(field) => (
+                  <field.SwitchField
+                    label={translate('text_62a30bc79dae432fb055330b')}
+                    subLabel={translate('text_64358e074a3b7500714f256c')}
+                    disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
+                  />
+                )}
+              </form.AppField>
             )}
 
             <div className="flex flex-col gap-4">
-              {formikProps.values.charges.map((charge, i) => {
+              {charges.map((charge, i) => {
                 return renderChargeSelector(charge, i)
               })}
             </div>
@@ -247,7 +246,7 @@ export const UsageChargesSection = ({
         onSave={handleDrawerSave}
         onDelete={handleChargeDelete}
         removeChargeWarningDialogRef={removeChargeWarningDialogRef}
-        amountCurrency={formikProps.values.amountCurrency}
+        amountCurrency={amountCurrency}
       />
 
       <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} />

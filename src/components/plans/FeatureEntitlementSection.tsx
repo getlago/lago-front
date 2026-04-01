@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { FormikProps } from 'formik'
+import { useStore } from '@tanstack/react-form'
 import { FC, useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
@@ -15,8 +15,7 @@ import {
   FeatureObjectEntitlementPrivilegeForPlanFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { PlanFormInput } from './types'
+import { PlanFormType } from '~/hooks/plans/usePlanForm'
 
 export const ADD_FEATURE_ENTITLEMENT_TEST_ID = 'add-feature-entitlement'
 export const FEATURE_ENTITLEMENT_SELECTOR_TEST_ID = 'feature-entitlement-selector'
@@ -48,17 +47,36 @@ gql`
 `
 
 interface FeatureEntitlementSectionProps {
-  formikProps: FormikProps<PlanFormInput>
+  form: PlanFormType
   isEdition?: boolean
-  onDrawerSave: (values: FeatureEntitlementFormValues) => void
 }
 
-export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
-  formikProps,
-  onDrawerSave,
-}) => {
+export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({ form }) => {
   const { translate } = useInternationalization()
   const featureEntitlementDrawerRef = useRef<FeatureEntitlementDrawerRef>(null)
+
+  const entitlements = useStore(form.store, (s) => s.values.entitlements)
+
+  const handleDrawerSave = (values: FeatureEntitlementFormValues) => {
+    const current = form.state.values.entitlements || []
+    const existingIndex = current.findIndex((e) => e.featureCode === values.featureCode)
+    const newFeatureObject = {
+      featureId: values.featureId,
+      featureName: values.featureName,
+      featureCode: values.featureCode,
+      privileges: values.privileges,
+    }
+
+    const updated = [...current]
+
+    if (existingIndex >= 0) {
+      updated[existingIndex] = newFeatureObject
+    } else {
+      updated.push(newFeatureObject)
+    }
+
+    form.setFieldValue('entitlements', updated)
+  }
 
   return (
     <CenteredPage.PageSection>
@@ -67,9 +85,9 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
         description={translate('text_17538642230602p03937fj0f')}
       />
 
-      {!!formikProps.values.entitlements?.length && (
+      {!!entitlements?.length && (
         <div className="flex w-full flex-col gap-4">
-          {formikProps.values.entitlements.map((entitlement) => {
+          {entitlements.map((entitlement) => {
             const openFeatureEntitlementDrawer = () => {
               featureEntitlementDrawerRef.current?.openDrawer({
                 featureId: entitlement.featureId || '',
@@ -96,9 +114,9 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
                         icon: 'trash',
                         tooltipCopy: translate('text_63aa085d28b8510cd46443ff'),
                         onClick: () => {
-                          formikProps.setFieldValue(
+                          form.setFieldValue(
                             'entitlements',
-                            formikProps.values.entitlements.filter(
+                            form.state.values.entitlements.filter(
                               (e) => e.featureCode !== entitlement.featureCode,
                             ),
                           )
@@ -131,8 +149,8 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
 
       <FeatureEntitlementDrawer
         ref={featureEntitlementDrawerRef}
-        existingFeatureCodes={formikProps.values.entitlements?.map((e) => e.featureCode) || []}
-        onSave={onDrawerSave}
+        existingFeatureCodes={entitlements?.map((e) => e.featureCode) || []}
+        onSave={handleDrawerSave}
       />
     </CenteredPage.PageSection>
   )

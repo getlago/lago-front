@@ -11,11 +11,7 @@ export type NameAndCodeGroupValues = {
 export type NameAndCodeGroupProps = {
   isDisabled?: boolean
   nameProps?: Partial<TextInputProps>
-  codeProps?: Partial<TextInputProps> & { externalError?: string }
-  // onFieldChange exist as a bridge for PlanSettingsSection,
-  // which uses a local TanStack form while the parent plan form is still on Formik.
-  // These props will be removed once the root plan form migrates to TanStack.
-  onFieldChange?: (field: 'name' | 'code', value: string) => void
+  codeProps?: Partial<TextInputProps>
 }
 
 const defaultValues: NameAndCodeGroupValues = {
@@ -30,25 +26,16 @@ const defaultProps: NameAndCodeGroupProps = {
 const NameAndCodeGroup = withFieldGroup({
   defaultValues,
   props: defaultProps,
-  render: function Render({ group, isDisabled, nameProps, codeProps, onFieldChange }) {
+  render: function Render({ group, isDisabled, nameProps, codeProps }) {
     const { translate } = useInternationalization()
 
     const handleNameChange = ({ value }: { value: string }) => {
       const isCodeBlurred = group.getFieldMeta('code')?.isBlurred
 
-      onFieldChange?.('name', value)
-
       // isDisabled mean we don't want to update the value. Be it directly or indirectly.
       if (isCodeBlurred || isDisabled) return
 
-      const newCode = formatCodeFromName(value)
-
-      group.setFieldValue('code', newCode)
-      onFieldChange?.('code', newCode)
-    }
-
-    const handleCodeChange = ({ value }: { value: string }) => {
-      onFieldChange?.('code', value)
+      group.setFieldValue('code', formatCodeFromName(value))
     }
 
     return (
@@ -62,7 +49,7 @@ const NameAndCodeGroup = withFieldGroup({
             />
           )}
         </group.AppField>
-        <group.AppField name="code" listeners={{ onChange: handleCodeChange }}>
+        <group.AppField name="code">
           {(field) => (
             <field.TextInputField
               label={translate('text_629728388c4d2300e2d380b7')}

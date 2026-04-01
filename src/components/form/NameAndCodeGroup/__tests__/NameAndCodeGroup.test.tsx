@@ -12,17 +12,19 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+// Ref to access the form instance from tests
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let formRef: any = null
+
 // Wrapper component that provides form context
 const NameAndCodeGroupWrapper = ({
   isDisabled = false,
   defaultValues = { name: '', code: '' },
-  onFieldChange,
   nameProps,
   codeProps,
 }: {
   isDisabled?: boolean
   defaultValues?: { name: string; code: string }
-  onFieldChange?: (field: 'name' | 'code', value: string) => void
   nameProps?: Record<string, unknown>
   codeProps?: Record<string, unknown>
 }) => {
@@ -33,6 +35,8 @@ const NameAndCodeGroupWrapper = ({
     },
   })
 
+  formRef = form
+
   return (
     <form.AppForm>
       <form>
@@ -40,7 +44,6 @@ const NameAndCodeGroupWrapper = ({
           form={form}
           fields={{ name: 'name', code: 'code' }}
           isDisabled={isDisabled}
-          onFieldChange={onFieldChange}
           nameProps={nameProps}
           codeProps={codeProps}
         />
@@ -269,69 +272,6 @@ describe('NameAndCodeGroup', () => {
     })
   })
 
-  describe('onFieldChange Callback', () => {
-    it('calls onFieldChange with name on name input', async () => {
-      const user = userEvent.setup()
-      const mockOnFieldChange = jest.fn()
-
-      await act(() => render(<NameAndCodeGroupWrapper onFieldChange={mockOnFieldChange} />))
-
-      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
-
-      await user.type(nameInput, 'A')
-
-      expect(mockOnFieldChange).toHaveBeenCalledWith('name', 'A')
-    })
-
-    it('calls onFieldChange with code when name auto-syncs', async () => {
-      const user = userEvent.setup()
-      const mockOnFieldChange = jest.fn()
-
-      await act(() => render(<NameAndCodeGroupWrapper onFieldChange={mockOnFieldChange} />))
-
-      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
-
-      await user.type(nameInput, 'A')
-
-      expect(mockOnFieldChange).toHaveBeenCalledWith('code', 'a')
-    })
-
-    it('calls onFieldChange with code on direct code input', async () => {
-      const user = userEvent.setup()
-      const mockOnFieldChange = jest.fn()
-
-      await act(() => render(<NameAndCodeGroupWrapper onFieldChange={mockOnFieldChange} />))
-
-      const codeInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380d9')
-
-      await user.type(codeInput, 'x')
-
-      expect(mockOnFieldChange).toHaveBeenCalledWith('code', 'x')
-    })
-
-    it('does not call onFieldChange for auto-synced code when disabled', async () => {
-      const user = userEvent.setup()
-      const mockOnFieldChange = jest.fn()
-
-      await act(() =>
-        render(
-          <NameAndCodeGroupWrapper
-            isDisabled={true}
-            defaultValues={{ name: '', code: 'existing' }}
-            onFieldChange={mockOnFieldChange}
-          />,
-        ),
-      )
-
-      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
-
-      await user.type(nameInput, 'A')
-
-      expect(mockOnFieldChange).toHaveBeenCalledWith('name', 'A')
-      expect(mockOnFieldChange).not.toHaveBeenCalledWith('code', expect.any(String))
-    })
-  })
-
   describe('nameProps and codeProps', () => {
     it('passes nameProps through to the name TextInputField', async () => {
       await act(() => render(<NameAndCodeGroupWrapper nameProps={{ autoFocus: true }} />))
@@ -347,6 +287,26 @@ describe('NameAndCodeGroup', () => {
       )
 
       expect(screen.getByPlaceholderText('custom-placeholder')).toBeInTheDocument()
+    })
+  })
+
+  describe('Server-side error propagation', () => {
+    it('displays error under code input when setFieldMeta sets onDynamic error', async () => {
+      await act(() => render(<NameAndCodeGroupWrapper />))
+
+      // Simulate server-side "code already exists" error via setFieldMeta
+      await act(() => {
+        formRef.setFieldMeta('code', (meta: Record<string, unknown>) => ({
+          ...meta,
+          errorMap: {
+            ...(meta.errorMap as Record<string, unknown>),
+            onDynamic: { message: 'text_632a2d437e341dcc76817556' },
+          },
+        }))
+      })
+
+      // The error should be displayed (translated by the mock as the key itself)
+      expect(screen.getByText('text_632a2d437e341dcc76817556')).toBeInTheDocument()
     })
   })
 })

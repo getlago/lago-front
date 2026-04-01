@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { PlanFormType } from '~/hooks/plans/usePlanForm'
 import { render } from '~/test-utils'
 
 import {
@@ -49,9 +50,12 @@ const DEFAULT_INITIAL_VALUES: PlanSettingsFormValues = {
 }
 
 const PlanSettingsSectionWrapper = (
-  props: Partial<React.ComponentProps<typeof PlanSettingsSection>>,
+  props: Partial<Omit<React.ComponentProps<typeof PlanSettingsSection>, 'form'>> & {
+    defaultValues?: PlanSettingsFormValues
+  },
 ) => {
-  const initialValues = props.initialValuesFromFormik ?? DEFAULT_INITIAL_VALUES
+  const { defaultValues, ...rest } = props
+  const initialValues = defaultValues ?? DEFAULT_INITIAL_VALUES
 
   const form = useAppForm({
     defaultValues: initialValues,
@@ -59,11 +63,7 @@ const PlanSettingsSectionWrapper = (
 
   return (
     <form.AppForm>
-      <PlanSettingsSection
-        initialValuesFromFormik={initialValues}
-        onSettingsChange={jest.fn()}
-        {...props}
-      />
+      <PlanSettingsSection form={form as unknown as PlanFormType} {...rest} />
     </form.AppForm>
   )
 }
@@ -117,13 +117,13 @@ describe('PlanSettingsSection', () => {
     })
   })
 
-  describe('GIVEN initialValuesFromFormik has a description', () => {
+  describe('GIVEN defaultValues has a description', () => {
     describe('WHEN the component is rendered', () => {
       it('THEN should show the description field', async () => {
         await act(() =>
           render(
             <PlanSettingsSectionWrapper
-              initialValuesFromFormik={{
+              defaultValues={{
                 ...DEFAULT_INITIAL_VALUES,
                 description: 'Existing description',
               }}
@@ -141,7 +141,7 @@ describe('PlanSettingsSection', () => {
         await act(() =>
           render(
             <PlanSettingsSectionWrapper
-              initialValuesFromFormik={{
+              defaultValues={{
                 ...DEFAULT_INITIAL_VALUES,
                 description: 'Existing description',
               }}
@@ -170,18 +170,16 @@ describe('PlanSettingsSection', () => {
 
   describe('GIVEN the description field is visible', () => {
     describe('WHEN the user clicks the trash button to hide it', () => {
-      it('THEN should hide the description field and call onSettingsChange', async () => {
+      it('THEN should hide the description field', async () => {
         const user = userEvent.setup()
-        const mockOnSettingsChange = jest.fn()
 
         await act(() =>
           render(
             <PlanSettingsSectionWrapper
-              initialValuesFromFormik={{
+              defaultValues={{
                 ...DEFAULT_INITIAL_VALUES,
                 description: 'Some desc',
               }}
-              onSettingsChange={mockOnSettingsChange}
             />,
           ),
         )
@@ -191,26 +189,20 @@ describe('PlanSettingsSection', () => {
         expect(
           screen.queryByPlaceholderText('text_6661fc17337de3591e29e3c9'),
         ).not.toBeInTheDocument()
-        expect(mockOnSettingsChange).toHaveBeenCalledWith({ description: '' })
       })
     })
   })
 
   describe('GIVEN the taxes section', () => {
     describe('WHEN the user updates taxes', () => {
-      it('THEN should call onSettingsChange with the new taxes', async () => {
+      it('THEN should trigger the tax update without errors', async () => {
         const user = userEvent.setup()
-        const mockOnSettingsChange = jest.fn()
 
-        await act(() =>
-          render(<PlanSettingsSectionWrapper onSettingsChange={mockOnSettingsChange} />),
-        )
+        await act(() => render(<PlanSettingsSectionWrapper />))
 
         await user.click(screen.getByTestId('trigger-tax-update'))
 
-        expect(mockOnSettingsChange).toHaveBeenCalledWith({
-          taxes: [{ id: 'tax-1', code: 'vat', name: 'VAT', rate: 20 }],
-        })
+        expect(screen.getByTestId('taxes-selector-mock')).toBeInTheDocument()
       })
     })
   })
@@ -264,13 +256,13 @@ describe('PlanSettingsSection', () => {
     })
   })
 
-  describe('GIVEN initialValuesFromFormik with pre-filled values', () => {
+  describe('GIVEN defaultValues with pre-filled values', () => {
     describe('WHEN the component is rendered', () => {
       it('THEN should populate all fields with the initial values', async () => {
         await act(() =>
           render(
             <PlanSettingsSectionWrapper
-              initialValuesFromFormik={{
+              defaultValues={{
                 name: 'Test Plan',
                 code: 'test_plan',
                 description: 'A test plan',
@@ -291,25 +283,6 @@ describe('PlanSettingsSection', () => {
         expect(screen.getByPlaceholderText('text_6661fc17337de3591e29e3c9')).toHaveValue(
           'A test plan',
         )
-      })
-    })
-  })
-
-  describe('GIVEN the onSettingsChange callback', () => {
-    describe('WHEN the user types in the name field', () => {
-      it('THEN should call onSettingsChange with name changes', async () => {
-        const user = userEvent.setup()
-        const mockOnSettingsChange = jest.fn()
-
-        await act(() =>
-          render(<PlanSettingsSectionWrapper onSettingsChange={mockOnSettingsChange} />),
-        )
-
-        const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
-
-        await user.type(nameInput, 'A')
-
-        expect(mockOnSettingsChange).toHaveBeenCalledWith({ name: 'A' })
       })
     })
   })

@@ -10,16 +10,11 @@ const TextInputField = ({
   silentError = false,
   displayErrorText = true,
   showOnlyErrors,
-  // Glue: allows parent components to inject server-side errors when the TanStack field
-  // store is not directly accessible (e.g. field groups). Remove once Formik is fully
-  // replaced by a top-level TanStack form in the plan form.
-  externalError,
   ...props
 }: Omit<TextInputProps, 'name' | 'value' | 'onChange' | 'onBlur' | 'error'> & {
   silentError?: boolean
   displayErrorText?: boolean
   showOnlyErrors?: string[]
-  externalError?: string
 }) => {
   const field = useFieldContext<string>()
   const { translate } = useInternationalization()
@@ -51,7 +46,7 @@ const TextInputField = ({
       value={field.state.value}
       onChange={(value) => field.handleChange(value)}
       onBlur={field.handleBlur}
-      error={externalError || finalError}
+      error={finalError}
     />
   )
 }

@@ -1,4 +1,4 @@
-import { FormikProps } from 'formik'
+import { useStore } from '@tanstack/react-form'
 import { FC, useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
@@ -12,27 +12,26 @@ import {
 import PremiumFeature from '~/components/premium/PremiumFeature'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { PlanFormType } from '~/hooks/plans/usePlanForm'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-
-import { PlanFormInput } from './types'
 
 export const OPEN_PROGRESSIVE_BILLING_DRAWER_TEST_ID = 'open-progressive-billing-drawer'
 export const ADD_PROGRESSIVE_BILLING_TEST_ID = 'add-progressive-billing'
 
 interface ProgressiveBillingSectionProps {
-  formikProps: FormikProps<PlanFormInput>
-  onDrawerSave: (values: ProgressiveBillingFormValues) => void
+  form: PlanFormType
 }
 
-export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
-  formikProps,
-  onDrawerSave,
-}) => {
+export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ form }) => {
   const { translate } = useInternationalization()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const progressiveBillingDrawerRef = useRef<ProgressiveBillingDrawerRef>(null)
 
-  const { nonRecurringUsageThresholds, recurringUsageThreshold } = formikProps.values
+  const nonRecurringUsageThresholds = useStore(
+    form.store,
+    (s) => s.values.nonRecurringUsageThresholds,
+  )
+  const recurringUsageThreshold = useStore(form.store, (s) => s.values.recurringUsageThreshold)
 
   const hasThresholds = !!nonRecurringUsageThresholds?.length || !!recurringUsageThreshold
 
@@ -44,8 +43,13 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
     (nonRecurringUsageThresholds?.length ?? 0) + (recurringUsageThreshold ? 1 : 0)
 
   const handleDelete = () => {
-    formikProps.setFieldValue('nonRecurringUsageThresholds', undefined)
-    formikProps.setFieldValue('recurringUsageThreshold', undefined)
+    form.setFieldValue('nonRecurringUsageThresholds', undefined)
+    form.setFieldValue('recurringUsageThreshold', undefined)
+  }
+
+  const handleDrawerSave = (values: ProgressiveBillingFormValues) => {
+    form.setFieldValue('nonRecurringUsageThresholds', values.nonRecurringUsageThresholds)
+    form.setFieldValue('recurringUsageThreshold', values.recurringUsageThreshold)
   }
 
   const openDrawer = () => {
@@ -123,7 +127,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({
 
       <ProgressiveBillingDrawer
         ref={progressiveBillingDrawerRef}
-        onSave={onDrawerSave}
+        onSave={handleDrawerSave}
         onDelete={handleDelete}
       />
     </CenteredPage.PageSection>

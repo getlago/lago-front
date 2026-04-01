@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
-import { debounce } from 'lodash'
-import { useCallback, useMemo, useRef } from 'react'
+import { useStore } from '@tanstack/react-form'
+import { useCallback, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -12,17 +12,13 @@ import {
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
-import { FeatureEntitlementFormValues } from '~/components/plans/drawers/FeatureEntitlementDrawer'
-import { MinimumCommitmentFormValues } from '~/components/plans/drawers/MinimumCommitmentDrawer'
-import { ProgressiveBillingFormValues } from '~/components/plans/drawers/progressiveBilling/constants'
-import { SubscriptionFeeFormValues } from '~/components/plans/drawers/SubscriptionFeeDrawer'
 import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import {
   ImpactOverridenSubscriptionsDialog,
   ImpactOverridenSubscriptionsDialogRef,
 } from '~/components/plans/ImpactOverridenSubscriptionsDialog'
-import { PlanSettingsFormValues, PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
+import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
 import { LocalUsageChargeInput } from '~/components/plans/types'
@@ -31,7 +27,7 @@ import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/Prem
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
-import { FORM_ERRORS_ENUM, FORM_TYPE_ENUM } from '~/core/constants/form'
+import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import {
   CustomerSubscriptionDetailsTabsOptionsEnum,
   PlanDetailsTabsOptionsEnum,
@@ -43,7 +39,6 @@ import {
   PLANS_ROUTE,
 } from '~/core/router'
 import {
-  CommitmentTypeEnum,
   CurrencyEnum,
   FeatureEntitlementForPlanFragmentDoc,
   FixedChargesOnPlanFormFragmentDoc,
@@ -158,7 +153,7 @@ const CreatePlan = () => {
   const { type: actionType } = useDuplicatePlanVar()
   const [searchParams] = useSearchParams()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-  const { formikProps, errorCode, isEdition, loading, plan, type } = usePlanForm({})
+  const { form, isEdition, loading, plan, type } = usePlanForm({})
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const impactOverridenSubscriptionsDialogRef = useRef<ImpactOverridenSubscriptionsDialogRef>(null)
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
@@ -166,6 +161,11 @@ const CreatePlan = () => {
   const canBeEdited = !plan?.subscriptionsCount
   const alreadyExistingFixedChargesIds =
     plan?.fixedCharges?.map((fixedCharge) => fixedCharge.id) || []
+
+  // Use useStore for reactive state reads in render
+  const isDirty = useStore(form.store, (s) => s.isDirty)
+  const amountCurrency = useStore(form.store, (s) => s.values.amountCurrency)
+  const interval = useStore(form.store, (s) => s.values.interval)
 
   const planCloseRedirection = useCallback(() => {
     const origin = searchParams.get('origin')
@@ -203,106 +203,21 @@ const CreatePlan = () => {
   }, [navigate, plan?.id, searchParams, actionType])
 
   const onLeave = useCallback(() => {
-    if (formikProps.dirty) {
+    if (isDirty) {
       return warningDialogRef.current?.openDialog()
     }
 
     return planCloseRedirection()
-  }, [formikProps.dirty, planCloseRedirection])
+  }, [isDirty, planCloseRedirection])
 
-  const pageTitle = useMemo(() => {
-    if (isEdition) {
-      return translate('text_625fd165963a7b00c8f59767')
-    }
-
-    return translate('text_624453d52e945301380e4988')
-  }, [isEdition, translate])
-
-  const planSettingsInitialValues = useMemo<PlanSettingsFormValues>(
-    () => ({
-      name: formikProps.initialValues.name ?? '',
-      code: formikProps.initialValues.code ?? '',
-      description: formikProps.initialValues.description ?? '',
-      interval: formikProps.initialValues.interval ?? PlanInterval.Monthly,
-      amountCurrency: formikProps.initialValues.amountCurrency ?? CurrencyEnum.Usd,
-      taxes: formikProps.initialValues.taxes ?? [],
-    }),
-    [formikProps.initialValues],
-  )
-
-  // Have to debounce update to formik to avoid form slowness for now.
-  // While tanstack works very fast, formik code is still there and would affect the rendering so better to delay it a bit.
-  // We accumulate partial changes in a ref so that synchronous calls (e.g. name + code
-  // from NameAndCodeGroup) are batched before the debounced flush fires.
-  const pendingSettingsChangesRef = useRef<Partial<PlanSettingsFormValues>>({})
-
-  const handlePlanSettingsChange = useMemo(() => {
-    const flush = debounce(() => {
-      const changes = { ...pendingSettingsChangesRef.current }
-
-      pendingSettingsChangesRef.current = {}
-      Object.entries(changes).forEach(([key, value]) => {
-        formikProps.setFieldValue(key, value)
-      })
-    }, 100)
-
-    return (changes: Partial<PlanSettingsFormValues>) => {
-      Object.assign(pendingSettingsChangesRef.current, changes)
-      flush()
-    }
-  }, [formikProps])
-
-  const handleSubscriptionFeeSave = (values: SubscriptionFeeFormValues) => {
-    formikProps.setValues({
-      ...formikProps.values,
-      ...values,
-    })
-  }
-
-  const handleMinimumCommitmentSave = (values: MinimumCommitmentFormValues) => {
-    formikProps.setFieldValue('minimumCommitment', {
-      ...formikProps.values.minimumCommitment,
-      ...values,
-      commitmentType: CommitmentTypeEnum.MinimumCommitment,
-    })
-  }
-
-  const handleProgressiveBillingSave = (values: ProgressiveBillingFormValues) => {
-    formikProps.setFieldValue('nonRecurringUsageThresholds', values.nonRecurringUsageThresholds)
-    formikProps.setFieldValue('recurringUsageThreshold', values.recurringUsageThreshold)
-  }
-
-  const handleEntitlementDrawerSave = (values: FeatureEntitlementFormValues) => {
-    const current = formikProps.values.entitlements || []
-    const existingIndex = current.findIndex((e) => e.featureCode === values.featureCode)
-
-    if (existingIndex >= 0) {
-      const updated = [...current]
-
-      updated[existingIndex] = {
-        featureId: values.featureId,
-        featureName: values.featureName,
-        featureCode: values.featureCode,
-        privileges: values.privileges,
-      }
-      formikProps.setFieldValue('entitlements', updated)
-    } else {
-      formikProps.setFieldValue('entitlements', [
-        ...current,
-        {
-          featureId: values.featureId,
-          featureName: values.featureName,
-          featureCode: values.featureCode,
-          privileges: values.privileges,
-        },
-      ])
-    }
-  }
+  const pageTitle = isEdition
+    ? translate('text_625fd165963a7b00c8f59767')
+    : translate('text_624453d52e945301380e4988')
 
   return (
     <PlanFormProvider
-      currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
-      interval={formikProps.values.interval || PlanInterval.Monthly}
+      currency={amountCurrency || CurrencyEnum.Usd}
+      interval={interval || PlanInterval.Monthly}
     >
       <CenteredPage.Wrapper>
         <CenteredPage.Header>
@@ -327,17 +242,7 @@ const CreatePlan = () => {
                   description={translate('text_1770063200028ww5znt6yree')}
                 />
 
-                <PlanSettingsSection
-                  canBeEdited={canBeEdited}
-                  isEdition={isEdition}
-                  initialValuesFromFormik={planSettingsInitialValues}
-                  onSettingsChange={handlePlanSettingsChange}
-                  codeError={
-                    errorCode === FORM_ERRORS_ENUM.existingCode
-                      ? 'text_632a2d437e341dcc76817556'
-                      : undefined
-                  }
-                />
+                <PlanSettingsSection form={form} canBeEdited={canBeEdited} isEdition={isEdition} />
               </CenteredPage.SectionWrapper>
 
               <CenteredPage.SectionWrapper>
@@ -348,23 +253,22 @@ const CreatePlan = () => {
 
                 <CenteredPage.SubsectionWrapper>
                   <SubscriptionFeeSection
+                    form={form}
                     canBeEdited={canBeEdited}
-                    formikProps={formikProps}
                     isEdition={isEdition}
-                    onDrawerSave={handleSubscriptionFeeSave}
                   />
 
                   <FixedChargesSection
+                    form={form}
                     alreadyExistingFixedChargesIds={alreadyExistingFixedChargesIds}
                     canBeEdited={canBeEdited}
-                    formikProps={formikProps}
                     isEdition={isEdition}
                   />
 
                   <UsageChargesSection
+                    form={form}
                     canBeEdited={canBeEdited}
                     isEdition={isEdition}
-                    formikProps={formikProps}
                     premiumWarningDialogRef={premiumWarningDialogRef}
                     alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
                   />
@@ -378,21 +282,11 @@ const CreatePlan = () => {
                 />
 
                 <CenteredPage.SubsectionWrapper>
-                  <CommitmentsSection
-                    formikProps={formikProps}
-                    onDrawerSave={handleMinimumCommitmentSave}
-                  />
+                  <ProgressiveBillingSection form={form} />
 
-                  <ProgressiveBillingSection
-                    formikProps={formikProps}
-                    onDrawerSave={handleProgressiveBillingSave}
-                  />
+                  <CommitmentsSection form={form} />
 
-                  <FeatureEntitlementSection
-                    formikProps={formikProps}
-                    isEdition={isEdition}
-                    onDrawerSave={handleEntitlementDrawerSave}
-                  />
+                  <FeatureEntitlementSection form={form} isEdition={isEdition} />
                 </CenteredPage.SubsectionWrapper>
               </CenteredPage.SectionWrapper>
             </>
@@ -404,30 +298,39 @@ const CreatePlan = () => {
             <Button variant="quaternary" onClick={onLeave}>
               {translate('text_6411e6b530cb47007488b027')}
             </Button>
-            <Button
-              disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
-              loading={formikProps.isSubmitting}
-              onClick={() => {
-                if (plan?.hasOverriddenPlans && isEdition) {
-                  return impactOverridenSubscriptionsDialogRef.current?.openDialog({
-                    onSave: async (cascadeUpdates) => {
-                      await formikProps.setFieldValue('cascadeUpdates', cascadeUpdates)
-
-                      return formikProps.submitForm()
-                    },
-                  })
-                }
-
-                return formikProps.submitForm()
-              }}
-              data-test="submit"
+            <form.Subscribe
+              selector={(s) => ({
+                canSubmit: s.canSubmit,
+                isSubmitting: s.isSubmitting,
+              })}
             >
-              {translate(
-                type === FORM_TYPE_ENUM.edition
-                  ? 'text_6661fc17337de3591e29e461'
-                  : 'text_6661ffe746c680007e2df0e2',
+              {({ canSubmit, isSubmitting }) => (
+                <Button
+                  disabled={!canSubmit || (isEdition && !isDirty)}
+                  loading={isSubmitting}
+                  onClick={() => {
+                    if (plan?.hasOverriddenPlans && isEdition) {
+                      return impactOverridenSubscriptionsDialogRef.current?.openDialog({
+                        onSave: async (cascadeUpdates) => {
+                          form.setFieldValue('cascadeUpdates', cascadeUpdates)
+
+                          return form.handleSubmit()
+                        },
+                      })
+                    }
+
+                    return form.handleSubmit()
+                  }}
+                  data-test="submit"
+                >
+                  {translate(
+                    type === FORM_TYPE_ENUM.edition
+                      ? 'text_6661fc17337de3591e29e461'
+                      : 'text_6661ffe746c680007e2df0e2',
+                  )}
+                </Button>
               )}
-            </Button>
+            </form.Subscribe>
           </CenteredPage.StickyFooter>
         )}
       </CenteredPage.Wrapper>

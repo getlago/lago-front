@@ -1,16 +1,11 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { FormikProps } from 'formik'
 import { createRef } from 'react'
 
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import {
-  AggregationTypeEnum,
-  ChargeModelEnum,
-  CurrencyEnum,
-  PlanInterval,
-} from '~/generated/graphql'
+import { AggregationTypeEnum, ChargeModelEnum, PlanInterval } from '~/generated/graphql'
 import { render } from '~/test-utils'
+import { createMockPlanForm } from '~/test-utils/createMockPlanForm'
 
 import { LocalUsageChargeInput, PlanFormInput } from '../types'
 import { USAGE_CHARGES_ADD_BUTTON_TEST_ID, UsageChargesSection } from '../UsageChargesSection'
@@ -92,62 +87,7 @@ const createMockCharge = (overrides: Partial<LocalUsageChargeInput> = {}): Local
     ...overrides,
   }) as unknown as LocalUsageChargeInput
 
-const createFormikProps = (overrides: Partial<PlanFormInput> = {}): FormikProps<PlanFormInput> => {
-  const defaultValues: PlanFormInput = {
-    name: 'Test Plan',
-    code: 'test-plan',
-    description: '',
-    interval: PlanInterval.Monthly,
-    payInAdvance: false,
-    amountCents: '100',
-    amountCurrency: CurrencyEnum.Usd,
-    trialPeriod: 0,
-    taxes: [],
-    billChargesMonthly: false,
-    billFixedChargesMonthly: false,
-    charges: [],
-    fixedCharges: [],
-    minimumCommitment: {},
-    invoiceDisplayName: '',
-    entitlements: [],
-    ...overrides,
-  }
-
-  return {
-    values: defaultValues,
-    initialValues: defaultValues,
-    errors: {},
-    touched: {},
-    isSubmitting: false,
-    isValidating: false,
-    submitCount: 0,
-    dirty: false,
-    isValid: true,
-    status: undefined,
-    handleBlur: jest.fn(),
-    handleChange: jest.fn(),
-    handleReset: jest.fn(),
-    handleSubmit: jest.fn(),
-    resetForm: jest.fn(),
-    setErrors: jest.fn(),
-    setFieldError: jest.fn(),
-    setFieldTouched: jest.fn(),
-    setFieldValue: jest.fn(),
-    setFormikState: jest.fn(),
-    setStatus: jest.fn(),
-    setSubmitting: jest.fn(),
-    setTouched: jest.fn(),
-    setValues: jest.fn(),
-    submitForm: jest.fn(),
-    validateForm: jest.fn(),
-    validateField: jest.fn(),
-    getFieldHelpers: jest.fn(),
-    getFieldMeta: jest.fn(),
-    getFieldProps: jest.fn(),
-    registerField: jest.fn(),
-    unregisterField: jest.fn(),
-  } as unknown as FormikProps<PlanFormInput>
-}
+const createForm = (overrides: Partial<PlanFormInput> = {}) => createMockPlanForm(overrides)
 
 const premiumWarningDialogRef = createRef<PremiumWarningDialogRef>()
 
@@ -161,11 +101,11 @@ describe('UsageChargesSection', () => {
   describe('GIVEN there are no charges', () => {
     describe('WHEN the component renders', () => {
       it('THEN should render the add usage charge button', () => {
-        const formikProps = createFormikProps()
+        const form = createForm()
 
         render(
           <UsageChargesSection
-            formikProps={formikProps}
+            form={form}
             isEdition={false}
             premiumWarningDialogRef={premiumWarningDialogRef}
           />,
@@ -175,11 +115,11 @@ describe('UsageChargesSection', () => {
       })
 
       it('THEN should render the mocked drawer', () => {
-        const formikProps = createFormikProps()
+        const form = createForm()
 
         render(
           <UsageChargesSection
-            formikProps={formikProps}
+            form={form}
             isEdition={false}
             premiumWarningDialogRef={premiumWarningDialogRef}
           />,
@@ -191,11 +131,11 @@ describe('UsageChargesSection', () => {
 
     describe('WHEN isInSubscriptionForm is true', () => {
       it('THEN should return null', () => {
-        const formikProps = createFormikProps()
+        const form = createForm()
 
         const { container } = render(
           <UsageChargesSection
-            formikProps={formikProps}
+            form={form}
             isEdition={false}
             isInSubscriptionForm
             premiumWarningDialogRef={premiumWarningDialogRef}
@@ -214,11 +154,11 @@ describe('UsageChargesSection', () => {
 
     describe('WHEN the component renders with metered charges', () => {
       it('THEN should render charge selectors', () => {
-        const formikProps = createFormikProps({ charges: [charge] })
+        const form = createForm({ charges: [charge] })
 
         render(
           <UsageChargesSection
-            formikProps={formikProps}
+            form={form}
             isEdition={false}
             premiumWarningDialogRef={premiumWarningDialogRef}
           />,
@@ -240,11 +180,11 @@ describe('UsageChargesSection', () => {
             filters: [],
           },
         })
-        const formikProps = createFormikProps({ charges: [meteredCharge, recurringCharge] })
+        const form = createForm({ charges: [meteredCharge, recurringCharge] })
 
         render(
           <UsageChargesSection
-            formikProps={formikProps}
+            form={form}
             isEdition={false}
             premiumWarningDialogRef={premiumWarningDialogRef}
           />,
@@ -260,11 +200,11 @@ describe('UsageChargesSection', () => {
     describe('WHEN the user clicks the add usage charge button', () => {
       it('THEN should open the drawer', async () => {
         const user = userEvent.setup()
-        const formikProps = createFormikProps()
+        const form = createForm()
 
         render(
           <UsageChargesSection
-            formikProps={formikProps}
+            form={form}
             isEdition={false}
             premiumWarningDialogRef={premiumWarningDialogRef}
           />,
@@ -283,11 +223,11 @@ describe('UsageChargesSection', () => {
       it('THEN should open the drawer with the charge data', async () => {
         const user = userEvent.setup()
         const charge = createMockCharge()
-        const formikProps = createFormikProps({ charges: [charge] })
+        const form = createForm({ charges: [charge] })
 
         render(
           <UsageChargesSection
-            formikProps={formikProps}
+            form={form}
             isEdition={false}
             premiumWarningDialogRef={premiumWarningDialogRef}
           />,
@@ -309,14 +249,14 @@ describe('UsageChargesSection', () => {
     describe('WHEN the component renders with charges', () => {
       it('THEN should display the bill charges monthly switch', () => {
         const charge = createMockCharge()
-        const formikProps = createFormikProps({
+        const form = createForm({
           charges: [charge],
           interval: PlanInterval.Yearly,
         })
 
         render(
           <UsageChargesSection
-            formikProps={formikProps}
+            form={form}
             isEdition={false}
             premiumWarningDialogRef={premiumWarningDialogRef}
           />,
