@@ -1,28 +1,44 @@
 import { DESKTOP_ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
 import {
   CHARGE_PERCENTAGE_ADD_FIXED_FEE_TEST_ID,
-  CHARGE_PERCENTAGE_ADD_FREE_UNITS_TEST_ID,
-  CHARGE_PERCENTAGE_ADD_MAX_CTA_TEST_ID,
-  CHARGE_PERCENTAGE_ADD_MIN_CTA_TEST_ID,
-  CHARGE_PERCENTAGE_ADD_MIN_MAX_TEST_ID,
   CHARGE_PERCENTAGE_REMOVE_FIXED_FEE_TEST_ID,
   GRADUATED_CHARGE_TABLE_ADD_TIER_TEST_ID,
-  GRADUATED_PERCENTAGE_CHARGE_TABLE_ADD_TIER_TEST_ID,
   VOLUME_CHARGE_TABLE_ADD_TIER_TEST_ID,
 } from '~/components/plans/chargeTestIds'
+import { SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME } from '~/core/constants/form'
 
 import { planWithChargesName } from '../../support/reusableConstants'
+
+// Helper: select a metered billable metric in the usage charge drawer.
+// Waits for the dropdown to be open (onEntered auto-opens it), then clicks the matching option.
+const selectMeteredBillableMetric = (bmNameFragment: string) => {
+  // Wait for dropdown options to load
+  cy.get('[data-option-index]', { timeout: 30000 }).should('exist')
+  // Find the option containing the BM name and click it
+  cy.contains('[role="option"]', bmNameFragment).click({ force: true })
+}
 
 describe('Create plan', () => {
   beforeEach(() => {
     cy.login().visit('/plans')
   })
 
-  it('should be able to access plans', () => {
-    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).should(
-      'exist',
-    )
-    cy.get('[data-test="empty-state"]').should('exist')
+  it('should be able to create a minimal plan', () => {
+    const randomId = Math.round(Math.random() * 1000)
+    const planName = `plan minimal ${randomId}`
+    const planCode = `plan_minimal_${randomId}`
+
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
+      force: true,
+    })
+    cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
+    cy.get('input[name="name"]').type(planName)
+    cy.get('input[name="code"]').should('have.value', planCode)
+
+    cy.get('[data-test="submit"]', { timeout: 10000 }).should('not.be.disabled')
+    cy.get('[data-test="submit"]').click({ force: true })
+    cy.url().should('include', '/overview')
+    cy.contains(planName).should('exist')
   })
 
   it('should be able to create a simple plan', () => {
@@ -42,179 +58,173 @@ describe('Create plan', () => {
     // Open subscription fee drawer, set amount, and save
     cy.get('[data-test="open-subscription-fee-drawer"]').click({ force: true })
     cy.get('input[name="amountCents"]').type('30000')
-    cy.get('[data-test="subscription-fee-drawer-save"]').click({ force: true })
+    cy.get('[data-test="subscription-fee-drawer-save"]').should('not.be.disabled').click()
 
     cy.get('[data-test="submit"]').click({ force: true })
     cy.url().should('include', '/overview')
     cy.contains(planName).should('exist')
   })
 
-  it.skip('should be able to create a plan with all 0 dimension charges and submit', () => {
+  it('should be able to create a plan with all charge types', () => {
     cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
       force: true,
     })
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
     cy.get('input[name="name"]').type(planWithChargesName)
-    cy.get('[data-test="submit"]').should('be.disabled')
-    cy.get('input[name="code"]').clear().type(planWithChargesName)
-    cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('[data-test="show-description"]').click({ force: true })
-    cy.get('textarea[name="description"]').type('I am a description')
-    cy.get('[data-test="submit"]').should('be.disabled')
+    cy.get('textarea[name="description"]').type('A plan with all charge types')
+
+    // Set subscription fee
+    cy.get('[data-test="open-subscription-fee-drawer"]').scrollIntoView().click({ force: true })
     cy.get('input[name="amountCents"]').type('30000')
-    cy.get('[data-test="submit"]').should('not.be.disabled')
-    cy.get('input[name="amountCurrency"]').click({ force: true })
-    cy.get('[data-test="USD"]').click({ force: true })
+    cy.get('[data-test="subscription-fee-drawer-save"]').should('not.be.disabled').click()
+    cy.get('[data-test="base-drawer-paper"]', { timeout: 10000 }).should('not.exist')
 
-    // Standard
-    cy.get('[data-test="add-charge"]').first().click({ force: true })
-    cy.get('[data-test="add-metered-charge"]').first().click({ force: true })
-    cy.get('[data-option-index="0"]').click({ force: true })
-    cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
-    cy.get('input[name="chargeModel"]').last().should('have.value', 'Standard pricing')
+    // Standard charge
+    cy.get('[data-test="add-usage-charge"]').scrollIntoView()
+    cy.get('[data-test="add-usage-charge"]').click()
+    selectMeteredBillableMetric('bm count')
     cy.get('input[name="properties.amount"]').type('5000')
-    cy.get('[data-test="submit"]').should('not.be.disabled')
+    cy.get('[data-test="usage-charge-drawer-save"]').should('not.be.disabled').click()
+    cy.get('[data-test="base-drawer-paper"]', { timeout: 10000 }).should('not.exist')
+    cy.get('[data-test="usage-charge-selector-0"]', { timeout: 10000 }).should('exist')
 
-    // Graduated
-    cy.get('[data-test="add-charge"]').last().click({ force: true })
-    cy.get('[data-test="add-metered-charge"]').last().click({ force: true })
-    cy.get('[data-option-index="1"]').click({ force: true })
-    cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
-    cy.get('input[name="chargeModel"]').last().click({ force: true })
+    // Graduated charge
+    cy.get('[data-test="add-usage-charge"]').scrollIntoView()
+    cy.get('[data-test="add-usage-charge"]').click()
+    selectMeteredBillableMetric('bm uniq count')
+    cy.get('[data-test="charge-model-wrapper"] input[name="chargeModel"]').click({ force: true })
     cy.get('[data-test="graduated"]').click({ force: true })
-    cy.get('input[name="chargeModel"]').last().should('have.value', 'Graduated pricing')
-    cy.get('[data-test="row-2"]').should('not.exist')
     cy.get(`[data-test="${GRADUATED_CHARGE_TABLE_ADD_TIER_TEST_ID}"]`).click({ force: true })
-    cy.get('[data-test="row-2"]').should('exist')
     cy.get('[data-test="cell-amount-0"]').type('1')
     cy.get('[data-test="cell-amount-1"]').type('1')
     cy.get('[data-test="cell-amount-2"]').type('1')
-    cy.get('[data-test="submit"]').should('not.be.disabled')
+    cy.get('[data-test="usage-charge-drawer-save"]').should('not.be.disabled').click()
+    cy.get('[data-test="base-drawer-paper"]', { timeout: 10000 }).should('not.exist')
+    cy.get('[data-test="usage-charge-selector-1"]', { timeout: 10000 }).should('exist')
 
-    // Graduated percentage
-    cy.get('[data-test="add-charge"]').last().click({ force: true })
-    cy.get('[data-test="add-metered-charge"]').last().click({ force: true })
-    cy.get('[data-option-index="1"]').click({ force: true })
-    cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
-    cy.get('input[name="chargeModel"]').last().click({ force: true })
-    cy.get('[data-test="graduated_percentage"]').click({ force: true })
-    cy.get('[data-test="charge-accordion-2"]').within(() => {
-      cy.get('input[name="chargeModel"]')
-        .last()
-        .should('have.value', 'Graduated percentage pricing')
-      cy.get(`[data-test="${GRADUATED_PERCENTAGE_CHARGE_TABLE_ADD_TIER_TEST_ID}"]`)
-        .last()
-        .click({ force: true })
-      cy.get('[data-test="cell-rate-0"]').type('1')
-      cy.get('[data-test="cell-rate-1"]').type('1')
-      cy.get('[data-test="cell-rate-2"]').type('1')
-    })
-    cy.get('[data-test="row-2"]').should('have.length', 2)
-    cy.get('[data-test="submit"]').should('not.be.disabled')
-
-    // Package
-    cy.get('[data-test="add-charge"]').last().click({ force: true })
-    cy.get('[data-test="add-metered-charge"]').last().click({ force: true })
-    cy.get('[data-option-index="1"]').click({ force: true })
-    cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
-    cy.get('input[name="chargeModel"]').last().click({ force: true })
+    // Package charge
+    cy.get('[data-test="add-usage-charge"]').scrollIntoView()
+    cy.get('[data-test="add-usage-charge"]').click()
+    selectMeteredBillableMetric('bm max')
+    cy.get('[data-test="charge-model-wrapper"] input[name="chargeModel"]').click({ force: true })
     cy.get('[data-test="package"]').click({ force: true })
-    cy.get('input[name="chargeModel"]').last().should('have.value', 'Package pricing')
-    cy.get('input[name="properties.amount"]').last().type('1')
-    cy.get('[data-test="submit"]').should('not.be.disabled')
+    cy.get('input[name="properties.amount"]').type('100')
+    cy.get('input[name="properties.packageSize"]').type('10')
+    cy.get('[data-test="usage-charge-drawer-save"]').should('not.be.disabled').click()
+    cy.get('[data-test="base-drawer-paper"]', { timeout: 10000 }).should('not.exist')
+    cy.get('[data-test="usage-charge-selector-2"]', { timeout: 10000 }).should('exist')
 
-    // Percentage
-    cy.get('[data-test="add-charge"]').last().click({ force: true })
-    cy.get('[data-test="add-metered-charge"]').last().click({ force: true })
-    cy.get('[data-option-index="1"]').click({ force: true })
-    cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
-    cy.get('input[name="chargeModel"]').last().click({ force: true })
+    // Percentage charge
+    cy.get('[data-test="add-usage-charge"]').scrollIntoView()
+    cy.get('[data-test="add-usage-charge"]').click()
+    selectMeteredBillableMetric('bm sum')
+    cy.get('[data-test="charge-model-wrapper"] input[name="chargeModel"]').click({ force: true })
     cy.get('[data-test="percentage"]').click({ force: true })
-    cy.get('input[name="chargeModel"]').last().should('have.value', 'Percentage pricing')
-    cy.get('input[name="properties.rate"]').last().type('1')
-    cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_FIXED_FEE_TEST_ID}"]`).click({ force: true })
-    cy.get('input[name="properties.fixedAmount"]').should('exist')
-    cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_FREE_UNITS_TEST_ID}"]`).click({ force: true })
-    cy.get('[data-test="add-free-units-events"]').click({ force: true })
-    cy.get('[data-test="free-unit-per-event"] input').should('exist')
-    cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_FREE_UNITS_TEST_ID}"]`).click({ force: true })
-    cy.get('[data-test="add-free-units-total-amount"]').click({ force: true })
-    cy.get('[data-test="free-unit-per-total-aggregation"] input').should('exist')
+    cy.get('input[name="properties.rate"]').type('1')
+    cy.get('[data-test="usage-charge-drawer-save"]').should('not.be.disabled').click()
+    cy.get('[data-test="base-drawer-paper"]', { timeout: 10000 }).should('not.exist')
+    cy.get('[data-test="usage-charge-selector-3"]', { timeout: 10000 }).should('exist')
 
-    // Min max
-    cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_MIN_MAX_TEST_ID}"]`).click({ force: true })
-    cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_MIN_CTA_TEST_ID}"]`).click({ force: true })
-    cy.get('[data-test="per-transaction-min-amount"]').should('exist')
-    cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_MIN_MAX_TEST_ID}"]`).click({ force: true })
-    cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_MAX_CTA_TEST_ID}"]`).click({ force: true })
-    cy.get('[data-test="per-transaction-max-amount"]').should('exist')
-    cy.get('[data-test="submit"]').should('not.be.disabled')
-
-    // Volume
-    cy.get('[data-test="add-charge"]').last().click({ force: true })
-    cy.get('[data-test="add-recurring-charge"]').last().click({ force: true })
-    cy.get('[data-option-index="0"]').click({ force: true })
-    cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
-    cy.get('input[name="chargeModel"]').last().click({ force: true })
+    // Volume charge
+    cy.get('[data-test="add-usage-charge"]').scrollIntoView()
+    cy.get('[data-test="add-usage-charge"]').click()
+    selectMeteredBillableMetric('bm filtered')
+    cy.get('[data-test="charge-model-wrapper"] input[name="chargeModel"]').click({ force: true })
     cy.get('[data-test="volume"]').click({ force: true })
-    cy.get('input[name="chargeModel"]').last().should('have.value', 'Volume pricing')
-    cy.get(`[data-test="${VOLUME_CHARGE_TABLE_ADD_TIER_TEST_ID}"]`).last().click({ force: true })
+    cy.get(`[data-test="${VOLUME_CHARGE_TABLE_ADD_TIER_TEST_ID}"]`).click({ force: true })
     cy.get('[data-test="cell-amount-0"]').last().type('1')
     cy.get('[data-test="cell-amount-1"]').last().type('1')
     cy.get('[data-test="cell-amount-2"]').last().type('1')
-    cy.get('[data-test="submit"]').should('not.be.disabled')
+    cy.get('[data-test="usage-charge-drawer-save"]').should('not.be.disabled').click()
+    cy.get('[data-test="base-drawer-paper"]', { timeout: 10000 }).should('not.exist')
+    cy.get('[data-test="usage-charge-selector-4"]', { timeout: 10000 }).should('exist')
 
+    cy.get('[data-test="submit"]', { timeout: 10000 }).should('not.be.disabled')
     cy.get('[data-test="submit"]').click({ force: true })
     cy.url().should('include', '/overview')
     cy.contains(planWithChargesName).should('exist')
   })
 
-  describe.skip('anti-regression', () => {
-    // https://github.com/getlago/lago-front/pull/792
-    it('should be able to edit percentage charge without data loss', () => {
-      const randomId = Math.round(Math.random() * 1000)
-      const planName = `plan ${randomId}`
-      const planCode = `plan_${randomId}`
+  it('should be able to edit percentage charge without data loss', () => {
+    const randomId = Math.round(Math.random() * 1000)
+    const planName = `plan percentage ${randomId}`
 
-      // Default plan data
-      cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
-        force: true,
-      })
-      cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
-      cy.get('input[name="name"]').type(planName)
-      cy.get('input[name="code"]').should('have.value', planCode)
-      cy.get('[data-test="show-description"]').click({ force: true })
-      cy.get('textarea[name="description"]').type('I am a description')
-      cy.get('input[name="amountCents"]').type('30000')
-
-      // Config charge
-      cy.get('[data-test="add-charge"]').last().click({ force: true })
-      cy.get('[data-test="add-metered-charge"]').last().click({ force: true })
-      cy.get('[data-option-index="1"]').click({ force: true })
-      cy.get('[data-test="remove-charge"]').should('exist').and('not.be.disabled')
-      cy.get('input[name="chargeModel"]').last().click({ force: true })
-      cy.get('[data-test="percentage"]').click({ force: true })
-      cy.get('input[name="chargeModel"]').last().should('have.value', 'Percentage pricing')
-      cy.get('input[name="properties.rate"]').last().type('1')
-      cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_FIXED_FEE_TEST_ID}"]`).click({ force: true })
-      cy.get('input[name="properties.fixedAmount"]').last().type('1')
-      cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_FREE_UNITS_TEST_ID}"]`).click({ force: true })
-      cy.get('[data-test="add-free-units-events"]').click({ force: true })
-      cy.get('[data-test="free-unit-per-event"] input').last().type('1')
-      cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_FREE_UNITS_TEST_ID}"]`).click({ force: true })
-      cy.get('[data-test="add-free-units-total-amount"]').click({ force: true })
-      cy.get('[data-test="free-unit-per-total-aggregation"] input').last().type('1')
-
-      // Test regression scenario
-      cy.get(`[data-test="${CHARGE_PERCENTAGE_REMOVE_FIXED_FEE_TEST_ID}"]`).click({ force: true })
-      cy.get('[data-test="remove-free-units-per-event"]').click({ force: true })
-      cy.get('[data-test="remove-free-unit-per-total-aggregation"]').click({ force: true })
-      cy.get('[data-test="submit"]').should('not.be.disabled')
-      cy.get('input[name="properties.rate"]').should('have.value', '1')
-
-      cy.get('[data-test="submit"]').click({ force: true })
-      cy.url().should('include', '/overview')
-      cy.contains(planName).should('exist')
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
+      force: true,
     })
+    cy.get('input[name="name"]').type(planName)
+
+    // Add percentage charge
+    cy.get('[data-test="add-usage-charge"]').scrollIntoView()
+    cy.get('[data-test="add-usage-charge"]').click()
+    selectMeteredBillableMetric('bm count')
+    cy.get('[data-test="charge-model-wrapper"] input[name="chargeModel"]').click({ force: true })
+    cy.get('[data-test="percentage"]').click({ force: true })
+    cy.get('input[name="properties.rate"]').type('1')
+
+    // Add fixed fee, then remove it — rate should still be "1"
+    cy.get(`[data-test="${CHARGE_PERCENTAGE_ADD_FIXED_FEE_TEST_ID}"]`).click({ force: true })
+    cy.get('input[name="properties.fixedAmount"]').should('exist')
+    cy.get(`[data-test="${CHARGE_PERCENTAGE_REMOVE_FIXED_FEE_TEST_ID}"]`).click({ force: true })
+    cy.get('input[name="properties.rate"]').should('have.value', '1')
+
+    cy.get('[data-test="usage-charge-drawer-save"]').should('not.be.disabled').click()
+    cy.get('[data-test="base-drawer-paper"]', { timeout: 10000 }).should('not.exist')
+
+    cy.get('[data-test="submit"]', { timeout: 10000 }).should('not.be.disabled')
+    cy.get('[data-test="submit"]').click({ force: true })
+    cy.url().should('include', '/overview')
+    cy.contains(planName).should('exist')
+  })
+
+  it('should be able to create a usage charge with filters', () => {
+    const randomId = Math.round(Math.random() * 1000)
+    const planName = `plan filtered ${randomId}`
+
+    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
+      force: true,
+    })
+    cy.get('input[name="name"]').type(planName)
+
+    // Add usage charge — select the BM with filters
+    cy.get('[data-test="add-usage-charge"]').scrollIntoView()
+    cy.get('[data-test="add-usage-charge"]').click()
+    // Wait for dropdown to open, then search for filtered BM
+    cy.get('[data-option-index="0"]', { timeout: 30000 }).should('exist')
+    cy.get(`.${SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME} input`)
+      .first()
+      .type('filtered')
+    cy.get('[data-option-index="0"]', { timeout: 15000 }).click({ force: true })
+    cy.get('input[name="properties.amount"]').type('500')
+
+    // The BM has filters — add a charge filter
+    cy.get('body').then(($body) => {
+      cy.get('[data-test="add-charge-filter"]').click({ force: true })
+
+      // In the filter drawer (topmost): select a filter value and fill pricing
+      // Use .last() to scope to the topmost drawer when two are stacked
+      cy.get('[data-option-index="0"]', { timeout: 15000 }).click({ force: true })
+      cy.get('[data-test="charge-filter-values-container"]').should('exist')
+
+      // Fill standard pricing — scope to the topmost drawer to avoid ambiguity
+      cy.get('[data-test="base-drawer-paper"]')
+        .last()
+        .find('input[name="properties.amount"]')
+        .type('500')
+
+      // Save filter drawer
+      cy.get('[data-test="charge-filter-drawer-save"]').should('not.be.disabled').click()
+      cy.get('[data-test="base-drawer-paper"]', { timeout: 10000 }).should('have.length', 1)
+    })
+
+    // Save usage charge drawer
+    cy.get('[data-test="usage-charge-drawer-save"]').should('not.be.disabled').click()
+    cy.get('[data-test="base-drawer-paper"]', { timeout: 10000 }).should('not.exist')
+
+    cy.get('[data-test="submit"]', { timeout: 10000 }).should('not.be.disabled')
+    cy.get('[data-test="submit"]').click({ force: true })
+    cy.url().should('include', '/overview')
+    cy.contains(planName).should('exist')
   })
 })

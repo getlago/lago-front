@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { FormikProps } from 'formik'
-import { memo, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
@@ -44,242 +44,215 @@ interface UsageChargesSectionProps {
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
 }
 
-export const UsageChargesSection = memo(
-  ({
-    alreadyExistingCharges,
-    canBeEdited,
-    isInSubscriptionForm,
-    formikProps,
-    isEdition,
-    premiumWarningDialogRef,
-    subscriptionFormType,
-  }: UsageChargesSectionProps) => {
-    const { translate } = useInternationalization()
-    const { type: actionType } = useDuplicatePlanVar()
-    const hasAnyCharge = !!formikProps.values.charges.length
-    const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
-    const usageChargeDrawerRef = useRef<UsageChargeDrawerRef>(null)
-    const [alreadyUsedBmsIds, setAlreadyUsedBmsIds] = useState<Map<string, number>>(new Map())
+export const UsageChargesSection = ({
+  alreadyExistingCharges,
+  canBeEdited,
+  isInSubscriptionForm,
+  formikProps,
+  isEdition,
+  premiumWarningDialogRef,
+  subscriptionFormType,
+}: UsageChargesSectionProps) => {
+  const { translate } = useInternationalization()
+  const { type: actionType } = useDuplicatePlanVar()
+  const hasAnyCharge = !!formikProps.values.charges.length
+  const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
+  const usageChargeDrawerRef = useRef<UsageChargeDrawerRef>(null)
+  const [alreadyUsedBmsIds, setAlreadyUsedBmsIds] = useState<Map<string, number>>(new Map())
 
-    const handleDrawerSave = useCallback(
-      (charge: LocalUsageChargeInput, index: number | null) => {
-        const newCharges = [...formikProps.values.charges]
+  const handleDrawerSave = useCallback(
+    (charge: LocalUsageChargeInput, index: number | null) => {
+      const newCharges = [...formikProps.values.charges]
 
-        if (index === null) {
-          if (charge.billableMetric.recurring) {
-            newCharges.push(charge) // recurring at end
-          } else {
-            // Insert after last metered charge
-            const lastMeteredIndex = newCharges.findLastIndex((c) => !c.billableMetric.recurring)
-
-            newCharges.splice(lastMeteredIndex < 0 ? 0 : lastMeteredIndex + 1, 0, charge)
-          }
-        } else {
-          newCharges[index] = charge
-        }
-        formikProps.setFieldValue('charges', newCharges)
-      },
-      [formikProps],
-    )
-
-    const handleChargeDelete = useCallback(
-      (index: number) => {
-        const newCharges = [...formikProps.values.charges]
-
-        newCharges.splice(index, 1)
-        formikProps.setFieldValue('charges', newCharges)
-      },
-      [formikProps],
-    )
-
-    useEffect(() => {
-      const BmIdsMap = new Map()
-
-      for (let i = 0; i < formikProps.values.charges.length; i++) {
-        const element = formikProps.values.charges[i]
-        const bmId = element.billableMetric.id
-
-        if (BmIdsMap.has(bmId)) {
-          BmIdsMap.set(bmId, BmIdsMap.get(bmId) + 1)
-        } else {
-          BmIdsMap.set(bmId, 1)
-        }
+      if (index === null) {
+        newCharges.push(charge)
+      } else {
+        newCharges[index] = charge
       }
+      formikProps.setFieldValue('charges', newCharges)
+    },
+    [formikProps],
+  )
 
-      setAlreadyUsedBmsIds(BmIdsMap)
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [formikProps.values.charges.length])
+  const handleChargeDelete = useCallback(
+    (index: number) => {
+      const newCharges = [...formikProps.values.charges]
 
-    const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(
-      formikProps.values.interval,
-    )
+      newCharges.splice(index, 1)
+      formikProps.setFieldValue('charges', newCharges)
+    },
+    [formikProps],
+  )
 
-    const intervalBadgeCopy = useMemo(() => {
-      return translate(
-        mapChargeIntervalCopy(
-          formikProps.values.interval,
-          (isAnnual && !!formikProps.values.billChargesMonthly) || false,
-        ),
-      )
-    }, [translate, formikProps.values.interval, formikProps.values.billChargesMonthly, isAnnual])
+  useEffect(() => {
+    const BmIdsMap = new Map()
 
-    if (!hasAnyCharge && isInSubscriptionForm) {
-      return null
+    for (let i = 0; i < formikProps.values.charges.length; i++) {
+      const element = formikProps.values.charges[i]
+      const bmId = element.billableMetric.id
+
+      if (BmIdsMap.has(bmId)) {
+        BmIdsMap.set(bmId, BmIdsMap.get(bmId) + 1)
+      } else {
+        BmIdsMap.set(bmId, 1)
+      }
     }
 
-    const canApplyChargesMonthly = isAnnual
+    setAlreadyUsedBmsIds(BmIdsMap)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formikProps.values.charges.length])
 
-    const renderChargeSelector = (charge: LocalUsageChargeInput, i: number) => {
-      const isNew = !alreadyExistingCharges?.find(
+  const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(
+    formikProps.values.interval,
+  )
+
+  const intervalBadgeCopy = useMemo(() => {
+    return translate(
+      mapChargeIntervalCopy(
+        formikProps.values.interval,
+        (isAnnual && !!formikProps.values.billChargesMonthly) || false,
+      ),
+    )
+  }, [translate, formikProps.values.interval, formikProps.values.billChargesMonthly, isAnnual])
+
+  if (!hasAnyCharge && isInSubscriptionForm) {
+    return null
+  }
+
+  const canApplyChargesMonthly = isAnnual
+
+  const renderChargeSelector = (charge: LocalUsageChargeInput, i: number) => {
+    const isNew = !alreadyExistingCharges?.find((chargeFetched) => chargeFetched?.id === charge.id)
+    const alreadyUsedChargeAlertMessage =
+      (alreadyUsedBmsIds.get(charge.billableMetric.id) || 0) > 1
+        ? translate('text_6435895831d323008a47911f')
+        : undefined
+    const isUsedInSubscription = !isNew && !canBeEdited
+
+    const openUsageChargeDrawer = () => {
+      const initialCharge = alreadyExistingCharges?.find(
         (chargeFetched) => chargeFetched?.id === charge.id,
       )
-      const alreadyUsedChargeAlertMessage =
-        (alreadyUsedBmsIds.get(charge.billableMetric.id) || 0) > 1
-          ? translate('text_6435895831d323008a47911f')
-          : undefined
-      const isUsedInSubscription = !isNew && !canBeEdited
 
-      const openUsageChargeDrawer = () => {
-        const initialCharge = alreadyExistingCharges?.find(
-          (chargeFetched) => chargeFetched?.id === charge.id,
-        )
-
-        usageChargeDrawerRef.current?.openDrawer(charge, i, {
-          alreadyUsedChargeAlertMessage,
-          initialCharge: initialCharge || undefined,
-          isUsedInSubscription,
-        })
-      }
-
-      return (
-        <Selector
-          data-test={`usage-charge-selector-${i}`}
-          icon="pulse"
-          key={`usage-charge-${charge.billableMetric.id}-${i}`}
-          subtitle={charge.billableMetric.code}
-          title={charge.invoiceDisplayName || charge.billableMetric.name}
-          endContent={
-            <div className="flex items-center gap-3">
-              <Chip label={intervalBadgeCopy} />
-              <Tooltip placement="top-end" title={translate('text_17719630334671lxunwzo7ae')}>
-                <Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />
-              </Tooltip>
-            </div>
-          }
-          hoverActions={
-            <SelectorActions
-              actions={[
-                {
-                  icon: 'trash',
-                  tooltipCopy: translate('text_63ea0f84f400488553caa786'),
-                  onClick: (e) => {
-                    e.stopPropagation()
-                    e.preventDefault()
-
-                    const deleteCharge = () => {
-                      const localChargesAfterDelete = [...formikProps.values.charges]
-
-                      localChargesAfterDelete.splice(i, 1)
-                      formikProps.setFieldValue('charges', localChargesAfterDelete)
-                    }
-
-                    if (actionType !== 'duplicate' && isUsedInSubscription) {
-                      removeChargeWarningDialogRef?.current?.openDialog({ callback: deleteCharge })
-                    } else {
-                      deleteCharge()
-                    }
-                  },
-                },
-                {
-                  icon: 'pen',
-                  tooltipCopy: translate('text_63e51ef4985f0ebd75c212fc'),
-                  onClick: () => openUsageChargeDrawer(),
-                },
-              ]}
-            />
-          }
-          onClick={() => openUsageChargeDrawer()}
-        />
-      )
+      usageChargeDrawerRef.current?.openDrawer(charge, i, {
+        alreadyUsedChargeAlertMessage,
+        initialCharge: initialCharge || undefined,
+        isUsedInSubscription,
+      })
     }
 
     return (
-      <>
-        <CenteredPage.PageSection>
-          <CenteredPage.PageSectionTitle
-            title={translate('text_6435888d7cc86500646d8977')}
-            description={translate('text_6661ffe746c680007e2df0d6')}
+      <Selector
+        data-test={`usage-charge-selector-${i}`}
+        icon="pulse"
+        key={`usage-charge-${charge.billableMetric.id}-${i}`}
+        subtitle={charge.billableMetric.code}
+        title={charge.invoiceDisplayName || charge.billableMetric.name}
+        endContent={
+          <div className="flex items-center gap-3">
+            <Chip label={intervalBadgeCopy} />
+            <Tooltip placement="top-end" title={translate('text_17719630334671lxunwzo7ae')}>
+              <Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />
+            </Tooltip>
+          </div>
+        }
+        hoverActions={
+          <SelectorActions
+            actions={[
+              {
+                icon: 'trash',
+                tooltipCopy: translate('text_63ea0f84f400488553caa786'),
+                onClick: (e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+
+                  const deleteCharge = () => {
+                    const localChargesAfterDelete = [...formikProps.values.charges]
+
+                    localChargesAfterDelete.splice(i, 1)
+                    formikProps.setFieldValue('charges', localChargesAfterDelete)
+                  }
+
+                  if (actionType !== 'duplicate' && isUsedInSubscription) {
+                    removeChargeWarningDialogRef?.current?.openDialog({ callback: deleteCharge })
+                  } else {
+                    deleteCharge()
+                  }
+                },
+              },
+              {
+                icon: 'pen',
+                tooltipCopy: translate('text_63e51ef4985f0ebd75c212fc'),
+                onClick: () => openUsageChargeDrawer(),
+              },
+            ]}
           />
+        }
+        onClick={() => openUsageChargeDrawer()}
+      />
+    )
+  }
 
-          {/* METERED */}
-          {!!hasAnyCharge && (
-            <>
-              {canApplyChargesMonthly && (
-                <SwitchField
-                  label={translate('text_62a30bc79dae432fb055330b')}
-                  subLabel={translate('text_64358e074a3b7500714f256c')}
-                  name="billChargesMonthly"
-                  disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
-                  formikProps={formikProps}
-                />
-              )}
-
-              <div className="flex flex-col gap-4">
-                {formikProps.values.charges.map((charge, i) => {
-                  // Prevent displaying recurring charges
-                  if (charge.billableMetric.recurring) return null
-
-                  return renderChargeSelector(charge, i)
-                })}
-              </div>
-            </>
-          )}
-
-          {/* Single add button at the bottom */}
-          {!isInSubscriptionForm && (
-            <Button
-              fitContent
-              startIcon="plus"
-              variant="inline"
-              data-test={USAGE_CHARGES_ADD_BUTTON_TEST_ID}
-              onClick={() => {
-                usageChargeDrawerRef.current?.openDrawer()
-              }}
-            >
-              {translate('text_1772133285142oouequiz2t2')}
-            </Button>
-          )}
-        </CenteredPage.PageSection>
-
-        <UsageChargeDrawer
-          ref={usageChargeDrawerRef}
-          disabled={isEdition && !canBeEdited}
-          isEdition={isEdition}
-          isInSubscriptionForm={isInSubscriptionForm}
-          premiumWarningDialogRef={premiumWarningDialogRef}
-          subscriptionFormType={subscriptionFormType}
-          onSave={handleDrawerSave}
-          onDelete={handleChargeDelete}
-          removeChargeWarningDialogRef={removeChargeWarningDialogRef}
-          amountCurrency={formikProps.values.amountCurrency}
+  return (
+    <>
+      <CenteredPage.PageSection>
+        <CenteredPage.PageSectionTitle
+          title={translate('text_6435888d7cc86500646d8977')}
+          description={translate('text_6661ffe746c680007e2df0d6')}
         />
 
-        <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} />
-      </>
-    )
-  },
-  (oldProps, newProps) => {
-    return (
-      oldProps.alreadyExistingCharges === newProps.alreadyExistingCharges &&
-      oldProps.canBeEdited === newProps.canBeEdited &&
-      oldProps.isInSubscriptionForm === newProps.isInSubscriptionForm &&
-      oldProps.isEdition === newProps.isEdition &&
-      oldProps.subscriptionFormType === newProps.subscriptionFormType &&
-      oldProps.formikProps.values === newProps.formikProps.values &&
-      oldProps.formikProps.errors === newProps.formikProps.errors &&
-      oldProps.formikProps.initialValues === newProps.formikProps.initialValues
-    )
-  },
-)
+        {!!hasAnyCharge && (
+          <>
+            {canApplyChargesMonthly && (
+              <SwitchField
+                label={translate('text_62a30bc79dae432fb055330b')}
+                subLabel={translate('text_64358e074a3b7500714f256c')}
+                name="billChargesMonthly"
+                disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
+                formikProps={formikProps}
+              />
+            )}
+
+            <div className="flex flex-col gap-4">
+              {formikProps.values.charges.map((charge, i) => {
+                return renderChargeSelector(charge, i)
+              })}
+            </div>
+          </>
+        )}
+
+        {/* Single add button at the bottom */}
+        {!isInSubscriptionForm && (
+          <Button
+            fitContent
+            startIcon="plus"
+            variant="inline"
+            data-test={USAGE_CHARGES_ADD_BUTTON_TEST_ID}
+            onClick={() => {
+              usageChargeDrawerRef.current?.openDrawer()
+            }}
+          >
+            {translate('text_1772133285142oouequiz2t2')}
+          </Button>
+        )}
+      </CenteredPage.PageSection>
+
+      <UsageChargeDrawer
+        ref={usageChargeDrawerRef}
+        disabled={isEdition && !canBeEdited}
+        isEdition={isEdition}
+        isInSubscriptionForm={isInSubscriptionForm}
+        premiumWarningDialogRef={premiumWarningDialogRef}
+        subscriptionFormType={subscriptionFormType}
+        onSave={handleDrawerSave}
+        onDelete={handleChargeDelete}
+        removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+        amountCurrency={formikProps.values.amountCurrency}
+      />
+
+      <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} />
+    </>
+  )
+}
 
 UsageChargesSection.displayName = 'UsageChargesSection'

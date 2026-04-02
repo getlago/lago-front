@@ -227,7 +227,8 @@ describe('UsageChargesSection', () => {
         expect(screen.getByTestId('usage-charge-selector-0')).toBeInTheDocument()
       })
 
-      it('THEN should not render recurring charges in metered section', () => {
+      it('THEN should render both metered and recurring charges', () => {
+        const meteredCharge = createMockCharge()
         const recurringCharge = createMockCharge({
           id: 'charge-2',
           billableMetric: {
@@ -239,7 +240,7 @@ describe('UsageChargesSection', () => {
             filters: [],
           },
         })
-        const formikProps = createFormikProps({ charges: [recurringCharge] })
+        const formikProps = createFormikProps({ charges: [meteredCharge, recurringCharge] })
 
         render(
           <UsageChargesSection
@@ -249,8 +250,8 @@ describe('UsageChargesSection', () => {
           />,
         )
 
-        // Recurring charges should not render selectors in the metered section
-        expect(screen.queryByTestId('usage-charge-selector-0')).not.toBeInTheDocument()
+        expect(screen.getByTestId('usage-charge-selector-0')).toBeInTheDocument()
+        expect(screen.getByTestId('usage-charge-selector-1')).toBeInTheDocument()
       })
     })
   })
