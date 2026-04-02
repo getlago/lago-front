@@ -57,7 +57,7 @@
   }
 
   mark {
-    @apply rounded bg-yellow-100 px-0.5;
+    @apply rounded px-0.5;
   }
 
   sup {

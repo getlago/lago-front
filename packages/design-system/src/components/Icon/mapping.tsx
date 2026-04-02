@@ -134,6 +134,7 @@ import TableHorizontale from '~/icons/table-horizontale.svg'
 import Table from '~/icons/table.svg'
 import Target from '~/icons/target.svg'
 import Terminal from '~/icons/terminal.svg'
+import TextA from '~/icons/text-a.svg'
 import TextColor from '~/icons/text-color.svg'
 import Text from '~/icons/text.svg'
 import Trash from '~/icons/trash.svg'
@@ -285,6 +286,7 @@ export const ALL_ICONS = {
   'table-horizontale': TableHorizontale,
   target: Target,
   terminal: Terminal,
+  'text-a': TextA,
   'text-color': TextColor,
   text: Text,
   trash: Trash,

@@ -4,10 +4,9 @@ import userEvent from '@testing-library/user-event'
 import { render } from '~/test-utils'
 
 import BlockToolbar, {
-  BLOCK_TOOLBAR_BG_COLOR_BUTTON_TEST_ID,
+  BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID,
   BLOCK_TOOLBAR_DELETE_BUTTON_TEST_ID,
   BLOCK_TOOLBAR_TEST_ID,
-  BLOCK_TOOLBAR_TEXT_COLOR_BUTTON_TEST_ID,
 } from '../BlockToolbar'
 
 const mockDeleteSelection = jest.fn()
@@ -137,8 +136,7 @@ describe('BlockToolbar', () => {
 
       it.each([
         ['delete button', BLOCK_TOOLBAR_DELETE_BUTTON_TEST_ID],
-        ['background color button', BLOCK_TOOLBAR_BG_COLOR_BUTTON_TEST_ID],
-        ['text color button', BLOCK_TOOLBAR_TEXT_COLOR_BUTTON_TEST_ID],
+        ['color button', BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID],
       ])('THEN should render the %s', (_, testId) => {
         mockSelectorReturn = blockSelection
 
@@ -208,28 +206,10 @@ describe('BlockToolbar', () => {
 
         render(<BlockToolbar editor={createMockEditor()} />)
 
-        const bgButton = screen.getByTestId(BLOCK_TOOLBAR_BG_COLOR_BUTTON_TEST_ID)
-        const swatch = bgButton.querySelector('.size-4') as HTMLElement
+        const colorButton = screen.getByTestId(BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID)
+        const swatch = colorButton.querySelector('.size-4') as HTMLElement
 
         expect(swatch.style.backgroundColor).toBe('rgb(254, 226, 226)')
-      })
-    })
-
-    describe('WHEN the block has a textColor', () => {
-      it('THEN should display the text color indicator with that color', () => {
-        mockSelectorReturn = {
-          pos: 0,
-          node: {},
-          backgroundColor: null,
-          textColor: '#dc2626',
-        }
-
-        render(<BlockToolbar editor={createMockEditor()} />)
-
-        const textButton = screen.getByTestId(BLOCK_TOOLBAR_TEXT_COLOR_BUTTON_TEST_ID)
-        const indicator = textButton.querySelector('.text-sm.font-bold') as HTMLElement
-
-        expect(indicator.style.color).toBe('rgb(220, 38, 38)')
       })
     })
   })

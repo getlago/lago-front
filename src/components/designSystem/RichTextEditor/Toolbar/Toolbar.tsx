@@ -9,6 +9,7 @@ import ToolbarButton from './ToolbarButton'
 import ToolbarDropdown from './ToolbarDropdown'
 import { DropdownItem } from './types'
 
+import ColorPicker from '../BlockControls/ColorPicker'
 import ImagePopperForm from '../forms/ImagePopperForm'
 import LinkPopperForm from '../forms/LinkPopperForm'
 
@@ -26,7 +27,7 @@ export const TOOLBAR_ITALIC_BUTTON_TEST_ID = 'toolbar-italic-button'
 export const TOOLBAR_UNDERLINE_BUTTON_TEST_ID = 'toolbar-underline-button'
 export const TOOLBAR_STRIKE_BUTTON_TEST_ID = 'toolbar-strike-button'
 export const TOOLBAR_CODE_BUTTON_TEST_ID = 'toolbar-code-button'
-export const TOOLBAR_HIGHLIGHT_BUTTON_TEST_ID = 'toolbar-highlight-button'
+export const TOOLBAR_COLOR_BUTTON_TEST_ID = 'toolbar-color-button'
 export const TOOLBAR_SUPERSCRIPT_BUTTON_TEST_ID = 'toolbar-superscript-button'
 export const TOOLBAR_SUBSCRIPT_BUTTON_TEST_ID = 'toolbar-subscript-button'
 export const TOOLBAR_TABLE_BUTTON_TEST_ID = 'toolbar-table-button'
@@ -71,7 +72,8 @@ const Toolbar = ({ editor }: ToolbarProps) => {
       isLink: e.isActive('link'),
       isSuperscript: e.isActive('superscript'),
       isSubscript: e.isActive('subscript'),
-      isHighlight: e.isActive('highlight'),
+      highlightColor: (e.getAttributes('highlight').color as string) || null,
+      textColor: (e.getAttributes('textStyle').color as string) || null,
       isAlignLeft: e.isActive({ textAlign: 'left' }),
       isAlignCenter: e.isActive({ textAlign: 'center' }),
       isAlignRight: e.isActive({ textAlign: 'right' }),
@@ -204,13 +206,6 @@ const Toolbar = ({ editor }: ToolbarProps) => {
       children: <Icon name="inline-code" />,
     },
     {
-      testId: TOOLBAR_HIGHLIGHT_BUTTON_TEST_ID,
-      tooltip: translate('text_1774862470019yaqfus5r0ne'),
-      isActive: editorState.isHighlight,
-      onClick: () => editor.chain().focus().toggleHighlight().run(),
-      children: <Icon name="sparkles-base" />,
-    },
-    {
       testId: TOOLBAR_SUPERSCRIPT_BUTTON_TEST_ID,
       tooltip: translate('text_1774862470019bbd9uyzn6ny'),
       isActive: editorState.isSuperscript,
@@ -283,6 +278,43 @@ const Toolbar = ({ editor }: ToolbarProps) => {
             {fmt.children}
           </ToolbarButton>
         ))}
+
+        {/* Inline colors (background + text) */}
+        <Popper
+          PopperProps={{ placement: 'bottom-start' }}
+          opener={
+            <ToolbarButton
+              testId={TOOLBAR_COLOR_BUTTON_TEST_ID}
+              tooltip={translate('text_1774862470019yaqfus5r0ne')}
+              isActive={!!editorState.highlightColor || !!editorState.textColor}
+            >
+              <Icon name="sparkles-base" />
+            </ToolbarButton>
+          }
+        >
+          {() => (
+            <MenuPopper>
+              <ColorPicker
+                activeBackgroundColor={editorState.highlightColor}
+                activeTextColor={editorState.textColor}
+                onSelectBackground={(color) => {
+                  if (color) {
+                    editor.chain().focus().toggleHighlight({ color }).run()
+                  } else {
+                    editor.chain().focus().unsetHighlight().run()
+                  }
+                }}
+                onSelectText={(color) => {
+                  if (color) {
+                    editor.chain().focus().setColor(color).run()
+                  } else {
+                    editor.chain().focus().unsetColor().run()
+                  }
+                }}
+              />
+            </MenuPopper>
+          )}
+        </Popper>
       </ToolbarGroup>
 
       <Separator />

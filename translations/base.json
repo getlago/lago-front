@@ -4022,11 +4022,9 @@
   "text_1774862470019g91vhwcvp6a": "Underline",
   "text_17748624700198fag2st68bl": "Strikethrough",
   "text_1774862470019tg1a4fvcdhz": "Inline code",
-  "text_1774862470019yaqfus5r0ne": "Highlight",
+  "text_1774862470019yaqfus5r0ne": "Change color",
   "text_1774862470019bbd9uyzn6ny": "Superscript",
   "text_17748624700194n6kgjpso8u": "Subscript",
-  "text_17748624700195ha5fimzytn": "List",
-  "text_1774862470019g2eqwp7925i": "Alignment",
   "text_1774862470019o9kt9r7s0e8": "Link",
   "text_1774862470019b9gczrfwx0i": "Insert table",
   "text_1774862470019wdgkt31dezy": "Code block",
@@ -4041,5 +4039,7 @@
   "text_1775140688148v814phsfzav": "Left align",
   "text_17751406881499358uq8dyp9": "Center align",
   "text_1775140688149nqfxjcltqzi": "Right align",
-  "text_1775140688149xlyu6d27lcv": "Justify align"
+  "text_1775140688149xlyu6d27lcv": "Justify align",
+  "text_1775145882088oj33ff13ddh": "Delete block",
+  "text_17751458820889ebguo3021w": "Text and block color"
 }

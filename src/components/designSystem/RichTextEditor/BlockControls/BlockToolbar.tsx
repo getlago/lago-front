@@ -12,8 +12,7 @@ import ColorPicker from './ColorPicker'
 
 export const BLOCK_TOOLBAR_TEST_ID = 'block-toolbar'
 export const BLOCK_TOOLBAR_DELETE_BUTTON_TEST_ID = 'block-toolbar-delete-button'
-export const BLOCK_TOOLBAR_BG_COLOR_BUTTON_TEST_ID = 'block-toolbar-bg-color-button'
-export const BLOCK_TOOLBAR_TEXT_COLOR_BUTTON_TEST_ID = 'block-toolbar-text-color-button'
+export const BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID = 'block-toolbar-color-button'
 
 type BlockToolbarProps = {
   editor: Editor
@@ -107,89 +106,47 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
       style={{ top: position.top, left: position.left }}
       data-test={BLOCK_TOOLBAR_TEST_ID}
     >
+      {/* Colors (background + text) */}
+      <Popper
+        PopperProps={{ placement: 'right-start' }}
+        opener={
+          <Button
+            variant="quaternary"
+            align="left"
+            className="w-full"
+            startIcon="text-color"
+            data-test={BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID}
+          >
+            {translate('text_17751458820889ebguo3021w')}
+          </Button>
+        }
+      >
+        {() => (
+          <MenuPopper>
+            <ColorPicker
+              activeBackgroundColor={blockSelection.backgroundColor}
+              activeTextColor={blockSelection.textColor}
+              onSelectBackground={(color) => {
+                editor.commands.setBlockBackgroundColor(color)
+              }}
+              onSelectText={(color) => {
+                editor.commands.setBlockTextColor(color)
+              }}
+            />
+          </MenuPopper>
+        )}
+      </Popper>
+
       {/* Delete */}
       <Button
         variant="quaternary"
         startIcon="trash"
-        size="small"
         align="left"
         data-test={BLOCK_TOOLBAR_DELETE_BUTTON_TEST_ID}
         onClick={() => editor.commands.deleteSelection()}
       >
-        {translate('text_63ea0f84f400488553caa786')}
+        {translate('text_1775145882088oj33ff13ddh')}
       </Button>
-
-      {/* Background color */}
-      <Popper
-        PopperProps={{ placement: 'right-start' }}
-        opener={
-          <Button
-            variant="quaternary"
-            size="small"
-            align="left"
-            className="w-full"
-            data-test={BLOCK_TOOLBAR_BG_COLOR_BUTTON_TEST_ID}
-          >
-            <div className="flex items-center gap-2">
-              <div
-                className="size-4 rounded border border-grey-300"
-                style={{ backgroundColor: blockSelection.backgroundColor ?? '#ffffff' }}
-              />
-              <span>{translate('text_1774969464357ic1jobm2vtd')}</span>
-            </div>
-          </Button>
-        }
-      >
-        {({ closePopper }) => (
-          <MenuPopper>
-            <ColorPicker
-              variant="background"
-              activeColor={blockSelection.backgroundColor}
-              onSelect={(color) => {
-                editor.commands.setBlockBackgroundColor(color)
-                closePopper()
-              }}
-            />
-          </MenuPopper>
-        )}
-      </Popper>
-
-      {/* Text color */}
-      <Popper
-        PopperProps={{ placement: 'right-start' }}
-        opener={
-          <Button
-            variant="quaternary"
-            size="small"
-            align="left"
-            className="w-full"
-            data-test={BLOCK_TOOLBAR_TEXT_COLOR_BUTTON_TEST_ID}
-          >
-            <div className="flex items-center gap-2">
-              <span
-                className="text-sm font-bold"
-                style={{ color: blockSelection.textColor ?? '#000000' }}
-              >
-                A
-              </span>
-              <span>{translate('text_1774969464357oo1dfrfw06m')}</span>
-            </div>
-          </Button>
-        }
-      >
-        {({ closePopper }) => (
-          <MenuPopper>
-            <ColorPicker
-              variant="text"
-              activeColor={blockSelection.textColor}
-              onSelect={(color) => {
-                editor.commands.setBlockTextColor(color)
-                closePopper()
-              }}
-            />
-          </MenuPopper>
-        )}
-      </Popper>
     </div>
   )
 }

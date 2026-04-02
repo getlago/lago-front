@@ -2,6 +2,7 @@ import type { Extensions } from '@tiptap/core'
 import Blockquote from '@tiptap/extension-blockquote'
 import BulletList from '@tiptap/extension-bullet-list'
 import CodeBlock from '@tiptap/extension-code-block'
+import Color from '@tiptap/extension-color'
 import Heading from '@tiptap/extension-heading'
 import Highlight from '@tiptap/extension-highlight'
 import Image from '@tiptap/extension-image'
@@ -15,6 +16,7 @@ import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
 import TextAlign from '@tiptap/extension-text-align'
+import { TextStyle } from '@tiptap/extension-text-style'
 import Underline from '@tiptap/extension-underline'
 import type { DOMOutputSpec, Node as PmNode } from '@tiptap/pm/model'
 import StarterKit from '@tiptap/starter-kit'
@@ -153,7 +155,9 @@ export const getBaseExtensions = (options?: BaseExtensionsOptions): Extensions =
   Underline,
   Superscript,
   Subscript,
-  Highlight,
+  TextStyle,
+  Color,
+  Highlight.configure({ multicolor: true }),
   TextAlign.configure({ types: ['heading', 'paragraph'] }),
   Table.configure({ resizable: options?.tableResizable ?? false }),
   TableRow,
