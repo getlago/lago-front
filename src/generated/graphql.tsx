@@ -3796,7 +3796,9 @@ export enum EventTypeEnum {
 /** Organization Feature Flag Values */
 export enum FeatureFlagEnum {
   EnrichedEventsAggregation = 'enriched_events_aggregation',
+  MultiCurrency = 'multi_currency',
   MultiplePaymentMethods = 'multiple_payment_methods',
+  NonPersistableChargeCacheOptimization = 'non_persistable_charge_cache_optimization',
   PostgresEnrichedEvents = 'postgres_enriched_events',
   WalletTraceability = 'wallet_traceability'
 }
@@ -4679,6 +4681,7 @@ export enum LagoApiError {
   InvoicesNotOverdue = 'invoices_not_overdue',
   InvoicesNotReadyForPaymentProcessing = 'invoices_not_ready_for_payment_processing',
   IsSucceeded = 'is_succeeded',
+  LastAdmin = 'last_admin',
   LoginMethodNotAuthorized = 'login_method_not_authorized',
   MissingPaymentProviderCustomer = 'missing_payment_provider_customer',
   NoActiveSubscription = 'no_active_subscription',
