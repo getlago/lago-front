@@ -1,12 +1,14 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { RefObject, useCallback, useEffect, useMemo, useRef } from 'react'
+import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
+import { Card } from '~/components/designSystem/Card'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
 import { DRAWER_TRANSITION_DURATION } from '~/components/drawers/const'
 import { useDrawer } from '~/components/drawers/useDrawer'
-import { ComboboxItem } from '~/components/form'
+import { ComboboxItem, JsonEditor } from '~/components/form'
 import { ComboboxDataGrouped } from '~/components/form/ComboBox/types'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { buildChargeFilterAddFilterButtonId } from '~/components/plans/chargeAccordion/ChargeFilter'
@@ -324,6 +326,8 @@ export const UsageChargeDrawerContent = withForm({
 
     // Filter drawer
     const filterDrawer = useDrawer()
+    // Custom charge drawer — opened from CustomCharge via context callback
+    const customChargeDrawer = useDrawer()
     const filterEditIndexRef = useRef<number | null>(null)
 
     const filterFormDefaultValues: ChargeFilterFormValues = {
@@ -466,6 +470,68 @@ export const UsageChargeDrawerContent = withForm({
       }
     }
 
+    const customChargeForm = useAppForm({
+      defaultValues: { customProperties: '' as string | undefined },
+      validators: {
+        onDynamic: z.object({ customProperties: z.string().min(1) }),
+      },
+      onSubmit: ({ value }) => {
+        if (value.customProperties) {
+          form.setFieldValue('properties.customProperties', value.customProperties)
+          customChargeDrawer.close()
+        }
+      },
+    })
+
+    const openCustomChargeDrawer = (currentValue: string | undefined) => {
+      customChargeForm.reset({ customProperties: currentValue }, { keepDefaultValues: true })
+
+      customChargeDrawer.open({
+        title: translate('text_663dea5702b60301d8d0646e'),
+        shouldPromptOnClose: () => customChargeForm.state.isDirty,
+        onClose: () => customChargeForm.reset(),
+        children: (
+          <CenteredPage.SectionWrapper>
+            <CenteredPage.PageTitle
+              title={translate('text_663dea5702b60301d8d0646e')}
+              description={translate('text_663dea5702b60301d8d064fe')}
+            />
+
+            <Card>
+              <Typography variant="subhead1">
+                {translate('text_663dea5702b60301d8d06502')}
+              </Typography>
+              <JsonEditor
+                hideLabel
+                label={translate('text_663dea5702b60301d8d06502')}
+                value={currentValue}
+                onChange={(value) => customChargeForm.setFieldValue('customProperties', value)}
+                onBlur={() => {}}
+              />
+            </Card>
+          </CenteredPage.SectionWrapper>
+        ),
+        actions: (
+          <div className="flex justify-end gap-3">
+            <Button variant="quaternary" onClick={() => customChargeDrawer.close()}>
+              {translate('text_6411e6b530cb47007488b027')}
+            </Button>
+            <customChargeForm.Subscribe selector={({ canSubmit }) => canSubmit}>
+              {(canSubmit) => (
+                <Button
+                  disabled={!canSubmit}
+                  onClick={() => customChargeForm.handleSubmit()}
+                  data-test="custom-charge-drawer-save"
+                >
+                  {translate('text_663dea5702b60301d8d06490')}
+                </Button>
+              )}
+            </customChargeForm.Subscribe>
+          </div>
+        ),
+      })
+    }
+
     return (
       <form id={USAGE_CHARGE_DRAWER_FORM_ID} onSubmit={handleFormSubmit}>
         <button type="submit" hidden aria-hidden="true" />
@@ -581,6 +647,7 @@ export const UsageChargeDrawerContent = withForm({
                   localCharge={formValues as unknown as LocalUsageChargeInput}
                   premiumWarningDialogRef={premiumWarningDialogRef}
                   propertyCursor="properties"
+                  onExpandCustomCharge={openCustomChargeDrawer}
                 />
 
                 {!!formValues.billableMetric?.filters?.length && (
