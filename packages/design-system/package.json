@@ -33,7 +33,7 @@
     "react-router-dom": "6.30.3"
   },
   "dependencies": {
-    "lodash": "4.17.23",
+    "lodash": "4.18.1",
     "lodash-es": "4.18.1",
     "sanitize-html": "2.17.2"
   },
