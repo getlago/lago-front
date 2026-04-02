@@ -97,7 +97,7 @@
 
   /* Inline code */
   code {
-    @apply rounded bg-grey-100 px-1 py-0.5 text-sm leading-6;
+    @apply rounded bg-grey-100 px-1 text-sm leading-6;
     font-family:
       IBM Plex Mono,
       monospace;
@@ -217,20 +217,20 @@
 
 /* Row hover zone — left of each row */
 .table-controls__row-zone {
-  @apply absolute flex w-[22px] flex-col items-center justify-center gap-0.5 opacity-0 pointer-events-none transition-opacity duration-150 ease-in-out;
+  @apply pointer-events-none absolute flex w-[22px] flex-col items-center justify-center gap-0.5 opacity-0 transition-opacity duration-150 ease-in-out;
 }
 
 .table-controls__row-zone.is-visible {
-  @apply opacity-100 pointer-events-auto;
+  @apply pointer-events-auto opacity-100;
 }
 
 /* Column hover zone — top of each column */
 .table-controls__col-zone {
-  @apply absolute flex h-[22px] flex-row items-center justify-center gap-0.5 opacity-0 pointer-events-none transition-opacity duration-150 ease-in-out;
+  @apply pointer-events-none absolute flex h-[22px] flex-row items-center justify-center gap-0.5 opacity-0 transition-opacity duration-150 ease-in-out;
 }
 
 .table-controls__col-zone.is-visible {
-  @apply opacity-100 pointer-events-auto;
+  @apply pointer-events-auto opacity-100;
 }
 
 /* Inline add / remove buttons */
@@ -248,29 +248,31 @@
 
 /* "+" button on the right edge to add a column */
 .table-controls__add-col {
-  @apply absolute flex w-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 opacity-0 pointer-events-none transition-all duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700;
+  @apply pointer-events-none absolute flex w-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 opacity-0 transition-all duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700;
 }
 
 .table-controls__add-col.is-visible {
-  @apply opacity-100 pointer-events-auto;
+  @apply pointer-events-auto opacity-100;
 }
 
 /* "+" button on the bottom edge to add a row */
 .table-controls__add-row {
-  @apply absolute flex h-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 opacity-0 pointer-events-none transition-all duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700;
+  @apply pointer-events-none absolute flex h-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 opacity-0 transition-all duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700;
 }
 
 .table-controls__add-row.is-visible {
-  @apply opacity-100 pointer-events-auto;
+  @apply pointer-events-auto opacity-100;
 }
 
 /* Block selection highlight */
 .ProseMirror .ProseMirror-selectednode {
-  @apply relative;
+  .block-wrapper {
+    @apply relative;
 
-  &::after {
-    content: '';
-    @apply pointer-events-none absolute left-[-2px] top-[-2px] h-[calc(100%+4px)] w-[calc(100%+4px)] rounded bg-blue-300/40;
+    &::after {
+      @apply absolute inset-0 z-20 rounded bg-blue-400/40;
+      content: '';
+    }
   }
 }
 
@@ -279,12 +281,26 @@
   @apply rounded;
 }
 
-/* Drag handle decoration — floated left into the padding gutter */
+/* Drag handle decoration — floated left into the padding gutter.
+   margin-top aligns the handle with the first line of the following block,
+   accounting for spacer padding-top (6px default) + block-wrapper padding (2px). */
 .block-drag-handle {
   @apply float-left flex h-6 w-6 cursor-grab items-center justify-center rounded opacity-0 transition-opacity duration-150 ease-in-out;
   margin-left: -32px;
-  margin-top: 0.15em;
+  margin-top: 8px; /* 6px spacer + 2px wrapper */
   color: theme('colors.grey.400');
+}
+
+.block-drag-handle:has(+ .spacer[data-type='heading-1']) {
+  margin-top: 36px;
+}
+
+.block-drag-handle:has(+ .spacer[data-type='heading-2']) {
+  margin-top: 24px;
+}
+
+.block-drag-handle:has(+ .spacer[data-type='heading-3']) {
+  margin-top: 20px;
 }
 
 /* Show all handles dimly when hovering the editor */
@@ -298,3 +314,46 @@
   color: theme('colors.grey.600');
 }
 
+/* Block wrappers — strip padding from inner content elements */
+.ProseMirror .block-wrapper > p,
+.ProseMirror .block-wrapper > h1,
+.ProseMirror .block-wrapper > h2,
+.ProseMirror .block-wrapper > h3,
+.ProseMirror .block-wrapper > h4,
+.ProseMirror .block-wrapper > h5,
+.ProseMirror .block-wrapper > h6,
+.ProseMirror .block-wrapper > ul,
+.ProseMirror .block-wrapper > ol,
+.ProseMirror .block-wrapper > blockquote,
+.ProseMirror .block-wrapper > pre {
+  @apply m-0 p-0;
+}
+
+.ProseMirror .block-wrapper {
+  @apply p-0.5;
+}
+
+/* Paragraphs inside list items — remove spacer padding to avoid double spacing */
+.ProseMirror li > .spacer {
+  @apply p-0;
+}
+
+.ProseMirror .spacer {
+  padding: 6px;
+
+  &[data-type='heading-1'] {
+    padding-top: 30px;
+  }
+
+  &[data-type='heading-2'] {
+    padding-top: 22px;
+  }
+
+  &[data-type='heading-3'] {
+    padding-top: 18px;
+  }
+
+  &[data-type='bulletList'] {
+    padding-left: 26px;
+  }
+}
