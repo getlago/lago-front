@@ -134,7 +134,7 @@ export const getBaseExtensions = (options?: BaseExtensionsOptions): Extensions =
   StarterKit.configure({
     link: false,
     underline: false,
-    dropcursor: { color: '#3b82f6' },
+    dropcursor: { color: '#dbeafe', width: 4 }, // blue-100
     paragraph: false,
     heading: false,
     bulletList: false,
