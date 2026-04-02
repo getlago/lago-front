@@ -128,19 +128,6 @@ export const PlanSettingsSection = ({
     }
   }, [initialValuesFromFormik, form])
 
-  // Propagate server-side code error to TanStack form
-  useEffect(() => {
-    if (codeError) {
-      form.setFieldMeta('code', (prev) => ({
-        ...prev,
-        errorMap: {
-          ...prev.errorMap,
-          onChange: codeError,
-        },
-      }))
-    }
-  }, [codeError, form])
-
   // Glue to make the data sync with formik
   const handleNameOrCodeChange = (field: 'name' | 'code', value: string) => {
     onSettingsChange({ [field]: value })
@@ -170,7 +157,10 @@ export const PlanSettingsSection = ({
         fields={{ name: 'name', code: 'code' }}
         isDisabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
         nameProps={{ autoFocus: !isInSubscriptionForm }}
-        codeProps={{ infoText: translate('text_6661fc17337de3591e29e3cd') }}
+        codeProps={{
+          infoText: translate('text_6661fc17337de3591e29e3cd'),
+          externalError: codeError ? translate(codeError) : undefined,
+        }}
         onFieldChange={handleNameOrCodeChange}
       />
 
