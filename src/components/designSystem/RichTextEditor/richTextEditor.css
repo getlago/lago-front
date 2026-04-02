@@ -266,14 +266,7 @@
 
 /* Block selection highlight */
 .ProseMirror .ProseMirror-selectednode {
-  .block-wrapper {
-    @apply relative;
-
-    &::after {
-      @apply absolute inset-0 z-20 rounded bg-blue-400/40;
-      content: '';
-    }
-  }
+  @apply rounded-md bg-blue-100;
 }
 
 /* Colored blocks padding */
@@ -285,10 +278,8 @@
    margin-top aligns the handle with the first line of the following block,
    accounting for spacer padding-top (6px default) + block-wrapper padding (2px). */
 .block-drag-handle {
-  @apply float-left flex h-6 w-6 cursor-grab items-center justify-center rounded opacity-0 transition-opacity duration-150 ease-in-out;
-  margin-left: -32px;
-  margin-top: 8px; /* 6px spacer + 2px wrapper */
-  color: theme('colors.grey.400');
+  @apply float-left mt-2 flex h-6 w-6 cursor-grab items-center justify-center rounded-lg text-grey-600 opacity-0 transition-all duration-200 ease-in-out;
+  margin-left: -28px;
 }
 
 .block-drag-handle:has(+ .spacer[data-type='heading-1']) {
@@ -303,15 +294,15 @@
   margin-top: 20px;
 }
 
-/* Show all handles dimly when hovering the editor */
-.ProseMirror:hover > .block-drag-handle {
-  @apply opacity-40;
+/* Show handle when hovering the spacer next to it, or the handle itself */
+.block-drag-handle:has(+ .spacer:hover),
+.block-drag-handle:hover {
+  @apply opacity-100;
 }
 
 /* Highlight the handle being directly hovered */
 .ProseMirror:hover > .block-drag-handle:hover {
-  @apply bg-grey-200 opacity-100;
-  color: theme('colors.grey.600');
+  @apply bg-grey-200;
 }
 
 /* Block wrappers — strip padding from inner content elements */
