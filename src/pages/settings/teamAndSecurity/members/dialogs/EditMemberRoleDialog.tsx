@@ -38,7 +38,7 @@ const initialValues: UpdateInviteSingleRole = {
 }
 
 const validationSchema = z.object({
-  role: z.string(),
+  role: z.string().min(1),
 })
 
 export const useEditMemberRoleDialog = () => {
