@@ -5,7 +5,10 @@ import { Editor } from '@tiptap/core'
 import { render } from '~/test-utils'
 
 import Toolbar, {
-  TOOLBAR_ALIGN_DROPDOWN_TEST_ID,
+  TOOLBAR_ALIGN_CENTER_BUTTON_TEST_ID,
+  TOOLBAR_ALIGN_JUSTIFY_BUTTON_TEST_ID,
+  TOOLBAR_ALIGN_LEFT_BUTTON_TEST_ID,
+  TOOLBAR_ALIGN_RIGHT_BUTTON_TEST_ID,
   TOOLBAR_BOLD_BUTTON_TEST_ID,
   TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID,
   TOOLBAR_CODE_BUTTON_TEST_ID,
@@ -13,7 +16,7 @@ import Toolbar, {
   TOOLBAR_HIGHLIGHT_BUTTON_TEST_ID,
   TOOLBAR_IMAGE_BUTTON_TEST_ID,
   TOOLBAR_ITALIC_BUTTON_TEST_ID,
-  TOOLBAR_LIST_DROPDOWN_TEST_ID,
+  TOOLBAR_ORDERED_LIST_BUTTON_TEST_ID,
   TOOLBAR_REDO_BUTTON_TEST_ID,
   TOOLBAR_STRIKE_BUTTON_TEST_ID,
   TOOLBAR_SUBSCRIPT_BUTTON_TEST_ID,
@@ -22,6 +25,7 @@ import Toolbar, {
   TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID,
   TOOLBAR_UNDERLINE_BUTTON_TEST_ID,
   TOOLBAR_UNDO_BUTTON_TEST_ID,
+  TOOLBAR_UNORDERED_LIST_BUTTON_TEST_ID,
 } from '../Toolbar'
 
 const createMockChain = () => {
@@ -131,6 +135,12 @@ describe('Toolbar', () => {
         ['highlight', TOOLBAR_HIGHLIGHT_BUTTON_TEST_ID],
         ['superscript', TOOLBAR_SUPERSCRIPT_BUTTON_TEST_ID],
         ['subscript', TOOLBAR_SUBSCRIPT_BUTTON_TEST_ID],
+        ['unordered list', TOOLBAR_UNORDERED_LIST_BUTTON_TEST_ID],
+        ['ordered list', TOOLBAR_ORDERED_LIST_BUTTON_TEST_ID],
+        ['align left', TOOLBAR_ALIGN_LEFT_BUTTON_TEST_ID],
+        ['align center', TOOLBAR_ALIGN_CENTER_BUTTON_TEST_ID],
+        ['align right', TOOLBAR_ALIGN_RIGHT_BUTTON_TEST_ID],
+        ['align justify', TOOLBAR_ALIGN_JUSTIFY_BUTTON_TEST_ID],
         ['table', TOOLBAR_TABLE_BUTTON_TEST_ID],
         ['code block', TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID],
         ['image', TOOLBAR_IMAGE_BUTTON_TEST_ID],
@@ -196,6 +206,12 @@ describe('Toolbar', () => {
       ['highlight', TOOLBAR_HIGHLIGHT_BUTTON_TEST_ID],
       ['superscript', TOOLBAR_SUPERSCRIPT_BUTTON_TEST_ID],
       ['subscript', TOOLBAR_SUBSCRIPT_BUTTON_TEST_ID],
+      ['unordered list', TOOLBAR_UNORDERED_LIST_BUTTON_TEST_ID],
+      ['ordered list', TOOLBAR_ORDERED_LIST_BUTTON_TEST_ID],
+      ['align left', TOOLBAR_ALIGN_LEFT_BUTTON_TEST_ID],
+      ['align center', TOOLBAR_ALIGN_CENTER_BUTTON_TEST_ID],
+      ['align right', TOOLBAR_ALIGN_RIGHT_BUTTON_TEST_ID],
+      ['align justify', TOOLBAR_ALIGN_JUSTIFY_BUTTON_TEST_ID],
       ['table', TOOLBAR_TABLE_BUTTON_TEST_ID],
       ['code block', TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID],
     ])('WHEN the %s button is clicked THEN should call the editor chain', async (_, testId) => {
@@ -268,64 +284,6 @@ describe('Toolbar', () => {
     })
   })
 
-  describe('GIVEN the list styling dropdown', () => {
-    const openDropdown = async (overrides: Record<string, boolean> = {}) => {
-      const user = userEvent.setup()
-      const { editor, runMock } = createMockEditor(overrides)
-
-      await act(() => render(<Toolbar editor={editor} />))
-      await user.click(screen.getByTestId(TOOLBAR_LIST_DROPDOWN_TEST_ID))
-
-      return { user, editor, runMock }
-    }
-
-    it.each([
-      ['bulletList', `${TOOLBAR_LIST_DROPDOWN_TEST_ID}-bulletList`],
-      ['orderedList', `${TOOLBAR_LIST_DROPDOWN_TEST_ID}-orderedList`],
-    ])('WHEN clicking %s THEN should call editor chain', async (_, itemTestId) => {
-      const { user, editor, runMock } = await openDropdown()
-
-      await waitFor(() => {
-        expect(screen.getByTestId(itemTestId)).toBeInTheDocument()
-      })
-
-      await user.click(screen.getByTestId(itemTestId))
-
-      expect(editor.chain).toHaveBeenCalled()
-      expect(runMock).toHaveBeenCalled()
-    })
-  })
-
-  describe('GIVEN the text align dropdown', () => {
-    const openDropdown = async (overrides: Record<string, boolean> = {}) => {
-      const user = userEvent.setup()
-      const { editor, runMock } = createMockEditor(overrides)
-
-      await act(() => render(<Toolbar editor={editor} />))
-      await user.click(screen.getByTestId(TOOLBAR_ALIGN_DROPDOWN_TEST_ID))
-
-      return { user, editor, runMock }
-    }
-
-    it.each([
-      ['left', `${TOOLBAR_ALIGN_DROPDOWN_TEST_ID}-left`],
-      ['center', `${TOOLBAR_ALIGN_DROPDOWN_TEST_ID}-center`],
-      ['right', `${TOOLBAR_ALIGN_DROPDOWN_TEST_ID}-right`],
-      ['justify', `${TOOLBAR_ALIGN_DROPDOWN_TEST_ID}-justify`],
-    ])('WHEN clicking %s THEN should call editor chain', async (_, itemTestId) => {
-      const { user, editor, runMock } = await openDropdown()
-
-      await waitFor(() => {
-        expect(screen.getByTestId(itemTestId)).toBeInTheDocument()
-      })
-
-      await user.click(screen.getByTestId(itemTestId))
-
-      expect(editor.chain).toHaveBeenCalled()
-      expect(runMock).toHaveBeenCalled()
-    })
-  })
-
   describe('GIVEN tooltips on toolbar buttons', () => {
     describe('WHEN hovering a button', () => {
       it.each([
@@ -339,6 +297,12 @@ describe('Toolbar', () => {
         ['highlight', TOOLBAR_HIGHLIGHT_BUTTON_TEST_ID],
         ['superscript', TOOLBAR_SUPERSCRIPT_BUTTON_TEST_ID],
         ['subscript', TOOLBAR_SUBSCRIPT_BUTTON_TEST_ID],
+        ['unordered list', TOOLBAR_UNORDERED_LIST_BUTTON_TEST_ID],
+        ['ordered list', TOOLBAR_ORDERED_LIST_BUTTON_TEST_ID],
+        ['align left', TOOLBAR_ALIGN_LEFT_BUTTON_TEST_ID],
+        ['align center', TOOLBAR_ALIGN_CENTER_BUTTON_TEST_ID],
+        ['align right', TOOLBAR_ALIGN_RIGHT_BUTTON_TEST_ID],
+        ['align justify', TOOLBAR_ALIGN_JUSTIFY_BUTTON_TEST_ID],
         ['table', TOOLBAR_TABLE_BUTTON_TEST_ID],
         ['code block', TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID],
         ['image', TOOLBAR_IMAGE_BUTTON_TEST_ID],
