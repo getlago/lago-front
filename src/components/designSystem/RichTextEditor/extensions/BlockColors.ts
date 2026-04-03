@@ -1,6 +1,8 @@
 import { type Editor, Extension } from '@tiptap/core'
 import { DOMSerializer, type Node as PmNode } from '@tiptap/pm/model'
-import { type EditorState, NodeSelection } from '@tiptap/pm/state'
+
+import { resolveTopLevelBlock } from './BlockUtils'
+import { EditorState, NodeSelection } from '@tiptap/pm/state'
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -36,6 +38,7 @@ const resolveTopLevelBlock = (state: EditorState): { pos: number; node: PmNode }
   if ($pos.depth >= 1) {
     return { pos: $pos.before(1), node: $pos.node(1) }
   }
+  
 
   return null
 }

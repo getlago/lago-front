@@ -11,6 +11,8 @@ import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 import ColorPicker from './ColorPicker'
 
 export const BLOCK_TOOLBAR_TEST_ID = 'block-toolbar'
+export const BLOCK_TOOLBAR_MOVE_UP_BUTTON_TEST_ID = 'block-toolbar-move-up-button'
+export const BLOCK_TOOLBAR_MOVE_DOWN_BUTTON_TEST_ID = 'block-toolbar-move-down-button'
 export const BLOCK_TOOLBAR_DELETE_BUTTON_TEST_ID = 'block-toolbar-delete-button'
 export const BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID = 'block-toolbar-color-button'
 
@@ -29,6 +31,9 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
       const { selection } = e.state
 
       if (selection instanceof NodeSelection && !e.view.dragging) {
+        const $pos = e.state.doc.resolve(selection.from)
+        const index = $pos.index(0)
+
         return {
           pos: selection.from,
           node: selection.node,
@@ -40,6 +45,8 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
             typeof selection.node.attrs.textColor === 'string'
               ? selection.node.attrs.textColor
               : null,
+          isFirst: index === 0,
+          isLast: index >= e.state.doc.childCount - 1,
         }
       }
 
@@ -136,6 +143,30 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
           </MenuPopper>
         )}
       </Popper>
+
+      {/* Move up */}
+      <Button
+        variant="quaternary"
+        startIcon="arrow-top"
+        align="left"
+        disabled={blockSelection.isFirst}
+        data-test={BLOCK_TOOLBAR_MOVE_UP_BUTTON_TEST_ID}
+        onClick={() => editor.commands.moveBlockUp()}
+      >
+        {translate('text_block_move_up')}
+      </Button>
+
+      {/* Move down */}
+      <Button
+        variant="quaternary"
+        startIcon="arrow-bottom"
+        align="left"
+        disabled={blockSelection.isLast}
+        data-test={BLOCK_TOOLBAR_MOVE_DOWN_BUTTON_TEST_ID}
+        onClick={() => editor.commands.moveBlockDown()}
+      >
+        {translate('text_block_move_down')}
+      </Button>
 
       {/* Delete */}
       <Button

@@ -4041,5 +4041,7 @@
   "text_1775140688149nqfxjcltqzi": "Right align",
   "text_1775140688149xlyu6d27lcv": "Justify align",
   "text_1775145882088oj33ff13ddh": "Delete block",
-  "text_17751458820889ebguo3021w": "Text and block color"
+  "text_17751458820889ebguo3021w": "Text and block color",
+  "text_block_move_up": "Move up",
+  "text_block_move_down": "Move down"
 }

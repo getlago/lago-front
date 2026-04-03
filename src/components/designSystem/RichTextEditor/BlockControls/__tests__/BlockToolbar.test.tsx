@@ -6,12 +6,16 @@ import { render } from '~/test-utils'
 import BlockToolbar, {
   BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID,
   BLOCK_TOOLBAR_DELETE_BUTTON_TEST_ID,
+  BLOCK_TOOLBAR_MOVE_DOWN_BUTTON_TEST_ID,
+  BLOCK_TOOLBAR_MOVE_UP_BUTTON_TEST_ID,
   BLOCK_TOOLBAR_TEST_ID,
 } from '../BlockToolbar'
 
 const mockDeleteSelection = jest.fn()
 const mockSetBlockBackgroundColor = jest.fn()
 const mockSetBlockTextColor = jest.fn()
+const mockMoveBlockUp = jest.fn()
+const mockMoveBlockDown = jest.fn()
 
 let mockSelectorReturn: unknown = null
 
@@ -87,6 +91,8 @@ const createMockEditor = (overrides?: {
       deleteSelection: mockDeleteSelection,
       setBlockBackgroundColor: mockSetBlockBackgroundColor,
       setBlockTextColor: mockSetBlockTextColor,
+      moveBlockUp: mockMoveBlockUp,
+      moveBlockDown: mockMoveBlockDown,
     },
     view: {
       nodeDOM: jest.fn().mockReturnValue(blockElement),
@@ -123,6 +129,8 @@ describe('BlockToolbar', () => {
       node: {},
       backgroundColor: null,
       textColor: null,
+      isFirst: false,
+      isLast: false,
     }
 
     describe('WHEN the component renders with a valid position', () => {
@@ -137,6 +145,8 @@ describe('BlockToolbar', () => {
       it.each([
         ['delete button', BLOCK_TOOLBAR_DELETE_BUTTON_TEST_ID],
         ['color button', BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID],
+        ['move up button', BLOCK_TOOLBAR_MOVE_UP_BUTTON_TEST_ID],
+        ['move down button', BLOCK_TOOLBAR_MOVE_DOWN_BUTTON_TEST_ID],
       ])('THEN should render the %s', (_, testId) => {
         mockSelectorReturn = blockSelection
 
@@ -173,6 +183,54 @@ describe('BlockToolbar', () => {
       })
     })
 
+    describe('WHEN the move up button is clicked', () => {
+      it('THEN should call editor.commands.moveBlockUp', async () => {
+        const user = userEvent.setup()
+
+        mockSelectorReturn = blockSelection
+
+        render(<BlockToolbar editor={createMockEditor()} />)
+
+        await user.click(screen.getByTestId(BLOCK_TOOLBAR_MOVE_UP_BUTTON_TEST_ID))
+
+        expect(mockMoveBlockUp).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the move down button is clicked', () => {
+      it('THEN should call editor.commands.moveBlockDown', async () => {
+        const user = userEvent.setup()
+
+        mockSelectorReturn = blockSelection
+
+        render(<BlockToolbar editor={createMockEditor()} />)
+
+        await user.click(screen.getByTestId(BLOCK_TOOLBAR_MOVE_DOWN_BUTTON_TEST_ID))
+
+        expect(mockMoveBlockDown).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the block is the first block', () => {
+      it('THEN the move up button should be disabled', () => {
+        mockSelectorReturn = { ...blockSelection, isFirst: true }
+
+        render(<BlockToolbar editor={createMockEditor()} />)
+
+        expect(screen.getByTestId(BLOCK_TOOLBAR_MOVE_UP_BUTTON_TEST_ID)).toBeDisabled()
+      })
+    })
+
+    describe('WHEN the block is the last block', () => {
+      it('THEN the move down button should be disabled', () => {
+        mockSelectorReturn = { ...blockSelection, isLast: true }
+
+        render(<BlockToolbar editor={createMockEditor()} />)
+
+        expect(screen.getByTestId(BLOCK_TOOLBAR_MOVE_DOWN_BUTTON_TEST_ID)).toBeDisabled()
+      })
+    })
+
     describe('WHEN nodeDOM returns null', () => {
       it('THEN should not render the toolbar', () => {
         mockSelectorReturn = blockSelection
@@ -202,6 +260,8 @@ describe('BlockToolbar', () => {
           node: {},
           backgroundColor: '#fee2e2',
           textColor: null,
+          isFirst: false,
+          isLast: false,
         }
 
         render(<BlockToolbar editor={createMockEditor()} />)

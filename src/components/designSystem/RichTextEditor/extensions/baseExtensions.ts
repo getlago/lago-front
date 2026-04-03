@@ -23,6 +23,7 @@ import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from 'tiptap-markdown'
 
 import { BlockColors, createColorAwareSerialize } from './BlockColors'
+import { BlockMove } from './BlockMove'
 import { wrapInBlockWrapper } from './BlockWrapper'
 import { LinkCard } from './LinkCard'
 
@@ -165,5 +166,6 @@ export const getBaseExtensions = (options?: BaseExtensionsOptions): Extensions =
   TableHeader,
   LinkCard,
   BlockColors,
+  BlockMove,
   Markdown.configure({ html: true }),
 ]
