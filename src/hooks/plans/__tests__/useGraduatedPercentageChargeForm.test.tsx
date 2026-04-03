@@ -134,21 +134,21 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: '0',
-            toValue: '1',
+            fromValue: 0,
+            toValue: 1,
             flatAmount: undefined,
             rate: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: '2',
-            toValue: '3',
+            fromValue: 2,
+            toValue: 3,
             flatAmount: undefined,
             rate: undefined,
             disabledDelete: false,
           },
           {
-            fromValue: '4',
+            fromValue: 4,
             toValue: null,
             flatAmount: undefined,
             rate: undefined,
@@ -181,14 +181,14 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: '0',
-            toValue: '1',
+            fromValue: 0,
+            toValue: 1,
             flatAmount: 4,
             rate: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: '2',
+            fromValue: 2,
             toValue: null,
             flatAmount: undefined,
             rate: undefined,
@@ -253,14 +253,14 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: '0',
-            toValue: '4',
+            fromValue: 0,
+            toValue: 4,
             flatAmount: undefined,
             rate: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: '5',
+            fromValue: 5,
             toValue: null,
             flatAmount: undefined,
             rate: undefined,
@@ -311,14 +311,14 @@ describe('useGraduatedRange()', () => {
         expect(result.current.tableDatas.length).toBe(2)
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: '0',
-            toValue: '4',
+            fromValue: 0,
+            toValue: 4,
             flatAmount: undefined,
             rate: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: '5',
+            fromValue: 5,
             toValue: null,
             flatAmount: undefined,
             rate: undefined,
@@ -376,21 +376,21 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: '0',
-            toValue: '1',
+            fromValue: 0,
+            toValue: 1,
             flatAmount: undefined,
             rate: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: '2',
-            toValue: '3',
+            fromValue: 2,
+            toValue: 3,
             flatAmount: undefined,
             rate: undefined,
             disabledDelete: false,
           },
           {
-            fromValue: '4',
+            fromValue: 4,
             toValue: null,
             flatAmount: undefined,
             rate: undefined,
@@ -423,14 +423,14 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: '0',
-            toValue: '1',
+            fromValue: 0,
+            toValue: 1,
             flatAmount: 4,
             rate: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: '2',
+            fromValue: 2,
             toValue: null,
             flatAmount: undefined,
             rate: undefined,
@@ -495,14 +495,14 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: '0',
-            toValue: '4',
+            fromValue: 0,
+            toValue: 4,
             flatAmount: undefined,
             rate: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: '5',
+            fromValue: 5,
             toValue: null,
             flatAmount: undefined,
             rate: undefined,
@@ -553,14 +553,14 @@ describe('useGraduatedRange()', () => {
         expect(result.current.tableDatas.length).toBe(2)
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: '0',
-            toValue: '4',
+            fromValue: 0,
+            toValue: 4,
             flatAmount: undefined,
             rate: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: '5',
+            fromValue: 5,
             toValue: null,
             flatAmount: undefined,
             rate: undefined,
