@@ -1,4 +1,16 @@
+import { Editor } from '@tiptap/core'
+
 import { getBaseExtensions } from '../baseExtensions'
+
+const createEditor = (content = '') =>
+  new Editor({
+    extensions: getBaseExtensions(),
+    content,
+  })
+
+const getMarkdown = (editor: Editor): string =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (editor.storage as any).markdown.getMarkdown()
 
 describe('getBaseExtensions', () => {
   describe('GIVEN no options are provided', () => {
@@ -34,6 +46,9 @@ describe('getBaseExtensions', () => {
         ['tableCell'],
         ['tableHeader'],
         ['linkCard'],
+        ['blockColors'],
+        ['paragraph'],
+        ['heading'],
         ['markdown'],
       ])('THEN should include the %s extension', (extensionName) => {
         const extensions = getBaseExtensions()
@@ -88,6 +103,104 @@ describe('getBaseExtensions', () => {
 
         expect(table).toBeDefined()
         expect(table?.options.resizable).toBe(false)
+      })
+    })
+  })
+
+  describe('GIVEN the ColorAwareParagraph extension', () => {
+    describe('WHEN a paragraph without colors is serialized to markdown', () => {
+      it('THEN should produce plain markdown', () => {
+        const editor = createEditor('<p>Hello world</p>')
+        const markdown = getMarkdown(editor)
+
+        editor.destroy()
+
+        expect(markdown).toBe('Hello world')
+      })
+    })
+
+    describe('WHEN a paragraph with backgroundColor is serialized to markdown', () => {
+      it('THEN should produce HTML with inline styles', () => {
+        const editor = createEditor('<p>Colored</p>')
+
+        editor.commands.setTextSelection(1)
+        editor.commands.setBlockBackgroundColor('#fee2e2')
+
+        const markdown = getMarkdown(editor)
+
+        editor.destroy()
+
+        expect(markdown).toContain('background-color')
+        expect(markdown).toContain('Colored')
+      })
+    })
+  })
+
+  describe('GIVEN the ColorAwareHeading extension', () => {
+    describe('WHEN a heading without colors is serialized to markdown', () => {
+      it('THEN should produce markdown heading syntax', () => {
+        const editor = createEditor('<h1>Title</h1>')
+        const markdown = getMarkdown(editor)
+
+        editor.destroy()
+
+        expect(markdown).toBe('# Title')
+      })
+    })
+
+    describe('WHEN a heading with textColor is serialized to markdown', () => {
+      it('THEN should produce HTML with inline styles', () => {
+        const editor = createEditor('<h2>Subtitle</h2>')
+
+        editor.commands.setTextSelection(1)
+        editor.commands.setBlockTextColor('#dc2626')
+
+        const markdown = getMarkdown(editor)
+
+        editor.destroy()
+
+        expect(markdown).toContain('color')
+        expect(markdown).toContain('Subtitle')
+      })
+    })
+
+    describe('WHEN a h3 heading with backgroundColor is serialized to markdown', () => {
+      it('THEN should produce HTML preserving the heading level', () => {
+        const editor = createEditor('<h3>Section</h3>')
+
+        editor.commands.setTextSelection(1)
+        editor.commands.setBlockBackgroundColor('#dbeafe')
+
+        const markdown = getMarkdown(editor)
+
+        editor.destroy()
+
+        expect(markdown).toContain('background-color')
+        expect(markdown).toContain('Section')
+        expect(markdown).toContain('h3')
+      })
+    })
+  })
+
+  describe('GIVEN StarterKit is configured with paragraph and heading disabled', () => {
+    describe('WHEN getBaseExtensions is called', () => {
+      it('THEN should disable paragraph and heading in StarterKit', () => {
+        const extensions = getBaseExtensions()
+        const starterKit = extensions.find((ext) => 'name' in ext && ext.name === 'starterKit') as
+          | { name: string; options: Record<string, unknown> }
+          | undefined
+
+        expect(starterKit?.options.paragraph).toBe(false)
+        expect(starterKit?.options.heading).toBe(false)
+      })
+
+      it('THEN should configure dropcursor with blue color', () => {
+        const extensions = getBaseExtensions()
+        const starterKit = extensions.find((ext) => 'name' in ext && ext.name === 'starterKit') as
+          | { name: string; options: Record<string, unknown> }
+          | undefined
+
+        expect(starterKit?.options.dropcursor).toEqual({ color: '#3b82f6' })
       })
     })
   })
