@@ -50,6 +50,7 @@ const ColorPicker = ({ variant, activeColor, onSelect }: ColorPickerProps) => {
         <button
           className="flex size-7 items-center justify-center rounded border border-grey-300 hover:border-grey-500"
           title="Clear"
+          aria-label="Clear color"
           onClick={() => onSelect(null)}
         >
           <Icon name="close-circle-unfilled" size="small" />
@@ -64,6 +65,7 @@ const ColorPicker = ({ variant, activeColor, onSelect }: ColorPickerProps) => {
                 : { backgroundColor: 'white' }
             }
             title={color.label}
+            aria-label={`${color.label} ${variant === 'background' ? 'background' : 'text'} color`}
             onClick={() => onSelect(color.value)}
           >
             {variant === 'text' && (

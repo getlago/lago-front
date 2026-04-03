@@ -24,12 +24,6 @@ const BLOCK_TYPES = [
   'blockquote',
 ]
 
-const getExistingStyle = (attributes: Record<string, unknown>): string => {
-  const style = attributes.style
-
-  return typeof style === 'string' ? style : ''
-}
-
 const resolveTopLevelBlock = (state: EditorState): { pos: number; node: PmNode } | null => {
   const { selection } = state
 
@@ -95,25 +89,28 @@ export const BlockColors = Extension.create({
             default: null,
             parseHTML: (element) => element.style.backgroundColor || null,
             renderHTML: (attributes) => {
-              if (!attributes.backgroundColor) return {}
+              if (!attributes.backgroundColor && !attributes.textColor) return {}
 
-              const existing = getExistingStyle(attributes)
-              const style = `background-color: ${attributes.backgroundColor};${existing ? ` ${existing}` : ''}`
+              const parts: string[] = []
 
-              return { style }
+              if (attributes.backgroundColor) {
+                parts.push(`background-color: ${attributes.backgroundColor}`)
+              }
+
+              if (attributes.textColor) {
+                parts.push(`color: ${attributes.textColor}`)
+              }
+
+              return parts.length > 0 ? { style: `${parts.join('; ')};` } : {}
             },
           },
           textColor: {
             default: null,
             parseHTML: (element) => element.style.color || null,
-            renderHTML: (attributes) => {
-              if (!attributes.textColor) return {}
-
-              const existing = getExistingStyle(attributes)
-              const style = `color: ${attributes.textColor};${existing ? ` ${existing}` : ''}`
-
-              return { style }
-            },
+            // Style rendering is handled by backgroundColor's renderHTML to
+            // produce a single merged style string, avoiding TipTap attribute
+            // merge conflicts.
+            renderHTML: () => ({}),
           },
         },
       },

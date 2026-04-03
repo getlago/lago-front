@@ -293,8 +293,8 @@
 }
 
 /* Highlight the handle being directly hovered */
-.block-drag-handle:hover {
-  @apply bg-grey-200 !opacity-100;
+.ProseMirror:hover > .block-drag-handle:hover {
+  @apply bg-grey-200 opacity-100;
   color: theme('colors.grey.600');
 }
 

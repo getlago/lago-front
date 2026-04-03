@@ -1,13 +1,20 @@
 import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
+import { act } from 'react'
 
 import { DragHandle } from '../DragHandle'
 
 const createEditor = (content = '<p>First</p><p>Second</p>') => {
-  return new Editor({
-    extensions: [StarterKit, DragHandle],
-    content,
+  let editor!: Editor
+
+  act(() => {
+    editor = new Editor({
+      extensions: [StarterKit, DragHandle],
+      content,
+    })
   })
+
+  return editor
 }
 
 describe('DragHandle', () => {

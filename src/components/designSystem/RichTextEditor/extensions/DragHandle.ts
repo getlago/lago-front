@@ -4,27 +4,15 @@ import { NodeSelection, Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import { ALL_ICONS } from 'lago-design-system'
 import { createElement } from 'react'
-import { flushSync } from 'react-dom'
 import { createRoot } from 'react-dom/client'
 
 const dragHandlePluginKey = new PluginKey('dragHandle')
 
-const renderIconToHtml = (): string => {
-  const container = document.createElement('div')
+const renderGripIcon = (container: HTMLElement): void => {
   const root = createRoot(container)
 
-  flushSync(() => {
-    root.render(createElement(ALL_ICONS['double-dots-vertical'], { width: 16, height: 16 }))
-  })
-
-  const html = container.innerHTML
-
-  root.unmount()
-
-  return html
+  root.render(createElement(ALL_ICONS['double-dots-vertical'], { width: 16, height: 16 }))
 }
-
-const GRIP_SVG = renderIconToHtml()
 
 export const DragHandle = Extension.create({
   name: 'dragHandle',
@@ -45,7 +33,10 @@ export const DragHandle = Extension.create({
       handle.className = 'block-drag-handle'
       handle.draggable = true
       handle.contentEditable = 'false'
-      handle.innerHTML = GRIP_SVG
+      const iconContainer = document.createElement('span')
+
+      handle.appendChild(iconContainer)
+      renderGripIcon(iconContainer)
 
       handle.addEventListener('dragstart', (e) => {
         selectBlock(pos)
@@ -99,11 +90,18 @@ export const DragHandle = Extension.create({
             return buildDecorations(state.doc)
           },
           apply(tr, oldSet) {
-            if (tr.docChanged) {
-              return buildDecorations(tr.doc)
+            if (!tr.docChanged) return oldSet
+
+            // Rebuild only when block structure changes (added/removed blocks).
+            // For in-block edits (typing, formatting) map existing decorations.
+            const oldCount = tr.before.childCount
+            const newCount = tr.doc.childCount
+
+            if (oldCount === newCount) {
+              return oldSet.map(tr.mapping, tr.doc)
             }
 
-            return oldSet
+            return buildDecorations(tr.doc)
           },
         },
         props: {

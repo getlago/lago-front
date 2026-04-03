@@ -1,7 +1,7 @@
 import type { Editor } from '@tiptap/core'
 import { NodeSelection } from '@tiptap/pm/state'
 import { useEditorState } from '@tiptap/react'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
@@ -48,7 +48,7 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
     },
   })
 
-  useEffect(() => {
+  const updatePosition = useCallback(() => {
     if (!blockSelection) {
       setPosition(null)
 
@@ -79,6 +79,24 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
       left: blockRect.left - containerRect.left,
     })
   }, [editor, blockSelection])
+
+  useEffect(() => {
+    updatePosition()
+  }, [updatePosition])
+
+  useEffect(() => {
+    if (!blockSelection) return
+
+    const scrollContainer = editor.view.dom.closest('.rich-text-editor')
+
+    if (!scrollContainer) return
+
+    scrollContainer.addEventListener('scroll', updatePosition, { passive: true })
+
+    return () => {
+      scrollContainer.removeEventListener('scroll', updatePosition)
+    }
+  }, [editor, blockSelection, updatePosition])
 
   if (!blockSelection || !position) return null
 
