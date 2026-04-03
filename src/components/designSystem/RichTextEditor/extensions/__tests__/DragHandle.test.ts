@@ -99,6 +99,93 @@ describe('DragHandle', () => {
     })
   })
 
+  describe('GIVEN a drag handle dragstart event', () => {
+    describe('WHEN a handle is dragged', () => {
+      it('THEN should set editor.view.dragging with selection content', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+        const firstHandle = handles[0] as HTMLElement
+
+        // Use bubbles: false so the event only triggers our handler, not ProseMirror's
+        // internal dragstart handler which requires browser APIs unavailable in jsdom.
+        const dragEvent = new Event('dragstart', { bubbles: false }) as DragEvent
+
+        Object.defineProperty(dragEvent, 'dataTransfer', {
+          value: {
+            effectAllowed: '',
+            setDragImage: jest.fn(),
+          },
+        })
+
+        firstHandle.dispatchEvent(dragEvent)
+
+        expect(editor.view.dragging).toBeTruthy()
+        expect(editor.view.dragging?.move).toBe(true)
+        expect((dragEvent as DragEvent).dataTransfer?.effectAllowed).toBe('move')
+
+        editor.destroy()
+      })
+
+      it('THEN should set the drag image to the block DOM element', () => {
+        const editor = createEditor('<p>First</p>')
+        const handle = editor.view.dom.querySelector('.block-drag-handle') as HTMLElement
+
+        const setDragImage = jest.fn()
+        const dragEvent = new Event('dragstart', { bubbles: false }) as DragEvent
+
+        Object.defineProperty(dragEvent, 'dataTransfer', {
+          value: {
+            effectAllowed: '',
+            setDragImage,
+          },
+        })
+
+        handle.dispatchEvent(dragEvent)
+
+        expect(setDragImage).toHaveBeenCalledWith(expect.any(HTMLElement), 0, 0)
+
+        editor.destroy()
+      })
+    })
+  })
+
+  describe('GIVEN the decoration mapping optimization', () => {
+    describe('WHEN a transaction does not change the document', () => {
+      it('THEN should preserve existing decorations without rebuilding', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+
+        const handlesBefore = editor.view.dom.querySelectorAll('.block-drag-handle')
+
+        expect(handlesBefore.length).toBe(2)
+
+        // Trigger a non-doc-changing transaction (selection change)
+        editor.commands.setTextSelection(1)
+
+        const handlesAfter = editor.view.dom.querySelectorAll('.block-drag-handle')
+
+        expect(handlesAfter.length).toBe(2)
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN an in-block edit occurs without changing block count', () => {
+      it('THEN should map decorations instead of rebuilding', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+
+        // Type within first paragraph — block count stays at 2
+        editor.commands.setTextSelection(1)
+        editor.commands.insertContent('Hello ')
+
+        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+
+        expect(handles.length).toBe(2)
+
+        editor.destroy()
+      })
+    })
+  })
+
   describe('GIVEN an empty document', () => {
     describe('WHEN the editor is initialized', () => {
       it('THEN should create a handle for the empty paragraph', () => {

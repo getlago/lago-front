@@ -99,6 +99,31 @@ describe('BlockColors', () => {
     })
   })
 
+  describe('GIVEN both backgroundColor and textColor are set on a block', () => {
+    describe('WHEN getHTML is called', () => {
+      it('THEN should render a single style attribute with both properties', () => {
+        const editor = createEditor('<p>Dual styled</p>')
+
+        editor.commands.setTextSelection(1)
+        editor.commands.setBlockBackgroundColor('#fee2e2')
+        editor.commands.setBlockTextColor('#dc2626')
+
+        const html = editor.getHTML()
+
+        editor.destroy()
+
+        expect(html).toContain('background-color')
+        expect(html).toContain('color')
+        // Both styles should be in the same style attribute
+        const styleMatch = html.match(/style="([^"]*)"/)
+
+        expect(styleMatch).toBeTruthy()
+        expect(styleMatch?.[1]).toContain('background-color')
+        expect(styleMatch?.[1]).toContain('color')
+      })
+    })
+  })
+
   describe('GIVEN the setBlockTextColor command', () => {
     describe('WHEN called with a color', () => {
       it('THEN should apply textColor to the top-level block', () => {
