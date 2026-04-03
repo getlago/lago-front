@@ -62,6 +62,7 @@ const mockEditor = {
   } as { extensions: Array<{ name: string; storage: unknown }> },
   getHTML: jest.fn().mockReturnValue('<p>Preview content</p>'),
   isActive: jest.fn().mockReturnValue(false),
+  getAttributes: jest.fn().mockReturnValue({}),
   can: jest.fn().mockReturnValue({
     undo: jest.fn().mockReturnValue(false),
     redo: jest.fn().mockReturnValue(false),

@@ -10,6 +10,7 @@ import ColorPicker from '../ColorPicker'
 const fullConfig = resolveConfig(tailwindConfig)
 const themeColors = fullConfig.theme.colors
 const red100 = (themeColors.red as Record<number, string>)[100]
+const red600 = (themeColors.red as Record<number, string>)[600]
 const blue600 = (themeColors.blue as Record<number, string>)[600]
 
 const defaultProps = {
@@ -27,11 +28,14 @@ describe('ColorPicker', () => {
 
   describe('GIVEN the unified color picker', () => {
     describe('WHEN rendered', () => {
-      it('THEN should display both background and text sections', () => {
+      it('THEN should display both text and background sections', () => {
         render(<ColorPicker {...defaultProps} />)
 
-        expect(screen.getByText('Background')).toBeInTheDocument()
-        expect(screen.getByText('Text')).toBeInTheDocument()
+        // Text color section comes first, background second
+        // Labels are translated, so we check for noteHl typography elements
+        const sections = screen.getAllByTestId('noteHl')
+
+        expect(sections).toHaveLength(2)
       })
 
       it('THEN should display 12 color swatches plus 2 clear buttons', () => {
@@ -39,16 +43,39 @@ describe('ColorPicker', () => {
 
         const buttons = screen.getAllByRole('button')
 
-        // 6 bg colors + 1 clear + 6 text colors + 1 clear = 14
+        // 1 clear text + 6 text colors + 1 clear bg + 6 bg colors = 14
         expect(buttons).toHaveLength(14)
       })
+    })
 
-      it('THEN should display "A" labels on text color swatches', () => {
-        render(<ColorPicker {...defaultProps} />)
+    describe('WHEN clicking a text color swatch', () => {
+      it('THEN should call onSelectText with the color value', async () => {
+        const user = userEvent.setup()
+        const onSelectText = jest.fn()
 
-        const labels = screen.getAllByText('A')
+        render(<ColorPicker {...defaultProps} onSelectText={onSelectText} />)
 
-        expect(labels).toHaveLength(6)
+        // Text section is first — "Red" buttons: first is text, second is bg
+        const redButtons = screen.getAllByTitle('Red')
+
+        await user.click(redButtons[0])
+
+        expect(onSelectText).toHaveBeenCalledWith(red600)
+      })
+    })
+
+    describe('WHEN clicking the text clear button', () => {
+      it('THEN should call onSelectText with null', async () => {
+        const user = userEvent.setup()
+        const onSelectText = jest.fn()
+
+        render(
+          <ColorPicker {...defaultProps} activeTextColor={blue600} onSelectText={onSelectText} />,
+        )
+
+        await user.click(screen.getByTitle('Clear text color'))
+
+        expect(onSelectText).toHaveBeenCalledWith(null)
       })
     })
 
@@ -59,10 +86,10 @@ describe('ColorPicker', () => {
 
         render(<ColorPicker {...defaultProps} onSelectBackground={onSelectBackground} />)
 
-        // "Red" appears twice (bg + text) — first one is the bg swatch
+        // Background section is second — "Red" buttons: first is text, second is bg
         const redButtons = screen.getAllByTitle('Red')
 
-        await user.click(redButtons[0])
+        await user.click(redButtons[1])
 
         expect(onSelectBackground).toHaveBeenCalledWith(red100)
       })
@@ -87,56 +114,27 @@ describe('ColorPicker', () => {
       })
     })
 
-    describe('WHEN clicking a text color swatch', () => {
-      it('THEN should call onSelectText with the color value', async () => {
-        const user = userEvent.setup()
-        const onSelectText = jest.fn()
+    describe('WHEN a text color is active', () => {
+      it('THEN should highlight the active text swatch with a thicker border', () => {
+        render(<ColorPicker {...defaultProps} activeTextColor={blue600} />)
 
-        render(<ColorPicker {...defaultProps} onSelectText={onSelectText} />)
-
-        // "Blue" appears twice — second one is the text swatch
+        // Text section is first — "Blue" buttons: first is text, second is bg
         const blueButtons = screen.getAllByTitle('Blue')
+        const textSwatch = blueButtons[0]
 
-        await user.click(blueButtons[1])
-
-        expect(onSelectText).toHaveBeenCalledWith(blue600)
-      })
-    })
-
-    describe('WHEN clicking the text clear button', () => {
-      it('THEN should call onSelectText with null', async () => {
-        const user = userEvent.setup()
-        const onSelectText = jest.fn()
-
-        render(
-          <ColorPicker {...defaultProps} activeTextColor={blue600} onSelectText={onSelectText} />,
-        )
-
-        await user.click(screen.getByTitle('Clear text color'))
-
-        expect(onSelectText).toHaveBeenCalledWith(null)
+        expect(textSwatch.className).toContain('border-2')
       })
     })
 
     describe('WHEN a background color is active', () => {
-      it('THEN should display a checkmark on the active background swatch', () => {
+      it('THEN should highlight the active background swatch with a thicker border', () => {
         render(<ColorPicker {...defaultProps} activeBackgroundColor={red100} />)
 
+        // Background section is second — "Red" buttons: first is text, second is bg
         const redButtons = screen.getAllByTitle('Red')
-        const svg = redButtons[0].querySelector('svg')
+        const bgSwatch = redButtons[1]
 
-        expect(svg).toBeInTheDocument()
-      })
-    })
-
-    describe('WHEN a text color is active', () => {
-      it('THEN should display a checkmark on the active text swatch', () => {
-        render(<ColorPicker {...defaultProps} activeTextColor={blue600} />)
-
-        const blueButtons = screen.getAllByTitle('Blue')
-        const svg = blueButtons[1].querySelector('svg')
-
-        expect(svg).toBeInTheDocument()
+        expect(bgSwatch.className).toContain('border-2')
       })
     })
   })

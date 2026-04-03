@@ -200,7 +200,7 @@ describe('getBaseExtensions', () => {
           | { name: string; options: Record<string, unknown> }
           | undefined
 
-        expect(starterKit?.options.dropcursor).toEqual({ color: '#3b82f6' })
+        expect(starterKit?.options.dropcursor).toEqual({ color: '#dbeafe', width: 4 })
       })
     })
   })

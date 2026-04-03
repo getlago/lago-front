@@ -254,7 +254,7 @@ describe('BlockToolbar', () => {
 
   describe('GIVEN a block with existing colors is selected', () => {
     describe('WHEN the block has a backgroundColor', () => {
-      it('THEN should display the background color swatch with that color', () => {
+      it('THEN should render the color button', () => {
         mockSelectorReturn = {
           pos: 0,
           node: {},
@@ -266,10 +266,7 @@ describe('BlockToolbar', () => {
 
         render(<BlockToolbar editor={createMockEditor()} />)
 
-        const colorButton = screen.getByTestId(BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID)
-        const swatch = colorButton.querySelector('.size-4') as HTMLElement
-
-        expect(swatch.style.backgroundColor).toBe('rgb(254, 226, 226)')
+        expect(screen.getByTestId(BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID)).toBeInTheDocument()
       })
     })
   })
