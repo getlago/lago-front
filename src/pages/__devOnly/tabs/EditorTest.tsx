@@ -43,10 +43,41 @@ const fetchTemplates = (): Promise<EditorTemplate[]> =>
     }, 800) // simulate network latency
   })
 
+interface EditorControlsProps {
+  mode: RichTextEditorMode
+  onToggleMode: () => void
+  onSave?: () => void
+  onDownloadPdf?: () => void
+}
+
+const EditorControls = ({ mode, onToggleMode, onSave, onDownloadPdf }: EditorControlsProps) => (
+  <div className="mb-4 flex items-center gap-4">
+    <Button variant={mode === 'edit' ? 'primary' : 'secondary'} onClick={onToggleMode}>
+      {mode === 'edit' ? 'Preview' : 'Edit'}
+    </Button>
+    {onSave && <Button onClick={onSave}>Save</Button>}
+    {onDownloadPdf && (
+      <Button variant="secondary" onClick={onDownloadPdf}>
+        Download PDF
+      </Button>
+    )}
+  </div>
+)
+
 const EditorTest = () => {
-  const [mode, setMode] = useState<RichTextEditorMode>('edit')
-  const getMarkdownRef = useRef<(() => string) | null>(null)
-  const downloadPdfRef = useRef<(() => void) | null>(null)
+  const [mode1, setMode1] = useState<RichTextEditorMode>('edit')
+  const [mode2, setMode2] = useState<RichTextEditorMode>('edit')
+  const [mode3, setMode3] = useState<RichTextEditorMode>('edit')
+
+  const getMarkdownRef1 = useRef<(() => string) | null>(null)
+  const downloadPdfRef1 = useRef<(() => void) | null>(null)
+
+  const getMarkdownRef2 = useRef<(() => string) | null>(null)
+  const downloadPdfRef2 = useRef<(() => void) | null>(null)
+
+  const getMarkdownRef3 = useRef<(() => string) | null>(null)
+  const downloadPdfRef3 = useRef<(() => void) | null>(null)
+
   const [templates, setTemplates] = useState<EditorTemplate[]>([])
   const [templatesLoading, setTemplatesLoading] = useState(true)
 
@@ -57,7 +88,7 @@ const EditorTest = () => {
     })
   }, [])
 
-  const handleSave = () => {
+  const handleSave = (getMarkdownRef: React.RefObject<(() => string) | null>) => {
     const markdown = getMarkdownRef.current?.()
 
     if (markdown) {
@@ -67,6 +98,8 @@ const EditorTest = () => {
   }
 
   const preSavedContent = `# Hello World
+
+<h3 style="background-color: rgb(255, 235, 230);">This is a header with background color</h3>
 
 This is a pre-saved content with **bold** text, _italic_ text, and a [link](https://www.example.com).
 
@@ -89,41 +122,65 @@ Best,
       <Typography className="mb-4" variant="headline">
         RichTextEditor
       </Typography>
-      <div className="mb-4 flex items-center gap-4">
-        <Typography variant="subhead1">Simple &#60;RichTextEditor/&#62;</Typography>
-        <Button
-          variant={mode === 'edit' ? 'primary' : 'secondary'}
-          onClick={() => setMode(mode === 'edit' ? 'preview' : 'edit')}
-        >
-          {mode === 'edit' ? 'Preview' : 'Edit'}
-        </Button>
-        <Button onClick={handleSave}>Save</Button>
-        <Button variant="secondary" onClick={() => downloadPdfRef.current?.()}>
-          Download PDF
-        </Button>
-      </div>
+
+      <Typography variant="subhead1">Simple &#60;RichTextEditor/&#62;</Typography>
+      <EditorControls
+        mode={mode1}
+        onToggleMode={() => setMode1(mode1 === 'edit' ? 'preview' : 'edit')}
+        onSave={() => handleSave(getMarkdownRef1)}
+        onDownloadPdf={() => downloadPdfRef1.current?.()}
+      />
       <Block>
         <RichTextEditor
-          mode={mode}
+          mode={mode1}
           mentionValues={mentionValues}
-          getMarkdownRef={getMarkdownRef}
-          downloadPdfRef={downloadPdfRef}
+          getMarkdownRef={getMarkdownRef1}
+          downloadPdfRef={downloadPdfRef1}
         />
       </Block>
+
       <Typography className="mt-4" variant="subhead1">
         &#60;RichTextEditor/&#62; with templates (fetched async)
       </Typography>
+      <EditorControls
+        mode={mode2}
+        onToggleMode={() => setMode2(mode2 === 'edit' ? 'preview' : 'edit')}
+        onSave={() => handleSave(getMarkdownRef2)}
+        onDownloadPdf={() => downloadPdfRef2.current?.()}
+      />
       <Block>
         {templatesLoading ? (
           <Typography variant="body">Loading templates...</Typography>
         ) : (
-          <RichTextEditor mode={mode} mentionValues={mentionValues} templates={templates} />
+          <RichTextEditor
+            mode={mode2}
+            mentionValues={mentionValues}
+            templates={templates}
+            getMarkdownRef={getMarkdownRef2}
+            downloadPdfRef={downloadPdfRef2}
+          />
         )}
       </Block>
-      <Typography variant="subhead1">&#60;RichTextEditor/&#62; with pre-saved content</Typography>
+
+      <Typography className="mt-4" variant="subhead1">
+        &#60;RichTextEditor/&#62; with pre-saved content
+      </Typography>
+      <EditorControls
+        mode={mode3}
+        onToggleMode={() => setMode3(mode3 === 'edit' ? 'preview' : 'edit')}
+        onSave={() => handleSave(getMarkdownRef3)}
+        onDownloadPdf={() => downloadPdfRef3.current?.()}
+      />
       <Block>
-        <RichTextEditor mode={mode} mentionValues={mentionValues} content={preSavedContent} />
+        <RichTextEditor
+          mode={mode3}
+          mentionValues={mentionValues}
+          content={preSavedContent}
+          getMarkdownRef={getMarkdownRef3}
+          downloadPdfRef={downloadPdfRef3}
+        />
       </Block>
+
       <div className="mt-4 flex items-center gap-4">
         <Typography variant="subhead1">Standalone PDF download (no editor)</Typography>
         <Button

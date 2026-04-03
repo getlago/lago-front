@@ -6,9 +6,11 @@ import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import BlockToolbar from './BlockControls/BlockToolbar'
 import { downloadMarkdownPdf } from './common/downloadMarkdownPdf'
 import { EntityData, RichTextEditorProvider } from './common/RichTextEditorContext'
 import { getBaseExtensions } from './extensions/baseExtensions'
+import { DragHandle } from './extensions/DragHandle'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
 import {
   configureMention,
@@ -141,10 +143,11 @@ const RichTextEditor = ({
       SlashCommands.configure({ translate }),
       LinkPasteHandler,
       TemplateSelectorExtension.configure({ templates: templates ?? [] }),
+      DragHandle,
     ],
     editorProps: {
       attributes: {
-        class: 'max-w-none focus:outline-none min-h-[300px] p-4',
+        class: 'max-w-none focus:outline-none min-h-[300px] my-4 px-10',
       },
     },
     content:
@@ -196,7 +199,9 @@ const RichTextEditor = ({
     )
       return undefined
 
-    return storage.getMarkdown() as string
+    const result: unknown = storage.getMarkdown()
+
+    return typeof result === 'string' ? result : undefined
   }, [editor])
 
   // Generate preview HTML with a fresh headless editor so renderHTML() has current data.
@@ -280,7 +285,7 @@ const RichTextEditor = ({
   return (
     <RichTextEditorProvider value={contextValue}>
       <div
-        className="rich-text-editor relative h-full max-h-screen overflow-auto"
+        className="rich-text-editor group/editor relative h-full max-h-screen overflow-auto"
         data-test={RICH_TEXT_EDITOR_TEST_ID}
       >
         <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />
@@ -288,6 +293,7 @@ const RichTextEditor = ({
           <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
           <TableControls editor={editor} />
         </div>
+        <BlockToolbar editor={editor} />
       </div>
     </RichTextEditorProvider>
   )
