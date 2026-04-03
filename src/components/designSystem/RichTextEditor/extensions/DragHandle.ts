@@ -55,6 +55,12 @@ export const DragHandle = Extension.create({
         if (blockDom instanceof HTMLElement && e.dataTransfer) {
           e.dataTransfer.setDragImage(blockDom, 0, 0)
         }
+
+        editor.view.dom.classList.add('is-dragging')
+      })
+
+      handle.addEventListener('dragend', () => {
+        editor.view.dom.classList.remove('is-dragging')
       })
 
       handle.addEventListener('click', (e) => {

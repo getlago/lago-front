@@ -269,6 +269,12 @@
   @apply rounded-md bg-blue-100;
 }
 
+/* Hide selection highlight while dragging */
+.ProseMirror.is-dragging .ProseMirror-selectednode {
+  @apply opacity-40;
+  background-color: transparent;
+}
+
 /* Colored blocks padding */
 .ProseMirror [style*='background-color'] {
   @apply rounded;

@@ -96,7 +96,7 @@ const ColorPicker = ({
             title="Clear background"
             onClick={() => onSelectBackground(null)}
           >
-            <Icon name="close-circle-unfilled" size="small" />
+            <Icon name="close-circle-unfilled" />
           </button>
           {BG_COLORS.map((color) => (
             <button

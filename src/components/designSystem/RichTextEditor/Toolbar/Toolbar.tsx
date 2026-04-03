@@ -288,7 +288,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
               tooltip={translate('text_1774862470019yaqfus5r0ne')}
               isActive={!!editorState.highlightColor || !!editorState.textColor}
             >
-              <Icon name="sparkles-base" />
+              <Icon name="text-color" />
             </ToolbarButton>
           }
         >
