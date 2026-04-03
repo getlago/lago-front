@@ -9,7 +9,8 @@ import {
   FORM_DIALOG_NAME,
 } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
-import { MemberForEditRoleForDialogFragment } from '~/generated/graphql'
+import { addToast } from '~/core/apolloClient'
+import { LagoApiError, MemberForEditRoleForDialogFragment } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { EDIT_MEMBER_ROLE_FORM_ID, useEditMemberRoleDialog } from '../EditMemberRoleDialog'
@@ -371,14 +372,16 @@ describe('EditMemberRoleDialog', () => {
       await user.click(screen.getByText(/edit role/i))
 
       await waitFor(() => {
-        expect(mockUpdateMembershipRole).toHaveBeenCalledWith({
-          variables: {
-            input: {
-              roles: ['finance'],
-              id: MEMBER_ID,
+        expect(mockUpdateMembershipRole).toHaveBeenCalledWith(
+          expect.objectContaining({
+            variables: {
+              input: {
+                roles: ['finance'],
+                id: MEMBER_ID,
+              },
             },
-          },
-        })
+          }),
+        )
       })
     })
 
@@ -417,6 +420,86 @@ describe('EditMemberRoleDialog', () => {
       await user.click(screen.getByText(/edit role/i))
 
       // Dialog should stay open (closeOnError: false)
+      await waitFor(() => {
+        expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    it('passes silentErrorCodes with LastAdmin to the mutation context', async () => {
+      const user = userEvent.setup()
+
+      mockUpdateMembershipRole.mockResolvedValue({
+        data: {
+          updateMembership: {
+            id: MEMBER_ID,
+            roles: ['Finance'],
+          },
+        },
+      })
+
+      await prepare()
+      await selectRole(user, 'finance')
+
+      await user.click(screen.getByText(/edit role/i))
+
+      await waitFor(() => {
+        expect(mockUpdateMembershipRole).toHaveBeenCalledWith(
+          expect.objectContaining({
+            context: { silentErrorCodes: [LagoApiError.LastAdmin] },
+          }),
+        )
+      })
+    })
+
+    it('shows a danger toast when the LastAdmin error is returned', async () => {
+      const user = userEvent.setup()
+
+      mockUpdateMembershipRole.mockResolvedValue({
+        data: null,
+        errors: [
+          {
+            extensions: {
+              code: 'last_admin',
+            },
+            message: 'last_admin',
+          },
+        ],
+      })
+
+      await prepare()
+      await selectRole(user, 'finance')
+
+      await user.click(screen.getByText(/edit role/i))
+
+      await waitFor(() => {
+        expect(addToast).toHaveBeenCalledWith(
+          expect.objectContaining({
+            severity: 'danger',
+          }),
+        )
+      })
+    })
+
+    it('keeps the dialog open when the LastAdmin error is returned', async () => {
+      const user = userEvent.setup()
+
+      mockUpdateMembershipRole.mockResolvedValue({
+        data: null,
+        errors: [
+          {
+            extensions: {
+              code: 'last_admin',
+            },
+            message: 'last_admin',
+          },
+        ],
+      })
+
+      await prepare()
+      await selectRole(user, 'finance')
+
+      await user.click(screen.getByText(/edit role/i))
+
       await waitFor(() => {
         expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
       })

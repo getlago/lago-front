@@ -37,6 +37,7 @@ export const typeDefs = gql`
     value_is_duplicated
     value_is_invalid
     value_is_out_of_range
+    last_admin
 
     # Object not found
     missing_payment_provider_customer
