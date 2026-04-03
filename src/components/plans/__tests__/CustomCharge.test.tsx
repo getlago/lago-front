@@ -10,7 +10,7 @@ import { CUSTOM_CHARGE_JSON_EDITOR_TEST_ID, CustomCharge } from '../CustomCharge
 // --- Mocks ---
 
 const mockSetFieldValue = jest.fn()
-const mockOpenDrawer = jest.fn()
+const mockOnExpandCustomCharge = jest.fn()
 
 jest.mock('~/contexts/ChargeFormContext', () => ({
   useChargeFormContext: jest.fn(),
@@ -29,39 +29,15 @@ jest.mock('~/components/form', () => ({
       data-disabled={String(props.disabled)}
       data-value={props.value as string | undefined}
     >
-      <button
-        data-test="mock-json-editor-expand"
-        onClick={() => (props.onExpand as () => void)?.()}
-      />
+      {!!props.onExpand && (
+        <button
+          data-test="mock-json-editor-expand"
+          onClick={() => (props.onExpand as () => void)?.()}
+        />
+      )}
     </div>
   ),
 }))
-
-jest.mock('~/components/plans/EditCustomChargeDrawer', () => {
-  const React = jest.requireActual('react')
-
-  const MockEditCustomChargeDrawer = React.forwardRef(
-    (props: { onSubmit: (value: string) => void }, ref: unknown) => {
-      React.useImperativeHandle(ref, () => ({
-        openDrawer: mockOpenDrawer,
-        closeDrawer: jest.fn(),
-      }))
-
-      return (
-        <div data-test="mock-edit-custom-charge-drawer">
-          <button
-            data-test="mock-drawer-submit"
-            onClick={() => props.onSubmit('{"key":"value"}')}
-          />
-        </div>
-      )
-    },
-  )
-
-  MockEditCustomChargeDrawer.displayName = 'EditCustomChargeDrawer'
-
-  return { EditCustomChargeDrawer: MockEditCustomChargeDrawer }
-})
 
 const mockedUseChargeFormContext = useChargeFormContext as jest.MockedFunction<
   typeof useChargeFormContext
@@ -99,33 +75,25 @@ describe('CustomCharge', () => {
       it('THEN should render the JSON editor wrapper', () => {
         render(<CustomCharge />)
 
-        const wrapper = screen.getByTestId(CUSTOM_CHARGE_JSON_EDITOR_TEST_ID)
-
-        expect(wrapper).toBeInTheDocument()
+        expect(screen.getByTestId(CUSTOM_CHARGE_JSON_EDITOR_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should render the JSON editor with the correct name', () => {
         render(<CustomCharge />)
 
-        const editor = screen.getByTestId('mock-json-editor')
-
-        expect(editor).toHaveAttribute('data-name', 'properties.customProperties')
+        expect(screen.getByTestId('mock-json-editor')).toHaveAttribute(
+          'data-name',
+          'properties.customProperties',
+        )
       })
 
       it('THEN should render the JSON editor with the current value', () => {
         render(<CustomCharge />)
 
-        const editor = screen.getByTestId('mock-json-editor')
-
-        expect(editor).toHaveAttribute('data-value', '{"test": true}')
-      })
-
-      it('THEN should render the edit drawer', () => {
-        render(<CustomCharge />)
-
-        const drawer = screen.getByTestId('mock-edit-custom-charge-drawer')
-
-        expect(drawer).toBeInTheDocument()
+        expect(screen.getByTestId('mock-json-editor')).toHaveAttribute(
+          'data-value',
+          '{"test": true}',
+        )
       })
     })
 
@@ -133,9 +101,7 @@ describe('CustomCharge', () => {
       it('THEN should render the JSON editor as enabled', () => {
         render(<CustomCharge />)
 
-        const editor = screen.getByTestId('mock-json-editor')
-
-        expect(editor).toHaveAttribute('data-disabled', 'false')
+        expect(screen.getByTestId('mock-json-editor')).toHaveAttribute('data-disabled', 'false')
       })
     })
 
@@ -145,44 +111,38 @@ describe('CustomCharge', () => {
 
         render(<CustomCharge />)
 
-        const editor = screen.getByTestId('mock-json-editor')
-
-        expect(editor).toHaveAttribute('data-disabled', 'true')
-      })
-    })
-  })
-
-  describe('GIVEN the drawer submit callback', () => {
-    describe('WHEN the drawer submits a value', () => {
-      it('THEN should update the form field with the submitted value', async () => {
-        const user = userEvent.setup()
-
-        render(<CustomCharge />)
-
-        const submitButton = screen.getByTestId('mock-drawer-submit')
-        await user.click(submitButton)
-
-        expect(mockSetFieldValue).toHaveBeenCalledWith(
-          'properties.customProperties',
-          '{"key":"value"}',
-        )
+        expect(screen.getByTestId('mock-json-editor')).toHaveAttribute('data-disabled', 'true')
       })
     })
   })
 
   describe('GIVEN the JSON editor expand action', () => {
     describe('WHEN the expand button is clicked', () => {
-      it('THEN should open the drawer with the current custom properties', async () => {
+      it('THEN should call onExpandCustomCharge with current value', async () => {
         const user = userEvent.setup()
+
+        render(<CustomCharge onExpandCustomCharge={mockOnExpandCustomCharge} />)
+
+        await user.click(screen.getByTestId('mock-json-editor-expand'))
+
+        expect(mockOnExpandCustomCharge).toHaveBeenCalledWith('{"test": true}')
+      })
+    })
+
+    describe('WHEN onExpandCustomCharge is not provided', () => {
+      it('THEN should not render the expand button', () => {
+        mockedUseChargeFormContext.mockReturnValue({
+          form: { setFieldValue: mockSetFieldValue },
+          propertyCursor: 'properties',
+          currency: CurrencyEnum.Usd,
+          disabled: false,
+          chargePricingUnitShortName: undefined,
+        })
+        mockedUsePropertyValues.mockReturnValue({ customProperties: '{}' })
 
         render(<CustomCharge />)
 
-        const expandButton = screen.getByTestId('mock-json-editor-expand')
-        await user.click(expandButton)
-
-        expect(mockOpenDrawer).toHaveBeenCalledWith({
-          customProperties: '{"test": true}',
-        })
+        expect(screen.queryByTestId('mock-json-editor-expand')).not.toBeInTheDocument()
       })
     })
   })

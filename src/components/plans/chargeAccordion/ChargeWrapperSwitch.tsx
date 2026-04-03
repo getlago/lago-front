@@ -26,6 +26,7 @@ interface ChargeWrapperSwitchProps {
   localCharge: LocalFixedChargeInput | LocalUsageChargeInput
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
   propertyCursor: string
+  onExpandCustomCharge?: (currentValue: string | undefined) => void
 }
 
 export const ChargeWrapperSwitch = memo(
@@ -38,6 +39,7 @@ export const ChargeWrapperSwitch = memo(
     localCharge,
     premiumWarningDialogRef,
     propertyCursor,
+    onExpandCustomCharge,
   }: ChargeWrapperSwitchProps) => {
     const isUsageCharge = chargeType === 'usage'
 
@@ -60,7 +62,9 @@ export const ChargeWrapperSwitch = memo(
             <ChargePercentage premiumWarningDialogRef={premiumWarningDialogRef} />
           )}
           {localCharge?.chargeModel === ALL_CHARGE_MODELS.Volume && <VolumeChargeTable />}
-          {localCharge?.chargeModel === ALL_CHARGE_MODELS.Custom && <CustomCharge />}
+          {localCharge?.chargeModel === ALL_CHARGE_MODELS.Custom && (
+            <CustomCharge onExpandCustomCharge={onExpandCustomCharge} />
+          )}
           {localCharge?.chargeModel === ALL_CHARGE_MODELS.Dynamic && <DynamicCharge />}
 
           {isUsageCharge && <PricingGroupKeys />}
