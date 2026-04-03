@@ -133,18 +133,18 @@ export const CommitmentsSection = ({ form }: CommitmentsSectionProps) => {
           startIcon="plus"
           data-test={ADD_MINIMUM_COMMITMENT_TEST_ID}
           onClick={() => {
-            minimumCommitmentDrawerRef.current?.openDrawer({
-              amountCents: '',
-              invoiceDisplayName: undefined,
-              taxes: [],
-            })
+            minimumCommitmentDrawerRef.current?.openDrawer()
           }}
         >
           {translate('text_6661ffe746c680007e2df0e1')}
         </Button>
       )}
 
-      <MinimumCommitmentDrawer ref={minimumCommitmentDrawerRef} onSave={handleDrawerSave} />
+      <MinimumCommitmentDrawer
+        ref={minimumCommitmentDrawerRef}
+        onSave={handleDrawerSave}
+        onDelete={() => form.setFieldValue('minimumCommitment', {})}
+      />
     </CenteredPage.PageSection>
   )
 }

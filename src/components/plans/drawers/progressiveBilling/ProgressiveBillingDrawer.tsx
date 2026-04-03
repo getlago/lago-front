@@ -31,6 +31,7 @@ export const ProgressiveBillingDrawer = forwardRef<
   const { currency, interval } = usePlanFormContext()
   const progressiveBillingDrawer = useDrawer()
   const isEditModeRef = useRef(false)
+  const initialDisplayRecurringRef = useRef(false)
 
   const form = useAppForm({
     defaultValues: DEFAULT_VALUES,
@@ -48,26 +49,19 @@ export const ProgressiveBillingDrawer = forwardRef<
     form.handleSubmit()
   }
 
-  const handleDelete = () => {
-    progressiveBillingDrawer.close()
-    onDelete?.()
-  }
-
-  const openDrawer = (values?: ProgressiveBillingFormValues) => {
-    const resetValues = values ?? DEFAULT_VALUES
-
-    isEditModeRef.current = !!values
-
-    form.reset(resetValues, { keepDefaultValues: true })
-
+  const openProgressiveBillingDrawer = () => {
     const showDelete = isEditModeRef.current && !!onDelete
+
+    const handleDelete = () => {
+      progressiveBillingDrawer.close()
+      onDelete?.()
+    }
 
     progressiveBillingDrawer.open({
       title: translate('text_1724179887722baucvj7bvc1'),
       shouldPromptOnClose: () => form.state.isDirty,
       onClose: () => form.reset(),
       onEntered: () => {
-        // Focus the first amount input in the threshold table
         const firstInput = document.querySelector(
           '[data-test="base-drawer-paper"]:last-child input',
         ) as HTMLInputElement
@@ -78,7 +72,7 @@ export const ProgressiveBillingDrawer = forwardRef<
         <PlanFormProvider currency={currency} interval={interval}>
           <ProgressiveBillingDrawerContent
             form={form}
-            initialDisplayRecurring={!!resetValues.recurringUsageThreshold}
+            initialDisplayRecurring={!!initialDisplayRecurringRef.current}
           />
         </PlanFormProvider>
       ),
@@ -105,7 +99,11 @@ export const ProgressiveBillingDrawer = forwardRef<
                   onClick={handleFormSubmit}
                   disabled={!canSubmit}
                 >
-                  {translate('text_17295436903260tlyb1gp1i7')}
+                  {translate(
+                    isEditModeRef.current
+                      ? 'text_17295436903260tlyb1gp1i7'
+                      : 'text_1775225915210s2oemt3bl21',
+                  )}
                 </Button>
               )}
             </form.Subscribe>
@@ -116,7 +114,16 @@ export const ProgressiveBillingDrawer = forwardRef<
   }
 
   useImperativeHandle(ref, () => ({
-    openDrawer,
+    openDrawer: (values?: ProgressiveBillingFormValues) => {
+      const resetValues = values ?? DEFAULT_VALUES
+
+      isEditModeRef.current = !!values
+      initialDisplayRecurringRef.current = !!resetValues.recurringUsageThreshold
+
+      form.reset(resetValues, { keepDefaultValues: true })
+
+      openProgressiveBillingDrawer()
+    },
     closeDrawer: () => {
       progressiveBillingDrawer.close()
     },

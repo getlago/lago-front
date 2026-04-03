@@ -105,9 +105,16 @@ export const ChargeFilterDrawerContent = withForm({
 
     return (
       <CenteredPage.SectionWrapper>
+        <CenteredPage.PageTitle
+          title={translate('text_1775224273133nknw87pe452')}
+          description={translate('text_17752242731358qz2plquz03')}
+        />
+
         <CenteredPage.SubsectionWrapper>
           {/* Filter values */}
           <CenteredPage.PageSection>
+            <CenteredPage.PageSectionTitle title={translate('text_1775224273135in4rkde36k7')} />
+
             <ChargeFilter
               filter={filter}
               chargeIndex={chargeIndex}

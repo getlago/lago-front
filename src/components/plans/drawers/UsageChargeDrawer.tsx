@@ -368,7 +368,11 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
                     onClick={handleFormSubmit}
                     disabled={!canSubmit}
                   >
-                    {translate('text_17295436903260tlyb1gp1i7')}
+                    {translate(
+                      isCreateModeRef.current
+                        ? 'text_1775225915209vpdyh1dvrm5'
+                        : 'text_17295436903260tlyb1gp1i7',
+                    )}
                   </Button>
                 )}
               </form.Subscribe>

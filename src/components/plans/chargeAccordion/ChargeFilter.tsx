@@ -107,7 +107,7 @@ export const ChargeFilter = memo(
     }, [showComboBox])
 
     return (
-      <div className="flex flex-col gap-3 p-4">
+      <div className="flex flex-col gap-3">
         <Typography variant="captionHl" color="grey700">
           {translate('text_65f8472df7593301061e27d3')}
         </Typography>

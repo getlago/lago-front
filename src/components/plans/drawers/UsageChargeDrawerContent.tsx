@@ -451,7 +451,9 @@ export const UsageChargeDrawerContent = withForm({
                     loading={isSubmitting}
                     onClick={() => filterForm.handleSubmit()}
                   >
-                    {translate('text_17295436903260tlyb1gp1i7')}
+                    {translate(
+                      isEdit ? 'text_17295436903260tlyb1gp1i7' : 'text_66ab42d4ece7e6b7078993b9',
+                    )}
                   </Button>
                 )}
               </filterForm.Subscribe>

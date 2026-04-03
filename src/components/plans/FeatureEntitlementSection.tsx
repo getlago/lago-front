@@ -151,6 +151,12 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({ 
         ref={featureEntitlementDrawerRef}
         existingFeatureCodes={entitlements?.map((e) => e.featureCode) || []}
         onSave={handleDrawerSave}
+        onDelete={(featureCode) => {
+          form.setFieldValue(
+            'entitlements',
+            form.state.values.entitlements.filter((e) => e.featureCode !== featureCode),
+          )
+        }}
       />
     </CenteredPage.PageSection>
   )

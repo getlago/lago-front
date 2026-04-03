@@ -3986,5 +3986,12 @@
   "text_1773693201084rlj6btz4xe1": "Filter already used in the plan, customers will be charged several times.",
   "text_1773950414511euzjefq877r": "{{thresholdCount}} threshold defined|{{thresholdCount}} thresholds defined",
   "text_177488074309762bkd4znl3p": "Prorate amount",
-  "text_1774880743098ioxd3oxanxo": "Price is prorated based on the fee start and end dates within the billing period."
+  "text_1774880743098ioxd3oxanxo": "Price is prorated based on the fee start and end dates within the billing period.",
+  "text_1775224273133nknw87pe452": "Charge filter",
+  "text_17752242731358qz2plquz03": "Define charge filters to narrow down a charge definition and apply pricing accordingly.",
+  "text_1775224273135in4rkde36k7": "Filter definition",
+  "text_1775225915209vpdyh1dvrm5": "Add charge",
+  "text_1775225915210r5vkxkn0mvx": "Add minimum commitment",
+  "text_1775225915210g1crmnurgor": "Add entitlement",
+  "text_1775225915210s2oemt3bl21": "Add progressive billing"
 }
