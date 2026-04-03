@@ -96,18 +96,14 @@ describe('CommitmentsSection', () => {
     })
 
     describe('WHEN the add button is clicked', () => {
-      it('THEN should open the drawer with empty values', async () => {
+      it('THEN should open the drawer without values (add mode)', async () => {
         const user = userEvent.setup()
 
         render(<CommitmentsSection {...defaultProps} />)
 
         await user.click(screen.getByTestId(ADD_MINIMUM_COMMITMENT_TEST_ID))
 
-        expect(mockOpenDrawer).toHaveBeenCalledWith({
-          amountCents: '',
-          invoiceDisplayName: undefined,
-          taxes: [],
-        })
+        expect(mockOpenDrawer).toHaveBeenCalledWith()
       })
     })
   })

@@ -98,9 +98,7 @@ export const SubscriptionFeeDrawer = forwardRef<
 
             <CenteredPage.SubsectionWrapper>
               <CenteredPage.PageSection>
-                <CenteredPage.PageSectionTitle
-                  title={translate('text_177196303346655qni6k55jr')}
-                />
+                <CenteredPage.PageSectionTitle title={translate('text_177196303346655qni6k55jr')} />
 
                 <form.AppField name="amountCents">
                   {(field) => (
@@ -121,9 +119,7 @@ export const SubscriptionFeeDrawer = forwardRef<
               </CenteredPage.PageSection>
 
               <CenteredPage.PageSection>
-                <CenteredPage.PageSectionTitle
-                  title={translate('text_17423672025282dl7iozy1ru')}
-                />
+                <CenteredPage.PageSectionTitle title={translate('text_17423672025282dl7iozy1ru')} />
 
                 <form.AppField name="invoiceDisplayName">
                   {(field) => (

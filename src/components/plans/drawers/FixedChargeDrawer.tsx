@@ -22,7 +22,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import { DEFAULT_VALUES, type FixedChargeDrawerFormValues } from './fixedChargeConstants'
+import { DEFAULT_VALUES } from './fixedChargeConstants'
 import { FixedChargeDrawerContent } from './FixedChargeDrawerContent'
 
 export { type FixedChargeDrawerFormValues, DEFAULT_VALUES } from './fixedChargeConstants'

@@ -94,10 +94,7 @@ export const FeatureEntitlementDrawer = forwardRef<
         }
       },
       children: (
-        <FeatureEntitlementDrawerContent
-          form={form}
-          existingFeatureCodes={existingFeatureCodes}
-        />
+        <FeatureEntitlementDrawerContent form={form} existingFeatureCodes={existingFeatureCodes} />
       ),
       actions: (
         <div

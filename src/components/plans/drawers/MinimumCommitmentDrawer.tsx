@@ -106,9 +106,7 @@ export const MinimumCommitmentDrawer = forwardRef<
 
             <CenteredPage.SubsectionWrapper>
               <CenteredPage.PageSection>
-                <CenteredPage.PageSectionTitle
-                  title={translate('text_1773346168045bj2x1626228')}
-                />
+                <CenteredPage.PageSectionTitle title={translate('text_1773346168045bj2x1626228')} />
 
                 <PlanBillingPeriodInfoSection />
 
@@ -131,9 +129,7 @@ export const MinimumCommitmentDrawer = forwardRef<
               </CenteredPage.PageSection>
 
               <CenteredPage.PageSection>
-                <CenteredPage.PageSectionTitle
-                  title={translate('text_17423672025282dl7iozy1ru')}
-                />
+                <CenteredPage.PageSectionTitle title={translate('text_17423672025282dl7iozy1ru')} />
 
                 <form.AppField name="invoiceDisplayName">
                   {(field) => (

@@ -1,54 +1,15 @@
 import { render } from '@testing-library/react'
-import { createRef } from 'react'
 
 import { PrivilegeValueTypeEnum } from '~/generated/graphql'
 import { useFieldContext } from '~/hooks/forms/formContext'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
-import {
-  FeatureEntitlementDrawer,
-  FeatureEntitlementDrawerRef,
-  FeatureEntitlementFormValues,
-} from '../FeatureEntitlementDrawer'
+import { type FeatureEntitlementFormValues } from '../featureEntitlementConstants'
+import { FeatureEntitlementDrawerContent } from '../FeatureEntitlementDrawerContent'
 
 // --- Mocks ---
 
-const mockDrawerCloseDrawer = jest.fn()
-
-jest.mock('~/components/designSystem/Drawer', () => {
-  const React = jest.requireActual('react')
-
-  const MockDrawer = React.forwardRef(
-    (
-      {
-        children,
-        stickyBottomBar,
-      }: {
-        children: unknown
-        onClose?: () => void
-        showCloseWarningDialog?: boolean
-        stickyBottomBar?: (args: { closeDrawer: () => void }) => React.ReactNode
-      },
-      ref: unknown,
-    ) => {
-      React.useImperativeHandle(ref, () => ({
-        openDrawer: jest.fn(),
-        closeDrawer: mockDrawerCloseDrawer,
-      }))
-
-      return (
-        <div data-test="mocked-drawer">
-          {typeof children === 'function' ? children({ closeDrawer: jest.fn() }) : children}
-          {typeof stickyBottomBar === 'function' &&
-            stickyBottomBar({ closeDrawer: mockDrawerCloseDrawer })}
-        </div>
-      )
-    },
-  )
-
-  MockDrawer.displayName = 'Drawer'
-
-  return { Drawer: MockDrawer }
-})
+// --- Mocks ---
 
 const mockTranslate = jest.fn((key: string) => `translated_${key}`)
 
@@ -361,9 +322,6 @@ const createFieldCtx = (name: string, value: unknown, errors: { message: string 
 const mockedUseFieldContext = useFieldContext as jest.Mock
 
 describe('PrivilegesTable', () => {
-  const mockOnSave = jest.fn()
-  let drawerRef: React.RefObject<FeatureEntitlementDrawerRef>
-
   const defaultFormValues: FeatureEntitlementFormValues = {
     featureId: 'feature-1',
     featureName: 'Feature One',
@@ -379,11 +337,22 @@ describe('PrivilegesTable', () => {
     config: undefined,
   }
 
+  const renderContent = (overrides?: Partial<FeatureEntitlementFormValues>) => {
+    if (overrides) {
+      mockFormValuesOverride = { ...defaultFormValues, ...overrides }
+    }
+
+    const form = (useAppForm as jest.Mock)({
+      defaultValues: defaultFormValues,
+    })
+
+    return render(<FeatureEntitlementDrawerContent form={form} existingFeatureCodes={[]} />)
+  }
+
   beforeEach(() => {
     jest.clearAllMocks()
     mockAppFieldChildren = new Map()
     mockFormValuesOverride = null
-    drawerRef = createRef<FeatureEntitlementDrawerRef>()
     mockedUseFieldContext.mockReturnValue(createFieldCtx('testField', ''))
   })
 
@@ -401,13 +370,7 @@ describe('PrivilegesTable', () => {
           privileges: [privilegeRow],
         }
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         expect(container.querySelector('[data-test="mocked-charge-table"]')).toBeTruthy()
       })
@@ -417,13 +380,7 @@ describe('PrivilegesTable', () => {
       it('THEN should not render the ChargeTable', () => {
         mockFormValuesOverride = { ...defaultFormValues, privileges: [] }
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         expect(container.querySelector('[data-test="mocked-charge-table"]')).toBeNull()
       })
@@ -442,13 +399,7 @@ describe('PrivilegesTable', () => {
           privileges: [privilegeRow, secondPrivilege],
         }
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const deleteBtn = container.querySelector('[data-test="delete-row-0"]') as HTMLButtonElement
 
@@ -470,13 +421,7 @@ describe('PrivilegesTable', () => {
           privileges: [privilegeRow, secondPrivilege],
         }
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const deleteBtn = container.querySelector('[data-test="delete-row-1"]') as HTMLButtonElement
 
@@ -505,13 +450,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', ''))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const textInput = container.querySelector('[data-test="mocked-text-input"]')
 
@@ -532,13 +471,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', ''))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const textInput = container.querySelector('[data-test="mocked-text-input"]')
 
@@ -560,13 +493,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', ''))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const textInput = container.querySelector('[data-test="mocked-text-input"]')
 
@@ -588,13 +515,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', ''))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const textInput = container.querySelector('[data-test="mocked-text-input"]')
 
@@ -615,13 +536,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', ''))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const textInput = container.querySelector('[data-test="mocked-text-input"]')
 
@@ -646,13 +561,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', ''))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const comboBox = container.querySelector('[data-test="mocked-combobox"]')
 
@@ -675,13 +584,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', ''))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const comboBox = container.querySelector('[data-test="mocked-combobox"]')
 
@@ -705,13 +608,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', 'option_a'))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const comboBox = container.querySelector('[data-test="mocked-combobox"]')
 
@@ -732,13 +629,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', ''))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const comboBox = container.querySelector('[data-test="mocked-combobox"]')
 
@@ -761,13 +652,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', ''))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const comboBox = container.querySelector('[data-test="mocked-combobox"]')
 
@@ -788,13 +673,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', ''))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const comboBox = container.querySelector('[data-test="mocked-combobox"]')
 
@@ -822,13 +701,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', '', []))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const tooltip = container.querySelector(
           '[data-test="charge-table-cell-0-1"] [data-test="mocked-tooltip"]',
@@ -856,13 +729,7 @@ describe('PrivilegesTable', () => {
           createFieldCtx('privileges[0].value', '', [{ message: 'text_1771342994699klxu2paz7g8' }]),
         )
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const tooltip = container.querySelector(
           '[data-test="charge-table-cell-0-1"] [data-test="mocked-tooltip"]',
@@ -893,13 +760,7 @@ describe('PrivilegesTable', () => {
           createFieldCtx('privileges[0].value', '', [{ message: 'text_1771342994699klxu2paz7g8' }]),
         )
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const tooltip = container.querySelector(
           '[data-test="charge-table-cell-0-1"] [data-test="mocked-tooltip"]',
@@ -929,13 +790,7 @@ describe('PrivilegesTable', () => {
           createFieldCtx('privileges[0].value', '', [{ message: 'text_1771342994699klxu2paz7g8' }]),
         )
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const tooltip = container.querySelector(
           '[data-test="charge-table-cell-0-1"] [data-test="mocked-tooltip"]',
@@ -964,13 +819,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', '', []))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const tooltip = container.querySelector(
           '[data-test="charge-table-cell-0-1"] [data-test="mocked-tooltip"]',
@@ -998,13 +847,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', ''))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const tooltip = container.querySelector(
           '[data-test="charge-table-cell-0-1"] [data-test="mocked-tooltip"]',
@@ -1038,13 +881,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', ''))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         // Row 0 should have TextInputField (String type)
         const row0Cell = container.querySelector('[data-test="charge-table-cell-0-1"]')
@@ -1077,13 +914,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', ''))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const comboBoxTrigger = container.querySelector(
           '[data-test="charge-table-cell-0-1"] [data-test="combobox-trigger"]',
@@ -1110,13 +941,7 @@ describe('PrivilegesTable', () => {
 
         mockedUseFieldContext.mockReturnValue(createFieldCtx('privileges[0].value', ''))
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const comboBoxTrigger = container.querySelector(
           '[data-test="charge-table-cell-0-1"] [data-test="combobox-trigger"]',
@@ -1149,13 +974,7 @@ describe('PrivilegesTable', () => {
           createFieldCtx('privileges[0].value', '', [{ message: 'text_1771342994699klxu2paz7g8' }]),
         )
 
-        const { container } = render(
-          <FeatureEntitlementDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            existingFeatureCodes={[]}
-          />,
-        )
+        const { container } = renderContent()
 
         const tooltip = container.querySelector(
           '[data-test="charge-table-cell-0-1"] [data-test="mocked-tooltip"]',

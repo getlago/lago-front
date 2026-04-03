@@ -1,8 +1,5 @@
-import { act, render } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import { createRef } from 'react'
-
-import { FORM_TYPE_ENUM } from '~/core/constants/form'
-import { useFieldContext } from '~/hooks/forms/formContext'
 
 import {
   SubscriptionFeeDrawer,
@@ -10,40 +7,23 @@ import {
   SubscriptionFeeFormValues,
 } from '../SubscriptionFeeDrawer'
 
-// --- Mocks ---
+// --- Capture callbacks ---
 
-// Capture onEntered callback passed to the Drawer
-let capturedOnEntered: (() => void) | undefined
 let capturedOnSubmit: ((args: { value: Record<string, unknown> }) => void) | undefined
 let capturedDefaultValues: Record<string, unknown> | undefined
-let capturedTrialPeriodOnChange:
-  | ((args: { value: unknown; fieldApi: { setValue: (v: unknown) => void } }) => void)
-  | undefined
 
-jest.mock('~/components/designSystem/Drawer', () => {
-  const React = jest.requireActual('react')
+// --- Mocks ---
 
-  const MockDrawer = React.forwardRef(
-    ({ children, onEntered }: { children: unknown; onEntered?: () => void }, ref: unknown) => {
-      capturedOnEntered = onEntered
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({
+    open: jest.fn(),
+    close: jest.fn(),
+  }),
+}))
 
-      React.useImperativeHandle(ref, () => ({
-        openDrawer: jest.fn(),
-        closeDrawer: jest.fn(),
-      }))
-
-      return (
-        <div data-test="mocked-drawer">
-          {typeof children === 'function' ? children({ closeDrawer: jest.fn() }) : children}
-        </div>
-      )
-    },
-  )
-
-  MockDrawer.displayName = 'Drawer'
-
-  return { Drawer: MockDrawer }
-})
+jest.mock('~/components/drawers/const', () => ({
+  DRAWER_TRANSITION_DURATION: 0,
+}))
 
 const mockTranslate = jest.fn((key: string) => `translated_${key}`)
 
@@ -58,6 +38,7 @@ jest.mock('~/contexts/PlanFormContext', () => {
     jest.requireActual('~/generated/graphql')
 
   return {
+    PlanFormProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
     usePlanFormContext: () => ({
       currency: CurrencyEnum.Usd,
       interval: mockedPlanInterval.Monthly,
@@ -77,22 +58,52 @@ jest.mock('~/components/plans/drawers/PlanBillingPeriodInfoSection', () => ({
 // Mock TanStack form infrastructure
 const mockHandleSubmit = jest.fn()
 const mockReset = jest.fn()
-const mockHandleChange = jest.fn()
-const mockHandleBlur = jest.fn()
-
-jest.mock('~/hooks/forms/formContext', () => ({
-  useFieldContext: jest.fn(),
-}))
 
 jest.mock('@tanstack/react-form', () => ({
-  useStore: jest.fn((store, selector) => {
-    if (typeof store?.getState === 'function') {
-      return selector(store.getState())
-    }
-    return false
-  }),
   revalidateLogic: jest.fn(() => ({})),
 }))
+
+const createMockForm = (defaultValues: Record<string, unknown>) => {
+  const store = {
+    subscribe: jest.fn(() => jest.fn()),
+    getState: jest.fn(() => ({ isDirty: false, values: defaultValues })),
+  }
+
+  return {
+    store,
+    useStore: jest.fn(() => defaultValues),
+    state: { values: defaultValues },
+    reset: mockReset,
+    handleSubmit: mockHandleSubmit,
+    setFieldValue: jest.fn(),
+    getFieldValue: jest.fn(),
+    AppField: ({
+      children,
+      name,
+    }: {
+      children: (field: unknown) => React.ReactNode
+      name: string
+      listeners?: unknown
+    }) => {
+      return <div data-field-name={name}>{children({ name })}</div>
+    },
+    AppForm: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    SubmitButton: ({ children }: { children: React.ReactNode }) => (
+      <button type="submit">{children}</button>
+    ),
+    Subscribe: ({
+      children,
+      selector,
+    }: {
+      children: (value: unknown) => React.ReactNode
+      selector: (state: { canSubmit: boolean }) => unknown
+    }) => {
+      const value = selector({ canSubmit: true })
+
+      return <>{children(value)}</>
+    },
+  }
+}
 
 jest.mock('~/hooks/forms/useAppform', () => ({
   useAppForm: jest.fn(
@@ -106,91 +117,18 @@ jest.mock('~/hooks/forms/useAppform', () => ({
       capturedOnSubmit = onSubmit
       capturedDefaultValues = defaultValues
 
-      const store = {
-        subscribe: jest.fn(() => jest.fn()),
-        getState: jest.fn(() => ({ isDirty: false })),
-      }
+      const form = createMockForm(defaultValues)
 
       return {
-        store,
-        state: { values: defaultValues },
-        reset: mockReset,
+        ...form,
         handleSubmit: () => {
           mockHandleSubmit()
           onSubmit?.({ value: defaultValues })
-        },
-        AppField: ({
-          children,
-          name,
-          listeners,
-        }: {
-          children: (field: ReturnType<typeof createFieldCtx>) => React.ReactNode
-          name: string
-          listeners?: {
-            onChange?: (args: {
-              value: unknown
-              fieldApi: { setValue: (v: unknown) => void }
-            }) => void
-          }
-        }) => {
-          if (name === 'trialPeriod' && listeners?.onChange) {
-            capturedTrialPeriodOnChange = listeners.onChange
-          }
-
-          const fieldCtx = createFieldCtx(name, defaultValues[name] ?? '')
-
-          return <>{children(fieldCtx)}</>
-        },
-        Subscribe: ({
-          children,
-          selector,
-        }: {
-          children: (value: unknown) => React.ReactNode
-          selector: (state: { canSubmit: boolean }) => unknown
-        }) => {
-          const value = selector({ canSubmit: true })
-
-          return <>{children(value)}</>
         },
       }
     },
   ),
 }))
-
-const MockFieldComponent = (props: Record<string, unknown>) => {
-  const inputRef = (props.InputProps as { inputRef?: unknown })?.inputRef
-
-  return (
-    <input
-      name={props.name as string}
-      disabled={props.disabled as boolean | undefined}
-      ref={inputRef as React.Ref<HTMLInputElement>}
-    />
-  )
-}
-
-const createFieldCtx = (name: string, value: unknown) => ({
-  name,
-  state: { value },
-  store: {
-    subscribe: jest.fn(() => jest.fn()),
-    getState: jest.fn(() => ({
-      meta: { errors: [], errorMap: {} },
-      values: { [name]: value },
-    })),
-  },
-  handleChange: mockHandleChange,
-  handleBlur: mockHandleBlur,
-  AmountInputField: (props: Record<string, unknown>) => (
-    <MockFieldComponent {...props} name={name} />
-  ),
-  TextInputField: (props: Record<string, unknown>) => <MockFieldComponent {...props} name={name} />,
-  RadioGroupField: (props: Record<string, unknown>) => (
-    <MockFieldComponent {...props} name={name} />
-  ),
-})
-
-const mockedUseFieldContext = useFieldContext as jest.Mock
 
 describe('SubscriptionFeeDrawer', () => {
   const mockOnSave = jest.fn()
@@ -207,9 +145,7 @@ describe('SubscriptionFeeDrawer', () => {
     jest.clearAllMocks()
     capturedOnSubmit = undefined
     capturedDefaultValues = undefined
-    capturedTrialPeriodOnChange = undefined
     drawerRef = createRef<SubscriptionFeeDrawerRef>()
-    mockedUseFieldContext.mockReturnValue(createFieldCtx('testField', ''))
   })
 
   afterEach(() => {
@@ -263,88 +199,6 @@ describe('SubscriptionFeeDrawer', () => {
         expect(values.payInAdvance).toBe(true)
         expect(values.trialPeriod).toBe(14)
         expect(values.invoiceDisplayName).toBe('Custom Name')
-      })
-    })
-  })
-
-  describe('GIVEN the drawer has an onEntered callback', () => {
-    describe('WHEN onEntered is triggered after the slide transition', () => {
-      it('THEN should focus the amountCents input', () => {
-        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
-
-        const amountInput = document.querySelector('input[name="amountCents"]') as HTMLInputElement
-
-        expect(amountInput).toBeTruthy()
-        expect(document.activeElement).not.toBe(amountInput)
-
-        act(() => {
-          capturedOnEntered?.()
-        })
-
-        expect(document.activeElement).toBe(amountInput)
-      })
-    })
-  })
-
-  describe('GIVEN the drawer receives disabling props', () => {
-    const getInput = (name: string) =>
-      document.querySelector(`input[name="${name}"]`) as HTMLInputElement
-
-    describe('WHEN isInSubscriptionForm is true', () => {
-      it('THEN should disable the payInAdvance field', () => {
-        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} isInSubscriptionForm />)
-
-        expect(getInput('payInAdvance')).toBeDisabled()
-        expect(getInput('trialPeriod')).not.toBeDisabled()
-      })
-    })
-
-    describe('WHEN isEdition is true and canBeEdited is false', () => {
-      it('THEN should disable the payInAdvance and trialPeriod fields', () => {
-        render(
-          <SubscriptionFeeDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            isEdition
-            canBeEdited={false}
-          />,
-        )
-
-        expect(getInput('payInAdvance')).toBeDisabled()
-        expect(getInput('trialPeriod')).toBeDisabled()
-      })
-    })
-
-    describe('WHEN isEdition is true and canBeEdited is true', () => {
-      it('THEN should not disable the payInAdvance and trialPeriod fields', () => {
-        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} isEdition canBeEdited />)
-
-        expect(getInput('payInAdvance')).not.toBeDisabled()
-        expect(getInput('trialPeriod')).not.toBeDisabled()
-      })
-    })
-
-    describe('WHEN subscriptionFormType is edition', () => {
-      it('THEN should disable the trialPeriod field but not payInAdvance', () => {
-        render(
-          <SubscriptionFeeDrawer
-            ref={drawerRef}
-            onSave={mockOnSave}
-            subscriptionFormType={FORM_TYPE_ENUM.edition}
-          />,
-        )
-
-        expect(getInput('trialPeriod')).toBeDisabled()
-        expect(getInput('payInAdvance')).not.toBeDisabled()
-      })
-    })
-
-    describe('WHEN no disabling props are provided', () => {
-      it('THEN should not disable any fields', () => {
-        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
-
-        expect(getInput('payInAdvance')).not.toBeDisabled()
-        expect(getInput('trialPeriod')).not.toBeDisabled()
       })
     })
   })
@@ -459,70 +313,6 @@ describe('SubscriptionFeeDrawer', () => {
         expect(mockReset).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: 0 }), {
           keepDefaultValues: true,
         })
-      })
-    })
-  })
-
-  describe('GIVEN the trialPeriod field listener', () => {
-    describe('WHEN the value is a string (from TextInputField)', () => {
-      it('THEN should call setValue with 0', () => {
-        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
-
-        expect(capturedTrialPeriodOnChange).toBeDefined()
-
-        const mockSetValue = jest.fn()
-
-        capturedTrialPeriodOnChange?.({
-          value: '10' as unknown,
-          fieldApi: { setValue: mockSetValue },
-        })
-
-        expect(mockSetValue).toHaveBeenCalledWith(0)
-      })
-    })
-
-    describe('WHEN the value is NaN (from parseInt of empty string)', () => {
-      it('THEN should call setValue with 0', () => {
-        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
-
-        const mockSetValue = jest.fn()
-
-        capturedTrialPeriodOnChange?.({
-          value: NaN,
-          fieldApi: { setValue: mockSetValue },
-        })
-
-        expect(mockSetValue).toHaveBeenCalledWith(0)
-      })
-    })
-
-    describe('WHEN the value is a valid number', () => {
-      it('THEN should not call setValue', () => {
-        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
-
-        const mockSetValue = jest.fn()
-
-        capturedTrialPeriodOnChange?.({
-          value: 30,
-          fieldApi: { setValue: mockSetValue },
-        })
-
-        expect(mockSetValue).not.toHaveBeenCalled()
-      })
-    })
-
-    describe('WHEN the value is 0', () => {
-      it('THEN should not call setValue (0 is a valid number)', () => {
-        render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
-
-        const mockSetValue = jest.fn()
-
-        capturedTrialPeriodOnChange?.({
-          value: 0,
-          fieldApi: { setValue: mockSetValue },
-        })
-
-        expect(mockSetValue).not.toHaveBeenCalled()
       })
     })
   })

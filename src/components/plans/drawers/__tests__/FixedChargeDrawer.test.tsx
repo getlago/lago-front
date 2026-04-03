@@ -1,8 +1,6 @@
 import { render } from '@testing-library/react'
 import { createRef } from 'react'
 
-import { useFieldContext } from '~/hooks/forms/formContext'
-
 import {
   FixedChargeDrawer,
   FixedChargeDrawerFormValues,
@@ -16,26 +14,20 @@ let capturedDefaultValues: Record<string, unknown> | undefined
 
 // --- Mocks ---
 
-jest.mock('~/components/designSystem/Drawer', () => {
-  const React = jest.requireActual('react')
+jest.mock('../FixedChargeDrawerContent', () => ({
+  FixedChargeDrawerContent: () => <div data-test="fixed-charge-drawer-content" />,
+}))
 
-  const MockDrawer = React.forwardRef(({ children }: { children: unknown }, ref: unknown) => {
-    React.useImperativeHandle(ref, () => ({
-      openDrawer: jest.fn(),
-      closeDrawer: jest.fn(),
-    }))
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({
+    open: jest.fn(),
+    close: jest.fn(),
+  }),
+}))
 
-    return (
-      <div data-test="mocked-drawer">
-        {typeof children === 'function' ? children({ closeDrawer: jest.fn() }) : children}
-      </div>
-    )
-  })
-
-  MockDrawer.displayName = 'Drawer'
-
-  return { Drawer: MockDrawer, DRAWER_TRANSITION_DURATION: 0 }
-})
+jest.mock('~/components/drawers/const', () => ({
+  DRAWER_TRANSITION_DURATION: 0,
+}))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -47,6 +39,7 @@ jest.mock('~/contexts/PlanFormContext', () => {
   const { CurrencyEnum } = jest.requireActual('~/generated/graphql')
 
   return {
+    PlanFormProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
     usePlanFormContext: () => ({
       currency: CurrencyEnum.Usd,
     }),
@@ -117,23 +110,52 @@ const mockHandleSubmit = jest.fn()
 const mockReset = jest.fn()
 const mockSetFieldValue = jest.fn()
 const mockGetFieldValue = jest.fn()
-const mockHandleChange = jest.fn()
-const mockHandleBlur = jest.fn()
-
-jest.mock('~/hooks/forms/formContext', () => ({
-  useFieldContext: jest.fn(),
-}))
 
 jest.mock('@tanstack/react-form', () => ({
-  useStore: jest.fn((store, selector) => {
-    if (typeof store?.getState === 'function') {
-      return selector(store.getState())
-    }
-
-    return false
-  }),
   revalidateLogic: jest.fn(() => ({})),
 }))
+
+const createMockForm = (defaultValues: Record<string, unknown>) => {
+  const store = {
+    subscribe: jest.fn(() => jest.fn()),
+    getState: jest.fn(() => ({ isDirty: false, values: defaultValues })),
+  }
+
+  return {
+    store,
+    useStore: jest.fn(() => defaultValues),
+    state: { values: defaultValues },
+    reset: mockReset,
+    handleSubmit: mockHandleSubmit,
+    setFieldValue: mockSetFieldValue,
+    getFieldValue: mockGetFieldValue,
+    AppField: ({
+      children,
+      name,
+    }: {
+      children: (field: unknown) => React.ReactNode
+      name: string
+      listeners?: unknown
+    }) => {
+      return <div data-field-name={name}>{children({ name })}</div>
+    },
+    AppForm: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    SubmitButton: ({ children }: { children: React.ReactNode }) => (
+      <button type="submit">{children}</button>
+    ),
+    Subscribe: ({
+      children,
+      selector,
+    }: {
+      children: (value: unknown) => React.ReactNode
+      selector: (state: { canSubmit: boolean }) => unknown
+    }) => {
+      const value = selector({ canSubmit: true })
+
+      return <>{children(value)}</>
+    },
+  }
+}
 
 jest.mock('~/hooks/forms/useAppform', () => ({
   useAppForm: jest.fn(
@@ -147,75 +169,18 @@ jest.mock('~/hooks/forms/useAppform', () => ({
       capturedOnSubmit = onSubmit
       capturedDefaultValues = defaultValues
 
-      const store = {
-        subscribe: jest.fn(() => jest.fn()),
-        getState: jest.fn(() => ({ isDirty: false, values: defaultValues })),
-      }
+      const form = createMockForm(defaultValues)
 
       return {
-        store,
-        state: { values: defaultValues },
-        reset: mockReset,
+        ...form,
         handleSubmit: () => {
           mockHandleSubmit()
           onSubmit?.({ value: defaultValues })
-        },
-        setFieldValue: mockSetFieldValue,
-        getFieldValue: mockGetFieldValue,
-        AppField: ({
-          children,
-          name,
-        }: {
-          children: (field: ReturnType<typeof createFieldCtx>) => React.ReactNode
-          name: string
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          listeners?: any
-        }) => {
-          const fieldCtx = createFieldCtx(name, defaultValues[name] ?? '')
-
-          return <>{children(fieldCtx)}</>
-        },
-        Subscribe: ({
-          children,
-          selector,
-        }: {
-          children: (value: unknown) => React.ReactNode
-          selector: (state: { canSubmit: boolean }) => unknown
-        }) => {
-          const value = selector({ canSubmit: true })
-
-          return <>{children(value)}</>
         },
       }
     },
   ),
 }))
-
-const MockFieldComponent = (props: Record<string, unknown>) => (
-  <input name={props.name as string} disabled={props.disabled as boolean | undefined} />
-)
-
-const createFieldCtx = (name: string, value: unknown) => ({
-  name,
-  state: { value },
-  store: {
-    subscribe: jest.fn(() => jest.fn()),
-    getState: jest.fn(() => ({
-      meta: { errors: [], errorMap: {} },
-      values: { [name]: value },
-    })),
-  },
-  handleChange: mockHandleChange,
-  handleBlur: mockHandleBlur,
-  AmountInputField: (props: Record<string, unknown>) => (
-    <MockFieldComponent {...props} name={name} />
-  ),
-  TextInputField: (props: Record<string, unknown>) => <MockFieldComponent {...props} name={name} />,
-  ComboBoxField: (props: Record<string, unknown>) => <MockFieldComponent {...props} name={name} />,
-  SwitchField: (props: Record<string, unknown>) => <MockFieldComponent {...props} name={name} />,
-})
-
-const mockedUseFieldContext = useFieldContext as jest.Mock
 
 describe('FixedChargeDrawer', () => {
   const mockOnSave = jest.fn()
@@ -226,7 +191,6 @@ describe('FixedChargeDrawer', () => {
     capturedOnSubmit = undefined
     capturedDefaultValues = undefined
     drawerRef = createRef<FixedChargeDrawerRef>()
-    mockedUseFieldContext.mockReturnValue(createFieldCtx('testField', ''))
   })
 
   afterEach(() => {

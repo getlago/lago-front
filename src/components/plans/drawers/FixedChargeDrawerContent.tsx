@@ -188,9 +188,7 @@ export const FixedChargeDrawerContent = withForm({
               name="addOnId"
               listeners={{
                 onChange: ({ value }) => {
-                  const selectedAddOn = addOnsData?.addOns?.collection.find(
-                    (a) => a.id === value,
-                  )
+                  const selectedAddOn = addOnsData?.addOns?.collection.find((a) => a.id === value)
 
                   if (selectedAddOn) {
                     form.setFieldValue('addOn', {
@@ -218,9 +216,7 @@ export const FixedChargeDrawerContent = withForm({
           <CenteredPage.SubsectionWrapper>
             {/* Selected add-on (read-only) */}
             <CenteredPage.PageSection>
-              <CenteredPage.PageSectionTitle
-                title={translate('text_1772133285141caubzimuyr0')}
-              />
+              <CenteredPage.PageSectionTitle title={translate('text_1772133285141caubzimuyr0')} />
 
               <Selector
                 icon="puzzle"
@@ -231,9 +227,7 @@ export const FixedChargeDrawerContent = withForm({
 
             {/* Pricing settings */}
             <CenteredPage.PageSection>
-              <CenteredPage.PageSectionTitle
-                title={translate('text_1772133285141xbpuxbd4vrk')}
-              />
+              <CenteredPage.PageSectionTitle title={translate('text_1772133285141xbpuxbd4vrk')} />
 
               <ChargeModelSelector
                 alreadyUsedChargeAlertMessage={alertMessage}
@@ -288,9 +282,7 @@ export const FixedChargeDrawerContent = withForm({
 
             {/* Invoicing settings */}
             <CenteredPage.PageSection>
-              <CenteredPage.PageSectionTitle
-                title={translate('text_17423672025282dl7iozy1ru')}
-              />
+              <CenteredPage.PageSectionTitle title={translate('text_17423672025282dl7iozy1ru')} />
 
               <form.AppField name="invoiceDisplayName">
                 {(field) => (
