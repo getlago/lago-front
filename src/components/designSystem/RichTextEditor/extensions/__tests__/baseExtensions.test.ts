@@ -182,6 +182,68 @@ describe('getBaseExtensions', () => {
     })
   })
 
+  describe('GIVEN the ColorAwareBulletList extension', () => {
+    describe('WHEN a bullet list without colors is serialized to markdown', () => {
+      it('THEN should produce plain markdown list', () => {
+        const editor = createEditor('<ul><li>Item one</li><li>Item two</li></ul>')
+        const markdown = getMarkdown(editor)
+
+        editor.destroy()
+
+        expect(markdown).toContain('Item one')
+        expect(markdown).toContain('Item two')
+        expect(markdown).not.toContain('background-color')
+      })
+    })
+
+    describe('WHEN a bullet list with backgroundColor is serialized to markdown', () => {
+      it('THEN should produce HTML with inline styles', () => {
+        const editor = createEditor('<ul><li>Colored item</li></ul>')
+
+        editor.commands.setTextSelection(1)
+        editor.commands.setBlockBackgroundColor('#fee2e2')
+
+        const markdown = getMarkdown(editor)
+
+        editor.destroy()
+
+        expect(markdown).toContain('background-color')
+        expect(markdown).toContain('Colored item')
+      })
+    })
+  })
+
+  describe('GIVEN the ColorAwareOrderedList extension', () => {
+    describe('WHEN an ordered list without colors is serialized to markdown', () => {
+      it('THEN should produce plain markdown list', () => {
+        const editor = createEditor('<ol><li>First</li><li>Second</li></ol>')
+        const markdown = getMarkdown(editor)
+
+        editor.destroy()
+
+        expect(markdown).toContain('First')
+        expect(markdown).toContain('Second')
+        expect(markdown).not.toContain('background-color')
+      })
+    })
+
+    describe('WHEN an ordered list with textColor is serialized to markdown', () => {
+      it('THEN should produce HTML with inline styles', () => {
+        const editor = createEditor('<ol><li>Colored item</li></ol>')
+
+        editor.commands.setTextSelection(1)
+        editor.commands.setBlockTextColor('#dc2626')
+
+        const markdown = getMarkdown(editor)
+
+        editor.destroy()
+
+        expect(markdown).toContain('color')
+        expect(markdown).toContain('Colored item')
+      })
+    })
+  })
+
   describe('GIVEN StarterKit is configured with paragraph and heading disabled', () => {
     describe('WHEN getBaseExtensions is called', () => {
       it('THEN should disable paragraph and heading in StarterKit', () => {

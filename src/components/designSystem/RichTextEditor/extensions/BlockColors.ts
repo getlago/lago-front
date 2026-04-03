@@ -31,6 +31,7 @@ interface MarkdownSerializerState {
   write: (s: string) => void
   closeBlock: (n: unknown) => void
   renderInline: (node: PmNode) => void
+  renderList: (node: PmNode, delim: string, firstDelim: (index: number) => string) => void
   repeat: (s: string, n: number) => string
 }
 

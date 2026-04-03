@@ -280,6 +280,17 @@
   @apply rounded;
 }
 
+/* When a block has an explicit text color, inner elements must inherit it
+   instead of using the default text-grey-700 from the base rules above. */
+.ProseMirror [style*='color'] p,
+.ProseMirror [style*='color'] li,
+.ProseMirror [style*='color'] h1,
+.ProseMirror [style*='color'] h2,
+.ProseMirror [style*='color'] h3,
+.ProseMirror [style*='color'] h4 {
+  color: inherit;
+}
+
 /* Drag handle decoration — floated left into the padding gutter.
    margin-top aligns the handle with the first line of the following block,
    accounting for spacer padding-top (6px default) + block-wrapper padding (2px). */
@@ -319,11 +330,15 @@
 .ProseMirror .block-wrapper > h4,
 .ProseMirror .block-wrapper > h5,
 .ProseMirror .block-wrapper > h6,
-.ProseMirror .block-wrapper > ul,
-.ProseMirror .block-wrapper > ol,
 .ProseMirror .block-wrapper > blockquote,
 .ProseMirror .block-wrapper > pre {
   @apply m-0 p-0;
+}
+
+/* Lists keep pl-6 so markers sit inside the content/colored area */
+.ProseMirror .block-wrapper > ul,
+.ProseMirror .block-wrapper > ol {
+  @apply m-0 py-0 pr-0 pl-6;
 }
 
 .ProseMirror .block-wrapper {
@@ -350,7 +365,12 @@
     padding-top: 18px;
   }
 
-  &[data-type='bulletList'] {
-    padding-left: 26px;
+  &[data-type='bulletList'],
+  &[data-type='orderedList'] {
+    /* Colors are applied directly to the <ul>/<ol> element so that list markers
+       sit inside the colored area. Strip the duplicate style that addGlobalAttributes
+       puts on the spacer wrapper. */
+    background-color: transparent !important;
+    color: inherit !important;
   }
 }

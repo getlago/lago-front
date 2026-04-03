@@ -60,6 +60,87 @@ const ColorAwareHeading = Heading.extend({
   },
 })
 
+const ColorAwareBulletList = BulletList.extend({
+  addStorage() {
+    return {
+      markdown: {
+        serialize: createColorAwareSerialize(function (state, node) {
+          state.renderList(node, '  ', () => '- ')
+        }),
+        parse: {},
+      },
+    }
+  },
+})
+
+const ColorAwareOrderedList = OrderedList.extend({
+  addStorage() {
+    return {
+      markdown: {
+        serialize: createColorAwareSerialize(function (_state, node, parent, index) {
+          const state = _state
+          const start = (node.attrs.start as number) || 1
+          const maxW = String(start + node.childCount - 1).length
+          const space = state.repeat(' ', maxW + 2)
+
+          let adjacentIndex = 0
+
+          for (; index - adjacentIndex > 0; adjacentIndex++) {
+            if (parent.child(index - adjacentIndex - 1).type.name !== node.type.name) {
+              break
+            }
+          }
+
+          const separator = adjacentIndex % 2 ? ') ' : '. '
+
+          state.renderList(node, space, (i: number) => {
+            const nStr = String(start + i)
+
+            return `${state.repeat(' ', maxW - nStr.length)}${nStr}${separator}`
+          })
+        }),
+        parse: {},
+      },
+    }
+  },
+})
+
+// -- Helpers ------------------------------------------------------------------
+
+/**
+ * Applies backgroundColor/textColor inline styles directly to a DOMOutputSpec
+ * element (e.g. `<ul>` or `<ol>`). This is needed for lists because TipTap's
+ * addGlobalAttributes merges styles onto the outermost wrapper (`<div class="spacer">`),
+ * which places the background behind the spacer padding — outside the list markers.
+ */
+const applyBlockColorAttrs = (
+  spec: DOMOutputSpec,
+  attrs: Record<string, unknown>,
+): DOMOutputSpec => {
+  const { backgroundColor, textColor } = attrs
+
+  if (!backgroundColor && !textColor) return spec
+
+  const parts: string[] = []
+
+  if (backgroundColor) parts.push(`background-color: ${backgroundColor}`)
+  if (textColor) parts.push(`color: ${textColor}`)
+
+  const style = `${parts.join('; ')};`
+
+  if (!Array.isArray(spec)) return spec
+
+  const [tag, ...rest] = spec
+
+  if (rest.length > 0 && typeof rest[0] === 'object' && !Array.isArray(rest[0])) {
+    const existingAttrs = rest[0] as Record<string, unknown>
+
+    return [tag, { ...existingAttrs, style }, ...rest.slice(1)] as unknown as DOMOutputSpec
+  }
+
+  return [tag, { style }, ...rest] as unknown as DOMOutputSpec
+}
+
 // -- Block wrappers -----------------------------------------------------------
 // Every top-level block is wrapped in <div class="spacer"><div class="block-wrapper">
 // to provide consistent spacing, selection targets, and future extensibility.
@@ -80,19 +161,19 @@ const WrappedHeading = ColorAwareHeading.extend({
   },
 })
 
-const WrappedBulletList = BulletList.extend({
+const WrappedBulletList = ColorAwareBulletList.extend({
   renderHTML(props) {
     const inner = this.parent ? this.parent(props) : (['ul', 0] satisfies DOMOutputSpec)
 
-    return wrapInBlockWrapper('bulletList', inner)
+    return wrapInBlockWrapper('bulletList', applyBlockColorAttrs(inner, props.node.attrs))
   },
 })
 
-const WrappedOrderedList = OrderedList.extend({
+const WrappedOrderedList = ColorAwareOrderedList.extend({
   renderHTML(props) {
     const inner = this.parent ? this.parent(props) : (['ol', 0] satisfies DOMOutputSpec)
 
-    return wrapInBlockWrapper('orderedList', inner)
+    return wrapInBlockWrapper('orderedList', applyBlockColorAttrs(inner, props.node.attrs))
   },
 })
 
