@@ -8,7 +8,7 @@ import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Table, TableContainerSize } from '~/components/designSystem/Table'
+import { Table, TableColumn, TableContainerSize } from '~/components/designSystem/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import {
@@ -40,6 +40,7 @@ import {
   WalletInfosForTransactionsFragment,
   WalletStatusEnum,
   WalletTransactionDetailsFragmentDoc,
+  WalletTransactionForTransactionListItemFragment,
   WalletTransactionForTransactionListItemFragmentDoc,
   WalletTransactionStatusEnum,
   WalletTransactionTransactionTypeEnum,
@@ -414,63 +415,67 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
                     )
                   },
                 },
-                {
-                  key: 'remainingCreditAmount',
-                  textAlign: 'right',
-                  minWidth: 114,
-                  title: translate('text_1770381610089rix8snaszn3'),
-                  content: ({
-                    remainingAmountCents,
-                    remainingCreditAmount,
-                    status,
-                    transactionType,
-                  }) => {
-                    const isPending = status === WalletTransactionStatusEnum.Pending
-                    const isFailed = status === WalletTransactionStatusEnum.Failed
-                    const isInbound =
-                      transactionType === WalletTransactionTransactionTypeEnum.Inbound
+                ...(wallet?.traceable
+                  ? ([
+                      {
+                        key: 'remainingCreditAmount',
+                        textAlign: 'right',
+                        minWidth: 114,
+                        title: translate('text_1770381610089rix8snaszn3'),
+                        content: ({
+                          remainingAmountCents,
+                          remainingCreditAmount,
+                          status,
+                          transactionType,
+                        }) => {
+                          const isPending = status === WalletTransactionStatusEnum.Pending
+                          const isFailed = status === WalletTransactionStatusEnum.Failed
+                          const isInbound =
+                            transactionType === WalletTransactionTransactionTypeEnum.Inbound
 
-                    const formattedRemainingCreditAmount = formatCredits({
-                      credits: remainingCreditAmount,
-                    })
-                    const formattedRemainingAmountCents = formatAmount({
-                      amountCents: deserializeAmount(
-                        remainingAmountCents,
-                        wallet?.currency || CurrencyEnum.Usd,
-                      )?.toString(),
-                      currency: wallet?.currency,
-                    })
+                          const formattedRemainingCreditAmount = formatCredits({
+                            credits: remainingCreditAmount,
+                          })
+                          const formattedRemainingAmountCents = formatAmount({
+                            amountCents: deserializeAmount(
+                              remainingAmountCents,
+                              wallet?.currency || CurrencyEnum.Usd,
+                            )?.toString(),
+                            currency: wallet?.currency,
+                          })
 
-                    return (
-                      <div className="flex flex-col">
-                        <Typography
-                          variant="bodyHl"
-                          color={isPending || isFailed ? 'grey500' : 'grey700'}
-                          data-test={TRANSACTION_REMAINING_CREDITS_DATA_TEST}
-                          className="whitespace-nowrap"
-                        >
-                          {!isInbound
-                            ? '-'
-                            : translate(
-                                'text_62da6ec24a8e24e44f812896',
-                                {
-                                  amount: formattedRemainingCreditAmount,
-                                },
-                                Number(formattedRemainingCreditAmount) || 0,
-                              )}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color="grey600"
-                          data-test={TRANSACTION_AMOUNT_DATA_TEST}
-                          className="whitespace-nowrap"
-                        >
-                          {!isInbound ? '-' : formattedRemainingAmountCents}
-                        </Typography>
-                      </div>
-                    )
-                  },
-                },
+                          return (
+                            <div className="flex flex-col">
+                              <Typography
+                                variant="bodyHl"
+                                color={isPending || isFailed ? 'grey500' : 'grey700'}
+                                data-test={TRANSACTION_REMAINING_CREDITS_DATA_TEST}
+                                className="whitespace-nowrap"
+                              >
+                                {!isInbound
+                                  ? '-'
+                                  : translate(
+                                      'text_62da6ec24a8e24e44f812896',
+                                      {
+                                        amount: formattedRemainingCreditAmount,
+                                      },
+                                      Number(formattedRemainingCreditAmount) || 0,
+                                    )}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                color="grey600"
+                                data-test={TRANSACTION_AMOUNT_DATA_TEST}
+                                className="whitespace-nowrap"
+                              >
+                                {!isInbound ? '-' : formattedRemainingAmountCents}
+                              </Typography>
+                            </div>
+                          )
+                        },
+                      },
+                    ] satisfies TableColumn<WalletTransactionForTransactionListItemFragment>[])
+                  : []),
               ]}
             />
           </>
