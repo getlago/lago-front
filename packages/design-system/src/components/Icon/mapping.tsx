@@ -43,6 +43,7 @@ import Coupon from '~/icons/coupon.svg'
 import Descending from '~/icons/descending.svg'
 import Document from '~/icons/document.svg'
 import DotsHorizontal from '~/icons/dots-horizontal.svg'
+import DoubleDotsVertical from '~/icons/double-dots-vertical.svg'
 import Download from '~/icons/download.svg'
 import Duplicate from '~/icons/duplicate.svg'
 import ErrorFilled from '~/icons/error-filled.svg'
@@ -174,6 +175,7 @@ export const ALL_ICONS = {
   descending: Descending,
   document: Document,
   'dots-horizontal': DotsHorizontal,
+  'double-dots-vertical': DoubleDotsVertical,
   download: Download,
   duplicate: Duplicate,
   'error-filled': ErrorFilled,
