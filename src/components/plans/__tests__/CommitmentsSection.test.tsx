@@ -1,10 +1,9 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { FormikProps } from 'formik'
 
-import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { render } from '~/test-utils'
+import { createMockPlanForm } from '~/test-utils/createMockPlanForm'
 
 import {
   ADD_MINIMUM_COMMITMENT_TEST_ID,
@@ -65,66 +64,10 @@ jest.mock('~/components/premium/PremiumFeature', () => {
 
 // --- Helpers ---
 
-const createFormikProps = (overrides: Partial<PlanFormInput> = {}): FormikProps<PlanFormInput> => {
-  const defaultValues: PlanFormInput = {
-    name: 'Test Plan',
-    code: 'test-plan',
-    description: '',
-    interval: PlanInterval.Monthly,
-    payInAdvance: false,
-    amountCents: '100',
-    amountCurrency: CurrencyEnum.Usd,
-    trialPeriod: 0,
-    taxes: [],
-    billChargesMonthly: false,
-    billFixedChargesMonthly: false,
-    charges: [],
-    fixedCharges: [],
-    minimumCommitment: {},
-    invoiceDisplayName: '',
-    entitlements: [],
-    ...overrides,
-  }
-
-  return {
-    values: defaultValues,
-    initialValues: defaultValues,
-    errors: {},
-    touched: {},
-    isSubmitting: false,
-    isValidating: false,
-    submitCount: 0,
-    dirty: false,
-    isValid: true,
-    status: undefined,
-    handleBlur: jest.fn(),
-    handleChange: jest.fn(),
-    handleReset: jest.fn(),
-    handleSubmit: jest.fn(),
-    resetForm: jest.fn(),
-    setErrors: jest.fn(),
-    setFieldError: jest.fn(),
-    setFieldTouched: jest.fn(),
-    setFieldValue: jest.fn(),
-    setFormikState: jest.fn(),
-    setStatus: jest.fn(),
-    setSubmitting: jest.fn(),
-    setTouched: jest.fn(),
-    setValues: jest.fn(),
-    submitForm: jest.fn(),
-    validateForm: jest.fn(),
-    validateField: jest.fn(),
-    getFieldHelpers: jest.fn(),
-    getFieldMeta: jest.fn(),
-    getFieldProps: jest.fn(),
-    registerField: jest.fn(),
-    unregisterField: jest.fn(),
-  } as unknown as FormikProps<PlanFormInput>
-}
+const createForm = (overrides: Partial<PlanFormInput> = {}) => createMockPlanForm(overrides)
 
 const defaultProps = {
-  formikProps: createFormikProps(),
-  onDrawerSave: jest.fn(),
+  form: createForm(),
 }
 
 describe('CommitmentsSection', () => {
@@ -170,7 +113,7 @@ describe('CommitmentsSection', () => {
   })
 
   describe('GIVEN a commitment exists', () => {
-    const formikWithCommitment = createFormikProps({
+    const formWithCommitment = createForm({
       minimumCommitment: {
         amountCents: '1000',
         invoiceDisplayName: 'Custom Commitment',
@@ -180,13 +123,13 @@ describe('CommitmentsSection', () => {
 
     describe('WHEN the component is rendered', () => {
       it('THEN should render the Selector card with commitment info', () => {
-        render(<CommitmentsSection formikProps={formikWithCommitment} onDrawerSave={jest.fn()} />)
+        render(<CommitmentsSection form={formWithCommitment} />)
 
         expect(screen.getByTestId(OPEN_MINIMUM_COMMITMENT_DRAWER_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should not render the add button', () => {
-        render(<CommitmentsSection formikProps={formikWithCommitment} onDrawerSave={jest.fn()} />)
+        render(<CommitmentsSection form={formWithCommitment} />)
 
         expect(screen.queryByTestId(ADD_MINIMUM_COMMITMENT_TEST_ID)).not.toBeInTheDocument()
       })
@@ -196,7 +139,7 @@ describe('CommitmentsSection', () => {
       it('THEN should open the drawer with current values', async () => {
         const user = userEvent.setup()
 
-        render(<CommitmentsSection formikProps={formikWithCommitment} onDrawerSave={jest.fn()} />)
+        render(<CommitmentsSection form={formWithCommitment} />)
 
         await user.click(screen.getByTestId(OPEN_MINIMUM_COMMITMENT_DRAWER_TEST_ID))
 

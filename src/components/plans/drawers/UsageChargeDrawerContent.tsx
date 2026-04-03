@@ -493,25 +493,18 @@ export const UsageChargeDrawerContent = withForm({
                     const selectedBm = allBms.find((bm) => bm.id === value)
 
                     if (selectedBm) {
-                      form.reset(
-                        {
-                          ...form.state.values,
-                          billableMetricId: selectedBm.id,
-                          billableMetric: selectedBm,
-                          properties: getPropertyShape({}),
-                          filters: selectedBm.filters?.length ? [] : undefined,
-                          appliedPricingUnit:
-                            hasAnyPricingUnitConfigured && amountCurrency
-                              ? ({
-                                  code: amountCurrency,
-                                  conversionRate: undefined,
-                                  shortName: amountCurrency,
-                                  type: LocalPricingUnitType.Fiat,
-                                } as LocalPricingUnitInput)
-                              : form.state.values.appliedPricingUnit,
-                        },
-                        { keepDefaultValues: true },
-                      )
+                      form.setFieldValue('billableMetric', selectedBm)
+                      form.setFieldValue('properties', getPropertyShape({}))
+                      form.setFieldValue('filters', selectedBm.filters?.length ? [] : undefined)
+
+                      if (hasAnyPricingUnitConfigured && amountCurrency) {
+                        form.setFieldValue('appliedPricingUnit', {
+                          code: amountCurrency,
+                          conversionRate: undefined,
+                          shortName: amountCurrency,
+                          type: LocalPricingUnitType.Fiat,
+                        } as LocalPricingUnitInput)
+                      }
                     }
                   },
                 }}

@@ -1,9 +1,7 @@
 import { gql } from '@apollo/client'
-import { FormikProps, useFormik } from 'formik'
-import { debounce } from 'lodash'
-import { useEffect, useMemo } from 'react'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { useEffect, useMemo, useRef } from 'react'
 import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { array, boolean, number, object, string } from 'yup'
 
 import {
   LocalPricingUnitType,
@@ -33,7 +31,7 @@ import { serializePlanInput } from '~/core/serializers'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { scrollToTop } from '~/core/utils/domUtils'
-import { chargeSchema, fixedChargeSchema } from '~/formValidation/chargeSchema'
+import { planFormSchema } from '~/formValidation/planFormSchema'
 import {
   CurrencyEnum,
   DeletePlanDialogFragmentDoc,
@@ -46,11 +44,9 @@ import {
   useGetSinglePlanQuery,
   useUpdatePlanMutation,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-
-const DEBOUNCE_MS = window.Cypress ? 0 : 150
 
 gql`
   query getSinglePlan($id: ID!) {
@@ -78,25 +74,137 @@ gql`
   ${EditPlanFragmentDoc}
 `
 
-interface UsePlanFormReturn {
-  formikProps: FormikProps<PlanFormInput>
-  errorCode?: string
-  isEdition: boolean
-  loading: boolean
-  plan?: (Omit<EditPlanFragment, 'name' | 'code'> & { name?: string; code?: string }) | null
-  type: PLAN_FORM_TYPE
-}
+export type PlanFormType = ReturnType<typeof usePlanForm>['form']
 
-export const usePlanForm: ({
+const buildDefaultValues = (
+  plan: EditPlanFragment | undefined | null,
+  type: PLAN_FORM_TYPE,
+  initialCurrency: CurrencyEnum,
+  hasAnyPricingUnitConfigured: boolean,
+): PlanFormInput => ({
+  name: type === FORM_TYPE_ENUM.duplicate ? '' : plan?.name || '',
+  code: type === FORM_TYPE_ENUM.duplicate ? '' : plan?.code || '',
+  description: plan?.description || '',
+  entitlements:
+    plan?.entitlements?.map(({ code, privileges, name, ...restEntitlement }) => ({
+      featureName: name || '',
+      featureCode: code,
+      privileges: privileges.map(
+        ({ code: privilegeCode, name: privilegeName, value, ...restPrivilege }) => ({
+          privilegeCode,
+          privilegeName,
+          value: value || '',
+          ...restPrivilege,
+        }),
+      ),
+      ...restEntitlement,
+    })) || [],
+  interval: plan?.interval || PlanInterval.Monthly,
+  taxes: plan?.taxes || [],
+  invoiceDisplayName: plan?.invoiceDisplayName || undefined,
+  payInAdvance: plan?.payInAdvance || false,
+  amountCents: isNaN(plan?.amountCents)
+    ? '0'
+    : String(deserializeAmount(plan?.amountCents || 0, initialCurrency)),
+  amountCurrency: initialCurrency,
+  trialPeriod: plan?.trialPeriod ?? 0,
+  billChargesMonthly: plan?.billChargesMonthly || false,
+  billFixedChargesMonthly: plan?.billFixedChargesMonthly || false,
+  minimumCommitment: !!plan?.minimumCommitment
+    ? {
+        ...plan?.minimumCommitment,
+        amountCents: String(
+          deserializeAmount(plan?.minimumCommitment.amountCents || 0, initialCurrency),
+        ),
+      }
+    : {},
+  nonRecurringUsageThresholds:
+    plan?.usageThresholds && plan?.usageThresholds.length > 0
+      ? plan?.usageThresholds
+          .filter(({ recurring }) => !recurring)
+          .map((threshold) => ({
+            ...threshold,
+            amountCents: deserializeAmount(threshold.amountCents || 0, initialCurrency),
+          }))
+          .sort((a, b) => a.amountCents - b.amountCents)
+      : undefined,
+  recurringUsageThreshold: plan?.usageThresholds
+    ?.map((threshold) => ({
+      ...threshold,
+      amountCents: deserializeAmount(threshold.amountCents || 0, initialCurrency),
+    }))
+    .find(({ recurring }) => !!recurring),
+  fixedCharges: plan?.fixedCharges || [],
+  charges: plan?.charges
+    ? (plan?.charges.map(
+        ({
+          taxes,
+          properties,
+          minAmountCents,
+          payInAdvance,
+          invoiceDisplayName,
+          filters,
+          appliedPricingUnit,
+          ...charge
+        }) => {
+          return {
+            appliedPricingUnit:
+              !hasAnyPricingUnitConfigured && !appliedPricingUnit
+                ? undefined
+                : {
+                    code: appliedPricingUnit?.pricingUnit?.code || initialCurrency,
+                    conversionRate: String(appliedPricingUnit?.conversionRate || ''),
+                    shortName: appliedPricingUnit?.pricingUnit?.shortName || initialCurrency,
+                    type: !!appliedPricingUnit?.pricingUnit?.code
+                      ? LocalPricingUnitType.Custom
+                      : LocalPricingUnitType.Fiat,
+                  },
+            invoiceDisplayName: invoiceDisplayName || '',
+            taxes: taxes || [],
+            minAmountCents:
+              isNaN(minAmountCents) || minAmountCents === '0'
+                ? undefined
+                : String(
+                    deserializeAmount(minAmountCents || 0, plan.amountCurrency || CurrencyEnum.Usd),
+                  ),
+            payInAdvance: payInAdvance || false,
+            properties: properties ? getPropertyShape(properties) : undefined,
+            regroupPaidFees: charge.regroupPaidFees || null,
+            filters: (filters || []).map((filter) => {
+              const values = Object.entries(filter.values || {}).reduce<string[]>(
+                (acc, [key, objectValues]) => {
+                  ;(objectValues as string[]).map((v) => {
+                    acc.push(transformFilterObjectToString(key, v))
+                  })
+
+                  return acc
+                },
+                [],
+              )
+
+              return {
+                ...filter,
+                properties: getPropertyShape(filter.properties),
+                values,
+              }
+            }),
+            ...charge,
+          }
+        },
+      ) as LocalUsageChargeInput[])
+    : ([] as LocalUsageChargeInput[]),
+  cascadeUpdates: undefined,
+})
+
+export const usePlanForm = ({
   planIdToFetch,
   isUsedInSubscriptionForm,
 }: {
   planIdToFetch?: string
   isUsedInSubscriptionForm?: boolean
-}) => UsePlanFormReturn = ({ planIdToFetch, isUsedInSubscriptionForm }) => {
+}) => {
   const navigate = useNavigate()
   const { organization } = useOrganizationInfos()
-  const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
   const { planId: id = '' } = useParams()
   const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
@@ -119,256 +227,6 @@ export const usePlanForm: ({
     type === FORM_TYPE_ENUM.creation && !isUsedInSubscriptionForm
       ? organization?.defaultCurrency || CurrencyEnum.Usd
       : plan?.amountCurrency || CurrencyEnum.Usd
-  const onSave = (values: PlanFormInput) => {
-    const serializedInput = serializePlanInput(values)
-
-    if (type === FORM_TYPE_ENUM.edition) {
-      return update({
-        variables: {
-          input: { ...serializedInput, id },
-        },
-      })
-    }
-
-    return create({
-      variables: {
-        input: serializedInput,
-      },
-    })
-  }
-
-  const formikProps = useFormik<PlanFormInput>({
-    initialValues: {
-      name: type === FORM_TYPE_ENUM.duplicate ? '' : plan?.name || '',
-      code: type === FORM_TYPE_ENUM.duplicate ? '' : plan?.code || '',
-      description: plan?.description || '',
-      entitlements:
-        plan?.entitlements?.map(({ code, privileges, name, ...restEntitlement }) => ({
-          featureName: name || '',
-          featureCode: code,
-          privileges: privileges.map(
-            ({ code: privilegeCode, name: privilegeName, value, ...restPrivilege }) => ({
-              privilegeCode,
-              privilegeName,
-              value: value || '',
-              ...restPrivilege,
-            }),
-          ),
-          ...restEntitlement,
-        })) || [],
-      interval: plan?.interval || PlanInterval.Monthly,
-      taxes: plan?.taxes || [],
-      invoiceDisplayName: plan?.invoiceDisplayName || undefined,
-      payInAdvance: plan?.payInAdvance || false,
-      amountCents: isNaN(plan?.amountCents)
-        ? '0'
-        : String(deserializeAmount(plan?.amountCents || 0, initialCurrency)),
-      amountCurrency: initialCurrency,
-      trialPeriod: plan?.trialPeriod ?? 0,
-      billChargesMonthly: plan?.billChargesMonthly || false,
-      billFixedChargesMonthly: plan?.billFixedChargesMonthly || false,
-      minimumCommitment: !!plan?.minimumCommitment
-        ? {
-            ...plan?.minimumCommitment,
-            amountCents: String(
-              deserializeAmount(plan?.minimumCommitment.amountCents || 0, initialCurrency),
-            ),
-          }
-        : {},
-      nonRecurringUsageThresholds:
-        plan?.usageThresholds && plan?.usageThresholds.length > 0
-          ? plan?.usageThresholds
-              .filter(({ recurring }) => !recurring)
-              .map((threshold) => ({
-                ...threshold,
-                amountCents: deserializeAmount(threshold.amountCents || 0, initialCurrency),
-              }))
-              .sort((a, b) => a.amountCents - b.amountCents)
-          : undefined,
-      recurringUsageThreshold: plan?.usageThresholds
-        ?.map((threshold) => ({
-          ...threshold,
-          amountCents: deserializeAmount(threshold.amountCents || 0, initialCurrency),
-        }))
-        .find(({ recurring }) => !!recurring),
-      fixedCharges: plan?.fixedCharges || [],
-      charges: plan?.charges
-        ? (plan?.charges.map(
-            ({
-              taxes,
-              properties,
-              minAmountCents,
-              payInAdvance,
-              invoiceDisplayName,
-              filters,
-              appliedPricingUnit,
-              ...charge
-            }) => {
-              return {
-                appliedPricingUnit:
-                  !hasAnyPricingUnitConfigured && !appliedPricingUnit
-                    ? undefined
-                    : {
-                        code: appliedPricingUnit?.pricingUnit?.code || initialCurrency,
-                        conversionRate: String(appliedPricingUnit?.conversionRate || ''),
-                        shortName: appliedPricingUnit?.pricingUnit?.shortName || initialCurrency,
-                        type: !!appliedPricingUnit?.pricingUnit?.code
-                          ? LocalPricingUnitType.Custom
-                          : LocalPricingUnitType.Fiat,
-                      },
-                // Used to not enable submit button on invoiceDisplayName reset
-                invoiceDisplayName: invoiceDisplayName || '',
-                taxes: taxes || [],
-                minAmountCents:
-                  // Some plan have been saved with minAmountCents as 0 string but it makes the sub form send an override plan each time
-                  // This || minAmountCents === '0' serves to prevent this to happen
-                  isNaN(minAmountCents) || minAmountCents === '0'
-                    ? undefined
-                    : String(
-                        deserializeAmount(
-                          minAmountCents || 0,
-                          plan.amountCurrency || CurrencyEnum.Usd,
-                        ),
-                      ),
-                payInAdvance: payInAdvance || false,
-                properties: properties ? getPropertyShape(properties) : undefined,
-                regroupPaidFees: charge.regroupPaidFees || null,
-                filters: (filters || []).map((filter) => {
-                  const values = Object.entries(filter.values || {}).reduce<string[]>(
-                    (acc, [key, objectValues]) => {
-                      ;(objectValues as string[]).map((v) => {
-                        acc.push(transformFilterObjectToString(key, v))
-                      })
-
-                      return acc
-                    },
-                    [],
-                  )
-
-                  return {
-                    ...filter,
-                    properties: getPropertyShape(filter.properties),
-                    values,
-                  }
-                }),
-                ...charge,
-              }
-            },
-          ) as LocalUsageChargeInput[])
-        : ([] as LocalUsageChargeInput[]),
-      cascadeUpdates: undefined,
-    },
-    validationSchema: object().shape({
-      name: string().required(''),
-      code: string().required(''),
-      interval: string().required(''),
-      amountCents: string().required(''),
-      trialPeriod: number().typeError(translate('text_624ea7c29103fd010732ab7d')).nullable(),
-      amountCurrency: string().required(''),
-      entitlements: array().of(
-        object().shape({
-          featureCode: string().required(''),
-          privileges: array().of(
-            object().shape({
-              privilegeCode: string().required(''),
-              privilegeName: string().required(''),
-              value: string().required(''),
-            }),
-          ),
-        }),
-      ),
-      minimumCommitment: object()
-        .test({
-          test: function (value, { from }) {
-            if (from && from[1]) {
-              // If minimum commitment is an empty object
-              if (
-                from[1]?.value?.minimumCommitment &&
-                !Object.keys(from[1]?.value?.minimumCommitment).length
-              ) {
-                return true
-              }
-              // If no minimum commitment amount cents is defined but object is present
-              if (
-                from[1]?.value?.minimumCommitment &&
-                !Number(from[1]?.value?.minimumCommitment?.amountCents)
-              ) {
-                return false
-              }
-            }
-
-            return true
-          },
-        })
-        .nullable(),
-      fixedCharges: fixedChargeSchema,
-      charges: chargeSchema,
-      nonRecurringUsageThresholds: array()
-        .test({
-          test: (nonRecurringUsageThresholds) => {
-            let isValid = true
-
-            if (!nonRecurringUsageThresholds) {
-              return true
-            }
-
-            if (nonRecurringUsageThresholds?.length === 0) {
-              return false
-            }
-
-            nonRecurringUsageThresholds?.every(({ amountCents }, i) => {
-              if (amountCents === undefined) {
-                isValid = false
-                return false
-              }
-
-              if (i === 0 && Number(amountCents) <= 0) {
-                isValid = false
-                return false
-              }
-
-              const previousThreshold = nonRecurringUsageThresholds[i - 1]
-
-              if (
-                previousThreshold &&
-                Number(amountCents) <= Number(previousThreshold.amountCents)
-              ) {
-                isValid = false
-                return false
-              }
-
-              return true
-            })
-
-            return isValid
-          },
-        })
-        .nullable()
-        .default(undefined),
-      recurringUsageThreshold: object()
-        .shape({
-          amountCents: number().required().moreThan(0),
-        })
-        .nullable()
-        .default(undefined),
-      cascadeUpdates: boolean(),
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    validateOnChange: false,
-    // In subscription form, the form should be valid by default whereas in create/edit plan form, it should not
-    isInitialValid: !!isUsedInSubscriptionForm,
-    onSubmit: onSave,
-  })
-
-  const debouncedValidate = useMemo(
-    () => debounce(formikProps.validateForm, DEBOUNCE_MS, { leading: true }),
-    [formikProps.validateForm],
-  )
-
-  useEffect(() => {
-    debouncedValidate(formikProps.values)
-  }, [formikProps.values, debouncedValidate])
 
   const [create, { error: createError }] = useCreatePlanMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
@@ -444,6 +302,31 @@ export const usePlanForm: ({
     },
   })
 
+  const form = useAppForm({
+    defaultValues: buildDefaultValues(plan, type, initialCurrency, hasAnyPricingUnitConfigured),
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: planFormSchema,
+    },
+    onSubmit: ({ value }) => {
+      const serializedInput = serializePlanInput(value)
+
+      if (type === FORM_TYPE_ENUM.edition) {
+        return update({
+          variables: {
+            input: { ...serializedInput, id },
+          },
+        })
+      }
+
+      return create({
+        variables: {
+          input: serializedInput,
+        },
+      })
+    },
+  })
+
   const errorCode = useMemo(() => {
     if (hasDefinedGQLError('ValueAlreadyExist', createError || updateError)) {
       return FORM_ERRORS_ENUM.existingCode
@@ -452,7 +335,17 @@ export const usePlanForm: ({
     return undefined
   }, [createError, updateError])
 
-  const isAnnual = isPlanIntervalAnnual(formikProps.values.interval)
+  // Re-initialize form when plan data loads (replaces enableReinitialize)
+  const prevPlanRef = useRef(plan)
+
+  useEffect(() => {
+    if (plan && plan !== prevPlanRef.current) {
+      form.reset(buildDefaultValues(plan, type, initialCurrency, hasAnyPricingUnitConfigured), {
+        keepDefaultValues: false,
+      })
+      prevPlanRef.current = plan
+    }
+  }, [plan, type, initialCurrency, hasAnyPricingUnitConfigured, form])
 
   // Clear duplicate plan var when leaving the page
   useEffect(() => {
@@ -471,38 +364,52 @@ export const usePlanForm: ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error])
 
+  // Propagate server-side code error to TanStack form (same pattern as CreateCoupon)
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
-      scrollToTop()
+      form.setFieldMeta('code', (meta) => ({
+        ...meta,
+        errorMap: {
+          ...meta.errorMap,
+          onDynamic: { message: 'text_632a2d437e341dcc76817556' },
+        },
+      }))
+      scrollToTop('[data-centered-page-wrapper]')
     }
+  }, [errorCode, form])
 
+  // Clear code error when the code field value changes
+  useEffect(() => {
+    if (errorCode === FORM_ERRORS_ENUM.existingCode) {
+      form.setFieldMeta('code', (meta) => ({
+        ...meta,
+        errorMap: { ...meta.errorMap, onDynamic: undefined },
+      }))
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [errorCode])
+  }, [form.state.values.code])
+
+  // Auto-reset billChargesMonthly when conditions aren't met
+  const charges = useStore(form.store, (s) => s.values.charges)
+  const billChargesMonthly = useStore(form.store, (s) => s.values.billChargesMonthly)
+  const interval = useStore(form.store, (s) => s.values.interval)
+  const isAnnual = isPlanIntervalAnnual(interval)
 
   useEffect(() => {
-    if (
-      (!formikProps.values.charges || !formikProps.values.charges.length || !isAnnual) &&
-      !!formikProps.values.billChargesMonthly
-    ) {
-      formikProps.setFieldValue('billChargesMonthly', false)
+    if ((!charges || !charges.length || !isAnnual) && !!billChargesMonthly) {
+      form.setFieldValue('billChargesMonthly', false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    formikProps.values.charges,
-    formikProps.values.billChargesMonthly,
-    formikProps.values.interval,
-  ])
+  }, [charges, billChargesMonthly, interval])
 
   return useMemo(
     () => ({
-      formikProps,
-      errorCode,
+      form,
       isEdition,
       loading,
       type,
       plan,
     }),
-    [formikProps, errorCode, isEdition, loading, type, plan],
+    [form, isEdition, loading, type, plan],
   )
 }

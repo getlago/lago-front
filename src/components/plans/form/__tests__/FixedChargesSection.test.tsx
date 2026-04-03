@@ -1,9 +1,9 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { FormikProps } from 'formik'
 
-import { ChargeModelEnum, CurrencyEnum, PlanInterval } from '~/generated/graphql'
+import { ChargeModelEnum, PlanInterval } from '~/generated/graphql'
 import { render } from '~/test-utils'
+import { createMockPlanForm } from '~/test-utils/createMockPlanForm'
 
 import { LocalFixedChargeInput, PlanFormInput } from '../../types'
 import { FIXED_CHARGES_ADD_BUTTON_TEST_ID, FixedChargesSection } from '../FixedChargesSection'
@@ -84,62 +84,7 @@ const createMockFixedCharge = (
     ...overrides,
   }) as unknown as LocalFixedChargeInput
 
-const createFormikProps = (overrides: Partial<PlanFormInput> = {}): FormikProps<PlanFormInput> => {
-  const defaultValues: PlanFormInput = {
-    name: 'Test Plan',
-    code: 'test-plan',
-    description: '',
-    interval: PlanInterval.Monthly,
-    payInAdvance: false,
-    amountCents: '100',
-    amountCurrency: CurrencyEnum.Usd,
-    trialPeriod: 0,
-    taxes: [],
-    billChargesMonthly: false,
-    billFixedChargesMonthly: false,
-    charges: [],
-    fixedCharges: [],
-    minimumCommitment: {},
-    invoiceDisplayName: '',
-    entitlements: [],
-    ...overrides,
-  }
-
-  return {
-    values: defaultValues,
-    initialValues: defaultValues,
-    errors: {},
-    touched: {},
-    isSubmitting: false,
-    isValidating: false,
-    submitCount: 0,
-    dirty: false,
-    isValid: true,
-    status: undefined,
-    handleBlur: jest.fn(),
-    handleChange: jest.fn(),
-    handleReset: jest.fn(),
-    handleSubmit: jest.fn(),
-    resetForm: jest.fn(),
-    setErrors: jest.fn(),
-    setFieldError: jest.fn(),
-    setFieldTouched: jest.fn(),
-    setFieldValue: jest.fn(),
-    setFormikState: jest.fn(),
-    setStatus: jest.fn(),
-    setSubmitting: jest.fn(),
-    setTouched: jest.fn(),
-    setValues: jest.fn(),
-    submitForm: jest.fn(),
-    validateForm: jest.fn(),
-    validateField: jest.fn(),
-    getFieldHelpers: jest.fn(),
-    getFieldMeta: jest.fn(),
-    getFieldProps: jest.fn(),
-    registerField: jest.fn(),
-    unregisterField: jest.fn(),
-  } as unknown as FormikProps<PlanFormInput>
-}
+const createForm = (overrides: Partial<PlanFormInput> = {}) => createMockPlanForm(overrides)
 
 // --- Tests ---
 
@@ -151,21 +96,17 @@ describe('FixedChargesSection', () => {
   describe('GIVEN there are no fixed charges', () => {
     describe('WHEN the component renders', () => {
       it('THEN should render the add fixed charge button', () => {
-        const formikProps = createFormikProps()
+        const form = createForm()
 
-        render(
-          <FixedChargesSection formikProps={formikProps} alreadyExistingFixedChargesIds={[]} />,
-        )
+        render(<FixedChargesSection form={form} alreadyExistingFixedChargesIds={[]} />)
 
         expect(screen.getByTestId(FIXED_CHARGES_ADD_BUTTON_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should render the mocked drawer', () => {
-        const formikProps = createFormikProps()
+        const form = createForm()
 
-        render(
-          <FixedChargesSection formikProps={formikProps} alreadyExistingFixedChargesIds={[]} />,
-        )
+        render(<FixedChargesSection form={form} alreadyExistingFixedChargesIds={[]} />)
 
         expect(screen.getByTestId('fixed-charge-drawer-mock')).toBeInTheDocument()
       })
@@ -173,11 +114,11 @@ describe('FixedChargesSection', () => {
 
     describe('WHEN isInSubscriptionForm is true', () => {
       it('THEN should return null', () => {
-        const formikProps = createFormikProps()
+        const form = createForm()
 
         const { container } = render(
           <FixedChargesSection
-            formikProps={formikProps}
+            form={form}
             alreadyExistingFixedChargesIds={[]}
             isInSubscriptionForm
           />,
@@ -194,11 +135,9 @@ describe('FixedChargesSection', () => {
 
     describe('WHEN the component renders', () => {
       it('THEN should render fixed charge selectors', () => {
-        const formikProps = createFormikProps({ fixedCharges: [fixedCharge] })
+        const form = createForm({ fixedCharges: [fixedCharge] })
 
-        render(
-          <FixedChargesSection formikProps={formikProps} alreadyExistingFixedChargesIds={[]} />,
-        )
+        render(<FixedChargesSection form={form} alreadyExistingFixedChargesIds={[]} />)
 
         expect(screen.getByTestId('fixed-charge-selector-0')).toBeInTheDocument()
       })
@@ -209,11 +148,9 @@ describe('FixedChargesSection', () => {
     describe('WHEN the user clicks the add fixed charge button', () => {
       it('THEN should open the drawer', async () => {
         const user = userEvent.setup()
-        const formikProps = createFormikProps()
+        const form = createForm()
 
-        render(
-          <FixedChargesSection formikProps={formikProps} alreadyExistingFixedChargesIds={[]} />,
-        )
+        render(<FixedChargesSection form={form} alreadyExistingFixedChargesIds={[]} />)
 
         await user.click(screen.getByTestId(FIXED_CHARGES_ADD_BUTTON_TEST_ID))
 
@@ -228,11 +165,9 @@ describe('FixedChargesSection', () => {
       it('THEN should open the drawer with the charge data', async () => {
         const user = userEvent.setup()
         const fixedCharge = createMockFixedCharge()
-        const formikProps = createFormikProps({ fixedCharges: [fixedCharge] })
+        const form = createForm({ fixedCharges: [fixedCharge] })
 
-        render(
-          <FixedChargesSection formikProps={formikProps} alreadyExistingFixedChargesIds={[]} />,
-        )
+        render(<FixedChargesSection form={form} alreadyExistingFixedChargesIds={[]} />)
 
         await user.click(screen.getByTestId('fixed-charge-selector-0'))
 
@@ -249,14 +184,12 @@ describe('FixedChargesSection', () => {
     describe('WHEN the component renders with fixed charges', () => {
       it('THEN should display the bill fixed charges monthly switch', () => {
         const fixedCharge = createMockFixedCharge()
-        const formikProps = createFormikProps({
+        const form = createForm({
           fixedCharges: [fixedCharge],
           interval: PlanInterval.Yearly,
         })
 
-        render(
-          <FixedChargesSection formikProps={formikProps} alreadyExistingFixedChargesIds={[]} />,
-        )
+        render(<FixedChargesSection form={form} alreadyExistingFixedChargesIds={[]} />)
 
         // The Switch component renders an input with aria-label={name}
         const switchEl = screen.getByLabelText('billFixedChargesMonthly') as HTMLInputElement
@@ -270,11 +203,11 @@ describe('FixedChargesSection', () => {
     describe('WHEN there are charges and isInSubscriptionForm is true', () => {
       it('THEN should not render the add button', () => {
         const fixedCharge = createMockFixedCharge()
-        const formikProps = createFormikProps({ fixedCharges: [fixedCharge] })
+        const form = createForm({ fixedCharges: [fixedCharge] })
 
         render(
           <FixedChargesSection
-            formikProps={formikProps}
+            form={form}
             alreadyExistingFixedChargesIds={[]}
             isInSubscriptionForm
           />,
@@ -285,11 +218,11 @@ describe('FixedChargesSection', () => {
 
       it('THEN should still render the charge selectors', () => {
         const fixedCharge = createMockFixedCharge()
-        const formikProps = createFormikProps({ fixedCharges: [fixedCharge] })
+        const form = createForm({ fixedCharges: [fixedCharge] })
 
         render(
           <FixedChargesSection
-            formikProps={formikProps}
+            form={form}
             alreadyExistingFixedChargesIds={[]}
             isInSubscriptionForm
           />,

@@ -18,7 +18,12 @@ const AmountInputField = forwardRef<HTMLDivElement, AmountInputFieldProps>(
   ({ silentError = false, displayErrorText = true, errorOverride, ...props }, ref) => {
     const field = useFieldContext<string | number | undefined>()
 
-    const finalError = useFieldError({ silentError, displayErrorText, translateErrors: true })
+    const finalError = useFieldError({
+      silentError,
+      displayErrorText,
+      translateErrors: true,
+      firstOnly: true,
+    })
 
     return (
       <AmountInput

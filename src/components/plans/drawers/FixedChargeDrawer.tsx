@@ -406,18 +406,11 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
                       )
 
                       if (selectedAddOn) {
-                        form.reset(
-                          {
-                            ...form.state.values,
-                            addOnId: selectedAddOn.id,
-                            addOn: {
-                              id: selectedAddOn.id,
-                              name: selectedAddOn.name,
-                              code: selectedAddOn.code,
-                            },
-                          },
-                          { keepDefaultValues: true },
-                        )
+                        form.setFieldValue('addOn', {
+                          id: selectedAddOn.id,
+                          name: selectedAddOn.name,
+                          code: selectedAddOn.code,
+                        })
                       }
                     },
                   }}
@@ -446,7 +439,6 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
                     icon="puzzle"
                     title={formValues.addOn.name}
                     subtitle={formValues.addOn.code}
-                    disabled
                   />
                 </CenteredPage.PageSection>
 

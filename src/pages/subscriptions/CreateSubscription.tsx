@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useFormik } from 'formik'
 import { Icon } from 'lago-design-system'
-import { debounce } from 'lodash'
 import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -41,9 +40,8 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
-import { MinimumCommitmentFormValues } from '~/components/plans/drawers/MinimumCommitmentDrawer'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
-import { PlanSettingsFormValues, PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
+import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
@@ -63,7 +61,6 @@ import { getTimezoneConfig } from '~/core/timezone'
 import {
   AddSubscriptionPlanFragmentDoc,
   BillingTimeEnum,
-  CommitmentTypeEnum,
   CurrencyEnum,
   FeatureEntitlementForPlanFragmentDoc,
   FeatureFlagEnum,
@@ -352,8 +349,8 @@ const CreateSubscription = () => {
       const errorsString = await onSave(
         customerId as string,
         localValues,
-        planFormikProps.values,
-        planFormikProps.dirty,
+        planForm.state.values,
+        planForm.state.isDirty,
       )
 
       if (errorsString === 'CurrenciesDoesNotMatch') {
@@ -367,34 +364,10 @@ const CreateSubscription = () => {
       }
     },
   })
-  const { formikProps: planFormikProps, plan } = usePlanForm({
+  const { form: planForm, plan } = usePlanForm({
     planIdToFetch: subscriptionFormikProps.values.planId,
     isUsedInSubscriptionForm: true,
   })
-
-  const planSettingsInitialValues = useMemo<PlanSettingsFormValues>(
-    () => ({
-      name: planFormikProps.initialValues.name ?? '',
-      code: planFormikProps.initialValues.code ?? '',
-      description: planFormikProps.initialValues.description ?? '',
-      interval: planFormikProps.initialValues.interval ?? PlanInterval.Monthly,
-      amountCurrency: planFormikProps.initialValues.amountCurrency ?? CurrencyEnum.Usd,
-      taxes: planFormikProps.initialValues.taxes ?? [],
-    }),
-    [planFormikProps.initialValues],
-  )
-
-  // Have to debounce udpate to formik to avoir form slowlyness for now
-  // While tanstack works very fast, formik code is still there and would affect the rendering so better to delay it a bit
-  const handlePlanSettingsChange = useMemo(
-    () =>
-      debounce((changes: Partial<PlanSettingsFormValues>) => {
-        Object.entries(changes).forEach(([key, value]) => {
-          planFormikProps.setFieldValue(key, value)
-        })
-      }, 100),
-    [planFormikProps],
-  )
 
   const subscriptionPlanId = subscriptionFormikProps.values.planId
   const alreadyExistingPlanFixedChargesIds =
@@ -416,7 +389,7 @@ const CreateSubscription = () => {
   // Remove currency error is value changes
   useEffect(() => {
     setShowCurrencyError(false)
-  }, [planFormikProps.values.amountCurrency])
+  }, [planForm.state.values.amountCurrency])
 
   const selectedPlan = useMemo(() => {
     if (!planData?.plans?.collection || !subscriptionPlanId) return undefined
@@ -543,8 +516,8 @@ const CreateSubscription = () => {
         fullWidth
         disabled={
           !subscriptionFormikProps.isValid ||
-          !planFormikProps.isValid ||
-          (!subscriptionFormikProps.dirty && !planFormikProps.dirty)
+          !planForm.state.canSubmit ||
+          (!subscriptionFormikProps.dirty && !planForm.state.isDirty)
         }
         loading={subscriptionFormikProps.isSubmitting}
         onClick={subscriptionFormikProps.submitForm}
@@ -557,8 +530,8 @@ const CreateSubscription = () => {
     )
   }, [
     formType,
-    planFormikProps.dirty,
-    planFormikProps.isValid,
+    planForm.state.isDirty,
+    planForm.state.canSubmit,
     subscriptionFormikProps.dirty,
     subscriptionFormikProps.isSubmitting,
     subscriptionFormikProps.isValid,
@@ -590,7 +563,7 @@ const CreateSubscription = () => {
             variant="quaternary"
             icon="close"
             onClick={() => {
-              if (subscriptionFormikProps.dirty || planFormikProps.dirty) {
+              if (subscriptionFormikProps.dirty || planForm.state.isDirty) {
                 warningDialogRef.current?.openDialog()
               } else {
                 const origin = searchParams.get('origin')
@@ -918,17 +891,16 @@ const CreateSubscription = () => {
                         <Card>
                           <CenteredPage.SubsectionWrapper>
                             <PlanSettingsSection
+                              form={planForm}
                               isInSubscriptionForm={isInSubscriptionForm}
                               subscriptionFormType={formType}
-                              initialValuesFromFormik={planSettingsInitialValues}
-                              onSettingsChange={handlePlanSettingsChange}
                             />
                           </CenteredPage.SubsectionWrapper>
                         </Card>
 
                         <PlanFormProvider
-                          currency={planFormikProps.values.amountCurrency || CurrencyEnum.Usd}
-                          interval={planFormikProps.values.interval || PlanInterval.Monthly}
+                          currency={planForm.state.values.amountCurrency || CurrencyEnum.Usd}
+                          interval={planForm.state.values.interval || PlanInterval.Monthly}
                         >
                           <Card className="gap-12">
                             <CenteredPage.PageTitle
@@ -938,28 +910,22 @@ const CreateSubscription = () => {
 
                             <CenteredPage.SubsectionWrapper>
                               <SubscriptionFeeSection
-                                formikProps={planFormikProps}
+                                form={planForm}
                                 isInSubscriptionForm={isInSubscriptionForm}
                                 subscriptionFormType={formType}
-                                onDrawerSave={(values) => {
-                                  planFormikProps.setValues({
-                                    ...planFormikProps.values,
-                                    ...values,
-                                  })
-                                }}
                               />
 
                               <FixedChargesSection
                                 alreadyExistingFixedChargesIds={alreadyExistingPlanFixedChargesIds}
                                 canBeEdited={formType === FORM_TYPE_ENUM.edition}
-                                formikProps={planFormikProps}
+                                form={planForm}
                                 isEdition={formType === FORM_TYPE_ENUM.edition}
                                 isInSubscriptionForm={isInSubscriptionForm}
                               />
 
                               <UsageChargesSection
                                 alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
-                                formikProps={planFormikProps}
+                                form={planForm}
                                 isEdition={formType === FORM_TYPE_ENUM.edition}
                                 isInSubscriptionForm={isInSubscriptionForm}
                                 premiumWarningDialogRef={premiumWarningDialogRef}
@@ -975,16 +941,7 @@ const CreateSubscription = () => {
                             />
 
                             <CenteredPage.SubsectionWrapper>
-                              <CommitmentsSection
-                                formikProps={planFormikProps}
-                                onDrawerSave={(values: MinimumCommitmentFormValues) => {
-                                  planFormikProps.setFieldValue('minimumCommitment', {
-                                    ...planFormikProps.values.minimumCommitment,
-                                    ...values,
-                                    commitmentType: CommitmentTypeEnum.MinimumCommitment,
-                                  })
-                                }}
-                              />
+                              <CommitmentsSection form={planForm} />
 
                               {formType === FORM_TYPE_ENUM.creation && (
                                 <>

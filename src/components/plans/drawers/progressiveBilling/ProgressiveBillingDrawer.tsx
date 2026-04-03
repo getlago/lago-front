@@ -66,6 +66,14 @@ export const ProgressiveBillingDrawer = forwardRef<
       title: translate('text_1724179887722baucvj7bvc1'),
       shouldPromptOnClose: () => form.state.isDirty,
       onClose: () => form.reset(),
+      onEntered: () => {
+        // Focus the first amount input in the threshold table
+        const firstInput = document.querySelector(
+          '[data-test="base-drawer-paper"]:last-child input',
+        ) as HTMLInputElement
+
+        firstInput?.focus()
+      },
       children: (
         <PlanFormProvider currency={currency} interval={interval}>
           <ProgressiveBillingDrawerContent

@@ -4,6 +4,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex size-full min-h-full flex-col overflow-auto"
@@ -2201,6 +2202,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex size-full min-h-full flex-col overflow-auto"
@@ -3222,6 +3224,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex size-full min-h-full flex-col overflow-auto"
@@ -4243,6 +4246,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex size-full min-h-full flex-col overflow-auto"
@@ -5261,6 +5265,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex size-full min-h-full flex-col overflow-auto"
@@ -6228,6 +6233,7 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex size-full min-h-full flex-col overflow-auto"

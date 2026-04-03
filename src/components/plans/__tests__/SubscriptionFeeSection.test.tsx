@@ -1,9 +1,8 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { FormikProps } from 'formik'
 
-import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import { render } from '~/test-utils'
+import { createMockPlanForm } from '~/test-utils/createMockPlanForm'
 
 import { SubscriptionFeeSection } from '../SubscriptionFeeSection'
 import { PlanFormInput } from '../types'
@@ -54,66 +53,10 @@ jest.mock('~/components/plans/drawers/SubscriptionFeeDrawer', () => {
 
 // --- Helpers ---
 
-const createFormikProps = (overrides: Partial<PlanFormInput> = {}): FormikProps<PlanFormInput> => {
-  const defaultValues: PlanFormInput = {
-    name: 'Test Plan',
-    code: 'test-plan',
-    description: '',
-    interval: PlanInterval.Monthly,
-    payInAdvance: false,
-    amountCents: '100',
-    amountCurrency: CurrencyEnum.Usd,
-    trialPeriod: 0,
-    taxes: [],
-    billChargesMonthly: false,
-    billFixedChargesMonthly: false,
-    charges: [],
-    fixedCharges: [],
-    minimumCommitment: {},
-    invoiceDisplayName: '',
-    entitlements: [],
-    ...overrides,
-  }
-
-  return {
-    values: defaultValues,
-    initialValues: defaultValues,
-    errors: {},
-    touched: {},
-    isSubmitting: false,
-    isValidating: false,
-    submitCount: 0,
-    dirty: false,
-    isValid: true,
-    status: undefined,
-    handleBlur: jest.fn(),
-    handleChange: jest.fn(),
-    handleReset: jest.fn(),
-    handleSubmit: jest.fn(),
-    resetForm: jest.fn(),
-    setErrors: jest.fn(),
-    setFieldError: jest.fn(),
-    setFieldTouched: jest.fn(),
-    setFieldValue: jest.fn(),
-    setFormikState: jest.fn(),
-    setStatus: jest.fn(),
-    setSubmitting: jest.fn(),
-    setTouched: jest.fn(),
-    setValues: jest.fn(),
-    submitForm: jest.fn(),
-    validateForm: jest.fn(),
-    validateField: jest.fn(),
-    getFieldHelpers: jest.fn(),
-    getFieldMeta: jest.fn(),
-    getFieldProps: jest.fn(),
-    registerField: jest.fn(),
-    unregisterField: jest.fn(),
-  } as unknown as FormikProps<PlanFormInput>
-}
+const createForm = (overrides: Partial<PlanFormInput> = {}) => createMockPlanForm(overrides)
 
 const defaultProps = {
-  formikProps: createFormikProps(),
-  onDrawerSave: jest.fn(),
+  form: createForm(),
 }
 
 const getSelector = () => screen.getByRole('button', { name: /\$100/i })
@@ -145,14 +88,14 @@ describe('SubscriptionFeeSection', () => {
     describe('WHEN the selector is clicked', () => {
       it('THEN should open the drawer with current formik values', async () => {
         const user = userEvent.setup()
-        const formikProps = createFormikProps({
+        const form = createForm({
           amountCents: '250',
           payInAdvance: true,
           trialPeriod: 14,
           invoiceDisplayName: 'Custom Fee',
         })
 
-        render(<SubscriptionFeeSection {...defaultProps} formikProps={formikProps} />)
+        render(<SubscriptionFeeSection {...defaultProps} form={form} />)
 
         await user.click(screen.getByRole('button', { name: /\$250/i }))
 
@@ -168,11 +111,11 @@ describe('SubscriptionFeeSection', () => {
     describe('WHEN formik values have no trialPeriod', () => {
       it('THEN should default to 0 when drawer is opened', async () => {
         const user = userEvent.setup()
-        const formikProps = createFormikProps({
+        const form = createForm({
           trialPeriod: undefined as unknown as number,
         })
 
-        render(<SubscriptionFeeSection {...defaultProps} formikProps={formikProps} />)
+        render(<SubscriptionFeeSection {...defaultProps} form={form} />)
 
         await user.click(getSelector())
 
@@ -187,9 +130,9 @@ describe('SubscriptionFeeSection', () => {
     describe('WHEN formik trialPeriod is 0', () => {
       it('THEN should preserve 0 as a number instead of converting to undefined', async () => {
         const user = userEvent.setup()
-        const formikProps = createFormikProps({ trialPeriod: 0 })
+        const form = createForm({ trialPeriod: 0 })
 
-        render(<SubscriptionFeeSection {...defaultProps} formikProps={formikProps} />)
+        render(<SubscriptionFeeSection {...defaultProps} form={form} />)
 
         await user.click(getSelector())
 
@@ -205,13 +148,9 @@ describe('SubscriptionFeeSection', () => {
   describe('GIVEN the section has validation errors', () => {
     describe('WHEN amountCents has an error', () => {
       it('THEN should still render the section', () => {
-        const formikProps = createFormikProps()
+        const form = createForm()
 
-        ;(formikProps as unknown as { errors: Record<string, string> }).errors = {
-          amountCents: 'required',
-        }
-
-        render(<SubscriptionFeeSection {...defaultProps} formikProps={formikProps} />)
+        render(<SubscriptionFeeSection {...defaultProps} form={form} />)
 
         expect(getSelector()).toBeInTheDocument()
       })

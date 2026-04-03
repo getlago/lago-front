@@ -1,10 +1,10 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { FormikProps } from 'formik'
 
-import { CurrencyEnum, PlanInterval, PremiumIntegrationTypeEnum } from '~/generated/graphql'
+import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { render } from '~/test-utils'
+import { createMockPlanForm } from '~/test-utils/createMockPlanForm'
 
 import {
   ADD_PROGRESSIVE_BILLING_TEST_ID,
@@ -59,66 +59,10 @@ jest.mock('~/components/premium/PremiumFeature', () => {
 
 // --- Helpers ---
 
-const createFormikProps = (overrides: Partial<PlanFormInput> = {}): FormikProps<PlanFormInput> => {
-  const defaultValues: PlanFormInput = {
-    name: 'Test Plan',
-    code: 'test-plan',
-    description: '',
-    interval: PlanInterval.Monthly,
-    payInAdvance: false,
-    amountCents: '100',
-    amountCurrency: CurrencyEnum.Usd,
-    trialPeriod: 0,
-    taxes: [],
-    billChargesMonthly: false,
-    billFixedChargesMonthly: false,
-    charges: [],
-    fixedCharges: [],
-    minimumCommitment: {},
-    invoiceDisplayName: '',
-    entitlements: [],
-    ...overrides,
-  }
-
-  return {
-    values: defaultValues,
-    initialValues: defaultValues,
-    errors: {},
-    touched: {},
-    isSubmitting: false,
-    isValidating: false,
-    submitCount: 0,
-    dirty: false,
-    isValid: true,
-    status: undefined,
-    handleBlur: jest.fn(),
-    handleChange: jest.fn(),
-    handleReset: jest.fn(),
-    handleSubmit: jest.fn(),
-    resetForm: jest.fn(),
-    setErrors: jest.fn(),
-    setFieldError: jest.fn(),
-    setFieldTouched: jest.fn(),
-    setFieldValue: jest.fn(),
-    setFormikState: jest.fn(),
-    setStatus: jest.fn(),
-    setSubmitting: jest.fn(),
-    setTouched: jest.fn(),
-    setValues: jest.fn(),
-    submitForm: jest.fn(),
-    validateForm: jest.fn(),
-    validateField: jest.fn(),
-    getFieldHelpers: jest.fn(),
-    getFieldMeta: jest.fn(),
-    getFieldProps: jest.fn(),
-    registerField: jest.fn(),
-    unregisterField: jest.fn(),
-  } as unknown as FormikProps<PlanFormInput>
-}
+const createForm = (overrides: Partial<PlanFormInput> = {}) => createMockPlanForm(overrides)
 
 const defaultProps = {
-  formikProps: createFormikProps(),
-  onDrawerSave: jest.fn(),
+  form: createForm(),
 }
 
 const setupPremiumIntegration = () => {
@@ -176,7 +120,7 @@ describe('ProgressiveBillingSection', () => {
   })
 
   describe('GIVEN thresholds exist', () => {
-    const formikWithThresholds = createFormikProps({
+    const formWithThresholds = createForm({
       nonRecurringUsageThresholds: [
         { amountCents: 100, recurring: false },
         { amountCents: 500, recurring: false },
@@ -186,17 +130,13 @@ describe('ProgressiveBillingSection', () => {
 
     describe('WHEN the component is rendered', () => {
       it('THEN should render the Selector card', () => {
-        render(
-          <ProgressiveBillingSection formikProps={formikWithThresholds} onDrawerSave={jest.fn()} />,
-        )
+        render(<ProgressiveBillingSection form={formWithThresholds} />)
 
         expect(screen.getByTestId(OPEN_PROGRESSIVE_BILLING_DRAWER_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should not render the add button', () => {
-        render(
-          <ProgressiveBillingSection formikProps={formikWithThresholds} onDrawerSave={jest.fn()} />,
-        )
+        render(<ProgressiveBillingSection form={formWithThresholds} />)
 
         expect(screen.queryByTestId(ADD_PROGRESSIVE_BILLING_TEST_ID)).not.toBeInTheDocument()
       })
@@ -206,9 +146,7 @@ describe('ProgressiveBillingSection', () => {
       it('THEN should open the drawer with current values', async () => {
         const user = userEvent.setup()
 
-        render(
-          <ProgressiveBillingSection formikProps={formikWithThresholds} onDrawerSave={jest.fn()} />,
-        )
+        render(<ProgressiveBillingSection form={formWithThresholds} />)
 
         await user.click(screen.getByTestId(OPEN_PROGRESSIVE_BILLING_DRAWER_TEST_ID))
 
@@ -248,17 +186,15 @@ describe('ProgressiveBillingSection', () => {
   })
 
   describe('GIVEN the delete action', () => {
-    const formikWithThresholds = createFormikProps({
+    const formWithThresholds = createForm({
       nonRecurringUsageThresholds: [{ amountCents: 100, recurring: false }],
     })
 
     describe('WHEN the delete action triggers', () => {
-      it('THEN should clear Formik threshold values', () => {
+      it('THEN should clear threshold values', () => {
         // We can't easily trigger hover actions in tests, but we can verify
-        // the formikProps.setFieldValue is available for clearing
-        render(
-          <ProgressiveBillingSection formikProps={formikWithThresholds} onDrawerSave={jest.fn()} />,
-        )
+        // the form.setFieldValue is available for clearing
+        render(<ProgressiveBillingSection form={formWithThresholds} />)
 
         expect(screen.getByTestId(OPEN_PROGRESSIVE_BILLING_DRAWER_TEST_ID)).toBeInTheDocument()
       })
