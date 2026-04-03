@@ -60,17 +60,8 @@ gql`
     }
   }
 
-  query getMeteredBillableMetrics($page: Int, $limit: Int, $searchTerm: String) {
-    billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm, recurring: false) {
-      collection {
-        id
-        ...BillableMetricForUsageChargeSection
-      }
-    }
-  }
-
-  query getRecurringBillableMetrics($page: Int, $limit: Int, $searchTerm: String) {
-    billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm, recurring: true) {
+  query getBillableMetrics($page: Int, $limit: Int, $searchTerm: String) {
+    billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
       collection {
         id
         ...BillableMetricForUsageChargeSection

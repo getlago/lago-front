@@ -11274,23 +11274,14 @@ export type GetAddOnsForFixedChargesSectionQuery = { __typename?: 'Query', addOn
 
 export type BillableMetricForUsageChargeSectionFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null };
 
-export type GetMeteredBillableMetricsQueryVariables = Exact<{
+export type GetBillableMetricsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type GetMeteredBillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null }> } };
-
-export type GetRecurringBillableMetricsQueryVariables = Exact<{
-  page?: InputMaybe<Scalars['Int']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  searchTerm?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type GetRecurringBillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null }> } };
+export type GetBillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null }> } };
 
 export type UsageChargeForDrawerFragment = { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, invoiceable: boolean, minAmountCents: any, payInAdvance: boolean, prorated: boolean, invoiceDisplayName?: string | null, regroupPaidFees?: RegroupPaidFeesEnum | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any, properties: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string> }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null };
 
@@ -25788,14 +25779,9 @@ export type GetAddOnsForFixedChargesSectionQueryHookResult = ReturnType<typeof u
 export type GetAddOnsForFixedChargesSectionLazyQueryHookResult = ReturnType<typeof useGetAddOnsForFixedChargesSectionLazyQuery>;
 export type GetAddOnsForFixedChargesSectionSuspenseQueryHookResult = ReturnType<typeof useGetAddOnsForFixedChargesSectionSuspenseQuery>;
 export type GetAddOnsForFixedChargesSectionQueryResult = Apollo.QueryResult<GetAddOnsForFixedChargesSectionQuery, GetAddOnsForFixedChargesSectionQueryVariables>;
-export const GetMeteredBillableMetricsDocument = gql`
-    query getMeteredBillableMetrics($page: Int, $limit: Int, $searchTerm: String) {
-  billableMetrics(
-    page: $page
-    limit: $limit
-    searchTerm: $searchTerm
-    recurring: false
-  ) {
+export const GetBillableMetricsDocument = gql`
+    query getBillableMetrics($page: Int, $limit: Int, $searchTerm: String) {
+  billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
     collection {
       id
       ...BillableMetricForUsageChargeSection
@@ -25805,16 +25791,16 @@ export const GetMeteredBillableMetricsDocument = gql`
     ${BillableMetricForUsageChargeSectionFragmentDoc}`;
 
 /**
- * __useGetMeteredBillableMetricsQuery__
+ * __useGetBillableMetricsQuery__
  *
- * To run a query within a React component, call `useGetMeteredBillableMetricsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetMeteredBillableMetricsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetBillableMetricsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillableMetricsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetMeteredBillableMetricsQuery({
+ * const { data, loading, error } = useGetBillableMetricsQuery({
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
@@ -25822,78 +25808,25 @@ export const GetMeteredBillableMetricsDocument = gql`
  *   },
  * });
  */
-export function useGetMeteredBillableMetricsQuery(baseOptions?: Apollo.QueryHookOptions<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>) {
+export function useGetBillableMetricsQuery(baseOptions?: Apollo.QueryHookOptions<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>(GetMeteredBillableMetricsDocument, options);
+        return Apollo.useQuery<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>(GetBillableMetricsDocument, options);
       }
-export function useGetMeteredBillableMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>) {
+export function useGetBillableMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>(GetMeteredBillableMetricsDocument, options);
+          return Apollo.useLazyQuery<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>(GetBillableMetricsDocument, options);
         }
 // @ts-ignore
-export function useGetMeteredBillableMetricsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>;
-export function useGetMeteredBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<GetMeteredBillableMetricsQuery | undefined, GetMeteredBillableMetricsQueryVariables>;
-export function useGetMeteredBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>) {
+export function useGetBillableMetricsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>;
+export function useGetBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsQuery | undefined, GetBillableMetricsQueryVariables>;
+export function useGetBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>(GetMeteredBillableMetricsDocument, options);
+          return Apollo.useSuspenseQuery<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>(GetBillableMetricsDocument, options);
         }
-export type GetMeteredBillableMetricsQueryHookResult = ReturnType<typeof useGetMeteredBillableMetricsQuery>;
-export type GetMeteredBillableMetricsLazyQueryHookResult = ReturnType<typeof useGetMeteredBillableMetricsLazyQuery>;
-export type GetMeteredBillableMetricsSuspenseQueryHookResult = ReturnType<typeof useGetMeteredBillableMetricsSuspenseQuery>;
-export type GetMeteredBillableMetricsQueryResult = Apollo.QueryResult<GetMeteredBillableMetricsQuery, GetMeteredBillableMetricsQueryVariables>;
-export const GetRecurringBillableMetricsDocument = gql`
-    query getRecurringBillableMetrics($page: Int, $limit: Int, $searchTerm: String) {
-  billableMetrics(
-    page: $page
-    limit: $limit
-    searchTerm: $searchTerm
-    recurring: true
-  ) {
-    collection {
-      id
-      ...BillableMetricForUsageChargeSection
-    }
-  }
-}
-    ${BillableMetricForUsageChargeSectionFragmentDoc}`;
-
-/**
- * __useGetRecurringBillableMetricsQuery__
- *
- * To run a query within a React component, call `useGetRecurringBillableMetricsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetRecurringBillableMetricsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetRecurringBillableMetricsQuery({
- *   variables: {
- *      page: // value for 'page'
- *      limit: // value for 'limit'
- *      searchTerm: // value for 'searchTerm'
- *   },
- * });
- */
-export function useGetRecurringBillableMetricsQuery(baseOptions?: Apollo.QueryHookOptions<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>(GetRecurringBillableMetricsDocument, options);
-      }
-export function useGetRecurringBillableMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>(GetRecurringBillableMetricsDocument, options);
-        }
-// @ts-ignore
-export function useGetRecurringBillableMetricsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>;
-export function useGetRecurringBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRecurringBillableMetricsQuery | undefined, GetRecurringBillableMetricsQueryVariables>;
-export function useGetRecurringBillableMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>(GetRecurringBillableMetricsDocument, options);
-        }
-export type GetRecurringBillableMetricsQueryHookResult = ReturnType<typeof useGetRecurringBillableMetricsQuery>;
-export type GetRecurringBillableMetricsLazyQueryHookResult = ReturnType<typeof useGetRecurringBillableMetricsLazyQuery>;
-export type GetRecurringBillableMetricsSuspenseQueryHookResult = ReturnType<typeof useGetRecurringBillableMetricsSuspenseQuery>;
-export type GetRecurringBillableMetricsQueryResult = Apollo.QueryResult<GetRecurringBillableMetricsQuery, GetRecurringBillableMetricsQueryVariables>;
+export type GetBillableMetricsQueryHookResult = ReturnType<typeof useGetBillableMetricsQuery>;
+export type GetBillableMetricsLazyQueryHookResult = ReturnType<typeof useGetBillableMetricsLazyQuery>;
+export type GetBillableMetricsSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricsSuspenseQuery>;
+export type GetBillableMetricsQueryResult = Apollo.QueryResult<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>;
 export const DeleteDunningCampaignDocument = gql`
     mutation deleteDunningCampaign($input: DestroyDunningCampaignInput!) {
   destroyDunningCampaign(input: $input) {

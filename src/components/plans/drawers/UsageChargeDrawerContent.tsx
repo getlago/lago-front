@@ -1,5 +1,5 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { RefObject, useCallback, useEffect, useMemo, useRef } from 'react'
+import { RefObject, useCallback, useMemo, useRef } from 'react'
 import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
@@ -47,8 +47,7 @@ import {
   ChargeModelEnum,
   CurrencyEnum,
   PlanInterval,
-  useGetMeteredBillableMetricsLazyQuery,
-  useGetRecurringBillableMetricsLazyQuery,
+  useGetBillableMetricsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
@@ -116,50 +115,17 @@ export const UsageChargeDrawerContent = withForm({
 
     const isCreatePickerScreen = isCreateMode && !formValues.billableMetricId
 
-    const [getMeteredBillableMetrics, { data: meteredBmData }] =
-      useGetMeteredBillableMetricsLazyQuery({
-        fetchPolicy: 'network-only',
-        nextFetchPolicy: 'network-only',
-        variables: { limit: 1000 },
-      })
-
-    const [getRecurringBillableMetrics, { data: recurringBmData }] =
-      useGetRecurringBillableMetricsLazyQuery({
-        fetchPolicy: 'network-only',
-        nextFetchPolicy: 'network-only',
-        variables: { limit: 1000 },
-      })
-
-    const combinedSearchQuery = useCallback(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      async (options?: any) => {
-        const vars = { variables: { searchTerm: options?.variables?.searchTerm, limit: 1000 } }
-
-        const [results] = await Promise.all([
-          getMeteredBillableMetrics(vars),
-          getRecurringBillableMetrics(vars),
-        ])
-
-        return results
-      },
-      [getMeteredBillableMetrics, getRecurringBillableMetrics],
-    )
-
-    // Pre-fetch billable metrics on mount so data is ready when ComboBox is focused
-    useEffect(() => {
-      if (isCreateMode) {
-        combinedSearchQuery()
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    const [getBillableMetrics, { data: billableMetricsData }] = useGetBillableMetricsLazyQuery({
+      notifyOnNetworkStatusChange: true,
+      variables: { limit: 1000 },
+    })
 
     const billableMetricsComboboxData = useMemo(() => {
       const result: ComboboxDataGrouped[] = []
 
-      const meteredCollection = meteredBmData?.billableMetrics?.collection || []
-      const recurringCollection = recurringBmData?.billableMetrics?.collection || []
+      const collection = billableMetricsData?.billableMetrics?.collection || []
 
-      for (const { id, name, code } of meteredCollection) {
+      for (const { id, name, code, recurring } of collection) {
         result.push({
           label: `${name} (${code})`,
           labelNode: (
@@ -173,30 +139,12 @@ export const UsageChargeDrawerContent = withForm({
             </ComboboxItem>
           ),
           value: id,
-          group: 'metered',
-        })
-      }
-
-      for (const { id, name, code } of recurringCollection) {
-        result.push({
-          label: `${name} (${code})`,
-          labelNode: (
-            <ComboboxItem>
-              <Typography variant="body" color="grey700" noWrap>
-                {name}
-              </Typography>
-              <Typography variant="caption" color="grey600" noWrap>
-                {code}
-              </Typography>
-            </ComboboxItem>
-          ),
-          value: id,
-          group: 'recurring',
+          group: recurring ? 'recurring' : 'metered',
         })
       }
 
       return result
-    }, [meteredBmData?.billableMetrics?.collection, recurringBmData?.billableMetrics?.collection])
+    }, [billableMetricsData?.billableMetrics?.collection])
 
     const renderGroupHeader: Record<string, React.ReactNode> = useMemo(
       () => ({
@@ -554,10 +502,7 @@ export const UsageChargeDrawerContent = withForm({
                 name="billableMetricId"
                 listeners={{
                   onChange: ({ value }: { value: string }) => {
-                    const allBms = [
-                      ...(meteredBmData?.billableMetrics?.collection || []),
-                      ...(recurringBmData?.billableMetrics?.collection || []),
-                    ]
+                    const allBms = [...(billableMetricsData?.billableMetrics?.collection || [])]
                     const selectedBm = allBms.find((bm) => bm.id === value)
 
                     if (selectedBm) {
@@ -581,7 +526,7 @@ export const UsageChargeDrawerContent = withForm({
                   <field.ComboBoxField
                     className={SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME}
                     data={billableMetricsComboboxData}
-                    searchQuery={combinedSearchQuery}
+                    searchQuery={getBillableMetrics}
                     loading={false}
                     placeholder={translate('text_6435888d7cc86500646d8981')}
                     emptyText={translate('text_6246b6bc6b25f500b779aa7a')}
