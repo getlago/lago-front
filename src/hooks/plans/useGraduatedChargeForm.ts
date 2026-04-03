@@ -40,13 +40,13 @@ type UseGraduatedChargeForm = ({
 
 export const DEFAULT_GRADUATED_CHARGES = [
   {
-    fromValue: '0',
-    toValue: '1',
+    fromValue: 0,
+    toValue: 1,
     flatAmount: undefined,
     perUnitAmount: undefined,
   },
   {
-    fromValue: '2',
+    fromValue: 2,
     toValue: null,
     flatAmount: undefined,
     perUnitAmount: undefined,
@@ -137,20 +137,20 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
             acc.push(range)
           } else if (i === addIndex) {
             const newToValue =
-              addIndex === 0 ? '0' : String(Number(graduatedRanges[addIndex - 1]?.toValue || 0) + 1)
+              addIndex === 0 ? 0 : Number(graduatedRanges[addIndex - 1]?.toValue || 0) + 1
 
             acc.push({
               fromValue: newToValue,
-              toValue: String(Number(newToValue) + 1),
+              toValue: newToValue + 1,
               flatAmount: undefined,
               perUnitAmount: undefined,
             })
             acc.push({
               ...range,
               fromValue:
-                Number(range.fromValue || 0) <= Number(newToValue) + 1
-                  ? String(Number(newToValue) + 2)
-                  : String(range.fromValue),
+                Number(range.fromValue || 0) <= newToValue + 1
+                  ? newToValue + 2
+                  : Number(range.fromValue),
             })
           }
 
@@ -171,11 +171,11 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
         const newGraduatedRanges = graduatedRanges.reduce<GraduatedRangeInput[]>(
           (acc, range, i) => {
             if (rangeIndex === i) {
-              acc.push({ ...range, toValue: String(Number(value || 0)) })
+              acc.push({ ...range, toValue: Number(value || 0) })
             } else if (i > rangeIndex) {
               // fromValue should always be toValueOfPreviousRange + 1
               const { toValue } = acc[i - 1]
-              const fromValue = String(Number(toValue || 0) + 1)
+              const fromValue = Number(toValue || 0) + 1
               const formattedToValue = formataAnyToValueForChargeFormArrays(
                 range.toValue,
                 fromValue,
@@ -207,7 +207,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
 
           acc.push({
             ...range,
-            fromValue: String(Number(toValue || 0) + 1),
+            fromValue: Number(toValue || 0) + 1,
           })
         }
         return acc
