@@ -1,11 +1,17 @@
 import { DateTime } from 'luxon'
 
 import { REVENUE_STREAMS_GRAPH_COLORS } from '~/components/designSystem/graphs/const'
-import { TInvoiceCollectionsDataResult } from '~/components/graphs/Invoices'
 import { TGetInvoicedUsagesQuery } from '~/components/graphs/Usage'
 import { TAreaChartDataResult } from '~/components/graphs/utils'
 import { TSubscriptionUsageLifetimeGraphDataResult } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
-import { CurrencyEnum, InvoicePaymentStatusTypeEnum } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  GetInvoiceCollectionsQuery,
+  InvoicePaymentStatusTypeEnum,
+} from '~/generated/graphql'
+
+export type TInvoiceCollectionsDataResult =
+  GetInvoiceCollectionsQuery['invoiceCollections']['collection']
 
 export const AreaGrossRevenuesChartFakeData: TAreaChartDataResult = [
   {

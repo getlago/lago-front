@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { generatePath, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { Spinner } from '~/components/designSystem/Spinner'
 import { getItemFromLS, removeItemFromLS } from '~/core/apolloClient'
@@ -7,13 +7,7 @@ import {
   ORGANIZATION_LS_KEY_ID,
   REDIRECT_AFTER_LOGIN_LS_KEY,
 } from '~/core/constants/localStorageKeys'
-import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import {
-  ANALYTIC_ROUTE,
-  ANALYTIC_TABS_ROUTE,
-  CUSTOMERS_LIST_ROUTE,
-  FORBIDDEN_ROUTE,
-} from '~/core/router'
+import { ANALYTIC_ROUTE, CUSTOMERS_LIST_ROUTE, FORBIDDEN_ROUTE } from '~/core/router'
 import { getRouteForPermission } from '~/core/router/utils/permissionRouteMap'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -66,21 +60,11 @@ const Home = () => {
       // Org mismatch - fall through to default navigation
     }
 
-    // Defined in the router - User has to have both to have access to analytics. Maybe something we should update
-    const canSeeAnalytics = hasPermissions(['analyticsView', 'dataApiView'])
+    const canSeeAnalytics =
+      hasPermissions(['analyticsView', 'dataApiView']) && hasAccessToAnalyticsDashboardsFeature
 
-    // Default home navigation based on permissions
-    if (canSeeAnalytics && !hasAccessToAnalyticsDashboardsFeature) {
+    if (canSeeAnalytics) {
       return navigate(ANALYTIC_ROUTE, { replace: true })
-    }
-
-    if (canSeeAnalytics && hasAccessToAnalyticsDashboardsFeature) {
-      return navigate(
-        generatePath(ANALYTIC_TABS_ROUTE, {
-          tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
-        }),
-        { replace: true },
-      )
     }
 
     // Prioritize customers view

@@ -42,14 +42,6 @@ export enum PlanDetailsTabsOptionsEnum {
   subscriptions = 'subscriptions',
 }
 
-export enum NewAnalyticsTabsOptionsEnum {
-  revenueStreams = 'revenue-streams',
-  mrr = 'mrr',
-  usage = 'usage',
-  prepaidCredits = 'prepaid-credits',
-  invoices = 'invoices',
-}
-
 export enum CustomerDetailsTabsOptions {
   activityLogs = 'activity-logs',
   coupons = 'coupons',
