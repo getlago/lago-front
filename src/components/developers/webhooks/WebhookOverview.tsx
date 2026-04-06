@@ -1,5 +1,6 @@
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { GetWebhookEndpointQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useWebhookEventTypes } from '~/hooks/useWebhookEventTypes'
@@ -91,9 +92,9 @@ export const WebhookOverview = ({ webhook, loading, signatureLabel }: WebhookOve
         <Typography variant="caption" color="grey600">
           {translate('text_6271200984178801ba8bdf22')}
         </Typography>
-        <Typography variant="body" color="grey700" data-test={WEBHOOK_OVERVIEW_URL_VALUE_TEST_ID}>
-          {webhook?.webhookUrl}
-        </Typography>
+        <TypographyWithCopy variant="body" color="grey700" data-test={WEBHOOK_OVERVIEW_URL_VALUE_TEST_ID}>
+          {webhook?.webhookUrl ?? ''}
+        </TypographyWithCopy>
       </div>
 
       <div className="flex flex-col gap-1">
