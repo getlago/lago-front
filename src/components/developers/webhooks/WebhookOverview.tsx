@@ -92,7 +92,11 @@ export const WebhookOverview = ({ webhook, loading, signatureLabel }: WebhookOve
         <Typography variant="caption" color="grey600">
           {translate('text_6271200984178801ba8bdf22')}
         </Typography>
-        <TypographyWithCopy variant="body" color="grey700" data-test={WEBHOOK_OVERVIEW_URL_VALUE_TEST_ID}>
+        <TypographyWithCopy
+          variant="body"
+          color="grey700"
+          data-test={WEBHOOK_OVERVIEW_URL_VALUE_TEST_ID}
+        >
           {webhook?.webhookUrl ?? ''}
         </TypographyWithCopy>
       </div>

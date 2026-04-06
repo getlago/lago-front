@@ -23,7 +23,10 @@ export const TypographyWithCopy: FC<TypographyWithCopyProps> = ({
   const { translate } = useInternationalization()
 
   return (
-    <div className={tw('group flex items-center gap-1', className)} data-test={TYPOGRAPHY_WITH_COPY_CONTAINER_TEST_ID}>
+    <div
+      className={tw('group flex items-center gap-1', className)}
+      data-test={TYPOGRAPHY_WITH_COPY_CONTAINER_TEST_ID}
+    >
       <Typography {...typographyProps}>{children}</Typography>
       <Tooltip placement="top-start" title={translate('text_623b42ff8ee4e000ba87d0c6')}>
         <Button

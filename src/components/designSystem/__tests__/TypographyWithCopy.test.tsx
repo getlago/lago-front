@@ -96,9 +96,7 @@ describe('TypographyWithCopy', () => {
 
         await user.click(screen.getByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID))
 
-        expect(addToast).toHaveBeenCalledWith(
-          expect.objectContaining({ severity: 'info' }),
-        )
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'info' }))
       })
 
       it('THEN should stop event propagation', async () => {
@@ -106,6 +104,7 @@ describe('TypographyWithCopy', () => {
         const user = userEvent.setup()
 
         render(
+          /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */
           <div onClick={parentClickHandler}>
             <TypographyWithCopy>some-value</TypographyWithCopy>
           </div>,

@@ -96,7 +96,7 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
         <DetailsPage.InfoGrid
           grid={[
             { label: translate('text_1772536695408sddzumtfq2t'), value: wallet?.name },
-                        {
+            {
               label: translate('text_1772536695408yflknt6y6q4'),
               value: wallet?.code ? (
                 <TypographyWithCopy variant="body" color="grey700">

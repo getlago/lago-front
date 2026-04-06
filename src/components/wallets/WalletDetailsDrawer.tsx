@@ -720,7 +720,10 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                                               label={translate('text_1741943835752p8v8nrgnuyl')}
                                               value={
                                                 payment?.id ? (
-                                                  <TypographyWithCopy variant="body" color="grey700">
+                                                  <TypographyWithCopy
+                                                    variant="body"
+                                                    color="grey700"
+                                                  >
                                                     {payment.id}
                                                   </TypographyWithCopy>
                                                 ) : undefined
