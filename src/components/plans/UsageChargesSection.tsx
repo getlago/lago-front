@@ -10,7 +10,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
   UsageChargeDrawer,
   UsageChargeDrawerRef,
-} from '~/components/plans/drawers/UsageChargeDrawer'
+} from '~/components/plans/drawers/usageCharge/UsageChargeDrawer'
 import { mapChargeIntervalCopy } from '~/components/plans/utils'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'

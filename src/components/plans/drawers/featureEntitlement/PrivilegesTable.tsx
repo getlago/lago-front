@@ -11,7 +11,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFieldContext } from '~/hooks/forms/formContext'
 import { withForm } from '~/hooks/forms/useAppform'
 
-import { DEFAULT_VALUES } from './featureEntitlementConstants'
+import { DEFAULT_VALUES } from './constants'
 
 export const PrivilegesTable = withForm({
   defaultValues: DEFAULT_VALUES,

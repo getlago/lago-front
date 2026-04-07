@@ -10,7 +10,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
 import { ChargeWrapperSwitch } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { ChargePayInAdvanceOption } from '~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption'
-import { PlanBillingPeriodInfoSection } from '~/components/plans/drawers/PlanBillingPeriodInfoSection'
+import { PlanBillingPeriodInfoSection } from '~/components/plans/drawers/common/PlanBillingPeriodInfoSection'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { usePlanFormContext } from '~/contexts/PlanFormContext'
@@ -30,7 +30,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { useChargeForm } from '~/hooks/plans/useChargeForm'
 
-import { DEFAULT_VALUES, type FixedChargeDrawerFormValues } from './fixedChargeConstants'
+import { DEFAULT_VALUES, type FixedChargeDrawerFormValues } from './constants'
 
 gql`
   fragment AddOnForFixedChargesSection on AddOn {

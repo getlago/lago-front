@@ -11,7 +11,7 @@ import {
   SubscriptionFeeDrawer,
   SubscriptionFeeDrawerRef,
   SubscriptionFeeFormValues,
-} from '~/components/plans/drawers/SubscriptionFeeDrawer'
+} from '~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer'
 import { usePlanFormContext } from '~/contexts/PlanFormContext'
 import { FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'

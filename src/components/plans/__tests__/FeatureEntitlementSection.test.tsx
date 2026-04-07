@@ -17,7 +17,7 @@ import { LocalEntitlementInput, PlanFormInput } from '../types'
 const mockOpenDrawer = jest.fn()
 const mockCloseDrawer = jest.fn()
 
-jest.mock('~/components/plans/drawers/FeatureEntitlementDrawer', () => {
+jest.mock('~/components/plans/drawers/featureEntitlement/FeatureEntitlementDrawer', () => {
   const React = jest.requireActual('react')
 
   const MockedDrawer = React.forwardRef((_props: unknown, ref: unknown) => {

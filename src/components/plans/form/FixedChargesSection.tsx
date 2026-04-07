@@ -10,7 +10,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
   FixedChargeDrawer,
   FixedChargeDrawerRef,
-} from '~/components/plans/drawers/FixedChargeDrawer'
+} from '~/components/plans/drawers/fixedCharge/FixedChargeDrawer'
 import {
   RemoveChargeWarningDialog,
   RemoveChargeWarningDialogRef,

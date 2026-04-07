@@ -10,7 +10,7 @@ import {
   MinimumCommitmentDrawer,
   MinimumCommitmentDrawerRef,
   MinimumCommitmentFormValues,
-} from '~/components/plans/drawers/MinimumCommitmentDrawer'
+} from '~/components/plans/drawers/minimumCommitment/MinimumCommitmentDrawer'
 import {
   mapChargeIntervalCopy,
   returnFirstDefinedArrayRatesSumAsString,

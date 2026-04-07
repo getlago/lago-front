@@ -13,7 +13,7 @@ import { FIXED_CHARGES_ADD_BUTTON_TEST_ID, FixedChargesSection } from '../FixedC
 const mockOpenDrawer = jest.fn()
 const mockCloseDrawer = jest.fn()
 
-jest.mock('~/components/plans/drawers/FixedChargeDrawer', () => {
+jest.mock('~/components/plans/drawers/fixedCharge/FixedChargeDrawer', () => {
   const React = jest.requireActual('react')
 
   const MockedDrawer = React.forwardRef((_props: unknown, ref: unknown) => {

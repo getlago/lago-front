@@ -18,12 +18,7 @@ import { CustomPricingUnitSelector } from '~/components/plans/chargeAccordion/Cu
 import { ChargeInvoicingStrategyOption } from '~/components/plans/chargeAccordion/options/ChargeInvoicingStrategyOption'
 import { ChargePayInAdvanceOption } from '~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption'
 import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
-import {
-  ChargeFilterDrawerContent,
-  chargeFilterDrawerSchema,
-  ChargeFilterFormValues,
-} from '~/components/plans/drawers/ChargeFilterDrawerContent'
-import { PlanBillingPeriodInfoSection } from '~/components/plans/drawers/PlanBillingPeriodInfoSection'
+import { PlanBillingPeriodInfoSection } from '~/components/plans/drawers/common/PlanBillingPeriodInfoSection'
 import {
   LocalChargeFilterInput,
   LocalPricingUnitInput,
@@ -55,7 +50,12 @@ import { useChargeForm } from '~/hooks/plans/useChargeForm'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
-import { DEFAULT_VALUES, UsageChargeDrawerFormValues } from './usageChargeDrawerConstants'
+import {
+  ChargeFilterDrawerContent,
+  chargeFilterDrawerSchema,
+  ChargeFilterFormValues,
+} from './ChargeFilterDrawerContent'
+import { DEFAULT_VALUES, UsageChargeDrawerFormValues } from './constants'
 
 const USAGE_CHARGE_DRAWER_FORM_ID = 'usage-charge-drawer-form'
 

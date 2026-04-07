@@ -239,7 +239,7 @@ jest.mock('~/components/plans/chargeAccordion/CustomPricingUnitSelector', () => 
   CustomPricingUnitSelector: () => <div data-test="custom-pricing-unit-selector" />,
 }))
 
-jest.mock('~/components/plans/drawers/PlanBillingPeriodInfoSection', () => ({
+jest.mock('~/components/plans/drawers/common/PlanBillingPeriodInfoSection', () => ({
   PlanBillingPeriodInfoSection: () => <div data-test={PLAN_BILLING_PERIOD_INFO_SECTION_TEST_ID} />,
 }))
 
@@ -264,7 +264,7 @@ jest.mock('~/components/plans/chargeAccordion/ChargeFilter', () => ({
   buildChargeFilterAddFilterButtonId: jest.fn(() => 'filter-btn-id'),
 }))
 
-jest.mock('~/components/plans/drawers/ChargeFilterDrawerContent', () => ({
+jest.mock('~/components/plans/drawers/usageCharge/ChargeFilterDrawerContent', () => ({
   ChargeFilterDrawerContent: () => <div data-test="charge-filter-drawer-content" />,
   chargeFilterDrawerSchema: {},
 }))
