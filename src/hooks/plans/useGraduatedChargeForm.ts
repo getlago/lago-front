@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react'
 import { LocalChargeFilterInput } from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { GraduatedRangeInput, PropertiesInput } from '~/generated/graphql'
-import { formataAnyToValueForChargeFormArrays } from '~/hooks/plans/utils'
+import { formataAnyToValueForChargeFormArrays, isAdjacentModel } from '~/hooks/plans/utils'
 
 type RangeType = GraduatedRangeInput & { disabledDelete: boolean }
 type InfoCalculationRow = {
@@ -125,25 +125,27 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
     ),
     addRange: () => {
       const addIndex = graduatedRanges?.length - 1 // Add before the last range
+      const adjacent = isAdjacentModel(graduatedRanges)
+      const step = adjacent ? 0 : 1
       const newGraduatedRanges = graduatedRanges.reduce<Partial<GraduatedRangeInput>[]>(
         (acc, range, i) => {
           if (i < addIndex) {
             acc.push(range)
           } else if (i === addIndex) {
             const newToValue =
-              addIndex === 0 ? 0 : Number(graduatedRanges[addIndex - 1]?.toValue || 0) + 1
+              addIndex === 0 ? 0 : Number(graduatedRanges[addIndex - 1]?.toValue || 0) + step
 
             acc.push({
               fromValue: newToValue,
-              toValue: newToValue + 1,
+              toValue: newToValue + step,
               flatAmount: undefined,
               perUnitAmount: undefined,
             })
             acc.push({
               ...range,
               fromValue:
-                Number(range.fromValue || 0) <= newToValue + 1
-                  ? newToValue + 2
+                Number(range.fromValue || 0) <= newToValue + step
+                  ? newToValue + step + step
                   : Number(range.fromValue),
             })
           }
@@ -159,17 +161,25 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
       if (fieldName !== 'toValue') {
         setFieldValue(`${attributeIdentifier}.${rangeIndex}.${fieldName}`, value)
       } else {
+        // Build the new ranges first to detect adjacency model from the updated values
+        const updatedRanges = graduatedRanges.map((range, i) =>
+          i === rangeIndex ? { ...range, toValue: Number(value || 0) } : range,
+        )
+        const adjacent = isAdjacentModel(updatedRanges)
+        const step = adjacent ? 0 : 1
+
         const newGraduatedRanges = graduatedRanges.reduce<GraduatedRangeInput[]>(
           (acc, range, i) => {
             if (rangeIndex === i) {
               acc.push({ ...range, toValue: Number(value || 0) })
             } else if (i > rangeIndex) {
-              // fromValue should always be toValueOfPreviousRange + 1
+              // fromValue should be toValueOfPreviousRange + step
               const { toValue } = acc[i - 1]
-              const fromValue = Number(toValue || 0) + 1
+              const fromValue = Number(toValue || 0) + step
               const formattedToValue = formataAnyToValueForChargeFormArrays(
                 range.toValue,
                 fromValue,
+                adjacent,
               )
 
               acc.push({
@@ -190,21 +200,25 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
       }
     },
     deleteRange: (rangeIndex) => {
+      const remainingRanges = graduatedRanges.filter((_, i) => i !== rangeIndex)
+      const adjacent = isAdjacentModel(remainingRanges)
+      const step = adjacent ? 0 : 1
+
       const newGraduatedRanges = graduatedRanges.reduce<GraduatedRangeInput[]>((acc, range, i) => {
         if (i < rangeIndex) acc.push({ ...range })
-        // fromValue should always be toValueOfPreviousRange + 1
+        // fromValue should be toValueOfPreviousRange + step
         if (i > rangeIndex) {
           const { toValue } = acc[acc.length - 1]
 
           acc.push({
             ...range,
-            fromValue: Number(toValue || 0) + 1,
+            fromValue: Number(toValue || 0) + step,
           })
         }
         return acc
       }, [])
 
-      // Last row needs to has toValue null
+      // Last row needs to have toValue null
       newGraduatedRanges[newGraduatedRanges.length - 1].toValue = null
 
       setFieldValue(attributeIdentifier, newGraduatedRanges)
