@@ -1,6 +1,6 @@
 import { Extension } from '@tiptap/core'
 import type { Node as PmNode } from '@tiptap/pm/model'
-import { NodeSelection, Plugin, PluginKey } from '@tiptap/pm/state'
+import { NodeSelection, Plugin, PluginKey, TextSelection } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import { ALL_ICONS } from 'lago-design-system'
 import { createElement } from 'react'
@@ -41,14 +41,25 @@ export const DragHandle = Extension.create({
     function selectBlock(pos: number) {
       const node = editor.view.state.doc.nodeAt(pos)
 
-      // For tables, the prosemirror-tables plugin converts NodeSelection → CellSelection,
-      // which prevents BlockToolbar from detecting it. Store the block info in storage
-      // so BlockToolbar can use it as a fallback.
+      // For tables, avoid NodeSelection entirely — prosemirror-tables converts it
+      // to CellSelection which causes a flash of selected cells. Instead, place a
+      // TextSelection inside the first cell and use storage for the block-selected
+      // state. The decoration is added via the plugin's decorations prop.
       if (node?.type.name === 'table') {
         storage.selectedBlock = { pos }
-      } else {
-        storage.selectedBlock = null
+
+        // Place cursor inside the first cell so the table remains "active"
+        const $insideTable = editor.view.state.doc.resolve(pos + 1)
+        const textPos = TextSelection.near($insideTable)
+        const tr = editor.view.state.tr.setSelection(textPos)
+
+        editor.view.dispatch(tr)
+        editor.view.focus()
+
+        return
       }
+
+      storage.selectedBlock = null
 
       const tr = editor.view.state.tr.setSelection(
         NodeSelection.create(editor.view.state.doc, pos),
@@ -161,7 +172,23 @@ export const DragHandle = Extension.create({
         },
         props: {
           decorations(state) {
-            return dragHandlePluginKey.getState(state)
+            const handleDecos = dragHandlePluginKey.getState(state) as DecorationSet
+
+            // Add table block-selected decoration from storage
+            if (storage.selectedBlock) {
+              const { pos } = storage.selectedBlock
+              const node = state.doc.nodeAt(pos)
+
+              if (node?.type.name === 'table') {
+                const tableDeco = Decoration.node(pos, pos + node.nodeSize, {
+                  class: 'is-block-selected',
+                })
+
+                return handleDecos.add(state.doc, [tableDeco])
+              }
+            }
+
+            return handleDecos
           },
           handleClick() {
             // User clicked inside the editor content (not on a drag handle).

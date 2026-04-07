@@ -125,7 +125,7 @@
   }
 
   th {
-    @apply bg-grey-100 font-medium;
+    @apply font-medium;
   }
 
   --cell-highlight-size: 2px;
@@ -137,76 +137,68 @@
   }
 
   /* Selected cells — row/column selection via CellSelection.
-     Use directional inset box-shadows so adjacent selected cells
-     form a single continuous outline instead of per-cell borders. */
+     Uses ::before pseudo-elements with negative positioning to extend over
+     collapsed borders, eliminating the gap between adjacent cells.
+     :where() zeroes out specificity so column rules can override. */
 
-  /* === Row selection (horizontal adjacency via sibling selectors) ===
-     :where() zeroes out specificity so column rules (.selectedCell.colSelected)
-     can override these when a column is selected. */
+  /* === Row selection === */
 
-  /* Base: top + bottom on all selected cells */
-  .selectedCell {
-    box-shadow:
-      inset 0 var(--cell-highlight-size) 0 0 var(--cell-highlight-color),
-      inset 0 calc(-1 * var(--cell-highlight-size)) 0 0 var(--cell-highlight-color);
+  /* Base: top + bottom borders. Left/right extend -1px to cover collapsed
+     vertical borders so the blue line is continuous across cells. */
+  .selectedCell::before {
+    content: '';
+    @apply pointer-events-none absolute;
+    top: calc(-1 * var(--cell-highlight-size));
+    bottom: calc(-1 * var(--cell-highlight-size));
+    left: -1px;
+    right: -1px;
+    border-top: var(--cell-highlight-size) solid var(--cell-highlight-color);
+    border-bottom: var(--cell-highlight-size) solid var(--cell-highlight-color);
   }
 
-  /* First selected cell in a horizontal run: add left */
-  .selectedCell:where(:not(.selectedCell + .selectedCell)) {
-    box-shadow:
-      inset var(--cell-highlight-size) 0 0 0 var(--cell-highlight-color),
-      inset 0 var(--cell-highlight-size) 0 0 var(--cell-highlight-color),
-      inset 0 calc(-1 * var(--cell-highlight-size)) 0 0 var(--cell-highlight-color);
+  /* First selected cell in a horizontal run: add left border */
+  .selectedCell:where(:not(.selectedCell + .selectedCell))::before {
+    left: calc(-1 * var(--cell-highlight-size));
+    border-left: var(--cell-highlight-size) solid var(--cell-highlight-color);
   }
 
-  /* Last selected cell in a horizontal run: add right */
-  .selectedCell:where(:not(:has(+ .selectedCell))) {
-    box-shadow:
-      inset calc(-1 * var(--cell-highlight-size)) 0 0 0 var(--cell-highlight-color),
-      inset 0 var(--cell-highlight-size) 0 0 var(--cell-highlight-color),
-      inset 0 calc(-1 * var(--cell-highlight-size)) 0 0 var(--cell-highlight-color);
+  /* Last selected cell in a horizontal run: add right border */
+  .selectedCell:where(:not(:has(+ .selectedCell)))::before {
+    right: calc(-1 * var(--cell-highlight-size));
+    border-right: var(--cell-highlight-size) solid var(--cell-highlight-color);
   }
 
-  /* Single selected cell (both first and last): all 4 sides */
-  .selectedCell:where(:not(.selectedCell + .selectedCell)):where(:not(:has(+ .selectedCell))) {
-    box-shadow: inset 0 0 0 var(--cell-highlight-size) var(--cell-highlight-color);
+  /* === Column selection === */
+
+  /* Base: left + right borders. Top/bottom extend -1px to cover collapsed
+     horizontal borders so the blue line is continuous across rows. */
+  .selectedCell.colSelected::before {
+    top: -1px;
+    bottom: -1px;
+    left: calc(-1 * var(--cell-highlight-size));
+    right: calc(-1 * var(--cell-highlight-size));
+    border-top: none;
+    border-bottom: none;
+    border-left: var(--cell-highlight-size) solid var(--cell-highlight-color);
+    border-right: var(--cell-highlight-size) solid var(--cell-highlight-color);
   }
 
-  /* === Column selection (vertical adjacency via plugin decorations) === */
-
-  /* Base: left + right on all column-selected cells */
-  .selectedCell.colSelected {
-    box-shadow:
-      inset var(--cell-highlight-size) 0 0 0 var(--cell-highlight-color),
-      inset calc(-1 * var(--cell-highlight-size)) 0 0 0 var(--cell-highlight-color);
+  /* First cell in column: add top border */
+  .selectedCell.colSelected--first::before {
+    top: calc(-1 * var(--cell-highlight-size));
+    border-top: var(--cell-highlight-size) solid var(--cell-highlight-color);
   }
 
-  /* First cell in column: add top */
-  .selectedCell.colSelected--first {
-    box-shadow:
-      inset var(--cell-highlight-size) 0 0 0 var(--cell-highlight-color),
-      inset calc(-1 * var(--cell-highlight-size)) 0 0 0 var(--cell-highlight-color),
-      inset 0 var(--cell-highlight-size) 0 0 var(--cell-highlight-color);
-  }
-
-  /* Last cell in column: add bottom */
-  .selectedCell.colSelected--last {
-    box-shadow:
-      inset var(--cell-highlight-size) 0 0 0 var(--cell-highlight-color),
-      inset calc(-1 * var(--cell-highlight-size)) 0 0 0 var(--cell-highlight-color),
-      inset 0 calc(-1 * var(--cell-highlight-size)) 0 0 var(--cell-highlight-color);
-  }
-
-  /* Single-row column selection: all 4 sides */
-  .selectedCell.colSelected--first.colSelected--last {
-    box-shadow: inset 0 0 0 var(--cell-highlight-size) var(--cell-highlight-color);
+  /* Last cell in column: add bottom border */
+  .selectedCell.colSelected--last::before {
+    bottom: calc(-1 * var(--cell-highlight-size));
+    border-bottom: var(--cell-highlight-size) solid var(--cell-highlight-color);
   }
 
   /* Edit mode — extra margin for table controls */
   &:not([contenteditable='false']) {
     table {
-      @apply ml-8;
-      width: calc(100% - 2rem);
+      @apply w-full;
     }
   }
 
@@ -303,21 +295,28 @@
 
 /* Menu trigger buttons on row/column borders */
 .table-controls__menu-btn {
-  @apply flex cursor-pointer items-center justify-center rounded bg-white text-grey-500 opacity-0 shadow-sm ring-1 ring-grey-200 transition-opacity duration-150 ease-in-out hover:bg-grey-100 hover:text-grey-700;
+  @apply flex cursor-pointer items-center justify-center rounded border border-grey-500 bg-white text-grey-500 opacity-0 transition-opacity duration-150 ease-in-out;
 }
 
 .table-controls__menu-btn--row {
   @apply h-5 w-[14px];
+  transform: translateX(-50%);
 }
 
 .table-controls__menu-btn--col {
   @apply h-[14px] w-5;
+  transform: translateY(-50%);
 }
 
 /* Reveal menu buttons when the cell in this row/column is focused */
 .table-controls__row-border-zone[data-focused] .table-controls__menu-btn,
 .table-controls__col-border-zone[data-focused] .table-controls__menu-btn {
   @apply opacity-100;
+}
+
+/* Menu button when its row/column is selected */
+.table-controls__menu-btn.is-selected {
+  @apply border-blue-600 bg-blue-600 text-white opacity-100 hover:bg-blue-700 hover:text-white;
 }
 
 /* "+" button on the right edge to add a column */
@@ -381,6 +380,14 @@
 
 .block-drag-handle:has(+ .spacer[data-type='heading-3']) {
   margin-top: 20px;
+}
+
+.tableWrapper {
+  @apply relative rounded-md p-2 pb-8;
+}
+
+.tableWrapper.is-block-selected {
+  @apply bg-blue-100;
 }
 
 /* Show handle when hovering the spacer/table next to it, or the handle itself */

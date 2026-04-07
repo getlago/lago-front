@@ -115,6 +115,9 @@ const createMockEditor = () => {
     state: {
       selection: { from: 1, $from: { depth: 0, node: () => null } },
     },
+    storage: {
+      dragHandle: { selectedBlock: null },
+    },
     view: {
       domAtPos: jest.fn().mockReturnValue({ node: document.createElement('td') }),
       posAtDOM: jest.fn().mockReturnValue(1),

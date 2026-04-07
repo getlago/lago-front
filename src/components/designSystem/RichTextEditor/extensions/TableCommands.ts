@@ -205,7 +205,7 @@ const focusedCellPluginKey = new PluginKey('focusedCell')
  * - focusedCell: the cell containing the cursor
  * - colSelected / colSelected--first / colSelected--last: column selection borders
  */
-function buildCellDecorations(state: EditorState): DecorationSet {
+function buildCellDecorations(state: EditorState, isTableBlockSelected: boolean): DecorationSet {
   const { selection } = state
   const decorations: Decoration[] = []
 
@@ -229,6 +229,11 @@ function buildCellDecorations(state: EditorState): DecorationSet {
     return DecorationSet.create(state.doc, decorations)
   }
 
+  // Skip focused cell when any CellSelection is active or table is block-selected
+  if (selection instanceof CellSelection || isTableBlockSelected) {
+    return DecorationSet.empty
+  }
+
   // Focused cell: cursor inside a cell (not a CellSelection)
   const $pos = selection.$from
 
@@ -250,16 +255,21 @@ export const TableCommands = Extension.create({
   name: 'tableCommands',
 
   addProseMirrorPlugins() {
+    const editorRef = this.editor
+
     return [
       new Plugin({
         key: focusedCellPluginKey,
         state: {
           init(_, state) {
-            return buildCellDecorations(state)
+            return buildCellDecorations(state, false)
           },
           apply(tr, oldSet, _oldState, newState) {
             if (tr.selectionSet || tr.docChanged) {
-              return buildCellDecorations(newState)
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const isBlockSelected = !!(editorRef.storage as any).dragHandle?.selectedBlock
+
+              return buildCellDecorations(newState, isBlockSelected)
             }
 
             return oldSet

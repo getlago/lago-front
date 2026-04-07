@@ -2,7 +2,7 @@ import type { Editor } from '@tiptap/core'
 import { CellSelection } from '@tiptap/pm/tables'
 import { useEditorState } from '@tiptap/react'
 import { Icon } from 'lago-design-system'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
@@ -44,11 +44,15 @@ const TableControls = ({ editor }: TableControlsProps) => {
     selector: ({ editor: e }) => e.isActive('table'),
   })
 
-  // Derive the focused row/col index from the cursor position
+  // Derive the focused row/col index from the cursor position.
+  // Skip when a CellSelection is active or when table is block-selected via drag handle.
   const focusedCell = useEditorState({
     editor,
     selector: ({ editor: e }) => {
       if (!e.isActive('table')) return null
+      if (e.state.selection instanceof CellSelection) return null
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((e.storage as any).dragHandle?.selectedBlock) return null
 
       const $pos = e.state.selection.$from
       let rowIndex: number | null = null
@@ -72,6 +76,64 @@ const TableControls = ({ editor }: TableControlsProps) => {
       return null
     },
   })
+
+  // Detect if a row or column CellSelection is active and which indices are selected
+  const cellSelection = useEditorState({
+    editor,
+    selector: ({ editor: e }) => {
+      const { selection } = e.state
+
+      if (!(selection instanceof CellSelection)) return null
+
+      if (selection.isRowSelection()) {
+        // Find which row indices are selected
+        const selectedRows = new Set<number>()
+
+        selection.forEachCell((_node, pos) => {
+          const $pos = e.state.doc.resolve(pos)
+
+          for (let depth = $pos.depth; depth > 0; depth--) {
+            if ($pos.node(depth).type.name === 'table') {
+              selectedRows.add($pos.index(depth))
+              break
+            }
+          }
+        })
+
+        return { type: 'row' as const, indices: selectedRows }
+      }
+
+      if (selection.isColSelection()) {
+        // Find which column indices are selected
+        const selectedCols = new Set<number>()
+
+        selection.forEachCell((_node, pos) => {
+          const $pos = e.state.doc.resolve(pos)
+
+          for (let depth = $pos.depth; depth > 0; depth--) {
+            if ($pos.node(depth).type.name === 'tableRow') {
+              selectedCols.add($pos.index(depth))
+              break
+            }
+          }
+        })
+
+        return { type: 'col' as const, indices: selectedCols }
+      }
+
+      return null
+    },
+  })
+
+  const selectedRows = useMemo(
+    () => (cellSelection?.type === 'row' ? cellSelection.indices : null),
+    [cellSelection],
+  )
+
+  const selectedCols = useMemo(
+    () => (cellSelection?.type === 'col' ? cellSelection.indices : null),
+    [cellSelection],
+  )
 
   const rowColors = useEditorState({
     editor,
@@ -240,7 +302,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
               className="table-controls__row-border-zone"
               data-focused={focusedCell?.rowIndex === i || undefined}
               style={{
-                left: layout.tableX - BORDER_ZONE_SIZE / 2,
+                left: layout.tableX,
                 top: row.top,
                 width: BORDER_ZONE_SIZE,
                 height: row.height,
@@ -251,7 +313,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
                 opener={({ onClick }) => (
                   <button
                     type="button"
-                    className="table-controls__menu-btn table-controls__menu-btn--row"
+                    className={`table-controls__menu-btn table-controls__menu-btn--row ${selectedRows?.has(i) ? 'is-selected' : ''}`}
                     data-test={`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-${i}`}
                     title="Row options"
                     onClick={() => {
@@ -359,7 +421,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
               data-focused={focusedCell?.colIndex === i || undefined}
               style={{
                 left: col.left,
-                top: layout.tableY - BORDER_ZONE_SIZE / 2,
+                top: layout.tableY,
                 width: col.width,
                 height: BORDER_ZONE_SIZE,
               }}
@@ -369,7 +431,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
                 opener={({ onClick }) => (
                   <button
                     type="button"
-                    className="table-controls__menu-btn table-controls__menu-btn--col"
+                    className={`table-controls__menu-btn table-controls__menu-btn--col ${selectedCols?.has(i) ? 'is-selected' : ''}`}
                     data-test={`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-${i}`}
                     title="Column options"
                     onClick={() => {
