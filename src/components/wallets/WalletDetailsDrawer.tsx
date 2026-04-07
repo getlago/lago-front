@@ -559,7 +559,7 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                                 label={translate('text_6298bd525e359200d5ea01f2')}
                                 value={
                                   <TypographyWithCopy variant="body" color="grey700">
-                                    {`${id}`}
+                                    {id}
                                   </TypographyWithCopy>
                                 }
                               />

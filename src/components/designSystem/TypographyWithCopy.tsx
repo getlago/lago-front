@@ -11,11 +11,7 @@ import { tw } from '~/styles/utils'
 export const TYPOGRAPHY_WITH_COPY_CONTAINER_TEST_ID = 'typography-with-copy-container'
 export const TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID = 'typography-with-copy-button'
 
-interface TypographyWithCopyProps extends Omit<TypographyProps, 'children'> {
-  children: string
-}
-
-export const TypographyWithCopy: FC<TypographyWithCopyProps> = ({
+export const TypographyWithCopy: FC<TypographyProps> = ({
   children,
   className,
   ...typographyProps
@@ -37,10 +33,10 @@ export const TypographyWithCopy: FC<TypographyWithCopyProps> = ({
           size="small"
           onClick={(e) => {
             e.stopPropagation()
-            copyToClipboard(children)
+            copyToClipboard(children as string)
             addToast({
               severity: 'info',
-              translateKey: 'text_1775300000000copiedtoclipboard',
+              translateKey: 'text_1775559630554ourrtpgddty',
             })
           }}
         />
