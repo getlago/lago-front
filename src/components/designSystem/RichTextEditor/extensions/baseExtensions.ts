@@ -123,8 +123,8 @@ const applyBlockColorAttrs = (
 
   const parts: string[] = []
 
-  if (backgroundColor) parts.push(`background-color: ${backgroundColor}`)
-  if (textColor) parts.push(`color: ${textColor}`)
+  if (typeof backgroundColor === 'string') parts.push(`background-color: ${backgroundColor}`)
+  if (typeof textColor === 'string') parts.push(`color: ${textColor}`)
 
   const style = `${parts.join('; ')};`
 
