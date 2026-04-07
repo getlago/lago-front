@@ -1,6 +1,10 @@
 import { screen } from '@testing-library/react'
 
-import { useChargeFormContext, usePropertyValues } from '~/contexts/ChargeFormContext'
+import {
+  type ChargeForm,
+  useChargeFormContext,
+  usePropertyValues,
+} from '~/contexts/ChargeFormContext'
 import { CurrencyEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
@@ -71,7 +75,7 @@ const setupDefaultMocks = (overrides?: {
           })}
         </>
       ),
-    },
+    } as unknown as ChargeForm,
     propertyCursor: 'properties',
     currency: CurrencyEnum.Usd,
     disabled: overrides?.disabled ?? false,

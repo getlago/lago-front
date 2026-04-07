@@ -1,3 +1,4 @@
+import { type AnyFormApi } from '@tanstack/react-form'
 import { memo, RefObject } from 'react'
 
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
@@ -20,8 +21,7 @@ interface ChargeWrapperSwitchProps {
   chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
   disabled?: boolean
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: any
+  form: AnyFormApi
   isEdition: boolean
   localCharge: LocalFixedChargeInput | LocalUsageChargeInput
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>

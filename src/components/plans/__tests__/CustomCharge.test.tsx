@@ -1,7 +1,11 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { useChargeFormContext, usePropertyValues } from '~/contexts/ChargeFormContext'
+import {
+  type ChargeForm,
+  useChargeFormContext,
+  usePropertyValues,
+} from '~/contexts/ChargeFormContext'
 import { CurrencyEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
@@ -50,7 +54,7 @@ const setupDefaultMocks = (overrides?: { disabled?: boolean; customProperties?: 
   mockedUseChargeFormContext.mockReturnValue({
     form: {
       setFieldValue: mockSetFieldValue,
-    },
+    } as unknown as ChargeForm,
     propertyCursor: 'properties',
     currency: CurrencyEnum.Usd,
     disabled: overrides?.disabled ?? false,
@@ -132,7 +136,7 @@ describe('CustomCharge', () => {
     describe('WHEN onExpandCustomCharge is not provided', () => {
       it('THEN should not render the expand button', () => {
         mockedUseChargeFormContext.mockReturnValue({
-          form: { setFieldValue: mockSetFieldValue },
+          form: { setFieldValue: mockSetFieldValue } as unknown as ChargeForm,
           propertyCursor: 'properties',
           currency: CurrencyEnum.Usd,
           disabled: false,
