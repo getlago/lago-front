@@ -11,7 +11,6 @@ import { downloadMarkdownPdf } from './common/downloadMarkdownPdf'
 import { EntityData, RichTextEditorProvider } from './common/RichTextEditorContext'
 import { getBaseExtensions } from './extensions/baseExtensions'
 import { DragHandle } from './extensions/DragHandle'
-import { TableCommands } from './extensions/TableCommands'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
 import {
   configureMention,
@@ -22,6 +21,7 @@ import {
 import { PlanBlock } from './extensions/PlanBlock'
 import { PlanBlockSchema } from './extensions/PlanBlock.schema'
 import { SlashCommands } from './extensions/SlashCommands'
+import { TableCommands } from './extensions/TableCommands'
 import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
 import { MentionList, type MentionListRef } from './Mentions/MentionList'
 import { MentionNodeView } from './Mentions/MentionNodeView'

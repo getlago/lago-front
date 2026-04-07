@@ -97,9 +97,7 @@ export const DragHandle = Extension.create({
 
       storage.selectedBlock = null
 
-      const tr = editor.view.state.tr.setSelection(
-        NodeSelection.create(editor.view.state.doc, pos),
-      )
+      const tr = editor.view.state.tr.setSelection(NodeSelection.create(editor.view.state.doc, pos))
 
       editor.view.dispatch(tr)
       editor.view.focus()

@@ -223,7 +223,9 @@ function buildCellDecorations(state: EditorState, isTableBlockSelected: boolean)
       if (i === 0) classes.push('colSelected--first')
       if (i === cells.length - 1) classes.push('colSelected--last')
 
-      decorations.push(Decoration.node(cell.pos, cell.pos + cell.size, { class: classes.join(' ') }))
+      decorations.push(
+        Decoration.node(cell.pos, cell.pos + cell.size, { class: classes.join(' ') }),
+      )
     })
 
     return DecorationSet.create(state.doc, decorations)

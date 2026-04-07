@@ -8,9 +8,9 @@ import { Popper } from '~/components/designSystem/Popper'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 
-import type { DragHandleStorage } from '../extensions/DragHandle'
-
 import ColorPicker from './ColorPicker'
+
+import type { DragHandleStorage } from '../extensions/DragHandle'
 
 export const BLOCK_TOOLBAR_TEST_ID = 'block-toolbar'
 export const BLOCK_TOOLBAR_MOVE_UP_BUTTON_TEST_ID = 'block-toolbar-move-up-button'
@@ -75,11 +75,8 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
               pos: selectedBlock.pos,
               node,
               backgroundColor:
-                typeof node.attrs.backgroundColor === 'string'
-                  ? node.attrs.backgroundColor
-                  : null,
-              textColor:
-                typeof node.attrs.textColor === 'string' ? node.attrs.textColor : null,
+                typeof node.attrs.backgroundColor === 'string' ? node.attrs.backgroundColor : null,
+              textColor: typeof node.attrs.textColor === 'string' ? node.attrs.textColor : null,
               isFirst: index === 0,
               isLast: index >= e.state.doc.childCount - 1,
             }
