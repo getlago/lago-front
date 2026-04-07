@@ -1619,7 +1619,7 @@
   "text_62793bbb599f1c01522e91c0": "For the first",
   "text_62793bbb599f1c01522e91fc": "For the next",
   "text_62793bbb599f1c01522e9239": "Delete tier",
-  "text_62793bbb599f1c01522e9232": "This tier overlap with another one, please set a value greater than {{value}}",
+  "text_62793bbb599f1c01522e9232": "This tier overlaps with another one, please set a value greater than {{value}}",
   "text_627b69c9fe95530136833956": "{{lastRowUnit}} units would cost {{value}}",
   "text_627b69c9fe95530136833958": "First {{tier1LastUnit}} x {{tier1PerUnit}} + {{tier1FlatFee}} = {{totalTier1}}",
   "text_627b69c9fe9553013683395a": "Next {{unitCount}} x {{tierPerUnit}} + {{tierFlatFee}} = {{totalTier}}",
