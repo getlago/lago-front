@@ -3,7 +3,7 @@ import { useEffect, useMemo } from 'react'
 
 import { LocalChargeFilterInput } from '~/components/plans/types'
 import { GraduatedPercentageRangeInput, PropertiesInput } from '~/generated/graphql'
-import { formataAnyToValueForChargeFormArrays, isAdjacentModel } from '~/hooks/plans/utils'
+import { formataAnyToValueForChargeFormArrays, getDecimalStep } from '~/hooks/plans/utils'
 
 type RangeType = GraduatedPercentageRangeInput & { disabledDelete: boolean }
 type InfoCalculationRow = {
@@ -100,8 +100,7 @@ export const useGraduatedPercentageChargeForm: UseGraduatedPercentageChargeForm 
     ),
     addRange: () => {
       const addIndex = graduatedPercentageRanges?.length - 1 // Add before the last range
-      const adjacent = isAdjacentModel(graduatedPercentageRanges)
-      const step = adjacent ? 0 : 1
+      const step = getDecimalStep(graduatedPercentageRanges)
       const newgraduatedPercentageRanges = graduatedPercentageRanges.reduce<
         Partial<GraduatedPercentageRangeInput>[]
       >((acc, range, i) => {
@@ -111,20 +110,26 @@ export const useGraduatedPercentageChargeForm: UseGraduatedPercentageChargeForm 
           const newToValue =
             addIndex === 0
               ? 0
-              : Number(graduatedPercentageRanges[addIndex - 1]?.toValue || 0) + step
+              : Number(
+                  (Number(graduatedPercentageRanges[addIndex - 1]?.toValue || 0) + step).toFixed(
+                    10,
+                  ),
+                )
 
           acc.push({
             fromValue: newToValue,
-            toValue: newToValue + step,
+            toValue: Number((newToValue + step).toFixed(10)),
             rate: undefined,
             flatAmount: undefined,
           })
           acc.push({
             ...range,
-            fromValue:
-              Number(range.fromValue || 0) <= newToValue + step
+            fromValue: Number(
+              (Number(range.fromValue || 0) <= newToValue + step
                 ? newToValue + step + step
-                : Number(range.fromValue),
+                : Number(range.fromValue)
+              ).toFixed(10),
+            ),
           })
         }
 
@@ -143,8 +148,7 @@ export const useGraduatedPercentageChargeForm: UseGraduatedPercentageChargeForm 
         const updatedRanges = graduatedPercentageRanges.map((range, i) =>
           i === rangeIndex ? { ...range, toValue: Number(value || 0) } : range,
         )
-        const adjacent = isAdjacentModel(updatedRanges)
-        const step = adjacent ? 0 : 1
+        const step = getDecimalStep(updatedRanges)
 
         const newgraduatedPercentageRanges = graduatedPercentageRanges.reduce<
           GraduatedPercentageRangeInput[]
@@ -154,11 +158,11 @@ export const useGraduatedPercentageChargeForm: UseGraduatedPercentageChargeForm 
           } else if (i > rangeIndex) {
             // fromValue should be toValueOfPreviousRange + step
             const { toValue } = acc[i - 1]
-            const fromValue = Number(toValue || 0) + step
+            const fromValue = Number((Number(toValue || 0) + step).toFixed(10))
             const formattedToValue = formataAnyToValueForChargeFormArrays(
               range.toValue,
               fromValue,
-              adjacent,
+              step,
             )
 
             acc.push({
@@ -178,8 +182,7 @@ export const useGraduatedPercentageChargeForm: UseGraduatedPercentageChargeForm 
     },
     deleteRange: (rangeIndex) => {
       const remainingRanges = graduatedPercentageRanges.filter((_, i) => i !== rangeIndex)
-      const adjacent = isAdjacentModel(remainingRanges)
-      const step = adjacent ? 0 : 1
+      const step = getDecimalStep(remainingRanges)
 
       const newgraduatedPercentageRanges = graduatedPercentageRanges.reduce<
         GraduatedPercentageRangeInput[]
@@ -191,7 +194,7 @@ export const useGraduatedPercentageChargeForm: UseGraduatedPercentageChargeForm 
 
           acc.push({
             ...range,
-            fromValue: Number(toValue || 0) + step,
+            fromValue: Number((Number(toValue || 0) + step).toFixed(10)),
           })
         }
         return acc

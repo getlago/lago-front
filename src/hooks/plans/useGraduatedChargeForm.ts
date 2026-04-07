@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react'
 import { LocalChargeFilterInput } from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { GraduatedRangeInput, PropertiesInput } from '~/generated/graphql'
-import { formataAnyToValueForChargeFormArrays, isAdjacentModel } from '~/hooks/plans/utils'
+import { formataAnyToValueForChargeFormArrays, getDecimalStep } from '~/hooks/plans/utils'
 
 type RangeType = GraduatedRangeInput & { disabledDelete: boolean }
 type InfoCalculationRow = {
@@ -125,28 +125,31 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
     ),
     addRange: () => {
       const addIndex = graduatedRanges?.length - 1 // Add before the last range
-      const adjacent = isAdjacentModel(graduatedRanges)
-      const step = adjacent ? 0 : 1
+      const step = getDecimalStep(graduatedRanges)
       const newGraduatedRanges = graduatedRanges.reduce<Partial<GraduatedRangeInput>[]>(
         (acc, range, i) => {
           if (i < addIndex) {
             acc.push(range)
           } else if (i === addIndex) {
             const newToValue =
-              addIndex === 0 ? 0 : Number(graduatedRanges[addIndex - 1]?.toValue || 0) + step
+              addIndex === 0
+                ? 0
+                : Number((Number(graduatedRanges[addIndex - 1]?.toValue || 0) + step).toFixed(10))
 
             acc.push({
               fromValue: newToValue,
-              toValue: newToValue + step,
+              toValue: Number((newToValue + step).toFixed(10)),
               flatAmount: undefined,
               perUnitAmount: undefined,
             })
             acc.push({
               ...range,
-              fromValue:
-                Number(range.fromValue || 0) <= newToValue + step
+              fromValue: Number(
+                (Number(range.fromValue || 0) <= newToValue + step
                   ? newToValue + step + step
-                  : Number(range.fromValue),
+                  : Number(range.fromValue)
+                ).toFixed(10),
+              ),
             })
           }
 
@@ -165,8 +168,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
         const updatedRanges = graduatedRanges.map((range, i) =>
           i === rangeIndex ? { ...range, toValue: Number(value || 0) } : range,
         )
-        const adjacent = isAdjacentModel(updatedRanges)
-        const step = adjacent ? 0 : 1
+        const step = getDecimalStep(updatedRanges)
 
         const newGraduatedRanges = graduatedRanges.reduce<GraduatedRangeInput[]>(
           (acc, range, i) => {
@@ -175,11 +177,11 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
             } else if (i > rangeIndex) {
               // fromValue should be toValueOfPreviousRange + step
               const { toValue } = acc[i - 1]
-              const fromValue = Number(toValue || 0) + step
+              const fromValue = Number((Number(toValue || 0) + step).toFixed(10))
               const formattedToValue = formataAnyToValueForChargeFormArrays(
                 range.toValue,
                 fromValue,
-                adjacent,
+                step,
               )
 
               acc.push({
@@ -201,8 +203,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
     },
     deleteRange: (rangeIndex) => {
       const remainingRanges = graduatedRanges.filter((_, i) => i !== rangeIndex)
-      const adjacent = isAdjacentModel(remainingRanges)
-      const step = adjacent ? 0 : 1
+      const step = getDecimalStep(remainingRanges)
 
       const newGraduatedRanges = graduatedRanges.reduce<GraduatedRangeInput[]>((acc, range, i) => {
         if (i < rangeIndex) acc.push({ ...range })
@@ -212,7 +213,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
 
           acc.push({
             ...range,
-            fromValue: Number(toValue || 0) + step,
+            fromValue: Number((Number(toValue || 0) + step).toFixed(10)),
           })
         }
         return acc

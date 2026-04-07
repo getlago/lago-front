@@ -34,14 +34,14 @@ describe('Create plan with graduated decimal tiers', () => {
     // Set tier 1 toValue to 0.1 (decimal)
     cy.get('[data-test="cell-to-value-0"]').find('input').clear().type('0.1')
 
-    // Verify tier 2 fromValue auto-updates to 0.1 (adjacent model for decimals)
-    cy.get('[data-test="cell-from-value-1"]').should('contain.text', '0.1')
+    // Verify tier 2 fromValue auto-updates to 0.2 (next decimal point in line)
+    cy.get('[data-test="cell-from-value-1"]').should('contain.text', '0.2')
 
     // Set tier 2 toValue to 1
     cy.get('[data-test="cell-to-value-1"]').find('input').clear().type('1')
 
-    // Verify tier 3 (last row) fromValue auto-updates to 1
-    cy.get('[data-test="cell-from-value-2"]').should('contain.text', '1')
+    // Verify tier 3 (last row) fromValue auto-updates to 1.1 (next decimal point in line)
+    cy.get('[data-test="cell-from-value-2"]').should('contain.text', '1.1')
 
     // Fill per-unit amounts
     cy.get('[data-test="cell-amount-0"]').type('5')
@@ -134,14 +134,14 @@ describe('Create plan with graduated decimal tiers', () => {
     // Set tier 1 toValue to 0.1 (decimal)
     cy.get('[data-test="cell-to-value-0"]').find('input').clear().type('0.1')
 
-    // Verify tier 2 fromValue auto-updates to 0.1 (adjacent model for decimals)
-    cy.get('[data-test="cell-from-value-1"]').should('contain.text', '0.1')
+    // Verify tier 2 fromValue auto-updates to 0.2 (next decimal point in line)
+    cy.get('[data-test="cell-from-value-1"]').should('contain.text', '0.2')
 
     // Set tier 2 toValue to 1
     cy.get('[data-test="cell-to-value-1"]').find('input').clear().type('1')
 
-    // Verify tier 3 fromValue auto-updates to 1
-    cy.get('[data-test="cell-from-value-2"]').should('contain.text', '1')
+    // Verify tier 3 fromValue auto-updates to 1.1 (next decimal point in line)
+    cy.get('[data-test="cell-from-value-2"]').should('contain.text', '1.1')
 
     // Fill percentage rates
     cy.get('[data-test="cell-rate-0"]').type('10')

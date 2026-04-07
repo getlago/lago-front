@@ -1,4 +1,4 @@
-import { formataAnyToValueForChargeFormArrays, getTrialPeriod, isAdjacentModel } from '../utils'
+import { formataAnyToValueForChargeFormArrays, getDecimalStep } from '../utils'
 
 describe('formattedToValue', () => {
   describe('GIVEN toValue is null', () => {
@@ -8,7 +8,7 @@ describe('formattedToValue', () => {
   })
 
   describe('GIVEN toValue is less than fromValue', () => {
-    it('THEN returns fromValue + 1', () => {
+    it('THEN returns fromValue + 1 (default step)', () => {
       expect(formataAnyToValueForChargeFormArrays(5, 10)).toBe(11)
     })
 
@@ -18,7 +18,7 @@ describe('formattedToValue', () => {
   })
 
   describe('GIVEN toValue equals fromValue', () => {
-    it('THEN returns fromValue + 1', () => {
+    it('THEN returns fromValue + 1 (default step)', () => {
       expect(formataAnyToValueForChargeFormArrays(10, 10)).toBe(11)
     })
 
@@ -76,168 +76,99 @@ describe('formattedToValue', () => {
   })
 })
 
-describe('getTrialPeriod', () => {
-  describe('WHEN trialPeriod is null', () => {
-    it('THEN returns 0 when isEdition is true', () => {
-      const result = getTrialPeriod(null, true)
-
-      expect(result).toBe(0)
-    })
-
-    it('THEN returns undefined when isEdition is false', () => {
-      const result = getTrialPeriod(null, false)
-
-      expect(result).toBeUndefined()
-    })
-  })
-
-  describe('WHEN trialPeriod is undefined', () => {
-    it('THEN returns 0 when isEdition is true', () => {
-      const result = getTrialPeriod(undefined, true)
-
-      expect(result).toBe(0)
-    })
-
-    it('THEN returns undefined when isEdition is false', () => {
-      const result = getTrialPeriod(undefined, false)
-
-      expect(result).toBeUndefined()
-    })
-  })
-
-  describe('WHEN trialPeriod is a number', () => {
-    it('THEN returns the trialPeriod value when isEdition is true', () => {
-      const result = getTrialPeriod(30, true)
-
-      expect(result).toBe(30)
-    })
-
-    it('THEN returns the trialPeriod value when isEdition is false', () => {
-      const result = getTrialPeriod(30, false)
-
-      expect(result).toBe(30)
-    })
-
-    it('THEN returns 0 when trialPeriod is 0', () => {
-      const result = getTrialPeriod(0, true)
-
-      expect(result).toBe(0)
-    })
-
-    it('THEN returns positive numbers correctly', () => {
-      const result = getTrialPeriod(15, false)
-
-      expect(result).toBe(15)
-    })
-  })
-})
-
-describe('isAdjacentModel', () => {
+describe('getDecimalStep', () => {
   describe('GIVEN integer-only ranges', () => {
-    it('THEN returns false', () => {
-      expect(isAdjacentModel([{ toValue: 1 }, { toValue: 10 }, { toValue: null }])).toBe(false)
+    it('THEN returns 1', () => {
+      expect(getDecimalStep([{ toValue: 1 }, { toValue: 10 }, { toValue: null }])).toBe(1)
     })
   })
 
-  describe('GIVEN any range has a decimal toValue', () => {
-    it('THEN returns true', () => {
-      expect(isAdjacentModel([{ toValue: 0.1 }, { toValue: 1 }, { toValue: null }])).toBe(true)
+  describe('GIVEN ranges with 1 decimal place', () => {
+    it('THEN returns 0.1', () => {
+      expect(getDecimalStep([{ toValue: 0.1 }, { toValue: 1 }, { toValue: null }])).toBe(0.1)
+    })
+  })
+
+  describe('GIVEN ranges with 2 decimal places', () => {
+    it('THEN returns 0.01', () => {
+      expect(getDecimalStep([{ toValue: 0.01 }, { toValue: 0.02 }, { toValue: null }])).toBe(0.01)
+    })
+  })
+
+  describe('GIVEN ranges with 3 decimal places', () => {
+    it('THEN returns 0.001', () => {
+      expect(getDecimalStep([{ toValue: 0.001 }, { toValue: 0.002 }, { toValue: null }])).toBe(
+        0.001,
+      )
+    })
+  })
+
+  describe('GIVEN ranges with mixed decimal places', () => {
+    it('THEN returns the smallest step based on max precision', () => {
+      expect(getDecimalStep([{ toValue: 0.1 }, { toValue: 0.02 }, { toValue: null }])).toBe(0.01)
+    })
+  })
+
+  describe('GIVEN decimal fromValue values but integer toValues', () => {
+    it('THEN ignores fromValue precision (derived values should not affect step)', () => {
+      expect(getDecimalStep([{ fromValue: 0.001, toValue: 1 }, { toValue: null }])).toBe(1)
+    })
+  })
+
+  describe('GIVEN stale fromValue with many decimal places', () => {
+    it('THEN step is based only on toValue precision', () => {
+      expect(
+        getDecimalStep([
+          { fromValue: 0, toValue: 1 },
+          { fromValue: 1.50001, toValue: 3.2 },
+          { fromValue: 3.20001, toValue: 5.3 },
+          { fromValue: 5.30001, toValue: null },
+        ]),
+      ).toBe(0.1)
     })
   })
 
   describe('GIVEN an empty array', () => {
-    it('THEN returns false', () => {
-      expect(isAdjacentModel([])).toBe(false)
+    it('THEN returns 1', () => {
+      expect(getDecimalStep([])).toBe(1)
     })
   })
 
   describe('GIVEN all toValues are null', () => {
-    it('THEN returns false', () => {
-      expect(isAdjacentModel([{ toValue: null }, { toValue: null }])).toBe(false)
+    it('THEN returns 1', () => {
+      expect(getDecimalStep([{ toValue: null }, { toValue: null }])).toBe(1)
     })
   })
 })
 
-describe('formattedToValue with adjacent parameter', () => {
+describe('formattedToValue with step parameter', () => {
   describe('GIVEN toValue is less than fromValue', () => {
-    it('THEN returns fromValue + 1 when adjacent is false', () => {
-      expect(formataAnyToValueForChargeFormArrays(5, 10, false)).toBe(11)
+    it('THEN returns fromValue + 1 when step is 1', () => {
+      expect(formataAnyToValueForChargeFormArrays(5, 10, 1)).toBe(11)
     })
 
-    it('THEN returns fromValue when adjacent is true', () => {
-      expect(formataAnyToValueForChargeFormArrays(5, 10, true)).toBe(10)
+    it('THEN returns fromValue + 0.1 when step is 0.1', () => {
+      expect(formataAnyToValueForChargeFormArrays(0.1, 0.3, 0.1)).toBe(0.4)
+    })
+
+    it('THEN returns fromValue + 0.01 when step is 0.01', () => {
+      expect(formataAnyToValueForChargeFormArrays(0.01, 0.03, 0.01)).toBe(0.04)
     })
   })
 
   describe('GIVEN toValue is null', () => {
-    it('THEN returns null regardless of adjacent', () => {
-      expect(formataAnyToValueForChargeFormArrays(null, 10, true)).toBeNull()
+    it('THEN returns null regardless of step', () => {
+      expect(formataAnyToValueForChargeFormArrays(null, 10, 0.1)).toBeNull()
     })
   })
 
   describe('GIVEN toValue is greater than fromValue', () => {
-    it('THEN returns toValue unchanged when adjacent is false', () => {
-      expect(formataAnyToValueForChargeFormArrays(20, 10, false)).toBe(20)
+    it('THEN returns toValue unchanged when step is 1', () => {
+      expect(formataAnyToValueForChargeFormArrays(20, 10, 1)).toBe(20)
     })
 
-    it('THEN returns toValue unchanged when adjacent is true', () => {
-      expect(formataAnyToValueForChargeFormArrays(20, 10, true)).toBe(20)
-    })
-  })
-})
-
-describe('getTrialPeriod', () => {
-  describe('WHEN trialPeriod is null', () => {
-    it('THEN returns 0 when isEdition is true', () => {
-      const result = getTrialPeriod(null, true)
-
-      expect(result).toBe(0)
-    })
-
-    it('THEN returns undefined when isEdition is false', () => {
-      const result = getTrialPeriod(null, false)
-
-      expect(result).toBeUndefined()
-    })
-  })
-
-  describe('WHEN trialPeriod is undefined', () => {
-    it('THEN returns 0 when isEdition is true', () => {
-      const result = getTrialPeriod(undefined, true)
-
-      expect(result).toBe(0)
-    })
-
-    it('THEN returns undefined when isEdition is false', () => {
-      const result = getTrialPeriod(undefined, false)
-
-      expect(result).toBeUndefined()
-    })
-  })
-
-  describe('WHEN trialPeriod is a number', () => {
-    it('THEN returns the trialPeriod value when isEdition is true', () => {
-      const result = getTrialPeriod(30, true)
-
-      expect(result).toBe(30)
-    })
-
-    it('THEN returns the trialPeriod value when isEdition is false', () => {
-      const result = getTrialPeriod(30, false)
-
-      expect(result).toBe(30)
-    })
-
-    it('THEN returns 0 when trialPeriod is 0', () => {
-      const result = getTrialPeriod(0, true)
-
-      expect(result).toBe(0)
-    })
-
-    it('THEN returns positive numbers correctly', () => {
-      const result = getTrialPeriod(15, false)
-
-      expect(result).toBe(15)
+    it('THEN returns toValue unchanged when step is 0.1', () => {
+      expect(formataAnyToValueForChargeFormArrays(0.5, 0.3, 0.1)).toBe(0.5)
     })
   })
 })
