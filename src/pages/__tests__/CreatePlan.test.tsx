@@ -1,3 +1,4 @@
+import type { AnyFormApi } from '@tanstack/react-form'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
@@ -64,8 +65,7 @@ jest.mock('~/components/plans/SubscriptionFeeSection', () => {
   const React = jest.requireActual('react')
 
   return {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    SubscriptionFeeSection: (props: { form: any }) =>
+    SubscriptionFeeSection: (props: { form: Pick<AnyFormApi, 'setFieldValue'> }) =>
       React.createElement(
         'div',
         { 'data-test': 'subscription-fee-section-mock' },

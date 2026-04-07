@@ -1,3 +1,4 @@
+import type { AnyFormApi } from '@tanstack/react-form'
 import { renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 
@@ -16,7 +17,7 @@ jest.mock('@tanstack/react-form', () => ({
 }))
 
 describe('ChargeFormContext', () => {
-  const mockForm = { id: 'mock-form' }
+  const mockForm = { id: 'mock-form' } as unknown as AnyFormApi
 
   describe('GIVEN useChargeFormContext is called within a ChargeFormProvider', () => {
     describe('WHEN the provider supplies all required values', () => {
@@ -119,7 +120,7 @@ describe('ChargeFormContext', () => {
               },
             }),
           },
-        }
+        } as unknown as AnyFormApi
 
         const { result } = renderHook(() => usePropertyValues(mockFormWithStore, 'properties'))
 
@@ -137,7 +138,7 @@ describe('ChargeFormContext', () => {
               },
             }),
           },
-        }
+        } as unknown as AnyFormApi
 
         const { result } = renderHook(() =>
           usePropertyValues(mockFormWithStore, 'filters.0.properties'),
@@ -155,7 +156,7 @@ describe('ChargeFormContext', () => {
               values: {},
             }),
           },
-        }
+        } as unknown as AnyFormApi
 
         const { result } = renderHook(() =>
           usePropertyValues(mockFormWithStore, 'nonexistent.path'),

@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react'
 
-import { useChargeFormContext } from '~/contexts/ChargeFormContext'
+import { type ChargeForm, useChargeFormContext } from '~/contexts/ChargeFormContext'
 import { CurrencyEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
@@ -39,7 +39,7 @@ describe('StandardCharge', () => {
           name: string
           children: (field: Record<string, unknown>) => JSX.Element
         }) => <>{children({ AmountInputField: mockAmountInputField })}</>,
-      },
+      } as unknown as ChargeForm,
       propertyCursor: 'properties',
       currency: CurrencyEnum.Eur,
       disabled: false,
@@ -87,7 +87,7 @@ describe('StandardCharge', () => {
               name: string
               children: (field: Record<string, unknown>) => JSX.Element
             }) => <>{children({ AmountInputField: mockAmountInputField })}</>,
-          },
+          } as unknown as ChargeForm,
           propertyCursor: 'properties',
           currency: CurrencyEnum.Usd,
           disabled: true,
@@ -112,7 +112,7 @@ describe('StandardCharge', () => {
               name: string
               children: (field: Record<string, unknown>) => JSX.Element
             }) => <>{children({ AmountInputField: mockAmountInputField })}</>,
-          },
+          } as unknown as ChargeForm,
           propertyCursor: 'properties',
           currency: CurrencyEnum.Eur,
           disabled: false,
