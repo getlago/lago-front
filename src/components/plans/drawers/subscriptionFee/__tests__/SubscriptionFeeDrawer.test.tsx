@@ -51,7 +51,7 @@ jest.mock('~/core/formats/intlFormatNumber', () => ({
   intlFormatNumber: jest.fn(),
 }))
 
-jest.mock('~/components/plans/drawers/PlanBillingPeriodInfoSection', () => ({
+jest.mock('~/components/plans/drawers/common/PlanBillingPeriodInfoSection', () => ({
   PlanBillingPeriodInfoSection: () => <div data-test="plan-billing-period-info-section" />,
 }))
 

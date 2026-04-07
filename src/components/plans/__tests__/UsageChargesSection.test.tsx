@@ -15,7 +15,7 @@ import { USAGE_CHARGES_ADD_BUTTON_TEST_ID, UsageChargesSection } from '../UsageC
 const mockOpenDrawer = jest.fn()
 const mockCloseDrawer = jest.fn()
 
-jest.mock('~/components/plans/drawers/UsageChargeDrawer', () => {
+jest.mock('~/components/plans/drawers/usageCharge/UsageChargeDrawer', () => {
   const React = jest.requireActual('react')
 
   const MockedDrawer = React.forwardRef((_props: unknown, ref: unknown) => {

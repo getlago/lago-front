@@ -42,7 +42,7 @@ jest.mock('~/components/taxes/TaxesSelectorSection', () => ({
   TaxesSelectorSection: () => <div data-test="taxes-selector-section" />,
 }))
 
-jest.mock('~/components/plans/drawers/PlanBillingPeriodInfoSection', () => ({
+jest.mock('~/components/plans/drawers/common/PlanBillingPeriodInfoSection', () => ({
   PlanBillingPeriodInfoSection: () => <div data-test="plan-billing-period-info-section" />,
 }))
 

@@ -1,14 +1,11 @@
 import { render } from '@testing-library/react'
 import { createRef } from 'react'
 
-import { validateChargeProperties } from '~/formValidation/chargePropertiesSchema'
-
 import {
-  UsageChargeDrawer,
-  UsageChargeDrawerRef,
-  usageChargeDrawerSchema,
-} from '../UsageChargeDrawer'
-import { UsageChargeDrawerFormValues } from '../usageChargeDrawerConstants'
+  FixedChargeDrawer,
+  FixedChargeDrawerFormValues,
+  FixedChargeDrawerRef,
+} from '../FixedChargeDrawer'
 
 // --- Capture callbacks ---
 
@@ -17,8 +14,8 @@ let capturedDefaultValues: Record<string, unknown> | undefined
 
 // --- Mocks ---
 
-jest.mock('../UsageChargeDrawerContent', () => ({
-  UsageChargeDrawerContent: () => <div data-test="usage-charge-drawer-content" />,
+jest.mock('../FixedChargeDrawerContent', () => ({
+  FixedChargeDrawerContent: () => <div data-test="fixed-charge-drawer-content" />,
 }))
 
 jest.mock('~/components/drawers/useDrawer', () => ({
@@ -39,14 +36,12 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 jest.mock('~/contexts/PlanFormContext', () => {
-  const { CurrencyEnum, PlanInterval: mockedPlanInterval } =
-    jest.requireActual('~/generated/graphql')
+  const { CurrencyEnum } = jest.requireActual('~/generated/graphql')
 
   return {
     PlanFormProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
     usePlanFormContext: () => ({
       currency: CurrencyEnum.Usd,
-      interval: mockedPlanInterval.Monthly,
     }),
   }
 })
@@ -56,6 +51,11 @@ jest.mock('~/core/apolloClient', () => ({
   envGlobalVar: () => ({ sentryDsn: '', apiUrl: '', appVersion: '' }),
 }))
 
+jest.mock('~/core/formats/intlFormatNumber', () => ({
+  getCurrencySymbol: (c: string) => c,
+  intlFormatNumber: jest.fn(),
+}))
+
 jest.mock('~/core/serializers/getPropertyShape', () => ({
   __esModule: true,
   default: () => ({ amount: '', packageSize: '' }),
@@ -63,6 +63,46 @@ jest.mock('~/core/serializers/getPropertyShape', () => ({
 
 jest.mock('~/formValidation/chargePropertiesSchema', () => ({
   validateChargeProperties: jest.fn(),
+}))
+
+jest.mock('~/hooks/plans/useChargeForm', () => ({
+  useChargeForm: () => ({
+    getFixedChargeModelComboboxData: jest.fn(() => []),
+    getIsPayInAdvanceOptionDisabledForFixedCharge: jest.fn(() => false),
+    getIsProRatedOptionDisabledForFixedCharge: jest.fn(() => false),
+  }),
+}))
+
+jest.mock('~/generated/graphql', () => {
+  const actual = jest.requireActual('~/generated/graphql')
+
+  return {
+    ...actual,
+    useGetAddOnsForFixedChargesSectionLazyQuery: jest.fn(() => [
+      jest.fn(),
+      { loading: false, data: null },
+    ]),
+  }
+})
+
+jest.mock('~/components/plans/drawers/common/PlanBillingPeriodInfoSection', () => ({
+  PlanBillingPeriodInfoSection: () => <div data-test="plan-billing-period-info-section" />,
+}))
+
+jest.mock('~/components/plans/chargeAccordion/ChargeModelSelector', () => ({
+  ChargeModelSelector: () => <div data-test="charge-model-selector" />,
+}))
+
+jest.mock('~/components/plans/chargeAccordion/ChargeWrapperSwitch', () => ({
+  ChargeWrapperSwitch: () => <div data-test="charge-wrapper-switch" />,
+}))
+
+jest.mock('~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption', () => ({
+  ChargePayInAdvanceOption: () => <div data-test="charge-pay-in-advance-option" />,
+}))
+
+jest.mock('~/components/taxes/TaxesSelectorSection', () => ({
+  TaxesSelectorSection: () => <div data-test="taxes-selector-section" />,
 }))
 
 // Mock TanStack form infrastructure
@@ -142,15 +182,15 @@ jest.mock('~/hooks/forms/useAppform', () => ({
   ),
 }))
 
-describe('UsageChargeDrawer', () => {
+describe('FixedChargeDrawer', () => {
   const mockOnSave = jest.fn()
-  let drawerRef: React.RefObject<UsageChargeDrawerRef>
+  let drawerRef: React.RefObject<FixedChargeDrawerRef>
 
   beforeEach(() => {
     jest.clearAllMocks()
     capturedOnSubmit = undefined
     capturedDefaultValues = undefined
-    drawerRef = createRef<UsageChargeDrawerRef>()
+    drawerRef = createRef<FixedChargeDrawerRef>()
   })
 
   afterEach(() => {
@@ -160,7 +200,7 @@ describe('UsageChargeDrawer', () => {
   describe('GIVEN the drawer is rendered', () => {
     describe('WHEN it mounts', () => {
       it('THEN should expose ref methods', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
         expect(drawerRef.current).toBeDefined()
         expect(typeof drawerRef.current?.openDrawer).toBe('function')
@@ -172,44 +212,38 @@ describe('UsageChargeDrawer', () => {
   describe('GIVEN the form default values', () => {
     describe('WHEN the form is initialized', () => {
       it('THEN should have standard as the default charge model', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
         expect(capturedDefaultValues).toBeDefined()
         expect(capturedDefaultValues?.chargeModel).toBe('standard')
       })
 
-      it('THEN should have empty billableMetricId', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+      it('THEN should have empty addOnId', () => {
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
-        expect(capturedDefaultValues?.billableMetricId).toBe('')
+        expect(capturedDefaultValues?.addOnId).toBe('')
       })
 
-      it('THEN should have invoiceable as true by default', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+      it('THEN should have empty units string', () => {
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
-        expect(capturedDefaultValues?.invoiceable).toBe(true)
+        expect(capturedDefaultValues?.units).toBe('')
       })
 
       it('THEN should have payInAdvance as false', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
         expect(capturedDefaultValues?.payInAdvance).toBe(false)
       })
 
-      it('THEN should have empty filters array', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+      it('THEN should have prorated as false', () => {
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
-        expect(capturedDefaultValues?.filters).toEqual([])
-      })
-
-      it('THEN should have regroupPaidFees as null', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
-
-        expect(capturedDefaultValues?.regroupPaidFees).toBeNull()
+        expect(capturedDefaultValues?.prorated).toBe(false)
       })
 
       it('THEN should have empty taxes array', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
         expect(capturedDefaultValues?.taxes).toEqual([])
       })
@@ -217,81 +251,68 @@ describe('UsageChargeDrawer', () => {
   })
 
   describe('GIVEN openDrawer is called with a charge (edit mode)', () => {
-    const mockBillableMetric = {
-      id: 'bm-1',
-      name: 'API Calls',
-      code: 'api_calls',
-      aggregationType: 'count_agg',
-      recurring: false,
-    }
-
     const mockCharge = {
-      billableMetric: mockBillableMetric,
-      chargeModel: 'percentage' as const,
+      addOn: { id: 'addon-1', name: 'Setup Fee', code: 'setup_fee' },
+      applyUnitsImmediately: true,
+      chargeModel: 'graduated' as const,
       id: 'charge-1',
-      invoiceDisplayName: 'API Usage',
-      invoiceable: false,
-      minAmountCents: '500',
+      invoiceDisplayName: 'Custom Name',
       payInAdvance: true,
+      properties: { amount: '200' },
       prorated: true,
-      properties: { rate: '2.5' },
-      filters: [{ values: ['val1'], properties: { rate: '3' }, invoiceDisplayName: '' }],
-      regroupPaidFees: 'invoice',
       taxes: [{ id: 'tax-1', code: 'vat', name: 'VAT', rate: 20 }],
+      units: '10',
     }
 
     describe('WHEN the charge data is provided', () => {
       it('THEN should reset the form with the charge values', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
         drawerRef.current?.openDrawer(
-          mockCharge as unknown as Parameters<UsageChargeDrawerRef['openDrawer']>[0],
+          mockCharge as unknown as Parameters<FixedChargeDrawerRef['openDrawer']>[0],
           0,
         )
 
         expect(mockReset).toHaveBeenCalledWith(
           expect.objectContaining({
-            billableMetricId: 'bm-1',
-            chargeModel: 'percentage',
+            addOnId: 'addon-1',
+            chargeModel: 'graduated',
             id: 'charge-1',
-            invoiceDisplayName: 'API Usage',
-            invoiceable: false,
-            minAmountCents: '500',
+            invoiceDisplayName: 'Custom Name',
             payInAdvance: true,
             prorated: true,
-            regroupPaidFees: 'invoice',
+            units: '10',
           }),
           { keepDefaultValues: true },
         )
       })
 
-      it('THEN should map the billableMetric correctly', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+      it('THEN should map the addOn correctly', () => {
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
         drawerRef.current?.openDrawer(
-          mockCharge as unknown as Parameters<UsageChargeDrawerRef['openDrawer']>[0],
+          mockCharge as unknown as Parameters<FixedChargeDrawerRef['openDrawer']>[0],
           0,
         )
 
         expect(mockReset).toHaveBeenCalledWith(
           expect.objectContaining({
-            billableMetric: mockBillableMetric,
+            addOn: { id: 'addon-1', name: 'Setup Fee', code: 'setup_fee' },
           }),
           expect.anything(),
         )
       })
 
-      it('THEN should include filters and taxes', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+      it('THEN should include taxes', () => {
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
         drawerRef.current?.openDrawer(
-          mockCharge as unknown as Parameters<UsageChargeDrawerRef['openDrawer']>[0],
+          mockCharge as unknown as Parameters<FixedChargeDrawerRef['openDrawer']>[0],
           0,
         )
 
         expect(mockReset).toHaveBeenCalledWith(
           expect.objectContaining({
-            filters: mockCharge.filters,
             taxes: [{ id: 'tax-1', code: 'vat', name: 'VAT', rate: 20 }],
           }),
           expect.anything(),
@@ -303,20 +324,17 @@ describe('UsageChargeDrawer', () => {
   describe('GIVEN openDrawer is called without a charge (create mode)', () => {
     describe('WHEN no charge data is provided', () => {
       it('THEN should reset the form with default values', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
         drawerRef.current?.openDrawer()
 
         expect(mockReset).toHaveBeenCalledWith(
           expect.objectContaining({
-            billableMetricId: '',
+            addOnId: '',
             chargeModel: 'standard',
-            invoiceable: true,
             payInAdvance: false,
             prorated: false,
-            filters: [],
-            regroupPaidFees: null,
-            taxes: [],
+            units: '',
           }),
           { keepDefaultValues: true },
         )
@@ -327,28 +345,19 @@ describe('UsageChargeDrawer', () => {
   describe('GIVEN the onSubmit handler', () => {
     describe('WHEN the form is submitted with valid data', () => {
       it('THEN should call onSave with the form values', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
-        const formValues: UsageChargeDrawerFormValues = {
-          billableMetricId: 'bm-1',
-          billableMetric: {
-            id: 'bm-1',
-            name: 'Calls',
-            code: 'calls',
-            aggregationType:
-              'count_agg' as UsageChargeDrawerFormValues['billableMetric']['aggregationType'],
-            recurring: false,
-          },
-          chargeModel: 'standard' as UsageChargeDrawerFormValues['chargeModel'],
+        const formValues: FixedChargeDrawerFormValues = {
+          addOnId: 'addon-1',
+          addOn: { id: 'addon-1', name: 'Setup', code: 'setup' },
+          applyUnitsImmediately: false,
+          chargeModel: 'standard' as FixedChargeDrawerFormValues['chargeModel'],
           invoiceDisplayName: 'Test',
-          invoiceable: true,
-          minAmountCents: '100',
           payInAdvance: false,
+          properties: { amount: '100' },
           prorated: false,
-          properties: { amount: '10' },
-          filters: [],
-          regroupPaidFees: null,
           taxes: [],
+          units: '5',
         }
 
         capturedOnSubmit?.({ value: formValues as unknown as Record<string, unknown> })
@@ -356,8 +365,8 @@ describe('UsageChargeDrawer', () => {
         expect(mockOnSave).toHaveBeenCalledWith(
           expect.objectContaining({
             chargeModel: 'standard',
-            invoiceable: true,
             payInAdvance: false,
+            units: '5',
           }),
           -1,
         )
@@ -366,18 +375,12 @@ describe('UsageChargeDrawer', () => {
 
     describe('WHEN invoiceDisplayName is empty string', () => {
       it('THEN should normalize to undefined', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
         capturedOnSubmit?.({
           value: {
             ...capturedDefaultValues,
-            billableMetric: {
-              id: '',
-              name: '',
-              code: '',
-              aggregationType: 'count_agg',
-              recurring: false,
-            },
+            addOn: { id: '', name: '', code: '' },
             invoiceDisplayName: '',
           },
         })
@@ -388,142 +391,31 @@ describe('UsageChargeDrawer', () => {
         )
       })
     })
-
-    describe('WHEN minAmountCents is empty string', () => {
-      it('THEN should normalize to undefined', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
-
-        capturedOnSubmit?.({
-          value: {
-            ...capturedDefaultValues,
-            billableMetric: {
-              id: '',
-              name: '',
-              code: '',
-              aggregationType: 'count_agg',
-              recurring: false,
-            },
-            minAmountCents: '',
-          },
-        })
-
-        expect(mockOnSave).toHaveBeenCalledWith(
-          expect.objectContaining({ minAmountCents: undefined }),
-          -1,
-        )
-      })
-    })
-
-    describe('WHEN regroupPaidFees is empty string', () => {
-      it('THEN should normalize to undefined', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
-
-        capturedOnSubmit?.({
-          value: {
-            ...capturedDefaultValues,
-            billableMetric: {
-              id: '',
-              name: '',
-              code: '',
-              aggregationType: 'count_agg',
-              recurring: false,
-            },
-            regroupPaidFees: '',
-          },
-        })
-
-        expect(mockOnSave).toHaveBeenCalledWith(
-          expect.objectContaining({ regroupPaidFees: undefined }),
-          -1,
-        )
-      })
-    })
-  })
-
-  describe('GIVEN the schema validation', () => {
-    const baseData = {
-      billableMetricId: 'bm-1',
-      billableMetric: {
-        id: 'bm-1',
-        name: 'API Calls',
-        code: 'api_calls',
-        aggregationType: 'count_agg',
-        recurring: false,
-      },
-      chargeModel: 'standard',
-      invoiceDisplayName: '',
-      invoiceable: true,
-      minAmountCents: '',
-      payInAdvance: false,
-      prorated: false,
-      properties: { amount: '' },
-      regroupPaidFees: null,
-      taxes: [],
-    }
-
-    const mockedValidateChargeProperties = validateChargeProperties as jest.Mock
-
-    describe('WHEN no filters are present', () => {
-      it('THEN should call validateChargeProperties for main properties', () => {
-        usageChargeDrawerSchema.safeParse({ ...baseData, filters: [] })
-
-        expect(mockedValidateChargeProperties).toHaveBeenCalledWith(
-          'standard',
-          { amount: '' },
-          expect.anything(),
-          ['properties'],
-        )
-      })
-    })
-
-    describe('WHEN filters are present', () => {
-      it('THEN should still call validateChargeProperties for main properties', () => {
-        usageChargeDrawerSchema.safeParse({
-          ...baseData,
-          filters: [{ values: ['val1'], properties: { amount: '5' }, invoiceDisplayName: '' }],
-        })
-
-        expect(mockedValidateChargeProperties).toHaveBeenCalledWith(
-          'standard',
-          { amount: '' },
-          expect.anything(),
-          ['properties'],
-        )
-      })
-    })
   })
 
   describe('GIVEN openDrawer with missing optional fields', () => {
     describe('WHEN optional charge fields are undefined', () => {
       it('THEN should use default fallback values', () => {
-        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
         const minimalCharge = {
-          billableMetric: {
-            id: 'bm-1',
-            name: 'Metric',
-            code: 'metric',
-            aggregationType: 'count_agg',
-            recurring: false,
-          },
+          addOn: { id: 'addon-1', name: 'Fee', code: 'fee' },
           chargeModel: 'standard' as const,
         }
 
         drawerRef.current?.openDrawer(
-          minimalCharge as unknown as Parameters<UsageChargeDrawerRef['openDrawer']>[0],
+          minimalCharge as unknown as Parameters<FixedChargeDrawerRef['openDrawer']>[0],
           0,
         )
 
         expect(mockReset).toHaveBeenCalledWith(
           expect.objectContaining({
+            applyUnitsImmediately: false,
             invoiceDisplayName: '',
-            invoiceable: true,
-            minAmountCents: '',
             payInAdvance: false,
             prorated: false,
-            filters: [],
-            regroupPaidFees: null,
             taxes: [],
+            units: '',
           }),
           { keepDefaultValues: true },
         )

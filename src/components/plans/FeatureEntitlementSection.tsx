@@ -9,7 +9,7 @@ import {
   FeatureEntitlementDrawer,
   FeatureEntitlementDrawerRef,
   FeatureEntitlementFormValues,
-} from '~/components/plans/drawers/FeatureEntitlementDrawer'
+} from '~/components/plans/drawers/featureEntitlement/FeatureEntitlementDrawer'
 import {
   FeatureEntitlementPrivilegeForPlanFragmentDoc,
   FeatureObjectEntitlementPrivilegeForPlanFragmentDoc,

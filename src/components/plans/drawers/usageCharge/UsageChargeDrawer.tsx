@@ -43,7 +43,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import { DEFAULT_VALUES } from './usageChargeDrawerConstants'
+import { DEFAULT_VALUES } from './constants'
 import { UsageChargeDrawerContent } from './UsageChargeDrawerContent'
 
 gql`

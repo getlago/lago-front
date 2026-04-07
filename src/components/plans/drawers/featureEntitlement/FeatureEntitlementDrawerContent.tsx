@@ -22,7 +22,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
-import { DEFAULT_VALUES } from './featureEntitlementConstants'
+import { DEFAULT_VALUES } from './constants'
 import { PrivilegesTable } from './PrivilegesTable'
 
 gql`

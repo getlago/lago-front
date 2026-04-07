@@ -4,7 +4,7 @@ import { PrivilegeValueTypeEnum } from '~/generated/graphql'
 import { useFieldContext } from '~/hooks/forms/formContext'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import { type FeatureEntitlementFormValues } from '../featureEntitlementConstants'
+import { type FeatureEntitlementFormValues } from '../constants'
 import { FeatureEntitlementDrawerContent } from '../FeatureEntitlementDrawerContent'
 
 // --- Mocks ---

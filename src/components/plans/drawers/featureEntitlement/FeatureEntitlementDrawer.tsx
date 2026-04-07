@@ -14,10 +14,10 @@ import { PrivilegeValueTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import { DEFAULT_VALUES, type FeatureEntitlementFormValues } from './featureEntitlementConstants'
+import { DEFAULT_VALUES, type FeatureEntitlementFormValues } from './constants'
 import { FeatureEntitlementDrawerContent } from './FeatureEntitlementDrawerContent'
 
-export { type FeatureEntitlementFormValues, DEFAULT_VALUES } from './featureEntitlementConstants'
+export { type FeatureEntitlementFormValues, DEFAULT_VALUES } from './constants'
 
 const privilegeSchema = z.object({
   privilegeCode: z.string().min(1),

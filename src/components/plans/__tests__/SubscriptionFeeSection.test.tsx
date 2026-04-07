@@ -34,7 +34,7 @@ jest.mock('~/core/constants/form', () => ({
 const mockOpenDrawer = jest.fn()
 const mockCloseDrawer = jest.fn()
 
-jest.mock('~/components/plans/drawers/SubscriptionFeeDrawer', () => {
+jest.mock('~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer', () => {
   const React = jest.requireActual('react')
 
   const MockedDrawer = React.forwardRef((_props: unknown, ref: unknown) => {

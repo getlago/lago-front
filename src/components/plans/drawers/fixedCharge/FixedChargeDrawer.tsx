@@ -22,10 +22,10 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import { DEFAULT_VALUES } from './fixedChargeConstants'
+import { DEFAULT_VALUES } from './constants'
 import { FixedChargeDrawerContent } from './FixedChargeDrawerContent'
 
-export { type FixedChargeDrawerFormValues, DEFAULT_VALUES } from './fixedChargeConstants'
+export { type FixedChargeDrawerFormValues, DEFAULT_VALUES } from './constants'
 
 const fixedChargeDrawerSchema = z
   .object({
