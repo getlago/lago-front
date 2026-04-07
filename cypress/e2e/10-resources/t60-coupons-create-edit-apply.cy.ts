@@ -37,9 +37,7 @@ describe('Coupons', () => {
     cy.visit('/coupons')
     cy.get(`[data-test="${couponName}"]`).click()
 
-    cy.get(
-      `[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="coupon-details-actions"]`,
-    ).click()
+    cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="coupon-details-actions"]`).click()
     cy.get(`[data-test="coupon-details-edit"]`).click()
 
     cy.get('[data-test="limited-plan-0"]').within(() => {
@@ -97,9 +95,7 @@ describe('Coupons', () => {
     cy.visit('/coupons')
     cy.get(`[data-test="${couponName}"]`).click()
 
-    cy.get(
-      `[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="coupon-details-actions"]`,
-    ).click()
+    cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="coupon-details-actions"]`).click()
     cy.get(`[data-test="coupon-details-edit"]`).click()
 
     cy.get('input[name="name"]').should('not.be.disabled')

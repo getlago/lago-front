@@ -43,9 +43,7 @@ describe('Add On', () => {
     cy.visit('/add-ons')
     cy.get(`[data-test="${addOnName}"]`).click()
 
-    cy.get(
-      `[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="addon-details-actions"]`,
-    ).click()
+    cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="addon-details-actions"]`).click()
     cy.get(`[data-test="addon-details-edit"]`).click()
 
     // // Check taxes are still present
