@@ -113,7 +113,20 @@ const createMockEditor = () => {
 
   const editor = {
     state: {
-      selection: { from: 1, $from: { depth: 0, node: () => null } },
+      selection: { from: 1, $from: { depth: 0, node: () => null, index: () => 0 } },
+      doc: {
+        resolve: jest.fn().mockImplementation(() => ({
+          depth: 2,
+          node: jest.fn().mockImplementation((d: number) => {
+            if (d === 1) return { type: { name: 'tableRow' } }
+            if (d === 2) return { type: { name: 'tableCell' } }
+
+            return { type: { name: 'doc' } }
+          }),
+          before: jest.fn().mockReturnValue(1),
+        })),
+      },
+      tr: { setSelection: jest.fn().mockReturnThis() },
     },
     storage: {
       dragHandle: { selectedBlock: null },
@@ -121,6 +134,8 @@ const createMockEditor = () => {
     view: {
       domAtPos: jest.fn().mockReturnValue({ node: document.createElement('td') }),
       posAtDOM: jest.fn().mockReturnValue(1),
+      dispatch: jest.fn(),
+      focus: jest.fn(),
     },
     chain: jest.fn().mockReturnValue(proxy),
     commands: {
@@ -130,6 +145,8 @@ const createMockEditor = () => {
       moveColumnRight: jest.fn(),
       setRowBackgroundColor: jest.fn(),
       setRowTextColor: jest.fn(),
+      setColumnBackgroundColor: jest.fn(),
+      setColumnTextColor: jest.fn(),
     },
     on: jest.fn((event: string, handler: () => void) => {
       if (!eventHandlers[event]) eventHandlers[event] = []
@@ -146,6 +163,16 @@ const createMockEditor = () => {
   return { editor, runMock, eventHandlers }
 }
 
+jest.mock('@tiptap/pm/tables', () => {
+  // eslint-disable-next-line @typescript-eslint/no-extraneous-class
+  function CellSelection() {}
+
+  ;(CellSelection as unknown as Record<string, jest.Mock>).rowSelection = jest.fn()
+  ;(CellSelection as unknown as Record<string, jest.Mock>).colSelection = jest.fn()
+
+  return { CellSelection }
+})
+
 jest.mock('@tiptap/react', () => ({
   ...jest.requireActual('@tiptap/react'),
   useEditorState: jest.fn().mockImplementation(({ selector, editor }) => {
@@ -156,6 +183,25 @@ jest.mock('@tiptap/react', () => ({
     return mockIsInTable
   }),
 }))
+
+const getMockedCellSelection = () =>
+  jest.requireMock<{
+    CellSelection: jest.Mock & { rowSelection: jest.Mock; colSelection: jest.Mock }
+  }>('@tiptap/pm/tables').CellSelection
+
+const createCellSelectionInstance = (overrides: Record<string, unknown> = {}) => {
+  const CS = getMockedCellSelection()
+  const sel = Object.create(CS.prototype) as Record<string, unknown>
+
+  return Object.assign(sel, {
+    isRowSelection: jest.fn().mockReturnValue(false),
+    isColSelection: jest.fn().mockReturnValue(false),
+    forEachCell: jest.fn(),
+    from: 1,
+    $from: { depth: 0, node: () => ({ type: { name: 'doc' } }), index: () => 0 },
+    ...overrides,
+  })
+}
 
 const setupIsInTable = (editor: unknown, value: boolean) => {
   mockIsInTable = value
@@ -577,5 +623,697 @@ describe('TableControls', () => {
 
     // Note: CSS :hover behavior cannot be tested in jsdom.
     // The container-based hover visibility should be verified via manual or e2e testing.
+  })
+
+  describe('GIVEN the row and column menu buttons', () => {
+    const renderWithLayout = async () => {
+      const { editor, runMock } = createMockEditor()
+
+      setupIsInTable(editor, true)
+
+      await act(() => render(<TableControls editor={editor} />))
+
+      const wrapperEl = screen.getByTestId(TABLE_CONTROLS_WRAPPER_TEST_ID)
+
+      setupDOMForLayout(wrapperEl, editor)
+
+      const onCalls = (editor.on as jest.Mock).mock.calls
+      const selectionUpdateHandler = onCalls.find(
+        ([event]: [string]) => event === 'selectionUpdate',
+      )?.[1] as (() => void) | undefined
+
+      if (selectionUpdateHandler) {
+        await act(() => selectionUpdateHandler())
+      }
+
+      return { editor, runMock }
+    }
+
+    describe('WHEN the row menu buttons are rendered', () => {
+      it('THEN each row menu button should have the correct test id pattern', async () => {
+        await renderWithLayout()
+
+        const rowBtn0 = screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-0`)
+        const rowBtn1 = screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-1`)
+
+        expect(rowBtn0).toHaveAttribute('title', 'Row options')
+        expect(rowBtn1).toHaveAttribute('title', 'Row options')
+      })
+    })
+
+    describe('WHEN the column menu buttons are rendered', () => {
+      it('THEN each column menu button should have the correct test id pattern', async () => {
+        await renderWithLayout()
+
+        const colBtn0 = screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-0`)
+        const colBtn1 = screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-1`)
+
+        expect(colBtn0).toHaveAttribute('title', 'Column options')
+        expect(colBtn1).toHaveAttribute('title', 'Column options')
+      })
+    })
+
+    describe('WHEN the add column button is positioned', () => {
+      it('THEN should be positioned at the right edge of the table', async () => {
+        await renderWithLayout()
+
+        const addColBtn = screen.getByTestId(TABLE_CONTROLS_ADD_COL_BUTTON_TEST_ID)
+        const addColZone = addColBtn.parentElement as HTMLElement
+
+        // tableX(50) + tableWidth(400) = 450
+        expect(addColZone.style.left).toBe('450px')
+      })
+    })
+
+    describe('WHEN the add row button is positioned', () => {
+      it('THEN should be positioned at the bottom edge of the table', async () => {
+        await renderWithLayout()
+
+        const addRowBtn = screen.getByTestId(TABLE_CONTROLS_ADD_ROW_BUTTON_TEST_ID)
+        const addRowZone = addRowBtn.parentElement as HTMLElement
+
+        // tableY(50) + tableHeight(200) = 250
+        expect(addRowZone.style.top).toBe('250px')
+      })
+    })
+  })
+
+  describe('GIVEN the focusedCell selector', () => {
+    const renderWithFocusedCell = async (rowIndex: number, colIndex: number) => {
+      const { editor } = createMockEditor()
+
+      setupIsInTable(editor, true)
+
+      // Simulate cursor inside table > tableRow > tableCell
+      ;(editor as unknown as { state: { selection: { $from: unknown } } }).state.selection.$from = {
+        depth: 3,
+        node: (d: number) => {
+          if (d === 1) return { type: { name: 'table' } }
+          if (d === 2) return { type: { name: 'tableRow' }, attrs: {} }
+          if (d === 3) return { type: { name: 'tableCell' } }
+
+          return { type: { name: 'doc' } }
+        },
+        index: (d: number) => {
+          if (d === 1) return rowIndex
+          if (d === 2) return colIndex
+
+          return 0
+        },
+      }
+
+      await act(() => render(<TableControls editor={editor} />))
+
+      const wrapperEl = screen.getByTestId(TABLE_CONTROLS_WRAPPER_TEST_ID)
+
+      setupDOMForLayout(wrapperEl, editor)
+
+      const onCalls = (editor.on as jest.Mock).mock.calls
+      const selectionUpdateHandler = onCalls.find(
+        ([event]: [string]) => event === 'selectionUpdate',
+      )?.[1] as (() => void) | undefined
+
+      if (selectionUpdateHandler) {
+        await act(() => selectionUpdateHandler())
+      }
+
+      return { editor, wrapperEl }
+    }
+
+    describe('WHEN the cursor is inside a table cell at row 0, col 1', () => {
+      it('THEN should set data-focused on the matching row and column border zones', async () => {
+        const { wrapperEl } = await renderWithFocusedCell(0, 1)
+
+        const rowZones = wrapperEl.querySelectorAll('.table-controls__row-border-zone')
+
+        expect(rowZones[0]).toHaveAttribute('data-focused')
+        expect(rowZones[1]).not.toHaveAttribute('data-focused')
+
+        const colZones = wrapperEl.querySelectorAll('.table-controls__col-border-zone')
+
+        expect(colZones[0]).not.toHaveAttribute('data-focused')
+        expect(colZones[1]).toHaveAttribute('data-focused')
+      })
+    })
+
+    describe('WHEN a CellSelection is active', () => {
+      it('THEN should not set data-focused on any border zone', async () => {
+        const { editor } = createMockEditor()
+
+        setupIsInTable(editor, true)
+
+        const cellSel = createCellSelectionInstance()
+
+        ;(editor as unknown as { state: { selection: unknown } }).state.selection = cellSel
+
+        await act(() => render(<TableControls editor={editor} />))
+
+        const wrapperEl = screen.getByTestId(TABLE_CONTROLS_WRAPPER_TEST_ID)
+
+        setupDOMForLayout(wrapperEl, editor)
+
+        const onCalls = (editor.on as jest.Mock).mock.calls
+        const selectionUpdateHandler = onCalls.find(
+          ([event]: [string]) => event === 'selectionUpdate',
+        )?.[1] as (() => void) | undefined
+
+        if (selectionUpdateHandler) {
+          await act(() => selectionUpdateHandler())
+        }
+
+        const rowZones = wrapperEl.querySelectorAll('.table-controls__row-border-zone')
+
+        rowZones.forEach((zone) => {
+          expect(zone).not.toHaveAttribute('data-focused')
+        })
+      })
+    })
+
+    describe('WHEN dragHandle has a selectedBlock', () => {
+      it('THEN should not set data-focused on any border zone', async () => {
+        const { editor } = createMockEditor()
+
+        setupIsInTable(editor, true)
+        ;(
+          editor as unknown as { storage: { dragHandle: { selectedBlock: unknown } } }
+        ).storage.dragHandle.selectedBlock = { id: 'some-block' }
+
+        // Provide $from that would normally produce focusedCell
+        ;(editor as unknown as { state: { selection: { $from: unknown } } }).state.selection.$from =
+          {
+            depth: 3,
+            node: (d: number) => {
+              if (d === 1) return { type: { name: 'table' } }
+              if (d === 2) return { type: { name: 'tableRow' }, attrs: {} }
+
+              return { type: { name: 'doc' } }
+            },
+            index: () => 0,
+          }
+
+        await act(() => render(<TableControls editor={editor} />))
+
+        const wrapperEl = screen.getByTestId(TABLE_CONTROLS_WRAPPER_TEST_ID)
+
+        setupDOMForLayout(wrapperEl, editor)
+
+        const onCalls = (editor.on as jest.Mock).mock.calls
+        const selectionUpdateHandler = onCalls.find(
+          ([event]: [string]) => event === 'selectionUpdate',
+        )?.[1] as (() => void) | undefined
+
+        if (selectionUpdateHandler) {
+          await act(() => selectionUpdateHandler())
+        }
+
+        const rowZones = wrapperEl.querySelectorAll('.table-controls__row-border-zone')
+
+        rowZones.forEach((zone) => {
+          expect(zone).not.toHaveAttribute('data-focused')
+        })
+      })
+    })
+  })
+
+  describe('GIVEN the cellSelection selector', () => {
+    describe('WHEN a row CellSelection is active', () => {
+      it('THEN should apply is-selected class to the matching row menu button', async () => {
+        const { editor } = createMockEditor()
+
+        setupIsInTable(editor, true)
+
+        const cellSel = createCellSelectionInstance({
+          isRowSelection: jest.fn().mockReturnValue(true),
+          forEachCell: jest.fn().mockImplementation((cb: (_node: null, pos: number) => void) => {
+            cb(null, 10)
+          }),
+        })
+
+        ;(editor as unknown as { state: { selection: unknown } }).state.selection = cellSel
+        ;(
+          editor as unknown as { state: { doc: { resolve: jest.Mock } } }
+        ).state.doc.resolve.mockImplementation(() => ({
+          depth: 2,
+          node: (d: number) => {
+            if (d === 1) return { type: { name: 'table' } }
+
+            return { type: { name: 'tableRow' } }
+          },
+          index: (d: number) => {
+            if (d === 1) return 0
+
+            return 0
+          },
+          before: jest.fn().mockReturnValue(1),
+        }))
+
+        await act(() => render(<TableControls editor={editor} />))
+
+        const wrapperEl = screen.getByTestId(TABLE_CONTROLS_WRAPPER_TEST_ID)
+
+        setupDOMForLayout(wrapperEl, editor)
+
+        const onCalls = (editor.on as jest.Mock).mock.calls
+        const selectionUpdateHandler = onCalls.find(
+          ([event]: [string]) => event === 'selectionUpdate',
+        )?.[1] as (() => void) | undefined
+
+        if (selectionUpdateHandler) {
+          await act(() => selectionUpdateHandler())
+        }
+
+        const rowBtn0 = screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-0`)
+
+        expect(rowBtn0.className).toContain('is-selected')
+      })
+    })
+
+    describe('WHEN a column CellSelection is active', () => {
+      it('THEN should apply is-selected class to the matching col menu button', async () => {
+        const { editor } = createMockEditor()
+
+        setupIsInTable(editor, true)
+
+        const cellSel = createCellSelectionInstance({
+          isColSelection: jest.fn().mockReturnValue(true),
+          forEachCell: jest.fn().mockImplementation((cb: (_node: null, pos: number) => void) => {
+            cb(null, 10)
+          }),
+        })
+
+        ;(editor as unknown as { state: { selection: unknown } }).state.selection = cellSel
+        ;(
+          editor as unknown as { state: { doc: { resolve: jest.Mock } } }
+        ).state.doc.resolve.mockImplementation(() => ({
+          depth: 2,
+          node: (d: number) => {
+            if (d === 1) return { type: { name: 'tableRow' } }
+
+            return { type: { name: 'table' } }
+          },
+          index: (d: number) => {
+            if (d === 1) return 1
+
+            return 0
+          },
+          before: jest.fn().mockReturnValue(1),
+        }))
+
+        await act(() => render(<TableControls editor={editor} />))
+
+        const wrapperEl = screen.getByTestId(TABLE_CONTROLS_WRAPPER_TEST_ID)
+
+        setupDOMForLayout(wrapperEl, editor)
+
+        const onCalls = (editor.on as jest.Mock).mock.calls
+        const selectionUpdateHandler = onCalls.find(
+          ([event]: [string]) => event === 'selectionUpdate',
+        )?.[1] as (() => void) | undefined
+
+        if (selectionUpdateHandler) {
+          await act(() => selectionUpdateHandler())
+        }
+
+        const colBtn1 = screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-1`)
+
+        expect(colBtn1.className).toContain('is-selected')
+      })
+    })
+  })
+
+  describe('GIVEN the rowColors selector', () => {
+    describe('WHEN cursor is inside a table row with color attributes', () => {
+      it('THEN should render without errors when row has colors', async () => {
+        const { editor } = createMockEditor()
+
+        setupIsInTable(editor, true)
+        ;(editor as unknown as { state: { selection: { $from: unknown } } }).state.selection.$from =
+          {
+            depth: 2,
+            node: (d: number) => {
+              if (d === 1)
+                return {
+                  type: { name: 'tableRow' },
+                  attrs: { backgroundColor: '#ff0000', textColor: '#00ff00' },
+                }
+
+              return { type: { name: 'table' } }
+            },
+            index: () => 0,
+          }
+
+        await act(() => render(<TableControls editor={editor} />))
+
+        expect(screen.getByTestId(TABLE_CONTROLS_WRAPPER_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN cursor is inside a table row without color attributes', () => {
+      it('THEN should render without errors when row has no colors', async () => {
+        const { editor } = createMockEditor()
+
+        setupIsInTable(editor, true)
+        ;(editor as unknown as { state: { selection: { $from: unknown } } }).state.selection.$from =
+          {
+            depth: 2,
+            node: (d: number) => {
+              if (d === 1)
+                return {
+                  type: { name: 'tableRow' },
+                  attrs: { backgroundColor: null, textColor: null },
+                }
+
+              return { type: { name: 'table' } }
+            },
+            index: () => 0,
+          }
+
+        await act(() => render(<TableControls editor={editor} />))
+
+        expect(screen.getByTestId(TABLE_CONTROLS_WRAPPER_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the row menu interactions', () => {
+    const renderWithMenuSupport = async () => {
+      const { editor, runMock } = createMockEditor()
+
+      setupIsInTable(editor, true)
+
+      // Set up CellSelection.rowSelection for selectRow
+      const CS = getMockedCellSelection()
+
+      CS.rowSelection.mockReturnValue({ type: 'row-selection' })
+
+      await act(() => render(<TableControls editor={editor} />))
+
+      const wrapperEl = screen.getByTestId(TABLE_CONTROLS_WRAPPER_TEST_ID)
+
+      setupDOMForLayout(wrapperEl, editor)
+
+      const onCalls = (editor.on as jest.Mock).mock.calls
+      const selectionUpdateHandler = onCalls.find(
+        ([event]: [string]) => event === 'selectionUpdate',
+      )?.[1] as (() => void) | undefined
+
+      if (selectionUpdateHandler) {
+        await act(() => selectionUpdateHandler())
+      }
+
+      return { editor, runMock }
+    }
+
+    describe('WHEN a row menu button is clicked', () => {
+      it('THEN should call selectRow and dispatch the selection', async () => {
+        const user = userEvent.setup()
+        const { editor } = await renderWithMenuSupport()
+
+        await user.click(screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-0`))
+
+        expect(editor.view.dispatch).toHaveBeenCalled()
+        expect(editor.view.focus).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the "Move up" button is clicked in the row menu', () => {
+      it('THEN should call editor.commands.moveRowUp', async () => {
+        const user = userEvent.setup()
+        const { editor } = await renderWithMenuSupport()
+
+        // Open row menu for row 1 (move up is disabled for row 0)
+        await user.click(screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-1`))
+
+        const moveUpBtn = await screen.findByText('Move up')
+
+        await user.click(moveUpBtn)
+
+        expect(editor.commands.moveRowUp).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the "Move down" button is clicked in the row menu', () => {
+      it('THEN should call editor.commands.moveRowDown', async () => {
+        const user = userEvent.setup()
+        const { editor } = await renderWithMenuSupport()
+
+        // Open row menu for row 0 (move down is disabled for last row)
+        await user.click(screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-0`))
+
+        const moveDownBtn = await screen.findByText('Move down')
+
+        await user.click(moveDownBtn)
+
+        expect(editor.commands.moveRowDown).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the "Delete row" button is clicked in the row menu', () => {
+      it('THEN should call chain.deleteRow', async () => {
+        const user = userEvent.setup()
+        const { editor, runMock } = await renderWithMenuSupport()
+
+        await user.click(screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-0`))
+
+        const deleteBtn = await screen.findByText('Delete row')
+
+        await user.click(deleteBtn)
+
+        expect(editor.chain).toHaveBeenCalled()
+        expect(runMock).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN a background color is selected in the row color picker', () => {
+      it('THEN should call editor.commands.setRowBackgroundColor', async () => {
+        const user = userEvent.setup()
+        const { editor } = await renderWithMenuSupport()
+
+        // Open row menu
+        await user.click(screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-0`))
+
+        // Click "Text and block color" to open color sub-popper
+        const colorBtn = await screen.findByText('Text and block color')
+
+        await user.click(colorBtn)
+
+        // Click "Clear background" button
+        const clearBgBtn = await screen.findByTitle('Clear background')
+
+        await user.click(clearBgBtn)
+
+        expect(editor.commands.setRowBackgroundColor).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN a text color is selected in the row color picker', () => {
+      it('THEN should call editor.commands.setRowTextColor', async () => {
+        const user = userEvent.setup()
+        const { editor } = await renderWithMenuSupport()
+
+        // Open row menu
+        await user.click(screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-0`))
+
+        // Click "Text and block color"
+        const colorBtn = await screen.findByText('Text and block color')
+
+        await user.click(colorBtn)
+
+        // Click "Clear text color" button
+        const clearTextBtn = await screen.findByTitle('Clear text color')
+
+        await user.click(clearTextBtn)
+
+        expect(editor.commands.setRowTextColor).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the column menu interactions', () => {
+    const renderWithMenuSupport = async () => {
+      const { editor, runMock } = createMockEditor()
+
+      setupIsInTable(editor, true)
+
+      const CS = getMockedCellSelection()
+
+      CS.colSelection.mockReturnValue({ type: 'col-selection' })
+
+      await act(() => render(<TableControls editor={editor} />))
+
+      const wrapperEl = screen.getByTestId(TABLE_CONTROLS_WRAPPER_TEST_ID)
+
+      setupDOMForLayout(wrapperEl, editor)
+
+      const onCalls = (editor.on as jest.Mock).mock.calls
+      const selectionUpdateHandler = onCalls.find(
+        ([event]: [string]) => event === 'selectionUpdate',
+      )?.[1] as (() => void) | undefined
+
+      if (selectionUpdateHandler) {
+        await act(() => selectionUpdateHandler())
+      }
+
+      return { editor, runMock }
+    }
+
+    describe('WHEN a column menu button is clicked', () => {
+      it('THEN should call selectColumn and dispatch the selection', async () => {
+        const user = userEvent.setup()
+        const { editor } = await renderWithMenuSupport()
+
+        await user.click(screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-0`))
+
+        expect(editor.view.dispatch).toHaveBeenCalled()
+        expect(editor.view.focus).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the "Move left" button is clicked in the column menu', () => {
+      it('THEN should call editor.commands.moveColumnLeft', async () => {
+        const user = userEvent.setup()
+        const { editor } = await renderWithMenuSupport()
+
+        // Open col menu for col 1 (move left is disabled for col 0)
+        await user.click(screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-1`))
+
+        const moveLeftBtn = await screen.findByText('Move left')
+
+        await user.click(moveLeftBtn)
+
+        expect(editor.commands.moveColumnLeft).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the "Move right" button is clicked in the column menu', () => {
+      it('THEN should call editor.commands.moveColumnRight', async () => {
+        const user = userEvent.setup()
+        const { editor } = await renderWithMenuSupport()
+
+        // Open col menu for col 0 (move right is disabled for last col)
+        await user.click(screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-0`))
+
+        const moveRightBtn = await screen.findByText('Move right')
+
+        await user.click(moveRightBtn)
+
+        expect(editor.commands.moveColumnRight).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the "Delete column" button is clicked in the column menu', () => {
+      it('THEN should call chain.deleteColumn', async () => {
+        const user = userEvent.setup()
+        const { editor, runMock } = await renderWithMenuSupport()
+
+        await user.click(screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-0`))
+
+        const deleteBtn = await screen.findByText('Delete column')
+
+        await user.click(deleteBtn)
+
+        expect(editor.chain).toHaveBeenCalled()
+        expect(runMock).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN a background color is selected in the column color picker', () => {
+      it('THEN should call editor.commands.setColumnBackgroundColor', async () => {
+        const user = userEvent.setup()
+        const { editor } = await renderWithMenuSupport()
+
+        await user.click(screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-0`))
+
+        const colorBtn = await screen.findByText('Text and block color')
+
+        await user.click(colorBtn)
+
+        const clearBgBtn = await screen.findByTitle('Clear background')
+
+        await user.click(clearBgBtn)
+
+        expect(editor.commands.setColumnBackgroundColor).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN a text color is selected in the column color picker', () => {
+      it('THEN should call editor.commands.setColumnTextColor', async () => {
+        const user = userEvent.setup()
+        const { editor } = await renderWithMenuSupport()
+
+        await user.click(screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-0`))
+
+        const colorBtn = await screen.findByText('Text and block color')
+
+        await user.click(colorBtn)
+
+        const clearTextBtn = await screen.findByTitle('Clear text color')
+
+        await user.click(clearTextBtn)
+
+        expect(editor.commands.setColumnTextColor).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the computeLayout edge cases', () => {
+    describe('WHEN domAtPos returns a text node instead of an element', () => {
+      it('THEN should use parentElement to find the table', async () => {
+        const { editor } = createMockEditor()
+
+        setupIsInTable(editor, true)
+
+        await act(() => render(<TableControls editor={editor} />))
+
+        const wrapperEl = screen.getByTestId(TABLE_CONTROLS_WRAPPER_TEST_ID)
+        const table = createTableDOM(wrapperEl)
+        const textNode = document.createTextNode('hello')
+        const td = table.querySelector('td') as HTMLTableCellElement
+
+        td.appendChild(textNode)
+
+        // Return a text node instead of an element
+        ;(editor as unknown as { view: { domAtPos: jest.Mock } }).view.domAtPos.mockReturnValue({
+          node: textNode,
+        })
+
+        mockGetBoundingClientRect(wrapperEl, { x: 0, y: 0, width: 600, height: 400 })
+        mockGetBoundingClientRect(table, { x: 50, y: 50, width: 400, height: 200 })
+        table.querySelectorAll('tr').forEach((tr, i) => {
+          mockGetBoundingClientRect(tr, { x: 50, y: 50 + i * 100, width: 400, height: 100 })
+        })
+        table.querySelectorAll('td').forEach((tdEl, i) => {
+          const col = i % 2
+          const row = Math.floor(i / 2)
+
+          mockGetBoundingClientRect(tdEl, {
+            x: 50 + col * 200,
+            y: 50 + row * 100,
+            width: 200,
+            height: 100,
+          })
+        })
+
+        let posCounter = 1
+
+        ;(editor as unknown as { view: { posAtDOM: jest.Mock } }).view.posAtDOM.mockImplementation(
+          () => posCounter++,
+        )
+
+        const onCalls = (editor.on as jest.Mock).mock.calls
+        const selectionUpdateHandler = onCalls.find(
+          ([event]: [string]) => event === 'selectionUpdate',
+        )?.[1] as (() => void) | undefined
+
+        if (selectionUpdateHandler) {
+          await act(() => selectionUpdateHandler())
+        }
+
+        // Should still render controls (table found via parentElement.closest)
+        expect(
+          screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-0`),
+        ).toBeInTheDocument()
+      })
+    })
   })
 })

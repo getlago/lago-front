@@ -1,22 +1,41 @@
 import { Editor } from '@tiptap/core'
+import { Table } from '@tiptap/extension-table'
+import TableCell from '@tiptap/extension-table-cell'
+import TableHeader from '@tiptap/extension-table-header'
+import TableRow from '@tiptap/extension-table-row'
 import StarterKit from '@tiptap/starter-kit'
 import { act } from 'react'
 
 import { BlockColors } from '../BlockColors'
-import { DragHandle } from '../DragHandle'
+import { DragHandle, type DragHandleStorage } from '../DragHandle'
+
+const TABLE_CONTENT = `
+<p>Before table</p>
+<table>
+  <tbody>
+    <tr><td>A1</td><td>B1</td></tr>
+    <tr><td>A2</td><td>B2</td></tr>
+  </tbody>
+</table>
+<p>After table</p>
+`
 
 const createEditor = (content = '<p>First</p><p>Second</p>') => {
   let editor!: Editor
 
   act(() => {
     editor = new Editor({
-      extensions: [StarterKit, DragHandle, BlockColors],
+      extensions: [StarterKit, DragHandle, BlockColors, Table, TableRow, TableCell, TableHeader],
       content,
     })
   })
 
   return editor
 }
+
+const getDragHandleStorage = (editor: Editor): DragHandleStorage =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (editor.storage as any).dragHandle as DragHandleStorage
 
 describe('DragHandle', () => {
   describe('GIVEN the DragHandle extension', () => {
@@ -229,6 +248,143 @@ describe('DragHandle', () => {
 
         // Empty editor still has one paragraph node
         expect(handles.length).toBe(1)
+      })
+    })
+  })
+
+  describe('GIVEN the DragHandle storage', () => {
+    describe('WHEN the editor is initialized', () => {
+      it('THEN should have selectedBlock as null', () => {
+        const editor = createEditor()
+        const storage = getDragHandleStorage(editor)
+
+        expect(storage.selectedBlock).toBeNull()
+
+        editor.destroy()
+      })
+    })
+  })
+
+  describe('GIVEN a document with a table', () => {
+    describe('WHEN a table drag handle is clicked', () => {
+      it('THEN should store the table position in selectedBlock storage', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const storage = getDragHandleStorage(editor)
+
+        // Find the table node position
+        let tablePos = -1
+
+        editor.state.doc.descendants((node, pos) => {
+          if (node.type.name === 'table' && tablePos === -1) {
+            tablePos = pos
+          }
+        })
+
+        expect(tablePos).toBeGreaterThan(-1)
+
+        // Click the drag handle for the table (second top-level block)
+        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+        const tableHandle = handles[1] as HTMLElement
+
+        tableHandle.click()
+
+        expect(storage.selectedBlock).toEqual({ pos: tablePos })
+
+        editor.destroy()
+      })
+
+      it('THEN should place cursor inside the table via TextSelection', () => {
+        const editor = createEditor(TABLE_CONTENT)
+
+        let tablePos = -1
+
+        editor.state.doc.descendants((node, pos) => {
+          if (node.type.name === 'table' && tablePos === -1) {
+            tablePos = pos
+          }
+        })
+
+        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+        const tableHandle = handles[1] as HTMLElement
+
+        tableHandle.click()
+
+        // Selection should be inside the table, not a NodeSelection
+        const { from } = editor.state.selection
+        const tableNode = editor.state.doc.nodeAt(tablePos)
+        const tableEnd = tablePos + (tableNode?.nodeSize ?? 0)
+
+        expect(from).toBeGreaterThan(tablePos)
+        expect(from).toBeLessThan(tableEnd)
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN a non-table drag handle is clicked', () => {
+      it('THEN should not set selectedBlock in storage', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const storage = getDragHandleStorage(editor)
+
+        // Click the first handle (paragraph "Before table")
+        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+        const paragraphHandle = handles[0] as HTMLElement
+
+        paragraphHandle.click()
+
+        expect(storage.selectedBlock).toBeNull()
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN a table is selected and then cursor moves outside the table', () => {
+      it('THEN should clear selectedBlock on selection update', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const storage = getDragHandleStorage(editor)
+
+        // Click table handle
+        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+        const tableHandle = handles[1] as HTMLElement
+
+        tableHandle.click()
+
+        expect(storage.selectedBlock).not.toBeNull()
+
+        // Move cursor to the first paragraph (outside the table)
+        editor.commands.setTextSelection(1)
+
+        expect(storage.selectedBlock).toBeNull()
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN a table is selected and cursor stays inside the table', () => {
+      it('THEN should keep selectedBlock in storage', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const storage = getDragHandleStorage(editor)
+
+        // Click table handle
+        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+        const tableHandle = handles[1] as HTMLElement
+
+        tableHandle.click()
+
+        const tablePos = storage.selectedBlock?.pos ?? -1
+
+        expect(tablePos).toBeGreaterThan(-1)
+
+        // Move cursor to another cell within the same table
+        const tableNode = editor.state.doc.nodeAt(tablePos)
+        const tableEnd = tablePos + (tableNode?.nodeSize ?? 0)
+
+        // Set selection near the end of the table (still inside)
+        editor.commands.setTextSelection(tableEnd - 3)
+
+        expect(storage.selectedBlock).toEqual({ pos: tablePos })
+
+        editor.destroy()
       })
     })
   })

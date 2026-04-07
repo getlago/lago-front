@@ -297,10 +297,11 @@ describe('BlockToolbar', () => {
   })
 
   describe('GIVEN the useEditorState selector', () => {
-    it('THEN should return null when selection is not a NodeSelection', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let capturedSelector: any = null
+
+    const captureSelectorAndRender = () => {
       const tiptap = jest.requireMock('@tiptap/react')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let capturedSelector: any = null
 
       tiptap.useEditorState.mockImplementation(
         ({ selector }: { selector: (ctx: { editor: unknown }) => unknown }) => {
@@ -314,6 +315,19 @@ describe('BlockToolbar', () => {
 
       render(<BlockToolbar editor={mockEditor} />)
 
+      // Restore default mock after capturing
+      tiptap.useEditorState.mockImplementation(
+        ({ selector }: { selector?: (ctx: { editor: unknown }) => unknown }) => {
+          if (selector) return mockSelectorReturn
+
+          return null
+        },
+      )
+    }
+
+    it('THEN should return null when selection is not a NodeSelection', () => {
+      captureSelectorAndRender()
+
       const result = capturedSelector?.({
         editor: {
           state: { selection: { from: 0 } },
@@ -323,14 +337,121 @@ describe('BlockToolbar', () => {
       })
 
       expect(result).toBeNull()
+    })
 
-      tiptap.useEditorState.mockImplementation(
-        ({ selector }: { selector?: (ctx: { editor: unknown }) => unknown }) => {
-          if (selector) return mockSelectorReturn
+    describe('WHEN a table is selected via drag handle and cursor is inside the table', () => {
+      it('THEN should return the table block selection as fallback', () => {
+        captureSelectorAndRender()
 
-          return null
-        },
-      )
+        const tableNode = {
+          type: { name: 'table' },
+          nodeSize: 20,
+          attrs: { backgroundColor: '#fee2e2', textColor: '#dc2626' },
+        }
+
+        const result = capturedSelector?.({
+          editor: {
+            state: {
+              selection: { from: 8 },
+              doc: {
+                nodeAt: () => tableNode,
+                resolve: () => ({ index: () => 0 }),
+                childCount: 3,
+              },
+            },
+            view: { dragging: null },
+            storage: { dragHandle: { selectedBlock: { pos: 5 } } },
+          },
+        })
+
+        expect(result).toEqual({
+          pos: 5,
+          node: tableNode,
+          backgroundColor: '#fee2e2',
+          textColor: '#dc2626',
+          isFirst: true,
+          isLast: false,
+        })
+      })
+    })
+
+    describe('WHEN a table is selected via drag handle but cursor is outside the table', () => {
+      it('THEN should return null', () => {
+        captureSelectorAndRender()
+
+        const tableNode = {
+          type: { name: 'table' },
+          nodeSize: 20,
+          attrs: { backgroundColor: null, textColor: null },
+        }
+
+        const result = capturedSelector?.({
+          editor: {
+            state: {
+              selection: { from: 50 },
+              doc: {
+                nodeAt: () => tableNode,
+                resolve: () => ({ index: () => 0 }),
+                childCount: 3,
+              },
+            },
+            view: { dragging: null },
+            storage: { dragHandle: { selectedBlock: { pos: 5 } } },
+          },
+        })
+
+        expect(result).toBeNull()
+      })
+    })
+
+    describe('WHEN drag handle has a selectedBlock that is not a table', () => {
+      it('THEN should return null', () => {
+        captureSelectorAndRender()
+
+        const paragraphNode = {
+          type: { name: 'paragraph' },
+          nodeSize: 10,
+          attrs: {},
+        }
+
+        const result = capturedSelector?.({
+          editor: {
+            state: {
+              selection: { from: 6 },
+              doc: {
+                nodeAt: () => paragraphNode,
+                resolve: () => ({ index: () => 0 }),
+                childCount: 3,
+              },
+            },
+            view: { dragging: null },
+            storage: { dragHandle: { selectedBlock: { pos: 5 } } },
+          },
+        })
+
+        expect(result).toBeNull()
+      })
+    })
+
+    describe('WHEN drag handle has a selectedBlock but editor is dragging', () => {
+      it('THEN should return null', () => {
+        captureSelectorAndRender()
+
+        const result = capturedSelector?.({
+          editor: {
+            state: {
+              selection: { from: 8 },
+              doc: {
+                nodeAt: () => ({ type: { name: 'table' }, nodeSize: 20, attrs: {} }),
+              },
+            },
+            view: { dragging: { slice: {}, move: true } },
+            storage: { dragHandle: { selectedBlock: { pos: 5 } } },
+          },
+        })
+
+        expect(result).toBeNull()
+      })
     })
   })
 })
