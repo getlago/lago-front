@@ -10,8 +10,8 @@ export const isAdjacentModel = (
   })
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const formataAnyToValueForChargeFormArrays = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   toValue: any,
   fromValue: number | string,
   adjacent?: boolean,
