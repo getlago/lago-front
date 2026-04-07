@@ -27,30 +27,28 @@ const MainHeaderComponent: FC = () => {
   const hasEntity = !!entity
 
   return (
-    <>
-      <header data-test={MAIN_HEADER_TEST_ID}>
-        {/* Entity + actions */}
-        <div className="flex items-start justify-between gap-4 px-4 pb-4 pt-17 md:px-12 md:pb-6 md:pt-12">
-          <div className="flex min-w-0 flex-col gap-2">
-            {hasBreadcrumb && <Breadcrumb items={breadcrumb} />}
+    <header data-test={MAIN_HEADER_TEST_ID}>
+      {/* Entity + actions */}
+      <div className="flex items-start justify-between gap-4 px-4 pb-4 pt-17 md:px-12 md:pb-6 md:pt-12">
+        <div className="flex min-w-0 flex-col gap-2">
+          {hasBreadcrumb && <Breadcrumb items={breadcrumb} />}
 
-            {hasEntity && <EntitySection entity={entity} />}
-          </div>
-
-          <ActionsBlock actions={actions} dataTest={ACTIONS_BLOCK_TEST_ID} />
+          {hasEntity && <EntitySection entity={entity} />}
         </div>
 
-        {/* Tab bar */}
-        {tabs && tabs.length >= 2 && <NavigationTabBar className="mx-4 md:mx-12" tabs={tabs} />}
+        <ActionsBlock actions={actions} dataTest={ACTIONS_BLOCK_TEST_ID} />
+      </div>
 
-        {/* Filter section */}
-        {filtersSection && (
-          <div className="px-4 pb-4 md:px-12" data-test={MAIN_HEADER_FILTERS_TEST_ID}>
-            {filtersSection}
-          </div>
-        )}
-      </header>
-    </>
+      {/* Tab bar */}
+      {tabs && tabs.length >= 2 && <NavigationTabBar className="mx-4 md:mx-12" tabs={tabs} />}
+
+      {/* Filter section */}
+      {filtersSection && (
+        <div className="px-4 pb-4 md:px-12" data-test={MAIN_HEADER_FILTERS_TEST_ID}>
+          {filtersSection}
+        </div>
+      )}
+    </header>
   )
 }
 
