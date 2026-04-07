@@ -38,12 +38,39 @@ const TableControls = ({ editor }: TableControlsProps) => {
   const { translate } = useInternationalization()
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [layout, setLayout] = useState<TableLayout | null>(null)
-  const [hoveredRow, setHoveredRow] = useState<number | null>(null)
-  const [hoveredCol, setHoveredCol] = useState<number | null>(null)
 
   const isInTable = useEditorState({
     editor,
     selector: ({ editor: e }) => e.isActive('table'),
+  })
+
+  // Derive the focused row/col index from the cursor position
+  const focusedCell = useEditorState({
+    editor,
+    selector: ({ editor: e }) => {
+      if (!e.isActive('table')) return null
+
+      const $pos = e.state.selection.$from
+      let rowIndex: number | null = null
+      let colIndex: number | null = null
+
+      for (let depth = $pos.depth; depth > 0; depth--) {
+        const node = $pos.node(depth)
+
+        if (node.type.name === 'table') {
+          rowIndex = $pos.index(depth)
+        }
+        if (node.type.name === 'tableRow') {
+          colIndex = $pos.index(depth)
+        }
+      }
+
+      if (rowIndex !== null && colIndex !== null) {
+        return { rowIndex, colIndex }
+      }
+
+      return null
+    },
   })
 
   const rowColors = useEditorState({
@@ -154,82 +181,6 @@ const TableControls = ({ editor }: TableControlsProps) => {
     }
   }, [editor, updateLayout])
 
-  // Track hovered row/col from table cell hover (first column → row, first row → col)
-  useEffect(() => {
-    if (!isInTable || !layout) {
-      setHoveredRow(null)
-      setHoveredCol(null)
-
-      return
-    }
-
-    const { selection } = editor.state
-    const domNode = editor.view.domAtPos(selection.from).node
-    const tableEl =
-      domNode instanceof HTMLElement
-        ? domNode.closest('table')
-        : domNode.parentElement?.closest('table')
-
-    if (!tableEl) return
-
-    const handleMouseOver = (e: Event) => {
-      if (!(e.target instanceof HTMLElement)) return
-
-      const cell = e.target.closest('th, td')
-
-      if (!cell) return
-
-      const row = cell.closest('tr')
-
-      if (!row) return
-
-      const allRows = tableEl.querySelectorAll('tr')
-      const firstRow = tableEl.querySelector('tr')
-
-      // Find row index
-      let rowIndex: number | null = null
-
-      allRows.forEach((tr, i) => {
-        if (tr === row) rowIndex = i
-      })
-
-      // Find column index
-      const rowCells = row.querySelectorAll('th, td')
-      let cellIndex: number | null = null
-
-      rowCells.forEach((c, i) => {
-        if (c === cell) cellIndex = i
-      })
-
-      // Show row menu when hovering the first cell of a row
-      if (cellIndex === 0 && rowIndex !== null) {
-        setHoveredRow(rowIndex)
-      } else {
-        setHoveredRow(null)
-      }
-
-      // Show column menu when hovering a cell in the first row
-      if (row === firstRow && cellIndex !== null) {
-        setHoveredCol(cellIndex)
-      } else {
-        setHoveredCol(null)
-      }
-    }
-
-    const handleMouseLeave = () => {
-      setHoveredRow(null)
-      setHoveredCol(null)
-    }
-
-    tableEl.addEventListener('mouseover', handleMouseOver)
-    tableEl.addEventListener('mouseleave', handleMouseLeave)
-
-    return () => {
-      tableEl.removeEventListener('mouseover', handleMouseOver)
-      tableEl.removeEventListener('mouseleave', handleMouseLeave)
-    }
-  }, [isInTable, editor, layout])
-
   const resolveCellPos = (contentPos: number) => {
     // cellPos from posAtDOM points inside the cell content.
     // Walk up to find the cell node position for CellSelection.
@@ -287,7 +238,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
             <div
               key={`row-zone-${row.cellPos}`}
               className="table-controls__row-border-zone"
-              data-hovered={hoveredRow === i || undefined}
+              data-focused={focusedCell?.rowIndex === i || undefined}
               style={{
                 left: layout.tableX - BORDER_ZONE_SIZE / 2,
                 top: row.top,
@@ -405,7 +356,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
             <div
               key={`col-zone-${col.cellPos}`}
               className="table-controls__col-border-zone"
-              data-hovered={hoveredCol === i || undefined}
+              data-focused={focusedCell?.colIndex === i || undefined}
               style={{
                 left: col.left,
                 top: layout.tableY - BORDER_ZONE_SIZE / 2,

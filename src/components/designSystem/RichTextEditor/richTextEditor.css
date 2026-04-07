@@ -314,11 +314,9 @@
   @apply h-[14px] w-5;
 }
 
-/* Reveal menu buttons on zone hover or when adjacent cell is hovered */
-.table-controls__row-border-zone:hover .table-controls__menu-btn,
-.table-controls__col-border-zone:hover .table-controls__menu-btn,
-.table-controls__row-border-zone[data-hovered] .table-controls__menu-btn,
-.table-controls__col-border-zone[data-hovered] .table-controls__menu-btn {
+/* Reveal menu buttons when the cell in this row/column is focused */
+.table-controls__row-border-zone[data-focused] .table-controls__menu-btn,
+.table-controls__col-border-zone[data-focused] .table-controls__menu-btn {
   @apply opacity-100;
 }
 
