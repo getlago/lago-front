@@ -26,6 +26,7 @@ import { BlockColors, createColorAwareSerialize } from './BlockColors'
 import { BlockMove } from './BlockMove'
 import { wrapInBlockWrapper } from './BlockWrapper'
 import { LinkCard } from './LinkCard'
+import { ColorAwareTableView } from './TableCommands'
 
 // -- Color-aware markdown serialization ---------------------------------------
 // When a block has backgroundColor or textColor, it is emitted as HTML so the
@@ -241,7 +242,10 @@ export const getBaseExtensions = (options?: BaseExtensionsOptions): Extensions =
   Color,
   Highlight.configure({ multicolor: true }),
   TextAlign.configure({ types: ['heading', 'paragraph'] }),
-  Table.configure({ resizable: options?.tableResizable ?? false }),
+  Table.configure({
+    resizable: options?.tableResizable ?? false,
+    View: ColorAwareTableView,
+  }),
   TableRow,
   TableCell,
   TableHeader,

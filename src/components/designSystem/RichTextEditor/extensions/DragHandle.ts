@@ -14,14 +14,45 @@ const renderGripIcon = (container: HTMLElement): void => {
   root.render(createElement(ALL_ICONS['double-dots-vertical'], { width: 16, height: 16 }))
 }
 
+export type DragHandleStorage = {
+  selectedBlock: { pos: number } | null
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getDragHandleStorage = (editor: { storage: any }): DragHandleStorage =>
+  editor.storage.dragHandle as DragHandleStorage
+
 export const DragHandle = Extension.create({
   name: 'dragHandle',
 
+  addStorage() {
+    return {
+      /** When a table's drag handle is clicked, the table plugin converts NodeSelection
+       *  to CellSelection, so BlockToolbar can't detect it. We store the selected block
+       *  info here so BlockToolbar can fall back to it. */
+      selectedBlock: null as { pos: number } | null,
+    }
+  },
+
   addProseMirrorPlugins() {
     const editor = this.editor
+    const storage = getDragHandleStorage(editor)
 
     function selectBlock(pos: number) {
-      const tr = editor.view.state.tr.setSelection(NodeSelection.create(editor.view.state.doc, pos))
+      const node = editor.view.state.doc.nodeAt(pos)
+
+      // For tables, the prosemirror-tables plugin converts NodeSelection → CellSelection,
+      // which prevents BlockToolbar from detecting it. Store the block info in storage
+      // so BlockToolbar can use it as a fallback.
+      if (node?.type.name === 'table') {
+        storage.selectedBlock = { pos }
+      } else {
+        storage.selectedBlock = null
+      }
+
+      const tr = editor.view.state.tr.setSelection(
+        NodeSelection.create(editor.view.state.doc, pos),
+      )
 
       editor.view.dispatch(tr)
       editor.view.focus()
@@ -131,6 +162,13 @@ export const DragHandle = Extension.create({
         props: {
           decorations(state) {
             return dragHandlePluginKey.getState(state)
+          },
+          handleClick() {
+            // User clicked inside the editor content (not on a drag handle).
+            // Clear the table-selected-via-drag-handle flag.
+            storage.selectedBlock = null
+
+            return false // don't consume the event
           },
         },
       }),

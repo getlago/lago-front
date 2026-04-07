@@ -8,6 +8,8 @@ import { Popper } from '~/components/designSystem/Popper'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 
+import type { DragHandleStorage } from '../extensions/DragHandle'
+
 import ColorPicker from './ColorPicker'
 
 export const BLOCK_TOOLBAR_TEST_ID = 'block-toolbar'
@@ -47,6 +49,41 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
               : null,
           isFirst: index === 0,
           isLast: index >= e.state.doc.childCount - 1,
+        }
+      }
+
+      // Fallback: table selected via drag handle (prosemirror-tables converts
+      // NodeSelection → CellSelection, so we check DragHandle storage).
+      // Only show if the current selection is still inside the same table.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const dragHandleStorage = (e.storage as any).dragHandle as DragHandleStorage | undefined
+      const selectedBlock = dragHandleStorage?.selectedBlock
+
+      if (selectedBlock && !e.view.dragging) {
+        const node = e.state.doc.nodeAt(selectedBlock.pos)
+
+        if (node?.type.name === 'table') {
+          // Check that the current selection is inside this table
+          const selFrom = selection.from
+          const tableEnd = selectedBlock.pos + node.nodeSize
+
+          if (selFrom >= selectedBlock.pos && selFrom <= tableEnd) {
+            const $pos = e.state.doc.resolve(selectedBlock.pos)
+            const index = $pos.index(0)
+
+            return {
+              pos: selectedBlock.pos,
+              node,
+              backgroundColor:
+                typeof node.attrs.backgroundColor === 'string'
+                  ? node.attrs.backgroundColor
+                  : null,
+              textColor:
+                typeof node.attrs.textColor === 'string' ? node.attrs.textColor : null,
+              isFirst: index === 0,
+              isLast: index >= e.state.doc.childCount - 1,
+            }
+          }
         }
       }
 

@@ -318,6 +318,7 @@ describe('BlockToolbar', () => {
         editor: {
           state: { selection: { from: 0 } },
           view: { dragging: null },
+          storage: { dragHandle: { selectedBlock: null } },
         },
       })
 

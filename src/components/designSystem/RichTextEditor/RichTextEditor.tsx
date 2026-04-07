@@ -11,6 +11,7 @@ import { downloadMarkdownPdf } from './common/downloadMarkdownPdf'
 import { EntityData, RichTextEditorProvider } from './common/RichTextEditorContext'
 import { getBaseExtensions } from './extensions/baseExtensions'
 import { DragHandle } from './extensions/DragHandle'
+import { TableCommands } from './extensions/TableCommands'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
 import {
   configureMention,
@@ -144,6 +145,7 @@ const RichTextEditor = ({
       LinkPasteHandler,
       TemplateSelectorExtension.configure({ templates: templates ?? [] }),
       DragHandle,
+      TableCommands,
     ],
     editorProps: {
       attributes: {
@@ -289,7 +291,7 @@ const RichTextEditor = ({
         data-test={RICH_TEXT_EDITOR_TEST_ID}
       >
         <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />
-        <div className="relative pb-8 pr-8">
+        <div className="relative">
           <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
           <TableControls editor={editor} />
         </div>

@@ -1,12 +1,21 @@
-import { Editor, useEditorState } from '@tiptap/react'
-import { tw } from 'lago-design-system'
+import type { Editor } from '@tiptap/core'
+import { CellSelection } from '@tiptap/pm/tables'
+import { useEditorState } from '@tiptap/react'
+import { Icon } from 'lago-design-system'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { Button } from '~/components/designSystem/Button'
+import { Popper } from '~/components/designSystem/Popper'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { MenuPopper } from '~/styles/designSystem/PopperComponents'
+
+import ColorPicker from '../BlockControls/ColorPicker'
+
 export const TABLE_CONTROLS_WRAPPER_TEST_ID = 'table-controls-wrapper'
-export const TABLE_CONTROLS_DELETE_ROW_BUTTON_TEST_ID = 'table-controls-delete-row-button'
-export const TABLE_CONTROLS_DELETE_COL_BUTTON_TEST_ID = 'table-controls-delete-col-button'
 export const TABLE_CONTROLS_ADD_COL_BUTTON_TEST_ID = 'table-controls-add-col-button'
 export const TABLE_CONTROLS_ADD_ROW_BUTTON_TEST_ID = 'table-controls-add-row-button'
+export const TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID = 'table-controls-row-menu-button'
+export const TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID = 'table-controls-col-menu-button'
 
 type TableControlsProps = {
   editor: Editor
@@ -23,70 +32,41 @@ type TableLayout = {
   cols: ColInfo[]
 }
 
-const HIDE_DELAY = 200
-const CONTROL_OFFSET = 26 // 22px button + 4px gap
-const CONTROL_GAP = 4
+const BORDER_ZONE_SIZE = 14
 
 const TableControls = ({ editor }: TableControlsProps) => {
+  const { translate } = useInternationalization()
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [layout, setLayout] = useState<TableLayout | null>(null)
   const [hoveredRow, setHoveredRow] = useState<number | null>(null)
   const [hoveredCol, setHoveredCol] = useState<number | null>(null)
-  const [addRowVisible, setAddRowVisible] = useState(false)
-  const [addColVisible, setAddColVisible] = useState(false)
-
-  // Refs to hold hide timeouts so we can cancel them
-  const hideRowTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const hideColTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const hideAddRowTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const hideAddColTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const clearAllTimeouts = () => {
-    if (hideRowTimeout.current) clearTimeout(hideRowTimeout.current)
-    if (hideColTimeout.current) clearTimeout(hideColTimeout.current)
-    if (hideAddRowTimeout.current) clearTimeout(hideAddRowTimeout.current)
-    if (hideAddColTimeout.current) clearTimeout(hideAddColTimeout.current)
-  }
-
-  const showRow = (i: number) => {
-    if (hideRowTimeout.current) clearTimeout(hideRowTimeout.current)
-    setHoveredRow(i)
-  }
-
-  const hideRow = () => {
-    hideRowTimeout.current = setTimeout(() => setHoveredRow(null), HIDE_DELAY)
-  }
-
-  const showCol = (i: number) => {
-    if (hideColTimeout.current) clearTimeout(hideColTimeout.current)
-    setHoveredCol(i)
-  }
-
-  const hideCol = () => {
-    hideColTimeout.current = setTimeout(() => setHoveredCol(null), HIDE_DELAY)
-  }
-
-  const showAddRow = () => {
-    if (hideAddRowTimeout.current) clearTimeout(hideAddRowTimeout.current)
-    setAddRowVisible(true)
-  }
-
-  const hideAddRow = () => {
-    hideAddRowTimeout.current = setTimeout(() => setAddRowVisible(false), HIDE_DELAY)
-  }
-
-  const showAddCol = () => {
-    if (hideAddColTimeout.current) clearTimeout(hideAddColTimeout.current)
-    setAddColVisible(true)
-  }
-
-  const hideAddCol = () => {
-    hideAddColTimeout.current = setTimeout(() => setAddColVisible(false), HIDE_DELAY)
-  }
 
   const isInTable = useEditorState({
     editor,
     selector: ({ editor: e }) => e.isActive('table'),
+  })
+
+  const rowColors = useEditorState({
+    editor,
+    selector: ({ editor: e }) => {
+      if (!e.isActive('table')) return null
+
+      const $pos = e.state.selection.$from
+
+      for (let depth = $pos.depth; depth > 0; depth--) {
+        const node = $pos.node(depth)
+
+        if (node.type.name === 'tableRow') {
+          return {
+            backgroundColor:
+              typeof node.attrs.backgroundColor === 'string' ? node.attrs.backgroundColor : null,
+            textColor: typeof node.attrs.textColor === 'string' ? node.attrs.textColor : null,
+          }
+        }
+      }
+
+      return null
+    },
   })
 
   const computeLayout = useCallback((): TableLayout | null => {
@@ -174,14 +154,11 @@ const TableControls = ({ editor }: TableControlsProps) => {
     }
   }, [editor, updateLayout])
 
-  // Track hovered row/col from actual table cell hover
+  // Track hovered row/col from table cell hover (first column → row, first row → col)
   useEffect(() => {
-    if (!isInTable) {
-      clearAllTimeouts()
+    if (!isInTable || !layout) {
       setHoveredRow(null)
       setHoveredCol(null)
-      setAddRowVisible(false)
-      setAddColVisible(false)
 
       return
     }
@@ -216,7 +193,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
         if (tr === row) rowIndex = i
       })
 
-      // Find column index within the row
+      // Find column index
       const rowCells = row.querySelectorAll('th, td')
       let cellIndex: number | null = null
 
@@ -224,40 +201,24 @@ const TableControls = ({ editor }: TableControlsProps) => {
         if (c === cell) cellIndex = i
       })
 
-      // Show row delete when hovering the first cell of the row
+      // Show row menu when hovering the first cell of a row
       if (cellIndex === 0 && rowIndex !== null) {
-        showRow(rowIndex)
+        setHoveredRow(rowIndex)
       } else {
-        hideRow()
+        setHoveredRow(null)
       }
 
-      // Show column delete when hovering a cell in the first row
+      // Show column menu when hovering a cell in the first row
       if (row === firstRow && cellIndex !== null) {
-        showCol(cellIndex)
+        setHoveredCol(cellIndex)
       } else {
-        hideCol()
-      }
-
-      // Show add-row when hovering any cell in the last row
-      if (rowIndex === allRows.length - 1) {
-        showAddRow()
-      } else {
-        hideAddRow()
-      }
-
-      // Show add-col when hovering the last cell of any row
-      if (cellIndex === rowCells.length - 1) {
-        showAddCol()
-      } else {
-        hideAddCol()
+        setHoveredCol(null)
       }
     }
 
     const handleMouseLeave = () => {
-      hideRow()
-      hideCol()
-      hideAddRow()
-      hideAddCol()
+      setHoveredRow(null)
+      setHoveredCol(null)
     }
 
     tableEl.addEventListener('mouseover', handleMouseOver)
@@ -269,10 +230,39 @@ const TableControls = ({ editor }: TableControlsProps) => {
     }
   }, [isInTable, editor, layout])
 
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => clearAllTimeouts()
-  }, [])
+  const resolveCellPos = (contentPos: number) => {
+    // cellPos from posAtDOM points inside the cell content.
+    // Walk up to find the cell node position for CellSelection.
+    const $pos = editor.state.doc.resolve(contentPos)
+
+    for (let depth = $pos.depth; depth > 0; depth--) {
+      const node = $pos.node(depth)
+
+      if (node.type.name === 'tableCell' || node.type.name === 'tableHeader') {
+        return editor.state.doc.resolve($pos.before(depth))
+      }
+    }
+
+    return $pos
+  }
+
+  const selectRow = (cellPos: number) => {
+    const $cell = resolveCellPos(cellPos)
+    const selection = CellSelection.rowSelection($cell)
+    const tr = editor.state.tr.setSelection(selection)
+
+    editor.view.dispatch(tr)
+    editor.view.focus()
+  }
+
+  const selectColumn = (cellPos: number) => {
+    const $cell = resolveCellPos(cellPos)
+    const selection = CellSelection.colSelection($cell)
+    const tr = editor.state.tr.setSelection(selection)
+
+    editor.view.dispatch(tr)
+    editor.view.focus()
+  }
 
   const focusCellAndRun = (
     cellPos: number,
@@ -292,129 +282,297 @@ const TableControls = ({ editor }: TableControlsProps) => {
     >
       {isInTable && layout && (
         <>
-          {/* Row delete buttons — left of each row */}
-          {layout.rows.length > 1 &&
-            layout.rows.map((row, i) => (
-              <div
-                key={`row-${row.cellPos}`}
-                role="presentation"
-                className={tw(
-                  'absolute flex w-[22px] flex-col items-center justify-center gap-0.5 transition-opacity duration-150 ease-in-out',
-                  {
-                    'pointer-events-auto opacity-100': hoveredRow === i,
-                    'pointer-events-none opacity-0': hoveredRow !== i,
-                  },
+          {/* Row border zones — left of each row */}
+          {layout.rows.map((row, i) => (
+            <div
+              key={`row-zone-${row.cellPos}`}
+              className="table-controls__row-border-zone"
+              data-hovered={hoveredRow === i || undefined}
+              style={{
+                left: layout.tableX - BORDER_ZONE_SIZE / 2,
+                top: row.top,
+                width: BORDER_ZONE_SIZE,
+                height: row.height,
+              }}
+            >
+              <Popper
+                PopperProps={{ placement: 'right' }}
+                opener={({ onClick }) => (
+                  <button
+                    type="button"
+                    className="table-controls__menu-btn table-controls__menu-btn--row"
+                    data-test={`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-${i}`}
+                    title="Row options"
+                    onClick={() => {
+                      selectRow(row.cellPos)
+                      onClick()
+                    }}
+                  >
+                    <Icon name="double-dots-vertical" size="small" />
+                  </button>
                 )}
-                style={{
-                  left: layout.tableX - CONTROL_OFFSET,
-                  top: row.top,
-                  height: row.height,
-                }}
-                onMouseEnter={() => showRow(i)}
-                onMouseLeave={hideRow}
               >
-                <button
-                  type="button"
-                  data-test={`${TABLE_CONTROLS_DELETE_ROW_BUTTON_TEST_ID}-${i}`}
-                  className="flex size-[18px] items-center justify-center rounded bg-red-100 text-xs font-medium leading-none text-red-600 transition-colors hover:bg-red-200 hover:text-red-700"
-                  title="Delete row"
-                  onClick={() => focusCellAndRun(row.cellPos, (chain) => chain.deleteRow())}
-                >
-                  −
-                </button>
-              </div>
-            ))}
+                {({ closePopper }) => (
+                  <MenuPopper>
+                    {/* Colors */}
+                    <Popper
+                      PopperProps={{ placement: 'right-start' }}
+                      opener={
+                        <Button
+                          variant="quaternary"
+                          align="left"
+                          className="w-full"
+                          startIcon="text-color"
+                        >
+                          {translate('text_17751458820889ebguo3021w')}
+                        </Button>
+                      }
+                    >
+                      {() => (
+                        <MenuPopper>
+                          <ColorPicker
+                            activeBackgroundColor={rowColors?.backgroundColor ?? null}
+                            activeTextColor={rowColors?.textColor ?? null}
+                            onSelectBackground={(color) => {
+                              focusCellAndRun(row.cellPos, () => {
+                                editor.commands.setRowBackgroundColor(color)
+                              })
+                            }}
+                            onSelectText={(color) => {
+                              focusCellAndRun(row.cellPos, () => {
+                                editor.commands.setRowTextColor(color)
+                              })
+                            }}
+                          />
+                        </MenuPopper>
+                      )}
+                    </Popper>
 
-          {/* Column delete buttons — top of each column */}
-          {layout.cols.length > 1 &&
-            layout.cols.map((col, i) => (
-              <div
-                key={`col-${col.cellPos}`}
-                role="presentation"
-                className={`absolute flex h-[22px] flex-row items-center justify-center gap-0.5 transition-opacity duration-150 ease-in-out ${
-                  hoveredCol === i
-                    ? 'pointer-events-auto opacity-100'
-                    : 'pointer-events-none opacity-0'
-                }`}
-                style={{
-                  left: col.left,
-                  top: layout.tableY - CONTROL_OFFSET,
-                  width: col.width,
-                }}
-                onMouseEnter={() => showCol(i)}
-                onMouseLeave={hideCol}
+                    {/* Move up */}
+                    <Button
+                      variant="quaternary"
+                      startIcon="arrow-top"
+                      align="left"
+                      disabled={i === 0}
+                      onClick={() => {
+                        focusCellAndRun(row.cellPos, () => {
+                          editor.commands.moveRowUp()
+                        })
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_17756354158189xlxmul84lu')}
+                    </Button>
+
+                    {/* Move down */}
+                    <Button
+                      variant="quaternary"
+                      startIcon="arrow-bottom"
+                      align="left"
+                      disabled={i === layout.rows.length - 1}
+                      onClick={() => {
+                        focusCellAndRun(row.cellPos, () => {
+                          editor.commands.moveRowDown()
+                        })
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_1775635415819dqd4uqcq6jl')}
+                    </Button>
+
+                    {/* Delete row */}
+                    {layout.rows.length > 1 && (
+                      <Button
+                        variant="quaternary"
+                        startIcon="trash"
+                        align="left"
+                        onClick={() => {
+                          focusCellAndRun(row.cellPos, (chain) => chain.deleteRow())
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_17756367818356w28cspf5y7')}
+                      </Button>
+                    )}
+                  </MenuPopper>
+                )}
+              </Popper>
+            </div>
+          ))}
+
+          {/* Column border zones — top of each column */}
+          {layout.cols.map((col, i) => (
+            <div
+              key={`col-zone-${col.cellPos}`}
+              className="table-controls__col-border-zone"
+              data-hovered={hoveredCol === i || undefined}
+              style={{
+                left: col.left,
+                top: layout.tableY - BORDER_ZONE_SIZE / 2,
+                width: col.width,
+                height: BORDER_ZONE_SIZE,
+              }}
+            >
+              <Popper
+                PopperProps={{ placement: 'right' }}
+                opener={({ onClick }) => (
+                  <button
+                    type="button"
+                    className="table-controls__menu-btn table-controls__menu-btn--col"
+                    data-test={`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-${i}`}
+                    title="Column options"
+                    onClick={() => {
+                      selectColumn(col.cellPos)
+                      onClick()
+                    }}
+                  >
+                    <Icon name="double-dots-horizontal" size="small" />
+                  </button>
+                )}
               >
-                <button
-                  type="button"
-                  data-test={`${TABLE_CONTROLS_DELETE_COL_BUTTON_TEST_ID}-${i}`}
-                  className="flex size-[18px] items-center justify-center rounded bg-red-100 text-xs font-medium leading-none text-red-600 transition-colors hover:bg-red-200 hover:text-red-700"
-                  title="Delete column"
-                  onClick={() => focusCellAndRun(col.cellPos, (chain) => chain.deleteColumn())}
-                >
-                  −
-                </button>
-              </div>
-            ))}
+                {({ closePopper }) => (
+                  <MenuPopper>
+                    {/* Colors */}
+                    <Popper
+                      PopperProps={{ placement: 'right-start' }}
+                      opener={
+                        <Button
+                          variant="quaternary"
+                          align="left"
+                          className="w-full"
+                          startIcon="text-color"
+                        >
+                          {translate('text_17751458820889ebguo3021w')}
+                        </Button>
+                      }
+                    >
+                      {() => (
+                        <MenuPopper>
+                          <ColorPicker
+                            activeBackgroundColor={null}
+                            activeTextColor={null}
+                            onSelectBackground={(color) => {
+                              focusCellAndRun(col.cellPos, () => {
+                                editor.commands.setColumnBackgroundColor(color)
+                              })
+                            }}
+                            onSelectText={(color) => {
+                              focusCellAndRun(col.cellPos, () => {
+                                editor.commands.setColumnTextColor(color)
+                              })
+                            }}
+                          />
+                        </MenuPopper>
+                      )}
+                    </Popper>
 
-          {/* Add column button — right edge */}
-          <button
-            type="button"
-            data-test={TABLE_CONTROLS_ADD_COL_BUTTON_TEST_ID}
-            className={tw(
-              'absolute flex w-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 transition-[opacity,background-color,color] duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700',
-              {
-                'pointer-events-auto opacity-100': addColVisible,
-                'pointer-events-none opacity-0': !addColVisible,
-              },
-            )}
+                    {/* Move left */}
+                    <Button
+                      variant="quaternary"
+                      startIcon="arrow-left"
+                      align="left"
+                      disabled={i === 0}
+                      onClick={() => {
+                        focusCellAndRun(col.cellPos, () => {
+                          editor.commands.moveColumnLeft()
+                        })
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_1775636781835mcmnvqltjb1')}
+                    </Button>
+
+                    {/* Move right */}
+                    <Button
+                      variant="quaternary"
+                      startIcon="arrow-right"
+                      align="left"
+                      disabled={i === layout.cols.length - 1}
+                      onClick={() => {
+                        focusCellAndRun(col.cellPos, () => {
+                          editor.commands.moveColumnRight()
+                        })
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_1775636781835jw4g7ynklb3')}
+                    </Button>
+
+                    {/* Delete column */}
+                    {layout.cols.length > 1 && (
+                      <Button
+                        variant="quaternary"
+                        startIcon="trash"
+                        align="left"
+                        onClick={() => {
+                          focusCellAndRun(col.cellPos, (chain) => chain.deleteColumn())
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_1775636781835fuo9er4u938')}
+                      </Button>
+                    )}
+                  </MenuPopper>
+                )}
+              </Popper>
+            </div>
+          ))}
+
+          {/* Add column zone — right edge */}
+          <div
+            className="table-controls__add-col-zone"
             style={{
-              left: layout.tableX + layout.tableWidth + CONTROL_GAP,
+              left: layout.tableX + layout.tableWidth,
               top: layout.tableY,
+              width: 20,
               height: layout.tableHeight,
             }}
-            onMouseEnter={showAddCol}
-            onMouseLeave={hideAddCol}
-            onClick={() => {
-              const lastCol = layout.cols[layout.cols.length - 1]
-
-              if (lastCol) {
-                focusCellAndRun(lastCol.cellPos, (chain) => chain.addColumnAfter())
-              }
-            }}
-            title="Add column"
           >
-            +
-          </button>
+            <button
+              type="button"
+              className="table-controls__add-col"
+              data-test={TABLE_CONTROLS_ADD_COL_BUTTON_TEST_ID}
+              title="Add column"
+              style={{ height: '100%' }}
+              onClick={() => {
+                const lastCol = layout.cols[layout.cols.length - 1]
 
-          {/* Add row button — bottom edge */}
-          <button
-            type="button"
-            data-test={TABLE_CONTROLS_ADD_ROW_BUTTON_TEST_ID}
-            className={tw(
-              'absolute flex h-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 transition-[opacity,background-color,color] duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700',
-              {
-                'pointer-events-auto opacity-100': addRowVisible,
-                'pointer-events-none opacity-0': !addRowVisible,
-              },
-            )}
+                if (lastCol) {
+                  focusCellAndRun(lastCol.cellPos, (chain) => chain.addColumnAfter())
+                }
+              }}
+            >
+              +
+            </button>
+          </div>
+
+          {/* Add row zone — bottom edge */}
+          <div
+            className="table-controls__add-row-zone"
             style={{
               left: layout.tableX,
-              top: layout.tableY + layout.tableHeight + CONTROL_GAP,
+              top: layout.tableY + layout.tableHeight,
               width: layout.tableWidth,
+              height: 20,
             }}
-            onMouseEnter={showAddRow}
-            onMouseLeave={hideAddRow}
-            onClick={() => {
-              const lastRow = layout.rows[layout.rows.length - 1]
-
-              if (lastRow) {
-                focusCellAndRun(lastRow.cellPos, (chain) => chain.addRowAfter())
-              }
-            }}
-            title="Add row"
           >
-            +
-          </button>
+            <button
+              type="button"
+              className="table-controls__add-row"
+              data-test={TABLE_CONTROLS_ADD_ROW_BUTTON_TEST_ID}
+              title="Add row"
+              style={{ width: '100%' }}
+              onClick={() => {
+                const lastRow = layout.rows[layout.rows.length - 1]
+
+                if (lastRow) {
+                  focusCellAndRun(lastRow.cellPos, (chain) => chain.addRowAfter())
+                }
+              }}
+            >
+              +
+            </button>
+          </div>
         </>
       )}
     </div>
