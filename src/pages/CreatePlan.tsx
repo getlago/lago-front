@@ -1,17 +1,16 @@
 import { gql } from '@apollo/client'
-import Stack from '@mui/material/Stack'
-import { FC, PropsWithChildren, useRef } from 'react'
+import { useStore } from '@tanstack/react-form'
+import { useCallback, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import { Card } from '~/components/designSystem/Card'
-import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import {
   EditInvoiceDisplayNameDialog,
   EditInvoiceDisplayNameDialogRef,
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
@@ -19,7 +18,6 @@ import {
   ImpactOverridenSubscriptionsDialog,
   ImpactOverridenSubscriptionsDialogRef,
 } from '~/components/plans/ImpactOverridenSubscriptionsDialog'
-import { PlanCodeSnippet } from '~/components/plans/PlanCodeSnippet'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
@@ -27,6 +25,7 @@ import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
+import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import {
@@ -40,18 +39,18 @@ import {
   PLANS_ROUTE,
 } from '~/core/router'
 import {
+  CurrencyEnum,
   FeatureEntitlementForPlanFragmentDoc,
-  FixedChargeAccordionFragmentDoc,
   FixedChargesOnPlanFormFragmentDoc,
-  PlanForFixedChargeAccordionFragmentDoc,
   PlanForSettingsSectionFragmentDoc,
   PlanForSubscriptionFeeSectionFragmentDoc,
   PlanForUsageChargeAccordionFragmentDoc,
+  PlanInterval,
+  UsageChargeForDrawerFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
-import { PageHeader } from '~/styles'
-import { Main, Side } from '~/styles/mainObjectsForm'
+import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 gql`
   fragment TaxForPlanAndChargesInPlanForm on Tax {
@@ -104,6 +103,7 @@ gql`
       id
       minAmountCents
       payInAdvance
+      chargeModel
       appliedPricingUnit {
         conversionRate
         pricingUnit {
@@ -122,11 +122,7 @@ gql`
         ...BillableMetricForPlan
       }
 
-      ...UsageChargeAccordion
-      chargeModel
-    }
-    fixedCharges {
-      ...FixedChargeAccordion
+      ...UsageChargeForDrawer
     }
 
     usageThresholds {
@@ -141,16 +137,14 @@ gql`
     ...PlanForSubscriptionFeeSection
     ...FeatureEntitlementForPlan
     ...FixedChargesOnPlanForm
-    ...PlanForFixedChargeAccordion
   }
 
-  ${FixedChargeAccordionFragmentDoc}
+  ${UsageChargeForDrawerFragmentDoc}
   ${PlanForUsageChargeAccordionFragmentDoc}
   ${PlanForSettingsSectionFragmentDoc}
   ${PlanForSubscriptionFeeSectionFragmentDoc}
   ${FeatureEntitlementForPlanFragmentDoc}
   ${FixedChargesOnPlanFormFragmentDoc}
-  ${PlanForFixedChargeAccordionFragmentDoc}
 `
 
 const CreatePlan = () => {
@@ -159,7 +153,7 @@ const CreatePlan = () => {
   const { type: actionType } = useDuplicatePlanVar()
   const [searchParams] = useSearchParams()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-  const { formikProps, isEdition, loading, plan, type } = usePlanForm({})
+  const { form, isEdition, loading, plan, type } = usePlanForm({})
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const impactOverridenSubscriptionsDialogRef = useRef<ImpactOverridenSubscriptionsDialogRef>(null)
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
@@ -168,7 +162,12 @@ const CreatePlan = () => {
   const alreadyExistingFixedChargesIds =
     plan?.fixedCharges?.map((fixedCharge) => fixedCharge.id) || []
 
-  const planCloseRedirection = () => {
+  // Use useStore for reactive state reads in render
+  const isDirty = useStore(form.store, (s) => s.isDirty)
+  const amountCurrency = useStore(form.store, (s) => s.values.amountCurrency)
+  const interval = useStore(form.store, (s) => s.values.interval)
+
+  const planCloseRedirection = useCallback(() => {
     const origin = searchParams.get('origin')
     const originSubscriptionId = searchParams.get('subscriptionId')
     const originCustomerId = searchParams.get('customerId')
@@ -201,141 +200,126 @@ const CreatePlan = () => {
     } else {
       navigate(PLANS_ROUTE)
     }
-  }
+  }, [navigate, plan?.id, searchParams, actionType])
+
+  const onLeave = useCallback(() => {
+    if (isDirty) {
+      return warningDialogRef.current?.openDialog()
+    }
+
+    return planCloseRedirection()
+  }, [isDirty, planCloseRedirection])
+
+  const pageTitle = isEdition
+    ? translate('text_625fd165963a7b00c8f59767')
+    : translate('text_624453d52e945301380e4988')
 
   return (
-    <div>
-      <PageHeader.Wrapper>
-        <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate(isEdition ? 'text_625fd165963a7b00c8f59767' : 'text_624453d52e945301380e4988')}
-        </Typography>
-        <Button
-          variant="quaternary"
-          icon="close"
-          onClick={() =>
-            formikProps.dirty ? warningDialogRef.current?.openDialog() : planCloseRedirection()
-          }
-          data-test="close-create-plan-button"
-        />
-      </PageHeader.Wrapper>
-      <div className="min-height-minus-nav flex">
-        <Main>
-          <MainMinimumContent>
-            {loading && !plan ? (
-              <>
-                <div className="px-8">
-                  <Skeleton variant="text" className="mb-5 w-70" />
-                  <Skeleton variant="text" className="mb-4" />
-                  <Skeleton variant="text" className="w-30" />
-                </div>
+    <PlanFormProvider
+      currency={amountCurrency || CurrencyEnum.Usd}
+      interval={interval || PlanInterval.Monthly}
+    >
+      <CenteredPage.Wrapper>
+        <CenteredPage.Header>
+          <Typography variant="bodyHl" color="textSecondary" noWrap>
+            {pageTitle}
+          </Typography>
+          <Button
+            variant="quaternary"
+            icon="close"
+            onClick={onLeave}
+            data-test="close-create-plan-button"
+          />
+        </CenteredPage.Header>
 
-                {[0, 1, 2].map((skeletonCard) => (
-                  <Card key={`skeleton-${skeletonCard}`}>
-                    <Skeleton variant="text" className="w-70" />
-                    <Skeleton variant="text" />
-                    <Skeleton variant="text" className="w-30" />
-                  </Card>
-                ))}
-              </>
-            ) : (
-              <Stack width="100%" gap={12}>
-                <SectionWrapper>
-                  <SectionTitle>
-                    <Typography variant="headline">
-                      {translate('text_642d5eb2783a2ad10d67031a')}
-                    </Typography>
-                    <Typography variant="body">
-                      {translate('text_6661fc17337de3591e29e3c1')}
-                    </Typography>
-                  </SectionTitle>
+        <CenteredPage.Container className="gap-20">
+          {loading && <FormLoadingSkeleton id="create-plan" />}
+          {!loading && (
+            <>
+              <CenteredPage.SectionWrapper>
+                <CenteredPage.PageTitle
+                  title={pageTitle}
+                  description={translate('text_1770063200028ww5znt6yree')}
+                />
 
-                  <PlanSettingsSection
+                <PlanSettingsSection form={form} canBeEdited={canBeEdited} isEdition={isEdition} />
+              </CenteredPage.SectionWrapper>
+
+              <CenteredPage.SectionWrapper>
+                <CenteredPage.PageTitle
+                  title={translate('text_6661fc17337de3591e29e3e7')}
+                  description={translate('text_6661fc17337de3591e29e3e9')}
+                />
+
+                <CenteredPage.SubsectionWrapper>
+                  <SubscriptionFeeSection
+                    form={form}
                     canBeEdited={canBeEdited}
-                    formikProps={formikProps}
                     isEdition={isEdition}
                   />
-                </SectionWrapper>
-                <SectionWrapper>
-                  <SectionTitle>
-                    <Typography variant="headline">
-                      {translate('text_6661fc17337de3591e29e3e7')}
-                    </Typography>
-                    <Typography variant="body">
-                      {translate('text_6661fc17337de3591e29e3e9')}
-                    </Typography>
-                  </SectionTitle>
 
-                  <Section>
-                    <SubscriptionFeeSection
-                      isInitiallyOpen={type === FORM_TYPE_ENUM.creation}
-                      canBeEdited={canBeEdited}
-                      formikProps={formikProps}
-                      isEdition={isEdition}
-                      editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                    />
+                  <FixedChargesSection
+                    form={form}
+                    alreadyExistingFixedChargesIds={alreadyExistingFixedChargesIds}
+                    canBeEdited={canBeEdited}
+                    isEdition={isEdition}
+                  />
 
-                    <FixedChargesSection
-                      alreadyExistingFixedChargesIds={alreadyExistingFixedChargesIds}
-                      canBeEdited={canBeEdited}
-                      formikProps={formikProps}
-                      isEdition={isEdition}
-                      editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                      premiumWarningDialogRef={premiumWarningDialogRef}
-                    />
+                  <UsageChargesSection
+                    form={form}
+                    canBeEdited={canBeEdited}
+                    isEdition={isEdition}
+                    premiumWarningDialogRef={premiumWarningDialogRef}
+                    alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
+                  />
+                </CenteredPage.SubsectionWrapper>
+              </CenteredPage.SectionWrapper>
 
-                    <UsageChargesSection
-                      canBeEdited={canBeEdited}
-                      isEdition={isEdition}
-                      formikProps={formikProps}
-                      premiumWarningDialogRef={premiumWarningDialogRef}
-                      alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
-                      editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                    />
-                  </Section>
-                </SectionWrapper>
-                <SectionWrapper>
-                  <SectionTitle>
-                    <Typography variant="headline">
-                      {translate('text_6661fc17337de3591e29e44d')}
-                    </Typography>
-                    <Typography variant="body">
-                      {translate('text_6667029c1051a60107146e35')}
-                    </Typography>
-                  </SectionTitle>
+              <CenteredPage.SectionWrapper>
+                <CenteredPage.PageTitle
+                  title={translate('text_6661fc17337de3591e29e44d')}
+                  description={translate('text_6667029c1051a60107146e35')}
+                />
 
-                  <Card className="gap-8">
-                    <CommitmentsSection
-                      formikProps={formikProps}
-                      editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                    />
+                <CenteredPage.SubsectionWrapper>
+                  <ProgressiveBillingSection form={form} />
 
-                    <ProgressiveBillingSection formikProps={formikProps} />
-                    <FeatureEntitlementSection formikProps={formikProps} isEdition={isEdition} />
-                  </Card>
-                </SectionWrapper>
-              </Stack>
-            )}
-          </MainMinimumContent>
+                  <CommitmentsSection form={form} />
 
-          {(!loading || plan) && (
-            <SectionFooter>
-              <SectionFooterWrapper>
+                  <FeatureEntitlementSection form={form} isEdition={isEdition} />
+                </CenteredPage.SubsectionWrapper>
+              </CenteredPage.SectionWrapper>
+            </>
+          )}
+        </CenteredPage.Container>
+
+        {(!loading || plan) && (
+          <CenteredPage.StickyFooter>
+            <Button variant="quaternary" onClick={onLeave}>
+              {translate('text_6411e6b530cb47007488b027')}
+            </Button>
+            <form.Subscribe
+              selector={(s) => ({
+                canSubmit: s.canSubmit,
+                isSubmitting: s.isSubmitting,
+              })}
+            >
+              {({ canSubmit, isSubmitting }) => (
                 <Button
-                  disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
-                  loading={formikProps.isSubmitting}
-                  size="large"
+                  disabled={!canSubmit || (isEdition && !isDirty)}
+                  loading={isSubmitting}
                   onClick={() => {
                     if (plan?.hasOverriddenPlans && isEdition) {
                       return impactOverridenSubscriptionsDialogRef.current?.openDialog({
                         onSave: async (cascadeUpdates) => {
-                          await formikProps.setFieldValue('cascadeUpdates', cascadeUpdates)
+                          form.setFieldValue('cascadeUpdates', cascadeUpdates)
 
-                          return formikProps.submitForm()
+                          return form.handleSubmit()
                         },
                       })
                     }
 
-                    return formikProps.submitForm()
+                    return form.handleSubmit()
                   }}
                   data-test="submit"
                 >
@@ -345,14 +329,12 @@ const CreatePlan = () => {
                       : 'text_6661ffe746c680007e2df0e2',
                   )}
                 </Button>
-              </SectionFooterWrapper>
-            </SectionFooter>
-          )}
-        </Main>
-        <Side>
-          <PlanCodeSnippet loading={loading} plan={formikProps.values} />
-        </Side>
-      </div>
+              )}
+            </form.Subscribe>
+          </CenteredPage.StickyFooter>
+        )}
+      </CenteredPage.Wrapper>
+
       <WarningDialog
         ref={warningDialogRef}
         title={translate('text_665deda4babaf700d603ea13')}
@@ -363,34 +345,8 @@ const CreatePlan = () => {
       <ImpactOverridenSubscriptionsDialog ref={impactOverridenSubscriptionsDialogRef} />
       <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
-    </div>
+    </PlanFormProvider>
   )
 }
 
 export default CreatePlan
-
-const SectionWrapper: FC<PropsWithChildren> = ({ children }) => (
-  <div className="not-last-child:mb-6">{children}</div>
-)
-
-const SectionTitle: FC<PropsWithChildren> = ({ children }) => (
-  <div className="flex flex-col gap-1">{children}</div>
-)
-
-const Section: FC<PropsWithChildren> = ({ children }) => (
-  <section className="flex flex-col gap-4">{children}</section>
-)
-
-const MainMinimumContent: FC<PropsWithChildren> = ({ children }) => (
-  <div className="min-height-minus-nav-footer-formMainPadding">{children}</div>
-)
-
-const SectionFooter: FC<PropsWithChildren> = ({ children }) => (
-  <div className="sticky bottom-0 z-navBar -mx-4 mt-20 h-20 !max-w-none border-t border-solid border-grey-200 bg-white px-4 py-0 md:-mx-12 md:px-12">
-    {children}
-  </div>
-)
-
-const SectionFooterWrapper: FC<PropsWithChildren> = ({ children }) => (
-  <div className="flex h-full items-center justify-end">{children}</div>
-)

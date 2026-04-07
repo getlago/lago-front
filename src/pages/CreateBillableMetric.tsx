@@ -804,6 +804,7 @@ const CreateBillableMetric = () => {
                     {/* NOTE: Div used to prevent button's full width. Caused because of the Stack container */}
                     <div>
                       <Button
+                        data-test="add-filter"
                         variant="inline"
                         startIcon="plus"
                         onClick={() => {

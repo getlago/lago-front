@@ -262,6 +262,48 @@ describe('useFieldError', () => {
     })
   })
 
+  describe('GIVEN firstOnly option', () => {
+    beforeEach(() => {
+      mockUseStore.mockImplementation((_store, selector) => {
+        const state = {
+          meta: {
+            errorMap: {},
+            errors: [
+              { message: 'required_field' },
+              { message: 'must_be_positive' },
+              { message: 'exceeds_maximum' },
+            ],
+          },
+        }
+
+        return selector(state)
+      })
+    })
+
+    describe('WHEN firstOnly is true', () => {
+      it('THEN should return only the first error and exclude subsequent ones', () => {
+        const { result } = renderHook(() => useFieldError({ firstOnly: true }))
+
+        expect(result.current).toBe('required_field')
+        expect(result.current).not.toContain('must_be_positive')
+        expect(result.current).not.toContain('exceeds_maximum')
+      })
+    })
+
+    describe('WHEN firstOnly is true with translateErrors', () => {
+      it('THEN should translate only the first error', () => {
+        const { result } = renderHook(() =>
+          useFieldError({ firstOnly: true, translateErrors: true }),
+        )
+
+        expect(mockTranslate).toHaveBeenCalledWith('required_field')
+        expect(mockTranslate).not.toHaveBeenCalledWith('must_be_positive')
+        expect(mockTranslate).not.toHaveBeenCalledWith('exceeds_maximum')
+        expect(result.current).toBe('translated_required_field')
+      })
+    })
+  })
+
   describe('GIVEN errors with null or undefined messages', () => {
     beforeEach(() => {
       mockUseStore.mockImplementation((_store, selector) => {

@@ -276,11 +276,11 @@ const CustomerInvoiceVoid = () => {
           </div>
 
           <div className="flex gap-3">
-            <Button variant="quaternary" size="large" onClick={() => onClose()}>
+            <Button variant="quaternary" onClick={() => onClose()}>
               {translate('text_6411e6b530cb47007488b027')}
             </Button>
 
-            <Button variant="primary" size="large" danger onClick={() => onSubmit()}>
+            <Button variant="primary" danger onClick={() => onSubmit()}>
               {translate('text_65269b43d4d2b15dd929a259')}
             </Button>
           </div>

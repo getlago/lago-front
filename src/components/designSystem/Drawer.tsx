@@ -18,10 +18,11 @@ import {
   PreventClosingDrawerDialogRef,
 } from './PreventClosingDrawerDialog'
 
+export const DRAWER_TRANSITION_DURATION = 250
+
 interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
   className?: string
   stickyBottomBarClassName?: string
-  stickyBottomBarSmall?: boolean
   title: string | ReactNode
   opener?: ReactElement
   forceOpen?: boolean
@@ -32,6 +33,7 @@ interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
   withPadding?: boolean
   onOpen?: () => void
   onClose?: () => void
+  onEntered?: () => void
 }
 
 export interface DrawerRef {
@@ -52,9 +54,9 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
       fullContentHeight,
       withPadding = true,
       stickyBottomBarClassName,
-      stickyBottomBarSmall = false,
       onOpen,
       onClose,
+      onEntered,
     }: DrawerProps,
     ref,
   ) => {
@@ -94,7 +96,8 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           anchor={anchor}
           elevation={4}
           onClose={closeAction}
-          transitionDuration={250}
+          transitionDuration={DRAWER_TRANSITION_DURATION}
+          SlideProps={{ onEntered }}
           slotProps={{
             backdrop: {
               classes: {
@@ -105,10 +108,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
           PaperProps={{
             className: tw(
               'w-full max-w-[816px] md:w-[calc(100vw-48px)]',
-              !!stickyBottomBar &&
-                (stickyBottomBarSmall
-                  ? `grid grid-rows-[72px_1fr_60px]`
-                  : `grid grid-rows-[72px_1fr_80px]`),
+              !!stickyBottomBar && `grid grid-rows-[72px_1fr_64px]`,
             ),
           }}
         >
@@ -128,20 +128,18 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
               withPadding && 'px-4 pb-20 pt-12 md:px-12',
             )}
           >
-            {typeof children === 'function'
-              ? children({ closeDrawer: () => setIsOpen(false) })
-              : children}
+            {typeof children === 'function' ? children({ closeDrawer: closeAction }) : children}
           </div>
 
           {!!stickyBottomBar && (
             <div
               className={tw(
-                'sticky bottom-0 box-border bg-white p-4 text-right shadow-t md:px-12 md:py-4',
+                'sticky bottom-0 box-border flex items-center justify-end bg-white px-4 shadow-t md:px-12',
                 stickyBottomBarClassName,
               )}
             >
               {typeof stickyBottomBar === 'function'
-                ? stickyBottomBar({ closeDrawer: () => setIsOpen(false) })
+                ? stickyBottomBar({ closeDrawer: closeAction })
                 : stickyBottomBar}
             </div>
           )}

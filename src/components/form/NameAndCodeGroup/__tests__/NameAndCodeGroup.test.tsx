@@ -12,13 +12,21 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+// Ref to access the form instance from tests
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let formRef: any = null
+
 // Wrapper component that provides form context
 const NameAndCodeGroupWrapper = ({
   isDisabled = false,
   defaultValues = { name: '', code: '' },
+  nameProps,
+  codeProps,
 }: {
   isDisabled?: boolean
   defaultValues?: { name: string; code: string }
+  nameProps?: Record<string, unknown>
+  codeProps?: Record<string, unknown>
 }) => {
   const form = useAppForm({
     defaultValues: {
@@ -27,6 +35,8 @@ const NameAndCodeGroupWrapper = ({
     },
   })
 
+  formRef = form
+
   return (
     <form.AppForm>
       <form>
@@ -34,6 +44,8 @@ const NameAndCodeGroupWrapper = ({
           form={form}
           fields={{ name: 'name', code: 'code' }}
           isDisabled={isDisabled}
+          nameProps={nameProps}
+          codeProps={codeProps}
         />
       </form>
     </form.AppForm>
@@ -257,6 +269,44 @@ describe('NameAndCodeGroup', () => {
       await user.clear(nameInput)
 
       expect(nameInput).toHaveValue('')
+    })
+  })
+
+  describe('nameProps and codeProps', () => {
+    it('passes nameProps through to the name TextInputField', async () => {
+      await act(() => render(<NameAndCodeGroupWrapper nameProps={{ autoFocus: true }} />))
+
+      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
+
+      expect(nameInput).toHaveFocus()
+    })
+
+    it('passes codeProps through to the code TextInputField', async () => {
+      await act(() =>
+        render(<NameAndCodeGroupWrapper codeProps={{ placeholder: 'custom-placeholder' }} />),
+      )
+
+      expect(screen.getByPlaceholderText('custom-placeholder')).toBeInTheDocument()
+    })
+  })
+
+  describe('Server-side error propagation', () => {
+    it('displays error under code input when setFieldMeta sets onDynamic error', async () => {
+      await act(() => render(<NameAndCodeGroupWrapper />))
+
+      // Simulate server-side "code already exists" error via setFieldMeta
+      await act(() => {
+        formRef.setFieldMeta('code', (meta: Record<string, unknown>) => ({
+          ...meta,
+          errorMap: {
+            ...(meta.errorMap as Record<string, unknown>),
+            onDynamic: { message: 'text_632a2d437e341dcc76817556' },
+          },
+        }))
+      })
+
+      // The error should be displayed (translated by the mock as the key itself)
+      expect(screen.getByText('text_632a2d437e341dcc76817556')).toBeInTheDocument()
     })
   })
 })

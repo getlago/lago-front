@@ -1,22 +1,20 @@
 import { gql } from '@apollo/client'
-import { FormikProps } from 'formik'
-import { memo, useEffect, useState } from 'react'
+import { useStore } from '@tanstack/react-form'
+import { useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { Card } from '~/components/designSystem/Card'
 import { Tooltip } from '~/components/designSystem/Tooltip'
-import { ButtonSelectorField, ComboBoxField, TextInput, TextInputField } from '~/components/form'
+import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import {
   FORM_TYPE_ENUM,
   getIntervalTranslationKey,
   SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME,
 } from '~/core/constants/form'
-import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
-import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
+import { CurrencyEnum, PlanInterval, TaxForPlanSettingsSectionFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { PlanFormInput } from './types'
+import { PlanFormType } from '~/hooks/plans/usePlanForm'
 
 gql`
   fragment TaxForPlanSettingsSection on Tax {
@@ -52,150 +50,153 @@ gql`
   }
 `
 
+export interface PlanSettingsFormValues {
+  name: string
+  code: string
+  description: string
+  interval: PlanInterval
+  amountCurrency: CurrencyEnum
+  taxes: TaxForPlanSettingsSectionFragment[]
+}
+
+const INTERVAL_OPTIONS = [
+  PlanInterval.Weekly,
+  PlanInterval.Monthly,
+  PlanInterval.Quarterly,
+  PlanInterval.Semiannual,
+  PlanInterval.Yearly,
+]
+
+const CURRENCY_DATA = Object.values(CurrencyEnum).map((currencyType) => ({
+  value: currencyType,
+}))
+
 type PlanSettingsSectionProps = {
+  form: PlanFormType
   canBeEdited?: boolean
   isInSubscriptionForm?: boolean
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
-  formikProps: FormikProps<PlanFormInput>
   isEdition?: boolean
 }
 
-export const PlanSettingsSection = memo(
-  ({
-    canBeEdited,
-    isInSubscriptionForm,
-    subscriptionFormType,
-    formikProps,
-    isEdition,
-  }: PlanSettingsSectionProps) => {
-    const { translate } = useInternationalization()
-    const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
-      !!formikProps.initialValues.description,
-    )
-    const plan = formikProps.values
+export const PLAN_SETTINGS_REMOVE_DESCRIPTION_TEST_ID = 'remove-description'
 
-    useEffect(() => {
-      setShouldDisplayDescription(!!formikProps.initialValues.description)
-    }, [formikProps.initialValues.description])
+export const PlanSettingsSection = ({
+  form,
+  canBeEdited,
+  isInSubscriptionForm,
+  subscriptionFormType,
+  isEdition,
+}: PlanSettingsSectionProps) => {
+  const { translate } = useInternationalization()
+  const description = useStore(form.store, (s) => s.values.description)
+  const [shouldDisplayDescription, setShouldDisplayDescription] = useState(!!description)
 
-    return (
-      <Card>
-        <div className="flex flex-col gap-6">
-          <div className="flex gap-3">
-            <TextInput
-              className="flex-1"
-              name="name"
-              label={translate('text_629728388c4d2300e2d38091')}
-              placeholder={translate('text_624453d52e945301380e499c')}
-              value={formikProps.values.name}
-              onChange={(name) => {
-                updateNameAndMaybeCode({ name, formikProps })
-              }}
-            />
-            <TextInputField
-              className="flex-1"
-              name="code"
-              label={translate('text_62876e85e32e0300e1803127')}
-              infoText={translate('text_6661fc17337de3591e29e3cd')}
-              beforeChangeFormatter="code"
-              disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
-              placeholder={translate('text_624453d52e945301380e499e')}
-              formikProps={formikProps}
-            />
-          </div>
+  const handleHideDescription = () => {
+    form.setFieldValue('description', '')
+    setShouldDisplayDescription(false)
+  }
 
-          {shouldDisplayDescription ? (
-            <div className="flex items-center">
-              <TextInputField
+  const intervalOptions = INTERVAL_OPTIONS.map((interval) => ({
+    label: translate(getIntervalTranslationKey[interval]),
+    value: interval,
+  }))
+
+  return (
+    <CenteredPage.PageSection>
+      <CenteredPage.PageSectionTitle
+        title={translate('text_642d5eb2783a2ad10d67031a')}
+        description={translate('text_6661fc17337de3591e29e3c1')}
+      />
+
+      <NameAndCodeGroup
+        form={form}
+        fields={{ name: 'name', code: 'code' }}
+        isDisabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
+        nameProps={{ autoFocus: !isInSubscriptionForm }}
+        codeProps={{
+          infoText: translate('text_6661fc17337de3591e29e3cd'),
+        }}
+      />
+
+      {shouldDisplayDescription && (
+        <div className="flex items-center">
+          <form.AppField name="description">
+            {(field) => (
+              <field.TextInputField
                 multiline
                 className="mr-3 flex-1"
-                name="description"
                 label={translate('text_629728388c4d2300e2d380f1')}
                 placeholder={translate('text_6661fc17337de3591e29e3c9')}
                 rows="3"
-                formikProps={formikProps}
               />
-              <Tooltip
-                className="mt-6"
-                placement="top-end"
-                title={translate('text_63aa085d28b8510cd46443ff')}
-              >
-                <Button
-                  icon="trash"
-                  variant="quaternary"
-                  onClick={() => {
-                    formikProps.setFieldValue('description', '')
-                    setShouldDisplayDescription(false)
-                  }}
-                />
-              </Tooltip>
-            </div>
-          ) : (
+            )}
+          </form.AppField>
+          <Tooltip
+            className="mt-6"
+            placement="top-end"
+            title={translate('text_63aa085d28b8510cd46443ff')}
+          >
             <Button
-              fitContent
-              startIcon="plus"
-              variant="inline"
-              onClick={() => setShouldDisplayDescription(true)}
-              data-test="show-description"
-            >
-              {translate('text_642d5eb2783a2ad10d670324')}
-            </Button>
-          )}
+              icon="trash"
+              variant="quaternary"
+              onClick={handleHideDescription}
+              data-test={PLAN_SETTINGS_REMOVE_DESCRIPTION_TEST_ID}
+            />
+          </Tooltip>
         </div>
+      )}
+      {!shouldDisplayDescription && (
+        <Button
+          fitContent
+          startIcon="plus"
+          variant="inline"
+          onClick={() => setShouldDisplayDescription(true)}
+          data-test="show-description"
+        >
+          {translate('text_642d5eb2783a2ad10d670324')}
+        </Button>
+      )}
 
-        <ButtonSelectorField
-          disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
-          name="interval"
-          label={translate('text_6661fc17337de3591e29e3d1')}
-          description={translate('text_6661fc17337de3591e29e3d3')}
-          formikProps={formikProps}
-          options={[
-            {
-              label: translate(getIntervalTranslationKey[PlanInterval.Weekly]),
-              value: PlanInterval.Weekly,
-            },
-            {
-              label: translate(getIntervalTranslationKey[PlanInterval.Monthly]),
-              value: PlanInterval.Monthly,
-            },
-            {
-              label: translate(getIntervalTranslationKey[PlanInterval.Quarterly]),
-              value: PlanInterval.Quarterly,
-            },
-            {
-              label: translate(getIntervalTranslationKey[PlanInterval.Semiannual]),
-              value: PlanInterval.Semiannual,
-            },
-            {
-              label: translate(getIntervalTranslationKey[PlanInterval.Yearly]),
-              value: PlanInterval.Yearly,
-            },
-          ]}
-        />
+      <form.AppField name="interval">
+        {(field) => (
+          <field.ButtonSelectorField
+            disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
+            label={translate('text_6661fc17337de3591e29e3d1')}
+            description={translate('text_6661fc17337de3591e29e3d3')}
+            options={intervalOptions}
+          />
+        )}
+      </form.AppField>
 
-        <ComboBoxField
-          data={Object.values(CurrencyEnum).map((currencyType) => ({
-            value: currencyType,
-          }))}
-          disableClearable
-          disabled={subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)}
-          formikProps={formikProps}
-          label={translate('text_642d5eb2783a2ad10d67032e')}
-          name="amountCurrency"
-        />
+      <form.AppField name="amountCurrency">
+        {(field) => (
+          <field.ComboBoxField
+            data={CURRENCY_DATA}
+            disableClearable
+            disabled={
+              subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
+            }
+            label={translate('text_642d5eb2783a2ad10d67032e')}
+          />
+        )}
+      </form.AppField>
 
-        <TaxesSelectorSection
-          title={translate('text_1760729707267seik64l67k8')}
-          description={translate('text_1770124786732u8hv8voejbl')}
-          taxes={plan.taxes || []}
-          comboboxSelector={SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME}
-          onUpdate={(newTaxArray) => {
-            formikProps.setFieldValue('taxes', newTaxArray)
-          }}
-        />
-      </Card>
-    )
-  },
-)
+      <form.Subscribe selector={(state) => state.values.taxes}>
+        {(taxes) => (
+          <TaxesSelectorSection
+            title={translate('text_1760729707267seik64l67k8')}
+            description={translate('text_1770124786732u8hv8voejbl')}
+            taxes={taxes || []}
+            comboboxSelector={SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME}
+            onUpdate={(newTaxArray) => {
+              form.setFieldValue('taxes', newTaxArray)
+            }}
+          />
+        )}
+      </form.Subscribe>
+    </CenteredPage.PageSection>
+  )
+}
 
 PlanSettingsSection.displayName = 'PlanSettingsSection'

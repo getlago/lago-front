@@ -11,6 +11,7 @@ type UseFieldErrorOptions = {
   showOnlyErrors?: string[]
   noBoolean?: boolean
   translateErrors?: boolean
+  firstOnly?: boolean
 }
 
 type UseFieldErrorResult<T extends boolean | undefined> = T extends true
@@ -26,6 +27,7 @@ export function useFieldError<TNoBoolean extends boolean | undefined = undefined
     showOnlyErrors,
     noBoolean,
     translateErrors = false,
+    firstOnly = false,
   } = options
 
   const field = useFieldContext()
@@ -41,10 +43,12 @@ export function useFieldError<TNoBoolean extends boolean | undefined = undefined
     ? allErrors.filter((err) => showOnlyErrors.includes(err as string))
     : allErrors
 
+  const errorsToUse = firstOnly ? filteredErrors.slice(0, 1) : filteredErrors
+
   // Translate errors if needed, then join
   const error = translateErrors
-    ? filteredErrors.map((errorKey) => translate(errorKey as string)).join('\n')
-    : filteredErrors.join('')
+    ? errorsToUse.map((errorKey) => translate(errorKey as string)).join('\n')
+    : errorsToUse.join('')
 
   if (noBoolean) {
     return getErrorToDisplay({
