@@ -99,7 +99,7 @@ const CustomerDraftInvoicesList = () => {
           </Typography>
         </PageHeader.Group>
       </PageHeader.Wrapper>
-      <div className="px-12 py-8">
+      <div className="px-4 py-8 md:px-12">
         {customerLoading ? (
           <div className="mb-8 flex items-center">
             <Skeleton className="mr-4" variant="userAvatar" size="large" />

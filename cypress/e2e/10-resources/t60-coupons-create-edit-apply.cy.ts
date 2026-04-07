@@ -1,5 +1,5 @@
 import {
-  DESKTOP_ACTIONS_BLOCK_TEST_ID,
+  ACTIONS_BLOCK_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
 } from '~/components/MainHeader/mainHeaderTestIds'
 
@@ -16,7 +16,7 @@ describe('Coupons', () => {
 
   it('should be able create a coupon with plan limitation', () => {
     cy.visit('/coupons')
-    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="add-coupon"]`).click()
+    cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="add-coupon"]`).click()
     cy.get('input[name="name"]').type(couponName)
     cy.get('input[name="code"]').should('have.value', couponCode)
     cy.get('input[name="amountCents"]').type('30')
@@ -38,7 +38,7 @@ describe('Coupons', () => {
     cy.get(`[data-test="${couponName}"]`).click()
 
     cy.get(
-      `[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="coupon-details-actions"]`,
+      `[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="coupon-details-actions"]`,
     ).click()
     cy.get(`[data-test="coupon-details-edit"]`).click()
 
@@ -61,7 +61,7 @@ describe('Coupons', () => {
     cy.get('[data-test="table-customers-list"] tr', { timeout: 10000 })
       .contains(customerName)
       .click()
-    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="customer-actions"]`).click()
+    cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="customer-actions"]`).click()
     cy.get('[data-test="apply-coupon-action"]').click()
     cy.get('input[name="selectCoupon"]').click()
     cy.get('[data-option-index="0"]').click({ force: true })
@@ -85,7 +85,7 @@ describe('Coupons', () => {
     cy.get('[data-test="table-customers-list"] tr', { timeout: 10000 })
       .contains(customerName)
       .click()
-    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="customer-actions"]`).click()
+    cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="customer-actions"]`).click()
     cy.get('[data-test="apply-coupon-action"]').click()
     cy.get('input[name="selectCoupon"]').click()
     cy.get('[data-option-index="0"]').click()
@@ -98,7 +98,7 @@ describe('Coupons', () => {
     cy.get(`[data-test="${couponName}"]`).click()
 
     cy.get(
-      `[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="coupon-details-actions"]`,
+      `[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="coupon-details-actions"]`,
     ).click()
     cy.get(`[data-test="coupon-details-edit"]`).click()
 

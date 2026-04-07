@@ -1,4 +1,4 @@
-import { DESKTOP_ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
+import { ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
 
 import { planWithChargesName } from '../../support/reusableConstants'
 
@@ -8,7 +8,7 @@ describe('Create plan', () => {
   })
 
   it('should be able to access plans', () => {
-    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).should(
+    cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).should(
       'exist',
     )
     cy.get('[data-test="empty-state"]').should('exist')
@@ -19,7 +19,7 @@ describe('Create plan', () => {
     const planName = `plan ${randomId}`
     const planCode = `plan_${randomId}`
 
-    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
+    cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
       force: true,
     })
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
@@ -34,7 +34,7 @@ describe('Create plan', () => {
   })
 
   it.skip('should be able to create a plan with all 0 dimension charges and submit', () => {
-    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
+    cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
       force: true,
     })
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
@@ -159,7 +159,7 @@ describe('Create plan', () => {
       const planCode = `plan_${randomId}`
 
       // Default plan data
-      cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
+      cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
         force: true,
       })
       cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')

@@ -6,7 +6,7 @@ import { EntitySection } from './EntitySection'
 import { MainHeaderConfigure } from './MainHeaderConfigure'
 import { useMainHeaderReader } from './MainHeaderContext'
 import {
-  DESKTOP_ACTIONS_BLOCK_TEST_ID,
+  ACTIONS_BLOCK_TEST_ID,
   MAIN_HEADER_FILTERS_TEST_ID,
   MAIN_HEADER_TEST_ID,
 } from './mainHeaderTestIds'
@@ -28,43 +28,24 @@ const MainHeaderComponent: FC = () => {
 
   return (
     <>
-      {/* Mobile top bar — sticky, outside header to stay fixed on scroll */}
-      <div className="sticky top-0 z-navBar flex h-nav min-h-nav items-center gap-4 bg-white pl-17 pr-4 shadow-b md:hidden">
-        {hasBreadcrumb && <Breadcrumb items={breadcrumb} />}
-        <div className="ml-auto">
-          <ActionsBlock actions={actions} />
-        </div>
-      </div>
-
       <header data-test={MAIN_HEADER_TEST_ID}>
-        {/* Desktop layout — entity + actions inline */}
-        <div className="hidden px-12 pt-12 md:flex md:items-start md:justify-between md:gap-4">
+        {/* Entity + actions */}
+        <div className="flex items-start justify-between gap-4 px-4 pb-4 pt-17 md:px-12 md:pb-6 md:pt-12">
           <div className="flex min-w-0 flex-col gap-2">
             {hasBreadcrumb && <Breadcrumb items={breadcrumb} />}
 
-            {hasEntity && (
-              <div className="pb-6">
-                <EntitySection entity={entity} />
-              </div>
-            )}
+            {hasEntity && <EntitySection entity={entity} />}
           </div>
 
-          <ActionsBlock actions={actions} dataTest={DESKTOP_ACTIONS_BLOCK_TEST_ID} />
+          <ActionsBlock actions={actions} dataTest={ACTIONS_BLOCK_TEST_ID} />
         </div>
 
-        {/* Mobile — entity section below the sticky bar */}
-        {hasEntity && (
-          <div className="px-12 pb-4 pt-12 md:hidden">
-            <EntitySection entity={entity} />
-          </div>
-        )}
-
         {/* Tab bar */}
-        {tabs && tabs.length >= 2 && <NavigationTabBar className="mx-12" tabs={tabs} />}
+        {tabs && tabs.length >= 2 && <NavigationTabBar className="mx-4 md:mx-12" tabs={tabs} />}
 
         {/* Filter section */}
         {filtersSection && (
-          <div className="px-12 pb-4" data-test={MAIN_HEADER_FILTERS_TEST_ID}>
+          <div className="px-4 pb-4 md:px-12" data-test={MAIN_HEADER_FILTERS_TEST_ID}>
             {filtersSection}
           </div>
         )}

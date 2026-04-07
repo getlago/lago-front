@@ -90,7 +90,7 @@ const SecurityLogs = () => {
 
   return (
     <div
-      className="flex flex-col gap-4 px-12 pb-20 pt-10"
+      className="flex flex-col gap-4 px-4 pb-20 pt-10 md:px-12"
       data-test={SECURITY_LOGS_CONTAINER_TEST_ID}
     >
       <SettingsListItemHeader
