@@ -3,7 +3,7 @@ import { useEffect, useMemo } from 'react'
 
 import { LocalChargeFilterInput } from '~/components/plans/types'
 import { GraduatedPercentageRangeInput, PropertiesInput } from '~/generated/graphql'
-import { formataAnyToValueForChargeFormArrays } from '~/hooks/plans/utils'
+import { formataAnyToValueForChargeFormArrays, isAdjacentModel } from '~/hooks/plans/utils'
 
 type RangeType = GraduatedPercentageRangeInput & { disabledDelete: boolean }
 type InfoCalculationRow = {
@@ -100,6 +100,8 @@ export const useGraduatedPercentageChargeForm: UseGraduatedPercentageChargeForm 
     ),
     addRange: () => {
       const addIndex = graduatedPercentageRanges?.length - 1 // Add before the last range
+      const adjacent = isAdjacentModel(graduatedPercentageRanges)
+      const step = adjacent ? 0 : 1
       const newgraduatedPercentageRanges = graduatedPercentageRanges.reduce<
         Partial<GraduatedPercentageRangeInput>[]
       >((acc, range, i) => {
@@ -107,19 +109,21 @@ export const useGraduatedPercentageChargeForm: UseGraduatedPercentageChargeForm 
           acc.push(range)
         } else if (i === addIndex) {
           const newToValue =
-            addIndex === 0 ? 0 : Number(graduatedPercentageRanges[addIndex - 1]?.toValue || 0) + 1
+            addIndex === 0
+              ? 0
+              : Number(graduatedPercentageRanges[addIndex - 1]?.toValue || 0) + step
 
           acc.push({
             fromValue: newToValue,
-            toValue: newToValue + 1,
+            toValue: newToValue + step,
             rate: undefined,
             flatAmount: undefined,
           })
           acc.push({
             ...range,
             fromValue:
-              Number(range.fromValue || 0) <= newToValue + 1
-                ? newToValue + 2
+              Number(range.fromValue || 0) <= newToValue + step
+                ? newToValue + step + step
                 : Number(range.fromValue),
           })
         }
@@ -136,16 +140,26 @@ export const useGraduatedPercentageChargeForm: UseGraduatedPercentageChargeForm 
           value !== '' ? Number(value) : value,
         )
       } else {
+        const updatedRanges = graduatedPercentageRanges.map((range, i) =>
+          i === rangeIndex ? { ...range, toValue: Number(value || 0) } : range,
+        )
+        const adjacent = isAdjacentModel(updatedRanges)
+        const step = adjacent ? 0 : 1
+
         const newgraduatedPercentageRanges = graduatedPercentageRanges.reduce<
           GraduatedPercentageRangeInput[]
         >((acc, range, i) => {
           if (rangeIndex === i) {
             acc.push({ ...range, toValue: Number(value || 0) })
           } else if (i > rangeIndex) {
-            // fromValue should always be toValueOfPreviousRange + 1
+            // fromValue should be toValueOfPreviousRange + step
             const { toValue } = acc[i - 1]
-            const fromValue = Number(toValue || 0) + 1
-            const formattedToValue = formataAnyToValueForChargeFormArrays(range.toValue, fromValue)
+            const fromValue = Number(toValue || 0) + step
+            const formattedToValue = formataAnyToValueForChargeFormArrays(
+              range.toValue,
+              fromValue,
+              adjacent,
+            )
 
             acc.push({
               ...range,
@@ -163,23 +177,27 @@ export const useGraduatedPercentageChargeForm: UseGraduatedPercentageChargeForm 
       }
     },
     deleteRange: (rangeIndex) => {
+      const remainingRanges = graduatedPercentageRanges.filter((_, i) => i !== rangeIndex)
+      const adjacent = isAdjacentModel(remainingRanges)
+      const step = adjacent ? 0 : 1
+
       const newgraduatedPercentageRanges = graduatedPercentageRanges.reduce<
         GraduatedPercentageRangeInput[]
       >((acc, range, i) => {
         if (i < rangeIndex) acc.push({ ...range })
-        // fromValue should always be toValueOfPreviousRange + 1
+        // fromValue should be toValueOfPreviousRange + step
         if (i > rangeIndex) {
           const { toValue } = acc[acc.length - 1]
 
           acc.push({
             ...range,
-            fromValue: Number(toValue || 0) + 1,
+            fromValue: Number(toValue || 0) + step,
           })
         }
         return acc
       }, [])
 
-      // Last row needs to has toValue equal to null (infinite)
+      // Last row needs to have toValue null (infinite)
       newgraduatedPercentageRanges[newgraduatedPercentageRanges.length - 1].toValue = null
 
       setFieldValue(attributeIdentifier, newgraduatedPercentageRanges)
