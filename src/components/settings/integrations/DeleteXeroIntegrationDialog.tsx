@@ -53,7 +53,7 @@ export const DeleteXeroIntegrationDialog = forwardRef<DeleteXeroIntegrationDialo
       }
     },
     update(cache) {
-      cache.evict({ id: `XeroProvider:${xeroProvider?.id}` })
+      cache.evict({ id: `XeroIntegration:${xeroProvider?.id}` })
     },
     refetchQueries: ['getXeroIntegrationsList'],
   })

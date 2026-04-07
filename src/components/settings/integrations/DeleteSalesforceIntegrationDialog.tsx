@@ -54,7 +54,7 @@ export const DeleteSalesforceIntegrationDialog = forwardRef<DeleteSalesforceInte
         }
       },
       update(cache) {
-        cache.evict({ id: `SalesforceProvider:${salesforceProvider?.id}` })
+        cache.evict({ id: `SalesforceIntegration:${salesforceProvider?.id}` })
       },
       refetchQueries: ['getSalesforceIntegrationsList'],
     })

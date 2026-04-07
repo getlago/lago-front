@@ -60,7 +60,9 @@ const XeroIntegrations = () => {
   const { data, loading } = useGetXeroIntegrationsListQuery({
     variables: { limit: 1000, types: [IntegrationTypeEnum.Xero] },
   })
-  const connections = data?.integrations?.collection as XeroIntegrationsFragment[] | undefined
+  const connections = (
+    data?.integrations?.collection as XeroIntegrationsFragment[] | undefined
+  )?.filter((c): c is XeroIntegrationsFragment => c !== null)
   const deleteDialogCallback =
     connections && connections?.length === 1
       ? () =>
