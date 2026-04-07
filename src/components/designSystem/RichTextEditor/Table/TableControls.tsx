@@ -533,7 +533,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
 
           {/* Add column zone — right edge */}
           <div
-            className="table-controls__add-col-zone"
+            className="table-controls__add-zone table-controls__add-col-zone"
             style={{
               left: layout.tableX + layout.tableWidth,
               top: layout.tableY,
@@ -543,7 +543,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
           >
             <button
               type="button"
-              className="table-controls__add-col"
+              className="table-controls__add-btn table-controls__add-col"
               data-test={TABLE_CONTROLS_ADD_COL_BUTTON_TEST_ID}
               title="Add column"
               style={{ height: '100%' }}
@@ -561,7 +561,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
 
           {/* Add row zone — bottom edge */}
           <div
-            className="table-controls__add-row-zone"
+            className="table-controls__add-zone table-controls__add-row-zone"
             style={{
               left: layout.tableX,
               top: layout.tableY + layout.tableHeight,
@@ -571,7 +571,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
           >
             <button
               type="button"
-              className="table-controls__add-row"
+              className="table-controls__add-btn table-controls__add-row"
               data-test={TABLE_CONTROLS_ADD_ROW_BUTTON_TEST_ID}
               title="Add row"
               style={{ width: '100%' }}

@@ -34,6 +34,36 @@ export const DragHandle = Extension.create({
     }
   },
 
+  onSelectionUpdate() {
+    const storage = getDragHandleStorage(this.editor)
+
+    // Clear table block selection when the user moves the cursor elsewhere
+    if (storage.selectedBlock) {
+      const { pos } = storage.selectedBlock
+      const node = this.editor.state.doc.nodeAt(pos)
+
+      if (!node || node.type.name !== 'table') {
+        storage.selectedBlock = null
+        this.editor.view.dom
+          .querySelector('.tableWrapper.ProseMirror-selectednode')
+          ?.classList.remove('ProseMirror-selectednode')
+
+        return
+      }
+
+      // Check if the selection is still inside this table
+      const selFrom = this.editor.state.selection.from
+      const tableEnd = pos + node.nodeSize
+
+      if (selFrom < pos || selFrom > tableEnd) {
+        storage.selectedBlock = null
+        this.editor.view.dom
+          .querySelector('.tableWrapper.ProseMirror-selectednode')
+          ?.classList.remove('ProseMirror-selectednode')
+      }
+    }
+  },
+
   addProseMirrorPlugins() {
     const editor = this.editor
     const storage = getDragHandleStorage(editor)
@@ -43,10 +73,16 @@ export const DragHandle = Extension.create({
 
       // For tables, avoid NodeSelection entirely — prosemirror-tables converts it
       // to CellSelection which causes a flash of selected cells. Instead, place a
-      // TextSelection inside the first cell and use storage for the block-selected
-      // state. The decoration is added via the plugin's decorations prop.
+      // TextSelection inside the first cell and use storage + ProseMirror-selectednode
+      // class for the block-selected appearance.
       if (node?.type.name === 'table') {
         storage.selectedBlock = { pos }
+
+        const dom = editor.view.nodeDOM(pos)
+
+        if (dom instanceof HTMLElement) {
+          dom.classList.add('ProseMirror-selectednode')
+        }
 
         // Place cursor inside the first cell so the table remains "active"
         const $insideTable = editor.view.state.doc.resolve(pos + 1)
@@ -172,30 +208,7 @@ export const DragHandle = Extension.create({
         },
         props: {
           decorations(state) {
-            const handleDecos = dragHandlePluginKey.getState(state) as DecorationSet
-
-            // Add table block-selected decoration from storage
-            if (storage.selectedBlock) {
-              const { pos } = storage.selectedBlock
-              const node = state.doc.nodeAt(pos)
-
-              if (node?.type.name === 'table') {
-                const tableDeco = Decoration.node(pos, pos + node.nodeSize, {
-                  class: 'is-block-selected',
-                })
-
-                return handleDecos.add(state.doc, [tableDeco])
-              }
-            }
-
-            return handleDecos
-          },
-          handleClick() {
-            // User clicked inside the editor content (not on a drag handle).
-            // Clear the table-selected-via-drag-handle flag.
-            storage.selectedBlock = null
-
-            return false // don't consume the event
+            return dragHandlePluginKey.getState(state)
           },
         },
       }),

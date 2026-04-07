@@ -115,17 +115,12 @@
 
   /* Tables */
   table {
-    @apply my-8 border-collapse;
+    @apply border-collapse;
   }
 
   th,
   td {
     @apply relative min-w-[100px] border border-grey-300 px-3 py-2 text-base leading-6;
-    letter-spacing: -0.16px;
-  }
-
-  th {
-    @apply font-medium;
   }
 
   --cell-highlight-size: 2px;
@@ -319,20 +314,22 @@
   @apply border-blue-600 bg-blue-600 text-white opacity-100 hover:bg-blue-700 hover:text-white;
 }
 
+.table-controls__add-zone {
+  @apply pointer-events-auto opacity-0 transition-opacity duration-150 ease-in-out hover:opacity-100;
+}
+
+.table-controls__add-btn {
+  @apply flex items-center justify-center rounded bg-grey-200 text-lg font-medium text-blue-600;
+}
+
 /* "+" button on the right edge to add a column */
 .table-controls__add-col {
-  @apply flex w-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 opacity-0 transition-all duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700;
+  @apply ml-2 w-6;
 }
 
 /* "+" button on the bottom edge to add a row */
 .table-controls__add-row {
-  @apply flex h-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 opacity-0 transition-all duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700;
-}
-
-/* Reveal add buttons on zone hover */
-.table-controls__add-col-zone:hover .table-controls__add-col,
-.table-controls__add-row-zone:hover .table-controls__add-row {
-  @apply opacity-100;
+  @apply mt-2 h-6;
 }
 
 /* Block selection highlight */
@@ -384,10 +381,6 @@
 
 .tableWrapper {
   @apply relative rounded-md p-2 pb-8;
-}
-
-.tableWrapper.is-block-selected {
-  @apply bg-blue-100;
 }
 
 /* Show handle when hovering the spacer/table next to it, or the handle itself */
