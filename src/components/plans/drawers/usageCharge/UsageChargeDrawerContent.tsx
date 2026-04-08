@@ -113,6 +113,11 @@ export const UsageChargeDrawerContent = withForm({
 
     const formValues = useStore(form.store, (state) => state.values)
 
+    // Only disable fields for charges that already exist on the backend (have an id)
+    // New charges added to a subscribed plan should remain fully editable
+    const isExistingCharge = !!formValues.id
+    const isExistingChargeDisabled = disabled && isExistingCharge
+
     const isCreatePickerScreen = isCreateMode && !formValues.billableMetricId
 
     const [getBillableMetrics, { data: billableMetricsData }] = useGetBillableMetricsLazyQuery({
@@ -570,7 +575,7 @@ export const UsageChargeDrawerContent = withForm({
                   <CustomPricingUnitSelector
                     currency={currency}
                     isInSubscriptionForm={isInSubscriptionForm}
-                    disabled={disabled}
+                    disabled={isExistingChargeDisabled}
                     localCharge={formValues as unknown as LocalUsageChargeInput}
                     handleUpdate={handleChargeModelUpdate}
                   />
@@ -584,7 +589,7 @@ export const UsageChargeDrawerContent = withForm({
                 <ChargeModelSelector
                   alreadyUsedChargeAlertMessage={alreadyUsedChargeAlertMessage}
                   isInSubscriptionForm={isInSubscriptionForm}
-                  disabled={disabled}
+                  disabled={isExistingChargeDisabled}
                   localCharge={formValues as unknown as LocalUsageChargeInput}
                   chargeModelComboboxData={chargeModelComboboxData}
                   handleUpdate={handleChargeModelUpdate}
@@ -702,7 +707,7 @@ export const UsageChargeDrawerContent = withForm({
 
                 <ChargePayInAdvanceOption
                   chargePayInAdvanceDescription={chargePayInAdvanceDescription}
-                  disabled={isInSubscriptionForm || disabled}
+                  disabled={isInSubscriptionForm || isExistingChargeDisabled}
                   isPayInAdvanceOptionDisabled={isPayInAdvanceOptionDisabled}
                   payInAdvance={formValues.payInAdvance}
                   handleUpdate={({ invoiceable, payInAdvance, regroupPaidFees }) => {
@@ -719,7 +724,7 @@ export const UsageChargeDrawerContent = withForm({
                 {formValues.payInAdvance && (
                   <ChargeInvoicingStrategyOption
                     localCharge={formValues as unknown as LocalUsageChargeInput}
-                    disabled={isInSubscriptionForm || disabled}
+                    disabled={isInSubscriptionForm || isExistingChargeDisabled}
                     openPremiumDialog={() => premiumWarningDialogRef?.current?.openDialog()}
                     handleUpdate={({ regroupPaidFees, invoiceable }) => {
                       form.setFieldValue('regroupPaidFees', regroupPaidFees)
@@ -743,7 +748,11 @@ export const UsageChargeDrawerContent = withForm({
                       {(field) => (
                         <field.SwitchField
                           label={translate('text_177488074309762bkd4znl3p')}
-                          disabled={isInSubscriptionForm || disabled || isProratedOptionDisabled}
+                          disabled={
+                            isInSubscriptionForm ||
+                            isExistingChargeDisabled ||
+                            isProratedOptionDisabled
+                          }
                           subLabel={
                             isProratedOptionDisabled
                               ? translate('text_649c54823c9089006247625a', {
@@ -779,7 +788,7 @@ export const UsageChargeDrawerContent = withForm({
                         (initialCharge || formValues) as unknown as LocalUsageChargeInput
                       }
                       subscriptionFormType={subscriptionFormType}
-                      disabled={disabled}
+                      disabled={isExistingChargeDisabled}
                       localCharge={formValues as unknown as LocalUsageChargeInput}
                       chargePricingUnitShortName={chargePricingUnitShortName}
                       currency={currency}

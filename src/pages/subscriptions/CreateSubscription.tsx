@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 import useMediaQuery from '@mui/material/useMediaQuery'
+import { useStore } from '@tanstack/react-form'
 import { useFormik } from 'formik'
 import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
@@ -350,7 +351,7 @@ const CreateSubscription = () => {
         customerId as string,
         localValues,
         planForm.state.values,
-        planForm.state.isDirty,
+        planFormIsDirty,
       )
 
       if (errorsString === 'CurrenciesDoesNotMatch') {
@@ -372,6 +373,11 @@ const CreateSubscription = () => {
   const subscriptionPlanId = subscriptionFormikProps.values.planId
   const alreadyExistingPlanFixedChargesIds =
     plan?.fixedCharges?.map((fixedCharge) => fixedCharge.id) || []
+
+  // Reactive subscriptions for TanStack Form state — needed for submit button and close button.
+  // Reading from planForm.state directly is NOT reactive and would cause stale disabled state.
+  const planFormIsDirty = useStore(planForm.store, (s) => s.isDirty)
+  const planFormCanSubmit = useStore(planForm.store, (s) => s.canSubmit)
 
   const [shouldDisplaySubscriptionExternalId, setShouldDisplaySubscriptionExternalId] =
     useState<boolean>(!!subscriptionFormikProps.initialValues.externalId)
@@ -516,8 +522,8 @@ const CreateSubscription = () => {
         fullWidth
         disabled={
           !subscriptionFormikProps.isValid ||
-          !planForm.state.canSubmit ||
-          (!subscriptionFormikProps.dirty && !planForm.state.isDirty)
+          !planFormCanSubmit ||
+          (!subscriptionFormikProps.dirty && !planFormIsDirty)
         }
         loading={subscriptionFormikProps.isSubmitting}
         onClick={subscriptionFormikProps.submitForm}
@@ -530,8 +536,8 @@ const CreateSubscription = () => {
     )
   }, [
     formType,
-    planForm.state.isDirty,
-    planForm.state.canSubmit,
+    planFormIsDirty,
+    planFormCanSubmit,
     subscriptionFormikProps.dirty,
     subscriptionFormikProps.isSubmitting,
     subscriptionFormikProps.isValid,
@@ -563,7 +569,7 @@ const CreateSubscription = () => {
             variant="quaternary"
             icon="close"
             onClick={() => {
-              if (subscriptionFormikProps.dirty || planForm.state.isDirty) {
+              if (subscriptionFormikProps.dirty || planFormIsDirty) {
                 warningDialogRef.current?.openDialog()
               } else {
                 const origin = searchParams.get('origin')
