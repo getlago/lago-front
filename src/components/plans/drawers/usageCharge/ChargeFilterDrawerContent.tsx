@@ -1,5 +1,5 @@
 import { useStore } from '@tanstack/react-form'
-import { RefObject, useEffect, useRef } from 'react'
+import { RefObject } from 'react'
 import { z } from 'zod'
 
 import { Chip } from '~/components/designSystem/Chip'
@@ -51,7 +51,6 @@ const chargeFilterDefaultValues: ChargeFilterFormValues = {
 }
 
 interface ChargeFilterDrawerContentExtraProps {
-  initialValues: ChargeFilterFormValues
   billableMetricFilters: BillableMetricFilter[]
   existingFilterValues?: Set<string>
   premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
@@ -60,7 +59,6 @@ interface ChargeFilterDrawerContentExtraProps {
 }
 
 const chargeFilterDrawerContentDefaultProps: ChargeFilterDrawerContentExtraProps = {
-  initialValues: chargeFilterDefaultValues,
   billableMetricFilters: [],
   existingFilterValues: undefined,
   premiumWarningDialogRef: undefined,
@@ -73,7 +71,6 @@ export const ChargeFilterDrawerContent = withForm({
   props: chargeFilterDrawerContentDefaultProps,
   render: function ChargeFilterDrawerContent({
     form,
-    initialValues,
     billableMetricFilters,
     existingFilterValues,
     premiumWarningDialogRef,
@@ -84,16 +81,10 @@ export const ChargeFilterDrawerContent = withForm({
     const { chargeModel, chargeType, currency, chargePricingUnitShortName, isEdition } =
       useChargeFilterDrawerContext()
 
-    // Reset the form when this component mounts so values are guaranteed fresh,
-    // regardless of NiceModal/React batching timing.
-    const didResetRef = useRef(false)
-
-    useEffect(() => {
-      if (!didResetRef.current) {
-        didResetRef.current = true
-        form.reset(initialValues)
-      }
-    }, [form, initialValues])
+    const handleFormSubmit = (event: React.FormEvent) => {
+      event.preventDefault()
+      form.handleSubmit()
+    }
 
     const filterState = useStore(form.store, (state) => state.values)
 
@@ -104,79 +95,82 @@ export const ChargeFilterDrawerContent = withForm({
     }
 
     return (
-      <CenteredPage.SectionWrapper>
-        <CenteredPage.PageTitle
-          title={translate('text_1775224273133nknw87pe452')}
-          description={translate('text_17752242731358qz2plquz03')}
-        />
+      <form onSubmit={handleFormSubmit}>
+        <button type="submit" hidden aria-hidden="true" />
+        <CenteredPage.SectionWrapper>
+          <CenteredPage.PageTitle
+            title={translate('text_1775224273133nknw87pe452')}
+            description={translate('text_17752242731358qz2plquz03')}
+          />
 
-        <CenteredPage.SubsectionWrapper>
-          {/* Filter values */}
-          <CenteredPage.PageSection>
-            <CenteredPage.PageSectionTitle title={translate('text_1775224273135in4rkde36k7')} />
+          <CenteredPage.SubsectionWrapper>
+            {/* Filter values */}
+            <CenteredPage.PageSection>
+              <CenteredPage.PageSectionTitle title={translate('text_1775224273135in4rkde36k7')} />
 
-            <ChargeFilter
-              filter={filter}
-              chargeIndex={chargeIndex}
-              filterIndex={filterIndex}
-              billableMetricFilters={billableMetricFilters}
-              existingFilterValues={existingFilterValues}
-              setFilterValues={(values) => {
-                form.setFieldValue('values', values)
-              }}
-              deleteFilterValue={(valueIndex) => {
-                const currentValues = [...form.state.values.values]
+              <ChargeFilter
+                filter={filter}
+                chargeIndex={chargeIndex}
+                filterIndex={filterIndex}
+                billableMetricFilters={billableMetricFilters}
+                existingFilterValues={existingFilterValues}
+                setFilterValues={(values) => {
+                  form.setFieldValue('values', values)
+                }}
+                deleteFilterValue={(valueIndex) => {
+                  const currentValues = [...form.state.values.values]
 
-                currentValues.splice(valueIndex, 1)
-                form.setFieldValue('values', currentValues)
-              }}
-            />
-          </CenteredPage.PageSection>
+                  currentValues.splice(valueIndex, 1)
+                  form.setFieldValue('values', currentValues)
+                }}
+              />
+            </CenteredPage.PageSection>
 
-          {/* Pricing properties */}
-          <CenteredPage.PageSection>
-            {/* Charge model info (read-only) */}
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1">
-                <Typography color="grey700" variant="captionHl">
-                  {translate('text_65201b8216455901fe273dd5')}
-                </Typography>
-                <Typography color="grey600" variant="caption">
-                  {translate('text_1773687275957f97sto0sosz')}
-                </Typography>
+            {/* Pricing properties */}
+            <CenteredPage.PageSection>
+              {/* Charge model info (read-only) */}
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1">
+                  <Typography color="grey700" variant="captionHl">
+                    {translate('text_65201b8216455901fe273dd5')}
+                  </Typography>
+                  <Typography color="grey600" variant="caption">
+                    {translate('text_1773687275957f97sto0sosz')}
+                  </Typography>
+                </div>
+
+                <Chip
+                  data-test={CHARGE_FILTER_DRAWER_CHARGE_MODEL_CHIP_TEST_ID}
+                  label={translate(chargeModelLookupTranslation[chargeModel])}
+                />
               </div>
 
-              <Chip
-                data-test={CHARGE_FILTER_DRAWER_CHARGE_MODEL_CHIP_TEST_ID}
-                label={translate(chargeModelLookupTranslation[chargeModel])}
+              <ChargeWrapperSwitch
+                chargeType={chargeType}
+                chargePricingUnitShortName={chargePricingUnitShortName}
+                currency={currency}
+                form={form}
+                isEdition={isEdition}
+                localCharge={{ chargeModel } as LocalUsageChargeInput}
+                premiumWarningDialogRef={premiumWarningDialogRef}
+                propertyCursor="properties"
               />
-            </div>
+            </CenteredPage.PageSection>
 
-            <ChargeWrapperSwitch
-              chargeType={chargeType}
-              chargePricingUnitShortName={chargePricingUnitShortName}
-              currency={currency}
-              form={form}
-              isEdition={isEdition}
-              localCharge={{ chargeModel } as LocalUsageChargeInput}
-              premiumWarningDialogRef={premiumWarningDialogRef}
-              propertyCursor="properties"
-            />
-          </CenteredPage.PageSection>
-
-          {/* Invoice display name */}
-          <CenteredPage.PageSection>
-            <form.AppField name="invoiceDisplayName">
-              {(field) => (
-                <field.TextInputField
-                  label={translate('text_65a6b4e2cb38d9b70ec53d39')}
-                  placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
-                />
-              )}
-            </form.AppField>
-          </CenteredPage.PageSection>
-        </CenteredPage.SubsectionWrapper>
-      </CenteredPage.SectionWrapper>
+            {/* Invoice display name */}
+            <CenteredPage.PageSection>
+              <form.AppField name="invoiceDisplayName">
+                {(field) => (
+                  <field.TextInputField
+                    label={translate('text_65a6b4e2cb38d9b70ec53d39')}
+                    placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
+                  />
+                )}
+              </form.AppField>
+            </CenteredPage.PageSection>
+          </CenteredPage.SubsectionWrapper>
+        </CenteredPage.SectionWrapper>
+      </form>
     )
   },
 })

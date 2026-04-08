@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { ChargeModelEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -216,10 +217,13 @@ jest.mock('~/generated/graphql', () => {
   }
 })
 
+const mockDrawerOpen = jest.fn()
+const mockDrawerClose = jest.fn()
+
 jest.mock('~/components/drawers/useDrawer', () => ({
   useDrawer: () => ({
-    open: jest.fn(),
-    close: jest.fn(),
+    open: mockDrawerOpen,
+    close: mockDrawerClose,
   }),
 }))
 
@@ -385,6 +389,42 @@ describe('UsageChargeDrawerContent', () => {
         )
 
         expect(screen.getByTestId('filter-charge-selector-0')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a filter selector is clicked', () => {
+      it('THEN should reset the filter form before opening the drawer', async () => {
+        mockCurrentFormValues = mockEditFormValuesWithFilters
+
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode={false}
+            editIndex={0}
+            currency="USD"
+            interval="monthly"
+          />,
+        )
+
+        await userEvent.click(screen.getByTestId('filter-charge-selector-0'))
+
+        // The form must be reset with the filter's data BEFORE the drawer opens
+        // to avoid a race condition with charge model hooks that initialize defaults
+        expect(mockFormReset).toHaveBeenCalledWith(
+          expect.objectContaining({
+            chargeModel: mockEditFormValuesWithFilters.chargeModel,
+            properties: mockEditFormValuesWithFilters.filters[0].properties,
+            values: mockEditFormValuesWithFilters.filters[0].values,
+          }),
+        )
+
+        // The drawer should open after the reset
+        expect(mockDrawerOpen).toHaveBeenCalled()
+
+        // Reset must happen before open
+        const resetOrder = mockFormReset.mock.invocationCallOrder[0]
+        const openOrder = mockDrawerOpen.mock.invocationCallOrder[0]
+
+        expect(resetOrder).toBeLessThan(openOrder)
       })
     })
   })
