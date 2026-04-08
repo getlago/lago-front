@@ -1,6 +1,9 @@
 import tailwindConfig from 'lago-configs/tailwind'
-import { Icon } from 'lago-design-system'
+import { Icon, tw } from 'lago-design-system'
 import resolveConfig from 'tailwindcss/resolveConfig'
+
+import { Typography } from '~/components/designSystem/Typography'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 const fullConfig = resolveConfig(tailwindConfig)
 const themeColors = fullConfig.theme.colors
@@ -16,7 +19,7 @@ const getColor = (name: string, shade: number): string => {
 }
 
 // Background colors — light shades from the Tailwind theme
-const COLORS = [
+const BG_COLORS = [
   { label: 'Red', value: getColor('red', 100) },
   { label: 'Yellow', value: getColor('yellow', 100) },
   { label: 'Green', value: getColor('green', 100) },
@@ -36,50 +39,78 @@ const TEXT_COLORS = [
 ]
 
 type ColorPickerProps = {
-  variant: 'background' | 'text'
-  activeColor: string | null
-  onSelect: (color: string | null) => void
+  activeBackgroundColor: string | null
+  activeTextColor: string | null
+  onSelectBackground: (color: string | null) => void
+  onSelectText: (color: string | null) => void
 }
 
-const ColorPicker = ({ variant, activeColor, onSelect }: ColorPickerProps) => {
-  const colors = variant === 'background' ? COLORS : TEXT_COLORS
+const ColorPicker = ({
+  activeBackgroundColor,
+  activeTextColor,
+  onSelectBackground,
+  onSelectText,
+}: ColorPickerProps) => {
+  const { translate } = useInternationalization()
+
+  const baseButtonClasses =
+    'flex size-8 items-center justify-center rounded-lg border border-grey-300 hover:border-grey-500'
 
   return (
-    <div className="flex flex-col gap-2 p-2">
-      <div className="grid grid-cols-4 gap-1">
-        <button
-          className="flex size-7 items-center justify-center rounded border border-grey-300 hover:border-grey-500"
-          title="Clear"
-          aria-label="Clear color"
-          onClick={() => onSelect(null)}
-        >
-          <Icon name="close-circle-unfilled" size="small" />
-        </button>
-        {colors.map((color) => (
+    <div className="flex flex-col gap-3 p-2">
+      {/* Text color section */}
+      <div className="flex flex-col gap-1">
+        <Typography variant="noteHl">{translate('text_1774969464357oo1dfrfw06m')}</Typography>
+        <div className="grid grid-cols-4 gap-1">
           <button
-            key={color.value}
-            className="relative size-7 rounded border border-grey-300 hover:border-grey-500"
-            style={
-              variant === 'background'
-                ? { backgroundColor: color.value }
-                : { backgroundColor: 'white' }
-            }
-            title={color.label}
-            aria-label={`${color.label} ${variant === 'background' ? 'background' : 'text'} color`}
-            onClick={() => onSelect(color.value)}
+            className={baseButtonClasses}
+            title="Clear text color"
+            aria-label="Clear text color"
+            onClick={() => onSelectText(null)}
           >
-            {variant === 'text' && (
-              <span className="text-sm font-bold" style={{ color: color.value }}>
-                A
-              </span>
-            )}
-            {activeColor === color.value && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Icon name="checkmark" size="small" />
-              </div>
-            )}
+            <Icon name="close-circle-unfilled" />
           </button>
-        ))}
+          {TEXT_COLORS.map((color) => (
+            <button
+              key={color.value}
+              className={tw(baseButtonClasses, {
+                'border-2 border-grey-700': activeTextColor === color.value,
+              })}
+              title={color.label}
+              onClick={() => onSelectText(color.value)}
+            >
+              <span className="text-sm font-bold" style={{ color: color.value }}>
+                <Icon name="text-a" />
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Background color section */}
+      <div className="flex flex-col gap-1">
+        <Typography variant="noteHl">{translate('text_1774969464357ic1jobm2vtd')}</Typography>
+        <div className="grid grid-cols-4 gap-1">
+          <button
+            className={baseButtonClasses}
+            title="Clear background"
+            aria-label="Clear background"
+            onClick={() => onSelectBackground(null)}
+          >
+            <Icon name="close-circle-unfilled" />
+          </button>
+          {BG_COLORS.map((color) => (
+            <button
+              key={color.value}
+              className={tw(baseButtonClasses, {
+                'border-2 border-grey-700': activeBackgroundColor === color.value,
+              })}
+              style={{ backgroundColor: color.value }}
+              title={color.label}
+              onClick={() => onSelectBackground(color.value)}
+            ></button>
+          ))}
+        </div>
       </div>
     </div>
   )

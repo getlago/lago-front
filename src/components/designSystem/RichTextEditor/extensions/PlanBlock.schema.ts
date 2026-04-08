@@ -1,6 +1,7 @@
 import { mergeAttributes, Node } from '@tiptap/core'
 
 import type { EntityData } from '../common/RichTextEditorContext'
+import { wrapInBlockWrapper } from '../extensions/BlockWrapper'
 
 export interface PlanBlockAttributes {
   planId: string
@@ -91,7 +92,7 @@ export const PlanBlockSchema = Node.create({
     if (plan) {
       const preview = getPlanBlockPreviewData(planId, plan)
 
-      return [
+      return wrapInBlockWrapper('planBlock', [
         'div',
         wrapperAttrs,
         [
@@ -100,13 +101,13 @@ export const PlanBlockSchema = Node.create({
           ['thead', {}, ['tr', {}, ['th', {}, preview.nameHeader], ['th', {}, preview.codeHeader]]],
           ['tbody', {}, ['tr', {}, ['td', {}, preview.nameValue], ['td', {}, preview.codeValue]]],
         ],
-      ]
+      ])
     }
 
-    return [
+    return wrapInBlockWrapper('planBlock', [
       'div',
       wrapperAttrs,
       ['span', { class: 'plan-block__label' }, planId ? `Plan: ${planId}` : 'Select a plan'],
-    ]
+    ])
   },
 })

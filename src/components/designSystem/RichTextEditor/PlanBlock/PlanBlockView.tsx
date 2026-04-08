@@ -106,36 +106,40 @@ export const PlanBlockView = ({ node, updateAttributes, selected }: NodeViewProp
 
   if (isEmpty) {
     return (
-      <NodeViewWrapper>
-        <button
-          className={`plan-block plan-block--empty ${selected ? 'plan-block--selected' : ''}`}
-          onClick={openDrawer}
-          tabIndex={0}
-          data-test={PLAN_BLOCK_VIEW_EMPTY_TEST_ID}
-        >
-          <span className="plan-block__placeholder">Select a plan</span>
-        </button>
+      <NodeViewWrapper className="spacer" data-type="planBlock">
+        <div className="block-wrapper">
+          <button
+            className={`plan-block plan-block--empty ${selected ? 'plan-block--selected' : ''}`}
+            onClick={openDrawer}
+            tabIndex={0}
+            data-test={PLAN_BLOCK_VIEW_EMPTY_TEST_ID}
+          >
+            <span className="plan-block__placeholder">Select a plan</span>
+          </button>
+        </div>
       </NodeViewWrapper>
     )
   }
 
   return (
-    <NodeViewWrapper>
-      <button
-        className={`plan-block ${selected ? 'plan-block--selected' : ''}`}
-        onClick={openDrawer}
-        data-test={PLAN_BLOCK_VIEW_TEST_ID}
-      >
-        {planName ? (
-          <span>
-            {planName} ({planCode})
-          </span>
-        ) : (
-          <div className="plan-block__unresolved" data-test={PLAN_BLOCK_VIEW_UNRESOLVED_TEST_ID}>
-            <span>Plan: {planId}</span>
-          </div>
-        )}
-      </button>
+    <NodeViewWrapper className="spacer" data-type="planBlock">
+      <div className="block-wrapper">
+        <button
+          className={`plan-block ${selected ? 'plan-block--selected' : ''}`}
+          onClick={openDrawer}
+          data-test={PLAN_BLOCK_VIEW_TEST_ID}
+        >
+          {planName ? (
+            <span>
+              {planName} ({planCode})
+            </span>
+          ) : (
+            <div className="plan-block__unresolved" data-test={PLAN_BLOCK_VIEW_UNRESOLVED_TEST_ID}>
+              <span>Plan: {planId}</span>
+            </div>
+          )}
+        </button>
+      </div>
     </NodeViewWrapper>
   )
 }

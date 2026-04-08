@@ -2,6 +2,7 @@ import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import { act } from 'react'
 
+import { BlockColors } from '../BlockColors'
 import { DragHandle } from '../DragHandle'
 
 const createEditor = (content = '<p>First</p><p>Second</p>') => {
@@ -9,7 +10,7 @@ const createEditor = (content = '<p>First</p><p>Second</p>') => {
 
   act(() => {
     editor = new Editor({
-      extensions: [StarterKit, DragHandle],
+      extensions: [StarterKit, DragHandle, BlockColors],
       content,
     })
   })
@@ -164,6 +165,38 @@ describe('DragHandle', () => {
         const handlesAfter = editor.view.dom.querySelectorAll('.block-drag-handle')
 
         expect(handlesAfter.length).toBe(2)
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN a block type changes without changing block count', () => {
+      it('THEN should rebuild decorations to keep handles in sync', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+
+        // Transform first paragraph into a bullet list — block count stays at 2
+        editor.commands.setTextSelection(1)
+        editor.chain().focus().toggleBulletList().run()
+
+        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+
+        expect(handles.length).toBe(2)
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN a block attribute changes without changing block count or type', () => {
+      it('THEN should rebuild decorations to keep handles in sync', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+
+        // Change background color on first block — count and types stay the same
+        editor.commands.setTextSelection(1)
+        editor.commands.setBlockBackgroundColor('#fee2e2')
+
+        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+
+        expect(handles.length).toBe(2)
 
         editor.destroy()
       })
