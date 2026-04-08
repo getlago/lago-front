@@ -333,12 +333,14 @@
 }
 
 /* Block selection highlight */
-.ProseMirror .ProseMirror-selectednode {
+.ProseMirror .ProseMirror-selectednode,
+.ProseMirror .is-block-selected {
   @apply rounded-md bg-blue-100;
 }
 
 /* Hide selection highlight while dragging */
-.ProseMirror.is-dragging .ProseMirror-selectednode {
+.ProseMirror.is-dragging .ProseMirror-selectednode,
+.ProseMirror.is-dragging .is-block-selected {
   @apply opacity-40;
   background-color: transparent;
 }

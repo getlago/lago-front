@@ -108,7 +108,7 @@ const mockGetBoundingClientRect = (el: Element, rect: Partial<DOMRect>) => {
 let mockIsInTable = false
 
 const createMockEditor = () => {
-  const { proxy, runMock } = createMockChain()
+  const { proxy, runMock, chainMethods } = createMockChain()
   const eventHandlers: Record<string, Array<() => void>> = {}
 
   const editor = {
@@ -160,8 +160,15 @@ const createMockEditor = () => {
     isActive: jest.fn().mockReturnValue(false),
   } as unknown as Editor
 
-  return { editor, runMock, eventHandlers }
+  return { editor, runMock, chainMethods, eventHandlers }
 }
+
+jest.mock('@tiptap/pm/state', () => ({
+  ...jest.requireActual('@tiptap/pm/state'),
+  TextSelection: {
+    near: jest.fn().mockImplementation(($pos: { pos?: number }) => ({ from: $pos.pos ?? 1 })),
+  },
+}))
 
 jest.mock('@tiptap/pm/tables', () => {
   // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -997,7 +1004,7 @@ describe('TableControls', () => {
 
   describe('GIVEN the row menu interactions', () => {
     const renderWithMenuSupport = async () => {
-      const { editor, runMock } = createMockEditor()
+      const { editor, runMock, chainMethods } = createMockEditor()
 
       setupIsInTable(editor, true)
 
@@ -1021,7 +1028,7 @@ describe('TableControls', () => {
         await act(() => selectionUpdateHandler())
       }
 
-      return { editor, runMock }
+      return { editor, runMock, chainMethods }
     }
 
     describe('WHEN a row menu button is clicked', () => {
@@ -1039,7 +1046,7 @@ describe('TableControls', () => {
     describe('WHEN the "Move up" button is clicked in the row menu', () => {
       it('THEN should call editor.commands.moveRowUp', async () => {
         const user = userEvent.setup()
-        const { editor } = await renderWithMenuSupport()
+        const { chainMethods } = await renderWithMenuSupport()
 
         // Open row menu for row 1 (move up is disabled for row 0)
         await user.click(screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-1`))
@@ -1048,14 +1055,14 @@ describe('TableControls', () => {
 
         await user.click(moveUpBtn)
 
-        expect(editor.commands.moveRowUp).toHaveBeenCalled()
+        expect(chainMethods.moveRowUp).toHaveBeenCalled()
       })
     })
 
     describe('WHEN the "Move down" button is clicked in the row menu', () => {
       it('THEN should call editor.commands.moveRowDown', async () => {
         const user = userEvent.setup()
-        const { editor } = await renderWithMenuSupport()
+        const { chainMethods } = await renderWithMenuSupport()
 
         // Open row menu for row 0 (move down is disabled for last row)
         await user.click(screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-0`))
@@ -1064,7 +1071,7 @@ describe('TableControls', () => {
 
         await user.click(moveDownBtn)
 
-        expect(editor.commands.moveRowDown).toHaveBeenCalled()
+        expect(chainMethods.moveRowDown).toHaveBeenCalled()
       })
     })
 
@@ -1087,7 +1094,7 @@ describe('TableControls', () => {
     describe('WHEN a background color is selected in the row color picker', () => {
       it('THEN should call editor.commands.setRowBackgroundColor', async () => {
         const user = userEvent.setup()
-        const { editor } = await renderWithMenuSupport()
+        const { chainMethods } = await renderWithMenuSupport()
 
         // Open row menu
         await user.click(screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-0`))
@@ -1102,14 +1109,14 @@ describe('TableControls', () => {
 
         await user.click(clearBgBtn)
 
-        expect(editor.commands.setRowBackgroundColor).toHaveBeenCalled()
+        expect(chainMethods.setRowBackgroundColor).toHaveBeenCalled()
       })
     })
 
     describe('WHEN a text color is selected in the row color picker', () => {
       it('THEN should call editor.commands.setRowTextColor', async () => {
         const user = userEvent.setup()
-        const { editor } = await renderWithMenuSupport()
+        const { chainMethods } = await renderWithMenuSupport()
 
         // Open row menu
         await user.click(screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-0`))
@@ -1124,14 +1131,14 @@ describe('TableControls', () => {
 
         await user.click(clearTextBtn)
 
-        expect(editor.commands.setRowTextColor).toHaveBeenCalled()
+        expect(chainMethods.setRowTextColor).toHaveBeenCalled()
       })
     })
   })
 
   describe('GIVEN the column menu interactions', () => {
     const renderWithMenuSupport = async () => {
-      const { editor, runMock } = createMockEditor()
+      const { editor, runMock, chainMethods } = createMockEditor()
 
       setupIsInTable(editor, true)
 
@@ -1154,7 +1161,7 @@ describe('TableControls', () => {
         await act(() => selectionUpdateHandler())
       }
 
-      return { editor, runMock }
+      return { editor, runMock, chainMethods }
     }
 
     describe('WHEN a column menu button is clicked', () => {
@@ -1172,7 +1179,7 @@ describe('TableControls', () => {
     describe('WHEN the "Move left" button is clicked in the column menu', () => {
       it('THEN should call editor.commands.moveColumnLeft', async () => {
         const user = userEvent.setup()
-        const { editor } = await renderWithMenuSupport()
+        const { chainMethods } = await renderWithMenuSupport()
 
         // Open col menu for col 1 (move left is disabled for col 0)
         await user.click(screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-1`))
@@ -1181,14 +1188,14 @@ describe('TableControls', () => {
 
         await user.click(moveLeftBtn)
 
-        expect(editor.commands.moveColumnLeft).toHaveBeenCalled()
+        expect(chainMethods.moveColumnLeft).toHaveBeenCalled()
       })
     })
 
     describe('WHEN the "Move right" button is clicked in the column menu', () => {
       it('THEN should call editor.commands.moveColumnRight', async () => {
         const user = userEvent.setup()
-        const { editor } = await renderWithMenuSupport()
+        const { chainMethods } = await renderWithMenuSupport()
 
         // Open col menu for col 0 (move right is disabled for last col)
         await user.click(screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-0`))
@@ -1197,7 +1204,7 @@ describe('TableControls', () => {
 
         await user.click(moveRightBtn)
 
-        expect(editor.commands.moveColumnRight).toHaveBeenCalled()
+        expect(chainMethods.moveColumnRight).toHaveBeenCalled()
       })
     })
 
@@ -1220,7 +1227,7 @@ describe('TableControls', () => {
     describe('WHEN a background color is selected in the column color picker', () => {
       it('THEN should call editor.commands.setColumnBackgroundColor', async () => {
         const user = userEvent.setup()
-        const { editor } = await renderWithMenuSupport()
+        const { chainMethods } = await renderWithMenuSupport()
 
         await user.click(screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-0`))
 
@@ -1232,14 +1239,14 @@ describe('TableControls', () => {
 
         await user.click(clearBgBtn)
 
-        expect(editor.commands.setColumnBackgroundColor).toHaveBeenCalled()
+        expect(chainMethods.setColumnBackgroundColor).toHaveBeenCalled()
       })
     })
 
     describe('WHEN a text color is selected in the column color picker', () => {
       it('THEN should call editor.commands.setColumnTextColor', async () => {
         const user = userEvent.setup()
-        const { editor } = await renderWithMenuSupport()
+        const { chainMethods } = await renderWithMenuSupport()
 
         await user.click(screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-0`))
 
@@ -1251,7 +1258,7 @@ describe('TableControls', () => {
 
         await user.click(clearTextBtn)
 
-        expect(editor.commands.setColumnTextColor).toHaveBeenCalled()
+        expect(chainMethods.setColumnTextColor).toHaveBeenCalled()
       })
     })
   })

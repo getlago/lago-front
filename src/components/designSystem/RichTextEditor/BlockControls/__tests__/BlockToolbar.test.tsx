@@ -11,11 +11,25 @@ import BlockToolbar, {
   BLOCK_TOOLBAR_TEST_ID,
 } from '../BlockToolbar'
 
-const mockDeleteSelection = jest.fn()
+const mockDeleteRange = jest.fn()
 const mockSetBlockBackgroundColor = jest.fn()
 const mockSetBlockTextColor = jest.fn()
 const mockMoveBlockUp = jest.fn()
 const mockMoveBlockDown = jest.fn()
+const mockRunFn = jest.fn()
+
+const createMockChain = () => {
+  const handler: ProxyHandler<Record<string, jest.Mock>> = {
+    get: (_target, prop: string) => {
+      if (prop === 'run') return mockRunFn
+      if (prop === 'deleteRange') return mockDeleteRange.mockReturnValue(new Proxy({}, handler))
+
+      return jest.fn().mockReturnValue(new Proxy({}, handler))
+    },
+  }
+
+  return new Proxy({}, handler)
+}
 
 let mockSelectorReturn: unknown = null
 
@@ -88,18 +102,21 @@ const createMockEditor = (overrides?: {
 
   return {
     commands: {
-      deleteSelection: mockDeleteSelection,
       setBlockBackgroundColor: mockSetBlockBackgroundColor,
       setBlockTextColor: mockSetBlockTextColor,
       moveBlockUp: mockMoveBlockUp,
       moveBlockDown: mockMoveBlockDown,
     },
+    chain: jest.fn().mockImplementation(() => createMockChain()),
     view: {
       nodeDOM: jest.fn().mockReturnValue(blockElement),
       dom: editorDom,
     },
     state: {
       selection: { from: 0 },
+      doc: {
+        nodeAt: jest.fn().mockReturnValue({ nodeSize: 10 }),
+      },
     },
   } as unknown as Parameters<typeof BlockToolbar>[0]['editor']
 }
@@ -170,7 +187,7 @@ describe('BlockToolbar', () => {
     })
 
     describe('WHEN the delete button is clicked', () => {
-      it('THEN should call editor.commands.deleteSelection', async () => {
+      it('THEN should delete the block via deleteRange', async () => {
         const user = userEvent.setup()
 
         mockSelectorReturn = blockSelection
@@ -179,7 +196,8 @@ describe('BlockToolbar', () => {
 
         await user.click(screen.getByTestId(BLOCK_TOOLBAR_DELETE_BUTTON_TEST_ID))
 
-        expect(mockDeleteSelection).toHaveBeenCalledTimes(1)
+        expect(mockDeleteRange).toHaveBeenCalledWith({ from: 0, to: 10 })
+        expect(mockRunFn).toHaveBeenCalled()
       })
     })
 

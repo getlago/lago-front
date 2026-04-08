@@ -201,7 +201,17 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
         startIcon="trash"
         align="left"
         data-test={BLOCK_TOOLBAR_DELETE_BUTTON_TEST_ID}
-        onClick={() => editor.commands.deleteSelection()}
+        onClick={() => {
+          const node = editor.state.doc.nodeAt(blockSelection.pos)
+
+          if (node) {
+            editor
+              .chain()
+              .focus()
+              .deleteRange({ from: blockSelection.pos, to: blockSelection.pos + node.nodeSize })
+              .run()
+          }
+        }}
       >
         {translate('text_1775145882088oj33ff13ddh')}
       </Button>
