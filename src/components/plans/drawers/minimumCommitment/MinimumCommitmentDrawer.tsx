@@ -73,7 +73,8 @@ export const MinimumCommitmentDrawer = forwardRef<
     },
   })
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = (event?: React.FormEvent) => {
+    event?.preventDefault()
     form.handleSubmit()
   }
 
@@ -98,65 +99,72 @@ export const MinimumCommitmentDrawer = forwardRef<
       },
       children: (
         <PlanFormProvider currency={currency} interval={interval}>
-          <CenteredPage.SectionWrapper>
-            <CenteredPage.PageTitle
-              title={translate('text_65d601bffb11e0f9d1d9f569')}
-              description={translate('text_177334593394555w48sxw5na')}
-            />
+          <form onSubmit={handleFormSubmit}>
+            <button type="submit" hidden aria-hidden="true" />
+            <CenteredPage.SectionWrapper>
+              <CenteredPage.PageTitle
+                title={translate('text_65d601bffb11e0f9d1d9f569')}
+                description={translate('text_177334593394555w48sxw5na')}
+              />
 
-            <CenteredPage.SubsectionWrapper>
-              <CenteredPage.PageSection>
-                <CenteredPage.PageSectionTitle title={translate('text_1773346168045bj2x1626228')} />
+              <CenteredPage.SubsectionWrapper>
+                <CenteredPage.PageSection>
+                  <CenteredPage.PageSectionTitle
+                    title={translate('text_1773346168045bj2x1626228')}
+                  />
 
-                <PlanBillingPeriodInfoSection />
+                  <PlanBillingPeriodInfoSection />
 
-                <form.AppField name="amountCents">
-                  {(field) => (
-                    <field.AmountInputField
-                      currency={currency}
-                      beforeChangeFormatter={['positiveNumber']}
-                      label={translate('text_65d601bffb11e0f9d1d9f571')}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            {getCurrencySymbol(currency || CurrencyEnum.Usd)}
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  )}
-                </form.AppField>
-              </CenteredPage.PageSection>
+                  <form.AppField name="amountCents">
+                    {(field) => (
+                      <field.AmountInputField
+                        currency={currency}
+                        beforeChangeFormatter={['positiveNumber']}
+                        label={translate('text_65d601bffb11e0f9d1d9f571')}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              {getCurrencySymbol(currency || CurrencyEnum.Usd)}
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  </form.AppField>
+                </CenteredPage.PageSection>
 
-              <CenteredPage.PageSection>
-                <CenteredPage.PageSectionTitle title={translate('text_17423672025282dl7iozy1ru')} />
+                <CenteredPage.PageSection>
+                  <CenteredPage.PageSectionTitle
+                    title={translate('text_17423672025282dl7iozy1ru')}
+                  />
 
-                <form.AppField name="invoiceDisplayName">
-                  {(field) => (
-                    <field.TextInputField
-                      label={translate('text_65a6b4e2cb38d9b70ec53d39')}
-                      description={translate('text_1771963033467yduu33x3qw9')}
-                      placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
-                    />
-                  )}
-                </form.AppField>
+                  <form.AppField name="invoiceDisplayName">
+                    {(field) => (
+                      <field.TextInputField
+                        label={translate('text_65a6b4e2cb38d9b70ec53d39')}
+                        description={translate('text_1771963033467yduu33x3qw9')}
+                        placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
+                      />
+                    )}
+                  </form.AppField>
 
-                <form.Subscribe selector={(state) => state.values.taxes}>
-                  {(taxes) => (
-                    <TaxesSelectorSection
-                      title={translate('text_1760729707267seik64l67k8')}
-                      description={translate('text_1773346168045bj2x1626229')}
-                      taxes={taxes || []}
-                      comboboxSelector={SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME}
-                      onUpdate={(newTaxArray) => {
-                        form.setFieldValue('taxes', newTaxArray)
-                      }}
-                    />
-                  )}
-                </form.Subscribe>
-              </CenteredPage.PageSection>
-            </CenteredPage.SubsectionWrapper>
-          </CenteredPage.SectionWrapper>
+                  <form.Subscribe selector={(state) => state.values.taxes}>
+                    {(taxes) => (
+                      <TaxesSelectorSection
+                        title={translate('text_1760729707267seik64l67k8')}
+                        description={translate('text_1773346168045bj2x1626229')}
+                        taxes={taxes || []}
+                        comboboxSelector={SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME}
+                        onUpdate={(newTaxArray) => {
+                          form.setFieldValue('taxes', newTaxArray)
+                        }}
+                      />
+                    )}
+                  </form.Subscribe>
+                </CenteredPage.PageSection>
+              </CenteredPage.SubsectionWrapper>
+            </CenteredPage.SectionWrapper>
+          </form>
         </PlanFormProvider>
       ),
       actions: (

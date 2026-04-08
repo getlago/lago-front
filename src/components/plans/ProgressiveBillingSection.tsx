@@ -2,6 +2,7 @@ import { useStore } from '@tanstack/react-form'
 import { FC, useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ProgressiveBillingFormValues } from '~/components/plans/drawers/progressiveBilling/constants'
@@ -81,7 +82,12 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
           icon="table-horizontale"
           title={translate('text_1724179887722baucvj7bvc1')}
           subtitle={translate('text_1773950414511euzjefq877r', { thresholdCount }, thresholdCount)}
-          endContent={<Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />}
+          endContent={
+            <div className="flex items-center gap-3">
+              <Chip label={translate('text_17756567905528w3193xcurh')} />
+              <Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />
+            </div>
+          }
           hoverActions={
             <SelectorActions
               actions={[

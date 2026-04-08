@@ -163,109 +163,117 @@ export const FeatureEntitlementDrawerContent = withForm({
       [featureDetailsData, values.privileges, form],
     )
 
+    const handleFormSubmit = (event: React.FormEvent) => {
+      event.preventDefault()
+      form.handleSubmit()
+    }
+
     return (
-      <CenteredPage.SectionWrapper>
-        <CenteredPage.PageTitle
-          title={translate('text_63e26d8308d03687188221a6')}
-          description={translate('text_17538642230602p03937fj0f')}
-        />
+      <form onSubmit={handleFormSubmit}>
+        <button type="submit" hidden aria-hidden="true" />
+        <CenteredPage.SectionWrapper>
+          <CenteredPage.PageTitle
+            title={translate('text_63e26d8308d03687188221a6')}
+            description={translate('text_17538642230602p03937fj0f')}
+          />
 
-        <CenteredPage.SubsectionWrapper>
-          <CenteredPage.PageSection>
-            <CenteredPage.PageSectionTitle title={translate('text_1773428494589gq89ubgz99i')} />
-
-            {!isFeatureNotSelected && (
-              <Selector
-                icon="switch"
-                title={values.featureName || values.featureCode}
-                subtitle={values.featureCode}
-              />
-            )}
-            {isFeatureNotSelected && (
-              <form.AppField
-                name="featureCode"
-                listeners={{
-                  onChange: ({ value }) => {
-                    const selectedFeature = featuresListData?.features?.collection.find(
-                      (feature) => feature.code === value,
-                    )
-
-                    if (!selectedFeature) return
-
-                    form.setFieldValue('featureId', selectedFeature.id)
-                    form.setFieldValue('featureName', selectedFeature.name || '')
-                  },
-                }}
-              >
-                {(field) => (
-                  <field.ComboBoxField
-                    disableClearable
-                    containerClassName="w-full"
-                    placeholder={translate('text_1753864223060h6i2e7303eb')}
-                    loading={isLoadingFeaturesList}
-                    data={featuresListComboBoxData}
-                    className={SEARCH_FEATURE_SELECT_OPTIONS_INPUT_CLASSNAME}
-                    searchQuery={getFeaturesList}
-                  />
-                )}
-              </form.AppField>
-            )}
-          </CenteredPage.PageSection>
-
-          {!!values.featureCode && (
+          <CenteredPage.SubsectionWrapper>
             <CenteredPage.PageSection>
-              <CenteredPage.PageSectionTitle
-                title={translate('text_17538642230604pul58koirl')}
-                description={translate('text_1753864223060yrey0yur60j')}
-              />
+              <CenteredPage.PageSectionTitle title={translate('text_1773428494589gq89ubgz99i')} />
 
-              {values.privileges.length > 0 && (
-                <PrivilegesTable form={form} featureCode={values.featureCode} />
+              {!isFeatureNotSelected && (
+                <Selector
+                  icon="switch"
+                  title={values.featureName || values.featureCode}
+                  subtitle={values.featureCode}
+                />
               )}
+              {isFeatureNotSelected && (
+                <form.AppField
+                  name="featureCode"
+                  listeners={{
+                    onChange: ({ value }) => {
+                      const selectedFeature = featuresListData?.features?.collection.find(
+                        (feature) => feature.code === value,
+                      )
 
-              {displayAddPrivilegeInput ? (
-                <div className="flex w-full items-center gap-3">
-                  <ComboBox
-                    disableClearable
-                    containerClassName="w-full"
-                    placeholder={translate('text_1753864223060yk3svyv4dpr')}
-                    loading={featureDetailsLoading}
-                    data={privilegesListComboBoxData}
-                    className={SEARCH_FEATURE_PRIVILEGE_SELECT_OPTIONS_INPUT_CLASSNAME}
-                    onChange={onAddPrivilege}
-                  />
+                      if (!selectedFeature) return
 
-                  <Tooltip placement="top-end" title={translate('text_63ea0f84f400488553caa786')}>
-                    <Button
-                      variant="quaternary"
-                      icon="trash"
-                      onClick={() => {
-                        setDisplayAddPrivilegeInput(false)
-                      }}
-                    />
-                  </Tooltip>
-                </div>
-              ) : (
-                <Button
-                  fitContent
-                  align="left"
-                  variant="inline"
-                  startIcon="plus"
-                  onClick={() => {
-                    setDisplayAddPrivilegeInput(true)
-
-                    scrollToAndClickElement({
-                      selector: `.${SEARCH_FEATURE_PRIVILEGE_SELECT_OPTIONS_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                    })
+                      form.setFieldValue('featureId', selectedFeature.id)
+                      form.setFieldValue('featureName', selectedFeature.name || '')
+                    },
                   }}
                 >
-                  {translate('text_1753864223060n9hxs03sa15')}
-                </Button>
+                  {(field) => (
+                    <field.ComboBoxField
+                      disableClearable
+                      containerClassName="w-full"
+                      placeholder={translate('text_1753864223060h6i2e7303eb')}
+                      loading={isLoadingFeaturesList}
+                      data={featuresListComboBoxData}
+                      className={SEARCH_FEATURE_SELECT_OPTIONS_INPUT_CLASSNAME}
+                      searchQuery={getFeaturesList}
+                    />
+                  )}
+                </form.AppField>
               )}
             </CenteredPage.PageSection>
-          )}
-        </CenteredPage.SubsectionWrapper>
-      </CenteredPage.SectionWrapper>
+
+            {!!values.featureCode && (
+              <CenteredPage.PageSection>
+                <CenteredPage.PageSectionTitle
+                  title={translate('text_17538642230604pul58koirl')}
+                  description={translate('text_1753864223060yrey0yur60j')}
+                />
+
+                {values.privileges.length > 0 && (
+                  <PrivilegesTable form={form} featureCode={values.featureCode} />
+                )}
+
+                {displayAddPrivilegeInput ? (
+                  <div className="flex w-full items-center gap-3">
+                    <ComboBox
+                      disableClearable
+                      containerClassName="w-full"
+                      placeholder={translate('text_1753864223060yk3svyv4dpr')}
+                      loading={featureDetailsLoading}
+                      data={privilegesListComboBoxData}
+                      className={SEARCH_FEATURE_PRIVILEGE_SELECT_OPTIONS_INPUT_CLASSNAME}
+                      onChange={onAddPrivilege}
+                    />
+
+                    <Tooltip placement="top-end" title={translate('text_63ea0f84f400488553caa786')}>
+                      <Button
+                        variant="quaternary"
+                        icon="trash"
+                        onClick={() => {
+                          setDisplayAddPrivilegeInput(false)
+                        }}
+                      />
+                    </Tooltip>
+                  </div>
+                ) : (
+                  <Button
+                    fitContent
+                    align="left"
+                    variant="inline"
+                    startIcon="plus"
+                    onClick={() => {
+                      setDisplayAddPrivilegeInput(true)
+
+                      scrollToAndClickElement({
+                        selector: `.${SEARCH_FEATURE_PRIVILEGE_SELECT_OPTIONS_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                      })
+                    }}
+                  >
+                    {translate('text_1753864223060n9hxs03sa15')}
+                  </Button>
+                )}
+              </CenteredPage.PageSection>
+            )}
+          </CenteredPage.SubsectionWrapper>
+        </CenteredPage.SectionWrapper>
+      </form>
     )
   },
 })
