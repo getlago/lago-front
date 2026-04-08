@@ -7,10 +7,7 @@ import { Popper } from '~/components/designSystem/Popper'
 
 import ColMenuContent from './ColMenuContent'
 import RowMenuContent from './RowMenuContent'
-import TableMenuOpener, {
-  TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID,
-  TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID,
-} from './TableMenuOpener'
+import TableMenuOpener from './TableMenuOpener'
 import { focusCellAndRun, selectColumn, selectRow } from './tableUtils'
 
 import { getDragHandleStorage } from '../extensions/DragHandle'
@@ -18,7 +15,10 @@ import { getDragHandleStorage } from '../extensions/DragHandle'
 export const TABLE_CONTROLS_WRAPPER_TEST_ID = 'table-controls-wrapper'
 export const TABLE_CONTROLS_ADD_COL_BUTTON_TEST_ID = 'table-controls-add-col-button'
 export const TABLE_CONTROLS_ADD_ROW_BUTTON_TEST_ID = 'table-controls-add-row-button'
-export { TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID, TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID }
+export {
+  TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID,
+  TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID,
+} from './TableMenuOpener'
 
 type TableControlsProps = {
   editor: Editor

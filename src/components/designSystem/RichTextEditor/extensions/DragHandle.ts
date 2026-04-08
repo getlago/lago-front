@@ -46,7 +46,7 @@ export const DragHandle = Extension.create({
       const { pos } = storage.selectedBlock
       const node = this.editor.state.doc.nodeAt(pos)
 
-      if (!node || node.type.name !== 'table') {
+      if (node?.type.name !== 'table') {
         storage.selectedBlock = null
 
         return
