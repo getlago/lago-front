@@ -268,6 +268,31 @@ describe('BlockToolbar', () => {
 
         expect(screen.getByTestId(BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID)).toBeInTheDocument()
       })
+
+      it('THEN should open the color picker and call setBlockBackgroundColor when a swatch is clicked', async () => {
+        const user = userEvent.setup()
+
+        mockSelectorReturn = {
+          pos: 0,
+          node: {},
+          backgroundColor: '#fee2e2',
+          textColor: null,
+          isFirst: false,
+          isLast: false,
+        }
+
+        render(<BlockToolbar editor={createMockEditor()} />)
+
+        await user.click(screen.getByTestId(BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID))
+
+        // Background section renders swatches with inline backgroundColor style
+        const blueButtons = screen.getAllByTitle('Blue')
+        const bgSwatch = blueButtons[blueButtons.length - 1]
+
+        await user.click(bgSwatch)
+
+        expect(mockSetBlockBackgroundColor).toHaveBeenCalledTimes(1)
+      })
     })
   })
 

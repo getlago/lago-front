@@ -153,7 +153,7 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
         data-test={BLOCK_TOOLBAR_MOVE_UP_BUTTON_TEST_ID}
         onClick={() => editor.commands.moveBlockUp()}
       >
-        {translate('text_block_move_up')}
+        {translate('text_17756354158189xlxmul84lu')}
       </Button>
 
       {/* Move down */}
@@ -165,7 +165,7 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
         data-test={BLOCK_TOOLBAR_MOVE_DOWN_BUTTON_TEST_ID}
         onClick={() => editor.commands.moveBlockDown()}
       >
-        {translate('text_block_move_down')}
+        {translate('text_1775635415819dqd4uqcq6jl')}
       </Button>
 
       {/* Delete */}

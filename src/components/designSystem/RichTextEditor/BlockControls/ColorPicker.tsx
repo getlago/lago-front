@@ -65,7 +65,7 @@ const ColorPicker = ({
           <button
             className={baseButtonClasses}
             title="Clear text color"
-            aria-label="Clear color"
+            aria-label="Clear text color"
             onClick={() => onSelectText(null)}
           >
             <Icon name="close-circle-unfilled" />
@@ -94,6 +94,7 @@ const ColorPicker = ({
           <button
             className={baseButtonClasses}
             title="Clear background"
+            aria-label="Clear background"
             onClick={() => onSelectBackground(null)}
           >
             <Icon name="close-circle-unfilled" />

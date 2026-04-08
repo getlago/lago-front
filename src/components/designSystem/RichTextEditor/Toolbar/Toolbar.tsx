@@ -299,7 +299,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
                 activeTextColor={editorState.textColor}
                 onSelectBackground={(color) => {
                   if (color) {
-                    editor.chain().focus().toggleHighlight({ color }).run()
+                    editor.chain().focus().setHighlight({ color }).run()
                   } else {
                     editor.chain().focus().unsetHighlight().run()
                   }
