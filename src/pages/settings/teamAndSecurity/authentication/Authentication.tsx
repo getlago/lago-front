@@ -63,11 +63,11 @@ type OktaIntegration = {
   __typename: 'OktaIntegration'
   id: string
   name: string
-  domain?: string | null
+  domain: string
   host?: string | null
   clientId?: string | null
   clientSecret?: string | null
-  organizationName?: string | null
+  organizationName: string
 }
 
 type EntraIdIntegration = {
