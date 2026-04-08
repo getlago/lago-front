@@ -181,81 +181,89 @@ export const ProgressiveBillingDrawerContent = withForm({
       [currency, form, translate],
     )
 
+    const handleFormSubmit = (event: React.FormEvent) => {
+      event.preventDefault()
+      form.handleSubmit()
+    }
+
     return (
-      <CenteredPage.SectionWrapper>
-        <CenteredPage.PageTitle
-          title={translate('text_1724179887722baucvj7bvc1')}
-          description={translate('text_1724179887723kdf3nisf6hp')}
-        />
+      <form onSubmit={handleFormSubmit}>
+        <button type="submit" hidden aria-hidden="true" />
+        <CenteredPage.SectionWrapper>
+          <CenteredPage.PageTitle
+            title={translate('text_1724179887722baucvj7bvc1')}
+            description={translate('text_1724179887723kdf3nisf6hp')}
+          />
 
-        <CenteredPage.SubsectionWrapper>
-          <CenteredPage.PageSection>
-            <CenteredPage.PageSectionTitle
-              title={translate('text_17696267519471sodhgj81od')}
-              description={translate('text_1741101676181hja4m79j7qz')}
-            />
+          <CenteredPage.SubsectionWrapper>
+            <CenteredPage.PageSection>
+              <CenteredPage.PageSectionTitle
+                title={translate('text_17696267519471sodhgj81od')}
+                description={translate('text_1741101676181hja4m79j7qz')}
+              />
 
-            <form.Subscribe selector={(state) => state.values.nonRecurringUsageThresholds}>
-              {(nonRecurringThresholds) => (
-                <div className="flex flex-col">
-                  <Button
-                    className="mb-2 ml-auto"
-                    startIcon="plus"
-                    variant="inline"
-                    onClick={() => handleAddThreshold(nonRecurringThresholds)}
-                  >
-                    {translate('text_1724233213997l2ksi40t8q6')}
-                  </Button>
-                  <div className="-mx-4 overflow-auto px-4 pb-1">
-                    <ChargeTable<ThresholdTableData>
-                      name="progressive-billing-non-recurring"
-                      data={(nonRecurringThresholds ?? []).map(
-                        (localData) =>
-                          ({
-                            ...localData,
-                            disabledDelete: nonRecurringThresholds?.length === 1,
-                          }) as ThresholdTableData,
-                      )}
-                      onDeleteRow={(_, i) => {
-                        const updated = (nonRecurringThresholds ?? []).filter(
-                          (__, idx) => idx !== i,
-                        )
+              <form.Subscribe selector={(state) => state.values.nonRecurringUsageThresholds}>
+                {(nonRecurringThresholds) => (
+                  <div className="flex flex-col">
+                    <Button
+                      className="mb-2 ml-auto"
+                      startIcon="plus"
+                      variant="inline"
+                      onClick={() => handleAddThreshold(nonRecurringThresholds)}
+                    >
+                      {translate('text_1724233213997l2ksi40t8q6')}
+                    </Button>
+                    <div className="-mx-4 overflow-auto px-4 pb-1">
+                      <ChargeTable<ThresholdTableData>
+                        name="progressive-billing-non-recurring"
+                        data={(nonRecurringThresholds ?? []).map(
+                          (localData) =>
+                            ({
+                              ...localData,
+                              disabledDelete: nonRecurringThresholds?.length === 1,
+                            }) as ThresholdTableData,
+                        )}
+                        onDeleteRow={(_, i) => {
+                          const updated = (nonRecurringThresholds ?? []).filter(
+                            (__, idx) => idx !== i,
+                          )
 
-                        form.setFieldValue('nonRecurringUsageThresholds', updated)
-                      }}
-                      deleteTooltipContent={translate('text_17242522324608198c2vblmw')}
-                      columns={getNonRecurringColumns(nonRecurringThresholds)}
-                    />
-                  </div>
-                </div>
-              )}
-            </form.Subscribe>
-
-            <Switch
-              name="progressiveBillingRecurring"
-              checked={displayRecurring}
-              onChange={handleToggleRecurring}
-              label={translate('text_1724234174945ztq15pvmty3')}
-              subLabel={translate('text_172423417494563qf45qet2d')}
-            />
-            {displayRecurring && (
-              <form.Subscribe selector={(state) => state.values.recurringUsageThreshold}>
-                {(recurringThreshold) => (
-                  <div className="-mx-4 overflow-auto px-4 py-1">
-                    <ChargeTable<ThresholdTableData>
-                      name="progressive-billing-recurring"
-                      columns={recurringColumns}
-                      data={[(recurringThreshold ?? {}) as ThresholdTableData]}
-                    />
+                          form.setFieldValue('nonRecurringUsageThresholds', updated)
+                        }}
+                        deleteTooltipContent={translate('text_17242522324608198c2vblmw')}
+                        columns={getNonRecurringColumns(nonRecurringThresholds)}
+                      />
+                    </div>
                   </div>
                 )}
               </form.Subscribe>
-            )}
 
-            <Alert type="info">{translate('text_1724252232460iqofvwnpgnx')}</Alert>
-          </CenteredPage.PageSection>
-        </CenteredPage.SubsectionWrapper>
-      </CenteredPage.SectionWrapper>
+              <Switch
+                name="progressiveBillingRecurring"
+                checked={displayRecurring}
+                onChange={handleToggleRecurring}
+                label={translate('text_1724234174945ztq15pvmty3')}
+                subLabel={translate('text_172423417494563qf45qet2d')}
+              />
+              {displayRecurring && (
+                <form.Subscribe selector={(state) => state.values.recurringUsageThreshold}>
+                  {(recurringThreshold) => (
+                    <div className="-mx-4 overflow-auto px-4 py-1">
+                      <ChargeTable<ThresholdTableData>
+                        name="progressive-billing-recurring"
+                        columns={recurringColumns}
+                        data={[(recurringThreshold ?? {}) as ThresholdTableData]}
+                      />
+                    </div>
+                  )}
+                </form.Subscribe>
+              )}
+
+              <Alert type="info">{translate('text_1724252232460iqofvwnpgnx')}</Alert>
+            </CenteredPage.PageSection>
+          </CenteredPage.SubsectionWrapper>
+        </CenteredPage.SectionWrapper>
+      </form>
     )
   },
 })

@@ -170,172 +170,180 @@ export const FixedChargeDrawerContent = withForm({
       [form],
     )
 
+    const handleFormSubmit = (event: React.FormEvent) => {
+      event.preventDefault()
+      form.handleSubmit()
+    }
+
     return (
-      <CenteredPage.SectionWrapper>
-        <CenteredPage.PageTitle
-          title={translate('text_1772133285141kidk35mbh3o')}
-          description={translate('text_1760729707268c05r06ip8vg')}
-        />
+      <form onSubmit={handleFormSubmit}>
+        <button type="submit" hidden aria-hidden="true" />
+        <CenteredPage.SectionWrapper>
+          <CenteredPage.PageTitle
+            title={translate('text_1772133285141kidk35mbh3o')}
+            description={translate('text_1760729707268c05r06ip8vg')}
+          />
 
-        {isCreatePickerScreen ? (
-          <CenteredPage.PageSection>
-            <CenteredPage.PageSectionTitle
-              title={translate('text_1772133285141caubzimuyr0')}
-              description={translate('text_17727389218359nvq0qjg447')}
-            />
-
-            <form.AppField
-              name="addOnId"
-              listeners={{
-                onChange: ({ value }) => {
-                  const selectedAddOn = addOnsData?.addOns?.collection.find((a) => a.id === value)
-
-                  if (selectedAddOn) {
-                    form.setFieldValue('addOn', {
-                      id: selectedAddOn.id,
-                      name: selectedAddOn.name,
-                      code: selectedAddOn.code,
-                    })
-                  }
-                },
-              }}
-            >
-              {(field) => (
-                <field.ComboBoxField
-                  className={SEARCH_ADD_ON_IN_FIXED_CHARGE_DRAWER_INPUT_CLASSNAME}
-                  data={addOnsComboboxData}
-                  searchQuery={getAddOnsForFixedChargesSection}
-                  loading={addOnsLoading}
-                  placeholder={translate('text_6453819268763979024ad0ad')}
-                  emptyText={translate('text_655633c844bc8a00577061b0')}
-                />
-              )}
-            </form.AppField>
-          </CenteredPage.PageSection>
-        ) : (
-          <CenteredPage.SubsectionWrapper>
-            {/* Selected add-on (read-only) */}
+          {isCreatePickerScreen ? (
             <CenteredPage.PageSection>
-              <CenteredPage.PageSectionTitle title={translate('text_1772133285141caubzimuyr0')} />
-
-              <Selector
-                icon="puzzle"
-                title={formValues.addOn.name}
-                subtitle={formValues.addOn.code}
-              />
-            </CenteredPage.PageSection>
-
-            {/* Pricing settings */}
-            <CenteredPage.PageSection>
-              <CenteredPage.PageSectionTitle title={translate('text_1772133285141xbpuxbd4vrk')} />
-
-              <ChargeModelSelector
-                alreadyUsedChargeAlertMessage={alertMessage}
-                isInSubscriptionForm={isInSubscriptionForm}
-                disabled={disabled}
-                localCharge={formValues as unknown as LocalFixedChargeInput}
-                chargeModelComboboxData={chargeModelComboboxData}
-                handleUpdate={handleChargeModelUpdate}
+              <CenteredPage.PageSectionTitle
+                title={translate('text_1772133285141caubzimuyr0')}
+                description={translate('text_17727389218359nvq0qjg447')}
               />
 
-              <ChargeWrapperSwitch
-                chargeType="fixed"
-                chargePricingUnitShortName={undefined}
-                currency={currency}
-                disabled={disabled}
-                form={form}
-                isEdition={isEdition}
-                localCharge={formValues as unknown as LocalFixedChargeInput}
-                propertyCursor="properties"
-              />
+              <form.AppField
+                name="addOnId"
+                listeners={{
+                  onChange: ({ value }) => {
+                    const selectedAddOn = addOnsData?.addOns?.collection.find((a) => a.id === value)
 
-              <form.AppField name="units">
+                    if (selectedAddOn) {
+                      form.setFieldValue('addOn', {
+                        id: selectedAddOn.id,
+                        name: selectedAddOn.name,
+                        code: selectedAddOn.code,
+                      })
+                    }
+                  },
+                }}
+              >
                 {(field) => (
-                  <field.TextInputField
-                    label={translate('text_65771fa3f4ab9a00720726ce')}
-                    placeholder={translate('text_643e592657fc1ba5ce110c80')}
-                    beforeChangeFormatter={['positiveNumber', 'sextDecimal']}
-                    disabled={disabled}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {translate('text_6282085b4f283b0102655884')}
-                        </InputAdornment>
-                      ),
-                    }}
+                  <field.ComboBoxField
+                    className={SEARCH_ADD_ON_IN_FIXED_CHARGE_DRAWER_INPUT_CLASSNAME}
+                    data={addOnsComboboxData}
+                    searchQuery={getAddOnsForFixedChargesSection}
+                    loading={addOnsLoading}
+                    placeholder={translate('text_6453819268763979024ad0ad')}
+                    emptyText={translate('text_655633c844bc8a00577061b0')}
                   />
                 )}
               </form.AppField>
+            </CenteredPage.PageSection>
+          ) : (
+            <CenteredPage.SubsectionWrapper>
+              {/* Selected add-on (read-only) */}
+              <CenteredPage.PageSection>
+                <CenteredPage.PageSectionTitle title={translate('text_1772133285141caubzimuyr0')} />
 
-              {isEdition && (
-                <form.AppField name="applyUnitsImmediately">
+                <Selector
+                  icon="puzzle"
+                  title={formValues.addOn.name}
+                  subtitle={formValues.addOn.code}
+                />
+              </CenteredPage.PageSection>
+
+              {/* Pricing settings */}
+              <CenteredPage.PageSection>
+                <CenteredPage.PageSectionTitle title={translate('text_1772133285141xbpuxbd4vrk')} />
+
+                <ChargeModelSelector
+                  alreadyUsedChargeAlertMessage={alertMessage}
+                  isInSubscriptionForm={isInSubscriptionForm}
+                  disabled={disabled}
+                  localCharge={formValues as unknown as LocalFixedChargeInput}
+                  chargeModelComboboxData={chargeModelComboboxData}
+                  handleUpdate={handleChargeModelUpdate}
+                />
+
+                <ChargeWrapperSwitch
+                  chargeType="fixed"
+                  chargePricingUnitShortName={undefined}
+                  currency={currency}
+                  disabled={disabled}
+                  form={form}
+                  isEdition={isEdition}
+                  localCharge={formValues as unknown as LocalFixedChargeInput}
+                  propertyCursor="properties"
+                />
+
+                <form.AppField name="units">
                   {(field) => (
-                    <field.SwitchField
-                      label={translate('text_1760721761361octnb0dfqm5')}
-                      subLabel={translate('text_1760721761361lqhc17vjr2b')}
+                    <field.TextInputField
+                      label={translate('text_65771fa3f4ab9a00720726ce')}
+                      placeholder={translate('text_643e592657fc1ba5ce110c80')}
+                      beforeChangeFormatter={['positiveNumber', 'sextDecimal']}
                       disabled={disabled}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {translate('text_6282085b4f283b0102655884')}
+                          </InputAdornment>
+                        ),
+                      }}
                     />
                   )}
                 </form.AppField>
-              )}
-            </CenteredPage.PageSection>
 
-            {/* Invoicing settings */}
-            <CenteredPage.PageSection>
-              <CenteredPage.PageSectionTitle title={translate('text_17423672025282dl7iozy1ru')} />
-
-              <form.AppField name="invoiceDisplayName">
-                {(field) => (
-                  <field.TextInputField
-                    label={translate('text_65a6b4e2cb38d9b70ec53d39')}
-                    description={translate('text_1771963033467yduu33x3qw9')}
-                    placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
-                  />
+                {isEdition && (
+                  <form.AppField name="applyUnitsImmediately">
+                    {(field) => (
+                      <field.SwitchField
+                        label={translate('text_1760721761361octnb0dfqm5')}
+                        subLabel={translate('text_1760721761361lqhc17vjr2b')}
+                        disabled={disabled}
+                      />
+                    )}
+                  </form.AppField>
                 )}
-              </form.AppField>
+              </CenteredPage.PageSection>
 
-              <PlanBillingPeriodInfoSection />
+              {/* Invoicing settings */}
+              <CenteredPage.PageSection>
+                <CenteredPage.PageSectionTitle title={translate('text_17423672025282dl7iozy1ru')} />
 
-              <ChargePayInAdvanceOption
-                chargePayInAdvanceDescription={undefined}
-                disabled={isInSubscriptionForm || disabled}
-                isPayInAdvanceOptionDisabled={isPayInAdvanceOptionDisabled}
-                payInAdvance={formValues.payInAdvance}
-                handleUpdate={({ payInAdvance }) => {
-                  form.setFieldValue('payInAdvance', payInAdvance)
-                }}
-              />
+                <form.AppField name="invoiceDisplayName">
+                  {(field) => (
+                    <field.TextInputField
+                      label={translate('text_65a6b4e2cb38d9b70ec53d39')}
+                      description={translate('text_1771963033467yduu33x3qw9')}
+                      placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
+                    />
+                  )}
+                </form.AppField>
 
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1">
-                  <CenteredPage.PageSectionTitle
-                    title={translate('text_17607297072670cl4jl071yy')}
-                  />
+                <PlanBillingPeriodInfoSection />
+
+                <ChargePayInAdvanceOption
+                  chargePayInAdvanceDescription={undefined}
+                  disabled={isInSubscriptionForm || disabled}
+                  isPayInAdvanceOptionDisabled={isPayInAdvanceOptionDisabled}
+                  payInAdvance={formValues.payInAdvance}
+                  handleUpdate={({ payInAdvance }) => {
+                    form.setFieldValue('payInAdvance', payInAdvance)
+                  }}
+                />
+
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1">
+                    <CenteredPage.PageSectionTitle
+                      title={translate('text_17607297072670cl4jl071yy')}
+                    />
+                  </div>
+
+                  <form.AppField name="prorated">
+                    {(field) => (
+                      <field.SwitchField
+                        label={translate('text_17607297072670cl4jl071yy')}
+                        disabled={isInSubscriptionForm || disabled || isProratedOptionDisabled}
+                      />
+                    )}
+                  </form.AppField>
                 </div>
 
-                <form.AppField name="prorated">
-                  {(field) => (
-                    <field.SwitchField
-                      label={translate('text_17607297072670cl4jl071yy')}
-                      disabled={isInSubscriptionForm || disabled || isProratedOptionDisabled}
-                    />
-                  )}
-                </form.AppField>
-              </div>
-
-              <TaxesSelectorSection
-                title={translate('text_1760729707267seik64l67k8')}
-                description={translate('text_17607297072672w5hid8gl1i')}
-                taxes={formValues.taxes}
-                comboboxSelector={SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME}
-                onUpdate={(newTaxArray) => {
-                  form.setFieldValue('taxes', newTaxArray)
-                }}
-              />
-            </CenteredPage.PageSection>
-          </CenteredPage.SubsectionWrapper>
-        )}
-      </CenteredPage.SectionWrapper>
+                <TaxesSelectorSection
+                  title={translate('text_1760729707267seik64l67k8')}
+                  description={translate('text_17607297072672w5hid8gl1i')}
+                  taxes={formValues.taxes}
+                  comboboxSelector={SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME}
+                  onUpdate={(newTaxArray) => {
+                    form.setFieldValue('taxes', newTaxArray)
+                  }}
+                />
+              </CenteredPage.PageSection>
+            </CenteredPage.SubsectionWrapper>
+          )}
+        </CenteredPage.SectionWrapper>
+      </form>
     )
   },
 })

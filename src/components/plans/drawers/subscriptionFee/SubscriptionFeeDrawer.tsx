@@ -72,7 +72,8 @@ export const SubscriptionFeeDrawer = forwardRef<
     },
   })
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = (event?: React.FormEvent) => {
+    event?.preventDefault()
     form.handleSubmit()
   }
 
@@ -90,104 +91,111 @@ export const SubscriptionFeeDrawer = forwardRef<
       },
       children: (
         <PlanFormProvider currency={currency} interval={interval}>
-          <CenteredPage.SectionWrapper>
-            <CenteredPage.PageTitle
-              title={translate('text_642d5eb2783a2ad10d670336')}
-              description={translate('text_1770063200028xc3xmcvi7bw')}
-            />
+          <form onSubmit={handleFormSubmit}>
+            <button type="submit" hidden aria-hidden="true" />
+            <CenteredPage.SectionWrapper>
+              <CenteredPage.PageTitle
+                title={translate('text_642d5eb2783a2ad10d670336')}
+                description={translate('text_1770063200028xc3xmcvi7bw')}
+              />
 
-            <CenteredPage.SubsectionWrapper>
-              <CenteredPage.PageSection>
-                <CenteredPage.PageSectionTitle title={translate('text_177196303346655qni6k55jr')} />
+              <CenteredPage.SubsectionWrapper>
+                <CenteredPage.PageSection>
+                  <CenteredPage.PageSectionTitle
+                    title={translate('text_177196303346655qni6k55jr')}
+                  />
 
-                <form.AppField name="amountCents">
-                  {(field) => (
-                    <field.AmountInputField
-                      currency={currency}
-                      beforeChangeFormatter={['positiveNumber']}
-                      label={translate('text_624453d52e945301380e49b6')}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            {getCurrencySymbol(currency || CurrencyEnum.Usd)}
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  )}
-                </form.AppField>
-              </CenteredPage.PageSection>
+                  <form.AppField name="amountCents">
+                    {(field) => (
+                      <field.AmountInputField
+                        currency={currency}
+                        beforeChangeFormatter={['positiveNumber']}
+                        label={translate('text_624453d52e945301380e49b6')}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              {getCurrencySymbol(currency || CurrencyEnum.Usd)}
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  </form.AppField>
+                </CenteredPage.PageSection>
 
-              <CenteredPage.PageSection>
-                <CenteredPage.PageSectionTitle title={translate('text_17423672025282dl7iozy1ru')} />
+                <CenteredPage.PageSection>
+                  <CenteredPage.PageSectionTitle
+                    title={translate('text_17423672025282dl7iozy1ru')}
+                  />
 
-                <form.AppField name="invoiceDisplayName">
-                  {(field) => (
-                    <field.TextInputField
-                      label={translate('text_65a6b4e2cb38d9b70ec53d39')}
-                      description={translate('text_1771963033467yduu33x3qw9')}
-                      placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
-                    />
-                  )}
-                </form.AppField>
+                  <form.AppField name="invoiceDisplayName">
+                    {(field) => (
+                      <field.TextInputField
+                        label={translate('text_65a6b4e2cb38d9b70ec53d39')}
+                        description={translate('text_1771963033467yduu33x3qw9')}
+                        placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
+                      />
+                    )}
+                  </form.AppField>
 
-                <PlanBillingPeriodInfoSection />
+                  <PlanBillingPeriodInfoSection />
 
-                <form.AppField name="payInAdvance">
-                  {(field) => (
-                    <field.RadioGroupField
-                      disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
-                      label={translate('text_6682c52081acea90520743a8')}
-                      description={translate('text_6682c52081acea90520743aa')}
-                      optionLabelVariant="body"
-                      options={[
-                        {
-                          label: translate('text_6682c52081acea90520743ac'),
-                          value: false,
-                        },
-                        {
-                          label: translate('text_6682c52081acea90520743ae'),
-                          value: true,
-                        },
-                      ]}
-                    />
-                  )}
-                </form.AppField>
+                  <form.AppField name="payInAdvance">
+                    {(field) => (
+                      <field.RadioGroupField
+                        disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
+                        label={translate('text_6682c52081acea90520743a8')}
+                        description={translate('text_6682c52081acea90520743aa')}
+                        optionLabelVariant="body"
+                        options={[
+                          {
+                            label: translate('text_6682c52081acea90520743ac'),
+                            value: false,
+                          },
+                          {
+                            label: translate('text_6682c52081acea90520743ae'),
+                            value: true,
+                          },
+                        ]}
+                      />
+                    )}
+                  </form.AppField>
 
-                <form.AppField
-                  name="trialPeriod"
-                  listeners={{
-                    onChange: ({ value, fieldApi }) => {
-                      if (typeof value !== 'number' || Number.isNaN(value)) {
-                        fieldApi.setValue(0)
-                      }
-                    },
-                  }}
-                >
-                  {(field) => (
-                    <field.TextInputField
-                      beforeChangeFormatter={['positiveNumber', 'int']}
-                      className="flex-1"
-                      description={translate('text_6661fc17337de3591e29e403')}
-                      disabled={
-                        subscriptionFormType === FORM_TYPE_ENUM.edition ||
-                        (isEdition && !canBeEdited)
-                      }
-                      label={translate('text_624453d52e945301380e49c2')}
-                      placeholder={translate('text_62824f0e5d93bc008d268d00')}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            {translate('text_624453d52e945301380e49c6')}
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  )}
-                </form.AppField>
-              </CenteredPage.PageSection>
-            </CenteredPage.SubsectionWrapper>
-          </CenteredPage.SectionWrapper>
+                  <form.AppField
+                    name="trialPeriod"
+                    listeners={{
+                      onChange: ({ value, fieldApi }) => {
+                        if (typeof value !== 'number' || Number.isNaN(value)) {
+                          fieldApi.setValue(0)
+                        }
+                      },
+                    }}
+                  >
+                    {(field) => (
+                      <field.TextInputField
+                        beforeChangeFormatter={['positiveNumber', 'int']}
+                        className="flex-1"
+                        description={translate('text_6661fc17337de3591e29e403')}
+                        disabled={
+                          subscriptionFormType === FORM_TYPE_ENUM.edition ||
+                          (isEdition && !canBeEdited)
+                        }
+                        label={translate('text_624453d52e945301380e49c2')}
+                        placeholder={translate('text_62824f0e5d93bc008d268d00')}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              {translate('text_624453d52e945301380e49c6')}
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  </form.AppField>
+                </CenteredPage.PageSection>
+              </CenteredPage.SubsectionWrapper>
+            </CenteredPage.SectionWrapper>
+          </form>
         </PlanFormProvider>
       ),
       actions: (
