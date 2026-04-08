@@ -11,9 +11,17 @@ describe('LinkCard', () => {
     const getRenderHTML = () => {
       const extensionConfig = LinkCard.config
 
-      return extensionConfig.renderHTML as unknown as (props: {
+      const rawRenderHTML = extensionConfig.renderHTML as unknown as (props: {
         HTMLAttributes: Record<string, unknown>
       }) => unknown[]
+
+      // Unwrap the block wrapper structure: spacer > block-wrapper > inner content
+      return (props: { HTMLAttributes: Record<string, unknown> }) => {
+        const wrapped = rawRenderHTML(props)
+        const blockWrapper = wrapped[2] as unknown[]
+
+        return blockWrapper[2] as unknown[]
+      }
     }
 
     describe('WHEN called with a valid URL', () => {

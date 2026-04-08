@@ -9,6 +9,7 @@ import ToolbarButton from './ToolbarButton'
 import ToolbarDropdown from './ToolbarDropdown'
 import { DropdownItem } from './types'
 
+import ColorPicker from '../BlockControls/ColorPicker'
 import ImagePopperForm from '../forms/ImagePopperForm'
 import LinkPopperForm from '../forms/LinkPopperForm'
 
@@ -26,21 +27,29 @@ export const TOOLBAR_ITALIC_BUTTON_TEST_ID = 'toolbar-italic-button'
 export const TOOLBAR_UNDERLINE_BUTTON_TEST_ID = 'toolbar-underline-button'
 export const TOOLBAR_STRIKE_BUTTON_TEST_ID = 'toolbar-strike-button'
 export const TOOLBAR_CODE_BUTTON_TEST_ID = 'toolbar-code-button'
-export const TOOLBAR_HIGHLIGHT_BUTTON_TEST_ID = 'toolbar-highlight-button'
+export const TOOLBAR_COLOR_BUTTON_TEST_ID = 'toolbar-color-button'
 export const TOOLBAR_SUPERSCRIPT_BUTTON_TEST_ID = 'toolbar-superscript-button'
 export const TOOLBAR_SUBSCRIPT_BUTTON_TEST_ID = 'toolbar-subscript-button'
 export const TOOLBAR_TABLE_BUTTON_TEST_ID = 'toolbar-table-button'
 export const TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID = 'toolbar-code-block-button'
 export const TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID = 'toolbar-text-styling-dropdown'
-export const TOOLBAR_LIST_DROPDOWN_TEST_ID = 'toolbar-list-dropdown'
-export const TOOLBAR_ALIGN_DROPDOWN_TEST_ID = 'toolbar-align-dropdown'
 export const TOOLBAR_IMAGE_BUTTON_TEST_ID = 'toolbar-image-button'
+export const TOOLBAR_UNORDERED_LIST_BUTTON_TEST_ID = 'toolbar-unordered-list-button'
+export const TOOLBAR_ORDERED_LIST_BUTTON_TEST_ID = 'toolbar-ordered-list-button'
+export const TOOLBAR_ALIGN_LEFT_BUTTON_TEST_ID = 'toolbar-align-left-button'
+export const TOOLBAR_ALIGN_CENTER_BUTTON_TEST_ID = 'toolbar-align-center-button'
+export const TOOLBAR_ALIGN_RIGHT_BUTTON_TEST_ID = 'toolbar-align-right-button'
+export const TOOLBAR_ALIGN_JUSTIFY_BUTTON_TEST_ID = 'toolbar-align-justify-button'
 
 type ToolbarProps = {
   editor: Editor
 }
 
-const Separator = () => <div className="mx-1 w-px bg-grey-300" />
+const Separator = () => <div className="w-px bg-grey-300" />
+
+const ToolbarGroup = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex items-center gap-1">{children}</div>
+)
 
 const Toolbar = ({ editor }: ToolbarProps) => {
   const { translate } = useInternationalization()
@@ -59,10 +68,12 @@ const Toolbar = ({ editor }: ToolbarProps) => {
       isH1: e.isActive('heading', { level: 1 }),
       isH2: e.isActive('heading', { level: 2 }),
       isH3: e.isActive('heading', { level: 3 }),
+      isH4: e.isActive('heading', { level: 4 }),
       isLink: e.isActive('link'),
       isSuperscript: e.isActive('superscript'),
       isSubscript: e.isActive('subscript'),
-      isHighlight: e.isActive('highlight'),
+      highlightColor: (e.getAttributes('highlight').color as string) || null,
+      textColor: (e.getAttributes('textStyle').color as string) || null,
       isAlignLeft: e.isActive({ textAlign: 'left' }),
       isAlignCenter: e.isActive({ textAlign: 'center' }),
       isAlignRight: e.isActive({ textAlign: 'right' }),
@@ -74,76 +85,87 @@ const Toolbar = ({ editor }: ToolbarProps) => {
 
   const textStylings: DropdownItem[] = [
     {
-      name: 'Paragraph',
+      name: translate('text_1775139857938fk9bw8iuaic'),
       value: 'paragraph',
-      label: 'T',
+      label: <Icon name="text" />,
       isActive: editorState.isParagraph,
       onButtonClick: () => editor.chain().focus().setParagraph().run(),
     },
     {
-      name: 'Heading 1',
+      name: translate('text_17751398579393awgjhlyjp9'),
       value: 'heading-1',
-      label: 'H1',
+      label: <Icon name="h1" />,
       isActive: editorState.isH1,
       onButtonClick: () => editor.chain().focus().setHeading({ level: 1 }).run(),
     },
     {
-      name: 'Heading 2',
+      name: translate('text_1775139857939isc5wx6anei'),
       value: 'heading-2',
-      label: 'H2',
+      label: <Icon name="h2" />,
       isActive: editorState.isH2,
       onButtonClick: () => editor.chain().focus().setHeading({ level: 2 }).run(),
     },
     {
-      name: 'Heading 3',
+      name: translate('text_1775139857939exn3v63g0ie'),
       value: 'heading-3',
-      label: 'H3',
+      label: <Icon name="h3" />,
       isActive: editorState.isH3,
       onButtonClick: () => editor.chain().focus().setHeading({ level: 3 }).run(),
     },
+    {
+      name: translate('text_1775139857939u5lo05baoxn'),
+      value: 'heading-4',
+      label: <Icon name="h4" />,
+      isActive: editorState.isH4,
+      onButtonClick: () => editor.chain().focus().setHeading({ level: 4 }).run(),
+    },
   ]
 
-  const listStylings: DropdownItem[] = [
+  const listStylings = [
     {
-      name: 'Bullet List',
-      value: 'bulletList',
-      label: '•',
+      testId: TOOLBAR_UNORDERED_LIST_BUTTON_TEST_ID,
+      tooltip: translate('text_1774281559657cbz20fzcjka'),
       isActive: editorState.isBulletList,
-      onButtonClick: () => editor.chain().focus().toggleBulletList().run(),
+      onClick: () => editor.chain().focus().toggleBulletList().run(),
+      children: <Icon name="list-bullet" />,
     },
     {
-      name: 'Ordered List',
-      value: 'orderedList',
-      label: '1.',
+      testId: TOOLBAR_ORDERED_LIST_BUTTON_TEST_ID,
+      tooltip: translate('text_17742815596575m8mqwrg1qy'),
       isActive: editorState.isOrderedList,
-      onButtonClick: () => editor.chain().focus().toggleOrderedList().run(),
+      onClick: () => editor.chain().focus().toggleOrderedList().run(),
+      children: <Icon name="list-numbered" />,
     },
   ]
 
-  const alignments: DropdownItem[] = [
+  const alignments = [
     {
-      name: 'Left',
-      value: 'left',
+      testId: TOOLBAR_ALIGN_LEFT_BUTTON_TEST_ID,
+      tooltip: translate('text_1775140688148v814phsfzav'),
       isActive: editorState.isAlignLeft,
-      onButtonClick: () => editor.chain().focus().setTextAlign('left').run(),
+      onClick: () => editor.chain().focus().setTextAlign('left').run(),
+      children: <Icon name="content-left-align" />,
     },
     {
-      name: 'Center',
-      value: 'center',
+      testId: TOOLBAR_ALIGN_CENTER_BUTTON_TEST_ID,
+      tooltip: translate('text_17751406881499358uq8dyp9'),
       isActive: editorState.isAlignCenter,
-      onButtonClick: () => editor.chain().focus().setTextAlign('center').run(),
+      onClick: () => editor.chain().focus().setTextAlign('center').run(),
+      children: <Icon name="content-center-align" />,
     },
     {
-      name: 'Right',
-      value: 'right',
+      testId: TOOLBAR_ALIGN_RIGHT_BUTTON_TEST_ID,
+      tooltip: translate('text_1775140688149nqfxjcltqzi'),
       isActive: editorState.isAlignRight,
-      onButtonClick: () => editor.chain().focus().setTextAlign('right').run(),
+      onClick: () => editor.chain().focus().setTextAlign('right').run(),
+      children: <Icon name="content-right-align" />,
     },
     {
-      name: 'Justify',
-      value: 'justify',
+      testId: TOOLBAR_ALIGN_JUSTIFY_BUTTON_TEST_ID,
+      tooltip: translate('text_1775140688149xlyu6d27lcv'),
       isActive: editorState.isAlignJustify,
-      onButtonClick: () => editor.chain().focus().setTextAlign('justify').run(),
+      onClick: () => editor.chain().focus().setTextAlign('justify').run(),
+      children: <Icon name="content-justify-align" />,
     },
   ]
 
@@ -153,225 +175,245 @@ const Toolbar = ({ editor }: ToolbarProps) => {
       tooltip: translate('text_177486247001920oltp5jiat'),
       isActive: editorState.isBold,
       onClick: () => editor.chain().focus().toggleBold().run(),
-      children: 'B',
+      children: <Icon name="bold" />,
     },
     {
       testId: TOOLBAR_ITALIC_BUTTON_TEST_ID,
       tooltip: translate('text_1774862470019jznh75t0a6d'),
       isActive: editorState.isItalic,
       onClick: () => editor.chain().focus().toggleItalic().run(),
-      children: 'I',
+      children: <Icon name="italic" />,
     },
     {
       testId: TOOLBAR_UNDERLINE_BUTTON_TEST_ID,
       tooltip: translate('text_1774862470019g91vhwcvp6a'),
       isActive: editorState.isUnderline,
       onClick: () => editor.chain().focus().toggleUnderline().run(),
-      children: 'U',
+      children: <Icon name="underline" />,
     },
     {
       testId: TOOLBAR_STRIKE_BUTTON_TEST_ID,
       tooltip: translate('text_17748624700198fag2st68bl'),
       isActive: editorState.isStrike,
       onClick: () => editor.chain().focus().toggleStrike().run(),
-      children: 'S',
+      children: <Icon name="strikethrough" />,
     },
     {
       testId: TOOLBAR_CODE_BUTTON_TEST_ID,
       tooltip: translate('text_1774862470019tg1a4fvcdhz'),
       isActive: editorState.isCode,
       onClick: () => editor.chain().focus().toggleCode().run(),
-      children: '<>',
-    },
-    {
-      testId: TOOLBAR_HIGHLIGHT_BUTTON_TEST_ID,
-      tooltip: translate('text_1774862470019yaqfus5r0ne'),
-      isActive: editorState.isHighlight,
-      onClick: () => editor.chain().focus().toggleHighlight().run(),
-      children: <Icon name="sparkles-base" />,
+      children: <Icon name="inline-code" />,
     },
     {
       testId: TOOLBAR_SUPERSCRIPT_BUTTON_TEST_ID,
       tooltip: translate('text_1774862470019bbd9uyzn6ny'),
       isActive: editorState.isSuperscript,
       onClick: () => editor.chain().focus().toggleSuperscript().run(),
-      children: (
-        <>
-          X<sup className="text-[8px]">2</sup>
-        </>
-      ),
+      children: <Icon name="superscript" />,
     },
     {
       testId: TOOLBAR_SUBSCRIPT_BUTTON_TEST_ID,
       tooltip: translate('text_17748624700194n6kgjpso8u'),
       isActive: editorState.isSubscript,
       onClick: () => editor.chain().focus().toggleSubscript().run(),
-      children: (
-        <>
-          X<sub className="text-[8px]">2</sub>
-        </>
-      ),
+      children: <Icon name="subscript" />,
     },
   ]
-
-  const activeTextLabel = textStylings.find((s) => s.isActive)?.label ?? 'M'
-  const activeListLabel = listStylings.find((s) => s.isActive)?.label ?? '•'
 
   return (
     <div
       data-test={TOOLBAR_CONTAINER_TEST_ID}
-      className="sticky top-0 z-10 flex flex-wrap gap-1 bg-white p-2 shadow-b"
+      className="sticky top-0 z-10 flex flex-wrap gap-2 bg-white py-3 shadow-b"
     >
       {/* Undo / Redo */}
-      <ToolbarButton
-        testId={TOOLBAR_UNDO_BUTTON_TEST_ID}
-        tooltip={translate('text_1774862470018jqdazc278y0')}
-        isActive={false}
-        onClick={() => editor.chain().focus().undo().run()}
-        isDisabled={!editorState.canUndo}
-      >
-        <Icon name="arrow-left" />
-      </ToolbarButton>
-      <ToolbarButton
-        testId={TOOLBAR_REDO_BUTTON_TEST_ID}
-        tooltip={translate('text_1774862470019a0txge16qpr')}
-        isActive={false}
-        onClick={() => editor.chain().focus().redo().run()}
-        isDisabled={!editorState.canRedo}
-      >
-        <Icon name="arrow-right" />
-      </ToolbarButton>
+      <ToolbarGroup>
+        <ToolbarButton
+          testId={TOOLBAR_UNDO_BUTTON_TEST_ID}
+          tooltip={translate('text_1774862470018jqdazc278y0')}
+          isActive={false}
+          onClick={() => editor.chain().focus().undo().run()}
+          isDisabled={!editorState.canUndo}
+        >
+          <Icon name="arrow-back-up" />
+        </ToolbarButton>
+        <ToolbarButton
+          testId={TOOLBAR_REDO_BUTTON_TEST_ID}
+          tooltip={translate('text_1774862470019a0txge16qpr')}
+          isActive={false}
+          onClick={() => editor.chain().focus().redo().run()}
+          isDisabled={!editorState.canRedo}
+        >
+          <Icon name="arrow-forward-up" />
+        </ToolbarButton>
+      </ToolbarGroup>
 
       <Separator />
 
-      {/* Text styling dropdown */}
-      <ToolbarDropdown
-        data-test={TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}
-        items={textStylings}
-        opener={
-          <ToolbarButton
-            testId={TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}
-            tooltip={translate('text_1774862470019c5cxqnwghwv')}
-            isActive={false}
-            isPopper={true}
-          >
-            {activeTextLabel}
-          </ToolbarButton>
-        }
-      />
+      <ToolbarGroup>
+        {/* Text styling dropdown */}
+        <ToolbarDropdown
+          data-test={TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}
+          items={textStylings}
+          opener={
+            <ToolbarButton
+              testId={TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}
+              tooltip={translate('text_1774862470019c5cxqnwghwv')}
+              isActive={false}
+            >
+              <Icon name="h1" />
+            </ToolbarButton>
+          }
+        />
 
-      {/* Inline formatting */}
-      {inlineFormattings.map((fmt) => (
-        <ToolbarButton
-          key={fmt.testId}
-          testId={fmt.testId}
-          tooltip={fmt.tooltip}
-          isActive={fmt.isActive}
-          onClick={fmt.onClick}
+        {/* Inline formatting */}
+        {inlineFormattings.map((fmt) => (
+          <ToolbarButton
+            key={fmt.testId}
+            testId={fmt.testId}
+            tooltip={fmt.tooltip}
+            isActive={fmt.isActive}
+            onClick={fmt.onClick}
+          >
+            {fmt.children}
+          </ToolbarButton>
+        ))}
+
+        {/* Inline colors (background + text) */}
+        <Popper
+          PopperProps={{ placement: 'bottom-start' }}
+          opener={
+            <ToolbarButton
+              testId={TOOLBAR_COLOR_BUTTON_TEST_ID}
+              tooltip={translate('text_1774862470019yaqfus5r0ne')}
+              isActive={!!editorState.highlightColor || !!editorState.textColor}
+            >
+              <Icon name="text-color" />
+            </ToolbarButton>
+          }
         >
-          {fmt.children}
-        </ToolbarButton>
-      ))}
+          {() => (
+            <MenuPopper>
+              <ColorPicker
+                activeBackgroundColor={editorState.highlightColor}
+                activeTextColor={editorState.textColor}
+                onSelectBackground={(color) => {
+                  if (color) {
+                    editor.chain().focus().setHighlight({ color }).run()
+                  } else {
+                    editor.chain().focus().unsetHighlight().run()
+                  }
+                }}
+                onSelectText={(color) => {
+                  if (color) {
+                    editor.chain().focus().setColor(color).run()
+                  } else {
+                    editor.chain().focus().unsetColor().run()
+                  }
+                }}
+              />
+            </MenuPopper>
+          )}
+        </Popper>
+      </ToolbarGroup>
 
       <Separator />
 
       {/* List dropdown */}
-      <ToolbarDropdown
-        data-test={TOOLBAR_LIST_DROPDOWN_TEST_ID}
-        items={listStylings}
-        opener={
+      <ToolbarGroup>
+        {listStylings.map((style) => (
           <ToolbarButton
-            testId={TOOLBAR_LIST_DROPDOWN_TEST_ID}
-            tooltip={translate('text_17748624700195ha5fimzytn')}
-            isActive={editorState.isBulletList || editorState.isOrderedList}
-            isPopper={true}
+            key={style.testId}
+            testId={style.testId}
+            tooltip={style.tooltip}
+            isActive={style.isActive}
+            onClick={style.onClick}
           >
-            {activeListLabel}
+            {style.children}
           </ToolbarButton>
-        }
-      />
+        ))}
+      </ToolbarGroup>
+
+      <Separator />
 
       {/* Text align dropdown */}
-      <ToolbarDropdown
-        data-test={TOOLBAR_ALIGN_DROPDOWN_TEST_ID}
-        items={alignments}
-        opener={
+      <ToolbarGroup>
+        {alignments.map((alignment) => (
           <ToolbarButton
-            testId={TOOLBAR_ALIGN_DROPDOWN_TEST_ID}
-            tooltip={translate('text_1774862470019g2eqwp7925i')}
-            isActive={false}
-            isPopper={true}
+            key={alignment.testId}
+            testId={alignment.testId}
+            tooltip={alignment.tooltip}
+            isActive={alignment.isActive}
+            onClick={alignment.onClick}
           >
-            <Icon name="content-left-align" />
+            {alignment.children}
           </ToolbarButton>
-        }
-      />
+        ))}
+      </ToolbarGroup>
 
       <Separator />
 
-      {/* Link */}
-      <Popper
-        PopperProps={{ placement: 'bottom-start' }}
-        opener={
-          <ToolbarButton
-            testId="toolbar-link-button"
-            tooltip={translate('text_1774862470019o9kt9r7s0e8')}
-            isActive={editorState.isLink}
-            isPopper={true}
-          >
-            <Icon name="link" />
-          </ToolbarButton>
-        }
-      >
-        {({ closePopper }) => (
-          <MenuPopper>
-            <LinkPopperForm editor={editor} closePopper={closePopper} />
-          </MenuPopper>
-        )}
-      </Popper>
+      <ToolbarGroup>
+        {/* Link */}
+        <Popper
+          PopperProps={{ placement: 'bottom-start' }}
+          opener={
+            <ToolbarButton
+              testId="toolbar-link-button"
+              tooltip={translate('text_1774862470019o9kt9r7s0e8')}
+              isActive={editorState.isLink}
+            >
+              <Icon name="link" />
+            </ToolbarButton>
+          }
+        >
+          {({ closePopper }) => (
+            <MenuPopper>
+              <LinkPopperForm editor={editor} closePopper={closePopper} />
+            </MenuPopper>
+          )}
+        </Popper>
 
-      <Separator />
+        {/* Table */}
+        <ToolbarButton
+          testId={TOOLBAR_TABLE_BUTTON_TEST_ID}
+          tooltip={translate('text_1774862470019b9gczrfwx0i')}
+          isActive={false}
+          onClick={() =>
+            editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+          }
+        >
+          <Icon name="table-horizontale" />
+        </ToolbarButton>
+        <ToolbarButton
+          testId={TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID}
+          tooltip={translate('text_1774862470019wdgkt31dezy')}
+          isActive={editorState.isCodeBlock}
+          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+        >
+          <Icon name="code" />
+        </ToolbarButton>
 
-      {/* Table */}
-      <ToolbarButton
-        testId={TOOLBAR_TABLE_BUTTON_TEST_ID}
-        tooltip={translate('text_1774862470019b9gczrfwx0i')}
-        isActive={false}
-        onClick={() =>
-          editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
-        }
-      >
-        <Icon name="table-horizontale" />
-      </ToolbarButton>
-      <ToolbarButton
-        testId={TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID}
-        tooltip={translate('text_1774862470019wdgkt31dezy')}
-        isActive={editorState.isCodeBlock}
-        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-      >
-        <Icon name="code" />
-      </ToolbarButton>
-
-      {/* Image */}
-      <Popper
-        PopperProps={{ placement: 'bottom-start' }}
-        opener={
-          <ToolbarButton
-            testId={TOOLBAR_IMAGE_BUTTON_TEST_ID}
-            tooltip={translate('text_1774862470019f83anhhatsg')}
-            isActive={false}
-            isPopper={true}
-          >
-            <Icon name="image" />
-          </ToolbarButton>
-        }
-      >
-        {({ closePopper }) => (
-          <MenuPopper>
-            <ImagePopperForm editor={editor} closePopper={closePopper} />
-          </MenuPopper>
-        )}
-      </Popper>
+        {/* Image */}
+        <Popper
+          PopperProps={{ placement: 'bottom-start' }}
+          opener={
+            <ToolbarButton
+              testId={TOOLBAR_IMAGE_BUTTON_TEST_ID}
+              tooltip={translate('text_1774862470019f83anhhatsg')}
+              isActive={false}
+            >
+              <Icon name="image" />
+            </ToolbarButton>
+          }
+        >
+          {({ closePopper }) => (
+            <MenuPopper>
+              <ImagePopperForm editor={editor} closePopper={closePopper} />
+            </MenuPopper>
+          )}
+        </Popper>
+      </ToolbarGroup>
     </div>
   )
 }

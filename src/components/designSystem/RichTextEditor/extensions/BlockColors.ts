@@ -1,6 +1,7 @@
 import { type Editor, Extension } from '@tiptap/core'
 import { DOMSerializer, type Node as PmNode } from '@tiptap/pm/model'
-import { type EditorState, NodeSelection } from '@tiptap/pm/state'
+
+import { resolveTopLevelBlock } from './BlockUtils'
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -24,28 +25,13 @@ const BLOCK_TYPES = [
   'blockquote',
 ]
 
-const resolveTopLevelBlock = (state: EditorState): { pos: number; node: PmNode } | null => {
-  const { selection } = state
-
-  if (selection instanceof NodeSelection) {
-    return { pos: selection.from, node: selection.node }
-  }
-
-  const $pos = selection.$from
-
-  if ($pos.depth >= 1) {
-    return { pos: $pos.before(1), node: $pos.node(1) }
-  }
-
-  return null
-}
-
 // -- Markdown serialization helpers for color-aware blocks ---------------------
 
 interface MarkdownSerializerState {
   write: (s: string) => void
   closeBlock: (n: unknown) => void
   renderInline: (node: PmNode) => void
+  renderList: (node: PmNode, delim: string, firstDelim: (index: number) => string) => void
   repeat: (s: string, n: number) => string
 }
 

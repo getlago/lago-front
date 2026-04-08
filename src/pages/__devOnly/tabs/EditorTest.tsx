@@ -101,6 +101,8 @@ const EditorTest = () => {
 
 <h3 style="background-color: rgb(255, 235, 230);">This is a header with background color</h3>
 
+Here I can change the <span style="color: rgb(220, 51, 9);">text color</span>, the <mark data-color="#E3FCF4" style="background-color: rgb(227, 252, 244); color: inherit;">text backgorund color</mark> or even <span style="color: rgb(220, 51, 9);"><mark data-color="#E3FCF4" style="background-color: rgb(227, 252, 244); color: inherit;">both</mark></span>
+
 This is a pre-saved content with **bold** text, _italic_ text, and a [link](https://www.example.com).
 
 - Item 1

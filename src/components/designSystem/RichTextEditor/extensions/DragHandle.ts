@@ -55,6 +55,12 @@ export const DragHandle = Extension.create({
         if (blockDom instanceof HTMLElement && e.dataTransfer) {
           e.dataTransfer.setDragImage(blockDom, 0, 0)
         }
+
+        editor.view.dom.classList.add('is-dragging')
+      })
+
+      handle.addEventListener('dragend', () => {
+        editor.view.dom.classList.remove('is-dragging')
       })
 
       handle.addEventListener('click', (e) => {
@@ -92,16 +98,34 @@ export const DragHandle = Extension.create({
           apply(tr, oldSet) {
             if (!tr.docChanged) return oldSet
 
-            // Rebuild only when block structure changes (added/removed blocks).
-            // For in-block edits (typing, formatting) map existing decorations.
-            const oldCount = tr.before.childCount
-            const newCount = tr.doc.childCount
+            // Rebuild when block structure changes: different count or different
+            // node types (e.g. paragraph → bulletList). For in-block edits
+            // (typing, formatting) map existing decorations.
+            const oldDoc = tr.before
+            const newDoc = tr.doc
 
-            if (oldCount === newCount) {
-              return oldSet.map(tr.mapping, tr.doc)
+            if (oldDoc.childCount === newDoc.childCount) {
+              let structureChanged = false
+
+              for (let i = 0; i < newDoc.childCount; i++) {
+                const oldChild = oldDoc.child(i)
+                const newChild = newDoc.child(i)
+
+                if (
+                  oldChild.type.name !== newChild.type.name ||
+                  oldChild.attrs !== newChild.attrs
+                ) {
+                  structureChanged = true
+                  break
+                }
+              }
+
+              if (!structureChanged) {
+                return oldSet.map(tr.mapping, tr.doc)
+              }
             }
 
-            return buildDecorations(tr.doc)
+            return buildDecorations(newDoc)
           },
         },
         props: {

@@ -1,5 +1,7 @@
 import { mergeAttributes, Node } from '@tiptap/core'
 
+import { wrapInBlockWrapper } from './BlockWrapper'
+
 export interface LinkCardAttributes {
   href: string
 }
@@ -47,7 +49,7 @@ export const LinkCard = Node.create({
       domain = href
     }
 
-    return [
+    return wrapInBlockWrapper('linkCard', [
       'div',
       mergeAttributes(HTMLAttributes, {
         'data-type': 'link-card',
@@ -64,6 +66,6 @@ export const LinkCard = Node.create({
         ['span', { class: 'link-card__domain' }, domain],
         ['span', { class: 'link-card__url' }, href],
       ],
-    ]
+    ])
   },
 })

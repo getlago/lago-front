@@ -14,6 +14,9 @@ import {
 
 import { tw } from '~/styles/utils'
 
+export const POPPER_WRAPPER_CLASSES =
+  'overflow-auto scroll-smooth rounded-xl border border-grey-200 bg-white shadow-md focus:outline-none not-last-child:mb-1'
+
 export interface PopperProps {
   className?: string
   opener?:
@@ -140,9 +143,7 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
           >
             <div
               ref={cardRef}
-              className={tw(
-                'overflow-auto scroll-smooth rounded-xl border border-grey-200 bg-white shadow-md focus:outline-none not-last-child:mb-1',
-              )}
+              className={tw(POPPER_WRAPPER_CLASSES)}
               style={{
                 maxHeight: getMaxHeight(),
               }}

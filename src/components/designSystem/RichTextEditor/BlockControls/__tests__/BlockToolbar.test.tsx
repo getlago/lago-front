@@ -4,15 +4,18 @@ import userEvent from '@testing-library/user-event'
 import { render } from '~/test-utils'
 
 import BlockToolbar, {
-  BLOCK_TOOLBAR_BG_COLOR_BUTTON_TEST_ID,
+  BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID,
   BLOCK_TOOLBAR_DELETE_BUTTON_TEST_ID,
+  BLOCK_TOOLBAR_MOVE_DOWN_BUTTON_TEST_ID,
+  BLOCK_TOOLBAR_MOVE_UP_BUTTON_TEST_ID,
   BLOCK_TOOLBAR_TEST_ID,
-  BLOCK_TOOLBAR_TEXT_COLOR_BUTTON_TEST_ID,
 } from '../BlockToolbar'
 
 const mockDeleteSelection = jest.fn()
 const mockSetBlockBackgroundColor = jest.fn()
 const mockSetBlockTextColor = jest.fn()
+const mockMoveBlockUp = jest.fn()
+const mockMoveBlockDown = jest.fn()
 
 let mockSelectorReturn: unknown = null
 
@@ -88,6 +91,8 @@ const createMockEditor = (overrides?: {
       deleteSelection: mockDeleteSelection,
       setBlockBackgroundColor: mockSetBlockBackgroundColor,
       setBlockTextColor: mockSetBlockTextColor,
+      moveBlockUp: mockMoveBlockUp,
+      moveBlockDown: mockMoveBlockDown,
     },
     view: {
       nodeDOM: jest.fn().mockReturnValue(blockElement),
@@ -124,6 +129,8 @@ describe('BlockToolbar', () => {
       node: {},
       backgroundColor: null,
       textColor: null,
+      isFirst: false,
+      isLast: false,
     }
 
     describe('WHEN the component renders with a valid position', () => {
@@ -137,8 +144,9 @@ describe('BlockToolbar', () => {
 
       it.each([
         ['delete button', BLOCK_TOOLBAR_DELETE_BUTTON_TEST_ID],
-        ['background color button', BLOCK_TOOLBAR_BG_COLOR_BUTTON_TEST_ID],
-        ['text color button', BLOCK_TOOLBAR_TEXT_COLOR_BUTTON_TEST_ID],
+        ['color button', BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID],
+        ['move up button', BLOCK_TOOLBAR_MOVE_UP_BUTTON_TEST_ID],
+        ['move down button', BLOCK_TOOLBAR_MOVE_DOWN_BUTTON_TEST_ID],
       ])('THEN should render the %s', (_, testId) => {
         mockSelectorReturn = blockSelection
 
@@ -175,6 +183,54 @@ describe('BlockToolbar', () => {
       })
     })
 
+    describe('WHEN the move up button is clicked', () => {
+      it('THEN should call editor.commands.moveBlockUp', async () => {
+        const user = userEvent.setup()
+
+        mockSelectorReturn = blockSelection
+
+        render(<BlockToolbar editor={createMockEditor()} />)
+
+        await user.click(screen.getByTestId(BLOCK_TOOLBAR_MOVE_UP_BUTTON_TEST_ID))
+
+        expect(mockMoveBlockUp).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the move down button is clicked', () => {
+      it('THEN should call editor.commands.moveBlockDown', async () => {
+        const user = userEvent.setup()
+
+        mockSelectorReturn = blockSelection
+
+        render(<BlockToolbar editor={createMockEditor()} />)
+
+        await user.click(screen.getByTestId(BLOCK_TOOLBAR_MOVE_DOWN_BUTTON_TEST_ID))
+
+        expect(mockMoveBlockDown).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the block is the first block', () => {
+      it('THEN the move up button should be disabled', () => {
+        mockSelectorReturn = { ...blockSelection, isFirst: true }
+
+        render(<BlockToolbar editor={createMockEditor()} />)
+
+        expect(screen.getByTestId(BLOCK_TOOLBAR_MOVE_UP_BUTTON_TEST_ID)).toBeDisabled()
+      })
+    })
+
+    describe('WHEN the block is the last block', () => {
+      it('THEN the move down button should be disabled', () => {
+        mockSelectorReturn = { ...blockSelection, isLast: true }
+
+        render(<BlockToolbar editor={createMockEditor()} />)
+
+        expect(screen.getByTestId(BLOCK_TOOLBAR_MOVE_DOWN_BUTTON_TEST_ID)).toBeDisabled()
+      })
+    })
+
     describe('WHEN nodeDOM returns null', () => {
       it('THEN should not render the toolbar', () => {
         mockSelectorReturn = blockSelection
@@ -198,38 +254,44 @@ describe('BlockToolbar', () => {
 
   describe('GIVEN a block with existing colors is selected', () => {
     describe('WHEN the block has a backgroundColor', () => {
-      it('THEN should display the background color swatch with that color', () => {
+      it('THEN should render the color button', () => {
         mockSelectorReturn = {
           pos: 0,
           node: {},
           backgroundColor: '#fee2e2',
           textColor: null,
+          isFirst: false,
+          isLast: false,
         }
 
         render(<BlockToolbar editor={createMockEditor()} />)
 
-        const bgButton = screen.getByTestId(BLOCK_TOOLBAR_BG_COLOR_BUTTON_TEST_ID)
-        const swatch = bgButton.querySelector('.size-4') as HTMLElement
-
-        expect(swatch.style.backgroundColor).toBe('rgb(254, 226, 226)')
+        expect(screen.getByTestId(BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID)).toBeInTheDocument()
       })
-    })
 
-    describe('WHEN the block has a textColor', () => {
-      it('THEN should display the text color indicator with that color', () => {
+      it('THEN should open the color picker and call setBlockBackgroundColor when a swatch is clicked', async () => {
+        const user = userEvent.setup()
+
         mockSelectorReturn = {
           pos: 0,
           node: {},
-          backgroundColor: null,
-          textColor: '#dc2626',
+          backgroundColor: '#fee2e2',
+          textColor: null,
+          isFirst: false,
+          isLast: false,
         }
 
         render(<BlockToolbar editor={createMockEditor()} />)
 
-        const textButton = screen.getByTestId(BLOCK_TOOLBAR_TEXT_COLOR_BUTTON_TEST_ID)
-        const indicator = textButton.querySelector('.text-sm.font-bold') as HTMLElement
+        await user.click(screen.getByTestId(BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID))
 
-        expect(indicator.style.color).toBe('rgb(220, 38, 38)')
+        // Background section renders swatches with inline backgroundColor style
+        const blueButtons = screen.getAllByTitle('Blue')
+        const bgSwatch = blueButtons[blueButtons.length - 1]
+
+        await user.click(bgSwatch)
+
+        expect(mockSetBlockBackgroundColor).toHaveBeenCalledTimes(1)
       })
     })
   })

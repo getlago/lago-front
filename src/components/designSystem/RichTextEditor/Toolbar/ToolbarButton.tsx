@@ -19,7 +19,7 @@ const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       <Button
         ref={ref}
         data-test={testId}
-        variant={isActive ? 'primary' : 'secondary'}
+        variant={isActive ? 'secondary' : 'quaternary'}
         onClick={onClick}
         endIcon={isPopper ? 'chevron-down' : undefined}
         disabled={isDisabled}

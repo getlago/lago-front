@@ -5,6 +5,8 @@ import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 
+import { POPPER_WRAPPER_CLASSES } from '../../Popper'
+
 export const SUGGESTION_LIST_CONTAINER_TEST_ID = 'suggestion-list-container'
 export const SUGGESTION_LIST_ITEM_TEST_ID = 'suggestion-list-item'
 
@@ -69,10 +71,7 @@ function SuggestionListInner<T>(
   if (!items.length) return null
 
   return (
-    <div
-      data-test={containerTestId}
-      className="max-h-64 w-64 overflow-y-auto rounded-xl bg-grey-100 shadow-md"
-    >
+    <div data-test={containerTestId} className={POPPER_WRAPPER_CLASSES}>
       <MenuPopper>
         {items.map((item, index) => (
           <Button
