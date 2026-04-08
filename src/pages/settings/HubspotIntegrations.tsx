@@ -61,7 +61,9 @@ const HubspotIntegrations = () => {
     variables: { limit: 1000, types: [IntegrationTypeEnum.Hubspot] },
   })
 
-  const connections = data?.integrations?.collection as HubspotIntegrationsFragment[] | undefined
+  const connections = (
+    data?.integrations?.collection as HubspotIntegrationsFragment[] | undefined
+  )?.filter((c): c is HubspotIntegrationsFragment => c !== null)
   const deleteDialogCallback =
     connections && connections?.length === 1
       ? () =>

@@ -63,7 +63,9 @@ const NetsuiteIntegrations = () => {
   const { data, loading } = useGetNetsuiteIntegrationsListQuery({
     variables: { limit: 1000, types: [IntegrationTypeEnum.Netsuite] },
   })
-  const connections = data?.integrations?.collection as NetsuiteIntegrationsFragment[] | undefined
+  const connections = (
+    data?.integrations?.collection as NetsuiteIntegrationsFragment[] | undefined
+  )?.filter((c): c is NetsuiteIntegrationsFragment => c !== null)
   const deleteDialogCallback =
     connections && connections?.length === 1
       ? () =>

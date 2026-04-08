@@ -54,7 +54,7 @@ export const DeleteNetsuiteIntegrationDialog = forwardRef<DeleteNetsuiteIntegrat
         }
       },
       update(cache) {
-        cache.evict({ id: `NetsuiteProvider:${netsuiteProvider?.id}` })
+        cache.evict({ id: `NetsuiteIntegration:${netsuiteProvider?.id}` })
       },
       refetchQueries: ['getNetsuiteIntegrationsList'],
     })

@@ -28,6 +28,7 @@ interface SelectorProps {
   fullWidth?: boolean
   disabled?: boolean
   onClick?: () => Promise<void> | unknown
+  'data-test'?: string
 }
 
 interface SelectorActionItem {
@@ -89,15 +90,16 @@ export const Selector = ({
   fullWidth = true,
   disabled = false,
   onClick,
+  'data-test': dataTest,
 }: SelectorProps) => {
   const [loading, setLoading] = useState(false)
   const clickable = !!onClick && !loading && !disabled
 
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <div
       role="button"
       tabIndex={clickable ? 0 : -1}
+      data-test={dataTest}
       className={tw(
         'group/selector',
         selectorVariants({
@@ -108,6 +110,12 @@ export const Selector = ({
         }),
         className,
       )}
+      onKeyDown={(e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault()
+          e.currentTarget.click()
+        }
+      }}
       onClick={async () => {
         if (loading || disabled) return
         const result = !!onClick && onClick()
@@ -134,11 +142,7 @@ export const Selector = ({
           'flex-col-reverse': !titleFirst,
         })}
       >
-        <Typography
-          variant={!!subtitle ? 'bodyHl' : 'body'}
-          color={disabled ? 'disabled' : 'textSecondary'}
-          noWrap
-        >
+        <Typography variant="bodyHl" color={disabled ? 'disabled' : 'textSecondary'} noWrap>
           {title}
         </Typography>
         <Typography variant="caption" color={disabled ? 'disabled' : undefined} noWrap>
@@ -172,7 +176,11 @@ export const SelectorActions = ({ actions }: { actions: SelectorActionItem[] }) 
       <ConditionalWrapper
         key={index}
         condition={!!tooltipCopy}
-        validWrapper={(children) => <Tooltip title={tooltipCopy ?? ''}>{children}</Tooltip>}
+        validWrapper={(children) => (
+          <Tooltip title={tooltipCopy ?? ''} placement="top-end">
+            {children}
+          </Tooltip>
+        )}
         invalidWrapper={(children) => <>{children}</>}
       >
         <Button

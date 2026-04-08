@@ -22,6 +22,7 @@ export type BaseDrawerProps = {
   children: ReactNode
   onClose: () => void
   onExited?: () => void
+  onEntered?: () => void
   className?: string
   actions?: ReactNode
   actionsClassName?: string
@@ -44,6 +45,7 @@ export const BaseDrawer = ({
   children,
   onClose,
   onExited,
+  onEntered,
   className,
   actions,
   actionsClassName,
@@ -108,14 +110,27 @@ export const BaseDrawer = ({
     return () => clearTimeout(timeout)
   }, [state, handleExit])
 
-  // Handle CSS transition end for exit animation
+  // Handle CSS transition end for both enter and exit animations
+  const enteredFiredRef = useRef(false)
+
+  useEffect(() => {
+    if (state === 'mounting') {
+      enteredFiredRef.current = false
+    }
+  }, [state])
+
   const handleTransitionEnd = useCallback(
     (e: React.TransitionEvent) => {
-      if (e.target === paperRef.current && e.propertyName === 'transform' && state === 'closing') {
+      if (e.target !== paperRef.current || e.propertyName !== 'transform') return
+
+      if (state === 'closing') {
         handleExit()
+      } else if (state === 'open' && !enteredFiredRef.current) {
+        enteredFiredRef.current = true
+        onEntered?.()
       }
     },
-    [state, handleExit],
+    [state, handleExit, onEntered],
   )
 
   // Close this drawer when clearAll is called (e.g. on browser navigation)
@@ -183,7 +198,7 @@ export const BaseDrawer = ({
       {!!actions && (
         <div
           className={tw(
-            'sticky bottom-0 box-border bg-white p-4 text-right shadow-t md:px-12 md:py-4',
+            'sticky bottom-0 box-border flex items-center justify-end bg-white px-4 shadow-t md:px-12',
             actionsClassName,
           )}
           data-test={BASE_DRAWER_ACTIONS_TEST_ID}
@@ -223,7 +238,7 @@ export const BaseDrawer = ({
           'absolute bottom-0 right-0 top-0 flex w-full max-w-[816px] flex-col overflow-hidden rounded-l-xl bg-white shadow-xl',
           'origin-right transition-[transform,border-radius] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
           'md:w-[calc(100vw-48px)]',
-          !!actions && 'grid grid-rows-[72px_1fr_80px]',
+          !!actions && 'grid grid-rows-[64px_1fr_64px]',
           className,
         )}
         style={{ transform: paperTransform }}

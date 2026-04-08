@@ -71,6 +71,7 @@ export type LocalPrivilegeInput = EntitlementPrivilegeInput & {
 }
 
 export type LocalEntitlementInput = Omit<EntitlementInput, 'privileges'> & {
+  featureId?: string
   featureName: string
   featureCode: string
   privileges: LocalPrivilegeInput[]

@@ -234,7 +234,7 @@ const CreateCustomer = () => {
         )}
 
         <CenteredPage.StickyFooter>
-          <Button size="large" variant="quaternary" onClick={handleAbort}>
+          <Button variant="quaternary" onClick={handleAbort}>
             {translate('text_62e79671d23ae6ff149de968')}
           </Button>
           <form.AppForm>

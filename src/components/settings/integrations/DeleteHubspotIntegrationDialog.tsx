@@ -54,7 +54,7 @@ export const DeleteHubspotIntegrationDialog = forwardRef<DeleteHubspotIntegratio
         }
       },
       update(cache) {
-        cache.evict({ id: `HubspotProvider:${hubspotProvider?.id}` })
+        cache.evict({ id: `HubspotIntegration:${hubspotProvider?.id}` })
       },
       refetchQueries: ['getHubspotIntegrationsList'],
     })

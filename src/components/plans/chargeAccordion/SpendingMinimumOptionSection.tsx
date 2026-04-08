@@ -4,7 +4,6 @@ import { RefObject, useEffect, useState } from 'react'
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { AmountInput } from '~/components/form'
-import { HandleUpdateUsageChargesProps } from '~/components/plans/chargeAccordion/utils'
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -34,10 +33,7 @@ export const SpendingMinimumOptionSection = ({
   isPremium: boolean
   premiumWarningDialogRef: RefObject<PremiumWarningDialogRef> | undefined
   chargeIndex: number
-  handleUpdate: (
-    name: HandleUpdateUsageChargesProps['name'],
-    value: HandleUpdateUsageChargesProps['value'],
-  ) => void
+  handleUpdate: (name: string, value: unknown) => void
   handleRemoveSpendingMinimum: () => void
 }) => {
   const { translate } = useInternationalization()

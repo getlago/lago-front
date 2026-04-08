@@ -386,7 +386,6 @@ const FeatureForm = () => {
         <CenteredPage.StickyFooter>
           <Button
             variant="quaternary"
-            size="large"
             onClick={() =>
               formikProps.dirty ? warningDirtyAttributesDialogRef.current?.openDialog() : onLeave()
             }
@@ -394,8 +393,8 @@ const FeatureForm = () => {
             {translate('text_6411e6b530cb47007488b027')}
           </Button>
           <Button
+            data-test="submit"
             variant="primary"
-            size="large"
             disabled={!formikProps.isValid || !formikProps.dirty || featureLoading}
             onClick={formikProps.submitForm}
           >

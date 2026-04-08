@@ -8,7 +8,7 @@
   "private": true,
   "type": "module",
   "sideEffects": false,
-  "packageManager": "pnpm@10.32.1",
+  "packageManager": "pnpm@10.33.0",
   "changelog": {
     "repo": "git@gitlab.com:getlago/lago-front.git"
   },
@@ -105,7 +105,7 @@
     "tailwindcss": "3.4.19",
     "ts-node": "10.9.2",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.57.2",
+    "typescript-eslint": "8.58.0",
     "vite": "7.3.1",
     "vite-plugin-html": "3.2.2",
     "vite-plugin-svgr": "4.5.0",

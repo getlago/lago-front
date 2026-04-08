@@ -54,7 +54,7 @@ export const DeleteAnrokIntegrationDialog = forwardRef<DeleteAnrokIntegrationDia
         }
       },
       update(cache) {
-        cache.evict({ id: `AnrokProvider:${anrokProvider?.id}` })
+        cache.evict({ id: `AnrokIntegration:${anrokProvider?.id}` })
       },
       refetchQueries: ['getAnrokIntegrationsList'],
     })

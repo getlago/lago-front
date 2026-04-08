@@ -7,12 +7,12 @@ import { Chip } from '~/components/designSystem/Chip'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { MultipleComboBox } from '~/components/form'
+import { useChargeFormContext, usePropertyValues } from '~/contexts/ChargeFormContext'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_PRICING_GROUP_KEY_INPUT_CLASSNAME,
 } from '~/core/constants/form'
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
-import { PropertiesInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -21,18 +21,9 @@ gql`
   }
 `
 
-interface PricingGroupKeysProps {
-  disabled: boolean | undefined
-  handleUpdate: (propertyCursor: string, value: string[]) => void
-  propertyCursor: string
-  valuePointer: PropertiesInput | undefined
-}
-const PricingGroupKeys = ({
-  disabled,
-  handleUpdate,
-  propertyCursor,
-  valuePointer,
-}: PricingGroupKeysProps) => {
+const PricingGroupKeys = () => {
+  const { form, propertyCursor, disabled } = useChargeFormContext()
+  const valuePointer = usePropertyValues(form, propertyCursor)
   const componentId = useId()
   const { translate } = useInternationalization()
 
@@ -65,7 +56,10 @@ const PricingGroupKeys = ({
                     (_, index) => index !== groupKeyIndex,
                   )
 
-                  handleUpdate(`${propertyCursor}.pricingGroupKeys`, newPricingGroupKeys || [])
+                  form.setFieldValue(
+                    `${propertyCursor}.pricingGroupKeys`,
+                    newPricingGroupKeys || [],
+                  )
                 }}
               />
             ))}
@@ -85,7 +79,7 @@ const PricingGroupKeys = ({
               onChange={(newValue) => {
                 const transformedValue = newValue?.map((item) => item.value) || undefined
 
-                handleUpdate(`${propertyCursor}.pricingGroupKeys`, transformedValue)
+                form.setFieldValue(`${propertyCursor}.pricingGroupKeys`, transformedValue)
               }}
               value={(valuePointer?.pricingGroupKeys || []).map((key) => ({ value: key }))}
               placeholder={translate('text_65ba6d45e780c1ff8acb206f')}
@@ -118,7 +112,7 @@ const PricingGroupKeys = ({
               })
             }}
           >
-            {translate('text_6661fc17337de3591e29e427')}
+            {translate('text_1773692639715a1g5pyyfj3n')}
           </Button>
         )}
       </div>

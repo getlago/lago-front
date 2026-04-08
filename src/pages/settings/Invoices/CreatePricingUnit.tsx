@@ -269,7 +269,6 @@ const CreatePricingUnit = () => {
         <CenteredPage.StickyFooter>
           <Button
             variant="quaternary"
-            size="large"
             onClick={() =>
               formikProps.dirty
                 ? warningDirtyAttributesDialogRef.current?.openDialog()
@@ -280,7 +279,6 @@ const CreatePricingUnit = () => {
           </Button>
           <Button
             variant="primary"
-            size="large"
             disabled={!formikProps.isValid || !formikProps.dirty}
             onClick={formikProps.submitForm}
           >

@@ -36,6 +36,7 @@ import {
   EditInvoiceDisplayNameDialog,
   EditInvoiceDisplayNameDialogRef,
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
@@ -48,6 +49,7 @@ import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/Prem
 import { FeatureEntitlementSection } from '~/components/subscriptions/FeatureEntitlementSection'
 import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
+import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -59,6 +61,7 @@ import { getTimezoneConfig } from '~/core/timezone'
 import {
   AddSubscriptionPlanFragmentDoc,
   BillingTimeEnum,
+  CurrencyEnum,
   FeatureEntitlementForPlanFragmentDoc,
   FeatureFlagEnum,
   PlanInterval,
@@ -346,8 +349,8 @@ const CreateSubscription = () => {
       const errorsString = await onSave(
         customerId as string,
         localValues,
-        planFormikProps.values,
-        planFormikProps.dirty,
+        planForm.state.values,
+        planForm.state.isDirty,
       )
 
       if (errorsString === 'CurrenciesDoesNotMatch') {
@@ -361,7 +364,7 @@ const CreateSubscription = () => {
       }
     },
   })
-  const { formikProps: planFormikProps, plan } = usePlanForm({
+  const { form: planForm, plan } = usePlanForm({
     planIdToFetch: subscriptionFormikProps.values.planId,
     isUsedInSubscriptionForm: true,
   })
@@ -386,7 +389,7 @@ const CreateSubscription = () => {
   // Remove currency error is value changes
   useEffect(() => {
     setShowCurrencyError(false)
-  }, [planFormikProps.values.amountCurrency])
+  }, [planForm.state.values.amountCurrency])
 
   const selectedPlan = useMemo(() => {
     if (!planData?.plans?.collection || !subscriptionPlanId) return undefined
@@ -513,8 +516,8 @@ const CreateSubscription = () => {
         fullWidth
         disabled={
           !subscriptionFormikProps.isValid ||
-          !planFormikProps.isValid ||
-          (!subscriptionFormikProps.dirty && !planFormikProps.dirty)
+          !planForm.state.canSubmit ||
+          (!subscriptionFormikProps.dirty && !planForm.state.isDirty)
         }
         loading={subscriptionFormikProps.isSubmitting}
         onClick={subscriptionFormikProps.submitForm}
@@ -527,8 +530,8 @@ const CreateSubscription = () => {
     )
   }, [
     formType,
-    planFormikProps.dirty,
-    planFormikProps.isValid,
+    planForm.state.isDirty,
+    planForm.state.canSubmit,
     subscriptionFormikProps.dirty,
     subscriptionFormikProps.isSubmitting,
     subscriptionFormikProps.isValid,
@@ -560,7 +563,7 @@ const CreateSubscription = () => {
             variant="quaternary"
             icon="close"
             onClick={() => {
-              if (subscriptionFormikProps.dirty || planFormikProps.dirty) {
+              if (subscriptionFormikProps.dirty || planForm.state.isDirty) {
                 warningDialogRef.current?.openDialog()
               } else {
                 const origin = searchParams.get('origin')
@@ -885,83 +888,70 @@ const CreateSubscription = () => {
                           !isPremium && 'pointer-events-none opacity-40',
                         )}
                       >
-                        <div className="not-last-child:mb-8">
-                          <div className="flex flex-col gap-1">
-                            <Typography variant="headline">
-                              {translate('text_642d5eb2783a2ad10d67031a')}
-                            </Typography>
-                            <Typography variant="body">
-                              {translate('text_66630368f4333b00795b0e1c')}
-                            </Typography>
-                          </div>
-                          <PlanSettingsSection
-                            isInSubscriptionForm={isInSubscriptionForm}
-                            subscriptionFormType={formType}
-                            formikProps={planFormikProps}
-                          />
-                        </div>
-                        <div className="not-last-child:mb-8">
-                          <div className="flex flex-col gap-1">
-                            <Typography variant="headline">
-                              {translate('text_6661fc17337de3591e29e3e7')}
-                            </Typography>
-                            <Typography variant="body">
-                              {translate('text_66630368f4333b00795b0e2d')}
-                            </Typography>
-                          </div>
-
-                          <div className="flex flex-col gap-4">
-                            <SubscriptionFeeSection
-                              editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                              formikProps={planFormikProps}
+                        <Card>
+                          <CenteredPage.SubsectionWrapper>
+                            <PlanSettingsSection
+                              form={planForm}
                               isInSubscriptionForm={isInSubscriptionForm}
                               subscriptionFormType={formType}
                             />
+                          </CenteredPage.SubsectionWrapper>
+                        </Card>
 
-                            <FixedChargesSection
-                              alreadyExistingFixedChargesIds={alreadyExistingPlanFixedChargesIds}
-                              canBeEdited={formType === FORM_TYPE_ENUM.edition}
-                              editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                              formikProps={planFormikProps}
-                              isEdition={formType === FORM_TYPE_ENUM.edition}
-                              isInSubscriptionForm={isInSubscriptionForm}
-                              premiumWarningDialogRef={premiumWarningDialogRef}
+                        <PlanFormProvider
+                          currency={planForm.state.values.amountCurrency || CurrencyEnum.Usd}
+                          interval={planForm.state.values.interval || PlanInterval.Monthly}
+                        >
+                          <Card className="gap-12">
+                            <CenteredPage.PageTitle
+                              title={translate('text_6661fc17337de3591e29e3e7')}
+                              description={translate('text_66630368f4333b00795b0e2d')}
                             />
 
-                            <UsageChargesSection
-                              alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
-                              editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                              formikProps={planFormikProps}
-                              isEdition={formType === FORM_TYPE_ENUM.edition}
-                              isInSubscriptionForm={isInSubscriptionForm}
-                              premiumWarningDialogRef={premiumWarningDialogRef}
-                              subscriptionFormType={formType}
-                            />
-                          </div>
-                        </div>
-                        <div className="not-last-child:mb-8">
-                          <div className="flex flex-col gap-1">
-                            <Typography variant="headline">
-                              {translate('text_6661fc17337de3591e29e44d')}
-                            </Typography>
-                            <Typography variant="body">
-                              {translate('text_66676ed0d8c3d481637e99b7')}
-                            </Typography>
-                          </div>
-                          <Card className="gap-8">
-                            <CommitmentsSection
-                              formikProps={planFormikProps}
-                              editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                            />
+                            <CenteredPage.SubsectionWrapper>
+                              <SubscriptionFeeSection
+                                form={planForm}
+                                isInSubscriptionForm={isInSubscriptionForm}
+                                subscriptionFormType={formType}
+                              />
 
-                            {formType === FORM_TYPE_ENUM.creation && (
-                              <>
-                                <ProgressiveBillingSection />
-                                <FeatureEntitlementSection />
-                              </>
-                            )}
+                              <FixedChargesSection
+                                alreadyExistingFixedChargesIds={alreadyExistingPlanFixedChargesIds}
+                                canBeEdited={formType === FORM_TYPE_ENUM.edition}
+                                form={planForm}
+                                isEdition={formType === FORM_TYPE_ENUM.edition}
+                                isInSubscriptionForm={isInSubscriptionForm}
+                              />
+
+                              <UsageChargesSection
+                                alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
+                                form={planForm}
+                                isEdition={formType === FORM_TYPE_ENUM.edition}
+                                isInSubscriptionForm={isInSubscriptionForm}
+                                premiumWarningDialogRef={premiumWarningDialogRef}
+                                subscriptionFormType={formType}
+                              />
+                            </CenteredPage.SubsectionWrapper>
                           </Card>
-                        </div>
+
+                          <Card className="gap-12">
+                            <CenteredPage.PageTitle
+                              title={translate('text_6661fc17337de3591e29e44d')}
+                              description={translate('text_66676ed0d8c3d481637e99b7')}
+                            />
+
+                            <CenteredPage.SubsectionWrapper>
+                              <CommitmentsSection form={planForm} />
+
+                              {formType === FORM_TYPE_ENUM.creation && (
+                                <>
+                                  <ProgressiveBillingSection />
+                                  <FeatureEntitlementSection />
+                                </>
+                              )}
+                            </CenteredPage.SubsectionWrapper>
+                          </Card>
+                        </PlanFormProvider>
                       </div>
                     </div>
                   </>

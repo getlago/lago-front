@@ -4,6 +4,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex size-full min-h-full flex-col overflow-auto"
@@ -2172,10 +2173,10 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
         class="sticky bottom-0 z-navBar w-full bg-white shadow-t"
       >
         <div
-          class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 p-4 md:px-0"
+          class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-0"
         >
           <button
-            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
+            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="button"
             tabindex="0"
             type="button"
@@ -2201,6 +2202,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex size-full min-h-full flex-col overflow-auto"
@@ -3193,10 +3195,10 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
         class="sticky bottom-0 z-navBar w-full bg-white shadow-t"
       >
         <div
-          class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 p-4 md:px-0"
+          class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-0"
         >
           <button
-            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
+            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="button"
             tabindex="0"
             type="button"
@@ -3222,6 +3224,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex size-full min-h-full flex-col overflow-auto"
@@ -4214,10 +4217,10 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
         class="sticky bottom-0 z-navBar w-full bg-white shadow-t"
       >
         <div
-          class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 p-4 md:px-0"
+          class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-0"
         >
           <button
-            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
+            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="button"
             tabindex="0"
             type="button"
@@ -4243,6 +4246,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex size-full min-h-full flex-col overflow-auto"
@@ -5232,10 +5236,10 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
         class="sticky bottom-0 z-navBar w-full bg-white shadow-t"
       >
         <div
-          class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 p-4 md:px-0"
+          class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-0"
         >
           <button
-            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
+            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="button"
             tabindex="0"
             type="button"
@@ -5261,6 +5265,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex size-full min-h-full flex-col overflow-auto"
@@ -6199,10 +6204,10 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
         class="sticky bottom-0 z-navBar w-full bg-white shadow-t"
       >
         <div
-          class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 p-4 md:px-0"
+          class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-0"
         >
           <button
-            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
+            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="button"
             tabindex="0"
             type="button"
@@ -6228,6 +6233,7 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
 <div>
   <div
     class="flex size-full min-h-full flex-col overflow-auto bg-white"
+    data-centered-page-wrapper="true"
   >
     <form
       class="flex size-full min-h-full flex-col overflow-auto"
@@ -7166,10 +7172,10 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
         class="sticky bottom-0 z-navBar w-full bg-white shadow-t"
       >
         <div
-          class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 p-4 md:px-0"
+          class="mx-auto flex min-h-footer w-full max-w-170 flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-0"
         >
           <button
-            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeLarge MuiButton-textSizeLarge MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
+            class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
             data-test="button"
             tabindex="0"
             type="button"
