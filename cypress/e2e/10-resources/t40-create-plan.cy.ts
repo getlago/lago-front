@@ -1,4 +1,4 @@
-import { DESKTOP_ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
+import { ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
 import {
   CHARGE_PERCENTAGE_ADD_FIXED_FEE_TEST_ID,
   CHARGE_PERCENTAGE_REMOVE_FIXED_FEE_TEST_ID,
@@ -28,7 +28,7 @@ describe('Create plan', () => {
     const planName = `plan minimal ${randomId}`
     const planCode = `plan_minimal_${randomId}`
 
-    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
+    cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
       force: true,
     })
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
@@ -46,7 +46,7 @@ describe('Create plan', () => {
     const planName = `plan ${randomId}`
     const planCode = `plan_${randomId}`
 
-    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
+    cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
       force: true,
     })
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
@@ -66,7 +66,7 @@ describe('Create plan', () => {
   })
 
   it('should be able to create a plan with all charge types', () => {
-    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
+    cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
       force: true,
     })
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
@@ -150,7 +150,7 @@ describe('Create plan', () => {
     const randomId = Math.round(Math.random() * 1000)
     const planName = `plan percentage ${randomId}`
 
-    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
+    cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
       force: true,
     })
     cy.get('input[name="name"]').type(planName)
@@ -182,7 +182,7 @@ describe('Create plan', () => {
     const randomId = Math.round(Math.random() * 1000)
     const planName = `plan filtered ${randomId}`
 
-    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
+    cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
       force: true,
     })
     cy.get('input[name="name"]').type(planName)

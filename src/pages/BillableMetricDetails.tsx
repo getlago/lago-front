@@ -144,7 +144,7 @@ const BillableMetricDetails = () => {
               tab: BillableMetricDetailsTabsOptionsEnum.activityLogs,
             }),
             content: (
-              <div className="px-12 py-6">
+              <div className="px-4 py-6 md:px-12">
                 <BillableMetricDetailsActivityLogs billableMetricId={billableMetricId as string} />
               </div>
             ),
