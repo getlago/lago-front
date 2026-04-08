@@ -18,8 +18,12 @@ import {
 } from '~/components/layouts/Settings'
 import { ENTRA_ID_AUTHENTICATION_ROUTE, OKTA_AUTHENTICATION_ROUTE } from '~/core/router'
 import {
+  AddOktaIntegrationDialogFragmentDoc,
   AuthenticationMethodsEnum,
+  DeleteOktaIntegrationDialogFragmentDoc,
+  OktaIntegration,
   PremiumIntegrationTypeEnum,
+  useGetAuthIntegrationsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -33,19 +37,27 @@ import { useDeleteEntraIdIntegrationDialog } from './dialogs/DeleteEntraIdIntegr
 import { useDeleteOktaIntegrationDialog } from './dialogs/DeleteOktaIntegrationDialog'
 import { useUpdateLoginMethodDialog } from './dialogs/UpdateLoginMethodDialog'
 
-const GET_AUTH_INTEGRATIONS = gql`
+gql`
   query GetAuthIntegrations($limit: Int!) {
     integrations(limit: $limit) {
       collection {
         ... on OktaIntegration {
           id
-          name
-          domain
-          host
-          clientId
-          clientSecret
-          organizationName
+          ...AddOktaIntegrationDialog
+          ...DeleteOktaIntegrationDialog
         }
+      }
+    }
+
+    ${AddOktaIntegrationDialogFragmentDoc}
+    ${DeleteOktaIntegrationDialogFragmentDoc}
+  }
+`
+
+const GET_ENTRA_ID_INTEGRATIONS = gql`
+  query GetEntraIdIntegrations($limit: Int!) {
+    integrations(limit: $limit) {
+      collection {
         ... on EntraIdIntegration {
           id
           domain
@@ -59,17 +71,6 @@ const GET_AUTH_INTEGRATIONS = gql`
   }
 `
 
-type OktaIntegration = {
-  __typename: 'OktaIntegration'
-  id: string
-  name: string
-  domain: string
-  host?: string | null
-  clientId?: string | null
-  clientSecret?: string | null
-  organizationName: string
-}
-
 type EntraIdIntegration = {
   __typename: 'EntraIdIntegration'
   id: string
@@ -82,7 +83,7 @@ type EntraIdIntegration = {
 
 type GetAuthIntegrationsResult = {
   integrations?: {
-    collection: Array<OktaIntegration | EntraIdIntegration>
+    collection: Array<EntraIdIntegration>
   } | null
 }
 
@@ -108,7 +109,9 @@ const Authentication = () => {
   const { openUpdateLoginMethodDialog } = useUpdateLoginMethodDialog()
 
   const { data: authIntegrationsData, loading: authIntegrationsLoading } =
-    useQuery<GetAuthIntegrationsResult>(GET_AUTH_INTEGRATIONS, { variables: { limit: 10 } })
+    useGetAuthIntegrationsQuery({ variables: { limit: 10 } })
+  const { data: entraIdIntegrationsData, loading: entraIdIntegrationsLoading } =
+    useQuery<GetAuthIntegrationsResult>(GET_ENTRA_ID_INTEGRATIONS, { variables: { limit: 10 } })
 
   const hasAccessToOktaPremiumIntegration = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.Okta,
@@ -120,12 +123,13 @@ const Authentication = () => {
   const oktaIntegration = authIntegrationsData?.integrations?.collection.find(
     (integration) => integration.__typename === 'OktaIntegration',
   ) as OktaIntegration | undefined
-  const entraIdIntegration = authIntegrationsData?.integrations?.collection.find(
+  const entraIdIntegration = entraIdIntegrationsData?.integrations?.collection.find(
     (integration) => integration.__typename === 'EntraIdIntegration',
   ) as EntraIdIntegration | undefined
 
   const shouldSeeOktaIntegration = hasAccessToOktaPremiumIntegration && isPremium
   const shouldSeeEntraIdIntegration = hasAccessToEntraIdPremiumIntegration && isPremium
+  const authIntegrationLoading = authIntegrationsLoading || entraIdIntegrationsLoading
 
   const getEndContent = ({
     type,
@@ -197,7 +201,7 @@ const Authentication = () => {
                 size="small"
                 startIcon="link"
                 variant="primary"
-                loading={authIntegrationsLoading}
+                loading={authIntegrationLoading}
                 onClick={() => {
                   if (!shouldSeeOktaIntegration) {
                     return premiumWarningDialog.open()
@@ -220,7 +224,7 @@ const Authentication = () => {
                 size="small"
                 startIcon="link"
                 variant="primary"
-                loading={authIntegrationsLoading}
+                loading={authIntegrationLoading}
                 onClick={() => {
                   if (!shouldSeeEntraIdIntegration) {
                     return premiumWarningDialog.open()
@@ -297,7 +301,7 @@ const Authentication = () => {
                         startIcon="pen"
                         variant="quaternary"
                         align="left"
-                        loading={authIntegrationsLoading}
+                        loading={authIntegrationLoading}
                         onClick={(e) => {
                           e.stopPropagation()
 
@@ -327,7 +331,7 @@ const Authentication = () => {
                           startIcon="trash"
                           variant="quaternary"
                           align="left"
-                          loading={authIntegrationsLoading}
+                          loading={authIntegrationLoading}
                           disabled={isUniqueAuthenticationMethodEnabled}
                           onClick={(e) => {
                             e.stopPropagation()
@@ -351,7 +355,7 @@ const Authentication = () => {
                         startIcon="pen"
                         variant="quaternary"
                         align="left"
-                        loading={authIntegrationsLoading}
+                        loading={authIntegrationLoading}
                         onClick={(e) => {
                           e.stopPropagation()
 
@@ -381,7 +385,7 @@ const Authentication = () => {
                           startIcon="trash"
                           variant="quaternary"
                           align="left"
-                          loading={authIntegrationsLoading}
+                          loading={authIntegrationLoading}
                           disabled={isUniqueAuthenticationMethodEnabled}
                           onClick={(e) => {
                             e.stopPropagation()
