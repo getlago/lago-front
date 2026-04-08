@@ -154,7 +154,7 @@ describe('Create billable metrics', () => {
     const bmName = `bm filtered ${randomId}`
     const bmCode = `bm_filtered_${randomId}`
 
-    cy.get(`[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="create-bm"]`).click()
+    cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="create-bm"]`).click()
     cy.url().should('be.equal', Cypress.config().baseUrl + '/create/billable-metrics')
     cy.get('input[name="name"]').type(bmName)
     cy.get('input[name="code"]').should('have.value', bmCode)
