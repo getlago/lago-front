@@ -1,16 +1,13 @@
-import { gql } from '@apollo/client'
+import { gql, useMutation } from '@apollo/client'
 
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
-import {
-  AuthenticationMethodsEnum,
-  useUpdateOrganizationAuthenticationMethodsMutation,
-} from '~/generated/graphql'
+import { AuthenticationMethodsEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
-gql`
+const UPDATE_ORGANIZATION_AUTH_METHODS = gql`
   mutation updateOrganizationAuthenticationMethods($input: UpdateOrganizationInput!) {
     updateOrganization(input: $input) {
       id
@@ -19,8 +16,18 @@ gql`
   }
 `
 
+type UpdateOrganizationAuthenticationMethodsResult = {
+  updateOrganization?: {
+    id: string
+    authenticationMethods?: string[] | null
+  } | null
+}
+
+const ENTRA_ID_METHOD = 'entra_id' as const
+type OrganizationAuthenticationMethod = AuthenticationMethodsEnum | typeof ENTRA_ID_METHOD
+
 type UpdateLoginMethodDialogData = {
-  method: AuthenticationMethodsEnum
+  method: OrganizationAuthenticationMethod
   type: 'enable' | 'disable'
 }
 
@@ -30,22 +37,27 @@ export const useUpdateLoginMethodDialog = () => {
   const { organization, refetchOrganizationInfos } = useOrganizationInfos()
 
   const [updateOrganizationAuthenticationMethods] =
-    useUpdateOrganizationAuthenticationMethodsMutation()
+    useMutation<UpdateOrganizationAuthenticationMethodsResult>(UPDATE_ORGANIZATION_AUTH_METHODS)
 
   const openUpdateLoginMethodDialog = (data: UpdateLoginMethodDialogData) => {
     const isDanger = data.type === 'disable'
-    const methodLabel = translate(authenticationMethodsMapping[data.method])
+    const methodLabel =
+      data.method === ENTRA_ID_METHOD
+        ? 'Entra ID'
+        : translate(authenticationMethodsMapping[data.method])
 
     const getNewAuthMethods = () => {
+      const currentAuthenticationMethods = (organization?.authenticationMethods || []) as string[]
+
       if (data.type === 'disable') {
-        return organization?.authenticationMethods?.filter((method) => method !== data.method) || []
+        return currentAuthenticationMethods.filter((method) => method !== data.method)
       }
 
       if (data.type === 'enable') {
-        return [...(organization?.authenticationMethods || []), data.method]
+        return [...currentAuthenticationMethods, data.method]
       }
 
-      return []
+      return currentAuthenticationMethods
     }
 
     centralizedDialog.open({
@@ -71,9 +83,7 @@ export const useUpdateLoginMethodDialog = () => {
         })
 
         if (result.data?.updateOrganization) {
-          const isEnabled = result.data.updateOrganization.authenticationMethods?.includes(
-            data.method,
-          )
+          const isEnabled = result.data.updateOrganization.authenticationMethods?.includes(data.method)
 
           addToast({
             message: translate(

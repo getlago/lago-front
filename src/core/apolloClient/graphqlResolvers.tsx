@@ -51,6 +51,8 @@ export const typeDefs = gql`
     domain_not_configured
     okta_login_method_not_authorized
     okta_userinfo_error
+    entra_id_login_method_not_authorized
+    entra_id_userinfo_error
 
     # Anrok errors
     currencyCodeNotSupported

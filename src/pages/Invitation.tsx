@@ -1,4 +1,4 @@
-import { gql, useApolloClient } from '@apollo/client'
+import { gql, useApolloClient, useMutation } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useEffect, useMemo } from 'react'
@@ -20,7 +20,6 @@ import {
   CurrentUserFragmentDoc,
   LagoApiError,
   useAcceptInviteMutation,
-  useFetchOktaAuthorizeUrlMutation,
   useGetinviteQuery,
   useGoogleAcceptInviteMutation,
   useOktaAcceptInviteMutation,
@@ -76,6 +75,18 @@ gql`
     }
   }
 
+  mutation entraIdAuthorize($input: EntraIdAuthorizeInput!) {
+    entraIdAuthorize(input: $input) {
+      url
+    }
+  }
+
+  mutation entraIdAcceptInvite($input: EntraIdAcceptInviteInput!) {
+    entraIdAcceptInvite(input: $input) {
+      token
+    }
+  }
+
   ${CurrentUserFragmentDoc}
 `
 
@@ -89,6 +100,8 @@ const Invitation = () => {
   const googleCode = searchParams.get('code') || ''
   const oktaCode = searchParams.get('oktaCode') || ''
   const oktaState = searchParams.get('oktaState') || ''
+  const entraIdCode = searchParams.get('entraIdCode') || ''
+  const entraIdState = searchParams.get('entraIdState') || ''
 
   const { data, error, loading } = useGetinviteQuery({
     context: { silentErrorCodes: [LagoApiError.InviteNotFound, LagoApiError.NotFound] },
@@ -116,10 +129,28 @@ const Invitation = () => {
     },
   })
 
+  const [fetchOktaAuthorizeUrl, { error: oktaAuthorizeUrlError, loading: oktaAuthorizeUrlLoading }] =
+    useMutation<{ oktaAuthorize?: { url?: string } }>(gql`
+      mutation fetchOktaAuthorizeUrl($input: OktaAuthorizeInput!) {
+        oktaAuthorize(input: $input) {
+          url
+        }
+      }
+    `, {
+      context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+      fetchPolicy: 'network-only',
+    })
+
   const [
-    fetchOktaAuthorizeUrl,
-    { error: oktaAuthorizeUrlError, loading: oktaAuthorizeUrlLoading },
-  ] = useFetchOktaAuthorizeUrlMutation({
+    fetchEntraIdAuthorizeUrl,
+    { error: entraIdAuthorizeUrlError, loading: entraIdAuthorizeUrlLoading },
+  ] = useMutation<{ entraIdAuthorize?: { url?: string } }>(gql`
+    mutation fetchEntraIdAuthorizeUrl($input: EntraIdAuthorizeInput!) {
+      entraIdAuthorize(input: $input) {
+        url
+      }
+    }
+  `, {
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     fetchPolicy: 'network-only',
   })
@@ -130,6 +161,22 @@ const Invitation = () => {
       onCompleted: async (res) => {
         if (!!res?.oktaAcceptInvite) {
           await onLogIn(client, res?.oktaAcceptInvite.token)
+        }
+      },
+    })
+
+  const [entraIdAcceptInvite, { error: entraIdAcceptInviteError, loading: entraIdAcceptInviteLoading }] =
+    useMutation<{ entraIdAcceptInvite?: { token?: string } }>(gql`
+      mutation entraIdAcceptInvite($input: EntraIdAcceptInviteInput!) {
+        entraIdAcceptInvite(input: $input) {
+          token
+        }
+      }
+    `, {
+      context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+      onCompleted: async (res) => {
+        if (!!res?.entraIdAcceptInvite) {
+          await onLogIn(client, res?.entraIdAcceptInvite.token)
         }
       },
     })
@@ -176,6 +223,26 @@ const Invitation = () => {
     }
   }
 
+  const onEntraIdLogin = async () => {
+    const { data: entraIdAuthorizeData } = await fetchEntraIdAuthorizeUrl({
+      variables: {
+        input: {
+          email: email || '',
+        },
+      },
+    })
+
+    if (entraIdAuthorizeData?.entraIdAuthorize?.url) {
+      window.location.href = addValuesToUrlState({
+        url: entraIdAuthorizeData.entraIdAuthorize.url,
+        values: {
+          invitationToken: token || '',
+        },
+        stateType: 'string',
+      })
+    }
+  }
+
   useEffect(() => {
     if (!!googleCode && !!token) {
       googleAcceptInvite({
@@ -205,12 +272,29 @@ const Invitation = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [oktaCode, oktaState, token])
 
+  useEffect(() => {
+    if (!!entraIdCode && !!entraIdState && !!token) {
+      entraIdAcceptInvite({
+        variables: {
+          input: {
+            code: entraIdCode,
+            state: entraIdState,
+            inviteToken: token || '',
+          },
+        },
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entraIdCode, entraIdState, token])
+
   const errorTranslation: string | undefined = useMemo(() => {
     if (
       !acceptInviteError &&
       !googleAcceptInviteError &&
       !oktaAcceptInviteError &&
-      !oktaAuthorizeUrlError
+      !oktaAuthorizeUrlError &&
+      !entraIdAcceptInviteError &&
+      !entraIdAuthorizeUrlError
     )
       return
 
@@ -244,6 +328,18 @@ const Invitation = () => {
       })
     }
 
+    if (hasDefinedGQLError('DomainNotConfigured', entraIdAuthorizeUrlError)) {
+      return translate('text_664c90c9b2b6c2012aa50bd1')
+    }
+
+    if (hasDefinedGQLError('EntraIdUserinfoError', entraIdAcceptInviteError)) {
+      return 'Unable to validate your Entra ID profile email.'
+    }
+
+    if (hasDefinedGQLError('LoginMethodNotAuthorized', entraIdAcceptInviteError)) {
+      return translate('text_17521583805554mlsol8fld6', { method: 'Entra ID' })
+    }
+
     if (hasDefinedGQLError('LoginMethodNotAuthorized', googleAcceptInviteError)) {
       return translate('text_17521583805554mlsol8fld6', {
         method: translate('text_1752158380555upqjf6cxtq9'),
@@ -259,7 +355,14 @@ const Invitation = () => {
     return
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [acceptInviteError, googleAcceptInviteError, oktaAcceptInviteError, oktaAuthorizeUrlError])
+  }, [
+    acceptInviteError,
+    googleAcceptInviteError,
+    oktaAcceptInviteError,
+    oktaAuthorizeUrlError,
+    entraIdAcceptInviteError,
+    entraIdAuthorizeUrlError,
+  ])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -330,6 +433,16 @@ const Invitation = () => {
                   loading={oktaAuthorizeUrlLoading || oktaAcceptInviteLoading}
                 >
                   {translate('text_664c90c9b2b6c2012aa50bd5')}
+                </Button>
+                <Button
+                  fullWidth
+                  startIcon="key"
+                  size="large"
+                  variant="tertiary"
+                  onClick={() => onEntraIdLogin()}
+                  loading={entraIdAuthorizeUrlLoading || entraIdAcceptInviteLoading}
+                >
+                  Continue with Entra ID
                 </Button>
               </Stack>
 
