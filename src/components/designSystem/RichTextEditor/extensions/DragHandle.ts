@@ -9,9 +9,13 @@ import { createRoot } from 'react-dom/client'
 const dragHandlePluginKey = new PluginKey('dragHandle')
 
 const renderGripIcon = (container: HTMLElement): void => {
-  const root = createRoot(container)
+  // Defer to avoid "triggering nested component updates from render" warning.
+  // ProseMirror creates decoration widgets synchronously during React's render cycle.
+  queueMicrotask(() => {
+    const root = createRoot(container)
 
-  root.render(createElement(ALL_ICONS['double-dots-vertical'], { width: 16, height: 16 }))
+    root.render(createElement(ALL_ICONS['double-dots-vertical'], { width: 16, height: 16 }))
+  })
 }
 
 export type DragHandleStorage = {

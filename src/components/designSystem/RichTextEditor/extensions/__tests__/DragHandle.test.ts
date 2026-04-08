@@ -55,9 +55,15 @@ describe('DragHandle', () => {
         expect(handles.length).toBe(2)
       })
 
-      it('THEN should render each handle with the grip SVG', () => {
+      it('THEN should render each handle with the grip SVG', async () => {
         const editor = createEditor('<p>Hello</p>')
         const handle = editor.view.dom.querySelector('.block-drag-handle')
+
+        // renderGripIcon is deferred via queueMicrotask to avoid nested React render warnings.
+        // Flush the microtask + React render with act.
+        await act(async () => {
+          await new Promise((resolve) => setTimeout(resolve, 0))
+        })
 
         editor.destroy()
 
