@@ -322,6 +322,65 @@ describe('TableCommands', () => {
     })
   })
 
+  describe('GIVEN column text color commands', () => {
+    describe('WHEN setColumnTextColor is called', () => {
+      it('THEN should set textColor on all cells in that column', () => {
+        const editor = createEditor()
+
+        setCursorInCell(editor, 0, 1) // column 1
+        editor.commands.setColumnTextColor('#dc2626')
+
+        const colColors: string[] = []
+
+        editor.state.doc.descendants((node) => {
+          if (node.type.name === 'tableRow') {
+            let colIdx = 0
+
+            node.forEach((cell) => {
+              if (colIdx === 1 && cell.attrs.textColor) {
+                colColors.push(cell.attrs.textColor)
+              }
+              colIdx++
+            })
+          }
+        })
+
+        expect(colColors).toEqual(['#dc2626', '#dc2626'])
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN setColumnTextColor is called with null', () => {
+      it('THEN should clear textColor on all cells in that column', () => {
+        const editor = createEditor()
+
+        setCursorInCell(editor, 0, 1)
+        editor.commands.setColumnTextColor('#dc2626')
+        editor.commands.setColumnTextColor(null)
+
+        const colColors: (string | null)[] = []
+
+        editor.state.doc.descendants((node) => {
+          if (node.type.name === 'tableRow') {
+            let colIdx = 0
+
+            node.forEach((cell) => {
+              if (colIdx === 1) {
+                colColors.push(cell.attrs.textColor)
+              }
+              colIdx++
+            })
+          }
+        })
+
+        expect(colColors).toEqual([null, null])
+
+        editor.destroy()
+      })
+    })
+  })
+
   describe('GIVEN the cursor is not in a table', () => {
     describe('WHEN any table command is called', () => {
       it('THEN should return false', () => {
@@ -335,6 +394,8 @@ describe('TableCommands', () => {
         expect(editor.commands.moveColumnRight()).toBe(false)
         expect(editor.commands.setRowBackgroundColor('#fee2e2')).toBe(false)
         expect(editor.commands.setRowTextColor('#dc2626')).toBe(false)
+        expect(editor.commands.setColumnBackgroundColor('#dbeafe')).toBe(false)
+        expect(editor.commands.setColumnTextColor('#dc2626')).toBe(false)
 
         editor.destroy()
       })

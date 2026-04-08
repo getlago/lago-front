@@ -1,8 +1,10 @@
 import { Extension } from '@tiptap/core'
-import type { Node as PmNode } from '@tiptap/pm/model'
+import type { Node as PmNode, ResolvedPos } from '@tiptap/pm/model'
 import { type EditorState, Plugin, PluginKey, type Transaction } from '@tiptap/pm/state'
 import { CellSelection, TableView } from '@tiptap/pm/tables'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
+
+import { getDragHandleStorage } from './DragHandle'
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -47,6 +49,33 @@ class ColorAwareTableView extends TableView {
  * Resolves the table, row index, and column index from the current selection.
  * Returns null if the selection is not inside a table.
  */
+const resolveRowAndCol = (
+  $pos: ResolvedPos,
+  tableDepth: number,
+): { rowIndex: number; colIndex: number; rowPos: number } | null => {
+  let rowIndex = -1
+  let colIndex = -1
+  let rowPos = -1
+
+  for (let d = tableDepth + 1; d <= $pos.depth; d++) {
+    const ancestor = $pos.node(d)
+
+    if (ancestor.type.name === 'tableRow') {
+      rowIndex = $pos.index(tableDepth)
+      rowPos = $pos.before(d)
+    }
+    if (ancestor.type.name === 'tableCell' || ancestor.type.name === 'tableHeader') {
+      colIndex = $pos.index(d - 1)
+    }
+  }
+
+  if (rowIndex >= 0 && colIndex >= 0) {
+    return { rowIndex, colIndex, rowPos }
+  }
+
+  return null
+}
+
 const resolveTableContext = (
   state: EditorState,
 ): {
@@ -62,28 +91,11 @@ const resolveTableContext = (
     const node = $pos.node(depth)
 
     if (node.type.name === 'table') {
-      const tablePos = $pos.before(depth)
-      let rowIndex = -1
-      let colIndex = -1
-      let rowPos = -1
+      const result = resolveRowAndCol($pos, depth)
 
-      for (let d = depth + 1; d <= $pos.depth; d++) {
-        const ancestor = $pos.node(d)
+      if (!result) return null
 
-        if (ancestor.type.name === 'tableRow') {
-          rowIndex = $pos.index(depth)
-          rowPos = $pos.before(d)
-        }
-        if (ancestor.type.name === 'tableCell' || ancestor.type.name === 'tableHeader') {
-          colIndex = $pos.index(d - 1)
-        }
-      }
-
-      if (rowIndex >= 0 && colIndex >= 0) {
-        return { tablePos, tableNode: node, rowIndex, colIndex, rowPos }
-      }
-
-      return null
+      return { tablePos: $pos.before(depth), tableNode: node, ...result }
     }
   }
 
@@ -268,8 +280,7 @@ export const TableCommands = Extension.create({
           },
           apply(tr, oldSet, _oldState, newState) {
             if (tr.selectionSet || tr.docChanged) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const isBlockSelected = !!(editorRef.storage as any).dragHandle?.selectedBlock
+              const isBlockSelected = !!getDragHandleStorage(editorRef).selectedBlock
 
               return buildCellDecorations(newState, isBlockSelected)
             }

@@ -19,8 +19,8 @@ export type DragHandleStorage = {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const getDragHandleStorage = (editor: { storage: any }): DragHandleStorage =>
-  editor.storage.dragHandle as DragHandleStorage
+export const getDragHandleStorage = (editor: { storage: any }): DragHandleStorage =>
+  editor.storage.dragHandle ?? { selectedBlock: null }
 
 export const DragHandle = Extension.create({
   name: 'dragHandle',

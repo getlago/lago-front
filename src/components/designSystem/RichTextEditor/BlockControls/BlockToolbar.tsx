@@ -10,7 +10,7 @@ import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 
 import ColorPicker from './ColorPicker'
 
-import type { DragHandleStorage } from '../extensions/DragHandle'
+import { getDragHandleStorage } from '../extensions/DragHandle'
 
 export const BLOCK_TOOLBAR_TEST_ID = 'block-toolbar'
 export const BLOCK_TOOLBAR_MOVE_UP_BUTTON_TEST_ID = 'block-toolbar-move-up-button'
@@ -22,6 +22,55 @@ type BlockToolbarProps = {
   editor: Editor
 }
 
+const getNodeColorAttrs = (attrs: Record<string, unknown>) => ({
+  backgroundColor: typeof attrs.backgroundColor === 'string' ? attrs.backgroundColor : null,
+  textColor: typeof attrs.textColor === 'string' ? attrs.textColor : null,
+})
+
+const buildBlockInfo = (
+  pos: number,
+  node: { attrs: Record<string, unknown> },
+  doc: Editor['state']['doc'],
+) => {
+  const $pos = doc.resolve(pos)
+  const index = $pos.index(0)
+
+  return {
+    pos,
+    node,
+    ...getNodeColorAttrs(node.attrs),
+    isFirst: index === 0,
+    isLast: index >= doc.childCount - 1,
+  }
+}
+
+const getNodeSelectionBlock = (e: Editor) => {
+  const { selection } = e.state
+
+  if (!(selection instanceof NodeSelection) || e.view.dragging) return null
+
+  return buildBlockInfo(selection.from, selection.node, e.state.doc)
+}
+
+const getDragHandleTableBlock = (e: Editor) => {
+  if (e.view.dragging) return null
+
+  const selectedBlock = getDragHandleStorage(e).selectedBlock
+
+  if (!selectedBlock) return null
+
+  const node = e.state.doc.nodeAt(selectedBlock.pos)
+
+  if (node?.type.name !== 'table') return null
+
+  const selFrom = e.state.selection.from
+  const tableEnd = selectedBlock.pos + node.nodeSize
+
+  if (selFrom < selectedBlock.pos || selFrom > tableEnd) return null
+
+  return buildBlockInfo(selectedBlock.pos, node, e.state.doc)
+}
+
 const BlockToolbar = ({ editor }: BlockToolbarProps) => {
   const { translate } = useInternationalization()
   const toolbarRef = useRef<HTMLDivElement>(null)
@@ -29,63 +78,7 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
 
   const blockSelection = useEditorState({
     editor,
-    selector: ({ editor: e }) => {
-      const { selection } = e.state
-
-      if (selection instanceof NodeSelection && !e.view.dragging) {
-        const $pos = e.state.doc.resolve(selection.from)
-        const index = $pos.index(0)
-
-        return {
-          pos: selection.from,
-          node: selection.node,
-          backgroundColor:
-            typeof selection.node.attrs.backgroundColor === 'string'
-              ? selection.node.attrs.backgroundColor
-              : null,
-          textColor:
-            typeof selection.node.attrs.textColor === 'string'
-              ? selection.node.attrs.textColor
-              : null,
-          isFirst: index === 0,
-          isLast: index >= e.state.doc.childCount - 1,
-        }
-      }
-
-      // Fallback: table selected via drag handle (prosemirror-tables converts
-      // NodeSelection → CellSelection, so we check DragHandle storage).
-      // Only show if the current selection is still inside the same table.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const dragHandleStorage = (e.storage as any).dragHandle as DragHandleStorage | undefined
-      const selectedBlock = dragHandleStorage?.selectedBlock
-
-      if (selectedBlock && !e.view.dragging) {
-        const node = e.state.doc.nodeAt(selectedBlock.pos)
-
-        if (node?.type.name === 'table') {
-          // Check that the current selection is inside this table
-          const selFrom = selection.from
-          const tableEnd = selectedBlock.pos + node.nodeSize
-
-          if (selFrom >= selectedBlock.pos && selFrom <= tableEnd) {
-            const $pos = e.state.doc.resolve(selectedBlock.pos)
-            const index = $pos.index(0)
-
-            return {
-              pos: selectedBlock.pos,
-              node,
-              backgroundColor:
-                typeof node.attrs.backgroundColor === 'string' ? node.attrs.backgroundColor : null,
-              textColor: typeof node.attrs.textColor === 'string' ? node.attrs.textColor : null,
-              isFirst: index === 0,
-              isLast: index >= e.state.doc.childCount - 1,
-            }
-          }
-        }
-      }
-
-      return null
-    },
+    selector: ({ editor: e }) => getNodeSelectionBlock(e) ?? getDragHandleTableBlock(e),
   })
 
   const updatePosition = useCallback(() => {
