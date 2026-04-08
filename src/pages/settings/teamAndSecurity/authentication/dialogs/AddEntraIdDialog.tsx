@@ -211,12 +211,18 @@ export const useAddEntraIdDialog = () => {
             </form.AppField>
             <form.AppField name="tenantId">
               {(field) => (
-                <field.TextInputField label="Tenant ID" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+                <field.TextInputField
+                  label="Tenant ID"
+                  placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                />
               )}
             </form.AppField>
             <form.AppField name="clientId">
               {(field) => (
-                <field.TextInputField label="Client ID" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+                <field.TextInputField
+                  label="Client ID"
+                  placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                />
               )}
             </form.AppField>
             <form.AppField name="clientSecret">
@@ -230,7 +236,9 @@ export const useAddEntraIdDialog = () => {
         mainAction: (
           <form.AppForm>
             <form.SubmitButton dataTest="add-entra-id-dialog-submit-button">
-              {translate(isEdition ? 'text_664c732c264d7eed1c74fdaa' : 'text_664c732c264d7eed1c74fdcb')}
+              {translate(
+                isEdition ? 'text_664c732c264d7eed1c74fdaa' : 'text_664c732c264d7eed1c74fdcb',
+              )}
             </form.SubmitButton>
           </form.AppForm>
         ),

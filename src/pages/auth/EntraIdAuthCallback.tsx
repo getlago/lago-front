@@ -29,16 +29,19 @@ const EntraIdAuthCallback = () => {
   const client = useApolloClient()
   const [entraIdLoginUser] = useMutation<{
     entraIdLogin?: { token?: string }
-  }>(gql`
-    mutation entraIdLoginUser($input: EntraIdLoginInput!) {
-      entraIdLogin(input: $input) {
-        token
+  }>(
+    gql`
+      mutation entraIdLoginUser($input: EntraIdLoginInput!) {
+        entraIdLogin(input: $input) {
+          token
+        }
       }
-    }
-  `, {
-    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    fetchPolicy: 'network-only',
-  })
+    `,
+    {
+      context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+      fetchPolicy: 'network-only',
+    },
+  )
 
   const [searchParams] = useSearchParams()
   const code = searchParams.get('code') || ''

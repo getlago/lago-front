@@ -141,31 +141,39 @@ const Invitation = () => {
     },
   })
 
-  const [fetchOktaAuthorizeUrl, { error: oktaAuthorizeUrlError, loading: oktaAuthorizeUrlLoading }] =
-    useMutation<{ oktaAuthorize?: { url?: string } }>(gql`
+  const [
+    fetchOktaAuthorizeUrl,
+    { error: oktaAuthorizeUrlError, loading: oktaAuthorizeUrlLoading },
+  ] = useMutation<{ oktaAuthorize?: { url?: string } }>(
+    gql`
       mutation fetchOktaAuthorizeUrl($input: OktaAuthorizeInput!) {
         oktaAuthorize(input: $input) {
           url
         }
       }
-    `, {
+    `,
+    {
       context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
       fetchPolicy: 'network-only',
-    })
+    },
+  )
 
   const [
     fetchEntraIdAuthorizeUrl,
     { error: entraIdAuthorizeUrlError, loading: entraIdAuthorizeUrlLoading },
-  ] = useMutation<{ entraIdAuthorize?: { url?: string } }>(gql`
-    mutation fetchEntraIdAuthorizeUrl($input: EntraIdAuthorizeInput!) {
-      entraIdAuthorize(input: $input) {
-        url
+  ] = useMutation<{ entraIdAuthorize?: { url?: string } }>(
+    gql`
+      mutation fetchEntraIdAuthorizeUrl($input: EntraIdAuthorizeInput!) {
+        entraIdAuthorize(input: $input) {
+          url
+        }
       }
-    }
-  `, {
-    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    fetchPolicy: 'network-only',
-  })
+    `,
+    {
+      context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+      fetchPolicy: 'network-only',
+    },
+  )
 
   const [oktaAcceptInvite, { error: oktaAcceptInviteError, loading: oktaAcceptInviteLoading }] =
     useOktaAcceptInviteMutation({
@@ -179,14 +187,18 @@ const Invitation = () => {
       },
     })
 
-  const [entraIdAcceptInvite, { error: entraIdAcceptInviteError, loading: entraIdAcceptInviteLoading }] =
-    useMutation<{ entraIdAcceptInvite?: { token?: string } }>(gql`
+  const [
+    entraIdAcceptInvite,
+    { error: entraIdAcceptInviteError, loading: entraIdAcceptInviteLoading },
+  ] = useMutation<{ entraIdAcceptInvite?: { token?: string } }>(
+    gql`
       mutation entraIdAcceptInvite($input: EntraIdAcceptInviteInput!) {
         entraIdAcceptInvite(input: $input) {
           token
         }
       }
-    `, {
+    `,
+    {
       context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
       onCompleted: async (res) => {
         const loginToken = res?.entraIdAcceptInvite?.token
@@ -195,7 +207,8 @@ const Invitation = () => {
           await onLogIn(client, loginToken)
         }
       },
-    })
+    },
+  )
 
   const form = useAppForm({
     defaultValues: invitationDefaultValues,

@@ -31,8 +31,8 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Okta from '~/public/images/okta.svg'
 import { MenuPopper } from '~/styles'
 
-import { useAddOktaDialog } from './dialogs/AddOktaDialog'
 import { useAddEntraIdDialog } from './dialogs/AddEntraIdDialog'
+import { useAddOktaDialog } from './dialogs/AddOktaDialog'
 import { useDeleteEntraIdIntegrationDialog } from './dialogs/DeleteEntraIdIntegrationDialog'
 import { useDeleteOktaIntegrationDialog } from './dialogs/DeleteOktaIntegrationDialog'
 import { useUpdateLoginMethodDialog } from './dialogs/UpdateLoginMethodDialog'
@@ -217,29 +217,27 @@ const Authentication = () => {
                 {translate('text_657078c28394d6b1ae1b9789')}
               </Button>
             )}
-          {method === ENTRA_ID_METHOD &&
-            shouldSeeEntraIdIntegration &&
-            !entraIdIntegration?.id && (
-              <Button
-                size="small"
-                startIcon="link"
-                variant="primary"
-                loading={authIntegrationLoading}
-                onClick={() => {
-                  if (!shouldSeeEntraIdIntegration) {
-                    return premiumWarningDialog.open()
-                  }
+          {method === ENTRA_ID_METHOD && shouldSeeEntraIdIntegration && !entraIdIntegration?.id && (
+            <Button
+              size="small"
+              startIcon="link"
+              variant="primary"
+              loading={authIntegrationLoading}
+              onClick={() => {
+                if (!shouldSeeEntraIdIntegration) {
+                  return premiumWarningDialog.open()
+                }
 
-                  return openAddEntraIdDialog({
-                    integration: entraIdIntegration,
-                    callback: (id) =>
-                      navigate(generatePath(ENTRA_ID_AUTHENTICATION_ROUTE, { integrationId: id })),
-                  })
-                }}
-              >
-                {translate('text_657078c28394d6b1ae1b9789')}
-              </Button>
-            )}
+                return openAddEntraIdDialog({
+                  integration: entraIdIntegration,
+                  callback: (id) =>
+                    navigate(generatePath(ENTRA_ID_AUTHENTICATION_ROUTE, { integrationId: id })),
+                })
+              }}
+            >
+              {translate('text_657078c28394d6b1ae1b9789')}
+            </Button>
+          )}
 
           {isPopperVisible && (
             <Popper

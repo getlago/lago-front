@@ -83,7 +83,9 @@ export const useUpdateLoginMethodDialog = () => {
         })
 
         if (result.data?.updateOrganization) {
-          const isEnabled = result.data.updateOrganization.authenticationMethods?.includes(data.method)
+          const isEnabled = result.data.updateOrganization.authenticationMethods?.includes(
+            data.method,
+          )
 
           addToast({
             message: translate(

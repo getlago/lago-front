@@ -41,18 +41,22 @@ const LoginEntraId = () => {
 
   const lagoErrorCode = searchParams.get('lago_error_code')
 
-  const [fetchEntraIdAuthorizeUrl, { error: fetchEntraIdAuthorizeUrlError, loading }] = useMutation<{
-    entraIdAuthorize?: { url?: string }
-  }>(gql`
-    mutation fetchEntraIdAuthorizeUrl($input: EntraIdAuthorizeInput!) {
-      entraIdAuthorize(input: $input) {
-        url
-      }
-    }
-  `, {
-    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    fetchPolicy: 'network-only',
-  })
+  const [fetchEntraIdAuthorizeUrl, { error: fetchEntraIdAuthorizeUrlError, loading }] =
+    useMutation<{
+      entraIdAuthorize?: { url?: string }
+    }>(
+      gql`
+        mutation fetchEntraIdAuthorizeUrl($input: EntraIdAuthorizeInput!) {
+          entraIdAuthorize(input: $input) {
+            url
+          }
+        }
+      `,
+      {
+        context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+        fetchPolicy: 'network-only',
+      },
+    )
 
   useEffect(() => {
     if (lagoErrorCode) {

@@ -53,28 +53,31 @@ const EntraIdAuthenticationDetails = () => {
   const { openAddEntraIdDialog } = useAddEntraIdDialog()
   const { openDeleteEntraIdIntegrationDialog } = useDeleteEntraIdIntegrationDialog()
 
-  const { data, loading, refetch } = useQuery<{ integration?: EntraIdIntegration | null }>(gql`
-    query GetEntraIdIntegration($id: ID) {
-      integration(id: $id) {
-        ... on EntraIdIntegration {
-          id
-          clientId
-          clientSecret
-          code
-          tenantId
-          domain
-          name
-          host
+  const { data, loading, refetch } = useQuery<{ integration?: EntraIdIntegration | null }>(
+    gql`
+      query GetEntraIdIntegration($id: ID) {
+        integration(id: $id) {
+          ... on EntraIdIntegration {
+            id
+            clientId
+            clientSecret
+            code
+            tenantId
+            domain
+            name
+            host
+          }
         }
       }
-    }
-  `, {
-    variables: { id: integrationId },
-    skip: !integrationId,
-    context: {
-      silentErrorCodes: [LagoApiError.NotFound],
+    `,
+    {
+      variables: { id: integrationId },
+      skip: !integrationId,
+      context: {
+        silentErrorCodes: [LagoApiError.NotFound],
+      },
     },
-  })
+  )
 
   const integration = data?.integration || null
 
@@ -176,11 +179,31 @@ const EntraIdAuthenticationDetails = () => {
             ))
           ) : (
             <>
-              <IntegrationsPage.DetailsItem icon="globe" label="Email domain" value={integration.domain} />
-              <IntegrationsPage.DetailsItem icon="globe" label="Host" value={integration.host || 'N/A'} />
-              <IntegrationsPage.DetailsItem icon="text" label="Tenant ID" value={integration.tenantId || 'N/A'} />
-              <IntegrationsPage.DetailsItem icon="key" label="Client ID" value={integration.clientId || 'N/A'} />
-              <IntegrationsPage.DetailsItem icon="key" label="Client secret" value={integration.clientSecret || 'N/A'} />
+              <IntegrationsPage.DetailsItem
+                icon="globe"
+                label="Email domain"
+                value={integration.domain}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="globe"
+                label="Host"
+                value={integration.host || 'N/A'}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="text"
+                label="Tenant ID"
+                value={integration.tenantId || 'N/A'}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="key"
+                label="Client ID"
+                value={integration.clientId || 'N/A'}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="key"
+                label="Client secret"
+                value={integration.clientSecret || 'N/A'}
+              />
             </>
           )}
         </section>
