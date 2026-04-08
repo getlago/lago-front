@@ -277,16 +277,17 @@ export const UsageChargeDrawerContent = withForm({
     // Custom charge drawer — opened from CustomCharge via context callback
     const customChargeDrawer = useDrawer()
     const filterEditIndexRef = useRef<number | null>(null)
+    const filterOpenCounterRef = useRef(0)
 
-    const filterFormDefaultValues: ChargeFilterFormValues = {
+    const filterFormDefaultValuesRef = useRef<ChargeFilterFormValues>({
       chargeModel: ChargeModelEnum.Standard,
       invoiceDisplayName: '',
       properties: getPropertyShape({}),
       values: [],
-    }
+    })
 
     const filterForm = useAppForm({
-      defaultValues: filterFormDefaultValues,
+      defaultValues: filterFormDefaultValuesRef.current,
       validationLogic: revalidateLogic(),
       validators: { onDynamic: chargeFilterDrawerSchema },
       onSubmit: ({ value }) => {
@@ -342,6 +343,17 @@ export const UsageChargeDrawerContent = withForm({
         }
       }
 
+      // Keep the ref in sync so useAppForm's opts.defaultValues matches the reset values.
+      // Without this, useForm's layout effect calls formApi.update(opts) on re-render,
+      // which overwrites form values back to the stale opts.defaultValues when !isTouched.
+      filterFormDefaultValuesRef.current = filterInitialValues
+      filterForm.reset(filterInitialValues)
+
+      // Increment counter so the key changes and React remounts ChargeFilterDrawerContent.
+      // NiceModal keeps the drawer mounted between opens — without a fresh key, effects
+      // (graduated/volume initialization, validation state) would not re-run.
+      filterOpenCounterRef.current++
+
       filterDrawer.open({
         title: translate(
           isEdit ? 'text_1773687275957yugpyzdyfk1' : 'text_1773687275957id74wq9vyz5',
@@ -356,8 +368,8 @@ export const UsageChargeDrawerContent = withForm({
             isEdition={isEdition || false}
           >
             <ChargeFilterDrawerContent
+              key={filterOpenCounterRef.current}
               form={filterForm}
-              initialValues={filterInitialValues}
               billableMetricFilters={form.state.values.billableMetric?.filters || []}
               existingFilterValues={existingFilterValues}
               premiumWarningDialogRef={premiumWarningDialogRef}

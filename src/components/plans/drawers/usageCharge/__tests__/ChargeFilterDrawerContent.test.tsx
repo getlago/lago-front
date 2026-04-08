@@ -1,17 +1,14 @@
 import { screen } from '@testing-library/react'
 
-import { ChargeModelEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
   CHARGE_FILTER_DRAWER_CHARGE_MODEL_CHIP_TEST_ID,
-  ChargeFilterFormValues,
   ChargeFilterDrawerContent as OriginalChargeFilterDrawerContent,
 } from '../ChargeFilterDrawerContent'
 
 // Cast to strip the injected `form` prop that withForm adds to the type
 const ChargeFilterDrawerContent = OriginalChargeFilterDrawerContent as unknown as React.FC<{
-  initialValues: ChargeFilterFormValues
   billableMetricFilters: { id: string; key: string; values: string[] }[]
   chargeIndex: number
   filterIndex: number
@@ -143,15 +140,6 @@ jest.mock('~/components/plans/chargeAccordion/ChargeFilter', () => ({
   CHARGE_FILTER_VALUES_CONTAINER_TEST_ID: 'charge-filter-values-container',
 }))
 
-// --- Helpers ---
-
-const defaultFormValues: ChargeFilterFormValues = {
-  chargeModel: ChargeModelEnum.Standard,
-  invoiceDisplayName: '',
-  properties: {},
-  values: [],
-}
-
 // --- Tests ---
 
 describe('ChargeFilterDrawerContent', () => {
@@ -159,40 +147,11 @@ describe('ChargeFilterDrawerContent', () => {
     jest.clearAllMocks()
   })
 
-  describe('GIVEN the component renders with default values', () => {
-    describe('WHEN it mounts', () => {
-      it('THEN should reset the form with initial values', () => {
-        const initialValues: ChargeFilterFormValues = {
-          chargeModel: ChargeModelEnum.Standard,
-          invoiceDisplayName: 'Test Filter',
-          properties: {},
-          values: ['test-value'],
-        }
-
-        render(
-          <ChargeFilterDrawerContent
-            initialValues={initialValues}
-            billableMetricFilters={[]}
-            chargeIndex={0}
-            filterIndex={0}
-          />,
-        )
-
-        expect(mockFormReset).toHaveBeenCalledWith(initialValues)
-      })
-    })
-  })
-
   describe('GIVEN the component renders', () => {
     describe('WHEN the charge model chip is displayed', () => {
       it('THEN should render the charge model chip', () => {
         render(
-          <ChargeFilterDrawerContent
-            initialValues={defaultFormValues}
-            billableMetricFilters={[]}
-            chargeIndex={0}
-            filterIndex={0}
-          />,
+          <ChargeFilterDrawerContent billableMetricFilters={[]} chargeIndex={0} filterIndex={0} />,
         )
 
         expect(
@@ -204,12 +163,7 @@ describe('ChargeFilterDrawerContent', () => {
     describe('WHEN the charge filter section is rendered', () => {
       it('THEN should render the ChargeFilter component', () => {
         render(
-          <ChargeFilterDrawerContent
-            initialValues={defaultFormValues}
-            billableMetricFilters={[]}
-            chargeIndex={0}
-            filterIndex={0}
-          />,
+          <ChargeFilterDrawerContent billableMetricFilters={[]} chargeIndex={0} filterIndex={0} />,
         )
 
         expect(screen.getByTestId('charge-filter-mock')).toBeInTheDocument()
@@ -219,12 +173,7 @@ describe('ChargeFilterDrawerContent', () => {
     describe('WHEN the charge wrapper switch section is rendered', () => {
       it('THEN should render the ChargeWrapperSwitch component', () => {
         render(
-          <ChargeFilterDrawerContent
-            initialValues={defaultFormValues}
-            billableMetricFilters={[]}
-            chargeIndex={0}
-            filterIndex={0}
-          />,
+          <ChargeFilterDrawerContent billableMetricFilters={[]} chargeIndex={0} filterIndex={0} />,
         )
 
         expect(screen.getByTestId('charge-wrapper-switch')).toBeInTheDocument()
@@ -234,51 +183,12 @@ describe('ChargeFilterDrawerContent', () => {
     describe('WHEN the invoice display name field is rendered', () => {
       it('THEN should render the text input for invoice display name', () => {
         render(
-          <ChargeFilterDrawerContent
-            initialValues={defaultFormValues}
-            billableMetricFilters={[]}
-            chargeIndex={0}
-            filterIndex={0}
-          />,
+          <ChargeFilterDrawerContent billableMetricFilters={[]} chargeIndex={0} filterIndex={0} />,
         )
 
         const invoiceField = document.querySelector('[data-field-name="invoiceDisplayName"]')
 
         expect(invoiceField).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN the form resets only once per mount', () => {
-    describe('WHEN the component re-renders', () => {
-      it('THEN should have called reset exactly once', () => {
-        const initialValues: ChargeFilterFormValues = {
-          chargeModel: ChargeModelEnum.Standard,
-          invoiceDisplayName: '',
-          properties: {},
-          values: [],
-        }
-
-        const { rerender } = render(
-          <ChargeFilterDrawerContent
-            initialValues={initialValues}
-            billableMetricFilters={[]}
-            chargeIndex={0}
-            filterIndex={0}
-          />,
-        )
-
-        rerender(
-          <ChargeFilterDrawerContent
-            initialValues={initialValues}
-            billableMetricFilters={[]}
-            chargeIndex={0}
-            filterIndex={0}
-          />,
-        )
-
-        // Reset should only be called once due to the didResetRef guard
-        expect(mockFormReset).toHaveBeenCalledTimes(1)
       })
     })
   })
