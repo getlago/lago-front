@@ -1,4 +1,4 @@
-import { gql, useApolloClient, useMutation } from '@apollo/client'
+import { ApolloError, gql, useApolloClient, useMutation } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useEffect, useMemo } from 'react'
@@ -11,7 +11,7 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { PasswordValidationHints } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
 import { TextInput } from '~/components/form/TextInput'
-import { hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
+import { hasDefinedGQLError, LagoGQLError, onLogIn } from '~/core/apolloClient'
 import { DOCUMENTATION_ENV_VARS } from '~/core/constants/externalUrls'
 import { LOGIN_ROUTE } from '~/core/router'
 import { addValuesToUrlState } from '~/core/utils/urlUtils'
@@ -38,6 +38,7 @@ import {
 export const INVITATION_FORM_ID = 'invitation-form'
 export const INVITATION_ERROR_ALERT_TEST_ID = 'invitation-error-alert'
 export const INVITATION_SUBMIT_BUTTON_TEST_ID = 'submit-button'
+const ENTRA_ID_USERINFO_GRAPHQL_ERROR = 'EntraIdUserinfoError'
 
 gql`
   query getinvite($token: String!) {
@@ -102,6 +103,13 @@ const Invitation = () => {
   const oktaState = searchParams.get('oktaState') || ''
   const entraIdCode = searchParams.get('entraIdCode') || ''
   const entraIdState = searchParams.get('entraIdState') || ''
+  const hasGraphQLErrorCode = (code: string, error: ApolloError | undefined) => {
+    if (!error?.graphQLErrors?.length) return false
+
+    return error.graphQLErrors.some(
+      (graphQLError) => (graphQLError.extensions as LagoGQLError['extensions'])?.code === code,
+    )
+  }
 
   const { data, error, loading } = useGetinviteQuery({
     context: { silentErrorCodes: [LagoApiError.InviteNotFound, LagoApiError.NotFound] },
@@ -114,8 +122,10 @@ const Invitation = () => {
     useAcceptInviteMutation({
       context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
       onCompleted: async (res) => {
-        if (!!res?.acceptInvite) {
-          await onLogIn(client, res?.acceptInvite.token)
+        const loginToken = res?.acceptInvite?.token
+
+        if (!!res?.acceptInvite && !!loginToken) {
+          await onLogIn(client, loginToken)
         }
       },
     })
@@ -123,8 +133,10 @@ const Invitation = () => {
   const [googleAcceptInvite, { error: googleAcceptInviteError }] = useGoogleAcceptInviteMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted: async (res) => {
-      if (!!res?.googleAcceptInvite) {
-        await onLogIn(client, res?.googleAcceptInvite.token)
+      const loginToken = res?.googleAcceptInvite?.token
+
+      if (!!res?.googleAcceptInvite && !!loginToken) {
+        await onLogIn(client, loginToken)
       }
     },
   })
@@ -159,8 +171,10 @@ const Invitation = () => {
     useOktaAcceptInviteMutation({
       context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
       onCompleted: async (res) => {
-        if (!!res?.oktaAcceptInvite) {
-          await onLogIn(client, res?.oktaAcceptInvite.token)
+        const loginToken = res?.oktaAcceptInvite?.token
+
+        if (!!res?.oktaAcceptInvite && !!loginToken) {
+          await onLogIn(client, loginToken)
         }
       },
     })
@@ -175,8 +189,10 @@ const Invitation = () => {
     `, {
       context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
       onCompleted: async (res) => {
-        if (!!res?.entraIdAcceptInvite) {
-          await onLogIn(client, res?.entraIdAcceptInvite.token)
+        const loginToken = res?.entraIdAcceptInvite?.token
+
+        if (!!res?.entraIdAcceptInvite && !!loginToken) {
+          await onLogIn(client, loginToken)
         }
       },
     })
@@ -332,7 +348,7 @@ const Invitation = () => {
       return translate('text_664c90c9b2b6c2012aa50bd1')
     }
 
-    if (hasDefinedGQLError('EntraIdUserinfoError', entraIdAcceptInviteError)) {
+    if (hasGraphQLErrorCode(ENTRA_ID_USERINFO_GRAPHQL_ERROR, entraIdAcceptInviteError)) {
       return 'Unable to validate your Entra ID profile email.'
     }
 

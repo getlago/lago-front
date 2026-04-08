@@ -39,6 +39,7 @@ const GET_AUTH_INTEGRATIONS = gql`
       collection {
         ... on OktaIntegration {
           id
+          name
           domain
           host
           clientId
@@ -61,6 +62,7 @@ const GET_AUTH_INTEGRATIONS = gql`
 type OktaIntegration = {
   __typename: 'OktaIntegration'
   id: string
+  name: string
   domain?: string | null
   host?: string | null
   clientId?: string | null

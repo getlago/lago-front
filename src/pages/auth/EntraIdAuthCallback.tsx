@@ -16,6 +16,13 @@ import { LagoApiError } from '~/generated/graphql'
 
 const ENTRA_ID_USERINFO_ERROR = 'entra_id_userinfo_error'
 const ENTRA_ID_LOGIN_METHOD_NOT_AUTHORIZED = 'entra_id_login_method_not_authorized'
+const ENTRA_ID_USERINFO_GRAPHQL_ERROR = 'EntraIdUserinfoError'
+
+const hasGraphQLErrorCode = (code: string, errors: readonly LagoGQLError[] | undefined) => {
+  if (!errors?.length) return false
+
+  return errors.some((error) => (error.extensions as LagoGQLError['extensions'])?.code === code)
+}
 
 const EntraIdAuthCallback = () => {
   const navigate = useNavigate()
@@ -58,7 +65,7 @@ const EntraIdAuthCallback = () => {
       const res = await entraIdLoginUser({ variables: { input: { code, state: entraIdState } } })
 
       if (res.errors) {
-        if (hasDefinedGQLError('EntraIdUserinfoError', res.errors)) {
+        if (hasGraphQLErrorCode(ENTRA_ID_USERINFO_GRAPHQL_ERROR, res.errors as LagoGQLError[])) {
           return navigate({
             pathname: LOGIN_ENTRA_ID,
             search: `?lago_error_code=${ENTRA_ID_USERINFO_ERROR}`,
@@ -87,7 +94,13 @@ const EntraIdAuthCallback = () => {
       // Read redirect path from localStorage (set by LoginEntraId before Entra ID redirect)
       const redirectPath = getItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
 
-      await onLogIn(client, res.data?.entraIdLogin?.token)
+      const loginToken = res.data?.entraIdLogin?.token
+
+      if (!loginToken) {
+        return navigate(LOGIN_ROUTE)
+      }
+
+      await onLogIn(client, loginToken)
 
       removeItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
 
