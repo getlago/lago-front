@@ -4,7 +4,12 @@ import { useEffect, useMemo, useRef } from 'react'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
-import { envGlobalVar, getItemFromLS } from '~/core/apolloClient'
+import { envGlobalVar, getItemFromLS, setItemFromLS } from '~/core/apolloClient'
+import {
+  ORGANIZATION_LS_KEY_ID,
+  SUPERSET_FILTERS_LS_KEY_PREFIX,
+} from '~/core/constants/localStorageKeys'
+import { encodeRison } from '~/core/utils/risonEncoder'
 import { useSupersetDashboardsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import '~/main.css'
@@ -47,6 +52,7 @@ const Dashboards = () => {
     }
 
     let embedded: null | EmbeddedDashboard = null
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
     const mount = async () => {
       const mountPoint = document.getElementById('superset')
@@ -55,6 +61,12 @@ const Dashboards = () => {
         return
       }
 
+      const orgId = getItemFromLS(ORGANIZATION_LS_KEY_ID) || ''
+      const filtersLsKey = SUPERSET_FILTERS_LS_KEY_PREFIX + orgId + '-' + dashboard.embeddedId
+      const savedFilters = getItemFromLS(filtersLsKey)
+      const hasFilters = savedFilters && Object.keys(savedFilters).length > 0
+      const urlParams = hasFilters ? { native_filters: encodeRison(savedFilters) } : undefined
+
       embedded = await embedDashboard({
         id: dashboard.embeddedId,
         supersetDomain: lagoSupersetUrl,
@@ -62,11 +74,37 @@ const Dashboards = () => {
         fetchGuestToken: async () => dashboard?.guestToken,
         dashboardUiConfig: {
           hideTitle: true,
+          emitDataMasks: true,
           filters: {
             expanded: true,
           },
+          ...(urlParams && { urlParams }),
         },
         iframeSandboxExtras: ['allow-top-navigation', 'allow-popups-to-escape-sandbox'],
+      })
+
+      embedded.observeDataMask((dataMask) => {
+        if (debounceTimer) clearTimeout(debounceTimer)
+        debounceTimer = setTimeout(() => {
+          const filters: Record<string, { filterState: Record<string, unknown> }> = {}
+
+          for (const [key, entry] of Object.entries(dataMask)) {
+            if (!key.startsWith('NATIVE_FILTER-')) continue
+
+            const filterState = (entry as { filterState?: Record<string, unknown> })?.filterState
+            if (!filterState) continue
+
+            const val = filterState.value
+            if (val === null || val === undefined) continue
+            if (Array.isArray(val) && val.length === 0) continue
+
+            filters[key] = { filterState }
+          }
+
+          if (Object.keys(filters).length > 0) {
+            setItemFromLS(filtersLsKey, filters)
+          }
+        }, 500)
       })
 
       dashboardRef.current = dashboard.id
@@ -75,6 +113,7 @@ const Dashboards = () => {
     mount()
 
     return () => {
+      if (debounceTimer) clearTimeout(debounceTimer)
       embedded?.unmount()
       dashboardRef.current = ''
     }
