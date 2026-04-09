@@ -1,6 +1,12 @@
 import { Extension } from '@tiptap/core'
 import type { Node as PmNode, ResolvedPos } from '@tiptap/pm/model'
-import { type EditorState, Plugin, PluginKey, type Transaction } from '@tiptap/pm/state'
+import {
+  type EditorState,
+  Plugin,
+  PluginKey,
+  TextSelection,
+  type Transaction,
+} from '@tiptap/pm/state'
 import { CellSelection, TableView } from '@tiptap/pm/tables'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 
@@ -25,7 +31,7 @@ declare module '@tiptap/core' {
 
 /**
  * Extends the default TableView to apply backgroundColor/textColor from the
- * table node's attributes onto the wrapper DOM element.
+ * table node's attributes onto the `<table>` DOM element.
  */
 class ColorAwareTableView extends TableView {
   update(node: PmNode) {
@@ -132,6 +138,45 @@ const swapColumns = (tableNode: PmNode, indexA: number, indexB: number): PmNode 
   })
 
   return tableNode.type.create(tableNode.attrs, newRows)
+}
+
+/**
+ * After replacing a table, resolve a TextSelection into the cell at the given
+ * row/column so the cursor follows the moved row or column.
+ */
+const selectCellAfterSwap = (
+  tr: Transaction,
+  tablePos: number,
+  rowIndex: number,
+  colIndex: number,
+): Transaction => {
+  const newTable = tr.doc.nodeAt(tablePos)
+
+  if (!newTable) return tr
+
+  let targetPos = tablePos + 1 // skip into the table
+
+  for (let r = 0; r < newTable.childCount; r++) {
+    const row = newTable.child(r)
+
+    if (r === rowIndex) {
+      let cellOffset = 0
+
+      for (let c = 0; c < row.childCount; c++) {
+        if (c === colIndex) {
+          // +1 to enter the cell content
+          const cellContentPos = targetPos + cellOffset + 1
+          const $pos = tr.doc.resolve(cellContentPos)
+
+          return tr.setSelection(TextSelection.near($pos))
+        }
+        cellOffset += row.child(c).nodeSize
+      }
+    }
+    targetPos += row.nodeSize
+  }
+
+  return tr
 }
 
 /**
@@ -342,12 +387,13 @@ export const TableCommands = Extension.create({
 
           if (dispatch) {
             const newTable = swapRows(ctx.tableNode, ctx.rowIndex, ctx.rowIndex - 1)
-            const tr = state.tr.replaceWith(
+            let tr = state.tr.replaceWith(
               ctx.tablePos,
               ctx.tablePos + ctx.tableNode.nodeSize,
               newTable,
             )
 
+            tr = selectCellAfterSwap(tr, ctx.tablePos, ctx.rowIndex - 1, ctx.colIndex)
             dispatch(tr)
           }
 
@@ -363,12 +409,13 @@ export const TableCommands = Extension.create({
 
           if (dispatch) {
             const newTable = swapRows(ctx.tableNode, ctx.rowIndex, ctx.rowIndex + 1)
-            const tr = state.tr.replaceWith(
+            let tr = state.tr.replaceWith(
               ctx.tablePos,
               ctx.tablePos + ctx.tableNode.nodeSize,
               newTable,
             )
 
+            tr = selectCellAfterSwap(tr, ctx.tablePos, ctx.rowIndex + 1, ctx.colIndex)
             dispatch(tr)
           }
 
@@ -384,12 +431,13 @@ export const TableCommands = Extension.create({
 
           if (dispatch) {
             const newTable = swapColumns(ctx.tableNode, ctx.colIndex, ctx.colIndex - 1)
-            const tr = state.tr.replaceWith(
+            let tr = state.tr.replaceWith(
               ctx.tablePos,
               ctx.tablePos + ctx.tableNode.nodeSize,
               newTable,
             )
 
+            tr = selectCellAfterSwap(tr, ctx.tablePos, ctx.rowIndex, ctx.colIndex - 1)
             dispatch(tr)
           }
 
@@ -409,12 +457,13 @@ export const TableCommands = Extension.create({
 
           if (dispatch) {
             const newTable = swapColumns(ctx.tableNode, ctx.colIndex, ctx.colIndex + 1)
-            const tr = state.tr.replaceWith(
+            let tr = state.tr.replaceWith(
               ctx.tablePos,
               ctx.tablePos + ctx.tableNode.nodeSize,
               newTable,
             )
 
+            tr = selectCellAfterSwap(tr, ctx.tablePos, ctx.rowIndex, ctx.colIndex + 1)
             dispatch(tr)
           }
 

@@ -663,8 +663,8 @@ describe('TableControls', () => {
         const rowBtn0 = screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-0`)
         const rowBtn1 = screen.getByTestId(`${TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID}-1`)
 
-        expect(rowBtn0).toHaveAttribute('title', 'Row options')
-        expect(rowBtn1).toHaveAttribute('title', 'Row options')
+        expect(rowBtn0).toHaveAttribute('aria-label', 'Row options')
+        expect(rowBtn1).toHaveAttribute('aria-label', 'Row options')
       })
     })
 
@@ -675,8 +675,8 @@ describe('TableControls', () => {
         const colBtn0 = screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-0`)
         const colBtn1 = screen.getByTestId(`${TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-1`)
 
-        expect(colBtn0).toHaveAttribute('title', 'Column options')
-        expect(colBtn1).toHaveAttribute('title', 'Column options')
+        expect(colBtn0).toHaveAttribute('aria-label', 'Column options')
+        expect(colBtn1).toHaveAttribute('aria-label', 'Column options')
       })
     })
 

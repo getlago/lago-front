@@ -341,7 +341,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
               type="button"
               className="table-controls__add-btn table-controls__add-col"
               data-test={TABLE_CONTROLS_ADD_COL_BUTTON_TEST_ID}
-              title="Add column"
+              aria-label="Add column"
               style={{ height: '100%' }}
               onClick={() => {
                 const lastCol = layout.cols[layout.cols.length - 1]
@@ -369,7 +369,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
               type="button"
               className="table-controls__add-btn table-controls__add-row"
               data-test={TABLE_CONTROLS_ADD_ROW_BUTTON_TEST_ID}
-              title="Add row"
+              aria-label="Add row"
               style={{ width: '100%' }}
               onClick={() => {
                 const lastRow = layout.rows[layout.rows.length - 1]

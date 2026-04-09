@@ -20,7 +20,7 @@ const TableMenuOpener = forwardRef<HTMLButtonElement, TableMenuOpenerProps>(
         type="button"
         className={`table-controls__menu-btn table-controls__menu-btn--${variant} ${isSelected ? 'is-selected' : ''}`}
         data-test={`${variant === 'row' ? TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID : TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID}-${index}`}
-        title={variant === 'row' ? 'Row options' : 'Column options'}
+        aria-label={variant === 'row' ? 'Row options' : 'Column options'}
         onClick={() => {
           onSelect()
           onClick?.()
