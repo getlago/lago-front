@@ -7,7 +7,7 @@ import {
 } from '~/components/designSystem/GenericPlaceholder'
 import { render } from '~/test-utils'
 
-import QuotesList from '../QuotesList'
+import OrderFormsList from '../OrderFormsList'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -15,28 +15,28 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-describe('QuotesList', () => {
+describe('OrderFormsList', () => {
   describe('GIVEN the component is rendered', () => {
     describe('WHEN in default state', () => {
       it('THEN should render the empty state placeholder', () => {
-        render(<QuotesList />)
+        render(<OrderFormsList />)
 
         expect(screen.getByTestId(GENERIC_PLACEHOLDER_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should display the correct title in the placeholder', () => {
-        render(<QuotesList />)
+        render(<OrderFormsList />)
 
         expect(screen.getByTestId(GENERIC_PLACEHOLDER_TITLE_TEST_ID)).toHaveTextContent(
-          'text_17757391860814p20fr87x9g',
+          'text_17757461968258p4ij8g74zp',
         )
       })
 
       it('THEN should display the correct subtitle in the placeholder', () => {
-        render(<QuotesList />)
+        render(<OrderFormsList />)
 
         expect(screen.getByTestId(GENERIC_PLACEHOLDER_SUBTITLE_TEST_ID)).toHaveTextContent(
-          'text_177573918608169w9wthupaz',
+          'text_1775746196826qogq3id888u',
         )
       })
     })

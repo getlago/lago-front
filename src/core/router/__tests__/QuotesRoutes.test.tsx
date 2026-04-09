@@ -1,9 +1,13 @@
-import { QUOTES_LIST_ROUTE, quotesRoutes } from '../QuotesRoutes'
+import { QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE, quotesRoutes } from '../QuotesRoutes'
 
 describe('QuotesRoutes', () => {
   describe('route constants', () => {
     it('defines the quotes list route path', () => {
       expect(QUOTES_LIST_ROUTE).toBe('/quotes')
+    })
+
+    it('defines the quotes tab route path', () => {
+      expect(QUOTES_TAB_ROUTE).toBe('/quotes/:tab')
     })
   })
 
@@ -18,10 +22,11 @@ describe('QuotesRoutes', () => {
       })
     })
 
-    it('quotes list route has the correct path', () => {
-      const quotesListRoute = quotesRoutes.find((r) => r.path === QUOTES_LIST_ROUTE)
+    it('quotes route supports both list and tab paths', () => {
+      const quotesRoute = quotesRoutes[0]
 
-      expect(quotesListRoute).toBeDefined()
+      expect(quotesRoute.path).toContain(QUOTES_LIST_ROUTE)
+      expect(quotesRoute.path).toContain(QUOTES_TAB_ROUTE)
     })
 
     it('all routes have an element defined', () => {
