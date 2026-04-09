@@ -127,7 +127,7 @@ describe('MainNavMenuSections', () => {
       expect(screen.queryByTestId(MAIN_NAV_CONFIGURATION_SECTION_TEST_ID)).not.toBeInTheDocument()
     })
 
-    it('does not render billing section when all billing tabs are hidden', () => {
+    it('still renders billing section when all permission-gated billing tabs are hidden because Quotes has no permission gating', () => {
       mockHasPermissions.mockImplementation((permissions: string[]) => {
         const billingPermissions = [
           'customersView',
@@ -147,16 +147,20 @@ describe('MainNavMenuSections', () => {
 
       render(<MainNavMenuSections {...defaultProps} />)
 
-      expect(screen.queryByTestId(MAIN_NAV_BILLING_SECTION_TEST_ID)).not.toBeInTheDocument()
+      // Billing section is still rendered because Quotes tab has no permission gating
+      expect(screen.getByTestId(MAIN_NAV_BILLING_SECTION_TEST_ID)).toBeInTheDocument()
     })
 
-    it('does not render entire component when all sections are hidden', () => {
+    it('still renders menu sections when all permissions are false because Quotes tab has no permission gating', () => {
       mockHasPermissions.mockReturnValue(false)
 
-      const { container } = render(<MainNavMenuSections {...defaultProps} />)
+      render(<MainNavMenuSections {...defaultProps} />)
 
-      expect(screen.queryByTestId(MAIN_NAV_MENU_SECTIONS_TEST_ID)).not.toBeInTheDocument()
-      expect(container.firstChild).toBeNull()
+      // Menu sections container is still rendered because Quotes tab (no permission gating) keeps billing section visible
+      expect(screen.getByTestId(MAIN_NAV_MENU_SECTIONS_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(MAIN_NAV_BILLING_SECTION_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(MAIN_NAV_REPORTS_SECTION_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(MAIN_NAV_CONFIGURATION_SECTION_TEST_ID)).not.toBeInTheDocument()
     })
 
     it('renders only sections with visible tabs', () => {
