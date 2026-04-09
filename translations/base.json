@@ -4061,5 +4061,7 @@
   "text_1777281711979fsxgdzarsdb": "More actions",
   "text_1777385516575oti5gavf3ze": "Taxes will be recalculated after invoice generation, using the current tax configuration. They may differ from the original invoice.",
   "text_1777471747994p4c7cm9pri6": "Subscription {{externalSubscriptionId}} was canceled",
-  "text_17774717479940xot2f14xbr": "Subscription {{externalSubscriptionId}} is incomplete"
+  "text_17774717479940xot2f14xbr": "Subscription {{externalSubscriptionId}} is incomplete",
+  "text_17757391860814p20fr87x9g": "Quotes",
+  "text_177573918608169w9wthupaz": "Quotes will appear here once created."
 }
