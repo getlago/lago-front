@@ -126,6 +126,7 @@ import ValidateUnfilled from '~/icons/validate-unfilled.svg'
 import Wallet from '~/icons/wallet.svg'
 import WarningFilled from '~/icons/warning-filled.svg'
 import WarningUnfilled from '~/icons/warning-unfilled.svg'
+import WritingSign from '~/icons/writing-sign.svg'
 
 export const ALL_ICONS = {
   at: At,
@@ -256,4 +257,5 @@ export const ALL_ICONS = {
   wallet: Wallet,
   'warning-filled': WarningFilled,
   'warning-unfilled': WarningUnfilled,
+  'writing-sign': WritingSign,
 }
