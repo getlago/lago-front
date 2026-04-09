@@ -26,6 +26,7 @@ import {
   PLAN_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
+  QUOTES_LIST_ROUTE,
   SUBSCRIPTIONS_ROUTE,
   WALLET_DETAILS_ROUTE,
 } from '~/core/router'
@@ -125,6 +126,13 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
         WALLET_DETAILS_ROUTE,
       ],
       hidden: !hasPermissions(['customersView']),
+    },
+    {
+      title: translate('text_17757391860814p20fr87x9g'),
+      icon: 'writing-sign',
+      link: QUOTES_LIST_ROUTE,
+      canBeClickedOnActive: true,
+      match: [QUOTES_LIST_ROUTE],
     },
     {
       title: translate('text_6250304370f0f700a8fdc28d'),
