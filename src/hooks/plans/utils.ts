@@ -1,3 +1,10 @@
+// Decimal precision for tier boundary arithmetic, used to prevent floating-point noise.
+// Intentionally lower than chargeDecimal's 15-digit INPUT limit because IEEE 754
+// doubles produce noise at ~16 significant digits (e.g. 5.3 + 0.1 = 5.399999999999999).
+const CHARGE_DECIMAL_PRECISION = 10
+
+const toFixedNumber = (value: number): number => Number(value.toFixed(CHARGE_DECIMAL_PRECISION))
+
 // Returns the number of decimal places in a number
 const getDecimalPlaces = (value: number | string): number => {
   const str = String(value)
@@ -34,8 +41,96 @@ export const formataAnyToValueForChargeFormArrays = (
   if (toValue === null) return null
 
   if (Number(toValue || 0) <= Number(fromValue)) {
-    return Number((Number(fromValue) + step).toFixed(10))
+    return toFixedNumber(Number(fromValue) + step)
   }
 
   return Number(toValue || 0)
+}
+
+// --- Shared tier range manipulation logic ---
+type BaseRange = {
+  fromValue: number
+  toValue?: number | null
+}
+
+export const buildRangesForAdd = <T extends BaseRange>(
+  ranges: T[],
+  newRangeDefaults: Partial<T>,
+): Partial<T>[] => {
+  const addIndex = ranges.length - 1
+  const step = getDecimalStep(ranges)
+
+  return ranges.reduce<Partial<T>[]>((acc, range, i) => {
+    if (i < addIndex) {
+      acc.push(range)
+    } else if (i === addIndex) {
+      const newToValue =
+        addIndex === 0 ? 0 : toFixedNumber(Number(ranges[addIndex - 1]?.toValue || 0) + step)
+
+      acc.push({
+        ...newRangeDefaults,
+        fromValue: newToValue,
+        toValue: toFixedNumber(newToValue + step),
+      } as Partial<T>)
+      acc.push({
+        ...range,
+        fromValue: toFixedNumber(
+          Number(range.fromValue || 0) <= newToValue + step
+            ? newToValue + step + step
+            : Number(range.fromValue),
+        ),
+      })
+    }
+
+    return acc
+  }, [])
+}
+
+export const buildRangesForToValueUpdate = <T extends BaseRange>(
+  ranges: T[],
+  rangeIndex: number,
+  value: number | string | undefined,
+): T[] => {
+  const updatedRanges = ranges.map((range, i) =>
+    i === rangeIndex ? { ...range, toValue: Number(value || 0) } : range,
+  )
+  const step = getDecimalStep(updatedRanges)
+
+  return ranges.reduce<T[]>((acc, range, i) => {
+    if (rangeIndex === i) {
+      acc.push({ ...range, toValue: Number(value || 0) })
+    } else if (i > rangeIndex) {
+      const { toValue } = acc[i - 1]
+      const fromValue = toFixedNumber(Number(toValue || 0) + step)
+      const formattedToValue = formataAnyToValueForChargeFormArrays(range.toValue, fromValue, step)
+
+      acc.push({ ...range, fromValue, toValue: formattedToValue })
+    } else {
+      acc.push(range)
+    }
+
+    return acc
+  }, [])
+}
+
+export const buildRangesForDelete = <T extends BaseRange>(ranges: T[], rangeIndex: number): T[] => {
+  const remainingRanges = ranges.filter((_, i) => i !== rangeIndex)
+  const step = getDecimalStep(remainingRanges)
+
+  const newRanges = ranges.reduce<T[]>((acc, range, i) => {
+    if (i < rangeIndex) acc.push({ ...range })
+    if (i > rangeIndex) {
+      const { toValue } = acc[acc.length - 1]
+
+      acc.push({
+        ...range,
+        fromValue: toFixedNumber(Number(toValue || 0) + step),
+      })
+    }
+    return acc
+  }, [])
+
+  newRanges[newRanges.length - 1].toValue = null
+
+  return newRanges
 }

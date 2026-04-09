@@ -1,4 +1,10 @@
-import { formataAnyToValueForChargeFormArrays, getDecimalStep } from '../utils'
+import {
+  buildRangesForAdd,
+  buildRangesForDelete,
+  buildRangesForToValueUpdate,
+  formataAnyToValueForChargeFormArrays,
+  getDecimalStep,
+} from '../utils'
 
 describe('formattedToValue', () => {
   describe('GIVEN toValue is null', () => {
@@ -169,6 +175,144 @@ describe('formattedToValue with step parameter', () => {
 
     it('THEN returns toValue unchanged when step is 0.1', () => {
       expect(formataAnyToValueForChargeFormArrays(0.5, 0.3, 0.1)).toBe(0.5)
+    })
+  })
+})
+
+describe('buildRangesForAdd', () => {
+  const defaults = { flatAmount: undefined, perUnitAmount: undefined }
+
+  describe('GIVEN integer ranges', () => {
+    it('THEN inserts a new range with step 1 before the last row', () => {
+      const ranges = [
+        { fromValue: 0, toValue: 1, flatAmount: undefined, perUnitAmount: undefined },
+        { fromValue: 2, toValue: null, flatAmount: undefined, perUnitAmount: undefined },
+      ]
+      const result = buildRangesForAdd(ranges, defaults)
+
+      expect(result).toHaveLength(3)
+      expect(result[0]).toMatchObject({ fromValue: 0, toValue: 1 })
+      expect(result[1]).toMatchObject({ fromValue: 2, toValue: 3 })
+      expect(result[2]).toMatchObject({ fromValue: 4, toValue: null })
+    })
+  })
+
+  describe('GIVEN decimal ranges with 1 decimal place', () => {
+    it('THEN inserts a new range with step 0.1', () => {
+      const ranges = [
+        { fromValue: 0, toValue: 0.5, flatAmount: undefined, perUnitAmount: undefined },
+        { fromValue: 0.6, toValue: null, flatAmount: undefined, perUnitAmount: undefined },
+      ]
+      const result = buildRangesForAdd(ranges, defaults)
+
+      expect(result).toHaveLength(3)
+      expect(result[0]).toMatchObject({ fromValue: 0, toValue: 0.5 })
+      expect(result[1]).toMatchObject({ fromValue: 0.6, toValue: 0.7 })
+      expect(result[2]).toMatchObject({ fromValue: 0.8, toValue: null })
+    })
+  })
+
+  describe('GIVEN a single range (addIndex === 0)', () => {
+    it('THEN creates new range starting from 0', () => {
+      const ranges = [
+        { fromValue: 0, toValue: null, flatAmount: undefined, perUnitAmount: undefined },
+      ]
+      const result = buildRangesForAdd(ranges, defaults)
+
+      expect(result).toHaveLength(2)
+      expect(result[0]).toMatchObject({ fromValue: 0, toValue: 1 })
+      expect(result[1]).toMatchObject({ fromValue: 2, toValue: null })
+    })
+  })
+})
+
+describe('buildRangesForToValueUpdate', () => {
+  describe('GIVEN ranges with stale fromValues from backend (bug regression)', () => {
+    describe('WHEN editing a decimal toValue to integer', () => {
+      it('THEN ignores stale fromValue precision and uses toValue-based step', () => {
+        const ranges = [
+          { fromValue: 0, toValue: 1.5, flatAmount: undefined, perUnitAmount: undefined },
+          { fromValue: 1.50001, toValue: 3.2, flatAmount: undefined, perUnitAmount: undefined },
+          { fromValue: 3.20001, toValue: 5.3, flatAmount: undefined, perUnitAmount: undefined },
+          { fromValue: 5.30001, toValue: null, flatAmount: undefined, perUnitAmount: undefined },
+        ]
+        const result = buildRangesForToValueUpdate(ranges, 0, 1)
+
+        expect(result[0].toValue).toBe(1)
+        expect(result[1].fromValue).toBe(1.1)
+        expect(result[1].toValue).toBe(3.2)
+        expect(result[2].fromValue).toBe(3.3)
+        expect(result[2].toValue).toBe(5.3)
+        expect(result[3].fromValue).toBe(5.4)
+        expect(result[3].toValue).toBeNull()
+      })
+    })
+  })
+
+  describe('GIVEN integer ranges updated to decimal', () => {
+    describe('WHEN changing toValue from integer to decimal', () => {
+      it('THEN switches to decimal step for downstream ranges', () => {
+        const ranges = [
+          { fromValue: 0, toValue: 1, flatAmount: undefined, perUnitAmount: undefined },
+          { fromValue: 2, toValue: null, flatAmount: undefined, perUnitAmount: undefined },
+        ]
+        const result = buildRangesForToValueUpdate(ranges, 0, 1.5)
+
+        expect(result[0].toValue).toBe(1.5)
+        expect(result[1].fromValue).toBe(1.6)
+      })
+    })
+  })
+
+  describe('GIVEN decimal ranges changed back to integer', () => {
+    describe('WHEN all toValues become integers', () => {
+      it('THEN switches back to step 1', () => {
+        const ranges = [
+          { fromValue: 0, toValue: 1.5, flatAmount: undefined, perUnitAmount: undefined },
+          { fromValue: 1.6, toValue: null, flatAmount: undefined, perUnitAmount: undefined },
+        ]
+        const result = buildRangesForToValueUpdate(ranges, 0, 2)
+
+        expect(result[0].toValue).toBe(2)
+        expect(result[1].fromValue).toBe(3)
+      })
+    })
+  })
+})
+
+describe('buildRangesForDelete', () => {
+  describe('GIVEN integer ranges with 3 tiers', () => {
+    describe('WHEN deleting the middle tier', () => {
+      it('THEN recomputes fromValues and sets last toValue to null', () => {
+        const ranges = [
+          { fromValue: 0, toValue: 5, flatAmount: undefined, perUnitAmount: undefined },
+          { fromValue: 6, toValue: 10, flatAmount: undefined, perUnitAmount: undefined },
+          { fromValue: 11, toValue: null, flatAmount: undefined, perUnitAmount: undefined },
+        ]
+        const result = buildRangesForDelete(ranges, 1)
+
+        expect(result).toStrictEqual([
+          { fromValue: 0, toValue: 5, flatAmount: undefined, perUnitAmount: undefined },
+          { fromValue: 6, toValue: null, flatAmount: undefined, perUnitAmount: undefined },
+        ])
+      })
+    })
+  })
+
+  describe('GIVEN ranges where deleting removes the only decimal toValue', () => {
+    describe('WHEN the deleted range had the only decimal toValue', () => {
+      it('THEN step reverts to 1 for remaining integer ranges', () => {
+        const ranges = [
+          { fromValue: 0, toValue: 5, flatAmount: undefined, perUnitAmount: undefined },
+          { fromValue: 5.1, toValue: 5.5, flatAmount: undefined, perUnitAmount: undefined },
+          { fromValue: 5.6, toValue: null, flatAmount: undefined, perUnitAmount: undefined },
+        ]
+        const result = buildRangesForDelete(ranges, 1)
+
+        expect(result[0].toValue).toBe(5)
+        expect(result[1].fromValue).toBe(6)
+        expect(result[1].toValue).toBeNull()
+      })
     })
   })
 })

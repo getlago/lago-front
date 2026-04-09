@@ -347,6 +347,93 @@ describe('useGraduatedRange()', () => {
         ])
       })
     })
+
+    describe('decimal tier boundaries', () => {
+      it('should handle decimal toValue and compute fromValue with decimal step', async () => {
+        const { result } = await prepare({})
+
+        await act(async () => await result.current.handleUpdate(0, 'toValue', 1.5))
+
+        expect(result.current.tableDatas[0].toValue).toBe(1.5)
+        expect(result.current.tableDatas[1].fromValue).toBe(1.6)
+      })
+
+      it('should add range with decimal step when existing ranges use decimals', async () => {
+        const { result } = await prepare({})
+
+        await act(async () => await result.current.handleUpdate(0, 'toValue', 0.5))
+        await act(async () => await result.current.addRange())
+
+        expect(result.current.tableDatas).toStrictEqual([
+          {
+            fromValue: 0,
+            toValue: 0.5,
+            flatAmount: undefined,
+            rate: undefined,
+            disabledDelete: true,
+          },
+          {
+            fromValue: 0.6,
+            toValue: 0.7,
+            flatAmount: undefined,
+            rate: undefined,
+            disabledDelete: false,
+          },
+          {
+            fromValue: 0.8,
+            toValue: null,
+            flatAmount: undefined,
+            rate: undefined,
+            disabledDelete: false,
+          },
+        ])
+      })
+
+      it('should revert to integer step when decimal is removed from toValue', async () => {
+        const { result } = await prepare({})
+
+        // Set decimal first
+        await act(async () => await result.current.handleUpdate(0, 'toValue', 1.5))
+        expect(result.current.tableDatas[1].fromValue).toBe(1.6)
+
+        // Change back to integer
+        await act(async () => await result.current.handleUpdate(0, 'toValue', 2))
+        expect(result.current.tableDatas[1].fromValue).toBe(3)
+      })
+
+      it('should delete range correctly with decimal boundaries', async () => {
+        const { result } = await prepare({})
+
+        await act(async () => await result.current.handleUpdate(0, 'toValue', 0.5))
+        await act(async () => await result.current.addRange())
+        expect(result.current.tableDatas).toHaveLength(3)
+
+        await act(async () => await result.current.deleteRange(1))
+        expect(result.current.tableDatas).toHaveLength(2)
+        expect(result.current.tableDatas[0].toValue).toBe(0.5)
+        expect(result.current.tableDatas[1].fromValue).toBe(0.6)
+        expect(result.current.tableDatas[1].toValue).toBeNull()
+      })
+
+      it('should handle multi-tier decimal scenario end-to-end', async () => {
+        const { result } = await prepare({})
+
+        // Create 4 tiers with decimal boundaries
+        await act(async () => await result.current.addRange())
+        await act(async () => await result.current.addRange())
+        await act(async () => await result.current.handleUpdate(0, 'toValue', 1.5))
+        await act(async () => await result.current.handleUpdate(1, 'toValue', 3.2))
+        await act(async () => await result.current.handleUpdate(2, 'toValue', 5.3))
+
+        expect(result.current.tableDatas[0].toValue).toBe(1.5)
+        expect(result.current.tableDatas[1].fromValue).toBe(1.6)
+        expect(result.current.tableDatas[1].toValue).toBe(3.2)
+        expect(result.current.tableDatas[2].fromValue).toBe(3.3)
+        expect(result.current.tableDatas[2].toValue).toBe(5.3)
+        expect(result.current.tableDatas[3].fromValue).toBe(5.4)
+        expect(result.current.tableDatas[3].toValue).toBeNull()
+      })
+    })
   })
 
   describe('with filters', () => {

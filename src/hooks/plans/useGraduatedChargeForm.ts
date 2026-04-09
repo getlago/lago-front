@@ -4,7 +4,11 @@ import { useEffect, useMemo } from 'react'
 import { LocalChargeFilterInput } from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { GraduatedRangeInput, PropertiesInput } from '~/generated/graphql'
-import { formataAnyToValueForChargeFormArrays, getDecimalStep } from '~/hooks/plans/utils'
+import {
+  buildRangesForAdd,
+  buildRangesForDelete,
+  buildRangesForToValueUpdate,
+} from '~/hooks/plans/utils'
 
 type RangeType = GraduatedRangeInput & { disabledDelete: boolean }
 type InfoCalculationRow = {
@@ -124,105 +128,25 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
       [graduatedRanges],
     ),
     addRange: () => {
-      const addIndex = graduatedRanges?.length - 1 // Add before the last range
-      const step = getDecimalStep(graduatedRanges)
-      const newGraduatedRanges = graduatedRanges.reduce<Partial<GraduatedRangeInput>[]>(
-        (acc, range, i) => {
-          if (i < addIndex) {
-            acc.push(range)
-          } else if (i === addIndex) {
-            const newToValue =
-              addIndex === 0
-                ? 0
-                : Number((Number(graduatedRanges[addIndex - 1]?.toValue || 0) + step).toFixed(10))
+      const newRanges = buildRangesForAdd(graduatedRanges, {
+        flatAmount: undefined,
+        perUnitAmount: undefined,
+      })
 
-            acc.push({
-              fromValue: newToValue,
-              toValue: Number((newToValue + step).toFixed(10)),
-              flatAmount: undefined,
-              perUnitAmount: undefined,
-            })
-            acc.push({
-              ...range,
-              fromValue: Number(
-                (Number(range.fromValue || 0) <= newToValue + step
-                  ? newToValue + step + step
-                  : Number(range.fromValue)
-                ).toFixed(10),
-              ),
-            })
-          }
-
-          return acc
-        },
-        [],
-      )
-
-      setFieldValue(`${propertyCursor}.graduatedRanges`, newGraduatedRanges)
+      setFieldValue(`${propertyCursor}.graduatedRanges`, newRanges)
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       if (fieldName !== 'toValue') {
         setFieldValue(`${attributeIdentifier}.${rangeIndex}.${fieldName}`, value)
       } else {
-        // Build the new ranges first to detect adjacency model from the updated values
-        const updatedRanges = graduatedRanges.map((range, i) =>
-          i === rangeIndex ? { ...range, toValue: Number(value || 0) } : range,
+        setFieldValue(
+          attributeIdentifier,
+          buildRangesForToValueUpdate(graduatedRanges, rangeIndex, value as number | string),
         )
-        const step = getDecimalStep(updatedRanges)
-
-        const newGraduatedRanges = graduatedRanges.reduce<GraduatedRangeInput[]>(
-          (acc, range, i) => {
-            if (rangeIndex === i) {
-              acc.push({ ...range, toValue: Number(value || 0) })
-            } else if (i > rangeIndex) {
-              // fromValue should be toValueOfPreviousRange + step
-              const { toValue } = acc[i - 1]
-              const fromValue = Number((Number(toValue || 0) + step).toFixed(10))
-              const formattedToValue = formataAnyToValueForChargeFormArrays(
-                range.toValue,
-                fromValue,
-                step,
-              )
-
-              acc.push({
-                ...range,
-                fromValue,
-                toValue: formattedToValue,
-              })
-            } else {
-              acc.push(range)
-            }
-
-            return acc
-          },
-          [],
-        )
-
-        setFieldValue(attributeIdentifier, newGraduatedRanges)
       }
     },
     deleteRange: (rangeIndex) => {
-      const remainingRanges = graduatedRanges.filter((_, i) => i !== rangeIndex)
-      const step = getDecimalStep(remainingRanges)
-
-      const newGraduatedRanges = graduatedRanges.reduce<GraduatedRangeInput[]>((acc, range, i) => {
-        if (i < rangeIndex) acc.push({ ...range })
-        // fromValue should be toValueOfPreviousRange + step
-        if (i > rangeIndex) {
-          const { toValue } = acc[acc.length - 1]
-
-          acc.push({
-            ...range,
-            fromValue: Number((Number(toValue || 0) + step).toFixed(10)),
-          })
-        }
-        return acc
-      }, [])
-
-      // Last row needs to have toValue null
-      newGraduatedRanges[newGraduatedRanges.length - 1].toValue = null
-
-      setFieldValue(attributeIdentifier, newGraduatedRanges)
+      setFieldValue(attributeIdentifier, buildRangesForDelete(graduatedRanges, rangeIndex))
     },
   }
 }
