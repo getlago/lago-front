@@ -80,10 +80,91 @@ jest.mock('~/hooks/plans/usePlanForm', () => ({
   }),
 }))
 
+const mockSubscriptionFormIsDirty = false
+const mockSubscriptionFormCanSubmit = true
+const mockSubscriptionFormIsSubmitting = false
+
+const mockSubscriptionFormStore = {
+  subscribe: jest.fn((cb: () => void) => {
+    cb()
+    return () => {}
+  }),
+  listeners: new Set(),
+  state: { values: {} },
+}
+
+const mockSubscriptionForm = {
+  store: mockSubscriptionFormStore,
+  state: {
+    values: {
+      planId: '',
+      name: '',
+      externalId: '',
+      subscriptionAt: '2026-01-01',
+      billingTime: 'calendar',
+    },
+  },
+  setFieldValue: jest.fn(),
+  setFieldMeta: jest.fn(),
+  getFieldValue: jest.fn(),
+  reset: jest.fn(),
+  handleSubmit: jest.fn(),
+  AppField: ({ children }: { children: (field: unknown) => React.ReactNode; name: string }) => {
+    const mockFieldApi = {
+      TextInputField: (props: Record<string, unknown>) => (
+        <input data-test={`field-${props.label}`} />
+      ),
+      ComboBoxField: (props: Record<string, unknown>) => (
+        <div data-test={`combobox-${props.label}`}>combobox</div>
+      ),
+      ButtonSelectorField: (props: Record<string, unknown>) => (
+        <div data-test={`selector-${props.label}`}>selector</div>
+      ),
+      DatePickerField: (props: Record<string, unknown>) => (
+        <div data-test={`datepicker-${props.label}`}>datepicker</div>
+      ),
+    }
+
+    return <>{children(mockFieldApi)}</>
+  },
+  Subscribe: ({
+    children,
+    selector,
+  }: {
+    children: (value: unknown) => React.ReactNode
+    selector: (state: Record<string, unknown>) => unknown
+  }) => {
+    const value = selector({
+      fieldMeta: {},
+      values: mockSubscriptionForm.state.values,
+    })
+
+    return <>{children(value)}</>
+  },
+}
+
+jest.mock('~/hooks/forms/useAppform', () => ({
+  useAppForm: jest.fn(() => mockSubscriptionForm),
+}))
+
 jest.mock('@tanstack/react-form', () => ({
+  revalidateLogic: jest.fn(() => ({})),
   useStore: jest.fn((_store: unknown, selector: (state: Record<string, unknown>) => unknown) => {
-    const state = { isDirty: mockPlanFormIsDirty, canSubmit: mockPlanFormCanSubmit }
-    return selector(state)
+    // Return different state based on which store is being queried
+    if (_store === mockSubscriptionFormStore) {
+      return selector({
+        isDirty: mockSubscriptionFormIsDirty,
+        canSubmit: mockSubscriptionFormCanSubmit,
+        isSubmitting: mockSubscriptionFormIsSubmitting,
+        values: mockSubscriptionForm.state.values,
+      })
+    }
+
+    // Plan form store
+    return selector({
+      isDirty: mockPlanFormIsDirty,
+      canSubmit: mockPlanFormCanSubmit,
+    })
   }),
 }))
 
@@ -217,7 +298,7 @@ describe('CreateSubscription', () => {
       })
     })
 
-    describe('WHEN neither formik nor plan form is dirty', () => {
+    describe('WHEN neither subscription form nor plan form is dirty', () => {
       it('THEN the submit button should be disabled', () => {
         mockPlanFormIsDirty = false
         mockPlanFormCanSubmit = true
@@ -257,7 +338,7 @@ describe('CreateSubscription', () => {
       })
     })
 
-    describe('WHEN planFormIsDirty is false and formik is not dirty', () => {
+    describe('WHEN neither form is dirty', () => {
       it('THEN should navigate away on close click', async () => {
         mockPlanFormIsDirty = false
         const user = userEvent.setup()
