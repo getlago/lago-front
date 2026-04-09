@@ -231,8 +231,15 @@ jest.mock('~/components/drawers/const', () => ({
   DRAWER_TRANSITION_DURATION: 0,
 }))
 
+// Prop-capturing mocks for child components
+let lastChargeModelSelectorProps: Record<string, unknown> = {}
+let lastChargePayInAdvanceOptionProps: Record<string, unknown> = {}
+
 jest.mock('~/components/plans/chargeAccordion/ChargeModelSelector', () => ({
-  ChargeModelSelector: () => <div data-test={CHARGE_MODEL_SELECTOR_TEST_ID} />,
+  ChargeModelSelector: (props: Record<string, unknown>) => {
+    lastChargeModelSelectorProps = props
+    return <div data-test={CHARGE_MODEL_SELECTOR_TEST_ID} />
+  },
 }))
 
 jest.mock('~/components/plans/chargeAccordion/ChargeWrapperSwitch', () => ({
@@ -248,7 +255,10 @@ jest.mock('~/components/plans/drawers/common/PlanBillingPeriodInfoSection', () =
 }))
 
 jest.mock('~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption', () => ({
-  ChargePayInAdvanceOption: () => <div data-test={CHARGE_PAY_IN_ADVANCE_OPTION_TEST_ID} />,
+  ChargePayInAdvanceOption: (props: Record<string, unknown>) => {
+    lastChargePayInAdvanceOptionProps = props
+    return <div data-test={CHARGE_PAY_IN_ADVANCE_OPTION_TEST_ID} />
+  },
 }))
 
 jest.mock('~/components/plans/chargeAccordion/options/ChargeInvoicingStrategyOption', () => ({
@@ -289,6 +299,8 @@ describe('UsageChargeDrawerContent', () => {
     mockCurrentFormValues = mockDefaultFormValues
     mockForm.store = mockCreateStore(mockDefaultFormValues)
     mockForm.state = { values: mockDefaultFormValues }
+    lastChargeModelSelectorProps = {}
+    lastChargePayInAdvanceOptionProps = {}
   })
 
   describe('GIVEN create mode with no billable metric selected', () => {
@@ -474,6 +486,84 @@ describe('UsageChargeDrawerContent', () => {
         )
 
         expect(screen.getByTestId(TAXES_SELECTOR_SECTION_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a plan with subscriptions and an EXISTING usage charge', () => {
+    const existingChargeFormValues = {
+      ...mockEditFormValues,
+      id: 'charge-1', // Has an id = existing charge persisted on backend
+    }
+
+    beforeEach(() => {
+      mockCurrentFormValues = existingChargeFormValues
+      mockForm.store = mockCreateStore(existingChargeFormValues)
+      mockForm.state = { values: existingChargeFormValues }
+    })
+
+    describe('WHEN disabled=true (plan has subscriptions)', () => {
+      const renderExistingChargeOnSubscribedPlan = () =>
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode={false}
+            isEdition
+            disabled
+            editIndex={0}
+            currency="USD"
+            interval="monthly"
+          />,
+        )
+
+      it('THEN ChargeModelSelector should be disabled', () => {
+        renderExistingChargeOnSubscribedPlan()
+
+        expect(lastChargeModelSelectorProps.disabled).toBe(true)
+      })
+
+      it('THEN ChargePayInAdvanceOption should be disabled', () => {
+        renderExistingChargeOnSubscribedPlan()
+
+        expect(lastChargePayInAdvanceOptionProps.disabled).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN a plan with subscriptions and a NEW usage charge (no id)', () => {
+    const newChargeFormValues = {
+      ...mockEditFormValues,
+      id: undefined, // No id = new charge not yet persisted
+    }
+
+    beforeEach(() => {
+      mockCurrentFormValues = newChargeFormValues
+      mockForm.store = mockCreateStore(newChargeFormValues)
+      mockForm.state = { values: newChargeFormValues }
+    })
+
+    describe('WHEN disabled=true (plan has subscriptions) but charge has no id', () => {
+      const renderNewChargeOnSubscribedPlan = () =>
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode={false}
+            isEdition
+            disabled
+            editIndex={0}
+            currency="USD"
+            interval="monthly"
+          />,
+        )
+
+      it('THEN ChargeModelSelector should NOT be disabled (new charge)', () => {
+        renderNewChargeOnSubscribedPlan()
+
+        expect(lastChargeModelSelectorProps.disabled).toBe(false)
+      })
+
+      it('THEN ChargePayInAdvanceOption should NOT be disabled', () => {
+        renderNewChargeOnSubscribedPlan()
+
+        expect(lastChargePayInAdvanceOptionProps.disabled).toBe(false)
       })
     })
   })

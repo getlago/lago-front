@@ -90,6 +90,11 @@ export const FixedChargeDrawerContent = withForm({
     const formValues = useStore(form.store, (state) => state.values)
     const isCreatePickerScreen = isCreateMode && !formValues.addOnId
 
+    // Only disable fields for charges that already exist on the backend (have an id)
+    // New charges added to a subscribed plan should remain fully editable
+    const isExistingCharge = !!formValues.id
+    const isExistingChargeDisabled = disabled && isExistingCharge
+
     const [getAddOnsForFixedChargesSection, { loading: addOnsLoading, data: addOnsData }] =
       useGetAddOnsForFixedChargesSectionLazyQuery({
         variables: { limit: 1000 },
@@ -239,7 +244,7 @@ export const FixedChargeDrawerContent = withForm({
                 <ChargeModelSelector
                   alreadyUsedChargeAlertMessage={alertMessage}
                   isInSubscriptionForm={isInSubscriptionForm}
-                  disabled={disabled}
+                  disabled={isExistingChargeDisabled}
                   localCharge={formValues as unknown as LocalFixedChargeInput}
                   chargeModelComboboxData={chargeModelComboboxData}
                   handleUpdate={handleChargeModelUpdate}
@@ -249,7 +254,6 @@ export const FixedChargeDrawerContent = withForm({
                   chargeType="fixed"
                   chargePricingUnitShortName={undefined}
                   currency={currency}
-                  disabled={disabled}
                   form={form}
                   isEdition={isEdition}
                   localCharge={formValues as unknown as LocalFixedChargeInput}
@@ -262,7 +266,6 @@ export const FixedChargeDrawerContent = withForm({
                       label={translate('text_65771fa3f4ab9a00720726ce')}
                       placeholder={translate('text_643e592657fc1ba5ce110c80')}
                       beforeChangeFormatter={['positiveNumber', 'sextDecimal']}
-                      disabled={disabled}
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
@@ -280,7 +283,6 @@ export const FixedChargeDrawerContent = withForm({
                       <field.SwitchField
                         label={translate('text_1760721761361octnb0dfqm5')}
                         subLabel={translate('text_1760721761361lqhc17vjr2b')}
-                        disabled={disabled}
                       />
                     )}
                   </form.AppField>
@@ -305,7 +307,7 @@ export const FixedChargeDrawerContent = withForm({
 
                 <ChargePayInAdvanceOption
                   chargePayInAdvanceDescription={undefined}
-                  disabled={isInSubscriptionForm || disabled}
+                  disabled={isInSubscriptionForm || isExistingChargeDisabled}
                   isPayInAdvanceOptionDisabled={isPayInAdvanceOptionDisabled}
                   payInAdvance={formValues.payInAdvance}
                   handleUpdate={({ payInAdvance }) => {
@@ -324,7 +326,11 @@ export const FixedChargeDrawerContent = withForm({
                     {(field) => (
                       <field.SwitchField
                         label={translate('text_17607297072670cl4jl071yy')}
-                        disabled={isInSubscriptionForm || disabled || isProratedOptionDisabled}
+                        disabled={
+                          isInSubscriptionForm ||
+                          isExistingChargeDisabled ||
+                          isProratedOptionDisabled
+                        }
                       />
                     )}
                   </form.AppField>
