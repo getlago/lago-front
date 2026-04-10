@@ -15,6 +15,9 @@ import {
   forgotPasswordValidationSchema,
 } from './forgotPasswordForm/validationSchema'
 
+export const FORGOT_PASSWORD_SUBMIT_BUTTON_TEST_ID = 'forgot-password-submit-button'
+export const FORGOT_PASSWORD_BACK_TO_LOGIN_TEST_ID = 'forgot-password-back-to-login'
+
 gql`
   mutation createPasswordReset($input: CreatePasswordResetInput!) {
     createPasswordReset(input: $input) {
@@ -83,6 +86,7 @@ const ForgotPassword = () => {
             <ButtonLink
               type="button"
               to={LOGIN_ROUTE}
+              data-test={FORGOT_PASSWORD_BACK_TO_LOGIN_TEST_ID}
               buttonProps={{ size: 'large', fullWidth: true, variant: 'secondary' }}
             >
               {translate('text_642707b0da1753a9bb6672a1')}
@@ -107,7 +111,11 @@ const ForgotPassword = () => {
               </form.AppField>
 
               <form.AppForm>
-                <form.SubmitButton size="large" fullWidth>
+                <form.SubmitButton
+                  dataTest={FORGOT_PASSWORD_SUBMIT_BUTTON_TEST_ID}
+                  size="large"
+                  fullWidth
+                >
                   {translate('text_642707b0da1753a9bb6672b2')}
                 </form.SubmitButton>
               </form.AppForm>
