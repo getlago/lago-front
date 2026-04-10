@@ -355,7 +355,7 @@ describe('useGraduatedRange()', () => {
         await act(async () => await result.current.handleUpdate(0, 'toValue', 1.5))
 
         expect(result.current.tableDatas[0].toValue).toBe(1.5)
-        expect(result.current.tableDatas[1].fromValue).toBe(1.6)
+        expect(result.current.tableDatas[1].fromValue).toBe(1.5)
       })
 
       it('should add range with decimal step when existing ranges use decimals', async () => {
@@ -373,14 +373,14 @@ describe('useGraduatedRange()', () => {
             disabledDelete: true,
           },
           {
-            fromValue: 0.6,
-            toValue: 0.7,
+            fromValue: 0.5,
+            toValue: 1.5,
             flatAmount: undefined,
             rate: undefined,
             disabledDelete: false,
           },
           {
-            fromValue: 0.8,
+            fromValue: 1.5,
             toValue: null,
             flatAmount: undefined,
             rate: undefined,
@@ -394,7 +394,7 @@ describe('useGraduatedRange()', () => {
 
         // Set decimal first
         await act(async () => await result.current.handleUpdate(0, 'toValue', 1.5))
-        expect(result.current.tableDatas[1].fromValue).toBe(1.6)
+        expect(result.current.tableDatas[1].fromValue).toBe(1.5)
 
         // Change back to integer
         await act(async () => await result.current.handleUpdate(0, 'toValue', 2))
@@ -411,7 +411,7 @@ describe('useGraduatedRange()', () => {
         await act(async () => await result.current.deleteRange(1))
         expect(result.current.tableDatas).toHaveLength(2)
         expect(result.current.tableDatas[0].toValue).toBe(0.5)
-        expect(result.current.tableDatas[1].fromValue).toBe(0.6)
+        expect(result.current.tableDatas[1].fromValue).toBe(0.5)
         expect(result.current.tableDatas[1].toValue).toBeNull()
       })
 
@@ -426,11 +426,11 @@ describe('useGraduatedRange()', () => {
         await act(async () => await result.current.handleUpdate(2, 'toValue', 5.3))
 
         expect(result.current.tableDatas[0].toValue).toBe(1.5)
-        expect(result.current.tableDatas[1].fromValue).toBe(1.6)
+        expect(result.current.tableDatas[1].fromValue).toBe(1.5)
         expect(result.current.tableDatas[1].toValue).toBe(3.2)
-        expect(result.current.tableDatas[2].fromValue).toBe(3.3)
+        expect(result.current.tableDatas[2].fromValue).toBe(3.2)
         expect(result.current.tableDatas[2].toValue).toBe(5.3)
-        expect(result.current.tableDatas[3].fromValue).toBe(5.4)
+        expect(result.current.tableDatas[3].fromValue).toBe(5.3)
         expect(result.current.tableDatas[3].toValue).toBeNull()
       })
     })

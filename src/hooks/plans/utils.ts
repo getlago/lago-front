@@ -14,22 +14,20 @@ const getDecimalPlaces = (value: number | string): number => {
   return str.length - dotIndex - 1
 }
 
-// Computes the step size based on the maximum decimal precision found in toValue fields.
+// Computes the gap between consecutive tier ranges based on the backend's two models:
+// - Adjacent model (any decimal toValue present): from[i+1] = to[i], gap = 0
+// - Integer model (all toValues are integers): from[i+1] = to[i] + 1, gap = 1
 // Only considers toValue (user input), not fromValue (derived/computed).
-// Integer ranges → step 1, decimal ranges → smallest unit (e.g. 0.1, 0.01, 0.001)
 export const getDecimalStep = (
   ranges: { toValue?: number | string | null; fromValue?: number | string | null }[],
 ): number => {
-  let maxDecimals = 0
-
   for (const range of ranges) {
     if (range.toValue !== null && range.toValue !== undefined) {
-      maxDecimals = Math.max(maxDecimals, getDecimalPlaces(range.toValue))
+      if (getDecimalPlaces(range.toValue) > 0) return 0
     }
   }
 
-  if (maxDecimals === 0) return 1
-  return Number((10 ** -maxDecimals).toFixed(maxDecimals))
+  return 1
 }
 
 export const formataAnyToValueForChargeFormArrays = (
@@ -59,24 +57,26 @@ export const buildRangesForAdd = <T extends BaseRange>(
 ): Partial<T>[] => {
   const addIndex = ranges.length - 1
   const step = getDecimalStep(ranges)
+  // For new range defaults: adjacent model uses +1 for toValue since from==to is invalid
+  const defaultStep = step === 0 ? 1 : step
 
   return ranges.reduce<Partial<T>[]>((acc, range, i) => {
     if (i < addIndex) {
       acc.push(range)
     } else if (i === addIndex) {
-      const newToValue =
+      const newFromValue =
         addIndex === 0 ? 0 : toFixedNumber(Number(ranges[addIndex - 1]?.toValue || 0) + step)
 
       acc.push({
         ...newRangeDefaults,
-        fromValue: newToValue,
-        toValue: toFixedNumber(newToValue + step),
+        fromValue: newFromValue,
+        toValue: toFixedNumber(newFromValue + defaultStep),
       } as Partial<T>)
       acc.push({
         ...range,
         fromValue: toFixedNumber(
-          Number(range.fromValue || 0) <= newToValue + step
-            ? newToValue + step + step
+          Number(range.fromValue || 0) <= newFromValue + defaultStep
+            ? newFromValue + defaultStep + step
             : Number(range.fromValue),
         ),
       })
@@ -97,16 +97,18 @@ export const buildRangesForToValueUpdate = <T extends BaseRange>(
   const step = getDecimalStep(updatedRanges)
 
   return ranges.reduce<T[]>((acc, range, i) => {
+    // fromValue: range 0 always 0, all others recomputed from previous toValue + step
+    const fromValue =
+      i === 0 ? range.fromValue : toFixedNumber(Number(acc[i - 1].toValue || 0) + step)
+
     if (rangeIndex === i) {
-      acc.push({ ...range, toValue: Number(value || 0) })
-    } else if (i > rangeIndex) {
-      const { toValue } = acc[i - 1]
-      const fromValue = toFixedNumber(Number(toValue || 0) + step)
+      // Edited range: accept raw user value (no validation, avoids auto-fill on clear)
+      acc.push({ ...range, fromValue: i === 0 ? 0 : fromValue, toValue: Number(value || 0) })
+    } else {
+      // Non-edited range: validate toValue against (possibly recomputed) fromValue
       const formattedToValue = formataAnyToValueForChargeFormArrays(range.toValue, fromValue, step)
 
       acc.push({ ...range, fromValue, toValue: formattedToValue })
-    } else {
-      acc.push(range)
     }
 
     return acc
