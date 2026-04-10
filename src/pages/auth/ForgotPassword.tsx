@@ -1,17 +1,19 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
+import { revalidateLogic } from '@tanstack/react-form'
 import { useState } from 'react'
-import { object, string } from 'yup'
 
-import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
-import { TextInputField } from '~/components/form'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { LOGIN_ROUTE } from '~/core/router'
 import { LagoApiError, useCreatePasswordResetMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useShortcuts } from '~/hooks/ui/useShortcuts'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { Card, Page, StyledLogo, Subtitle, Title } from '~/styles/auth'
+
+import {
+  forgotPasswordDefaultValues,
+  forgotPasswordValidationSchema,
+} from './forgotPasswordForm/validationSchema'
 
 gql`
   mutation createPasswordReset($input: CreatePasswordResetInput!) {
@@ -33,20 +35,17 @@ const ForgotPassword = () => {
     },
   })
 
-  const formikProps = useFormik<{ email: string }>({
-    initialValues: {
-      email: '',
+  const form = useAppForm({
+    defaultValues: forgotPasswordDefaultValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: forgotPasswordValidationSchema,
     },
-    validationSchema: object().shape({
-      email: string()
-        .email('text_620bc4d4269a55014d493fc3')
-        .required('text_620bc4d4269a55014d493f98'),
-    }),
-    onSubmit: async (values, formikBag) => {
+    onSubmit: async ({ value, formApi }) => {
       const answer = await createPasswordReset({
         variables: {
           input: {
-            email: values.email,
+            email: value.email,
           },
         },
       })
@@ -54,17 +53,24 @@ const ForgotPassword = () => {
       const { errors } = answer
 
       if (hasDefinedGQLError('NotFound', errors)) {
-        formikBag.setFieldError('email', translate('text_642707b0da1753a9bb6672ac'))
+        formApi.setErrorMap({
+          onDynamic: {
+            fields: {
+              email: {
+                message: translate('text_642707b0da1753a9bb6672ac'),
+                path: ['email'],
+              },
+            },
+          },
+        })
       }
     },
   })
 
-  useShortcuts([
-    {
-      keys: ['Enter'],
-      action: formikProps.submitForm,
-    },
-  ])
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    form.handleSubmit()
+  }
 
   return (
     <Page>
@@ -86,26 +92,25 @@ const ForgotPassword = () => {
           <>
             <Title>{translate('text_642707b0da1753a9bb66728c')}</Title>
             <Subtitle>{translate('text_642707b0da1753a9bb667296')}</Subtitle>
-            <form onSubmit={(e) => e.preventDefault()}>
-              <TextInputField
-                className="mb-8"
-                name="email"
-                beforeChangeFormatter={['lowercase']}
-                formikProps={formikProps}
-                label={translate('text_62a99ba2af7535cefacab4aa')}
-                placeholder={translate('text_62a99ba2af7535cefacab4bf')}
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus
-              />
+            <form onSubmit={handleSubmit}>
+              <form.AppField name="email">
+                {(field) => (
+                  <field.TextInputField
+                    className="mb-8"
+                    beforeChangeFormatter={['lowercase']}
+                    label={translate('text_62a99ba2af7535cefacab4aa')}
+                    placeholder={translate('text_62a99ba2af7535cefacab4bf')}
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus
+                  />
+                )}
+              </form.AppField>
 
-              <Button
-                size="large"
-                disabled={!formikProps.isValid || !formikProps.dirty}
-                onClick={formikProps.submitForm}
-                fullWidth
-              >
-                {translate('text_642707b0da1753a9bb6672b2')}
-              </Button>
+              <form.AppForm>
+                <form.SubmitButton size="large" fullWidth>
+                  {translate('text_642707b0da1753a9bb6672b2')}
+                </form.SubmitButton>
+              </form.AppForm>
             </form>
           </>
         )}

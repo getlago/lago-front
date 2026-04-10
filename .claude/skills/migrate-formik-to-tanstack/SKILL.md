@@ -54,6 +54,7 @@ Before starting, gather context by reading these reference files:
    - Field components used (`TextInputField`, `Checkbox`, etc.)
    - Any `formikProps` usage
    - Sub-components that receive `formikProps`
+   - **Server-side error handling** — search for `setFieldError`, `setErrors`, `setStatus` in the `onSubmit` handler. These set errors on fields after a mutation fails (e.g., API returns NotFound, ValueAlreadyExist, UrlIsInvalid). Each one MUST be migrated to `formApi.setErrorMap` in the TanStack form
 
 #### Step 1.2: Deep Validation Analysis (CRITICAL)
 
@@ -166,6 +167,16 @@ Before writing any code, create a plan document:
 | ----- | ---------------------- | ----------------- |
 | ...   | ...                    | ...               |
 
+### Server-Side Error Handling (CRITICAL — easy to miss)
+
+Search for `setFieldError`, `setErrors`, `setStatus` in the onSubmit handler. These are server-side errors set AFTER a mutation response and must be migrated to `formApi.setErrorMap`.
+
+| Formik Call | GQL Error | Target Field | Error Message Key | TanStack `setErrorMap` |
+| ----------- | --------- | ------------ | ----------------- | ---------------------- |
+| `formikBag.setFieldError('email', ...)` | `NotFound` | `email` | `text_xxx` | See Pattern 4 below |
+
+**If no `setFieldError`/`setErrors`/`setStatus` calls are found, write "None" and move on.**
+
 ### Submit Button Disabled Logic
 
 Current: `disabled={!formikProps.isValid || !formikProps.dirty || loading}`
@@ -183,6 +194,49 @@ TanStack: `form.SubmitButton` handles isValid + dirty automatically
 ### Phase 2: Implementation
 
 #### Step 2.1: Create Validation Schema
+
+##### Step 2.1.0: Check for Existing Shared Validators (MANDATORY)
+
+**Before writing any new Zod schema, check `src/formValidation/zodCustoms.ts` for reusable validators.**
+
+This file contains shared validators like `zodRequiredEmail`, `zodRequiredPassword`, `zodOptionalUrl`, `zodOptionalHost`, etc. If a shared validator already covers your field's validation logic, **use it directly** instead of writing a custom one.
+
+```bash
+# Search for existing shared validators
+grep -n "^export const zod" src/formValidation/zodCustoms.ts
+```
+
+**Decision flow:**
+
+1. **Shared validator exists and matches exactly** → Use it directly (e.g., `email: zodRequiredEmail`)
+2. **Shared validator exists but has different error messages** → Still use the shared one. Consistent error messages across the app are better than form-specific messages. The shared validator's messages are the canonical ones.
+3. **No shared validator exists** → Create the validation inline in the form's `validationSchema.ts`
+4. **You create a form-specific validator that could be reused by other forms** → Move it to `src/formValidation/zodCustoms.ts` and export it from there. A validator is reusable when it validates a common field type (email, URL, password, currency code, etc.) rather than a form-specific business rule.
+
+**Example — reusing a shared validator:**
+
+```typescript
+import { z } from 'zod'
+import { zodRequiredEmail } from '~/formValidation/zodCustoms'
+
+export const forgotPasswordValidationSchema = z.object({
+  email: zodRequiredEmail, // ✅ Reuses shared validator
+})
+```
+
+**Example — when to promote to shared:**
+
+If you create a validator like `zodRequiredCurrencyCode` in a form-specific schema and later notice it's needed in another form, move it to `src/formValidation/zodCustoms.ts`:
+
+```typescript
+// src/formValidation/zodCustoms.ts
+export const zodRequiredCurrencyCode = z
+  .string()
+  .min(1, { message: 'text_xxx' })
+  .length(3, { message: 'text_yyy' })
+```
+
+##### Step 2.1.1: Create the Schema File
 
 Create a new file: `src/pages/<path>/<formName>/validationSchema.ts`
 
@@ -691,34 +745,90 @@ const form = useAppForm({
 })
 ```
 
-### Pattern 4: Error Handling with setErrorMap
+### Pattern 4: Error Handling with setErrorMap (CRITICAL)
 
-Handle server-side validation errors:
+**This pattern maps Formik's `setFieldError` / `setErrors` to TanStack Form's `formApi.setErrorMap`.**
+
+Many forms set server-side errors on specific fields after a mutation fails (e.g., "email not found", "URL already exists"). This is easy to miss during migration because it's inside the `onSubmit` handler, not in the validation schema.
+
+**Formik → TanStack mapping:**
+
+| Formik | TanStack Form |
+|--------|---------------|
+| `formikBag.setFieldError('email', errorMsg)` | `formApi.setErrorMap({ onDynamic: { fields: { email: { message: errorMsg, path: ['email'] } } } })` |
+| `formikBag.setErrors({ email: msg1, name: msg2 })` | `formApi.setErrorMap({ onDynamic: { fields: { email: { message: msg1, path: ['email'] }, name: { message: msg2, path: ['name'] } } } })` |
+
+**⚠️ CRITICAL: Error value format**
+
+Each field error in `setErrorMap` MUST be an object with `{ message, path }`, NOT a plain string. The field components read errors via `state.meta.errorMap` and call `.message` on each error — a plain string will not display.
+
+```typescript
+// ❌ WRONG — plain string, error will NOT display on the field
+formApi.setErrorMap({
+  onDynamic: {
+    fields: {
+      email: translate('text_xxx'),
+    },
+  },
+})
+
+// ✅ CORRECT — object with message and path, error displays correctly
+formApi.setErrorMap({
+  onDynamic: {
+    fields: {
+      email: {
+        message: translate('text_xxx'),
+        path: ['email'],
+      },
+    },
+  },
+})
+```
+
+**Full example:**
 
 ```typescript
 const form = useAppForm({
   // ...
   onSubmit: async ({ value, formApi }) => {
-    try {
-      await createCustomer({ variables: { input: value } })
-    } catch (error) {
-      if (error instanceof ApolloError) {
-        const serverErrors = parseServerErrors(error)
+    const res = await createResource({
+      variables: { input: value },
+    })
 
-        // Set errors on specific fields
-        formApi.setErrorMap({
-          onSubmit: {
-            fields: {
-              externalId: serverErrors.externalId,
-              email: serverErrors.email,
+    const { errors } = res
+
+    if (hasDefinedGQLError('NotFound', errors)) {
+      formApi.setErrorMap({
+        onDynamic: {
+          fields: {
+            email: {
+              message: translate('text_error_email_not_found'),
+              path: ['email'],
             },
           },
-        })
-      }
+        },
+      })
+      return
+    }
+
+    if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+      formApi.setErrorMap({
+        onDynamic: {
+          fields: {
+            webhookUrl: {
+              message: translate('text_error_url_already_exists'),
+              path: ['webhookUrl'],
+            },
+          },
+        },
+      })
+      return
     }
   },
 })
 ```
+
+> **Reference**: See `src/pages/developers/WebhookForm.tsx` and `src/pages/createCustomers/CreateCustomer.tsx` for real-world examples.
 
 ### Pattern 5: Scroll to First Error on Invalid Submit
 
@@ -1034,13 +1144,15 @@ The `/make-tests` skill will automatically:
   - [ ] Document conditional validations
   - [ ] Note all custom error messages
   - [ ] Check for async validations
+  - [ ] **Identify server-side error handling** (`setFieldError`, `setErrors`, `setStatus` in onSubmit)
   - [ ] Document submit button disabled logic
   - [ ] Note validation timing (onChange, onBlur, onMount)
 - [ ] Create Validation Migration Plan document
 
 ### Phase 2: Implementation
 
-- [ ] Create validation schema file with ALL validations from plan
+- [ ] Check `src/formValidation/zodCustoms.ts` for reusable shared validators before creating new ones
+- [ ] Create validation schema file, reusing shared validators where possible
 - [ ] Verify Zod schema matches Yup validation behavior
 - [ ] Update imports (remove Formik/Yup, add TanStack)
 - [ ] Replace `useFormik` with `useAppForm`
@@ -1052,6 +1164,7 @@ The `/make-tests` skill will automatically:
 - [ ] Update each field to use `form.AppField` pattern
 - [ ] Replace submit button with `form.SubmitButton`
 - [ ] Update `setFieldValue` calls
+- [ ] Migrate `setFieldError`/`setErrors` to `formApi.setErrorMap` with `{ message, path }` format (see Pattern 4)
 - [ ] Use `FormLoadingSkeleton` for loading state (if form fetches data)
 
 ### Phase 2b: Complex Forms (if applicable)
@@ -1078,6 +1191,7 @@ The `/make-tests` skill will automatically:
   - [ ] Test all range validations (min, max)
   - [ ] Test all cross-field validations
   - [ ] Test all conditional validations
+  - [ ] Test all server-side errors (trigger mutation errors, verify field error displays)
   - [ ] Verify error messages match original
 - [ ] Run `pnpm prettier --write <file>`
 - [ ] Run `pnpm eslint <file>`
