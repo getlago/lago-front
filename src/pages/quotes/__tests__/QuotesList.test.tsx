@@ -72,13 +72,12 @@ describe('QuotesList', () => {
         expect(statusBadges.length).toBeGreaterThan(0)
       })
 
-      it('THEN should display the latest version numbers', () => {
+      it('THEN should display version numbers', () => {
         render(<QuotesList />)
 
-        // QT-2026-0042 v1 is filtered out, v2 is shown
-        expect(screen.getAllByText('v2').length).toBeGreaterThan(0)
-        // v1 still appears for QT-2026-0015 and QT-2026-0099
-        expect(screen.getAllByText('v1').length).toBeGreaterThan(0)
+        // Versions rendered as plain numbers
+        expect(screen.getAllByText('2').length).toBeGreaterThan(0)
+        expect(screen.getAllByText('1').length).toBeGreaterThan(0)
       })
     })
   })

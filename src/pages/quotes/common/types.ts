@@ -41,6 +41,7 @@ export interface Quote {
   customer: {
     id: string
     name: string
+    externalId: string
   }
   templateId: string | null
   number: string
@@ -66,4 +67,9 @@ export interface Quote {
   voidedReason: string | null
   createdAt: string
   updatedAt: string
+  owners: Array<{
+    id: string
+    name: string
+    email: string
+  }>
 }

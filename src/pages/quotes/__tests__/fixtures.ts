@@ -4,13 +4,13 @@ import {
   QuoteDefaultExecutionModeEnum,
   QuoteOrderTypeEnum,
   QuoteStatusEnum,
-} from '../types'
+} from '../common/types'
 
 export const QUOTE_DRAFT_FIXTURE: Quote = {
   __typename: 'Quote',
   id: 'quote-draft-001',
   organizationId: 'org-001',
-  customer: { id: 'customer-001', name: 'Acme Corp' },
+  customer: { id: 'customer-001', name: 'Acme Corp', externalId: 'ext-acme-001' },
   templateId: 'template-001',
   number: 'QT-2026-0042',
   version: 1,
@@ -64,13 +64,17 @@ export const QUOTE_DRAFT_FIXTURE: Quote = {
   voidedReason: null,
   createdAt: '2026-04-09T10:00:00Z',
   updatedAt: '2026-04-09T10:00:00Z',
+  owners: [
+    { id: 'user-001', name: 'Alice Martin', email: 'alice.martin@lago.dev' },
+    { id: 'user-002', name: 'Bob Chen', email: 'bob.chen@lago.dev' },
+  ],
 }
 
 export const QUOTE_APPROVED_FIXTURE: Quote = {
   __typename: 'Quote',
   id: 'quote-approved-001',
   organizationId: 'org-001',
-  customer: { id: 'customer-002', name: 'Globex Inc' },
+  customer: { id: 'customer-002', name: 'Globex Inc', externalId: 'ext-globex-002' },
   templateId: 'template-001',
   number: 'QT-2026-0038',
   version: 2,
@@ -112,13 +116,16 @@ export const QUOTE_APPROVED_FIXTURE: Quote = {
   voidedReason: null,
   createdAt: '2026-04-01T09:00:00Z',
   updatedAt: '2026-04-10T14:30:00Z',
+  owners: [
+    { id: 'user-003', name: 'Clara Davis', email: 'clara.davis@lago.dev' },
+  ],
 }
 
 export const QUOTE_VOIDED_FIXTURE: Quote = {
   __typename: 'Quote',
   id: 'quote-voided-001',
   organizationId: 'org-001',
-  customer: { id: 'customer-003', name: 'Wayne Enterprises' },
+  customer: { id: 'customer-003', name: 'Wayne Enterprises', externalId: 'ext-wayne-003' },
   templateId: null,
   number: 'QT-2026-0015',
   version: 1,
@@ -151,13 +158,16 @@ export const QUOTE_VOIDED_FIXTURE: Quote = {
   voidedReason: 'manual',
   createdAt: '2026-03-10T08:00:00Z',
   updatedAt: '2026-03-20T11:00:00Z',
+  owners: [
+    { id: 'user-001', name: 'Alice Martin', email: 'alice.martin@lago.dev' },
+  ],
 }
 
 export const QUOTE_AMENDMENT_FIXTURE: Quote = {
   __typename: 'Quote',
   id: 'quote-amendment-001',
   organizationId: 'org-001',
-  customer: { id: 'customer-001', name: 'Acme Corp' },
+  customer: { id: 'customer-001', name: 'Acme Corp', externalId: 'ext-acme-001' },
   templateId: 'template-002',
   number: 'QT-2026-0042',
   version: 2,
@@ -206,13 +216,17 @@ export const QUOTE_AMENDMENT_FIXTURE: Quote = {
   voidedReason: null,
   createdAt: '2026-04-09T15:00:00Z',
   updatedAt: '2026-04-09T15:00:00Z',
+  owners: [
+    { id: 'user-001', name: 'Alice Martin', email: 'alice.martin@lago.dev' },
+    { id: 'user-002', name: 'Bob Chen', email: 'bob.chen@lago.dev' },
+  ],
 }
 
 export const QUOTE_MINIMAL_FIXTURE: Quote = {
   __typename: 'Quote',
   id: 'quote-minimal-001',
   organizationId: 'org-001',
-  customer: { id: 'customer-004', name: 'Initech' },
+  customer: { id: 'customer-004', name: 'Initech', externalId: 'ext-initech-004' },
   templateId: null,
   number: 'QT-2026-0099',
   version: 1,
@@ -237,6 +251,7 @@ export const QUOTE_MINIMAL_FIXTURE: Quote = {
   voidedReason: null,
   createdAt: '2026-04-09T12:00:00Z',
   updatedAt: '2026-04-09T12:00:00Z',
+  owners: [],
 }
 
 export const ALL_QUOTES_FIXTURES = [
