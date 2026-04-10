@@ -799,6 +799,59 @@ const limitPlansList = useStore(form.store, (state) => state.values.limitPlansLi
 const hasLimits = limitPlansList.length > 0
 ```
 
+### Pattern 10: `beforeChangeFormatter` Type Coercion (CRITICAL for numeric fields)
+
+`TextInputField`'s `beforeChangeFormatter` with `'int'` uses `parseInt()` → returns `number`. Empty field returns `''` (string). Runtime type is `number | ''`.
+
+```typescript
+// ❌ WRONG: z.number() rejects '' / z.string() rejects number / z.coerce.number() coerces '' to 0
+
+// ✅ CORRECT:
+const schema = z.object({
+  gracePeriod: z
+    .union([z.number().max(365, { message: 'text_max_error' }), z.literal('')])
+    .refine((val) => val !== '', { message: 'text_required_error' }),
+})
+
+// defaultValues must match runtime type:
+defaultValues: { gracePeriod: (existingValue ?? '') as number | '' }
+```
+
+**Why `''` instead of `0` for empty default:** If the original form showed `0` as placeholder (visually empty), use `''`. Use `0` only when `0` is the actual saved value.
+
+> **Reference**: `EditCustomerInvoiceGracePeriodDialog.tsx`, `SubscriptionFeeDrawer.tsx`
+
+### Pattern 11: Dialog Close After Submit (ref-based Dialog pattern)
+
+In legacy `<Dialog ref>` components, `closeDialog()` after `await form.handleSubmit()` runs **unconditionally** — `handleSubmit` doesn't throw on validation failure. Use `useRef` to call `closeDialog` only from inside `onSubmit`:
+
+```typescript
+const closeDialogRef = useRef<(() => void) | null>(null)
+
+const form = useAppForm({
+  onSubmit: async ({ value }) => {
+    await mutation({ variables: { input: { ...value } } })
+    closeDialogRef.current?.()  // Only reached if validation + mutation succeeded
+  },
+})
+
+// In actions render prop:
+<Button onClick={async () => {
+  closeDialogRef.current = closeDialog
+  await form.handleSubmit()
+}} />
+```
+
+### Pattern 12: Adding New Translation Keys
+
+**Never add translation keys manually.** Always use:
+
+```bash
+pnpm translations:add <count>
+```
+
+Then populate the empty values in `translations/base.json`.
+
 ---
 
 ---
@@ -854,3 +907,9 @@ The `/make-tests` skill will:
 12. **Form dirty state incorrect with mappers**: Ensure mapper output structure exactly matches `defaultValues` structure
 13. **Side-effect on field change not working**: Use `listeners={{ onChange }}` on `form.AppField` instead of `useStore` + `useEffect`
 14. **Dialog form state leaking to parent**: Dialogs should use their own `useAppForm` instance, not share the parent form. Communicate via callbacks and `useRef`
+
+### Numeric Field & Dialog Issues
+15. **`beforeChangeFormatter: ['int']` causes Zod type error**: The formatter converts input to `number` via `parseInt`, but empty field returns `''`. Use `z.union([z.number(), z.literal('')])` in the schema, and `as number | ''` on `defaultValues`. See Pattern 10.
+16. **Field shows `0` instead of placeholder**: If `defaultValues` is `0`, the field displays `0` as a value. Use `''` as default when the original form showed `0` as placeholder. See Pattern 10.
+17. **Dialog closes even when validation fails**: `closeDialog()` after `await form.handleSubmit()` runs unconditionally. Use the `closeDialogRef` pattern (Pattern 11).
+18. **Translation keys added manually cause inconsistent IDs**: Always use `pnpm translations:add <count>`. See Pattern 12.

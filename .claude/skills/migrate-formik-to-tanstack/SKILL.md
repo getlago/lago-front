@@ -1106,6 +1106,85 @@ const hasLimits = limitPlansList.length > 0
 
 This reduces form state complexity and avoids synchronization issues between the flag and the actual data.
 
+### Pattern 11: `beforeChangeFormatter` Type Coercion (CRITICAL for numeric fields)
+
+The `TextInputField`'s `beforeChangeFormatter` with `'int'` uses `parseInt()` internally, which converts the value to a `number`. However, when the field is emptied, `formatValue` returns `''` (empty string) — **not** `NaN`. This means the field's runtime type is `number | ''`, not a pure `number` or `string`.
+
+**This has cascading implications for the Zod schema, `defaultValues`, and dirty checking.**
+
+**Schema — must accept both types:**
+
+```typescript
+// ❌ WRONG: z.number() rejects '' when field is emptied → runtime error
+// ❌ WRONG: z.string() rejects number from parseInt → runtime error
+// ❌ WRONG: z.coerce.number() coerces '' to 0 → hides "required" validation
+
+// ✅ CORRECT: accept both number and '' with union
+const schema = z.object({
+  gracePeriod: z
+    .union([z.number().max(365, { message: 'text_max_error' }), z.literal('')])
+    .refine((val) => val !== '', { message: 'text_required_error' }),
+})
+```
+
+**`defaultValues` — must match the runtime type:**
+
+```typescript
+const form = useAppForm({
+  defaultValues: {
+    // If the field has an existing value, use it; otherwise '' for empty/placeholder
+    gracePeriod: (existingValue ?? '') as number | '',
+  },
+})
+```
+
+**Why `''` instead of `0` for empty default:** If the original form showed `0` as a **placeholder** (field visually empty), use `''` as default — otherwise TanStack Form displays `0` as the field value. Use `0` as default only when `0` is the actual saved value.
+
+**Dirty check:** TanStack Form uses deep equality. If `defaultValues` is `''` (string) and the user types `5` (number from `parseInt`), dirty is `true`. If the user clears the field, it goes back to `''` and dirty is `false`. This works correctly as long as `defaultValues` type matches the runtime type.
+
+> **Reference**: See `EditCustomerInvoiceGracePeriodDialog.tsx` and `SubscriptionFeeDrawer.tsx` for real-world examples.
+
+### Pattern 12: Dialog Close After Submit (ref-based Dialog pattern)
+
+In legacy `<Dialog ref>` components, `closeDialog` is only available inside the `actions` render prop — not accessible from `onSubmit`. If you call `closeDialog()` after `await form.handleSubmit()`, it runs **unconditionally**, even when validation fails (because `handleSubmit` doesn't throw on validation failure — it simply doesn't call `onSubmit`).
+
+**Fix: use a `useRef` to bridge `closeDialog` into `onSubmit`:**
+
+```typescript
+const closeDialogRef = useRef<(() => void) | null>(null)
+
+const form = useAppForm({
+  // ...
+  onSubmit: async ({ value }) => {
+    await mutation({ variables: { input: { ...value } } })
+    // Only reached if validation passed AND mutation succeeded
+    closeDialogRef.current?.()
+  },
+})
+
+// In the actions render prop:
+<Button
+  onClick={async () => {
+    closeDialogRef.current = closeDialog
+    await form.handleSubmit()
+  }}
+>
+```
+
+**Why this works:** TanStack Form's `handleSubmit()` runs validation first. If validation fails, `onSubmit` is never called, so `closeDialogRef.current?.()` never executes and the dialog stays open with errors visible.
+
+> **Note**: This pattern is specific to the legacy `<Dialog ref>` system. The newer `useFormDialog` / NiceModal system handles this differently.
+
+### Pattern 13: Adding New Translation Keys
+
+**Never add translation keys manually to the JSON files.** Always use the project's npm script:
+
+```bash
+pnpm translations:add <count>
+```
+
+This generates unique keys with timestamps and random suffixes (e.g., `text_177583191144596sed2y63wo`). After generation, populate the empty values in `translations/base.json` with the actual text.
+
 ---
 
 ### Phase 4: Test Migration
@@ -1177,6 +1256,9 @@ The `/make-tests` skill will automatically:
 - [ ] Add `formApi.setErrorMap` for server-side errors
 - [ ] Migrate dialogs with forms to independent TanStack forms (Pattern 9)
 - [ ] Derive boolean state from form values instead of separate flags (Pattern 10)
+- [ ] Handle `beforeChangeFormatter` type coercion in schema — use `z.union([z.number(), z.literal('')])` for numeric fields (Pattern 11)
+- [ ] Use `closeDialogRef` pattern for legacy `<Dialog ref>` forms (Pattern 12)
+- [ ] Add new translation keys via `pnpm translations:add`, never manually (Pattern 13)
 
 ### Phase 3: Verification
 
@@ -1231,6 +1313,13 @@ The `/make-tests` skill will automatically:
 12. **Form dirty state incorrect with mappers**: Ensure mapper output structure exactly matches `defaultValues` structure
 13. **Side-effect on field change not working**: Use `listeners={{ onChange }}` on `form.AppField` instead of `useStore` + `useEffect`
 14. **Dialog form state leaking to parent**: Dialogs should use their own `useAppForm` instance, not share the parent form. Communicate via callbacks and `useRef`
+
+### Numeric Field & Dialog Issues
+
+15. **`beforeChangeFormatter: ['int']` causes Zod type error**: The formatter converts input to `number` via `parseInt`, but empty field returns `''`. Use `z.union([z.number(), z.literal('')])` in the schema, and `as number | ''` on `defaultValues`. See Pattern 11.
+16. **Field shows `0` instead of placeholder**: If `defaultValues` is `0`, the field displays `0` as a value. Use `''` as default when the original form showed `0` as placeholder (visually empty field). See Pattern 11.
+17. **Dialog closes even when validation fails**: `closeDialog()` after `await form.handleSubmit()` runs unconditionally because `handleSubmit` doesn't throw on validation failure. Use the `closeDialogRef` pattern (Pattern 12) to call `closeDialog` only from inside `onSubmit`.
+18. **Translation keys added manually cause inconsistent IDs**: Always use `pnpm translations:add <count>` to generate keys. See Pattern 13.
 
 ## Usage
 
