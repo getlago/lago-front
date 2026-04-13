@@ -116,7 +116,7 @@
 
   /* Inline code */
   code {
-    @apply rounded bg-grey-100 px-1 text-sm leading-6 text-red-600;
+    @apply rounded bg-grey-100 px-1 leading-6 text-red-600;
     font-family:
       IBM Plex Mono,
       monospace;
@@ -130,7 +130,7 @@
       monospace;
 
     code {
-      @apply p-0 text-sm leading-relaxed text-grey-700;
+      @apply p-0 leading-relaxed text-grey-700;
       background: transparent;
     }
   }
