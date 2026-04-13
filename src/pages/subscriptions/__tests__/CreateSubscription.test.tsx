@@ -115,7 +115,9 @@ const mockSubscriptionForm = {
         <input data-test={`field-${props.label}`} />
       ),
       ComboBoxField: (props: Record<string, unknown>) => (
-        <div data-test={`combobox-${props.label}`}>combobox</div>
+        <div data-test={`combobox-${props.label}`}>
+          <input data-test={`combobox-input-${props.label}`} />
+        </div>
       ),
       ButtonSelectorField: (props: Record<string, unknown>) => (
         <div data-test={`selector-${props.label}`}>selector</div>
@@ -200,7 +202,6 @@ jest.mock('~/generated/graphql', () => {
 
 jest.mock('~/components/designSystem/WarningDialog', () => ({
   WarningDialog: () => <div data-test="warning-dialog" />,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ...((): any => {
     // Capture ref via mock
     const actual = jest.requireActual('react')
@@ -286,6 +287,24 @@ describe('CreateSubscription', () => {
     Router.useParams.mockReturnValue({ customerId: 'customer-1' })
   })
 
+  describe('GIVEN form submission via Enter key', () => {
+    describe('WHEN Enter is pressed in an input field', () => {
+      it('THEN should submit the form', async () => {
+        mockPlanFormIsDirty = true
+        const user = userEvent.setup()
+
+        renderCreateSubscription()
+
+        const input = screen.getByTestId('combobox-input-text_625434c7bb2cb40124c81a29')
+
+        await user.click(input)
+        await user.keyboard('{Enter}')
+
+        expect(mockSubscriptionForm.handleSubmit).toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('GIVEN the submit button reactive state', () => {
     describe('WHEN planFormCanSubmit is false', () => {
       it('THEN the submit button should be disabled', () => {
@@ -328,9 +347,11 @@ describe('CreateSubscription', () => {
       it('THEN should not navigate away (warning dialog should intercept)', async () => {
         mockPlanFormIsDirty = true
         const user = userEvent.setup()
+
         renderCreateSubscription()
 
         const closeButton = screen.getByTestId('close-create-subscription-button')
+
         await user.click(closeButton)
 
         // Should NOT navigate away when form is dirty
@@ -342,9 +363,11 @@ describe('CreateSubscription', () => {
       it('THEN should navigate away on close click', async () => {
         mockPlanFormIsDirty = false
         const user = userEvent.setup()
+
         renderCreateSubscription()
 
         const closeButton = screen.getByTestId('close-create-subscription-button')
+
         await user.click(closeButton)
 
         expect(testMockNavigateFn).toHaveBeenCalled()

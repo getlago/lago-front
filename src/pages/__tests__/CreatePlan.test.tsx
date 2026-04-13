@@ -56,7 +56,9 @@ jest.mock('~/components/plans/PlanSettingsSection', () => {
     PlanSettingsSection: (props: Record<string, unknown>) => {
       capturedPlanSettingsProps = props
 
-      return React.createElement('div', { 'data-test': 'plan-settings-section-mock' })
+      return React.createElement('div', { 'data-test': 'plan-settings-section-mock' }, [
+        React.createElement('input', { key: 'name', 'data-test': 'mock-plan-name-input' }),
+      ])
     },
   }
 })
@@ -288,14 +290,29 @@ describe('CreatePlan', () => {
   // handleMinimumCommitmentSave and handleEntitlementDrawerSave are now internal to the section components.
   // Their behavior is tested in CommitmentsSection.test.tsx and FeatureEntitlementSection.test.tsx.
 
-  describe('GIVEN the submit button', () => {
-    describe('WHEN clicked in creation mode', () => {
-      it('THEN should call submitForm', async () => {
+  describe('GIVEN the form submission', () => {
+    describe('WHEN the submit button is clicked', () => {
+      it('THEN should call handleSubmit', async () => {
         const user = userEvent.setup()
 
         render(<CreatePlan />)
 
         await user.click(screen.getByTestId('submit'))
+
+        expect(mockHandleSubmit).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN Enter is pressed in an input field', () => {
+      it('THEN should submit the form', async () => {
+        const user = userEvent.setup()
+
+        render(<CreatePlan />)
+
+        const input = screen.getByTestId('mock-plan-name-input')
+
+        await user.click(input)
+        await user.keyboard('{Enter}')
 
         expect(mockHandleSubmit).toHaveBeenCalled()
       })
