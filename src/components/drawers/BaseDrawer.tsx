@@ -13,6 +13,7 @@ import {
 import { drawerStack } from './drawerStack'
 import { FormDrawerProps } from './types'
 import { useDrawerStack } from './useDrawerStack'
+import { useFocusTrap } from './useFocusTrap'
 
 type DrawerState = 'unmounted' | 'mounting' | 'open' | 'closing'
 
@@ -55,10 +56,18 @@ export const BaseDrawer = ({
 }: BaseDrawerProps) => {
   const [state, setState] = useState<DrawerState>('unmounted')
   const paperRef = useRef<HTMLDivElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
   const exitedRef = useRef(false)
 
   const isInStack = state === 'mounting' || state === 'open'
   const { depthFromTop, isTopmost, isBottommost, zIndex } = useDrawerStack(isInStack)
+
+  const { handleOpening, handleEntered, handleClosing } = useFocusTrap({
+    containerRef: paperRef,
+    isActive: state === 'open' && isTopmost,
+    onEntered,
+    closeButtonRef,
+  })
 
   const handleExit = useCallback(() => {
     if (exitedRef.current) return
@@ -72,16 +81,18 @@ export const BaseDrawer = ({
     if (isOpen) {
       if (state === 'unmounted') {
         exitedRef.current = false
+        handleOpening()
         setState('mounting')
       }
     } else {
       if (state === 'open') {
+        handleClosing()
         setState('closing')
       } else if (state === 'mounting') {
         handleExit()
       }
     }
-  }, [isOpen, state, handleExit])
+  }, [isOpen, state, handleExit, handleOpening, handleClosing])
 
   // Trigger enter animation after mount (double-rAF for reliable CSS transition)
   useEffect(() => {
@@ -127,10 +138,10 @@ export const BaseDrawer = ({
         handleExit()
       } else if (state === 'open' && !enteredFiredRef.current) {
         enteredFiredRef.current = true
-        onEntered?.()
+        handleEntered()
       }
     },
-    [state, handleExit, onEntered],
+    [state, handleExit, handleEntered],
   )
 
   // Close this drawer when clearAll is called (e.g. on browser navigation)
@@ -262,6 +273,7 @@ export const BaseDrawer = ({
             title
           )}
           <Button
+            ref={closeButtonRef}
             icon="close"
             variant="quaternary"
             onClick={onClose}
