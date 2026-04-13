@@ -11,11 +11,25 @@ import BlockToolbar, {
   BLOCK_TOOLBAR_TEST_ID,
 } from '../BlockToolbar'
 
-const mockDeleteSelection = jest.fn()
+const mockDeleteRange = jest.fn()
 const mockSetBlockBackgroundColor = jest.fn()
 const mockSetBlockTextColor = jest.fn()
 const mockMoveBlockUp = jest.fn()
 const mockMoveBlockDown = jest.fn()
+const mockRunFn = jest.fn()
+
+const createMockChain = () => {
+  const handler: ProxyHandler<Record<string, jest.Mock>> = {
+    get: (_target, prop: string) => {
+      if (prop === 'run') return mockRunFn
+      if (prop === 'deleteRange') return mockDeleteRange.mockReturnValue(new Proxy({}, handler))
+
+      return jest.fn().mockReturnValue(new Proxy({}, handler))
+    },
+  }
+
+  return new Proxy({}, handler)
+}
 
 let mockSelectorReturn: unknown = null
 
@@ -88,18 +102,21 @@ const createMockEditor = (overrides?: {
 
   return {
     commands: {
-      deleteSelection: mockDeleteSelection,
       setBlockBackgroundColor: mockSetBlockBackgroundColor,
       setBlockTextColor: mockSetBlockTextColor,
       moveBlockUp: mockMoveBlockUp,
       moveBlockDown: mockMoveBlockDown,
     },
+    chain: jest.fn().mockImplementation(() => createMockChain()),
     view: {
       nodeDOM: jest.fn().mockReturnValue(blockElement),
       dom: editorDom,
     },
     state: {
       selection: { from: 0 },
+      doc: {
+        nodeAt: jest.fn().mockReturnValue({ nodeSize: 10 }),
+      },
     },
   } as unknown as Parameters<typeof BlockToolbar>[0]['editor']
 }
@@ -170,7 +187,7 @@ describe('BlockToolbar', () => {
     })
 
     describe('WHEN the delete button is clicked', () => {
-      it('THEN should call editor.commands.deleteSelection', async () => {
+      it('THEN should delete the block via deleteRange', async () => {
         const user = userEvent.setup()
 
         mockSelectorReturn = blockSelection
@@ -179,7 +196,8 @@ describe('BlockToolbar', () => {
 
         await user.click(screen.getByTestId(BLOCK_TOOLBAR_DELETE_BUTTON_TEST_ID))
 
-        expect(mockDeleteSelection).toHaveBeenCalledTimes(1)
+        expect(mockDeleteRange).toHaveBeenCalledWith({ from: 0, to: 10 })
+        expect(mockRunFn).toHaveBeenCalled()
       })
     })
 
@@ -297,10 +315,11 @@ describe('BlockToolbar', () => {
   })
 
   describe('GIVEN the useEditorState selector', () => {
-    it('THEN should return null when selection is not a NodeSelection', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let capturedSelector: any = null
+
+    const captureSelectorAndRender = () => {
       const tiptap = jest.requireMock('@tiptap/react')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let capturedSelector: any = null
 
       tiptap.useEditorState.mockImplementation(
         ({ selector }: { selector: (ctx: { editor: unknown }) => unknown }) => {
@@ -314,15 +333,7 @@ describe('BlockToolbar', () => {
 
       render(<BlockToolbar editor={mockEditor} />)
 
-      const result = capturedSelector?.({
-        editor: {
-          state: { selection: { from: 0 } },
-          view: { dragging: null },
-        },
-      })
-
-      expect(result).toBeNull()
-
+      // Restore default mock after capturing
       tiptap.useEditorState.mockImplementation(
         ({ selector }: { selector?: (ctx: { editor: unknown }) => unknown }) => {
           if (selector) return mockSelectorReturn
@@ -330,6 +341,250 @@ describe('BlockToolbar', () => {
           return null
         },
       )
+    }
+
+    it('THEN should return null when selection is not a NodeSelection', () => {
+      captureSelectorAndRender()
+
+      const result = capturedSelector?.({
+        editor: {
+          state: { selection: { from: 0 } },
+          view: { dragging: null },
+          storage: { dragHandle: { selectedBlock: null } },
+        },
+      })
+
+      expect(result).toBeNull()
+    })
+
+    describe('WHEN a table is selected via drag handle and cursor is inside the table', () => {
+      it('THEN should return the table block selection as fallback', () => {
+        captureSelectorAndRender()
+
+        const tableNode = {
+          type: { name: 'table' },
+          nodeSize: 20,
+          attrs: { backgroundColor: '#fee2e2', textColor: '#dc2626' },
+        }
+
+        const result = capturedSelector?.({
+          editor: {
+            state: {
+              selection: { from: 8 },
+              doc: {
+                nodeAt: () => tableNode,
+                resolve: () => ({ index: () => 0 }),
+                childCount: 3,
+              },
+            },
+            view: { dragging: null },
+            storage: { dragHandle: { selectedBlock: { pos: 5 } } },
+          },
+        })
+
+        expect(result).toEqual({
+          pos: 5,
+          node: tableNode,
+          backgroundColor: '#fee2e2',
+          textColor: '#dc2626',
+          isFirst: true,
+          isLast: false,
+        })
+      })
+    })
+
+    describe('WHEN a table is selected via drag handle but cursor is outside the table', () => {
+      it('THEN should return null', () => {
+        captureSelectorAndRender()
+
+        const tableNode = {
+          type: { name: 'table' },
+          nodeSize: 20,
+          attrs: { backgroundColor: null, textColor: null },
+        }
+
+        const result = capturedSelector?.({
+          editor: {
+            state: {
+              selection: { from: 50 },
+              doc: {
+                nodeAt: () => tableNode,
+                resolve: () => ({ index: () => 0 }),
+                childCount: 3,
+              },
+            },
+            view: { dragging: null },
+            storage: { dragHandle: { selectedBlock: { pos: 5 } } },
+          },
+        })
+
+        expect(result).toBeNull()
+      })
+    })
+
+    describe('WHEN drag handle has a selectedBlock that is not a table', () => {
+      it('THEN should return null', () => {
+        captureSelectorAndRender()
+
+        const paragraphNode = {
+          type: { name: 'paragraph' },
+          nodeSize: 10,
+          attrs: {},
+        }
+
+        const result = capturedSelector?.({
+          editor: {
+            state: {
+              selection: { from: 6 },
+              doc: {
+                nodeAt: () => paragraphNode,
+                resolve: () => ({ index: () => 0 }),
+                childCount: 3,
+              },
+            },
+            view: { dragging: null },
+            storage: { dragHandle: { selectedBlock: { pos: 5 } } },
+          },
+        })
+
+        expect(result).toBeNull()
+      })
+    })
+
+    describe('WHEN drag handle has a selectedBlock but editor is dragging', () => {
+      it('THEN should return null', () => {
+        captureSelectorAndRender()
+
+        const result = capturedSelector?.({
+          editor: {
+            state: {
+              selection: { from: 8 },
+              doc: {
+                nodeAt: () => ({ type: { name: 'table' }, nodeSize: 20, attrs: {} }),
+              },
+            },
+            view: { dragging: { slice: {}, move: true } },
+            storage: { dragHandle: { selectedBlock: { pos: 5 } } },
+          },
+        })
+
+        expect(result).toBeNull()
+      })
+    })
+
+    describe('WHEN the selection is a NodeSelection', () => {
+      it('THEN should return the block info from the node selection', () => {
+        captureSelectorAndRender()
+
+        // Create an object that passes instanceof NodeSelection
+        // Use defineProperty because Selection has getter-only properties
+        const { NodeSelection } = jest.requireActual('@tiptap/pm/state')
+        const mockNode = { attrs: { backgroundColor: '#dbeafe', textColor: '#1d4ed8' } }
+        const mockSelection = Object.create(NodeSelection.prototype, {
+          from: { value: 5 },
+          node: { value: mockNode },
+        })
+
+        const result = capturedSelector?.({
+          editor: {
+            state: {
+              selection: mockSelection,
+              doc: {
+                resolve: () => ({ index: () => 2 }),
+                childCount: 5,
+              },
+            },
+            view: { dragging: null },
+            storage: { dragHandle: { selectedBlock: null } },
+          },
+        })
+
+        expect(result).toEqual({
+          pos: 5,
+          node: mockNode,
+          backgroundColor: '#dbeafe',
+          textColor: '#1d4ed8',
+          isFirst: false,
+          isLast: false,
+        })
+      })
+    })
+
+    describe('WHEN the selection is a NodeSelection but editor is dragging', () => {
+      it('THEN should return null', () => {
+        captureSelectorAndRender()
+
+        const { NodeSelection } = jest.requireActual('@tiptap/pm/state')
+        const mockSelection = Object.create(NodeSelection.prototype, {
+          from: { value: 5 },
+          node: { value: { attrs: {} } },
+        })
+
+        const result = capturedSelector?.({
+          editor: {
+            state: {
+              selection: mockSelection,
+              doc: {
+                resolve: () => ({ index: () => 0 }),
+                childCount: 3,
+              },
+            },
+            view: { dragging: { slice: {}, move: true } },
+            storage: { dragHandle: { selectedBlock: null } },
+          },
+        })
+
+        expect(result).toBeNull()
+      })
+    })
+  })
+
+  describe('GIVEN the color picker interactions', () => {
+    const blockSelection = {
+      pos: 0,
+      node: {},
+      backgroundColor: null,
+      textColor: null,
+      isFirst: false,
+      isLast: false,
+    }
+
+    describe('WHEN a background color is selected', () => {
+      it('THEN should call editor.commands.setBlockBackgroundColor', async () => {
+        const user = userEvent.setup()
+
+        mockSelectorReturn = blockSelection
+
+        render(<BlockToolbar editor={createMockEditor()} />)
+
+        // Click color button to open popper
+        await user.click(screen.getByTestId(BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID))
+
+        // Click "Clear background" in the color picker
+        const clearBgBtn = await screen.findByTitle('Clear background')
+
+        await user.click(clearBgBtn)
+
+        expect(mockSetBlockBackgroundColor).toHaveBeenCalledWith(null)
+      })
+    })
+
+    describe('WHEN a text color is selected', () => {
+      it('THEN should call editor.commands.setBlockTextColor', async () => {
+        const user = userEvent.setup()
+
+        mockSelectorReturn = blockSelection
+
+        render(<BlockToolbar editor={createMockEditor()} />)
+
+        await user.click(screen.getByTestId(BLOCK_TOOLBAR_COLOR_BUTTON_TEST_ID))
+
+        const clearTextBtn = await screen.findByTitle('Clear text color')
+
+        await user.click(clearTextBtn)
+
+        expect(mockSetBlockTextColor).toHaveBeenCalledWith(null)
+      })
     })
   })
 })
