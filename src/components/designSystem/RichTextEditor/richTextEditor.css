@@ -97,7 +97,7 @@
 
   /* Inline code */
   code {
-    @apply rounded bg-grey-100 px-1 text-sm leading-6;
+    @apply rounded bg-grey-100 px-1 text-sm leading-6 text-red-600;
     font-family:
       IBM Plex Mono,
       monospace;
@@ -105,10 +105,13 @@
 
   /* Code block */
   pre {
-    @apply my-2 rounded-lg bg-grey-700 p-4;
+    @apply m-0 rounded-lg bg-grey-100 p-4;
+    font-family:
+      IBM Plex Mono,
+      monospace;
 
     code {
-      @apply p-0 text-sm leading-relaxed text-white;
+      @apply p-0 text-sm leading-relaxed text-grey-700;
       background: transparent;
     }
   }
@@ -405,8 +408,7 @@
 .ProseMirror .block-wrapper > h4,
 .ProseMirror .block-wrapper > h5,
 .ProseMirror .block-wrapper > h6,
-.ProseMirror .block-wrapper > blockquote,
-.ProseMirror .block-wrapper > pre {
+.ProseMirror .block-wrapper > blockquote {
   @apply m-0 p-0;
 }
 
