@@ -15,10 +15,29 @@
   font-family: Inter, Arial, Verdana, Helvetica, sans-serif;
   letter-spacing: -0.16px;
 
-  /* Placeholder */
-  p.is-editor-empty:first-child::before {
+  /* Placeholder — shown on the current empty block (via @tiptap/extension-placeholder).
+     The decoration lands on .spacer (the outermost wrapper for each block).
+     margin offsets match .block-wrapper padding so text aligns with the cursor. */
+  & > .spacer.is-empty::before {
     @apply pointer-events-none float-left h-0 text-grey-400;
     content: attr(data-placeholder);
+    margin-top: 2px;
+    margin-left: 2px;
+  }
+
+  & > .spacer.is-empty[data-type='heading-1']::before {
+    @apply text-2xl font-semibold leading-8;
+    letter-spacing: -0.4px;
+  }
+
+  & > .spacer.is-empty[data-type='heading-2']::before {
+    @apply text-lg font-semibold leading-6;
+    letter-spacing: -0.4px;
+  }
+
+  & > .spacer.is-empty[data-type='heading-3']::before {
+    @apply text-base font-semibold leading-6;
+    letter-spacing: -0.4px;
   }
 
   /* Headings */
@@ -204,7 +223,7 @@
   &[contenteditable='false'] {
     caret-color: transparent;
 
-    p.is-editor-empty:first-child::before {
+    .spacer.is-empty::before {
       content: none;
     }
   }

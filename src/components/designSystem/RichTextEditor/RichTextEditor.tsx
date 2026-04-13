@@ -83,7 +83,18 @@ const RichTextEditor = ({
 
       // Editor-specific overrides and additions
       Placeholder.configure({
-        placeholder: translate('text_1774281162711nymiwumt66k'),
+        placeholder: ({ node }) => {
+          if (node.type.name === 'heading') {
+            const level = node.attrs.level as number
+
+            if (level === 1) return translate('text_1774281559656dn2u208gh80')
+            if (level === 2) return translate('text_1774281559657ec0exeaqqd3')
+            if (level === 3) return translate('text_1774281559657t0kkn628zdy')
+            if (level === 4) return translate('text_1775139857939u5lo05baoxn')
+          }
+
+          return translate('text_1774281162711nymiwumt66k')
+        },
       }),
       MentionSchema.extend({
         addNodeView() {
