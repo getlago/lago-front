@@ -21,6 +21,7 @@ import {
 import { PlanBlock } from './extensions/PlanBlock'
 import { PlanBlockSchema } from './extensions/PlanBlock.schema'
 import { SlashCommands } from './extensions/SlashCommands'
+import { TableCommands } from './extensions/TableCommands'
 import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
 import { MentionList, type MentionListRef } from './Mentions/MentionList'
 import { MentionNodeView } from './Mentions/MentionNodeView'
@@ -144,6 +145,7 @@ const RichTextEditor = ({
       LinkPasteHandler,
       TemplateSelectorExtension.configure({ templates: templates ?? [] }),
       DragHandle,
+      TableCommands,
     ],
     editorProps: {
       attributes: {
@@ -289,7 +291,7 @@ const RichTextEditor = ({
         data-test={RICH_TEXT_EDITOR_TEST_ID}
       >
         <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />
-        <div className="relative pb-8 pr-8">
+        <div className="relative">
           <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
           <TableControls editor={editor} />
         </div>

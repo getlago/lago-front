@@ -1,7 +1,8 @@
 import { Extension } from '@tiptap/core'
-import { NodeSelection } from '@tiptap/pm/state'
+import { NodeSelection, TextSelection } from '@tiptap/pm/state'
 
 import { resolveTopLevelBlock } from './BlockUtils'
+import { getDragHandleStorage } from './DragHandle'
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -19,7 +20,7 @@ export const BlockMove = Extension.create({
     return {
       moveBlockUp:
         () =>
-        ({ state, dispatch }) => {
+        ({ state, dispatch, editor }) => {
           const block = resolveTopLevelBlock(state)
 
           if (!block) return false
@@ -39,7 +40,17 @@ export const BlockMove = Extension.create({
               prevNode.copy(prevNode.content),
             ])
 
-            tr.setSelection(NodeSelection.create(tr.doc, prevPos))
+            // For tables, avoid NodeSelection (prosemirror-tables converts it to
+            // CellSelection). Use TextSelection inside the table + storage instead.
+            if (node.type.name === 'table') {
+              const $inside = tr.doc.resolve(prevPos + 1)
+
+              tr.setSelection(TextSelection.near($inside))
+              getDragHandleStorage(editor).selectedBlock = { pos: prevPos }
+            } else {
+              tr.setSelection(NodeSelection.create(tr.doc, prevPos))
+            }
+
             dispatch(tr)
           }
 
@@ -48,7 +59,7 @@ export const BlockMove = Extension.create({
 
       moveBlockDown:
         () =>
-        ({ state, dispatch }) => {
+        ({ state, dispatch, editor }) => {
           const block = resolveTopLevelBlock(state)
 
           if (!block) return false
@@ -68,7 +79,19 @@ export const BlockMove = Extension.create({
               node.copy(node.content),
             ])
 
-            tr.setSelection(NodeSelection.create(tr.doc, pos + nextNode.nodeSize))
+            const newPos = pos + nextNode.nodeSize
+
+            // For tables, avoid NodeSelection (prosemirror-tables converts it to
+            // CellSelection). Use TextSelection inside the table + storage instead.
+            if (node.type.name === 'table') {
+              const $inside = tr.doc.resolve(newPos + 1)
+
+              tr.setSelection(TextSelection.near($inside))
+              getDragHandleStorage(editor).selectedBlock = { pos: newPos }
+            } else {
+              tr.setSelection(NodeSelection.create(tr.doc, newPos))
+            }
+
             dispatch(tr)
           }
 

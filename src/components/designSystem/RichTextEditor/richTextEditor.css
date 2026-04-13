@@ -115,30 +115,85 @@
 
   /* Tables */
   table {
-    @apply my-8 border-collapse;
+    @apply border-collapse;
   }
 
   th,
   td {
     @apply relative min-w-[100px] border border-grey-300 px-3 py-2 text-base leading-6;
-    letter-spacing: -0.16px;
   }
 
-  th {
-    @apply bg-grey-100 font-medium;
+  --cell-highlight-size: 2px;
+  --cell-highlight-color: theme('colors.blue.600');
+
+  /* Focused cell — cursor is inside this cell */
+  .focusedCell {
+    box-shadow: inset 0 0 0 var(--cell-highlight-size) var(--cell-highlight-color);
   }
 
-  /* Selected cell highlight */
-  .selectedCell::after {
-    @apply pointer-events-none absolute inset-0 bg-blue-100/40;
+  /* Selected cells — row/column selection via CellSelection.
+     Uses ::before pseudo-elements with negative positioning to extend over
+     collapsed borders, eliminating the gap between adjacent cells.
+     :where() zeroes out specificity so column rules can override. */
+
+  /* === Row selection === */
+
+  /* Base: top + bottom borders. Left/right extend -1px to cover collapsed
+     vertical borders so the blue line is continuous across cells. */
+  .selectedCell::before {
     content: '';
+    @apply pointer-events-none absolute;
+    top: calc(-1 * var(--cell-highlight-size));
+    bottom: calc(-1 * var(--cell-highlight-size));
+    left: -1px;
+    right: -1px;
+    border-top: var(--cell-highlight-size) solid var(--cell-highlight-color);
+    border-bottom: var(--cell-highlight-size) solid var(--cell-highlight-color);
+  }
+
+  /* First selected cell in a horizontal run: add left border */
+  .selectedCell:where(:not(.selectedCell + .selectedCell))::before {
+    left: calc(-1 * var(--cell-highlight-size));
+    border-left: var(--cell-highlight-size) solid var(--cell-highlight-color);
+  }
+
+  /* Last selected cell in a horizontal run: add right border */
+  .selectedCell:where(:not(:has(+ .selectedCell)))::before {
+    right: calc(-1 * var(--cell-highlight-size));
+    border-right: var(--cell-highlight-size) solid var(--cell-highlight-color);
+  }
+
+  /* === Column selection === */
+
+  /* Base: left + right borders. Top/bottom extend -1px to cover collapsed
+     horizontal borders so the blue line is continuous across rows. */
+  .selectedCell.colSelected::before {
+    top: -1px;
+    bottom: -1px;
+    left: calc(-1 * var(--cell-highlight-size));
+    right: calc(-1 * var(--cell-highlight-size));
+    border-top: none;
+    border-bottom: none;
+    border-left: var(--cell-highlight-size) solid var(--cell-highlight-color);
+    border-right: var(--cell-highlight-size) solid var(--cell-highlight-color);
+  }
+
+  /* First cell in column: add top border */
+  .selectedCell.colSelected--first::before {
+    top: calc(-1 * var(--cell-highlight-size));
+    border-top: var(--cell-highlight-size) solid var(--cell-highlight-color);
+  }
+
+  /* Last cell in column: add bottom border */
+  .selectedCell.colSelected--last::before {
+    bottom: calc(-1 * var(--cell-highlight-size));
+    border-bottom: var(--cell-highlight-size) solid var(--cell-highlight-color);
   }
 
   /* Edit mode — extra margin for table controls */
   &:not([contenteditable='false']) {
     table {
-      @apply ml-8;
-      width: calc(100% - 2rem);
+      @apply w-full;
     }
   }
 
@@ -215,62 +270,77 @@
   @apply pointer-events-none absolute inset-0;
 }
 
-/* Row hover zone — left of each row */
-.table-controls__row-zone {
-  @apply pointer-events-none absolute flex w-[22px] flex-col items-center justify-center gap-0.5 opacity-0 transition-opacity duration-150 ease-in-out;
+/* Hover-bridge zones — pointer-events-auto containers that reveal children on :hover */
+.table-controls__row-border-zone,
+.table-controls__col-border-zone,
+.table-controls__add-col-zone,
+.table-controls__add-row-zone {
+  @apply pointer-events-auto absolute;
 }
 
-.table-controls__row-zone.is-visible {
-  @apply pointer-events-auto opacity-100;
+/* Row border zone — left of each row */
+.table-controls__row-border-zone {
+  @apply flex items-center justify-center;
 }
 
-/* Column hover zone — top of each column */
-.table-controls__col-zone {
-  @apply pointer-events-none absolute flex h-[22px] flex-row items-center justify-center gap-0.5 opacity-0 transition-opacity duration-150 ease-in-out;
+/* Column border zone — top of each column */
+.table-controls__col-border-zone {
+  @apply flex items-center justify-center;
 }
 
-.table-controls__col-zone.is-visible {
-  @apply pointer-events-auto opacity-100;
+/* Menu trigger buttons on row/column borders */
+.table-controls__menu-btn {
+  @apply flex cursor-pointer items-center justify-center rounded border border-grey-500 bg-white text-grey-500 opacity-0 transition-opacity duration-150 ease-in-out;
 }
 
-/* Inline add / remove buttons */
-.table-controls__inline-btn {
-  @apply flex h-[18px] w-[18px] items-center justify-center rounded text-xs font-medium leading-none transition-colors;
+.table-controls__menu-btn--row {
+  @apply h-5 w-[14px];
+  transform: translateX(-50%);
 }
 
-.table-controls__inline-btn--add {
-  @apply bg-grey-100 text-grey-500 hover:bg-grey-300 hover:text-grey-700;
+.table-controls__menu-btn--col {
+  @apply h-[14px] w-5;
+  transform: translateY(-50%);
 }
 
-.table-controls__inline-btn--remove {
-  @apply bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700;
+/* Reveal menu buttons when the cell in this row/column is focused */
+.table-controls__row-border-zone[data-focused] .table-controls__menu-btn,
+.table-controls__col-border-zone[data-focused] .table-controls__menu-btn {
+  @apply opacity-100;
+}
+
+/* Menu button when its row/column is selected */
+.table-controls__menu-btn.is-selected {
+  @apply border-blue-600 bg-blue-600 text-white opacity-100 hover:bg-blue-700 hover:text-white;
+}
+
+.table-controls__add-zone {
+  @apply pointer-events-auto opacity-0 transition-opacity duration-150 ease-in-out hover:opacity-100;
+}
+
+.table-controls__add-btn {
+  @apply flex items-center justify-center rounded bg-grey-200 text-lg font-medium text-blue-600;
 }
 
 /* "+" button on the right edge to add a column */
 .table-controls__add-col {
-  @apply pointer-events-none absolute flex w-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 opacity-0 transition-all duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700;
-}
-
-.table-controls__add-col.is-visible {
-  @apply pointer-events-auto opacity-100;
+  @apply ml-2 w-6;
 }
 
 /* "+" button on the bottom edge to add a row */
 .table-controls__add-row {
-  @apply pointer-events-none absolute flex h-5 items-center justify-center rounded bg-grey-100 text-lg font-medium text-grey-500 opacity-0 transition-all duration-150 ease-in-out hover:bg-grey-200 hover:text-grey-700;
-}
-
-.table-controls__add-row.is-visible {
-  @apply pointer-events-auto opacity-100;
+  @apply mt-2 h-6;
 }
 
 /* Block selection highlight */
-.ProseMirror .ProseMirror-selectednode {
+.ProseMirror .ProseMirror-selectednode,
+.ProseMirror .is-block-selected {
   @apply rounded-md bg-blue-100;
 }
 
 /* Hide selection highlight while dragging */
-.ProseMirror.is-dragging .ProseMirror-selectednode {
+.ProseMirror.is-dragging .ProseMirror-selectednode,
+.ProseMirror.is-dragging .is-block-selected {
   @apply opacity-40;
   background-color: transparent;
 }
@@ -311,8 +381,13 @@
   margin-top: 20px;
 }
 
-/* Show handle when hovering the spacer next to it, or the handle itself */
+.tableWrapper {
+  @apply relative rounded-md p-2 pb-8;
+}
+
+/* Show handle when hovering the spacer/table next to it, or the handle itself */
 .block-drag-handle:has(+ .spacer:hover),
+.block-drag-handle:has(+ .tableWrapper:hover),
 .block-drag-handle:hover {
   @apply opacity-100;
 }
@@ -338,7 +413,7 @@
 /* Lists keep pl-6 so markers sit inside the content/colored area */
 .ProseMirror .block-wrapper > ul,
 .ProseMirror .block-wrapper > ol {
-  @apply m-0 py-0 pr-0 pl-6;
+  @apply m-0 py-0 pl-6 pr-0;
 }
 
 .ProseMirror .block-wrapper {
