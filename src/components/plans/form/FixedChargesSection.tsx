@@ -16,7 +16,7 @@ import {
   RemoveChargeWarningDialogRef,
 } from '~/components/plans/RemoveChargeWarningDialog'
 import { LocalFixedChargeInput } from '~/components/plans/types'
-import { mapChargeIntervalCopy } from '~/components/plans/utils'
+import { getFormattedChargeSelectorSubtitle, mapChargeIntervalCopy } from '~/components/plans/utils'
 import { useDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import {
   GraduatedChargeFragmentDoc,
@@ -183,7 +183,11 @@ export const FixedChargesSection = ({
                       key={`fixed-charge-${fixedCharge.addOn.id}-${i}`}
                       icon="puzzle"
                       title={fixedCharge.invoiceDisplayName || fixedCharge.addOn.name}
-                      subtitle={fixedCharge.addOn.code}
+                      subtitle={getFormattedChargeSelectorSubtitle({
+                        chargeModel: fixedCharge.chargeModel,
+                        code: fixedCharge.addOn.code,
+                        translate,
+                      })}
                       endContent={
                         <div className="flex items-center gap-3">
                           <Chip label={intervalBadgeCopy} />

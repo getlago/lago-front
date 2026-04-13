@@ -1,8 +1,9 @@
 import {
+  getFormattedChargeSelectorSubtitle,
   returnFirstDefinedArrayRatesSumAsString,
   transformFilterObjectToString,
 } from '~/components/plans/utils'
-import { ALL_FILTER_VALUES } from '~/core/constants/form'
+import { ALL_FILTER_VALUES, AnyChargeModel } from '~/core/constants/form'
 
 describe('utils', () => {
   describe('transformFilterObjectToString', () => {
@@ -102,6 +103,40 @@ describe('utils', () => {
 
         expect(result).toBeUndefined()
       })
+    })
+  })
+
+  describe('getFormattedChargeSelectorSubtitle', () => {
+    const translate = (key: string) => key
+
+    it('should return charge model and code joined by bullet', () => {
+      const result = getFormattedChargeSelectorSubtitle({
+        chargeModel: 'standard' as AnyChargeModel,
+        code: 'my_code',
+        translate,
+      })
+
+      expect(result).toBe('text_65201b8216455901fe273dd6 • my_code')
+    })
+
+    it('should return only the charge model translation when code is empty', () => {
+      const result = getFormattedChargeSelectorSubtitle({
+        chargeModel: 'graduated' as AnyChargeModel,
+        code: '',
+        translate,
+      })
+
+      expect(result).toBe('text_65201b8216455901fe273e11')
+    })
+
+    it('should return only the code when translate returns empty string', () => {
+      const result = getFormattedChargeSelectorSubtitle({
+        chargeModel: 'standard' as AnyChargeModel,
+        code: 'my_code',
+        translate: () => '',
+      })
+
+      expect(result).toBe('my_code')
     })
   })
 })

@@ -11,7 +11,7 @@ import {
   UsageChargeDrawer,
   UsageChargeDrawerRef,
 } from '~/components/plans/drawers/usageCharge/UsageChargeDrawer'
-import { mapChargeIntervalCopy } from '~/components/plans/utils'
+import { getFormattedChargeSelectorSubtitle, mapChargeIntervalCopy } from '~/components/plans/utils'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -146,7 +146,11 @@ export const UsageChargesSection = ({
         data-test={`usage-charge-selector-${i}`}
         icon="pulse"
         key={`usage-charge-${charge.billableMetric.id}-${i}`}
-        subtitle={charge.billableMetric.code}
+        subtitle={getFormattedChargeSelectorSubtitle({
+          chargeModel: charge.chargeModel,
+          code: charge.billableMetric.code,
+          translate,
+        })}
         title={charge.invoiceDisplayName || charge.billableMetric.name}
         endContent={
           <div className="flex items-center gap-3">
