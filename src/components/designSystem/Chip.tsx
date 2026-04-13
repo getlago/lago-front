@@ -52,6 +52,7 @@ export const Chip = ({
   return (
     <MuiChip
       {...chipProps}
+      tabIndex={onDelete ? -1 : undefined}
       className={tw(
         {
           'chip--error': !!error,

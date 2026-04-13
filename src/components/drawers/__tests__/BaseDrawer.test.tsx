@@ -6,8 +6,10 @@ import { render } from '~/test-utils'
 import {
   BASE_DRAWER_ACTIONS_TEST_ID,
   BASE_DRAWER_BACKDROP_TEST_ID,
+  BASE_DRAWER_CLOSE_BUTTON_TEST_ID,
   BASE_DRAWER_CONTENT_TEST_ID,
   BASE_DRAWER_HEADER_TEST_ID,
+  BASE_DRAWER_PAPER_TEST_ID,
   BASE_DRAWER_TEST_ID,
   BaseDrawer,
   BaseDrawerProps,
@@ -204,6 +206,251 @@ describe('BaseDrawer', () => {
 
         await waitFor(() => {
           expect(onExited).toHaveBeenCalled()
+        })
+      })
+    })
+  })
+
+  describe('GIVEN focus management', () => {
+    const fireTransitionEnd = () => {
+      const paper = screen.getByTestId(BASE_DRAWER_PAPER_TEST_ID)
+
+      act(() => {
+        const event = new Event('transitionend', { bubbles: true })
+
+        Object.defineProperty(event, 'propertyName', { value: 'transform' })
+        Object.defineProperty(event, 'target', { value: paper })
+        paper.dispatchEvent(event)
+      })
+    }
+
+    describe('WHEN the drawer opens without onEntered', () => {
+      it('THEN should focus the close button as fallback', async () => {
+        render(<BaseDrawer {...defaultProps} />)
+
+        fireTransitionEnd()
+
+        await waitFor(() => {
+          const closeButton = screen.getByTestId(BASE_DRAWER_CLOSE_BUTTON_TEST_ID)
+
+          expect(closeButton).toHaveFocus()
+        })
+      })
+    })
+
+    describe('WHEN the drawer opens with onEntered that moves focus inside', () => {
+      it('THEN should NOT override the focus set by onEntered', async () => {
+        const onEntered = () => {
+          const input = document.querySelector('[data-test="custom-input"]') as HTMLElement
+
+          input?.focus()
+        }
+
+        render(
+          <BaseDrawer {...defaultProps} onEntered={onEntered}>
+            <input data-test="custom-input" />
+          </BaseDrawer>,
+        )
+
+        fireTransitionEnd()
+
+        await waitFor(() => {
+          const input = screen.getByTestId('custom-input')
+
+          expect(input).toHaveFocus()
+        })
+      })
+    })
+
+    describe('WHEN the drawer opens with onEntered that does NOT move focus', () => {
+      it('THEN should focus the close button as fallback', async () => {
+        const onEntered = jest.fn() // no-op, does not move focus
+
+        render(<BaseDrawer {...defaultProps} onEntered={onEntered} />)
+
+        fireTransitionEnd()
+
+        await waitFor(() => {
+          expect(onEntered).toHaveBeenCalled()
+
+          const closeButton = screen.getByTestId(BASE_DRAWER_CLOSE_BUTTON_TEST_ID)
+
+          expect(closeButton).toHaveFocus()
+        })
+      })
+    })
+
+    describe('WHEN Tab is pressed at the last focusable element', () => {
+      it('THEN should wrap focus to the first focusable element', async () => {
+        const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+
+        render(
+          <BaseDrawer {...defaultProps} actions={<button data-test="save-button">Save</button>}>
+            <input data-test="input-field" />
+          </BaseDrawer>,
+        )
+
+        fireTransitionEnd()
+
+        // Focus the last focusable element (Save button in actions)
+        const saveButton = screen.getByTestId('save-button')
+
+        act(() => {
+          saveButton.focus()
+        })
+
+        await user.tab()
+
+        // Should wrap to the close button (first focusable element)
+        const closeButton = screen.getByTestId(BASE_DRAWER_CLOSE_BUTTON_TEST_ID)
+
+        expect(closeButton).toHaveFocus()
+      })
+    })
+
+    describe('WHEN Shift+Tab is pressed at the first focusable element', () => {
+      it('THEN should wrap focus to the last focusable element', async () => {
+        const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+
+        render(
+          <BaseDrawer {...defaultProps} actions={<button data-test="save-button">Save</button>}>
+            <input data-test="input-field" />
+          </BaseDrawer>,
+        )
+
+        fireTransitionEnd()
+
+        // Focus the close button (first focusable element)
+        const closeButton = screen.getByTestId(BASE_DRAWER_CLOSE_BUTTON_TEST_ID)
+
+        act(() => {
+          closeButton.focus()
+        })
+
+        await user.tab({ shift: true })
+
+        // Should wrap to the save button (last focusable element)
+        const saveButton = screen.getByTestId('save-button')
+
+        expect(saveButton).toHaveFocus()
+      })
+    })
+
+    describe('WHEN two drawers are stacked', () => {
+      it('THEN the topmost drawer should receive focus, not the one below', async () => {
+        const onCloseFirst = jest.fn()
+        const onCloseSecond = jest.fn()
+
+        const { rerender } = render(
+          <>
+            <BaseDrawer isOpen={true} title="First Drawer" onClose={onCloseFirst}>
+              <input data-test="first-drawer-input" />
+            </BaseDrawer>
+            <BaseDrawer isOpen={false} title="Second Drawer" onClose={onCloseSecond}>
+              <input data-test="second-drawer-input" />
+            </BaseDrawer>
+          </>,
+        )
+
+        // Fire transitionEnd for first drawer
+        const papers = screen.getAllByTestId(BASE_DRAWER_PAPER_TEST_ID)
+
+        act(() => {
+          const event = new Event('transitionend', { bubbles: true })
+
+          Object.defineProperty(event, 'propertyName', { value: 'transform' })
+          Object.defineProperty(event, 'target', { value: papers[0] })
+          papers[0].dispatchEvent(event)
+        })
+
+        // First drawer's close button should have focus
+        const closeButtons = screen.getAllByTestId(BASE_DRAWER_CLOSE_BUTTON_TEST_ID)
+
+        await waitFor(() => {
+          expect(closeButtons[0]).toHaveFocus()
+        })
+
+        // Now open the second drawer on top
+        rerender(
+          <>
+            <BaseDrawer isOpen={true} title="First Drawer" onClose={onCloseFirst}>
+              <input data-test="first-drawer-input" />
+            </BaseDrawer>
+            <BaseDrawer isOpen={true} title="Second Drawer" onClose={onCloseSecond}>
+              <input data-test="second-drawer-input" />
+            </BaseDrawer>
+          </>,
+        )
+
+        // Fire transitionEnd for second drawer
+        const updatedPapers = screen.getAllByTestId(BASE_DRAWER_PAPER_TEST_ID)
+
+        act(() => {
+          const event = new Event('transitionend', { bubbles: true })
+
+          Object.defineProperty(event, 'propertyName', { value: 'transform' })
+          Object.defineProperty(event, 'target', { value: updatedPapers[1] })
+          updatedPapers[1].dispatchEvent(event)
+        })
+
+        // Second drawer's close button should now have focus (topmost)
+        const updatedCloseButtons = screen.getAllByTestId(BASE_DRAWER_CLOSE_BUTTON_TEST_ID)
+
+        await waitFor(() => {
+          expect(updatedCloseButtons[1]).toHaveFocus()
+        })
+      })
+    })
+
+    describe('WHEN the drawer closes', () => {
+      it('THEN should restore focus to the element that was focused before opening', async () => {
+        // Render with drawer closed first, focus the trigger, then open
+        const { rerender } = render(
+          <>
+            <button data-test="trigger-button">Open drawer</button>
+            <BaseDrawer {...defaultProps} isOpen={false} />
+          </>,
+        )
+
+        const triggerButton = screen.getByTestId('trigger-button')
+
+        act(() => {
+          triggerButton.focus()
+        })
+
+        expect(triggerButton).toHaveFocus()
+
+        // Open the drawer
+        rerender(
+          <>
+            <button data-test="trigger-button">Open drawer</button>
+            <BaseDrawer {...defaultProps} isOpen={true} />
+          </>,
+        )
+
+        fireTransitionEnd()
+
+        // Verify focus moved into the drawer
+        const closeButton = screen.getByTestId(BASE_DRAWER_CLOSE_BUTTON_TEST_ID)
+
+        await waitFor(() => {
+          expect(closeButton).toHaveFocus()
+        })
+
+        // Close the drawer
+        rerender(
+          <>
+            <button data-test="trigger-button">Open drawer</button>
+            <BaseDrawer {...defaultProps} isOpen={false} />
+          </>,
+        )
+
+        act(() => {
+          jest.advanceTimersByTime(500)
+        })
+
+        await waitFor(() => {
+          expect(triggerButton).toHaveFocus()
         })
       })
     })
