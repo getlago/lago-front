@@ -78,7 +78,11 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
 
   const blockSelection = useEditorState({
     editor,
-    selector: ({ editor: e }) => getNodeSelectionBlock(e) ?? getDragHandleTableBlock(e),
+    selector: ({ editor: e }) => {
+      if (getDragHandleStorage(e).toolbarDismissed) return null
+
+      return getNodeSelectionBlock(e) ?? getDragHandleTableBlock(e)
+    },
   })
 
   const updatePosition = useCallback(() => {

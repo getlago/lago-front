@@ -20,6 +20,7 @@ const renderGripIcon = (container: HTMLElement): void => {
 
 export type DragHandleStorage = {
   selectedBlock: { pos: number } | null
+  toolbarDismissed: boolean
 }
 
 const isDragHandleStorage = (value: unknown): value is DragHandleStorage =>
@@ -30,7 +31,7 @@ export const getDragHandleStorage = (editor: Editor): DragHandleStorage => {
     return editor.storage.dragHandle
   }
 
-  return { selectedBlock: null }
+  return { selectedBlock: null, toolbarDismissed: false }
 }
 
 export const DragHandle = Extension.create({
@@ -42,11 +43,17 @@ export const DragHandle = Extension.create({
        *  to CellSelection, so BlockToolbar can't detect it. We store the selected block
        *  info here so BlockToolbar can fall back to it. */
       selectedBlock: null as { pos: number } | null,
+      toolbarDismissed: false,
     }
   },
 
   onSelectionUpdate() {
     const storage = getDragHandleStorage(this.editor)
+
+    // Reset toolbar state when no block is selected
+    if (!(this.editor.state.selection instanceof NodeSelection) && !storage.selectedBlock) {
+      storage.toolbarDismissed = false
+    }
 
     // Clear table block selection when the user moves the cursor elsewhere
     if (storage.selectedBlock) {
@@ -74,6 +81,7 @@ export const DragHandle = Extension.create({
     const storage = getDragHandleStorage(editor)
 
     function selectBlock(pos: number) {
+      storage.toolbarDismissed = false
       const node = editor.view.state.doc.nodeAt(pos)
 
       // For tables, avoid NodeSelection entirely — prosemirror-tables converts it
@@ -236,6 +244,72 @@ export const DragHandle = Extension.create({
 
             return false // don't consume the event
           },
+          handleKeyDown(view, event) {
+            if (event.key !== 'Escape') return false
+
+            const sel = view.state.selection
+            const isBlockSelected = sel instanceof NodeSelection || storage.selectedBlock !== null
+
+            if (!isBlockSelected) return false
+
+            if (!storage.toolbarDismissed) {
+              // First Escape: dismiss toolbar, keep block selected
+              storage.toolbarDismissed = true
+              view.dispatch(view.state.tr.setMeta('dragHandleToolbarDismissed', true))
+
+              return true
+            }
+
+            // Second Escape: deselect the block
+            storage.toolbarDismissed = false
+
+            if (storage.selectedBlock) {
+              storage.selectedBlock = null
+              view.dispatch(view.state.tr.setMeta('dragHandleClearBlock', true))
+            } else {
+              const $pos = view.state.doc.resolve(sel.from)
+
+              view.dispatch(view.state.tr.setSelection(TextSelection.near($pos)))
+            }
+
+            return true
+          },
+        },
+        view() {
+          const handleMouseDown = (e: MouseEvent) => {
+            const target = e.target as HTMLElement
+            const editorContainer = editor.view.dom.closest('.rich-text-editor')
+
+            // Click inside editor container — handled by ProseMirror
+            if (editorContainer?.contains(target)) return
+
+            // Click inside a popper portal (e.g. color picker)
+            if (target.closest('[data-popper-placement]')) return
+
+            const sel = editor.view.state.selection
+            const isBlockSelected = sel instanceof NodeSelection || storage.selectedBlock !== null
+
+            if (!isBlockSelected) return
+
+            storage.selectedBlock = null
+            storage.toolbarDismissed = false
+
+            if (sel instanceof NodeSelection) {
+              const $pos = editor.view.state.doc.resolve(sel.from)
+
+              editor.view.dispatch(editor.view.state.tr.setSelection(TextSelection.near($pos)))
+            } else {
+              editor.view.dispatch(editor.view.state.tr.setMeta('dragHandleClearBlock', true))
+            }
+          }
+
+          document.addEventListener('mousedown', handleMouseDown)
+
+          return {
+            destroy() {
+              document.removeEventListener('mousedown', handleMouseDown)
+            },
+          }
         },
       }),
     ]
