@@ -41,7 +41,6 @@ describe('Edit plan', () => {
     cy.get('[data-test="table-customers-list"] tr').contains(customerName).click()
     cy.get('[data-test="add-subscription"]').click()
 
-    cy.get('[data-test="submit"]').should('be.disabled')
     cy.get('input[name="planId"]').click()
     cy.get('[data-test^="combobox-item-"]').contains(planWithChargeCodeNew).click()
 

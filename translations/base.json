@@ -5,7 +5,7 @@
   "text_65118a52df984447c1869472": "Add an external id",
   "text_65118a52df984447c186947c": "Add a subscription name",
   "text_65118a52df984447c18694d0": "Override plan",
-  "text_65118a52df984447c18694da": "Make adjustments to this plan when creating the subscription",
+  "text_65118a52df984447c18694da": "Customize certain aspects of the initially selected plan for flexibility.",
   "text_65118a52df984447c18694ee": "Leaving deletes your choices",
   "text_65118a52df984447c18694fe": "By clicking ‘Leave’, the subscription and data you’re creating will be deleted. Are you sure you want to leave?",
   "text_65118a52df984447c186962f": "Plan successfully assigned",
@@ -3995,5 +3995,7 @@
   "text_1775225915210g1crmnurgor": "Add entitlement",
   "text_1775225915210s2oemt3bl21": "Add progressive billing",
   "text_17756567905528w3193xcurh": "Lifetime",
-  "text_177583191144596sed2y63wo": "Grace period is required"
+  "text_177583191144596sed2y63wo": "Grace period is required",
+  "text_17761091520516p9xpb0v574": "Create subscription",
+  "text_1776109152051su5xz1qh1xj": "A subscription represents the assignation of a plan to a customer."
 }

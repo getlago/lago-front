@@ -15,9 +15,12 @@ describe('Subscriptions', () => {
   it('should be able to add a subscription in the future to customer', () => {
     cy.get(`[data-test="add-subscription"]`).click({ force: true })
     cy.url().should('include', '/create/subscription')
-    cy.get('[data-test="submit"]').should('be.disabled')
 
-    // Select a plan from the combobox
+    // Submit without selecting a plan — should show validation error
+    cy.get('[data-test="submit"]').should('not.be.disabled').click()
+    cy.get('input[name="planId"]').should('exist')
+
+    // Select a plan from the combobox — form sections appear
     cy.get('input[name="planId"]').click({ force: true })
     cy.get('[data-option-index="0"]', { timeout: 10000 }).click({ force: true })
 
