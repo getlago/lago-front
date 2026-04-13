@@ -233,7 +233,13 @@ const CreatePlan = () => {
       currency={amountCurrency || CurrencyEnum.Usd}
       interval={interval || PlanInterval.Monthly}
     >
-      <form className="contents">
+      <form
+        className="contents"
+        onSubmit={(e) => {
+          e.preventDefault()
+          handleFormSubmit()
+        }}
+      >
         <CenteredPage.Wrapper>
           <CenteredPage.Header>
             <Typography variant="bodyHl" color="textSecondary" noWrap>

@@ -379,6 +379,8 @@ export const usePlanForm = ({
   }, [errorCode, form])
 
   // Clear code error when the code field value changes
+  const codeValue = useStore(form.store, (s) => s.values.code)
+
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
       form.setFieldMeta('code', (meta) => ({
@@ -387,7 +389,7 @@ export const usePlanForm = ({
       }))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.state.values.code])
+  }, [codeValue])
 
   // Auto-reset billChargesMonthly when conditions aren't met
   const charges = useStore(form.store, (s) => s.values.charges)
