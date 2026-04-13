@@ -258,6 +258,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
               key={`row-zone-${row.cellPos}`}
               className="table-controls__row-border-zone"
               data-focused={focusedCell?.rowIndex === i || undefined}
+              data-last={i === layout.rows.length - 1 || undefined}
               style={{
                 left: layout.tableX,
                 top: row.top,
@@ -296,6 +297,7 @@ const TableControls = ({ editor }: TableControlsProps) => {
               key={`col-zone-${col.cellPos}`}
               className="table-controls__col-border-zone"
               data-focused={focusedCell?.colIndex === i || undefined}
+              data-last={i === layout.cols.length - 1 || undefined}
               style={{
                 left: col.left,
                 top: layout.tableY,

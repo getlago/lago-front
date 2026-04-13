@@ -354,6 +354,27 @@
   @apply mt-2 h-6;
 }
 
+/* Show add-column when hovering the last column border zone */
+.table-controls__col-border-zone[data-last]:hover ~ .table-controls__add-col-zone {
+  @apply opacity-100;
+}
+
+/* Show add-row when hovering the last row border zone */
+.table-controls__row-border-zone[data-last]:hover ~ .table-controls__add-row-zone {
+  @apply opacity-100;
+}
+
+/* Show add-column when hovering any cell in the last column */
+.rich-text-editor:has(td:last-child:hover) .table-controls__add-col-zone,
+.rich-text-editor:has(th:last-child:hover) .table-controls__add-col-zone {
+  opacity: 1;
+}
+
+/* Show add-row when hovering any cell in the last row */
+.rich-text-editor:has(tr:last-child:hover) .table-controls__add-row-zone {
+  opacity: 1;
+}
+
 /* Block selection highlight */
 .ProseMirror .ProseMirror-selectednode,
 .ProseMirror .is-block-selected {
