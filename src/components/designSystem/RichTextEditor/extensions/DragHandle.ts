@@ -1,4 +1,4 @@
-import { Extension } from '@tiptap/core'
+import { type Editor, Extension } from '@tiptap/core'
 import type { Node as PmNode } from '@tiptap/pm/model'
 import { NodeSelection, Plugin, PluginKey, TextSelection } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
@@ -22,9 +22,16 @@ export type DragHandleStorage = {
   selectedBlock: { pos: number } | null
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getDragHandleStorage = (editor: { storage: any }): DragHandleStorage =>
-  editor.storage.dragHandle ?? { selectedBlock: null }
+const isDragHandleStorage = (value: unknown): value is DragHandleStorage =>
+  value !== null && typeof value === 'object' && 'selectedBlock' in value
+
+export const getDragHandleStorage = (editor: Editor): DragHandleStorage => {
+  if ('dragHandle' in editor.storage && isDragHandleStorage(editor.storage.dragHandle)) {
+    return editor.storage.dragHandle
+  }
+
+  return { selectedBlock: null }
+}
 
 export const DragHandle = Extension.create({
   name: 'dragHandle',
