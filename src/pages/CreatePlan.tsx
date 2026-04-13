@@ -210,6 +210,20 @@ const CreatePlan = () => {
     return planCloseRedirection()
   }, [isDirty, planCloseRedirection])
 
+  const handleFormSubmit = useCallback(() => {
+    if (plan?.hasOverriddenPlans && isEdition) {
+      return impactOverridenSubscriptionsDialogRef.current?.openDialog({
+        onSave: async (cascadeUpdates) => {
+          form.setFieldValue('cascadeUpdates', cascadeUpdates)
+
+          return form.handleSubmit()
+        },
+      })
+    }
+
+    return form.handleSubmit()
+  }, [form, plan?.hasOverriddenPlans, isEdition])
+
   const pageTitle = isEdition
     ? translate('text_625fd165963a7b00c8f59767')
     : translate('text_624453d52e945301380e4988')
@@ -219,121 +233,116 @@ const CreatePlan = () => {
       currency={amountCurrency || CurrencyEnum.Usd}
       interval={interval || PlanInterval.Monthly}
     >
-      <CenteredPage.Wrapper>
-        <CenteredPage.Header>
-          <Typography variant="bodyHl" color="textSecondary" noWrap>
-            {pageTitle}
-          </Typography>
-          <Button
-            variant="quaternary"
-            icon="close"
-            onClick={onLeave}
-            data-test="close-create-plan-button"
-          />
-        </CenteredPage.Header>
+      <form className="contents">
+        <CenteredPage.Wrapper>
+          <CenteredPage.Header>
+            <Typography variant="bodyHl" color="textSecondary" noWrap>
+              {pageTitle}
+            </Typography>
+            <Button
+              variant="quaternary"
+              icon="close"
+              onClick={onLeave}
+              data-test="close-create-plan-button"
+            />
+          </CenteredPage.Header>
 
-        <CenteredPage.Container className="gap-20">
-          {loading && <FormLoadingSkeleton id="create-plan" />}
-          {!loading && (
-            <>
-              <CenteredPage.SectionWrapper>
-                <CenteredPage.PageTitle
-                  title={pageTitle}
-                  description={translate('text_1770063200028ww5znt6yree')}
-                />
+          <CenteredPage.Container className="gap-20">
+            {loading && <FormLoadingSkeleton id="create-plan" />}
+            {!loading && (
+              <>
+                <CenteredPage.SectionWrapper>
+                  <CenteredPage.PageTitle
+                    title={pageTitle}
+                    description={translate('text_1770063200028ww5znt6yree')}
+                  />
 
-                <PlanSettingsSection form={form} canBeEdited={canBeEdited} isEdition={isEdition} />
-              </CenteredPage.SectionWrapper>
-
-              <CenteredPage.SectionWrapper>
-                <CenteredPage.PageTitle
-                  title={translate('text_6661fc17337de3591e29e3e7')}
-                  description={translate('text_6661fc17337de3591e29e3e9')}
-                />
-
-                <CenteredPage.SubsectionWrapper>
-                  <SubscriptionFeeSection
+                  <PlanSettingsSection
                     form={form}
                     canBeEdited={canBeEdited}
                     isEdition={isEdition}
                   />
+                </CenteredPage.SectionWrapper>
 
-                  <FixedChargesSection
-                    form={form}
-                    alreadyExistingFixedChargesIds={alreadyExistingFixedChargesIds}
-                    canBeEdited={canBeEdited}
-                    isEdition={isEdition}
+                <CenteredPage.SectionWrapper>
+                  <CenteredPage.PageTitle
+                    title={translate('text_6661fc17337de3591e29e3e7')}
+                    description={translate('text_6661fc17337de3591e29e3e9')}
                   />
 
-                  <UsageChargesSection
-                    form={form}
-                    canBeEdited={canBeEdited}
-                    isEdition={isEdition}
-                    premiumWarningDialogRef={premiumWarningDialogRef}
-                    alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
+                  <CenteredPage.SubsectionWrapper>
+                    <SubscriptionFeeSection
+                      form={form}
+                      canBeEdited={canBeEdited}
+                      isEdition={isEdition}
+                    />
+
+                    <FixedChargesSection
+                      form={form}
+                      alreadyExistingFixedChargesIds={alreadyExistingFixedChargesIds}
+                      canBeEdited={canBeEdited}
+                      isEdition={isEdition}
+                    />
+
+                    <UsageChargesSection
+                      form={form}
+                      canBeEdited={canBeEdited}
+                      isEdition={isEdition}
+                      premiumWarningDialogRef={premiumWarningDialogRef}
+                      alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
+                    />
+                  </CenteredPage.SubsectionWrapper>
+                </CenteredPage.SectionWrapper>
+
+                <CenteredPage.SectionWrapper>
+                  <CenteredPage.PageTitle
+                    title={translate('text_6661fc17337de3591e29e44d')}
+                    description={translate('text_6667029c1051a60107146e35')}
                   />
-                </CenteredPage.SubsectionWrapper>
-              </CenteredPage.SectionWrapper>
 
-              <CenteredPage.SectionWrapper>
-                <CenteredPage.PageTitle
-                  title={translate('text_6661fc17337de3591e29e44d')}
-                  description={translate('text_6667029c1051a60107146e35')}
-                />
+                  <CenteredPage.SubsectionWrapper>
+                    <ProgressiveBillingSection form={form} />
 
-                <CenteredPage.SubsectionWrapper>
-                  <ProgressiveBillingSection form={form} />
+                    <CommitmentsSection form={form} />
 
-                  <CommitmentsSection form={form} />
+                    <FeatureEntitlementSection form={form} isEdition={isEdition} />
+                  </CenteredPage.SubsectionWrapper>
+                </CenteredPage.SectionWrapper>
+              </>
+            )}
+          </CenteredPage.Container>
 
-                  <FeatureEntitlementSection form={form} isEdition={isEdition} />
-                </CenteredPage.SubsectionWrapper>
-              </CenteredPage.SectionWrapper>
-            </>
+          {(!loading || plan) && (
+            <CenteredPage.StickyFooter>
+              <Button variant="quaternary" onClick={onLeave}>
+                {translate('text_6411e6b530cb47007488b027')}
+              </Button>
+              <form.Subscribe
+                selector={(s) => ({
+                  canSubmit: s.canSubmit,
+                  isSubmitting: s.isSubmitting,
+                })}
+              >
+                {({ canSubmit, isSubmitting }) => (
+                  <Button
+                    type="submit"
+                    disabled={!canSubmit || (isEdition && !isDirty)}
+                    loading={isSubmitting}
+                    onClick={() => handleFormSubmit()}
+                    data-test="submit"
+                  >
+                    {translate(
+                      type === FORM_TYPE_ENUM.edition
+                        ? 'text_6661fc17337de3591e29e461'
+                        : 'text_6661ffe746c680007e2df0e2',
+                    )}
+                  </Button>
+                )}
+              </form.Subscribe>
+            </CenteredPage.StickyFooter>
           )}
-        </CenteredPage.Container>
-
-        {(!loading || plan) && (
-          <CenteredPage.StickyFooter>
-            <Button variant="quaternary" onClick={onLeave}>
-              {translate('text_6411e6b530cb47007488b027')}
-            </Button>
-            <form.Subscribe
-              selector={(s) => ({
-                canSubmit: s.canSubmit,
-                isSubmitting: s.isSubmitting,
-              })}
-            >
-              {({ canSubmit, isSubmitting }) => (
-                <Button
-                  disabled={!canSubmit || (isEdition && !isDirty)}
-                  loading={isSubmitting}
-                  onClick={() => {
-                    if (plan?.hasOverriddenPlans && isEdition) {
-                      return impactOverridenSubscriptionsDialogRef.current?.openDialog({
-                        onSave: async (cascadeUpdates) => {
-                          form.setFieldValue('cascadeUpdates', cascadeUpdates)
-
-                          return form.handleSubmit()
-                        },
-                      })
-                    }
-
-                    return form.handleSubmit()
-                  }}
-                  data-test="submit"
-                >
-                  {translate(
-                    type === FORM_TYPE_ENUM.edition
-                      ? 'text_6661fc17337de3591e29e461'
-                      : 'text_6661ffe746c680007e2df0e2',
-                  )}
-                </Button>
-              )}
-            </form.Subscribe>
-          </CenteredPage.StickyFooter>
-        )}
-      </CenteredPage.Wrapper>
+        </CenteredPage.Wrapper>
+      </form>
 
       <WarningDialog
         ref={warningDialogRef}
