@@ -1,17 +1,13 @@
 import { StatusType } from '~/components/designSystem/Status'
+import { StatusEnum } from '~/generated/graphql'
 
-import { QuoteStatusEnum } from './types'
-
-export const getQuoteStatusMapping = (
-  status: QuoteStatusEnum,
-  translate: (key: string) => string,
-) => {
+export const getQuoteStatusMapping = (status: StatusEnum, translate: (key: string) => string) => {
   switch (status) {
-    case QuoteStatusEnum.draft:
+    case StatusEnum.Draft:
       return { type: StatusType.outline, label: 'draft' as const }
-    case QuoteStatusEnum.approved:
+    case StatusEnum.Approved:
       return { type: StatusType.success, label: translate('text_1775747115932eu6r3ejjoox') }
-    case QuoteStatusEnum.voided:
+    case StatusEnum.Voided:
       return { type: StatusType.disabled, label: 'voided' as const }
   }
 }

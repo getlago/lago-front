@@ -1,35 +1,28 @@
-import { useMemo } from 'react'
-
-import { Chip } from '~/components/designSystem/Chip'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { QuoteDetailItemFragment, QuoteListItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
-// TODO: Replace with real GraphQL query
-import { ALL_QUOTES_FIXTURES } from './__tests__/fixtures'
 import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
 import { getQuoteTypeTranslationKey } from './common/getQuoteTypetranslationKey'
-import { Quote } from './common/types'
+import { useQuotes } from './useQuotes'
 
 interface QuoteDetailsVersionsProps {
-  quote: Quote
+  quote: QuoteDetailItemFragment
 }
 
 const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps) => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { quotes: versions, loading } = useQuotes({
+    number: quote.number,
+    latestVersionOnly: false,
+  })
 
-  // Get all versions for this quote number, sorted by version descending
-  const versions = useMemo(() => {
-    return ALL_QUOTES_FIXTURES.filter((q) => q.number === quote.number).sort(
-      (a, b) => b.version - a.version,
-    )
-  }, [quote.number])
-
-  const versionColumns: Array<TableColumn<Quote>> = [
+  const versionColumns: Array<TableColumn<QuoteListItemFragment>> = [
     {
       key: 'status',
       title: translate('text_63ac86d797f728a87b2f9fa7'),
@@ -77,16 +70,6 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps) => {
       label: translate('text_6560809c38fb9de88d8a52fb'),
       value: translate(getQuoteTypeTranslationKey(quote.orderType)),
     },
-    {
-      label: translate('text_177582367460042o7itolmsq'),
-      value: (
-        <div className="inline-flex gap-4">
-          {quote.owners.map((owner) => (
-            <Chip key={owner.id} label={owner.email} />
-          ))}
-        </div>
-      ),
-    },
   ]
 
   return (
@@ -114,7 +97,13 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps) => {
           <Typography variant="subhead1">{translate('text_1775825275651t25f8xbhmai')}</Typography>
           <Typography variant="caption">{translate('text_1775825275651evevz6qh4d0')}</Typography>
         </div>
-        <Table name="quote-versions" data={versions} containerSize={0} columns={versionColumns} />
+        <Table
+          name="quote-versions"
+          data={versions}
+          isLoading={loading}
+          containerSize={0}
+          columns={versionColumns}
+        />
       </section>
     </DetailsPage.Container>
   )

@@ -7,26 +7,22 @@ import { QuoteDetailsTabsOptionsEnum, QuotesTabsOptionsEnum } from '~/core/const
 import { QUOTE_DETAILS_ROUTE, QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-// TODO: Replace with real GraphQL query
-import { ALL_QUOTES_FIXTURES } from './__tests__/fixtures'
 import OrderFormsList from './OrderFormsList'
 import QuoteDetailsActivityLogs from './QuoteDetailsActivityLogs'
 import QuoteDetailsVersions from './QuoteDetailsVersions'
+import { useQuote } from './useQuotes'
 
 const QuoteDetails = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { quoteId } = useParams()
-
-  // TODO: Replace with real GraphQL query
-  const quote = ALL_QUOTES_FIXTURES.find((q) => q.id === quoteId)
-  const isLoading = false
+  const { quote, loading } = useQuote(quoteId)
 
   useEffect(() => {
-    if (!isLoading && !quote) {
+    if (!loading && !quote) {
       navigate(QUOTES_LIST_ROUTE, { replace: true })
     }
-  }, [isLoading, quote, navigate])
+  }, [loading, quote, navigate])
 
   const activeTabContent = useMainHeaderTabContent()
 
@@ -47,9 +43,9 @@ const QuoteDetails = () => {
         ]}
         entity={{
           viewName: quote?.number ?? '',
-          viewNameLoading: isLoading,
+          viewNameLoading: loading,
           metadata: getViewSubtitle(),
-          metadataLoading: isLoading,
+          metadataLoading: loading,
         }}
         tabs={[
           {

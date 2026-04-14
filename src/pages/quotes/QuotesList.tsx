@@ -1,4 +1,3 @@
-import { useMemo, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
@@ -8,38 +7,20 @@ import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE } from '~/core/router'
+import { QuoteListItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
-// TODO: Replace with real GraphQL query
-import { ALL_QUOTES_FIXTURES } from './__tests__/fixtures'
 import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
 import { getQuoteTypeTranslationKey } from './common/getQuoteTypetranslationKey'
-import { Quote } from './common/types'
+import { useQuotes } from './useQuotes'
 
 const QuotesList = () => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { quotes, loading, error, fetchMore, metadata } = useQuotes({ latestVersionOnly: true })
 
-  // TODO: Replace with real GraphQL lazy query
-  const [isLoading] = useState(false)
-
-  // Keep only the most recent version per quote number
-  const data = useMemo(() => {
-    const latestByNumber = new Map<string, Quote>()
-
-    for (const quote of ALL_QUOTES_FIXTURES) {
-      const existing = latestByNumber.get(quote.number)
-
-      if (!existing || quote.version > existing.version) {
-        latestByNumber.set(quote.number, quote)
-      }
-    }
-
-    return Array.from(latestByNumber.values())
-  }, [])
-
-  const columns: Array<TableColumn<Quote>> = [
+  const columns: Array<TableColumn<QuoteListItemFragment>> = [
     {
       key: 'number',
       title: translate('text_1775746196826pyjlfqx3anr'),
@@ -97,13 +78,20 @@ const QuotesList = () => {
     <DetailsPage.Container>
       <InfiniteScroll
         onBottom={() => {
-          // TODO: Implement pagination with real GraphQL query
+          const { currentPage = 0, totalPages = 0 } = metadata || {}
+
+          currentPage < totalPages &&
+            !loading &&
+            fetchMore?.({
+              variables: { page: currentPage + 1 },
+            })
         }}
       >
         <Table
           name="quotes-list"
-          data={data}
-          isLoading={isLoading}
+          data={quotes}
+          isLoading={loading}
+          hasError={!!error}
           onRowActionLink={({ id }) =>
             generatePath(QUOTE_DETAILS_ROUTE, {
               quoteId: id,

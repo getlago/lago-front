@@ -1,11 +1,10 @@
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { QuoteDetailItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 
-import { Quote } from './common/types'
-
 interface QuoteDetailsActivityLogsProps {
-  quote: Quote
+  quote: QuoteDetailItemFragment
 }
 
 const QuoteDetailsActivityLogs = ({ quote }: QuoteDetailsActivityLogsProps) => {
