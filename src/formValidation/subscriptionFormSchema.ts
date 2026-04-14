@@ -20,11 +20,19 @@ export const subscriptionFormSchema = z
   .custom<SubscriptionFormValues>()
   .superRefine((data, ctx) => {
     if (!data.planId) {
-      ctx.addIssue({ code: 'custom', message: '', path: ['planId'] })
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_624ea7c29103fd010732ab7d',
+        path: ['planId'],
+      })
     }
 
     if (!data.subscriptionAt) {
-      ctx.addIssue({ code: 'custom', message: '', path: ['subscriptionAt'] })
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_624ea7c29103fd010732ab7d',
+        path: ['subscriptionAt'],
+      })
     }
 
     if (!data.endingAt) return

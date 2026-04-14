@@ -318,14 +318,14 @@ describe('CreateSubscription', () => {
     })
 
     describe('WHEN neither subscription form nor plan form is dirty', () => {
-      it('THEN the submit button should be disabled', () => {
+      it('THEN the submit button should be enabled in creation mode (dirty check only applies in edition)', () => {
         mockPlanFormIsDirty = false
         mockPlanFormCanSubmit = true
         renderCreateSubscription()
 
         const submitButton = screen.getByTestId('submit')
 
-        expect(submitButton).toBeDisabled()
+        expect(submitButton).not.toBeDisabled()
       })
     })
 
