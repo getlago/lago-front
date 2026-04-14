@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef } from 'react'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
-import { envGlobalVar, getItemFromLS, setItemFromLS } from '~/core/apolloClient'
+import { envGlobalVar, getItemFromLS, removeItemFromLS, setItemFromLS } from '~/core/apolloClient'
 import {
   ORGANIZATION_LS_KEY_ID,
   SUPERSET_FILTERS_LS_KEY_PREFIX,
@@ -66,6 +66,8 @@ const Dashboards = () => {
 
           if (Object.keys(filters).length > 0) {
             setItemFromLS(filtersLsKey, filters)
+          } else {
+            removeItemFromLS(filtersLsKey)
           }
         }, 500)
       : null
