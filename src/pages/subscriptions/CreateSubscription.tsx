@@ -539,12 +539,14 @@ const CreateSubscription = () => {
                 <CenteredPage.SubsectionWrapper>
                   {/* Section: Assign a plan */}
                   <CenteredPage.PageSection>
-                    <CenteredPage.PageSectionTitle
-                      title={translate('text_65118a52df984447c186940f', {
-                        customerName: customerName || '',
-                      })}
-                      description={translate('text_65118a52df984447c1869469')}
-                    />
+                    {formType !== FORM_TYPE_ENUM.edition && (
+                      <CenteredPage.PageSectionTitle
+                        title={translate('text_65118a52df984447c186940f', {
+                          customerName: customerName || customer?.externalId || '',
+                        })}
+                        description={translate('text_65118a52df984447c1869469')}
+                      />
+                    )}
 
                     <Selector
                       icon={<Avatar size="big" variant="user" identifier={customerName || ''} />}
