@@ -7,11 +7,16 @@ interface QuoteDetailsActivityLogsProps {
   quote: QuoteDetailItemFragment
 }
 
+export const QUOTE_ACTIVITY_LOGS_CONTAINER_TEST_ID = 'quote-activity-logs-container'
+
 const QuoteDetailsActivityLogs = ({ quote }: QuoteDetailsActivityLogsProps) => {
   const { translate } = useInternationalization()
 
   return (
-    <div className="w-full px-4 pb-20 pt-6 md:px-12">
+    <div
+      className="w-full px-4 pb-20 pt-6 md:px-12"
+      data-test={QUOTE_ACTIVITY_LOGS_CONTAINER_TEST_ID}
+    >
       {quote.id}
       <GenericPlaceholder
         title={translate('text_1775749367376kjpj8v9d3a6')}
