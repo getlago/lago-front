@@ -10,6 +10,7 @@ import {
   ORGANIZATION_LS_KEY_ID,
   SUPERSET_FILTERS_LS_KEY_PREFIX,
 } from '~/core/constants/localStorageKeys'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { encodeRison } from '~/core/utils/risonEncoder'
 import { extractNativeFilters } from '~/core/utils/supersetFilters'
 import { useSupersetDashboardsQuery } from '~/generated/graphql'
@@ -55,16 +56,19 @@ const Dashboards = () => {
 
     let embedded: null | EmbeddedDashboard = null
 
+    const persistFilters = isFeatureFlagActive(FeatureFlags.SUPERSET_PERSISTENT_FILTERS)
     const orgId = getItemFromLS(ORGANIZATION_LS_KEY_ID) || ''
     const filtersLsKey = `${SUPERSET_FILTERS_LS_KEY_PREFIX}${orgId}`
 
-    const debouncedSaveFilters = debounce((dataMask: Record<string, unknown>) => {
-      const filters = extractNativeFilters(dataMask)
+    const debouncedSaveFilters = persistFilters
+      ? debounce((dataMask: Record<string, unknown>) => {
+          const filters = extractNativeFilters(dataMask)
 
-      if (Object.keys(filters).length > 0) {
-        setItemFromLS(filtersLsKey, filters)
-      }
-    }, 500)
+          if (Object.keys(filters).length > 0) {
+            setItemFromLS(filtersLsKey, filters)
+          }
+        }, 500)
+      : null
 
     const mount = async () => {
       const mountPoint = document.getElementById('superset')
@@ -73,9 +77,14 @@ const Dashboards = () => {
         return
       }
 
-      const savedFilters = getItemFromLS(filtersLsKey)
-      const hasFilters = savedFilters && Object.keys(savedFilters).length > 0
-      const urlParams = hasFilters ? { native_filters: encodeRison(savedFilters) } : undefined
+      let urlParams: Record<string, string> | undefined
+
+      if (persistFilters) {
+        const savedFilters = getItemFromLS(filtersLsKey)
+        const hasFilters = savedFilters && Object.keys(savedFilters).length > 0
+
+        urlParams = hasFilters ? { native_filters: encodeRison(savedFilters) } : undefined
+      }
 
       embedded = await embedDashboard({
         id: dashboard.embeddedId,
@@ -84,7 +93,7 @@ const Dashboards = () => {
         fetchGuestToken: async () => dashboard?.guestToken,
         dashboardUiConfig: {
           hideTitle: true,
-          emitDataMasks: true,
+          emitDataMasks: persistFilters,
           filters: {
             expanded: true,
           },
@@ -93,7 +102,9 @@ const Dashboards = () => {
         iframeSandboxExtras: ['allow-top-navigation', 'allow-popups-to-escape-sandbox'],
       })
 
-      embedded.observeDataMask(debouncedSaveFilters)
+      if (debouncedSaveFilters) {
+        embedded.observeDataMask(debouncedSaveFilters)
+      }
 
       dashboardRef.current = dashboard.id
     }
@@ -101,7 +112,7 @@ const Dashboards = () => {
     mount()
 
     return () => {
-      debouncedSaveFilters.cancel()
+      debouncedSaveFilters?.cancel()
       embedded?.unmount()
       dashboardRef.current = ''
     }
