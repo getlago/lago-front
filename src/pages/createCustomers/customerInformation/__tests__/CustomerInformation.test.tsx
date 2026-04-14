@@ -85,7 +85,9 @@ describe('CustomerInformation Integration Tests', () => {
       const user = userEvent.setup()
       const rendered = render(<TestCustomerInformationWrapper isEdition={true} />)
 
-      const accordionButton = screen.getAllByRole('button')[0]
+      const accordionButton = screen
+        .getAllByRole('button')
+        .find((btn) => !btn.hasAttribute('disabled')) as HTMLElement
 
       await user.click(accordionButton)
       await waitFor(() => {
@@ -98,7 +100,9 @@ describe('CustomerInformation Integration Tests', () => {
       const rendered = render(
         <TestCustomerInformationWrapper customer={mockCustomer} isEdition={true} />,
       )
-      const accordionButton = screen.getAllByRole('button')[0]
+      const accordionButton = screen
+        .getAllByRole('button')
+        .find((btn) => !btn.hasAttribute('disabled')) as HTMLElement
 
       await user.click(accordionButton)
       await waitFor(() => {

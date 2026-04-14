@@ -88,6 +88,7 @@ export const ComboBoxInput = ({
                 variant="quaternary"
                 size="small"
                 icon="chevron-up-down"
+                disabled={restParams.disabled}
                 onClick={restParams.disabled ? undefined : () => inputProps.onMouseDown()}
               />
             )}
