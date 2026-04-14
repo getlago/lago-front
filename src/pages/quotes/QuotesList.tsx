@@ -13,7 +13,7 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
 import { getQuoteTypeTranslationKey } from './common/getQuoteTypetranslationKey'
-import { useQuotes } from './useQuotes'
+import { useQuotes } from './hooks/useQuotes'
 
 const QuotesList = () => {
   const { translate } = useInternationalization()

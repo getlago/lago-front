@@ -7,10 +7,10 @@ import { QuoteDetailsTabsOptionsEnum, QuotesTabsOptionsEnum } from '~/core/const
 import { QUOTE_DETAILS_ROUTE, QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { useQuote } from './hooks/useQuote'
 import OrderFormsList from './OrderFormsList'
 import QuoteDetailsActivityLogs from './QuoteDetailsActivityLogs'
 import QuoteDetailsVersions from './QuoteDetailsVersions'
-import { useQuote } from './useQuotes'
 
 const QuoteDetails = () => {
   const { translate } = useInternationalization()
