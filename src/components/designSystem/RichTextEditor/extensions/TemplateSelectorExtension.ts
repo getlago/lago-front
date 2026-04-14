@@ -103,11 +103,16 @@ export const TemplateSelectorExtension = Node.create({
 
           if (!templateNodeType) return null
 
+          const paragraphType = newState.schema.nodes.paragraph
+
+          if (!paragraphType) return null
+
           const templateNode = templateNodeType.create({ templates })
           const tr = newState.tr
 
-          // Insert template selector node at the end of the document
-          tr.insert(newState.doc.content.size, templateNode)
+          // Replace entire doc content with a single empty paragraph + template selector
+          // to avoid extra empty lines that accumulate when re-inserting
+          tr.replaceWith(0, newState.doc.content.size, [paragraphType.create(), templateNode])
           return tr
         },
       }),

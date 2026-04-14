@@ -1,4 +1,5 @@
 import { Extension } from '@tiptap/core'
+import type { EditorState } from '@tiptap/pm/state'
 import { Editor, Range, ReactRenderer } from '@tiptap/react'
 import Suggestion, { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/suggestion'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
@@ -73,6 +74,11 @@ export const SlashCommands = Extension.create({
       translate: ((key: string) => key) as (key: string) => string,
       suggestion: {
         char: '/',
+        allow: ({ state }: { state: EditorState }) => {
+          const { $from } = state.selection
+
+          return $from.parent.type.name !== 'codeBlock'
+        },
         command: ({
           editor,
           range,

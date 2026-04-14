@@ -45,7 +45,9 @@ const createMockState = ({
 } = {}) => {
   const mockDelete = jest.fn().mockReturnThis()
   const mockInsert = jest.fn().mockReturnThis()
+  const mockReplaceWith = jest.fn().mockReturnThis()
   const mockCreate = jest.fn().mockReturnValue({ type: 'templateSelectorNode' })
+  const mockParagraphCreate = jest.fn().mockReturnValue({ type: 'paragraphNode' })
 
   const state = {
     doc: {
@@ -69,13 +71,19 @@ const createMockState = ({
     tr: {
       delete: mockDelete,
       insert: mockInsert,
+      replaceWith: mockReplaceWith,
     },
     schema: {
-      nodes: hasTemplateSelectorNodeType ? { templateSelector: { create: mockCreate } } : {},
+      nodes: hasTemplateSelectorNodeType
+        ? {
+            templateSelector: { create: mockCreate },
+            paragraph: { create: mockParagraphCreate },
+          }
+        : {},
     },
   }
 
-  return { state, mockDelete, mockInsert, mockCreate }
+  return { state, mockDelete, mockInsert, mockReplaceWith, mockCreate, mockParagraphCreate }
 }
 
 describe('TemplateSelectorExtension', () => {
@@ -251,9 +259,9 @@ describe('TemplateSelectorExtension', () => {
     })
 
     describe('WHEN no template selector exists and editor is empty with templates configured', () => {
-      it('THEN should insert a template selector node', () => {
+      it('THEN should replace doc content with empty paragraph and template selector', () => {
         const appendTransaction = getAppendTransaction(mockTemplates)
-        const { state, mockInsert, mockCreate } = createMockState({
+        const { state, mockReplaceWith, mockCreate, mockParagraphCreate } = createMockState({
           nodes: [{ type: { name: 'paragraph' }, isText: false, pos: 0 }],
           textContent: '',
         })
@@ -261,7 +269,11 @@ describe('TemplateSelectorExtension', () => {
         const result = appendTransaction([{ docChanged: true }], null, state)
 
         expect(mockCreate).toHaveBeenCalledWith({ templates: mockTemplates })
-        expect(mockInsert).toHaveBeenCalledWith(10, { type: 'templateSelectorNode' })
+        expect(mockParagraphCreate).toHaveBeenCalled()
+        expect(mockReplaceWith).toHaveBeenCalledWith(0, 10, [
+          { type: 'paragraphNode' },
+          { type: 'templateSelectorNode' },
+        ])
         expect(result).toBe(state.tr)
       })
     })

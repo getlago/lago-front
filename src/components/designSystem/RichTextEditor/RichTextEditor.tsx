@@ -83,7 +83,7 @@ const RichTextEditor = ({
 
       // Editor-specific overrides and additions
       Placeholder.configure({
-        placeholder: ({ node }) => {
+        placeholder: ({ editor: editorInstance, node }) => {
           if (node.type.name === 'heading') {
             const level = node.attrs.level as number
 
@@ -91,6 +91,23 @@ const RichTextEditor = ({
             if (level === 2) return translate('text_1774281559657ec0exeaqqd3')
             if (level === 3) return translate('text_1774281559657t0kkn628zdy')
             if (level === 4) return translate('text_1775139857939u5lo05baoxn')
+          }
+
+          if (node.type.name === 'codeBlock') {
+            return ''
+          }
+
+          let hasTemplateSelector = false
+
+          editorInstance.state.doc.descendants((docNode) => {
+            if (docNode.type.name === 'templateSelector') {
+              hasTemplateSelector = true
+              return false
+            }
+          })
+
+          if (hasTemplateSelector) {
+            return translate('text_1776159654801l4u60p42kpb')
           }
 
           return translate('text_1774281162711nymiwumt66k')
