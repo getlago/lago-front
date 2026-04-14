@@ -255,15 +255,20 @@ const Toolbar = ({ editor }: ToolbarProps) => {
         <ToolbarDropdown
           data-test={TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}
           items={textStylings}
-          opener={
-            <ToolbarButton
-              testId={TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}
-              tooltip={translate('text_1774862470019c5cxqnwghwv')}
-              isActive={false}
-            >
-              <Icon name="h1" />
-            </ToolbarButton>
-          }
+          opener={(() => {
+            const activeStylings = textStylings.filter((s) => s.isActive)
+            const current = activeStylings.length === 1 ? activeStylings[0] : null
+
+            return (
+              <ToolbarButton
+                testId={TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}
+                tooltip={translate('text_1774862470019c5cxqnwghwv')}
+                isActive={!!current}
+              >
+                {current?.label ?? <Icon name="h1" />}
+              </ToolbarButton>
+            )
+          })()}
         />
 
         {/* Inline formatting */}
