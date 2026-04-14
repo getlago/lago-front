@@ -8,6 +8,7 @@ import { zodOptionalUrl } from '~/formValidation/zodCustoms'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
+export const TOOLBAR_LINK_TEXT_INPUT_TEST_ID = 'toolbar-link-text-input'
 export const TOOLBAR_LINK_INPUT_TEST_ID = 'toolbar-link-input'
 export const TOOLBAR_LINK_APPLY_BUTTON_TEST_ID = 'toolbar-link-apply-button'
 export const TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID = 'toolbar-link-remove-button'
@@ -20,12 +21,23 @@ type LinkPopperFormProps = {
 const LinkPopperForm = ({ editor, closePopper }: LinkPopperFormProps) => {
   const { translate } = useInternationalization()
 
+  const defaultLinkText = (() => {
+    if (editor.isActive('link')) {
+      editor.commands.extendMarkRange('link')
+    }
+
+    const { from, to } = editor.state.selection
+
+    return from !== to ? editor.state.doc.textBetween(from, to) : ''
+  })()
+
   const schemaValidation = z.object({
+    text: z.string(),
     url: zodOptionalUrl,
   })
 
   const form = useAppForm({
-    defaultValues: { url: editor.getAttributes('link').href || '' },
+    defaultValues: { text: defaultLinkText, url: editor.getAttributes('link').href || '' },
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: schemaValidation,
@@ -48,7 +60,20 @@ const LinkPopperForm = ({ editor, closePopper }: LinkPopperFormProps) => {
           return
         }
 
-        editor.chain().focus().setLink({ href: serializedUrl }).run()
+        if (value.text) {
+          editor
+            .chain()
+            .focus()
+            .deleteSelection()
+            .insertContent({
+              type: 'text',
+              text: value.text,
+              marks: [{ type: 'link', attrs: { href: serializedUrl } }],
+            })
+            .run()
+        } else {
+          editor.chain().focus().setLink({ href: serializedUrl }).run()
+        }
       } else {
         editor.chain().focus().unsetLink().run()
       }
@@ -70,7 +95,7 @@ const LinkPopperForm = ({ editor, closePopper }: LinkPopperFormProps) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="flex flex-col gap-2 p-3">
+      <div className="flex flex-col gap-3 p-3">
         <form.AppField name="url">
           {(field) => (
             <field.TextInputField
@@ -80,7 +105,16 @@ const LinkPopperForm = ({ editor, closePopper }: LinkPopperFormProps) => {
             />
           )}
         </form.AppField>
-        <div className="flex gap-2">
+        <form.AppField name="text">
+          {(field) => (
+            <field.TextInputField
+              inputProps={{ 'data-test': TOOLBAR_LINK_TEXT_INPUT_TEST_ID }}
+              placeholder={translate('text_1776161674744hjroof8f2tn')}
+              label={translate('text_1776161674530rijpb1a6bnw')}
+            />
+          )}
+        </form.AppField>
+        <div className="flex gap-3">
           <form.AppForm>
             <form.SubmitButton dataTest={TOOLBAR_LINK_APPLY_BUTTON_TEST_ID}>
               {translate('text_1774434870566faserfupihr')}
@@ -89,7 +123,8 @@ const LinkPopperForm = ({ editor, closePopper }: LinkPopperFormProps) => {
           {editor.isActive('link') && (
             <Button
               data-test={TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID}
-              variant="secondary"
+              variant="inline"
+              danger
               onClick={removeLink}
             >
               {translate('text_1774434870566l5w8yp6q7zx')}

@@ -373,7 +373,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
           }
         >
           {({ closePopper }) => (
-            <MenuPopper>
+            <MenuPopper className="w-[344px]">
               <LinkPopperForm editor={editor} closePopper={closePopper} />
             </MenuPopper>
           )}
@@ -413,7 +413,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
           }
         >
           {({ closePopper }) => (
-            <MenuPopper>
+            <MenuPopper className="w-[344px]">
               <ImagePopperForm editor={editor} closePopper={closePopper} />
             </MenuPopper>
           )}

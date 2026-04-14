@@ -9,7 +9,9 @@ import LinkPopperForm, {
   TOOLBAR_LINK_APPLY_BUTTON_TEST_ID,
   TOOLBAR_LINK_INPUT_TEST_ID,
   TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID,
+  TOOLBAR_LINK_TEXT_INPUT_TEST_ID,
 } from '../LinkPopperForm'
+
 
 jest.mock('~/core/serializers/serializeUrl', () => ({
   serializeUrl: jest.fn().mockImplementation((url: string) => {
@@ -42,17 +44,27 @@ const createMockChain = () => {
 const createMockEditor = (
   overrides: Record<string, boolean> = {},
   attributes: Record<string, Record<string, string>> = {},
+  selection: { from: number; to: number } = { from: 0, to: 0 },
 ) => {
   const { proxy, runMock, chainMethods } = createMockChain()
+  const mockTextBetween = jest.fn().mockReturnValue('')
+  const mockExtendMarkRange = jest.fn()
 
   return {
     editor: {
       isActive: jest.fn((type: string) => overrides[type] ?? false),
       getAttributes: jest.fn((type: string) => attributes[type] ?? {}),
       chain: jest.fn().mockReturnValue(proxy),
+      commands: { extendMarkRange: mockExtendMarkRange },
+      state: {
+        selection: { from: selection.from, to: selection.to },
+        doc: { textBetween: mockTextBetween },
+      },
     } as unknown as Editor,
     runMock,
     chainMethods,
+    mockTextBetween,
+    mockExtendMarkRange,
   }
 }
 
@@ -231,6 +243,24 @@ describe('LinkPopperForm', () => {
       expect(closePopper).toHaveBeenCalled()
     })
 
+    it('should pre-fill the text input with the link text when on a link', async () => {
+      const { editor, mockTextBetween, mockExtendMarkRange } = createMockEditor(
+        { link: true },
+        { link: { href: 'https://existing-link.com' } },
+        { from: 5, to: 15 },
+      )
+
+      mockTextBetween.mockReturnValue('click here')
+
+      const closePopper = jest.fn()
+
+      await act(() => render(<LinkPopperForm editor={editor} closePopper={closePopper} />))
+
+      expect(mockExtendMarkRange).toHaveBeenCalledWith('link')
+      expect(mockTextBetween).toHaveBeenCalledWith(5, 15)
+      expect(screen.getByTestId(TOOLBAR_LINK_TEXT_INPUT_TEST_ID)).toHaveValue('click here')
+    })
+
     it('should pre-fill the URL input with the current link href', async () => {
       const { editor } = createMockEditor(
         { link: true },
@@ -286,6 +316,23 @@ describe('LinkPopperForm', () => {
       await act(() => render(<LinkPopperForm editor={editor} closePopper={closePopper} />))
 
       expect(screen.getByTestId(TOOLBAR_LINK_INPUT_TEST_ID)).toHaveValue('')
+    })
+
+    it('should pre-fill text input with selected text', async () => {
+      const { editor, mockTextBetween } = createMockEditor(
+        {},
+        {},
+        { from: 3, to: 12 },
+      )
+
+      mockTextBetween.mockReturnValue('some words')
+
+      const closePopper = jest.fn()
+
+      await act(() => render(<LinkPopperForm editor={editor} closePopper={closePopper} />))
+
+      expect(mockTextBetween).toHaveBeenCalledWith(3, 12)
+      expect(screen.getByTestId(TOOLBAR_LINK_TEXT_INPUT_TEST_ID)).toHaveValue('some words')
     })
   })
 })
