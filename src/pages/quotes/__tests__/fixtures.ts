@@ -116,9 +116,7 @@ export const QUOTE_APPROVED_FIXTURE: Quote = {
   voidedReason: null,
   createdAt: '2026-04-01T09:00:00Z',
   updatedAt: '2026-04-10T14:30:00Z',
-  owners: [
-    { id: 'user-003', name: 'Clara Davis', email: 'clara.davis@lago.dev' },
-  ],
+  owners: [{ id: 'user-003', name: 'Clara Davis', email: 'clara.davis@lago.dev' }],
 }
 
 export const QUOTE_VOIDED_FIXTURE: Quote = {
@@ -158,9 +156,7 @@ export const QUOTE_VOIDED_FIXTURE: Quote = {
   voidedReason: 'manual',
   createdAt: '2026-03-10T08:00:00Z',
   updatedAt: '2026-03-20T11:00:00Z',
-  owners: [
-    { id: 'user-001', name: 'Alice Martin', email: 'alice.martin@lago.dev' },
-  ],
+  owners: [{ id: 'user-001', name: 'Alice Martin', email: 'alice.martin@lago.dev' }],
 }
 
 export const QUOTE_AMENDMENT_FIXTURE: Quote = {
