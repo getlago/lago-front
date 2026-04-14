@@ -12,7 +12,6 @@ import LinkPopperForm, {
   TOOLBAR_LINK_TEXT_INPUT_TEST_ID,
 } from '../LinkPopperForm'
 
-
 jest.mock('~/core/serializers/serializeUrl', () => ({
   serializeUrl: jest.fn().mockImplementation((url: string) => {
     try {
@@ -319,11 +318,7 @@ describe('LinkPopperForm', () => {
     })
 
     it('should pre-fill text input with selected text', async () => {
-      const { editor, mockTextBetween } = createMockEditor(
-        {},
-        {},
-        { from: 3, to: 12 },
-      )
+      const { editor, mockTextBetween } = createMockEditor({}, {}, { from: 3, to: 12 })
 
       mockTextBetween.mockReturnValue('some words')
 
