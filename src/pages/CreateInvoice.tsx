@@ -299,7 +299,10 @@ const CreateInvoice = () => {
   })
 
   const billingEntity = billingEntityData?.billingEntity
-  const hasTaxProvider = !!customer?.anrokCustomer?.id || !!customer?.avalaraCustomer?.id
+  const hasTaxProvider =
+    !!customer?.anrokCustomer?.id ||
+    !!customer?.avalaraCustomer?.id ||
+    !!billingEntity?.euTaxManagement
   const customerName = customer?.displayName
   const customerIsPartner = customer?.accountType === CustomerAccountTypeEnum.Partner
 
