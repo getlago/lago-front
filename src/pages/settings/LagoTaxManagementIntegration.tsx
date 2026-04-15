@@ -109,7 +109,7 @@ const LagoTaxManagementIntegration = () => {
 
     navigate(
       generatePath(INTEGRATIONS_ROUTE, {
-        integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        integrationGroup: IntegrationsTabsOptionsEnum.Community,
       }),
     )
 
@@ -132,7 +132,7 @@ const LagoTaxManagementIntegration = () => {
           {
             label: translate('text_62b1edddbf5f461ab9712750'),
             path: generatePath(INTEGRATIONS_ROUTE, {
-              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+              integrationGroup: IntegrationsTabsOptionsEnum.Community,
             }),
           },
         ]}
