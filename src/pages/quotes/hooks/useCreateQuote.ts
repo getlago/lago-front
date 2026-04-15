@@ -14,9 +14,15 @@ gql`
   }
 `
 
+interface CreateQuoteValues {
+  customerId: string
+  orderType: CreateQuoteInput['orderType']
+  subscriptionId?: string
+}
+
 interface UseCreateQuoteReturn {
   loading: boolean
-  onSave: (values: Pick<CreateQuoteInput, 'customerId' | 'orderType'>) => Promise<void>
+  onSave: (values: CreateQuoteValues) => Promise<void>
 }
 
 export const useCreateQuote = (): UseCreateQuoteReturn => {
@@ -40,14 +46,15 @@ export const useCreateQuote = (): UseCreateQuoteReturn => {
     },
   })
 
-  const onSave = async (
-    values: Pick<CreateQuoteInput, 'customerId' | 'orderType'>,
-  ): Promise<void> => {
+  const onSave = async (values: CreateQuoteValues): Promise<void> => {
     await createQuote({
       variables: {
         input: {
           customerId: values.customerId,
           orderType: values.orderType,
+          billingItems: values.subscriptionId
+            ? { subscriptionId: values.subscriptionId }
+            : undefined,
         },
       },
     })

@@ -86,6 +86,7 @@ const CreateQuote = (): JSX.Element => {
       await onSave({
         customerId: value.customerId,
         orderType: value.orderType,
+        subscriptionId: value.subscriptionId || undefined,
       })
     },
   })
@@ -204,16 +205,27 @@ const CreateQuote = (): JSX.Element => {
                 )}
               </form.AppField>
 
-              <div data-test={CREATE_QUOTE_ORDER_TYPE_TEST_ID}>
-                <form.AppField name="orderType">
-                  {(field) => (
-                    <field.ButtonSelectorField
-                      label={translate('text_1776238919927x1y2z3a4b5c')}
-                      options={orderTypeOptions}
-                    />
-                  )}
-                </form.AppField>
-              </div>
+              <form.AppField
+                name="orderType"
+                listeners={{
+                  onChange: ({ value }) => {
+                    form.setFieldValue('subscriptionId', '')
+
+                    if (value === OrderTypeEnum.SubscriptionAmendment && customerId) {
+                      getCustomerSubscriptions({ variables: { customerId } })
+                    }
+                  },
+                }}
+              >
+                {(field) => (
+                  <field.ComboBoxField
+                    dataTest={CREATE_QUOTE_ORDER_TYPE_TEST_ID}
+                    disableClearable
+                    label={translate('text_1776238919927x1y2z3a4b5c')}
+                    data={orderTypeOptions}
+                  />
+                )}
+              </form.AppField>
 
               {orderType === OrderTypeEnum.SubscriptionAmendment && (
                 <form.AppField name="subscriptionId">
@@ -224,7 +236,6 @@ const CreateQuote = (): JSX.Element => {
                       placeholder={translate('text_1776238919927j1k2l3m4n5o')}
                       data={comboboxSubscriptionsData}
                       loading={subscriptionsLoading}
-                      disabled={!customerId}
                       emptyText={translate('text_1776238919927b6c7d8e9f0g')}
                     />
                   )}
