@@ -3778,6 +3778,8 @@ export enum EventTypeEnum {
   PlanCreated = 'plan_created',
   PlanDeleted = 'plan_deleted',
   PlanUpdated = 'plan_updated',
+  SubscriptionCanceled = 'subscription_canceled',
+  SubscriptionIncomplete = 'subscription_incomplete',
   SubscriptionStarted = 'subscription_started',
   SubscriptionTerminated = 'subscription_terminated',
   SubscriptionTerminationAlert = 'subscription_termination_alert',
@@ -8357,6 +8359,7 @@ export type SetAsDefaultInput = {
 export enum StatusTypeEnum {
   Active = 'active',
   Canceled = 'canceled',
+  Incomplete = 'incomplete',
   Pending = 'pending',
   Terminated = 'terminated'
 }
@@ -12822,6 +12825,13 @@ export type GetInfosForCreateInvoiceQueryVariables = Exact<{
 
 
 export type GetInfosForCreateInvoiceQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, externalId: string, addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, name?: string | null, displayName: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, state?: string | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, billingEntity: { __typename?: 'BillingEntity', id: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string } | null } | null, taxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
+
+export type GetBillingEntityTaxesForCreateInvoiceQueryVariables = Exact<{
+  billingEntityId: Scalars['ID']['input'];
+}>;
+
+
+export type GetBillingEntityTaxesForCreateInvoiceQuery = { __typename?: 'Query', billingEntityTaxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
 
 export type GetAddonListForInfoiceQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -32897,6 +32907,52 @@ export type GetInfosForCreateInvoiceQueryHookResult = ReturnType<typeof useGetIn
 export type GetInfosForCreateInvoiceLazyQueryHookResult = ReturnType<typeof useGetInfosForCreateInvoiceLazyQuery>;
 export type GetInfosForCreateInvoiceSuspenseQueryHookResult = ReturnType<typeof useGetInfosForCreateInvoiceSuspenseQuery>;
 export type GetInfosForCreateInvoiceQueryResult = Apollo.QueryResult<GetInfosForCreateInvoiceQuery, GetInfosForCreateInvoiceQueryVariables>;
+export const GetBillingEntityTaxesForCreateInvoiceDocument = gql`
+    query getBillingEntityTaxesForCreateInvoice($billingEntityId: ID!) {
+  billingEntityTaxes(billingEntityId: $billingEntityId) {
+    collection {
+      id
+      ...TaxInfosForCreateInvoice
+    }
+  }
+}
+    ${TaxInfosForCreateInvoiceFragmentDoc}`;
+
+/**
+ * __useGetBillingEntityTaxesForCreateInvoiceQuery__
+ *
+ * To run a query within a React component, call `useGetBillingEntityTaxesForCreateInvoiceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillingEntityTaxesForCreateInvoiceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBillingEntityTaxesForCreateInvoiceQuery({
+ *   variables: {
+ *      billingEntityId: // value for 'billingEntityId'
+ *   },
+ * });
+ */
+export function useGetBillingEntityTaxesForCreateInvoiceQuery(baseOptions: Apollo.QueryHookOptions<GetBillingEntityTaxesForCreateInvoiceQuery, GetBillingEntityTaxesForCreateInvoiceQueryVariables> & ({ variables: GetBillingEntityTaxesForCreateInvoiceQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetBillingEntityTaxesForCreateInvoiceQuery, GetBillingEntityTaxesForCreateInvoiceQueryVariables>(GetBillingEntityTaxesForCreateInvoiceDocument, options);
+      }
+export function useGetBillingEntityTaxesForCreateInvoiceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBillingEntityTaxesForCreateInvoiceQuery, GetBillingEntityTaxesForCreateInvoiceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetBillingEntityTaxesForCreateInvoiceQuery, GetBillingEntityTaxesForCreateInvoiceQueryVariables>(GetBillingEntityTaxesForCreateInvoiceDocument, options);
+        }
+// @ts-ignore
+export function useGetBillingEntityTaxesForCreateInvoiceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillingEntityTaxesForCreateInvoiceQuery, GetBillingEntityTaxesForCreateInvoiceQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillingEntityTaxesForCreateInvoiceQuery, GetBillingEntityTaxesForCreateInvoiceQueryVariables>;
+export function useGetBillingEntityTaxesForCreateInvoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillingEntityTaxesForCreateInvoiceQuery, GetBillingEntityTaxesForCreateInvoiceQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillingEntityTaxesForCreateInvoiceQuery | undefined, GetBillingEntityTaxesForCreateInvoiceQueryVariables>;
+export function useGetBillingEntityTaxesForCreateInvoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillingEntityTaxesForCreateInvoiceQuery, GetBillingEntityTaxesForCreateInvoiceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetBillingEntityTaxesForCreateInvoiceQuery, GetBillingEntityTaxesForCreateInvoiceQueryVariables>(GetBillingEntityTaxesForCreateInvoiceDocument, options);
+        }
+export type GetBillingEntityTaxesForCreateInvoiceQueryHookResult = ReturnType<typeof useGetBillingEntityTaxesForCreateInvoiceQuery>;
+export type GetBillingEntityTaxesForCreateInvoiceLazyQueryHookResult = ReturnType<typeof useGetBillingEntityTaxesForCreateInvoiceLazyQuery>;
+export type GetBillingEntityTaxesForCreateInvoiceSuspenseQueryHookResult = ReturnType<typeof useGetBillingEntityTaxesForCreateInvoiceSuspenseQuery>;
+export type GetBillingEntityTaxesForCreateInvoiceQueryResult = Apollo.QueryResult<GetBillingEntityTaxesForCreateInvoiceQuery, GetBillingEntityTaxesForCreateInvoiceQueryVariables>;
 export const GetAddonListForInfoiceDocument = gql`
     query getAddonListForInfoice($page: Int, $limit: Int, $searchTerm: String) {
   addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
