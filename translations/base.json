@@ -4034,5 +4034,15 @@
   "text_1776155115322saj5ykjtdgk": "Void an order form",
   "text_1776155115322jjyn2clxe1v": "Create an order",
   "text_1776155115322tvm19jjj47e": "Execute an order",
-  "text_1776155115322hbw4qqubvmd": "View orders"
+  "text_1776155115322hbw4qqubvmd": "View orders",
+  "text_1776238919927a1b2c3d4e5f": "Create a quote",
+  "text_1776238919927f6g7h8i9j0k": "Select a customer and define the order type for this quote.",
+  "text_1776238919927l1m2n3o4p5q": "Customer",
+  "text_1776238919927r6s7t8u9v0w": "Search or select a customer",
+  "text_1776238919927x1y2z3a4b5c": "Order type",
+  "text_1776238919927d6e7f8g9h0i": "Subscription",
+  "text_1776238919927j1k2l3m4n5o": "Select a subscription",
+  "text_1776238919927p6q7r8s9t0u": "Create quote",
+  "text_1776238919927v1w2x3y4z5a": "Quote successfully created",
+  "text_1776238919927b6c7d8e9f0g": "No active subscriptions found"
 }
