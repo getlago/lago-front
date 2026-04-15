@@ -5,8 +5,8 @@ import { render } from '~/test-utils'
 import {
   CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID,
   CREATE_QUOTE_ORDER_TYPE_TEST_ID,
-  CREATE_QUOTE_SUBMIT_BUTTON_TEST_ID,
   CREATE_QUOTE_SUBSCRIPTION_COMBOBOX_TEST_ID,
+  CREATE_QUOTE_SUBMIT_BUTTON_TEST_ID,
 } from '../CreateQuote'
 import CreateQuote from '../CreateQuote'
 
@@ -25,7 +25,10 @@ jest.mock('../hooks/useCreateQuote', () => ({
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useGetCustomersForCreateQuoteLazyQuery: () => [jest.fn(), { data: undefined, loading: false }],
+  useGetCustomersForCreateQuoteLazyQuery: () => [
+    jest.fn(),
+    { data: undefined, loading: false },
+  ],
   useGetCustomerSubscriptionsForCreateQuoteLazyQuery: () => [
     jest.fn(),
     { data: undefined, loading: false },
