@@ -13812,6 +13812,13 @@ export type DownloadInvoiceXmlMutationVariables = Exact<{
 
 export type DownloadInvoiceXmlMutation = { __typename?: 'Mutation', downloadInvoiceXml?: { __typename?: 'Invoice', id: string, xmlUrl?: string | null } | null };
 
+export type CreateQuoteMutationVariables = Exact<{
+  input: CreateQuoteInput;
+}>;
+
+
+export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote?: { __typename?: 'Quote', id: string } | null };
+
 export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, status: StatusEnum, version: number, orderType: OrderTypeEnum, currency?: string | null, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string } };
 
 export type GetQuoteQueryVariables = Exact<{
@@ -36867,6 +36874,39 @@ export function useDownloadInvoiceXmlMutation(baseOptions?: Apollo.MutationHookO
 export type DownloadInvoiceXmlMutationHookResult = ReturnType<typeof useDownloadInvoiceXmlMutation>;
 export type DownloadInvoiceXmlMutationResult = Apollo.MutationResult<DownloadInvoiceXmlMutation>;
 export type DownloadInvoiceXmlMutationOptions = Apollo.BaseMutationOptions<DownloadInvoiceXmlMutation, DownloadInvoiceXmlMutationVariables>;
+export const CreateQuoteDocument = gql`
+    mutation createQuote($input: CreateQuoteInput!) {
+  createQuote(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateQuoteMutationFn = Apollo.MutationFunction<CreateQuoteMutation, CreateQuoteMutationVariables>;
+
+/**
+ * __useCreateQuoteMutation__
+ *
+ * To run a mutation, you first call `useCreateQuoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateQuoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createQuoteMutation, { data, loading, error }] = useCreateQuoteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateQuoteMutation(baseOptions?: Apollo.MutationHookOptions<CreateQuoteMutation, CreateQuoteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateQuoteMutation, CreateQuoteMutationVariables>(CreateQuoteDocument, options);
+      }
+export type CreateQuoteMutationHookResult = ReturnType<typeof useCreateQuoteMutation>;
+export type CreateQuoteMutationResult = Apollo.MutationResult<CreateQuoteMutation>;
+export type CreateQuoteMutationOptions = Apollo.BaseMutationOptions<CreateQuoteMutation, CreateQuoteMutationVariables>;
 export const GetQuoteDocument = gql`
     query getQuote($id: ID!) {
   quote(id: $id) {
