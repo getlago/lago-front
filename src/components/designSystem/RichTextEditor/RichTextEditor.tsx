@@ -20,6 +20,7 @@ import {
 } from './extensions/Mention.schema'
 import { PlanBlock } from './extensions/PlanBlock'
 import { PlanBlockSchema } from './extensions/PlanBlock.schema'
+import { ResetMarksOnNewBlock } from './extensions/ResetMarksOnNewBlock'
 import { SlashCommands } from './extensions/SlashCommands'
 import { TableCommands } from './extensions/TableCommands'
 import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
@@ -174,6 +175,7 @@ const RichTextEditor = ({
       TemplateSelectorExtension.configure({ templates: templates ?? [] }),
       DragHandle,
       TableCommands,
+      ResetMarksOnNewBlock,
     ],
     editorProps: {
       attributes: {
