@@ -7,6 +7,7 @@ describe('createQuoteSchema', () => {
     const result = createQuoteSchema.safeParse({
       customerId: 'customer-123',
       orderType: OrderTypeEnum.OneOff,
+      subscriptionId: '',
     })
 
     expect(result.success).toBe(true)
@@ -16,6 +17,7 @@ describe('createQuoteSchema', () => {
     const result = createQuoteSchema.safeParse({
       customerId: 'customer-123',
       orderType: OrderTypeEnum.SubscriptionCreation,
+      subscriptionId: '',
     })
 
     expect(result.success).toBe(true)
@@ -35,6 +37,7 @@ describe('createQuoteSchema', () => {
     const result = createQuoteSchema.safeParse({
       customerId: '',
       orderType: OrderTypeEnum.OneOff,
+      subscriptionId: '',
     })
 
     expect(result.success).toBe(false)
