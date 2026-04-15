@@ -3817,8 +3817,6 @@ export enum EventTypeEnum {
   PlanCreated = 'plan_created',
   PlanDeleted = 'plan_deleted',
   PlanUpdated = 'plan_updated',
-  SubscriptionCanceled = 'subscription_canceled',
-  SubscriptionIncomplete = 'subscription_incomplete',
   SubscriptionStarted = 'subscription_started',
   SubscriptionTerminated = 'subscription_terminated',
   SubscriptionTerminationAlert = 'subscription_termination_alert',
@@ -7968,12 +7966,16 @@ export type QueryQuoteArgs = {
 
 
 export type QueryQuotesArgs = {
-  customerId?: InputMaybe<Scalars['ID']['input']>;
+  customer?: InputMaybe<Array<Scalars['ID']['input']>>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   latestVersionOnly?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  number?: InputMaybe<Scalars['String']['input']>;
+  number?: InputMaybe<Array<Scalars['String']['input']>>;
+  owners?: InputMaybe<Array<Scalars['ID']['input']>>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  status?: InputMaybe<StatusEnum>;
+  status?: InputMaybe<Array<StatusEnum>>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  version?: InputMaybe<Array<Scalars['Int']['input']>>;
 };
 
 
@@ -8537,7 +8539,6 @@ export enum StatusEnum {
 export enum StatusTypeEnum {
   Active = 'active',
   Canceled = 'canceled',
-  Incomplete = 'incomplete',
   Pending = 'pending',
   Terminated = 'terminated'
 }
@@ -13811,20 +13812,6 @@ export type DownloadInvoiceXmlMutationVariables = Exact<{
 
 export type DownloadInvoiceXmlMutation = { __typename?: 'Mutation', downloadInvoiceXml?: { __typename?: 'Invoice', id: string, xmlUrl?: string | null } | null };
 
-export type QuoteListItemFragment = { __typename?: 'Quote', id: string, number: string, status: StatusEnum, version: number, orderType: OrderTypeEnum, currency?: string | null, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null } };
-
-export type GetQuotesQueryVariables = Exact<{
-  page?: InputMaybe<Scalars['Int']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  status?: InputMaybe<StatusEnum>;
-  customerId?: InputMaybe<Scalars['ID']['input']>;
-  number?: InputMaybe<Scalars['String']['input']>;
-  latestVersionOnly?: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-export type GetQuotesQuery = { __typename?: 'Query', quotes: { __typename?: 'QuoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Quote', id: string, number: string, status: StatusEnum, version: number, orderType: OrderTypeEnum, currency?: string | null, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null } }> } };
-
 export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, status: StatusEnum, version: number, orderType: OrderTypeEnum, currency?: string | null, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string } };
 
 export type GetQuoteQueryVariables = Exact<{
@@ -13833,6 +13820,20 @@ export type GetQuoteQueryVariables = Exact<{
 
 
 export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, status: StatusEnum, version: number, orderType: OrderTypeEnum, currency?: string | null, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string } } | null };
+
+export type QuoteListItemFragment = { __typename?: 'Quote', id: string, number: string, status: StatusEnum, version: number, orderType: OrderTypeEnum, currency?: string | null, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null } };
+
+export type GetQuotesQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  status?: InputMaybe<Array<StatusEnum> | StatusEnum>;
+  customer?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  number?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  latestVersionOnly?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type GetQuotesQuery = { __typename?: 'Query', quotes: { __typename?: 'QuoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Quote', id: string, number: string, status: StatusEnum, version: number, orderType: OrderTypeEnum, currency?: string | null, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null } }> } };
 
 export type AdyenIntegrationDetailsFragment = { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string };
 
@@ -18980,21 +18981,6 @@ export const FeatureForFeaturesListFragmentDoc = gql`
   subscriptionsCount
 }
     `;
-export const QuoteListItemFragmentDoc = gql`
-    fragment QuoteListItem on Quote {
-  id
-  number
-  status
-  version
-  orderType
-  currency
-  createdAt
-  customer {
-    id
-    name
-  }
-}
-    `;
 export const QuoteDetailItemFragmentDoc = gql`
     fragment QuoteDetailItem on Quote {
   id
@@ -19008,6 +18994,21 @@ export const QuoteDetailItemFragmentDoc = gql`
     id
     name
     externalId
+  }
+}
+    `;
+export const QuoteListItemFragmentDoc = gql`
+    fragment QuoteListItem on Quote {
+  id
+  number
+  status
+  version
+  orderType
+  currency
+  createdAt
+  customer {
+    id
+    name
   }
 }
     `;
@@ -36866,68 +36867,6 @@ export function useDownloadInvoiceXmlMutation(baseOptions?: Apollo.MutationHookO
 export type DownloadInvoiceXmlMutationHookResult = ReturnType<typeof useDownloadInvoiceXmlMutation>;
 export type DownloadInvoiceXmlMutationResult = Apollo.MutationResult<DownloadInvoiceXmlMutation>;
 export type DownloadInvoiceXmlMutationOptions = Apollo.BaseMutationOptions<DownloadInvoiceXmlMutation, DownloadInvoiceXmlMutationVariables>;
-export const GetQuotesDocument = gql`
-    query getQuotes($page: Int, $limit: Int, $status: StatusEnum, $customerId: ID, $number: String, $latestVersionOnly: Boolean) {
-  quotes(
-    page: $page
-    limit: $limit
-    status: $status
-    customerId: $customerId
-    number: $number
-    latestVersionOnly: $latestVersionOnly
-  ) {
-    metadata {
-      currentPage
-      totalPages
-      totalCount
-    }
-    collection {
-      ...QuoteListItem
-    }
-  }
-}
-    ${QuoteListItemFragmentDoc}`;
-
-/**
- * __useGetQuotesQuery__
- *
- * To run a query within a React component, call `useGetQuotesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetQuotesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetQuotesQuery({
- *   variables: {
- *      page: // value for 'page'
- *      limit: // value for 'limit'
- *      status: // value for 'status'
- *      customerId: // value for 'customerId'
- *      number: // value for 'number'
- *      latestVersionOnly: // value for 'latestVersionOnly'
- *   },
- * });
- */
-export function useGetQuotesQuery(baseOptions?: Apollo.QueryHookOptions<GetQuotesQuery, GetQuotesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetQuotesQuery, GetQuotesQueryVariables>(GetQuotesDocument, options);
-      }
-export function useGetQuotesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetQuotesQuery, GetQuotesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetQuotesQuery, GetQuotesQueryVariables>(GetQuotesDocument, options);
-        }
-// @ts-ignore
-export function useGetQuotesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetQuotesQuery, GetQuotesQueryVariables>): Apollo.UseSuspenseQueryResult<GetQuotesQuery, GetQuotesQueryVariables>;
-export function useGetQuotesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetQuotesQuery, GetQuotesQueryVariables>): Apollo.UseSuspenseQueryResult<GetQuotesQuery | undefined, GetQuotesQueryVariables>;
-export function useGetQuotesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetQuotesQuery, GetQuotesQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetQuotesQuery, GetQuotesQueryVariables>(GetQuotesDocument, options);
-        }
-export type GetQuotesQueryHookResult = ReturnType<typeof useGetQuotesQuery>;
-export type GetQuotesLazyQueryHookResult = ReturnType<typeof useGetQuotesLazyQuery>;
-export type GetQuotesSuspenseQueryHookResult = ReturnType<typeof useGetQuotesSuspenseQuery>;
-export type GetQuotesQueryResult = Apollo.QueryResult<GetQuotesQuery, GetQuotesQueryVariables>;
 export const GetQuoteDocument = gql`
     query getQuote($id: ID!) {
   quote(id: $id) {
@@ -36971,6 +36910,68 @@ export type GetQuoteQueryHookResult = ReturnType<typeof useGetQuoteQuery>;
 export type GetQuoteLazyQueryHookResult = ReturnType<typeof useGetQuoteLazyQuery>;
 export type GetQuoteSuspenseQueryHookResult = ReturnType<typeof useGetQuoteSuspenseQuery>;
 export type GetQuoteQueryResult = Apollo.QueryResult<GetQuoteQuery, GetQuoteQueryVariables>;
+export const GetQuotesDocument = gql`
+    query getQuotes($page: Int, $limit: Int, $status: [StatusEnum!], $customer: [ID!], $number: [String!], $latestVersionOnly: Boolean) {
+  quotes(
+    page: $page
+    limit: $limit
+    status: $status
+    customer: $customer
+    number: $number
+    latestVersionOnly: $latestVersionOnly
+  ) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      ...QuoteListItem
+    }
+  }
+}
+    ${QuoteListItemFragmentDoc}`;
+
+/**
+ * __useGetQuotesQuery__
+ *
+ * To run a query within a React component, call `useGetQuotesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetQuotesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetQuotesQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      status: // value for 'status'
+ *      customer: // value for 'customer'
+ *      number: // value for 'number'
+ *      latestVersionOnly: // value for 'latestVersionOnly'
+ *   },
+ * });
+ */
+export function useGetQuotesQuery(baseOptions?: Apollo.QueryHookOptions<GetQuotesQuery, GetQuotesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetQuotesQuery, GetQuotesQueryVariables>(GetQuotesDocument, options);
+      }
+export function useGetQuotesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetQuotesQuery, GetQuotesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetQuotesQuery, GetQuotesQueryVariables>(GetQuotesDocument, options);
+        }
+// @ts-ignore
+export function useGetQuotesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetQuotesQuery, GetQuotesQueryVariables>): Apollo.UseSuspenseQueryResult<GetQuotesQuery, GetQuotesQueryVariables>;
+export function useGetQuotesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetQuotesQuery, GetQuotesQueryVariables>): Apollo.UseSuspenseQueryResult<GetQuotesQuery | undefined, GetQuotesQueryVariables>;
+export function useGetQuotesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetQuotesQuery, GetQuotesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetQuotesQuery, GetQuotesQueryVariables>(GetQuotesDocument, options);
+        }
+export type GetQuotesQueryHookResult = ReturnType<typeof useGetQuotesQuery>;
+export type GetQuotesLazyQueryHookResult = ReturnType<typeof useGetQuotesLazyQuery>;
+export type GetQuotesSuspenseQueryHookResult = ReturnType<typeof useGetQuotesSuspenseQuery>;
+export type GetQuotesQueryResult = Apollo.QueryResult<GetQuotesQuery, GetQuotesQueryVariables>;
 export const GetAdyenIntegrationsDetailsDocument = gql`
     query getAdyenIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
   paymentProvider(id: $id) {

@@ -19,16 +19,12 @@ const QuoteDetails = (): JSX.Element => {
   const { quote, loading } = useQuote(quoteId)
 
   useEffect(() => {
-    if (!loading && !quote) {
-      navigate(QUOTES_LIST_ROUTE, { replace: true })
-    }
+    if (loading || quote) return
+
+    navigate(QUOTES_LIST_ROUTE, { replace: true })
   }, [loading, quote, navigate])
 
   const activeTabContent = useMainHeaderTabContent()
-
-  const getViewSubtitle = () => {
-    return quote ? `${quote.customer.name} - ${quote.customer.externalId}` : ''
-  }
 
   return (
     <>
@@ -44,7 +40,7 @@ const QuoteDetails = (): JSX.Element => {
         entity={{
           viewName: quote?.number ?? '',
           viewNameLoading: loading,
-          metadata: getViewSubtitle(),
+          metadata: quote ? `${quote.customer.name} - ${quote.customer.externalId}` : '',
           metadataLoading: loading,
         }}
         tabs={[

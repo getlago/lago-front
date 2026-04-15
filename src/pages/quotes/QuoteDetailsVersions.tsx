@@ -28,7 +28,7 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
     fetchMore,
     metadata,
   } = useQuotes({
-    number: quote.number,
+    number: [quote.number],
     latestVersionOnly: false,
   })
 

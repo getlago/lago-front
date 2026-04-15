@@ -112,7 +112,7 @@ describe('QuoteDetailsVersions', () => {
         render(<QuoteDetailsVersions quote={mockQuote} />)
 
         expect(mockUseQuotes).toHaveBeenCalledWith(
-          expect.objectContaining({ number: 'QT-2026-0042' }),
+          expect.objectContaining({ number: ['QT-2026-0042'] }),
         )
       })
 

@@ -1,11 +1,10 @@
 import { FetchMoreQueryOptions, gql, OperationVariables } from '@apollo/client'
-import { useEffect } from 'react'
 
 import {
   GetQuotesQuery,
   GetQuotesQueryVariables,
   QuoteListItemFragment,
-  useGetQuotesLazyQuery,
+  useGetQuotesQuery,
 } from '~/generated/graphql'
 
 gql`
@@ -26,16 +25,16 @@ gql`
   query getQuotes(
     $page: Int
     $limit: Int
-    $status: StatusEnum
-    $customerId: ID
-    $number: String
+    $status: [StatusEnum!]
+    $customer: [ID!]
+    $number: [String!]
     $latestVersionOnly: Boolean
   ) {
     quotes(
       page: $page
       limit: $limit
       status: $status
-      customerId: $customerId
+      customer: $customer
       number: $number
       latestVersionOnly: $latestVersionOnly
     ) {
@@ -66,7 +65,7 @@ interface UseQuotesReturn {
 export const useQuotes = (
   variables?: Omit<GetQuotesQueryVariables, 'limit' | 'page'>,
 ): UseQuotesReturn => {
-  const [getQuotes, { data, loading, error, fetchMore }] = useGetQuotesLazyQuery({
+  const { data, loading, error, fetchMore } = useGetQuotesQuery({
     variables: {
       limit: 20,
       ...variables,
@@ -75,10 +74,6 @@ export const useQuotes = (
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
   })
-
-  useEffect(() => {
-    getQuotes()
-  }, [getQuotes])
 
   return {
     quotes: data?.quotes?.collection || [],
