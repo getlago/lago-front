@@ -13812,6 +13812,22 @@ export type DownloadInvoiceXmlMutationVariables = Exact<{
 
 export type DownloadInvoiceXmlMutation = { __typename?: 'Mutation', downloadInvoiceXml?: { __typename?: 'Invoice', id: string, xmlUrl?: string | null } | null };
 
+export type GetCustomersForCreateQuoteQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetCustomersForCreateQuoteQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', collection: Array<{ __typename?: 'Customer', id: string, displayName: string, externalId: string }> } };
+
+export type GetCustomerSubscriptionsForCreateQuoteQueryVariables = Exact<{
+  customerId: Scalars['ID']['input'];
+}>;
+
+
+export type GetCustomerSubscriptionsForCreateQuoteQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, subscriptions: Array<{ __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }> } | null };
+
 export type CreateQuoteMutationVariables = Exact<{
   input: CreateQuoteInput;
 }>;
@@ -36874,6 +36890,109 @@ export function useDownloadInvoiceXmlMutation(baseOptions?: Apollo.MutationHookO
 export type DownloadInvoiceXmlMutationHookResult = ReturnType<typeof useDownloadInvoiceXmlMutation>;
 export type DownloadInvoiceXmlMutationResult = Apollo.MutationResult<DownloadInvoiceXmlMutation>;
 export type DownloadInvoiceXmlMutationOptions = Apollo.BaseMutationOptions<DownloadInvoiceXmlMutation, DownloadInvoiceXmlMutationVariables>;
+export const GetCustomersForCreateQuoteDocument = gql`
+    query getCustomersForCreateQuote($page: Int, $limit: Int, $searchTerm: String) {
+  customers(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    collection {
+      id
+      displayName
+      externalId
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCustomersForCreateQuoteQuery__
+ *
+ * To run a query within a React component, call `useGetCustomersForCreateQuoteQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomersForCreateQuoteQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomersForCreateQuoteQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetCustomersForCreateQuoteQuery(baseOptions?: Apollo.QueryHookOptions<GetCustomersForCreateQuoteQuery, GetCustomersForCreateQuoteQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomersForCreateQuoteQuery, GetCustomersForCreateQuoteQueryVariables>(GetCustomersForCreateQuoteDocument, options);
+      }
+export function useGetCustomersForCreateQuoteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomersForCreateQuoteQuery, GetCustomersForCreateQuoteQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomersForCreateQuoteQuery, GetCustomersForCreateQuoteQueryVariables>(GetCustomersForCreateQuoteDocument, options);
+        }
+// @ts-ignore
+export function useGetCustomersForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomersForCreateQuoteQuery, GetCustomersForCreateQuoteQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomersForCreateQuoteQuery, GetCustomersForCreateQuoteQueryVariables>;
+export function useGetCustomersForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomersForCreateQuoteQuery, GetCustomersForCreateQuoteQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomersForCreateQuoteQuery | undefined, GetCustomersForCreateQuoteQueryVariables>;
+export function useGetCustomersForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomersForCreateQuoteQuery, GetCustomersForCreateQuoteQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomersForCreateQuoteQuery, GetCustomersForCreateQuoteQueryVariables>(GetCustomersForCreateQuoteDocument, options);
+        }
+export type GetCustomersForCreateQuoteQueryHookResult = ReturnType<typeof useGetCustomersForCreateQuoteQuery>;
+export type GetCustomersForCreateQuoteLazyQueryHookResult = ReturnType<typeof useGetCustomersForCreateQuoteLazyQuery>;
+export type GetCustomersForCreateQuoteSuspenseQueryHookResult = ReturnType<typeof useGetCustomersForCreateQuoteSuspenseQuery>;
+export type GetCustomersForCreateQuoteQueryResult = Apollo.QueryResult<GetCustomersForCreateQuoteQuery, GetCustomersForCreateQuoteQueryVariables>;
+export const GetCustomerSubscriptionsForCreateQuoteDocument = gql`
+    query getCustomerSubscriptionsForCreateQuote($customerId: ID!) {
+  customer(id: $customerId) {
+    id
+    subscriptions {
+      id
+      name
+      externalId
+      status
+      plan {
+        id
+        name
+        code
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCustomerSubscriptionsForCreateQuoteQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerSubscriptionsForCreateQuoteQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerSubscriptionsForCreateQuoteQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerSubscriptionsForCreateQuoteQuery({
+ *   variables: {
+ *      customerId: // value for 'customerId'
+ *   },
+ * });
+ */
+export function useGetCustomerSubscriptionsForCreateQuoteQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerSubscriptionsForCreateQuoteQuery, GetCustomerSubscriptionsForCreateQuoteQueryVariables> & ({ variables: GetCustomerSubscriptionsForCreateQuoteQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerSubscriptionsForCreateQuoteQuery, GetCustomerSubscriptionsForCreateQuoteQueryVariables>(GetCustomerSubscriptionsForCreateQuoteDocument, options);
+      }
+export function useGetCustomerSubscriptionsForCreateQuoteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerSubscriptionsForCreateQuoteQuery, GetCustomerSubscriptionsForCreateQuoteQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerSubscriptionsForCreateQuoteQuery, GetCustomerSubscriptionsForCreateQuoteQueryVariables>(GetCustomerSubscriptionsForCreateQuoteDocument, options);
+        }
+// @ts-ignore
+export function useGetCustomerSubscriptionsForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerSubscriptionsForCreateQuoteQuery, GetCustomerSubscriptionsForCreateQuoteQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerSubscriptionsForCreateQuoteQuery, GetCustomerSubscriptionsForCreateQuoteQueryVariables>;
+export function useGetCustomerSubscriptionsForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerSubscriptionsForCreateQuoteQuery, GetCustomerSubscriptionsForCreateQuoteQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerSubscriptionsForCreateQuoteQuery | undefined, GetCustomerSubscriptionsForCreateQuoteQueryVariables>;
+export function useGetCustomerSubscriptionsForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerSubscriptionsForCreateQuoteQuery, GetCustomerSubscriptionsForCreateQuoteQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomerSubscriptionsForCreateQuoteQuery, GetCustomerSubscriptionsForCreateQuoteQueryVariables>(GetCustomerSubscriptionsForCreateQuoteDocument, options);
+        }
+export type GetCustomerSubscriptionsForCreateQuoteQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionsForCreateQuoteQuery>;
+export type GetCustomerSubscriptionsForCreateQuoteLazyQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionsForCreateQuoteLazyQuery>;
+export type GetCustomerSubscriptionsForCreateQuoteSuspenseQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionsForCreateQuoteSuspenseQuery>;
+export type GetCustomerSubscriptionsForCreateQuoteQueryResult = Apollo.QueryResult<GetCustomerSubscriptionsForCreateQuoteQuery, GetCustomerSubscriptionsForCreateQuoteQueryVariables>;
 export const CreateQuoteDocument = gql`
     mutation createQuote($input: CreateQuoteInput!) {
   createQuote(input: $input) {
