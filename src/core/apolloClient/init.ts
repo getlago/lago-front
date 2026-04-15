@@ -17,11 +17,11 @@ import {
   AUTH_TOKEN_LS_KEY,
   CUSTOMER_PORTAL_TOKEN_LS_KEY,
   envGlobalVar,
+  getCurrentOrganizationId,
   TMP_AUTH_TOKEN_LS_KEY,
   updateAuthTokenVar,
 } from '~/core/apolloClient/reactiveVars'
 import { buildWebSocketUrl } from '~/core/apolloClient/websocketUrl'
-import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
 import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
 import { LagoApiError } from '~/generated/graphql'
 
@@ -63,7 +63,7 @@ export const initializeApolloClient = async () => {
     const { headers } = operation.getContext()
     const token = getItemFromLS(AUTH_TOKEN_LS_KEY) || getItemFromLS(TMP_AUTH_TOKEN_LS_KEY)
     const customerPortalToken = getItemFromLS(CUSTOMER_PORTAL_TOKEN_LS_KEY)
-    const currentOrganizationId = getItemFromLS(ORGANIZATION_LS_KEY_ID)
+    const currentOrganizationId = getCurrentOrganizationId()
 
     operation.setContext({
       headers: {
