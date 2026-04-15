@@ -11,11 +11,11 @@ import { QuoteListItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
+import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
 import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
-import { getQuoteTypeTranslationKey } from './common/getQuoteTypetranslationKey'
 import { useQuotes } from './hooks/useQuotes'
 
-const QuotesList = () => {
+const QuotesList = (): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { quotes, loading, error, fetchMore, metadata } = useQuotes({ latestVersionOnly: true })
@@ -61,7 +61,9 @@ const QuotesList = () => {
       title: translate('text_1775747115932x8ryaymh8ej'),
       minWidth: 220,
       content: ({ orderType }) => (
-        <Typography color="grey600">{translate(getQuoteTypeTranslationKey(orderType))}</Typography>
+        <Typography color="grey600">
+          {translate(getQuoteOrderTypeTranslationKey(orderType))}
+        </Typography>
       ),
     },
     {

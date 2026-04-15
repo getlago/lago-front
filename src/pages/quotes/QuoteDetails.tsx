@@ -12,7 +12,7 @@ import OrderFormsList from './OrderFormsList'
 import QuoteDetailsActivityLogs from './QuoteDetailsActivityLogs'
 import QuoteDetailsVersions from './QuoteDetailsVersions'
 
-const QuoteDetails = () => {
+const QuoteDetails = (): JSX.Element => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { quoteId } = useParams()
@@ -70,7 +70,7 @@ const QuoteDetails = () => {
               quoteId: quoteId as string,
               tab: QuoteDetailsTabsOptionsEnum.activityLogs,
             }),
-            content: quote ? <QuoteDetailsActivityLogs quote={quote} /> : null,
+            content: <QuoteDetailsActivityLogs />,
           },
         ]}
       />

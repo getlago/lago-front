@@ -1,3 +1,6 @@
+import { Fragment } from 'react'
+
+import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
@@ -6,18 +9,25 @@ import { QuoteDetailItemFragment, QuoteListItemFragment } from '~/generated/grap
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
+import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
 import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
-import { getQuoteTypeTranslationKey } from './common/getQuoteTypetranslationKey'
 import { useQuotes } from './hooks/useQuotes'
 
 interface QuoteDetailsVersionsProps {
   quote: QuoteDetailItemFragment
 }
 
-const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps) => {
+export const QUOTE_VERSIONS_TABLE_TEST_ID = 'quote-versions-table'
+
+const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const { quotes: versions, loading } = useQuotes({
+  const {
+    quotes: versions,
+    loading,
+    fetchMore,
+    metadata,
+  } = useQuotes({
     number: quote.number,
     latestVersionOnly: false,
   })
@@ -68,7 +78,7 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps) => {
     },
     {
       label: translate('text_6560809c38fb9de88d8a52fb'),
-      value: translate(getQuoteTypeTranslationKey(quote.orderType)),
+      value: translate(getQuoteOrderTypeTranslationKey(quote.orderType)),
     },
   ]
 
@@ -81,29 +91,41 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps) => {
         </div>
         <div className="grid grid-cols-[200px_1fr] gap-x-4 gap-y-2">
           {quoteDetails.map(({ label, value }) => (
-            <>
+            <Fragment key={label}>
               <Typography color="grey600" variant="caption">
                 {label}
               </Typography>
               <Typography variant="body" color="grey700">
                 {value}
               </Typography>
-            </>
+            </Fragment>
           ))}
         </div>
       </section>
-      <section className="flex flex-col gap-4">
+      <section className="flex flex-col gap-4" data-test={QUOTE_VERSIONS_TABLE_TEST_ID}>
         <div className="flex flex-col gap-2">
           <Typography variant="subhead1">{translate('text_1775825275651t25f8xbhmai')}</Typography>
           <Typography variant="caption">{translate('text_1775825275651evevz6qh4d0')}</Typography>
         </div>
-        <Table
-          name="quote-versions"
-          data={versions}
-          isLoading={loading}
-          containerSize={0}
-          columns={versionColumns}
-        />
+        <InfiniteScroll
+          onBottom={() => {
+            const { currentPage = 0, totalPages = 0 } = metadata || {}
+
+            currentPage < totalPages &&
+              !loading &&
+              fetchMore?.({
+                variables: { page: currentPage + 1 },
+              })
+          }}
+        >
+          <Table
+            name="quote-versions"
+            data={versions}
+            isLoading={loading}
+            containerSize={0}
+            columns={versionColumns}
+          />
+        </InfiniteScroll>
       </section>
     </DetailsPage.Container>
   )

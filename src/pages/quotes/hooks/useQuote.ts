@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 
-import { useGetQuoteQuery } from '~/generated/graphql'
+import { QuoteDetailItemFragment, useGetQuoteQuery } from '~/generated/graphql'
 
 gql`
   fragment QuoteDetailItem on Quote {
@@ -25,7 +25,13 @@ gql`
   }
 `
 
-export const useQuote = (id?: string) => {
+interface UseQuoteReturn {
+  quote: QuoteDetailItemFragment | null | undefined
+  loading: boolean
+  error: Error | undefined
+}
+
+export const useQuote = (id?: string): UseQuoteReturn => {
   const { data, loading, error } = useGetQuoteQuery({
     variables: { id: id || '' },
     skip: !id,

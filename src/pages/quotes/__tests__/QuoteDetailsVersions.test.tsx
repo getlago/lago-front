@@ -4,7 +4,17 @@ import { OrderTypeEnum, QuoteDetailItemFragment, StatusEnum } from '~/generated/
 import { render } from '~/test-utils'
 
 import { useQuotes } from '../hooks/useQuotes'
-import QuoteDetailsVersions from '../QuoteDetailsVersions'
+import QuoteDetailsVersions, { QUOTE_VERSIONS_TABLE_TEST_ID } from '../QuoteDetailsVersions'
+
+const mockIntersectionObserver = jest.fn()
+
+mockIntersectionObserver.mockReturnValue({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+})
+
+globalThis.IntersectionObserver = mockIntersectionObserver
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -78,6 +88,12 @@ describe('QuoteDetailsVersions', () => {
 
   describe('GIVEN the component is rendered with a quote', () => {
     describe('WHEN displaying quote details', () => {
+      it('THEN should render the versions section', () => {
+        render(<QuoteDetailsVersions quote={mockQuote} />)
+
+        expect(screen.getByTestId(QUOTE_VERSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+      })
+
       it('THEN should display the quote number', () => {
         render(<QuoteDetailsVersions quote={mockQuote} />)
 

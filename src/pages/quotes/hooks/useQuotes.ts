@@ -1,7 +1,12 @@
-import { gql } from '@apollo/client'
+import { FetchMoreQueryOptions, gql, OperationVariables } from '@apollo/client'
 import { useEffect } from 'react'
 
-import { GetQuotesQueryVariables, useGetQuotesLazyQuery } from '~/generated/graphql'
+import {
+  GetQuotesQuery,
+  GetQuotesQueryVariables,
+  QuoteListItemFragment,
+  useGetQuotesLazyQuery,
+} from '~/generated/graphql'
 
 gql`
   fragment QuoteListItem on Quote {
@@ -46,7 +51,21 @@ gql`
   }
 `
 
-export const useQuotes = (variables?: Omit<GetQuotesQueryVariables, 'limit' | 'page'>) => {
+interface UseQuotesReturn {
+  quotes: QuoteListItemFragment[]
+  metadata: GetQuotesQuery['quotes']['metadata'] | undefined
+  loading: boolean
+  error: Error | undefined
+  fetchMore:
+    | ((
+        fetchMoreOptions: FetchMoreQueryOptions<OperationVariables, GetQuotesQuery>,
+      ) => Promise<unknown>)
+    | undefined
+}
+
+export const useQuotes = (
+  variables?: Omit<GetQuotesQueryVariables, 'limit' | 'page'>,
+): UseQuotesReturn => {
   const [getQuotes, { data, loading, error, fetchMore }] = useGetQuotesLazyQuery({
     variables: {
       limit: 20,
