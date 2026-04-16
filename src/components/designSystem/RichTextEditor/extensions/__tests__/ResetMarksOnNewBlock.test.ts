@@ -2,6 +2,7 @@ import { Editor } from '@tiptap/core'
 import Color from '@tiptap/extension-color'
 import Highlight from '@tiptap/extension-highlight'
 import { TextStyle } from '@tiptap/extension-text-style'
+import Underline from '@tiptap/extension-underline'
 import StarterKit from '@tiptap/starter-kit'
 
 import { ResetMarksOnNewBlock } from '../ResetMarksOnNewBlock'
@@ -12,6 +13,7 @@ const createEditor = (content: string) =>
       StarterKit,
       TextStyle,
       Color,
+      Underline,
       Highlight.configure({ multicolor: true }),
       ResetMarksOnNewBlock,
     ],
@@ -157,7 +159,7 @@ describe('ResetMarksOnNewBlock', () => {
 
   describe('GIVEN a paragraph with bold text', () => {
     describe('WHEN splitting the block in the middle of the text', () => {
-      it('THEN should clear stored marks since the new block has content but cursor is at start', () => {
+      it('THEN should not clear marks because the new block has content', () => {
         const editor = createEditor('<p><strong>Hello World</strong></p>')
 
         // Position cursor in the middle of "Hello World" (after "Hello")
@@ -168,10 +170,10 @@ describe('ResetMarksOnNewBlock', () => {
         // After split at "Hello|World", the second block has " World" with bold.
         // The cursor is at the start of the second block which has content,
         // so the extension should NOT clear marks (block is not empty).
-        // The marks come from the existing content, not from stored marks.
         const secondBlock = editor.state.doc.child(1)
 
         expect(secondBlock.textContent).toBe(' World')
+        expect(secondBlock.firstChild?.marks.some((m) => m.type.name === 'bold')).toBe(true)
 
         editor.destroy()
       })
