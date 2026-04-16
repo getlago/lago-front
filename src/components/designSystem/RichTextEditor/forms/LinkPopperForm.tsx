@@ -28,7 +28,7 @@ const LinkPopperForm = ({ editor, closePopper }: LinkPopperFormProps) => {
 
     const { from, to } = editor.state.selection
 
-    return from !== to ? editor.state.doc.textBetween(from, to) : ''
+    return from === to ? '' : editor.state.doc.textBetween(from, to)
   })()
 
   const schemaValidation = z.object({
