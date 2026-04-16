@@ -398,14 +398,28 @@ describe('ApiKeysForm', () => {
 
         expect(readHeaderCheckbox).toBeDefined()
 
-        // Default state: Alert permission has canRead=false, so not all are true (indeterminate)
-        // First click: sets all to true (since not all are currently true)
+        // Default state: all permissions have canRead=true, so header checkbox is checked
+        // First click: sets all to false (since all are currently true)
         await user.click(readHeaderCheckbox)
 
         await waitFor(() => {
           const rows = table.querySelectorAll('tbody tr')
 
-          // All rows should now have read checked (including Alert which was unchecked)
+          rows.forEach((row) => {
+            const rowReadCheckbox = row.querySelectorAll(
+              'input[type="checkbox"]',
+            )[0] as HTMLInputElement
+
+            expect(rowReadCheckbox.checked).toBe(false)
+          })
+        })
+
+        // Second click: now all are false, so sets all to true
+        await user.click(readHeaderCheckbox)
+
+        await waitFor(() => {
+          const rows = table.querySelectorAll('tbody tr')
+
           rows.forEach((row) => {
             const rowReadCheckbox = row.querySelectorAll(
               'input[type="checkbox"]',
@@ -413,18 +427,6 @@ describe('ApiKeysForm', () => {
 
             expect(rowReadCheckbox.checked).toBe(true)
           })
-        })
-
-        // Second click: now all are true, so sets all to false
-        await user.click(readHeaderCheckbox)
-
-        await waitFor(() => {
-          const rows = table.querySelectorAll('tbody tr')
-          const firstRowReadCheckbox = rows[0]?.querySelectorAll(
-            'input[type="checkbox"]',
-          )[0] as HTMLInputElement
-
-          expect(firstRowReadCheckbox.checked).toBe(false)
         })
       })
     })
