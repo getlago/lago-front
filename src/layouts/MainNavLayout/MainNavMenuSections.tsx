@@ -26,6 +26,7 @@ import {
   PLAN_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
+  QUOTE_DETAILS_ROUTE,
   QUOTES_LIST_ROUTE,
   QUOTES_TAB_ROUTE,
   SUBSCRIPTIONS_ROUTE,
@@ -133,7 +134,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       icon: 'writing-sign',
       link: QUOTES_LIST_ROUTE,
       canBeClickedOnActive: true,
-      match: [QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE],
+      match: [QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE, QUOTE_DETAILS_ROUTE],
     },
     {
       title: translate('text_6250304370f0f700a8fdc28d'),
