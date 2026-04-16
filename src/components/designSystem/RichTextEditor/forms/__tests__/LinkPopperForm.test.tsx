@@ -296,6 +296,38 @@ describe('LinkPopperForm', () => {
         expect(closePopper).toHaveBeenCalled()
       })
     })
+
+    it('should use insertContent when both URL and link text are provided', async () => {
+      const user = userEvent.setup()
+      const { editor, runMock, chainMethods } = createMockEditor(
+        { link: true },
+        { link: { href: 'https://old-url.com' } },
+        { from: 5, to: 15 },
+      )
+      const closePopper = jest.fn()
+
+      await act(() => render(<LinkPopperForm editor={editor} closePopper={closePopper} />))
+
+      const urlInput = screen.getByTestId(TOOLBAR_LINK_INPUT_TEST_ID)
+      const textInput = screen.getByTestId(TOOLBAR_LINK_TEXT_INPUT_TEST_ID)
+
+      await user.clear(urlInput)
+      await user.type(urlInput, 'https://example.com')
+      await user.clear(textInput)
+      await user.type(textInput, 'My Link')
+      await user.click(screen.getByTestId(TOOLBAR_LINK_APPLY_BUTTON_TEST_ID))
+
+      await waitFor(() => {
+        expect(chainMethods.deleteSelection).toHaveBeenCalled()
+        expect(chainMethods.insertContent).toHaveBeenCalledWith({
+          type: 'text',
+          text: 'My Link',
+          marks: [{ type: 'link', attrs: { href: 'https://example.com/' } }],
+        })
+        expect(runMock).toHaveBeenCalled()
+        expect(closePopper).toHaveBeenCalled()
+      })
+    })
   })
 
   describe('WHEN link is not active', () => {

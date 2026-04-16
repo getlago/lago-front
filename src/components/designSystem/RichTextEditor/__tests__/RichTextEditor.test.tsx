@@ -482,5 +482,345 @@ describe('RichTextEditor', () => {
 
       callbacks.onExit()
     })
+
+    it('THEN onKeyDown should delegate to renderer.ref.onKeyDown for non-Escape keys', () => {
+      const suggestion = capturedMentionConfig.suggestion as {
+        render: () => {
+          onStart: (props: Record<string, unknown>) => void
+          onKeyDown: (props: { event: { key: string } }) => boolean
+          onExit: () => void
+        }
+      }
+
+      const callbacks = suggestion.render()
+
+      callbacks.onStart(getMockSuggestionProps())
+
+      // renderer.ref is undefined at this point, so it should return false
+      const result = callbacks.onKeyDown({ event: { key: 'ArrowDown' } })
+
+      expect(result).toBe(false)
+
+      callbacks.onExit()
+    })
+
+    it('THEN onUpdate should update renderer props and popup position', () => {
+      const suggestion = capturedMentionConfig.suggestion as {
+        render: () => {
+          onStart: (props: Record<string, unknown>) => void
+          onUpdate: (props: Record<string, unknown>) => void
+          onExit: () => void
+        }
+      }
+
+      const callbacks = suggestion.render()
+
+      callbacks.onStart(getMockSuggestionProps())
+
+      // Should not throw when called with updated props
+      expect(() => {
+        callbacks.onUpdate(getMockSuggestionProps())
+      }).not.toThrow()
+
+      callbacks.onExit()
+    })
+
+    it('THEN onStart should handle null clientRect gracefully', () => {
+      const suggestion = capturedMentionConfig.suggestion as {
+        render: () => {
+          onStart: (props: Record<string, unknown>) => void
+          onExit: () => void
+        }
+      }
+
+      const callbacks = suggestion.render()
+
+      expect(() => {
+        callbacks.onStart({
+          editor: mockEditor,
+          clientRect: null,
+        })
+      }).not.toThrow()
+
+      callbacks.onExit()
+    })
+  })
+
+  describe('GIVEN the onUpdate callback for plan block tracking', () => {
+    const getLastUseEditorConfig = () => {
+      const tiptap = jest.requireMock('@tiptap/react') as { useEditor: jest.Mock }
+      const lastCall = tiptap.useEditor.mock.calls.at(-1)
+
+      return lastCall?.[0] as Record<string, unknown>
+    }
+
+    it('THEN should call onPlanBlocksChange with plan IDs from the document', async () => {
+      const onPlanBlocksChange = jest.fn()
+
+      await act(() => render(<RichTextEditor onPlanBlocksChange={onPlanBlocksChange} />))
+
+      const config = getLastUseEditorConfig()
+      const onUpdate = config.onUpdate as (args: {
+        editor: { state: { doc: { descendants: (cb: (node: unknown) => void) => void } } }
+      }) => void
+
+      const mockEditorInstance = {
+        state: {
+          doc: {
+            descendants: (
+              cb: (node: { type: { name: string }; attrs: { planId?: string } }) => void,
+            ) => {
+              cb({ type: { name: 'planBlock' }, attrs: { planId: 'plan-1' } })
+              cb({ type: { name: 'paragraph' }, attrs: {} })
+              cb({ type: { name: 'planBlock' }, attrs: { planId: 'plan-2' } })
+            },
+          },
+        },
+      }
+
+      onUpdate({ editor: mockEditorInstance })
+
+      expect(onPlanBlocksChange).toHaveBeenCalledWith(['plan-1', 'plan-2'])
+    })
+
+    it('THEN should skip nodes without planId', async () => {
+      const onPlanBlocksChange = jest.fn()
+
+      await act(() => render(<RichTextEditor onPlanBlocksChange={onPlanBlocksChange} />))
+
+      const config = getLastUseEditorConfig()
+      const onUpdate = config.onUpdate as (args: {
+        editor: { state: { doc: { descendants: (cb: (node: unknown) => void) => void } } }
+      }) => void
+
+      const mockEditorInstance = {
+        state: {
+          doc: {
+            descendants: (
+              cb: (node: { type: { name: string }; attrs: { planId?: string } }) => void,
+            ) => {
+              cb({ type: { name: 'planBlock' }, attrs: {} })
+              cb({ type: { name: 'planBlock' }, attrs: { planId: '' } })
+            },
+          },
+        },
+      }
+
+      onUpdate({ editor: mockEditorInstance })
+
+      expect(onPlanBlocksChange).toHaveBeenCalledWith([])
+    })
+
+    it('THEN should early-return when onPlanBlocksChange is not provided', async () => {
+      await act(() => render(<RichTextEditor />))
+
+      const config = getLastUseEditorConfig()
+      const onUpdate = config.onUpdate as (args: {
+        editor: { state: { doc: { descendants: jest.Mock } } }
+      }) => void
+
+      const mockDescendants = jest.fn()
+      const mockEditorInstance = {
+        state: { doc: { descendants: mockDescendants } },
+      }
+
+      onUpdate({ editor: mockEditorInstance })
+
+      expect(mockDescendants).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN the placeholder configuration', () => {
+    const getPlaceholderFn = () => {
+      const tiptap = jest.requireMock('@tiptap/react') as { useEditor: jest.Mock }
+      const lastCall = tiptap.useEditor.mock.calls.at(-1)
+      const config = lastCall?.[0] as { extensions: unknown[] }
+      const extensions = config?.extensions ?? []
+
+      for (const ext of extensions) {
+        if (
+          ext &&
+          typeof ext === 'object' &&
+          'options' in ext &&
+          (ext as { options: { placeholder?: unknown } }).options?.placeholder
+        ) {
+          return (ext as { options: { placeholder: (args: unknown) => string } }).options
+            .placeholder
+        }
+      }
+
+      return null
+    }
+
+    beforeEach(async () => {
+      await act(() => render(<RichTextEditor />))
+    })
+
+    it('THEN should return different placeholders for heading levels 1-4', () => {
+      const placeholder = getPlaceholderFn()
+
+      if (!placeholder) {
+        throw new Error('Placeholder config not found')
+      }
+
+      const mockEditorInstance = {
+        state: { doc: { descendants: jest.fn() } },
+      }
+
+      const h1 = placeholder({
+        editor: mockEditorInstance,
+        node: { type: { name: 'heading' }, attrs: { level: 1 } },
+      })
+      const h2 = placeholder({
+        editor: mockEditorInstance,
+        node: { type: { name: 'heading' }, attrs: { level: 2 } },
+      })
+      const h3 = placeholder({
+        editor: mockEditorInstance,
+        node: { type: { name: 'heading' }, attrs: { level: 3 } },
+      })
+      const h4 = placeholder({
+        editor: mockEditorInstance,
+        node: { type: { name: 'heading' }, attrs: { level: 4 } },
+      })
+
+      // Each heading level should have a unique, non-empty placeholder
+      expect(h1).toBeTruthy()
+      expect(h2).toBeTruthy()
+      expect(h3).toBeTruthy()
+      expect(h4).toBeTruthy()
+      expect(new Set([h1, h2, h3, h4]).size).toBe(4)
+    })
+
+    it('THEN should return empty string for codeBlock nodes', () => {
+      const placeholder = getPlaceholderFn()
+
+      if (!placeholder) {
+        throw new Error('Placeholder config not found')
+      }
+
+      const mockEditorInstance = {
+        state: { doc: { descendants: jest.fn() } },
+      }
+
+      const result = placeholder({
+        editor: mockEditorInstance,
+        node: { type: { name: 'codeBlock' }, attrs: {} },
+      })
+
+      expect(result).toBe('')
+    })
+
+    it('THEN should return template placeholder when doc has templateSelector', () => {
+      const placeholder = getPlaceholderFn()
+
+      if (!placeholder) {
+        throw new Error('Placeholder config not found')
+      }
+
+      const mockEditorInstance = {
+        state: {
+          doc: {
+            descendants: (cb: (node: { type: { name: string } }) => boolean | void) => {
+              cb({ type: { name: 'paragraph' } })
+              cb({ type: { name: 'templateSelector' } })
+            },
+          },
+        },
+      }
+
+      const result = placeholder({
+        editor: mockEditorInstance,
+        node: { type: { name: 'paragraph' }, attrs: {} },
+      })
+
+      // Should return a different placeholder than the default when template selector is present
+      const defaultPlaceholder = placeholder({
+        editor: {
+          state: { doc: { descendants: jest.fn() } },
+        },
+        node: { type: { name: 'paragraph' }, attrs: {} },
+      })
+
+      expect(result).toBeTruthy()
+      expect(result).not.toBe(defaultPlaceholder)
+    })
+
+    it('THEN should return default placeholder for paragraph without templateSelector', () => {
+      const placeholder = getPlaceholderFn()
+
+      if (!placeholder) {
+        throw new Error('Placeholder config not found')
+      }
+
+      const mockEditorInstance = {
+        state: {
+          doc: {
+            descendants: (cb: (node: { type: { name: string } }) => boolean | void) => {
+              cb({ type: { name: 'paragraph' } })
+            },
+          },
+        },
+      }
+
+      const result = placeholder({
+        editor: mockEditorInstance,
+        node: { type: { name: 'paragraph' }, attrs: {} },
+      })
+
+      expect(result).toBeTruthy()
+    })
+  })
+
+  describe('GIVEN the content configuration', () => {
+    const getLastUseEditorConfig = () => {
+      const tiptap = jest.requireMock('@tiptap/react') as { useEditor: jest.Mock }
+      const lastCall = tiptap.useEditor.mock.calls.at(-1)
+
+      return lastCall?.[0] as Record<string, unknown>
+    }
+
+    it('THEN should use templates when provided and no content is given', async () => {
+      const templates = [
+        { id: 't1', name: 'Template 1', description: 'Test', content: '<p>Hello</p>' },
+      ]
+
+      await act(() => render(<RichTextEditor templates={templates} />))
+
+      const config = getLastUseEditorConfig()
+      const content = config.content as {
+        type: string
+        content: Array<{ type: string; attrs?: unknown }>
+      }
+
+      expect(content.type).toBe('doc')
+      expect(content.content).toHaveLength(2)
+      expect(content.content[0].type).toBe('paragraph')
+      expect(content.content[1].type).toBe('templateSelector')
+      expect(content.content[1].attrs).toEqual({ templates })
+    })
+
+    it('THEN should use content prop when provided', async () => {
+      await act(() =>
+        render(
+          <RichTextEditor
+            content="<p>Custom content</p>"
+            templates={[{ id: 't1', name: 'T', description: '', content: '' }]}
+          />,
+        ),
+      )
+
+      const config = getLastUseEditorConfig()
+
+      expect(config.content).toBe('<p>Custom content</p>')
+    })
+
+    it('THEN should default to empty string when no content or templates', async () => {
+      await act(() => render(<RichTextEditor />))
+
+      const config = getLastUseEditorConfig()
+
+      expect(config.content).toBe('')
+    })
   })
 })
