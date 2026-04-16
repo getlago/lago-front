@@ -19,6 +19,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
 import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
+import { getQuoteTypeDescriptionTranslationKey } from './common/getQuoteTypeDescriptionTranslationKey'
 import { type CreateQuoteFormValues, createQuoteSchema } from './createQuote/validationSchema'
 import { useCreateQuote } from './hooks/useCreateQuote'
 
@@ -152,20 +153,33 @@ const CreateQuote = (): JSX.Element => {
   }, [isDirty, navigate, warningDialog, translate])
 
   const orderTypeOptions = useMemo(
-    () => [
-      {
-        label: translate(getQuoteOrderTypeTranslationKey(OrderTypeEnum.SubscriptionCreation)),
-        value: OrderTypeEnum.SubscriptionCreation,
-      },
-      {
-        label: translate(getQuoteOrderTypeTranslationKey(OrderTypeEnum.SubscriptionAmendment)),
-        value: OrderTypeEnum.SubscriptionAmendment,
-      },
-      {
-        label: translate(getQuoteOrderTypeTranslationKey(OrderTypeEnum.OneOff)),
-        value: OrderTypeEnum.OneOff,
-      },
-    ],
+    () =>
+      [
+        {
+          label: translate(getQuoteOrderTypeTranslationKey(OrderTypeEnum.SubscriptionCreation)),
+          value: OrderTypeEnum.SubscriptionCreation,
+        },
+        {
+          label: translate(getQuoteOrderTypeTranslationKey(OrderTypeEnum.SubscriptionAmendment)),
+          value: OrderTypeEnum.SubscriptionAmendment,
+        },
+        {
+          label: translate(getQuoteOrderTypeTranslationKey(OrderTypeEnum.OneOff)),
+          value: OrderTypeEnum.OneOff,
+        },
+      ].map((option) => ({
+        ...option,
+        labelNode: (
+          <ComboboxItem>
+            <Typography variant="body" color="grey700" noWrap>
+              {option.label}
+            </Typography>
+            <Typography variant="caption" color="grey600" noWrap>
+              {translate(getQuoteTypeDescriptionTranslationKey(option.value))}
+            </Typography>
+          </ComboboxItem>
+        ),
+      })),
     [translate],
   )
 
@@ -184,7 +198,7 @@ const CreateQuote = (): JSX.Element => {
         >
           <CenteredPage.Header>
             <Typography variant="bodyHl" color="textSecondary" noWrap>
-              {translate('text_1776238919927a1b2c3d4e5f')}
+              {translate('text_1776330750402hykqn73y0j4')}
             </Typography>
             <Button variant="quaternary" icon="close" onClick={handleClose} />
           </CenteredPage.Header>
@@ -193,10 +207,18 @@ const CreateQuote = (): JSX.Element => {
             <CenteredPage.SectionWrapper>
               <CenteredPage.PageTitle
                 title={translate('text_1776238919927a1b2c3d4e5f')}
-                description={translate('text_1776238919927f6g7h8i9j0k')}
+                description={translate('text_1776330750403sv23qvgefob')}
               />
 
               <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-2">
+                  <Typography variant="subhead1">
+                    {translate('text_1776330750403pg99mcn8en5')}
+                  </Typography>
+                  <Typography variant="caption">
+                    {translate('text_1776330750403fljblm2majw')}
+                  </Typography>
+                </div>
                 <form.AppField
                   name="customerId"
                   listeners={{
