@@ -135,6 +135,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       link: QUOTES_LIST_ROUTE,
       canBeClickedOnActive: true,
       match: [QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE, QUOTE_DETAILS_ROUTE],
+      hidden: !hasPermissions(['quotesView']),
     },
     {
       title: translate('text_6250304370f0f700a8fdc28d'),
