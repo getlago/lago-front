@@ -127,10 +127,11 @@ describe('MainNavMenuSections', () => {
       expect(screen.queryByTestId(MAIN_NAV_CONFIGURATION_SECTION_TEST_ID)).not.toBeInTheDocument()
     })
 
-    it('still renders billing section when all permission-gated billing tabs are hidden because Quotes has no permission gating', () => {
+    it('does not render billing section when all billing tabs are hidden', () => {
       mockHasPermissions.mockImplementation((permissions: string[]) => {
         const billingPermissions = [
           'customersView',
+          'quotesView',
           'subscriptionsView',
           'invoicesView',
           'paymentsView',
@@ -147,18 +148,16 @@ describe('MainNavMenuSections', () => {
 
       render(<MainNavMenuSections {...defaultProps} />)
 
-      // Billing section is still rendered because Quotes tab has no permission gating
-      expect(screen.getByTestId(MAIN_NAV_BILLING_SECTION_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(MAIN_NAV_BILLING_SECTION_TEST_ID)).not.toBeInTheDocument()
     })
 
-    it('still renders menu sections when all permissions are false because Quotes tab has no permission gating', () => {
+    it('does not render any sections when all permissions are false', () => {
       mockHasPermissions.mockReturnValue(false)
 
       render(<MainNavMenuSections {...defaultProps} />)
 
-      // Menu sections container is still rendered because Quotes tab (no permission gating) keeps billing section visible
-      expect(screen.getByTestId(MAIN_NAV_MENU_SECTIONS_TEST_ID)).toBeInTheDocument()
-      expect(screen.getByTestId(MAIN_NAV_BILLING_SECTION_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(MAIN_NAV_MENU_SECTIONS_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(MAIN_NAV_BILLING_SECTION_TEST_ID)).not.toBeInTheDocument()
       expect(screen.queryByTestId(MAIN_NAV_REPORTS_SECTION_TEST_ID)).not.toBeInTheDocument()
       expect(screen.queryByTestId(MAIN_NAV_CONFIGURATION_SECTION_TEST_ID)).not.toBeInTheDocument()
     })
@@ -210,6 +209,7 @@ describe('MainNavMenuSections', () => {
       render(<MainNavMenuSections {...defaultProps} />)
 
       expect(mockHasPermissions).toHaveBeenCalledWith(['customersView'])
+      expect(mockHasPermissions).toHaveBeenCalledWith(['quotesView'])
       expect(mockHasPermissions).toHaveBeenCalledWith(['subscriptionsView'])
       expect(mockHasPermissions).toHaveBeenCalledWith(['invoicesView'])
     })
