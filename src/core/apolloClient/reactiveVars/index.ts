@@ -1,4 +1,5 @@
 export * from './authTokenVar'
+export * from './currentOrganizationVar'
 export * from './customerPortalTokenVar'
 export * from './envGlobalVar'
 export * from './internationalizationVar'
