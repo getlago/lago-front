@@ -154,6 +154,49 @@ describe('SlashCommands', () => {
     })
   })
 
+  describe('GIVEN the suggestion allow guard', () => {
+    const getAllow = () => {
+      const options = (
+        SlashCommands.config.addOptions as unknown as () => {
+          suggestion: {
+            allow: (args: {
+              state: { selection: { $from: { parent: { type: { name: string } } } } }
+            }) => boolean
+          }
+        }
+      )()
+
+      return options.suggestion.allow
+    }
+
+    describe('WHEN the cursor is inside a codeBlock', () => {
+      it('THEN should return false to block slash commands', () => {
+        const allow = getAllow()
+        const state = { selection: { $from: { parent: { type: { name: 'codeBlock' } } } } }
+
+        expect(allow({ state })).toBe(false)
+      })
+    })
+
+    describe('WHEN the cursor is inside a paragraph', () => {
+      it('THEN should return true to allow slash commands', () => {
+        const allow = getAllow()
+        const state = { selection: { $from: { parent: { type: { name: 'paragraph' } } } } }
+
+        expect(allow({ state })).toBe(true)
+      })
+    })
+
+    describe('WHEN the cursor is inside a heading', () => {
+      it('THEN should return true to allow slash commands', () => {
+        const allow = getAllow()
+        const state = { selection: { $from: { parent: { type: { name: 'heading' } } } } }
+
+        expect(allow({ state })).toBe(true)
+      })
+    })
+  })
+
   describe('GIVEN the suggestion render lifecycle', () => {
     const tippy = jest.requireMock('tippy.js').default as jest.Mock
 

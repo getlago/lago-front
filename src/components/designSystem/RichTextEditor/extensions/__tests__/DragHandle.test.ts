@@ -3,6 +3,7 @@ import { Table } from '@tiptap/extension-table'
 import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
+import { NodeSelection } from '@tiptap/pm/state'
 import StarterKit from '@tiptap/starter-kit'
 import { act } from 'react'
 
@@ -36,6 +37,18 @@ const createEditor = (content = '<p>First</p><p>Second</p>') => {
 const getDragHandleStorage = (editor: Editor): DragHandleStorage =>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (editor.storage as any).dragHandle as DragHandleStorage
+
+const pressEscape = (editor: Editor) => {
+  const event = new KeyboardEvent('keydown', {
+    key: 'Escape',
+    code: 'Escape',
+    keyCode: 27,
+    bubbles: true,
+    cancelable: true,
+  })
+
+  editor.view.dom.dispatchEvent(event)
+}
 
 describe('DragHandle', () => {
   describe('GIVEN the DragHandle extension', () => {
@@ -268,6 +281,15 @@ describe('DragHandle', () => {
 
         editor.destroy()
       })
+
+      it('THEN should have toolbarDismissed as false', () => {
+        const editor = createEditor()
+        const storage = getDragHandleStorage(editor)
+
+        expect(storage.toolbarDismissed).toBe(false)
+
+        editor.destroy()
+      })
     })
   })
 
@@ -391,6 +413,189 @@ describe('DragHandle', () => {
         expect(storage.selectedBlock).toEqual({ pos: tablePos })
 
         editor.destroy()
+      })
+    })
+  })
+
+  describe('GIVEN the Escape key behavior', () => {
+    describe('GIVEN a paragraph block is selected via drag handle', () => {
+      describe('WHEN Escape is pressed once', () => {
+        it('THEN should dismiss the toolbar but keep the block selected', () => {
+          const editor = createEditor('<p>First</p><p>Second</p>')
+          const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+          const firstHandle = handles[0] as HTMLElement
+
+          firstHandle.click()
+          const storage = getDragHandleStorage(editor)
+
+          expect(editor.state.selection instanceof NodeSelection).toBe(true)
+          expect(storage.toolbarDismissed).toBe(false)
+
+          pressEscape(editor)
+
+          expect(storage.toolbarDismissed).toBe(true)
+          expect(editor.state.selection instanceof NodeSelection).toBe(true)
+
+          editor.destroy()
+        })
+      })
+
+      describe('WHEN Escape is pressed twice', () => {
+        it('THEN should deselect the block and convert to text selection', () => {
+          const editor = createEditor('<p>First</p><p>Second</p>')
+          const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+          const firstHandle = handles[0] as HTMLElement
+
+          firstHandle.click()
+          const storage = getDragHandleStorage(editor)
+
+          pressEscape(editor)
+          pressEscape(editor)
+
+          expect(storage.toolbarDismissed).toBe(false)
+          expect(editor.state.selection instanceof NodeSelection).toBe(false)
+
+          editor.destroy()
+        })
+      })
+    })
+
+    describe('GIVEN a table is selected via drag handle', () => {
+      describe('WHEN Escape is pressed twice', () => {
+        it('THEN should clear the selectedBlock storage', () => {
+          const editor = createEditor(TABLE_CONTENT)
+          const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+          const tableHandle = handles[1] as HTMLElement
+
+          tableHandle.click()
+          const storage = getDragHandleStorage(editor)
+
+          expect(storage.selectedBlock).not.toBeNull()
+
+          pressEscape(editor)
+          expect(storage.toolbarDismissed).toBe(true)
+
+          pressEscape(editor)
+          expect(storage.selectedBlock).toBeNull()
+          expect(storage.toolbarDismissed).toBe(false)
+
+          editor.destroy()
+        })
+      })
+    })
+
+    describe('GIVEN no block is selected', () => {
+      describe('WHEN Escape is pressed', () => {
+        it('THEN should not affect the selection', () => {
+          const editor = createEditor('<p>First</p><p>Second</p>')
+
+          editor.commands.setTextSelection(1)
+          const selBefore = editor.state.selection.from
+
+          pressEscape(editor)
+
+          expect(editor.state.selection.from).toBe(selBefore)
+          expect(editor.state.selection instanceof NodeSelection).toBe(false)
+
+          editor.destroy()
+        })
+      })
+    })
+  })
+
+  describe('GIVEN the toolbarDismissed state', () => {
+    describe('WHEN a new block is selected via drag handle', () => {
+      it('THEN should reset toolbarDismissed to false', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+        const firstHandle = handles[0] as HTMLElement
+        const secondHandle = handles[1] as HTMLElement
+
+        firstHandle.click()
+        const storage = getDragHandleStorage(editor)
+
+        pressEscape(editor)
+        expect(storage.toolbarDismissed).toBe(true)
+
+        secondHandle.click()
+        expect(storage.toolbarDismissed).toBe(false)
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN the cursor moves to a text position', () => {
+      it('THEN should reset toolbarDismissed via onSelectionUpdate', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+        const firstHandle = handles[0] as HTMLElement
+
+        firstHandle.click()
+        const storage = getDragHandleStorage(editor)
+
+        pressEscape(editor)
+        expect(storage.toolbarDismissed).toBe(true)
+
+        editor.commands.setTextSelection(1)
+
+        expect(storage.toolbarDismissed).toBe(false)
+
+        editor.destroy()
+      })
+    })
+  })
+
+  describe('GIVEN the outside click behavior', () => {
+    describe('GIVEN a paragraph block is selected', () => {
+      describe('WHEN clicking outside the editor', () => {
+        it('THEN should deselect the block and reset storage', () => {
+          const editor = createEditor('<p>First</p><p>Second</p>')
+          const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+          const firstHandle = handles[0] as HTMLElement
+
+          firstHandle.click()
+          const storage = getDragHandleStorage(editor)
+
+          expect(editor.state.selection instanceof NodeSelection).toBe(true)
+
+          const outsideEl = document.createElement('div')
+
+          document.body.appendChild(outsideEl)
+          outsideEl.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
+          document.body.removeChild(outsideEl)
+
+          expect(storage.selectedBlock).toBeNull()
+          expect(storage.toolbarDismissed).toBe(false)
+          expect(editor.state.selection instanceof NodeSelection).toBe(false)
+
+          editor.destroy()
+        })
+      })
+    })
+
+    describe('GIVEN a table is selected via drag handle', () => {
+      describe('WHEN clicking outside the editor', () => {
+        it('THEN should clear selectedBlock storage', () => {
+          const editor = createEditor(TABLE_CONTENT)
+          const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+          const tableHandle = handles[1] as HTMLElement
+
+          tableHandle.click()
+          const storage = getDragHandleStorage(editor)
+
+          expect(storage.selectedBlock).not.toBeNull()
+
+          const outsideEl = document.createElement('div')
+
+          document.body.appendChild(outsideEl)
+          outsideEl.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
+          document.body.removeChild(outsideEl)
+
+          expect(storage.selectedBlock).toBeNull()
+          expect(storage.toolbarDismissed).toBe(false)
+
+          editor.destroy()
+        })
       })
     })
   })
