@@ -146,8 +146,8 @@ Invalid reasons (do NOT use these to skip tests):
 
 Before starting, gather context by reading these reference files:
 
-1. **Testing Best Practices**: `agents/testing-practices.md`
-2. **Code Quality Standards**: `agents/code-quality.md`
+1. **Testing Best Practices**: `@.agents/docs/testing-practices.md`
+2. **Code Quality Standards**: `@.agents/docs/code-quality.md`
 3. **Existing Test Example**: `src/components/invoices/details/__tests__/InvoiceDetailsTable.integration.test.tsx`
 4. **Test Utils**: `src/test-utils.tsx`
 
