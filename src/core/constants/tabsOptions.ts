@@ -72,3 +72,9 @@ export enum QuotesTabsOptionsEnum {
   quotes = 'quotes',
   orderForms = 'order-forms',
 }
+
+export enum QuoteDetailsTabsOptionsEnum {
+  overview = 'overview',
+  orderForms = 'order-forms',
+  activityLogs = 'activity-logs',
+}

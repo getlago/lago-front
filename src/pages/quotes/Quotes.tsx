@@ -10,7 +10,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import OrderFormsList from './OrderFormsList'
 import QuotesList from './QuotesList'
 
-const Quotes = () => {
+const Quotes = (): JSX.Element => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { pathname } = useLocation()
