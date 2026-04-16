@@ -2,7 +2,7 @@ import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 
-const OrderFormsList = () => {
+const OrderFormsList = (): JSX.Element => {
   const { translate } = useInternationalization()
 
   return (
