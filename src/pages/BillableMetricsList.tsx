@@ -214,9 +214,11 @@ const BillableMetricsList = () => {
               : {
                   title: translate('text_623b53fea66c76017eaebb70'),
                   subtitle: translate('text_623b53fea66c76017eaebb78'),
-                  buttonTitle: translate('text_623b53fea66c76017eaebb7c'),
-                  buttonAction: () => navigate(CREATE_BILLABLE_METRIC_ROUTE),
-                  buttonVariant: 'primary',
+                  ...(hasPermissions(['billableMetricsCreate']) && {
+                    buttonTitle: translate('text_623b53fea66c76017eaebb7c'),
+                    buttonAction: () => navigate(CREATE_BILLABLE_METRIC_ROUTE),
+                    buttonVariant: 'primary',
+                  }),
                 },
           }}
         />
