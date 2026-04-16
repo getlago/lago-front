@@ -2,7 +2,6 @@
 
 ## Package Manager & Workspace
 
-- **Always use `pnpm`** — never npm or yarn
 - The project uses pnpm workspaces with packages in `packages/*`:
   - `packages/configs/` — shared ESLint, TypeScript, Tailwind configs
   - `packages/design-system/` — shared UI components and icons
@@ -23,6 +22,7 @@
 ## Key Commands
 
 - `pnpm dev` — start development server
+- `pnpm code:style` — command executed by the pre-push hook, better to run it after all modifications are done
 - `pnpm test` — run Jest tests
 - `pnpm test:coverage` — Jest tests with coverage
 - `pnpm test:e2e` — run Cypress tests
@@ -37,20 +37,9 @@
 - Use hooks and utilities in `src/hooks/`
 - GraphQL queries/mutations for API calls (generated types in `src/generated/`)
 - **After any GraphQL schema/query/fragment changes, run `pnpm codegen`**
-- Store translations in `translations/base.json` — **never manually create translation keys**, use `pnpm translations:add`
+- Store translations in `translations/base.json` — **never manually create translation keys**, use `pnpm translations:add <number>`
 - Apollo Client reactive variables for global state (`src/core/apolloClient/reactiveVars/`)
 - Follow serialization patterns in `src/core/serializers/`
-
-## File Structure
-
-- `src/components/` — feature components organized by domain
-- `packages/design-system/` — shared UI components, icons, themes
-- `src/core/` — utilities, serializers, constants, Apollo setup
-- `src/pages/` — route components
-- `src/hooks/` — custom React hooks
-- `src/generated/` — auto-generated GraphQL types
-- `translations/` — i18n JSON files
-- `cypress/e2e/` — e2e tests organized by feature
 
 ## Code Quality
 
@@ -70,8 +59,8 @@
 
 When working on these areas, read the relevant file first:
 
-- **TypeScript conventions**: `@agents/typescript-conventions.md`
-- **Folder architecture**: `@agents/folder-architecture.md`
-- **Library documentation**: `@agents/documentation.md`
-- **GraphQL fragments & type safety**: read `agents/graphql-fragments.md`
-- **Testing best practices**: read `agents/testing-practices.md`
+- **TypeScript conventions**: `@.agents/docs/typescript-conventions.md`
+- **Folder architecture**: `@.agents/docs/folder-architecture.md`
+- **Library documentation**: `@.agents/docs/documentation.md`
+- **GraphQL fragments & type safety**: `@.agents/docs/graphql-fragments.md`
+- **Testing best practices**: `@.agents/docs/testing-practices.md`
