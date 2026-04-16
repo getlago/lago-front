@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.2
 
       - name: Checkout API Git repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.2
         with:
           repository: getlago/lago-api
           ref: ${{ github.event.inputs.api_branch }}
@@ -39,10 +39,10 @@ jobs:
           docker compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d db redis api front
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v4.4.0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v6.3.0
         with:
           node-version: 24.14.1
           cache: "pnpm"
@@ -55,7 +55,7 @@ jobs:
         run: docker compose -f ./ci/docker-compose.ci.yml --env-file ./.env exec api bundle exec rails db:seed
 
       - name: Cache Cypress binary
-        uses: actions/cache@v5
+        uses: actions/cache@v5.0.5
         id: cypress-cache
         with:
           path: ~/.cache/Cypress
@@ -67,7 +67,7 @@ jobs:
         run: pnpm cypress install
 
       - name: Cypress run
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v6.10.9
         with:
           browser: chrome
           install: false
@@ -83,7 +83,7 @@ jobs:
             cypress/e2e/t30-*
 
       - name: Upload screenshots
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         if: failure()
         with:
           name: cypress-screenshots
@@ -91,7 +91,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload videos
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         if: failure()
         with:
           name: cypress-videos
