@@ -4,16 +4,21 @@ import { generatePath, useLocation, useNavigate } from 'react-router-dom'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE } from '~/core/router'
+import { CREATE_QUOTE_ROUTE, QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 
 import OrderFormsList from './OrderFormsList'
 import QuotesList from './QuotesList'
+
+export const CREATE_QUOTE_BUTTON_TEST_ID = 'create-quote-button'
 
 const Quotes = (): JSX.Element => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const { hasPermissions } = usePermissions()
+  const canCreateQuotes = hasPermissions(['quotesCreate'])
 
   useEffect(() => {
     if (pathname === QUOTES_LIST_ROUTE) {
@@ -61,6 +66,18 @@ const Quotes = (): JSX.Element => {
           viewName: translate('text_17757391860814p20fr87x9g'),
         }}
         tabs={tabs}
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: translate('text_1776238919927a1b2c3d4e5f'),
+              variant: 'primary',
+              hidden: !canCreateQuotes,
+              onClick: () => navigate(CREATE_QUOTE_ROUTE),
+              dataTest: CREATE_QUOTE_BUTTON_TEST_ID,
+            },
+          ],
+        }}
       />
 
       {activeTabContent}
