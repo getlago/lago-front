@@ -1,4 +1,9 @@
-import { QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE, quotesRoutes } from '../QuotesRoutes'
+import {
+  QUOTE_DETAILS_ROUTE,
+  QUOTES_LIST_ROUTE,
+  QUOTES_TAB_ROUTE,
+  quotesRoutes,
+} from '../QuotesRoutes'
 
 describe('QuotesRoutes', () => {
   describe('route constants', () => {
@@ -9,11 +14,15 @@ describe('QuotesRoutes', () => {
     it('defines the quotes tab route path', () => {
       expect(QUOTES_TAB_ROUTE).toBe('/quotes/:tab')
     })
+
+    it('defines the quote details route path', () => {
+      expect(QUOTE_DETAILS_ROUTE).toBe('/quote/:quoteId/:tab')
+    })
   })
 
   describe('quotesRoutes array', () => {
     it('contains expected number of route definitions', () => {
-      expect(quotesRoutes).toHaveLength(1)
+      expect(quotesRoutes).toHaveLength(2)
     })
 
     it('all routes are marked as private', () => {
@@ -22,11 +31,17 @@ describe('QuotesRoutes', () => {
       })
     })
 
-    it('quotes route supports both list and tab paths', () => {
+    it('quotes list route supports both list and tab paths', () => {
       const quotesRoute = quotesRoutes[0]
 
       expect(quotesRoute.path).toContain(QUOTES_LIST_ROUTE)
       expect(quotesRoute.path).toContain(QUOTES_TAB_ROUTE)
+    })
+
+    it('quote details route has the correct path', () => {
+      const detailsRoute = quotesRoutes[1]
+
+      expect(detailsRoute.path).toBe(QUOTE_DETAILS_ROUTE)
     })
 
     it('all routes have an element defined', () => {
