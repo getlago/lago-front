@@ -80,4 +80,25 @@ describe('createQuoteSchema', () => {
 
     expect(result.success).toBe(true)
   })
+
+  it('validates with owners array', () => {
+    const result = createQuoteSchema.safeParse({
+      customerId: 'customer-123',
+      orderType: OrderTypeEnum.OneOff,
+      subscriptionId: '',
+      owners: [{ value: 'user-1' }, { value: 'user-2' }],
+    })
+
+    expect(result.success).toBe(true)
+  })
+
+  it('validates without owners (optional field)', () => {
+    const result = createQuoteSchema.safeParse({
+      customerId: 'customer-123',
+      orderType: OrderTypeEnum.OneOff,
+      subscriptionId: '',
+    })
+
+    expect(result.success).toBe(true)
+  })
 })
