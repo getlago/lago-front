@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import {
   ActivationRuleStatusEnum,
   ActivationRuleTypeEnum,
+  CancelationReasonEnum,
   StatusTypeEnum,
 } from '~/generated/graphql'
 
@@ -17,7 +18,7 @@ type ActivationRuleLike = {
 
 type SubscriptionLike = {
   status?: StatusTypeEnum | null
-  cancellationReason?: string | null
+  cancelationReason?: CancelationReasonEnum | null
   activationRules?: ActivationRuleLike[] | null
 }
 
@@ -36,7 +37,7 @@ export const getPaymentActivationRule = (
 export const isCanceledWithPaymentReason = (
   subscription: SubscriptionLike | null | undefined,
 ): boolean => {
-  return subscription?.status === StatusTypeEnum.Canceled && !!subscription?.cancellationReason
+  return subscription?.status === StatusTypeEnum.Canceled && !!subscription?.cancelationReason
 }
 
 /**

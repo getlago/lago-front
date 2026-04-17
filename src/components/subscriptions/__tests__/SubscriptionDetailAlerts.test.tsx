@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react'
 
 import {
+  CancelationReasonEnum,
   NextSubscriptionTypeEnum,
   StatusTypeEnum,
   SubscriptionForSubscriptionInformationsFragment,
@@ -31,7 +32,7 @@ const createSubscription = (
     subscriptionAt: '2026-01-01T00:00:00Z',
     nextSubscriptionType: null,
     nextPlan: null,
-    cancellationReason: null,
+    cancelationReason: null,
     activationRules: [],
     customer: {
       id: 'cust-1',
@@ -92,6 +93,7 @@ describe('SubscriptionDetailAlerts', () => {
         expect(screen.getByTestId('alert-type-warning')).toBeInTheDocument()
       })
     })
+
   })
 
   describe('GIVEN a canceled subscription with payment_failed reason', () => {
@@ -99,7 +101,7 @@ describe('SubscriptionDetailAlerts', () => {
       it('THEN should display the canceled info alert', () => {
         const subscription = createSubscription({
           status: StatusTypeEnum.Canceled,
-          cancellationReason: 'payment_failed',
+          cancelationReason: CancelationReasonEnum.PaymentFailed,
         })
 
         render(<SubscriptionDetailAlerts subscription={subscription} />)
@@ -114,7 +116,7 @@ describe('SubscriptionDetailAlerts', () => {
       it('THEN should display the canceled info alert', () => {
         const subscription = createSubscription({
           status: StatusTypeEnum.Canceled,
-          cancellationReason: 'timeout',
+          cancelationReason: CancelationReasonEnum.Timeout,
         })
 
         render(<SubscriptionDetailAlerts subscription={subscription} />)

@@ -1,17 +1,15 @@
 import { screen, waitFor } from '@testing-library/react'
-import { FormikProps } from 'formik'
 
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
+import { subscriptionFormDefaultValues } from '~/formValidation/subscriptionFormSchema'
 import { StatusTypeEnum } from '~/generated/graphql'
-import { ActivationRuleFormEnum, SubscriptionFormInput } from '~/pages/subscriptions/types'
+import { ActivationRuleFormEnum } from '~/pages/subscriptions/types'
 import { render } from '~/test-utils'
 
 import {
   ACTIVATION_RULE_RADIO_GROUP_TEST_ID,
   SubscriptionActivationRuleSection,
 } from '../SubscriptionActivationRuleSection'
-
-const mockSetFieldValue = jest.fn()
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -29,35 +27,100 @@ jest.mock('~/hooks/customer/usePaymentMethodsList', () => ({
   usePaymentMethodsList: () => ({ data: [] }),
 }))
 
-const createFormikProps = (
-  overrides: Partial<SubscriptionFormInput> = {},
-): FormikProps<SubscriptionFormInput> =>
-  ({
-    values: {
-      activationRuleType: ActivationRuleFormEnum.Immediately,
-      activationRuleTimeoutHours: '24',
-      paymentMethod: {},
-      ...overrides,
-    },
-    setFieldValue: mockSetFieldValue,
-    handleBlur: jest.fn(),
-    errors: {},
-    touched: {},
-  }) as unknown as FormikProps<SubscriptionFormInput>
+// --- TanStack form harness ---
+
+type FormValues = typeof subscriptionFormDefaultValues
+
+const mockSetFieldValue = jest.fn()
+
+let currentValues: FormValues = { ...subscriptionFormDefaultValues }
+
+jest.mock('@tanstack/react-form', () => ({
+  useStore: jest.fn((store: { getState: () => { values: FormValues } }, selector) => {
+    return selector(store.getState())
+  }),
+}))
+
+jest.mock('~/hooks/forms/useAppform', () => ({
+  withForm:
+    ({
+      render: Render,
+    }: {
+      defaultValues: FormValues
+      props: Record<string, unknown>
+      render: React.FC<{ form: unknown; [key: string]: unknown }>
+    }) =>
+    (props: { form: unknown; [key: string]: unknown }) => <Render {...props} />,
+}))
+
+const createFakeForm = () => ({
+  store: {
+    getState: () => ({ values: currentValues }),
+  },
+  setFieldValue: (key: keyof FormValues, value: unknown) => {
+    mockSetFieldValue(key, value)
+    currentValues = { ...currentValues, [key]: value as never }
+  },
+  AppField: ({
+    name,
+    children,
+  }: {
+    name: keyof FormValues
+    children: (field: {
+      RadioGroupField: (p: {
+        label: string
+        disabled?: boolean
+        options: Array<{ value: string; label: string; sublabel?: string }>
+      }) => React.ReactNode
+      TextInputField: (p: { placeholder?: string; disabled?: boolean }) => React.ReactNode
+    }) => React.ReactNode
+  }) => {
+    const field = {
+      RadioGroupField: ({
+        disabled,
+        options,
+      }: {
+        label: string
+        disabled?: boolean
+        options: Array<{ value: string; label: string; sublabel?: string }>
+      }) => (
+        <div>
+          {options.map((opt) => (
+            <input
+              key={opt.value}
+              type="radio"
+              name={name as string}
+              value={opt.value}
+              disabled={disabled}
+              defaultChecked={currentValues[name] === opt.value}
+            />
+          ))}
+        </div>
+      ),
+      TextInputField: ({ placeholder, disabled }: { placeholder?: string; disabled?: boolean }) => (
+        <input type="text" placeholder={placeholder} disabled={disabled} />
+      ),
+    }
+
+    return <>{children(field as never)}</>
+  },
+})
 
 type RenderProps = {
-  formikProps?: FormikProps<SubscriptionFormInput>
+  values?: Partial<FormValues>
   formType?: keyof typeof FORM_TYPE_ENUM
   subscriptionStatus?: StatusTypeEnum | null
   isManual?: boolean
 }
 
 const renderComponent = ({
-  formikProps,
+  values,
   formType = FORM_TYPE_ENUM.creation,
   subscriptionStatus,
   isManual = false,
 }: RenderProps = {}) => {
+  currentValues = { ...subscriptionFormDefaultValues, ...(values ?? {}) }
+
   mockUseDisplayedPaymentMethod.mockReturnValue({
     paymentMethod: null,
     isManual,
@@ -66,7 +129,7 @@ const renderComponent = ({
 
   return render(
     <SubscriptionActivationRuleSection
-      formikProps={formikProps ?? createFormikProps()}
+      form={createFakeForm() as never}
       customerExternalId="customer-123"
       formType={formType}
       subscriptionStatus={subscriptionStatus}
@@ -83,6 +146,7 @@ const getRadioInputs = () => {
 describe('SubscriptionActivationRuleSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    currentValues = { ...subscriptionFormDefaultValues }
   })
 
   describe('GIVEN the component is rendered in creation mode', () => {
@@ -91,10 +155,7 @@ describe('SubscriptionActivationRuleSection', () => {
         renderComponent()
 
         expect(screen.getByTestId(ACTIVATION_RULE_RADIO_GROUP_TEST_ID)).toBeInTheDocument()
-
-        const radioInputs = getRadioInputs()
-
-        expect(radioInputs).toHaveLength(2)
+        expect(getRadioInputs()).toHaveLength(2)
       })
 
       it('THEN should not display the timeout input', () => {
@@ -107,9 +168,7 @@ describe('SubscriptionActivationRuleSection', () => {
     describe('WHEN activation rule type is OnPayment', () => {
       it('THEN should display the timeout input', () => {
         renderComponent({
-          formikProps: createFormikProps({
-            activationRuleType: ActivationRuleFormEnum.OnPayment,
-          }),
+          values: { activationRuleType: ActivationRuleFormEnum.OnPayment },
         })
 
         expect(screen.getByPlaceholderText('24')).toBeInTheDocument()
@@ -120,7 +179,10 @@ describe('SubscriptionActivationRuleSection', () => {
   describe('GIVEN the payment method is manual', () => {
     describe('WHEN the component renders', () => {
       it('THEN should reset activation rule type to Immediately', async () => {
-        renderComponent({ isManual: true })
+        renderComponent({
+          values: { activationRuleType: ActivationRuleFormEnum.OnPayment },
+          isManual: true,
+        })
 
         await waitFor(() => {
           expect(mockSetFieldValue).toHaveBeenCalledWith(
@@ -133,9 +195,7 @@ describe('SubscriptionActivationRuleSection', () => {
       it('THEN should disable the radio inputs', () => {
         renderComponent({ isManual: true })
 
-        const radioInputs = getRadioInputs()
-
-        radioInputs.forEach((input) => {
+        getRadioInputs().forEach((input) => {
           expect(input).toBeDisabled()
         })
       })
@@ -160,9 +220,7 @@ describe('SubscriptionActivationRuleSection', () => {
           subscriptionStatus: StatusTypeEnum.Pending,
         })
 
-        const radioInputs = getRadioInputs()
-
-        radioInputs.forEach((input) => {
+        getRadioInputs().forEach((input) => {
           expect(input).not.toBeDisabled()
         })
       })
@@ -175,9 +233,7 @@ describe('SubscriptionActivationRuleSection', () => {
           subscriptionStatus: StatusTypeEnum.Active,
         })
 
-        const radioInputs = getRadioInputs()
-
-        radioInputs.forEach((input) => {
+        getRadioInputs().forEach((input) => {
           expect(input).toBeDisabled()
         })
       })
@@ -191,9 +247,7 @@ describe('SubscriptionActivationRuleSection', () => {
           formType: FORM_TYPE_ENUM.upgradeDowngrade,
         })
 
-        const radioInputs = getRadioInputs()
-
-        radioInputs.forEach((input) => {
+        getRadioInputs().forEach((input) => {
           expect(input).not.toBeDisabled()
         })
       })

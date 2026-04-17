@@ -47,7 +47,7 @@ gql`
         name
       }
       activationRules {
-        lagoId
+        id
         type
         timeoutHours
         status
@@ -86,7 +86,7 @@ gql`
         name
       }
       activationRules {
-        lagoId
+        id
         type
         timeoutHours
         status

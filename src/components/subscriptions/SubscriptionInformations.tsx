@@ -29,9 +29,9 @@ gql`
     terminatedAt
     nextSubscriptionAt
     nextSubscriptionType
-    cancellationReason
+    cancelationReason
     activationRules {
-      lagoId
+      id
       type
       timeoutHours
       status

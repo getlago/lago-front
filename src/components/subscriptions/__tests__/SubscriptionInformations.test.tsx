@@ -1,6 +1,7 @@
 import {
   ActivationRuleStatusEnum,
   ActivationRuleTypeEnum,
+  CancelationReasonEnum,
   StatusTypeEnum,
   SubscriptionForSubscriptionInformationsFragment,
 } from '~/generated/graphql'
@@ -32,7 +33,7 @@ const createSubscription = (
     terminatedAt: null,
     nextSubscriptionAt: null,
     nextSubscriptionType: null,
-    cancellationReason: null,
+    cancelationReason: null,
     activationRules: [],
     nextPlan: null,
     customer: {
@@ -84,9 +85,9 @@ describe('SubscriptionInformations', () => {
       status: StatusTypeEnum.Active,
       activationRules: [
         {
-          lagoId: 'rule-1',
+          id: 'rule-1',
           type: ActivationRuleTypeEnum.Payment,
-          status: ActivationRuleStatusEnum.Active,
+          status: ActivationRuleStatusEnum.Pending,
           expiresAt: '2026-04-01T00:00:00Z',
           timeoutHours: 24,
         },
@@ -110,9 +111,9 @@ describe('SubscriptionInformations', () => {
       status: StatusTypeEnum.Incomplete,
       activationRules: [
         {
-          lagoId: 'rule-1',
+          id: 'rule-1',
           type: ActivationRuleTypeEnum.Payment,
-          status: ActivationRuleStatusEnum.Active,
+          status: ActivationRuleStatusEnum.Pending,
           expiresAt: '2026-04-01T00:00:00Z',
           timeoutHours: 24,
         },
@@ -154,10 +155,10 @@ describe('SubscriptionInformations', () => {
   describe('GIVEN a canceled subscription with payment reason and payment rule', () => {
     const canceledSubscription = createSubscription({
       status: StatusTypeEnum.Canceled,
-      cancellationReason: 'payment_failed',
+      cancelationReason: CancelationReasonEnum.PaymentFailed,
       activationRules: [
         {
-          lagoId: 'rule-1',
+          id: 'rule-1',
           type: ActivationRuleTypeEnum.Payment,
           status: ActivationRuleStatusEnum.Failed,
           expiresAt: '2026-03-01T00:00:00Z',

@@ -3,6 +3,7 @@ import { DateTime, Settings } from 'luxon'
 import {
   ActivationRuleStatusEnum,
   ActivationRuleTypeEnum,
+  CancelationReasonEnum,
   StatusTypeEnum,
 } from '~/generated/graphql'
 
@@ -45,7 +46,7 @@ describe('subscriptionUtils', () => {
             activationRules: [
               {
                 type: ActivationRuleTypeEnum.Payment,
-                status: ActivationRuleStatusEnum.Active,
+                status: ActivationRuleStatusEnum.Pending,
                 expiresAt: '2026-04-01T00:00:00Z',
                 timeoutHours: 24,
               },
@@ -86,7 +87,7 @@ describe('subscriptionUtils', () => {
         it('THEN should return true', () => {
           const subscription = {
             status: StatusTypeEnum.Canceled,
-            cancellationReason: 'payment_failed',
+            cancelationReason: CancelationReasonEnum.PaymentFailed,
           }
 
           expect(isCanceledWithPaymentReason(subscription)).toBe(true)
@@ -99,7 +100,7 @@ describe('subscriptionUtils', () => {
         it('THEN should return false', () => {
           const subscription = {
             status: StatusTypeEnum.Canceled,
-            cancellationReason: null,
+            cancelationReason: null,
           }
 
           expect(isCanceledWithPaymentReason(subscription)).toBe(false)
@@ -112,7 +113,7 @@ describe('subscriptionUtils', () => {
         it('THEN should return false', () => {
           const subscription = {
             status: StatusTypeEnum.Active,
-            cancellationReason: 'payment_failed',
+            cancelationReason: CancelationReasonEnum.PaymentFailed,
           }
 
           expect(isCanceledWithPaymentReason(subscription)).toBe(false)
@@ -133,7 +134,7 @@ describe('subscriptionUtils', () => {
   describe('shouldShowTimeoutField', () => {
     const paymentRule = {
       type: ActivationRuleTypeEnum.Payment,
-      status: ActivationRuleStatusEnum.Active,
+      status: ActivationRuleStatusEnum.Pending,
       expiresAt: '2026-04-01T00:00:00Z',
       timeoutHours: 24,
     }
@@ -156,7 +157,7 @@ describe('subscriptionUtils', () => {
         it('THEN should return true', () => {
           const subscription = {
             status: StatusTypeEnum.Canceled,
-            cancellationReason: 'payment_failed',
+            cancelationReason: CancelationReasonEnum.PaymentFailed,
             activationRules: [paymentRule],
           }
 
@@ -245,7 +246,7 @@ describe('subscriptionUtils', () => {
   describe('getTimeoutDisplayValue', () => {
     const paymentRule = {
       type: ActivationRuleTypeEnum.Payment,
-      status: ActivationRuleStatusEnum.Active,
+      status: ActivationRuleStatusEnum.Pending,
       expiresAt: DateTime.now().plus({ hours: 10 }).toISO() as string,
       timeoutHours: 24,
     }
@@ -270,7 +271,7 @@ describe('subscriptionUtils', () => {
         it('THEN should return the expired translation key', () => {
           const subscription = {
             status: StatusTypeEnum.Canceled,
-            cancellationReason: 'timeout',
+            cancelationReason: CancelationReasonEnum.Timeout,
             activationRules: [paymentRule],
           }
 

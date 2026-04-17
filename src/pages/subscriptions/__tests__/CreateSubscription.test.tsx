@@ -147,6 +147,9 @@ const mockSubscriptionForm = {
 
 jest.mock('~/hooks/forms/useAppform', () => ({
   useAppForm: jest.fn(() => mockSubscriptionForm),
+  withForm:
+    ({ render: Render }: { render: React.FC<Record<string, unknown>> }) =>
+    (props: Record<string, unknown>) => <Render {...props} />,
 }))
 
 jest.mock('@tanstack/react-form', () => ({

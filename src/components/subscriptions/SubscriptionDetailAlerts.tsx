@@ -1,6 +1,7 @@
 import { Alert } from '~/components/designSystem/Alert'
 import { isCanceledWithPaymentReason } from '~/core/utils/subscriptionUtils'
 import {
+  CancelationReasonEnum,
   NextSubscriptionTypeEnum,
   StatusTypeEnum,
   SubscriptionForSubscriptionInformationsFragment,
@@ -37,7 +38,7 @@ export const SubscriptionDetailAlerts = ({ subscription }: SubscriptionDetailAle
 
       {isCanceledWithPaymentReason(subscription) && (
         <Alert type="info">
-          {subscription?.cancellationReason === 'payment_failed'
+          {subscription?.cancelationReason === CancelationReasonEnum.PaymentFailed
             ? translate('text_1774352080433gd3ir29lpxr')
             : translate('text_1774352080433ykzd2e2f6uu')}
         </Alert>
