@@ -74,4 +74,18 @@ describe('formattedToValue', () => {
       expect(formataAnyToValueForChargeFormArrays(5, '10')).toBe(11)
     })
   })
+
+  describe('GIVEN a custom step', () => {
+    it('THEN uses the step to bump invalid toValue', () => {
+      expect(formataAnyToValueForChargeFormArrays(1, 1.01, 0.01)).toBeCloseTo(1.02)
+    })
+
+    it('THEN returns toValue as-is when it is greater than fromValue', () => {
+      expect(formataAnyToValueForChargeFormArrays(2, 1.01, 0.01)).toBe(2)
+    })
+
+    it('THEN respects null toValue regardless of step', () => {
+      expect(formataAnyToValueForChargeFormArrays(null, 1.01, 0.01)).toBeNull()
+    })
+  })
 })
