@@ -11,7 +11,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE } from '~/core/router'
-import { VoidReasonEnum, useVoidQuoteMutation } from '~/generated/graphql'
+import { useVoidQuoteMutation, VoidReasonEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -165,8 +165,7 @@ const VoidQuote = () => {
                   {
                     key: 'createdAt',
                     title: translate('text_17758254440392sc27lxm6ua'),
-                    content: ({ createdAt }) =>
-                      intlFormatDateTimeOrgaTZ(createdAt).date,
+                    content: ({ createdAt }) => intlFormatDateTimeOrgaTZ(createdAt).date,
                   },
                 ]}
               />
