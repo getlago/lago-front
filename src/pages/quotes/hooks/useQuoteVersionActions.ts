@@ -33,7 +33,7 @@ export const useQuoteVersionActions = () => {
     if (status === StatusEnum.Draft) {
       if (hasPermissions(['quotesApprove'])) {
         actions.push({
-          icon: 'checkmark',
+          icon: 'validate-unfilled',
           label: translate('text_1776414006125k6n9d1baloi'),
           onAction: () => approveQuote(id),
         })

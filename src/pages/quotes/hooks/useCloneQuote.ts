@@ -38,11 +38,11 @@ export const useCloneQuote = () => {
     refetchQueries: ['getQuotes'],
   })
 
-  const openCloneDialog = (quoteId: string) => {
+  const openCloneDialog = (quoteId: string, quoteNumberAndVersion: string) => {
     dialog.open({
-      title: translate('text_1776414006125wn9p70fx8qg'),
+      title: translate('text_1776414006125wn9p70fx8qg', { quoteNumberAndVersion }),
       description: translate('text_1776414006125pkw558zpwid'),
-      actionText: translate('text_1776414006125wn9p70fx8qg'),
+      actionText: translate('text_1776417548746htq2me6cmnw'),
       onAction: async () => {
         await cloneQuote({
           variables: { input: { id: quoteId } },

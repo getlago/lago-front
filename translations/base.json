@@ -4118,8 +4118,9 @@
   "text_177641400612546jssznk1w0": "Voiding a quote prevents it from being converted into an order form. If a quote is voided, it becomes inactive and cannot be used for execution. To proceed, you will need to create a new version of the quote, which can then be reviewed and eventually converted into an order form.",
   "text_1776414006125gijz56nk7sv": "Quote successfully voided",
   "text_1776414006125387qynzm000": "Edit quote",
-  "text_1776414006125wn9p70fx8qg": "Duplicate version",
-  "text_1776414006125pkw558zpwid": "Are you sure you want to duplicate this version? This will create a new draft version.",
+  "text_1776414006125wn9p70fx8qg": "Duplicating quote {{quoteNumberAndVersion}}",
+  "text_1776414006125pkw558zpwid": "Duplicating a quote version will instantly void all previous versions. This action cannot be undone. The new quote will be saved as a draft.",
   "text_17764159264034mafl126pox": "Void and create new version",
-  "text_1776417249197vhv63ozviur": "Quote version information"
+  "text_1776417249197vhv63ozviur": "Quote version information",
+  "text_1776417548746htq2me6cmnw": "Create a new version"
 }

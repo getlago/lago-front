@@ -9,8 +9,8 @@ import { QUOTE_DETAILS_ROUTE, QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE } from '~/core
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { useQuote } from './hooks/useQuote'
-import { useQuoteVersionActions } from './hooks/useQuoteVersionActions'
 import { useQuotes } from './hooks/useQuotes'
+import { useQuoteVersionActions } from './hooks/useQuoteVersionActions'
 import OrderFormsList from './OrderFormsList'
 import QuoteDetailsActivityLogs from './QuoteDetailsActivityLogs'
 import QuoteDetailsVersions from './QuoteDetailsVersions'
