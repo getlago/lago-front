@@ -5,25 +5,15 @@ import { Chip } from '~/components/designSystem/Chip'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
-import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import {
-  GetQuotesQuery,
-  QuoteDetailItemFragment,
-  QuoteListItemFragment,
-  StatusEnum,
-} from '~/generated/graphql'
+import { GetQuotesQuery, QuoteDetailItemFragment, QuoteListItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { usePermissions } from '~/hooks/usePermissions'
 
 import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
 import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
-import { useApproveQuote } from './hooks/useApproveQuote'
-import { useCloneQuote } from './hooks/useCloneQuote'
-import { useEditQuote } from './hooks/useEditQuote'
-import { useVoidQuote } from './hooks/useVoidQuote'
+import { useQuoteVersionActions } from './hooks/useQuoteVersionActions'
 
 interface QuoteDetailsVersionsProps {
   quote: QuoteDetailItemFragment
@@ -48,17 +38,7 @@ const QuoteDetailsVersions = ({
 }: QuoteDetailsVersionsProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-
-  const { hasPermissions } = usePermissions()
-  const { approveQuote } = useApproveQuote()
-  const { editQuote } = useEditQuote()
-  const { voidQuote } = useVoidQuote()
-  const { openCloneDialog } = useCloneQuote()
-
-  const canApprove = hasPermissions(['quotesApprove'])
-  const canUpdate = hasPermissions(['quotesUpdate'])
-  const canVoid = hasPermissions(['quotesVoid'])
-  const canClone = hasPermissions(['quotesClone'])
+  const { getActions } = useQuoteVersionActions()
 
   const versionColumns: Array<TableColumn<QuoteListItemFragment>> = [
     {
@@ -124,50 +104,16 @@ const QuoteDetailsVersions = ({
       : []),
   ]
 
-  const versionActionColumn = (
-    version: QuoteListItemFragment,
-  ): ActionItem<QuoteListItemFragment>[] | null => {
-    const { id, status, number, version: versionNumber } = version
+  const versionActionColumn = (version: QuoteListItemFragment) => {
+    const actions = getActions(version)
 
-    if (status === StatusEnum.Approved) return null
+    if (actions.length === 0) return null
 
-    const actions: ActionItem<QuoteListItemFragment>[] = []
-
-    if (status === StatusEnum.Draft) {
-      if (canApprove) {
-        actions.push({
-          startIcon: 'checkmark',
-          title: translate('text_1776414006125k6n9d1baloi'),
-          onAction: () => approveQuote(id),
-        })
-      }
-
-      if (canUpdate) {
-        actions.push({
-          startIcon: 'pen',
-          title: translate('text_17764140061256c7yby4p5ze'),
-          onAction: () => editQuote(id),
-        })
-      }
-
-      if (canVoid) {
-        actions.push({
-          startIcon: 'stop',
-          title: translate('text_1776414006125xh19d6399qv'),
-          onAction: () => voidQuote(id),
-        })
-      }
-    }
-
-    if (canClone) {
-      actions.push({
-        startIcon: 'duplicate',
-        title: translate('text_17764140061251m8snap6nft'),
-        onAction: () => openCloneDialog(id, `${number} - v${versionNumber}`),
-      })
-    }
-
-    return actions
+    return actions.map(({ icon, label, onAction }) => ({
+      startIcon: icon,
+      title: label,
+      onAction: () => onAction(),
+    }))
   }
 
   return (
