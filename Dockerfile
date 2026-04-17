@@ -1,12 +1,5 @@
 FROM node:24.14.1-alpine AS build
 
-ARG SENTRY_DSN
-ARG SENTRY_ORG
-ARG SENTRY_FRONT_PROJECT
-ARG SENTRY_AUTH_TOKEN
-ARG APP_VERSION
-
-ENV APP_VERSION=$APP_VERSION
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 WORKDIR /app
@@ -16,6 +9,16 @@ RUN apk add python3 build-base && corepack enable && corepack prepare pnpm@lates
 COPY package.json pnpm-lock.yaml pnpmfile.docker.cjs ./
 RUN pnpm install --pnpmfile=./pnpmfile.docker.cjs
 COPY . .
+
+# Build-time ARGs declared late so they don't invalidate the install layers above
+# when APP_VERSION (or any Sentry arg) changes between builds.
+ARG SENTRY_DSN
+ARG SENTRY_ORG
+ARG SENTRY_FRONT_PROJECT
+ARG SENTRY_AUTH_TOKEN
+ARG APP_VERSION
+ENV APP_VERSION=$APP_VERSION
+
 RUN pnpm install && pnpm build
 
 FROM nginx:1.28-alpine
