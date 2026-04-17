@@ -9,8 +9,13 @@ import { Avatar } from '~/components/designSystem/Avatar'
 import { Typography } from '~/components/designSystem/Typography'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { HOME_ROUTE } from '~/core/router'
-import { MemberForEditRoleForDialogFragment, PermissionEnum } from '~/generated/graphql'
+import {
+  LagoApiError,
+  MemberForEditRoleForDialogFragment,
+  PermissionEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useRolesList } from '~/hooks/useRolesList'
@@ -33,7 +38,7 @@ const initialValues: UpdateInviteSingleRole = {
 }
 
 const validationSchema = z.object({
-  role: z.string(),
+  role: z.string().min(1),
 })
 
 export const useEditMemberRoleDialog = () => {
@@ -59,7 +64,17 @@ export const useEditMemberRoleDialog = () => {
             id: dataRef.current?.member?.id as string,
           },
         },
+        context: { silentErrorCodes: [LagoApiError.LastAdmin] },
       })
+
+      if (hasDefinedGQLError('LastAdmin', res.errors)) {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_1775139501035rk0gsr7iflr',
+        })
+
+        return
+      }
 
       if (res.data?.updateMembership) {
         successRef.current = true

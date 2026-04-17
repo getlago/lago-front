@@ -1,15 +1,17 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { useMemo, useRef } from 'react'
+import { generatePath, useParams } from 'react-router-dom'
 
-import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { NavigationTab } from '~/components/designSystem/NavigationTab'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MainHeaderAction } from '~/components/MainHeader/types'
+import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import WalletActions from '~/components/wallets/WalletActions'
+import { TerminateCustomerWalletDialog } from '~/components/wallets/TerminateCustomerWalletDialog'
+import { VoidWalletDialog } from '~/components/wallets/VoidWalletDialog'
 import WalletAlerts from '~/components/wallets/WalletAlerts'
 import WalletInformations from '~/components/wallets/WalletInformations'
 import { WalletTransactions } from '~/components/wallets/WalletTransactions'
@@ -17,6 +19,7 @@ import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import {
   CREATE_ALERT_WALLET_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
+  CUSTOMERS_LIST_ROUTE,
   EDIT_WALLET_ROUTE,
   WALLET_DETAILS_ROUTE,
 } from '~/core/router'
@@ -27,8 +30,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
+import { useWalletActions } from '~/hooks/wallet/useWalletActions'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { PageHeader } from '~/styles'
 
 gql`
   fragment WalletDetails on Wallet {
@@ -127,7 +130,7 @@ const WalletDetails = () => {
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { hasPermissions } = usePermissions()
-  const navigate = useNavigate()
+  const activeTabContent = useMainHeaderTabContent()
 
   const { data, error, loading } = useGetWalletDetailsQuery({
     variables: { walletId: walletId as string },
@@ -136,9 +139,141 @@ const WalletDetails = () => {
 
   const wallet = data?.wallet
 
+  const {
+    actions: walletActionItems,
+    terminateDialogRef,
+    voidDialogRef,
+  } = useWalletActions({
+    walletId,
+    customerId,
+    status: wallet?.status,
+    creditsBalance: wallet?.creditsBalance,
+    rateAmount: wallet?.rateAmount,
+    currency: wallet?.currency,
+  })
+
   const createdAtTitle = translate('text_62da6ec24a8e24e44f8128b2', {
     createdAt: intlFormatDateTimeOrgaTZ(wallet?.createdAt).date,
   })
+
+  const tabs = useMemo(() => {
+    return [
+      {
+        title: translate('text_1772536695408epr1ktf2hy9'),
+        link: generatePath(WALLET_DETAILS_ROUTE, {
+          walletId: walletId as string,
+          customerId: customerId as string,
+          tab: WalletDetailsTabsOptionsEnum.overview,
+        }),
+        content: (
+          <DetailsPage.Container className="mt-12">
+            <SectionTitle
+              title={translate('text_1772536695408epr1ktf2hy9')}
+              description={translate('text_177304332434241ihblh0jyp')}
+              action={
+                <>
+                  {hasPermissions(['walletsUpdate']) && (
+                    <ButtonLink
+                      buttonProps={{
+                        variant: 'quaternary',
+                      }}
+                      type="button"
+                      to={generatePath(EDIT_WALLET_ROUTE, {
+                        walletId: walletId as string,
+                        customerId: customerId ?? null,
+                      })}
+                      data-test="edit-wallet"
+                    >
+                      {translate('text_62e161ceb87c201025388aa2')}
+                    </ButtonLink>
+                  )}
+                </>
+              }
+            />
+
+            <WalletInformations wallet={wallet} />
+          </DetailsPage.Container>
+        ),
+      },
+      {
+        title: translate('text_1772536695408zfepv8jb948'),
+        link: generatePath(WALLET_DETAILS_ROUTE, {
+          walletId: walletId as string,
+          customerId: customerId as string,
+          tab: WalletDetailsTabsOptionsEnum.transactions,
+        }),
+        content: (
+          <DetailsPage.Container className="mt-12 max-w-full gap-12">
+            <SectionTitle
+              title={translate('text_1772536695408zfepv8jb948')}
+              description={translate('text_1773043324342ka1zcxto0pg')}
+            />
+
+            {!!wallet && (
+              <WalletTransactions
+                wallet={wallet}
+                premiumWarningDialogRef={premiumWarningDialogRef}
+                loading={loading}
+              />
+            )}
+          </DetailsPage.Container>
+        ),
+      },
+      {
+        title: translate('text_177253669540873hdqaoks8e'),
+        link: generatePath(WALLET_DETAILS_ROUTE, {
+          walletId: walletId as string,
+          customerId: customerId as string,
+          tab: WalletDetailsTabsOptionsEnum.alerts,
+        }),
+        content: (
+          <DetailsPage.Container className="mt-12 gap-8">
+            <SectionTitle
+              title={translate('text_177253669540873hdqaoks8e')}
+              description={translate('text_1773043324342mrttreav4qk')}
+              action={
+                <>
+                  {hasPermissions(['walletsUpdate']) && (
+                    <ButtonLink
+                      buttonProps={{
+                        variant: 'quaternary',
+                      }}
+                      type="button"
+                      to={generatePath(CREATE_ALERT_WALLET_ROUTE, {
+                        walletId: walletId as string,
+                        customerId: customerId ?? null,
+                      })}
+                      data-test="create-wallet-alert"
+                    >
+                      {translate('text_1773051593208ih6ikwtebg0')}
+                    </ButtonLink>
+                  )}
+                </>
+              }
+            />
+
+            {!!wallet && <WalletAlerts wallet={wallet} />}
+          </DetailsPage.Container>
+        ),
+      },
+    ]
+  }, [translate, walletId, customerId, wallet, loading, hasPermissions, premiumWarningDialogRef])
+
+  const headerActions: MainHeaderAction[] = [
+    {
+      type: 'dropdown',
+      label: translate('text_634687079be251fdb438338f'),
+      items: walletActionItems.map((action) => ({
+        label: action.label,
+        startIcon: action.startIcon,
+        hidden: action.hidden,
+        disabled: action.disabled,
+        danger: action.danger,
+        dataTest: action.dataTest,
+        onClick: action.onAction,
+      })),
+    },
+  ]
 
   if (!loading && !!error) {
     return (
@@ -152,158 +287,35 @@ const WalletDetails = () => {
 
   return (
     <>
-      <PageHeader.Wrapper withSide>
-        <PageHeader.Group>
-          <Button
-            icon="arrow-left"
-            variant="quaternary"
-            onClick={() =>
-              navigate(
-                generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-                  customerId: customerId as string,
-                  tab: CustomerDetailsTabsOptions.wallet,
-                }),
-              )
-            }
-          />
-
-          <Typography variant="bodyHl" color="grey700" noWrap>
-            {createdAtTitle}
-          </Typography>
-        </PageHeader.Group>
-
-        <PageHeader.Group>
-          <WalletActions
-            walletId={walletId}
-            customerId={customerId}
-            status={wallet?.status}
-            creditsBalance={wallet?.creditsBalance}
-            trigger={(onClick) => (
-              <Button endIcon="chevron-down" onClick={onClick}>
-                {translate('text_634687079be251fdb438338f')}
-              </Button>
-            )}
-            showActionsTooltip={false}
-            rateAmount={wallet?.rateAmount}
-            currency={wallet?.currency}
-          />
-        </PageHeader.Group>
-      </PageHeader.Wrapper>
-
-      <DetailsPage.Header
-        isLoading={loading}
-        icon="wallet"
-        title={wallet?.name || createdAtTitle || '-'}
-        description={wallet?.code || ''}
-      />
-
-      <NavigationTab
-        className="px-4 md:px-12"
-        name="wallet-details-tabs"
-        loading={loading}
-        tabs={[
+      <MainHeader.Configure
+        breadcrumb={[
           {
-            title: translate('text_1772536695408epr1ktf2hy9'),
-            link: generatePath(WALLET_DETAILS_ROUTE, {
-              walletId: walletId as string,
-              customerId: customerId as string,
-              tab: WalletDetailsTabsOptionsEnum.overview,
-            }),
-            component: (
-              <DetailsPage.Container className="mt-12">
-                <SectionTitle
-                  title={translate('text_1772536695408epr1ktf2hy9')}
-                  description={translate('text_177304332434241ihblh0jyp')}
-                  action={
-                    <>
-                      {hasPermissions(['walletsUpdate']) && (
-                        <ButtonLink
-                          buttonProps={{
-                            variant: 'quaternary',
-                          }}
-                          type="button"
-                          to={generatePath(EDIT_WALLET_ROUTE, {
-                            walletId: walletId as string,
-                            customerId: customerId ?? null,
-                          })}
-                          data-test="edit-wallet"
-                        >
-                          {translate('text_62e161ceb87c201025388aa2')}
-                        </ButtonLink>
-                      )}
-                    </>
-                  }
-                />
-
-                <WalletInformations wallet={wallet} />
-              </DetailsPage.Container>
-            ),
+            label: translate('text_624efab67eb2570101d117a5'),
+            path: CUSTOMERS_LIST_ROUTE,
           },
           {
-            title: translate('text_1772536695408zfepv8jb948'),
-            link: generatePath(WALLET_DETAILS_ROUTE, {
-              walletId: walletId as string,
+            label: translate('text_62d175066d2dbf1d50bc937c'),
+            path: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
               customerId: customerId as string,
-              tab: WalletDetailsTabsOptionsEnum.transactions,
+              tab: CustomerDetailsTabsOptions.wallet,
             }),
-            component: (
-              <DetailsPage.Container className="mt-12 max-w-full gap-12">
-                <SectionTitle
-                  title={translate('text_1772536695408zfepv8jb948')}
-                  description={translate('text_1773043324342ka1zcxto0pg')}
-                />
-
-                {!!wallet && (
-                  <WalletTransactions
-                    wallet={wallet}
-                    premiumWarningDialogRef={premiumWarningDialogRef}
-                    loading={loading}
-                  />
-                )}
-              </DetailsPage.Container>
-            ),
-          },
-          {
-            title: translate('text_177253669540873hdqaoks8e'),
-            link: generatePath(WALLET_DETAILS_ROUTE, {
-              walletId: walletId as string,
-              customerId: customerId as string,
-              tab: WalletDetailsTabsOptionsEnum.alerts,
-            }),
-            component: (
-              <DetailsPage.Container className="mt-12 gap-8">
-                <SectionTitle
-                  title={translate('text_177253669540873hdqaoks8e')}
-                  description={translate('text_1773043324342mrttreav4qk')}
-                  action={
-                    <>
-                      {hasPermissions(['walletsUpdate']) && (
-                        <ButtonLink
-                          buttonProps={{
-                            variant: 'quaternary',
-                          }}
-                          type="button"
-                          to={generatePath(CREATE_ALERT_WALLET_ROUTE, {
-                            walletId: walletId as string,
-                            customerId: customerId ?? null,
-                          })}
-                          data-test="create-wallet-alert"
-                        >
-                          {translate('text_1773051593208ih6ikwtebg0')}
-                        </ButtonLink>
-                      )}
-                    </>
-                  }
-                />
-
-                {!!wallet && <WalletAlerts wallet={wallet} />}
-              </DetailsPage.Container>
-            ),
           },
         ]}
+        entity={{
+          viewName: wallet?.name || createdAtTitle || '-',
+          viewNameLoading: loading,
+          metadata: wallet?.id || '',
+          metadataLoading: loading,
+        }}
+        actions={{ items: headerActions, loading }}
+        tabs={tabs}
       />
 
+      <>{activeTabContent}</>
+
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
+      <TerminateCustomerWalletDialog ref={terminateDialogRef} />
+      <VoidWalletDialog ref={voidDialogRef} />
     </>
   )
 }

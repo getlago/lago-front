@@ -63,7 +63,9 @@ const AnrokIntegrations = () => {
   const { data, loading } = useGetAnrokIntegrationsListQuery({
     variables: { limit: 1000, types: [IntegrationTypeEnum.Anrok] },
   })
-  const connections = data?.integrations?.collection as AnrokIntegrationsFragment[] | undefined
+  const connections = (
+    data?.integrations?.collection as AnrokIntegrationsFragment[] | undefined
+  )?.filter((c): c is AnrokIntegrationsFragment => c !== null)
   const deleteDialogCallback =
     connections && connections?.length === 1
       ? () =>

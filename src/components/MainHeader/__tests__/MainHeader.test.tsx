@@ -99,9 +99,7 @@ describe('MainHeader', () => {
       it('THEN should display the actions block', () => {
         render(<MainHeader />)
 
-        const actionsBlocks = screen.getAllByTestId(ACTIONS_BLOCK_TEST_ID)
-
-        expect(actionsBlocks.length).toBeGreaterThanOrEqual(1)
+        expect(screen.getByTestId(ACTIONS_BLOCK_TEST_ID)).toBeInTheDocument()
       })
     })
   })

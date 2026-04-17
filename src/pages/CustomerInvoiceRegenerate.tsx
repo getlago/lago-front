@@ -428,13 +428,12 @@ const CustomerInvoiceRegenerate = () => {
       </CenteredPage.Container>
 
       <CenteredPage.StickyFooter>
-        <Button variant="quaternary" size="large" onClick={() => onClose()}>
+        <Button variant="quaternary" onClick={() => onClose()}>
           {translate('text_6411e6b530cb47007488b027')}
         </Button>
 
         {!!hasTaxProvider && (
           <Button
-            size="large"
             variant="secondary"
             disabled={!!taxProviderTaxesResult}
             onClick={async () => {

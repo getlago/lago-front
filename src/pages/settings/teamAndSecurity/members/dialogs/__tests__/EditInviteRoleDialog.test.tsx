@@ -40,6 +40,7 @@ jest.mock('~/core/apolloClient', () => ({
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({
     isPremium: true,
+    currentMembership: { roles: ['Admin'] },
   }),
 }))
 

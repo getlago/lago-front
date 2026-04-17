@@ -2,12 +2,12 @@ import { RefObject } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { CustomerActivityLogs } from '~/components/customers/CustomerActivityLogs'
+import { CustomerAppliedCouponsList } from '~/components/customers/CustomerAppliedCouponsList'
 import { CustomerCreditNotesList } from '~/components/customers/CustomerCreditNotesList'
 import { CustomerInvoicesTab } from '~/components/customers/CustomerInvoicesTab'
 import { CustomerMainInfos } from '~/components/customers/CustomerMainInfos'
 import { CustomerPaymentsTab } from '~/components/customers/CustomerPaymentsTab'
 import { CustomerSettings } from '~/components/customers/CustomerSettings'
-import { CustomerCoupons } from '~/components/customers/overview/CustomerCoupons'
 import { CustomerSubscriptionsList } from '~/components/customers/overview/CustomerSubscriptionsList'
 import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
 import { MainHeaderTab } from '~/components/MainHeader/types'
@@ -68,12 +68,22 @@ export function useCustomerDetailsHeaderTabs({
         }),
         generatePath(CUSTOMER_DETAILS_ROUTE, { customerId }),
       ],
+      content: <CustomerSubscriptionsList />,
+    },
+    {
+      title: translate('text_62865498824cc10126ab2956'),
+      link: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+        customerId,
+        tab: CustomerDetailsTabsOptions.coupons,
+      }),
       content: (
-        <div className="flex flex-col gap-12">
-          <CustomerCoupons />
-          <CustomerSubscriptionsList />
-        </div>
+        <CustomerAppliedCouponsList
+          customerId={customerId}
+          customerExternalId={externalId || ''}
+          customerDisplayName={customer?.displayName || ''}
+        />
       ),
+      dataTest: 'coupons-tab',
     },
     {
       title: translate('text_62d175066d2dbf1d50bc937c'),

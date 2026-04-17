@@ -5,6 +5,7 @@ export enum BillableMetricDetailsTabsOptionsEnum {
 
 export enum CouponDetailsTabsOptionsEnum {
   activityLogs = 'activity-logs',
+  appliedCoupons = 'applied-coupons',
   overview = 'overview',
 }
 
@@ -51,6 +52,7 @@ export enum NewAnalyticsTabsOptionsEnum {
 
 export enum CustomerDetailsTabsOptions {
   activityLogs = 'activity-logs',
+  coupons = 'coupons',
   creditNotes = 'creditNotes',
   information = 'information',
   invoices = 'invoices',

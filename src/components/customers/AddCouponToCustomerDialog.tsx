@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 import { useFormik } from 'formik'
-import { forwardRef, RefObject, useMemo } from 'react'
+import { forwardRef, RefObject, useMemo, useRef } from 'react'
 import { number, object, string } from 'yup'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
@@ -31,9 +31,6 @@ import {
   CreateAppliedCouponInput,
   CurrencyEnum,
   Customer,
-  CustomerAppliedCouponsFragment,
-  CustomerAppliedCouponsFragmentDoc,
-  CustomerCouponFragmentDoc,
   LagoApiError,
   useAddCouponMutation,
   useGetCouponForCustomerLazyQuery,
@@ -85,14 +82,12 @@ gql`
   mutation addCoupon($input: CreateAppliedCouponInput!) {
     createAppliedCoupon(input: $input) {
       id
-      ...CustomerCoupon
     }
   }
 
   ${CouponBillableMetricsForCustomerFragmentDoc}
   ${CouponPlansForCustomerFragmentDoc}
   ${CouponCaptionFragmentDoc}
-  ${CustomerCouponFragmentDoc}
 `
 
 type FormType = CreateAppliedCouponInput & {
@@ -113,10 +108,15 @@ export const AddCouponToCustomerDialog = forwardRef<
 >(({ customer }: AddCouponToCustomerDialogProps, ref) => {
   const customerId = customer?.id
   const customerName = customer?.displayName
+  const shouldRefetchOnClose = useRef(false)
 
   const { translate } = useInternationalization()
+  const client = useApolloClient()
   const [getCoupons, { loading, data }] = useGetCouponForCustomerLazyQuery({
     variables: { limit: 50, status: CouponStatusEnum.Active },
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
   })
   const [addCoupon] = useAddCouponMutation({
     context: {
@@ -125,33 +125,6 @@ export const AddCouponToCustomerDialog = forwardRef<
         LagoApiError.UnprocessableEntity,
         LagoApiError.PlanOverlapping,
       ],
-    },
-    update(cache, { data: addData }) {
-      if (!addData?.createAppliedCoupon) return
-
-      const cacheId = `Customer:${customerId}`
-
-      const previousData: CustomerAppliedCouponsFragment | null = cache.readFragment({
-        id: cacheId,
-        fragment: CustomerAppliedCouponsFragmentDoc,
-        fragmentName: 'CustomerAppliedCoupons',
-      })
-
-      cache.writeFragment({
-        id: cacheId,
-        fragment: CustomerAppliedCouponsFragmentDoc,
-        fragmentName: 'CustomerAppliedCoupons',
-        data: {
-          ...previousData,
-          appliedCoupons: [
-            ...(previousData?.appliedCoupons || []).map((a) => ({
-              ...a,
-              __typename: 'AppliedCoupon', // The query has nested fragment and the typename is removed - we need to re-add it for it to work
-            })),
-            addData?.createAppliedCoupon,
-          ],
-        },
-      })
     },
     onCompleted({ createAppliedCoupon }) {
       if (createAppliedCoupon) {
@@ -263,6 +236,7 @@ export const AddCouponToCustomerDialog = forwardRef<
       } else if (hasDefinedGQLError('PlanOverlapping', errors)) {
         formikBag.setFieldError('couponId', '')
       } else {
+        shouldRefetchOnClose.current = true
         ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
       }
     },
@@ -301,6 +275,13 @@ export const AddCouponToCustomerDialog = forwardRef<
       }}
       onClose={() => {
         formikProps.resetForm()
+
+        if (shouldRefetchOnClose.current) {
+          shouldRefetchOnClose.current = false
+          client.refetchQueries({
+            include: ['getAppliedCouponsForCustomer', 'getAppliedCouponsForCouponDetails'],
+          })
+        }
       }}
       actions={({ closeDialog }) => (
         <>

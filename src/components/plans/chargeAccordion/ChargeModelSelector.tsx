@@ -1,6 +1,5 @@
 import { Alert } from '~/components/designSystem/Alert'
 import { BasicComboBoxData, ComboBox } from '~/components/form'
-import { HandleUpdateUsageChargesProps } from '~/components/plans/chargeAccordion/utils'
 import { LocalFixedChargeInput, LocalUsageChargeInput } from '~/components/plans/types'
 import { getChargeModelHelpTextTranslationKey } from '~/core/constants/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -18,15 +17,12 @@ export const ChargeModelSelector = ({
   disabled: boolean | undefined
   localCharge: LocalUsageChargeInput | LocalFixedChargeInput
   chargeModelComboboxData: BasicComboBoxData[]
-  handleUpdate: (
-    name: HandleUpdateUsageChargesProps['name'],
-    value: HandleUpdateUsageChargesProps['value'],
-  ) => void
+  handleUpdate: (name: string, value: unknown) => void
 }) => {
   const { translate } = useInternationalization()
 
   return (
-    <div className="p-4 pb-0" data-test="charge-model-wrapper">
+    <div data-test="charge-model-wrapper">
       {!!alreadyUsedChargeAlertMessage && (
         <Alert type="warning" className="mb-4">
           {alreadyUsedChargeAlertMessage}

@@ -1,15 +1,26 @@
 import { gql } from '@apollo/client'
 import { embedDashboard, EmbeddedDashboard } from '@superset-ui/embedded-sdk'
+import { debounce } from 'lodash'
 import { useEffect, useMemo, useRef } from 'react'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
-import { envGlobalVar } from '~/core/apolloClient'
+import { envGlobalVar, getItemFromLS, removeItemFromLS, setItemFromLS } from '~/core/apolloClient'
+import {
+  ORGANIZATION_LS_KEY_ID,
+  SUPERSET_FILTERS_LS_KEY_PREFIX,
+} from '~/core/constants/localStorageKeys'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
+import { encodeRison } from '~/core/utils/risonEncoder'
+import { extractNativeFilters } from '~/core/utils/supersetFilters'
 import { useSupersetDashboardsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import '~/main.css'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { PageHeader } from '~/styles'
+
+const SUPERSET_TEST_DASHBOARD_TITLE_LS_KEY = 'superset-dashboard-test-name'
+const SUPERSET_DEFAULT_DASHBOARD_TITLE = 'Lago Dashboard'
 
 const { lagoSupersetUrl } = envGlobalVar()
 
@@ -31,9 +42,12 @@ const Dashboards = () => {
 
   const { data, error, loading } = useSupersetDashboardsQuery({})
 
+  const dashboardTitle =
+    getItemFromLS(SUPERSET_TEST_DASHBOARD_TITLE_LS_KEY) || SUPERSET_DEFAULT_DASHBOARD_TITLE
+
   const dashboard = useMemo(() => {
-    return data?.supersetDashboards?.find((d) => d.id === '1')
-  }, [data?.supersetDashboards])
+    return data?.supersetDashboards?.find((d) => d.dashboardTitle === dashboardTitle)
+  }, [data?.supersetDashboards, dashboardTitle])
 
   useEffect(() => {
     if (!dashboard || dashboard?.id === dashboardRef?.current) {
@@ -42,11 +56,36 @@ const Dashboards = () => {
 
     let embedded: null | EmbeddedDashboard = null
 
+    const persistFilters = isFeatureFlagActive(FeatureFlags.SUPERSET_PERSISTENT_FILTERS)
+    const orgId = getItemFromLS(ORGANIZATION_LS_KEY_ID) || ''
+    const filtersLsKey = `${SUPERSET_FILTERS_LS_KEY_PREFIX}${orgId}`
+
+    const debouncedSaveFilters = persistFilters
+      ? debounce((dataMask: Record<string, unknown>) => {
+          const filters = extractNativeFilters(dataMask)
+
+          if (Object.keys(filters).length > 0) {
+            setItemFromLS(filtersLsKey, filters)
+          } else {
+            removeItemFromLS(filtersLsKey)
+          }
+        }, 500)
+      : null
+
     const mount = async () => {
       const mountPoint = document.getElementById('superset')
 
       if (!mountPoint) {
         return
+      }
+
+      let urlParams: Record<string, string> | undefined
+
+      if (persistFilters) {
+        const savedFilters = getItemFromLS(filtersLsKey)
+        const hasFilters = savedFilters && Object.keys(savedFilters).length > 0
+
+        urlParams = hasFilters ? { native_filters: encodeRison(savedFilters) } : undefined
       }
 
       embedded = await embedDashboard({
@@ -56,12 +95,18 @@ const Dashboards = () => {
         fetchGuestToken: async () => dashboard?.guestToken,
         dashboardUiConfig: {
           hideTitle: true,
+          emitDataMasks: persistFilters,
           filters: {
             expanded: true,
           },
+          ...(urlParams && { urlParams }),
         },
         iframeSandboxExtras: ['allow-top-navigation', 'allow-popups-to-escape-sandbox'],
       })
+
+      if (debouncedSaveFilters) {
+        embedded.observeDataMask(debouncedSaveFilters)
+      }
 
       dashboardRef.current = dashboard.id
     }
@@ -69,6 +114,7 @@ const Dashboards = () => {
     mount()
 
     return () => {
+      debouncedSaveFilters?.cancel()
       embedded?.unmount()
       dashboardRef.current = ''
     }

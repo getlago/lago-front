@@ -100,12 +100,14 @@ const FeaturesList = () => {
         : {
             title: translate('text_1752692673070vvbkvtj8pbx'),
             subtitle: translate('text_17526926730702mizvc3o8vm'),
-            buttonTitle: translate('text_17526926730703ysbxa2g5fj'),
-            buttonAction: () => navigate(CREATE_FEATURE_ROUTE),
-            buttonVariant: 'primary' as const,
+            ...(hasPermissions(['featuresCreate']) && {
+              buttonTitle: translate('text_17526926730703ysbxa2g5fj'),
+              buttonAction: () => navigate(CREATE_FEATURE_ROUTE),
+              buttonVariant: 'primary' as const,
+            }),
           },
     }),
-    [featuresVariables?.searchTerm, translate, navigate],
+    [featuresVariables?.searchTerm, translate, hasPermissions, navigate],
   )
 
   const featuresTotalCount = featuresData?.features?.metadata?.totalCount

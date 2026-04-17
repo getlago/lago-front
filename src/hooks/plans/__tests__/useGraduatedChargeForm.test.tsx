@@ -1,7 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { useFormik } from 'formik'
 
-import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { PlanFormInput } from '~/components/plans/types'
 import { transformFilterObjectToString } from '~/components/plans/utils'
 import {
@@ -17,7 +16,6 @@ import {
 } from '~/hooks/plans/useGraduatedChargeForm'
 
 type PrepareType = {
-  chargeCursor?: ChargeCursor
   chargeIndex?: number
   filterIndex?: number
   disabled?: boolean
@@ -26,7 +24,6 @@ type PrepareType = {
 
 const prepare = async ({
   chargeIndex = 0,
-  chargeCursor = 'charges',
   filterIndex,
   disabled = false,
   graduatedRanges = [],
@@ -85,12 +82,19 @@ const prepare = async ({
         ? localCharge?.filters?.[filterIndex || 0].properties
         : localCharge?.properties
 
+    const wrappedSetFieldValue = (path: string, value: unknown) => {
+      formikProps.setFieldValue(`charges.${chargeIndex}.${path}`, value)
+    }
+
+    // Create a mock form object that bridges to formik
+    const mockForm = {
+      setFieldValue: (path: string, value: unknown) => wrappedSetFieldValue(path, value),
+    }
+
     return useGraduatedChargeForm({
-      chargeCursor,
-      chargeIndex,
       disabled,
       propertyCursor,
-      setFieldValue: formikProps.setFieldValue,
+      form: mockForm,
       valuePointer,
     })
   })
@@ -143,21 +147,21 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: '0',
-            toValue: '1',
+            fromValue: 0,
+            toValue: 1,
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: '2',
-            toValue: '3',
+            fromValue: 2,
+            toValue: 3,
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: false,
           },
           {
-            fromValue: '4',
+            fromValue: 4,
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
@@ -201,14 +205,14 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: '0',
-            toValue: '1',
+            fromValue: 0,
+            toValue: 1,
             flatAmount: '4',
             perUnitAmount: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: '2',
+            fromValue: 2,
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: '5',
@@ -303,14 +307,14 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: '0',
-            toValue: '4',
+            fromValue: 0,
+            toValue: 4,
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: '5',
+            fromValue: 5,
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
@@ -380,14 +384,14 @@ describe('useGraduatedRange()', () => {
         expect(result.current.tableDatas.length).toBe(2)
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: '0',
-            toValue: '4',
+            fromValue: 0,
+            toValue: 4,
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: '5',
+            fromValue: 5,
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
@@ -454,21 +458,21 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: '0',
-            toValue: '1',
+            fromValue: 0,
+            toValue: 1,
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: '2',
-            toValue: '3',
+            fromValue: 2,
+            toValue: 3,
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: false,
           },
           {
-            fromValue: '4',
+            fromValue: 4,
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
@@ -512,14 +516,14 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: '0',
-            toValue: '1',
+            fromValue: 0,
+            toValue: 1,
             flatAmount: '4',
             perUnitAmount: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: '2',
+            fromValue: 2,
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: '5',
@@ -614,14 +618,14 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: '0',
-            toValue: '4',
+            fromValue: 0,
+            toValue: 4,
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: '5',
+            fromValue: 5,
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,
@@ -691,14 +695,14 @@ describe('useGraduatedRange()', () => {
         expect(result.current.tableDatas.length).toBe(2)
         expect(result.current.tableDatas).toStrictEqual([
           {
-            fromValue: '0',
-            toValue: '4',
+            fromValue: 0,
+            toValue: 4,
             flatAmount: undefined,
             perUnitAmount: undefined,
             disabledDelete: true,
           },
           {
-            fromValue: '5',
+            fromValue: 5,
             toValue: null,
             flatAmount: undefined,
             perUnitAmount: undefined,

@@ -66,7 +66,7 @@ export const FeatureDetailsActivityLogs = ({ featureId }: FeatureDetailsActivity
   })
 
   return (
-    <div className="w-full px-12 pb-20 pt-6">
+    <div className="w-full px-4 pb-20 pt-6 md:px-12">
       <div className="flex flex-col gap-12">
         <div>
           <PageSectionTitle

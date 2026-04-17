@@ -21,11 +21,21 @@ const defaultValues: UpdateInviteSingleRole = {
 const RolePicker = withFieldGroup({
   defaultValues,
   render: function Render({ group }) {
-    const { isPremium } = useCurrentUser()
+    const { isPremium, currentMembership } = useCurrentUser()
     const { translate } = useInternationalization()
     const { roles, isLoadingRoles } = useRolesList()
 
     const { getDisplayName, getDisplayDescription } = useRoleDisplayInformation()
+
+    const isCurrentUserAdmin = useMemo(() => {
+      if (!currentMembership?.roles || !roles.length) return false
+
+      return currentMembership.roles.some((userRole) => {
+        const roleObj = roles.find((r) => r.name === userRole)
+
+        return roleObj?.admin
+      })
+    }, [currentMembership?.roles, roles])
 
     const rolesDataForCombobox = useMemo<BasicComboBoxData[]>(() => {
       if (isLoadingRoles || !roles.length) {
@@ -36,9 +46,16 @@ const RolePicker = withFieldGroup({
         value: role.code,
         label: getDisplayName(role),
         description: getDisplayDescription(role),
-        disabled: role.name !== 'Admin' && !isPremium,
+        disabled: (role.admin && !isCurrentUserAdmin) || (!role.admin && !isPremium),
       }))
-    }, [roles, isLoadingRoles, getDisplayName, getDisplayDescription, isPremium])
+    }, [
+      roles,
+      isLoadingRoles,
+      getDisplayName,
+      getDisplayDescription,
+      isPremium,
+      isCurrentUserAdmin,
+    ])
 
     const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 

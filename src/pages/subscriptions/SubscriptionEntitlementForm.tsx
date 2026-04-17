@@ -12,7 +12,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { ComboBox, ComboBoxField, ComboboxItem } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { PrivilegeValueInputComponent } from '~/components/plans/FeatureEntitlementSectionPrivilegeAccordion'
+import { PrivilegeValueInputComponent } from '~/components/plans/PrivilegeValueInputComponent'
 import { addToast } from '~/core/apolloClient'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
@@ -483,7 +483,6 @@ const SubscriptionEntitlementForm = () => {
         <CenteredPage.StickyFooter>
           <Button
             variant="quaternary"
-            size="large"
             onClick={() =>
               formikProps.dirty ? warningDirtyAttributesDialogRef.current?.openDialog() : onLeave()
             }
@@ -492,7 +491,6 @@ const SubscriptionEntitlementForm = () => {
           </Button>
           <Button
             variant="primary"
-            size="large"
             disabled={!formikProps.isValid || !formikProps.dirty || isLoading}
             onClick={formikProps.submitForm}
           >

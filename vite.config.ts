@@ -161,17 +161,18 @@ export default defineConfig(({ mode }) => {
       // Local dev only: proxy API requests through Vite to avoid CORS when
       // running isolated frontend worktrees (see scripts/lago-worktree.sh).
       // Activated by LAGO_API_PROXY_TARGET in the worktree .env file.
-      ...(mode === 'development' && env.LAGO_API_PROXY_TARGET && {
-        proxy: {
-          '/api': {
-            target: env.LAGO_API_PROXY_TARGET,
-            changeOrigin: true,
-            rewrite: (path: string) => path.replace(/^\/api/, ''),
-            secure: false,
-            ws: true,
+      ...(mode === 'development' &&
+        env.LAGO_API_PROXY_TARGET && {
+          proxy: {
+            '/api': {
+              target: env.LAGO_API_PROXY_TARGET,
+              changeOrigin: true,
+              rewrite: (path: string) => path.replace(/^\/api/, ''),
+              secure: false,
+              ws: true,
+            },
           },
-        },
-      }),
+        }),
     },
     optimizeDeps: {
       include: [
@@ -195,9 +196,9 @@ export default defineConfig(({ mode }) => {
       target: 'esnext',
       rollupOptions: {
         output: {
-          chunkFileNames: '[name].[hash].js',
-          entryFileNames: '[name].[hash].js',
-          sourcemapFileNames: '[name].[hash].js.map',
+          chunkFileNames: 'assets/[name].[hash].js',
+          entryFileNames: 'assets/[name].[hash].js',
+          sourcemapFileNames: 'assets/[name].[hash].js.map',
           manualChunks: {
             'vendor-react': ['react', 'react-dom', 'react-router-dom'],
             'vendor-apollo': ['@apollo/client', 'graphql'],

@@ -46,13 +46,13 @@ const fullProperty = {
   ],
   graduatedPercentageRanges: [
     {
-      fromValue: '0',
-      toValue: '1',
+      fromValue: 0,
+      toValue: 1,
       rate: '0',
       flatAmount: '0',
     },
     {
-      fromValue: '2',
+      fromValue: 2,
       toValue: null,
       rate: '10',
       flatAmount: '1',
@@ -250,13 +250,13 @@ describe('serializePlanInput()', () => {
               freeUnitsPerTotalAggregation: '1',
               graduatedPercentageRanges: [
                 {
-                  fromValue: '0',
-                  toValue: '1',
+                  fromValue: 0,
+                  toValue: 1,
                   rate: '0',
                   flatAmount: '0',
                 },
                 {
-                  fromValue: '2',
+                  fromValue: 2,
                   toValue: null,
                   rate: '10',
                   flatAmount: '1',
@@ -1706,13 +1706,13 @@ describe('serializePlanInput()', () => {
               properties: {
                 graduatedRanges: [
                   {
-                    fromValue: '0',
-                    toValue: '1',
+                    fromValue: 0,
+                    toValue: 1,
                     perUnitAmount: '1',
                     flatAmount: undefined as unknown as string,
                   },
                   {
-                    fromValue: '2',
+                    fromValue: 2,
                     toValue: null,
                     perUnitAmount: '1',
                     flatAmount: undefined as unknown as string,
@@ -1751,13 +1751,13 @@ describe('serializePlanInput()', () => {
                 graduatedRanges: [
                   {
                     flatAmount: '0',
-                    fromValue: '0',
+                    fromValue: 0,
                     perUnitAmount: '1',
-                    toValue: '1',
+                    toValue: 1,
                   },
                   {
                     flatAmount: '0',
-                    fromValue: '2',
+                    fromValue: 2,
                     perUnitAmount: '1',
                     toValue: null,
                   },
@@ -1800,13 +1800,13 @@ describe('serializePlanInput()', () => {
               properties: {
                 graduatedRanges: [
                   {
-                    fromValue: '0',
-                    toValue: '1',
+                    fromValue: 0,
+                    toValue: 1,
                     perUnitAmount: '5',
                     flatAmount: '10',
                   },
                   {
-                    fromValue: '2',
+                    fromValue: 2,
                     toValue: null,
                     perUnitAmount: '3',
                     flatAmount: '7',
@@ -1845,13 +1845,13 @@ describe('serializePlanInput()', () => {
                 graduatedRanges: [
                   {
                     flatAmount: '10',
-                    fromValue: '0',
+                    fromValue: 0,
                     perUnitAmount: '5',
-                    toValue: '1',
+                    toValue: 1,
                   },
                   {
                     flatAmount: '7',
-                    fromValue: '2',
+                    fromValue: 2,
                     perUnitAmount: '3',
                     toValue: null,
                   },

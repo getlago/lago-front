@@ -76,7 +76,7 @@ describe('AmountInputFieldForTanstack', () => {
     })
 
     describe('WHEN there are validation errors', () => {
-      it('THEN should translate error messages', () => {
+      it('THEN should translate only the first error (firstOnly mode)', () => {
         const errors = [{ message: 'error_amount_required' }, { message: 'error_amount_invalid' }]
 
         mockedUseFieldContext.mockReturnValue(createMockField('', errors))
@@ -84,19 +84,6 @@ describe('AmountInputFieldForTanstack', () => {
         render(<AmountInputField currency={CurrencyEnum.Usd} />)
 
         expect(mockTranslate).toHaveBeenCalledWith('error_amount_required')
-        expect(mockTranslate).toHaveBeenCalledWith('error_amount_invalid')
-      })
-
-      it('THEN should translate all provided error messages', () => {
-        const errors = [{ message: 'error_1' }, { message: 'error_2' }]
-
-        mockedUseFieldContext.mockReturnValue(createMockField('', errors))
-
-        render(<AmountInputField currency={CurrencyEnum.Usd} />)
-
-        // Both errors should be translated (along with any other translate calls from child components)
-        expect(mockTranslate).toHaveBeenCalledWith('error_1')
-        expect(mockTranslate).toHaveBeenCalledWith('error_2')
       })
     })
 
@@ -159,15 +146,14 @@ describe('AmountInputFieldForTanstack', () => {
   })
 
   describe('GIVEN errors with empty messages', () => {
-    describe('WHEN some error messages are empty', () => {
-      it('THEN should filter out empty messages', () => {
-        const errors = [{ message: 'error_1' }, { message: '' }, { message: 'error_2' }]
+    describe('WHEN first error message is empty', () => {
+      it('THEN should skip empty and translate the next non-empty error', () => {
+        const errors = [{ message: '' }, { message: 'error_2' }]
 
         mockedUseFieldContext.mockReturnValue(createMockField('', errors))
 
         render(<AmountInputField currency={CurrencyEnum.Usd} />)
 
-        expect(mockTranslate).toHaveBeenCalledWith('error_1')
         expect(mockTranslate).toHaveBeenCalledWith('error_2')
         expect(mockTranslate).not.toHaveBeenCalledWith('')
       })

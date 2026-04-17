@@ -55,7 +55,7 @@ export const ButtonSelector = ({
         </div>
       )}
       {!!description && (
-        <Typography variant="caption" className="mb-4">
+        <Typography variant="caption" className="mb-3">
           {description}
         </Typography>
       )}

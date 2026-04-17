@@ -1,25 +1,24 @@
 import { gql } from '@apollo/client'
-import { FormikProps } from 'formik'
-import { FC, useId, useMemo, useState } from 'react'
+import { useStore } from '@tanstack/react-form'
+import { FC, useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { Tooltip } from '~/components/designSystem/Tooltip'
-import { Typography } from '~/components/designSystem/Typography'
-import { ComboBox, ComboboxItem } from '~/components/form'
-import { FeatureEntitlementSectionPrivilegeAccordion } from '~/components/plans/FeatureEntitlementSectionPrivilegeAccordion'
+import { Selector, SelectorActions } from '~/components/designSystem/Selector'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
-  MUI_INPUT_BASE_ROOT_CLASSNAME,
-  SEARCH_FEATURE_SELECT_OPTIONS_INPUT_CLASSNAME,
-} from '~/core/constants/form'
-import { scrollToAndClickElement } from '~/core/utils/domUtils'
+  FeatureEntitlementDrawer,
+  FeatureEntitlementDrawerRef,
+  FeatureEntitlementFormValues,
+} from '~/components/plans/drawers/featureEntitlement/FeatureEntitlementDrawer'
 import {
   FeatureEntitlementPrivilegeForPlanFragmentDoc,
   FeatureObjectEntitlementPrivilegeForPlanFragmentDoc,
-  useGetFeaturesListForPlanSectionLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { PlanFormType } from '~/hooks/plans/usePlanForm'
 
-import { PlanFormInput } from './types'
+export const ADD_FEATURE_ENTITLEMENT_TEST_ID = 'add-feature-entitlement'
+export const FEATURE_ENTITLEMENT_SELECTOR_TEST_ID = 'feature-entitlement-selector'
 
 gql`
   fragment FeatureEntitlementForPlan on Plan {
@@ -48,145 +47,118 @@ gql`
 `
 
 interface FeatureEntitlementSectionProps {
-  formikProps: FormikProps<PlanFormInput>
-  isInSubscriptionForm?: boolean
+  form: PlanFormType
   isEdition?: boolean
 }
 
-export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({
-  formikProps,
-  isInSubscriptionForm = false,
-  isEdition = false,
-}) => {
-  const componentId = useId()
+export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({ form }) => {
   const { translate } = useInternationalization()
-  const [displayAddFeatureEntitlementInput, setDisplayAddFeatureEntitlementInput] = useState(false)
+  const featureEntitlementDrawerRef = useRef<FeatureEntitlementDrawerRef>(null)
 
-  const [getFeaturesList, { data: featuresListData, loading: isLoadingFeaturesList }] =
-    useGetFeaturesListForPlanSectionLazyQuery()
+  const entitlements = useStore(form.store, (s) => s.values.entitlements)
 
-  const featureSearchClassName = useMemo(() => {
-    // Replace all colons with dashes to make the class name valid for querySelector
-    const usableComponentId = componentId.replace(/:/g, '-')
+  const handleDrawerSave = (values: FeatureEntitlementFormValues) => {
+    const current = form.state.values.entitlements || []
+    const existingIndex = current.findIndex((e) => e.featureCode === values.featureCode)
+    const newFeatureObject = {
+      featureId: values.featureId,
+      featureName: values.featureName,
+      featureCode: values.featureCode,
+      privileges: values.privileges,
+    }
 
-    return `${SEARCH_FEATURE_SELECT_OPTIONS_INPUT_CLASSNAME}-${usableComponentId}`
-  }, [componentId])
+    const updated = [...current]
 
-  const featuresListComboBoxData = useMemo(() => {
-    if (!featuresListData?.features?.collection.length) return []
+    if (existingIndex >= 0) {
+      updated[existingIndex] = newFeatureObject
+    } else {
+      updated.push(newFeatureObject)
+    }
 
-    return featuresListData.features.collection.map((feature) => {
-      const { id, name, code } = feature
-
-      return {
-        value: id,
-        label: `${name} (${code})`,
-        labelNode: (
-          <ComboboxItem>
-            <Typography variant="body" color="grey700" noWrap>
-              {name}
-            </Typography>
-            <Typography variant="caption" color="grey600" noWrap>
-              {code}
-            </Typography>
-          </ComboboxItem>
-        ),
-        disabled: formikProps.values.entitlements?.some(
-          (entitlement) => entitlement.featureCode === code,
-        ),
-      }
-    })
-  }, [featuresListData, formikProps.values.entitlements])
+    form.setFieldValue('entitlements', updated)
+  }
 
   return (
-    <div className="flex flex-col items-start gap-4">
-      <div className="flex flex-col gap-1">
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_63e26d8308d03687188221a6')}
-        </Typography>
+    <CenteredPage.PageSection>
+      <CenteredPage.PageSectionTitle
+        title={translate('text_63e26d8308d03687188221a6')}
+        description={translate('text_17538642230602p03937fj0f')}
+      />
 
-        <Typography
-          variant="caption"
-          color="grey600"
-          html={translate('text_17538642230602p03937fj0f')}
-        />
-      </div>
-
-      {!!formikProps.values.entitlements?.length && (
+      {!!entitlements?.length && (
         <div className="flex w-full flex-col gap-4">
-          {formikProps.values.entitlements.map((entitlement) => (
-            <FeatureEntitlementSectionPrivilegeAccordion
-              key={`feature-entitlement-${entitlement.featureCode}`}
-              formikProps={formikProps}
-              entitlement={entitlement}
-              isCreatingPlan={!isEdition && !isInSubscriptionForm}
-            />
-          ))}
+          {entitlements.map((entitlement) => {
+            const openFeatureEntitlementDrawer = () => {
+              featureEntitlementDrawerRef.current?.openDrawer({
+                featureId: entitlement.featureId || '',
+                featureName: entitlement.featureName,
+                featureCode: entitlement.featureCode,
+                privileges: entitlement.privileges || [],
+              })
+            }
+
+            return (
+              <Selector
+                key={`feature-entitlement-${entitlement.featureCode}`}
+                icon="switch"
+                title={entitlement.featureName || entitlement.featureCode}
+                subtitle={entitlement.featureCode}
+                data-test={FEATURE_ENTITLEMENT_SELECTOR_TEST_ID}
+                endContent={
+                  <Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />
+                }
+                hoverActions={
+                  <SelectorActions
+                    actions={[
+                      {
+                        icon: 'trash',
+                        tooltipCopy: translate('text_63aa085d28b8510cd46443ff'),
+                        onClick: () => {
+                          form.setFieldValue(
+                            'entitlements',
+                            form.state.values.entitlements.filter(
+                              (e) => e.featureCode !== entitlement.featureCode,
+                            ),
+                          )
+                        },
+                      },
+                      {
+                        icon: 'pen',
+                        tooltipCopy: translate('text_63e51ef4985f0ebd75c212fc'),
+                        onClick: () => openFeatureEntitlementDrawer(),
+                      },
+                    ]}
+                  />
+                }
+                onClick={() => openFeatureEntitlementDrawer()}
+              />
+            )
+          })}
         </div>
       )}
 
-      {displayAddFeatureEntitlementInput && (
-        <div className="flex w-full items-center gap-3">
-          <ComboBox
-            disableClearable
-            containerClassName="w-full"
-            placeholder={translate('text_1753864223060h6i2e7303eb')}
-            loading={isLoadingFeaturesList}
-            data={featuresListComboBoxData}
-            className={featureSearchClassName}
-            searchQuery={getFeaturesList}
-            onChange={(selectedFeatureId) => {
-              const selectedFeature = featuresListData?.features?.collection.find(
-                (feature) => feature.id === selectedFeatureId,
-              )
+      <Button
+        fitContent
+        variant="inline"
+        startIcon="plus"
+        data-test={ADD_FEATURE_ENTITLEMENT_TEST_ID}
+        onClick={() => featureEntitlementDrawerRef.current?.openDrawer()}
+      >
+        {translate('text_1753864223060devvklm7vk0')}
+      </Button>
 
-              if (!selectedFeature) {
-                setDisplayAddFeatureEntitlementInput(false)
-                return
-              }
-
-              formikProps.setFieldValue('entitlements', [
-                ...(formikProps.values.entitlements || []),
-                {
-                  featureId: selectedFeature.id,
-                  featureName: selectedFeature.name,
-                  featureCode: selectedFeature.code,
-                  privileges: [],
-                },
-              ])
-
-              setDisplayAddFeatureEntitlementInput(false)
-            }}
-          />
-
-          <Tooltip placement="top-end" title={translate('text_63ea0f84f400488553caa786')}>
-            <Button
-              icon="trash"
-              variant="quaternary"
-              onClick={() => {
-                setDisplayAddFeatureEntitlementInput(false)
-              }}
-            />
-          </Tooltip>
-        </div>
-      )}
-
-      {!displayAddFeatureEntitlementInput && (
-        <Button
-          variant="inline"
-          startIcon="plus"
-          onClick={() => {
-            setDisplayAddFeatureEntitlementInput(true)
-
-            scrollToAndClickElement({
-              selector: `.${featureSearchClassName} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-            })
-          }}
-        >
-          {translate('text_1753864223060devvklm7vk0')}
-        </Button>
-      )}
-    </div>
+      <FeatureEntitlementDrawer
+        ref={featureEntitlementDrawerRef}
+        existingFeatureCodes={entitlements?.map((e) => e.featureCode) || []}
+        onSave={handleDrawerSave}
+        onDelete={(featureCode) => {
+          form.setFieldValue(
+            'entitlements',
+            form.state.values.entitlements.filter((e) => e.featureCode !== featureCode),
+          )
+        }}
+      />
+    </CenteredPage.PageSection>
   )
 }
 

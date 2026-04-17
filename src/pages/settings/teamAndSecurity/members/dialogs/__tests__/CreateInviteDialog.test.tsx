@@ -55,6 +55,7 @@ jest.mock('~/core/utils/copyToClipboard', () => ({
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({
     isPremium: true,
+    currentMembership: { roles: ['Admin'] },
   }),
 }))
 

@@ -64,7 +64,9 @@ const SalesforceIntegrations = () => {
     variables: { limit: 1000, types: [IntegrationTypeEnum.Salesforce] },
   })
 
-  const connections = data?.integrations?.collection as SalesforceIntegrationsFragment[] | undefined
+  const connections = (
+    data?.integrations?.collection as SalesforceIntegrationsFragment[] | undefined
+  )?.filter((c): c is SalesforceIntegrationsFragment => c !== null)
   const deleteDialogCallback =
     connections && connections?.length === 1
       ? () =>

@@ -1,48 +1,36 @@
 import { gql } from '@apollo/client'
-import { FormikProps } from 'formik'
-import { memo, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useStore } from '@tanstack/react-form'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { Card } from '~/components/designSystem/Card'
+import { Chip } from '~/components/designSystem/Chip'
+import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Tooltip } from '~/components/designSystem/Tooltip'
-import { Typography } from '~/components/designSystem/Typography'
-import { ComboBox, ComboboxItem, SwitchField } from '~/components/form'
-import { EditInvoiceDisplayNameDialogRef } from '~/components/invoices/EditInvoiceDisplayNameDialog'
-import { FixedChargeAccordion } from '~/components/plans/FixedChargeAccordion'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
+import {
+  FixedChargeDrawer,
+  FixedChargeDrawerRef,
+} from '~/components/plans/drawers/fixedCharge/FixedChargeDrawer'
 import {
   RemoveChargeWarningDialog,
   RemoveChargeWarningDialogRef,
 } from '~/components/plans/RemoveChargeWarningDialog'
-import { LocalFixedChargeInput, PlanFormInput } from '~/components/plans/types'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { LocalFixedChargeInput } from '~/components/plans/types'
+import { getFormattedChargeSelectorSubtitle, mapChargeIntervalCopy } from '~/components/plans/utils'
+import { useDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import {
-  MUI_INPUT_BASE_ROOT_CLASSNAME,
-  SEARCH_ADD_ON_FOR_FIXED_CHARGES_SECTION_INPUT_CLASSNAME,
-} from '~/core/constants/form'
-import getPropertyShape from '~/core/serializers/getPropertyShape'
-import {
-  CurrencyEnum,
-  FixedChargeChargeModelEnum,
   GraduatedChargeFragmentDoc,
   PlanInterval,
   TaxForPlanAndChargesInPlanFormFragmentDoc,
-  useGetAddOnsForFixedChargesSectionLazyQuery,
   VolumeRangesFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-const ACCORDION_HEIGHT = 72 // px
-const ACCORDION_PADDING = 16 // px
+import { PlanFormType } from '~/hooks/plans/usePlanForm'
 
 gql`
-  fragment AddOnForFixedChargesSection on AddOn {
-    id
-    name
-    code
-  }
-
   fragment FixedChargesOnPlanForm on Plan {
     id
+    billFixedChargesMonthly
     fixedCharges {
       id
       prorated
@@ -68,248 +56,224 @@ gql`
     }
   }
 
-  query getAddOnsForFixedChargesSection($page: Int, $limit: Int, $searchTerm: String) {
-    addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
-      metadata {
-        currentPage
-        totalPages
-      }
-      collection {
-        id
-        ...AddOnForFixedChargesSection
-      }
-    }
-  }
-
   ${TaxForPlanAndChargesInPlanFormFragmentDoc}
   ${GraduatedChargeFragmentDoc}
   ${VolumeRangesFragmentDoc}
 `
 
+// Test ID constants
+export const FIXED_CHARGES_ADD_BUTTON_TEST_ID = 'add-fixed-charge'
+
 interface FixedChargesSectionProps {
+  form: PlanFormType
   alreadyExistingFixedChargesIds: string[]
-  editInvoiceDisplayNameDialogRef: RefObject<EditInvoiceDisplayNameDialogRef>
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
   canBeEdited?: boolean
-  isInitiallyOpen?: boolean
   isInSubscriptionForm?: boolean
-  formikProps: FormikProps<PlanFormInput>
   isEdition?: boolean
 }
 
-const getNewChargeId = (id: string, index: number) => `plan-fixed-charge-${id}-${index}`
+export const FixedChargesSection = ({
+  form,
+  alreadyExistingFixedChargesIds,
+  canBeEdited,
+  isInSubscriptionForm,
+  isEdition = false,
+}: FixedChargesSectionProps) => {
+  const { translate } = useInternationalization()
+  const { type: actionType } = useDuplicatePlanVar()
+  const fixedCharges = useStore(form.store, (s) => s.values.fixedCharges)
+  const interval = useStore(form.store, (s) => s.values.interval)
+  const billFixedChargesMonthly = useStore(form.store, (s) => s.values.billFixedChargesMonthly)
 
-export const FixedChargesSection = memo(
-  ({
-    alreadyExistingFixedChargesIds,
-    editInvoiceDisplayNameDialogRef,
-    canBeEdited,
-    isInitiallyOpen,
-    isInSubscriptionForm,
-    formikProps,
-    isEdition = false,
-    premiumWarningDialogRef,
-  }: FixedChargesSectionProps) => {
-    const { translate } = useInternationalization()
-    const hasAnyFixedCharge = !!formikProps.values.fixedCharges.length
-    const [showAddFixedChargeCombobox, setShowAddFixedChargeCombobox] = useState(false)
-    const newChargeId = useRef<string | null>(null)
-    const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
-    const [alreadyUsedAddOnIds, setAlreadyUsedAddOnIds] = useState<Map<string, number>>(new Map())
-    const formFixedCharges = formikProps.values.fixedCharges
-    const [
-      getAddOnsForFixedChargesSection,
-      { loading: addOnsForFixedChargesSectionLoading, data: addOnsForFixedChargesSectionData },
-    ] = useGetAddOnsForFixedChargesSectionLazyQuery({
-      variables: { limit: 20 },
-    })
+  const hasAnyFixedCharge = !!fixedCharges.length
+  const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
+  const fixedChargeDrawerRef = useRef<FixedChargeDrawerRef>(null)
+  const [alreadyUsedAddOnIds, setAlreadyUsedAddOnIds] = useState<Map<string, number>>(new Map())
 
-    const addOnsForFixedChargesSectionComboboxData = useMemo(() => {
-      if (!addOnsForFixedChargesSectionData?.addOns?.collection?.length) return []
+  const handleDrawerSave = useCallback(
+    (charge: LocalFixedChargeInput, index: number | null) => {
+      const newCharges = [...form.state.values.fixedCharges]
 
-      return addOnsForFixedChargesSectionData?.addOns?.collection.map(({ id, name, code }) => {
-        return {
-          label: `${name} (${code})`,
-          labelNode: (
-            <ComboboxItem>
-              <Typography variant="body" color="grey700" noWrap>
-                {name}
-              </Typography>
-              <Typography variant="caption" color="grey600" noWrap>
-                {code}
-              </Typography>
-            </ComboboxItem>
-          ),
-          value: id,
-        }
-      })
-    }, [addOnsForFixedChargesSectionData?.addOns?.collection])
-
-    const onAddFixedCharge = useCallback(
-      (newFixedChargeId: string): void => {
-        const previousCharges = [...formFixedCharges]
-        const newId = getNewChargeId(newFixedChargeId, previousCharges.length)
-        const localAddOn = addOnsForFixedChargesSectionData?.addOns?.collection.find(
-          (bm) => bm.id === newFixedChargeId,
-        )
-        const newChargeIndex = formFixedCharges.length
-
-        previousCharges.splice(newChargeIndex, 0, {
-          addOn: {
-            id: localAddOn?.id || '',
-            name: localAddOn?.name || '',
-            code: localAddOn?.code || '',
-          },
-          applyUnitsImmediately: false,
-          chargeModel: FixedChargeChargeModelEnum.Standard,
-          invoiceDisplayName: undefined,
-          payInAdvance: false,
-          properties: getPropertyShape({}),
-          prorated: false,
-          units: undefined,
-          taxes: [],
-        } satisfies LocalFixedChargeInput)
-
-        formikProps.setFieldValue('fixedCharges', previousCharges)
-        setShowAddFixedChargeCombobox(false)
-        newChargeId.current = newId
-      },
-      [addOnsForFixedChargesSectionData?.addOns?.collection, formFixedCharges, formikProps],
-    )
-
-    useEffect(() => {
-      // When adding a new charge, scroll to the new charge element
-      if (!!newChargeId.current) {
-        const element = document.getElementById(newChargeId.current)
-        const rootElement = document.getElementById('root')
-
-        if (!element || !rootElement) return
-
-        rootElement.scrollTo({ top: element.offsetTop - ACCORDION_HEIGHT - ACCORDION_PADDING })
+      if (index === null) {
+        newCharges.push(charge)
+      } else {
+        newCharges[index] = charge
       }
-    }, [newChargeId])
+      form.setFieldValue('fixedCharges', newCharges)
+    },
+    [form],
+  )
 
-    useEffect(() => {
-      setAlreadyUsedAddOnIds(
-        formFixedCharges?.reduce((prev, curr) => {
-          const id = curr.addOn.id
+  const handleChargeDelete = useCallback(
+    (index: number) => {
+      const newCharges = [...form.state.values.fixedCharges]
 
-          return prev.set(id, (prev.get(id) || 0) + 1)
-        }, new Map()),
-      )
-    }, [formFixedCharges])
+      newCharges.splice(index, 1)
+      form.setFieldValue('fixedCharges', newCharges)
+    },
+    [form],
+  )
 
-    if (!hasAnyFixedCharge && isInSubscriptionForm) {
-      return null
-    }
+  useEffect(() => {
+    setAlreadyUsedAddOnIds(
+      fixedCharges?.reduce((prev, curr) => {
+        const id = curr.addOn.id
 
-    const canApplyChargesMonthly = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(
-      formikProps.values.interval,
+        return prev.set(id, (prev.get(id) || 0) + 1)
+      }, new Map()),
     )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fixedCharges?.length])
 
-    return (
-      <>
-        <Card>
-          <div className="flex flex-col gap-2">
-            <Typography variant="subhead1">{translate('text_176072970726728iw4tc8ucl')}</Typography>
-            <Typography variant="caption">{translate('text_1760729707268c05r06ip8vg')}</Typography>
-          </div>
+  const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(interval)
 
-          {!!hasAnyFixedCharge && canApplyChargesMonthly && (
-            <SwitchField
-              label={translate('text_1760729707268reew4lqsqof')}
-              subLabel={translate('text_1760729707268ge00k7a7e84')}
-              name="billFixedChargesMonthly"
-              disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
-              formikProps={formikProps}
-            />
-          )}
+  const intervalBadgeCopy = useMemo(() => {
+    return translate(
+      mapChargeIntervalCopy(interval, (isAnnual && !!billFixedChargesMonthly) || false),
+    )
+  }, [translate, interval, billFixedChargesMonthly, isAnnual])
 
-          {(!!formFixedCharges?.length || !isInSubscriptionForm) && (
-            <div className="flex flex-col gap-4">
-              {!!formFixedCharges?.length && (
-                <div className="flex flex-col gap-6">
-                  {formFixedCharges.map((fixedCharge: LocalFixedChargeInput, i) => {
-                    const id = getNewChargeId(fixedCharge.addOn.id, i)
-                    const isNew = !alreadyExistingFixedChargesIds?.includes(fixedCharge?.id || '')
-                    const alreadyUsedChargeAlertMessage =
-                      (alreadyUsedAddOnIds.get(fixedCharge.addOn.id) || 0) > 1
-                        ? translate('text_1760729707268h378x60alri')
-                        : undefined
+  if (!hasAnyFixedCharge && isInSubscriptionForm) {
+    return null
+  }
 
-                    return (
-                      <FixedChargeAccordion
-                        alreadyUsedChargeAlertMessage={alreadyUsedChargeAlertMessage}
-                        currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
-                        disabled={isEdition && !canBeEdited && !isNew}
-                        editInvoiceDisplayNameDialogRef={editInvoiceDisplayNameDialogRef}
-                        formikProps={formikProps}
-                        id={id}
-                        index={i}
-                        isEdition={isEdition}
-                        isInitiallyOpen={isInitiallyOpen}
-                        isInSubscriptionForm={isInSubscriptionForm}
-                        isUsedInSubscription={!isNew && !canBeEdited}
-                        key={id}
-                        premiumWarningDialogRef={premiumWarningDialogRef}
-                        removeChargeWarningDialogRef={removeChargeWarningDialogRef}
-                      />
-                    )
-                  })}
-                </div>
-              )}
-              {showAddFixedChargeCombobox ? (
-                <div className="flex items-center gap-3">
-                  <ComboBox
-                    containerClassName="flex-1"
-                    className={SEARCH_ADD_ON_FOR_FIXED_CHARGES_SECTION_INPUT_CLASSNAME}
-                    data={addOnsForFixedChargesSectionComboboxData}
-                    searchQuery={getAddOnsForFixedChargesSection}
-                    loading={addOnsForFixedChargesSectionLoading}
-                    placeholder={translate('text_6453819268763979024ad0ad')}
-                    emptyText={translate('text_655633c844bc8a00577061b0')}
-                    onChange={onAddFixedCharge}
-                  />
-                  <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
-                    <Button
-                      icon="trash"
-                      variant="quaternary"
-                      onClick={() => {
-                        setShowAddFixedChargeCombobox(false)
-                      }}
+  const canApplyChargesMonthly = isAnnual
+
+  return (
+    <>
+      <CenteredPage.PageSection>
+        <CenteredPage.PageSectionTitle
+          title={translate('text_176072970726728iw4tc8ucl')}
+          description={translate('text_1760729707268c05r06ip8vg')}
+        />
+
+        {!!hasAnyFixedCharge && canApplyChargesMonthly && (
+          <form.AppField name="billFixedChargesMonthly">
+            {(field) => (
+              <field.SwitchField
+                label={translate('text_1760729707268reew4lqsqof')}
+                subLabel={translate('text_1760729707268ge00k7a7e84')}
+                disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
+              />
+            )}
+          </form.AppField>
+        )}
+
+        {(!!fixedCharges?.length || !isInSubscriptionForm) && (
+          <div className="flex flex-col gap-6">
+            {!!fixedCharges?.length && (
+              <div className="flex flex-col gap-4">
+                {fixedCharges.map((fixedCharge: LocalFixedChargeInput, i) => {
+                  const isNew = !alreadyExistingFixedChargesIds?.includes(fixedCharge?.id || '')
+                  const alreadyUsedChargeAlertMessage =
+                    (alreadyUsedAddOnIds.get(fixedCharge.addOn.id) || 0) > 1
+                      ? translate('text_1760729707268h378x60alri')
+                      : undefined
+                  const isUsedInSubscription = !isNew && !canBeEdited
+
+                  const openFixedChargeDrawer = () => {
+                    fixedChargeDrawerRef.current?.openDrawer(fixedCharge, i, {
+                      alreadyUsedChargeAlertMessage,
+                      isUsedInSubscription,
+                    })
+                  }
+
+                  return (
+                    <Selector
+                      key={`fixed-charge-${fixedCharge.addOn.id}-${i}`}
+                      icon="puzzle"
+                      title={fixedCharge.invoiceDisplayName || fixedCharge.addOn.name}
+                      subtitle={getFormattedChargeSelectorSubtitle({
+                        chargeModel: fixedCharge.chargeModel,
+                        code: fixedCharge.addOn.code,
+                        translate,
+                      })}
+                      endContent={
+                        <div className="flex items-center gap-3">
+                          <Chip label={intervalBadgeCopy} />
+                          <Tooltip
+                            placement="top-end"
+                            title={translate('text_17719630334671lxunwzo7ae')}
+                          >
+                            <Button
+                              icon="chevron-right-filled"
+                              variant="quaternary"
+                              tabIndex={-1}
+                            />
+                          </Tooltip>
+                        </div>
+                      }
+                      hoverActions={
+                        <SelectorActions
+                          actions={[
+                            {
+                              icon: 'trash',
+                              tooltipCopy: translate('text_63ea0f84f400488553caa786'),
+                              onClick: (e) => {
+                                e.stopPropagation()
+                                e.preventDefault()
+
+                                const deleteCharge = () => {
+                                  const localChargesAfterDelete = [
+                                    ...form.state.values.fixedCharges,
+                                  ]
+
+                                  localChargesAfterDelete.splice(i, 1)
+                                  form.setFieldValue('fixedCharges', localChargesAfterDelete)
+                                }
+
+                                if (actionType !== 'duplicate' && isUsedInSubscription) {
+                                  removeChargeWarningDialogRef?.current?.openDialog({
+                                    callback: deleteCharge,
+                                  })
+                                } else {
+                                  deleteCharge()
+                                }
+                              },
+                            },
+                            {
+                              icon: 'pen',
+                              tooltipCopy: translate('text_63e51ef4985f0ebd75c212fc'),
+                              onClick: () => openFixedChargeDrawer(),
+                            },
+                          ]}
+                        />
+                      }
+                      data-test={`fixed-charge-selector-${i}`}
+                      onClick={() => openFixedChargeDrawer()}
                     />
-                  </Tooltip>
-                </div>
-              ) : (
-                !isInSubscriptionForm && (
-                  <Button
-                    fitContent
-                    startIcon="plus"
-                    variant="inline"
-                    data-test="add-fixed-charge"
-                    onClick={() => {
-                      setShowAddFixedChargeCombobox(true)
-                      setTimeout(() => {
-                        ;(
-                          document.querySelector(
-                            `.${SEARCH_ADD_ON_FOR_FIXED_CHARGES_SECTION_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                          ) as HTMLElement
-                        )?.click()
-                      }, 0)
-                    }}
-                  >
-                    {translate('text_176072970726882uau5y69f1')}
-                  </Button>
-                )
-              )}
-            </div>
-          )}
-        </Card>
+                  )
+                })}
+              </div>
+            )}
+            {!isInSubscriptionForm && (
+              <Button
+                fitContent
+                startIcon="plus"
+                variant="inline"
+                data-test={FIXED_CHARGES_ADD_BUTTON_TEST_ID}
+                onClick={() => {
+                  fixedChargeDrawerRef.current?.openDrawer()
+                }}
+              >
+                {translate('text_176072970726882uau5y69f1')}
+              </Button>
+            )}
+          </div>
+        )}
+      </CenteredPage.PageSection>
 
-        <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} />
-      </>
-    )
-  },
-)
+      <FixedChargeDrawer
+        ref={fixedChargeDrawerRef}
+        disabled={isEdition && !canBeEdited}
+        isEdition={isEdition}
+        isInSubscriptionForm={isInSubscriptionForm}
+        onSave={handleDrawerSave}
+        onDelete={handleChargeDelete}
+        removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+      />
 
-FixedChargesSection.displayName = 'FixedChargesSection'
+      <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} />
+    </>
+  )
+}

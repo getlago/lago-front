@@ -1,9 +1,8 @@
+import type { AnyFormApi } from '@tanstack/react-form'
 import Decimal from 'decimal.js'
-import { FormikProps } from 'formik'
 import { useEffect, useMemo } from 'react'
 
-import { ChargeCursor } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
-import { LocalChargeFilterInput, PlanFormInput } from '~/components/plans/types'
+import { LocalChargeFilterInput } from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { PropertiesInput, VolumeRangeInput } from '~/generated/graphql'
 import { formataAnyToValueForChargeFormArrays } from '~/hooks/plans/utils'
@@ -32,18 +31,14 @@ type InfoCalculationRow = {
 }
 
 type UseVolumeChargeForm = ({
-  chargeCursor,
-  chargeIndex,
   disabled,
   propertyCursor,
-  setFieldValue,
+  form,
   valuePointer,
 }: {
-  chargeCursor: ChargeCursor
-  chargeIndex: number
   disabled?: boolean
   propertyCursor: string
-  setFieldValue: FormikProps<PlanFormInput>['setFieldValue']
+  form: Pick<AnyFormApi, 'setFieldValue'>
   valuePointer: PropertiesInput | LocalChargeFilterInput['properties'] | undefined
 }) => {
   handleUpdate: (rangeIndex: number, fieldName: string, value?: number | string) => void
@@ -54,23 +49,22 @@ type UseVolumeChargeForm = ({
 }
 
 export const useVolumeChargeForm: UseVolumeChargeForm = ({
-  chargeCursor,
-  chargeIndex,
   disabled,
   propertyCursor,
-  setFieldValue,
+  form,
   valuePointer,
 }) => {
-  const formikIdentifier = `${chargeCursor}.${chargeIndex}.${propertyCursor}.volumeRanges`
+  const setFieldValue = (path: string, value: unknown) => form.setFieldValue(path, value)
+  const attributeIdentifier = `${propertyCursor}.volumeRanges`
   const volumeRanges = useMemo(() => valuePointer?.volumeRanges || [], [valuePointer])
 
   useEffect(() => {
     if (!volumeRanges.length) {
       // if no existing charge, initialize it with 2 pre-filled lines
-      setFieldValue(formikIdentifier, DEFAULT_VOLUME_CHARGES)
+      setFieldValue(attributeIdentifier, DEFAULT_VOLUME_CHARGES)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formikIdentifier])
+  }, [attributeIdentifier])
 
   return {
     tableDatas: useMemo(
@@ -122,14 +116,11 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
         return acc
       }, [])
 
-      setFieldValue(
-        `${chargeCursor}.${chargeIndex}.${propertyCursor}.volumeRanges`,
-        newVolumeRanges,
-      )
+      setFieldValue(`${propertyCursor}.volumeRanges`, newVolumeRanges)
     },
     handleUpdate: (rangeIndex, fieldName, value) => {
       if (fieldName !== 'toValue') {
-        setFieldValue(`${formikIdentifier}.${rangeIndex}.${fieldName}`, value)
+        setFieldValue(`${attributeIdentifier}.${rangeIndex}.${fieldName}`, value)
       } else {
         const newVolumeRanges = volumeRanges.reduce<VolumeRangeInput[]>((acc, range, i) => {
           if (rangeIndex === i) {
@@ -152,7 +143,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
           return acc
         }, [])
 
-        setFieldValue(formikIdentifier, newVolumeRanges)
+        setFieldValue(attributeIdentifier, newVolumeRanges)
       }
     },
     deleteRange: (rangeIndex) => {
@@ -173,7 +164,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
       // Last row needs to has toValue null
       newVolumeRanges[newVolumeRanges.length - 1].toValue = null
 
-      setFieldValue(formikIdentifier, newVolumeRanges)
+      setFieldValue(attributeIdentifier, newVolumeRanges)
     },
   }
 }
