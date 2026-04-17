@@ -1,12 +1,11 @@
 import { renderHook } from '@testing-library/react'
 
 import { QuoteListItemFragment, StatusEnum } from '~/generated/graphql'
+import { testMockNavigateFn } from '~/test-utils'
 
 import { useQuoteVersionActions } from '../useQuoteVersionActions'
 
 const mockApproveQuote = jest.fn()
-const mockEditQuote = jest.fn()
-const mockVoidQuote = jest.fn()
 const mockOpenCloneDialog = jest.fn()
 const mockHasPermissions = jest.fn()
 
@@ -25,18 +24,6 @@ jest.mock('~/hooks/usePermissions', () => ({
 jest.mock('../useApproveQuote', () => ({
   useApproveQuote: () => ({
     approveQuote: mockApproveQuote,
-  }),
-}))
-
-jest.mock('../useEditQuote', () => ({
-  useEditQuote: () => ({
-    editQuote: mockEditQuote,
-  }),
-}))
-
-jest.mock('../useVoidQuote', () => ({
-  useVoidQuote: () => ({
-    voidQuote: mockVoidQuote,
   }),
 }))
 
@@ -107,7 +94,7 @@ describe('useQuoteVersionActions', () => {
     })
 
     describe('WHEN edit action is triggered', () => {
-      it('THEN should call editQuote with the version id', () => {
+      it('THEN should navigate to the edit quote route', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
         const actions = result.current.getActions(
@@ -116,12 +103,12 @@ describe('useQuoteVersionActions', () => {
 
         actions[1].onAction()
 
-        expect(mockEditQuote).toHaveBeenCalledWith('draft-1')
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/draft-1/edit')
       })
     })
 
     describe('WHEN void action is triggered', () => {
-      it('THEN should call voidQuote with the version id', () => {
+      it('THEN should navigate to the void quote route', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
         const actions = result.current.getActions(
@@ -130,7 +117,7 @@ describe('useQuoteVersionActions', () => {
 
         actions[2].onAction()
 
-        expect(mockVoidQuote).toHaveBeenCalledWith('draft-1')
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/draft-1/void')
       })
     })
 

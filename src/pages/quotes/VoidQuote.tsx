@@ -56,56 +56,53 @@ const VoidQuote = () => {
 
   const [cloneQuote] = useCloneQuoteMutation()
 
-  const onSubmit = async () => {
-    if (quoteId) {
-      const result = await voidQuote({
-        variables: {
-          input: {
-            id: quoteId,
-            reason: VoidReasonEnum.Manual,
-          },
+  const performVoid = async () => {
+    if (!quoteId) return null
+
+    const result = await voidQuote({
+      variables: {
+        input: {
+          id: quoteId,
+          reason: VoidReasonEnum.Manual,
         },
+      },
+    })
+
+    return result.data?.voidQuote ?? null
+  }
+
+  const onSubmit = async () => {
+    const voided = await performVoid()
+
+    if (voided) {
+      addToast({
+        severity: 'success',
+        translateKey: 'text_1776414006125gijz56nk7sv',
       })
 
-      if (result.data?.voidQuote) {
-        addToast({
-          severity: 'success',
-          translateKey: 'text_1776414006125gijz56nk7sv',
-        })
-
-        navigate(
-          generatePath(QUOTE_DETAILS_ROUTE, {
-            quoteId,
-            tab: QuoteDetailsTabsOptionsEnum.overview,
-          }),
-        )
-      }
+      navigate(
+        generatePath(QUOTE_DETAILS_ROUTE, {
+          quoteId: quoteId as string,
+          tab: QuoteDetailsTabsOptionsEnum.overview,
+        }),
+      )
     }
   }
 
   const onVoidAndGenerateNewVersion = async () => {
-    if (quoteId) {
-      const voidResult = await voidQuote({
-        variables: {
-          input: {
-            id: quoteId,
-            reason: VoidReasonEnum.Manual,
-          },
-        },
+    const voided = await performVoid()
+
+    if (voided && quoteId) {
+      const cloneResult = await cloneQuote({
+        variables: { input: { id: quoteId } },
       })
 
-      if (voidResult.data?.voidQuote) {
-        const cloneResult = await cloneQuote({
-          variables: { input: { id: quoteId } },
-        })
-
-        if (cloneResult.data?.cloneQuote) {
-          navigate(
-            generatePath(EDIT_QUOTE_ROUTE, {
-              quoteId: cloneResult.data.cloneQuote.id,
-            }),
-          )
-        }
+      if (cloneResult.data?.cloneQuote) {
+        navigate(
+          generatePath(EDIT_QUOTE_ROUTE, {
+            quoteId: cloneResult.data.cloneQuote.id,
+          }),
+        )
       }
     }
   }

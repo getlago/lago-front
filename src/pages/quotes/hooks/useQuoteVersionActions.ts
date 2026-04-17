@@ -1,13 +1,13 @@
 import { IconName } from 'lago-design-system'
+import { generatePath, useNavigate } from 'react-router-dom'
 
+import { EDIT_QUOTE_ROUTE, VOID_QUOTE_ROUTE } from '~/core/router'
 import { QuoteListItemFragment, StatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { useApproveQuote } from './useApproveQuote'
 import { useCloneQuote } from './useCloneQuote'
-import { useEditQuote } from './useEditQuote'
-import { useVoidQuote } from './useVoidQuote'
 
 export interface QuoteVersionAction {
   icon: IconName
@@ -18,9 +18,8 @@ export interface QuoteVersionAction {
 export const useQuoteVersionActions = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
+  const navigate = useNavigate()
   const { approveQuote } = useApproveQuote()
-  const { editQuote } = useEditQuote()
-  const { voidQuote } = useVoidQuote()
   const { openCloneDialog } = useCloneQuote()
 
   const getActions = (version: QuoteListItemFragment): QuoteVersionAction[] => {
@@ -43,7 +42,7 @@ export const useQuoteVersionActions = () => {
         actions.push({
           icon: 'pen',
           label: translate('text_17764140061256c7yby4p5ze'),
-          onAction: () => editQuote(id),
+          onAction: () => navigate(generatePath(EDIT_QUOTE_ROUTE, { quoteId: id })),
         })
       }
 
@@ -51,7 +50,7 @@ export const useQuoteVersionActions = () => {
         actions.push({
           icon: 'stop',
           label: translate('text_1776414006125xh19d6399qv'),
-          onAction: () => voidQuote(id),
+          onAction: () => navigate(generatePath(VOID_QUOTE_ROUTE, { quoteId: id })),
         })
       }
     }
