@@ -3,7 +3,6 @@ import { screen } from '@testing-library/react'
 import { OrderTypeEnum, QuoteDetailItemFragment, StatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { useQuotes } from '../hooks/useQuotes'
 import QuoteDetailsVersions, { QUOTE_VERSIONS_TABLE_TEST_ID } from '../QuoteDetailsVersions'
 
 const mockIntersectionObserver = jest.fn()
@@ -29,12 +28,6 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
     }),
   }),
 }))
-
-jest.mock('../hooks/useQuotes', () => ({
-  useQuotes: jest.fn(),
-}))
-
-const mockUseQuotes = useQuotes as jest.MockedFunction<typeof useQuotes>
 
 const mockVersions = [
   {
@@ -78,34 +71,35 @@ const mockQuote: QuoteDetailItemFragment = {
   ],
 }
 
+const defaultProps = {
+  quote: mockQuote,
+  versions: mockVersions,
+  versionsLoading: false,
+  fetchMore: jest.fn(),
+  metadata: { currentPage: 1, totalPages: 1, totalCount: 2 },
+}
+
 describe('QuoteDetailsVersions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockUseQuotes.mockReturnValue({
-      quotes: mockVersions,
-      loading: false,
-      error: undefined,
-      fetchMore: jest.fn(),
-      metadata: { currentPage: 1, totalPages: 1, totalCount: 2 },
-    })
   })
 
   describe('GIVEN the component is rendered with a quote', () => {
     describe('WHEN displaying quote details', () => {
       it('THEN should render the versions section', () => {
-        render(<QuoteDetailsVersions quote={mockQuote} />)
+        render(<QuoteDetailsVersions {...defaultProps} />)
 
         expect(screen.getByTestId(QUOTE_VERSIONS_TABLE_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should display the quote number', () => {
-        render(<QuoteDetailsVersions quote={mockQuote} />)
+        render(<QuoteDetailsVersions {...defaultProps} />)
 
         expect(screen.getByText('QT-2026-0042')).toBeInTheDocument()
       })
 
       it('THEN should display the customer name and external id', () => {
-        render(<QuoteDetailsVersions quote={mockQuote} />)
+        render(<QuoteDetailsVersions {...defaultProps} />)
 
         expect(screen.getByText('Acme Corp - ext-acme-001')).toBeInTheDocument()
       })
@@ -131,23 +125,15 @@ describe('QuoteDetailsVersions', () => {
     })
 
     describe('WHEN displaying the versions table', () => {
-      it('THEN should call useQuotes with the quote number', () => {
-        render(<QuoteDetailsVersions quote={mockQuote} />)
-
-        expect(mockUseQuotes).toHaveBeenCalledWith(
-          expect.objectContaining({ number: ['QT-2026-0042'] }),
-        )
-      })
-
       it('THEN should render version rows', () => {
-        render(<QuoteDetailsVersions quote={mockQuote} />)
+        render(<QuoteDetailsVersions {...defaultProps} />)
 
         expect(screen.getByTestId('table-row-0')).toBeInTheDocument()
         expect(screen.getByTestId('table-row-1')).toBeInTheDocument()
       })
 
       it('THEN should display version numbers with quote number', () => {
-        render(<QuoteDetailsVersions quote={mockQuote} />)
+        render(<QuoteDetailsVersions {...defaultProps} />)
 
         expect(screen.getByText('QT-2026-0042 - v2')).toBeInTheDocument()
         expect(screen.getByText('QT-2026-0042 - v1')).toBeInTheDocument()
@@ -157,15 +143,14 @@ describe('QuoteDetailsVersions', () => {
 
   describe('GIVEN the versions are loading', () => {
     it('THEN should pass loading to the table', () => {
-      mockUseQuotes.mockReturnValue({
-        quotes: [],
-        loading: true,
-        error: undefined,
-        fetchMore: jest.fn(),
-        metadata: undefined,
-      })
-
-      render(<QuoteDetailsVersions quote={mockQuote} />)
+      render(
+        <QuoteDetailsVersions
+          {...defaultProps}
+          versions={[]}
+          versionsLoading={true}
+          metadata={undefined}
+        />,
+      )
 
       expect(screen.getByTestId('table-quote-versions')).toBeInTheDocument()
     })

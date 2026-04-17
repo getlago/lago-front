@@ -25,10 +25,13 @@ const QuoteDetails = (): JSX.Element => {
   const navigate = useNavigate()
   const { quoteId } = useParams()
   const { quote, loading } = useQuote(quoteId)
-  const { quotes: latestVersions } = useQuotes(
-    quote ? { number: [quote.number], latestVersionOnly: true } : undefined,
-  )
-  const latestVersion = latestVersions[0]
+  const {
+    quotes: versions,
+    loading: versionsLoading,
+    fetchMore,
+    metadata,
+  } = useQuotes(quote ? { number: [quote.number], latestVersionOnly: false } : undefined)
+  const latestVersion = versions[0]
 
   const { hasPermissions } = usePermissions()
   const { approveQuote } = useApproveQuote()
@@ -134,7 +137,15 @@ const QuoteDetails = (): JSX.Element => {
               quoteId: quoteId as string,
               tab: QuoteDetailsTabsOptionsEnum.overview,
             }),
-            content: quote ? <QuoteDetailsVersions quote={quote} /> : null,
+            content: quote ? (
+              <QuoteDetailsVersions
+                quote={quote}
+                versions={versions}
+                versionsLoading={versionsLoading}
+                fetchMore={fetchMore}
+                metadata={metadata}
+              />
+            ) : null,
           },
           {
             title: translate('text_17757461968258p4ij8g74zp'),

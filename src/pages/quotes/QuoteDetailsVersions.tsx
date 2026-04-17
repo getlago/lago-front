@@ -1,3 +1,4 @@
+import { FetchMoreQueryOptions, OperationVariables } from '@apollo/client'
 import { Fragment } from 'react'
 
 import { Chip } from '~/components/designSystem/Chip'
@@ -7,7 +8,12 @@ import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { QuoteDetailItemFragment, QuoteListItemFragment, StatusEnum } from '~/generated/graphql'
+import {
+  GetQuotesQuery,
+  QuoteDetailItemFragment,
+  QuoteListItemFragment,
+  StatusEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -17,27 +23,31 @@ import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
 import { useApproveQuote } from './hooks/useApproveQuote'
 import { useCloneQuote } from './hooks/useCloneQuote'
 import { useEditQuote } from './hooks/useEditQuote'
-import { useQuotes } from './hooks/useQuotes'
 import { useVoidQuote } from './hooks/useVoidQuote'
 
 interface QuoteDetailsVersionsProps {
   quote: QuoteDetailItemFragment
+  versions: QuoteListItemFragment[]
+  versionsLoading: boolean
+  fetchMore:
+    | ((
+        fetchMoreOptions: FetchMoreQueryOptions<OperationVariables, GetQuotesQuery>,
+      ) => Promise<unknown>)
+    | undefined
+  metadata: GetQuotesQuery['quotes']['metadata'] | undefined
 }
 
 export const QUOTE_VERSIONS_TABLE_TEST_ID = 'quote-versions-table'
 
-const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element => {
+const QuoteDetailsVersions = ({
+  quote,
+  versions,
+  versionsLoading: loading,
+  fetchMore,
+  metadata,
+}: QuoteDetailsVersionsProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const {
-    quotes: versions,
-    loading,
-    fetchMore,
-    metadata,
-  } = useQuotes({
-    number: [quote.number],
-    latestVersionOnly: false,
-  })
 
   const { hasPermissions } = usePermissions()
   const { approveQuote } = useApproveQuote()
