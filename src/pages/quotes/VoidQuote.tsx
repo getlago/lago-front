@@ -208,7 +208,7 @@ const VoidQuote = () => {
 
       <CenteredPage.StickyFooter>
         <div className="flex w-full items-center justify-between">
-          <Button variant="primary" danger onClick={() => onSubmit()}>
+          <Button variant="inline" danger onClick={() => onSubmit()}>
             {translate('text_177641400612565v4yq2wx1u')}
           </Button>
 
