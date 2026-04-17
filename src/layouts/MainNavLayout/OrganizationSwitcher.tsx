@@ -84,9 +84,11 @@ export const OrganizationSwitcher = ({
     setIsSwitchingOrg(true)
 
     try {
+      const targetOrg = organizationList?.find((org) => org.id === organizationId)
+
       await switchCurrentOrganization(client, organizationId)
 
-      navigate(HOME_ROUTE)
+      navigate(`/${targetOrg?.slug}${HOME_ROUTE}`)
 
       const refetchPromises = [refetchOrganizationInfos(), refetchCurrentUserInfos()]
 

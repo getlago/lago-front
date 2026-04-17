@@ -8,15 +8,18 @@ import { objectCreationRoutes, objectDetailsRoutes, objectListRoutes } from './O
 import { settingRoutes } from './SettingRoutes'
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
+import { makeRelative } from './utils/makeRelative'
 
 const { appEnv } = envGlobalVar()
 
 // ----------- Layouts -----------
 const SideNavLayout = lazyLoad(() => import('~/layouts/MainNavLayout/MainNavLayout'))
+const OrganizationLayout = lazyLoad(() => import('~/layouts/OrganizationLayout'))
 
 // ----------- Pages -----------
 const Home = lazyLoad(() => import('~/pages/Home'))
 const Error404 = lazyLoad(() => import('~/pages/Error404'))
+const Error404InApp = lazyLoad(() => import('~/pages/Error404InApp'))
 const Forbidden = lazyLoad(() => import('~/pages/Forbidden'))
 const Analytic = lazyLoad(() => import('~/pages/Analytics'))
 const AnalyticsV2 = lazyLoad(() => import('~/pages/AnalyticsV2'))
@@ -25,6 +28,10 @@ const UsageBillableMetric = lazyLoad(() => import('~/pages/analytics/UsageBillab
 
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
+
+// ----------- Route constants -----------
+// These remain absolute — used by navigate() calls throughout the app.
+// Phase 3 wrappers will auto-prepend the slug at navigation time.
 
 export const HOME_ROUTE = '/'
 export const FORBIDDEN_ROUTE = '/forbidden'
@@ -40,6 +47,56 @@ export const ERROR_404_ROUTE = '/404'
 export const ONLY_DEV_DESIGN_SYSTEM_ROUTE = `/design-system`
 export const ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE = `${ONLY_DEV_DESIGN_SYSTEM_ROUTE}/:tab`
 
+// ----------- Inline routes -----------
+// Defined with absolute paths for consistency with exported route constants.
+// Passed through makeRelative() below so they can nest under :organizationSlug.
+
+const analyticsInlineRoutes: CustomRouteObject[] = [
+  {
+    path: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
+    private: true,
+    element: <Analytic />,
+    // IMPORTANT: This is not 100% correct but can be fixed later.
+    // Those 2 permissions are not the same and refer to the old and new analytics access, but are defined with the same restrictions per role
+    // To preserve cached last visited route and prevent broken redirection I prefer to keepboth in the same place and not fix this now.
+    // Maybe analyticsView will be removed in the future
+    permissions: ['analyticsView', 'dataApiView'],
+  },
+  {
+    path: [ANALYTICS_V2_ROUTE, ANALYTICS_V2_TABS_ROUTE],
+    private: true,
+    element: <AnalyticsV2 />,
+    // IMPORTANT: This is not 100% correct but can be fixed later.
+    // Those 2 permissions are not the same and refer to the old and new analytics access, but are defined with the same restrictions per role
+    // To preserve cached last visited route and prevent broken redirection I prefer to keepboth in the same place and not fix this now.
+    // Maybe analyticsView will be removed in the future
+    permissions: ['analyticsView', 'dataApiView'],
+  },
+  {
+    path: ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE,
+    private: true,
+    element: <UsageBillableMetric />,
+    permissions: ['analyticsView', 'dataApiView'],
+  },
+  {
+    path: FORECASTS_ROUTE,
+    private: true,
+    element: <Forecasts />,
+    permissions: ['analyticsView', 'dataApiView'],
+  },
+]
+
+const devOnlyInlineRoutes: CustomRouteObject[] = [AppEnvEnum.qa, AppEnvEnum.development].includes(
+  appEnv,
+)
+  ? [
+      {
+        path: [ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE],
+        element: <DesignSystem />,
+      },
+    ]
+  : []
+
 export const routes: CustomRouteObject[] = [
   {
     path: '*',
@@ -53,66 +110,45 @@ export const routes: CustomRouteObject[] = [
     path: FORBIDDEN_ROUTE,
     element: <Forbidden />,
   },
-  ...settingRoutes,
   {
-    element: <SideNavLayout />,
+    // Root redirect hub — lives OUTSIDE :organizationSlug.
+    // Home.tsx resolves the slug from currentUser.memberships and
+    // navigates to /${slug}/... based on SSO saved path, router saved
+    // path, or permission-based default.
+    path: HOME_ROUTE,
+    element: <Home />,
+    private: true,
+  },
+  {
+    path: ':organizationSlug',
+    element: <OrganizationLayout />,
     private: true,
     children: [
       {
-        path: [HOME_ROUTE],
-        private: true,
-        element: <Home />,
+        element: <SideNavLayout />,
+        children: [
+          {
+            index: true,
+            element: <Home />,
+          },
+          ...makeRelative(analyticsInlineRoutes),
+          ...makeRelative(customerRoutes),
+          ...makeRelative(objectListRoutes),
+          ...makeRelative(objectDetailsRoutes),
+          ...makeRelative(devOnlyInlineRoutes),
+          {
+            path: '*',
+            element: <Error404InApp />,
+          },
+        ],
       },
-      {
-        path: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
-        private: true,
-        element: <Analytic />,
-        // IMPORTANT: This is not 100% correct but can be fixed later.
-        // Those 2 permissions are not the same and refer to the old and new analytics access, but are defined with the same restrictions per role
-        // To preserve cached last visited route and prevent broken redirection I prefer to keepboth in the same place and not fix this now.
-        // Maybe analyticsView will be removed in the future
-        permissions: ['analyticsView', 'dataApiView'],
-      },
-      {
-        path: [ANALYTICS_V2_ROUTE, ANALYTICS_V2_TABS_ROUTE],
-        private: true,
-        element: <AnalyticsV2 />,
-        // IMPORTANT: This is not 100% correct but can be fixed later.
-        // Those 2 permissions are not the same and refer to the old and new analytics access, but are defined with the same restrictions per role
-        // To preserve cached last visited route and prevent broken redirection I prefer to keepboth in the same place and not fix this now.
-        // Maybe analyticsView will be removed in the future
-        permissions: ['analyticsView', 'dataApiView'],
-      },
-      {
-        path: ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE,
-        private: true,
-        element: <UsageBillableMetric />,
-        permissions: ['analyticsView', 'dataApiView'],
-      },
-      {
-        path: FORECASTS_ROUTE,
-        private: true,
-        element: <Forecasts />,
-        permissions: ['analyticsView', 'dataApiView'],
-      },
-
-      ...customerRoutes,
-      ...objectListRoutes,
-      ...objectDetailsRoutes,
-      ...([AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv)
-        ? [
-            {
-              path: [ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE],
-              element: <DesignSystem />,
-            },
-          ]
-        : []),
+      ...makeRelative(settingRoutes),
+      ...makeRelative(customerObjectCreationRoutes),
+      ...makeRelative(customerVoidRoutes),
+      ...makeRelative(objectCreationRoutes),
     ],
   },
   ...authRoutes,
-  ...customerObjectCreationRoutes,
-  ...customerVoidRoutes,
-  ...objectCreationRoutes,
   ...customerPortalRoutes,
 ]
 
