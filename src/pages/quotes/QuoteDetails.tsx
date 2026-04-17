@@ -14,6 +14,7 @@ import { useApproveQuote } from './hooks/useApproveQuote'
 import { useCloneQuote } from './hooks/useCloneQuote'
 import { useEditQuote } from './hooks/useEditQuote'
 import { useQuote } from './hooks/useQuote'
+import { useQuotes } from './hooks/useQuotes'
 import { useVoidQuote } from './hooks/useVoidQuote'
 import OrderFormsList from './OrderFormsList'
 import QuoteDetailsActivityLogs from './QuoteDetailsActivityLogs'
@@ -24,6 +25,10 @@ const QuoteDetails = (): JSX.Element => {
   const navigate = useNavigate()
   const { quoteId } = useParams()
   const { quote, loading } = useQuote(quoteId)
+  const { quotes: latestVersions } = useQuotes(
+    quote ? { number: [quote.number], latestVersionOnly: true } : undefined,
+  )
+  const latestVersion = latestVersions[0]
 
   const { hasPermissions } = usePermissions()
   const { approveQuote } = useApproveQuote()
@@ -40,17 +45,17 @@ const QuoteDetails = (): JSX.Element => {
   const activeTabContent = useMainHeaderTabContent()
 
   const headerActions: MainHeaderAction[] = (() => {
-    if (!quote || quote.status === StatusEnum.Approved) return []
+    if (!latestVersion || latestVersion.status === StatusEnum.Approved) return []
 
     const items = []
 
-    if (quote.status === StatusEnum.Draft) {
+    if (latestVersion.status === StatusEnum.Draft) {
       if (hasPermissions(['quotesApprove'])) {
         items.push({
           label: translate('text_1776414006125k6n9d1baloi'),
           startIcon: 'checkmark' as const,
           onClick: (closePopper: () => void) => {
-            approveQuote(quote.id)
+            approveQuote(latestVersion.id)
             closePopper()
           },
         })
@@ -61,7 +66,7 @@ const QuoteDetails = (): JSX.Element => {
           label: translate('text_17764140061256c7yby4p5ze'),
           startIcon: 'pen' as const,
           onClick: (closePopper: () => void) => {
-            editQuote(quote.id)
+            editQuote(latestVersion.id)
             closePopper()
           },
         })
@@ -72,7 +77,7 @@ const QuoteDetails = (): JSX.Element => {
           label: translate('text_1776414006125xh19d6399qv'),
           startIcon: 'stop' as const,
           onClick: (closePopper: () => void) => {
-            voidQuote(quote.id)
+            voidQuote(latestVersion.id)
             closePopper()
           },
         })
@@ -84,7 +89,10 @@ const QuoteDetails = (): JSX.Element => {
         label: translate('text_17764140061251m8snap6nft'),
         startIcon: 'duplicate' as const,
         onClick: (closePopper: () => void) => {
-          openCloneDialog(quote.id, `${quote.number} - v${quote.version}`)
+          openCloneDialog(
+            latestVersion.id,
+            `${latestVersion.number} - v${latestVersion.version}`,
+          )
           closePopper()
         },
       })
