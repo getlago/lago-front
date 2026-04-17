@@ -10,11 +10,12 @@ import { Typography } from '~/components/designSystem/Typography'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { QUOTE_DETAILS_ROUTE } from '~/core/router'
-import { useVoidQuoteMutation, VoidReasonEnum } from '~/generated/graphql'
+import { EDIT_QUOTE_ROUTE, QUOTE_DETAILS_ROUTE } from '~/core/router'
+import { useCloneQuoteMutation, useVoidQuoteMutation, VoidReasonEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
@@ -39,10 +40,28 @@ const VoidQuote = () => {
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   const { quote, loading, error } = useQuote(quoteId)
+  const { hasPermissions } = usePermissions()
+
+  const canVoidAndGenerate = hasPermissions(['quotesVoid', 'quotesClone'])
 
   const [voidQuote] = useVoidQuoteMutation({
-    onCompleted(data) {
-      if (data?.voidQuote && quoteId) {
+    refetchQueries: ['getQuotes'],
+  })
+
+  const [cloneQuote] = useCloneQuoteMutation()
+
+  const onSubmit = async () => {
+    if (quoteId) {
+      const result = await voidQuote({
+        variables: {
+          input: {
+            id: quoteId,
+            reason: VoidReasonEnum.Manual,
+          },
+        },
+      })
+
+      if (result.data?.voidQuote) {
         addToast({
           severity: 'success',
           translateKey: 'text_1776414006125gijz56nk7sv',
@@ -55,13 +74,12 @@ const VoidQuote = () => {
           }),
         )
       }
-    },
-    refetchQueries: ['getQuotes'],
-  })
+    }
+  }
 
-  const onSubmit = async () => {
+  const onVoidAndGenerateNewVersion = async () => {
     if (quoteId) {
-      await voidQuote({
+      const voidResult = await voidQuote({
         variables: {
           input: {
             id: quoteId,
@@ -69,6 +87,20 @@ const VoidQuote = () => {
           },
         },
       })
+
+      if (voidResult.data?.voidQuote) {
+        const cloneResult = await cloneQuote({
+          variables: { input: { id: quoteId } },
+        })
+
+        if (cloneResult.data?.cloneQuote) {
+          navigate(
+            generatePath(EDIT_QUOTE_ROUTE, {
+              quoteId: cloneResult.data.cloneQuote.id,
+            }),
+          )
+        }
+      }
     }
   }
 
@@ -175,13 +207,23 @@ const VoidQuote = () => {
       )}
 
       <CenteredPage.StickyFooter>
-        <div className="flex w-full items-center justify-end gap-3">
-          <Button variant="quaternary" onClick={() => onClose()}>
-            {translate('text_6411e6b530cb47007488b027')}
-          </Button>
-          <Button variant="primary" danger onClick={() => onSubmit()}>
-            {translate('text_177641400612565v4yq2wx1u')}
-          </Button>
+        <div className="flex w-full items-center justify-between">
+          <div>
+            {canVoidAndGenerate && (
+              <Button variant="inline" onClick={() => onVoidAndGenerateNewVersion()}>
+                {translate('text_17764159264034mafl126pox')}
+              </Button>
+            )}
+          </div>
+
+          <div className="flex gap-3">
+            <Button variant="quaternary" onClick={() => onClose()}>
+              {translate('text_6411e6b530cb47007488b027')}
+            </Button>
+            <Button variant="primary" danger onClick={() => onSubmit()}>
+              {translate('text_177641400612565v4yq2wx1u')}
+            </Button>
+          </div>
         </div>
       </CenteredPage.StickyFooter>
     </CenteredPage.Wrapper>
