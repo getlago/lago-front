@@ -165,6 +165,9 @@ const VoidQuote = () => {
             </div>
 
             <div className="flex flex-col gap-6">
+              <Typography variant="subhead1">
+                {translate('text_1776417249197vhv63ozviur')}
+              </Typography>
               <Table
                 name="quote-void-details"
                 data={quote ? [quote] : []}
