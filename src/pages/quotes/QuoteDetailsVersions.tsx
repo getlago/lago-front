@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
 
+import { Chip } from '~/components/designSystem/Chip'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
@@ -79,6 +80,16 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
     {
       label: translate('text_6560809c38fb9de88d8a52fb'),
       value: translate(getQuoteOrderTypeTranslationKey(quote.orderType)),
+    },
+    {
+      label: translate('text_1776429591588dnpx1guz0cl'),
+      value: (
+        <div className="flex flex-row gap-4">
+          {(quote.owners || []).map((owner) => (
+            <Chip key={owner.id} label={owner.email} />
+          ))}
+        </div>
+      ),
     },
   ]
 
