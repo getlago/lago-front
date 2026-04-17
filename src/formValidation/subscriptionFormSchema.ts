@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { BillingTimeEnum } from '~/generated/graphql'
+import { ActivationRuleFormEnum } from '~/pages/subscriptions/types'
 
 export interface SubscriptionFormValues {
   planId: string
@@ -14,6 +15,18 @@ export interface SubscriptionFormValues {
   billingTime: BillingTimeEnum
   paymentMethod?: SelectedPaymentMethod
   invoiceCustomSection?: InvoiceCustomSectionInput
+  activationRuleType: ActivationRuleFormEnum
+  activationRuleTimeoutHours?: string
+}
+
+export const subscriptionFormDefaultValues: SubscriptionFormValues = {
+  planId: '',
+  name: '',
+  externalId: '',
+  subscriptionAt: '',
+  billingTime: BillingTimeEnum.Calendar,
+  activationRuleType: ActivationRuleFormEnum.Immediately,
+  activationRuleTimeoutHours: '24',
 }
 
 export const subscriptionFormSchema = z
@@ -55,6 +68,19 @@ export const subscriptionFormSchema = z
           code: 'custom',
           message: 'text_64ef55a730b88e3d2117b3d4',
           path: ['endingAt'],
+        })
+      }
+    }
+
+    if (data.activationRuleType === ActivationRuleFormEnum.OnPayment) {
+      const raw = data.activationRuleTimeoutHours
+      const parsed = raw === '' || raw === undefined || raw === null ? NaN : Number(raw)
+
+      if (!Number.isInteger(parsed) || parsed < 0) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'text_624ea7c29103fd010732ab7d',
+          path: ['activationRuleTimeoutHours'],
         })
       }
     }

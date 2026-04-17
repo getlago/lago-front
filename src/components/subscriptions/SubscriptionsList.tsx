@@ -163,7 +163,8 @@ const generateActionColumn = ({
 
   if (
     subscription.status === StatusTypeEnum.Terminated ||
-    subscription.status === StatusTypeEnum.Canceled
+    subscription.status === StatusTypeEnum.Canceled ||
+    subscription.status === StatusTypeEnum.Incomplete
   ) {
     return [copyToClipboardAction]
   }

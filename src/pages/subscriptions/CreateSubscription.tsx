@@ -40,6 +40,7 @@ import PremiumFeature from '~/components/premium/PremiumFeature'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { FeatureEntitlementSection } from '~/components/subscriptions/FeatureEntitlementSection'
 import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
+import { SubscriptionActivationRuleSection } from '~/components/subscriptions/SubscriptionActivationRuleSection'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -49,6 +50,10 @@ import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
 } from '~/core/router'
+import {
+  deserializeActivationRules,
+  serializeActivationRules,
+} from '~/core/serializers/serializeActivationRules'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   subscriptionFormSchema,
@@ -140,6 +145,13 @@ gql`
         name
         code
       }
+      activationRules {
+        id
+        type
+        timeoutHours
+        status
+        expiresAt
+      }
       plan {
         id
         parent {
@@ -160,22 +172,30 @@ const buildSubscriptionDefaultValues = (
   sub: SubscriptionData,
   ft: string,
   currentDate: string,
-): SubscriptionFormValues => ({
-  planId: ft !== FORM_TYPE_ENUM.upgradeDowngrade ? sub?.plan?.id || '' : '',
-  name: ft !== FORM_TYPE_ENUM.upgradeDowngrade ? sub?.name || '' : '',
-  externalId: sub?.externalId || '',
-  subscriptionAt: sub?.subscriptionAt || currentDate,
-  endingAt: sub?.endingAt || undefined,
-  billingTime: sub?.billingTime || BillingTimeEnum.Calendar,
-  paymentMethod: {
-    paymentMethodType: sub?.paymentMethodType,
-    paymentMethodId: sub?.paymentMethod?.id,
-  },
-  invoiceCustomSection: {
-    invoiceCustomSections: sub?.selectedInvoiceCustomSections || [],
-    skipInvoiceCustomSections: sub?.skipInvoiceCustomSections || false,
-  },
-})
+): SubscriptionFormValues => {
+  const { activationRuleType, activationRuleTimeoutHours } = deserializeActivationRules(
+    sub?.activationRules,
+  )
+
+  return {
+    planId: ft !== FORM_TYPE_ENUM.upgradeDowngrade ? sub?.plan?.id || '' : '',
+    name: ft !== FORM_TYPE_ENUM.upgradeDowngrade ? sub?.name || '' : '',
+    externalId: sub?.externalId || '',
+    subscriptionAt: sub?.subscriptionAt || currentDate,
+    endingAt: sub?.endingAt || undefined,
+    billingTime: sub?.billingTime || BillingTimeEnum.Calendar,
+    paymentMethod: {
+      paymentMethodType: sub?.paymentMethodType,
+      paymentMethodId: sub?.paymentMethod?.id,
+    },
+    invoiceCustomSection: {
+      invoiceCustomSections: sub?.selectedInvoiceCustomSections || [],
+      skipInvoiceCustomSections: sub?.skipInvoiceCustomSections || false,
+    },
+    activationRuleType,
+    activationRuleTimeoutHours,
+  }
+}
 
 const CreateSubscription = () => {
   const location = useLocation()
@@ -225,12 +245,21 @@ const CreateSubscription = () => {
       onDynamic: subscriptionFormSchema,
     },
     onSubmit: async ({ value }) => {
-      const { invoiceCustomSection, ...restValues } = value
+      const {
+        invoiceCustomSection,
+        activationRuleType,
+        activationRuleTimeoutHours,
+        ...restValues
+      } = value
 
       const localValues = {
         id: formType === FORM_TYPE_ENUM.edition ? subscription?.id : undefined,
         ...restValues,
         invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
+        activationRules: serializeActivationRules(
+          activationRuleType,
+          activationRuleTimeoutHours ?? '',
+        ),
       }
       const rootElement = document.getElementById('root')
       const errorsString = await onSave(
@@ -799,6 +828,21 @@ const CreateSubscription = () => {
                               } as PaymentMethodsInvoiceSettingsProps<ViewTypeEnum.Subscription>['formikProps']
                             }
                             viewType={ViewTypeEnum.Subscription}
+                          />
+                        </CenteredPage.PageSection>
+                      )}
+
+                      {/* Section: Activation rule */}
+                      {(customer?.externalId || customer?.id) && (
+                        <CenteredPage.PageSection>
+                          <CenteredPage.PageSectionTitle
+                            title={translate('text_17743520804341uzgeu20x8b')}
+                          />
+                          <SubscriptionActivationRuleSection
+                            form={subscriptionForm}
+                            customerExternalId={customer?.externalId ?? ''}
+                            formType={formType}
+                            subscriptionStatus={subscription?.status}
                           />
                         </CenteredPage.PageSection>
                       )}

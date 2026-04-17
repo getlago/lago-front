@@ -1,6 +1,7 @@
 import { Settings } from 'luxon'
 
 import { BillingTimeEnum } from '~/generated/graphql'
+import { ActivationRuleFormEnum } from '~/pages/subscriptions/types'
 
 import { subscriptionFormSchema, SubscriptionFormValues } from '../subscriptionFormSchema'
 
@@ -17,6 +18,8 @@ const buildValidValues = (
   billingTime: BillingTimeEnum.Calendar,
   paymentMethod: undefined,
   invoiceCustomSection: undefined,
+  activationRuleType: ActivationRuleFormEnum.Immediately,
+  activationRuleTimeoutHours: undefined,
   ...overrides,
 })
 

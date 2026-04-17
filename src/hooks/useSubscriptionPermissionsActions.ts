@@ -10,7 +10,11 @@ export const useSubscriptionPermissionsActions = () => {
   const isStatusEditable = (status: StatusTypeEnum | null | undefined): boolean => {
     if (!status) return false
 
-    return status !== StatusTypeEnum.Terminated && status !== StatusTypeEnum.Canceled
+    return (
+      status !== StatusTypeEnum.Terminated &&
+      status !== StatusTypeEnum.Canceled &&
+      status !== StatusTypeEnum.Incomplete
+    )
   }
 
   /**
