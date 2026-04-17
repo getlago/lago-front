@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react'
 import { LocalChargeFilterInput } from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { GraduatedRangeInput, PropertiesInput } from '~/generated/graphql'
-import { formataAnyToValueForChargeFormArrays } from '~/hooks/plans/utils'
+import { formatAnyToValueForChargeFormArrays } from '~/hooks/plans/utils'
 
 type RangeType = GraduatedRangeInput & { disabledDelete: boolean }
 type InfoCalculationRow = {
@@ -174,7 +174,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
               // fromValue should always be toValueOfPreviousRange + GRADUATED_TIER_PRECISION_GAP
               const { toValue } = acc[i - 1]
               const fromValue = bumpByTierGap(toValue || 0)
-              const formattedToValue = formataAnyToValueForChargeFormArrays(
+              const formattedToValue = formatAnyToValueForChargeFormArrays(
                 range.toValue,
                 fromValue,
                 GRADUATED_TIER_PRECISION_GAP,

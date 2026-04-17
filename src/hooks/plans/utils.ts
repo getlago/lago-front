@@ -1,4 +1,4 @@
-export const formataAnyToValueForChargeFormArrays = (
+export const formatAnyToValueForChargeFormArrays = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   toValue: any,
   fromValue: number | string,
