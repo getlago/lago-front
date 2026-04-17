@@ -113,6 +113,50 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
       : []),
   ]
 
+  const versionActionColumn = (version: QuoteListItemFragment) => {
+    const { id, status, number, version: versionNumber } = version
+
+    if (status === StatusEnum.Approved) return null
+
+    const actions = []
+
+    if (status === StatusEnum.Draft) {
+      if (canApprove) {
+        actions.push({
+          startIcon: 'checkmark' as const,
+          title: translate('text_1776414006125k6n9d1baloi'),
+          onAction: () => approveQuote(id),
+        })
+      }
+
+      if (canUpdate) {
+        actions.push({
+          startIcon: 'pen' as const,
+          title: translate('text_17764140061256c7yby4p5ze'),
+          onAction: () => editQuote(id),
+        })
+      }
+
+      if (canVoid) {
+        actions.push({
+          startIcon: 'stop' as const,
+          title: translate('text_1776414006125xh19d6399qv'),
+          onAction: () => voidQuote(id),
+        })
+      }
+    }
+
+    if (canClone) {
+      actions.push({
+        startIcon: 'duplicate' as const,
+        title: translate('text_17764140061251m8snap6nft'),
+        onAction: () => openCloneDialog(id, `${number} - v${versionNumber}`),
+      })
+    }
+
+    return actions
+  }
+
   return (
     <DetailsPage.Container className="gap-12 pt-12">
       <section className="flex flex-col gap-4 pb-12 shadow-b">
@@ -156,49 +200,7 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
             containerSize={0}
             columns={versionColumns}
             actionColumnTooltip={() => translate('text_1776414006125pcxcyeblul7')}
-            actionColumn={(version) => {
-              const { id, status } = version
-
-              if (status === StatusEnum.Approved) return null
-
-              const actions = []
-
-              if (status === StatusEnum.Draft) {
-                if (canApprove) {
-                  actions.push({
-                    startIcon: 'checkmark' as const,
-                    title: translate('text_1776414006125k6n9d1baloi'),
-                    onAction: () => approveQuote(id),
-                  })
-                }
-
-                if (canUpdate) {
-                  actions.push({
-                    startIcon: 'pen' as const,
-                    title: translate('text_17764140061256c7yby4p5ze'),
-                    onAction: () => editQuote(id),
-                  })
-                }
-
-                if (canVoid) {
-                  actions.push({
-                    startIcon: 'stop' as const,
-                    title: translate('text_1776414006125xh19d6399qv'),
-                    onAction: () => voidQuote(id),
-                  })
-                }
-              }
-
-              if (canClone) {
-                actions.push({
-                  startIcon: 'duplicate' as const,
-                  title: translate('text_17764140061251m8snap6nft'),
-                  onAction: () => openCloneDialog(id),
-                })
-              }
-
-              return actions
-            }}
+            actionColumn={versionActionColumn}
           />
         </InfiniteScroll>
       </section>
