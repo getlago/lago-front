@@ -29,10 +29,6 @@ const UsageBillableMetric = lazyLoad(() => import('~/pages/analytics/UsageBillab
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
 
-// ----------- Route constants -----------
-// These remain absolute — used by navigate() calls throughout the app.
-// Phase 3 wrappers will auto-prepend the slug at navigation time.
-
 export const HOME_ROUTE = '/'
 export const FORBIDDEN_ROUTE = '/forbidden'
 export const ANALYTIC_ROUTE = '/analytics'
@@ -46,10 +42,6 @@ export const ERROR_404_ROUTE = '/404'
 // Route Available only on dev mode
 export const ONLY_DEV_DESIGN_SYSTEM_ROUTE = `/design-system`
 export const ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE = `${ONLY_DEV_DESIGN_SYSTEM_ROUTE}/:tab`
-
-// ----------- Inline routes -----------
-// Defined with absolute paths for consistency with exported route constants.
-// Passed through makeRelative() below so they can nest under :organizationSlug.
 
 const analyticsInlineRoutes: CustomRouteObject[] = [
   {
