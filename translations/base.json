@@ -4106,5 +4106,18 @@
   "text_177633105895631pas804kd6": "Build a quote to create a new subscription",
   "text_17763310589568ebezrjk3tm": "Build a quote to update an existing subscription",
   "text_1776429591588dnpx1guz0cl": "Owners",
-  "text_1776429591588ale04shf9wf": "Select owners"
+  "text_1776429591588ale04shf9wf": "Select owners",
+  "text_1776414006125k6n9d1baloi": "Approve quote",
+  "text_17764140061256c7yby4p5ze": "Edit quote",
+  "text_1776414006125xh19d6399qv": "Void quote",
+  "text_17764140061251m8snap6nft": "Duplicate version",
+  "text_1776414006125pcxcyeblul7": "Actions",
+  "text_177641400612565v4yq2wx1u": "Void quote",
+  "text_1776414006125a67i2j1xl8s": "Voiding this quote is irreversible. The quote will no longer be valid and cannot be restored.",
+  "text_1776414006125vf2t8yuiwka": "Void quote {{quoteNumber}}",
+  "text_177641400612546jssznk1w0": "Are you sure you want to void this quote? This action cannot be undone.",
+  "text_1776414006125gijz56nk7sv": "Quote successfully voided",
+  "text_1776414006125387qynzm000": "Edit quote",
+  "text_1776414006125wn9p70fx8qg": "Duplicate version",
+  "text_1776414006125pkw558zpwid": "Are you sure you want to duplicate this version? This will create a new draft version."
 }
