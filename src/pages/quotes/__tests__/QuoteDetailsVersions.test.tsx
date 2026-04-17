@@ -3,6 +3,7 @@ import { screen } from '@testing-library/react'
 import { OrderTypeEnum, QuoteDetailItemFragment, StatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+import { useQuoteVersionActions } from '../hooks/useQuoteVersionActions'
 import QuoteDetailsVersions, { QUOTE_VERSIONS_TABLE_TEST_ID } from '../QuoteDetailsVersions'
 
 const mockIntersectionObserver = jest.fn()
@@ -28,6 +29,16 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
     }),
   }),
 }))
+
+const mockGetActions = jest.fn()
+
+jest.mock('../hooks/useQuoteVersionActions', () => ({
+  useQuoteVersionActions: jest.fn(),
+}))
+
+const mockUseQuoteVersionActions = useQuoteVersionActions as jest.MockedFunction<
+  typeof useQuoteVersionActions
+>
 
 const mockVersions = [
   {
@@ -82,6 +93,8 @@ const defaultProps = {
 describe('QuoteDetailsVersions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockGetActions.mockReturnValue([])
+    mockUseQuoteVersionActions.mockReturnValue({ getActions: mockGetActions })
   })
 
   describe('GIVEN the component is rendered with a quote', () => {
@@ -153,6 +166,29 @@ describe('QuoteDetailsVersions', () => {
       )
 
       expect(screen.getByTestId('table-quote-versions')).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the version action column', () => {
+    describe('WHEN a version has actions available', () => {
+      it('THEN should call getActions with each version', () => {
+        mockGetActions.mockReturnValue([{ icon: 'pen', label: 'Edit', onAction: jest.fn() }])
+
+        render(<QuoteDetailsVersions {...defaultProps} />)
+
+        expect(mockGetActions).toHaveBeenCalledWith(expect.objectContaining({ id: 'quote-v2' }))
+        expect(mockGetActions).toHaveBeenCalledWith(expect.objectContaining({ id: 'quote-v1' }))
+      })
+    })
+
+    describe('WHEN a version has no actions', () => {
+      it('THEN should render without action buttons', () => {
+        mockGetActions.mockReturnValue([])
+
+        render(<QuoteDetailsVersions {...defaultProps} />)
+
+        expect(screen.queryByTestId('table-row-0-action-button')).not.toBeInTheDocument()
+      })
     })
   })
 })

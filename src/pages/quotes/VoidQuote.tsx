@@ -23,6 +23,12 @@ import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTrans
 import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
 import { useQuote } from './hooks/useQuote'
 
+export const VOID_QUOTE_CLOSE_BUTTON_TEST_ID = 'void-quote-close-button'
+export const VOID_QUOTE_VOID_BUTTON_TEST_ID = 'void-quote-void-button'
+export const VOID_QUOTE_CANCEL_BUTTON_TEST_ID = 'void-quote-cancel-button'
+export const VOID_QUOTE_VOID_AND_GENERATE_BUTTON_TEST_ID = 'void-quote-void-and-generate-button'
+export const VOID_QUOTE_ALERT_TEST_ID = 'void-quote-alert'
+
 gql`
   mutation voidQuote($input: VoidQuoteInput!) {
     voidQuote(input: $input) {
@@ -135,7 +141,12 @@ const VoidQuote = () => {
         <Typography className="font-medium text-grey-700">
           {translate('text_177641400612565v4yq2wx1u')}
         </Typography>
-        <Button variant="quaternary" icon="close" onClick={() => onClose()} />
+        <Button
+          data-test={VOID_QUOTE_CLOSE_BUTTON_TEST_ID}
+          variant="quaternary"
+          icon="close"
+          onClick={() => onClose()}
+        />
       </CenteredPage.Header>
 
       {loading && (
@@ -147,7 +158,7 @@ const VoidQuote = () => {
       {!loading && (
         <CenteredPage.Container>
           <div className="flex flex-col gap-12">
-            <Alert type="warning">
+            <Alert data-test={VOID_QUOTE_ALERT_TEST_ID} type="warning">
               <Typography className="text-grey-700">
                 {translate('text_1776414006125a67i2j1xl8s')}
               </Typography>
@@ -212,16 +223,29 @@ const VoidQuote = () => {
 
       <CenteredPage.StickyFooter>
         <div className="flex w-full items-center justify-between">
-          <Button variant="inline" danger onClick={() => onSubmit()}>
+          <Button
+            data-test={VOID_QUOTE_VOID_BUTTON_TEST_ID}
+            variant="inline"
+            danger
+            onClick={() => onSubmit()}
+          >
             {translate('text_177641400612565v4yq2wx1u')}
           </Button>
 
           <div className="flex gap-3">
-            <Button variant="quaternary" onClick={() => onClose()}>
+            <Button
+              data-test={VOID_QUOTE_CANCEL_BUTTON_TEST_ID}
+              variant="quaternary"
+              onClick={() => onClose()}
+            >
               {translate('text_6411e6b530cb47007488b027')}
             </Button>
             {canVoidAndGenerate && (
-              <Button variant="primary" onClick={() => onVoidAndGenerateNewVersion()}>
+              <Button
+                data-test={VOID_QUOTE_VOID_AND_GENERATE_BUTTON_TEST_ID}
+                variant="primary"
+                onClick={() => onVoidAndGenerateNewVersion()}
+              >
                 {translate('text_17764159264034mafl126pox')}
               </Button>
             )}

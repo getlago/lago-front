@@ -7,6 +7,8 @@ import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const EDIT_QUOTE_CLOSE_BUTTON_TEST_ID = 'edit-quote-close-button'
+
 const EditQuote = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
@@ -29,7 +31,12 @@ const EditQuote = () => {
         <Typography className="font-medium text-grey-700">
           {translate('text_1776414006125387qynzm000')}
         </Typography>
-        <Button variant="quaternary" icon="close" onClick={() => onClose()} />
+        <Button
+          data-test={EDIT_QUOTE_CLOSE_BUTTON_TEST_ID}
+          variant="quaternary"
+          icon="close"
+          onClick={() => onClose()}
+        />
       </CenteredPage.Header>
 
       <CenteredPage.Container>{/* Rich text editor will be added here */}</CenteredPage.Container>
