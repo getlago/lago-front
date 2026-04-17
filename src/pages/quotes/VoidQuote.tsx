@@ -208,21 +208,19 @@ const VoidQuote = () => {
 
       <CenteredPage.StickyFooter>
         <div className="flex w-full items-center justify-between">
-          <div>
-            {canVoidAndGenerate && (
-              <Button variant="inline" onClick={() => onVoidAndGenerateNewVersion()}>
-                {translate('text_17764159264034mafl126pox')}
-              </Button>
-            )}
-          </div>
+          <Button variant="primary" danger onClick={() => onSubmit()}>
+            {translate('text_177641400612565v4yq2wx1u')}
+          </Button>
 
           <div className="flex gap-3">
             <Button variant="quaternary" onClick={() => onClose()}>
               {translate('text_6411e6b530cb47007488b027')}
             </Button>
-            <Button variant="primary" danger onClick={() => onSubmit()}>
-              {translate('text_177641400612565v4yq2wx1u')}
-            </Button>
+            {canVoidAndGenerate && (
+              <Button variant="primary" onClick={() => onVoidAndGenerateNewVersion()}>
+                {translate('text_17764159264034mafl126pox')}
+              </Button>
+            )}
           </div>
         </div>
       </CenteredPage.StickyFooter>
