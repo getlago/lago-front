@@ -1,7 +1,8 @@
 import { act, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 
-import { AllTheProviders } from '~/test-utils'
+import { addToast } from '~/core/apolloClient'
+import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import { useCloneQuote } from '../useCloneQuote'
 
@@ -14,10 +15,16 @@ jest.mock('~/components/dialogs/CentralizedDialog', () => ({
 }))
 
 const mockCloneQuote = jest.fn()
+let capturedOnCompleted: ((data: { cloneQuote: { id: string } | null }) => void) | undefined
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useCloneQuoteMutation: () => [mockCloneQuote],
+  useCloneQuoteMutation: (options?: {
+    onCompleted?: (data: { cloneQuote: { id: string } | null }) => void
+  }) => {
+    capturedOnCompleted = options?.onCompleted
+    return [mockCloneQuote]
+  },
 }))
 
 jest.mock('~/core/apolloClient', () => ({
@@ -111,6 +118,34 @@ describe('useCloneQuote', () => {
         })
 
         expect(actionResult).toEqual({ reason: 'success' })
+      })
+    })
+  })
+
+  describe('GIVEN the mutation onCompleted callback', () => {
+    describe('WHEN clone mutation completes with a cloned quote', () => {
+      it('THEN should show success toast and navigate to edit route', () => {
+        renderHook(() => useCloneQuote(), { wrapper })
+
+        act(() => {
+          capturedOnCompleted?.({ cloneQuote: { id: 'cloned-quote-789' } })
+        })
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/cloned-quote-789/edit')
+      })
+    })
+
+    describe('WHEN clone mutation completes with null', () => {
+      it('THEN should not show toast or navigate', () => {
+        renderHook(() => useCloneQuote(), { wrapper })
+
+        act(() => {
+          capturedOnCompleted?.({ cloneQuote: null as never })
+        })
+
+        expect(addToast).not.toHaveBeenCalled()
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
       })
     })
   })

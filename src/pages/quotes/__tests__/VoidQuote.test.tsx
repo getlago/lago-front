@@ -284,4 +284,82 @@ describe('VoidQuote', () => {
       })
     })
   })
+
+  describe('GIVEN no quoteId param', () => {
+    beforeEach(() => {
+      const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+
+      useParamsMock.mockReturnValue({})
+    })
+
+    describe('WHEN the void button is clicked', () => {
+      it('THEN should not call voidQuote mutation', async () => {
+        const user = userEvent.setup()
+
+        render(<VoidQuote />)
+
+        await user.click(screen.getByTestId(VOID_QUOTE_VOID_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockVoidQuote).not.toHaveBeenCalled()
+        })
+      })
+    })
+
+    describe('WHEN the close button is clicked', () => {
+      it('THEN should not call goBack', async () => {
+        const user = userEvent.setup()
+
+        render(<VoidQuote />)
+
+        await user.click(screen.getByTestId(VOID_QUOTE_CLOSE_BUTTON_TEST_ID))
+
+        expect(mockGoBack).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the void mutation returns no data', () => {
+    describe('WHEN the void button is clicked', () => {
+      it('THEN should not show success toast or navigate', async () => {
+        mockVoidQuote.mockResolvedValueOnce({ data: { voidQuote: null } })
+
+        const user = userEvent.setup()
+
+        render(<VoidQuote />)
+
+        await user.click(screen.getByTestId(VOID_QUOTE_VOID_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockVoidQuote).toHaveBeenCalled()
+        })
+
+        expect(addToast).not.toHaveBeenCalled()
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the void and generate action with partial failure', () => {
+    describe('WHEN void succeeds but clone returns no data', () => {
+      it('THEN should not navigate to edit page', async () => {
+        mockVoidQuote.mockResolvedValueOnce({
+          data: { voidQuote: { id: 'quote-123', status: StatusEnum.Voided } },
+        })
+        mockCloneQuote.mockResolvedValueOnce({ data: { cloneQuote: null } })
+
+        const user = userEvent.setup()
+
+        render(<VoidQuote />)
+
+        await user.click(screen.getByTestId(VOID_QUOTE_VOID_AND_GENERATE_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockCloneQuote).toHaveBeenCalled()
+        })
+
+        expect(testMockNavigateFn).not.toHaveBeenCalledWith(expect.stringContaining('/edit'))
+      })
+    })
+  })
 })

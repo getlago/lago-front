@@ -169,6 +169,63 @@ describe('QuoteDetailsVersions', () => {
     })
   })
 
+  describe('GIVEN the currency column', () => {
+    describe('WHEN a version has no currency', () => {
+      it('THEN should display a dash fallback', () => {
+        const versionsWithNoCurrency = [{ ...mockVersions[0], currency: '' }]
+
+        render(<QuoteDetailsVersions {...defaultProps} versions={versionsWithNoCurrency} />)
+
+        expect(screen.getByText('-')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the infinite scroll pagination', () => {
+    describe('WHEN more pages are available and onBottom is triggered', () => {
+      it('THEN should call fetchMore with next page', () => {
+        const mockFetchMore = jest.fn()
+
+        render(
+          <QuoteDetailsVersions
+            {...defaultProps}
+            fetchMore={mockFetchMore}
+            metadata={{ currentPage: 1, totalPages: 3, totalCount: 10 }}
+          />,
+        )
+
+        // Trigger the IntersectionObserver callback to simulate scrolling to bottom
+        const observerCallback = mockIntersectionObserver.mock.calls[0][0]
+
+        observerCallback([{ isIntersecting: true }])
+
+        expect(mockFetchMore).toHaveBeenCalledWith({
+          variables: { page: 2 },
+        })
+      })
+    })
+
+    describe('WHEN already on the last page', () => {
+      it('THEN should not call fetchMore', () => {
+        const mockFetchMore = jest.fn()
+
+        render(
+          <QuoteDetailsVersions
+            {...defaultProps}
+            fetchMore={mockFetchMore}
+            metadata={{ currentPage: 2, totalPages: 2, totalCount: 10 }}
+          />,
+        )
+
+        const observerCallback = mockIntersectionObserver.mock.calls[0][0]
+
+        observerCallback([{ isIntersecting: true }])
+
+        expect(mockFetchMore).not.toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('GIVEN the version action column', () => {
     describe('WHEN a version has actions available', () => {
       it('THEN should call getActions with each version', () => {

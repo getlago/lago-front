@@ -208,6 +208,29 @@ describe('QuoteDetails', () => {
         expect(dropdownItems[0].startIcon).toBe('validate-unfilled')
         expect(dropdownItems[1].startIcon).toBe('pen')
       })
+
+      it('THEN should call onAction and closePopper when dropdown item is clicked', () => {
+        const mockOnAction = jest.fn()
+        const mockClosePopper = jest.fn()
+
+        mockUseQuoteVersionActions.mockReturnValue({
+          getActions: jest
+            .fn()
+            .mockReturnValue([
+              { icon: 'validate-unfilled', label: 'Approve', onAction: mockOnAction },
+            ]),
+        })
+
+        render(<QuoteDetails />)
+
+        const config = mockMainHeaderConfigure.mock.calls[0][0]
+        const dropdownItem = config.actions.items[0].items[0]
+
+        dropdownItem.onClick(mockClosePopper)
+
+        expect(mockOnAction).toHaveBeenCalled()
+        expect(mockClosePopper).toHaveBeenCalled()
+      })
     })
 
     describe('WHEN the latest version has no actions', () => {
