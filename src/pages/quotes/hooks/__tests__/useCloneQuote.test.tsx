@@ -15,16 +15,10 @@ jest.mock('~/components/dialogs/CentralizedDialog', () => ({
 }))
 
 const mockCloneQuote = jest.fn()
-let capturedOnCompleted: ((data: { cloneQuote: { id: string } | null }) => void) | undefined
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useCloneQuoteMutation: (options?: {
-    onCompleted?: (data: { cloneQuote: { id: string } | null }) => void
-  }) => {
-    capturedOnCompleted = options?.onCompleted
-    return [mockCloneQuote]
-  },
+  useCloneQuoteMutation: () => [mockCloneQuote],
 }))
 
 jest.mock('~/core/apolloClient', () => ({
@@ -49,11 +43,11 @@ describe('useCloneQuote', () => {
 
   describe('GIVEN the hook is called', () => {
     describe('WHEN it returns', () => {
-      it('THEN should return openCloneDialog function', () => {
+      it('THEN should return openCloneDialog and cloneQuote functions', () => {
         const { result } = renderHook(() => useCloneQuote(), { wrapper })
 
-        expect(result.current.openCloneDialog).toBeDefined()
         expect(typeof result.current.openCloneDialog).toBe('function')
+        expect(typeof result.current.cloneQuote).toBe('function')
       })
     })
   })
@@ -79,7 +73,9 @@ describe('useCloneQuote', () => {
 
     describe('WHEN onAction is triggered and clone succeeds', () => {
       it('THEN should call cloneQuote mutation with correct ID', async () => {
-        mockCloneQuote.mockResolvedValueOnce({})
+        mockCloneQuote.mockResolvedValueOnce({
+          data: { cloneQuote: { id: 'cloned-quote-789' } },
+        })
 
         const { result } = renderHook(() => useCloneQuote(), { wrapper })
 
@@ -100,8 +96,31 @@ describe('useCloneQuote', () => {
         )
       })
 
+      it('THEN should show toast and navigate on successful clone', async () => {
+        mockCloneQuote.mockResolvedValueOnce({
+          data: { cloneQuote: { id: 'cloned-quote-789' } },
+        })
+
+        const { result } = renderHook(() => useCloneQuote(), { wrapper })
+
+        act(() => {
+          result.current.openCloneDialog('quote-456', 'QT-002 - v2')
+        })
+
+        const onAction = mockDialogOpen.mock.calls[0][0].onAction
+
+        await act(async () => {
+          await onAction()
+        })
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/cloned-quote-789/edit')
+      })
+
       it('THEN should return success reason', async () => {
-        mockCloneQuote.mockResolvedValueOnce({})
+        mockCloneQuote.mockResolvedValueOnce({
+          data: { cloneQuote: { id: 'cloned-quote-789' } },
+        })
 
         const { result } = renderHook(() => useCloneQuote(), { wrapper })
 
@@ -119,33 +138,63 @@ describe('useCloneQuote', () => {
 
         expect(actionResult).toEqual({ reason: 'success' })
       })
-    })
-  })
 
-  describe('GIVEN the mutation onCompleted callback', () => {
-    describe('WHEN clone mutation completes with a cloned quote', () => {
-      it('THEN should show success toast and navigate to edit route', () => {
-        renderHook(() => useCloneQuote(), { wrapper })
-
-        act(() => {
-          capturedOnCompleted?.({ cloneQuote: { id: 'cloned-quote-789' } })
+      it('THEN should not show toast or navigate when mutation returns null', async () => {
+        mockCloneQuote.mockResolvedValueOnce({
+          data: { cloneQuote: null },
         })
 
-        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/cloned-quote-789/edit')
-      })
-    })
-
-    describe('WHEN clone mutation completes with null', () => {
-      it('THEN should not show toast or navigate', () => {
-        renderHook(() => useCloneQuote(), { wrapper })
+        const { result } = renderHook(() => useCloneQuote(), { wrapper })
 
         act(() => {
-          capturedOnCompleted?.({ cloneQuote: null as never })
+          result.current.openCloneDialog('quote-456', 'QT-002 - v2')
+        })
+
+        const onAction = mockDialogOpen.mock.calls[0][0].onAction
+
+        await act(async () => {
+          await onAction()
         })
 
         expect(addToast).not.toHaveBeenCalled()
         expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the raw cloneQuote function', () => {
+    describe('WHEN called with a quoteId', () => {
+      it('THEN should call the mutation and return the cloned quote', async () => {
+        mockCloneQuote.mockResolvedValueOnce({
+          data: { cloneQuote: { id: 'cloned-quote-789' } },
+        })
+
+        const { result } = renderHook(() => useCloneQuote(), { wrapper })
+
+        let cloneResult: { id: string } | null | undefined
+
+        await act(async () => {
+          cloneResult = await result.current.cloneQuote('quote-456')
+        })
+
+        expect(mockCloneQuote).toHaveBeenCalledWith({
+          variables: { input: { id: 'quote-456' } },
+        })
+        expect(cloneResult).toEqual({ id: 'cloned-quote-789' })
+      })
+
+      it('THEN should return null when mutation returns no data', async () => {
+        mockCloneQuote.mockResolvedValueOnce({ data: { cloneQuote: null } })
+
+        const { result } = renderHook(() => useCloneQuote(), { wrapper })
+
+        let cloneResult: { id: string } | null | undefined
+
+        await act(async () => {
+          cloneResult = await result.current.cloneQuote('quote-456')
+        })
+
+        expect(cloneResult).toBeNull()
       })
     })
   })

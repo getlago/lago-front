@@ -4,14 +4,13 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { EDIT_QUOTE_ROUTE, QUOTE_DETAILS_ROUTE } from '~/core/router'
-import { useCloneQuoteMutation, useVoidQuoteMutation, VoidReasonEnum } from '~/generated/graphql'
+import { QuoteListItemFragment, useVoidQuoteMutation, VoidReasonEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -19,8 +18,12 @@ import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
-import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
-import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
+import {
+  quoteCreatedAtColumn,
+  quoteOrderTypeColumn,
+  quoteStatusColumn,
+} from './common/quoteTableColumns'
+import { useCloneQuote } from './hooks/useCloneQuote'
 import { useQuote } from './hooks/useQuote'
 
 export const VOID_QUOTE_CLOSE_BUTTON_TEST_ID = 'void-quote-close-button'
@@ -47,19 +50,18 @@ const VoidQuote = () => {
 
   const { quote, loading, error } = useQuote(quoteId)
   const { hasPermissions } = usePermissions()
+  const { cloneQuote } = useCloneQuote()
 
   const canVoidAndGenerate = hasPermissions(['quotesVoid', 'quotesClone'])
 
-  const [voidQuote] = useVoidQuoteMutation({
+  const [voidQuoteMutation] = useVoidQuoteMutation({
     refetchQueries: ['getQuotes'],
   })
-
-  const [cloneQuote] = useCloneQuoteMutation()
 
   const performVoid = async () => {
     if (!quoteId) return null
 
-    const result = await voidQuote({
+    const result = await voidQuoteMutation({
       variables: {
         input: {
           id: quoteId,
@@ -93,14 +95,12 @@ const VoidQuote = () => {
     const voided = await performVoid()
 
     if (voided && quoteId) {
-      const cloneResult = await cloneQuote({
-        variables: { input: { id: quoteId } },
-      })
+      const clonedQuote = await cloneQuote(quoteId)
 
-      if (cloneResult.data?.cloneQuote) {
+      if (clonedQuote) {
         navigate(
           generatePath(EDIT_QUOTE_ROUTE, {
-            quoteId: cloneResult.data.cloneQuote.id,
+            quoteId: clonedQuote.id,
           }),
         )
       }
@@ -178,16 +178,10 @@ const VoidQuote = () => {
               </Typography>
               <Table
                 name="quote-void-details"
-                data={quote ? [quote] : []}
+                data={quote ? [quote as QuoteListItemFragment] : []}
                 containerSize={0}
                 columns={[
-                  {
-                    key: 'status',
-                    title: translate('text_63ac86d797f728a87b2f9fa7'),
-                    content: ({ status }) => (
-                      <Status {...getQuoteStatusMapping(status, translate)} />
-                    ),
-                  },
+                  quoteStatusColumn(translate),
                   {
                     key: 'number',
                     title: translate('text_177581001572954eedouxq5u'),
@@ -200,17 +194,12 @@ const VoidQuote = () => {
                     maxSpace: true,
                     content: ({ customer }) => customer.name,
                   },
-                  {
-                    key: 'orderType',
-                    title: translate('text_6560809c38fb9de88d8a52fb'),
-                    content: ({ orderType }) =>
-                      translate(getQuoteOrderTypeTranslationKey(orderType)),
-                  },
-                  {
-                    key: 'createdAt',
-                    title: translate('text_17758254440392sc27lxm6ua'),
-                    content: ({ createdAt }) => intlFormatDateTimeOrgaTZ(createdAt).date,
-                  },
+                  quoteOrderTypeColumn(translate, 'text_6560809c38fb9de88d8a52fb'),
+                  quoteCreatedAtColumn(
+                    translate,
+                    'text_17758254440392sc27lxm6ua',
+                    intlFormatDateTimeOrgaTZ,
+                  ),
                 ]}
               />
             </div>

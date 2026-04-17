@@ -1,7 +1,6 @@
 import { generatePath } from 'react-router-dom'
 
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
-import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -11,8 +10,12 @@ import { QuoteListItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
-import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
-import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
+import { createQuotesPaginationHandler } from './common/quotesPaginationHandler'
+import {
+  quoteCreatedAtColumn,
+  quoteOrderTypeColumn,
+  quoteStatusColumn,
+} from './common/quoteTableColumns'
 import { useQuotes } from './hooks/useQuotes'
 
 const QuotesList = (): JSX.Element => {
@@ -43,12 +46,7 @@ const QuotesList = (): JSX.Element => {
         </Typography>
       ),
     },
-    {
-      key: 'status',
-      title: translate('text_63ac86d797f728a87b2f9fa7'),
-      minWidth: 100,
-      content: ({ status }) => <Status {...getQuoteStatusMapping(status, translate)} />,
-    },
+    quoteStatusColumn(translate),
     {
       key: 'version',
       title: translate('text_1775747115932pql5mtb30dc'),
@@ -56,39 +54,13 @@ const QuotesList = (): JSX.Element => {
       textAlign: 'right',
       content: ({ version }) => <Typography color="grey600">{version}</Typography>,
     },
-    {
-      key: 'orderType',
-      title: translate('text_1775747115932x8ryaymh8ej'),
-      minWidth: 220,
-      content: ({ orderType }) => (
-        <Typography color="grey600">
-          {translate(getQuoteOrderTypeTranslationKey(orderType))}
-        </Typography>
-      ),
-    },
-    {
-      key: 'createdAt',
-      title: translate('text_624efab67eb2570101d117e3'),
-      minWidth: 120,
-      content: ({ createdAt }) => (
-        <Typography color="grey600">{intlFormatDateTimeOrgaTZ(createdAt).date}</Typography>
-      ),
-    },
+    { ...quoteOrderTypeColumn(translate, 'text_1775747115932x8ryaymh8ej'), minWidth: 220 },
+    quoteCreatedAtColumn(translate, 'text_624efab67eb2570101d117e3', intlFormatDateTimeOrgaTZ),
   ]
 
   return (
     <DetailsPage.Container>
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-          currentPage < totalPages &&
-            !loading &&
-            fetchMore?.({
-              variables: { page: currentPage + 1 },
-            })
-        }}
-      >
+      <InfiniteScroll onBottom={createQuotesPaginationHandler(metadata, loading, fetchMore)}>
         <Table
           name="quotes-list"
           data={quotes}

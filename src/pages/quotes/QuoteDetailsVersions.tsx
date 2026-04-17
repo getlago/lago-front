@@ -3,7 +3,6 @@ import { Fragment } from 'react'
 
 import { Chip } from '~/components/designSystem/Chip'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
-import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -12,7 +11,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
-import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
+import { createQuotesPaginationHandler } from './common/quotesPaginationHandler'
+import { quoteCreatedAtColumn, quoteStatusColumn } from './common/quoteTableColumns'
 import { useQuoteVersionActions } from './hooks/useQuoteVersionActions'
 
 interface QuoteDetailsVersionsProps {
@@ -41,12 +41,7 @@ const QuoteDetailsVersions = ({
   const { getActions } = useQuoteVersionActions()
 
   const versionColumns: Array<TableColumn<QuoteListItemFragment>> = [
-    {
-      key: 'status',
-      title: translate('text_63ac86d797f728a87b2f9fa7'),
-      minWidth: 100,
-      content: ({ status }) => <Status {...getQuoteStatusMapping(status, translate)} />,
-    },
+    quoteStatusColumn(translate),
     {
       key: 'version',
       maxSpace: true,
@@ -65,13 +60,8 @@ const QuoteDetailsVersions = ({
       content: ({ currency }) => <Typography color="grey600">{currency || '-'}</Typography>,
     },
     {
-      key: 'createdAt',
-      title: translate('text_17758254440392sc27lxm6ua'),
+      ...quoteCreatedAtColumn(translate, 'text_17758254440392sc27lxm6ua', intlFormatDateTimeOrgaTZ),
       maxSpace: true,
-      minWidth: 120,
-      content: ({ createdAt }) => (
-        <Typography color="grey600">{intlFormatDateTimeOrgaTZ(createdAt).date}</Typography>
-      ),
     },
   ]
 
@@ -141,17 +131,7 @@ const QuoteDetailsVersions = ({
           <Typography variant="subhead1">{translate('text_1775825275651t25f8xbhmai')}</Typography>
           <Typography variant="caption">{translate('text_1775825275651evevz6qh4d0')}</Typography>
         </div>
-        <InfiniteScroll
-          onBottom={() => {
-            const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-            currentPage < totalPages &&
-              !loading &&
-              fetchMore?.({
-                variables: { page: currentPage + 1 },
-              })
-          }}
-        >
+        <InfiniteScroll onBottom={createQuotesPaginationHandler(metadata, loading, fetchMore)}>
           <Table
             name="quote-versions"
             data={versions}

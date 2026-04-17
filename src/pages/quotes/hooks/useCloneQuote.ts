@@ -20,23 +20,17 @@ export const useCloneQuote = () => {
   const navigate = useNavigate()
   const dialog = useCentralizedDialog()
 
-  const [cloneQuote] = useCloneQuoteMutation({
-    onCompleted({ cloneQuote: clonedQuote }) {
-      if (clonedQuote) {
-        addToast({
-          severity: 'success',
-          translateKey: 'text_1776414006125wn9p70fx8qg',
-        })
-
-        navigate(
-          generatePath(EDIT_QUOTE_ROUTE, {
-            quoteId: clonedQuote.id,
-          }),
-        )
-      }
-    },
+  const [cloneQuoteMutation] = useCloneQuoteMutation({
     refetchQueries: ['getQuotes'],
   })
+
+  const cloneQuote = async (quoteId: string) => {
+    const result = await cloneQuoteMutation({
+      variables: { input: { id: quoteId } },
+    })
+
+    return result.data?.cloneQuote ?? null
+  }
 
   const openCloneDialog = (quoteId: string, quoteNumberAndVersion: string) => {
     dialog.open({
@@ -44,14 +38,25 @@ export const useCloneQuote = () => {
       description: translate('text_1776414006125pkw558zpwid'),
       actionText: translate('text_1776417548746htq2me6cmnw'),
       onAction: async () => {
-        await cloneQuote({
-          variables: { input: { id: quoteId } },
-        })
+        const clonedQuote = await cloneQuote(quoteId)
+
+        if (clonedQuote) {
+          addToast({
+            severity: 'success',
+            translateKey: 'text_1776414006125wn9p70fx8qg',
+          })
+
+          navigate(
+            generatePath(EDIT_QUOTE_ROUTE, {
+              quoteId: clonedQuote.id,
+            }),
+          )
+        }
 
         return { reason: 'success' } as const
       },
     })
   }
 
-  return { openCloneDialog }
+  return { openCloneDialog, cloneQuote }
 }
