@@ -4,6 +4,7 @@ import { Chip } from '~/components/designSystem/Chip'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { QuoteDetailItemFragment, QuoteListItemFragment, StatusEnum } from '~/generated/graphql'
@@ -113,17 +114,19 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
       : []),
   ]
 
-  const versionActionColumn = (version: QuoteListItemFragment) => {
+  const versionActionColumn = (
+    version: QuoteListItemFragment,
+  ): ActionItem<QuoteListItemFragment>[] | null => {
     const { id, status, number, version: versionNumber } = version
 
     if (status === StatusEnum.Approved) return null
 
-    const actions = []
+    const actions: ActionItem<QuoteListItemFragment>[] = []
 
     if (status === StatusEnum.Draft) {
       if (canApprove) {
         actions.push({
-          startIcon: 'checkmark' as const,
+          startIcon: 'checkmark',
           title: translate('text_1776414006125k6n9d1baloi'),
           onAction: () => approveQuote(id),
         })
@@ -131,7 +134,7 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
 
       if (canUpdate) {
         actions.push({
-          startIcon: 'pen' as const,
+          startIcon: 'pen',
           title: translate('text_17764140061256c7yby4p5ze'),
           onAction: () => editQuote(id),
         })
@@ -139,7 +142,7 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
 
       if (canVoid) {
         actions.push({
-          startIcon: 'stop' as const,
+          startIcon: 'stop',
           title: translate('text_1776414006125xh19d6399qv'),
           onAction: () => voidQuote(id),
         })
@@ -148,7 +151,7 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
 
     if (canClone) {
       actions.push({
-        startIcon: 'duplicate' as const,
+        startIcon: 'duplicate',
         title: translate('text_17764140061251m8snap6nft'),
         onAction: () => openCloneDialog(id, `${number} - v${versionNumber}`),
       })
