@@ -6,13 +6,18 @@ import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { QuoteDetailItemFragment, QuoteListItemFragment } from '~/generated/graphql'
+import { QuoteDetailItemFragment, QuoteListItemFragment, StatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 
 import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
 import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
+import { useApproveQuote } from './hooks/useApproveQuote'
+import { useCloneQuote } from './hooks/useCloneQuote'
+import { useEditQuote } from './hooks/useEditQuote'
 import { useQuotes } from './hooks/useQuotes'
+import { useVoidQuote } from './hooks/useVoidQuote'
 
 interface QuoteDetailsVersionsProps {
   quote: QuoteDetailItemFragment
@@ -32,6 +37,17 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
     number: [quote.number],
     latestVersionOnly: false,
   })
+
+  const { hasPermissions } = usePermissions()
+  const { approveQuote } = useApproveQuote()
+  const { editQuote } = useEditQuote()
+  const { voidQuote } = useVoidQuote()
+  const { openCloneDialog } = useCloneQuote()
+
+  const canApprove = hasPermissions(['quotesApprove'])
+  const canUpdate = hasPermissions(['quotesUpdate'])
+  const canVoid = hasPermissions(['quotesVoid'])
+  const canClone = hasPermissions(['quotesClone'])
 
   const versionColumns: Array<TableColumn<QuoteListItemFragment>> = [
     {
@@ -139,6 +155,50 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
             isLoading={loading}
             containerSize={0}
             columns={versionColumns}
+            actionColumnTooltip={() => translate('text_1776414006125pcxcyeblul7')}
+            actionColumn={(version) => {
+              const { id, status } = version
+
+              if (status === StatusEnum.Approved) return null
+
+              const actions = []
+
+              if (status === StatusEnum.Draft) {
+                if (canApprove) {
+                  actions.push({
+                    startIcon: 'checkmark' as const,
+                    title: translate('text_1776414006125k6n9d1baloi'),
+                    onAction: () => approveQuote(id),
+                  })
+                }
+
+                if (canUpdate) {
+                  actions.push({
+                    startIcon: 'pen' as const,
+                    title: translate('text_17764140061256c7yby4p5ze'),
+                    onAction: () => editQuote(id),
+                  })
+                }
+
+                if (canVoid) {
+                  actions.push({
+                    startIcon: 'stop' as const,
+                    title: translate('text_1776414006125xh19d6399qv'),
+                    onAction: () => voidQuote(id),
+                  })
+                }
+              }
+
+              if (canClone) {
+                actions.push({
+                  startIcon: 'duplicate' as const,
+                  title: translate('text_17764140061251m8snap6nft'),
+                  onAction: () => openCloneDialog(id),
+                })
+              }
+
+              return actions
+            }}
           />
         </InfiniteScroll>
       </section>
