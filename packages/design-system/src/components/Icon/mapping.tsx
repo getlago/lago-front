@@ -1,7 +1,9 @@
 import Alphabet from '~/icons/alphabet.svg'
 import Apps from '~/icons/apps.svg'
+import ArrowBackUp from '~/icons/arrow-back-up.svg'
 import ArrowBottom from '~/icons/arrow-bottom.svg'
 import ArrowDownCircleFilled from '~/icons/arrow-down-circle-filled.svg'
+import ArrowForwardUp from '~/icons/arrow-forward-up.svg'
 import ArrowIndent from '~/icons/arrow-indent.svg'
 import ArrowLeftRight from '~/icons/arrow-left-right.svg'
 import ArrowLeft from '~/icons/arrow-left.svg'
@@ -14,6 +16,7 @@ import AttachmentNa from '~/icons/attachment-na.svg'
 import Bank from '~/icons/bank.svg'
 import Bell from '~/icons/bell.svg'
 import Board from '~/icons/board.svg'
+import Bold from '~/icons/bold.svg'
 import Book from '~/icons/book.svg'
 import Box from '~/icons/box.svg'
 import Bulb from '~/icons/bulb.svg'
@@ -38,11 +41,16 @@ import Collect from '~/icons/collect.svg'
 import Command from '~/icons/command.svg'
 import Company from '~/icons/company.svg'
 import Condition from '~/icons/condition.svg'
+import ContentCenterAlign from '~/icons/content-center-align.svg'
+import ContentJustifyAlign from '~/icons/content-justify-align.svg'
 import ContentLeftAlign from '~/icons/content-left-align.svg'
+import ContentRightAlign from '~/icons/content-right-align.svg'
 import Coupon from '~/icons/coupon.svg'
 import Descending from '~/icons/descending.svg'
 import Document from '~/icons/document.svg'
 import DotsHorizontal from '~/icons/dots-horizontal.svg'
+import DoubleDotsHorizontal from '~/icons/double-dots-horizontal.svg'
+import DoubleDotsVertical from '~/icons/double-dots-vertical.svg'
 import Download from '~/icons/download.svg'
 import Duplicate from '~/icons/duplicate.svg'
 import ErrorFilled from '~/icons/error-filled.svg'
@@ -56,16 +64,25 @@ import Forecast from '~/icons/forecast.svg'
 import Formulas from '~/icons/formulas.svg'
 import Globe from '~/icons/globe.svg'
 import Google from '~/icons/google.svg'
+import H1 from '~/icons/h1.svg'
+import H2 from '~/icons/h2.svg'
+import H3 from '~/icons/h3.svg'
+import H4 from '~/icons/h4.svg'
 import Handle from '~/icons/handle.svg'
 import Hashtag from '~/icons/hashtag.svg'
 import Heart from '~/icons/heart.svg'
 import History from '~/icons/history.svg'
 import Id from '~/icons/id.svg'
+import Image from '~/icons/image.svg'
 import InfoCircle from '~/icons/info-circle.svg'
+import InlineCode from '~/icons/inline-code.svg'
+import Italic from '~/icons/italic.svg'
 import Key from '~/icons/key.svg'
 import KeyboardEnter from '~/icons/keyboard-enter.svg'
 import Laptop from '~/icons/laptop.svg'
 import Link from '~/icons/link.svg'
+import ListBullet from '~/icons/list-bullet.svg'
+import ListNumbered from '~/icons/list-numbered.svg'
 import Lock from '~/icons/lock.svg'
 import Logout from '~/icons/log-out.svg'
 import MagnifyingGlass from '~/icons/magnifying-glass.svg'
@@ -108,6 +125,9 @@ import Sparkles from '~/icons/sparkles.svg'
 import StarFilled from '~/icons/star-filled.svg'
 import StarOutlinedHidden from '~/icons/star-outlined-hidden.svg'
 import Stop from '~/icons/stop.svg'
+import Strikethrough from '~/icons/strikethrough.svg'
+import Subscript from '~/icons/subscript.svg'
+import Superscript from '~/icons/superscript.svg'
 import SwitchOff from '~/icons/switch-off.svg'
 import Switch from '~/icons/switch.svg'
 import Sync from '~/icons/sync.svg'
@@ -115,8 +135,11 @@ import TableHorizontale from '~/icons/table-horizontale.svg'
 import Table from '~/icons/table.svg'
 import Target from '~/icons/target.svg'
 import Terminal from '~/icons/terminal.svg'
+import TextA from '~/icons/text-a.svg'
+import TextColor from '~/icons/text-color.svg'
 import Text from '~/icons/text.svg'
 import Trash from '~/icons/trash.svg'
+import Underline from '~/icons/underline.svg'
 import Unlock from '~/icons/unlock.svg'
 import UserAdd from '~/icons/user-add.svg'
 import UserMultiple from '~/icons/user-multiple.svg'
@@ -131,6 +154,8 @@ export const ALL_ICONS = {
   at: At,
   alphabet: Alphabet,
   apps: Apps,
+  'arrow-back-up': ArrowBackUp,
+  'arrow-forward-up': ArrowForwardUp,
   'arrow-bottom': ArrowBottom,
   'arrow-left': ArrowLeft,
   'arrow-left-right': ArrowLeftRight,
@@ -144,6 +169,7 @@ export const ALL_ICONS = {
   bank: Bank,
   bell: Bell,
   board: Board,
+  bold: Bold,
   book: Book,
   bulb: Bulb,
   burger: Burger,
@@ -168,11 +194,16 @@ export const ALL_ICONS = {
   command: Command,
   company: Company,
   condition: Condition,
+  'content-center-align': ContentCenterAlign,
+  'content-justify-align': ContentJustifyAlign,
   'content-left-align': ContentLeftAlign,
+  'content-right-align': ContentRightAlign,
   coupon: Coupon,
   descending: Descending,
   document: Document,
   'dots-horizontal': DotsHorizontal,
+  'double-dots-horizontal': DoubleDotsHorizontal,
+  'double-dots-vertical': DoubleDotsVertical,
   download: Download,
   duplicate: Duplicate,
   'error-filled': ErrorFilled,
@@ -186,17 +217,26 @@ export const ALL_ICONS = {
   formulas: Formulas,
   globe: Globe,
   google: Google,
+  h1: H1,
+  h2: H2,
+  h3: H3,
+  h4: H4,
   handle: Handle,
   hashtag: Hashtag,
   heart: Heart,
   history: History,
   id: Id,
+  image: Image,
   'info-circle': InfoCircle,
+  'inline-code': InlineCode,
+  italic: Italic,
   'keyboard-enter': KeyboardEnter,
   'magnifying-glass': MagnifyingGlass,
   key: Key,
   laptop: Laptop,
   link: Link,
+  'list-bullet': ListBullet,
+  'list-numbered': ListNumbered,
   lock: Lock,
   logout: Logout,
   mail: Mail,
@@ -237,6 +277,9 @@ export const ALL_ICONS = {
   'sparkles-base': SparklesBase,
   'star-filled': StarFilled,
   'star-outlined-hidden': StarOutlinedHidden,
+  strikethrough: Strikethrough,
+  subscript: Subscript,
+  superscript: Superscript,
   stop: Stop,
   switch: Switch,
   'switch-off': SwitchOff,
@@ -245,8 +288,11 @@ export const ALL_ICONS = {
   'table-horizontale': TableHorizontale,
   target: Target,
   terminal: Terminal,
+  'text-a': TextA,
+  'text-color': TextColor,
   text: Text,
   trash: Trash,
+  underline: Underline,
   unlock: Unlock,
   'user-add': UserAdd,
   user: User,
