@@ -93,7 +93,6 @@ describe('SubscriptionDetailAlerts', () => {
         expect(screen.getByTestId('alert-type-warning')).toBeInTheDocument()
       })
     })
-
   })
 
   describe('GIVEN a canceled subscription with payment_failed reason', () => {
