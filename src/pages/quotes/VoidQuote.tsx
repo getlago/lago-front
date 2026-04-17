@@ -181,12 +181,13 @@ const VoidQuote = () => {
                     key: 'number',
                     title: translate('text_177581001572954eedouxq5u'),
                     maxSpace: true,
-                    content: ({ number }) => number,
+                    content: ({ number, version }) => `${number} - v${version}`,
                   },
                   {
-                    key: 'version',
-                    title: translate('text_1775747115932pql5mtb30dc'),
-                    content: ({ version }) => `v${version}`,
+                    key: 'customer.name',
+                    title: translate('text_65201c5a175a4b0238abf29a'),
+                    maxSpace: true,
+                    content: ({ customer }) => customer.name,
                   },
                   {
                     key: 'orderType',
