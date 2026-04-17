@@ -2,12 +2,19 @@ import { useEffect } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { QuoteDetailsTabsOptionsEnum, QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE } from '~/core/router'
+import { StatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 
+import { useApproveQuote } from './hooks/useApproveQuote'
+import { useCloneQuote } from './hooks/useCloneQuote'
+import { useEditQuote } from './hooks/useEditQuote'
 import { useQuote } from './hooks/useQuote'
+import { useVoidQuote } from './hooks/useVoidQuote'
 import OrderFormsList from './OrderFormsList'
 import QuoteDetailsActivityLogs from './QuoteDetailsActivityLogs'
 import QuoteDetailsVersions from './QuoteDetailsVersions'
@@ -18,6 +25,12 @@ const QuoteDetails = (): JSX.Element => {
   const { quoteId } = useParams()
   const { quote, loading } = useQuote(quoteId)
 
+  const { hasPermissions } = usePermissions()
+  const { approveQuote } = useApproveQuote()
+  const { editQuote } = useEditQuote()
+  const { voidQuote } = useVoidQuote()
+  const { openCloneDialog } = useCloneQuote()
+
   useEffect(() => {
     if (loading || quote) return
 
@@ -25,6 +38,68 @@ const QuoteDetails = (): JSX.Element => {
   }, [loading, quote, navigate])
 
   const activeTabContent = useMainHeaderTabContent()
+
+  const headerActions: MainHeaderAction[] = (() => {
+    if (!quote || quote.status === StatusEnum.Approved) return []
+
+    const items = []
+
+    if (quote.status === StatusEnum.Draft) {
+      if (hasPermissions(['quotesApprove'])) {
+        items.push({
+          label: translate('text_1776414006125k6n9d1baloi'),
+          startIcon: 'checkmark' as const,
+          onClick: (closePopper: () => void) => {
+            approveQuote(quote.id)
+            closePopper()
+          },
+        })
+      }
+
+      if (hasPermissions(['quotesUpdate'])) {
+        items.push({
+          label: translate('text_17764140061256c7yby4p5ze'),
+          startIcon: 'pen' as const,
+          onClick: (closePopper: () => void) => {
+            editQuote(quote.id)
+            closePopper()
+          },
+        })
+      }
+
+      if (hasPermissions(['quotesVoid'])) {
+        items.push({
+          label: translate('text_1776414006125xh19d6399qv'),
+          startIcon: 'stop' as const,
+          onClick: (closePopper: () => void) => {
+            voidQuote(quote.id)
+            closePopper()
+          },
+        })
+      }
+    }
+
+    if (hasPermissions(['quotesClone'])) {
+      items.push({
+        label: translate('text_17764140061251m8snap6nft'),
+        startIcon: 'duplicate' as const,
+        onClick: (closePopper: () => void) => {
+          openCloneDialog(quote.id, `${quote.number} - v${quote.version}`)
+          closePopper()
+        },
+      })
+    }
+
+    if (items.length === 0) return []
+
+    return [
+      {
+        type: 'dropdown' as const,
+        label: translate('text_1776414006125pcxcyeblul7'),
+        items,
+      },
+    ]
+  })()
 
   return (
     <>
@@ -43,6 +118,7 @@ const QuoteDetails = (): JSX.Element => {
           metadata: quote ? `${quote.customer.name} - ${quote.customer.externalId}` : '',
           metadataLoading: loading,
         }}
+        actions={{ items: headerActions, loading }}
         tabs={[
           {
             title: translate('text_17758226782042kygnyzs2nh'),
