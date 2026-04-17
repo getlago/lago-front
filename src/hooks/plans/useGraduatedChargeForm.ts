@@ -33,11 +33,6 @@ type UseGraduatedChargeForm = ({
   infosCalculation: InfoCalculationRow[]
 }
 
-export const GRADUATED_TIER_PRECISION_GAP = 0.01
-
-const bumpByTierGap = (value: number | string) =>
-  Number((Number(value || 0) + GRADUATED_TIER_PRECISION_GAP).toFixed(2))
-
 export const DEFAULT_GRADUATED_CHARGES = [
   {
     fromValue: 0,
@@ -46,7 +41,7 @@ export const DEFAULT_GRADUATED_CHARGES = [
     perUnitAmount: undefined,
   },
   {
-    fromValue: 1.01,
+    fromValue: 1,
     toValue: null,
     flatAmount: undefined,
     perUnitAmount: undefined,
@@ -137,7 +132,8 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
           } else if (i === addIndex) {
             const prevToValue =
               addIndex === 0 ? 0 : Number(graduatedRanges[addIndex - 1]?.toValue || 0)
-            const newFromValue = addIndex === 0 ? 0 : bumpByTierGap(prevToValue)
+            // Touching model: next tier's fromValue = previous tier's toValue.
+            const newFromValue = prevToValue
             const newToValue = prevToValue + 1
 
             acc.push({
@@ -148,10 +144,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
             })
             acc.push({
               ...range,
-              fromValue:
-                Number(range.fromValue || 0) <= newToValue
-                  ? bumpByTierGap(newToValue)
-                  : Number(range.fromValue),
+              fromValue: newToValue,
             })
           }
 
@@ -171,14 +164,9 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
             if (rangeIndex === i) {
               acc.push({ ...range, toValue: Number(value || 0) })
             } else if (i > rangeIndex) {
-              // fromValue should always be toValueOfPreviousRange + GRADUATED_TIER_PRECISION_GAP
-              const { toValue } = acc[i - 1]
-              const fromValue = bumpByTierGap(toValue || 0)
-              const formattedToValue = formatAnyToValueForChargeFormArrays(
-                range.toValue,
-                fromValue,
-                GRADUATED_TIER_PRECISION_GAP,
-              )
+              // Touching model: fromValue = previous tier's toValue.
+              const fromValue = Number(acc[i - 1].toValue || 0)
+              const formattedToValue = formatAnyToValueForChargeFormArrays(range.toValue, fromValue)
 
               acc.push({
                 ...range,
@@ -200,13 +188,13 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
     deleteRange: (rangeIndex) => {
       const newGraduatedRanges = graduatedRanges.reduce<GraduatedRangeInput[]>((acc, range, i) => {
         if (i < rangeIndex) acc.push({ ...range })
-        // fromValue should always be toValueOfPreviousRange + GRADUATED_TIER_PRECISION_GAP
         if (i > rangeIndex) {
-          const { toValue } = acc[acc.length - 1]
+          // Touching model: fromValue = previous tier's toValue.
+          const fromValue = Number(acc[acc.length - 1].toValue || 0)
 
           acc.push({
             ...range,
-            fromValue: bumpByTierGap(toValue || 0),
+            fromValue,
           })
         }
         return acc

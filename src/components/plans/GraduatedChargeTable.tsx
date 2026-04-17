@@ -104,7 +104,7 @@ export const GraduatedChargeTable = memo(() => {
                     {(field: any) => (
                       <FieldErrorTooltip
                         title={translate('text_62793bbb599f1c01522e9232', {
-                          value: Number((Number(row.fromValue) - 0.01).toFixed(2)),
+                          value: row.fromValue,
                         })}
                       >
                         <field.TextInputField
