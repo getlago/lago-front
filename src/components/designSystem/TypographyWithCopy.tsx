@@ -35,7 +35,7 @@ export const TypographyWithCopy: FC<TypographyWithCopyProps> = ({
   }
 
   return (
-    <Tooltip placement="top" title={translate('text_623b42ff8ee4e000ba87d0c6')}>
+    <Tooltip placement="top" title={translate('text_623b42ff8ee4e000ba87d0c6')} className="w-fit">
       <Button
         data-test={TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID}
         endIcon="duplicate"
