@@ -34,7 +34,7 @@ export const quoteCreatedAtColumn = (
 ): TableColumn<QuoteListItemFragment> => ({
   key: 'createdAt',
   title: translate(titleKey),
-  minWidth: 120,
+  minWidth: 150,
   content: ({ createdAt }) => (
     <Typography color="grey600">{intlFormatDateTimeOrgaTZ(createdAt).date}</Typography>
   ),
