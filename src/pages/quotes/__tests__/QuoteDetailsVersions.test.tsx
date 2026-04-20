@@ -118,7 +118,7 @@ describe('QuoteDetailsVersions', () => {
       })
 
       it('THEN should display owner emails as chips', () => {
-        render(<QuoteDetailsVersions quote={mockQuote} />)
+        render(<QuoteDetailsVersions {...defaultProps} />)
 
         expect(screen.getByText('alice@example.com')).toBeInTheDocument()
         expect(screen.getByText('bob@example.com')).toBeInTheDocument()
@@ -129,7 +129,7 @@ describe('QuoteDetailsVersions', () => {
       it('THEN should not display the owners section', () => {
         const quoteWithoutOwners = { ...mockQuote, owners: [] }
 
-        render(<QuoteDetailsVersions quote={quoteWithoutOwners} />)
+        render(<QuoteDetailsVersions {...defaultProps} quote={quoteWithoutOwners} />)
 
         expect(screen.getByTestId(QUOTE_VERSIONS_TABLE_TEST_ID)).toBeInTheDocument()
         expect(screen.queryByText('alice@example.com')).not.toBeInTheDocument()
