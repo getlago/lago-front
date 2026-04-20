@@ -4108,5 +4108,21 @@
   "text_177633105895631pas804kd6": "Build a quote to create a new subscription",
   "text_17763310589568ebezrjk3tm": "Build a quote to update an existing subscription",
   "text_1776429591588dnpx1guz0cl": "Owners",
-  "text_1776429591588ale04shf9wf": "Select owners"
+  "text_1776429591588ale04shf9wf": "Select owners",
+  "text_1776414006125k6n9d1baloi": "Approve quote",
+  "text_17764140061256c7yby4p5ze": "Edit quote",
+  "text_1776414006125xh19d6399qv": "Void quote",
+  "text_17764140061251m8snap6nft": "Duplicate version",
+  "text_1776414006125pcxcyeblul7": "Actions",
+  "text_177641400612565v4yq2wx1u": "Void quote",
+  "text_1776414006125a67i2j1xl8s": "Voiding a quote is irreversible. Please verify all details before proceeding.",
+  "text_1776414006125vf2t8yuiwka": "Void quote {{quoteNumber}}",
+  "text_177641400612546jssznk1w0": "Voiding a quote prevents it from being converted into an order form. If a quote is voided, it becomes inactive and cannot be used for execution. To proceed, you will need to create a new version of the quote, which can then be reviewed and eventually converted into an order form.",
+  "text_1776414006125gijz56nk7sv": "Quote successfully voided",
+  "text_1776414006125387qynzm000": "Edit quote",
+  "text_1776414006125wn9p70fx8qg": "Duplicating quote {{quoteNumberAndVersion}}",
+  "text_1776414006125pkw558zpwid": "Duplicating a quote version will instantly void all previous versions. This action cannot be undone. The new quote will be saved as a draft.",
+  "text_17764159264034mafl126pox": "Void and create new version",
+  "text_1776417249197vhv63ozviur": "Quote version information",
+  "text_1776417548746htq2me6cmnw": "Create a new version"
 }
