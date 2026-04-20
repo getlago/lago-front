@@ -5,7 +5,7 @@ import { authRoutes } from './AuthRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
 import { customerObjectCreationRoutes, customerRoutes, customerVoidRoutes } from './CustomerRoutes'
 import { objectCreationRoutes, objectDetailsRoutes, objectListRoutes } from './ObjectsRoutes'
-import { quotesCreationRoutes, quotesRoutes } from './QuotesRoutes'
+import { quotesCreationRoutes, quotesRoutes, quotesVoidRoutes } from './QuotesRoutes'
 import { settingRoutes } from './SettingRoutes'
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
@@ -142,6 +142,7 @@ export const routes: CustomRouteObject[] = [
       ...makeRelative(customerVoidRoutes),
       ...makeRelative(objectCreationRoutes),
       ...makeRelative(quotesCreationRoutes),
+      ...makeRelative(quotesVoidRoutes),
     ],
   },
   ...authRoutes,
