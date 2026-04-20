@@ -2,12 +2,15 @@ import { useEffect } from 'react'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { QuoteDetailsTabsOptionsEnum, QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { useQuote } from './hooks/useQuote'
+import { useQuotes } from './hooks/useQuotes'
+import { useQuoteVersionActions } from './hooks/useQuoteVersionActions'
 import OrderFormsList from './OrderFormsList'
 import QuoteDetailsActivityLogs from './QuoteDetailsActivityLogs'
 import QuoteDetailsVersions from './QuoteDetailsVersions'
@@ -17,6 +20,14 @@ const QuoteDetails = (): JSX.Element => {
   const navigate = useNavigate()
   const { quoteId } = useParams()
   const { quote, loading } = useQuote(quoteId)
+  const {
+    quotes: versions,
+    loading: versionsLoading,
+    fetchMore,
+    metadata,
+  } = useQuotes(quote ? { number: [quote.number], latestVersionOnly: false } : undefined)
+  const latestVersion = versions[0]
+  const { getActions } = useQuoteVersionActions()
 
   useEffect(() => {
     if (loading || quote) return
@@ -25,6 +36,29 @@ const QuoteDetails = (): JSX.Element => {
   }, [loading, quote, navigate])
 
   const activeTabContent = useMainHeaderTabContent()
+
+  const headerActions: MainHeaderAction[] = (() => {
+    if (!latestVersion) return []
+
+    const actions = getActions(latestVersion)
+
+    if (actions.length === 0) return []
+
+    return [
+      {
+        type: 'dropdown' as const,
+        label: translate('text_1776414006125pcxcyeblul7'),
+        items: actions.map(({ icon, label, onAction }) => ({
+          label,
+          startIcon: icon,
+          onClick: (closePopper: () => void) => {
+            onAction()
+            closePopper()
+          },
+        })),
+      },
+    ]
+  })()
 
   return (
     <>
@@ -43,6 +77,7 @@ const QuoteDetails = (): JSX.Element => {
           metadata: quote ? `${quote.customer.name} - ${quote.customer.externalId}` : '',
           metadataLoading: loading,
         }}
+        actions={{ items: headerActions, loading }}
         tabs={[
           {
             title: translate('text_17758226782042kygnyzs2nh'),
@@ -50,7 +85,15 @@ const QuoteDetails = (): JSX.Element => {
               quoteId: quoteId as string,
               tab: QuoteDetailsTabsOptionsEnum.overview,
             }),
-            content: quote ? <QuoteDetailsVersions quote={quote} /> : null,
+            content: quote ? (
+              <QuoteDetailsVersions
+                quote={quote}
+                versions={versions}
+                versionsLoading={versionsLoading}
+                fetchMore={fetchMore}
+                metadata={metadata}
+              />
+            ) : null,
           },
           {
             title: translate('text_17757461968258p4ij8g74zp'),
