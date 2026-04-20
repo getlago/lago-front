@@ -18,6 +18,7 @@ interface CreateQuoteValues {
   customerId: string
   orderType: CreateQuoteInput['orderType']
   subscriptionId?: string
+  owners?: string[]
 }
 
 interface UseCreateQuoteReturn {
@@ -55,6 +56,7 @@ export const useCreateQuote = (): UseCreateQuoteReturn => {
           billingItems: values.subscriptionId
             ? { subscriptionId: values.subscriptionId }
             : undefined,
+          owners: values.owners,
         },
       },
     })
