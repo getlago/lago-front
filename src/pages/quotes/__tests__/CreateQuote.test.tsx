@@ -29,6 +29,7 @@ jest.mock('../hooks/useCreateQuote', () => ({
 
 let mockCustomersQueryData: unknown = undefined
 let mockSubscriptionsQueryData: unknown = undefined
+let mockMembersQueryData: unknown = undefined
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
@@ -40,6 +41,10 @@ jest.mock('~/generated/graphql', () => ({
     jest.fn(),
     { data: mockSubscriptionsQueryData, loading: false },
   ],
+  useGetMembersForCreateQuoteQuery: () => ({
+    data: mockMembersQueryData,
+    loading: false,
+  }),
 }))
 
 const mockNavigate = jest.fn()
@@ -63,6 +68,7 @@ describe('CreateQuote', () => {
     mockLoading = false
     mockCustomersQueryData = undefined
     mockSubscriptionsQueryData = undefined
+    mockMembersQueryData = undefined
   })
 
   describe('GIVEN the page is rendered', () => {
@@ -166,6 +172,42 @@ describe('CreateQuote', () => {
             collection: [
               { id: 'cust-1', displayName: 'Customer One', externalId: 'ext-1' },
               { id: 'cust-2', displayName: '', externalId: 'ext-2' },
+            ],
+          },
+        }
+
+        render(<CreateQuote />)
+
+        expect(screen.getByTestId(CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN members data is loaded', () => {
+    describe('WHEN the members query returns results', () => {
+      it('THEN should render the form without errors', () => {
+        mockMembersQueryData = {
+          memberships: {
+            collection: [
+              { id: 'member-1', user: { id: 'user-1', email: 'alice@example.com' } },
+              { id: 'member-2', user: { id: 'user-2', email: 'bob@example.com' } },
+            ],
+          },
+        }
+
+        render(<CreateQuote />)
+
+        expect(screen.getByTestId(CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the members query returns members with null email', () => {
+      it('THEN should render the form filtering out null emails without errors', () => {
+        mockMembersQueryData = {
+          memberships: {
+            collection: [
+              { id: 'member-1', user: { id: 'user-1', email: 'alice@example.com' } },
+              { id: 'member-2', user: { id: 'user-2', email: null } },
             ],
           },
         }
