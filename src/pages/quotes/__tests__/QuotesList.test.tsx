@@ -4,6 +4,7 @@ import { OrderTypeEnum, StatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { useQuotes } from '../hooks/useQuotes'
+import { useQuoteVersionActions } from '../hooks/useQuoteVersionActions'
 import QuotesList from '../QuotesList'
 
 // Mock IntersectionObserver
@@ -34,6 +35,16 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
 jest.mock('../hooks/useQuotes', () => ({
   useQuotes: jest.fn(),
 }))
+
+const mockGetActions = jest.fn()
+
+jest.mock('../hooks/useQuoteVersionActions', () => ({
+  useQuoteVersionActions: jest.fn(),
+}))
+
+const mockUseQuoteVersionActions = useQuoteVersionActions as jest.MockedFunction<
+  typeof useQuoteVersionActions
+>
 
 const mockUseQuotes = useQuotes as jest.MockedFunction<typeof useQuotes>
 
@@ -73,6 +84,8 @@ const mockQuotes = [
 describe('QuotesList', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockGetActions.mockReturnValue([])
+    mockUseQuoteVersionActions.mockReturnValue({ getActions: mockGetActions })
     mockUseQuotes.mockReturnValue({
       quotes: mockQuotes,
       loading: false,
@@ -161,6 +174,30 @@ describe('QuotesList', () => {
         render(<QuotesList />)
 
         expect(screen.queryByTestId('table-row-0')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the action column', () => {
+    describe('WHEN a quote has actions available', () => {
+      it('THEN should call getActions with each quote', () => {
+        mockGetActions.mockReturnValue([{ icon: 'pen', label: 'Edit', onAction: jest.fn() }])
+
+        render(<QuotesList />)
+
+        expect(mockGetActions).toHaveBeenCalledWith(expect.objectContaining({ id: 'quote-1' }))
+        expect(mockGetActions).toHaveBeenCalledWith(expect.objectContaining({ id: 'quote-2' }))
+        expect(mockGetActions).toHaveBeenCalledWith(expect.objectContaining({ id: 'quote-3' }))
+      })
+    })
+
+    describe('WHEN a quote has no actions', () => {
+      it('THEN should render without action buttons', () => {
+        mockGetActions.mockReturnValue([])
+
+        render(<QuotesList />)
+
+        expect(screen.queryByTestId('table-row-0-action-button')).not.toBeInTheDocument()
       })
     })
   })

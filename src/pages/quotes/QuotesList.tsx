@@ -17,11 +17,13 @@ import {
   quoteStatusColumn,
 } from './common/quoteTableColumns'
 import { useQuotes } from './hooks/useQuotes'
+import { useQuoteVersionActions } from './hooks/useQuoteVersionActions'
 
 const QuotesList = (): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { quotes, loading, error, fetchMore, metadata } = useQuotes({ latestVersionOnly: true })
+  const { getActions } = useQuoteVersionActions()
 
   const columns: Array<TableColumn<QuoteListItemFragment>> = [
     {
@@ -58,6 +60,18 @@ const QuotesList = (): JSX.Element => {
     quoteCreatedAtColumn(translate, 'text_624efab67eb2570101d117e3', intlFormatDateTimeOrgaTZ),
   ]
 
+  const actionColumn = (quote: QuoteListItemFragment) => {
+    const actions = getActions(quote)
+
+    if (actions.length === 0) return null
+
+    return actions.map(({ icon, label, onAction }) => ({
+      startIcon: icon,
+      title: label,
+      onAction: () => onAction(),
+    }))
+  }
+
   return (
     <DetailsPage.Container>
       <InfiniteScroll onBottom={createQuotesPaginationHandler(metadata, loading, fetchMore)}>
@@ -74,6 +88,8 @@ const QuotesList = (): JSX.Element => {
           }
           containerSize={0}
           columns={columns}
+          actionColumnTooltip={() => translate('text_1776414006125pcxcyeblul7')}
+          actionColumn={actionColumn}
           placeholder={{
             emptyState: {
               title: translate('text_17757391860814p20fr87x9g'),
