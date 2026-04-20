@@ -13899,6 +13899,14 @@ export type GetCustomerSubscriptionsForCreateQuoteQueryVariables = Exact<{
 
 export type GetCustomerSubscriptionsForCreateQuoteQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, subscriptions: Array<{ __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }> } | null };
 
+export type GetMembersForCreateQuoteQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetMembersForCreateQuoteQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', collection: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } }> } };
+
 export type VoidQuoteMutationVariables = Exact<{
   input: VoidQuoteInput;
 }>;
@@ -13912,14 +13920,6 @@ export type CloneQuoteMutationVariables = Exact<{
 
 
 export type CloneQuoteMutation = { __typename?: 'Mutation', cloneQuote?: { __typename?: 'Quote', id: string } | null };
-
-export type GetMembersForCreateQuoteQueryVariables = Exact<{
-  page?: InputMaybe<Scalars['Int']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type GetMembersForCreateQuoteQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', collection: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } }> } };
 
 export type CreateQuoteMutationVariables = Exact<{
   input: CreateQuoteInput;
@@ -37104,6 +37104,56 @@ export type GetCustomerSubscriptionsForCreateQuoteQueryHookResult = ReturnType<t
 export type GetCustomerSubscriptionsForCreateQuoteLazyQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionsForCreateQuoteLazyQuery>;
 export type GetCustomerSubscriptionsForCreateQuoteSuspenseQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionsForCreateQuoteSuspenseQuery>;
 export type GetCustomerSubscriptionsForCreateQuoteQueryResult = Apollo.QueryResult<GetCustomerSubscriptionsForCreateQuoteQuery, GetCustomerSubscriptionsForCreateQuoteQueryVariables>;
+export const GetMembersForCreateQuoteDocument = gql`
+    query getMembersForCreateQuote($page: Int, $limit: Int) {
+  memberships(page: $page, limit: $limit) {
+    collection {
+      id
+      user {
+        id
+        email
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetMembersForCreateQuoteQuery__
+ *
+ * To run a query within a React component, call `useGetMembersForCreateQuoteQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMembersForCreateQuoteQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMembersForCreateQuoteQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetMembersForCreateQuoteQuery(baseOptions?: Apollo.QueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>(GetMembersForCreateQuoteDocument, options);
+      }
+export function useGetMembersForCreateQuoteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>(GetMembersForCreateQuoteDocument, options);
+        }
+// @ts-ignore
+export function useGetMembersForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>): Apollo.UseSuspenseQueryResult<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>;
+export function useGetMembersForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>): Apollo.UseSuspenseQueryResult<GetMembersForCreateQuoteQuery | undefined, GetMembersForCreateQuoteQueryVariables>;
+export function useGetMembersForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>(GetMembersForCreateQuoteDocument, options);
+        }
+export type GetMembersForCreateQuoteQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteQuery>;
+export type GetMembersForCreateQuoteLazyQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteLazyQuery>;
+export type GetMembersForCreateQuoteSuspenseQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteSuspenseQuery>;
+export type GetMembersForCreateQuoteQueryResult = Apollo.QueryResult<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>;
 export const VoidQuoteDocument = gql`
     mutation voidQuote($input: VoidQuoteInput!) {
   voidQuote(input: $input) {
@@ -37171,57 +37221,6 @@ export function useCloneQuoteMutation(baseOptions?: Apollo.MutationHookOptions<C
 export type CloneQuoteMutationHookResult = ReturnType<typeof useCloneQuoteMutation>;
 export type CloneQuoteMutationResult = Apollo.MutationResult<CloneQuoteMutation>;
 export type CloneQuoteMutationOptions = Apollo.BaseMutationOptions<CloneQuoteMutation, CloneQuoteMutationVariables>;
-
-export const GetMembersForCreateQuoteDocument = gql`
-    query getMembersForCreateQuote($page: Int, $limit: Int) {
-  memberships(page: $page, limit: $limit) {
-    collection {
-      id
-      user {
-        id
-        email
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useGetMembersForCreateQuoteQuery__
- *
- * To run a query within a React component, call `useGetMembersForCreateQuoteQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetMembersForCreateQuoteQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetMembersForCreateQuoteQuery({
- *   variables: {
- *      page: // value for 'page'
- *      limit: // value for 'limit'
- *   },
- * });
- */
-export function useGetMembersForCreateQuoteQuery(baseOptions?: Apollo.QueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>(GetMembersForCreateQuoteDocument, options);
-      }
-export function useGetMembersForCreateQuoteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>(GetMembersForCreateQuoteDocument, options);
-        }
-// @ts-ignore
-export function useGetMembersForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>): Apollo.UseSuspenseQueryResult<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>;
-export function useGetMembersForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>): Apollo.UseSuspenseQueryResult<GetMembersForCreateQuoteQuery | undefined, GetMembersForCreateQuoteQueryVariables>;
-export function useGetMembersForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>(GetMembersForCreateQuoteDocument, options);
-        }
-export type GetMembersForCreateQuoteQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteQuery>;
-export type GetMembersForCreateQuoteLazyQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteLazyQuery>;
-export type GetMembersForCreateQuoteSuspenseQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteSuspenseQuery>;
-export type GetMembersForCreateQuoteQueryResult = Apollo.QueryResult<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>;
 export const CreateQuoteDocument = gql`
     mutation createQuote($input: CreateQuoteInput!) {
   createQuote(input: $input) {
