@@ -14,6 +14,7 @@ import {
   StatusTypeEnum,
   useGetCustomersForCreateQuoteLazyQuery,
   useGetCustomerSubscriptionsForCreateQuoteLazyQuery,
+  useGetMembersForCreateQuoteQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -26,6 +27,7 @@ import { useCreateQuote } from './hooks/useCreateQuote'
 export const CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID = 'create-quote-customer-combobox'
 export const CREATE_QUOTE_ORDER_TYPE_TEST_ID = 'create-quote-order-type'
 export const CREATE_QUOTE_SUBSCRIPTION_COMBOBOX_TEST_ID = 'create-quote-subscription-combobox'
+export const CREATE_QUOTE_OWNERS_COMBOBOX_TEST_ID = 'create-quote-owners-combobox'
 export const CREATE_QUOTE_SUBMIT_BUTTON_TEST_ID = 'create-quote-submit-button'
 
 gql`
@@ -55,12 +57,25 @@ gql`
       }
     }
   }
+
+  query getMembersForCreateQuote($page: Int, $limit: Int) {
+    memberships(page: $page, limit: $limit) {
+      collection {
+        id
+        user {
+          id
+          email
+        }
+      }
+    }
+  }
 `
 
 const defaultValues: CreateQuoteFormValues = {
   customerId: '',
   orderType: OrderTypeEnum.SubscriptionCreation,
   subscriptionId: '',
+  owners: undefined,
 }
 
 const CreateQuote = (): JSX.Element => {
@@ -77,6 +92,10 @@ const CreateQuote = (): JSX.Element => {
   const [getCustomerSubscriptions, { data: subscriptionsData, loading: subscriptionsLoading }] =
     useGetCustomerSubscriptionsForCreateQuoteLazyQuery()
 
+  const { data: membersData, loading: membersLoading } = useGetMembersForCreateQuoteQuery({
+    variables: { page: 1, limit: 100 },
+  })
+
   const form = useAppForm({
     defaultValues,
     validationLogic: revalidateLogic(),
@@ -88,6 +107,7 @@ const CreateQuote = (): JSX.Element => {
         customerId: value.customerId,
         orderType: value.orderType,
         subscriptionId: value.subscriptionId || undefined,
+        owners: value.owners?.map((owner) => owner.value),
       })
     },
   })
@@ -116,6 +136,17 @@ const CreateQuote = (): JSX.Element => {
       value: customer.id,
     }))
   }, [customersData?.customers?.collection])
+
+  const comboboxOwnersData = useMemo(() => {
+    if (!membersData?.memberships?.collection) return []
+
+    return membersData.memberships.collection
+      .filter((membership) => !!membership.user.email)
+      .map((membership) => ({
+        label: membership.user.email as string,
+        value: membership.user.id,
+      }))
+  }, [membersData?.memberships?.collection])
 
   const comboboxSubscriptionsData = useMemo(() => {
     if (!subscriptionsData?.customer?.subscriptions) return []
@@ -279,6 +310,19 @@ const CreateQuote = (): JSX.Element => {
                     )}
                   </form.AppField>
                 )}
+
+                <form.AppField name="owners">
+                  {(field) => (
+                    <field.MultipleComboBoxField
+                      dataTest={CREATE_QUOTE_OWNERS_COMBOBOX_TEST_ID}
+                      label={translate('text_1776429591588dnpx1guz0cl')}
+                      placeholder={translate('text_1776429591588ale04shf9wf')}
+                      data={comboboxOwnersData}
+                      loading={membersLoading}
+                      disableCloseOnSelect
+                    />
+                  )}
+                </form.AppField>
               </div>
             </CenteredPage.SectionWrapper>
           </CenteredPage.Container>

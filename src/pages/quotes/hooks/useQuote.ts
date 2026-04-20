@@ -16,6 +16,10 @@ gql`
       name
       externalId
     }
+    owners {
+      id
+      email
+    }
   }
 
   query getQuote($id: ID!) {

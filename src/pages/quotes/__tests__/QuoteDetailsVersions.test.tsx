@@ -72,6 +72,10 @@ const mockQuote: QuoteDetailItemFragment = {
     name: 'Acme Corp',
     externalId: 'ext-acme-001',
   },
+  owners: [
+    { id: 'user-1', email: 'alice@example.com' },
+    { id: 'user-2', email: 'bob@example.com' },
+  ],
 }
 
 describe('QuoteDetailsVersions', () => {
@@ -104,6 +108,25 @@ describe('QuoteDetailsVersions', () => {
         render(<QuoteDetailsVersions quote={mockQuote} />)
 
         expect(screen.getByText('Acme Corp - ext-acme-001')).toBeInTheDocument()
+      })
+
+      it('THEN should display owner emails as chips', () => {
+        render(<QuoteDetailsVersions quote={mockQuote} />)
+
+        expect(screen.getByText('alice@example.com')).toBeInTheDocument()
+        expect(screen.getByText('bob@example.com')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the quote has no owners', () => {
+      it('THEN should not display the owners section', () => {
+        const quoteWithoutOwners = { ...mockQuote, owners: [] }
+
+        render(<QuoteDetailsVersions quote={quoteWithoutOwners} />)
+
+        expect(screen.getByTestId(QUOTE_VERSIONS_TABLE_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByText('alice@example.com')).not.toBeInTheDocument()
+        expect(screen.queryByText('bob@example.com')).not.toBeInTheDocument()
       })
     })
 
