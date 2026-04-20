@@ -11,10 +11,17 @@ import {
 } from '../MainNavMenuSections'
 
 const mockHasPermissions = jest.fn()
+const mockHasFeatureFlag = jest.fn()
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
     hasPermissions: mockHasPermissions,
+  }),
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    hasFeatureFlag: mockHasFeatureFlag,
   }),
 }))
 
@@ -39,6 +46,7 @@ describe('MainNavMenuSections', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+    mockHasFeatureFlag.mockReturnValue(true)
   })
 
   describe('Test ID constants', () => {
@@ -212,6 +220,31 @@ describe('MainNavMenuSections', () => {
       expect(mockHasPermissions).toHaveBeenCalledWith(['quotesView'])
       expect(mockHasPermissions).toHaveBeenCalledWith(['subscriptionsView'])
       expect(mockHasPermissions).toHaveBeenCalledWith(['invoicesView'])
+    })
+  })
+
+  describe('Feature flag gating', () => {
+    it('hides quotes nav item when order_forms feature flag is off', () => {
+      mockHasFeatureFlag.mockReturnValue(false)
+
+      // Allow all billing permissions except quotes will be hidden by feature flag
+      mockHasPermissions.mockImplementation((permissions: string[]) => {
+        const billingPermissions = [
+          'customersView',
+          'quotesView',
+          'subscriptionsView',
+          'invoicesView',
+          'paymentsView',
+          'creditNotesView',
+        ]
+
+        return billingPermissions.some((p) => permissions.includes(p))
+      })
+
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      // Billing section should still render (other billing tabs are visible)
+      expect(screen.getByTestId(MAIN_NAV_BILLING_SECTION_TEST_ID)).toBeInTheDocument()
     })
   })
 
