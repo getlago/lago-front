@@ -3,10 +3,7 @@ import { generatePath, useLocation, useNavigate } from 'react-router-dom'
 
 import { Spinner } from '~/components/designSystem/Spinner'
 import { getItemFromLS, removeItemFromLS } from '~/core/apolloClient'
-import {
-  ORGANIZATION_LS_KEY_ID,
-  REDIRECT_AFTER_LOGIN_LS_KEY,
-} from '~/core/constants/localStorageKeys'
+import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/constants/localStorageKeys'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   ANALYTIC_ROUTE,
@@ -14,6 +11,8 @@ import {
   CUSTOMERS_LIST_ROUTE,
   FORBIDDEN_ROUTE,
 } from '~/core/router'
+import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'
+import { ensureSlugPrefix, pathHasValidSlug, resolveOrgSlug } from '~/core/router/utils/orgSlug'
 import { getRouteForPermission } from '~/core/router/utils/permissionRouteMap'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -23,7 +22,7 @@ import { usePermissions } from '~/hooks/usePermissions'
 const Home = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { loading: isUserLoading, currentMembership } = useCurrentUser()
+  const { loading: isUserLoading, currentUser, currentMembership } = useCurrentUser()
   const { hasPermissions, findFirstViewPermission } = usePermissions()
   const { hasOrganizationPremiumAddon, loading: isOrganizationLoading } = useOrganizationInfos()
   const hasAccessToAnalyticsDashboardsFeature = hasOrganizationPremiumAddon(
@@ -36,7 +35,12 @@ const Home = () => {
       return
     }
 
-    // Check localStorage for redirect path from SSO login (Google/Okta).
+    const slug = resolveOrgSlug(currentUser)
+
+    if (!slug) {
+      return navigate(FORBIDDEN_ROUTE, { replace: true })
+    }
+
     // This handles the race condition where the onlyPublic route guard
     // redirects here before the SSO callback can navigate to the intended page.
     const ssoRedirectPath = getItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
@@ -44,7 +48,7 @@ const Home = () => {
     if (ssoRedirectPath) {
       removeItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
 
-      return navigate(ssoRedirectPath, { replace: true })
+      return navigate(ensureSlugPrefix(ssoRedirectPath, slug, currentUser), { replace: true })
     }
 
     // Check if there's a saved location from login redirect in router state
@@ -53,47 +57,66 @@ const Home = () => {
       | null
       | undefined
     const savedLocation = routerState?.from
-    const savedOrgId = routerState?.orgId
 
     if (savedLocation && savedLocation.pathname !== '/') {
-      const currentOrganizationId = getItemFromLS(ORGANIZATION_LS_KEY_ID)
+      // Validate that the slug in the saved path belongs to one of the user's orgs.
+      // This prevents a stale path from a previous org session: after logout + login
+      // with a different org, location.state.from still carries the old org's path.
+      const savedSlug = savedLocation.pathname.split('/')[1]
+      const belongsToCurrentUser = currentUser?.memberships?.some(
+        (m) => m.organization.slug === savedSlug,
+      )
 
-      // Only redirect if the organization matches (or was null when saved)
-      if (!savedOrgId || savedOrgId === currentOrganizationId) {
-        // Return navigation to prevent later default redirections from executing
+      if (belongsToCurrentUser) {
         return navigate(savedLocation, { replace: true })
       }
-      // Org mismatch - fall through to default navigation
+
+      // Legacy path without slug (pre-migration bookmark) — prepend current org slug.
+      // Only prepend if the path doesn't start with an unknown slug-like segment
+      // (i.e. no valid slug was found above). If the first segment looks like a slug
+      // that doesn't belong to the user, fall through to default navigation.
+      if (!pathHasValidSlug(savedLocation.pathname, currentUser)) {
+        // Check if first segment is a known legacy path (e.g. /customers, /plans)
+        const isLegacySegment = LEGACY_APP_PATH_SEGMENTS.has(savedSlug ?? '')
+
+        if (isLegacySegment) {
+          return navigate(`/${slug}${savedLocation.pathname}`, { replace: true })
+        }
+      }
+      // Unknown slug or unrecognized path — fall through to default navigation
     }
 
-    // Defined in the router - User has to have both to have access to analytics. Maybe something we should update
     const canSeeAnalytics = hasPermissions(['analyticsView', 'dataApiView'])
 
     // Default home navigation based on permissions
     if (canSeeAnalytics && !hasAccessToAnalyticsDashboardsFeature) {
-      return navigate(ANALYTIC_ROUTE, { replace: true })
+      return navigate(`/${slug}${ANALYTIC_ROUTE}`, { replace: true })
     }
 
     if (canSeeAnalytics && hasAccessToAnalyticsDashboardsFeature) {
       return navigate(
-        generatePath(ANALYTIC_TABS_ROUTE, {
+        `/${slug}${generatePath(ANALYTIC_TABS_ROUTE, {
           tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
-        }),
+        })}`,
         { replace: true },
       )
     }
 
-    // Prioritize customers view
     if (hasPermissions(['customersView'])) {
-      return navigate(CUSTOMERS_LIST_ROUTE, { replace: true })
+      return navigate(`/${slug}${CUSTOMERS_LIST_ROUTE}`, { replace: true })
     }
 
     const firstViewPermission = findFirstViewPermission()
     const routeForPermission = getRouteForPermission(firstViewPermission)
 
-    navigate(routeForPermission ?? FORBIDDEN_ROUTE, { replace: true })
+    if (routeForPermission) {
+      return navigate(ensureSlugPrefix(routeForPermission, slug, currentUser), { replace: true })
+    }
+
+    navigate(FORBIDDEN_ROUTE, { replace: true })
   }, [
     isUserLoading,
+    currentUser,
     currentMembership,
     isOrganizationLoading,
     hasPermissions,
