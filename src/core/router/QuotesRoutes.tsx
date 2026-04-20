@@ -1,3 +1,5 @@
+import { FeatureFlagEnum } from '~/generated/graphql'
+
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
@@ -18,12 +20,14 @@ export const quotesRoutes: CustomRouteObject[] = [
     private: true,
     element: <Quotes />,
     permissions: ['quotesView'],
+    featureFlag: FeatureFlagEnum.OrderForms,
   },
   {
     path: QUOTE_DETAILS_ROUTE,
     private: true,
     element: <QuoteDetails />,
     permissions: ['quotesView'],
+    featureFlag: FeatureFlagEnum.OrderForms,
   },
 ]
 
@@ -33,5 +37,6 @@ export const quotesCreationRoutes: CustomRouteObject[] = [
     private: true,
     element: <CreateQuote />,
     permissions: ['quotesCreate'],
+    featureFlag: FeatureFlagEnum.OrderForms,
   },
 ]
