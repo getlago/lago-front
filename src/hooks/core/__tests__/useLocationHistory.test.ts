@@ -2,12 +2,14 @@ import { act, renderHook } from '@testing-library/react'
 import type { Location } from 'react-router-dom'
 
 import { authTokenVar, locationHistoryVar } from '~/core/apolloClient'
+import { FeatureFlagEnum } from '~/generated/graphql'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 
 const mockNavigate = jest.fn()
 const mockGetItemFromLS = jest.fn()
 const mockHasPermissions = jest.fn()
 const mockHasPermissionsOr = jest.fn()
+const mockHasFeatureFlag = jest.fn()
 
 const FALLBACK_URL = '/fallback'
 const MOCK_HISTORY_VAR = [
@@ -56,6 +58,12 @@ jest.mock('~/hooks/usePermissions', () => ({
   }),
 }))
 
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    hasFeatureFlag: mockHasFeatureFlag,
+  }),
+}))
+
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({
     isPremium: true,
@@ -79,11 +87,13 @@ describe('useLocationHistory()', () => {
     mockGetItemFromLS.mockClear()
     mockHasPermissions.mockClear()
     mockHasPermissionsOr.mockClear()
+    mockHasFeatureFlag.mockClear()
     authTokenVar(undefined)
 
     // Default to true for backwards compatibility with existing tests
     mockHasPermissions.mockReturnValue(true)
     mockHasPermissionsOr.mockReturnValue(true)
+    mockHasFeatureFlag.mockReturnValue(true)
   })
 
   describe('onRouteEnter()', () => {
@@ -515,6 +525,90 @@ describe('useLocationHistory()', () => {
 
         expect(mockHasPermissions).not.toHaveBeenCalled()
         expect(mockHasPermissionsOr).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('feature flag gating', () => {
+      beforeEach(() => {
+        authTokenVar('test-token')
+      })
+
+      it('should redirect to home when feature flag is not active', () => {
+        mockHasFeatureFlag.mockReturnValue(false)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['quotesView'],
+              featureFlag: FeatureFlagEnum.OrderForms,
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasFeatureFlag).toHaveBeenCalledWith(FeatureFlagEnum.OrderForms)
+        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+      })
+
+      it('should allow access when feature flag is active', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['quotesView'],
+              featureFlag: FeatureFlagEnum.OrderForms,
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasFeatureFlag).toHaveBeenCalledWith(FeatureFlagEnum.OrderForms)
+        expect(mockNavigate).not.toHaveBeenCalledWith('/', { replace: true })
+      })
+
+      it('should not check feature flag when no featureFlag field is specified', () => {
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['customersView'],
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasFeatureFlag).not.toHaveBeenCalled()
+      })
+
+      it('should check permissions before feature flag', () => {
+        mockHasPermissions.mockReturnValue(false)
+        mockHasFeatureFlag.mockReturnValue(false)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['quotesView'],
+              featureFlag: FeatureFlagEnum.OrderForms,
+            },
+            mockLocation,
+          )
+        })
+
+        // Should redirect to forbidden (permission check), not home (feature flag check)
+        expect(mockNavigate).toHaveBeenCalledWith('/forbidden')
+        expect(mockNavigate).not.toHaveBeenCalledWith('/', { replace: true })
       })
     })
 
