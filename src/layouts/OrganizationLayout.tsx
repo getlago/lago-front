@@ -41,19 +41,17 @@ const OrganizationLayout = () => {
     }
   }, [org?.id, currentOrgId, client])
 
-  if (loading && !org) return <Spinner />
+  // Track legacy path hits in Sentry once the user data has loaded and the
+  // slug was confirmed invalid. Kept in an effect (rather than during render)
+  // so it doesn't fire multiple times on StrictMode / re-renders and doesn't
+  // couple render output to side-effects.
+  useEffect(() => {
+    if (loading || org) return
 
-  if (org) {
-    if (currentOrgId !== org.id) return <Spinner />
+    const isLegacyPath = LEGACY_APP_PATH_SEGMENTS.has(organizationSlug ?? '')
 
-    return <Outlet />
-  }
+    if (!isLegacyPath) return
 
-  // Org not found — distinguish legacy path from unknown slug
-  const isLegacyPath = LEGACY_APP_PATH_SEGMENTS.has(organizationSlug ?? '')
-
-  if (isLegacyPath) {
-    // Detect if this is a missed internal migration or an external legacy hit
     const previousLocations = locationHistoryVar()
     const previousPath = previousLocations[0]?.pathname
     const orgIdFromLS = getCurrentOrganizationId()
@@ -91,6 +89,14 @@ const OrganizationLayout = () => {
         tags: { ...sharedContext.tags, source: 'external' },
       })
     }
+  }, [loading, org, organizationSlug, currentUser, location.pathname])
+
+  if (loading && !org) return <Spinner />
+
+  if (org) {
+    if (currentOrgId !== org.id) return <Spinner />
+
+    return <Outlet />
   }
 
   return (

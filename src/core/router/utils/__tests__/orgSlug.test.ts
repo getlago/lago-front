@@ -117,6 +117,21 @@ describe('pathHasValidSlug', () => {
       expect(pathHasValidSlug('/org-a-extended/customers', currentUser)).toBe(false)
     })
   })
+
+  describe('GIVEN a path that is exactly the slug without a trailing slash', () => {
+    it('THEN should return false', () => {
+      // `/org-a` (no trailing slash, nothing after) intentionally does NOT match.
+      // The implementation requires `/${slug}/` to prevent false positives like
+      // `/org-a-extended` which would otherwise match `startsWith('/org-a')`.
+      expect(pathHasValidSlug('/org-a', currentUser)).toBe(false)
+    })
+  })
+
+  describe('GIVEN a path that is the slug followed by a trailing slash only', () => {
+    it('THEN should return true', () => {
+      expect(pathHasValidSlug('/org-a/', currentUser)).toBe(true)
+    })
+  })
 })
 
 describe('ensureSlugPrefix', () => {
