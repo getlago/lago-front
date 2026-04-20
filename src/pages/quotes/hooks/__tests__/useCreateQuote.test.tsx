@@ -105,6 +105,59 @@ describe('useCreateQuote', () => {
         })
       })
     })
+
+    describe('WHEN called with owners', () => {
+      it('THEN should pass owners array in mutation variables', async () => {
+        mockCreateQuote.mockResolvedValue({ data: { createQuote: { id: 'quote-3' } } })
+
+        const { result } = renderHook(() => useCreateQuote(), { wrapper })
+
+        await act(async () => {
+          await result.current.onSave({
+            customerId: 'customer-789',
+            orderType: OrderTypeEnum.OneOff,
+            owners: ['user-1', 'user-2'],
+          })
+        })
+
+        expect(mockCreateQuote).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              customerId: 'customer-789',
+              orderType: OrderTypeEnum.OneOff,
+              billingItems: undefined,
+              owners: ['user-1', 'user-2'],
+            },
+          },
+        })
+      })
+    })
+
+    describe('WHEN called without owners', () => {
+      it('THEN should pass undefined owners in mutation variables', async () => {
+        mockCreateQuote.mockResolvedValue({ data: { createQuote: { id: 'quote-4' } } })
+
+        const { result } = renderHook(() => useCreateQuote(), { wrapper })
+
+        await act(async () => {
+          await result.current.onSave({
+            customerId: 'customer-789',
+            orderType: OrderTypeEnum.OneOff,
+          })
+        })
+
+        expect(mockCreateQuote).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              customerId: 'customer-789',
+              orderType: OrderTypeEnum.OneOff,
+              billingItems: undefined,
+              owners: undefined,
+            },
+          },
+        })
+      })
+    })
   })
 
   describe('GIVEN the mutation completes successfully', () => {

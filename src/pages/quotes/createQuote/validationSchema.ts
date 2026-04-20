@@ -7,6 +7,7 @@ export const createQuoteSchema = z
     customerId: z.string().min(1, 'text_1776238919927l1m2n3o4p5q'),
     orderType: z.nativeEnum(OrderTypeEnum),
     subscriptionId: z.string(),
+    owners: z.array(z.looseObject({ value: z.string() })).optional(),
   })
   .refine(
     (data) => {
