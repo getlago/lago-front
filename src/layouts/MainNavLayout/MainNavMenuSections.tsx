@@ -32,7 +32,9 @@ import {
   SUBSCRIPTIONS_ROUTE,
   WALLET_DETAILS_ROUTE,
 } from '~/core/router'
+import { FeatureFlagEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { NavLayout } from '~/layouts/NavLayout'
 import { BadgeAI } from '~/pages/forecasts/Forecasts'
@@ -53,6 +55,7 @@ interface MainNavMenuSectionsProps {
 export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSectionsProps) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
+  const { hasFeatureFlag } = useOrganizationInfos()
 
   const getReportsTabs = (): NavTab[] => [
     {
@@ -135,7 +138,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       link: QUOTES_LIST_ROUTE,
       canBeClickedOnActive: true,
       match: [QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE, QUOTE_DETAILS_ROUTE],
-      hidden: !hasPermissions(['quotesView']),
+      hidden: !hasPermissions(['quotesView']) || !hasFeatureFlag(FeatureFlagEnum.OrderForms),
     },
     {
       title: translate('text_6250304370f0f700a8fdc28d'),

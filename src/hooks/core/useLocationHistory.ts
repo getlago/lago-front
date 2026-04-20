@@ -9,6 +9,7 @@ import {
 import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
 import { CustomRouteObject, FORBIDDEN_ROUTE, HOME_ROUTE, LOGIN_ROUTE } from '~/core/router'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { TMembershipPermissions, usePermissions } from '~/hooks/usePermissions'
 
 type GoBack = (
@@ -84,6 +85,7 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
   const navigate = useNavigate()
   const { loading: isCurrentUserLoading } = useCurrentUser()
   const { hasPermissions, hasPermissionsOr } = usePermissions()
+  const { hasFeatureFlag } = useOrganizationInfos()
   const goBack: GoBack = (fallback, options) => {
     const { previous, remainingHistory } = getPreviousLocation(options || {})
 
@@ -132,6 +134,12 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
            * Redirect to forbidden page
            */
           navigate(FORBIDDEN_ROUTE)
+        } else if (routeConfig.featureFlag && !hasFeatureFlag(routeConfig.featureFlag)) {
+          /**
+           * In case of navigation to a route gated by a feature flag that is not active
+           * Redirect to home page
+           */
+          navigate(HOME_ROUTE, { replace: true })
         } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
           /**
            * We add the current location to the history only if :
