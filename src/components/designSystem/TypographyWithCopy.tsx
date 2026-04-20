@@ -25,7 +25,7 @@ export const TypographyWithCopy: FC<TypographyProps> = ({
         endIcon="duplicate"
         variant="quaternary"
         size="small"
-        className={tw('px-1 py-0', className)}
+        className={tw('-m-1 px-1 py-0', className)}
         onClick={(e) => {
           e.stopPropagation()
           copyToClipboard(children as string)
