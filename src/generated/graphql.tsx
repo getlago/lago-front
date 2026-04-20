@@ -13906,6 +13906,20 @@ export type GetCustomerSubscriptionsForCreateQuoteQueryVariables = Exact<{
 
 export type GetCustomerSubscriptionsForCreateQuoteQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, subscriptions: Array<{ __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }> } | null };
 
+export type VoidQuoteMutationVariables = Exact<{
+  input: VoidQuoteInput;
+}>;
+
+
+export type VoidQuoteMutation = { __typename?: 'Mutation', voidQuote?: { __typename?: 'Quote', id: string, status: StatusEnum } | null };
+
+export type CloneQuoteMutationVariables = Exact<{
+  input: CloneQuoteInput;
+}>;
+
+
+export type CloneQuoteMutation = { __typename?: 'Mutation', cloneQuote?: { __typename?: 'Quote', id: string } | null };
+
 export type GetMembersForCreateQuoteQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -37107,6 +37121,74 @@ export type GetCustomerSubscriptionsForCreateQuoteQueryHookResult = ReturnType<t
 export type GetCustomerSubscriptionsForCreateQuoteLazyQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionsForCreateQuoteLazyQuery>;
 export type GetCustomerSubscriptionsForCreateQuoteSuspenseQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionsForCreateQuoteSuspenseQuery>;
 export type GetCustomerSubscriptionsForCreateQuoteQueryResult = Apollo.QueryResult<GetCustomerSubscriptionsForCreateQuoteQuery, GetCustomerSubscriptionsForCreateQuoteQueryVariables>;
+export const VoidQuoteDocument = gql`
+    mutation voidQuote($input: VoidQuoteInput!) {
+  voidQuote(input: $input) {
+    id
+    status
+  }
+}
+    `;
+export type VoidQuoteMutationFn = Apollo.MutationFunction<VoidQuoteMutation, VoidQuoteMutationVariables>;
+
+/**
+ * __useVoidQuoteMutation__
+ *
+ * To run a mutation, you first call `useVoidQuoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVoidQuoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [voidQuoteMutation, { data, loading, error }] = useVoidQuoteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useVoidQuoteMutation(baseOptions?: Apollo.MutationHookOptions<VoidQuoteMutation, VoidQuoteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<VoidQuoteMutation, VoidQuoteMutationVariables>(VoidQuoteDocument, options);
+      }
+export type VoidQuoteMutationHookResult = ReturnType<typeof useVoidQuoteMutation>;
+export type VoidQuoteMutationResult = Apollo.MutationResult<VoidQuoteMutation>;
+export type VoidQuoteMutationOptions = Apollo.BaseMutationOptions<VoidQuoteMutation, VoidQuoteMutationVariables>;
+export const CloneQuoteDocument = gql`
+    mutation cloneQuote($input: CloneQuoteInput!) {
+  cloneQuote(input: $input) {
+    id
+  }
+}
+    `;
+export type CloneQuoteMutationFn = Apollo.MutationFunction<CloneQuoteMutation, CloneQuoteMutationVariables>;
+
+/**
+ * __useCloneQuoteMutation__
+ *
+ * To run a mutation, you first call `useCloneQuoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCloneQuoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [cloneQuoteMutation, { data, loading, error }] = useCloneQuoteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCloneQuoteMutation(baseOptions?: Apollo.MutationHookOptions<CloneQuoteMutation, CloneQuoteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CloneQuoteMutation, CloneQuoteMutationVariables>(CloneQuoteDocument, options);
+      }
+export type CloneQuoteMutationHookResult = ReturnType<typeof useCloneQuoteMutation>;
+export type CloneQuoteMutationResult = Apollo.MutationResult<CloneQuoteMutation>;
+export type CloneQuoteMutationOptions = Apollo.BaseMutationOptions<CloneQuoteMutation, CloneQuoteMutationVariables>;
+
 export const GetMembersForCreateQuoteDocument = gql`
     query getMembersForCreateQuote($page: Int, $limit: Int) {
   memberships(page: $page, limit: $limit) {
