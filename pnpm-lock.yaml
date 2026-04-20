@@ -353,8 +353,8 @@ importers:
         specifier: 15.13.1
         version: 15.13.1
       dotenv:
-        specifier: 17.4.0
-        version: 17.4.0
+        specifier: 17.4.2
+        version: 17.4.2
       eslint:
         specifier: 9.39.4
         version: 9.39.4(jiti@2.4.2)
@@ -5064,8 +5064,8 @@ packages:
     resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
     engines: {node: '>=12'}
 
-  dotenv@17.4.0:
-    resolution: {integrity: sha512-kCKF62fwtzwYm0IGBNjRUjtJgMfGapII+FslMHIjMR5KTnwEmBmWLDRSnc3XSNP8bNy34tekgQyDT0hr7pERRQ==}
+  dotenv@17.4.2:
+    resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
     engines: {node: '>=12'}
 
   dunder-proto@1.0.1:
@@ -13862,7 +13862,7 @@ snapshots:
 
   dotenv@16.6.1: {}
 
-  dotenv@17.4.0: {}
+  dotenv@17.4.2: {}
 
   dunder-proto@1.0.1:
     dependencies:
