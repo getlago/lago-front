@@ -14192,6 +14192,17 @@ export type UpdateCustomerCurrencyForQuoteMutationVariables = Exact<{
 
 export type UpdateCustomerCurrencyForQuoteMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null } | null };
 
+export type OrderFormListItemFragment = { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null } };
+
+export type GetOrderFormsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  status?: InputMaybe<Array<OrderFormStatusEnum> | OrderFormStatusEnum>;
+}>;
+
+
+export type GetOrderFormsQuery = { __typename?: 'Query', orderForms: { __typename?: 'OrderFormCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null } }> } };
+
 export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, currency?: CurrencyEnum | null, netPaymentTerm?: number | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number } }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, content?: string | null, currency?: string | null, startDate?: any | null, endDate?: any | null, billingItems?: any | null, createdAt: any } };
 
 export type GetQuoteQueryVariables = Exact<{
@@ -19857,6 +19868,18 @@ export const FeatureForFeaturesListFragmentDoc = gql`
   code
   createdAt
   subscriptionsCount
+}
+    `;
+export const OrderFormListItemFragmentDoc = gql`
+    fragment OrderFormListItem on OrderForm {
+  id
+  number
+  status
+  createdAt
+  customer {
+    id
+    name
+  }
 }
     `;
 export const QuoteDetailItemFragmentDoc = gql`
@@ -38530,6 +38553,58 @@ export function useUpdateCustomerCurrencyForQuoteMutation(baseOptions?: Apollo.M
 export type UpdateCustomerCurrencyForQuoteMutationHookResult = ReturnType<typeof useUpdateCustomerCurrencyForQuoteMutation>;
 export type UpdateCustomerCurrencyForQuoteMutationResult = Apollo.MutationResult<UpdateCustomerCurrencyForQuoteMutation>;
 export type UpdateCustomerCurrencyForQuoteMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerCurrencyForQuoteMutation, UpdateCustomerCurrencyForQuoteMutationVariables>;
+export const GetOrderFormsDocument = gql`
+    query getOrderForms($page: Int, $limit: Int, $status: [OrderFormStatusEnum!]) {
+  orderForms(page: $page, limit: $limit, status: $status) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      ...OrderFormListItem
+    }
+  }
+}
+    ${OrderFormListItemFragmentDoc}`;
+
+/**
+ * __useGetOrderFormsQuery__
+ *
+ * To run a query within a React component, call `useGetOrderFormsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrderFormsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrderFormsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      status: // value for 'status'
+ *   },
+ * });
+ */
+export function useGetOrderFormsQuery(baseOptions?: Apollo.QueryHookOptions<GetOrderFormsQuery, GetOrderFormsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrderFormsQuery, GetOrderFormsQueryVariables>(GetOrderFormsDocument, options);
+      }
+export function useGetOrderFormsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrderFormsQuery, GetOrderFormsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrderFormsQuery, GetOrderFormsQueryVariables>(GetOrderFormsDocument, options);
+        }
+// @ts-ignore
+export function useGetOrderFormsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrderFormsQuery, GetOrderFormsQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrderFormsQuery, GetOrderFormsQueryVariables>;
+export function useGetOrderFormsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrderFormsQuery, GetOrderFormsQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrderFormsQuery | undefined, GetOrderFormsQueryVariables>;
+export function useGetOrderFormsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrderFormsQuery, GetOrderFormsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOrderFormsQuery, GetOrderFormsQueryVariables>(GetOrderFormsDocument, options);
+        }
+export type GetOrderFormsQueryHookResult = ReturnType<typeof useGetOrderFormsQuery>;
+export type GetOrderFormsLazyQueryHookResult = ReturnType<typeof useGetOrderFormsLazyQuery>;
+export type GetOrderFormsSuspenseQueryHookResult = ReturnType<typeof useGetOrderFormsSuspenseQuery>;
+export type GetOrderFormsQueryResult = Apollo.QueryResult<GetOrderFormsQuery, GetOrderFormsQueryVariables>;
 export const GetQuoteDocument = gql`
     query getQuote($id: ID!) {
   quote(id: $id) {
