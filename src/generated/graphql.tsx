@@ -3843,6 +3843,7 @@ export enum FeatureFlagEnum {
   MultiCurrency = 'multi_currency',
   MultiplePaymentMethods = 'multiple_payment_methods',
   NonPersistableChargeCacheOptimization = 'non_persistable_charge_cache_optimization',
+  OrderForms = 'order_forms',
   PostgresEnrichedEvents = 'postgres_enriched_events',
   WalletTraceability = 'wallet_traceability'
 }
