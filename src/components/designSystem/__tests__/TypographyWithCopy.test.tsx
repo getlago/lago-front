@@ -5,11 +5,7 @@ import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { render } from '~/test-utils'
 
-import {
-  TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID,
-  TYPOGRAPHY_WITH_COPY_CONTAINER_TEST_ID,
-  TypographyWithCopy,
-} from '../TypographyWithCopy'
+import { TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID, TypographyWithCopy } from '../TypographyWithCopy'
 
 jest.mock('~/core/utils/copyToClipboard', () => ({
   copyToClipboard: jest.fn(),
@@ -28,31 +24,16 @@ describe('TypographyWithCopy', () => {
 
   describe('GIVEN the component is rendered', () => {
     describe('WHEN displaying text content', () => {
-      it('THEN should render the container', () => {
-        render(<TypographyWithCopy>some-id-123</TypographyWithCopy>)
-
-        expect(screen.getByTestId(TYPOGRAPHY_WITH_COPY_CONTAINER_TEST_ID)).toBeInTheDocument()
-      })
-
       it('THEN should display the text', () => {
         render(<TypographyWithCopy>some-id-123</TypographyWithCopy>)
 
         expect(screen.getByText('some-id-123')).toBeInTheDocument()
       })
 
-      it('THEN should render the copy button', () => {
+      it('THEN should render the copy button with an end icon', () => {
         render(<TypographyWithCopy>some-id-123</TypographyWithCopy>)
 
         expect(screen.getByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID)).toBeInTheDocument()
-      })
-
-      it('THEN should apply hover-only visibility class to the copy button', () => {
-        render(<TypographyWithCopy>some-id-123</TypographyWithCopy>)
-
-        const button = screen.getByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID)
-
-        expect(button).toHaveClass('opacity-0')
-        expect(button).toHaveClass('group-hover:opacity-100')
       })
     })
 
@@ -67,12 +48,12 @@ describe('TypographyWithCopy', () => {
         expect(screen.getByTestId('captionCode')).toBeInTheDocument()
       })
 
-      it('THEN should apply custom className to the container', () => {
+      it('THEN should apply custom className to the button', () => {
         render(<TypographyWithCopy className="custom-class">text</TypographyWithCopy>)
 
-        const container = screen.getByTestId(TYPOGRAPHY_WITH_COPY_CONTAINER_TEST_ID)
+        const button = screen.getByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID)
 
-        expect(container).toHaveClass('custom-class')
+        expect(button).toHaveClass('custom-class')
       })
     })
   })

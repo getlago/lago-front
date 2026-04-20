@@ -19,28 +19,24 @@ export const TypographyWithCopy: FC<TypographyProps> = ({
   const { translate } = useInternationalization()
 
   return (
-    <div
-      className={tw('group flex items-center gap-1', className)}
-      data-test={TYPOGRAPHY_WITH_COPY_CONTAINER_TEST_ID}
-    >
-      <Typography {...typographyProps}>{children}</Typography>
-      <Tooltip placement="top-start" title={translate('text_623b42ff8ee4e000ba87d0c6')}>
-        <Button
-          data-test={TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID}
-          className="opacity-0 group-hover:opacity-100"
-          icon="duplicate"
-          variant="quaternary"
-          size="small"
-          onClick={(e) => {
-            e.stopPropagation()
-            copyToClipboard(children as string)
-            addToast({
-              severity: 'info',
-              translateKey: 'text_1775559630554ourrtpgddty',
-            })
-          }}
-        />
-      </Tooltip>
-    </div>
+    <Tooltip placement="top-start" title={translate('text_623b42ff8ee4e000ba87d0c6')}>
+      <Button
+        data-test={TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID}
+        endIcon="duplicate"
+        variant="quaternary"
+        size="small"
+        className={tw('px-1 py-0', className)}
+        onClick={(e) => {
+          e.stopPropagation()
+          copyToClipboard(children as string)
+          addToast({
+            severity: 'info',
+            translateKey: 'text_1775559630554ourrtpgddty',
+          })
+        }}
+      >
+        <Typography {...typographyProps}>{children}</Typography>
+      </Button>
+    </Tooltip>
   )
 }
