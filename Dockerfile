@@ -68,9 +68,6 @@ COPY ./.env.sh ./.env.sh
 
 EXPOSE 80
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD wget -qO- http://127.0.0.1/ >/dev/null 2>&1 || exit 1
-
 # `exec` so nginx replaces bash as PID 1 and receives SIGTERM directly.
 # (bash would implicitly exec a single trailing command anyway, but being
 # explicit removes the reliance on that interpreter optimization.)
