@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const formataAnyToValueForChargeFormArrays = (toValue: any, fromValue: number | string) => {
+export const formatAnyToValueForChargeFormArrays = (toValue: any, fromValue: number | string) => {
   if (toValue === null) return null
 
   if (Number(toValue || 0) <= Number(fromValue)) {
