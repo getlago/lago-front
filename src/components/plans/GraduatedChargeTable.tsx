@@ -104,12 +104,12 @@ export const GraduatedChargeTable = memo(() => {
                     {(field: any) => (
                       <FieldErrorTooltip
                         title={translate('text_62793bbb599f1c01522e9232', {
-                          value: Number(row.fromValue) - 1,
+                          value: row.fromValue,
                         })}
                       >
                         <field.TextInputField
                           variant="outlined"
-                          beforeChangeFormatter={['int', 'positiveNumber']}
+                          beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                           displayErrorText={false}
                         />
                       </FieldErrorTooltip>

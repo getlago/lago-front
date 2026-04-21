@@ -5,7 +5,7 @@ import { useEffect, useMemo } from 'react'
 import { LocalChargeFilterInput } from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { PropertiesInput, VolumeRangeInput } from '~/generated/graphql'
-import { formataAnyToValueForChargeFormArrays } from '~/hooks/plans/utils'
+import { formatAnyToValueForChargeFormArrays } from '~/hooks/plans/utils'
 
 export const DEFAULT_VOLUME_CHARGES = [
   {
@@ -129,7 +129,7 @@ export const useVolumeChargeForm: UseVolumeChargeForm = ({
             // fromValue should always be toValueOfPreviousRange + 1
             const { toValue } = acc[i - 1]
             const fromValue = String(Number(toValue || 0) + 1)
-            const formattedToValue = formataAnyToValueForChargeFormArrays(range.toValue, fromValue)
+            const formattedToValue = formatAnyToValueForChargeFormArrays(range.toValue, fromValue)
 
             acc.push({
               ...range,

@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react'
 import { LocalChargeFilterInput } from '~/components/plans/types'
 import { ONE_TIER_EXAMPLE_UNITS } from '~/core/constants/form'
 import { GraduatedRangeInput, PropertiesInput } from '~/generated/graphql'
-import { formataAnyToValueForChargeFormArrays } from '~/hooks/plans/utils'
+import { formatAnyToValueForChargeFormArrays } from '~/hooks/plans/utils'
 
 type RangeType = GraduatedRangeInput & { disabledDelete: boolean }
 type InfoCalculationRow = {
@@ -41,7 +41,7 @@ export const DEFAULT_GRADUATED_CHARGES = [
     perUnitAmount: undefined,
   },
   {
-    fromValue: 2,
+    fromValue: 1,
     toValue: null,
     flatAmount: undefined,
     perUnitAmount: undefined,
@@ -130,21 +130,21 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
           if (i < addIndex) {
             acc.push(range)
           } else if (i === addIndex) {
-            const newToValue =
-              addIndex === 0 ? 0 : Number(graduatedRanges[addIndex - 1]?.toValue || 0) + 1
+            const prevToValue =
+              addIndex === 0 ? 0 : Number(graduatedRanges[addIndex - 1]?.toValue || 0)
+            // Touching model: next tier's fromValue = previous tier's toValue.
+            const newFromValue = prevToValue
+            const newToValue = prevToValue + 1
 
             acc.push({
-              fromValue: newToValue,
-              toValue: newToValue + 1,
+              fromValue: newFromValue,
+              toValue: newToValue,
               flatAmount: undefined,
               perUnitAmount: undefined,
             })
             acc.push({
               ...range,
-              fromValue:
-                Number(range.fromValue || 0) <= newToValue + 1
-                  ? newToValue + 2
-                  : Number(range.fromValue),
+              fromValue: newToValue,
             })
           }
 
@@ -164,13 +164,9 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
             if (rangeIndex === i) {
               acc.push({ ...range, toValue: Number(value || 0) })
             } else if (i > rangeIndex) {
-              // fromValue should always be toValueOfPreviousRange + 1
-              const { toValue } = acc[i - 1]
-              const fromValue = Number(toValue || 0) + 1
-              const formattedToValue = formataAnyToValueForChargeFormArrays(
-                range.toValue,
-                fromValue,
-              )
+              // Touching model: fromValue = previous tier's toValue.
+              const fromValue = Number(acc[i - 1].toValue || 0)
+              const formattedToValue = formatAnyToValueForChargeFormArrays(range.toValue, fromValue)
 
               acc.push({
                 ...range,
@@ -192,13 +188,13 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
     deleteRange: (rangeIndex) => {
       const newGraduatedRanges = graduatedRanges.reduce<GraduatedRangeInput[]>((acc, range, i) => {
         if (i < rangeIndex) acc.push({ ...range })
-        // fromValue should always be toValueOfPreviousRange + 1
         if (i > rangeIndex) {
-          const { toValue } = acc[acc.length - 1]
+          // Touching model: fromValue = previous tier's toValue.
+          const fromValue = Number(acc[acc.length - 1].toValue || 0)
 
           acc.push({
             ...range,
-            fromValue: Number(toValue || 0) + 1,
+            fromValue,
           })
         }
         return acc

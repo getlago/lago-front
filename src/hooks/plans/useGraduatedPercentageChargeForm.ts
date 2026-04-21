@@ -3,7 +3,7 @@ import { useEffect, useMemo } from 'react'
 
 import { LocalChargeFilterInput } from '~/components/plans/types'
 import { GraduatedPercentageRangeInput, PropertiesInput } from '~/generated/graphql'
-import { formataAnyToValueForChargeFormArrays } from '~/hooks/plans/utils'
+import { formatAnyToValueForChargeFormArrays } from '~/hooks/plans/utils'
 
 type RangeType = GraduatedPercentageRangeInput & { disabledDelete: boolean }
 type InfoCalculationRow = {
@@ -145,7 +145,7 @@ export const useGraduatedPercentageChargeForm: UseGraduatedPercentageChargeForm 
             // fromValue should always be toValueOfPreviousRange + 1
             const { toValue } = acc[i - 1]
             const fromValue = Number(toValue || 0) + 1
-            const formattedToValue = formataAnyToValueForChargeFormArrays(range.toValue, fromValue)
+            const formattedToValue = formatAnyToValueForChargeFormArrays(range.toValue, fromValue)
 
             acc.push({
               ...range,
