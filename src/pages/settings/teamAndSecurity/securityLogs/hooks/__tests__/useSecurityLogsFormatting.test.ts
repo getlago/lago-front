@@ -323,8 +323,68 @@ describe('useSecurityLogsFormatting', () => {
         )
       })
 
-      describe('WHEN the event is UserRoleEdited with valid resources', () => {
-        it('THEN should call translate with updated email, role, and updater email', () => {
+      describe('WHEN the event is UserRoleEdited', () => {
+        it('THEN uses the "both" key when roles are both added and removed', () => {
+          const { result } = renderHook(() => useSecurityLogsFormatting())
+          const log = createMockSecurityLog({
+            logEvent: LogEventEnum.UserRoleEdited,
+            resources: {
+              email: 'edited@example.com',
+              roles: { added: ['manager', 'viewer'], deleted: ['admin'] },
+            },
+          })
+
+          result.current.getSecurityLogDescription(log)
+
+          expect(mockTranslate).toHaveBeenCalledWith('text_17767988500520plhs9f7tkm', {
+            emailUpdated: 'edited@example.com',
+            rolesAdded: 'manager, viewer',
+            rolesDeleted: 'admin',
+            emailUpdater: 'user@example.com',
+          })
+        })
+
+        it('THEN uses the "added-only" key when only new roles are assigned', () => {
+          const { result } = renderHook(() => useSecurityLogsFormatting())
+          const log = createMockSecurityLog({
+            logEvent: LogEventEnum.UserRoleEdited,
+            resources: {
+              email: 'edited@example.com',
+              roles: { added: ['manager'] },
+            },
+          })
+
+          result.current.getSecurityLogDescription(log)
+
+          expect(mockTranslate).toHaveBeenCalledWith('text_17767988500524o9o9mr53rq', {
+            emailUpdated: 'edited@example.com',
+            rolesAdded: 'manager',
+            emailUpdater: 'user@example.com',
+          })
+        })
+
+        it('THEN uses the "deleted-only" key when only roles are removed', () => {
+          const { result } = renderHook(() => useSecurityLogsFormatting())
+          const log = createMockSecurityLog({
+            logEvent: LogEventEnum.UserRoleEdited,
+            resources: {
+              email: 'edited@example.com',
+              roles: { deleted: ['admin'] },
+            },
+          })
+
+          result.current.getSecurityLogDescription(log)
+
+          expect(mockTranslate).toHaveBeenCalledWith('text_177679885005270syn8w6fh8', {
+            emailUpdated: 'edited@example.com',
+            rolesDeleted: 'admin',
+            emailUpdater: 'user@example.com',
+          })
+        })
+
+        it('THEN falls back to unknown when the payload uses the outdated string shape', () => {
+          // Guards against regressing to the pre-ISSUE-1833 shape where
+          // `roles.added` was a string instead of an array.
           const { result } = renderHook(() => useSecurityLogsFormatting())
           const log = createMockSecurityLog({
             logEvent: LogEventEnum.UserRoleEdited,
@@ -336,14 +396,12 @@ describe('useSecurityLogsFormatting', () => {
 
           result.current.getSecurityLogDescription(log)
 
-          expect(mockTranslate).toHaveBeenCalledWith(
-            'text_1771937987062894vi7jea8j',
-            expect.objectContaining({
-              emailUpdated: 'edited@example.com',
-              role: 'manager',
-              emailUpdater: 'user@example.com',
-            }),
-          )
+          expect(mockTranslate).toHaveBeenCalledWith('text_17767988500520plhs9f7tkm', {
+            emailUpdated: 'unknown',
+            rolesAdded: 'unknown',
+            rolesDeleted: 'unknown',
+            emailUpdater: 'user@example.com',
+          })
         })
       })
     })
