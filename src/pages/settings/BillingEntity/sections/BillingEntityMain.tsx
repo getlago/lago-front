@@ -1,5 +1,5 @@
 import { Icon, IconName } from 'lago-design-system'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -13,6 +13,7 @@ import {
   BILLING_ENTITY_INVOICE_CUSTOM_SECTIONS_ROUTE,
   BILLING_ENTITY_INVOICE_SETTINGS_ROUTE,
   BILLING_ENTITY_TAXES_SETTINGS_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import { BillingEntity } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

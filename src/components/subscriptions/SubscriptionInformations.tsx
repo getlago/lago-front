@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
-import { generatePath, Link } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Alert } from '~/components/designSystem/Alert'
@@ -8,7 +8,7 @@ import { Status } from '~/components/designSystem/Status'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMapping'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/core/router'
+import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, Link } from '~/core/router'
 import {
   NextSubscriptionTypeEnum,
   StatusTypeEnum,

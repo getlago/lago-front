@@ -1,13 +1,6 @@
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import { useEffect, useRef, useState } from 'react'
-import {
-  generatePath,
-  Location,
-  Outlet,
-  useLocation,
-  useNavigate,
-  useParams,
-} from 'react-router-dom'
+import { generatePath, Location, Outlet, useLocation, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
@@ -45,6 +38,7 @@ import {
   TEAM_AND_SECURITY_TAB_ROUTE,
   UPDATE_DUNNING_ROUTE,
   UPDATE_TAX_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'

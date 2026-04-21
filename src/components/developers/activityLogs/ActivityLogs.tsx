@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
-import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import {
@@ -14,6 +14,7 @@ import { ActivityLogTable } from '~/components/developers/activityLogs/ActivityL
 import { ACTIVITY_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
 import { ACTIVITY_LOG_FILTER_PREFIX } from '~/core/constants/filters'
+import { useNavigate } from '~/core/router'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { ActivityItemFragment, LagoApiError, useActivityLogsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

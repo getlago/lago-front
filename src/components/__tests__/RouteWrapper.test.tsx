@@ -35,6 +35,15 @@ jest.mock('~/hooks/core/useLocationHistory', () => ({
 
 jest.mock('~/core/router', () => ({
   routes: [],
+  useNavigate: () => mockNavigate,
+  useLocation: () => ({
+    pathname: '/',
+    strippedPathname: '/',
+    search: '',
+    hash: '',
+    state: null,
+    key: 'default',
+  }),
 }))
 
 describe('RouteWrapper', () => {

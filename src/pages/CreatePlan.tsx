@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
 import { useCallback, useRef } from 'react'
-import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
@@ -37,6 +37,7 @@ import {
   PLAN_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import {
   CurrencyEnum,

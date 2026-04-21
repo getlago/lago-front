@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { FC, PropsWithChildren, RefObject, useMemo, useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
 import { Accordion } from '~/components/designSystem/Accordion'
@@ -29,7 +29,12 @@ import { WalletTransactionList } from '~/components/wallets/WalletTransactionLis
 import { WalletTransactionListItem } from '~/components/wallets/WalletTransactionListItem'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CREATE_WALLET_TOP_UP_ROUTE, EDIT_WALLET_ROUTE, WALLET_DETAILS_ROUTE } from '~/core/router'
+import {
+  CREATE_WALLET_TOP_UP_ROUTE,
+  EDIT_WALLET_ROUTE,
+  useNavigate,
+  WALLET_DETAILS_ROUTE,
+} from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { DateFormat, intlFormatDateTime, TimeFormat } from '~/core/timezone/utils'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'

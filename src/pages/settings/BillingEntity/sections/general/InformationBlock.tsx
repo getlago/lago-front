@@ -1,4 +1,4 @@
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -10,7 +10,7 @@ import {
   SettingsListWrapper,
 } from '~/components/layouts/Settings'
 import { CountryCodes } from '~/core/constants/countryCodes'
-import { BILLING_ENTITY_UPDATE_ROUTE } from '~/core/router'
+import { BILLING_ENTITY_UPDATE_ROUTE, useNavigate } from '~/core/router'
 import { BillingEntity } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'

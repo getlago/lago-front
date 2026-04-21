@@ -1,3 +1,4 @@
+// eslint-disable-next-line lago/no-direct-rrd-nav-import -- Error404 renders outside /:organizationSlug; the slug wrapper would be incorrect here.
 import { useNavigate } from 'react-router-dom'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'

@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { generatePath, matchPath, useLocation, useNavigate } from 'react-router-dom'
+import { generatePath, matchPath } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
@@ -7,6 +7,8 @@ import {
   TEAM_AND_SECURITY_GROUP_ROUTE,
   TEAM_AND_SECURITY_ROOT_ROUTE,
   TEAM_AND_SECURITY_TAB_ROUTE,
+  useLocation,
+  useNavigate,
 } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -26,7 +28,7 @@ const TeamAndSecurity = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
-  const { pathname } = useLocation()
+  const { strippedPathname: pathname } = useLocation()
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
 
   const tabs = useMemo(

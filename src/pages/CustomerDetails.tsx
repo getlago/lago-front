@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { captureException } from '@sentry/react'
 import { useEffect, useRef } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 
 import {
   AddCouponToCustomerDialog,
@@ -16,7 +16,7 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { CUSTOMERS_LIST_ROUTE } from '~/core/router'
+import { CUSTOMERS_LIST_ROUTE, useNavigate } from '~/core/router'
 import {
   AddCustomerDrawerFragmentDoc,
   CustomerMainInfosFragmentDoc,

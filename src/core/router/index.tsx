@@ -149,3 +149,11 @@ export * from './CustomerRoutes'
 export * from './ObjectsRoutes'
 export * from './SettingRoutes'
 export * from './types'
+
+// Slug-aware wrappers — use these over `react-router-dom` at call sites so
+// the org slug is auto-prepended and, in any case, took into account.
+// Enforced by the ESLint `no-restricted-imports` in  packages/configs/eslint.config.mjs
+export { Link } from './Link'
+export { useLocation } from './useLocation'
+export type { SlugAwareLocation } from './useLocation'
+export { useNavigate } from './useNavigate'

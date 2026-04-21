@@ -1,13 +1,17 @@
 import { gql } from '@apollo/client'
 import { useEffect } from 'react'
-import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { GOCARDLESS_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
+import {
+  GOCARDLESS_INTEGRATION_DETAILS_ROUTE,
+  INTEGRATIONS_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import {
   AddGocardlessProviderDialogFragmentDoc,
   useAddGocardlessApiKeyMutation,

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useMemo, useRef } from 'react'
-import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router-dom'
 
 import {
   DeleteCustomerDialog,
@@ -15,7 +15,12 @@ import { Typography } from '~/components/designSystem/Typography'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
-import { CREATE_CUSTOMER_ROUTE, CUSTOMER_DETAILS_ROUTE, UPDATE_CUSTOMER_ROUTE } from '~/core/router'
+import {
+  CREATE_CUSTOMER_ROUTE,
+  CUSTOMER_DETAILS_ROUTE,
+  UPDATE_CUSTOMER_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import {
   AddCustomerDrawerFragmentDoc,
   CustomerAccountTypeEnum,

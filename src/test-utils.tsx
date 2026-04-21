@@ -12,13 +12,9 @@ import { theme } from '~/styles'
 
 configure({ testIdAttribute: 'data-test' })
 
-const mockNavigate = jest.fn()
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-  useParams: jest.fn(),
-}))
+const { mockNavigate } = (
+  globalThis as unknown as { __testRouterMocks: { mockNavigate: jest.Mock } }
+).__testRouterMocks
 
 export type TestMocksType = MockedResponse<Record<string, unknown>, Record<string, unknown>>[]
 

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -21,7 +21,7 @@ import {
   DeleteMoneyhashIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteMoneyhashIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { INTEGRATIONS_ROUTE, MONEYHASH_INTEGRATION_ROUTE } from '~/core/router'
+import { INTEGRATIONS_ROUTE, MONEYHASH_INTEGRATION_ROUTE, useNavigate } from '~/core/router'
 import {
   AddMoneyhashProviderDialogFragmentDoc,
   DeleteMoneyhashIntegrationDialogFragmentDoc,

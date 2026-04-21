@@ -3,7 +3,7 @@ import Nango from '@nangohq/frontend'
 import { useFormik } from 'formik'
 import { GraphQLFormattedError } from 'graphql'
 import { forwardRef, RefObject, useId, useImperativeHandle, useRef, useState } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -16,7 +16,7 @@ import { DeleteHubspotIntegrationDialogRef } from '~/components/settings/integra
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { getHubspotTargetedObjectTranslationKey } from '~/core/constants/form'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { HUBSPOT_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
+import { HUBSPOT_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   CreateHubspotIntegrationInput,
   DeleteHubspotIntegrationDialogFragmentDoc,

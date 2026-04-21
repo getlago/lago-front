@@ -1,3 +1,6 @@
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
 import { fixupPluginRules } from '@eslint/compat'
 import pluginJs from '@eslint/js'
 import pluginImport from 'eslint-plugin-import'
@@ -7,10 +10,9 @@ import pluginReact from 'eslint-plugin-react'
 import pluginReactHooks from 'eslint-plugin-react-hooks'
 import pluginTailwind from 'eslint-plugin-tailwindcss'
 import globals from 'globals'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import pluginTypescriptEslint from 'typescript-eslint'
 
+import noDirectRrdNavImport from './eslint-rules/no-direct-rrd-nav-import.js'
 import noFormikPropsInEffect from './eslint-rules/no-formik-props-in-effect.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -74,6 +76,7 @@ export default [
       'react-hooks': pluginReactHooks,
       lago: {
         rules: {
+          'no-direct-rrd-nav-import': noDirectRrdNavImport,
           'no-formik-props-in-effect': noFormikPropsInEffect,
         },
       },
@@ -116,6 +119,10 @@ export default [
           ],
         },
       ],
+      // Enforce slug-aware navigation wrappers (custom rule — error level,
+      // kept separate from `no-restricted-imports` which is also used below
+      // at `warn` severity for formik/dialog deprecations).
+      'lago/no-direct-rrd-nav-import': 'error',
 
       // Plugins
       'import/order': [

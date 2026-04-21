@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useEffect, useRef, useState } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -19,7 +19,11 @@ import {
   CustomerDetailsTabsOptions,
   CustomerInvoiceDetailsTabsOptionsEnum,
 } from '~/core/constants/tabsOptions'
-import { CUSTOMER_DETAILS_TAB_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_DETAILS_TAB_ROUTE,
+  CUSTOMER_INVOICE_DETAILS_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import {

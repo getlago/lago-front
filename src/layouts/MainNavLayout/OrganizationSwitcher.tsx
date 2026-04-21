@@ -2,7 +2,6 @@ import { ApolloClient, ApolloError } from '@apollo/client'
 import { captureException } from '@sentry/react'
 import { ConditionalWrapper, Icon } from 'lago-design-system'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -13,7 +12,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { VerticalMenuSectionTitle } from '~/components/designSystem/VerticalMenu'
 import { addToast, logOut, switchCurrentOrganization } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
-import { HOME_ROUTE } from '~/core/router'
+import { HOME_ROUTE, useNavigate } from '~/core/router'
 import {
   AuthenticationMethodsEnum,
   CurrentUserInfosFragment,
@@ -95,7 +94,9 @@ export const OrganizationSwitcher = ({
 
       await switchCurrentOrganization(client, organizationId)
 
-      navigate(`/${targetOrg.slug}${HOME_ROUTE}`)
+      // `skipSlugPrepend` — the target slug is the NEW org, different from the
+      // one currently in `useParams()`, so we must bypass the wrapper's auto-prepend.
+      navigate(`/${targetOrg.slug}${HOME_ROUTE}`, { skipSlugPrepend: true })
 
       const refetchPromises = [refetchOrganizationInfos(), refetchCurrentUserInfos()]
 
