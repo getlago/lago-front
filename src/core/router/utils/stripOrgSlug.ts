@@ -16,9 +16,11 @@
  * returns `/`.
  */
 export const stripOrgSlug = (pathname: string, organizationSlug: string | undefined): string => {
-  if (!organizationSlug || !pathname.startsWith(`/${organizationSlug}`)) {
+  const prefix = `/${organizationSlug}`
+
+  if (!organizationSlug || (pathname !== prefix && !pathname.startsWith(`${prefix}/`))) {
     return pathname
   }
 
-  return pathname.slice(`/${organizationSlug}`.length) || '/'
+  return pathname.slice(prefix.length) || '/'
 }

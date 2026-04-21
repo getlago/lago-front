@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useMemo } from 'react'
 import {
   Location,
   useParams,
@@ -43,5 +44,8 @@ export const useLocation = <State = any>(): SlugAwareLocation<State> => {
   const params = useParams<{ organizationSlug?: string }>()
   const organizationSlug = params?.organizationSlug
 
-  return { ...location, strippedPathname: stripOrgSlug(location.pathname, organizationSlug) }
+  return useMemo(
+    () => ({ ...location, strippedPathname: stripOrgSlug(location.pathname, organizationSlug) }),
+    [location, organizationSlug],
+  )
 }
