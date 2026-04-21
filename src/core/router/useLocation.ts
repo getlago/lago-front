@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Location,
   useParams,
@@ -7,7 +8,12 @@ import {
 
 import { stripOrgSlug } from './utils/stripOrgSlug'
 
-export interface SlugAwareLocation<State = unknown> extends Location<State> {
+/**
+ * `State` defaults to `any` to match the `react-router-dom` `Location<State = any>`
+ * signature. Narrowing to `unknown` would break all existing call sites that
+ * access `location.state.<field>` without a generic.
+ */
+export interface SlugAwareLocation<State = any> extends Location<State> {
   /**
    * `location.pathname` with the leading `/${organizationSlug}` stripped,
    * so slug-unaware patterns (route constants, `tab.link`) can be compared
@@ -31,7 +37,7 @@ export interface SlugAwareLocation<State = unknown> extends Location<State> {
  * fields (`pathname`, `search`, `hash`, `state`, `key`) pass through
  * unchanged from `react-router-dom`'s `useLocation`.
  */
-export const useLocation = <State = unknown>(): SlugAwareLocation<State> => {
+export const useLocation = <State = any>(): SlugAwareLocation<State> => {
   const location = useRRLocation() as Location<State>
   // `useParams()` can return undefined outside a Router context (e.g. some tests).
   const params = useParams<{ organizationSlug?: string }>()

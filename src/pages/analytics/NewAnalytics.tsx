@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { generatePath, useLocation } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
@@ -9,6 +9,7 @@ import {
   ANALYTIC_TABS_ROUTE,
   ANALYTICS_V2_ROUTE,
   ANALYTICS_V2_TABS_ROUTE,
+  useLocation,
   useNavigate,
 } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'

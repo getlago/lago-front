@@ -1,6 +1,6 @@
-import { generatePath, useLocation, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
-import { useNavigate } from '~/core/router'
+import { useLocation, useNavigate } from '~/core/router'
 import {
   CUSTOMER_PORTAL_CUSTOMER_EDIT_INFORMATION_ROUTE,
   CUSTOMER_PORTAL_ROUTE,

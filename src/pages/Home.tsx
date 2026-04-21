@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { generatePath, useLocation } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Spinner } from '~/components/designSystem/Spinner'
 import { getItemFromLS, removeItemFromLS } from '~/core/apolloClient'
@@ -10,6 +10,7 @@ import {
   ANALYTIC_TABS_ROUTE,
   CUSTOMERS_LIST_ROUTE,
   FORBIDDEN_ROUTE,
+  useLocation,
   useNavigate,
 } from '~/core/router'
 import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'

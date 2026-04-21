@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { generatePath, useLocation, useParams, useSearchParams } from 'react-router-dom'
+import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
 import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
 import { Alert } from '~/components/designSystem/Alert'
@@ -42,6 +42,7 @@ import {
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
+  useLocation,
   useNavigate,
 } from '~/core/router'
 import { getTimezoneConfig } from '~/core/timezone'
