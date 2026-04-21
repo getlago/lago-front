@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { generatePath, useLocation, useNavigate } from 'react-router-dom'
 
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import PremiumFeature from '~/components/premium/PremiumFeature'
@@ -90,12 +91,14 @@ const Quotes = (): JSX.Element => {
       {isPremium && activeTabContent}
 
       {!isPremium && (
-        <PremiumFeature
-          data-test="quotes-premium-feature"
-          title={translate('text_17767737688593usnzzqqy7f')}
-          description={translate('text_1776773768859lvcuax763ex')}
-          feature={translate('text_17757391860814p20fr87x9g')}
-        />
+        <DetailsPage.Container>
+          <PremiumFeature
+            data-test="quotes-premium-feature"
+            title={translate('text_17767737688593usnzzqqy7f')}
+            description={translate('text_1776773768859lvcuax763ex')}
+            feature={translate('text_17757391860814p20fr87x9g')}
+          />
+        </DetailsPage.Container>
       )}
     </>
   )
