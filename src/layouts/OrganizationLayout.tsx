@@ -13,6 +13,7 @@ import {
 } from '~/core/apolloClient/reactiveVars'
 import { useLocation } from '~/core/router'
 import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'
+import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 const Error404 = lazy(() => import('~/pages/Error404'))
@@ -20,6 +21,7 @@ const Error404 = lazy(() => import('~/pages/Error404'))
 const OrganizationLayout = () => {
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
   const { currentUser, loading } = useCurrentUser()
+  const { isAuthenticated } = useIsAuthenticated()
   const location = useLocation()
   const client = useApolloClient()
 
@@ -91,6 +93,8 @@ const OrganizationLayout = () => {
       })
     }
   }, [loading, org, organizationSlug, currentUser, location.pathname])
+
+  if (!isAuthenticated) return null
 
   if (loading && !org) return <Spinner />
 
