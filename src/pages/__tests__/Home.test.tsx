@@ -164,6 +164,41 @@ describe('Home', () => {
       })
     })
 
+    it('should NOT prepend slug to legacy saved location when user has multiple memberships', async () => {
+      mockUseCurrentUser.mockReturnValue({
+        loading: false,
+        currentUser: {
+          memberships: [
+            ...defaultMemberships,
+            {
+              id: 'membership-2',
+              organization: { id: 'org-b', name: 'Other Org', slug: 'other-org' },
+            },
+          ],
+        },
+        currentMembership: defaultMemberships[0],
+      })
+      mockUseLocation.mockReturnValue({
+        state: {
+          from: savedLocationLegacy,
+          orgId: null,
+        },
+      })
+      mockHasPermissions.mockImplementation((perms: string[]) => perms.includes('customersView'))
+      mockHasOrganizationPremiumAddon.mockReturnValue(false)
+
+      renderHook(() => Home())
+
+      await waitFor(() => {
+        // Falls through to default customers homepage — NOT the saved legacy path.
+        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/customers`, { replace: true })
+        expect(mockNavigate).not.toHaveBeenCalledWith(
+          `/${TEST_ORG_SLUG}/customers/123?tab=overview`,
+          { replace: true },
+        )
+      })
+    })
+
     it('should fall through to default when saved slug belongs to unknown org', async () => {
       const unknownSlugLocation: Location = {
         pathname: '/unknown-org/customers/123',

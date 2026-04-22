@@ -74,10 +74,9 @@ const Home = () => {
       }
 
       // Legacy path without slug (pre-migration bookmark) — prepend current org slug.
-      // Only prepend if the path doesn't start with an unknown slug-like segment
-      // (i.e. no valid slug was found above). If the first segment looks like a slug
-      // that doesn't belong to the user, fall through to default navigation.
-      if (!pathHasValidSlug(savedLocation.pathname, currentUser)) {
+      const isSingleMembership = currentUser?.memberships?.length === 1
+
+      if (isSingleMembership && !pathHasValidSlug(savedLocation.pathname, currentUser)) {
         // Check if first segment is a known legacy path (e.g. /customers, /plans)
         const isLegacySegment = LEGACY_APP_PATH_SEGMENTS.has(savedSlug ?? '')
 
@@ -88,7 +87,6 @@ const Home = () => {
           )
         }
       }
-      // Unknown slug or unrecognized path — fall through to default navigation
     }
 
     const canSeeAnalytics = hasPermissions(['analyticsView', 'dataApiView'])
