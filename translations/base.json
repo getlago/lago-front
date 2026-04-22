@@ -4054,5 +4054,6 @@
   "text_1776444526636tm9yry92nyh": "Go to homepage",
   "text_17767988500524o9o9mr53rq": "{{emailUpdater}} assigned role {{rolesAdded}} to {{emailUpdated}}",
   "text_177679885005270syn8w6fh8": "{{emailUpdater}} removed role {{rolesDeleted}} from {{emailUpdated}}",
-  "text_17767988500520plhs9f7tkm": "{{emailUpdater}} updated {{emailUpdated}}’s role to {{rolesAdded}} (previously {{rolesDeleted}})"
+  "text_17767988500520plhs9f7tkm": "{{emailUpdater}} updated {{emailUpdated}}’s role to {{rolesAdded}} (previously {{rolesDeleted}})",
+  "text_1776863953533imjygk4dami": "The page you're looking for doesn't exist. Check the URL or head back to your homepage."
 }

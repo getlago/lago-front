@@ -16,7 +16,7 @@ const Error404InApp = () => {
       <GenericPlaceholder
         image={<ErrorImage width="136" height="104" />}
         title={translate('text_62bac37900192b773560e82d')}
-        subtitle={translate('text_62bac37900192b773560e82f')}
+        subtitle={translate('text_1776863953533imjygk4dami')}
         buttonTitle={translate('text_1776444526636tm9yry92nyh')}
         buttonAction={() => navigate(HOME_ROUTE, { replace: true })}
       />
