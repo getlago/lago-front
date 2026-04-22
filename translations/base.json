@@ -4124,5 +4124,8 @@
   "text_1776414006125pkw558zpwid": "Duplicating a quote version will instantly void all previous versions. This action cannot be undone. The new quote will be saved as a draft.",
   "text_17764159264034mafl126pox": "Void and create new version",
   "text_1776417249197vhv63ozviur": "Quote version information",
-  "text_1776417548746htq2me6cmnw": "Create a new version"
+  "text_1776417548746htq2me6cmnw": "Create a new version",
+  "text_1776848720529vv5zmyyq94k": "Approve quote",
+  "text_1776848720529x0n0j0tob0w": "By approving this quote, an order form will be generated and sent to the customer.",
+  "text_1776848720529o2nn0q3b7iv": "Quote successfully approved"
 }
