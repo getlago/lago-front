@@ -13919,6 +13919,9 @@ export type GetQuotesQueryVariables = Exact<{
   statuses?: InputMaybe<Array<StatusEnum> | StatusEnum>;
   customers?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
   numbers?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  owners?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
 }>;
 
 
@@ -37340,13 +37343,16 @@ export type GetQuoteLazyQueryHookResult = ReturnType<typeof useGetQuoteLazyQuery
 export type GetQuoteSuspenseQueryHookResult = ReturnType<typeof useGetQuoteSuspenseQuery>;
 export type GetQuoteQueryResult = Apollo.QueryResult<GetQuoteQuery, GetQuoteQueryVariables>;
 export const GetQuotesDocument = gql`
-    query getQuotes($page: Int, $limit: Int, $statuses: [StatusEnum!], $customers: [ID!], $numbers: [String!]) {
+    query getQuotes($page: Int, $limit: Int, $statuses: [StatusEnum!], $customers: [ID!], $numbers: [String!], $fromDate: ISO8601Date, $toDate: ISO8601Date, $owners: [ID!]) {
   quotes(
     page: $page
     limit: $limit
     statuses: $statuses
     customers: $customers
     numbers: $numbers
+    fromDate: $fromDate
+    toDate: $toDate
+    owners: $owners
   ) {
     metadata {
       currentPage
@@ -37377,6 +37383,9 @@ export const GetQuotesDocument = gql`
  *      statuses: // value for 'statuses'
  *      customers: // value for 'customers'
  *      numbers: // value for 'numbers'
+ *      fromDate: // value for 'fromDate'
+ *      toDate: // value for 'toDate'
+ *      owners: // value for 'owners'
  *   },
  * });
  */

@@ -200,8 +200,8 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.planCode]: (value: string) => value,
   [AvailableFiltersEnum.quoteCreatedAt]: (value: string) => {
     return {
-      createdAtFrom: (value as string).split(',')[0],
-      createdAtTo: (value as string).split(',')[1],
+      fromDate: (value as string).split(',')[0],
+      toDate: (value as string).split(',')[1],
     }
   },
   [AvailableFiltersEnum.quoteNumber]: (value: string) => (value as string).split(','),
@@ -707,7 +707,7 @@ export const formatFiltersForQuotesQuery = (searchParams: URLSearchParams) =>
       quoteStatus: 'status',
       quoteNumber: 'number',
       quoteOrderType: 'orderType',
-      userIds: 'ownerIds',
+      userIds: 'owners',
     },
   })
 
