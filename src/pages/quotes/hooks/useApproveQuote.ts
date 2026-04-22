@@ -1,7 +1,12 @@
+import { generatePath, useNavigate } from 'react-router-dom'
+
+import { APPROVE_QUOTE_ROUTE } from '~/core/router'
+
 export const useApproveQuote = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const approveQuote = (_quoteId: string) => {
-    // No-op — will be implemented later
+  const navigate = useNavigate()
+
+  const approveQuote = (quoteId: string, versionId: string) => {
+    navigate(generatePath(APPROVE_QUOTE_ROUTE, { quoteId, versionId }))
   }
 
   return { approveQuote }

@@ -51,7 +51,7 @@ export const useQuoteVersionActions = () => {
         actions.push({
           icon: 'validate-unfilled',
           label: translate('text_1776414006125k6n9d1baloi'),
-          onAction: () => approveQuote(versionId),
+          onAction: () => approveQuote(id, versionId),
         })
       }
 
