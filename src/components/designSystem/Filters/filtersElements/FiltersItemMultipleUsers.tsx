@@ -12,7 +12,10 @@ type FiltersItemMultipleUsersProps = {
   setFilterValue: (value: string) => void
 }
 
-export const FiltersItemMultipleUsers = ({ value, setFilterValue }: FiltersItemMultipleUsersProps) => {
+export const FiltersItemMultipleUsers = ({
+  value,
+  setFilterValue,
+}: FiltersItemMultipleUsersProps) => {
   const { translate } = useInternationalization()
   const { memberships } = useGetAllMembers()
   const { displayInDialog } = useFilters()

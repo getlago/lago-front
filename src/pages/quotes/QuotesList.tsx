@@ -1,17 +1,11 @@
 import { useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
-import {
-  AvailableFiltersEnum,
-  Filters,
-  formatFiltersForQuotesQuery,
-} from '~/components/designSystem/Filters'
+import { formatFiltersForQuotesQuery } from '~/components/designSystem/Filters'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { SearchInput } from '~/components/SearchInput'
-import { QUOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE } from '~/core/router'
 import { QuoteListItemFragment } from '~/generated/graphql'
@@ -81,26 +75,6 @@ const QuotesList = (): JSX.Element => {
 
   return (
     <DetailsPage.Container>
-      <Filters.Provider
-        filtersNamePrefix={QUOTE_LIST_FILTER_PREFIX}
-        availableFilters={[
-          AvailableFiltersEnum.quoteStatus,
-          AvailableFiltersEnum.multipleCustomers,
-          AvailableFiltersEnum.quoteNumber,
-          AvailableFiltersEnum.quoteCreatedAt,
-          AvailableFiltersEnum.quoteOrderType,
-          AvailableFiltersEnum.userIds,
-        ]}
-      >
-        <div className="flex flex-col gap-3 md:flex-row md:items-center">
-          <SearchInput
-            onChange={undefined}
-            placeholder={translate('text_1776870266380c9r63l304dn')}
-          />
-          <Filters.Component />
-        </div>
-      </Filters.Provider>
-
       <InfiniteScroll onBottom={createQuotesPaginationHandler(metadata, loading, fetchMore)}>
         <Table
           name="quotes-list"

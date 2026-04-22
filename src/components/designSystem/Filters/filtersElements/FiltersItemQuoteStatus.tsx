@@ -9,10 +9,7 @@ type FiltersItemQuoteStatusProps = {
   setFilterValue: (value: string) => void
 }
 
-export const FiltersItemQuoteStatus = ({
-  value,
-  setFilterValue,
-}: FiltersItemQuoteStatusProps) => {
+export const FiltersItemQuoteStatus = ({ value, setFilterValue }: FiltersItemQuoteStatusProps) => {
   const { translate } = useInternationalization()
 
   return (
