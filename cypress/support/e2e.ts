@@ -2,23 +2,27 @@
 // This example support/e2e.ts is processed and
 // loaded automatically before your test files.
 // ***********************************************************
+import { NEVER_SLUG_PREFIXES } from '~/core/router/slugPrefixes'
 import { SIGNUP_SUBMIT_BUTTON_TEST_ID } from '~/pages/auth/signUpTestIds'
 
 import { userEmail, userPassword } from './reusableConstants'
 
 /**
- * Public paths that live outside `/:organizationSlug` and must NOT be
- * prefixed with the org slug when navigating via `cy.visitApp()`.
- * Mirrors `NEVER_SLUG_PREFIXES` in `src/core/router/slugPrefixes.ts`
- * plus the auth routes (`/sign-up`, `/invitation`, `/password-reset`).
+ * Paths that pass through `cy.visitApp()` unchanged (no slug prepended).
+ *
+ * Extends the app's `NEVER_SLUG_PREFIXES` with auth entry pages that are
+ * reachable only from outside the app (signup, invitation, password reset)
+ * — those aren't in `NEVER_SLUG_PREFIXES` because the in-app wrappers
+ * (`useNavigate` / `<Link>`) never build `navigate('/sign-up')` calls, but
+ * Cypress tests do visit those pages directly.
+ *
+ * Importing `NEVER_SLUG_PREFIXES` from the source keeps the two lists in
+ * sync — any new public route added there is reflected here automatically.
  */
 const PUBLIC_PATHS = [
-  '/login',
+  ...NEVER_SLUG_PREFIXES,
   '/sign-up',
   '/invitation',
-  '/customer-portal',
-  '/forbidden',
-  '/404',
   '/password-reset',
   '/forgot-password',
 ]
@@ -31,9 +35,17 @@ const PUBLIC_PATHS = [
 const POST_AUTH_URL_RE = /\/[^/]+\/(customers|analytics)/
 
 /**
- * Extracts the org slug from the current URL and stores it in
- * `Cypress.env('orgSlug')` so `cy.visitApp()` can build slug-prefixed
- * paths in subsequent steps.
+ * Module-scoped org slug captured by `cy.login()` / `cy.signup()` and read
+ * by `cy.visitApp()`. Preferred over `Cypress.env('orgSlug', value)` because
+ * Cypress deprecated the 2-arg setter overload. Module-scoped state is
+ * fine here: Cypress loads this support file once per spec run, and tests
+ * that need a different slug re-login/signup (both re-capture).
+ */
+let capturedOrgSlug: string | undefined
+
+/**
+ * Extracts the org slug from the current URL and stores it for subsequent
+ * `cy.visitApp()` calls in the same spec.
  */
 const captureOrgSlugFromUrl = (): void => {
   cy.url()
@@ -42,7 +54,7 @@ const captureOrgSlugFromUrl = (): void => {
       const slug = new URL(url).pathname.split('/')[1]
 
       if (!slug) throw new Error(`Could not extract org slug from URL: ${url}`)
-      Cypress.env('orgSlug', slug)
+      capturedOrgSlug = slug
     })
 }
 
@@ -59,7 +71,7 @@ Cypress.Commands.add('logout', () => {
   cy.get('[data-test="side-nav-logout"]').click()
   cy.url().should('include', '/login')
   // Clear the captured slug — subsequent login/signup must re-capture it.
-  Cypress.env('orgSlug', undefined)
+  capturedOrgSlug = undefined
 })
 
 Cypress.Commands.add(
@@ -90,7 +102,7 @@ Cypress.Commands.add(
  * through unchanged.
  *
  * Requires `cy.login()` or `cy.signup()` to have been called first so
- * the slug is available in `Cypress.env('orgSlug')`.
+ * the slug is available.
  */
 Cypress.Commands.add('visitApp', (path: string) => {
   const isPublic = PUBLIC_PATHS.some((p) => path.startsWith(p))
@@ -99,9 +111,7 @@ Cypress.Commands.add('visitApp', (path: string) => {
     return cy.visit(path)
   }
 
-  const slug = Cypress.env('orgSlug')
-
-  if (!slug) {
+  if (!capturedOrgSlug) {
     throw new Error(
       `cy.visitApp('${path}') called without a captured org slug. Call cy.login() or cy.signup() first.`,
     )
@@ -109,7 +119,7 @@ Cypress.Commands.add('visitApp', (path: string) => {
 
   const normalized = path.startsWith('/') ? path : `/${path}`
 
-  return cy.visit(`/${slug}${normalized}`)
+  return cy.visit(`/${capturedOrgSlug}${normalized}`)
 })
 
 // https://docs.cypress.io/api/cypress-api/custom-commands#Overwrite-type-command
