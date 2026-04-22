@@ -70,3 +70,9 @@ export const quotesApprovalRoutes: CustomRouteObject[] = [
     permissions: ['quotesApprove'],
   },
 ]
+
+export const quotesActionRoutes: CustomRouteObject[] = [
+  ...quotesCreationRoutes,
+  ...quotesVoidRoutes,
+  ...quotesApprovalRoutes,
+]

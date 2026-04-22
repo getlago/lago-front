@@ -5,6 +5,7 @@ import {
 import { customerObjectCreationRoutes, customerVoidRoutes } from '~/core/router/CustomerRoutes'
 import { ERROR_404_ROUTE, FORBIDDEN_ROUTE } from '~/core/router/index'
 import { objectCreationRoutes } from '~/core/router/ObjectsRoutes'
+import { quotesActionRoutes } from '~/core/router/QuotesRoutes'
 import { settingsObjectCreationRoutes } from '~/core/router/SettingRoutes'
 
 /**
@@ -18,6 +19,7 @@ export const getHiddenAiAgentPaths = (): Array<{ path: string }> => {
     ...objectCreationRoutes,
     ...customerObjectCreationRoutes,
     ...customerVoidRoutes,
+    ...quotesActionRoutes,
     ...settingsObjectCreationRoutes,
     ...customerPortalRoutes,
     ...customerPortalChildrenRoutes,
