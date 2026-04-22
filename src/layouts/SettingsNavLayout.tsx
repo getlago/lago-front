@@ -24,6 +24,7 @@ import {
   EDIT_PRICING_UNIT,
   FULL_INTEGRATIONS_ROUTE,
   FULL_INTEGRATIONS_ROUTE_ID,
+  GENERAL_SETTINGS_ROUTE,
   HOME_ROUTE,
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
@@ -103,6 +104,12 @@ const generateTabs = ({
     link: TAXES_SETTINGS_ROUTE,
     match: [TAXES_SETTINGS_ROUTE],
     hidden: !hasPermissions(['organizationTaxesView']),
+  },
+  {
+    title: translate('text_1776867582729i8hvt0ot0wl'),
+    link: GENERAL_SETTINGS_ROUTE,
+    match: [GENERAL_SETTINGS_ROUTE],
+    hidden: !hasPermissions(['organizationView']),
   },
 ]
 

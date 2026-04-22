@@ -23,3 +23,27 @@ export const addLocationToHistory = (location: Location) => {
 export const resetLocationHistoryVar = () => {
   locationHistoryVar([])
 }
+
+/**
+ * Rewrites the leading `/${oldSlug}` segment of every entry in
+ * `locationHistoryVar` with `/${newSlug}`. Used after an organization slug
+ * rename to avoid stale slug that leads to 404.
+ */
+export const rewriteSlugInLocationHistory = (oldSlug: string, newSlug: string) => {
+  if (!oldSlug || oldSlug === newSlug) return
+
+  const oldPrefix = `/${oldSlug}`
+  const previousHistory = locationHistoryVar()
+
+  const rewritten = previousHistory.map((location) => {
+    if (location.pathname === oldPrefix || location.pathname.startsWith(`${oldPrefix}/`)) {
+      return {
+        ...location,
+        pathname: `/${newSlug}${location.pathname.slice(oldPrefix.length)}`,
+      }
+    }
+    return location
+  })
+
+  locationHistoryVar(rewritten)
+}

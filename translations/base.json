@@ -4055,5 +4055,18 @@
   "text_17767988500524o9o9mr53rq": "{{emailUpdater}} assigned role {{rolesAdded}} to {{emailUpdated}}",
   "text_177679885005270syn8w6fh8": "{{emailUpdater}} removed role {{rolesDeleted}} from {{emailUpdated}}",
   "text_17767988500520plhs9f7tkm": "{{emailUpdater}} updated {{emailUpdated}}’s role to {{rolesAdded}} (previously {{rolesDeleted}})",
-  "text_1776863953533imjygk4dami": "The page you're looking for doesn't exist. Check the URL or head back to your homepage."
+  "text_1776863953533imjygk4dami": "The page you're looking for doesn't exist. Check the URL or head back to your homepage.",
+  "text_1776867582729i8hvt0ot0wl": "General",
+  "text_1776867582729flunw00muqy": "Define all settings that applies to this organization",
+  "text_1776867582729ra096lnt5hc": "Organization slug",
+  "text_1776867582729aiet5qqthjk": "Used as the identifier in your organization URLs.",
+  "text_1776867582729jiym04jk1ax": "Edit organization slug",
+  "text_1776867582730aqe2kknmohd": "Used as the identifier in your organization URLs. Changing it updates all organization URLs. Existing bookmarks, shared links, and integrations using the current URLs will stop working.",
+  "text_1776867582730tl36ydvczz2": "Type an organization slug",
+  "text_1776867582730967zpytg618": "Use 3–40 characters, with lowercase letters, numbers, or hyphens only. Start and end with a letter or number.",
+  "text_1776867582730tgxmf57unmt": "This slug is not available. Please choose a different one.",
+  "text_1776867582730qd932fynpjo": "Preview",
+  "text_1776867582730tnsmp9njbz7": "Save edits",
+  "text_17768675827302s9i3t87uhn": "Organization slug successfully edited",
+  "text_1776867582730ouvncumhk7p": "Edit"
 }
