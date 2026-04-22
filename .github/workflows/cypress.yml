@@ -39,7 +39,7 @@ jobs:
           docker compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d db redis api front
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -67,7 +67,7 @@ jobs:
         run: pnpm cypress install
 
       - name: Cypress run
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7.1.9
         with:
           browser: chrome
           install: false
