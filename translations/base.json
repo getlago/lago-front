@@ -3870,7 +3870,6 @@
   "text_1771937987062y18loukkg7e": "{{emailInvitee}} was invited by {{emailInviter}}",
   "text_1771937987062gk7g578r4jp": "{{email}} password edited",
   "text_1771937987062l3bixv068cp": "{{email}} requested to change password",
-  "text_1771937987062894vi7jea8j": "{{emailUpdated}}’s role was edited to {{role}} by user {{emailUpdater}}",
   "text_1771937987062jy68yxfqjwx": "{{email}} joined",
   "text_1771937987062g2z0d9cegyj": "A new webhook endpoint {{url}} was created",
   "text_177193798706284nfb2tmxkb": "A webhook endpoint {{url}} was deleted",
@@ -4052,5 +4051,8 @@
   "text_1775636781835jw4g7ynklb3": "Move right",
   "text_17756367818356w28cspf5y7": "Delete row",
   "text_1775636781835fuo9er4u938": "Delete column",
-  "text_1776444526636tm9yry92nyh": "Go to homepage"
+  "text_1776444526636tm9yry92nyh": "Go to homepage",
+  "text_17767988500524o9o9mr53rq": "{{emailUpdater}} assigned role {{rolesAdded}} to {{emailUpdated}}",
+  "text_177679885005270syn8w6fh8": "{{emailUpdater}} removed role {{rolesDeleted}} from {{emailUpdated}}",
+  "text_17767988500520plhs9f7tkm": "{{emailUpdater}} updated {{emailUpdated}}’s role to {{rolesAdded}} (previously {{rolesDeleted}})"
 }
