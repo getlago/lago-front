@@ -917,7 +917,7 @@
   "text_6661fc17337de3591e29e3c9": "Explain the goal of this plan",
   "text_6661fc17337de3591e29e3cd": "Unique identifier to identify the plan through API.",
   "text_6661fc17337de3591e29e3d1": "Billing period interval",
-  "text_6661fc17337de3591e29e3d3": "Frequency at which the subscription recurs.",
+  "text_6661fc17337de3591e29e3d3": "Frequency at which the subscription fee recurs.",
   "text_6661fc17337de3591e29e3e7": "Pricing definition",
   "text_6661fc17337de3591e29e3e9": "A plan can include fixed and usage-based charges. Add them here and set your pricing and invoicing rules.",
   "text_6661fc17337de3591e29e403": "Period during which the plan is free before billing starts. Applies to the subscription fee only.",
