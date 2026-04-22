@@ -6367,6 +6367,44 @@ export enum OrderByEnum {
   NetRevenueAmountCents = 'net_revenue_amount_cents'
 }
 
+export type OrderForm = {
+  __typename?: 'OrderForm';
+  billingSnapshot: Scalars['JSON']['output'];
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  customer: Customer;
+  expiresAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  number: Scalars['String']['output'];
+  signedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  signedByUserId?: Maybe<Scalars['ID']['output']>;
+  status: OrderFormStatusEnum;
+  updatedAt: Scalars['ISO8601DateTime']['output'];
+  voidReason?: Maybe<OrderFormVoidReasonEnum>;
+  voidedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+};
+
+/** OrderFormCollection type */
+export type OrderFormCollection = {
+  __typename?: 'OrderFormCollection';
+  /** A collection of paginated OrderFormCollection */
+  collection: Array<OrderForm>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+export enum OrderFormStatusEnum {
+  Expired = 'expired',
+  Generated = 'generated',
+  Signed = 'signed',
+  Voided = 'voided'
+}
+
+export enum OrderFormVoidReasonEnum {
+  Expired = 'expired',
+  Invalid = 'invalid',
+  Manual = 'manual'
+}
+
 export enum OrderTypeEnum {
   OneOff = 'one_off',
   SubscriptionAmendment = 'subscription_amendment',
@@ -7269,6 +7307,10 @@ export type Query = {
   memberships: MembershipCollection;
   /** Query MRR of an organization */
   mrrs: MrrCollection;
+  /** Query a single order form */
+  orderForm?: Maybe<OrderForm>;
+  /** Query order forms */
+  orderForms: OrderFormCollection;
   /** Query the current organization */
   organization?: Maybe<CurrentOrganization>;
   /** Query overdue balances of an organization */
@@ -7920,6 +7962,27 @@ export type QueryMembershipsArgs = {
 export type QueryMrrsArgs = {
   billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
+};
+
+
+export type QueryOrderFormArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryOrderFormsArgs = {
+  createdAtFrom?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  createdAtTo?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  customerId?: InputMaybe<Array<Scalars['ID']['input']>>;
+  expiresAtFrom?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  expiresAtTo?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  number?: InputMaybe<Array<Scalars['String']['input']>>;
+  ownerId?: InputMaybe<Array<Scalars['ID']['input']>>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  quoteNumber?: InputMaybe<Array<Scalars['String']['input']>>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Array<OrderFormStatusEnum>>;
 };
 
 
@@ -13883,6 +13946,13 @@ export type DownloadInvoiceXmlMutationVariables = Exact<{
 
 export type DownloadInvoiceXmlMutation = { __typename?: 'Mutation', downloadInvoiceXml?: { __typename?: 'Invoice', id: string, xmlUrl?: string | null } | null };
 
+export type ApproveQuoteMutationVariables = Exact<{
+  input: ApproveQuoteInput;
+}>;
+
+
+export type ApproveQuoteMutation = { __typename?: 'Mutation', approveQuote?: { __typename?: 'Quote', id: string, status: StatusEnum } | null };
+
 export type GetCustomersForCreateQuoteQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -13899,6 +13969,14 @@ export type GetCustomerSubscriptionsForCreateQuoteQueryVariables = Exact<{
 
 export type GetCustomerSubscriptionsForCreateQuoteQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, subscriptions: Array<{ __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, code: string } }> } | null };
 
+export type GetMembersForCreateQuoteQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetMembersForCreateQuoteQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', collection: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } }> } };
+
 export type VoidQuoteMutationVariables = Exact<{
   input: VoidQuoteInput;
 }>;
@@ -13912,14 +13990,6 @@ export type CloneQuoteMutationVariables = Exact<{
 
 
 export type CloneQuoteMutation = { __typename?: 'Mutation', cloneQuote?: { __typename?: 'Quote', id: string } | null };
-
-export type GetMembersForCreateQuoteQueryVariables = Exact<{
-  page?: InputMaybe<Scalars['Int']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type GetMembersForCreateQuoteQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', collection: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } }> } };
 
 export type CreateQuoteMutationVariables = Exact<{
   input: CreateQuoteInput;
@@ -37001,6 +37071,40 @@ export function useDownloadInvoiceXmlMutation(baseOptions?: Apollo.MutationHookO
 export type DownloadInvoiceXmlMutationHookResult = ReturnType<typeof useDownloadInvoiceXmlMutation>;
 export type DownloadInvoiceXmlMutationResult = Apollo.MutationResult<DownloadInvoiceXmlMutation>;
 export type DownloadInvoiceXmlMutationOptions = Apollo.BaseMutationOptions<DownloadInvoiceXmlMutation, DownloadInvoiceXmlMutationVariables>;
+export const ApproveQuoteDocument = gql`
+    mutation approveQuote($input: ApproveQuoteInput!) {
+  approveQuote(input: $input) {
+    id
+    status
+  }
+}
+    `;
+export type ApproveQuoteMutationFn = Apollo.MutationFunction<ApproveQuoteMutation, ApproveQuoteMutationVariables>;
+
+/**
+ * __useApproveQuoteMutation__
+ *
+ * To run a mutation, you first call `useApproveQuoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useApproveQuoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [approveQuoteMutation, { data, loading, error }] = useApproveQuoteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useApproveQuoteMutation(baseOptions?: Apollo.MutationHookOptions<ApproveQuoteMutation, ApproveQuoteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ApproveQuoteMutation, ApproveQuoteMutationVariables>(ApproveQuoteDocument, options);
+      }
+export type ApproveQuoteMutationHookResult = ReturnType<typeof useApproveQuoteMutation>;
+export type ApproveQuoteMutationResult = Apollo.MutationResult<ApproveQuoteMutation>;
+export type ApproveQuoteMutationOptions = Apollo.BaseMutationOptions<ApproveQuoteMutation, ApproveQuoteMutationVariables>;
 export const GetCustomersForCreateQuoteDocument = gql`
     query getCustomersForCreateQuote($page: Int, $limit: Int, $searchTerm: String) {
   customers(page: $page, limit: $limit, searchTerm: $searchTerm) {
@@ -37104,6 +37208,56 @@ export type GetCustomerSubscriptionsForCreateQuoteQueryHookResult = ReturnType<t
 export type GetCustomerSubscriptionsForCreateQuoteLazyQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionsForCreateQuoteLazyQuery>;
 export type GetCustomerSubscriptionsForCreateQuoteSuspenseQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionsForCreateQuoteSuspenseQuery>;
 export type GetCustomerSubscriptionsForCreateQuoteQueryResult = Apollo.QueryResult<GetCustomerSubscriptionsForCreateQuoteQuery, GetCustomerSubscriptionsForCreateQuoteQueryVariables>;
+export const GetMembersForCreateQuoteDocument = gql`
+    query getMembersForCreateQuote($page: Int, $limit: Int) {
+  memberships(page: $page, limit: $limit) {
+    collection {
+      id
+      user {
+        id
+        email
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetMembersForCreateQuoteQuery__
+ *
+ * To run a query within a React component, call `useGetMembersForCreateQuoteQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMembersForCreateQuoteQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMembersForCreateQuoteQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetMembersForCreateQuoteQuery(baseOptions?: Apollo.QueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>(GetMembersForCreateQuoteDocument, options);
+      }
+export function useGetMembersForCreateQuoteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>(GetMembersForCreateQuoteDocument, options);
+        }
+// @ts-ignore
+export function useGetMembersForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>): Apollo.UseSuspenseQueryResult<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>;
+export function useGetMembersForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>): Apollo.UseSuspenseQueryResult<GetMembersForCreateQuoteQuery | undefined, GetMembersForCreateQuoteQueryVariables>;
+export function useGetMembersForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>(GetMembersForCreateQuoteDocument, options);
+        }
+export type GetMembersForCreateQuoteQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteQuery>;
+export type GetMembersForCreateQuoteLazyQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteLazyQuery>;
+export type GetMembersForCreateQuoteSuspenseQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteSuspenseQuery>;
+export type GetMembersForCreateQuoteQueryResult = Apollo.QueryResult<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>;
 export const VoidQuoteDocument = gql`
     mutation voidQuote($input: VoidQuoteInput!) {
   voidQuote(input: $input) {
@@ -37171,57 +37325,6 @@ export function useCloneQuoteMutation(baseOptions?: Apollo.MutationHookOptions<C
 export type CloneQuoteMutationHookResult = ReturnType<typeof useCloneQuoteMutation>;
 export type CloneQuoteMutationResult = Apollo.MutationResult<CloneQuoteMutation>;
 export type CloneQuoteMutationOptions = Apollo.BaseMutationOptions<CloneQuoteMutation, CloneQuoteMutationVariables>;
-
-export const GetMembersForCreateQuoteDocument = gql`
-    query getMembersForCreateQuote($page: Int, $limit: Int) {
-  memberships(page: $page, limit: $limit) {
-    collection {
-      id
-      user {
-        id
-        email
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useGetMembersForCreateQuoteQuery__
- *
- * To run a query within a React component, call `useGetMembersForCreateQuoteQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetMembersForCreateQuoteQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetMembersForCreateQuoteQuery({
- *   variables: {
- *      page: // value for 'page'
- *      limit: // value for 'limit'
- *   },
- * });
- */
-export function useGetMembersForCreateQuoteQuery(baseOptions?: Apollo.QueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>(GetMembersForCreateQuoteDocument, options);
-      }
-export function useGetMembersForCreateQuoteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>(GetMembersForCreateQuoteDocument, options);
-        }
-// @ts-ignore
-export function useGetMembersForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>): Apollo.UseSuspenseQueryResult<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>;
-export function useGetMembersForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>): Apollo.UseSuspenseQueryResult<GetMembersForCreateQuoteQuery | undefined, GetMembersForCreateQuoteQueryVariables>;
-export function useGetMembersForCreateQuoteSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>(GetMembersForCreateQuoteDocument, options);
-        }
-export type GetMembersForCreateQuoteQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteQuery>;
-export type GetMembersForCreateQuoteLazyQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteLazyQuery>;
-export type GetMembersForCreateQuoteSuspenseQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteSuspenseQuery>;
-export type GetMembersForCreateQuoteQueryResult = Apollo.QueryResult<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>;
 export const CreateQuoteDocument = gql`
     mutation createQuote($input: CreateQuoteInput!) {
   createQuote(input: $input) {
