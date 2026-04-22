@@ -7,6 +7,7 @@ import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder
 import { Typography } from '~/components/designSystem/Typography'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
+import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE } from '~/core/router'
 import { useApproveQuoteMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -63,7 +64,7 @@ const ApproveQuote = () => {
       navigate(
         generatePath(QUOTE_DETAILS_ROUTE, {
           quoteId,
-          tab: 'orderForms',
+          tab: QuoteDetailsTabsOptionsEnum.orderForms,
         }),
       )
     }
@@ -74,7 +75,7 @@ const ApproveQuote = () => {
       goBack(
         generatePath(QUOTE_DETAILS_ROUTE, {
           quoteId,
-          tab: 'overview',
+          tab: QuoteDetailsTabsOptionsEnum.overview,
         }),
       )
     }
