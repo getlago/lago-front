@@ -11,6 +11,7 @@ import ApproveQuote, {
   APPROVE_QUOTE_CANCEL_BUTTON_TEST_ID,
   APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID,
 } from '../ApproveQuote'
+import { useApproveQuote } from '../hooks/useApproveQuote'
 import { useQuote } from '../hooks/useQuote'
 
 const mockGoBack = jest.fn()
@@ -30,15 +31,21 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => ({
+  __esModule: true,
+  default: ({ content }: { content?: string }) => (
+    <div data-test="rich-text-editor-preview">{content}</div>
+  ),
+}))
+
 jest.mock('../hooks/useQuote', () => ({
   useQuote: jest.fn(),
 }))
 
 const mockApproveQuote = jest.fn()
 
-jest.mock('~/generated/graphql', () => ({
-  ...jest.requireActual('~/generated/graphql'),
-  useApproveQuoteMutation: () => [mockApproveQuote],
+jest.mock('../hooks/useApproveQuote', () => ({
+  useApproveQuote: jest.fn(),
 }))
 
 jest.mock('~/core/apolloClient', () => ({
@@ -47,6 +54,7 @@ jest.mock('~/core/apolloClient', () => ({
 }))
 
 const mockUseQuote = useQuote as jest.MockedFunction<typeof useQuote>
+const mockUseApproveQuote = useApproveQuote as jest.MockedFunction<typeof useApproveQuote>
 
 const mockQuote = {
   id: 'quote-123',
@@ -74,6 +82,11 @@ describe('ApproveQuote', () => {
       quote: mockQuote,
       loading: false,
       error: undefined,
+    })
+
+    mockUseApproveQuote.mockReturnValue({
+      goToApproveQuote: jest.fn(),
+      approveQuote: mockApproveQuote.mockReturnValue(true),
     })
   })
 
@@ -118,12 +131,8 @@ describe('ApproveQuote', () => {
   })
 
   describe('GIVEN the approve action', () => {
-    describe('WHEN the approve button is clicked and mutation succeeds', () => {
-      it('THEN should call approveQuote mutation with correct variables', async () => {
-        mockApproveQuote.mockResolvedValueOnce({
-          data: { approveQuote: { id: 'quote-123', status: StatusEnum.Approved } },
-        })
-
+    describe('WHEN the approve button is clicked and approveQuote succeeds', () => {
+      it('THEN should call approveQuote', async () => {
         const user = userEvent.setup()
 
         render(<ApproveQuote />)
@@ -131,21 +140,11 @@ describe('ApproveQuote', () => {
         await user.click(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID))
 
         await waitFor(() => {
-          expect(mockApproveQuote).toHaveBeenCalledWith({
-            variables: {
-              input: {
-                id: 'quote-123',
-              },
-            },
-          })
+          expect(mockApproveQuote).toHaveBeenCalled()
         })
       })
 
       it('THEN should show success toast and navigate to order forms tab', async () => {
-        mockApproveQuote.mockResolvedValueOnce({
-          data: { approveQuote: { id: 'quote-123', status: StatusEnum.Approved } },
-        })
-
         const user = userEvent.setup()
 
         render(<ApproveQuote />)
@@ -253,11 +252,16 @@ describe('ApproveQuote', () => {
     })
   })
 
-  describe('GIVEN the approve mutation returns no data', () => {
+  describe('GIVEN approveQuote returns a falsy value', () => {
+    beforeEach(() => {
+      mockUseApproveQuote.mockReturnValue({
+        goToApproveQuote: jest.fn(),
+        approveQuote: mockApproveQuote.mockReturnValue(false),
+      })
+    })
+
     describe('WHEN the approve button is clicked', () => {
       it('THEN should not show success toast or navigate', async () => {
-        mockApproveQuote.mockResolvedValueOnce({ data: { approveQuote: null } })
-
         const user = userEvent.setup()
 
         render(<ApproveQuote />)
