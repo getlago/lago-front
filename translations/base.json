@@ -4127,5 +4127,8 @@
   "text_1776773768859lvcuax763ex": "Create and manage quotes to streamline your sales process. Upgrade to access this feature.",
   "text_1776870266380lnc721e4opb": "Quote number",
   "text_1776870266380ydi5pjfjcqq": "Order type",
-  "text_1776870266380s3zbpmnfrhj": "Created at"
+  "text_1776870266380s3zbpmnfrhj": "Created at",
+  "text_1776848720529vv5zmyyq94k": "Approve quote",
+  "text_1776848720529x0n0j0tob0w": "By approving this quote, an order form will be generated and sent to the customer.",
+  "text_1776848720529o2nn0q3b7iv": "Quote successfully approved"
 }
