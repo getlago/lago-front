@@ -23,6 +23,13 @@ gql`
       id
       email
     }
+    currentVersion {
+      id
+      status
+      version
+      content
+      createdAt
+    }
   }
 
   query getQuote($id: ID!) {
