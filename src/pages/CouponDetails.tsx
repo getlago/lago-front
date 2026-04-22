@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { CouponDetailsActivityLogs } from '~/components/coupons/CouponDetailsActivityLogs'
 import { CouponDetailsAppliedCoupons } from '~/components/coupons/CouponDetailsAppliedCoupons'
@@ -12,7 +12,12 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
+import {
+  COUPON_DETAILS_ROUTE,
+  COUPONS_ROUTE,
+  UPDATE_COUPON_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import {
   DeleteCouponFragmentDoc,
   TerminateCouponFragmentDoc,

@@ -1,6 +1,6 @@
 import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -17,7 +17,11 @@ import {
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { BILLING_ENTITY_EMAIL_SCENARIOS_CONFIG_ROUTE, BILLING_ENTITY_ROUTE } from '~/core/router'
+import {
+  BILLING_ENTITY_EMAIL_SCENARIOS_CONFIG_ROUTE,
+  BILLING_ENTITY_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import {
   BillingEntity,
   BillingEntityEmailSettingsEnum,

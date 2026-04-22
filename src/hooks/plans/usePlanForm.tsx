@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useEffect, useMemo, useRef } from 'react'
-import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
 import {
   LocalPricingUnitType,
@@ -26,6 +26,7 @@ import {
   ERROR_404_ROUTE,
   PLAN_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import { serializePlanInput } from '~/core/serializers'
 import getPropertyShape from '~/core/serializers/getPropertyShape'

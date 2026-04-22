@@ -24,6 +24,24 @@ jest.mock('react-router-dom', () => ({
   Outlet: () => <div data-test="outlet" />,
 }))
 
+// `~/core/router` barrel pulls in route modules that depend on
+// `envGlobalVar` from `~/core/apolloClient`. Stub the two hooks we need
+// directly so the barrel isn't traversed during this test.
+jest.mock('~/core/router', () => ({
+  useNavigate: () => mockNavigate,
+  useLocation: () => mockUseLocation(),
+}))
+
+jest.mock('~/core/router/legacyPaths', () => ({
+  LEGACY_APP_PATH_SEGMENTS: new Set(['customers', 'plans', 'settings']),
+}))
+
+const mockUseIsAuthenticated = jest.fn(() => ({ isAuthenticated: true }))
+
+jest.mock('~/hooks/auth/useIsAuthenticated', () => ({
+  useIsAuthenticated: () => mockUseIsAuthenticated(),
+}))
+
 jest.mock('@apollo/client', () => ({
   ...jest.requireActual('@apollo/client'),
   useApolloClient: () => ({ clearStore: jest.fn() }),
@@ -229,6 +247,88 @@ describe('OrganizationLayout', () => {
 
         expect(Sentry.captureMessage).not.toHaveBeenCalled()
       })
+    })
+  })
+
+  describe('GIVEN a legacy path AND the user has exactly one membership', () => {
+    const singleMembership = [
+      {
+        id: 'membership-1',
+        organization: { id: TEST_ORG_ID, name: 'Acme Corp', slug: TEST_ORG_SLUG },
+      },
+    ]
+
+    it('THEN should auto-redirect to the slug-prefixed path and emit an info Sentry event', () => {
+      mockUseParams.mockReturnValue({ organizationSlug: 'customers' })
+      mockUseLocation.mockReturnValue({
+        pathname: '/customers',
+        search: '?foo=bar',
+        hash: '#section',
+      })
+      mockCurrentOrganizationVar.mockReturnValue(undefined)
+      mockUseCurrentUser.mockReturnValue({
+        currentUser: { memberships: singleMembership },
+        loading: false,
+      })
+
+      renderHook(() => OrganizationLayout())
+
+      expect(mockNavigate).toHaveBeenCalledWith(
+        `/${TEST_ORG_SLUG}/customers?foo=bar#section`,
+        expect.objectContaining({
+          replace: true,
+          skipSlugPrepend: true,
+        }),
+      )
+      expect(Sentry.captureMessage).toHaveBeenCalledWith(
+        'legacy_url_auto_recovered',
+        expect.objectContaining({
+          level: 'info',
+          tags: expect.objectContaining({
+            attemptedSlug: 'customers',
+            recoveredToSlug: TEST_ORG_SLUG,
+          }),
+        }),
+      )
+      // The 404-path events must NOT fire — auto-recover has its own event.
+      expect(Sentry.captureMessage).not.toHaveBeenCalledWith(
+        'legacy_url_accessed',
+        expect.anything(),
+      )
+      expect(Sentry.captureMessage).not.toHaveBeenCalledWith(
+        'slug_migration_missed_link',
+        expect.anything(),
+      )
+    })
+
+    it('THEN should NOT auto-redirect when the slug is unknown (not in legacy paths)', () => {
+      mockUseParams.mockReturnValue({ organizationSlug: 'totally-unknown' })
+      mockUseLocation.mockReturnValue({ pathname: '/totally-unknown', search: '', hash: '' })
+      mockCurrentOrganizationVar.mockReturnValue(undefined)
+      mockUseCurrentUser.mockReturnValue({
+        currentUser: { memberships: singleMembership },
+        loading: false,
+      })
+
+      renderHook(() => OrganizationLayout())
+
+      expect(mockNavigate).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN the user is NOT authenticated (e.g. just logged out)', () => {
+    it('THEN should render null so the route guard handles the redirect to /login', () => {
+      mockUseIsAuthenticated.mockReturnValueOnce({ isAuthenticated: false })
+      mockUseParams.mockReturnValue({ organizationSlug: TEST_ORG_SLUG })
+      mockCurrentOrganizationVar.mockReturnValue(undefined)
+      // On logout, Apollo cache is cleared → currentUser becomes undefined
+      // with loading === false. Without the auth guard the layout would
+      // fall through to Error404.
+      mockUseCurrentUser.mockReturnValue({ currentUser: undefined, loading: false })
+
+      const { result } = renderHook(() => OrganizationLayout())
+
+      expect(result.current).toBeNull()
     })
   })
 })

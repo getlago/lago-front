@@ -1,5 +1,6 @@
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
+import { useNavigate } from '~/core/router'
 import { TimeGranularityEnum } from '~/generated/graphql'
 
 import { useFilterContext } from './context'

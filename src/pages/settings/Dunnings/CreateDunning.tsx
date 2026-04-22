@@ -1,7 +1,6 @@
 import InputAdornment from '@mui/material/InputAdornment'
 import { useFormik } from 'formik'
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -20,7 +19,7 @@ import {
   PreviewCampaignEmailDrawerRef,
 } from '~/components/settings/dunnings/PreviewCampaignEmailDrawer'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
-import { DUNNINGS_SETTINGS_ROUTE } from '~/core/router'
+import { DUNNINGS_SETTINGS_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { scrollToTop } from '~/core/utils/domUtils'
 import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'

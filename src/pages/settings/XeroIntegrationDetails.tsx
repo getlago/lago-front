@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import Nango from '@nangohq/frontend'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
@@ -20,6 +20,7 @@ import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   INTEGRATIONS_ROUTE,
+  useNavigate,
   XERO_INTEGRATION_DETAILS_ROUTE,
   XERO_INTEGRATION_ROUTE,
 } from '~/core/router'

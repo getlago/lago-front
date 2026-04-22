@@ -1,13 +1,12 @@
 import { useEffect } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Spinner } from '~/components/designSystem/Spinner'
-import { BILLING_ENTITY_ROUTE } from '~/core/router'
+import { BILLING_ENTITY_ROUTE, useNavigate } from '~/core/router'
 import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 
 const SettingsHomePage = () => {
   const navigate = useNavigate()
-  const { organizationSlug } = useParams<{ organizationSlug: string }>()
 
   const { data: billingEntitiesData } = useGetBillingEntitiesQuery({
     // This endpoint is not cached to prevent error after logout + organization switch
@@ -29,14 +28,15 @@ const SettingsHomePage = () => {
       return
     }
 
-    const target = generatePath(BILLING_ENTITY_ROUTE, {
-      billingEntityCode: defaultBillingEntity.code,
-    })
-
-    return navigate(organizationSlug ? `/${organizationSlug}${target}` : target, {
-      replace: true,
-    })
-  }, [billingEntitiesData, navigate, organizationSlug])
+    // The `~/core/router` wrapper auto-prepends the org slug, so we can pass
+    // the absolute route constant directly.
+    return navigate(
+      generatePath(BILLING_ENTITY_ROUTE, {
+        billingEntityCode: defaultBillingEntity.code,
+      }),
+      { replace: true },
+    )
+  }, [billingEntitiesData, navigate])
 
   return <Spinner />
 }

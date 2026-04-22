@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
 import { FC, useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -19,7 +19,7 @@ import { addToast } from '~/core/apolloClient'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { INTEGRATIONS_ROUTE, TAXES_SETTINGS_ROUTE } from '~/core/router'
+import { INTEGRATIONS_ROUTE, TAXES_SETTINGS_ROUTE, useNavigate } from '~/core/router'
 import {
   useGetBillingEntitiesQuery,
   useGetTaxesForTaxManagementIntegrationDetailsPageQuery,

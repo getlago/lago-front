@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { ConditionalWrapper, Icon } from 'lago-design-system'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -16,7 +16,7 @@ import {
   SettingsListWrapper,
   SettingsWithTabsPaddedContainer,
 } from '~/components/layouts/Settings'
-import { OKTA_AUTHENTICATION_ROUTE } from '~/core/router'
+import { OKTA_AUTHENTICATION_ROUTE, useNavigate } from '~/core/router'
 import {
   AddOktaIntegrationDialogFragmentDoc,
   AuthenticationMethodsEnum,

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Button } from '~/components/designSystem/Button'
@@ -13,7 +13,7 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import PremiumFeature from '~/components/premium/PremiumFeature'
 import { useDeleteWalletAlertDialog } from '~/components/wallets/DeleteWalletAlertDialog'
 import { formatAmount, formatCredits } from '~/components/wallets/utils'
-import { UPDATE_ALERT_WALLET_ROUTE } from '~/core/router'
+import { UPDATE_ALERT_WALLET_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   Alert,

@@ -4,7 +4,7 @@ import Nango from '@nangohq/frontend'
 import { useFormik } from 'formik'
 import { GraphQLFormattedError } from 'graphql'
 import { forwardRef, RefObject, useId, useImperativeHandle, useRef, useState } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -15,7 +15,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { Checkbox, CheckboxField, TextInputField } from '~/components/form'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { NETSUITE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
+import { NETSUITE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   CreateNetsuiteIntegrationInput,
   NetsuiteForCreateDialogDialogFragment,

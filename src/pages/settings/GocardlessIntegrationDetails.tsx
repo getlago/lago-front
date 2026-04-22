@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
@@ -25,7 +25,7 @@ import {
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { buildGocardlessAuthUrl } from '~/core/constants/externalUrls'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { GOCARDLESS_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
+import { GOCARDLESS_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   AddGocardlessProviderDialogFragmentDoc,

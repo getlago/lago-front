@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -14,6 +14,7 @@ import {
   ANROK_INTEGRATION_DETAILS_ROUTE,
   ANROK_INTEGRATION_ROUTE,
   INTEGRATIONS_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import {
   AddAnrokIntegrationDialogFragmentDoc,

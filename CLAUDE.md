@@ -54,6 +54,19 @@
   // Wrong — triggers full MUI bundle parsing
   import { Button } from '@mui/material'
   ```
+- Never import `useNavigate`, `Link`, or `useLocation` from `react-router-dom`.
+  Import them from `~/core/router` — the slug-aware wrappers auto-prepend
+  `/${organizationSlug}` to navigation targets and expose `strippedPathname`
+  on the location object. Enforced by the custom
+  `lago/no-direct-rrd-nav-import` ESLint rule. Other `react-router-dom`
+  exports (`useParams`, `matchPath`, `generatePath`, `Outlet`, etc.) are
+  unrestricted.
+  ```typescript
+  // Correct
+  import { useNavigate, Link, useLocation } from '~/core/router'
+  // Wrong — bypasses slug-awareness, flagged by ESLint as error
+  import { useNavigate, Link, useLocation } from 'react-router-dom'
+  ```
 
 ## Detailed Guidelines (read on demand)
 

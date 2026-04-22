@@ -1,8 +1,8 @@
 import { IconName } from 'lago-design-system'
 import { forwardRef, MouseEvent, ReactNode } from 'react'
-import { Link } from 'react-router-dom'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
+import { Link } from '~/core/router'
 import { tw } from '~/styles/utils'
 
 import { Button, ButtonProps, SimpleButtonProps } from './Button'

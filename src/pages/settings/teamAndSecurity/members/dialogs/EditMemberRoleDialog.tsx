@@ -1,7 +1,6 @@
 import Stack from '@mui/material/Stack'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -10,7 +9,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { HOME_ROUTE } from '~/core/router'
+import { HOME_ROUTE, useNavigate } from '~/core/router'
 import {
   LagoApiError,
   MemberForEditRoleForDialogFragment,

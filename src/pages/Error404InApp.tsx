@@ -1,7 +1,5 @@
-import { useNavigate } from 'react-router-dom'
-
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { HOME_ROUTE } from '~/core/router'
+import { HOME_ROUTE, useNavigate } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 

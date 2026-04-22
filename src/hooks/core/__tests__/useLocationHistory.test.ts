@@ -44,10 +44,17 @@ const MOCK_HISTORY_VAR = [
   },
 ]
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-}))
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom')
+
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+    useParams: jest.fn(actual.useParams),
+  }
+})
+
+const mockUseParams = jest.requireMock('react-router-dom').useParams as jest.Mock
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
@@ -79,6 +86,7 @@ describe('useLocationHistory()', () => {
     mockGetItemFromLS.mockClear()
     mockHasPermissions.mockClear()
     mockHasPermissionsOr.mockClear()
+    mockUseParams.mockReturnValue({})
     authTokenVar(undefined)
 
     // Default to true for backwards compatibility with existing tests
@@ -706,6 +714,46 @@ describe('useLocationHistory()', () => {
         )
 
         expect(mockNavigate).toHaveBeenCalledWith(FALLBACK_URL)
+        expect(locationHistoryVar()).toEqual([])
+      })
+    })
+
+    describe('GIVEN the user is inside an organization context (slug-aware exclude)', () => {
+      const SLUG_HISTORY = [
+        { pathname: '/acme/add-ons', search: '', hash: '', state: null, key: 'k1' },
+        { pathname: '/acme/settings/taxes', search: '', hash: '', state: null, key: 'k2' },
+        { pathname: '/acme/customers', search: '', hash: '', state: null, key: 'k3' },
+      ]
+
+      beforeEach(() => {
+        mockUseParams.mockReturnValue({ organizationSlug: 'acme' })
+        locationHistoryVar(SLUG_HISTORY)
+      })
+
+      it('THEN should match slug-unaware exclude patterns against stripped pathnames', () => {
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() =>
+          result.current.goBack(FALLBACK_URL, {
+            exclude: '/settings/taxes',
+          }),
+        )
+
+        expect(mockNavigate).toHaveBeenCalledWith(SLUG_HISTORY[2])
+        expect(locationHistoryVar()).toEqual([])
+      })
+
+      it('THEN should fall back when all history entries are excluded (slug prepended to fallback)', () => {
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() =>
+          result.current.goBack(FALLBACK_URL, {
+            exclude: ['/settings/taxes', '/customers'],
+          }),
+        )
+
+        // The slug-aware navigate wrapper prepends /acme to the fallback
+        expect(mockNavigate).toHaveBeenCalledWith('/acme/fallback')
         expect(locationHistoryVar()).toEqual([])
       })
     })

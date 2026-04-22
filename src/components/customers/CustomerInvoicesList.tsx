@@ -1,7 +1,7 @@
 import { FetchMoreQueryOptions, gql } from '@apollo/client'
 import { IconName } from 'lago-design-system'
 import { FC, useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
@@ -39,6 +39,7 @@ import {
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_VOID_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { getTimezoneConfig, intlFormatDateTime } from '~/core/timezone'
