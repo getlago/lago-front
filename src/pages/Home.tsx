@@ -82,7 +82,10 @@ const Home = () => {
         const isLegacySegment = LEGACY_APP_PATH_SEGMENTS.has(savedSlug ?? '')
 
         if (isLegacySegment) {
-          return navigate(`/${slug}${savedLocation.pathname}`, { replace: true })
+          return navigate(
+            `/${slug}${savedLocation.pathname}${savedLocation.search || ''}${savedLocation.hash || ''}`,
+            { replace: true },
+          )
         }
       }
       // Unknown slug or unrecognized path — fall through to default navigation

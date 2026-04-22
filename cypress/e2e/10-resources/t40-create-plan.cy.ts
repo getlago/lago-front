@@ -20,7 +20,7 @@ const selectMeteredBillableMetric = (bmNameFragment: string) => {
 
 describe('Create plan', () => {
   beforeEach(() => {
-    cy.login().visit('/plans')
+    cy.login().visitApp('/plans')
   })
 
   it('should be able to create a minimal plan', () => {
@@ -31,7 +31,7 @@ describe('Create plan', () => {
     cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
       force: true,
     })
-    cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
+    cy.url().should('match', /\/[^/]+\/create\/plans$/)
     cy.get('input[name="name"]').type(planName)
     cy.get('input[name="code"]').should('have.value', planCode)
 
@@ -49,7 +49,7 @@ describe('Create plan', () => {
     cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
       force: true,
     })
-    cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
+    cy.url().should('match', /\/[^/]+\/create\/plans$/)
     cy.get('input[name="name"]').type(planName)
     cy.get('input[name="code"]').should('have.value', planCode)
     cy.get('[data-test="show-description"]').click({ force: true })
@@ -69,7 +69,7 @@ describe('Create plan', () => {
     cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
       force: true,
     })
-    cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
+    cy.url().should('match', /\/[^/]+\/create\/plans$/)
     cy.get('input[name="name"]').type(planWithChargesName)
     cy.get('[data-test="show-description"]').click({ force: true })
     cy.get('textarea[name="description"]').type('A plan with all charge types')

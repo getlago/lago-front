@@ -147,7 +147,7 @@ describe('Home', () => {
       })
     })
 
-    it('should prepend slug to legacy saved location (no slug in path)', async () => {
+    it('should prepend slug to legacy saved location and preserve search + hash', async () => {
       mockUseLocation.mockReturnValue({
         state: {
           from: savedLocationLegacy,
@@ -158,7 +158,7 @@ describe('Home', () => {
       renderHook(() => Home())
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/customers/123`, {
+        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/customers/123?tab=overview`, {
           replace: true,
         })
       })
