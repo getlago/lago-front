@@ -10959,6 +10959,15 @@ export type GetInvoiceNumbersForFilterItemInvoiceNumbersQueryVariables = Exact<{
 
 export type GetInvoiceNumbersForFilterItemInvoiceNumbersQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Invoice', id: string, number: string }> } };
 
+export type GetCustomersForFilterItemMultipleCustomersQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetCustomersForFilterItemMultipleCustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Customer', id: string, displayName: string, externalId: string, deletedAt?: any | null }> } };
+
 export type GetPlansForFiltersItemPlanCodeQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -23814,6 +23823,65 @@ export type GetInvoiceNumbersForFilterItemInvoiceNumbersQueryHookResult = Return
 export type GetInvoiceNumbersForFilterItemInvoiceNumbersLazyQueryHookResult = ReturnType<typeof useGetInvoiceNumbersForFilterItemInvoiceNumbersLazyQuery>;
 export type GetInvoiceNumbersForFilterItemInvoiceNumbersSuspenseQueryHookResult = ReturnType<typeof useGetInvoiceNumbersForFilterItemInvoiceNumbersSuspenseQuery>;
 export type GetInvoiceNumbersForFilterItemInvoiceNumbersQueryResult = Apollo.QueryResult<GetInvoiceNumbersForFilterItemInvoiceNumbersQuery, GetInvoiceNumbersForFilterItemInvoiceNumbersQueryVariables>;
+export const GetCustomersForFilterItemMultipleCustomersDocument = gql`
+    query getCustomersForFilterItemMultipleCustomers($page: Int, $limit: Int, $searchTerm: String) {
+  customers(
+    page: $page
+    limit: $limit
+    searchTerm: $searchTerm
+    withDeleted: true
+  ) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      displayName
+      externalId
+      deletedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCustomersForFilterItemMultipleCustomersQuery__
+ *
+ * To run a query within a React component, call `useGetCustomersForFilterItemMultipleCustomersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomersForFilterItemMultipleCustomersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomersForFilterItemMultipleCustomersQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetCustomersForFilterItemMultipleCustomersQuery(baseOptions?: Apollo.QueryHookOptions<GetCustomersForFilterItemMultipleCustomersQuery, GetCustomersForFilterItemMultipleCustomersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomersForFilterItemMultipleCustomersQuery, GetCustomersForFilterItemMultipleCustomersQueryVariables>(GetCustomersForFilterItemMultipleCustomersDocument, options);
+      }
+export function useGetCustomersForFilterItemMultipleCustomersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomersForFilterItemMultipleCustomersQuery, GetCustomersForFilterItemMultipleCustomersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomersForFilterItemMultipleCustomersQuery, GetCustomersForFilterItemMultipleCustomersQueryVariables>(GetCustomersForFilterItemMultipleCustomersDocument, options);
+        }
+// @ts-ignore
+export function useGetCustomersForFilterItemMultipleCustomersSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomersForFilterItemMultipleCustomersQuery, GetCustomersForFilterItemMultipleCustomersQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomersForFilterItemMultipleCustomersQuery, GetCustomersForFilterItemMultipleCustomersQueryVariables>;
+export function useGetCustomersForFilterItemMultipleCustomersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomersForFilterItemMultipleCustomersQuery, GetCustomersForFilterItemMultipleCustomersQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomersForFilterItemMultipleCustomersQuery | undefined, GetCustomersForFilterItemMultipleCustomersQueryVariables>;
+export function useGetCustomersForFilterItemMultipleCustomersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomersForFilterItemMultipleCustomersQuery, GetCustomersForFilterItemMultipleCustomersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomersForFilterItemMultipleCustomersQuery, GetCustomersForFilterItemMultipleCustomersQueryVariables>(GetCustomersForFilterItemMultipleCustomersDocument, options);
+        }
+export type GetCustomersForFilterItemMultipleCustomersQueryHookResult = ReturnType<typeof useGetCustomersForFilterItemMultipleCustomersQuery>;
+export type GetCustomersForFilterItemMultipleCustomersLazyQueryHookResult = ReturnType<typeof useGetCustomersForFilterItemMultipleCustomersLazyQuery>;
+export type GetCustomersForFilterItemMultipleCustomersSuspenseQueryHookResult = ReturnType<typeof useGetCustomersForFilterItemMultipleCustomersSuspenseQuery>;
+export type GetCustomersForFilterItemMultipleCustomersQueryResult = Apollo.QueryResult<GetCustomersForFilterItemMultipleCustomersQuery, GetCustomersForFilterItemMultipleCustomersQueryVariables>;
 export const GetPlansForFiltersItemPlanCodeDocument = gql`
     query getPlansForFiltersItemPlanCode($page: Int, $limit: Int, $searchTerm: String) {
   plans(page: $page, limit: $limit, searchTerm: $searchTerm, withDeleted: true) {
