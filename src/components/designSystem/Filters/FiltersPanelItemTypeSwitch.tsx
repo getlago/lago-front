@@ -46,7 +46,11 @@ import { FiltersItemStatus } from '~/components/designSystem/Filters/filtersElem
 import { FiltersItemSubscription } from '~/components/designSystem/Filters/filtersElements/FiltersItemSubscription'
 import { FiltersItemSubscriptionStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemSubscriptionStatus'
 import { FiltersItemUserEmails } from '~/components/designSystem/Filters/filtersElements/FiltersItemUserEmails'
-import { FiltersItemUserIds } from '~/components/designSystem/Filters/filtersElements/FiltersItemUserIds'
+import { FiltersItemMultipleCustomers } from '~/components/designSystem/Filters/filtersElements/FiltersItemMultipleCustomers'
+import { FiltersItemMultipleUsers } from '~/components/designSystem/Filters/filtersElements/FiltersItemMultipleUsers'
+import { FiltersItemQuoteNumber } from '~/components/designSystem/Filters/filtersElements/FiltersItemQuoteNumber'
+import { FiltersItemQuoteOrderType } from '~/components/designSystem/Filters/filtersElements/FiltersItemQuoteOrderType'
+import { FiltersItemQuoteStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemQuoteStatus'
 import { FiltersItemWebhookDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemWebhookDate'
 import { FiltersItemWebhookEventTypes } from '~/components/designSystem/Filters/filtersElements/FiltersItemWebhookEventTypes'
 import { FiltersItemWebhookHttpStatuses } from '~/components/designSystem/Filters/filtersElements/FiltersItemWebhookHttpStatuses'
@@ -131,7 +135,12 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.webhookDate]: <FiltersItemWebhookDate {...props} />,
     [AvailableFiltersEnum.webhookEventTypes]: <FiltersItemWebhookEventTypes {...props} />,
     [AvailableFiltersEnum.webhookHttpStatuses]: <FiltersItemWebhookHttpStatuses {...props} />,
-    [AvailableFiltersEnum.userIds]: <FiltersItemUserIds {...props} />,
+    [AvailableFiltersEnum.userIds]: <FiltersItemMultipleUsers {...props} />,
+    [AvailableFiltersEnum.multipleCustomers]: <FiltersItemMultipleCustomers {...props} />,
+    [AvailableFiltersEnum.quoteCreatedAt]: <FiltersItemDate {...props} />,
+    [AvailableFiltersEnum.quoteNumber]: <FiltersItemQuoteNumber {...props} />,
+    [AvailableFiltersEnum.quoteOrderType]: <FiltersItemQuoteOrderType {...props} />,
+    [AvailableFiltersEnum.quoteStatus]: <FiltersItemQuoteStatus {...props} />,
     [AvailableFiltersEnum.webhookStatus]: <FiltersItemWebhookStatus {...props} />,
     [AvailableFiltersEnum.isCustomerTinEmpty]: <FiltersItemIsCustomerTinEmpty {...props} />,
     [AvailableFiltersEnum.zipcodes]: <FiltersItemZipcodes {...props} />,
