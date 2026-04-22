@@ -156,7 +156,7 @@ describe('ApproveQuote', () => {
           expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
         })
 
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-123/orderForms')
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-123/order-forms')
       })
     })
   })
