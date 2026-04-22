@@ -214,9 +214,7 @@ describe('ApproveQuote', () => {
 
         render(<ApproveQuote />)
 
-        expect(
-          screen.queryByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID),
-        ).not.toBeInTheDocument()
+        expect(screen.queryByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

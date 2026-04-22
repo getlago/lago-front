@@ -5,7 +5,12 @@ import { authRoutes } from './AuthRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
 import { customerObjectCreationRoutes, customerRoutes, customerVoidRoutes } from './CustomerRoutes'
 import { objectCreationRoutes, objectDetailsRoutes, objectListRoutes } from './ObjectsRoutes'
-import { quotesApprovalRoutes, quotesCreationRoutes, quotesRoutes, quotesVoidRoutes } from './QuotesRoutes'
+import {
+  quotesApprovalRoutes,
+  quotesCreationRoutes,
+  quotesRoutes,
+  quotesVoidRoutes,
+} from './QuotesRoutes'
 import { settingRoutes } from './SettingRoutes'
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
