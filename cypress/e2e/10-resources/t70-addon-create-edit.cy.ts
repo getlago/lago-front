@@ -16,9 +16,9 @@ describe('Add On', () => {
 
   it('should be able create an add on with all attributes filled', () => {
     // Navigation
-    cy.visit('/add-ons')
+    cy.visitApp('/add-ons')
     cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="create-addon-cta"]`).click()
-    cy.url().should('be.equal', Cypress.config().baseUrl + '/create/add-on')
+    cy.url().should('match', /\/[^/]+\/create\/add-on$/)
 
     // Basic form infos
     cy.get('[data-test="submit"]').should('be.disabled')
@@ -40,7 +40,7 @@ describe('Add On', () => {
 
   it('should be able to edit the same coupon', () => {
     // Navigation
-    cy.visit('/add-ons')
+    cy.visitApp('/add-ons')
     cy.get(`[data-test="${addOnName}"]`).click()
 
     cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="addon-details-actions"]`).click()

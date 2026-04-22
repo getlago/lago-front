@@ -4,7 +4,7 @@ import { customerName } from '../support/reusableConstants'
 
 describe('Subscriptions', () => {
   beforeEach(() => {
-    cy.login().visit('/customers')
+    cy.login().visitApp('/customers')
     cy.get('[data-test="table-customers-list"] tr').contains(customerName).click()
   })
 

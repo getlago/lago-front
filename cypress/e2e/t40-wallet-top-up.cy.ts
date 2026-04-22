@@ -21,7 +21,7 @@ const walletCustomerExternalId = `wallet-customer-${randomId}`
 describe('Wallet Top-Up', () => {
   before(() => {
     // Create a customer and a wallet as prerequisites
-    cy.login().visit('/customers')
+    cy.login().visitApp('/customers')
 
     // Create customer
     cy.get(
@@ -58,7 +58,7 @@ describe('Wallet Top-Up', () => {
 
   it('should be able to create a prepaid credits top-up', () => {
     // Navigate to the customer
-    cy.visit('/customers')
+    cy.visitApp('/customers')
     cy.contains(walletCustomerName).click({ force: true })
 
     // Go to wallet tab
@@ -85,7 +85,7 @@ describe('Wallet Top-Up', () => {
 
   it('should be able to create a free credits top-up', () => {
     // Navigate to the customer
-    cy.visit('/customers')
+    cy.visitApp('/customers')
     cy.contains(walletCustomerName).click({ force: true })
 
     // Go to wallet tab

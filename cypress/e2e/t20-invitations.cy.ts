@@ -6,7 +6,7 @@ describe('Invitations', () => {
   const inviteEmail = `test-invite-${Date.now()}@gmail.com`
 
   it('should be able to create an invitation', () => {
-    cy.visit('/settings/team-and-security/members')
+    cy.visitApp('/settings/team-and-security/members')
     cy.get(`[role="dialog"]`).should('not.exist')
     cy.get(`[data-test="create-invite-button"]`).click()
     cy.get(`[role="dialog"]`).should('exist')
@@ -20,7 +20,7 @@ describe('Invitations', () => {
   })
 
   it('invite link should have correct format', () => {
-    cy.visit('/settings/team-and-security/members/invitations')
+    cy.visitApp('/settings/team-and-security/members/invitations')
 
     cy.get('#table-members-setting-invitations-list-row-0')
       .first()
@@ -30,10 +30,7 @@ describe('Invitations', () => {
 
     cy.get('[data-test="copy-invite-link"]').click()
 
-    cy.url().should(
-      'be.equal',
-      Cypress.config().baseUrl + '/settings/team-and-security/members/invitations',
-    )
+    cy.url().should('match', /\/[^/]+\/settings\/team-and-security\/members\/invitations$/)
     cy.window().then((win) => {
       new Cypress.Promise((resolve, reject) =>
         win.navigator.clipboard.readText().then(resolve).catch(reject),

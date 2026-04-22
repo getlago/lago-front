@@ -15,7 +15,7 @@ describe('Coupons', () => {
   })
 
   it('should be able create a coupon with plan limitation', () => {
-    cy.visit('/coupons')
+    cy.visitApp('/coupons')
     cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="add-coupon"]`).click()
     cy.get('input[name="name"]').type(couponName)
     cy.get('input[name="code"]').should('have.value', couponCode)
@@ -34,7 +34,7 @@ describe('Coupons', () => {
   })
 
   it('should be able to edit the same coupon', () => {
-    cy.visit('/coupons')
+    cy.visitApp('/coupons')
     cy.get(`[data-test="${couponName}"]`).click()
 
     cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="coupon-details-actions"]`).click()
@@ -55,7 +55,7 @@ describe('Coupons', () => {
   })
 
   it('should be able to apply the coupon to a customer', () => {
-    cy.visit('/customers')
+    cy.visitApp('/customers')
     cy.get('[data-test="table-customers-list"] tr', { timeout: 10000 })
       .contains(customerName)
       .click()
@@ -79,7 +79,7 @@ describe('Coupons', () => {
   })
 
   it('should not be able to apply the same coupon to a customer multiple time', () => {
-    cy.visit('/customers')
+    cy.visitApp('/customers')
     cy.get('[data-test="table-customers-list"] tr', { timeout: 10000 })
       .contains(customerName)
       .click()
@@ -92,7 +92,7 @@ describe('Coupons', () => {
   })
 
   it('should not be able to edit an applied coupon', () => {
-    cy.visit('/coupons')
+    cy.visitApp('/coupons')
     cy.get(`[data-test="${couponName}"]`).click()
 
     cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="coupon-details-actions"]`).click()
