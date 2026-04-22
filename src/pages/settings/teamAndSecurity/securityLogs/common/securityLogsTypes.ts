@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 import { GetSecurityLogsQuery } from '~/generated/graphql'
 
 export type SecurityLogs = NonNullable<GetSecurityLogsQuery['securityLogs']>['collection']
@@ -5,49 +7,72 @@ export type SecurityLog = SecurityLogs[number]
 
 export type SecurityLogWithId = SecurityLog & { id: string }
 
-// Resource interfaces for type-safe access to the JSON `resources` field
-export interface ApiKeyResource {
-  name: string
-  value_ending: number
-}
+// `SecurityLog.resources` is typed as the GraphQL `JSON` scalar, so codegen
+// gives us `any`. These schemas are the only contract that matches the payload
+// each backend service serializes. If the backend shape drifts, safeParse
+// returns a failure and the UI falls back to the "unknown" branch loudly
+// instead of silently accessing undefined fields.
 
-export interface RotatedApiKeyResource {
-  name: string
-  value_ending: {
-    deleted: string
-    added: string
-  }
-}
+export const apiKeyResourceSchema = z.object({
+  name: z.string(),
+  value_ending: z.union([z.string(), z.number()]),
+})
+export type ApiKeyResource = z.infer<typeof apiKeyResourceSchema>
 
-export interface BillingEntityResource {
-  billing_entity_name: string
-}
+export const rotatedApiKeyResourceSchema = z.object({
+  name: z.string(),
+  value_ending: z.object({
+    deleted: z.string(),
+    added: z.string(),
+  }),
+})
+export type RotatedApiKeyResource = z.infer<typeof rotatedApiKeyResourceSchema>
 
-export interface IntegrationResource {
-  integration_name: string
-}
+export const billingEntityResourceSchema = z.object({
+  billing_entity_name: z.string(),
+})
+export type BillingEntityResource = z.infer<typeof billingEntityResourceSchema>
 
-export interface RoleResource {
-  role_code: string
-}
+export const integrationResourceSchema = z.object({
+  integration_name: z.string(),
+})
+export type IntegrationResource = z.infer<typeof integrationResourceSchema>
 
-export interface InviteResource {
-  invitee_email: string
-}
+export const roleResourceSchema = z.object({
+  role_code: z.string(),
+})
+export type RoleResource = z.infer<typeof roleResourceSchema>
 
-export interface RoleEditedResource {
-  email: string
-  roles: {
-    added: string
-  }
-}
+export const inviteResourceSchema = z.object({
+  invitee_email: z.string(),
+})
+export type InviteResource = z.infer<typeof inviteResourceSchema>
 
-export interface WebhookResource {
-  webhook_url: string
-}
-export interface WebhookEditedResource {
-  webhook_url: {
-    deleted: string
-    added: string
-  }
-}
+// Backend (`Memberships::UpdateService#register_security_log`) sends
+// `{ added: ['code', ...], deleted: ['code', ...] }`. Either key can be absent
+// when the user only gained or only lost roles; the guard requires at least one.
+export const roleEditedResourceSchema = z
+  .object({
+    email: z.string(),
+    roles: z.object({
+      added: z.array(z.string()).optional(),
+      deleted: z.array(z.string()).optional(),
+    }),
+  })
+  .refine(({ roles }) => !!roles.added?.length || !!roles.deleted?.length, {
+    message: 'roles.added or roles.deleted must contain at least one code',
+  })
+export type RoleEditedResource = z.infer<typeof roleEditedResourceSchema>
+
+export const webhookResourceSchema = z.object({
+  webhook_url: z.string(),
+})
+export type WebhookResource = z.infer<typeof webhookResourceSchema>
+
+export const webhookEditedResourceSchema = z.object({
+  webhook_url: z.object({
+    deleted: z.string(),
+    added: z.string(),
+  }),
+})
+export type WebhookEditedResource = z.infer<typeof webhookEditedResourceSchema>

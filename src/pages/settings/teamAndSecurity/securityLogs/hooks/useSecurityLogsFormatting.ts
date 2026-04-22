@@ -3,18 +3,19 @@ import { LogEventEnum, LogTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
+import { parseSecurityLogResource } from '../common/parseSecurityLogResource'
 import {
-  isApiKeyResource,
-  isBillingEntityResource,
-  isIntegrationResource,
-  isInviteResource,
-  isRoleEditedResource,
-  isRoleResource,
-  isRotatedApiKeyResource,
-  isWebhookEditedResource,
-  isWebhookResource,
-} from '../common/securityLogsResourcesTypeGuards'
-import { SecurityLogWithId } from '../common/securityLogsTypes'
+  apiKeyResourceSchema,
+  billingEntityResourceSchema,
+  integrationResourceSchema,
+  inviteResourceSchema,
+  roleEditedResourceSchema,
+  roleResourceSchema,
+  rotatedApiKeyResourceSchema,
+  SecurityLogWithId,
+  webhookEditedResourceSchema,
+  webhookResourceSchema,
+} from '../common/securityLogsTypes'
 
 export const useSecurityLogsFormatting = () => {
   const { translate } = useInternationalization()
@@ -35,101 +36,129 @@ export const useSecurityLogsFormatting = () => {
   }
 
   const getApiKeyResources = (securityLog: SecurityLogWithId) => {
-    if (!isApiKeyResource(securityLog.resources)) {
-      return { apiKeyName: 'unknown', lastFour: 'XXXX' }
-    }
+    const parsed = parseSecurityLogResource(apiKeyResourceSchema, securityLog)
+
+    if (!parsed) return { apiKeyName: 'unknown', lastFour: 'XXXX' }
 
     return {
-      apiKeyName: securityLog.resources.name,
-      lastFour: securityLog.resources.value_ending,
+      apiKeyName: parsed.name,
+      lastFour: parsed.value_ending,
     }
   }
 
   const getRotatedApiKeyResources = (securityLog: SecurityLogWithId) => {
-    if (!isRotatedApiKeyResource(securityLog.resources)) {
-      return { apiKeyName: 'unknown', lastFourFrom: 'XXXX', lastFourTo: 'XXXX' }
-    }
+    const parsed = parseSecurityLogResource(rotatedApiKeyResourceSchema, securityLog)
+
+    if (!parsed) return { apiKeyName: 'unknown', lastFourFrom: 'XXXX', lastFourTo: 'XXXX' }
 
     return {
-      apiKeyName: securityLog.resources.name,
-      lastFourFrom: securityLog.resources.value_ending.deleted,
-      lastFourTo: securityLog.resources.value_ending.added,
+      apiKeyName: parsed.name,
+      lastFourFrom: parsed.value_ending.deleted,
+      lastFourTo: parsed.value_ending.added,
     }
   }
 
   const getBillingEntityResources = (securityLog: SecurityLogWithId) => {
-    if (!isBillingEntityResource(securityLog.resources)) {
-      return { email: securityLog.userEmail, billingEntityName: 'unknown' }
-    }
+    const parsed = parseSecurityLogResource(billingEntityResourceSchema, securityLog)
+
+    if (!parsed) return { email: securityLog.userEmail, billingEntityName: 'unknown' }
 
     return {
       email: securityLog.userEmail,
-      billingEntityName: securityLog.resources.billing_entity_name,
+      billingEntityName: parsed.billing_entity_name,
     }
   }
 
   const getIntegrationsResources = (securityLog: SecurityLogWithId) => {
-    if (!isIntegrationResource(securityLog.resources)) {
-      return { email: securityLog.userEmail, integrationName: 'unknown' }
-    }
+    const parsed = parseSecurityLogResource(integrationResourceSchema, securityLog)
+
+    if (!parsed) return { email: securityLog.userEmail, integrationName: 'unknown' }
 
     return {
       email: securityLog.userEmail,
-      integrationName: securityLog.resources.integration_name,
+      integrationName: parsed.integration_name,
     }
   }
 
   const getRoleResources = (securityLog: SecurityLogWithId) => {
-    if (!isRoleResource(securityLog.resources)) {
-      return { email: securityLog.userEmail, role: 'unknown' }
-    }
+    const parsed = parseSecurityLogResource(roleResourceSchema, securityLog)
+
+    if (!parsed) return { email: securityLog.userEmail, role: 'unknown' }
 
     return {
       email: securityLog.userEmail,
-      role: securityLog.resources.role_code,
+      role: parsed.role_code,
     }
   }
 
   const getInviteResources = (securityLog: SecurityLogWithId) => {
-    if (!isInviteResource(securityLog.resources)) {
-      return { emailInviter: securityLog.userEmail, emailInvitee: 'unknown' }
-    }
+    const parsed = parseSecurityLogResource(inviteResourceSchema, securityLog)
+
+    if (!parsed) return { emailInviter: securityLog.userEmail, emailInvitee: 'unknown' }
 
     return {
       emailInviter: securityLog.userEmail,
-      emailInvitee: securityLog.resources.invitee_email,
+      emailInvitee: parsed.invitee_email,
     }
   }
 
-  const getRoleEditedResources = (securityLog: SecurityLogWithId) => {
-    if (!isRoleEditedResource(securityLog.resources)) {
-      return { emailUpdated: 'unknown', role: 'unknown', emailUpdater: securityLog.userEmail }
+  const getRoleEditedTranslation = (securityLog: SecurityLogWithId) => {
+    const parsed = parseSecurityLogResource(roleEditedResourceSchema, securityLog)
+
+    if (!parsed) {
+      return translate('text_17767988500520plhs9f7tkm', {
+        emailUpdated: 'unknown',
+        rolesAdded: 'unknown',
+        rolesDeleted: 'unknown',
+        emailUpdater: securityLog.userEmail,
+      })
     }
 
-    return {
-      emailUpdated: securityLog.resources.email,
-      role: securityLog.resources.roles.added,
-      emailUpdater: securityLog.userEmail,
+    const rolesAdded = parsed.roles.added?.join(', ')
+    const rolesDeleted = parsed.roles.deleted?.join(', ')
+
+    if (rolesAdded && rolesDeleted) {
+      return translate('text_17767988500520plhs9f7tkm', {
+        emailUpdated: parsed.email,
+        rolesAdded,
+        rolesDeleted,
+        emailUpdater: securityLog.userEmail,
+      })
     }
+
+    if (rolesAdded) {
+      return translate('text_17767988500524o9o9mr53rq', {
+        emailUpdated: parsed.email,
+        rolesAdded,
+        emailUpdater: securityLog.userEmail,
+      })
+    }
+
+    return translate('text_177679885005270syn8w6fh8', {
+      emailUpdated: parsed.email,
+      rolesDeleted,
+      emailUpdater: securityLog.userEmail,
+    })
   }
 
   const getWebhookResources = (securityLog: SecurityLogWithId) => {
-    if (!isWebhookResource(securityLog.resources)) {
-      return { url: 'unknown' }
-    }
+    const parsed = parseSecurityLogResource(webhookResourceSchema, securityLog)
+
+    if (!parsed) return { url: 'unknown' }
 
     return {
-      url: securityLog.resources.webhook_url,
+      url: parsed.webhook_url,
     }
   }
+
   const getWebhookEditedResources = (securityLog: SecurityLogWithId) => {
-    if (!isWebhookEditedResource(securityLog.resources)) {
-      return { urlFrom: 'unknown', urlTo: 'unknown' }
-    }
+    const parsed = parseSecurityLogResource(webhookEditedResourceSchema, securityLog)
+
+    if (!parsed) return { urlFrom: 'unknown', urlTo: 'unknown' }
 
     return {
-      urlFrom: securityLog.resources.webhook_url.deleted,
-      urlTo: securityLog.resources.webhook_url.added,
+      urlFrom: parsed.webhook_url.deleted,
+      urlTo: parsed.webhook_url.added,
     }
   }
 
@@ -178,7 +207,7 @@ export const useSecurityLogsFormatting = () => {
           email: securityLog.userEmail,
         })
       case LogEventEnum.UserRoleEdited:
-        return translate('text_1771937987062894vi7jea8j', getRoleEditedResources(securityLog))
+        return getRoleEditedTranslation(securityLog)
       case LogEventEnum.UserSignedUp:
         return translate('text_1771937987062jy68yxfqjwx', {
           email: securityLog.userEmail,
