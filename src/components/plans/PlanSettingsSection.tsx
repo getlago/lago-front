@@ -16,6 +16,8 @@ import { CurrencyEnum, PlanInterval, TaxForPlanSettingsSectionFragment } from '~
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PlanFormType } from '~/hooks/plans/usePlanForm'
 
+export const PLAN_SETTINGS_REMOVE_DESCRIPTION_TEST_ID = 'remove-description'
+
 gql`
   fragment TaxForPlanSettingsSection on Tax {
     id
@@ -79,8 +81,6 @@ type PlanSettingsSectionProps = {
   isEdition?: boolean
 }
 
-export const PLAN_SETTINGS_REMOVE_DESCRIPTION_TEST_ID = 'remove-description'
-
 export const PlanSettingsSection = ({
   form,
   canBeEdited,
@@ -90,6 +90,9 @@ export const PlanSettingsSection = ({
 }: PlanSettingsSectionProps) => {
   const { translate } = useInternationalization()
   const description = useStore(form.store, (s) => s.values.description)
+  const planInterval = useStore(form.store, (s) => s.values.interval)
+  const hasAnyFixedCharge = useStore(form.store, (s) => !!s.values.fixedCharges.length)
+  const hasAnyUsageCharge = useStore(form.store, (s) => !!s.values.charges.length)
   const [shouldDisplayDescription, setShouldDisplayDescription] = useState(!!description)
 
   const handleHideDescription = () => {
@@ -101,6 +104,9 @@ export const PlanSettingsSection = ({
     label: translate(getIntervalTranslationKey[interval]),
     value: interval,
   }))
+  const canApplyChargesMonthly = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(
+    planInterval,
+  )
 
   return (
     <CenteredPage.PageSection>
@@ -168,6 +174,34 @@ export const PlanSettingsSection = ({
           />
         )}
       </form.AppField>
+
+      {canApplyChargesMonthly && (
+        <>
+          {hasAnyFixedCharge && (
+            <form.AppField name="billFixedChargesMonthly">
+              {(field) => (
+                <field.SwitchField
+                  label={translate('text_1760729707268reew4lqsqof')}
+                  subLabel={translate('text_1760729707268ge00k7a7e84')}
+                  disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
+                />
+              )}
+            </form.AppField>
+          )}
+
+          {hasAnyUsageCharge && (
+            <form.AppField name="billChargesMonthly">
+              {(field) => (
+                <field.SwitchField
+                  label={translate('text_62a30bc79dae432fb055330b')}
+                  subLabel={translate('text_64358e074a3b7500714f256c')}
+                  disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
+                />
+              )}
+            </form.AppField>
+          )}
+        </>
+      )}
 
       <form.AppField name="amountCurrency">
         {(field) => (
