@@ -4,18 +4,14 @@ import { useMemo } from 'react'
 import { useFilters } from '~/components/designSystem/Filters/useFilters'
 import { Typography } from '~/components/designSystem/Typography'
 import { ComboboxItem, MultipleComboBox } from '~/components/form'
-import { useGetCustomersForFilterItemMultipleCustomersLazyQuery } from '~/generated/graphql'
+import { useGetCustomersForFilterItemMultipleCustomersQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { filterDataInlineSeparator, FiltersFormValues } from '../types'
 
 gql`
-  query getCustomersForFilterItemMultipleCustomers(
-    $page: Int
-    $limit: Int
-    $searchTerm: String
-  ) {
-    customers(page: $page, limit: $limit, searchTerm: $searchTerm, withDeleted: true) {
+  query getCustomersForFilterItemMultipleCustomers($page: Int, $limit: Int) {
+    customers(page: $page, limit: $limit, withDeleted: true) {
       metadata {
         currentPage
         totalPages
@@ -42,10 +38,9 @@ export const FiltersItemMultipleCustomers = ({
   const { translate } = useInternationalization()
   const { displayInDialog } = useFilters()
 
-  const [getCustomers, { data, loading }] =
-    useGetCustomersForFilterItemMultipleCustomersLazyQuery({
-      variables: { page: 1, limit: 10 },
-    })
+  const { data } = useGetCustomersForFilterItemMultipleCustomersQuery({
+    variables: { page: 1, limit: 500 },
+  })
 
   const comboboxCustomersData = useMemo(() => {
     if (!data?.customers?.collection) return []
@@ -78,8 +73,6 @@ export const FiltersItemMultipleCustomers = ({
       PopperProps={{ displayInDialog }}
       disableClearable
       disableCloseOnSelect
-      searchQuery={getCustomers}
-      loading={loading}
       placeholder={translate('text_63befc65efcd9374da45b801')}
       data={comboboxCustomersData}
       onChange={(customers) => {
@@ -89,8 +82,7 @@ export const FiltersItemMultipleCustomers = ({
         .split(',')
         .filter((v) => !!v)
         .map((v) => ({
-          label:
-            v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],
+          label: v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],
           value: v,
         }))}
     />

@@ -4,7 +4,7 @@ import { GetAllMembersForFilterDocument } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import { filterDataInlineSeparator } from '../../types'
-import { FiltersItemUserIds } from '../FiltersItemUserIds'
+import { FiltersItemMultipleUsers } from '../FiltersItemMultipleUsers'
 
 jest.mock('~/components/designSystem/Filters/useFilters', () => ({
   useFilters: () => ({
@@ -51,12 +51,12 @@ const membersMock: TestMocksType = [
 ]
 
 const renderComponent = (value?: string, mocks: TestMocksType = membersMock) => {
-  return render(<FiltersItemUserIds value={value} setFilterValue={mockSetFilterValue} />, {
+  return render(<FiltersItemMultipleUsers value={value} setFilterValue={mockSetFilterValue} />, {
     wrapper: (props) => <AllTheProviders {...props} mocks={mocks} />,
   })
 }
 
-describe('FiltersItemUserIds', () => {
+describe('FiltersItemMultipleUsers', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
