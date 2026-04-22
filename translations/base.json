@@ -4129,6 +4129,13 @@
   "text_1776870266380ydi5pjfjcqq": "Order type",
   "text_1776870266380s3zbpmnfrhj": "Created at",
   "text_1776848720529vv5zmyyq94k": "Approve quote",
-  "text_1776848720529x0n0j0tob0w": "By approving this quote, an order form will be generated and sent to the customer.",
-  "text_1776848720529o2nn0q3b7iv": "Quote successfully approved"
+  "text_1776848720529x0n0j0tob0w": "Approving this quote will generate an order form. Once signed, the order form becomes an official order.",
+  "text_1776848720529o2nn0q3b7iv": "Quote successfully approved",
+  "text_17768509988630g6v99v8x8h": "Approve the quote {{quoteNumber}} - {{quoteVersion}}",
+  "text_1776850998863xqfl9h0n6rc": "Approving a quote transforms it into an order form. Once approved, the order form can be sent for signature. When signed, it becomes an official order that you can execute inside or outside Lago.",
+  "text_1776851047915faiji44ys5o": "Quote information",
+  "text_1776851047915xli269uyejs": "Quote preview",
+  "text_1776851578529wbonlz6ss8y": "Valid",
+  "text_1776851578529rcah0zepkul": "{{days}} day from approval | {{days}} days from approval",
+  "text_17768523811635qaasto1ziv": "No content available"
 }
