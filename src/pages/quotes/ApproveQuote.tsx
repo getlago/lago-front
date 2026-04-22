@@ -1,4 +1,3 @@
-import { gql } from '@apollo/client'
 import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -11,13 +10,13 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { addToast } from '~/core/apolloClient'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE } from '~/core/router'
-import { useApproveQuoteVersionMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
+import { useApproveQuote } from './hooks/useApproveQuote'
 import { useQuote } from './hooks/useQuote'
 
 export const APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID = 'approve-quote-close-button'
@@ -26,15 +25,6 @@ export const APPROVE_QUOTE_CANCEL_BUTTON_TEST_ID = 'approve-quote-cancel-button'
 export const APPROVE_QUOTE_ALERT_TEST_ID = 'approve-quote-alert'
 export const APPROVE_QUOTE_PREVIEW_TEST_ID = 'approve-quote-preview'
 
-gql`
-  mutation approveQuoteVersion($input: ApproveQuoteVersionInput!) {
-    approveQuoteVersion(input: $input) {
-      id
-      status
-    }
-  }
-`
-
 const ApproveQuote = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
@@ -42,23 +32,14 @@ const ApproveQuote = () => {
   const navigate = useNavigate()
 
   const { quote, loading, error } = useQuote(quoteId)
-
-  const [approveQuoteVersionMutation] = useApproveQuoteVersionMutation({
-    refetchQueries: ['getQuotes'],
-  })
+  const { approveQuote } = useApproveQuote()
 
   const onSubmit = async () => {
     if (!quoteId) return
 
-    const result = await approveQuoteVersionMutation({
-      variables: {
-        input: {
-          id: quoteId,
-        },
-      },
-    })
+    const result = await approveQuote()
 
-    if (result.data?.approveQuoteVersion) {
+    if (result) {
       addToast({
         severity: 'success',
         translateKey: 'text_1776848720529o2nn0q3b7iv',

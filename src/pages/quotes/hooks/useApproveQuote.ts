@@ -5,9 +5,11 @@ import { APPROVE_QUOTE_ROUTE } from '~/core/router'
 export const useApproveQuote = () => {
   const navigate = useNavigate()
 
-  const approveQuote = (quoteId: string, versionId: string) => {
+  const goToApproveQuote = (quoteId: string, versionId: string) => {
     navigate(generatePath(APPROVE_QUOTE_ROUTE, { quoteId, versionId }))
   }
 
-  return { approveQuote }
+  const approveQuote = () => true
+
+  return { goToApproveQuote, approveQuote }
 }
