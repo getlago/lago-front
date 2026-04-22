@@ -13998,14 +13998,14 @@ export type CreateQuoteMutationVariables = Exact<{
 
 export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote?: { __typename?: 'Quote', id: string } | null };
 
-export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, status: StatusEnum, version: number, orderType: OrderTypeEnum, currency?: string | null, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null };
+export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, status: StatusEnum, version: number, orderType: OrderTypeEnum, currency?: string | null, content?: string | null, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null };
 
 export type GetQuoteQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, status: StatusEnum, version: number, orderType: OrderTypeEnum, currency?: string | null, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null } | null };
+export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, status: StatusEnum, version: number, orderType: OrderTypeEnum, currency?: string | null, content?: string | null, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null } | null };
 
 export type QuoteListItemFragment = { __typename?: 'Quote', id: string, number: string, status: StatusEnum, version: number, orderType: OrderTypeEnum, currency?: string | null, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null } };
 
@@ -19189,6 +19189,7 @@ export const QuoteDetailItemFragmentDoc = gql`
   version
   orderType
   currency
+  content
   createdAt
   customer {
     id

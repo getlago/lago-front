@@ -4,8 +4,10 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import RichTextEditor from '~/components/designSystem/RichTextEditor/RichTextEditor'
 import { Typography } from '~/components/designSystem/Typography'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { addToast } from '~/core/apolloClient'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE } from '~/core/router'
@@ -22,6 +24,7 @@ export const APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID = 'approve-quote-close-button'
 export const APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID = 'approve-quote-approve-button'
 export const APPROVE_QUOTE_CANCEL_BUTTON_TEST_ID = 'approve-quote-cancel-button'
 export const APPROVE_QUOTE_ALERT_TEST_ID = 'approve-quote-alert'
+export const APPROVE_QUOTE_PREVIEW_TEST_ID = 'approve-quote-preview'
 
 gql`
   mutation approveQuote($input: ApproveQuoteInput!) {
@@ -117,43 +120,59 @@ const ApproveQuote = () => {
 
       {!loading && (
         <CenteredPage.Container>
-          <div className="flex flex-col gap-12">
-            <Alert data-test={APPROVE_QUOTE_ALERT_TEST_ID} type="warning">
-              <Typography className="text-grey-700">
-                {translate('text_1776848720529x0n0j0tob0w')}
-              </Typography>
-            </Alert>
+          <Alert data-test={APPROVE_QUOTE_ALERT_TEST_ID} type="info">
+            <Typography className="text-grey-700">
+              {translate('text_1776848720529x0n0j0tob0w')}
+            </Typography>
+          </Alert>
 
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-1">
-                <Typography variant="caption" color="grey600">
-                  {translate('text_177581001572954eedouxq5u')}
-                </Typography>
-                <Typography variant="body" color="grey700">
-                  {quote?.number}
-                </Typography>
-              </div>
+          <div className="flex flex-col gap-1">
+            <Typography variant="headline">
+              {translate('text_17768509988630g6v99v8x8h', {
+                quoteNumber: quote?.number,
+                quoteVersion: `v${quote?.version}`,
+              })}
+            </Typography>
+            <Typography color="grey600">{translate('text_1776850998863xqfl9h0n6rc')}</Typography>
+          </div>
 
-              <div className="flex flex-col gap-1">
-                <Typography variant="caption" color="grey600">
-                  {translate('text_65201c5a175a4b0238abf29a')}
-                </Typography>
-                <Typography variant="body" color="grey700">
-                  {quote?.customer.name}
-                </Typography>
-              </div>
+          <div className="flex flex-col gap-6">
+            <Typography variant="subhead1">{translate('text_1776851047915faiji44ys5o')}</Typography>
+            <DetailsPage.InfoGrid
+              grid={[
+                {
+                  label: translate('text_177581001572954eedouxq5u'),
+                  value: quote?.number,
+                },
+                {
+                  label: translate('text_65201c5a175a4b0238abf29a'),
+                  value: quote?.customer.name,
+                },
+                {
+                  label: translate('text_6560809c38fb9de88d8a52fb'),
+                  value: quote ? translate(getQuoteOrderTypeTranslationKey(quote.orderType)) : '',
+                },
+                {
+                  label: translate('text_1776851578529wbonlz6ss8y'),
+                  value: translate('text_1776851578529rcah0zepkul', {
+                    days: 20, // Update when we have the validation date
+                  }),
+                },
+              ]}
+            />
+          </div>
 
-              {quote?.orderType && (
-                <div className="flex flex-col gap-1">
-                  <Typography variant="caption" color="grey600">
-                    {translate('text_6560809c38fb9de88d8a52fb')}
-                  </Typography>
-                  <Typography variant="body" color="grey700">
-                    {translate(getQuoteOrderTypeTranslationKey(quote.orderType))}
-                  </Typography>
-                </div>
-              )}
-            </div>
+          <div className="flex flex-col gap-6">
+            <Typography variant="subhead1" className="pt-6">
+              {translate('text_1776851047915xli269uyejs')}
+            </Typography>
+          </div>
+          <div data-test={APPROVE_QUOTE_PREVIEW_TEST_ID}>
+            {quote?.content ? (
+              <RichTextEditor mode="preview" content={quote.content} />
+            ) : (
+              <Typography color="grey500">{translate('text_17768523811635qaasto1ziv')}</Typography>
+            )}
           </div>
         </CenteredPage.Container>
       )}

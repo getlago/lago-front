@@ -10,6 +10,7 @@ gql`
     version
     orderType
     currency
+    content
     createdAt
     customer {
       id
