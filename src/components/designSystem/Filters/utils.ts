@@ -658,6 +658,7 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.issuingDate:
     case AvailableFiltersEnum.loggedDate:
     case AvailableFiltersEnum.webhookDate:
+    case AvailableFiltersEnum.quoteCreatedAt:
       return value
         .split(',')
         .map((v) => {
@@ -671,6 +672,7 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.apiKeyIds:
     case AvailableFiltersEnum.billingEntityIds:
     case AvailableFiltersEnum.userIds:
+    case AvailableFiltersEnum.multipleCustomers:
       return value
         .split(',')
         .map((v) => v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0])
