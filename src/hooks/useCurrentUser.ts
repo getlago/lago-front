@@ -18,6 +18,7 @@ gql`
     email
     premium
     ...OrgSlugResolverData
+    csAdmin
     memberships {
       roles
       ...MembershipPermissions
