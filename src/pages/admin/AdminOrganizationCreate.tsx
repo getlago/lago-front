@@ -80,7 +80,7 @@ const AdminOrganizationCreate = () => {
           variables: {
             input: {
               name: orgName.trim(),
-              email: ownerEmail.trim(),
+              ownerEmail: ownerEmail.trim(),
               ...(timezone.trim() ? { timezone: timezone.trim() } : {}),
               premiumIntegrations: selectedIntegrations,
               featureFlags: selectedFlags,
