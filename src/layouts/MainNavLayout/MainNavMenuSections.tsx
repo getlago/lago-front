@@ -4,6 +4,7 @@ import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSyste
 import {
   ADD_ON_DETAILS_ROUTE,
   ADD_ONS_ROUTE,
+  ADMIN_ROUTE,
   ANALYTIC_ROUTE,
   ANALYTIC_TABS_ROUTE,
   BILLABLE_METRIC_DETAILS_ROUTE,
@@ -71,6 +72,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
   const { hasPermissions, hasPermissionsOr } = usePermissions()
   const { hasFeatureFlag } = useOrganizationInfos()
   const { isPremium } = useCurrentUser()
+  const { currentUser } = useCurrentUser()
 
   const getReportsTabs = (): NavTab[] => [
     {
@@ -237,10 +239,20 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
     },
   ]
 
+  const getAdminTabs = (): NavTab[] => [
+    {
+      title: 'CS Admin',
+      icon: 'key',
+      link: ADMIN_ROUTE,
+      hidden: !currentUser?.csAdmin,
+    },
+  ]
+
   const reportsTabs = getNavTabs(getReportsTabs())
   const configurationTabs = getNavTabs(getConfigurationTabs())
   const catalogTabs = getNavTabs(getCatalogTabs())
   const billingTabs = getNavTabs(getBillingTabs())
+  const adminTabs = getNavTabs(getAdminTabs())
 
   // Don't render the section group if all sections are hidden
   if (
@@ -313,6 +325,19 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
             loadingComponent={<VerticalMenuSkeleton numberOfElements={2} />}
             onClick={onItemClick}
             tabs={billingTabs.tabs}
+          />
+        </NavLayout.NavSection>
+      )}
+
+      {/* Admin */}
+      {!adminTabs.allTabsHidden && (
+        <NavLayout.NavSection>
+          <VerticalMenuSectionTitle title="Internal" loading={isLoading} />
+          <VerticalMenu
+            loading={isLoading}
+            loadingComponent={<VerticalMenuSkeleton numberOfElements={1} />}
+            onClick={onItemClick}
+            tabs={adminTabs.tabs}
           />
         </NavLayout.NavSection>
       )}
