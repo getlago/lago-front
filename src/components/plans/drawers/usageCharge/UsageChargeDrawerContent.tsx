@@ -793,7 +793,6 @@ export const UsageChargeDrawerContent = withForm({
                       chargePricingUnitShortName={chargePricingUnitShortName}
                       currency={currency}
                       isPremium={isPremium}
-                      premiumWarningDialogRef={premiumWarningDialogRef}
                       chargeIndex={editIndex}
                       handleUpdate={(name, value) => {
                         form.setFieldValue(

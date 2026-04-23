@@ -1,11 +1,11 @@
 import InputAdornment from '@mui/material/InputAdornment'
-import { RefObject, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { AmountInput } from '~/components/form'
 import { LocalUsageChargeInput } from '~/components/plans/types'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -19,7 +19,6 @@ export const SpendingMinimumOptionSection = ({
   chargePricingUnitShortName,
   currency,
   isPremium,
-  premiumWarningDialogRef,
   chargeIndex,
   handleUpdate,
   handleRemoveSpendingMinimum,
@@ -31,12 +30,12 @@ export const SpendingMinimumOptionSection = ({
   chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
   isPremium: boolean
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef> | undefined
   chargeIndex: number
   handleUpdate: (name: string, value: unknown) => void
   handleRemoveSpendingMinimum: () => void
 }) => {
   const { translate } = useInternationalization()
+  const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const [showSpendingMinimum, setShowSpendingMinimum] = useState(
     !!initialLocalCharge?.minAmountCents && Number(initialLocalCharge?.minAmountCents) > 0,
   )
@@ -63,7 +62,7 @@ export const SpendingMinimumOptionSection = ({
                 document.getElementById(`spending-minimum-input-${chargeIndex}`)?.focus()
               }, 0)
             } else {
-              premiumWarningDialogRef?.current?.openDialog()
+              openPremiumWarningDialog()
             }
           }}
         >

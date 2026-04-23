@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { ChargeModelEnum, PlanInterval } from '~/generated/graphql'
+import { ChargeModelEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 import { createMockPlanForm } from '~/test-utils/createMockPlanForm'
 
@@ -176,25 +176,6 @@ describe('FixedChargesSection', () => {
           alreadyUsedChargeAlertMessage: undefined,
           isUsedInSubscription: false,
         })
-      })
-    })
-  })
-
-  describe('GIVEN the plan interval is yearly', () => {
-    describe('WHEN the component renders with fixed charges', () => {
-      it('THEN should display the bill fixed charges monthly switch', () => {
-        const fixedCharge = createMockFixedCharge()
-        const form = createForm({
-          fixedCharges: [fixedCharge],
-          interval: PlanInterval.Yearly,
-        })
-
-        render(<FixedChargesSection form={form} alreadyExistingFixedChargesIds={[]} />)
-
-        // The Switch component renders an input with aria-label={name}
-        const switchEl = screen.getByLabelText('billFixedChargesMonthly') as HTMLInputElement
-
-        expect(switchEl).toBeInTheDocument()
       })
     })
   })

@@ -119,8 +119,6 @@ export const UsageChargesSection = ({
     return null
   }
 
-  const canApplyChargesMonthly = isAnnual
-
   const renderChargeSelector = (charge: LocalUsageChargeInput, i: number) => {
     const isNew = !alreadyExistingCharges?.find((chargeFetched) => chargeFetched?.id === charge.id)
     const alreadyUsedChargeAlertMessage =
@@ -203,25 +201,11 @@ export const UsageChargesSection = ({
         />
 
         {!!hasAnyCharge && (
-          <>
-            {canApplyChargesMonthly && (
-              <form.AppField name="billChargesMonthly">
-                {(field) => (
-                  <field.SwitchField
-                    label={translate('text_62a30bc79dae432fb055330b')}
-                    subLabel={translate('text_64358e074a3b7500714f256c')}
-                    disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
-                  />
-                )}
-              </form.AppField>
-            )}
-
-            <div className="flex flex-col gap-4">
-              {charges.map((charge, i) => {
-                return renderChargeSelector(charge, i)
-              })}
-            </div>
-          </>
+          <div className="flex flex-col gap-4">
+            {charges.map((charge, i) => {
+              return renderChargeSelector(charge, i)
+            })}
+          </div>
         )}
 
         {/* Single add button at the bottom */}
