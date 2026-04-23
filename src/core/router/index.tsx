@@ -22,6 +22,15 @@ const { appEnv } = envGlobalVar()
 const SideNavLayout = lazyLoad(() => import('~/layouts/MainNavLayout/MainNavLayout'))
 const OrganizationLayout = lazyLoad(() => import('~/layouts/OrganizationLayout'))
 
+// ----------- Admin pages -----------
+const AdminGuard = lazyLoad(() => import('~/components/admin/AdminGuard'))
+const AdminDashboard = lazyLoad(() => import('~/pages/admin/AdminDashboard'))
+const AdminOrganizations = lazyLoad(() => import('~/pages/admin/AdminOrganizations'))
+const AdminOrganizationDetail = lazyLoad(() => import('~/pages/admin/AdminOrganizationDetail'))
+const AdminOrganizationCreate = lazyLoad(() => import('~/pages/admin/AdminOrganizationCreate'))
+const AdminComparison = lazyLoad(() => import('~/pages/admin/AdminComparison'))
+const AdminAuditLog = lazyLoad(() => import('~/pages/admin/AdminAuditLog'))
+
 // ----------- Pages -----------
 const Home = lazyLoad(() => import('~/pages/home/Home'))
 const Error404 = lazyLoad(() => import('~/pages/Error404'))
@@ -34,6 +43,13 @@ const UsageBillableMetric = lazyLoad(() => import('~/pages/analytics/UsageBillab
 
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
+
+export const ADMIN_ROUTE = '/admin'
+export const ADMIN_ORGANIZATIONS_ROUTE = `${ADMIN_ROUTE}/organizations`
+export const ADMIN_ORGANIZATION_CREATE_ROUTE = `${ADMIN_ROUTE}/organizations/new`
+export const ADMIN_ORGANIZATION_DETAIL_ROUTE = `${ADMIN_ROUTE}/organizations/:organizationId`
+export const ADMIN_COMPARE_ROUTE = `${ADMIN_ROUTE}/compare`
+export const ADMIN_AUDIT_LOG_ROUTE = `${ADMIN_ROUTE}/audit-log`
 
 export const HOME_ROUTE = '/'
 export const FORBIDDEN_ROUTE = '/forbidden'
@@ -116,6 +132,42 @@ export const routes: CustomRouteObject[] = [
     path: HOME_ROUTE,
     element: <Home />,
     private: true,
+  },
+  {
+    path: ADMIN_ROUTE,
+    element: <SideNavLayout />,
+    private: true,
+    children: [
+      {
+        element: <AdminGuard />,
+        children: [
+          {
+            index: true,
+            element: <AdminDashboard />,
+          },
+          {
+            path: 'organizations',
+            element: <AdminOrganizations />,
+          },
+          {
+            path: 'organizations/new',
+            element: <AdminOrganizationCreate />,
+          },
+          {
+            path: 'organizations/:organizationId',
+            element: <AdminOrganizationDetail />,
+          },
+          {
+            path: 'compare',
+            element: <AdminComparison />,
+          },
+          {
+            path: 'audit-log',
+            element: <AdminAuditLog />,
+          },
+        ],
+      },
+    ],
   },
   {
     path: ':organizationSlug',

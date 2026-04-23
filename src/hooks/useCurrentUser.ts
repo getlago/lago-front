@@ -16,6 +16,7 @@ gql`
     id
     email
     premium
+    csAdmin
     memberships {
       id
       roles
