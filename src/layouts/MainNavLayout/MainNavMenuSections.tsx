@@ -1,3 +1,5 @@
+import { Icon } from 'lago-design-system'
+
 import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSystem/VerticalMenu'
 import {
   ADD_ON_DETAILS_ROUTE,
@@ -34,6 +36,7 @@ import {
 } from '~/core/router'
 import { FeatureFlagEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { NavLayout } from '~/layouts/NavLayout'
@@ -56,6 +59,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { hasFeatureFlag } = useOrganizationInfos()
+  const { isPremium } = useCurrentUser()
 
   const getReportsTabs = (): NavTab[] => [
     {
@@ -139,6 +143,11 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       canBeClickedOnActive: true,
       match: [QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE, QUOTE_DETAILS_ROUTE],
       hidden: !hasPermissions(['quotesView']) || !hasFeatureFlag(FeatureFlagEnum.OrderForms),
+      extraComponent: isPremium ? undefined : (
+        <span data-test="quotes-nav-premium-icon">
+          <Icon name="sparkles" />
+        </span>
+      ),
     },
     {
       title: translate('text_6250304370f0f700a8fdc28d'),
