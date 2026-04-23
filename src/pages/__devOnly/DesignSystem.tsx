@@ -26,6 +26,7 @@ import { ChargeTable, HorizontalDataTable } from '~/components/designSystem/Tabl
 import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import {
   ButtonSelectorField,
   Checkbox,
@@ -1400,6 +1401,25 @@ const DesignSystem = () => {
                     <Typography color="disabled">color disabled</Typography>
                     <Typography color="danger600">color danger600</Typography>
                     <Typography color="white">color white</Typography>
+                  </VerticalBlock>
+                </Block>
+                <Typography className="mb-4 mt-8" variant="headline">
+                  TypographyWithCopy
+                </Typography>
+                <Block className="mb-0">
+                  <VerticalBlock>
+                    <TypographyWithCopy variant="body" color="grey700">
+                      db7a5c02-a7c8-4c48-a44f-3e5b1f2a9e3d
+                    </TypographyWithCopy>
+                    <TypographyWithCopy variant="captionCode" color="grey700">
+                      sub_ext_12345
+                    </TypographyWithCopy>
+                    <TypographyWithCopy variant="caption" color="grey600">
+                      PLAN_CODE_MONTHLY
+                    </TypographyWithCopy>
+                    <TypographyWithCopy variant="bodyHl" color="grey700">
+                      INV-2024-001-234
+                    </TypographyWithCopy>
                   </VerticalBlock>
                 </Block>
               </Container>

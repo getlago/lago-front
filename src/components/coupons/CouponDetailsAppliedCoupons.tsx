@@ -11,6 +11,7 @@ import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
@@ -112,9 +113,9 @@ export const CouponDetailsAppliedCoupons = ({ couponCode }: CouponDetailsApplied
               <Typography variant="bodyHl" color="textSecondary" noWrap>
                 {customerName}
               </Typography>
-              <Typography variant="caption" color="grey600" noWrap>
-                {customer?.externalId}
-              </Typography>
+              <TypographyWithCopy variant="caption" color="grey600" noWrap>
+                {customer?.externalId ?? ''}
+              </TypographyWithCopy>
             </div>
           </div>
         )
