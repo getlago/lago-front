@@ -26,28 +26,17 @@ describe('useApproveQuote', () => {
   })
 
   describe('GIVEN goToApproveQuote is called', () => {
-    describe('WHEN called with a quoteId', () => {
-      it('THEN should navigate to the approve quote route', () => {
-        const { result } = renderHook(() => useApproveQuote(), { wrapper })
+    it.each([
+      ['quote-123', '/quote/quote-123/approve'],
+      ['quote-456', '/quote/quote-456/approve'],
+    ])('WHEN called with %s THEN should navigate to %s', (quoteId, expectedPath) => {
+      const { result } = renderHook(() => useApproveQuote(), { wrapper })
 
-        act(() => {
-          result.current.goToApproveQuote('quote-123')
-        })
-
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-123/approve')
+      act(() => {
+        result.current.goToApproveQuote(quoteId)
       })
-    })
 
-    describe('WHEN called with a different quoteId', () => {
-      it('THEN should navigate to the correct approve route for that quote', () => {
-        const { result } = renderHook(() => useApproveQuote(), { wrapper })
-
-        act(() => {
-          result.current.goToApproveQuote('quote-456')
-        })
-
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-456/approve')
-      })
+      expect(testMockNavigateFn).toHaveBeenCalledWith(expectedPath)
     })
   })
 
