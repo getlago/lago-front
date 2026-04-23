@@ -24,7 +24,7 @@ import {
 const AdminPortal = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { isAdminAuthenticated } = useIsAdminAuthenticated()
+  const { isAdminAuthenticated, adminEmail, adminRole } = useIsAdminAuthenticated()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
 
@@ -99,14 +99,30 @@ const AdminPortal = () => {
           </NavLayout.NavSectionGroup>
 
           <NavLayout.NavSection className="sticky bottom-0 bg-white p-4 animate-shadow-top">
-            <Button
-              variant="quaternary"
-              startIcon="logout"
-              size="small"
-              onClick={handleLogout}
-            >
-              Log out
-            </Button>
+            <div className="flex flex-col gap-2">
+              {adminEmail && (
+                <Typography variant="caption" color="grey600" className="truncate">
+                  {adminEmail}
+                </Typography>
+              )}
+              {adminRole && (
+                <Typography
+                  variant="captionHl"
+                  color="grey700"
+                  className="w-fit rounded bg-grey-100 px-2 py-0.5 uppercase"
+                >
+                  {adminRole}
+                </Typography>
+              )}
+              <Button
+                variant="quaternary"
+                startIcon="logout"
+                size="small"
+                onClick={handleLogout}
+              >
+                Log out
+              </Button>
+            </div>
           </NavLayout.NavSection>
         </NavLayout.Nav>
       </ClickAwayListener>
