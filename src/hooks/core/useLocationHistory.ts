@@ -99,6 +99,9 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
   return {
     goBack,
     onRouteEnter: (routeConfig, location) => {
+      // Admin routes handle their own auth flow — skip main app guards entirely
+      if (routeConfig.adminRoute) return
+
       const isAuthenticated = !!authTokenVar()
 
       if (routeConfig.onlyPublic && isAuthenticated) {

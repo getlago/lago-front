@@ -1,6 +1,7 @@
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 
+import { adminRoutes } from './AdminRoutes'
 import { authRoutes } from './AuthRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
 import { customerObjectCreationRoutes, customerRoutes, customerVoidRoutes } from './CustomerRoutes'
@@ -109,6 +110,7 @@ export const routes: CustomRouteObject[] = [
         : []),
     ],
   },
+  ...adminRoutes,
   ...authRoutes,
   ...customerObjectCreationRoutes,
   ...customerVoidRoutes,
@@ -116,6 +118,7 @@ export const routes: CustomRouteObject[] = [
   ...customerPortalRoutes,
 ]
 
+export * from './AdminRoutes'
 export * from './AuthRoutes'
 export * from './CustomerRoutes'
 export * from './ObjectsRoutes'

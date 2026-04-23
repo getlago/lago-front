@@ -1,0 +1,5 @@
+export const ADMIN_LOGIN_ROUTE = '/admin'
+export const ADMIN_PORTAL_ROUTE = '/portal'
+export const ADMIN_PORTAL_ORGANIZATIONS_ROUTE = '/portal'
+export const ADMIN_PORTAL_ORGANIZATION_DETAIL_ROUTE = '/portal/organizations/:organizationId'
+export const ADMIN_PORTAL_USERS_ROUTE = '/portal/users'
