@@ -6,6 +6,7 @@ import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Alert } from '~/components/designSystem/Alert'
 import { Status } from '~/components/designSystem/Status'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { getBillingTimeEnumTranslationKey } from '~/core/constants/form'
 import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMapping'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/core/router'
@@ -25,6 +26,7 @@ gql`
     subscriptionAt
     endingAt
     terminatedAt
+    billingTime
     nextSubscriptionAt
     nextSubscriptionType
     nextPlan {
@@ -98,6 +100,10 @@ export const SubscriptionInformations = ({
             </Alert>
           )}
         <DetailsPage.InfoGridItem
+          label={translate('text_62d7f6178ec94cd09370e5fb')}
+          value={<Status {...subscriptionStatusMapping(subscription?.status ?? undefined)} />}
+        />
+        <DetailsPage.InfoGridItem
           label={translate('text_65201c5a175a4b0238abf298')}
           value={subscription?.externalId}
         />
@@ -124,8 +130,10 @@ export const SubscriptionInformations = ({
               ),
             },
             {
-              label: translate('text_62d7f6178ec94cd09370e5fb'),
-              value: <Status {...subscriptionStatusMapping(subscription?.status ?? undefined)} />,
+              label: translate('text_62ea7cd44cd4b14bb9ac1db7'),
+              value: subscription?.billingTime
+                ? translate(getBillingTimeEnumTranslationKey[subscription.billingTime])
+                : '-',
             },
             {
               label: translate('text_65201c5a175a4b0238abf29e'),
