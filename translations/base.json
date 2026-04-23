@@ -4057,7 +4057,6 @@
   "text_17757391860814p20fr87x9g": "Quotes",
   "text_177573918608169w9wthupaz": "Quotes will appear here once created.",
   "text_17757461968258p4ij8g74zp": "Order forms",
-  "text_1775746196826qogq3id888u": "Order forms will appear here once created.",
   "text_1775746196826pyjlfqx3anr": "Quote number",
   "text_1775747115932pql5mtb30dc": "Version",
   "text_1775747115932x8ryaymh8ej": "Type",
@@ -4126,5 +4125,11 @@
   "text_1776417249197vhv63ozviur": "Quote version information",
   "text_1776417548746htq2me6cmnw": "Create a new version",
   "text_17767737688593usnzzqqy7f": "Quotes",
-  "text_1776773768859lvcuax763ex": "Create and manage quotes to streamline your sales process. Upgrade to access this feature."
+  "text_1776773768859lvcuax763ex": "Create and manage quotes to streamline your sales process. Upgrade to access this feature.",
+  "text_17766979384805q6wx9it6wa": "Generated",
+  "text_1776697938480b1fi7wqtzyi": "Signed",
+  "text_1776697938480hzc1xsmmpez": "Voided",
+  "text_1776697938480ap28ussl837": "Expired",
+  "text_1776697938480e54yje9i5aa": "No order forms yet",
+  "text_17766979384803pz48gknynl": "Order forms will appear here once they are created from quotes."
 }
