@@ -38,11 +38,12 @@ export const authRoutes: CustomRouteObject[] = [
         },
       ]
     : []),
-  {
-    path: LOGIN_ROUTE,
-    element: <Login />,
-    onlyPublic: true,
-  },
+  // NOTE: /login is temporarily handled by AdminLogin (admin routes)
+  // {
+  //   path: LOGIN_ROUTE,
+  //   element: <Login />,
+  //   onlyPublic: true,
+  // },
   {
     path: LOGIN_OKTA,
     element: <LoginOkta />,
