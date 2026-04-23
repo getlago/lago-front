@@ -137,8 +137,6 @@ export const FixedChargesSection = ({
     return null
   }
 
-  const canApplyChargesMonthly = isAnnual
-
   return (
     <>
       <CenteredPage.PageSection>
@@ -146,18 +144,6 @@ export const FixedChargesSection = ({
           title={translate('text_176072970726728iw4tc8ucl')}
           description={translate('text_1760729707268c05r06ip8vg')}
         />
-
-        {!!hasAnyFixedCharge && canApplyChargesMonthly && (
-          <form.AppField name="billFixedChargesMonthly">
-            {(field) => (
-              <field.SwitchField
-                label={translate('text_1760729707268reew4lqsqof')}
-                subLabel={translate('text_1760729707268ge00k7a7e84')}
-                disabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
-              />
-            )}
-          </form.AppField>
-        )}
 
         {(!!fixedCharges?.length || !isInSubscriptionForm) && (
           <div className="flex flex-col gap-6">
