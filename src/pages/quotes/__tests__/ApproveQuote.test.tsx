@@ -10,6 +10,7 @@ import ApproveQuote, {
   APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID,
   APPROVE_QUOTE_CANCEL_BUTTON_TEST_ID,
   APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID,
+  APPROVE_QUOTE_PREVIEW_TEST_ID,
 } from '../ApproveQuote'
 import { useApproveQuote } from '../hooks/useApproveQuote'
 import { useQuote } from '../hooks/useQuote'
@@ -63,6 +64,7 @@ const mockQuote = {
   version: 2,
   orderType: OrderTypeEnum.SubscriptionCreation,
   currency: 'EUR',
+  content: null,
   createdAt: '2026-04-09T10:00:00Z',
   customer: {
     id: 'customer-001',
@@ -92,28 +94,16 @@ describe('ApproveQuote', () => {
 
   describe('GIVEN the page is rendered with a quote', () => {
     describe('WHEN in default state', () => {
-      it('THEN should display the alert', () => {
+      it.each([
+        ['alert', APPROVE_QUOTE_ALERT_TEST_ID],
+        ['approve button', APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID],
+        ['cancel button', APPROVE_QUOTE_CANCEL_BUTTON_TEST_ID],
+        ['close button', APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID],
+        ['preview section', APPROVE_QUOTE_PREVIEW_TEST_ID],
+      ])('THEN should display the %s', (_, testId) => {
         render(<ApproveQuote />)
 
-        expect(screen.getByTestId(APPROVE_QUOTE_ALERT_TEST_ID)).toBeInTheDocument()
-      })
-
-      it('THEN should display the approve button', () => {
-        render(<ApproveQuote />)
-
-        expect(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID)).toBeInTheDocument()
-      })
-
-      it('THEN should display the cancel button', () => {
-        render(<ApproveQuote />)
-
-        expect(screen.getByTestId(APPROVE_QUOTE_CANCEL_BUTTON_TEST_ID)).toBeInTheDocument()
-      })
-
-      it('THEN should display the close button', () => {
-        render(<ApproveQuote />)
-
-        expect(screen.getByTestId(APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(testId)).toBeInTheDocument()
       })
 
       it('THEN should display the quote number', () => {
@@ -130,9 +120,38 @@ describe('ApproveQuote', () => {
     })
   })
 
+  describe('GIVEN the quote has content', () => {
+    describe('WHEN content is present', () => {
+      it('THEN should render the rich text editor preview', () => {
+        mockUseQuote.mockReturnValue({
+          quote: { ...mockQuote, content: '<p>Quote content here</p>' },
+          loading: false,
+          error: undefined,
+        })
+
+        render(<ApproveQuote />)
+
+        const preview = screen.getByTestId(APPROVE_QUOTE_PREVIEW_TEST_ID)
+
+        expect(preview).toHaveTextContent('Quote content here')
+      })
+    })
+
+    describe('WHEN content is null', () => {
+      it('THEN should show the no content fallback', () => {
+        render(<ApproveQuote />)
+
+        const preview = screen.getByTestId(APPROVE_QUOTE_PREVIEW_TEST_ID)
+
+        expect(preview).toBeInTheDocument()
+        expect(preview.querySelector('[data-test="rich-text-editor-preview"]')).toBeNull()
+      })
+    })
+  })
+
   describe('GIVEN the approve action', () => {
     describe('WHEN the approve button is clicked and approveQuote succeeds', () => {
-      it('THEN should call approveQuote', async () => {
+      it('THEN should call approveQuote, show success toast, and navigate to order forms tab', async () => {
         const user = userEvent.setup()
 
         render(<ApproveQuote />)
@@ -142,78 +161,96 @@ describe('ApproveQuote', () => {
         await waitFor(() => {
           expect(mockApproveQuote).toHaveBeenCalled()
         })
-      })
 
-      it('THEN should show success toast and navigate to order forms tab', async () => {
-        const user = userEvent.setup()
-
-        render(<ApproveQuote />)
-
-        await user.click(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID))
-
-        await waitFor(() => {
-          expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
-        })
-
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
         expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-123/order-forms')
       })
     })
   })
 
   describe('GIVEN the close action', () => {
-    describe('WHEN the close button is clicked', () => {
-      it('THEN should call goBack with quote details path', async () => {
+    it.each([
+      ['close button', APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID],
+      ['cancel button', APPROVE_QUOTE_CANCEL_BUTTON_TEST_ID],
+    ])(
+      'WHEN the %s is clicked THEN should call goBack with quote details path',
+      async (_, testId) => {
         const user = userEvent.setup()
 
         render(<ApproveQuote />)
 
-        await user.click(screen.getByTestId(APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID))
+        await user.click(screen.getByTestId(testId))
 
         expect(mockGoBack).toHaveBeenCalledWith('/quote/quote-123/overview')
-      })
-    })
-
-    describe('WHEN the cancel button is clicked', () => {
-      it('THEN should call goBack with quote details path', async () => {
-        const user = userEvent.setup()
-
-        render(<ApproveQuote />)
-
-        await user.click(screen.getByTestId(APPROVE_QUOTE_CANCEL_BUTTON_TEST_ID))
-
-        expect(mockGoBack).toHaveBeenCalledWith('/quote/quote-123/overview')
-      })
-    })
+      },
+    )
   })
 
   describe('GIVEN the page is loading', () => {
-    describe('WHEN data is being fetched', () => {
-      it('THEN should not display the alert or approve button', () => {
-        mockUseQuote.mockReturnValue({
-          quote: undefined,
-          loading: true,
-          error: undefined,
-        })
+    beforeEach(() => {
+      mockUseQuote.mockReturnValue({
+        quote: undefined,
+        loading: true,
+        error: undefined,
+      })
+    })
 
+    describe('WHEN data is being fetched', () => {
+      it('THEN should not display the alert or preview', () => {
         render(<ApproveQuote />)
 
         expect(screen.queryByTestId(APPROVE_QUOTE_ALERT_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId(APPROVE_QUOTE_PREVIEW_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should still display the header close button and footer buttons', () => {
+        render(<ApproveQuote />)
+
+        expect(screen.getByTestId(APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(APPROVE_QUOTE_CANCEL_BUTTON_TEST_ID)).toBeInTheDocument()
       })
     })
   })
 
   describe('GIVEN an error occurred', () => {
+    beforeEach(() => {
+      mockUseQuote.mockReturnValue({
+        quote: undefined,
+        loading: false,
+        error: new Error('Something went wrong') as never,
+      })
+    })
+
     describe('WHEN the error is displayed', () => {
       it('THEN should not show the approve page content', () => {
+        render(<ApproveQuote />)
+
+        expect(screen.queryByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId(APPROVE_QUOTE_ALERT_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should display the error placeholder with a reload button', () => {
+        render(<ApproveQuote />)
+
+        expect(screen.getByRole('button')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the quote is null after loading', () => {
+    describe('WHEN no quote data is returned', () => {
+      it('THEN should render the content area with empty order type value', () => {
         mockUseQuote.mockReturnValue({
           quote: undefined,
           loading: false,
-          error: new Error('Something went wrong') as never,
+          error: undefined,
         })
 
         render(<ApproveQuote />)
 
-        expect(screen.queryByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(APPROVE_QUOTE_ALERT_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(APPROVE_QUOTE_PREVIEW_TEST_ID)).toBeInTheDocument()
       })
     })
   })
