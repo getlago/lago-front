@@ -1,6 +1,6 @@
 import { gql, useLazyQuery } from '@apollo/client'
 import Box from '@mui/material/Box'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Chip } from '~/components/designSystem/Chip'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
@@ -53,17 +53,13 @@ const ADMIN_ORGANIZATIONS_QUERY = gql`
 `
 
 const AdminOrganizations = () => {
-  const navigate = useNavigate()
-
   const [getOrganizations, { data, error, loading, fetchMore, variables }] =
-    useLazyQuery<AdminOrganizationsQueryResult>(ADMIN_ORGANIZATIONS_QUERY,
-    {
+    useLazyQuery<AdminOrganizationsQueryResult>(ADMIN_ORGANIZATIONS_QUERY, {
       notifyOnNetworkStatusChange: true,
       variables: {
         limit: 20,
       },
-    },
-  )
+    })
 
   const { debouncedSearch, isLoading } = useDebouncedSearch(getOrganizations, loading)
 
