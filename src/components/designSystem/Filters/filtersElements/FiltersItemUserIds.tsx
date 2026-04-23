@@ -7,15 +7,12 @@ import { useGetAllMembers } from '~/hooks/useGetAllMembers'
 
 import { filterDataInlineSeparator, FiltersFormValues } from '../types'
 
-type FiltersItemMultipleUsersProps = {
+type FiltersItemUserIdsProps = {
   value: FiltersFormValues['filters'][0]['value']
   setFilterValue: (value: string) => void
 }
 
-export const FiltersItemMultipleUsers = ({
-  value,
-  setFilterValue,
-}: FiltersItemMultipleUsersProps) => {
+export const FiltersItemUserIds = ({ value, setFilterValue }: FiltersItemUserIdsProps) => {
   const { translate } = useInternationalization()
   const { memberships } = useGetAllMembers()
   const { displayInDialog } = useFilters()
