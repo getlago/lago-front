@@ -1,10 +1,13 @@
 import { useEffect, useMemo } from 'react'
 import { generatePath, useLocation, useNavigate } from 'react-router-dom'
 
+import { AvailableFiltersEnum, Filters } from '~/components/designSystem/Filters'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import PremiumFeature from '~/components/premium/PremiumFeature'
+import { SearchInput } from '~/components/SearchInput'
+import { QUOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CREATE_QUOTE_ROUTE, QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -84,6 +87,29 @@ const Quotes = (): JSX.Element => {
                   },
                 ],
               },
+              filtersSection: (
+                <div className="pt-4">
+                  <Filters.Provider
+                    filtersNamePrefix={QUOTE_LIST_FILTER_PREFIX}
+                    availableFilters={[
+                      AvailableFiltersEnum.quoteStatus,
+                      AvailableFiltersEnum.multipleCustomers,
+                      AvailableFiltersEnum.quoteNumber,
+                      AvailableFiltersEnum.quoteCreatedAt,
+                      AvailableFiltersEnum.quoteOrderType,
+                      AvailableFiltersEnum.userIds,
+                    ]}
+                  >
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center">
+                      <SearchInput
+                        onChange={undefined}
+                        placeholder={translate('text_1776870266380c9r63l304dn')}
+                      />
+                      <Filters.Component />
+                    </div>
+                  </Filters.Provider>
+                </div>
+              ),
             }
           : {})}
       />
