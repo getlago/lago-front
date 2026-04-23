@@ -1,5 +1,6 @@
 import {
   ADMIN_LOGIN_ROUTE,
+  ADMIN_PORTAL_AUDIT_ROUTE,
   ADMIN_PORTAL_ORGANIZATION_DETAIL_ROUTE,
   ADMIN_PORTAL_ORGANIZATIONS_ROUTE,
   ADMIN_PORTAL_USERS_ROUTE,
@@ -18,11 +19,10 @@ const AdminOrganizations = lazyLoad(() => import('~/pages/admin/AdminOrganizatio
 const AdminOrganizationDetail = lazyLoad(
   () => import('~/pages/admin/AdminOrganizationDetail'),
 )
+const AdminAuditLogs = lazyLoad(() => import('~/pages/admin/AdminAuditLogs'))
 const AdminUsers = lazyLoad(() => import('~/pages/admin/AdminUsers'))
 
 // ----------- Routes -----------
-// Admin routes use their own Apollo client (no organization ID, dedicated token).
-// They are wrapped in AdminLayout which provides the admin ApolloProvider.
 export const adminRoutes: CustomRouteObject[] = [
   {
     element: <AdminLayout />,
@@ -45,6 +45,11 @@ export const adminRoutes: CustomRouteObject[] = [
           {
             path: ADMIN_PORTAL_ORGANIZATION_DETAIL_ROUTE,
             element: <AdminOrganizationDetail />,
+            adminRoute: true,
+          },
+          {
+            path: ADMIN_PORTAL_AUDIT_ROUTE,
+            element: <AdminAuditLogs />,
             adminRoute: true,
           },
           {

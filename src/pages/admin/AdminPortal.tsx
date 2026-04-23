@@ -16,6 +16,7 @@ import Logo from '~/public/images/logo/lago-logo.svg'
 
 import {
   ADMIN_LOGIN_ROUTE,
+  ADMIN_PORTAL_AUDIT_ROUTE,
   ADMIN_PORTAL_ORGANIZATIONS_ROUTE,
   ADMIN_PORTAL_USERS_ROUTE,
 } from './routes'
@@ -79,6 +80,12 @@ const AdminPortal = () => {
                     icon: 'company',
                     link: ADMIN_PORTAL_ORGANIZATIONS_ROUTE,
                     match: [ADMIN_PORTAL_ORGANIZATIONS_ROUTE],
+                  },
+                  {
+                    title: 'Audit Logs',
+                    icon: 'document',
+                    link: ADMIN_PORTAL_AUDIT_ROUTE,
+                    match: [ADMIN_PORTAL_AUDIT_ROUTE],
                   },
                   {
                     title: 'Users',

@@ -63,6 +63,24 @@ const adminCache = new InMemoryCache({
   typePolicies: {
     Query: {
       fields: {
+        adminAllPremiumIntegrationLogs: {
+          keyArgs: (args) => {
+            if (!args) return false
+            return Object.keys(args)
+              .filter((key) => !['page', 'limit'].includes(key))
+              .sort()
+          },
+          merge: mergePaginatedCollection,
+        },
+        adminPremiumIntegrationLogs: {
+          keyArgs: (args) => {
+            if (!args) return false
+            return Object.keys(args)
+              .filter((key) => !['page', 'limit'].includes(key))
+              .sort()
+          },
+          merge: mergePaginatedCollection,
+        },
         adminOrganizations: {
           keyArgs: (args) => {
             if (!args) return false
