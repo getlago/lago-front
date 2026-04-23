@@ -25,6 +25,12 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   }),
 }))
 
+const mockIsPremium = jest.fn()
+
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => ({ isPremium: mockIsPremium() }),
+}))
+
 jest.mock('~/core/utils/featureFlags', () => ({
   FeatureFlags: {},
   isFeatureFlagActive: jest.fn(() => false),
@@ -47,6 +53,7 @@ describe('MainNavMenuSections', () => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
     mockHasFeatureFlag.mockReturnValue(true)
+    mockIsPremium.mockReturnValue(true)
   })
 
   describe('Test ID constants', () => {
@@ -252,6 +259,24 @@ describe('MainNavMenuSections', () => {
     it('exports successfully', () => {
       expect(MainNavMenuSections).toBeDefined()
       expect(typeof MainNavMenuSections).toBe('function')
+    })
+  })
+
+  describe('Premium indicator', () => {
+    it('renders sparkles icon on quotes nav item when user is not premium', () => {
+      mockIsPremium.mockReturnValue(false)
+
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(screen.getByTestId('quotes-nav-premium-icon')).toBeInTheDocument()
+    })
+
+    it('does not render sparkles icon on quotes nav item when user is premium', () => {
+      mockIsPremium.mockReturnValue(true)
+
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(screen.queryByTestId('quotes-nav-premium-icon')).not.toBeInTheDocument()
     })
   })
 })

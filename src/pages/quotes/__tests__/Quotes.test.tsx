@@ -40,10 +40,17 @@ jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
 
+const mockIsPremium = jest.fn()
+
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => ({ isPremium: mockIsPremium() }),
+}))
+
 describe('Quotes', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     capturedConfig = null
+    mockIsPremium.mockReturnValue(true)
   })
 
   describe('GIVEN the page is rendered', () => {
@@ -132,6 +139,39 @@ describe('Quotes', () => {
             ]),
           }),
         )
+      })
+    })
+  })
+
+  describe('GIVEN the user is not premium', () => {
+    beforeEach(() => {
+      mockIsPremium.mockReturnValue(false)
+      mockHasPermissions.mockReturnValue(true)
+    })
+
+    describe('WHEN the page renders', () => {
+      it('THEN should configure MainHeader without tabs', () => {
+        render(<Quotes />)
+
+        expect(capturedConfig?.tabs).toBeUndefined()
+      })
+
+      it('THEN should configure MainHeader without actions', () => {
+        render(<Quotes />)
+
+        expect(capturedConfig?.actions).toBeUndefined()
+      })
+
+      it('THEN should not render the active tab content', () => {
+        render(<Quotes />)
+
+        expect(screen.queryByTestId('active-tab-content-mock')).not.toBeInTheDocument()
+      })
+
+      it('THEN should render the premium feature paywall', () => {
+        render(<Quotes />)
+
+        expect(screen.getByTestId('quotes-premium-feature')).toBeInTheDocument()
       })
     })
   })
