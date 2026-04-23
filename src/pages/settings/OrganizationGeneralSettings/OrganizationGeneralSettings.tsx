@@ -1,7 +1,6 @@
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import {
-  SettingsListItem,
   SettingsListItemHeader,
   SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
@@ -37,7 +36,7 @@ const OrganizationGeneralSettings = () => {
           {loading && <SettingsListItemLoadingSkeleton count={1} />}
 
           {!loading && (
-            <SettingsListItem className="!pb-12 !shadow-b">
+            <div className="flex flex-col gap-4 pb-12 shadow-b">
               <SettingsListItemHeader
                 label={translate('text_1776867582729ra096lnt5hc')}
                 sublabel={translate('text_1776867582729aiet5qqthjk')}
@@ -67,7 +66,7 @@ const OrganizationGeneralSettings = () => {
               >
                 {currentSlug ? `/${currentSlug}` : '—'}
               </Typography>
-            </SettingsListItem>
+            </div>
           )}
         </SettingsListWrapper>
       </SettingsPaddedContainer>

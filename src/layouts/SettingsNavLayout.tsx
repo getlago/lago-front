@@ -65,6 +65,12 @@ const generateTabs = ({
   hasPermissions: (permissionsToCheck: Array<keyof TMembershipPermissions>) => boolean
 }) => [
   {
+    title: translate('text_1776867582729i8hvt0ot0wl'),
+    link: GENERAL_SETTINGS_ROUTE,
+    match: [GENERAL_SETTINGS_ROUTE],
+    hidden: !hasPermissions(['organizationView']),
+  },
+  {
     title: translate('text_62b1edddbf5f461ab9712733'),
     link: generatePath(INTEGRATIONS_ROUTE, {
       integrationGroup: IntegrationsTabsOptionsEnum.Lago,
@@ -104,12 +110,6 @@ const generateTabs = ({
     link: TAXES_SETTINGS_ROUTE,
     match: [TAXES_SETTINGS_ROUTE],
     hidden: !hasPermissions(['organizationTaxesView']),
-  },
-  {
-    title: translate('text_1776867582729i8hvt0ot0wl'),
-    link: GENERAL_SETTINGS_ROUTE,
-    match: [GENERAL_SETTINGS_ROUTE],
-    hidden: !hasPermissions(['organizationView']),
   },
 ]
 
