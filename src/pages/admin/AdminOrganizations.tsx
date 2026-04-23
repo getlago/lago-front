@@ -12,6 +12,26 @@ import { ADMIN_ORGANIZATION_DETAIL_ROUTE } from '~/core/router'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
+interface AdminOrganizationItem {
+  id: string
+  name: string
+  email: string | null
+  createdAt: string
+  premiumIntegrations: string[]
+  featureFlags: string[]
+}
+
+interface AdminOrganizationsQueryResult {
+  adminOrganizations: {
+    collection: AdminOrganizationItem[]
+    metadata: {
+      currentPage: number
+      totalCount: number
+      totalPages: number
+    }
+  }
+}
+
 const ADMIN_ORGANIZATIONS_QUERY = gql`
   query AdminOrganizations($searchTerm: String, $page: Int, $limit: Int) {
     adminOrganizations(searchTerm: $searchTerm, page: $page, limit: $limit) {
@@ -35,8 +55,8 @@ const ADMIN_ORGANIZATIONS_QUERY = gql`
 const AdminOrganizations = () => {
   const navigate = useNavigate()
 
-  const [getOrganizations, { data, error, loading, fetchMore, variables }] = useLazyQuery(
-    ADMIN_ORGANIZATIONS_QUERY,
+  const [getOrganizations, { data, error, loading, fetchMore, variables }] =
+    useLazyQuery<AdminOrganizationsQueryResult>(ADMIN_ORGANIZATIONS_QUERY,
     {
       notifyOnNetworkStatusChange: true,
       variables: {
@@ -56,7 +76,7 @@ const AdminOrganizations = () => {
         entity={{
           viewName: 'Organizations',
           metadata:
-            metadata?.totalCount != null ? `${metadata.totalCount} organizations` : undefined,
+            metadata?.totalCount !== null ? `${metadata?.totalCount} organizations` : undefined,
           metadataLoading: isLoading,
         }}
         filtersSection={
@@ -75,7 +95,7 @@ const AdminOrganizations = () => {
             })
         }}
       >
-        <Table
+        <Table<AdminOrganizationItem>
           name="admin-organizations-list"
           isLoading={isLoading}
           hasError={!!error}
@@ -131,7 +151,7 @@ const AdminOrganizations = () => {
               ),
             },
             {
-              key: 'premiumIntegrations',
+              key: 'id',
               title: 'Premium Integrations',
               minWidth: 200,
               content: (org) => {
@@ -149,7 +169,7 @@ const AdminOrganizations = () => {
               },
             },
             {
-              key: 'featureFlags',
+              key: 'id',
               title: 'Feature Flags',
               minWidth: 200,
               content: (org) => {
