@@ -15,6 +15,7 @@ export const TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID = 'typography-with-copy-button'
 interface TypographyWithCopyProps extends TypographyProps {
   masked?: boolean
   maskOptions?: MaskOptions
+  onCopy?: () => void
 }
 
 export const TypographyWithCopy: FC<TypographyWithCopyProps> = ({
@@ -22,17 +23,12 @@ export const TypographyWithCopy: FC<TypographyWithCopyProps> = ({
   className,
   masked,
   maskOptions,
+  onCopy,
   ...typographyProps
 }) => {
   const { translate } = useInternationalization()
 
-  if (masked) {
-    return (
-      <Typography className={className} {...typographyProps}>
-        {maskOptions ? maskValue(children as string, maskOptions) : children}
-      </Typography>
-    )
-  }
+  const displayValue = masked && maskOptions ? maskValue(children as string, maskOptions) : children
 
   return (
     <Tooltip placement="top" title={translate('text_623b42ff8ee4e000ba87d0c6')} className="w-fit">
@@ -44,14 +40,18 @@ export const TypographyWithCopy: FC<TypographyWithCopyProps> = ({
         className={tw('-ml-1 px-1 py-0', className)}
         onClick={(e) => {
           e.stopPropagation()
-          copyToClipboard(children as string)
-          addToast({
-            severity: 'info',
-            translateKey: 'text_1775559630554ourrtpgddty',
-          })
+          if (onCopy) {
+            onCopy()
+          } else {
+            copyToClipboard(children as string)
+            addToast({
+              severity: 'info',
+              translateKey: 'text_1775559630554ourrtpgddty',
+            })
+          }
         }}
       >
-        <Typography {...typographyProps}>{children}</Typography>
+        <Typography {...typographyProps}>{displayValue}</Typography>
       </Button>
     </Tooltip>
   )

@@ -329,6 +329,29 @@ export const ApiKeys = () => {
                               color="grey700"
                               variant="captionCode"
                               masked={!apiKeyValue}
+                              onCopy={
+                                apiKeyValue
+                                  ? undefined
+                                  : async () => {
+                                      try {
+                                        const res = await getApiKeyValue({ variables: { id } })
+                                        const fetchedValue = res?.data?.apiKey?.value
+
+                                        if (fetchedValue) {
+                                          copyToClipboard(fetchedValue)
+                                          addToast({
+                                            severity: 'info',
+                                            translateKey: 'text_6227a2e847fcd700e9038952',
+                                          })
+                                        }
+                                      } catch {
+                                        addToast({
+                                          severity: 'danger',
+                                          translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+                                        })
+                                      }
+                                    }
+                              }
                             >
                               {apiKeyValue || value}
                             </TypographyWithCopy>

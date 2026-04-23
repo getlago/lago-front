@@ -58,6 +58,53 @@ describe('TypographyWithCopy', () => {
     })
   })
 
+  describe('GIVEN the component is rendered with masked props', () => {
+    describe('WHEN masked with maskOptions', () => {
+      it('THEN should display the masked text', () => {
+        render(
+          <TypographyWithCopy masked maskOptions={{ dotsCount: 8, visibleChars: 3 }}>
+            secret-key-abc
+          </TypographyWithCopy>,
+        )
+
+        expect(screen.queryByText('secret-key-abc')).not.toBeInTheDocument()
+        expect(screen.getByText('••••••••abc')).toBeInTheDocument()
+      })
+
+      it('THEN should still render the copy button', () => {
+        render(
+          <TypographyWithCopy masked maskOptions={{ dotsCount: 8, visibleChars: 3 }}>
+            secret-key-abc
+          </TypographyWithCopy>,
+        )
+
+        expect(screen.getByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      it('THEN should copy the real value when clicked', async () => {
+        const user = userEvent.setup()
+
+        render(
+          <TypographyWithCopy masked maskOptions={{ dotsCount: 8, visibleChars: 3 }}>
+            secret-key-abc
+          </TypographyWithCopy>,
+        )
+
+        await user.click(screen.getByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID))
+
+        expect(copyToClipboard).toHaveBeenCalledWith('secret-key-abc')
+      })
+    })
+
+    describe('WHEN masked without maskOptions', () => {
+      it('THEN should display the children as-is', () => {
+        render(<TypographyWithCopy masked>••••••••c6f</TypographyWithCopy>)
+
+        expect(screen.getByText('••••••••c6f')).toBeInTheDocument()
+      })
+    })
+  })
+
   describe('GIVEN the user clicks the copy button', () => {
     describe('WHEN the button is clicked', () => {
       it('THEN should copy the text to clipboard', async () => {
@@ -94,6 +141,21 @@ describe('TypographyWithCopy', () => {
         await user.click(screen.getByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID))
 
         expect(parentClickHandler).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN onCopy is provided', () => {
+      it('THEN should call onCopy instead of the default copy behavior', async () => {
+        const onCopy = jest.fn()
+        const user = userEvent.setup()
+
+        render(<TypographyWithCopy onCopy={onCopy}>some-value</TypographyWithCopy>)
+
+        await user.click(screen.getByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID))
+
+        expect(onCopy).toHaveBeenCalled()
+        expect(copyToClipboard).not.toHaveBeenCalled()
+        expect(addToast).not.toHaveBeenCalled()
       })
     })
   })
