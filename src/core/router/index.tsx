@@ -20,7 +20,7 @@ const AdminDashboard = lazyLoad(() => import('~/pages/admin/AdminDashboard'))
 const AdminOrganizations = lazyLoad(() => import('~/pages/admin/AdminOrganizations'))
 const AdminOrganizationDetail = lazyLoad(() => import('~/pages/admin/AdminOrganizationDetail'))
 const AdminOrganizationCreate = lazyLoad(() => import('~/pages/admin/AdminOrganizationCreate'))
-// const AdminComparison = lazyLoad(() => import('~/pages/admin/AdminComparison'))
+const AdminComparison = lazyLoad(() => import('~/pages/admin/AdminComparison'))
 const AdminAuditLog = lazyLoad(() => import('~/pages/admin/AdminAuditLog'))
 
 // ----------- Pages -----------
@@ -91,10 +91,10 @@ export const routes: CustomRouteObject[] = [
         path: 'organizations/:organizationId',
         element: <AdminOrganizationDetail />,
       },
-      // {
-      //   path: 'compare',
-      //   element: <AdminComparison />,
-      // },
+      {
+        path: 'compare',
+        element: <AdminComparison />,
+      },
       {
         path: 'audit-log',
         element: <AdminAuditLog />,
