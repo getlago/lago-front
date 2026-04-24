@@ -113,6 +113,7 @@
     "vite-plugin-wasm": "3.6.0"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.90.0",
     "@apollo/client": "3.14.1",
     "@ebay/nice-modal-react": "1.2.13",
     "@fragaria/address-formatter": "6.7.1",
@@ -154,6 +155,7 @@
     "@tiptap/react": "3.22.3",
     "@tiptap/starter-kit": "3.22.3",
     "@tiptap/suggestion": "3.22.3",
+    "@types/papaparse": "^5.5.2",
     "ace-builds": "1.43.6",
     "actioncable": "5.2.8-1",
     "apollo-link-timeout": "4.0.0",
@@ -171,6 +173,8 @@
     "lodash": "4.18.1",
     "lodash-es": "4.18.1",
     "luxon": "3.7.2",
+    "papaparse": "^5.5.3",
+    "pdfjs-dist": "^5.6.205",
     "prismjs": "1.30.0",
     "react": "18.3.1",
     "react-ace": "14.0.1",
@@ -184,6 +188,7 @@
     "shiki": "4.0.2",
     "tippy.js": "6.3.7",
     "tiptap-markdown": "0.9.0",
+    "xlsx": "^0.18.5",
     "yup": "1.7.1",
     "zod": "4.3.6"
   },

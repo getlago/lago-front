@@ -35,6 +35,8 @@ import {
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
   OKTA_AUTHENTICATION_ROUTE,
+  PRICING_BUILDER_DETAIL_ROUTE,
+  PRICING_BUILDER_ROUTE,
   ROLE_CREATE_ROUTE,
   ROLE_DETAILS_ROUTE,
   ROLE_EDIT_ROUTE,
@@ -108,6 +110,11 @@ const generateTabs = ({
     link: TAXES_SETTINGS_ROUTE,
     match: [TAXES_SETTINGS_ROUTE],
     hidden: !hasPermissions(['organizationTaxesView']),
+  },
+  {
+    title: 'Pricing builder',
+    link: PRICING_BUILDER_ROUTE,
+    match: [PRICING_BUILDER_ROUTE, PRICING_BUILDER_DETAIL_ROUTE],
   },
 ]
 

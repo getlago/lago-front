@@ -92,6 +92,10 @@ const DunningsSettings = lazyLoad(() => import('~/pages/settings/Dunnings/Dunnin
 const CreateDunning = lazyLoad(() => import('~/pages/settings/Dunnings/CreateDunning'))
 const CreatePricingUnit = lazyLoad(() => import('~/pages/settings/Invoices/CreatePricingUnit'))
 
+const PricingBuilder = lazyLoad(
+  () => import('~/pages/settings/PricingBuilder/PricingBuilder'),
+)
+
 const TeamAndSecurity = lazyLoad(() => import('~/pages/settings/teamAndSecurity/TeamAndSecurity'))
 
 const RoleDetails = lazyLoad(
@@ -142,6 +146,9 @@ export const EMAILS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/emails`
 export const XERO_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/xero`
 export const XERO_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/xero/:integrationId/:tab`
 export const DUNNINGS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/dunnings`
+
+export const PRICING_BUILDER_ROUTE = `${SETTINGS_ROUTE}/pricing-builder`
+export const PRICING_BUILDER_DETAIL_ROUTE = `${SETTINGS_ROUTE}/pricing-builder/:pricingImportId`
 
 const BILLING_ENTITY_BASE = `${SETTINGS_ROUTE}/billing-entity`
 const BILLING_ENTITY_BASE_WITH_CODE = `${BILLING_ENTITY_BASE}/:billingEntityCode`
@@ -410,6 +417,11 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <DunningsSettings />,
         permissions: ['dunningCampaignsView'],
+      },
+      {
+        path: [PRICING_BUILDER_ROUTE, PRICING_BUILDER_DETAIL_ROUTE],
+        private: true,
+        element: <PricingBuilder />,
       },
       {
         path: [BILLING_ENTITY_ROUTE, BILLING_ENTITY_BASE],
