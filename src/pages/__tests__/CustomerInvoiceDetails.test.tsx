@@ -546,9 +546,7 @@ describe('CustomerInvoiceDetails', () => {
 
   describe('GIVEN the user does not have auditLogsView permission', () => {
     beforeEach(() => {
-      mockHasPermissions.mockImplementation(
-        (perms: string[]) => !perms.includes('auditLogsView'),
-      )
+      mockHasPermissions.mockImplementation((perms: string[]) => !perms.includes('auditLogsView'))
     })
 
     describe('WHEN tabs are configured for a finalized invoice', () => {
@@ -563,9 +561,7 @@ describe('CustomerInvoiceDetails', () => {
 
   describe('GIVEN the user does not have creditNotesView permission', () => {
     beforeEach(() => {
-      mockHasPermissions.mockImplementation(
-        (perms: string[]) => !perms.includes('creditNotesView'),
-      )
+      mockHasPermissions.mockImplementation((perms: string[]) => !perms.includes('creditNotesView'))
     })
 
     describe('WHEN tabs are configured for a finalized invoice', () => {
