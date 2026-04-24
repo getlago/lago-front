@@ -50,7 +50,7 @@ const ADMIN_ROLLBACK_CHANGE_MUTATION = gql`
 `
 
 const AdminAuditLog = () => {
-  const [getAuditLogs, { data, error, loading, fetchMore, refetch, variables }] = useLazyQuery(
+  const [getAuditLogs, { data, error, loading, fetchMore, refetch }] = useLazyQuery(
     ADMIN_AUDIT_LOGS_QUERY,
     {
       notifyOnNetworkStatusChange: true,
