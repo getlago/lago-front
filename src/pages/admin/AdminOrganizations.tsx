@@ -80,6 +80,7 @@ const AdminOrganizations = () => {
             {
               type: 'action',
               label: 'Create organization',
+              variant: 'primary',
               onClick: () => navigate(ADMIN_ORGANIZATION_CREATE_ROUTE),
             },
           ],
