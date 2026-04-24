@@ -546,7 +546,9 @@ describe('CustomerInvoiceDetails', () => {
 
   describe('GIVEN the user does not have auditLogsView permission', () => {
     beforeEach(() => {
-      mockHasPermissions.mockReturnValue(false)
+      mockHasPermissions.mockImplementation(
+        (perms: string[]) => !perms.includes('auditLogsView'),
+      )
     })
 
     describe('WHEN tabs are configured for a finalized invoice', () => {
@@ -554,6 +556,23 @@ describe('CustomerInvoiceDetails', () => {
         render(<CustomerInvoiceDetails />)
 
         // Finalized without activity logs: overview + payments + credit notes = 3
+        expect(capturedConfig?.tabs).toHaveLength(3)
+      })
+    })
+  })
+
+  describe('GIVEN the user does not have creditNotesView permission', () => {
+    beforeEach(() => {
+      mockHasPermissions.mockImplementation(
+        (perms: string[]) => !perms.includes('creditNotesView'),
+      )
+    })
+
+    describe('WHEN tabs are configured for a finalized invoice', () => {
+      it('THEN should not include credit notes tab', () => {
+        render(<CustomerInvoiceDetails />)
+
+        // Finalized without credit notes: overview + payments + activity logs = 3
         expect(capturedConfig?.tabs).toHaveLength(3)
       })
     })

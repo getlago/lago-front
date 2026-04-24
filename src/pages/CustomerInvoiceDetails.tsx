@@ -612,7 +612,8 @@ const CustomerInvoiceDetails = () => {
         InvoiceStatusTypeEnum.Failed,
         InvoiceStatusTypeEnum.Pending,
       ].includes(status) &&
-      taxStatus !== InvoiceTaxStatusTypeEnum.Pending
+      taxStatus !== InvoiceTaxStatusTypeEnum.Pending &&
+      hasPermissions(['creditNotesView'])
     ) {
       tabs.push({
         title: translate('text_636bdef6565341dcb9cfb125'),
