@@ -47,7 +47,11 @@ const AdminComparison = () => {
   const selectedOrgIds: string[] = rawOrgs ? rawOrgs.split(',').filter(Boolean) : []
 
   // Fetch all orgs in a single query
-  const { data, loading: isLoadingOrgs, refetch } = useQuery(ADMIN_ORGANIZATIONS_QUERY, {
+  const {
+    data,
+    loading: isLoadingOrgs,
+    refetch,
+  } = useQuery(ADMIN_ORGANIZATIONS_QUERY, {
     variables: { limit: ALL_ORGS_LIMIT },
   })
 

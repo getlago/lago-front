@@ -132,9 +132,7 @@ export const ComparisonMatrix = ({
       containerSize={0}
       placeholder={{
         emptyState: {
-          title: showDifferencesOnly
-            ? 'No differences found'
-            : 'No features to display',
+          title: showDifferencesOnly ? 'No differences found' : 'No features to display',
           subtitle: showDifferencesOnly
             ? 'All selected organizations have identical feature configurations.'
             : undefined,
@@ -169,6 +167,7 @@ export const ComparisonMatrix = ({
             const enabled = isEnabled(org, row)
 
             return (
+              // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
               <span className="cursor-pointer" onClick={() => handleCellClick(org, row)}>
                 <Chip
                   label={enabled ? 'ON' : 'OFF'}

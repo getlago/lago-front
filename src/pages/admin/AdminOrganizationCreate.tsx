@@ -52,7 +52,6 @@ const AdminOrganizationCreate = () => {
   const [timezone, setTimezone] = useState('')
   const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([])
 
-
   const [createOrganization] = useMutation(ADMIN_CREATE_ORGANIZATION_MUTATION)
 
   const isValid = orgName.trim().length > 0 && ownerEmail.trim().length > 0
@@ -129,7 +128,6 @@ const AdminOrganizationCreate = () => {
             value={selectedIntegrations.map((key) => ({ value: key }))}
             onChange={(newValue) => setSelectedIntegrations(newValue.map((item) => item.value))}
           />
-
         </div>
       </CenteredPage.Container>
 
