@@ -1,5 +1,4 @@
 import NiceModal from '@ebay/nice-modal-react'
-import Box from '@mui/material/Box'
 import Switch from '@mui/material/Switch'
 
 import { Typography } from '~/components/designSystem/Typography'
@@ -37,24 +36,15 @@ export const FeatureToggleRow = ({
   }
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        py: 1.5,
-        borderBottom: '1px solid',
-        borderColor: 'divider',
-      }}
-    >
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+    <div className="flex items-center justify-between border-b border-grey-300 py-3">
+      <div className="flex flex-col gap-0.5">
         <Typography variant="body">{featureKey}</Typography>
         <Typography variant="caption" color="grey600">
           {TYPE_LABEL[featureType]}
         </Typography>
-      </Box>
+      </div>
       <Switch checked={enabled} onChange={handleSwitchClick} color="primary" />
-    </Box>
+    </div>
   )
 }
 
