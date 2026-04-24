@@ -129,22 +129,20 @@ const AdminOrganizationDetail = () => {
         setIsSaving(true)
 
         try {
-          await Promise.all(
-            changes.map((change) =>
-              toggleFeature({
-                variables: {
-                  input: {
-                    organizationId,
-                    featureKey: change.featureKey,
-                    featureType: 'premium_integration',
-                    enabled: change.enabled,
-                    reason,
-                    notifyOrgAdmin,
-                  },
+          for (const change of changes) {
+            await toggleFeature({
+              variables: {
+                input: {
+                  organizationId,
+                  featureKey: change.featureKey,
+                  featureType: 'premium_integration',
+                  enabled: change.enabled,
+                  reason,
+                  notifyOrgAdmin,
                 },
-              }),
-            ),
-          )
+              },
+            })
+          }
           await refetch()
         } finally {
           setIsSaving(false)
@@ -196,27 +194,6 @@ const AdminOrganizationDetail = () => {
           viewName: org.name,
           metadata: getEntityMetadata(),
         }}
-        actions={
-          isDirty
-            ? {
-                items: [
-                  {
-                    type: 'action',
-                    label: 'Reset',
-                    variant: 'quaternary',
-                    onClick: handleReset,
-                  },
-                  {
-                    type: 'action',
-                    label: 'Save changes',
-                    variant: 'primary',
-                    onClick: handleSave,
-                    disabled: isSaving,
-                  },
-                ],
-              }
-            : undefined
-        }
       />
 
       <div className="mx-auto w-full max-w-200 p-4 md:p-12">
@@ -239,6 +216,19 @@ const AdminOrganizationDetail = () => {
           ))}
         </div>
       </div>
+
+      {isDirty && (
+        <footer className="sticky bottom-0 z-navBar w-full bg-white shadow-t">
+          <div className="mx-auto flex min-h-footer w-full max-w-200 flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-12">
+            <Button variant="quaternary" onClick={handleReset}>
+              Reset
+            </Button>
+            <Button disabled={isSaving} onClick={handleSave}>
+              Save changes
+            </Button>
+          </div>
+        </footer>
+      )}
     </>
   )
 }
