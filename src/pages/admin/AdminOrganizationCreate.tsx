@@ -6,9 +6,10 @@ import { generatePath, useNavigate } from 'react-router-dom'
 import { REASON_MODAL_NAME } from '~/components/admin/const'
 import { ReasonModalProps } from '~/components/admin/ReasonModal'
 import { Button } from '~/components/designSystem/Button'
+import { Typography } from '~/components/designSystem/Typography'
 import { MultipleComboBox } from '~/components/form/MultipleComboBox/MultipleComboBox'
 import { TextInput } from '~/components/form/TextInput/TextInput'
-import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ADMIN_ORGANIZATION_DETAIL_ROUTE, ADMIN_ORGANIZATIONS_ROUTE } from '~/core/router'
 
 const ADMIN_CREATE_ORGANIZATION_MUTATION = gql`
@@ -96,20 +97,19 @@ const AdminOrganizationCreate = () => {
   }
 
   return (
-    <>
-      <MainHeader.Configure
-        breadcrumb={[
-          {
-            label: 'Organizations',
-            path: ADMIN_ORGANIZATIONS_ROUTE,
-          },
-        ]}
-        entity={{
-          viewName: 'Create Organization',
-        }}
-      />
+    <CenteredPage.Wrapper>
+      <CenteredPage.Header>
+        <Typography variant="bodyHl" color="textSecondary">
+          Create Organization
+        </Typography>
+        <Button
+          variant="quaternary"
+          icon="close"
+          onClick={() => navigate(ADMIN_ORGANIZATIONS_ROUTE)}
+        />
+      </CenteredPage.Header>
 
-      <div className="mx-auto w-full max-w-200 p-4 md:p-12">
+      <CenteredPage.Container>
         <div className="flex flex-col gap-6">
           <TextInput
             label="Organization Name"
@@ -149,18 +149,18 @@ const AdminOrganizationCreate = () => {
             value={selectedFlags.map((key) => ({ value: key }))}
             onChange={(newValue) => setSelectedFlags(newValue.map((item) => item.value))}
           />
-
-          <div className="flex justify-end gap-3 pt-4">
-            <Button variant="quaternary" onClick={() => navigate(ADMIN_ORGANIZATIONS_ROUTE)}>
-              Cancel
-            </Button>
-            <Button disabled={!isValid} onClick={handleCreate}>
-              Create Organization
-            </Button>
-          </div>
         </div>
-      </div>
-    </>
+      </CenteredPage.Container>
+
+      <CenteredPage.StickyFooter>
+        <Button variant="quaternary" onClick={() => navigate(ADMIN_ORGANIZATIONS_ROUTE)}>
+          Cancel
+        </Button>
+        <Button disabled={!isValid} onClick={handleCreate}>
+          Create Organization
+        </Button>
+      </CenteredPage.StickyFooter>
+    </CenteredPage.Wrapper>
   )
 }
 

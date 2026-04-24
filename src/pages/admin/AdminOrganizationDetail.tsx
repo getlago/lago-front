@@ -16,7 +16,6 @@ const ADMIN_ORGANIZATION_QUERY = gql`
       email
       createdAt
       premiumIntegrations
-      featureFlags
     }
   }
 `
@@ -58,17 +57,6 @@ const KNOWN_PREMIUM_INTEGRATIONS = [
   'multi_entities_enterprise',
 ]
 
-const KNOWN_FEATURE_FLAGS = [
-  'multiple_payment_methods',
-  'non_persistable_charge_cache_optimization',
-  'postgres_enriched_events',
-  'enriched_events_aggregation',
-  'wallet_traceability',
-  'multi_currency',
-  'payment_gated_subscriptions',
-  'order_forms',
-]
-
 const AdminOrganizationDetail = () => {
   const { organizationId } = useParams<{ organizationId: string }>()
 
@@ -82,7 +70,11 @@ const AdminOrganizationDetail = () => {
   const org = data?.adminOrganization
 
   const handleToggle =
-    (featureKey: string, featureType: 'premium_integration' | 'feature_flag') =>
+    (
+      featureKey: string,
+      featureType: 'premium_integration' | 'feature_flag',
+      currentlyEnabled: boolean,
+    ) =>
     async (reason: string, notifyOrgAdmin: boolean) => {
       await toggleFeature({
         variables: {
@@ -90,6 +82,7 @@ const AdminOrganizationDetail = () => {
             organizationId,
             featureKey,
             featureType,
+            enabled: !currentlyEnabled,
             reason,
             notifyOrgAdmin,
           },
@@ -117,7 +110,6 @@ const AdminOrganizationDetail = () => {
   }
 
   const enabledIntegrations: string[] = org.premiumIntegrations ?? []
-  const enabledFlags: string[] = org.featureFlags ?? []
 
   const createdDate = org.createdAt
     ? intlFormatDateTime(org.createdAt, { formatDate: DateFormat.DATE_MED }).date
@@ -167,25 +159,7 @@ const AdminOrganizationDetail = () => {
               featureKey={key}
               featureType="premium_integration"
               enabled={enabledIntegrations.includes(key)}
-              onToggle={handleToggle(key, 'premium_integration')}
-            />
-          ))}
-        </div>
-
-        <div className="mb-8 border-b border-grey-300" />
-
-        {/* Feature Flags */}
-        <div className="mb-8">
-          <Typography variant="subhead1" className="mb-4">
-            Feature Flags
-          </Typography>
-          {KNOWN_FEATURE_FLAGS.map((key) => (
-            <FeatureToggleRow
-              key={key}
-              featureKey={key}
-              featureType="feature_flag"
-              enabled={enabledFlags.includes(key)}
-              onToggle={handleToggle(key, 'feature_flag')}
+              onToggle={handleToggle(key, 'premium_integration', enabledIntegrations.includes(key))}
             />
           ))}
         </div>
