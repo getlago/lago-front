@@ -4,7 +4,11 @@ import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSyste
 import {
   ADD_ON_DETAILS_ROUTE,
   ADD_ONS_ROUTE,
-  ADMIN_ROUTE,
+  ADMIN_AUDIT_LOG_ROUTE,
+  ADMIN_COMPARE_ROUTE,
+  ADMIN_ORGANIZATIONS_ROUTE,
+  ADMIN_ORGANIZATION_CREATE_ROUTE,
+  ADMIN_ORGANIZATION_DETAIL_ROUTE,
   ANALYTIC_ROUTE,
   ANALYTIC_TABS_ROUTE,
   BILLABLE_METRIC_DETAILS_ROUTE,
@@ -195,9 +199,27 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
 
   const getAdminTabs = (): NavTab[] => [
     {
-      title: 'CS Admin',
-      icon: 'key',
-      link: ADMIN_ROUTE,
+      title: 'Organizations',
+      icon: 'user-multiple',
+      link: ADMIN_ORGANIZATIONS_ROUTE,
+      canBeClickedOnActive: true,
+      match: [
+        ADMIN_ORGANIZATIONS_ROUTE,
+        ADMIN_ORGANIZATION_CREATE_ROUTE,
+        ADMIN_ORGANIZATION_DETAIL_ROUTE,
+      ],
+      hidden: !currentUser?.csAdmin,
+    },
+    {
+      title: 'Compare',
+      icon: 'switch',
+      link: ADMIN_COMPARE_ROUTE,
+      hidden: !currentUser?.csAdmin,
+    },
+    {
+      title: 'Audit Log',
+      icon: 'document',
+      link: ADMIN_AUDIT_LOG_ROUTE,
       hidden: !currentUser?.csAdmin,
     },
   ]
