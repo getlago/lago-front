@@ -1,11 +1,12 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
-import Box from '@mui/material/Box'
-import CircularProgress from '@mui/material/CircularProgress'
-import Divider from '@mui/material/Divider'
 import { useParams } from 'react-router-dom'
 
 import { FeatureToggleRow } from '~/components/admin/FeatureToggleRow'
+import { Spinner } from '~/components/designSystem/Spinner'
 import { Typography } from '~/components/designSystem/Typography'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { ADMIN_ORGANIZATIONS_ROUTE } from '~/core/router'
+import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 
 const ADMIN_ORGANIZATION_QUERY = gql`
   query AdminOrganization($organizationId: ID!) {
@@ -99,19 +100,19 @@ const AdminOrganizationDetail = () => {
 
   if (loading) {
     return (
-      <Box sx={{ p: 4, display: 'flex', justifyContent: 'center' }}>
-        <CircularProgress />
-      </Box>
+      <div className="flex items-center justify-center p-12">
+        <Spinner />
+      </div>
     )
   }
 
   if (!org) {
     return (
-      <Box sx={{ p: 4 }}>
+      <div className="p-4 md:p-12">
         <Typography variant="body" color="grey600">
           Organization not found.
         </Typography>
-      </Box>
+      </div>
     )
   }
 
@@ -119,19 +120,27 @@ const AdminOrganizationDetail = () => {
   const enabledFlags: string[] = org.featureFlags ?? []
 
   const createdDate = org.createdAt
-    ? new Date(org.createdAt).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-    : '—'
+    ? intlFormatDateTime(org.createdAt, { formatDate: DateFormat.DATE_MED }).date
+    : '-'
 
   return (
-    <Box sx={{ p: 4, maxWidth: 800, mx: 'auto' }}>
-      {/* Org header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="headline">{org.name}</Typography>
-        <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+    <>
+      <MainHeader.Configure
+        breadcrumb={[
+          {
+            label: 'Organizations',
+            path: ADMIN_ORGANIZATIONS_ROUTE,
+          },
+        ]}
+        entity={{
+          viewName: org.name,
+          metadata: org.email || org.id,
+        }}
+      />
+
+      <div className="max-w-200 mx-auto w-full p-4 md:p-12">
+        {/* Org metadata */}
+        <div className="mb-8 flex flex-col gap-1">
           <Typography variant="body" color="grey600">
             ID: {org.id}
           </Typography>
@@ -143,45 +152,45 @@ const AdminOrganizationDetail = () => {
           <Typography variant="body" color="grey600">
             Created: {createdDate}
           </Typography>
-        </Box>
-      </Box>
+        </div>
 
-      <Divider sx={{ mb: 4 }} />
+        <div className="mb-8 border-b border-grey-300" />
 
-      {/* Premium Integrations */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="subhead1" sx={{ mb: 2 }}>
-          Premium Integrations
-        </Typography>
-        {KNOWN_PREMIUM_INTEGRATIONS.map((key) => (
-          <FeatureToggleRow
-            key={key}
-            featureKey={key}
-            featureType="premium_integration"
-            enabled={enabledIntegrations.includes(key)}
-            onToggle={handleToggle(key, 'premium_integration')}
-          />
-        ))}
-      </Box>
+        {/* Premium Integrations */}
+        <div className="mb-8">
+          <Typography variant="subhead1" className="mb-4">
+            Premium Integrations
+          </Typography>
+          {KNOWN_PREMIUM_INTEGRATIONS.map((key) => (
+            <FeatureToggleRow
+              key={key}
+              featureKey={key}
+              featureType="premium_integration"
+              enabled={enabledIntegrations.includes(key)}
+              onToggle={handleToggle(key, 'premium_integration')}
+            />
+          ))}
+        </div>
 
-      <Divider sx={{ mb: 4 }} />
+        <div className="mb-8 border-b border-grey-300" />
 
-      {/* Feature Flags */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="subhead1" sx={{ mb: 2 }}>
-          Feature Flags
-        </Typography>
-        {KNOWN_FEATURE_FLAGS.map((key) => (
-          <FeatureToggleRow
-            key={key}
-            featureKey={key}
-            featureType="feature_flag"
-            enabled={enabledFlags.includes(key)}
-            onToggle={handleToggle(key, 'feature_flag')}
-          />
-        ))}
-      </Box>
-    </Box>
+        {/* Feature Flags */}
+        <div className="mb-8">
+          <Typography variant="subhead1" className="mb-4">
+            Feature Flags
+          </Typography>
+          {KNOWN_FEATURE_FLAGS.map((key) => (
+            <FeatureToggleRow
+              key={key}
+              featureKey={key}
+              featureType="feature_flag"
+              enabled={enabledFlags.includes(key)}
+              onToggle={handleToggle(key, 'feature_flag')}
+            />
+          ))}
+        </div>
+      </div>
+    </>
   )
 }
 
