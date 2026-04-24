@@ -1,16 +1,17 @@
 import { gql, useLazyQuery, useMutation } from '@apollo/client'
+import { debounce } from 'lodash'
+import { useCallback, useState } from 'react'
 
 import { AuditLogEntry, AuditLogTable } from '~/components/admin/AuditLogTable'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
-import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
 const ADMIN_AUDIT_LOGS_QUERY = gql`
-  query AdminAuditLogs($organizationId: ID, $searchTerm: String, $page: Int, $limit: Int) {
+  query AdminAuditLogs($organizationId: ID, $featureKey: String, $page: Int, $limit: Int) {
     adminAuditLogs(
       organizationId: $organizationId
-      featureKey: $searchTerm
+      featureKey: $featureKey
       page: $page
       limit: $limit
     ) {
@@ -60,8 +61,20 @@ const AdminAuditLog = () => {
   )
 
   const [rollbackChange] = useMutation(ADMIN_ROLLBACK_CHANGE_MUTATION)
+  const [featureKey, setFeatureKey] = useState<string>('')
 
-  const { debouncedSearch, isLoading } = useDebouncedSearch(getAuditLogs, loading)
+  const isLoading = loading
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      setFeatureKey(value)
+      getAuditLogs({
+        variables: { featureKey: value || undefined },
+      })
+    }, 500),
+    [],
+  )
 
   const auditLogs: AuditLogEntry[] = data?.adminAuditLogs?.collection || []
   const metadata = data?.adminAuditLogs?.metadata
@@ -109,7 +122,7 @@ const AdminAuditLog = () => {
           data={auditLogs}
           isLoading={isLoading}
           hasError={!!error}
-          featureKey={variables?.searchTerm}
+          featureKey={featureKey || undefined}
           onRollback={handleRollback}
         />
       </InfiniteScroll>
