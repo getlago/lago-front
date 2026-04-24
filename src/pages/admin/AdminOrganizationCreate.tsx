@@ -1,7 +1,6 @@
 import { gql, useMutation } from '@apollo/client'
 import NiceModal from '@ebay/nice-modal-react'
 import Autocomplete from '@mui/material/Autocomplete'
-import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import TextField from '@mui/material/TextField'
 import { useState } from 'react'
@@ -12,7 +11,8 @@ import { ReasonModalProps } from '~/components/admin/ReasonModal'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { TextInput } from '~/components/form/TextInput/TextInput'
-import { ADMIN_ORGANIZATION_DETAIL_ROUTE } from '~/core/router'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { ADMIN_ORGANIZATIONS_ROUTE, ADMIN_ORGANIZATION_DETAIL_ROUTE } from '~/core/router'
 
 const ADMIN_CREATE_ORGANIZATION_MUTATION = gql`
   mutation AdminCreateOrganization($input: AdminCreateOrganizationInput!) {
@@ -99,96 +99,108 @@ const AdminOrganizationCreate = () => {
   }
 
   return (
-    <Box sx={{ p: 4, maxWidth: 800, mx: 'auto' }}>
-      <Typography variant="headline" sx={{ mb: 4 }}>
-        Create Organization
-      </Typography>
-
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <TextInput
-          label="Organization Name"
-          placeholder="Acme Corp"
-          value={orgName}
-          onChange={(value) => setOrgName(value)}
-          required
+    <CenteredPage.Wrapper>
+      <CenteredPage.Header>
+        <Typography variant="bodyHl" color="textSecondary">
+          Create Organization
+        </Typography>
+        <Button
+          variant="quaternary"
+          icon="close"
+          onClick={() => navigate(ADMIN_ORGANIZATIONS_ROUTE)}
         />
+      </CenteredPage.Header>
 
-        <TextInput
-          label="Owner Email"
-          placeholder="owner@example.com"
-          value={ownerEmail}
-          onChange={(value) => setOwnerEmail(value)}
-          required
-        />
-
-        <TextInput
-          label="Timezone"
-          placeholder="UTC (optional)"
-          value={timezone}
-          onChange={(value) => setTimezone(value)}
-        />
-
-        <Box>
-          <Typography variant="captionHl" sx={{ mb: 1, display: 'block' }}>
-            Premium Integrations
-          </Typography>
-          <Autocomplete
-            multiple
-            options={KNOWN_PREMIUM_INTEGRATIONS}
-            value={selectedIntegrations}
-            onChange={(_, newValue) => setSelectedIntegrations(newValue)}
-            renderTags={(value, getTagProps) =>
-              value.map((option, index) => {
-                const { key, ...tagProps } = getTagProps({ index })
-
-                return <Chip key={key} label={option} size="small" {...tagProps} />
-              })
-            }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                variant="outlined"
-                placeholder={selectedIntegrations.length === 0 ? 'Select integrations...' : ''}
-                size="small"
-              />
-            )}
+      <CenteredPage.Container>
+        <div className="flex flex-col gap-6">
+          <TextInput
+            label="Organization Name"
+            placeholder="Acme Corp"
+            value={orgName}
+            onChange={(value) => setOrgName(value)}
+            required
           />
-        </Box>
 
-        <Box>
-          <Typography variant="captionHl" sx={{ mb: 1, display: 'block' }}>
-            Feature Flags
-          </Typography>
-          <Autocomplete
-            multiple
-            options={KNOWN_FEATURE_FLAGS}
-            value={selectedFlags}
-            onChange={(_, newValue) => setSelectedFlags(newValue)}
-            renderTags={(value, getTagProps) =>
-              value.map((option, index) => {
-                const { key, ...tagProps } = getTagProps({ index })
-
-                return <Chip key={key} label={option} size="small" {...tagProps} />
-              })
-            }
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                variant="outlined"
-                placeholder={selectedFlags.length === 0 ? 'Select feature flags...' : ''}
-                size="small"
-              />
-            )}
+          <TextInput
+            label="Owner Email"
+            placeholder="owner@example.com"
+            value={ownerEmail}
+            onChange={(value) => setOwnerEmail(value)}
+            required
           />
-        </Box>
 
-        <Box sx={{ pt: 1 }}>
-          <Button disabled={!isValid} onClick={handleCreate}>
-            Create Organization
-          </Button>
-        </Box>
-      </Box>
-    </Box>
+          <TextInput
+            label="Timezone"
+            placeholder="UTC (optional)"
+            value={timezone}
+            onChange={(value) => setTimezone(value)}
+          />
+
+          <div>
+            <Typography variant="captionHl" className="mb-2 block">
+              Premium Integrations
+            </Typography>
+            <Autocomplete
+              multiple
+              options={KNOWN_PREMIUM_INTEGRATIONS}
+              value={selectedIntegrations}
+              onChange={(_, newValue) => setSelectedIntegrations(newValue)}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => {
+                  const { key, ...tagProps } = getTagProps({ index })
+
+                  return <Chip key={key} label={option} size="small" {...tagProps} />
+                })
+              }
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="outlined"
+                  placeholder={selectedIntegrations.length === 0 ? 'Select integrations...' : ''}
+                  size="small"
+                />
+              )}
+            />
+          </div>
+
+          <div>
+            <Typography variant="captionHl" className="mb-2 block">
+              Feature Flags
+            </Typography>
+            <Autocomplete
+              multiple
+              options={KNOWN_FEATURE_FLAGS}
+              value={selectedFlags}
+              onChange={(_, newValue) => setSelectedFlags(newValue)}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => {
+                  const { key, ...tagProps } = getTagProps({ index })
+
+                  return <Chip key={key} label={option} size="small" {...tagProps} />
+                })
+              }
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="outlined"
+                  placeholder={selectedFlags.length === 0 ? 'Select feature flags...' : ''}
+                  size="small"
+                />
+              )}
+            />
+          </div>
+        </div>
+      </CenteredPage.Container>
+
+      <CenteredPage.StickyFooter>
+        <Button variant="quaternary" onClick={() => navigate(ADMIN_ORGANIZATIONS_ROUTE)}>
+          Cancel
+        </Button>
+        <Button disabled={!isValid} onClick={handleCreate}>
+          Create Organization
+        </Button>
+      </CenteredPage.StickyFooter>
+    </CenteredPage.Wrapper>
   )
 }
 
