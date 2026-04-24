@@ -196,7 +196,7 @@ const AdminOrganizationDetail = () => {
         }}
       />
 
-      <div className="mx-auto w-full max-w-200 p-4 md:p-12">
+      <div className="max-w-200 mx-auto w-full p-4 md:p-12">
         <div>
           <Typography variant="subhead1" className="mb-4">
             Premium Integrations
@@ -218,7 +218,7 @@ const AdminOrganizationDetail = () => {
       </div>
 
       <footer className="sticky bottom-0 z-navBar w-full bg-white shadow-t">
-        <div className="mx-auto flex min-h-footer w-full max-w-200 flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-12">
+        <div className="max-w-200 mx-auto flex min-h-footer w-full flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-12">
           <Button variant="quaternary" disabled={!isDirty} onClick={handleReset}>
             Reset
           </Button>

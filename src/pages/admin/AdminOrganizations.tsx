@@ -138,7 +138,6 @@ const AdminOrganizations = () => {
             {
               key: 'name',
               title: 'Name',
-              maxSpace: true,
               minWidth: 200,
               content: (org) => (
                 <Typography variant="bodyHl" color="textSecondary" noWrap>
@@ -150,6 +149,7 @@ const AdminOrganizations = () => {
               key: 'id',
               title: 'Premium Integrations',
               minWidth: 200,
+              maxSpace: true,
               content: (org) => {
                 const integrations: string[] = org.premiumIntegrations || []
 
@@ -167,7 +167,7 @@ const AdminOrganizations = () => {
             {
               key: 'createdAt',
               title: 'Created',
-              minWidth: 140,
+              minWidth: 160,
               content: (org) => (
                 <Typography color="grey600" variant="body">
                   {intlFormatDateTime(org.createdAt, { formatDate: DateFormat.DATE_MED }).date}
