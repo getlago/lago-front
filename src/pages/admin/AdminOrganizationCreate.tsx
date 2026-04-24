@@ -44,17 +44,6 @@ const KNOWN_PREMIUM_INTEGRATIONS = [
   'multi_entities_enterprise',
 ]
 
-const KNOWN_FEATURE_FLAGS = [
-  'multiple_payment_methods',
-  'non_persistable_charge_cache_optimization',
-  'postgres_enriched_events',
-  'enriched_events_aggregation',
-  'wallet_traceability',
-  'multi_currency',
-  'payment_gated_subscriptions',
-  'order_forms',
-]
-
 const AdminOrganizationCreate = () => {
   const navigate = useNavigate()
 
@@ -62,7 +51,7 @@ const AdminOrganizationCreate = () => {
   const [ownerEmail, setOwnerEmail] = useState('')
   const [timezone, setTimezone] = useState('')
   const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([])
-  const [selectedFlags, setSelectedFlags] = useState<string[]>([])
+
 
   const [createOrganization] = useMutation(ADMIN_CREATE_ORGANIZATION_MUTATION)
 
@@ -81,7 +70,6 @@ const AdminOrganizationCreate = () => {
               ownerEmail: ownerEmail.trim(),
               ...(timezone.trim() ? { timezone: timezone.trim() } : {}),
               premiumIntegrations: selectedIntegrations,
-              featureFlags: selectedFlags,
               reason,
             },
           },
@@ -142,13 +130,6 @@ const AdminOrganizationCreate = () => {
             onChange={(newValue) => setSelectedIntegrations(newValue.map((item) => item.value))}
           />
 
-          <MultipleComboBox
-            label="Feature Flags"
-            placeholder="Select feature flags..."
-            data={KNOWN_FEATURE_FLAGS.map((key) => ({ value: key }))}
-            value={selectedFlags.map((key) => ({ value: key }))}
-            onChange={(newValue) => setSelectedFlags(newValue.map((item) => item.value))}
-          />
         </div>
       </CenteredPage.Container>
 
