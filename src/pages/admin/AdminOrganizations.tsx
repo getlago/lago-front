@@ -148,16 +148,6 @@ const AdminOrganizations = () => {
             },
             {
               key: 'id',
-              title: 'ID',
-              minWidth: 200,
-              content: (org) => (
-                <Typography variant="body" color="grey600" noWrap>
-                  {org.id}
-                </Typography>
-              ),
-            },
-            {
-              key: 'id',
               title: 'Premium Integrations',
               minWidth: 200,
               content: (org) => {
@@ -169,24 +159,6 @@ const AdminOrganizations = () => {
                   <div className="flex flex-wrap gap-1">
                     {integrations.map((integration: string) => (
                       <Chip key={integration} label={integration} size="small" />
-                    ))}
-                  </div>
-                )
-              },
-            },
-            {
-              key: 'id',
-              title: 'Feature Flags',
-              minWidth: 200,
-              content: (org) => {
-                const flags: string[] = org.featureFlags || []
-
-                if (flags.length === 0) return <Typography color="grey600">-</Typography>
-
-                return (
-                  <div className="flex flex-wrap gap-1">
-                    {flags.map((flag: string) => (
-                      <Chip key={flag} label={flag} size="small" type="secondary" />
                     ))}
                   </div>
                 )
