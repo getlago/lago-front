@@ -151,10 +151,6 @@ export const routes: CustomRouteObject[] = [
             element: <AdminOrganizations />,
           },
           {
-            path: 'organizations/new',
-            element: <AdminOrganizationCreate />,
-          },
-          {
             path: 'organizations/:organizationId',
             element: <AdminOrganizationDetail />,
           },
@@ -202,6 +198,17 @@ export const routes: CustomRouteObject[] = [
       ...makeRelative(quotesCreationRoutes),
       ...makeRelative(quotesVoidRoutes),
       ...makeRelative(quotesApprovalRoutes),
+    ],
+  },
+  {
+    path: ADMIN_ORGANIZATION_CREATE_ROUTE,
+    private: true,
+    element: <AdminGuard />,
+    children: [
+      {
+        index: true,
+        element: <AdminOrganizationCreate />,
+      },
     ],
   },
   ...authRoutes,

@@ -130,64 +130,63 @@ const AdminComparison = () => {
           viewName: 'Compare Organizations',
           metadata: `Select up to ${MAX_ORGS} organizations to compare features side-by-side`,
         }}
-        filtersSection={
-          <div className="flex items-center gap-6">
-            <div className="relative">
-              <SearchInput
-                onChange={debouncedSearch}
-                placeholder="Search organizations to add..."
-              />
-              {/* Dropdown results */}
-              {searchResults.length > 0 && (
-                <div className="absolute inset-x-0 top-full z-10 mt-1 max-h-70 min-w-70 overflow-y-auto rounded-lg border border-grey-300 bg-white shadow-md">
-                  {isSearchLoading ? (
-                    <div className="flex justify-center py-4">
-                      <Spinner />
-                    </div>
-                  ) : (
-                    searchResults
-                      .filter((org) => !selectedOrgIds.includes(org.id))
-                      .map((org) => (
-                        <div
-                          key={org.id}
-                          className={`border-b border-grey-200 px-4 py-3 last:border-b-0 ${
-                            selectedOrgIds.length >= MAX_ORGS
-                              ? 'cursor-not-allowed opacity-50'
-                              : 'cursor-pointer hover:bg-grey-100'
-                          }`}
-                          onClick={() => selectedOrgIds.length < MAX_ORGS && addOrg(org)}
-                        >
-                          <Typography variant="body">{org.name}</Typography>
-                          <Typography variant="caption" color="grey600">
-                            {org.id}
-                          </Typography>
-                        </div>
-                      ))
-                  )}
-                  {!isSearchLoading &&
-                    searchResults.filter((org) => !selectedOrgIds.includes(org.id)).length ===
-                      0 && (
-                      <div className="px-4 py-3">
-                        <Typography variant="body" color="grey600">
-                          No results or all matching orgs are already selected.
-                        </Typography>
-                      </div>
-                    )}
-                </div>
-              )}
-            </div>
-
-            <Switch
-              name="showDifferencesOnly"
-              checked={showDifferencesOnly}
-              onChange={(value) => setShowDifferencesOnly(value)}
-              label="Show differences only"
-            />
-          </div>
-        }
       />
 
       <div className="p-4 md:p-12">
+        {/* Search + controls */}
+        <div className="mb-6 flex items-center gap-6">
+          <div className="relative">
+            <SearchInput
+              onChange={debouncedSearch}
+              placeholder="Search organizations to add..."
+            />
+            {/* Dropdown results */}
+            {searchResults.length > 0 && (
+              <div className="absolute inset-x-0 top-full z-10 mt-1 max-h-70 min-w-70 overflow-y-auto rounded-lg border border-grey-300 bg-white shadow-md">
+                {isSearchLoading ? (
+                  <div className="flex justify-center py-4">
+                    <Spinner />
+                  </div>
+                ) : (
+                  searchResults
+                    .filter((org) => !selectedOrgIds.includes(org.id))
+                    .map((org) => (
+                      <div
+                        key={org.id}
+                        className={`border-b border-grey-200 px-4 py-3 last:border-b-0 ${
+                          selectedOrgIds.length >= MAX_ORGS
+                            ? 'cursor-not-allowed opacity-50'
+                            : 'cursor-pointer hover:bg-grey-100'
+                        }`}
+                        onClick={() => selectedOrgIds.length < MAX_ORGS && addOrg(org)}
+                      >
+                        <Typography variant="body">{org.name}</Typography>
+                        <Typography variant="caption" color="grey600">
+                          {org.id}
+                        </Typography>
+                      </div>
+                    ))
+                )}
+                {!isSearchLoading &&
+                  searchResults.filter((org) => !selectedOrgIds.includes(org.id)).length ===
+                    0 && (
+                    <div className="px-4 py-3">
+                      <Typography variant="body" color="grey600">
+                        No results or all matching orgs are already selected.
+                      </Typography>
+                    </div>
+                  )}
+              </div>
+            )}
+          </div>
+
+          <Switch
+            name="showDifferencesOnly"
+            checked={showDifferencesOnly}
+            onChange={(value) => setShowDifferencesOnly(value)}
+            label="Show differences only"
+          />
+        </div>
         {/* Selected org chips */}
         {selectedOrgIds.length > 0 && (
           <div className="mb-6 flex flex-wrap gap-2">
