@@ -1,7 +1,7 @@
 import NiceModal from '@ebay/nice-modal-react'
-import Switch from '@mui/material/Switch'
 
 import { Typography } from '~/components/designSystem/Typography'
+import { Switch } from '~/components/form/Switch/Switch'
 
 import { REASON_MODAL_NAME } from './const'
 import { ReasonModalProps } from './ReasonModal'
@@ -43,7 +43,7 @@ export const FeatureToggleRow = ({
           {TYPE_LABEL[featureType]}
         </Typography>
       </div>
-      <Switch checked={enabled} onChange={handleSwitchClick} color="primary" />
+      <Switch name={featureKey} checked={enabled} onChange={handleSwitchClick} />
     </div>
   )
 }

@@ -78,6 +78,7 @@ const AdminOrganizations = () => {
         actions={{
           items: [
             {
+              type: 'action',
               label: 'Create organization',
               onClick: () => navigate(ADMIN_ORGANIZATION_CREATE_ROUTE),
             },

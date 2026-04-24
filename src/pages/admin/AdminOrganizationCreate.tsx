@@ -1,8 +1,5 @@
 import { gql, useMutation } from '@apollo/client'
 import NiceModal from '@ebay/nice-modal-react'
-import Autocomplete from '@mui/material/Autocomplete'
-import Chip from '@mui/material/Chip'
-import TextField from '@mui/material/TextField'
 import { useState } from 'react'
 import { generatePath, useNavigate } from 'react-router-dom'
 
@@ -10,9 +7,10 @@ import { REASON_MODAL_NAME } from '~/components/admin/const'
 import { ReasonModalProps } from '~/components/admin/ReasonModal'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
+import { MultipleComboBox } from '~/components/form/MultipleComboBox/MultipleComboBox'
 import { TextInput } from '~/components/form/TextInput/TextInput'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { ADMIN_ORGANIZATIONS_ROUTE, ADMIN_ORGANIZATION_DETAIL_ROUTE } from '~/core/router'
+import { ADMIN_ORGANIZATION_DETAIL_ROUTE, ADMIN_ORGANIZATIONS_ROUTE } from '~/core/router'
 
 const ADMIN_CREATE_ORGANIZATION_MUTATION = gql`
   mutation AdminCreateOrganization($input: AdminCreateOrganizationInput!) {
@@ -136,59 +134,21 @@ const AdminOrganizationCreate = () => {
             onChange={(value) => setTimezone(value)}
           />
 
-          <div>
-            <Typography variant="captionHl" className="mb-2 block">
-              Premium Integrations
-            </Typography>
-            <Autocomplete
-              multiple
-              options={KNOWN_PREMIUM_INTEGRATIONS}
-              value={selectedIntegrations}
-              onChange={(_, newValue) => setSelectedIntegrations(newValue)}
-              renderTags={(value, getTagProps) =>
-                value.map((option, index) => {
-                  const { key, ...tagProps } = getTagProps({ index })
+          <MultipleComboBox
+            label="Premium Integrations"
+            placeholder="Select integrations..."
+            data={KNOWN_PREMIUM_INTEGRATIONS.map((key) => ({ value: key }))}
+            value={selectedIntegrations.map((key) => ({ value: key }))}
+            onChange={(newValue) => setSelectedIntegrations(newValue.map((item) => item.value))}
+          />
 
-                  return <Chip key={key} label={option} size="small" {...tagProps} />
-                })
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="outlined"
-                  placeholder={selectedIntegrations.length === 0 ? 'Select integrations...' : ''}
-                  size="small"
-                />
-              )}
-            />
-          </div>
-
-          <div>
-            <Typography variant="captionHl" className="mb-2 block">
-              Feature Flags
-            </Typography>
-            <Autocomplete
-              multiple
-              options={KNOWN_FEATURE_FLAGS}
-              value={selectedFlags}
-              onChange={(_, newValue) => setSelectedFlags(newValue)}
-              renderTags={(value, getTagProps) =>
-                value.map((option, index) => {
-                  const { key, ...tagProps } = getTagProps({ index })
-
-                  return <Chip key={key} label={option} size="small" {...tagProps} />
-                })
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="outlined"
-                  placeholder={selectedFlags.length === 0 ? 'Select feature flags...' : ''}
-                  size="small"
-                />
-              )}
-            />
-          </div>
+          <MultipleComboBox
+            label="Feature Flags"
+            placeholder="Select feature flags..."
+            data={KNOWN_FEATURE_FLAGS.map((key) => ({ value: key }))}
+            value={selectedFlags.map((key) => ({ value: key }))}
+            onChange={(newValue) => setSelectedFlags(newValue.map((item) => item.value))}
+          />
         </div>
       </CenteredPage.Container>
 

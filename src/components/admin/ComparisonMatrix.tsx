@@ -167,13 +167,13 @@ export const ComparisonMatrix = ({
 
                 return (
                   <td key={org.id} className="border-b border-grey-300 px-4 py-3 text-center">
-                    <Chip
-                      label={enabled ? 'ON' : 'OFF'}
-                      size="small"
-                      color={enabled ? 'success600' : 'grey600'}
-                      onClick={() => handleCellClick(org, row)}
-                      className="cursor-pointer"
-                    />
+                    <span className="cursor-pointer" onClick={() => handleCellClick(org, row)}>
+                      <Chip
+                        label={enabled ? 'ON' : 'OFF'}
+                        size="small"
+                        color={enabled ? 'success600' : 'grey600'}
+                      />
+                    </span>
                   </td>
                 )
               })}
