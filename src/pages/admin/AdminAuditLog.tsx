@@ -1,6 +1,6 @@
 import { gql, useLazyQuery, useMutation } from '@apollo/client'
 import { debounce } from 'lodash'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { AuditLogEntry, AuditLogTable } from '~/components/admin/AuditLogTable'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
@@ -75,6 +75,11 @@ const AdminAuditLog = () => {
     }, 500),
     [],
   )
+
+  // Trigger initial load
+  useEffect(() => {
+    getAuditLogs()
+  }, [getAuditLogs])
 
   const auditLogs: AuditLogEntry[] = data?.adminAuditLogs?.collection || []
   const metadata = data?.adminAuditLogs?.metadata
