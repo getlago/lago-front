@@ -1,29 +1,27 @@
-import { gql, useLazyQuery, useMutation, useQuery } from '@apollo/client'
-import { useState } from 'react'
+import { gql, useMutation, useQuery } from '@apollo/client'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { ComparisonMatrix, OrgData } from '~/components/admin/ComparisonMatrix'
-import { Chip } from '~/components/designSystem/Chip'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { Typography } from '~/components/designSystem/Typography'
+import { MultipleComboBox } from '~/components/form/MultipleComboBox/MultipleComboBox'
+import {
+  BasicMultipleComboBoxData,
+  MultipleComboBoxData,
+} from '~/components/form/MultipleComboBox/types'
 import { Switch } from '~/components/form/Switch/Switch'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { SearchInput } from '~/components/SearchInput'
-import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
 const ADMIN_ORGANIZATIONS_QUERY = gql`
-  query AdminOrganizationsComparison($searchTerm: String, $page: Int, $limit: Int) {
-    adminOrganizations(searchTerm: $searchTerm, page: $page, limit: $limit) {
+  query AdminOrganizationsComparison($limit: Int) {
+    adminOrganizations(limit: $limit) {
       collection {
         id
         name
         premiumIntegrations
         featureFlags
         createdAt
-      }
-      metadata {
-        currentPage
-        totalCount
       }
     }
   }
@@ -38,8 +36,7 @@ const ADMIN_TOGGLE_FEATURE_MUTATION = gql`
 `
 
 const MAX_ORGS = 10
-// Fetch a large page to cover all likely selected orgs when filtering client-side
-const SELECTED_ORGS_LIMIT = 100
+const ALL_ORGS_LIMIT = 500
 
 const AdminComparison = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -49,55 +46,44 @@ const AdminComparison = () => {
   const rawOrgs = searchParams.get('orgs')
   const selectedOrgIds: string[] = rawOrgs ? rawOrgs.split(',').filter(Boolean) : []
 
-  // Search query for the org picker dropdown
-  const [searchOrgs, { data: searchData, loading: searchLoading }] = useLazyQuery(
-    ADMIN_ORGANIZATIONS_QUERY,
-    {
-      notifyOnNetworkStatusChange: true,
-      variables: { limit: 10 },
-    },
-  )
-
-  const { debouncedSearch, isLoading: isSearchLoading } = useDebouncedSearch(
-    searchOrgs,
-    searchLoading,
-  )
-
-  const searchResults: OrgData[] = searchData?.adminOrganizations?.collection ?? []
-
-  // Fetch selected orgs: use a large-limit query and filter client-side
-  const {
-    data: selectedData,
-    loading: isLoadingOrgs,
-    refetch: refetchSelected,
-  } = useQuery(ADMIN_ORGANIZATIONS_QUERY, {
-    variables: { limit: SELECTED_ORGS_LIMIT },
-    skip: selectedOrgIds.length === 0,
-    fetchPolicy: 'network-only',
+  // Fetch all orgs in a single query
+  const { data, loading: isLoadingOrgs, refetch } = useQuery(ADMIN_ORGANIZATIONS_QUERY, {
+    variables: { limit: ALL_ORGS_LIMIT },
   })
 
-  const allFetchedOrgs: OrgData[] = selectedData?.adminOrganizations?.collection ?? []
+  const allOrgs: OrgData[] = data?.adminOrganizations?.collection ?? []
+
   const selectedOrgs: OrgData[] = selectedOrgIds
-    .map((id) => allFetchedOrgs.find((o) => o.id === id))
+    .map((id) => allOrgs.find((o) => o.id === id))
     .filter(Boolean) as OrgData[]
+
+  // Build combobox data from all orgs
+  const comboBoxData = useMemo(
+    () => allOrgs.map((org) => ({ value: org.id, label: org.name })),
+    [allOrgs],
+  )
+
+  const comboBoxValue = useMemo(
+    () =>
+      selectedOrgIds
+        .map((id) => {
+          const org = allOrgs.find((o) => o.id === id)
+
+          return org ? { value: org.id, label: org.name } : null
+        })
+        .filter(Boolean) as BasicMultipleComboBoxData[],
+    [selectedOrgIds, allOrgs],
+  )
 
   const [toggleFeature] = useMutation(ADMIN_TOGGLE_FEATURE_MUTATION)
 
-  const addOrg = (org: OrgData) => {
-    if (selectedOrgIds.includes(org.id)) return
-    if (selectedOrgIds.length >= MAX_ORGS) return
-    const next = [...selectedOrgIds, org.id]
+  const handleOrgSelectionChange = (newValue: MultipleComboBoxData[]) => {
+    const ids = newValue.map((item) => item.value)
 
-    setSearchParams({ orgs: next.join(',') })
-  }
-
-  const removeOrg = (orgId: string) => {
-    const next = selectedOrgIds.filter((id) => id !== orgId)
-
-    if (next.length === 0) {
+    if (ids.length === 0) {
       setSearchParams({})
     } else {
-      setSearchParams({ orgs: next.join(',') })
+      setSearchParams({ orgs: ids.join(',') })
     }
   }
 
@@ -120,7 +106,7 @@ const AdminComparison = () => {
         },
       },
     })
-    await refetchSelected()
+    await refetch()
   }
 
   return (
@@ -133,51 +119,18 @@ const AdminComparison = () => {
       />
 
       <div className="p-4 md:p-12">
-        {/* Search + controls */}
+        {/* Org selector + controls */}
         <div className="mb-6 flex items-center gap-6">
-          <div className="relative">
-            <SearchInput
-              onChange={debouncedSearch}
+          <div className="w-120">
+            <MultipleComboBox
               placeholder="Search organizations to add..."
+              data={comboBoxData}
+              value={comboBoxValue}
+              loading={isLoadingOrgs}
+              onChange={handleOrgSelectionChange}
+              limitTags={MAX_ORGS}
+              showOptionsOnlyWhenTyping
             />
-            {/* Dropdown results */}
-            {searchResults.length > 0 && (
-              <div className="absolute inset-x-0 top-full z-10 mt-1 max-h-70 min-w-70 overflow-y-auto rounded-lg border border-grey-300 bg-white shadow-md">
-                {isSearchLoading ? (
-                  <div className="flex justify-center py-4">
-                    <Spinner />
-                  </div>
-                ) : (
-                  searchResults
-                    .filter((org) => !selectedOrgIds.includes(org.id))
-                    .map((org) => (
-                      <div
-                        key={org.id}
-                        className={`border-b border-grey-200 px-4 py-3 last:border-b-0 ${
-                          selectedOrgIds.length >= MAX_ORGS
-                            ? 'cursor-not-allowed opacity-50'
-                            : 'cursor-pointer hover:bg-grey-100'
-                        }`}
-                        onClick={() => selectedOrgIds.length < MAX_ORGS && addOrg(org)}
-                      >
-                        <Typography variant="body">{org.name}</Typography>
-                        <Typography variant="caption" color="grey600">
-                          {org.id}
-                        </Typography>
-                      </div>
-                    ))
-                )}
-                {!isSearchLoading &&
-                  searchResults.filter((org) => !selectedOrgIds.includes(org.id)).length ===
-                    0 && (
-                    <div className="px-4 py-3">
-                      <Typography variant="body" color="grey600">
-                        No results or all matching orgs are already selected.
-                      </Typography>
-                    </div>
-                  )}
-              </div>
-            )}
           </div>
 
           <Switch
@@ -187,26 +140,9 @@ const AdminComparison = () => {
             label="Show differences only"
           />
         </div>
-        {/* Selected org chips */}
-        {selectedOrgIds.length > 0 && (
-          <div className="mb-6 flex flex-wrap gap-2">
-            {selectedOrgIds.map((id) => {
-              const org = selectedOrgs.find((o) => o.id === id)
-
-              return (
-                <Chip
-                  key={id}
-                  label={org?.name ?? id}
-                  size="small"
-                  onDelete={() => removeOrg(id)}
-                />
-              )
-            })}
-          </div>
-        )}
 
         {/* Matrix or empty state */}
-        {selectedOrgIds.length < 2 && (
+        {selectedOrgs.length < 2 && (
           <div className="rounded-xl border border-dashed border-grey-400 py-16 text-center">
             <Typography variant="subhead1" color="grey600">
               Select at least 2 organizations to compare
@@ -216,19 +152,17 @@ const AdminComparison = () => {
             </Typography>
           </div>
         )}
-        {selectedOrgIds.length >= 2 && isLoadingOrgs && (
+        {selectedOrgs.length >= 2 && isLoadingOrgs && (
           <div className="flex justify-center py-16">
             <Spinner />
           </div>
         )}
-        {selectedOrgIds.length >= 2 && !isLoadingOrgs && (
-          <div className="overflow-x-auto">
-            <ComparisonMatrix
-              organizations={selectedOrgs}
-              showDifferencesOnly={showDifferencesOnly}
-              onToggle={handleToggle}
-            />
-          </div>
+        {selectedOrgs.length >= 2 && !isLoadingOrgs && (
+          <ComparisonMatrix
+            organizations={selectedOrgs}
+            showDifferencesOnly={showDifferencesOnly}
+            onToggle={handleToggle}
+          />
         )}
       </div>
     </>
