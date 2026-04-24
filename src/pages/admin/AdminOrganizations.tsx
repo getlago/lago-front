@@ -1,6 +1,5 @@
 import { gql, useLazyQuery } from '@apollo/client'
-import Box from '@mui/material/Box'
-import { generatePath } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 
 import { Chip } from '~/components/designSystem/Chip'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
@@ -8,7 +7,7 @@ import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
-import { ADMIN_ORGANIZATION_DETAIL_ROUTE } from '~/core/router'
+import { ADMIN_ORGANIZATION_CREATE_ROUTE, ADMIN_ORGANIZATION_DETAIL_ROUTE } from '~/core/router'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
@@ -53,6 +52,7 @@ const ADMIN_ORGANIZATIONS_QUERY = gql`
 `
 
 const AdminOrganizations = () => {
+  const navigate = useNavigate()
   const [getOrganizations, { data, error, loading, fetchMore, variables }] =
     useLazyQuery<AdminOrganizationsQueryResult>(ADMIN_ORGANIZATIONS_QUERY, {
       notifyOnNetworkStatusChange: true,
@@ -74,6 +74,14 @@ const AdminOrganizations = () => {
           metadata:
             metadata?.totalCount !== null ? `${metadata?.totalCount} organizations` : undefined,
           metadataLoading: isLoading,
+        }}
+        actions={{
+          items: [
+            {
+              label: 'Create organization',
+              onClick: () => navigate(ADMIN_ORGANIZATION_CREATE_ROUTE),
+            },
+          ],
         }}
         filtersSection={
           <SearchInput onChange={debouncedSearch} placeholder="Search organizations..." />
@@ -156,11 +164,11 @@ const AdminOrganizations = () => {
                 if (integrations.length === 0) return <Typography color="grey600">-</Typography>
 
                 return (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  <div className="flex flex-wrap gap-1">
                     {integrations.map((integration: string) => (
                       <Chip key={integration} label={integration} size="small" />
                     ))}
-                  </Box>
+                  </div>
                 )
               },
             },
@@ -174,11 +182,11 @@ const AdminOrganizations = () => {
                 if (flags.length === 0) return <Typography color="grey600">-</Typography>
 
                 return (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  <div className="flex flex-wrap gap-1">
                     {flags.map((flag: string) => (
                       <Chip key={flag} label={flag} size="small" type="secondary" />
                     ))}
-                  </Box>
+                  </div>
                 )
               },
             },
