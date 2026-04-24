@@ -1,3 +1,5 @@
+import { Navigate } from 'react-router-dom'
+
 import { envGlobalVar } from '~/core/apolloClient'
 import { isDevOrQaAppEnv } from '~/core/utils/appEnv'
 
@@ -25,7 +27,6 @@ const OrganizationLayout = lazyLoad(() => import('~/layouts/OrganizationLayout')
 
 // ----------- Admin pages -----------
 const AdminGuard = lazyLoad(() => import('~/components/admin/AdminGuard'))
-const AdminDashboard = lazyLoad(() => import('~/pages/admin/AdminDashboard'))
 const AdminOrganizations = lazyLoad(() => import('~/pages/admin/AdminOrganizations'))
 const AdminOrganizationDetail = lazyLoad(() => import('~/pages/admin/AdminOrganizationDetail'))
 const AdminOrganizationCreate = lazyLoad(() => import('~/pages/admin/AdminOrganizationCreate'))
@@ -145,7 +146,7 @@ export const routes: CustomRouteObject[] = [
         children: [
           {
             index: true,
-            element: <AdminDashboard />,
+            element: <Navigate to="organizations" replace />,
           },
           {
             path: 'organizations',
