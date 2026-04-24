@@ -1,12 +1,6 @@
 import NiceModal from '@ebay/nice-modal-react'
-import Chip from '@mui/material/Chip'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
 
+import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
 
 import { REASON_MODAL_NAME } from './const'
@@ -105,11 +99,7 @@ export const ComparisonMatrix = ({
 
   if (visibleRows.length === 0) {
     return (
-      <Typography
-        variant="body"
-        color="grey600"
-        sx={{ py: 4, textAlign: 'center', display: 'block' }}
-      >
+      <Typography variant="body" color="grey600" className="block py-4 text-center">
         {showDifferencesOnly
           ? 'All selected organizations have identical feature configurations.'
           : 'No features to display.'}
@@ -139,107 +129,59 @@ export const ComparisonMatrix = ({
   }
 
   return (
-    <TableContainer sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-      <Table size="small" stickyHeader>
-        <TableHead>
-          <TableRow>
-            <TableCell
-              sx={{
-                fontWeight: 600,
-                minWidth: 220,
-                backgroundColor: 'background.paper',
-                position: 'sticky',
-                left: 0,
-                zIndex: 3,
-                borderRight: '1px solid',
-                borderColor: 'divider',
-              }}
-            >
+    <div className="overflow-hidden rounded-xl border border-grey-300">
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="bg-grey-100">
+            <th className="sticky left-0 z-[3] min-w-55 border-b border-r border-grey-300 bg-grey-100 px-4 py-3 text-left font-semibold">
               Feature
-            </TableCell>
-            <TableCell
-              sx={{
-                fontWeight: 600,
-                minWidth: 90,
-                backgroundColor: 'background.paper',
-                position: 'sticky',
-                left: 220,
-                zIndex: 3,
-                borderRight: '1px solid',
-                borderColor: 'divider',
-              }}
-            >
+            </th>
+            <th className="sticky left-[220px] z-[3] min-w-[90px] border-b border-r border-grey-300 bg-grey-100 px-4 py-3 text-left font-semibold">
               Type
-            </TableCell>
+            </th>
             {organizations.map((org) => (
-              <TableCell
+              <th
                 key={org.id}
-                align="center"
-                sx={{ fontWeight: 600, minWidth: 160, backgroundColor: 'background.paper' }}
+                className="min-w-40 border-b border-grey-300 bg-grey-100 px-4 py-3 text-center font-semibold"
               >
                 {org.name}
-              </TableCell>
+              </th>
             ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
+          </tr>
+        </thead>
+        <tbody>
           {visibleRows.map((row) => (
-            <TableRow key={`${row.featureType}:${row.featureKey}`} hover>
-              <TableCell
-                sx={{
-                  position: 'sticky',
-                  left: 0,
-                  backgroundColor: 'background.paper',
-                  zIndex: 1,
-                  borderRight: '1px solid',
-                  borderColor: 'divider',
-                }}
-              >
+            <tr key={`${row.featureType}:${row.featureKey}`} className="hover:bg-grey-50">
+              <td className="sticky left-0 z-[1] border-b border-r border-grey-300 bg-white px-4 py-3">
                 <Typography variant="body" noWrap>
                   {row.featureKey}
                 </Typography>
-              </TableCell>
-              <TableCell
-                sx={{
-                  position: 'sticky',
-                  left: 220,
-                  backgroundColor: 'background.paper',
-                  zIndex: 1,
-                  borderRight: '1px solid',
-                  borderColor: 'divider',
-                }}
-              >
+              </td>
+              <td className="sticky left-[220px] z-[1] border-b border-r border-grey-300 bg-white px-4 py-3">
                 <Typography variant="caption" color="grey600" noWrap>
                   {row.featureType === 'premium_integration' ? 'Integration' : 'Flag'}
                 </Typography>
-              </TableCell>
+              </td>
               {organizations.map((org) => {
                 const enabled = isEnabled(org, row)
 
                 return (
-                  <TableCell key={org.id} align="center">
+                  <td key={org.id} className="border-b border-grey-300 px-4 py-3 text-center">
                     <Chip
                       label={enabled ? 'ON' : 'OFF'}
                       size="small"
+                      color={enabled ? 'success600' : 'grey600'}
                       onClick={() => handleCellClick(org, row)}
-                      sx={{
-                        cursor: 'pointer',
-                        fontWeight: 600,
-                        backgroundColor: enabled ? 'success.light' : 'grey.200',
-                        color: enabled ? 'success.dark' : 'text.secondary',
-                        '&:hover': {
-                          backgroundColor: enabled ? 'success.main' : 'grey.300',
-                        },
-                      }}
+                      className="cursor-pointer"
                     />
-                  </TableCell>
+                  </td>
                 )
               })}
-            </TableRow>
+            </tr>
           ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+        </tbody>
+      </table>
+    </div>
   )
 }
 
