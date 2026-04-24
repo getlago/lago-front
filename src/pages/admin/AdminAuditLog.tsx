@@ -7,10 +7,10 @@ import { SearchInput } from '~/components/SearchInput'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
 const ADMIN_AUDIT_LOGS_QUERY = gql`
-  query AdminAuditLogs($organizationId: ID, $featureKey: String, $page: Int, $limit: Int) {
+  query AdminAuditLogs($organizationId: ID, $searchTerm: String, $page: Int, $limit: Int) {
     adminAuditLogs(
       organizationId: $organizationId
-      featureKey: $featureKey
+      featureKey: $searchTerm
       page: $page
       limit: $limit
     ) {
@@ -109,7 +109,7 @@ const AdminAuditLog = () => {
           data={auditLogs}
           isLoading={isLoading}
           hasError={!!error}
-          featureKey={variables?.featureKey}
+          featureKey={variables?.searchTerm}
           onRollback={handleRollback}
         />
       </InfiniteScroll>
