@@ -79,7 +79,7 @@
     "baseline-browser-mapping": "2.10.18",
     "class-variance-authority": "0.7.1",
     "cssnano": "7.1.4",
-    "cypress": "15.13.1",
+    "cypress": "15.14.0",
     "dotenv": "17.4.2",
     "eslint": "9.39.4",
     "eslint-plugin-import": "2.32.0",
