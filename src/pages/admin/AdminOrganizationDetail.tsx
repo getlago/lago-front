@@ -1,12 +1,16 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
+import NiceModal from '@ebay/nice-modal-react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { FeatureToggleRow } from '~/components/admin/FeatureToggleRow'
+import { REASON_MODAL_NAME } from '~/components/admin/const'
+import { ReasonModalProps } from '~/components/admin/ReasonModal'
+import { Button } from '~/components/designSystem/Button'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { Typography } from '~/components/designSystem/Typography'
+import { Switch } from '~/components/form/Switch/Switch'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { ADMIN_ORGANIZATIONS_ROUTE } from '~/core/router'
-import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 
 const ADMIN_ORGANIZATION_QUERY = gql`
   query AdminOrganization($organizationId: ID!) {
@@ -66,30 +70,92 @@ const AdminOrganizationDetail = () => {
   })
 
   const [toggleFeature] = useMutation(ADMIN_TOGGLE_FEATURE_MUTATION)
+  const [isSaving, setIsSaving] = useState(false)
 
   const org = data?.adminOrganization
+  const serverIntegrations: string[] = useMemo(
+    () => org?.premiumIntegrations ?? [],
+    [org?.premiumIntegrations],
+  )
 
-  const handleToggle =
-    (
-      featureKey: string,
-      featureType: 'premium_integration' | 'feature_flag',
-      currentlyEnabled: boolean,
-    ) =>
-    async (reason: string, notifyOrgAdmin: boolean) => {
-      await toggleFeature({
-        variables: {
-          input: {
-            organizationId,
-            featureKey,
-            featureType,
-            enabled: !currentlyEnabled,
-            reason,
-            notifyOrgAdmin,
-          },
-        },
-      })
-      await refetch()
-    }
+  // Local state for batch editing
+  const [localIntegrations, setLocalIntegrations] = useState<Set<string>>(new Set())
+
+  // Sync local state when server data changes
+  useEffect(() => {
+    setLocalIntegrations(new Set(serverIntegrations))
+  }, [serverIntegrations])
+
+  const isDirty = useMemo(() => {
+    if (serverIntegrations.length !== localIntegrations.size) return true
+
+    return serverIntegrations.some((key) => !localIntegrations.has(key))
+  }, [serverIntegrations, localIntegrations])
+
+  const handleToggleLocal = (key: string) => {
+    setLocalIntegrations((prev) => {
+      const next = new Set(prev)
+
+      if (next.has(key)) {
+        next.delete(key)
+      } else {
+        next.add(key)
+      }
+
+      return next
+    })
+  }
+
+  const handleSave = () => {
+    // Compute what changed
+    const toEnable = KNOWN_PREMIUM_INTEGRATIONS.filter(
+      (key) => localIntegrations.has(key) && !serverIntegrations.includes(key),
+    )
+    const toDisable = KNOWN_PREMIUM_INTEGRATIONS.filter(
+      (key) => !localIntegrations.has(key) && serverIntegrations.includes(key),
+    )
+
+    const changes = [
+      ...toEnable.map((key) => ({ featureKey: key, enabled: true })),
+      ...toDisable.map((key) => ({ featureKey: key, enabled: false })),
+    ]
+
+    if (changes.length === 0) return
+
+    NiceModal.show<void, ReasonModalProps>(REASON_MODAL_NAME, {
+      title: `Update ${changes.length} integration${changes.length > 1 ? 's' : ''}`,
+      description: `Please provide a reason for updating premium integrations.`,
+      onConfirm: async (reason: string, notifyOrgAdmin: boolean) => {
+        setIsSaving(true)
+
+        try {
+          await Promise.all(
+            changes.map((change) =>
+              toggleFeature({
+                variables: {
+                  input: {
+                    organizationId,
+                    featureKey: change.featureKey,
+                    featureType: 'premium_integration',
+                    enabled: change.enabled,
+                    reason,
+                    notifyOrgAdmin,
+                  },
+                },
+              }),
+            ),
+          )
+          await refetch()
+        } finally {
+          setIsSaving(false)
+        }
+      },
+    })
+  }
+
+  const handleReset = () => {
+    setLocalIntegrations(new Set(serverIntegrations))
+  }
 
   if (loading) {
     return (
@@ -109,11 +175,13 @@ const AdminOrganizationDetail = () => {
     )
   }
 
-  const enabledIntegrations: string[] = org.premiumIntegrations ?? []
+  const getEntityMetadata = () => {
+    if (org.email) {
+      return `${org.id} - ${org.email}`
+    }
 
-  const createdDate = org.createdAt
-    ? intlFormatDateTime(org.createdAt, { formatDate: DateFormat.DATE_MED }).date
-    : '-'
+    return org.id
+  }
 
   return (
     <>
@@ -126,41 +194,48 @@ const AdminOrganizationDetail = () => {
         ]}
         entity={{
           viewName: org.name,
-          metadata: org.email || org.id,
+          metadata: getEntityMetadata(),
         }}
+        actions={
+          isDirty
+            ? {
+                items: [
+                  {
+                    type: 'action',
+                    label: 'Reset',
+                    variant: 'quaternary',
+                    onClick: handleReset,
+                  },
+                  {
+                    type: 'action',
+                    label: 'Save changes',
+                    variant: 'primary',
+                    onClick: handleSave,
+                    disabled: isSaving,
+                  },
+                ],
+              }
+            : undefined
+        }
       />
 
-      <div className="max-w-200 mx-auto w-full p-4 md:p-12">
-        {/* Org metadata */}
-        <div className="mb-8 flex flex-col gap-1">
-          <Typography variant="body" color="grey600">
-            ID: {org.id}
-          </Typography>
-          {org.email && (
-            <Typography variant="body" color="grey600">
-              Email: {org.email}
-            </Typography>
-          )}
-          <Typography variant="body" color="grey600">
-            Created: {createdDate}
-          </Typography>
-        </div>
-
-        <div className="mb-8 border-b border-grey-300" />
-
-        {/* Premium Integrations */}
-        <div className="mb-8">
+      <div className="mx-auto w-full max-w-200 p-4 md:p-12">
+        <div>
           <Typography variant="subhead1" className="mb-4">
             Premium Integrations
           </Typography>
           {KNOWN_PREMIUM_INTEGRATIONS.map((key) => (
-            <FeatureToggleRow
+            <div
               key={key}
-              featureKey={key}
-              featureType="premium_integration"
-              enabled={enabledIntegrations.includes(key)}
-              onToggle={handleToggle(key, 'premium_integration', enabledIntegrations.includes(key))}
-            />
+              className="flex items-center justify-between border-b border-grey-300 py-3"
+            >
+              <Typography variant="body">{key}</Typography>
+              <Switch
+                name={key}
+                checked={localIntegrations.has(key)}
+                onChange={() => handleToggleLocal(key)}
+              />
+            </div>
           ))}
         </div>
       </div>
