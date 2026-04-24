@@ -1,5 +1,4 @@
 import { gql, useLazyQuery, useMutation, useQuery } from '@apollo/client'
-import Switch from '@mui/material/Switch'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
@@ -7,6 +6,7 @@ import { ComparisonMatrix, OrgData } from '~/components/admin/ComparisonMatrix'
 import { Chip } from '~/components/designSystem/Chip'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { Typography } from '~/components/designSystem/Typography'
+import { Switch } from '~/components/form/Switch/Switch'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
@@ -139,7 +139,7 @@ const AdminComparison = () => {
               />
               {/* Dropdown results */}
               {searchResults.length > 0 && (
-                <div className="absolute left-0 right-0 top-full z-10 mt-1 min-w-70 max-h-70 overflow-y-auto rounded-lg border border-grey-300 bg-white shadow-md">
+                <div className="absolute inset-x-0 top-full z-10 mt-1 max-h-70 min-w-70 overflow-y-auto rounded-lg border border-grey-300 bg-white shadow-md">
                   {isSearchLoading ? (
                     <div className="flex justify-center py-4">
                       <Spinner />
@@ -177,15 +177,12 @@ const AdminComparison = () => {
               )}
             </div>
 
-            <label className="flex cursor-pointer items-center gap-2">
-              <Switch
-                checked={showDifferencesOnly}
-                onChange={(e) => setShowDifferencesOnly(e.target.checked)}
-                color="primary"
-                size="small"
-              />
-              <Typography variant="body">Show differences only</Typography>
-            </label>
+            <Switch
+              name="showDifferencesOnly"
+              checked={showDifferencesOnly}
+              onChange={(value) => setShowDifferencesOnly(value)}
+              label="Show differences only"
+            />
           </div>
         }
       />

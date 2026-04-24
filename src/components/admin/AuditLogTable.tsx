@@ -1,5 +1,4 @@
 import NiceModal from '@ebay/nice-modal-react'
-import Box from '@mui/material/Box'
 
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
@@ -125,7 +124,7 @@ export const AuditLogTable = ({
             if (!entry.featureKey) return <Typography color="grey600">-</Typography>
 
             return (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+              <div className="flex flex-col gap-0.5">
                 <Typography variant="body" noWrap>
                   {entry.featureKey}
                 </Typography>
@@ -134,7 +133,7 @@ export const AuditLogTable = ({
                     {entry.featureType}
                   </Typography>
                 )}
-              </Box>
+              </div>
             )
           },
         },
