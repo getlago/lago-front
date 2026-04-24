@@ -5,6 +5,7 @@ import { generatePath } from 'react-router-dom'
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Alert } from '~/components/designSystem/Alert'
 import { Status } from '~/components/designSystem/Status'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { getBillingTimeEnumTranslationKey } from '~/core/constants/form'
 import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMapping'
@@ -105,7 +106,13 @@ export const SubscriptionInformations = ({
         />
         <DetailsPage.InfoGridItem
           label={translate('text_65201c5a175a4b0238abf298')}
-          value={subscription?.externalId}
+          value={
+            subscription?.externalId ? (
+              <TypographyWithCopy variant="body" color="grey700">
+                {subscription.externalId}
+              </TypographyWithCopy>
+            ) : undefined
+          }
         />
         <DetailsPage.InfoGrid
           grid={[

@@ -6,6 +6,7 @@ import { Avatar } from '~/components/designSystem/Avatar'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router/ObjectsRoutes'
@@ -126,9 +127,9 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
                       <Typography variant="bodyHl" color="textSecondary" noWrap>
                         {customerName}
                       </Typography>
-                      <Typography variant="caption" color="grey600" noWrap>
-                        {customer?.externalId}
-                      </Typography>
+                      <TypographyWithCopy variant="caption" color="grey600" noWrap>
+                        {customer?.externalId ?? ''}
+                      </TypographyWithCopy>
                     </div>
                   </div>
                 )

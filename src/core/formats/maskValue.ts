@@ -1,4 +1,4 @@
-type MaskOptions = {
+export type MaskOptions = {
   /** Number of dots to prepend (default: 4) */
   dotsCount?: number
   /** Number of characters to show from the end. If not provided, shows the full value */

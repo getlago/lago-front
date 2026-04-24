@@ -10,6 +10,7 @@ import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import {
   DeleteApiKeyDialog,
   DeleteApiKeyDialogRef,
@@ -27,7 +28,6 @@ import {
 } from '~/components/layouts/Settings'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast } from '~/core/apolloClient'
-import { maskValue } from '~/core/formats/maskValue'
 import { CREATE_API_KEYS_ROUTE, UPDATE_API_KEYS_ROUTE, useLocation } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
@@ -44,7 +44,6 @@ import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { STATE_KEY_ID_TO_REVEAL } from '~/pages/developers/ApiKeysForm'
-import { tw } from '~/styles/utils'
 
 gql`
   fragment ApiKeyRevealedForApiKeysList on ApiKey {
@@ -183,34 +182,15 @@ export const ApiKeys = () => {
                       maxSpace: true,
                       content: ({ id }) => (
                         <div className="flex items-center gap-2 py-3">
-                          <Tooltip
-                            placement="top-start"
-                            title={translate('text_623b42ff8ee4e000ba87d0c6')}
-                            disableHoverListener={!showOrganizationId}
+                          <TypographyWithCopy
+                            className="ml-0 line-break-auto [text-wrap:auto]"
+                            color="grey700"
+                            variant="captionCode"
+                            masked={!showOrganizationId}
+                            maskOptions={{ dotsCount: 8, visibleChars: 3 }}
                           >
-                            <Typography
-                              className={tw('line-break-auto [text-wrap:auto]', {
-                                'cursor-pointer': showOrganizationId,
-                              })}
-                              color="grey700"
-                              variant="captionCode"
-                              onClick={
-                                showOrganizationId
-                                  ? () => {
-                                      copyToClipboard(id)
-                                      addToast({
-                                        severity: 'info',
-                                        translateKey: 'text_636df520279a9e1b3c68cc7d',
-                                      })
-                                    }
-                                  : undefined
-                              }
-                            >
-                              {showOrganizationId
-                                ? id
-                                : maskValue(id, { dotsCount: 8, visibleChars: 3 })}
-                            </Typography>
-                          </Tooltip>
+                            {id}
+                          </TypographyWithCopy>
 
                           <Tooltip
                             placement="top-start"
@@ -344,32 +324,37 @@ export const ApiKeys = () => {
 
                         return (
                           <div className="flex items-center gap-2 py-3">
-                            <Tooltip
-                              placement="top-start"
-                              title={translate('text_623b42ff8ee4e000ba87d0c6')}
-                              disableHoverListener={!apiKeyValue}
-                            >
-                              <Typography
-                                className={tw('line-break-auto [text-wrap:auto]', {
-                                  'cursor-pointer': !!apiKeyValue,
-                                })}
-                                color="grey700"
-                                variant="captionCode"
-                                onClick={
-                                  !!apiKeyValue
-                                    ? () => {
-                                        copyToClipboard(apiKeyValue)
+                            <TypographyWithCopy
+                              className="ml-0 line-break-auto [text-wrap:auto]"
+                              color="grey700"
+                              variant="captionCode"
+                              masked={!apiKeyValue}
+                              onCopy={
+                                apiKeyValue
+                                  ? undefined
+                                  : async () => {
+                                      try {
+                                        const res = await getApiKeyValue({ variables: { id } })
+                                        const fetchedValue = res?.data?.apiKey?.value
+
+                                        if (fetchedValue) {
+                                          copyToClipboard(fetchedValue)
+                                          addToast({
+                                            severity: 'info',
+                                            translateKey: 'text_6227a2e847fcd700e9038952',
+                                          })
+                                        }
+                                      } catch {
                                         addToast({
-                                          severity: 'info',
-                                          translateKey: 'text_6227a2e847fcd700e9038952',
+                                          severity: 'danger',
+                                          translateKey: 'text_62b31e1f6a5b8b1b745ece48',
                                         })
                                       }
-                                    : undefined
-                                }
-                              >
-                                {apiKeyValue || value}
-                              </Typography>
-                            </Tooltip>
+                                    }
+                              }
+                            >
+                              {apiKeyValue || value}
+                            </TypographyWithCopy>
 
                             <Tooltip
                               placement="top-start"

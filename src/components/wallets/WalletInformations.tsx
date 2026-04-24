@@ -1,5 +1,6 @@
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import PremiumFeature from '~/components/premium/PremiumFeature'
 import { getIntervalTranslationKey } from '~/core/constants/form'
@@ -95,7 +96,14 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
         <DetailsPage.InfoGrid
           grid={[
             { label: translate('text_1772536695408sddzumtfq2t'), value: wallet?.name },
-            { label: translate('text_1772536695408yflknt6y6q4'), value: wallet?.code },
+            {
+              label: translate('text_1772536695408yflknt6y6q4'),
+              value: wallet?.code ? (
+                <TypographyWithCopy variant="body" color="grey700">
+                  {wallet.code}
+                </TypographyWithCopy>
+              ) : undefined,
+            },
             {
               label: translate('text_1750411499858su5b7bbp5t9'),
               value: translate('text_62da6ec24a8e24e44f812872', {
