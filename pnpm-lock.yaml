@@ -37,8 +37,8 @@ importers:
         specifier: 6.20.2
         version: 6.20.2(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mui/system@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(dayjs@1.11.13)(luxon@3.7.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@nangohq/frontend':
-        specifier: 0.69.48
-        version: 0.69.48
+        specifier: 0.70.1
+        version: 0.70.1
       '@sentry/react':
         specifier: 10.48.0
         version: 10.48.0(react@18.3.1)
@@ -2770,11 +2770,11 @@ packages:
       moment-jalaali:
         optional: true
 
-  '@nangohq/frontend@0.69.48':
-    resolution: {integrity: sha512-pAfqOvT3IXkkKrKuUplKgH1dNKnPHVcRjiz9x7C8P5mv/ALgdhmc47vKC/ODg1ZBg2iBvPMJRkiSoLRID4LpCw==}
+  '@nangohq/frontend@0.70.1':
+    resolution: {integrity: sha512-EWyx9MhTdQlbM9I8wY7PxdQa7OnUIHt2kILvTMWZFKr2OPJo5k+AejQxs2t1QTT6A2gvEZlziYLoztxhXsJcTg==}
 
-  '@nangohq/types@0.69.48':
-    resolution: {integrity: sha512-TR4b+Yzpx5sQsoijKTUskl+7ZkFYiC8Yw9Rn+q5SMnhLqVpDaZ0atpUKJOMgwp/oCpMNS2ZlVnunk1MkHy9N9Q==}
+  '@nangohq/types@0.70.1':
+    resolution: {integrity: sha512-hcmlDwKK5rI2+KSroh4lz6BIH93mLiv9cRle8T3msrgILp14efB8FZVHHGS6UAUziKDtA6d1aS/SU8bUtgEo6Q==}
 
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
@@ -4381,8 +4381,8 @@ packages:
     resolution: {integrity: sha512-RE3mdQ7P3FRSe7eqCWoeQ/Z9QXrtniSjp1wUjt5nRC3WIpz5rSCve6o3fsZ2aCpJtrZjSZgjwXAoTO5k4tEI0w==}
     engines: {node: '>=4'}
 
-  axios@1.13.5:
-    resolution: {integrity: sha512-cz4ur7Vb0xS4/KUN0tPWe44eqxrIu31me+fbang3ijiNscE129POzipJJA6zniq2C/Z6sJCjMimjS8Lc/GAs8Q==}
+  axios@1.15.0:
+    resolution: {integrity: sha512-wWyJDlAatxk30ZJer+GeCWS209sA42X+N5jU2jy6oHTp7ufw8uzUTVFBX9+wTfAlhiJXGS0Bq7X6efruWjuK9Q==}
 
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
@@ -7696,6 +7696,10 @@ packages:
 
   proxy-from-env@1.1.0:
     resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
+
+  proxy-from-env@2.1.0:
+    resolution: {integrity: sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==}
+    engines: {node: '>=10'}
 
   pump@3.0.2:
     resolution: {integrity: sha512-tUPXtzlGM8FE3P0ZL6DVs/3P58k9nk8/jZeQCurTJylQA8qFYzHFfhBJkuqyE0FifOsQ0uKWekiZ5g8wtr28cw==}
@@ -11609,15 +11613,15 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@nangohq/frontend@0.69.48':
+  '@nangohq/frontend@0.70.1':
     dependencies:
-      '@nangohq/types': 0.69.48
+      '@nangohq/types': 0.70.1
     transitivePeerDependencies:
       - debug
 
-  '@nangohq/types@0.69.48':
+  '@nangohq/types@0.70.1':
     dependencies:
-      axios: 1.13.5
+      axios: 1.15.0
       json-schema: 0.4.0
       type-fest: 4.41.0
     transitivePeerDependencies:
@@ -13121,11 +13125,11 @@ snapshots:
 
   axe-core@4.10.2: {}
 
-  axios@1.13.5:
+  axios@1.15.0:
     dependencies:
       follow-redirects: 1.15.11
       form-data: 4.0.5
-      proxy-from-env: 1.1.0
+      proxy-from-env: 2.1.0
     transitivePeerDependencies:
       - debug
 
@@ -17139,6 +17143,8 @@ snapshots:
   proxy-from-env@1.0.0: {}
 
   proxy-from-env@1.1.0: {}
+
+  proxy-from-env@2.1.0: {}
 
   pump@3.0.2:
     dependencies:
