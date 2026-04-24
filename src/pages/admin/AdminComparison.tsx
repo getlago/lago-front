@@ -1,13 +1,13 @@
 import { gql, useLazyQuery, useMutation, useQuery } from '@apollo/client'
-import Box from '@mui/material/Box'
-import CircularProgress from '@mui/material/CircularProgress'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import Switch from '@mui/material/Switch'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { ComparisonMatrix, OrgData } from '~/components/admin/ComparisonMatrix'
+import { Chip } from '~/components/designSystem/Chip'
+import { Spinner } from '~/components/designSystem/Spinner'
 import { Typography } from '~/components/designSystem/Typography'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
@@ -124,172 +124,118 @@ const AdminComparison = () => {
   }
 
   return (
-    <Box sx={{ p: 4 }}>
-      {/* Page header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="headline">Compare Organizations</Typography>
-        <Typography variant="body" color="grey600" sx={{ mt: 0.5 }}>
-          Select up to {MAX_ORGS} organizations to compare their features side-by-side.
-        </Typography>
-      </Box>
-
-      {/* Search + controls row */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3, flexWrap: 'wrap' }}>
-        <Box sx={{ position: 'relative' }}>
-          <SearchInput onChange={debouncedSearch} placeholder="Search organizations to add..." />
-          {/* Dropdown results */}
-          {searchResults.length > 0 && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                right: 0,
-                zIndex: 10,
-                backgroundColor: 'background.paper',
-                border: '1px solid',
-                borderColor: 'divider',
-                borderRadius: 1,
-                boxShadow: 3,
-                maxHeight: 280,
-                overflowY: 'auto',
-                mt: 0.5,
-                minWidth: 280,
-              }}
-            >
-              {isSearchLoading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
-                  <CircularProgress size={20} />
-                </Box>
-              ) : (
-                searchResults
-                  .filter((org) => !selectedOrgIds.includes(org.id))
-                  .map((org) => (
-                    <Box
-                      key={org.id}
-                      sx={{
-                        px: 2,
-                        py: 1.5,
-                        cursor: selectedOrgIds.length >= MAX_ORGS ? 'not-allowed' : 'pointer',
-                        opacity: selectedOrgIds.length >= MAX_ORGS ? 0.5 : 1,
-                        '&:hover': {
-                          backgroundColor:
-                            selectedOrgIds.length >= MAX_ORGS ? undefined : 'action.hover',
-                        },
-                        borderBottom: '1px solid',
-                        borderColor: 'divider',
-                        '&:last-child': { borderBottom: 'none' },
-                      }}
-                      onClick={() => selectedOrgIds.length < MAX_ORGS && addOrg(org)}
-                    >
-                      <Typography variant="body">{org.name}</Typography>
-                      <Typography variant="caption" color="grey600">
-                        {org.id}
-                      </Typography>
-                    </Box>
-                  ))
+    <>
+      <MainHeader.Configure
+        entity={{
+          viewName: 'Compare Organizations',
+          metadata: `Select up to ${MAX_ORGS} organizations to compare features side-by-side`,
+        }}
+        filtersSection={
+          <div className="flex items-center gap-6">
+            <div className="relative">
+              <SearchInput
+                onChange={debouncedSearch}
+                placeholder="Search organizations to add..."
+              />
+              {/* Dropdown results */}
+              {searchResults.length > 0 && (
+                <div className="absolute left-0 right-0 top-full z-10 mt-1 min-w-70 max-h-70 overflow-y-auto rounded-lg border border-grey-300 bg-white shadow-md">
+                  {isSearchLoading ? (
+                    <div className="flex justify-center py-4">
+                      <Spinner />
+                    </div>
+                  ) : (
+                    searchResults
+                      .filter((org) => !selectedOrgIds.includes(org.id))
+                      .map((org) => (
+                        <div
+                          key={org.id}
+                          className={`border-b border-grey-200 px-4 py-3 last:border-b-0 ${
+                            selectedOrgIds.length >= MAX_ORGS
+                              ? 'cursor-not-allowed opacity-50'
+                              : 'cursor-pointer hover:bg-grey-100'
+                          }`}
+                          onClick={() => selectedOrgIds.length < MAX_ORGS && addOrg(org)}
+                        >
+                          <Typography variant="body">{org.name}</Typography>
+                          <Typography variant="caption" color="grey600">
+                            {org.id}
+                          </Typography>
+                        </div>
+                      ))
+                  )}
+                  {!isSearchLoading &&
+                    searchResults.filter((org) => !selectedOrgIds.includes(org.id)).length ===
+                      0 && (
+                      <div className="px-4 py-3">
+                        <Typography variant="body" color="grey600">
+                          No results or all matching orgs are already selected.
+                        </Typography>
+                      </div>
+                    )}
+                </div>
               )}
-              {!isSearchLoading &&
-                searchResults.filter((org) => !selectedOrgIds.includes(org.id)).length === 0 && (
-                  <Box sx={{ px: 2, py: 1.5 }}>
-                    <Typography variant="body" color="grey600">
-                      No results or all matching orgs are already selected.
-                    </Typography>
-                  </Box>
-                )}
-            </Box>
-          )}
-        </Box>
+            </div>
 
-        <FormControlLabel
-          control={
-            <Switch
-              checked={showDifferencesOnly}
-              onChange={(e) => setShowDifferencesOnly(e.target.checked)}
-              color="primary"
+            <label className="flex cursor-pointer items-center gap-2">
+              <Switch
+                checked={showDifferencesOnly}
+                onChange={(e) => setShowDifferencesOnly(e.target.checked)}
+                color="primary"
+                size="small"
+              />
+              <Typography variant="body">Show differences only</Typography>
+            </label>
+          </div>
+        }
+      />
+
+      <div className="p-4 md:p-12">
+        {/* Selected org chips */}
+        {selectedOrgIds.length > 0 && (
+          <div className="mb-6 flex flex-wrap gap-2">
+            {selectedOrgIds.map((id) => {
+              const org = selectedOrgs.find((o) => o.id === id)
+
+              return (
+                <Chip
+                  key={id}
+                  label={org?.name ?? id}
+                  size="small"
+                  onDelete={() => removeOrg(id)}
+                />
+              )
+            })}
+          </div>
+        )}
+
+        {/* Matrix or empty state */}
+        {selectedOrgIds.length < 2 && (
+          <div className="rounded-xl border border-dashed border-grey-400 py-16 text-center">
+            <Typography variant="subhead1" color="grey600">
+              Select at least 2 organizations to compare
+            </Typography>
+            <Typography variant="body" color="grey600" className="mt-2">
+              Use the search above to find and add organizations.
+            </Typography>
+          </div>
+        )}
+        {selectedOrgIds.length >= 2 && isLoadingOrgs && (
+          <div className="flex justify-center py-16">
+            <Spinner />
+          </div>
+        )}
+        {selectedOrgIds.length >= 2 && !isLoadingOrgs && (
+          <div className="overflow-x-auto">
+            <ComparisonMatrix
+              organizations={selectedOrgs}
+              showDifferencesOnly={showDifferencesOnly}
+              onToggle={handleToggle}
             />
-          }
-          label="Show differences only"
-          sx={{ ml: 0 }}
-        />
-      </Box>
-
-      {/* Selected org chips */}
-      {selectedOrgIds.length > 0 && (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
-          {selectedOrgIds.map((id) => {
-            const org = selectedOrgs.find((o) => o.id === id)
-
-            return (
-              <Box
-                key={id}
-                sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 1,
-                  px: 1.5,
-                  py: 0.5,
-                  border: '1px solid',
-                  borderColor: 'primary.main',
-                  borderRadius: 4,
-                  backgroundColor: 'primary.50',
-                }}
-              >
-                <Typography variant="caption">{org?.name ?? id}</Typography>
-                <Box
-                  component="span"
-                  sx={{
-                    cursor: 'pointer',
-                    color: 'text.secondary',
-                    lineHeight: 1,
-                    fontSize: 16,
-                    fontWeight: 700,
-                    '&:hover': { color: 'error.main' },
-                  }}
-                  onClick={() => removeOrg(id)}
-                >
-                  &times;
-                </Box>
-              </Box>
-            )
-          })}
-        </Box>
-      )}
-
-      {/* Matrix or empty state */}
-      {selectedOrgIds.length < 2 && (
-        <Box
-          sx={{
-            py: 8,
-            textAlign: 'center',
-            border: '1px dashed',
-            borderColor: 'divider',
-            borderRadius: 2,
-          }}
-        >
-          <Typography variant="subhead1" color="grey600">
-            Select at least 2 organizations to compare
-          </Typography>
-          <Typography variant="body" color="grey600" sx={{ mt: 1 }}>
-            Use the search above to find and add organizations.
-          </Typography>
-        </Box>
-      )}
-      {selectedOrgIds.length >= 2 && isLoadingOrgs && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress />
-        </Box>
-      )}
-      {selectedOrgIds.length >= 2 && !isLoadingOrgs && (
-        <Box sx={{ overflowX: 'auto' }}>
-          <ComparisonMatrix
-            organizations={selectedOrgs}
-            showDifferencesOnly={showDifferencesOnly}
-            onToggle={handleToggle}
-          />
-        </Box>
-      )}
-    </Box>
+          </div>
+        )}
+      </div>
+    </>
   )
 }
 
