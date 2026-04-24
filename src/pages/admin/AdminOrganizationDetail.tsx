@@ -217,18 +217,16 @@ const AdminOrganizationDetail = () => {
         </div>
       </div>
 
-      {isDirty && (
-        <footer className="sticky bottom-0 z-navBar w-full bg-white shadow-t">
-          <div className="mx-auto flex min-h-footer w-full max-w-200 flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-12">
-            <Button variant="quaternary" onClick={handleReset}>
-              Reset
-            </Button>
-            <Button disabled={isSaving} onClick={handleSave}>
-              Save changes
-            </Button>
-          </div>
-        </footer>
-      )}
+      <footer className="sticky bottom-0 z-navBar w-full bg-white shadow-t">
+        <div className="mx-auto flex min-h-footer w-full max-w-200 flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-12">
+          <Button variant="quaternary" disabled={!isDirty} onClick={handleReset}>
+            Reset
+          </Button>
+          <Button disabled={!isDirty || isSaving} onClick={handleSave}>
+            Save changes
+          </Button>
+        </div>
+      </footer>
     </>
   )
 }
