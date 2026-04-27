@@ -39,11 +39,8 @@ export const useToolbarOverflow = ({
 
     let usedWidth = 0
     const newVisible = new Set<GroupName>()
-    let overflowing = false
 
     for (const name of GROUP_NAMES) {
-      if (overflowing) break
-
       const el = groupRefs[name].current
       let groupWidth: number
 
@@ -64,7 +61,6 @@ export const useToolbarOverflow = ({
       const kebabReserve = remainingGroups > 0 ? kebabWidth + gap : 0
 
       if (usedWidth + groupSpacing + groupWidth + kebabReserve > containerWidth) {
-        overflowing = true
         break
       }
 
