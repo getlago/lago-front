@@ -94,7 +94,6 @@ export default defineConfig(({ mode }) => {
         sourcemaps: {
           disable: true,
         },
-        debug: true,
         telemetry: false,
       }),
     )
