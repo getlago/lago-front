@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 
 import { render, testMockNavigateFn } from '~/test-utils'
 
-import EditQuote, { EDIT_QUOTE_CLOSE_BUTTON_TEST_ID } from '../EditQuote'
+import EditQuote, { EDIT_QUOTE_SAVE_BUTTON_TEST_ID } from '../EditQuote'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -24,7 +24,7 @@ describe('EditQuote', () => {
       it('THEN should render the close button', () => {
         render(<EditQuote />)
 
-        expect(screen.getByTestId(EDIT_QUOTE_CLOSE_BUTTON_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(EDIT_QUOTE_SAVE_BUTTON_TEST_ID)).toBeInTheDocument()
       })
     })
 
@@ -34,7 +34,7 @@ describe('EditQuote', () => {
 
         render(<EditQuote />)
 
-        await user.click(screen.getByTestId(EDIT_QUOTE_CLOSE_BUTTON_TEST_ID))
+        await user.click(screen.getByTestId(EDIT_QUOTE_SAVE_BUTTON_TEST_ID))
 
         expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-123/overview')
       })
@@ -52,7 +52,7 @@ describe('EditQuote', () => {
 
         render(<EditQuote />)
 
-        await user.click(screen.getByTestId(EDIT_QUOTE_CLOSE_BUTTON_TEST_ID))
+        await user.click(screen.getByTestId(EDIT_QUOTE_SAVE_BUTTON_TEST_ID))
 
         expect(testMockNavigateFn).not.toHaveBeenCalled()
       })
