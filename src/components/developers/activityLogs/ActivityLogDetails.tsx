@@ -27,6 +27,14 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 
+export const ACTIVITY_LOG_DETAILS_LOADING_TEST_ID = 'activity-log-details-loading'
+export const ACTIVITY_LOG_DETAILS_CONTENT_TEST_ID = 'activity-log-details-content'
+export const ACTIVITY_LOG_DETAILS_CLOSE_BUTTON_TEST_ID = 'activity-log-details-close-button'
+export const ACTIVITY_LOG_DETAILS_RESOURCE_LINK_TEST_ID = 'activity-log-details-resource-link'
+export const ACTIVITY_LOG_DETAILS_CUSTOMER_LINK_TEST_ID = 'activity-log-details-customer-link'
+export const ACTIVITY_LOG_DETAILS_SUBSCRIPTION_LINK_TEST_ID =
+  'activity-log-details-subscription-link'
+
 const remapResourceTypeNames = (resourceType: string): keyof typeof ResourceTypeEnum => {
   if (resourceType === 'FeatureObject') return 'Feature'
   return resourceType as keyof typeof ResourceTypeEnum
@@ -192,7 +200,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
       </Typography>
 
       {loading && (
-        <div className="flex flex-col gap-4 p-4">
+        <div data-test={ACTIVITY_LOG_DETAILS_LOADING_TEST_ID} className="flex flex-col gap-4 p-4">
           <Skeleton variant="text" textVariant="subhead1" className="w-40" />
           <div className="grid grid-cols-[140px,_1fr] items-baseline gap-x-8 gap-y-3">
             {[...Array(3)].map((_, index) => (
@@ -206,13 +214,14 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
       )}
 
       {!loading && (
-        <div className="flex flex-col gap-12 p-4">
+        <div data-test={ACTIVITY_LOG_DETAILS_CONTENT_TEST_ID} className="flex flex-col gap-12 p-4">
           <div className="grid grid-cols-[140px,_1fr] items-baseline gap-3 not-last:pb-12 not-last:shadow-b">
             <div className="col-span-2 flex items-center justify-between">
               <Typography variant="subhead1" color="grey700">
                 {translate('text_63ebba5f5160e26242c48bd2')}
               </Typography>
               <Button
+                data-test={ACTIVITY_LOG_DETAILS_CLOSE_BUTTON_TEST_ID}
                 icon="close"
                 variant="quaternary"
                 size="small"
@@ -251,6 +260,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
                 translate('text_1748873734056eva3rfvpkoi'),
                 customerData?.customer?.id ? (
                   <Button
+                    data-test={ACTIVITY_LOG_DETAILS_CUSTOMER_LINK_TEST_ID}
                     variant="inline"
                     onClick={() =>
                       handleResourceNavigate(
@@ -270,6 +280,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
                 translate('text_1748873758144pfwdvafs9pv'),
                 subscriptionData?.subscription?.id && customerData?.customer?.id ? (
                   <Button
+                    data-test={ACTIVITY_LOG_DETAILS_SUBSCRIPTION_LINK_TEST_ID}
                     variant="inline"
                     onClick={() =>
                       handleResourceNavigate(
