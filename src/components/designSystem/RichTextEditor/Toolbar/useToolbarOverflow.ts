@@ -25,6 +25,7 @@ export const useToolbarOverflow = ({
 }: UseToolbarOverflowParams): UseToolbarOverflowReturn => {
   const [visibleGroups, setVisibleGroups] = useState<Set<GroupName>>(new Set(GROUP_NAMES))
   const rafId = useRef<number>(0)
+  const widthCache = useRef<Map<GroupName, number>>(new Map())
 
   const calculate = useCallback(() => {
     const container = containerRef.current
@@ -42,10 +43,18 @@ export const useToolbarOverflow = ({
       if (overflowing) break
 
       const el = groupRefs[name].current
+      let groupWidth: number
 
-      if (!el) continue
+      if (el) {
+        groupWidth = el.scrollWidth
+        widthCache.current.set(name, groupWidth)
+      } else {
+        const cached = widthCache.current.get(name)
 
-      const groupWidth = el.scrollWidth
+        if (cached === undefined) continue // never measured, skip
+        groupWidth = cached
+      }
+
       // Add gap before this group if it's not the first
       const additionalGap = newVisible.size > 0 ? gap : 0
       // Reserve space for kebab + its gap if we might overflow

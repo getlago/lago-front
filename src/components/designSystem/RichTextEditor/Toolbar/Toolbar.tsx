@@ -1,4 +1,4 @@
-import React, { forwardRef, useRef } from 'react'
+import React, { forwardRef, useMemo, useRef } from 'react'
 
 import { Editor, useEditorState } from '@tiptap/react'
 import { Icon } from 'lago-design-system'
@@ -64,17 +64,20 @@ const Toolbar = ({ editor }: ToolbarProps) => {
   const { translate } = useInternationalization()
   const containerRef = useRef<HTMLDivElement>(null)
   const kebabRef = useRef<HTMLDivElement>(null)
-  const groupRefs = {
-    undoRedo: useRef<HTMLDivElement>(null),
-    textStyling: useRef<HTMLDivElement>(null),
-    lists: useRef<HTMLDivElement>(null),
-    alignment: useRef<HTMLDivElement>(null),
-    media: useRef<HTMLDivElement>(null),
-  }
+  const groupRefs = useMemo(
+    () => ({
+      undoRedo: React.createRef<HTMLDivElement>(),
+      textStyling: React.createRef<HTMLDivElement>(),
+      lists: React.createRef<HTMLDivElement>(),
+      alignment: React.createRef<HTMLDivElement>(),
+      media: React.createRef<HTMLDivElement>(),
+    }),
+    [],
+  )
 
   const { visibleGroups, overflowedGroups, hasOverflow } = useToolbarOverflow({
     containerRef,
-    groupRefs: groupRefs as Record<GroupName, React.RefObject<HTMLDivElement | null>>,
+    groupRefs,
     kebabRef,
     gap: 8,
   })
@@ -463,7 +466,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
               <ToolbarButton
                 isActive={false}
                 testId="toolbar-overflow-button"
-                tooltip={translate('text_rte_toolbar_more_actions')}
+                tooltip={translate('text_1777281711979fsxgdzarsdb')}
               >
                 <Icon name="dots-horizontal" />
               </ToolbarButton>
