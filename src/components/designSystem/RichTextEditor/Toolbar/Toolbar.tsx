@@ -36,6 +36,7 @@ export const TOOLBAR_TABLE_BUTTON_TEST_ID = 'toolbar-table-button'
 export const TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID = 'toolbar-code-block-button'
 export const TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID = 'toolbar-text-styling-dropdown'
 export const TOOLBAR_IMAGE_BUTTON_TEST_ID = 'toolbar-image-button'
+export const TOOLBAR_OVERFLOW_BUTTON_TEST_ID = 'toolbar-overflow-button'
 export const TOOLBAR_UNORDERED_LIST_BUTTON_TEST_ID = 'toolbar-unordered-list-button'
 export const TOOLBAR_ORDERED_LIST_BUTTON_TEST_ID = 'toolbar-ordered-list-button'
 export const TOOLBAR_ALIGN_LEFT_BUTTON_TEST_ID = 'toolbar-align-left-button'
@@ -465,7 +466,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
             opener={
               <ToolbarButton
                 isActive={false}
-                testId="toolbar-overflow-button"
+                testId={TOOLBAR_OVERFLOW_BUTTON_TEST_ID}
                 tooltip={translate('text_1777281711979fsxgdzarsdb')}
               >
                 <Icon name="dots-horizontal" />
