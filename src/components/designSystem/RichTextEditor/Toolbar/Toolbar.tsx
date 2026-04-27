@@ -1,7 +1,6 @@
-import React, { forwardRef, useMemo, useRef } from 'react'
-
 import { Editor, useEditorState } from '@tiptap/react'
 import { Icon } from 'lago-design-system'
+import React, { forwardRef, useMemo, useRef } from 'react'
 
 import { Popper } from '~/components/designSystem/Popper'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -10,7 +9,7 @@ import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 import ToolbarButton from './ToolbarButton'
 import ToolbarDropdown from './ToolbarDropdown'
 import { DropdownItem } from './types'
-import { GroupName, GROUP_NAMES, useToolbarOverflow } from './useToolbarOverflow'
+import { GROUP_NAMES, GroupName, useToolbarOverflow } from './useToolbarOverflow'
 
 import ColorPicker from '../BlockControls/ColorPicker'
 import ImagePopperForm from '../forms/ImagePopperForm'
@@ -48,7 +47,7 @@ type ToolbarProps = {
   editor: Editor
 }
 
-const Separator = () => <div className="w-px bg-grey-300" />
+const Separator = () => <div className="w-px shrink-0 bg-grey-300" />
 
 const ToolbarGroup = forwardRef<HTMLDivElement, { children: React.ReactNode }>(
   ({ children }, ref) => (
@@ -79,7 +78,8 @@ const Toolbar = ({ editor }: ToolbarProps) => {
     containerRef,
     groupRefs,
     kebabRef,
-    gap: 8,
+    gap: 8, // Tailwind gap-2
+    separatorWidth: 1, // Separator w-px
   })
 
   const editorState = useEditorState({
@@ -459,10 +459,10 @@ const Toolbar = ({ editor }: ToolbarProps) => {
 
       {/* Overflow kebab menu */}
       {hasOverflow && (
-        <Popper
-          PopperProps={{ placement: 'bottom-end' }}
-          opener={
-            <div ref={kebabRef}>
+        <div ref={kebabRef} className="shrink-0">
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={
               <ToolbarButton
                 isActive={false}
                 testId="toolbar-overflow-button"
@@ -470,22 +470,22 @@ const Toolbar = ({ editor }: ToolbarProps) => {
               >
                 <Icon name="dots-horizontal" />
               </ToolbarButton>
-            </div>
-          }
-        >
-          {() => (
-            <MenuPopper>
-              <div className="flex flex-wrap gap-2 p-2">
-                {overflowedGroups.map((name, index) => (
-                  <React.Fragment key={name}>
-                    {index > 0 && <Separator />}
-                    {renderGroup(name)}
-                  </React.Fragment>
-                ))}
-              </div>
-            </MenuPopper>
-          )}
-        </Popper>
+            }
+          >
+            {() => (
+              <MenuPopper>
+                <div className="flex flex-wrap gap-2 p-2">
+                  {overflowedGroups.map((name, index) => (
+                    <React.Fragment key={name}>
+                      {index > 0 && <Separator />}
+                      {renderGroup(name)}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </MenuPopper>
+            )}
+          </Popper>
+        </div>
       )}
     </div>
   )

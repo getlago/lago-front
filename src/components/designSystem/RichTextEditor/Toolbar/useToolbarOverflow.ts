@@ -1,4 +1,4 @@
-import { RefObject, useCallback, useEffect, useRef, useState } from 'react'
+import { RefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 export const GROUP_NAMES = ['undoRedo', 'textStyling', 'lists', 'alignment', 'media'] as const
 
@@ -8,7 +8,8 @@ type UseToolbarOverflowParams = {
   containerRef: RefObject<HTMLDivElement | null>
   groupRefs: Record<GroupName, RefObject<HTMLDivElement | null>>
   kebabRef: RefObject<HTMLDivElement | null>
-  gap: number // gap in px between groups (Tailwind gap-2 = 8px)
+  gap: number // gap in px between flex children (Tailwind gap-2 = 8px)
+  separatorWidth: number // width of separator between groups (w-px = 1px)
 }
 
 type UseToolbarOverflowReturn = {
@@ -22,6 +23,7 @@ export const useToolbarOverflow = ({
   groupRefs,
   kebabRef,
   gap,
+  separatorWidth,
 }: UseToolbarOverflowParams): UseToolbarOverflowReturn => {
   const [visibleGroups, setVisibleGroups] = useState<Set<GroupName>>(new Set(GROUP_NAMES))
   const rafId = useRef<number>(0)
@@ -55,18 +57,18 @@ export const useToolbarOverflow = ({
         groupWidth = cached
       }
 
-      // Add gap before this group if it's not the first
-      const additionalGap = newVisible.size > 0 ? gap : 0
-      // Reserve space for kebab + its gap if we might overflow
+      // Between groups: gap + separator(1px) + gap. No separator before first group.
+      const groupSpacing = newVisible.size > 0 ? gap + separatorWidth + gap : 0
+      // Reserve space for kebab + its gap (no separator before kebab)
       const remainingGroups = GROUP_NAMES.length - newVisible.size - 1
       const kebabReserve = remainingGroups > 0 ? kebabWidth + gap : 0
 
-      if (usedWidth + additionalGap + groupWidth + kebabReserve > containerWidth) {
+      if (usedWidth + groupSpacing + groupWidth + kebabReserve > containerWidth) {
         overflowing = true
         break
       }
 
-      usedWidth += additionalGap + groupWidth
+      usedWidth += groupSpacing + groupWidth
       newVisible.add(name)
     }
 
@@ -78,7 +80,7 @@ export const useToolbarOverflow = ({
 
       return newVisible
     })
-  }, [containerRef, groupRefs, kebabRef, gap])
+  }, [containerRef, groupRefs, kebabRef, gap, separatorWidth])
 
   useEffect(() => {
     const container = containerRef.current
@@ -100,6 +102,12 @@ export const useToolbarOverflow = ({
       cancelAnimationFrame(rafId.current)
     }
   }, [containerRef, calculate])
+
+  // Recalculate after DOM updates (e.g., when kebab button mounts/unmounts).
+  // The ResizeObserver won't fire for content changes if the container size is unchanged.
+  useLayoutEffect(() => {
+    calculate()
+  }, [visibleGroups, calculate])
 
   const overflowedGroups = GROUP_NAMES.filter((name) => !visibleGroups.has(name))
 
