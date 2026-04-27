@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useRef } from 'react'
 
 import { Editor, useEditorState } from '@tiptap/react'
 import { Icon } from 'lago-design-system'
@@ -10,6 +10,7 @@ import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 import ToolbarButton from './ToolbarButton'
 import ToolbarDropdown from './ToolbarDropdown'
 import { DropdownItem } from './types'
+import { GroupName, GROUP_NAMES, useToolbarOverflow } from './useToolbarOverflow'
 
 import ColorPicker from '../BlockControls/ColorPicker'
 import ImagePopperForm from '../forms/ImagePopperForm'
@@ -61,6 +62,23 @@ ToolbarGroup.displayName = 'ToolbarGroup'
 
 const Toolbar = ({ editor }: ToolbarProps) => {
   const { translate } = useInternationalization()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const kebabRef = useRef<HTMLDivElement>(null)
+  const groupRefs = {
+    undoRedo: useRef<HTMLDivElement>(null),
+    textStyling: useRef<HTMLDivElement>(null),
+    lists: useRef<HTMLDivElement>(null),
+    alignment: useRef<HTMLDivElement>(null),
+    media: useRef<HTMLDivElement>(null),
+  }
+
+  const { visibleGroups, overflowedGroups, hasOverflow } = useToolbarOverflow({
+    containerRef,
+    groupRefs: groupRefs as Record<GroupName, React.RefObject<HTMLDivElement | null>>,
+    kebabRef,
+    gap: 8,
+  })
+
   const editorState = useEditorState({
     editor,
     selector: ({ editor: e }) => ({
@@ -229,199 +247,243 @@ const Toolbar = ({ editor }: ToolbarProps) => {
     },
   ]
 
+  const renderGroup = (name: GroupName) => {
+    switch (name) {
+      case 'undoRedo':
+        return (
+          <ToolbarGroup key={name} ref={groupRefs[name]}>
+            <ToolbarButton
+              testId={TOOLBAR_UNDO_BUTTON_TEST_ID}
+              tooltip={translate('text_1774862470018jqdazc278y0')}
+              isActive={false}
+              onClick={() => editor.chain().focus().undo().run()}
+              isDisabled={!editorState.canUndo}
+            >
+              <Icon name="arrow-back-up" />
+            </ToolbarButton>
+            <ToolbarButton
+              testId={TOOLBAR_REDO_BUTTON_TEST_ID}
+              tooltip={translate('text_1774862470019a0txge16qpr')}
+              isActive={false}
+              onClick={() => editor.chain().focus().redo().run()}
+              isDisabled={!editorState.canRedo}
+            >
+              <Icon name="arrow-forward-up" />
+            </ToolbarButton>
+          </ToolbarGroup>
+        )
+      case 'textStyling':
+        return (
+          <ToolbarGroup key={name} ref={groupRefs[name]}>
+            {/* Text styling dropdown */}
+            <ToolbarDropdown
+              data-test={TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}
+              items={textStylings}
+              opener={
+                <ToolbarButton
+                  testId={TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}
+                  tooltip={translate('text_1774862470019c5cxqnwghwv')}
+                  isActive={false}
+                >
+                  <Icon name="h1" />
+                </ToolbarButton>
+              }
+            />
+
+            {/* Inline formatting */}
+            {inlineFormattings.map((fmt) => (
+              <ToolbarButton
+                key={fmt.testId}
+                testId={fmt.testId}
+                tooltip={fmt.tooltip}
+                isActive={fmt.isActive}
+                onClick={fmt.onClick}
+              >
+                {fmt.children}
+              </ToolbarButton>
+            ))}
+
+            {/* Inline colors (background + text) */}
+            <Popper
+              PopperProps={{ placement: 'bottom-start' }}
+              opener={
+                <ToolbarButton
+                  testId={TOOLBAR_COLOR_BUTTON_TEST_ID}
+                  tooltip={translate('text_1774862470019yaqfus5r0ne')}
+                  isActive={!!editorState.highlightColor || !!editorState.textColor}
+                >
+                  <Icon name="text-color" />
+                </ToolbarButton>
+              }
+            >
+              {() => (
+                <MenuPopper>
+                  <ColorPicker
+                    activeBackgroundColor={editorState.highlightColor}
+                    activeTextColor={editorState.textColor}
+                    onSelectBackground={(color) => {
+                      if (color) {
+                        editor.chain().focus().setHighlight({ color }).run()
+                      } else {
+                        editor.chain().focus().unsetHighlight().run()
+                      }
+                    }}
+                    onSelectText={(color) => {
+                      if (color) {
+                        editor.chain().focus().setColor(color).run()
+                      } else {
+                        editor.chain().focus().unsetColor().run()
+                      }
+                    }}
+                  />
+                </MenuPopper>
+              )}
+            </Popper>
+          </ToolbarGroup>
+        )
+      case 'lists':
+        return (
+          <ToolbarGroup key={name} ref={groupRefs[name]}>
+            {listStylings.map((style) => (
+              <ToolbarButton
+                key={style.testId}
+                testId={style.testId}
+                tooltip={style.tooltip}
+                isActive={style.isActive}
+                onClick={style.onClick}
+              >
+                {style.children}
+              </ToolbarButton>
+            ))}
+          </ToolbarGroup>
+        )
+      case 'alignment':
+        return (
+          <ToolbarGroup key={name} ref={groupRefs[name]}>
+            {alignments.map((alignment) => (
+              <ToolbarButton
+                key={alignment.testId}
+                testId={alignment.testId}
+                tooltip={alignment.tooltip}
+                isActive={alignment.isActive}
+                onClick={alignment.onClick}
+              >
+                {alignment.children}
+              </ToolbarButton>
+            ))}
+          </ToolbarGroup>
+        )
+      case 'media':
+        return (
+          <ToolbarGroup key={name} ref={groupRefs[name]}>
+            {/* Link */}
+            <Popper
+              PopperProps={{ placement: 'bottom-start' }}
+              opener={
+                <ToolbarButton
+                  testId="toolbar-link-button"
+                  tooltip={translate('text_1774862470019o9kt9r7s0e8')}
+                  isActive={editorState.isLink}
+                >
+                  <Icon name="link" />
+                </ToolbarButton>
+              }
+            >
+              {({ closePopper }) => (
+                <MenuPopper>
+                  <LinkPopperForm editor={editor} closePopper={closePopper} />
+                </MenuPopper>
+              )}
+            </Popper>
+
+            {/* Table */}
+            <ToolbarButton
+              testId={TOOLBAR_TABLE_BUTTON_TEST_ID}
+              tooltip={translate('text_1774862470019b9gczrfwx0i')}
+              isActive={false}
+              onClick={() =>
+                editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+              }
+            >
+              <Icon name="table-horizontale" />
+            </ToolbarButton>
+            <ToolbarButton
+              testId={TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID}
+              tooltip={translate('text_1774862470019wdgkt31dezy')}
+              isActive={editorState.isCodeBlock}
+              onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+            >
+              <Icon name="code" />
+            </ToolbarButton>
+
+            {/* Image */}
+            <Popper
+              PopperProps={{ placement: 'bottom-start' }}
+              opener={
+                <ToolbarButton
+                  testId={TOOLBAR_IMAGE_BUTTON_TEST_ID}
+                  tooltip={translate('text_1774862470019f83anhhatsg')}
+                  isActive={false}
+                >
+                  <Icon name="image" />
+                </ToolbarButton>
+              }
+            >
+              {({ closePopper }) => (
+                <MenuPopper>
+                  <ImagePopperForm editor={editor} closePopper={closePopper} />
+                </MenuPopper>
+              )}
+            </Popper>
+          </ToolbarGroup>
+        )
+    }
+  }
+
   return (
     <div
+      ref={containerRef}
       data-test={TOOLBAR_CONTAINER_TEST_ID}
-      className="sticky top-0 z-10 flex flex-wrap gap-2 bg-white py-3 shadow-b"
+      className="sticky top-0 z-10 flex gap-2 overflow-hidden bg-white py-3 shadow-b"
     >
-      {/* Undo / Redo */}
-      <ToolbarGroup>
-        <ToolbarButton
-          testId={TOOLBAR_UNDO_BUTTON_TEST_ID}
-          tooltip={translate('text_1774862470018jqdazc278y0')}
-          isActive={false}
-          onClick={() => editor.chain().focus().undo().run()}
-          isDisabled={!editorState.canUndo}
-        >
-          <Icon name="arrow-back-up" />
-        </ToolbarButton>
-        <ToolbarButton
-          testId={TOOLBAR_REDO_BUTTON_TEST_ID}
-          tooltip={translate('text_1774862470019a0txge16qpr')}
-          isActive={false}
-          onClick={() => editor.chain().focus().redo().run()}
-          isDisabled={!editorState.canRedo}
-        >
-          <Icon name="arrow-forward-up" />
-        </ToolbarButton>
-      </ToolbarGroup>
+      {/* Visible groups */}
+      {GROUP_NAMES.filter((name) => visibleGroups.has(name)).map((name, index) => (
+        <React.Fragment key={name}>
+          {index > 0 && <Separator />}
+          {renderGroup(name)}
+        </React.Fragment>
+      ))}
 
-      <Separator />
-
-      <ToolbarGroup>
-        {/* Text styling dropdown */}
-        <ToolbarDropdown
-          data-test={TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}
-          items={textStylings}
-          opener={
-            <ToolbarButton
-              testId={TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}
-              tooltip={translate('text_1774862470019c5cxqnwghwv')}
-              isActive={false}
-            >
-              <Icon name="h1" />
-            </ToolbarButton>
-          }
-        />
-
-        {/* Inline formatting */}
-        {inlineFormattings.map((fmt) => (
-          <ToolbarButton
-            key={fmt.testId}
-            testId={fmt.testId}
-            tooltip={fmt.tooltip}
-            isActive={fmt.isActive}
-            onClick={fmt.onClick}
-          >
-            {fmt.children}
-          </ToolbarButton>
-        ))}
-
-        {/* Inline colors (background + text) */}
+      {/* Overflow kebab menu */}
+      {hasOverflow && (
         <Popper
-          PopperProps={{ placement: 'bottom-start' }}
+          PopperProps={{ placement: 'bottom-end' }}
           opener={
-            <ToolbarButton
-              testId={TOOLBAR_COLOR_BUTTON_TEST_ID}
-              tooltip={translate('text_1774862470019yaqfus5r0ne')}
-              isActive={!!editorState.highlightColor || !!editorState.textColor}
-            >
-              <Icon name="text-color" />
-            </ToolbarButton>
+            <div ref={kebabRef}>
+              <ToolbarButton
+                isActive={false}
+                testId="toolbar-overflow-button"
+                tooltip={translate('text_rte_toolbar_more_actions')}
+              >
+                <Icon name="dots-horizontal" />
+              </ToolbarButton>
+            </div>
           }
         >
           {() => (
             <MenuPopper>
-              <ColorPicker
-                activeBackgroundColor={editorState.highlightColor}
-                activeTextColor={editorState.textColor}
-                onSelectBackground={(color) => {
-                  if (color) {
-                    editor.chain().focus().setHighlight({ color }).run()
-                  } else {
-                    editor.chain().focus().unsetHighlight().run()
-                  }
-                }}
-                onSelectText={(color) => {
-                  if (color) {
-                    editor.chain().focus().setColor(color).run()
-                  } else {
-                    editor.chain().focus().unsetColor().run()
-                  }
-                }}
-              />
+              <div className="flex flex-wrap gap-2 p-2">
+                {overflowedGroups.map((name, index) => (
+                  <React.Fragment key={name}>
+                    {index > 0 && <Separator />}
+                    {renderGroup(name)}
+                  </React.Fragment>
+                ))}
+              </div>
             </MenuPopper>
           )}
         </Popper>
-      </ToolbarGroup>
-
-      <Separator />
-
-      {/* List dropdown */}
-      <ToolbarGroup>
-        {listStylings.map((style) => (
-          <ToolbarButton
-            key={style.testId}
-            testId={style.testId}
-            tooltip={style.tooltip}
-            isActive={style.isActive}
-            onClick={style.onClick}
-          >
-            {style.children}
-          </ToolbarButton>
-        ))}
-      </ToolbarGroup>
-
-      <Separator />
-
-      {/* Text align dropdown */}
-      <ToolbarGroup>
-        {alignments.map((alignment) => (
-          <ToolbarButton
-            key={alignment.testId}
-            testId={alignment.testId}
-            tooltip={alignment.tooltip}
-            isActive={alignment.isActive}
-            onClick={alignment.onClick}
-          >
-            {alignment.children}
-          </ToolbarButton>
-        ))}
-      </ToolbarGroup>
-
-      <Separator />
-
-      <ToolbarGroup>
-        {/* Link */}
-        <Popper
-          PopperProps={{ placement: 'bottom-start' }}
-          opener={
-            <ToolbarButton
-              testId="toolbar-link-button"
-              tooltip={translate('text_1774862470019o9kt9r7s0e8')}
-              isActive={editorState.isLink}
-            >
-              <Icon name="link" />
-            </ToolbarButton>
-          }
-        >
-          {({ closePopper }) => (
-            <MenuPopper>
-              <LinkPopperForm editor={editor} closePopper={closePopper} />
-            </MenuPopper>
-          )}
-        </Popper>
-
-        {/* Table */}
-        <ToolbarButton
-          testId={TOOLBAR_TABLE_BUTTON_TEST_ID}
-          tooltip={translate('text_1774862470019b9gczrfwx0i')}
-          isActive={false}
-          onClick={() =>
-            editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
-          }
-        >
-          <Icon name="table-horizontale" />
-        </ToolbarButton>
-        <ToolbarButton
-          testId={TOOLBAR_CODE_BLOCK_BUTTON_TEST_ID}
-          tooltip={translate('text_1774862470019wdgkt31dezy')}
-          isActive={editorState.isCodeBlock}
-          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-        >
-          <Icon name="code" />
-        </ToolbarButton>
-
-        {/* Image */}
-        <Popper
-          PopperProps={{ placement: 'bottom-start' }}
-          opener={
-            <ToolbarButton
-              testId={TOOLBAR_IMAGE_BUTTON_TEST_ID}
-              tooltip={translate('text_1774862470019f83anhhatsg')}
-              isActive={false}
-            >
-              <Icon name="image" />
-            </ToolbarButton>
-          }
-        >
-          {({ closePopper }) => (
-            <MenuPopper>
-              <ImagePopperForm editor={editor} closePopper={closePopper} />
-            </MenuPopper>
-          )}
-        </Popper>
-      </ToolbarGroup>
+      )}
     </div>
   )
 }
