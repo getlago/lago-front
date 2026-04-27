@@ -3895,7 +3895,6 @@ export enum FeatureFlagEnum {
   MultiEntityBilling = 'multi_entity_billing',
   MultiplePaymentMethods = 'multiple_payment_methods',
   NonPersistableChargeCacheOptimization = 'non_persistable_charge_cache_optimization',
-  PaymentGatedSubscriptions = 'payment_gated_subscriptions',
   OrderForms = 'order_forms',
   PaymentGatedSubscriptions = 'payment_gated_subscriptions',
   PostgresEnrichedEvents = 'postgres_enriched_events',
