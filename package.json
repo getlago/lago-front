@@ -51,7 +51,7 @@
     "@graphql-codegen/cli": "6.3.1",
     "@graphql-codegen/typescript": "5.0.10",
     "@graphql-codegen/typescript-operations": "5.1.0",
-    "@graphql-codegen/typescript-react-apollo": "4.4.1",
+    "@graphql-codegen/typescript-react-apollo": "4.4.2",
     "@parcel/watcher": "2.5.6",
     "@sentry/vite-plugin": "5.2.0",
     "@svgr/core": "8.1.0",
