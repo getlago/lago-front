@@ -5,6 +5,7 @@ import { generatePath, useParams } from 'react-router-dom'
 import {
   formatActivityType,
   formatResourceObject,
+  getResourceLink,
   isDeletedActivityType,
 } from '~/components/activityLogs/utils'
 import { CodeSnippet } from '~/components/CodeSnippet'
@@ -24,6 +25,7 @@ import {
 import { useActivityLogsInformation } from '~/hooks/activityLogs/useActivityLogsInformation'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
+import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 
 const remapResourceTypeNames = (resourceType: string): keyof typeof ResourceTypeEnum => {
   if (resourceType === 'FeatureObject') return 'Feature'
@@ -124,6 +126,12 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
   const { translate } = useInternationalization()
   const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
   const { getActivityDescription, getResourceType } = useActivityLogsInformation()
+  const { setMainRouterUrl, closePanel } = useDeveloperTool()
+
+  const handleResourceNavigate = (path: string) => {
+    setMainRouterUrl(path)
+    closePanel()
+  }
 
   const { data, loading } = useGetSingleActivityLogQuery({
     variables: { id: logId || '' },
@@ -226,23 +234,34 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
               [
                 translate('text_1747666154075y3lcupj1zdd'),
                 resource?.__typename
-                  ? formatResourceObject(resource, {
-                      resourceType: remapResourceTypeNames(resource.__typename),
-                      activityType,
-                    })
+                  ? (() => {
+                      const link = getResourceLink(resource, {
+                        resourceType: remapResourceTypeNames(resource.__typename),
+                        activityType,
+                      })
+
+                      return formatResourceObject(
+                        resource,
+                        link ? () => handleResourceNavigate(link) : undefined,
+                      )
+                    })()
                   : '-',
               ],
               [
                 translate('text_1748873734056eva3rfvpkoi'),
                 customerData?.customer?.id ? (
-                  <a
-                    className="visited:text-blue"
-                    href={generatePath(CUSTOMER_DETAILS_ROUTE, {
-                      customerId: customerData.customer.id,
-                    })}
+                  <Button
+                    variant="inline"
+                    onClick={() =>
+                      handleResourceNavigate(
+                        generatePath(CUSTOMER_DETAILS_ROUTE, {
+                          customerId: customerData.customer?.id ?? '',
+                        }),
+                      )
+                    }
                   >
                     {externalCustomerId}
-                  </a>
+                  </Button>
                 ) : (
                   (externalCustomerId ?? '-')
                 ),
@@ -250,16 +269,20 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
               [
                 translate('text_1748873758144pfwdvafs9pv'),
                 subscriptionData?.subscription?.id && customerData?.customer?.id ? (
-                  <a
-                    className="visited:text-blue"
-                    href={generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                      tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-                      customerId: customerData?.customer?.id ?? '',
-                      subscriptionId: subscriptionData?.subscription?.id ?? '',
-                    })}
+                  <Button
+                    variant="inline"
+                    onClick={() =>
+                      handleResourceNavigate(
+                        generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+                          tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+                          customerId: customerData?.customer?.id ?? '',
+                          subscriptionId: subscriptionData?.subscription?.id ?? '',
+                        }),
+                      )
+                    }
                   >
                     {externalSubscriptionId}
-                  </a>
+                  </Button>
                 ) : (
                   (externalSubscriptionId ?? '-')
                 ),

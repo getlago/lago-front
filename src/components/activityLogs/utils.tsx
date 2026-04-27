@@ -1,5 +1,6 @@
 import { generatePath } from 'react-router-dom'
 
+import { Button } from '~/components/designSystem/Button'
 import { AvailableFiltersEnum, setFilterValue } from '~/components/designSystem/Filters'
 import { ACTIVITY_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ACTIVITY_LOG_FILTER_PREFIX } from '~/core/constants/filters'
@@ -68,7 +69,12 @@ export function isDeletedActivityType(activityType: ActivityTypeEnum) {
   return activityType.endsWith('deleted')
 }
 
-export function formatResourceObject(
+/**
+ * Pure mapping from an activity-log resource to the main-app path of its
+ * detail page. Returns `null` when the resource has been deleted, when the
+ * activityType is missing, or when the resource type is not linkable.
+ */
+export function getResourceLink(
   resource: ActivityLogDetailsFragment['resource'],
   {
     resourceType,
@@ -77,77 +83,76 @@ export function formatResourceObject(
     resourceType?: keyof typeof ResourceTypeEnum
     activityType?: ActivityTypeEnum
   },
+): string | null {
+  if (!resource || !activityType || isDeletedActivityType(activityType)) return null
+
+  switch (resourceType) {
+    case 'BillableMetric':
+      return generatePath(BILLABLE_METRIC_DETAILS_ROUTE, {
+        billableMetricId: resource.id,
+        tab: BillableMetricDetailsTabsOptionsEnum.overview,
+      })
+    case 'BillingEntity':
+      return generatePath(BILLING_ENTITY_ROUTE, {
+        billingEntityCode: (resource as BillingEntity).code,
+      })
+    case 'Coupon':
+      return generatePath(COUPON_DETAILS_ROUTE, {
+        couponId: resource.id,
+        tab: CouponDetailsTabsOptionsEnum.overview,
+      })
+    case 'CreditNote':
+      if (!(resource as CreditNote).customer?.id || !(resource as CreditNote).invoice?.id) {
+        return null
+      }
+      return generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
+        customerId: (resource as CreditNote).customer?.id,
+        invoiceId: (resource as CreditNote).invoice?.id as string | null,
+        creditNoteId: resource.id,
+      })
+    case 'Invoice':
+      return generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+        customerId: (resource as Invoice).customer?.id,
+        invoiceId: resource.id,
+        tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+      })
+    case 'Feature':
+      return generatePath(FEATURE_DETAILS_ROUTE, {
+        featureId: resource.id,
+        tab: FeatureDetailsTabsOptionsEnum.overview,
+      })
+    case 'Plan':
+      return generatePath(PLAN_DETAILS_ROUTE, {
+        planId: resource.id,
+        tab: PlanDetailsTabsOptionsEnum.overview,
+      })
+    case 'Wallet':
+      return generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+        // @ts-expect-error - walletCustomer is not typed in the graphql schema
+        customerId: (resource as Wallet).walletCustomer?.id,
+        tab: CustomerDetailsTabsOptions.wallet,
+      })
+    // Other resources are not linkable because they require more params in their URL
+    default:
+      return null
+  }
+}
+
+/**
+ * Renders a resource as a clickable Button when an `onClick` is provided
+ * (caller is responsible for the bridge to the main BrowserRouter), or as
+ * plain text otherwise.
+ */
+export function formatResourceObject(
+  resource: ActivityLogDetailsFragment['resource'],
+  onClick?: () => void,
 ) {
   if (!resource) return null
 
-  let link = null
-
-  // Deleted resources are not linkable
-  if (activityType && !isDeletedActivityType(activityType)) {
-    // Generate link to resource details page for those which are linkable
-    switch (resourceType) {
-      case 'BillableMetric':
-        link = generatePath(BILLABLE_METRIC_DETAILS_ROUTE, {
-          billableMetricId: resource.id,
-          tab: BillableMetricDetailsTabsOptionsEnum.overview,
-        })
-        break
-      case 'BillingEntity':
-        link = generatePath(BILLING_ENTITY_ROUTE, {
-          billingEntityCode: (resource as BillingEntity).code,
-        })
-        break
-      case 'Coupon':
-        link = generatePath(COUPON_DETAILS_ROUTE, {
-          couponId: resource.id,
-          tab: CouponDetailsTabsOptionsEnum.overview,
-        })
-        break
-      case 'CreditNote':
-        if ((resource as CreditNote).customer?.id && (resource as CreditNote).invoice?.id) {
-          link = generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
-            customerId: (resource as CreditNote).customer?.id,
-            invoiceId: (resource as CreditNote).invoice?.id as string | null,
-            creditNoteId: resource.id,
-          })
-        }
-        break
-      case 'Invoice':
-        link = generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-          customerId: (resource as Invoice).customer?.id,
-          invoiceId: resource.id,
-          tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-        })
-        break
-      case 'Feature':
-        link = generatePath(FEATURE_DETAILS_ROUTE, {
-          featureId: resource.id,
-          tab: FeatureDetailsTabsOptionsEnum.overview,
-        })
-        break
-      case 'Plan':
-        link = generatePath(PLAN_DETAILS_ROUTE, {
-          planId: resource.id,
-          tab: PlanDetailsTabsOptionsEnum.overview,
-        })
-        break
-      case 'Wallet':
-        link = generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-          // @ts-expect-error - walletCustomer is not typed in the graphql schema
-          customerId: (resource as Wallet).walletCustomer?.id,
-          tab: CustomerDetailsTabsOptions.wallet,
-        })
-        break
-      // Other resources are not linkable because they require more params in their URL
-      default:
-        break
-    }
-  }
-
-  return link ? (
-    <a href={link} className="visited:text-blue">
+  return onClick ? (
+    <Button variant="inline" onClick={onClick}>
       {resource.id}
-    </a>
+    </Button>
   ) : (
     resource.id
   )
