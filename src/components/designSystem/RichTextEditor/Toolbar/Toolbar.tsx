@@ -1,3 +1,5 @@
+import React, { forwardRef } from 'react'
+
 import { Editor, useEditorState } from '@tiptap/react'
 import { Icon } from 'lago-design-system'
 
@@ -47,9 +49,15 @@ type ToolbarProps = {
 
 const Separator = () => <div className="w-px bg-grey-300" />
 
-const ToolbarGroup = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex items-center gap-1">{children}</div>
+const ToolbarGroup = forwardRef<HTMLDivElement, { children: React.ReactNode }>(
+  ({ children }, ref) => (
+    <div ref={ref} className="flex items-center gap-1">
+      {children}
+    </div>
+  ),
 )
+
+ToolbarGroup.displayName = 'ToolbarGroup'
 
 const Toolbar = ({ editor }: ToolbarProps) => {
   const { translate } = useInternationalization()
