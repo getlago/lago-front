@@ -28,11 +28,20 @@ gql`
     endingAt
     terminatedAt
     billingTime
+    downgradePlanDate
     nextSubscriptionAt
     nextSubscriptionType
     nextPlan {
       id
       name
+    }
+    previousPlan {
+      id
+      name
+    }
+    previousSubscription {
+      id
+      downgradePlanDate
     }
     customer {
       id
@@ -68,13 +77,44 @@ const SubscriptionEndOrTerminatedAt = ({
   return '-'
 }
 
-export const SubscriptionInformations = ({
+export const SubscriptionDowngradeAlert = ({
   subscription,
 }: {
   subscription?: SubscriptionForSubscriptionInformationsFragment | null
 }) => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+
+  let content: string | null = null
+
+  if (
+    subscription?.nextPlan?.id &&
+    subscription?.nextSubscriptionType === NextSubscriptionTypeEnum.Downgrade
+  ) {
+    content = translate('text_62681c60582e4f00aa82938a', {
+      planName: subscription.nextPlan.name,
+      dateStartNewPlan: intlFormatDateTimeOrgaTZ(subscription.downgradePlanDate).date,
+    })
+  } else if (subscription?.previousPlan?.id && subscription?.status === StatusTypeEnum.Pending) {
+    content = translate('text_1776951742342o96gqg8qg8j', {
+      planName: subscription.previousPlan.name,
+      dateStartNewPlan: intlFormatDateTimeOrgaTZ(
+        subscription.previousSubscription?.downgradePlanDate,
+      ).date,
+    })
+  }
+
+  if (!content) return null
+
+  return <Alert type="info">{content}</Alert>
+}
+
+export const SubscriptionInformations = ({
+  subscription,
+}: {
+  subscription?: SubscriptionForSubscriptionInformationsFragment | null
+}) => {
+  const { translate } = useInternationalization()
 
   const isCustomerDeleted = !!subscription?.customer?.deletedAt
 
@@ -91,15 +131,8 @@ export const SubscriptionInformations = ({
         {translate('text_6335e8900c69f8ebdfef5312')}
       </DetailsPage.SectionTitle>
       <div className="flex flex-col gap-4">
-        {!!subscription?.nextPlan?.id &&
-          subscription?.nextSubscriptionType === NextSubscriptionTypeEnum.Downgrade && (
-            <Alert type="info">
-              {translate('text_62681c60582e4f00aa82938a', {
-                planName: subscription?.nextPlan?.name,
-                dateStartNewPlan: intlFormatDateTimeOrgaTZ(subscription?.nextSubscriptionAt).date,
-              })}
-            </Alert>
-          )}
+        <SubscriptionDowngradeAlert subscription={subscription} />
+
         <DetailsPage.InfoGridItem
           label={translate('text_62d7f6178ec94cd09370e5fb')}
           value={<Status {...subscriptionStatusMapping(subscription?.status ?? undefined)} />}
