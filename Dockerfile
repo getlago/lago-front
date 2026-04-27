@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1.23
 
 # --- deps stage: install node_modules only ---------------------------------
 FROM node:24.15.0-alpine AS deps
@@ -51,7 +51,7 @@ RUN pnpm build
 
 
 # --- runtime stage: nginx serving the built dist ---------------------------
-FROM nginx:1.28-alpine AS runtime
+FROM nginx:1.30-alpine AS runtime
 
 WORKDIR /usr/share/nginx/html
 
