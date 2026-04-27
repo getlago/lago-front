@@ -3898,8 +3898,6 @@ export enum FeatureFlagEnum {
   NonPersistableChargeCacheOptimization = 'non_persistable_charge_cache_optimization',
   OrderForms = 'order_forms',
   PaymentGatedSubscriptions = 'payment_gated_subscriptions',
-  OrderForms = 'order_forms',
-  PaymentGatedSubscriptions = 'payment_gated_subscriptions',
   PostgresEnrichedEvents = 'postgres_enriched_events',
   WalletTraceability = 'wallet_traceability'
 }
