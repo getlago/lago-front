@@ -51,7 +51,7 @@ RUN pnpm build
 
 
 # --- runtime stage: nginx serving the built dist ---------------------------
-FROM nginx:1.28-alpine AS runtime
+FROM nginx:1.30-alpine AS runtime
 
 WORKDIR /usr/share/nginx/html
 
