@@ -321,6 +321,37 @@ describe('Home', () => {
         })
       })
     })
+
+    describe('WHEN deps change after the SSO redirect has fired (race condition)', () => {
+      it('THEN should NOT issue a second navigate to the default permission-based route', async () => {
+        // First render: SSO LS present, default perms also satisfy analytics
+        mockHasPermissions.mockReturnValue(true)
+        mockHasOrganizationPremiumAddon.mockReturnValue(false)
+
+        const { rerender } = renderHook(() => Home())
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}${ssoRedirectPath}`, {
+            replace: true,
+          })
+        })
+
+        mockGetItemFromLS.mockReturnValue(undefined)
+        mockHasOrganizationPremiumAddon.mockReturnValue(true)
+
+        rerender()
+
+        // Wait a tick to give the effect a chance to re-fire
+        await new Promise((resolve) => setTimeout(resolve, 50))
+
+        // Only the SSO navigate should have fired — no analytics fallback.
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).not.toHaveBeenCalledWith(
+          `/${TEST_ORG_SLUG}/analytics/revenueStreams`,
+          { replace: true },
+        )
+      })
+    })
   })
 
   describe('GIVEN no redirect path is stored in localStorage', () => {
