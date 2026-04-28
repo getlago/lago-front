@@ -13888,6 +13888,13 @@ export type VoidQuoteVersionMutationVariables = Exact<{
 
 export type VoidQuoteVersionMutation = { __typename?: 'Mutation', voidQuoteVersion?: { __typename?: 'QuoteVersion', id: string, status: StatusEnum } | null };
 
+export type ApproveQuoteVersionMutationVariables = Exact<{
+  input: ApproveQuoteVersionInput;
+}>;
+
+
+export type ApproveQuoteVersionMutation = { __typename?: 'Mutation', approveQuoteVersion?: { __typename?: 'QuoteVersion', id: string, status: StatusEnum } | null };
+
 export type CloneQuoteVersionMutationVariables = Exact<{
   input: CloneQuoteVersionInput;
 }>;
@@ -37232,6 +37239,40 @@ export function useVoidQuoteVersionMutation(baseOptions?: Apollo.MutationHookOpt
 export type VoidQuoteVersionMutationHookResult = ReturnType<typeof useVoidQuoteVersionMutation>;
 export type VoidQuoteVersionMutationResult = Apollo.MutationResult<VoidQuoteVersionMutation>;
 export type VoidQuoteVersionMutationOptions = Apollo.BaseMutationOptions<VoidQuoteVersionMutation, VoidQuoteVersionMutationVariables>;
+export const ApproveQuoteVersionDocument = gql`
+    mutation approveQuoteVersion($input: ApproveQuoteVersionInput!) {
+  approveQuoteVersion(input: $input) {
+    id
+    status
+  }
+}
+    `;
+export type ApproveQuoteVersionMutationFn = Apollo.MutationFunction<ApproveQuoteVersionMutation, ApproveQuoteVersionMutationVariables>;
+
+/**
+ * __useApproveQuoteVersionMutation__
+ *
+ * To run a mutation, you first call `useApproveQuoteVersionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useApproveQuoteVersionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [approveQuoteVersionMutation, { data, loading, error }] = useApproveQuoteVersionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useApproveQuoteVersionMutation(baseOptions?: Apollo.MutationHookOptions<ApproveQuoteVersionMutation, ApproveQuoteVersionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ApproveQuoteVersionMutation, ApproveQuoteVersionMutationVariables>(ApproveQuoteVersionDocument, options);
+      }
+export type ApproveQuoteVersionMutationHookResult = ReturnType<typeof useApproveQuoteVersionMutation>;
+export type ApproveQuoteVersionMutationResult = Apollo.MutationResult<ApproveQuoteVersionMutation>;
+export type ApproveQuoteVersionMutationOptions = Apollo.BaseMutationOptions<ApproveQuoteVersionMutation, ApproveQuoteVersionMutationVariables>;
 export const CloneQuoteVersionDocument = gql`
     mutation cloneQuoteVersion($input: CloneQuoteVersionInput!) {
   cloneQuoteVersion(input: $input) {
