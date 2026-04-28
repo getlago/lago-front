@@ -65,8 +65,6 @@ export const permissionGroupMapping: PermissionGroupMapping = {
     'InvoicesVoid',
     'InvoicesExport',
   ],
-  orderForms: ['OrderFormsCreate', 'OrderFormsSign', 'OrderFormsView', 'OrderFormsVoid'],
-  orders: ['OrdersCreate', 'OrdersView', 'OrdersExecute'],
   organization: [
     'OrganizationView',
     'OrganizationUpdate',
@@ -101,7 +99,6 @@ export const permissionGroupMapping: PermissionGroupMapping = {
     'QuotesApprove',
     'QuotesClone',
     'QuotesCreate',
-    'QuotesDelete',
     'QuotesUpdate',
     'QuotesView',
     'QuotesVoid',
@@ -132,8 +129,6 @@ export const groupNameMapping: Record<string, string> = {
   features: 'text_1752692673070k7z0mmf0494',
   invoiceCustomSections: 'text_1765882631575jrjzdfbdvn5',
   invoices: 'text_63ac86d797f728a87b2f9f85',
-  orderForms: 'text_1776155115321hj4ycaxlwby',
-  orders: 'text_1776155115321305hkemk0da',
   organization: 'text_173289482048511y9ieyywq5',
   payments: 'text_6672ebb8b1b50be550eccbed',
   plans: 'text_62442e40cea25600b0b6d85a',
@@ -238,17 +233,6 @@ export const permissionDescriptionMapping: Record<PermissionName, string> = {
   InvoicesView: 'text_17660475818496eb8mnaygrc',
   InvoicesVoid: 'text_1766047581850xfdxud1g9ic',
 
-  // Order Forms
-  OrderFormsCreate: 'text_1776155115321lq4jxg31apg',
-  OrderFormsSign: 'text_1776155115321p69xyj9gc3s',
-  OrderFormsView: 'text_1776155115322i21879iijst',
-  OrderFormsVoid: 'text_1776155115322saj5ykjtdgk',
-
-  // Orders
-  OrdersCreate: 'text_1776155115322jjyn2clxe1v',
-  OrdersExecute: 'text_1776155115322tvm19jjj47e',
-  OrdersView: 'text_1776155115322hbw4qqubvmd',
-
   // Organization
   OrganizationView: 'text_1766047581850c4xikdtb4v6',
   OrganizationUpdate: 'text_1766047581850ru00srfppl3',
@@ -294,7 +278,6 @@ export const permissionDescriptionMapping: Record<PermissionName, string> = {
   QuotesApprove: 'text_17761548555605hxqwy492yz',
   QuotesClone: 'text_1776154877954f48n51e1mn0',
   QuotesCreate: 'text_1776154877954sivg09g2xc4',
-  QuotesDelete: 'text_1776154877954qiiip7m8j7g',
   QuotesUpdate: 'text_1776154877954gpr82rqkbyv',
   QuotesView: 'text_1776154877955bnykanf8ws6',
   QuotesVoid: 'text_17761548779556vbo6aj91d0',
