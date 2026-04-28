@@ -72,7 +72,9 @@ const mockQuote = {
   number: 'QT-2026-0042',
   orderType: OrderTypeEnum.SubscriptionCreation,
   createdAt: '2026-04-09T10:00:00Z',
-  versions: [{ id: 'version-123', status: StatusEnum.Draft, version: 2, createdAt: '2026-04-09T10:00:00Z' }],
+  versions: [
+    { id: 'version-123', status: StatusEnum.Draft, version: 2, createdAt: '2026-04-09T10:00:00Z' },
+  ],
   customer: {
     id: 'customer-001',
     name: 'Acme Corp',
@@ -195,7 +197,9 @@ describe('VoidQuote', () => {
         mockVoidQuote.mockResolvedValueOnce({
           data: { voidQuoteVersion: { id: 'quote-123', status: StatusEnum.Voided } },
         })
-        mockCloneQuote.mockResolvedValueOnce({ data: { cloneQuoteVersion: { id: 'new-version-456', quote: { id: 'new-quote-456' } } } })
+        mockCloneQuote.mockResolvedValueOnce({
+          data: { cloneQuoteVersion: { id: 'new-version-456', quote: { id: 'new-quote-456' } } },
+        })
 
         const user = userEvent.setup()
 
@@ -220,7 +224,9 @@ describe('VoidQuote', () => {
           })
         })
 
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/new-quote-456/version/new-version-456/edit')
+        expect(testMockNavigateFn).toHaveBeenCalledWith(
+          '/quote/new-quote-456/version/new-version-456/edit',
+        )
       })
     })
   })

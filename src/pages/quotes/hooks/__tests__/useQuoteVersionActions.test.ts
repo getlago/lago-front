@@ -90,7 +90,11 @@ describe('useQuoteVersionActions', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
         const actions = result.current.getActions(
-          createMockQuote({ id: 'draft-1', versionId: 'version-draft-1', status: StatusEnum.Draft }),
+          createMockQuote({
+            id: 'draft-1',
+            versionId: 'version-draft-1',
+            status: StatusEnum.Draft,
+          }),
         )
 
         actions[0].onAction()
@@ -104,12 +108,18 @@ describe('useQuoteVersionActions', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
         const actions = result.current.getActions(
-          createMockQuote({ id: 'draft-1', versionId: 'version-draft-1', status: StatusEnum.Draft }),
+          createMockQuote({
+            id: 'draft-1',
+            versionId: 'version-draft-1',
+            status: StatusEnum.Draft,
+          }),
         )
 
         actions[1].onAction()
 
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/draft-1/version/version-draft-1/edit')
+        expect(testMockNavigateFn).toHaveBeenCalledWith(
+          '/quote/draft-1/version/version-draft-1/edit',
+        )
       })
     })
 
@@ -118,12 +128,18 @@ describe('useQuoteVersionActions', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
         const actions = result.current.getActions(
-          createMockQuote({ id: 'draft-1', versionId: 'version-draft-1', status: StatusEnum.Draft }),
+          createMockQuote({
+            id: 'draft-1',
+            versionId: 'version-draft-1',
+            status: StatusEnum.Draft,
+          }),
         )
 
         actions[2].onAction()
 
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/draft-1/version/version-draft-1/void')
+        expect(testMockNavigateFn).toHaveBeenCalledWith(
+          '/quote/draft-1/version/version-draft-1/void',
+        )
       })
     })
 
@@ -153,9 +169,7 @@ describe('useQuoteVersionActions', () => {
       it('THEN should return an empty array', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
-        const actions = result.current.getActions(
-          createMockQuote({ status: StatusEnum.Approved }),
-        )
+        const actions = result.current.getActions(createMockQuote({ status: StatusEnum.Approved }))
 
         expect(actions).toHaveLength(0)
       })

@@ -74,7 +74,9 @@ describe('useCloneQuote', () => {
     describe('WHEN onAction is triggered and clone succeeds', () => {
       it('THEN should call cloneQuote mutation with correct ID', async () => {
         mockCloneQuote.mockResolvedValueOnce({
-          data: { cloneQuoteVersion: { id: 'cloned-version-789', quote: { id: 'cloned-quote-789' } } },
+          data: {
+            cloneQuoteVersion: { id: 'cloned-version-789', quote: { id: 'cloned-quote-789' } },
+          },
         })
 
         const { result } = renderHook(() => useCloneQuote(), { wrapper })
@@ -98,7 +100,9 @@ describe('useCloneQuote', () => {
 
       it('THEN should show toast and navigate on successful clone', async () => {
         mockCloneQuote.mockResolvedValueOnce({
-          data: { cloneQuoteVersion: { id: 'cloned-version-789', quote: { id: 'cloned-quote-789' } } },
+          data: {
+            cloneQuoteVersion: { id: 'cloned-version-789', quote: { id: 'cloned-quote-789' } },
+          },
         })
 
         const { result } = renderHook(() => useCloneQuote(), { wrapper })
@@ -114,12 +118,16 @@ describe('useCloneQuote', () => {
         })
 
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/cloned-quote-789/version/cloned-version-789/edit')
+        expect(testMockNavigateFn).toHaveBeenCalledWith(
+          '/quote/cloned-quote-789/version/cloned-version-789/edit',
+        )
       })
 
       it('THEN should return success reason', async () => {
         mockCloneQuote.mockResolvedValueOnce({
-          data: { cloneQuoteVersion: { id: 'cloned-version-789', quote: { id: 'cloned-quote-789' } } },
+          data: {
+            cloneQuoteVersion: { id: 'cloned-version-789', quote: { id: 'cloned-quote-789' } },
+          },
         })
 
         const { result } = renderHook(() => useCloneQuote(), { wrapper })
@@ -166,7 +174,9 @@ describe('useCloneQuote', () => {
     describe('WHEN called with a versionId', () => {
       it('THEN should call the mutation and return the cloned quote', async () => {
         mockCloneQuote.mockResolvedValueOnce({
-          data: { cloneQuoteVersion: { id: 'cloned-version-789', quote: { id: 'cloned-quote-789' } } },
+          data: {
+            cloneQuoteVersion: { id: 'cloned-version-789', quote: { id: 'cloned-quote-789' } },
+          },
         })
 
         const { result } = renderHook(() => useCloneQuote(), { wrapper })
