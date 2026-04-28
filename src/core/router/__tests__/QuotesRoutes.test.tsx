@@ -21,7 +21,7 @@ describe('QuotesRoutes', () => {
     })
 
     it('defines the approve quote route path', () => {
-      expect(APPROVE_QUOTE_ROUTE).toBe('/quote/:quoteId/approve')
+      expect(APPROVE_QUOTE_ROUTE).toBe('/quote/:quoteId/version/:versionId/approve')
     })
   })
 
