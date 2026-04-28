@@ -75,6 +75,13 @@ const mockQuote = {
   versions: [
     { id: 'version-123', status: StatusEnum.Draft, version: 2, createdAt: '2026-04-09T10:00:00Z' },
   ],
+  currentVersion: {
+    id: 'version-123',
+    status: StatusEnum.Draft,
+    version: 2,
+    content: null,
+    createdAt: '2026-04-09T10:00:00Z',
+  },
   customer: {
     id: 'customer-001',
     name: 'Acme Corp',

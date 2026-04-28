@@ -60,12 +60,18 @@ const mockUseApproveQuote = useApproveQuote as jest.MockedFunction<typeof useApp
 const mockQuote = {
   id: 'quote-123',
   number: 'QT-2026-0042',
-  status: StatusEnum.Draft,
-  version: 2,
   orderType: OrderTypeEnum.SubscriptionCreation,
-  currency: 'EUR',
-  content: null,
   createdAt: '2026-04-09T10:00:00Z',
+  versions: [
+    { id: 'version-123', status: StatusEnum.Draft, version: 2, createdAt: '2026-04-09T10:00:00Z' },
+  ],
+  currentVersion: {
+    id: 'version-123',
+    status: StatusEnum.Draft,
+    version: 2,
+    content: null,
+    createdAt: '2026-04-09T10:00:00Z',
+  },
   customer: {
     id: 'customer-001',
     name: 'Acme Corp',
@@ -78,7 +84,7 @@ describe('ApproveQuote', () => {
     jest.clearAllMocks()
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
-    useParamsMock.mockReturnValue({ quoteId: 'quote-123' })
+    useParamsMock.mockReturnValue({ quoteId: 'quote-123', versionId: 'version-123' })
 
     mockUseQuote.mockReturnValue({
       quote: mockQuote,
@@ -88,7 +94,9 @@ describe('ApproveQuote', () => {
 
     mockUseApproveQuote.mockReturnValue({
       goToApproveQuote: jest.fn(),
-      approveQuote: mockApproveQuote.mockReturnValue(true),
+      approveQuote: mockApproveQuote.mockResolvedValue({
+        data: { approveQuoteVersion: { id: 'version-123', status: StatusEnum.Approved } },
+      }),
     })
   })
 
@@ -124,7 +132,10 @@ describe('ApproveQuote', () => {
     describe('WHEN content is present', () => {
       it('THEN should render the rich text editor preview', () => {
         mockUseQuote.mockReturnValue({
-          quote: { ...mockQuote, content: '<p>Quote content here</p>' },
+          quote: {
+            ...mockQuote,
+            currentVersion: { ...mockQuote.currentVersion, content: '<p>Quote content here</p>' },
+          },
           loading: false,
           error: undefined,
         })
@@ -293,7 +304,9 @@ describe('ApproveQuote', () => {
     beforeEach(() => {
       mockUseApproveQuote.mockReturnValue({
         goToApproveQuote: jest.fn(),
-        approveQuote: mockApproveQuote.mockReturnValue(false),
+        approveQuote: mockApproveQuote.mockResolvedValue({
+          data: { approveQuoteVersion: null },
+        }),
       })
     })
 
