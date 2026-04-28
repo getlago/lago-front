@@ -84,7 +84,8 @@ export function getResourceLink(
     activityType?: ActivityTypeEnum
   },
 ): string | null {
-  if (!resource || !activityType || isDeletedActivityType(activityType)) return null
+  if (!resource) return null
+  if (!activityType || isDeletedActivityType(activityType)) return null
 
   switch (resourceType) {
     case 'BillableMetric':
