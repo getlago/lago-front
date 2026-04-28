@@ -89,12 +89,18 @@ export default defineConfig(({ mode }) => {
           uploadLegacySourcemaps: {
             paths: ['./dist'],
             urlPrefix: '~/',
+            // Skip Shiki language and theme grammar chunks. They're regex
+            // tokenizer data, not application code — runtime errors don't
+            // originate inside them, so symbolicating them in Sentry has
+            // no practical value. Each language is its own dynamic-import
+            // chunk (see chunkFileNames below); ignoring this glob removes
+            // ~150 .js + .js.map upload pairs per build.
+            ignore: ['./dist/assets/shiki-lang-*', './dist/assets/shiki-theme-*'],
           },
         },
         sourcemaps: {
           disable: true,
         },
-        debug: true,
         telemetry: false,
       }),
     )
@@ -196,9 +202,32 @@ export default defineConfig(({ mode }) => {
       target: 'esnext',
       rollupOptions: {
         output: {
-          chunkFileNames: 'assets/[name].[hash].js',
+          // Prefix Shiki language/theme chunks with `shiki-lang-` /
+          // `shiki-theme-` so the Sentry uploader can ignore them via a
+          // single glob (see `uploadLegacySourcemaps.ignore` above). This
+          // does NOT change runtime behavior — chunks remain individually
+          // code-split and lazy-loaded, only the output filename changes.
+          chunkFileNames: (chunkInfo) => {
+            const id = chunkInfo.facadeModuleId || ''
+            if (/[\\/]shiki[\\/](?:dist[\\/])?langs[\\/]/.test(id) || /@shikijs[\\/]langs[\\/]/.test(id)) {
+              return 'assets/shiki-lang-[name].[hash].js'
+            }
+            if (/[\\/]shiki[\\/](?:dist[\\/])?themes[\\/]/.test(id) || /@shikijs[\\/]themes[\\/]/.test(id)) {
+              return 'assets/shiki-theme-[name].[hash].js'
+            }
+            return 'assets/[name].[hash].js'
+          },
           entryFileNames: 'assets/[name].[hash].js',
-          sourcemapFileNames: 'assets/[name].[hash].js.map',
+          sourcemapFileNames: (chunkInfo) => {
+            const id = chunkInfo.facadeModuleId || ''
+            if (/[\\/]shiki[\\/](?:dist[\\/])?langs[\\/]/.test(id) || /@shikijs[\\/]langs[\\/]/.test(id)) {
+              return 'assets/shiki-lang-[name].[hash].js.map'
+            }
+            if (/[\\/]shiki[\\/](?:dist[\\/])?themes[\\/]/.test(id) || /@shikijs[\\/]themes[\\/]/.test(id)) {
+              return 'assets/shiki-theme-[name].[hash].js.map'
+            }
+            return 'assets/[name].[hash].js.map'
+          },
           manualChunks: {
             'vendor-react': ['react', 'react-dom', 'react-router-dom'],
             'vendor-apollo': ['@apollo/client', 'graphql'],
