@@ -46,15 +46,14 @@ export const FiltersItemMultipleCustomers = ({
     if (!data?.customers?.collection) return []
 
     return data.customers.collection.map((customer) => {
-      const { externalId } = customer
       const customerName = customer?.displayName
 
       return {
-        label: `${customerName || externalId || ''}${customer.deletedAt ? ` (${translate('text_1743158702704o1juwxmr4ab')})` : ''}`,
+        label: `${customerName || customer.externalId || ''}${customer.deletedAt ? ` (${translate('text_1743158702704o1juwxmr4ab')})` : ''}`,
         labelNode: (
           <ComboboxItem>
             <Typography variant="body" color="grey700" noWrap>
-              {customerName || externalId || ''}
+              {customerName || customer.externalId || ''}
             </Typography>
             {customer.deletedAt && (
               <Typography variant="caption" color="grey600" noWrap>
@@ -63,7 +62,7 @@ export const FiltersItemMultipleCustomers = ({
             )}
           </ComboboxItem>
         ),
-        value: `${externalId}${filterDataInlineSeparator}${customerName}`,
+        value: `${customer.id}${filterDataInlineSeparator}${customerName}`,
       }
     })
   }, [data?.customers?.collection, translate])

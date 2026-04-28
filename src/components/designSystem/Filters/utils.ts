@@ -705,9 +705,9 @@ export const formatFiltersForQuotesQuery = (searchParams: URLSearchParams) =>
     availableFilters: QuoteAvailableFilters,
     filtersNamePrefix: QUOTE_LIST_FILTER_PREFIX,
     keyMap: {
-      multipleCustomers: 'customer',
-      quoteStatus: 'status',
-      quoteNumber: 'number',
+      multipleCustomers: 'customers',
+      quoteStatus: 'statuses',
+      quoteNumber: 'numbers',
       quoteOrderType: 'orderType',
       userIds: 'owners',
     },

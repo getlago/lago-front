@@ -92,10 +92,10 @@ describe('FiltersItemMultipleCustomers', () => {
     })
   })
 
-  describe('GIVEN a value with external id and customer name', () => {
+  describe('GIVEN a value with id and customer name', () => {
     describe('WHEN a single customer is selected', () => {
       it('THEN displays the customer name as a chip', async () => {
-        const value = `ext-1${filterDataInlineSeparator}Acme Corp`
+        const value = `customer-1${filterDataInlineSeparator}Acme Corp`
 
         renderComponent(value)
 
@@ -107,7 +107,7 @@ describe('FiltersItemMultipleCustomers', () => {
 
     describe('WHEN multiple customers are selected', () => {
       it('THEN displays all customer name chips', async () => {
-        const value = `ext-1${filterDataInlineSeparator}Acme Corp,ext-2${filterDataInlineSeparator}Beta Inc`
+        const value = `customer-1${filterDataInlineSeparator}Acme Corp,customer-2${filterDataInlineSeparator}Beta Inc`
 
         renderComponent(value)
 
@@ -119,13 +119,13 @@ describe('FiltersItemMultipleCustomers', () => {
     })
 
     describe('WHEN value has no inline separator name', () => {
-      it('THEN falls back to displaying the external id', async () => {
-        const value = 'ext-1'
+      it('THEN falls back to displaying the id', async () => {
+        const value = 'customer-1'
 
         renderComponent(value)
 
         await waitFor(() => {
-          expect(screen.getByText('ext-1')).toBeInTheDocument()
+          expect(screen.getByText('customer-1')).toBeInTheDocument()
         })
       })
     })
