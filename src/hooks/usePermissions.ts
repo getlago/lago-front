@@ -64,13 +64,6 @@ gql`
       organizationIntegrationsDelete
       organizationIntegrationsUpdate
       organizationIntegrationsView
-      orderFormsCreate
-      orderFormsSign
-      orderFormsView
-      orderFormsVoid
-      ordersCreate
-      ordersExecute
-      ordersView
       organizationInvoicesUpdate
       organizationInvoicesView
       organizationMembersCreate
@@ -92,7 +85,6 @@ gql`
       quotesApprove
       quotesClone
       quotesCreate
-      quotesDelete
       quotesUpdate
       quotesView
       quotesVoid

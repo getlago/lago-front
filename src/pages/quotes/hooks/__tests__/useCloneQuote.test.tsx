@@ -18,7 +18,7 @@ const mockCloneQuote = jest.fn()
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useCloneQuoteMutation: () => [mockCloneQuote],
+  useCloneQuoteVersionMutation: () => [mockCloneQuote],
 }))
 
 jest.mock('~/core/apolloClient', () => ({
@@ -43,11 +43,11 @@ describe('useCloneQuote', () => {
 
   describe('GIVEN the hook is called', () => {
     describe('WHEN it returns', () => {
-      it('THEN should return openCloneDialog and cloneQuote functions', () => {
+      it('THEN should return openCloneDialog and cloneQuoteVersion functions', () => {
         const { result } = renderHook(() => useCloneQuote(), { wrapper })
 
         expect(typeof result.current.openCloneDialog).toBe('function')
-        expect(typeof result.current.cloneQuote).toBe('function')
+        expect(typeof result.current.cloneQuoteVersion).toBe('function')
       })
     })
   })
@@ -74,7 +74,7 @@ describe('useCloneQuote', () => {
     describe('WHEN onAction is triggered and clone succeeds', () => {
       it('THEN should call cloneQuote mutation with correct ID', async () => {
         mockCloneQuote.mockResolvedValueOnce({
-          data: { cloneQuote: { id: 'cloned-quote-789' } },
+          data: { cloneQuoteVersion: { id: 'cloned-version-789', quote: { id: 'cloned-quote-789' } } },
         })
 
         const { result } = renderHook(() => useCloneQuote(), { wrapper })
@@ -98,7 +98,7 @@ describe('useCloneQuote', () => {
 
       it('THEN should show toast and navigate on successful clone', async () => {
         mockCloneQuote.mockResolvedValueOnce({
-          data: { cloneQuote: { id: 'cloned-quote-789' } },
+          data: { cloneQuoteVersion: { id: 'cloned-version-789', quote: { id: 'cloned-quote-789' } } },
         })
 
         const { result } = renderHook(() => useCloneQuote(), { wrapper })
@@ -114,12 +114,12 @@ describe('useCloneQuote', () => {
         })
 
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/cloned-quote-789/edit')
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/cloned-quote-789/version/cloned-version-789/edit')
       })
 
       it('THEN should return success reason', async () => {
         mockCloneQuote.mockResolvedValueOnce({
-          data: { cloneQuote: { id: 'cloned-quote-789' } },
+          data: { cloneQuoteVersion: { id: 'cloned-version-789', quote: { id: 'cloned-quote-789' } } },
         })
 
         const { result } = renderHook(() => useCloneQuote(), { wrapper })
@@ -141,7 +141,7 @@ describe('useCloneQuote', () => {
 
       it('THEN should not show toast or navigate when mutation returns null', async () => {
         mockCloneQuote.mockResolvedValueOnce({
-          data: { cloneQuote: null },
+          data: { cloneQuoteVersion: null },
         })
 
         const { result } = renderHook(() => useCloneQuote(), { wrapper })
@@ -162,11 +162,11 @@ describe('useCloneQuote', () => {
     })
   })
 
-  describe('GIVEN the raw cloneQuote function', () => {
-    describe('WHEN called with a quoteId', () => {
+  describe('GIVEN the raw cloneQuoteVersion function', () => {
+    describe('WHEN called with a versionId', () => {
       it('THEN should call the mutation and return the cloned quote', async () => {
         mockCloneQuote.mockResolvedValueOnce({
-          data: { cloneQuote: { id: 'cloned-quote-789' } },
+          data: { cloneQuoteVersion: { id: 'cloned-version-789', quote: { id: 'cloned-quote-789' } } },
         })
 
         const { result } = renderHook(() => useCloneQuote(), { wrapper })
@@ -174,24 +174,24 @@ describe('useCloneQuote', () => {
         let cloneResult: { id: string } | null | undefined
 
         await act(async () => {
-          cloneResult = await result.current.cloneQuote('quote-456')
+          cloneResult = await result.current.cloneQuoteVersion('quote-456')
         })
 
         expect(mockCloneQuote).toHaveBeenCalledWith({
           variables: { input: { id: 'quote-456' } },
         })
-        expect(cloneResult).toEqual({ id: 'cloned-quote-789' })
+        expect(cloneResult).toEqual({ id: 'cloned-version-789', quote: { id: 'cloned-quote-789' } })
       })
 
       it('THEN should return null when mutation returns no data', async () => {
-        mockCloneQuote.mockResolvedValueOnce({ data: { cloneQuote: null } })
+        mockCloneQuote.mockResolvedValueOnce({ data: { cloneQuoteVersion: null } })
 
         const { result } = renderHook(() => useCloneQuote(), { wrapper })
 
         let cloneResult: { id: string } | null | undefined
 
         await act(async () => {
-          cloneResult = await result.current.cloneQuote('quote-456')
+          cloneResult = await result.current.cloneQuoteVersion('quote-456')
         })
 
         expect(cloneResult).toBeNull()

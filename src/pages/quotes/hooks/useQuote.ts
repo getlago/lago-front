@@ -6,10 +6,13 @@ gql`
   fragment QuoteDetailItem on Quote {
     id
     number
-    status
-    version
+    versions {
+      id
+      status
+      version
+      createdAt
+    }
     orderType
-    currency
     createdAt
     customer {
       id

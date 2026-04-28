@@ -56,8 +56,8 @@ const mockCloneQuote = jest.fn()
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useVoidQuoteMutation: () => [mockVoidQuote],
-  useCloneQuoteMutation: () => [mockCloneQuote],
+  useVoidQuoteVersionMutation: () => [mockVoidQuote],
+  useCloneQuoteVersionMutation: () => [mockCloneQuote],
 }))
 
 jest.mock('~/core/apolloClient', () => ({
@@ -70,11 +70,9 @@ const mockUseQuote = useQuote as jest.MockedFunction<typeof useQuote>
 const mockQuote = {
   id: 'quote-123',
   number: 'QT-2026-0042',
-  status: StatusEnum.Draft,
-  version: 2,
   orderType: OrderTypeEnum.SubscriptionCreation,
-  currency: 'EUR',
   createdAt: '2026-04-09T10:00:00Z',
+  versions: [{ id: 'version-123', status: StatusEnum.Draft, version: 2, createdAt: '2026-04-09T10:00:00Z' }],
   customer: {
     id: 'customer-001',
     name: 'Acme Corp',
@@ -150,7 +148,7 @@ describe('VoidQuote', () => {
     describe('WHEN the void button is clicked and mutation succeeds', () => {
       it('THEN should call voidQuote mutation with correct variables', async () => {
         mockVoidQuote.mockResolvedValueOnce({
-          data: { voidQuote: { id: 'quote-123', status: StatusEnum.Voided } },
+          data: { voidQuoteVersion: { id: 'quote-123', status: StatusEnum.Voided } },
         })
 
         const user = userEvent.setup()
@@ -163,7 +161,7 @@ describe('VoidQuote', () => {
           expect(mockVoidQuote).toHaveBeenCalledWith({
             variables: {
               input: {
-                id: 'quote-123',
+                id: 'version-123',
                 reason: VoidReasonEnum.Manual,
               },
             },
@@ -173,7 +171,7 @@ describe('VoidQuote', () => {
 
       it('THEN should show success toast and navigate to quote details', async () => {
         mockVoidQuote.mockResolvedValueOnce({
-          data: { voidQuote: { id: 'quote-123', status: StatusEnum.Voided } },
+          data: { voidQuoteVersion: { id: 'quote-123', status: StatusEnum.Voided } },
         })
 
         const user = userEvent.setup()
@@ -195,9 +193,9 @@ describe('VoidQuote', () => {
     describe('WHEN the button is clicked and both mutations succeed', () => {
       it('THEN should call voidQuote then cloneQuote and navigate to edit', async () => {
         mockVoidQuote.mockResolvedValueOnce({
-          data: { voidQuote: { id: 'quote-123', status: StatusEnum.Voided } },
+          data: { voidQuoteVersion: { id: 'quote-123', status: StatusEnum.Voided } },
         })
-        mockCloneQuote.mockResolvedValueOnce({ data: { cloneQuote: { id: 'new-quote-456' } } })
+        mockCloneQuote.mockResolvedValueOnce({ data: { cloneQuoteVersion: { id: 'new-version-456', quote: { id: 'new-quote-456' } } } })
 
         const user = userEvent.setup()
 
@@ -209,7 +207,7 @@ describe('VoidQuote', () => {
           expect(mockVoidQuote).toHaveBeenCalledWith({
             variables: {
               input: {
-                id: 'quote-123',
+                id: 'version-123',
                 reason: VoidReasonEnum.Manual,
               },
             },
@@ -218,11 +216,11 @@ describe('VoidQuote', () => {
 
         await waitFor(() => {
           expect(mockCloneQuote).toHaveBeenCalledWith({
-            variables: { input: { id: 'quote-123' } },
+            variables: { input: { id: 'version-123' } },
           })
         })
 
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/new-quote-456/edit')
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/new-quote-456/version/new-version-456/edit')
       })
     })
   })
@@ -322,7 +320,7 @@ describe('VoidQuote', () => {
   describe('GIVEN the void mutation returns no data', () => {
     describe('WHEN the void button is clicked', () => {
       it('THEN should not show success toast or navigate', async () => {
-        mockVoidQuote.mockResolvedValueOnce({ data: { voidQuote: null } })
+        mockVoidQuote.mockResolvedValueOnce({ data: { voidQuoteVersion: null } })
 
         const user = userEvent.setup()
 
@@ -344,9 +342,9 @@ describe('VoidQuote', () => {
     describe('WHEN void succeeds but clone returns no data', () => {
       it('THEN should not navigate to edit page', async () => {
         mockVoidQuote.mockResolvedValueOnce({
-          data: { voidQuote: { id: 'quote-123', status: StatusEnum.Voided } },
+          data: { voidQuoteVersion: { id: 'quote-123', status: StatusEnum.Voided } },
         })
-        mockCloneQuote.mockResolvedValueOnce({ data: { cloneQuote: null } })
+        mockCloneQuote.mockResolvedValueOnce({ data: { cloneQuoteVersion: null } })
 
         const user = userEvent.setup()
 

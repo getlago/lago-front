@@ -4,13 +4,14 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { EDIT_QUOTE_ROUTE, QUOTE_DETAILS_ROUTE } from '~/core/router'
-import { QuoteListItemFragment, useVoidQuoteMutation, VoidReasonEnum } from '~/generated/graphql'
+import { useVoidQuoteVersionMutation, VoidReasonEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -18,11 +19,8 @@ import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
-import {
-  quoteCreatedAtColumn,
-  quoteOrderTypeColumn,
-  quoteStatusColumn,
-} from './common/quoteTableColumns'
+import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
+import { quoteCreatedAtColumn, quoteOrderTypeColumn } from './common/quoteTableColumns'
 import { useCloneQuote } from './hooks/useCloneQuote'
 import { useQuote } from './hooks/useQuote'
 
@@ -33,8 +31,8 @@ export const VOID_QUOTE_VOID_AND_GENERATE_BUTTON_TEST_ID = 'void-quote-void-and-
 export const VOID_QUOTE_ALERT_TEST_ID = 'void-quote-alert'
 
 gql`
-  mutation voidQuote($input: VoidQuoteInput!) {
-    voidQuote(input: $input) {
+  mutation voidQuoteVersion($input: VoidQuoteVersionInput!) {
+    voidQuoteVersion(input: $input) {
       id
       status
     }
@@ -50,27 +48,29 @@ const VoidQuote = () => {
 
   const { quote, loading, error } = useQuote(quoteId)
   const { hasPermissions } = usePermissions()
-  const { cloneQuote } = useCloneQuote()
+  const { cloneQuoteVersion } = useCloneQuote()
 
   const canVoidAndGenerate = hasPermissions(['quotesVoid', 'quotesClone'])
 
-  const [voidQuoteMutation] = useVoidQuoteMutation({
+  const [voidQuoteVersionMutation] = useVoidQuoteVersionMutation({
     refetchQueries: ['getQuotes'],
   })
 
   const performVoid = async () => {
-    if (!quoteId) return null
+    const versionId = quote?.versions[0]?.id
 
-    const result = await voidQuoteMutation({
+    if (!quoteId || !versionId) return null
+
+    const result = await voidQuoteVersionMutation({
       variables: {
         input: {
-          id: quoteId,
+          id: versionId,
           reason: VoidReasonEnum.Manual,
         },
       },
     })
 
-    return result.data?.voidQuote ?? null
+    return result.data?.voidQuoteVersion ?? null
   }
 
   const onSubmit = async () => {
@@ -94,13 +94,16 @@ const VoidQuote = () => {
   const onVoidAndGenerateNewVersion = async () => {
     const voided = await performVoid()
 
-    if (voided && quoteId) {
-      const clonedQuote = await cloneQuote(quoteId)
+    const versionId = quote?.versions[0]?.id
+
+    if (voided && versionId) {
+      const clonedQuote = await cloneQuoteVersion(versionId)
 
       if (clonedQuote) {
         navigate(
           generatePath(EDIT_QUOTE_ROUTE, {
-            quoteId: clonedQuote.id,
+            quoteId: clonedQuote.quote.id,
+            versionId: clonedQuote.id,
           }),
         )
       }
@@ -178,15 +181,26 @@ const VoidQuote = () => {
               </Typography>
               <Table
                 name="quote-void-details"
-                data={quote ? [quote as QuoteListItemFragment] : []}
+                data={quote ? [quote] : []}
                 containerSize={0}
                 columns={[
-                  quoteStatusColumn(translate),
+                  {
+                    key: 'versions.0.status',
+                    title: translate('text_63ac86d797f728a87b2f9fa7'),
+                    minWidth: 100,
+                    content: ({ versions }) => {
+                      const status = versions[0]?.status
+
+                      if (!status) return null
+
+                      return <Status {...getQuoteStatusMapping(status, translate)} />
+                    },
+                  },
                   {
                     key: 'number',
                     title: translate('text_177581001572954eedouxq5u'),
                     maxSpace: true,
-                    content: ({ number, version }) => `${number} - v${version}`,
+                    content: ({ number, versions }) => `${number} - v${versions[0]?.version ?? ''}`,
                   },
                   {
                     key: 'customer.name',
