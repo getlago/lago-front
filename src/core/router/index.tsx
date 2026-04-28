@@ -17,7 +17,7 @@ const SideNavLayout = lazyLoad(() => import('~/layouts/MainNavLayout/MainNavLayo
 const OrganizationLayout = lazyLoad(() => import('~/layouts/OrganizationLayout'))
 
 // ----------- Pages -----------
-const Home = lazyLoad(() => import('~/pages/Home'))
+const Home = lazyLoad(() => import('~/pages/home/Home'))
 const Error404 = lazyLoad(() => import('~/pages/Error404'))
 const Error404InApp = lazyLoad(() => import('~/pages/Error404InApp'))
 const Forbidden = lazyLoad(() => import('~/pages/Forbidden'))
