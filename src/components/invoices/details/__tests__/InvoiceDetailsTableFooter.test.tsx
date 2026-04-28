@@ -5,6 +5,7 @@ import {
   CREDIT_ROW_LEGACY_TEST_ID,
   CREDIT_ROW_PURCHASED_TEST_ID,
   InvoiceDetailsTableFooter,
+  REGENERATE_ALERT_TEST_ID,
 } from '~/components/invoices/details/InvoiceDetailsTableFooter'
 import {
   CurrencyEnum,
@@ -126,7 +127,7 @@ describe('InvoiceDetailsTableFooter', () => {
       })
     })
 
-    describe('WHEN hideDiscounts is true', () => {
+    describe('WHEN isRegenerateFlow is true', () => {
       it('THEN should not display any prepaid credit rows', () => {
         const invoice = createMockInvoice({
           prepaidCreditAmountCents: '8000',
@@ -139,7 +140,7 @@ describe('InvoiceDetailsTableFooter', () => {
             <InvoiceDetailsTableFooter
               canHaveUnitPrice={false}
               invoice={invoice}
-              hideDiscounts={true}
+              isRegenerateFlow={true}
             />
           </table>,
         )
@@ -205,6 +206,36 @@ describe('InvoiceDetailsTableFooter', () => {
         ).toBeInTheDocument()
         expect(screen.getByTestId('invoice-details-table-footer-tax-0-label')).toBeInTheDocument()
         expect(screen.getByTestId('invoice-details-table-footer-tax-0-value')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the invoice is rendered in the regenerate flow', () => {
+    describe('WHEN isRegenerateFlow is true', () => {
+      it('THEN should display the tax recalculation alert', () => {
+        const invoice = createMockInvoice()
+
+        render(
+          <table>
+            <InvoiceDetailsTableFooter
+              canHaveUnitPrice={false}
+              invoice={invoice}
+              isRegenerateFlow={true}
+            />
+          </table>,
+        )
+
+        expect(screen.getByTestId(REGENERATE_ALERT_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN isRegenerateFlow is not set', () => {
+      it('THEN should not display the tax recalculation alert', () => {
+        const invoice = createMockInvoice()
+
+        renderFooter(invoice)
+
+        expect(screen.queryByTestId(REGENERATE_ALERT_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

@@ -57,7 +57,7 @@ interface InvoiceDetailsTableFooterProps {
   invoice: InvoiceForDetailsTableFooterFragment
   hasTaxProviderError?: boolean
   invoiceFees?: FeeForInvoiceDetailsTableFooterFragment[] | null
-  hideDiscounts?: boolean
+  isRegenerateFlow?: boolean
 }
 
 const applyTaxRateToAmount = (amount: number, tax: { taxRate: number }) => {
@@ -97,6 +97,7 @@ const computeSubtotal = (
 export const CREDIT_ROW_GRANTED_TEST_ID = 'credit-row-granted'
 export const CREDIT_ROW_PURCHASED_TEST_ID = 'credit-row-purchased'
 export const CREDIT_ROW_LEGACY_TEST_ID = 'credit-row-legacy'
+export const REGENERATE_ALERT_TEST_ID = 'invoice-details-table-footer-regenerate-alert'
 
 const CreditRow = ({
   label,
@@ -137,19 +138,19 @@ export const InvoiceDetailsTableFooter = memo(
     invoice,
     hasTaxProviderError,
     invoiceFees,
-    hideDiscounts,
+    isRegenerateFlow,
   }: InvoiceDetailsTableFooterProps) => {
     const { translate } = useInternationalization()
 
     const colSpan = canHaveUnitPrice ? 3 : 2
     const isLegacyInvoice = invoice?.versionNumber < 3
     const currency = invoice?.currency || CurrencyEnum.Usd
-    const hasCreditNotes = !!Number(invoice?.creditNotesAmountCents) && !hideDiscounts
-    const hasPrepaidCredit = !!Number(invoice?.prepaidCreditAmountCents) && !hideDiscounts
-    const hasGrantedCredit = !!Number(invoice?.prepaidGrantedCreditAmountCents) && !hideDiscounts
+    const hasCreditNotes = !!Number(invoice?.creditNotesAmountCents) && !isRegenerateFlow
+    const hasPrepaidCredit = !!Number(invoice?.prepaidCreditAmountCents) && !isRegenerateFlow
+    const hasGrantedCredit = !!Number(invoice?.prepaidGrantedCreditAmountCents) && !isRegenerateFlow
     const hasPurchasedCredit =
-      !!Number(invoice?.prepaidPurchasedCreditAmountCents) && !hideDiscounts
-    const hasCoupon = !!Number(invoice?.couponsAmountCents) && !hideDiscounts
+      !!Number(invoice?.prepaidPurchasedCreditAmountCents) && !isRegenerateFlow
+    const hasCoupon = !!Number(invoice?.couponsAmountCents) && !isRegenerateFlow
     const isPending = invoice.status === InvoiceStatusTypeEnum.Pending
 
     const shouldDisplayPlaceholder = isPending || hasTaxProviderError
@@ -167,6 +168,16 @@ export const InvoiceDetailsTableFooter = memo(
 
     return (
       <tfoot>
+        {isRegenerateFlow && (
+          <tr>
+            <td></td>
+            <td colSpan={colSpan + 1}>
+              <Alert type="info" data-test={REGENERATE_ALERT_TEST_ID}>
+                {translate('text_1777385516575oti5gavf3ze')}
+              </Alert>
+            </td>
+          </tr>
+        )}
         {invoice.invoiceType !== InvoiceTypeEnum.Credit && (
           <>
             {!!Number(invoice.progressiveBillingCreditAmountCents) && (
