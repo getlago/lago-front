@@ -9,7 +9,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
-import { resolveRedirectTarget } from './Home.utils'
+import { resolveRedirectTarget } from './utils'
 
 const Home = () => {
   const navigate = useNavigate()

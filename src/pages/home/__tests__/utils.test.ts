@@ -1,4 +1,4 @@
-import { resolveRedirectTarget } from '../Home.utils'
+import { resolveRedirectTarget } from '../utils'
 
 jest.mock('~/core/router/utils/permissionRouteMap', () => ({
   getRouteForPermission: (permission: string | null) => {
