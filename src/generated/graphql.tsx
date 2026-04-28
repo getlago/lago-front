@@ -7982,6 +7982,7 @@ export type QueryQuotesArgs = {
   fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   numbers?: InputMaybe<Array<Scalars['String']['input']>>;
+  orderType?: InputMaybe<Array<OrderTypeEnum>>;
   owners?: InputMaybe<Array<Scalars['ID']['input']>>;
   page?: InputMaybe<Scalars['Int']['input']>;
   statuses?: InputMaybe<Array<StatusEnum>>;
@@ -10962,7 +10963,6 @@ export type GetInvoiceNumbersForFilterItemInvoiceNumbersQuery = { __typename?: '
 export type GetCustomersForFilterItemMultipleCustomersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  searchTerm?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -13922,6 +13922,7 @@ export type GetQuotesQueryVariables = Exact<{
   fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   owners?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  orderType?: InputMaybe<Array<OrderTypeEnum> | OrderTypeEnum>;
 }>;
 
 
@@ -23827,13 +23828,8 @@ export type GetInvoiceNumbersForFilterItemInvoiceNumbersLazyQueryHookResult = Re
 export type GetInvoiceNumbersForFilterItemInvoiceNumbersSuspenseQueryHookResult = ReturnType<typeof useGetInvoiceNumbersForFilterItemInvoiceNumbersSuspenseQuery>;
 export type GetInvoiceNumbersForFilterItemInvoiceNumbersQueryResult = Apollo.QueryResult<GetInvoiceNumbersForFilterItemInvoiceNumbersQuery, GetInvoiceNumbersForFilterItemInvoiceNumbersQueryVariables>;
 export const GetCustomersForFilterItemMultipleCustomersDocument = gql`
-    query getCustomersForFilterItemMultipleCustomers($page: Int, $limit: Int, $searchTerm: String) {
-  customers(
-    page: $page
-    limit: $limit
-    searchTerm: $searchTerm
-    withDeleted: true
-  ) {
+    query getCustomersForFilterItemMultipleCustomers($page: Int, $limit: Int) {
+  customers(page: $page, limit: $limit, withDeleted: true) {
     metadata {
       currentPage
       totalPages
@@ -23862,7 +23858,6 @@ export const GetCustomersForFilterItemMultipleCustomersDocument = gql`
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
- *      searchTerm: // value for 'searchTerm'
  *   },
  * });
  */
@@ -37343,7 +37338,7 @@ export type GetQuoteLazyQueryHookResult = ReturnType<typeof useGetQuoteLazyQuery
 export type GetQuoteSuspenseQueryHookResult = ReturnType<typeof useGetQuoteSuspenseQuery>;
 export type GetQuoteQueryResult = Apollo.QueryResult<GetQuoteQuery, GetQuoteQueryVariables>;
 export const GetQuotesDocument = gql`
-    query getQuotes($page: Int, $limit: Int, $statuses: [StatusEnum!], $customers: [ID!], $numbers: [String!], $fromDate: ISO8601Date, $toDate: ISO8601Date, $owners: [ID!]) {
+    query getQuotes($page: Int, $limit: Int, $statuses: [StatusEnum!], $customers: [ID!], $numbers: [String!], $fromDate: ISO8601Date, $toDate: ISO8601Date, $owners: [ID!], $orderType: [OrderTypeEnum!]) {
   quotes(
     page: $page
     limit: $limit
@@ -37353,6 +37348,7 @@ export const GetQuotesDocument = gql`
     fromDate: $fromDate
     toDate: $toDate
     owners: $owners
+    orderType: $orderType
   ) {
     metadata {
       currentPage
@@ -37386,6 +37382,7 @@ export const GetQuotesDocument = gql`
  *      fromDate: // value for 'fromDate'
  *      toDate: // value for 'toDate'
  *      owners: // value for 'owners'
+ *      orderType: // value for 'orderType'
  *   },
  * });
  */
