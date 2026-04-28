@@ -36,7 +36,7 @@ export const BottomNavSection = ({ isLoading, onItemClick }: BottomNavSectionPro
       icon: 'rocket',
       link: ONLY_DEV_DESIGN_SYSTEM_ROUTE,
       match: [ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, ONLY_DEV_DESIGN_SYSTEM_ROUTE],
-      hidden: ![AppEnvEnum.qa, AppEnvEnum.development, AppEnvEnum.staging].includes(appEnv),
+      hidden: ![AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv),
     },
     {
       title: translate('text_62728ff857d47b013204c726'),
