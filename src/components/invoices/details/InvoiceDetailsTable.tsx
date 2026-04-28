@@ -523,7 +523,7 @@ export const InvoiceDetailsTable = memo(
               invoiceFees={onAdd ? fees : null}
               canHaveUnitPrice={canHaveUnitPrice}
               hasTaxProviderError={hasTaxProviderError}
-              hideDiscounts={!!onAdd}
+              isRegenerateFlow={!!onAdd}
             />
           </table>
         </div>
