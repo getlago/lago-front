@@ -1,6 +1,5 @@
 import { generatePath } from 'react-router-dom'
 
-import { Button } from '~/components/designSystem/Button'
 import { AvailableFiltersEnum, setFilterValue } from '~/components/designSystem/Filters'
 import { ACTIVITY_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ACTIVITY_LOG_FILTER_PREFIX } from '~/core/constants/filters'
@@ -137,26 +136,6 @@ export function getResourceLink(
     default:
       return null
   }
-}
-
-/**
- * Renders a resource as a clickable Button when an `onClick` is provided
- * (caller is responsible for the bridge to the main BrowserRouter), or as
- * plain text otherwise.
- */
-export function formatResourceObject(
-  resource: ActivityLogDetailsFragment['resource'],
-  onClick?: () => void,
-) {
-  if (!resource) return null
-
-  return onClick ? (
-    <Button variant="inline" onClick={onClick}>
-      {resource.id}
-    </Button>
-  ) : (
-    resource.id
-  )
 }
 
 export function buildLinkToActivityLog(activityId: string, filter?: AvailableFiltersEnum): string {

@@ -1,5 +1,3 @@
-import { isValidElement, ReactElement } from 'react'
-
 import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
 import {
   ActivityTypeEnum,
@@ -13,7 +11,6 @@ import {
 import {
   buildLinkToActivityLog,
   formatActivityType,
-  formatResourceObject,
   getResourceLink,
   isDeletedActivityType,
 } from '../utils'
@@ -273,32 +270,6 @@ describe('activityLogs utils', () => {
           },
         ),
       ).toBeNull()
-    })
-  })
-
-  describe('formatResourceObject', () => {
-    it('should return null when resource is null', () => {
-      expect(formatResourceObject(null)).toBeNull()
-    })
-
-    it('should return null when resource is undefined', () => {
-      expect(formatResourceObject(undefined)).toBeNull()
-    })
-
-    it('should return plain text when no onClick is provided', () => {
-      const resource = { id: 'plan-123', __typename: 'Plan' as const }
-
-      expect(formatResourceObject(resource)).toBe('plan-123')
-    })
-
-    it('should return a clickable Button wired to the provided onClick', () => {
-      const resource = { id: 'plan-123', __typename: 'Plan' as const }
-      const onClick = jest.fn()
-      const result = formatResourceObject(resource, onClick)
-
-      expect(isValidElement(result)).toBe(true)
-      ;(result as ReactElement).props.onClick()
-      expect(onClick).toHaveBeenCalledTimes(1)
     })
   })
   describe('buildLinkToActivityLog', () => {
