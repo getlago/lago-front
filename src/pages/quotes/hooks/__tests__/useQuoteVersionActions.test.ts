@@ -99,11 +99,7 @@ describe('useQuoteVersionActions', () => {
 
         actions[0].onAction()
 
-<<<<<<< HEAD
-        expect(mockApproveQuote).toHaveBeenCalledWith('version-draft-1')
-=======
-        expect(mockGoToApproveQuote).toHaveBeenCalledWith('draft-1')
->>>>>>> 0bb1a31a5 (fix: fix tests)
+        expect(mockGoToApproveQuote).toHaveBeenCalledWith('draft-1', 'version-draft-1')
       })
     })
 

@@ -28,18 +28,24 @@ export const APPROVE_QUOTE_PREVIEW_TEST_ID = 'approve-quote-preview'
 const ApproveQuote = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
-  const { quoteId } = useParams()
+  const { quoteId, versionId } = useParams()
   const navigate = useNavigate()
 
   const { quote, loading, error } = useQuote(quoteId)
   const { approveQuote } = useApproveQuote()
 
   const onSubmit = async () => {
-    if (!quoteId) return
+    if (!quoteId || !versionId) return
 
-    const result = await approveQuote()
+    const result = await approveQuote({
+      variables: {
+        input: {
+          id: versionId,
+        },
+      },
+    })
 
-    if (result) {
+    if (result.data?.approveQuoteVersion) {
       addToast({
         severity: 'success',
         translateKey: 'text_1776848720529o2nn0q3b7iv',
