@@ -208,11 +208,11 @@ const SubscriptionsPage = () => {
               },
 
               {
-                key: 'isOverriden',
+                key: 'isOverridden',
                 title: translate('text_65281f686a80b400c8e2f6c4'),
-                content: ({ isOverriden }) => (
+                content: ({ isOverridden }) => (
                   <Typography>
-                    {isOverriden
+                    {isOverridden
                       ? translate('text_65281f686a80b400c8e2f6dd')
                       : translate('text_65281f686a80b400c8e2f6d1')}
                   </Typography>

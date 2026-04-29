@@ -59,7 +59,7 @@ const PlanDetails = () => {
   const plan = planResult?.plan
 
   useEffect(() => {
-    // WARNING: This page should not be used to show overriden plan's details
+    // WARNING: This page should not be used to show overridden plan's details
     // If a parent plan is detected, redirect to the plans list
     if (!!plan?.parent?.id) {
       navigate(PLANS_ROUTE, { replace: true })

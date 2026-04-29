@@ -56,7 +56,7 @@ const UsageBreakdownIndividualSection = ({
     isBillableMetricRecurring,
     showDeletedBillableMetrics,
     breakdownType,
-    overridenTimeGranularity: timeGranularity,
+    overriddenTimeGranularity: timeGranularity,
   })
 
   return (

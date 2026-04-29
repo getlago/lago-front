@@ -154,7 +154,7 @@ jest.mock('~/components/designSystem/WarningDialog', () => {
   return { WarningDialog: MockWarningDialog, WarningDialogRef: {} }
 })
 
-jest.mock('~/components/plans/ImpactOverridenSubscriptionsDialog', () => {
+jest.mock('~/components/plans/ImpactOverriddenSubscriptionsDialog', () => {
   const React = jest.requireActual('react')
 
   const MockDialog = React.forwardRef((_props: unknown, ref: unknown) => {
@@ -163,9 +163,9 @@ jest.mock('~/components/plans/ImpactOverridenSubscriptionsDialog', () => {
     return React.createElement('div', { 'data-test': 'impact-dialog-mock' })
   })
 
-  MockDialog.displayName = 'ImpactOverridenSubscriptionsDialog'
+  MockDialog.displayName = 'ImpactOverriddenSubscriptionsDialog'
 
-  return { ImpactOverridenSubscriptionsDialog: MockDialog }
+  return { ImpactOverriddenSubscriptionsDialog: MockDialog }
 })
 
 jest.mock('~/components/invoices/EditInvoiceDisplayNameDialog', () => {
