@@ -48,8 +48,13 @@ export const FiltersItemMultipleCustomers = ({
     return data.customers.collection.map((customer) => {
       const customerName = customer?.displayName
 
+      const customerInformationToDisplay = customerName || customer.externalId || ''
+      const customerDeletedInformation = customer.deletedAt
+        ? ` (${translate('text_1743158702704o1juwxmr4ab')})`
+        : ''
+
       return {
-        label: `${customerName || customer.externalId || ''}${customer.deletedAt ? ` (${translate('text_1743158702704o1juwxmr4ab')})` : ''}`,
+        label: `${customerInformationToDisplay}${customerDeletedInformation}`,
         labelNode: (
           <ComboboxItem>
             <Typography variant="body" color="grey700" noWrap>

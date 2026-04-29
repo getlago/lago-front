@@ -191,7 +191,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.logTypes]: (value: string) => value.split(',').filter(Boolean),
   [AvailableFiltersEnum.metadata]: (value: string) => parseMetadataFilter(value),
   [AvailableFiltersEnum.multipleCustomers]: (value: string) =>
-    (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+    value.split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.overriden]: (value: string) => value === 'true',
   [AvailableFiltersEnum.partiallyPaid]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentDisputeLost]: (value: string) => value === 'true',
@@ -200,13 +200,13 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.planCode]: (value: string) => value,
   [AvailableFiltersEnum.quoteCreatedAt]: (value: string) => {
     return {
-      fromDate: (value as string).split(',')[0],
-      toDate: (value as string).split(',')[1],
+      fromDate: value.split(',')[0],
+      toDate: value.split(',')[1],
     }
   },
-  [AvailableFiltersEnum.quoteNumber]: (value: string) => (value as string).split(','),
-  [AvailableFiltersEnum.quoteOrderType]: (value: string) => (value as string).split(','),
-  [AvailableFiltersEnum.quoteStatus]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.quoteNumber]: (value: string) => value.split(','),
+  [AvailableFiltersEnum.quoteOrderType]: (value: string) => value.split(','),
+  [AvailableFiltersEnum.quoteStatus]: (value: string) => value.split(','),
   [AvailableFiltersEnum.requestPaths]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.resourceIds]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.resourceTypes]: (value: string) => (value as string).split(','),
