@@ -94,7 +94,11 @@ const defaultMemberships = [
 describe('OrganizationLayout', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockUseLocation.mockReturnValue({ pathname: `/${TEST_ORG_SLUG}/customers` })
+    mockUseLocation.mockReturnValue({
+      pathname: `/${TEST_ORG_SLUG}/customers`,
+      search: '',
+      hash: '',
+    })
     mockLocationHistoryVar.mockReturnValue([])
     mockGetCurrentOrganizationId.mockReturnValue(TEST_ORG_ID)
   })
@@ -287,6 +291,7 @@ describe('OrganizationLayout', () => {
           tags: expect.objectContaining({
             attemptedSlug: 'customers',
             recoveredToSlug: TEST_ORG_SLUG,
+            mode: 'single-org',
           }),
         }),
       )
@@ -313,6 +318,166 @@ describe('OrganizationLayout', () => {
       renderHook(() => OrganizationLayout())
 
       expect(mockNavigate).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN a legacy path AND the user has multiple memberships', () => {
+    describe('WHEN the URL has the Hubspot iframe param ?ifrm=true', () => {
+      it('THEN should auto-redirect using the LS-based slug and tag the Sentry event with mode=multi-org-iframe', () => {
+        mockUseParams.mockReturnValue({ organizationSlug: 'customers' })
+        mockUseLocation.mockReturnValue({
+          pathname: '/customers',
+          search: '?ifrm=true',
+          hash: '',
+        })
+        mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
+        // resolveOrgSlug() reads getCurrentOrganizationId() under the hood
+        mockGetCurrentOrganizationId.mockReturnValue(TEST_ORG_ID)
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: { memberships: defaultMemberships },
+          loading: false,
+        })
+
+        renderHook(() => OrganizationLayout())
+
+        expect(mockNavigate).toHaveBeenCalledWith(
+          `/${TEST_ORG_SLUG}/customers?ifrm=true`,
+          expect.objectContaining({
+            replace: true,
+            skipSlugPrepend: true,
+          }),
+        )
+        expect(Sentry.captureMessage).toHaveBeenCalledWith(
+          'legacy_url_auto_recovered',
+          expect.objectContaining({
+            level: 'info',
+            tags: expect.objectContaining({
+              attemptedSlug: 'customers',
+              recoveredToSlug: TEST_ORG_SLUG,
+              mode: 'multi-org-iframe',
+            }),
+          }),
+        )
+      })
+    })
+
+    describe('WHEN the URL has the Salesforce iframe param ?sfdc=true', () => {
+      it('THEN should auto-redirect using the LS-based slug', () => {
+        mockUseParams.mockReturnValue({ organizationSlug: 'customers' })
+        mockUseLocation.mockReturnValue({
+          pathname: '/customers',
+          search: '?sfdc=true',
+          hash: '',
+        })
+        mockCurrentOrganizationVar.mockReturnValue(OTHER_ORG_ID)
+        mockGetCurrentOrganizationId.mockReturnValue(OTHER_ORG_ID)
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: { memberships: defaultMemberships },
+          loading: false,
+        })
+
+        renderHook(() => OrganizationLayout())
+
+        expect(mockNavigate).toHaveBeenCalledWith(
+          `/other-corp/customers?sfdc=true`,
+          expect.objectContaining({
+            replace: true,
+            skipSlugPrepend: true,
+          }),
+        )
+      })
+    })
+
+    describe('WHEN the URL has NO iframe param', () => {
+      it('THEN should NOT auto-redirect (multi-org user keeps the explicit 404 + go-home flow)', () => {
+        mockUseParams.mockReturnValue({ organizationSlug: 'customers' })
+        mockUseLocation.mockReturnValue({
+          pathname: '/customers',
+          search: '',
+          hash: '',
+        })
+        mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
+        mockGetCurrentOrganizationId.mockReturnValue(TEST_ORG_ID)
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: { memberships: defaultMemberships },
+          loading: false,
+        })
+
+        renderHook(() => OrganizationLayout())
+
+        expect(mockNavigate).not.toHaveBeenCalled()
+        expect(Sentry.captureMessage).not.toHaveBeenCalledWith(
+          'legacy_url_auto_recovered',
+          expect.anything(),
+        )
+      })
+    })
+
+    describe('WHEN the URL has an iframe param but the slug is NOT a legacy path', () => {
+      it('THEN should NOT auto-redirect (genuinely unknown slug → 404 stays explicit)', () => {
+        mockUseParams.mockReturnValue({ organizationSlug: 'totally-unknown' })
+        mockUseLocation.mockReturnValue({
+          pathname: '/totally-unknown',
+          search: '?ifrm=true',
+          hash: '',
+        })
+        mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
+        mockGetCurrentOrganizationId.mockReturnValue(TEST_ORG_ID)
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: { memberships: defaultMemberships },
+          loading: false,
+        })
+
+        renderHook(() => OrganizationLayout())
+
+        expect(mockNavigate).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the URL has an iframe param and the iframe param value is something other than "true"', () => {
+      it('THEN should NOT trigger the iframe-context branch', () => {
+        mockUseParams.mockReturnValue({ organizationSlug: 'customers' })
+        mockUseLocation.mockReturnValue({
+          pathname: '/customers',
+          search: '?ifrm=false',
+          hash: '',
+        })
+        mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
+        mockGetCurrentOrganizationId.mockReturnValue(TEST_ORG_ID)
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: { memberships: defaultMemberships },
+          loading: false,
+        })
+
+        renderHook(() => OrganizationLayout())
+
+        expect(mockNavigate).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN LS holds an org id that does NOT match any of the user memberships', () => {
+      it('THEN should fall back to the first membership slug (resolveOrgSlug fallback)', () => {
+        mockUseParams.mockReturnValue({ organizationSlug: 'customers' })
+        mockUseLocation.mockReturnValue({
+          pathname: '/customers',
+          search: '?ifrm=true',
+          hash: '',
+        })
+        mockCurrentOrganizationVar.mockReturnValue('stale-org-id-not-in-memberships')
+        mockGetCurrentOrganizationId.mockReturnValue('stale-org-id-not-in-memberships')
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: { memberships: defaultMemberships },
+          loading: false,
+        })
+
+        renderHook(() => OrganizationLayout())
+
+        // resolveOrgSlug fallback: first membership's slug
+        expect(mockNavigate).toHaveBeenCalledWith(
+          `/${TEST_ORG_SLUG}/customers?ifrm=true`,
+          expect.objectContaining({ replace: true, skipSlugPrepend: true }),
+        )
+      })
     })
   })
 

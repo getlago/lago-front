@@ -10,7 +10,7 @@ jest.mock('~/core/router/utils/permissionRouteMap', () => ({
 }))
 
 jest.mock('~/core/router/legacyPaths', () => ({
-  LEGACY_APP_PATH_SEGMENTS: new Set(['customers', 'plans', 'features']),
+  LEGACY_APP_PATH_SEGMENTS: new Set(['customers', 'customer', 'plans', 'features']),
 }))
 
 // `resolveOrgSlug` reads the reactive var; mock it via the underlying util.
@@ -126,6 +126,85 @@ describe('resolveRedirectTarget()', () => {
             { organization: { id: 'org-b', slug: 'beta' } },
           ]),
           savedLocation: { pathname: '/customers/123' },
+        }),
+      )
+
+      expect(result).toEqual({ to: `/${SLUG}/analytics`, consumesSsoLs: false })
+    })
+  })
+
+  // Iframe context (Salesforce/Hubspot CRM embeds) — slug-less legacy URLs
+  // get auto-recovered using the LS-based slug regardless of membership
+  // count, because the iframe hides the chrome and the user has no agency
+  // to pick an org manually. Mirrors `OrganizationLayout`'s post-auth fix
+  // (LAGO-1443) but for the post-LOGIN flow when session was expired.
+  describe('GIVEN a multi-org user logs in with a savedLocation carrying iframe params', () => {
+    const multiOrgUser = buildUser([
+      { organization: { id: ORG_ID, slug: SLUG } },
+      { organization: { id: 'org-b', slug: 'beta' } },
+    ])
+
+    it('THEN prepends LS-based slug for `?sfdc=true` (Salesforce) and preserves the iframe param', () => {
+      const result = resolveRedirectTarget(
+        baseInput({
+          currentUser: multiOrgUser,
+          savedLocation: {
+            pathname: '/customer/abc-123/create/subscription',
+            search: '?sfdc=true',
+            hash: '',
+          },
+        }),
+      )
+
+      expect(result).toEqual({
+        to: `/${SLUG}/customer/abc-123/create/subscription?sfdc=true`,
+        consumesSsoLs: false,
+      })
+    })
+
+    it('THEN prepends LS-based slug for `?ifrm=true` (Hubspot)', () => {
+      const result = resolveRedirectTarget(
+        baseInput({
+          currentUser: multiOrgUser,
+          savedLocation: {
+            pathname: '/customer/abc-123/create-invoice',
+            search: '?ifrm=true',
+          },
+        }),
+      )
+
+      expect(result).toEqual({
+        to: `/${SLUG}/customer/abc-123/create-invoice?ifrm=true`,
+        consumesSsoLs: false,
+      })
+    })
+
+    it('THEN preserves additional query params alongside the iframe flag', () => {
+      const result = resolveRedirectTarget(
+        baseInput({
+          currentUser: multiOrgUser,
+          savedLocation: {
+            pathname: '/customer/abc-123/create/subscription',
+            search: '?sfdc=true&plan=foo',
+          },
+        }),
+      )
+
+      expect(result).toEqual({
+        to: `/${SLUG}/customer/abc-123/create/subscription?sfdc=true&plan=foo`,
+        consumesSsoLs: false,
+      })
+    })
+
+    it('THEN does NOT auto-recover when the iframe flag is `false` (defensive)', () => {
+      mockHasPermissions.mockReturnValueOnce(true) // analytics
+      const result = resolveRedirectTarget(
+        baseInput({
+          currentUser: multiOrgUser,
+          savedLocation: {
+            pathname: '/customer/abc-123/create/subscription',
+            search: '?sfdc=false',
+          },
         }),
       )
 
