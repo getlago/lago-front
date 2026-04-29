@@ -4,7 +4,6 @@ import { generatePath, useParams } from 'react-router-dom'
 
 import {
   formatActivityType,
-  formatResourceObject,
   getResourceLink,
   isDeletedActivityType,
 } from '~/components/activityLogs/utils'
@@ -141,6 +140,27 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
     closePanel()
   }
 
+  const renderResourceCell = () => {
+    if (!resource?.__typename) return '-'
+
+    const link = getResourceLink(resource, {
+      resourceType: remapResourceTypeNames(resource.__typename),
+      activityType,
+    })
+
+    if (!link) return resource.id
+
+    return (
+      <Button
+        data-test={ACTIVITY_LOG_DETAILS_RESOURCE_LINK_TEST_ID}
+        variant="inline"
+        onClick={() => handleResourceNavigate(link)}
+      >
+        {resource.id}
+      </Button>
+    )
+  }
+
   const { data, loading } = useGetSingleActivityLogQuery({
     variables: { id: logId || '' },
     skip: !logId,
@@ -240,22 +260,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
                 translate('text_1732895022171f9vnwh5gm3q'),
                 resource?.__typename ? getResourceType(resource.__typename) : '-',
               ],
-              [
-                translate('text_1747666154075y3lcupj1zdd'),
-                resource?.__typename
-                  ? (() => {
-                      const link = getResourceLink(resource, {
-                        resourceType: remapResourceTypeNames(resource.__typename),
-                        activityType,
-                      })
-
-                      return formatResourceObject(
-                        resource,
-                        link ? () => handleResourceNavigate(link) : undefined,
-                      )
-                    })()
-                  : '-',
-              ],
+              [translate('text_1747666154075y3lcupj1zdd'), renderResourceCell()],
               [
                 translate('text_1748873734056eva3rfvpkoi'),
                 customerData?.customer?.id ? (

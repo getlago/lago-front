@@ -84,7 +84,8 @@ export function getResourceLink(
     activityType?: ActivityTypeEnum
   },
 ): string | null {
-  if (!resource || !activityType || isDeletedActivityType(activityType)) return null
+  if (!resource) return null
+  if (!activityType || isDeletedActivityType(activityType)) return null
 
   switch (resourceType) {
     case 'BillableMetric':
@@ -136,26 +137,6 @@ export function getResourceLink(
     default:
       return null
   }
-}
-
-/**
- * Renders a resource as a clickable Button when an `onClick` is provided
- * (caller is responsible for the bridge to the main BrowserRouter), or as
- * plain text otherwise.
- */
-export function formatResourceObject(
-  resource: ActivityLogDetailsFragment['resource'],
-  onClick?: () => void,
-) {
-  if (!resource) return null
-
-  return onClick ? (
-    <Button variant="inline" onClick={onClick}>
-      {resource.id}
-    </Button>
-  ) : (
-    resource.id
-  )
 }
 
 export function buildLinkToActivityLog(activityId: string, filter?: AvailableFiltersEnum): string {
