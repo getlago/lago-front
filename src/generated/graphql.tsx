@@ -170,6 +170,10 @@ export enum ActivityTypeEnum {
   PlanDeleted = 'plan_deleted',
   /** plan.updated */
   PlanUpdated = 'plan_updated',
+  /** subscription.canceled */
+  SubscriptionCanceled = 'subscription_canceled',
+  /** subscription.incomplete */
+  SubscriptionIncomplete = 'subscription_incomplete',
   /** subscription.started */
   SubscriptionStarted = 'subscription_started',
   /** subscription.terminated */
@@ -2688,6 +2692,8 @@ export type Customer = {
   creditNotes?: Maybe<Array<CreditNote>>;
   /** Credit notes credits balance available per customer */
   creditNotesBalanceAmountCents: Scalars['BigInt']['output'];
+  /** Credit notes credits balance available per customer per currency */
+  creditNotesBalances: Array<CustomerCreditNotesBalance>;
   /** Number of available credits from credit notes per customer */
   creditNotesCreditsAvailableCount: Scalars['Int']['output'];
   currency?: Maybe<CurrencyEnum>;
@@ -2796,6 +2802,12 @@ export type CustomerCollection = {
   collection: Array<Customer>;
   /** Pagination Metadata for navigating the Pagination */
   metadata: CollectionMetadata;
+};
+
+export type CustomerCreditNotesBalance = {
+  __typename?: 'CustomerCreditNotesBalance';
+  amountCents: Scalars['BigInt']['output'];
+  currency: CurrencyEnum;
 };
 
 export type CustomerMetadata = {
@@ -3820,6 +3832,7 @@ export enum EventTypeEnum {
 export enum FeatureFlagEnum {
   EnrichedEventsAggregation = 'enriched_events_aggregation',
   MultiCurrency = 'multi_currency',
+  MultiEntityBilling = 'multi_entity_billing',
   MultiplePaymentMethods = 'multiple_payment_methods',
   NonPersistableChargeCacheOptimization = 'non_persistable_charge_cache_optimization',
   PaymentGatedSubscriptions = 'payment_gated_subscriptions',
