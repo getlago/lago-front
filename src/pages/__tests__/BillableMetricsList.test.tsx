@@ -45,7 +45,7 @@ jest.mock('~/hooks/usePermissions', () => ({
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
-  useInternationalization: () => ({ translate: (key: string) => key }),
+  useInternationalization: () => ({ translate: (key: string) => key, locale: 'en' }),
 }))
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
@@ -145,83 +145,129 @@ describe('BillableMetricsList', () => {
     })
   })
 
-  describe('GIVEN user has all row-level permissions', () => {
-    describe('WHEN actionColumn is called for a row item', () => {
-      it('THEN should return edit and delete actions', () => {
-        mockHasPermissions.mockReturnValue(true)
+  type RowAction = { startIcon: string; title: string }
+
+  const ROW = { id: 'bm-1', name: 'Test BM', code: 'test' }
+
+  const EDIT_TITLE = 'text_6256de3bba111e00b3bfa531'
+  const DUPLICATE_TITLE = 'text_64fa170e02f348164797a6af'
+  const DELETE_TITLE = 'text_6256de3bba111e00b3bfa533'
+
+  const setPermissions = (perms: string[]) => {
+    mockHasPermissions.mockImplementation((requested: string[]) =>
+      requested.every((p) => perms.includes(p)),
+    )
+  }
+
+  const getTableProps = () => mockTableProps.mock.calls[0]?.[0]
+
+  const getActionsFor = (item: Record<string, unknown>): RowAction[] =>
+    (getTableProps().actionColumn as (i: Record<string, unknown>) => RowAction[])(item)
+
+  const getTooltipFor = (item: Record<string, unknown>): string =>
+    (getTableProps().actionColumnTooltip as (i: Record<string, unknown>) => string)(item)
+
+  describe('GIVEN actionColumn', () => {
+    it.each([
+      {
+        name: 'no permissions',
+        permissions: [],
+        expectedIcons: [] as string[],
+      },
+      {
+        name: 'only update',
+        permissions: ['billableMetricsUpdate'],
+        expectedIcons: ['pen'],
+      },
+      {
+        name: 'only create',
+        permissions: ['billableMetricsCreate'],
+        expectedIcons: ['duplicate'],
+      },
+      {
+        name: 'only delete',
+        permissions: ['billableMetricsDelete'],
+        expectedIcons: ['trash'],
+      },
+      {
+        name: 'update + create',
+        permissions: ['billableMetricsUpdate', 'billableMetricsCreate'],
+        expectedIcons: ['pen', 'duplicate'],
+      },
+      {
+        name: 'update + delete',
+        permissions: ['billableMetricsUpdate', 'billableMetricsDelete'],
+        expectedIcons: ['pen', 'trash'],
+      },
+      {
+        name: 'create + delete',
+        permissions: ['billableMetricsCreate', 'billableMetricsDelete'],
+        expectedIcons: ['duplicate', 'trash'],
+      },
+      {
+        name: 'all permissions',
+        permissions: ['billableMetricsUpdate', 'billableMetricsCreate', 'billableMetricsDelete'],
+        expectedIcons: ['pen', 'duplicate', 'trash'],
+      },
+    ])(
+      'WHEN $name THEN returns $expectedIcons.length action(s) in expected order',
+      ({ permissions, expectedIcons }) => {
+        setPermissions(permissions)
 
         render(<BillableMetricsList />)
 
-        const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
-          item: Record<string, unknown>,
-        ) => { startIcon: string }[]
+        const actions = getActionsFor(ROW)
 
-        const actions = actionColumn({ id: 'bm-1', name: 'Test BM', code: 'test' })
-
-        expect(actions).toHaveLength(2)
-        expect(actions[0]).toEqual(expect.objectContaining({ startIcon: 'pen' }))
-        expect(actions[1]).toEqual(expect.objectContaining({ startIcon: 'trash' }))
-      })
-    })
+        expect(actions).toHaveLength(expectedIcons.length)
+        expect(actions.map((a) => a.startIcon)).toEqual(expectedIcons)
+      },
+    )
   })
 
-  describe('GIVEN user has no row-level permissions', () => {
-    describe('WHEN actionColumn is called for a row item', () => {
-      it('THEN should return empty array', () => {
-        mockHasPermissions.mockReturnValue(false)
+  describe('GIVEN actionColumnTooltip', () => {
+    it.each([
+      { name: 'no permissions', permissions: [] as string[], expected: '' },
+      {
+        name: 'only update',
+        permissions: ['billableMetricsUpdate'],
+        expected: EDIT_TITLE,
+      },
+      {
+        name: 'only create',
+        permissions: ['billableMetricsCreate'],
+        expected: DUPLICATE_TITLE,
+      },
+      {
+        name: 'only delete',
+        permissions: ['billableMetricsDelete'],
+        expected: DELETE_TITLE,
+      },
+      {
+        name: 'update + create',
+        permissions: ['billableMetricsUpdate', 'billableMetricsCreate'],
+        expected: `${EDIT_TITLE} or ${DUPLICATE_TITLE}`,
+      },
+      {
+        name: 'update + delete',
+        permissions: ['billableMetricsUpdate', 'billableMetricsDelete'],
+        expected: `${EDIT_TITLE} or ${DELETE_TITLE}`,
+      },
+      {
+        name: 'create + delete',
+        permissions: ['billableMetricsCreate', 'billableMetricsDelete'],
+        expected: `${DUPLICATE_TITLE} or ${DELETE_TITLE}`,
+      },
+      {
+        name: 'all permissions (no Oxford comma)',
+        permissions: ['billableMetricsUpdate', 'billableMetricsCreate', 'billableMetricsDelete'],
+        expected: `${EDIT_TITLE}, ${DUPLICATE_TITLE} or ${DELETE_TITLE}`,
+      },
+    ])('WHEN $name THEN tooltip is "$expected"', ({ permissions, expected }) => {
+      setPermissions(permissions)
 
-        render(<BillableMetricsList />)
+      render(<BillableMetricsList />)
 
-        const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
-          item: Record<string, unknown>,
-        ) => unknown[]
-
-        const actions = actionColumn({ id: 'bm-1', name: 'Test BM', code: 'test' })
-
-        expect(actions).toEqual([])
-      })
-    })
-  })
-
-  describe('GIVEN user has only billableMetricsUpdate permission', () => {
-    describe('WHEN actionColumn is called', () => {
-      it('THEN should return only the edit action', () => {
-        mockHasPermissions.mockImplementation((perms: string[]) =>
-          perms.includes('billableMetricsUpdate'),
-        )
-
-        render(<BillableMetricsList />)
-
-        const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
-          item: Record<string, unknown>,
-        ) => { startIcon: string }[]
-
-        const actions = actionColumn({ id: 'bm-1', name: 'Test BM', code: 'test' })
-
-        expect(actions).toHaveLength(1)
-        expect(actions[0]).toEqual(expect.objectContaining({ startIcon: 'pen' }))
-      })
-    })
-  })
-
-  describe('GIVEN user has only billableMetricsDelete permission', () => {
-    describe('WHEN actionColumn is called', () => {
-      it('THEN should return only the delete action', () => {
-        mockHasPermissions.mockImplementation((perms: string[]) =>
-          perms.includes('billableMetricsDelete'),
-        )
-
-        render(<BillableMetricsList />)
-
-        const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
-          item: Record<string, unknown>,
-        ) => { startIcon: string }[]
-
-        const actions = actionColumn({ id: 'bm-1', name: 'Test BM', code: 'test' })
-
-        expect(actions).toHaveLength(1)
-        expect(actions[0]).toEqual(expect.objectContaining({ startIcon: 'trash' }))
-      })
+      expect(getTooltipFor(ROW)).toBe(expected)
     })
   })
 })

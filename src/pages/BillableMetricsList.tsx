@@ -9,7 +9,7 @@ import {
 } from '~/components/billableMetrics/DeleteBillableMetricDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
-import { Table } from '~/components/designSystem/Table/Table'
+import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
@@ -19,9 +19,10 @@ import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptio
 import {
   BILLABLE_METRIC_DETAILS_ROUTE,
   CREATE_BILLABLE_METRIC_ROUTE,
+  DUPLICATE_BILLABLE_METRIC_ROUTE,
   UPDATE_BILLABLE_METRIC_ROUTE,
 } from '~/core/router'
-import { useBillableMetricsLazyQuery } from '~/generated/graphql'
+import { BillableMetricItemFragment, useBillableMetricsLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -50,7 +51,7 @@ gql`
 `
 
 const BillableMetricsList = () => {
-  const { translate } = useInternationalization()
+  const { translate, locale } = useInternationalization()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
@@ -67,8 +68,132 @@ const BillableMetricsList = () => {
 
   const canUpdateBillableMetrics = hasPermissions(['billableMetricsUpdate'])
   const canDeleteBillableMetrics = hasPermissions(['billableMetricsDelete'])
+  const canCreateBillableMetrics = hasPermissions(['billableMetricsCreate'])
+
+  const getActions = (id: string): ActionItem<{ id: string }>[] => {
+    const actions: ActionItem<{ id: string }>[] = []
+
+    if (canUpdateBillableMetrics) {
+      actions.push({
+        startIcon: 'pen',
+        title: translate('text_6256de3bba111e00b3bfa531'),
+        onAction: () =>
+          navigate(
+            generatePath(UPDATE_BILLABLE_METRIC_ROUTE, {
+              billableMetricId: id,
+            }),
+          ),
+      })
+    }
+
+    if (canCreateBillableMetrics) {
+      actions.push({
+        startIcon: 'duplicate',
+        title: translate('text_64fa170e02f348164797a6af'),
+        onAction: () =>
+          navigate(
+            generatePath(DUPLICATE_BILLABLE_METRIC_ROUTE, {
+              billableMetricId: id,
+            }),
+          ),
+      })
+    }
+
+    if (canDeleteBillableMetrics) {
+      actions.push({
+        startIcon: 'trash',
+        title: translate('text_6256de3bba111e00b3bfa533'),
+        onAction: () => {
+          deleteDialogRef.current?.openDialog({ billableMetricId: id })
+        },
+      })
+    }
+
+    return actions
+  }
 
   const billableMetricsTotalCount = data?.billableMetrics?.metadata?.totalCount
+
+  const getRowLink = ({ id }: BillableMetricItemFragment) =>
+    generatePath(BILLABLE_METRIC_DETAILS_ROUTE, {
+      billableMetricId: id,
+      tab: BillableMetricDetailsTabsOptionsEnum.overview,
+    })
+
+  const columns: TableColumn<BillableMetricItemFragment>[] = [
+    {
+      key: 'name',
+      title: translate('text_623b497ad05b960101be343e'),
+      minWidth: 200,
+      maxSpace: true,
+      content: ({ name, code }) => (
+        <div className="flex items-center gap-3">
+          <Avatar size="big" variant="connector">
+            <Icon name="pulse" color="dark" />
+          </Avatar>
+          <div>
+            <Typography color="textSecondary" variant="bodyHl" noWrap>
+              {name}
+            </Typography>
+            <Typography variant="caption" noWrap>
+              {code}
+            </Typography>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'createdAt',
+      title: translate('text_623b497ad05b960101be3440'),
+      minWidth: 140,
+      content: ({ createdAt }) => (
+        <Typography variant="body" color="grey600">
+          {intlFormatDateTimeOrgaTZ(createdAt).date}
+        </Typography>
+      ),
+    },
+  ]
+
+  const getActionColumnTooltip = ({ id }: BillableMetricItemFragment) => {
+    const actions = getActions(id)
+
+    if (!actions.length) return ''
+
+    const listLocale = locale === 'en' ? 'en-GB' : locale
+
+    return new Intl.ListFormat(listLocale, { type: 'disjunction' }).format(
+      actions.map((a) => String(a.title)),
+    )
+  }
+
+  const placeholder: TablePlaceholder = {
+    errorState: !!variables?.searchTerm
+      ? {
+          title: translate('text_623b53fea66c76017eaebb6e'),
+          subtitle: translate('text_63bab307a61c62af497e0599'),
+        }
+      : {
+          title: translate('text_623b53fea66c76017eaebb6e'),
+          subtitle: translate('text_623b53fea66c76017eaebb76'),
+          buttonTitle: translate('text_623b53fea66c76017eaebb7a'),
+          buttonAction: () => location.reload(),
+          buttonVariant: 'primary',
+        },
+    emptyState: !!variables?.searchTerm
+      ? {
+          title: translate('text_63bab307a61c62af497e05a2'),
+          subtitle: translate('text_63bab307a61c62af497e05a4'),
+        }
+      : {
+          title: translate('text_623b53fea66c76017eaebb70'),
+          subtitle: translate('text_623b53fea66c76017eaebb78'),
+          ...(canCreateBillableMetrics && {
+            buttonTitle: translate('text_623b53fea66c76017eaebb7c'),
+            buttonAction: () => navigate(CREATE_BILLABLE_METRIC_ROUTE),
+            buttonVariant: 'primary',
+          }),
+        },
+  }
 
   return (
     <>
@@ -120,107 +245,11 @@ const BillableMetricsList = () => {
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
-          onRowActionLink={({ id }) =>
-            generatePath(BILLABLE_METRIC_DETAILS_ROUTE, {
-              billableMetricId: id,
-              tab: BillableMetricDetailsTabsOptionsEnum.overview,
-            })
-          }
-          columns={[
-            {
-              key: 'name',
-              title: translate('text_623b497ad05b960101be343e'),
-              minWidth: 200,
-              maxSpace: true,
-              content: ({ name, code }) => (
-                <div className="flex items-center gap-3">
-                  <Avatar size="big" variant="connector">
-                    <Icon name="pulse" color="dark" />
-                  </Avatar>
-                  <div>
-                    <Typography color="textSecondary" variant="bodyHl" noWrap>
-                      {name}
-                    </Typography>
-                    <Typography variant="caption" noWrap>
-                      {code}
-                    </Typography>
-                  </div>
-                </div>
-              ),
-            },
-            {
-              key: 'createdAt',
-              title: translate('text_623b497ad05b960101be3440'),
-              minWidth: 140,
-              content: ({ createdAt }) => (
-                <Typography variant="body" color="grey600">
-                  {intlFormatDateTimeOrgaTZ(createdAt).date}
-                </Typography>
-              ),
-            },
-          ]}
-          actionColumnTooltip={
-            canUpdateBillableMetrics && canDeleteBillableMetrics
-              ? () => translate('text_6256de3bba111e00b3bfa51b')
-              : undefined
-          }
-          actionColumn={(billableMetric) => {
-            const { id } = billableMetric
-            const actions: ActionItem<typeof billableMetric>[] = []
-
-            if (canUpdateBillableMetrics) {
-              actions.push({
-                startIcon: 'pen',
-                title: translate('text_6256de3bba111e00b3bfa531'),
-                onAction: () =>
-                  navigate(
-                    generatePath(UPDATE_BILLABLE_METRIC_ROUTE, {
-                      billableMetricId: id,
-                    }),
-                  ),
-              })
-            }
-
-            if (canDeleteBillableMetrics) {
-              actions.push({
-                startIcon: 'trash',
-                title: translate('text_6256de3bba111e00b3bfa533'),
-                onAction: () => {
-                  deleteDialogRef.current?.openDialog({ billableMetricId: id })
-                },
-              })
-            }
-
-            return actions
-          }}
-          placeholder={{
-            errorState: !!variables?.searchTerm
-              ? {
-                  title: translate('text_623b53fea66c76017eaebb6e'),
-                  subtitle: translate('text_63bab307a61c62af497e0599'),
-                }
-              : {
-                  title: translate('text_623b53fea66c76017eaebb6e'),
-                  subtitle: translate('text_623b53fea66c76017eaebb76'),
-                  buttonTitle: translate('text_623b53fea66c76017eaebb7a'),
-                  buttonAction: () => location.reload(),
-                  buttonVariant: 'primary',
-                },
-            emptyState: !!variables?.searchTerm
-              ? {
-                  title: translate('text_63bab307a61c62af497e05a2'),
-                  subtitle: translate('text_63bab307a61c62af497e05a4'),
-                }
-              : {
-                  title: translate('text_623b53fea66c76017eaebb70'),
-                  subtitle: translate('text_623b53fea66c76017eaebb78'),
-                  ...(hasPermissions(['billableMetricsCreate']) && {
-                    buttonTitle: translate('text_623b53fea66c76017eaebb7c'),
-                    buttonAction: () => navigate(CREATE_BILLABLE_METRIC_ROUTE),
-                    buttonVariant: 'primary',
-                  }),
-                },
-          }}
+          onRowActionLink={getRowLink}
+          columns={columns}
+          actionColumnTooltip={getActionColumnTooltip}
+          actionColumn={({ id }) => getActions(id)}
+          placeholder={placeholder}
         />
       </InfiniteScroll>
 
