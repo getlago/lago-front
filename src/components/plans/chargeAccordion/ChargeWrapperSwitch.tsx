@@ -7,6 +7,7 @@ import { DynamicCharge } from '~/components/plans/DynamicCharge'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { GraduatedPercentageChargeTable } from '~/components/plans/GraduatedPercentageChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
+import PresentationGroupKeys from '~/components/plans/PresentationGroupKeys'
 import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { StandardCharge } from '~/components/plans/StandardCharge'
 import { LocalFixedChargeInput, LocalUsageChargeInput } from '~/components/plans/types'
@@ -68,6 +69,7 @@ export const ChargeWrapperSwitch = memo(
           {localCharge?.chargeModel === ALL_CHARGE_MODELS.Dynamic && <DynamicCharge />}
 
           {isUsageCharge && <PricingGroupKeys />}
+          {isUsageCharge && <PresentationGroupKeys />}
         </div>
       </ChargeFormProvider>
     )

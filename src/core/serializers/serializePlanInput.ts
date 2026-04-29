@@ -51,8 +51,11 @@ const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnu
           pricingGroupKeys: !!properties?.pricingGroupKeys?.length
             ? properties?.pricingGroupKeys
             : undefined,
+          presentationGroupKeys: !!properties?.presentationGroupKeys?.length
+            ? properties?.presentationGroupKeys
+            : undefined,
         }
-      : { pricingGroupKeys: undefined }),
+      : { pricingGroupKeys: undefined, presentationGroupKeys: undefined }),
     ...([ChargeModelEnum.Package, ChargeModelEnum.Standard].includes(chargeModel)
       ? { amount: !!properties?.amount ? String(properties?.amount) : undefined }
       : {}),
@@ -173,6 +176,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
         // Cleaning properties that are not supported by FixedChargePropertiesInput
         // They are initialized by getPropertyShape method
         pricingGroupKeys: undefined,
+        presentationGroupKeys: undefined,
         packageSize: undefined,
         freeUnits: undefined,
       },

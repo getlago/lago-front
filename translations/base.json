@@ -4091,5 +4091,12 @@
   "text_1778232548237tdgidv9off9": "Create a new quote",
   "text_1778232548237f1f1pja8esj": "Update a quote",
   "text_1778232548237p4cirr96hwe": "View quotes",
-  "text_177823254823762hkchuyv10": "Void a quote"
+  "text_177823254823762hkchuyv10": "Void a quote",
+  "text_1777385516575oti5gavf3ze": "Taxes will be recalculated after invoice generation, using the current tax configuration. They may differ from the original invoice.",
+  "text_1777385516575oti5gavf3ze": "Taxes will be recalculated after invoice generation, using the current tax configuration. They may differ from the original invoice.",
+  "text_17774502138912d3etwcacpe": "Presentation group keys",
+  "text_17774502138910ajpyk51rzl": "Use dynamic attributes (e.g., user type, location) to break down units for analytics — these details can show up on the customer’s invoice PDF if defined.",
+  "text_17774502138919dkx20lgvpi": "Add a presentation group key",
+  "text_1777450213892iqwuovg4s4v": "Enter key name",
+  "text_17774521952176h65ipy7idk": "Display in invoice"
 }
