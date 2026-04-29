@@ -3,7 +3,6 @@ import { gql } from '@apollo/client'
 import { Button } from '~/components/designSystem/Button'
 import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
 import { Typography } from '~/components/designSystem/Typography'
-import { ComboBox } from '~/components/form'
 import { useChargeFormContext, usePropertyValues } from '~/contexts/ChargeFormContext'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -86,10 +85,10 @@ const PresentationGroupKeys = () => {
                 content: (_, i) =>
                   disabled ? (
                     <Typography className="px-4" variant="body" noWrap>
-                      {presentationGroupKeys[i]?.options?.displayInInvoice === null && '-'}
-                      {presentationGroupKeys[i]?.options?.displayInInvoice === true &&
+                      {presentationGroupKeys[i]?.options?.displayInInvoice === undefined && '-'}
+                      {presentationGroupKeys[i]?.options?.displayInInvoice &&
                         translate('text_65251f46339c650084ce0d57')}
-                      {presentationGroupKeys[i]?.options?.displayInInvoice === false &&
+                      {!presentationGroupKeys[i]?.options?.displayInInvoice &&
                         translate('text_65251f4cd55aeb004e5aa5ef')}
                     </Typography>
                   ) : (
@@ -98,14 +97,10 @@ const PresentationGroupKeys = () => {
                     >
                       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                       {(field: any) => (
-                        <ComboBox
+                        <field.ComboBoxField
                           variant="outlined"
                           placeholder={translate('text_66ab42d4ece7e6b7078993b1')}
-                          value={
-                            typeof field.state.value === 'boolean'
-                              ? String(field.state.value)
-                              : undefined
-                          }
+                          displayErrorText={false}
                           data={[
                             {
                               label: translate('text_65251f46339c650084ce0d57'),
@@ -116,13 +111,6 @@ const PresentationGroupKeys = () => {
                               value: 'false',
                             },
                           ]}
-                          onChange={(v) => {
-                            if (v !== 'true' && v !== 'false') {
-                              field.handleChange(null)
-                              return
-                            }
-                            field.handleChange(v === 'true')
-                          }}
                         />
                       )}
                     </form.AppField>
@@ -141,7 +129,7 @@ const PresentationGroupKeys = () => {
         onClick={() => {
           const newKeys = [
             ...presentationGroupKeys,
-            { value: '', options: { displayInInvoice: null } },
+            { value: '', options: { displayInInvoice: undefined } },
           ]
 
           form.setFieldValue(`${propertyCursor}.presentationGroupKeys`, newKeys)
