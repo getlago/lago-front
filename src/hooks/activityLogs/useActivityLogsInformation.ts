@@ -56,6 +56,8 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.PlanCreated]: 'text_17474046566311qv73xswmnm',
   [ActivityTypeEnum.PlanDeleted]: 'text_1747404656631vh02b35uq80',
   [ActivityTypeEnum.PlanUpdated]: 'text_1747404656631mkfxe18tzkx',
+  [ActivityTypeEnum.SubscriptionCanceled]: 'text_1777471747994p4c7cm9pri6',
+  [ActivityTypeEnum.SubscriptionIncomplete]: 'text_17774717479940xot2f14xbr',
   [ActivityTypeEnum.SubscriptionStarted]: 'text_1747404806714xgkold0s07a',
   [ActivityTypeEnum.SubscriptionTerminated]: 'text_1747404806714tszk62qvleq',
   [ActivityTypeEnum.SubscriptionUpdated]: 'text_1747404806714d01vx7xuhzc',
@@ -216,6 +218,8 @@ export const useActivityLogsInformation = () => {
         }
 
         break
+      case ActivityTypeEnum.SubscriptionCanceled:
+      case ActivityTypeEnum.SubscriptionIncomplete:
       case ActivityTypeEnum.SubscriptionStarted:
       case ActivityTypeEnum.SubscriptionTerminated:
       case ActivityTypeEnum.SubscriptionUpdated:
