@@ -13,8 +13,10 @@ import {
 } from '~/core/apolloClient/reactiveVars'
 import { useLocation, useNavigate } from '~/core/router'
 import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'
+import { resolveOrgSlug } from '~/core/router/utils/orgSlug'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { hasIframeParams } from '~/hooks/useIframeConfig'
 
 const Error404 = lazy(() => import('~/pages/Error404'))
 
@@ -32,11 +34,20 @@ const OrganizationLayout = () => {
     (m) => m.organization.slug === organizationSlug,
   )?.organization
 
-  // Single-membership auto-recovery: when a user with exactly one org lands
-  // on a legacy pre-migration path (e.g. `/customers`), redirect them to
-  // `/${theirOnlySlug}${legacyPath}` instead of showing a 404. No ambiguity
-  // exists — we know which org they meant. Users with multiple memberships
-  // keep the explicit 404 + "go home" flow because we can't pick for them.
+  // Auto-recovery for legacy pre-migration paths (e.g. `/customers`).
+  //
+  // - Single-membership users: redirect to `/${theirOnlySlug}${legacyPath}`.
+  //   No ambiguity — we know which org they meant.
+  // - Multi-membership users on iframe-embedded URLs (`?ifrm=true` /
+  //   `?sfdc=true`, used by Hubspot/Salesforce CRM cards): use the
+  //   LS-based slug from `resolveOrgSlug(currentUser)`. Pre-migration the
+  //   iframe relied implicitly on the LS-injected `x-lago-organization`
+  //   header for GraphQL scoping, so trusting LS to derive the slug here
+  //   restores the same UX contract — when LS is correct the iframe loads,
+  //   when LS is stale the inner queries 404 (same as pre-migration, no regression).
+  // - Multi-membership users on non-iframe slug-less URLs: NO auto-recover.
+  //   They still get the explicit 404 + "go home" flow because they have
+  //   agency to pick the right org manually.
   //
   // Scope-limited to `LEGACY_APP_PATH_SEGMENTS` on purpose: genuinely unknown
   // slugs (typos, revoked orgs, etc.) still produce a 404 — silently
@@ -46,7 +57,12 @@ const OrganizationLayout = () => {
     currentUser?.memberships.length === 1
       ? currentUser.memberships[0]?.organization.slug
       : undefined
-  const shouldAutoRecoverLegacyPath = !loading && !org && isLegacyPath && !!soleMembershipSlug
+
+  const isIframeContext = hasIframeParams(location.search)
+  const lsBasedSlugForIframe = isIframeContext ? resolveOrgSlug(currentUser) : undefined
+
+  const recoveredSlug = soleMembershipSlug ?? lsBasedSlugForIframe
+  const shouldAutoRecoverLegacyPath = !loading && !org && isLegacyPath && !!recoveredSlug
 
   // If currentOrgId already exists and differs from org.id, the user switched org
   // (e.g. browser back after org switch). In that case, call switchCurrentOrganization
@@ -61,14 +77,15 @@ const OrganizationLayout = () => {
     }
   }, [org?.id, currentOrgId, client])
 
-  // Auto-recover legacy paths for single-membership users (see block above).
+  // Auto-recover legacy paths for single-membership users and for
+  // multi-membership users on iframe-embedded URLs (see block above).
   // Runs in an effect (not render) to avoid React's "cannot update during
   // render" warning when navigation triggers a parent re-render. `replace`
   // keeps history clean — the legacy URL never gets a back-button entry.
   useEffect(() => {
     if (!shouldAutoRecoverLegacyPath) return
 
-    navigate(`/${soleMembershipSlug}${location.pathname}${location.search}${location.hash}`, {
+    navigate(`/${recoveredSlug}${location.pathname}${location.search}${location.hash}`, {
       replace: true,
       skipSlugPrepend: true,
       state: { autoRecoveredFromLegacy: true },
@@ -78,7 +95,8 @@ const OrganizationLayout = () => {
       level: 'info',
       tags: {
         attemptedSlug: organizationSlug ?? '',
-        recoveredToSlug: soleMembershipSlug ?? '',
+        recoveredToSlug: recoveredSlug ?? '',
+        mode: soleMembershipSlug ? 'single-org' : 'multi-org-iframe',
       },
       extra: { fullPath: location.pathname },
     })

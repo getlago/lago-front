@@ -16,6 +16,7 @@ import {
 } from '~/core/router'
 import { stripOrgSlug } from '~/core/router/utils/stripOrgSlug'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { hasIframeParams } from '~/hooks/useIframeConfig'
 import { TMembershipPermissions, usePermissions } from '~/hooks/usePermissions'
 
 type GoBack = (
@@ -129,9 +130,20 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
       } else if (routeConfig.private && !isAuthenticated) {
         /**
          * In case of navigation to a private route while NOT authenticated
-         * Redirect to login and store the intended destination in router state
+         * Redirect to login and store the intended destination in router state.
+         *
+         * Iframe params (`?sfdc=true` / `?ifrm=true`) are propagated onto the
+         * `/login` URL so `useIframeConfig` (read inside Login.tsx) keeps
+         * detecting the embed context and hides Google/Okta buttons. Without
+         * this, Salesforce/Hubspot users would see the full SSO UI inside the
+         * iframe — Google/Okta auth flows can't complete in an embedded frame
+         * (CSP / popup blockers / cookie scoping), only email+password works.
          */
-        navigate(LOGIN_ROUTE, {
+        const loginPath = hasIframeParams(location.search)
+          ? `${LOGIN_ROUTE}${location.search}`
+          : LOGIN_ROUTE
+
+        navigate(loginPath, {
           state: {
             from: location,
             orgId: getItemFromLS(ORGANIZATION_LS_KEY_ID),
