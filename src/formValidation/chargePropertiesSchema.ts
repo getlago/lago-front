@@ -35,6 +35,21 @@ export const propertiesZodSchema = z.object({
   perTransactionMinAmount: z.string().optional().nullable(),
   perTransactionMaxAmount: z.string().optional().nullable(),
   pricingGroupKeys: z.array(z.string()).optional().nullable(),
+  presentationGroupKeys: z
+    .array(
+      z.object({
+        value: z.string(),
+        options: z
+          .object({
+            displayInInvoice: z.boolean().optional().nullable(),
+          })
+          .optional()
+          .nullable(),
+      }),
+    )
+    .max(2)
+    .optional()
+    .nullable(),
   customProperties: z.unknown().optional().nullable(),
   graduatedRanges: z.array(graduatedRangeSchema).optional().nullable(),
   graduatedPercentageRanges: z.array(graduatedPercentageRangeSchema).optional().nullable(),

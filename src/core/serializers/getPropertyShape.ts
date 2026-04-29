@@ -4,6 +4,7 @@ const getPropertyShape = (properties: Properties | undefined): PropertiesInput =
   return {
     amount: properties?.amount || undefined,
     pricingGroupKeys: !!properties?.pricingGroupKeys?.length ? properties?.pricingGroupKeys : [],
+    presentationGroupKeys: properties?.presentationGroupKeys || [],
     packageSize:
       properties?.packageSize === null || properties?.packageSize === undefined
         ? 10
