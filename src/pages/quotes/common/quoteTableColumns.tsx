@@ -10,10 +10,16 @@ import { getQuoteStatusMapping } from './getQuoteStatusMapping'
 export const quoteStatusColumn = (
   translate: TranslateFunc,
 ): TableColumn<QuoteListItemFragment> => ({
-  key: 'status',
+  key: 'versions.0.status',
   title: translate('text_63ac86d797f728a87b2f9fa7'),
   minWidth: 100,
-  content: ({ status }) => <Status {...getQuoteStatusMapping(status, translate)} />,
+  content: ({ versions }) => {
+    const status = versions[0]?.status
+
+    if (!status) return null
+
+    return <Status {...getQuoteStatusMapping(status, translate)} />
+  },
 })
 
 export const quoteOrderTypeColumn = (
@@ -34,7 +40,7 @@ export const quoteCreatedAtColumn = (
 ): TableColumn<QuoteListItemFragment> => ({
   key: 'createdAt',
   title: translate(titleKey),
-  minWidth: 120,
+  minWidth: 160,
   content: ({ createdAt }) => (
     <Typography color="grey600">{intlFormatDateTimeOrgaTZ(createdAt).date}</Typography>
   ),

@@ -15,8 +15,8 @@ export const QUOTES_LIST_ROUTE = '/quotes'
 export const QUOTES_TAB_ROUTE = `${QUOTES_LIST_ROUTE}/:tab`
 export const QUOTE_DETAILS_ROUTE = '/quote/:quoteId/:tab'
 export const CREATE_QUOTE_ROUTE = '/quote/create'
-export const EDIT_QUOTE_ROUTE = '/quote/:quoteId/edit'
-export const VOID_QUOTE_ROUTE = '/quote/:quoteId/void'
+export const EDIT_QUOTE_ROUTE = '/quote/:quoteId/version/:versionId/edit'
+export const VOID_QUOTE_ROUTE = '/quote/:quoteId/version/:versionId/void'
 
 export const quotesRoutes: CustomRouteObject[] = [
   {

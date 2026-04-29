@@ -37,14 +37,13 @@ describe('useQuotes', () => {
 
   describe('GIVEN custom variables are provided', () => {
     it('THEN should merge them with defaults', () => {
-      renderHook(() => useQuotes({ latestVersionOnly: true, number: ['QT-001'] }))
+      renderHook(() => useQuotes({ numbers: ['QT-001'] }))
 
       expect(mockUseGetQuotesQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           variables: expect.objectContaining({
             limit: 20,
-            latestVersionOnly: true,
-            number: ['QT-001'],
+            numbers: ['QT-001'],
           }),
         }),
       )

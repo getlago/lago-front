@@ -56,7 +56,7 @@ describe('useCreateQuote', () => {
 
   describe('GIVEN onSave is called', () => {
     describe('WHEN called with a one-off quote without subscriptionId', () => {
-      it('THEN should call createQuote mutation with correct variables and no billingItems', async () => {
+      it('THEN should call createQuote mutation with correct variables', async () => {
         mockCreateQuote.mockResolvedValue({ data: { createQuote: { id: 'quote-1' } } })
 
         const { result } = renderHook(() => useCreateQuote(), { wrapper })
@@ -73,7 +73,8 @@ describe('useCreateQuote', () => {
             input: {
               customerId: 'customer-123',
               orderType: OrderTypeEnum.OneOff,
-              billingItems: undefined,
+              subscriptionId: undefined,
+              owners: undefined,
             },
           },
         })
@@ -81,7 +82,7 @@ describe('useCreateQuote', () => {
     })
 
     describe('WHEN called with a subscription amendment and subscriptionId', () => {
-      it('THEN should call createQuote mutation with billingItems containing subscriptionId', async () => {
+      it('THEN should call createQuote mutation with subscriptionId', async () => {
         mockCreateQuote.mockResolvedValue({ data: { createQuote: { id: 'quote-2' } } })
 
         const { result } = renderHook(() => useCreateQuote(), { wrapper })
@@ -99,7 +100,8 @@ describe('useCreateQuote', () => {
             input: {
               customerId: 'customer-456',
               orderType: OrderTypeEnum.SubscriptionAmendment,
-              billingItems: { subscriptionId: 'sub-789' },
+              subscriptionId: 'sub-789',
+              owners: undefined,
             },
           },
         })
@@ -125,7 +127,7 @@ describe('useCreateQuote', () => {
             input: {
               customerId: 'customer-789',
               orderType: OrderTypeEnum.OneOff,
-              billingItems: undefined,
+              subscriptionId: undefined,
               owners: ['user-1', 'user-2'],
             },
           },
@@ -151,7 +153,7 @@ describe('useCreateQuote', () => {
             input: {
               customerId: 'customer-789',
               orderType: OrderTypeEnum.OneOff,
-              billingItems: undefined,
+              subscriptionId: undefined,
               owners: undefined,
             },
           },
