@@ -38,6 +38,7 @@ import {
   GraduatedPercentageChargeFragmentDoc,
   PackageChargeFragmentDoc,
   PercentageChargeFragmentDoc,
+  PresentationGroupKeysFragmentDoc,
   PricingGroupKeysFragmentDoc,
   RegroupPaidFeesEnum,
   StandardChargeFragmentDoc,
@@ -97,6 +98,7 @@ gql`
       ...PercentageCharge
       ...CustomCharge
       ...PricingGroupKeys
+      ...PresentationGroupKeys
     }
     filters {
       invoiceDisplayName
@@ -141,6 +143,7 @@ gql`
   ${PercentageChargeFragmentDoc}
   ${CustomChargeFragmentDoc}
   ${PricingGroupKeysFragmentDoc}
+  ${PresentationGroupKeysFragmentDoc}
   ${TaxForTaxesSelectorSectionFragmentDoc}
 `
 

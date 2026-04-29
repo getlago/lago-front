@@ -58,8 +58,11 @@ export const serializeProperties = (properties: Properties, chargeModel: ChargeM
           pricingGroupKeys: !!properties?.pricingGroupKeys?.length
             ? properties?.pricingGroupKeys
             : undefined,
+          presentationGroupKeys: !!properties?.presentationGroupKeys?.length
+            ? properties?.presentationGroupKeys
+            : undefined,
         }
-      : { pricingGroupKeys: undefined }),
+      : { pricingGroupKeys: undefined, presentationGroupKeys: undefined }),
     ...([ChargeModelEnum.Package, ChargeModelEnum.Standard].includes(chargeModel)
       ? { amount: !!properties?.amount ? String(properties?.amount) : undefined }
       : {}),
