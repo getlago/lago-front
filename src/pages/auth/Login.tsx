@@ -12,7 +12,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TextInputField } from '~/components/form'
 import { envGlobalVar, hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
-import { FORGOT_PASSWORD_ROUTE, LOGIN_OKTA, SIGN_UP_ROUTE } from '~/core/router'
+import { FORGOT_PASSWORD_ROUTE, LOGIN_ENTRA_ID, LOGIN_OKTA, SIGN_UP_ROUTE } from '~/core/router'
 import { AuthenticationMethodsEnum, LagoApiError, useLoginUserMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
@@ -21,6 +21,7 @@ import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { Card, Page, StyledLogo } from '~/styles/auth'
 
 const { disableSignUp } = envGlobalVar()
+const ENTRA_ID_LOGIN_METHOD_NOT_AUTHORIZED = 'entra_id_login_method_not_authorized'
 
 gql`
   mutation loginUser($input: LoginUserInput!) {
@@ -37,7 +38,7 @@ const Login = () => {
   const navigate = useNavigate()
   const { closePanel: closeDevTool } = useDeveloperTool()
   const client = useApolloClient()
-  const [authMethodError, setAuthMethodError] = useState<AuthenticationMethodsEnum>()
+  const [authMethodError, setAuthMethodError] = useState<AuthenticationMethodsEnum | 'entra_id'>()
   const [searchParams] = useSearchParams()
 
   const lagoErrorCode = searchParams.get('lago_error_code')
@@ -47,6 +48,8 @@ const Login = () => {
     // Google login method is handled in GoogleAuthButton
     if (lagoErrorCode === LagoApiError.OktaLoginMethodNotAuthorized) {
       setAuthMethodError(AuthenticationMethodsEnum.Okta)
+    } else if (lagoErrorCode === ENTRA_ID_LOGIN_METHOD_NOT_AUTHORIZED) {
+      setAuthMethodError('entra_id')
     }
   }, [lagoErrorCode])
 
@@ -124,7 +127,10 @@ const Login = () => {
           {authMethodError && (
             <Alert data-test="login-method-not-authorized-alert" type="danger">
               {translate('text_17521583805554mlsol8fld6', {
-                method: translate(authenticationMethodsMapping[authMethodError]),
+                method:
+                  authMethodError === 'entra_id'
+                    ? 'Entra ID'
+                    : translate(authenticationMethodsMapping[authMethodError]),
               })}
             </Alert>
           )}
@@ -145,6 +151,15 @@ const Login = () => {
                   onClick={() => navigate(LOGIN_OKTA, { state: location.state })}
                 >
                   {translate('text_664c90c9b2b6c2012aa50bce')}
+                </Button>
+                <Button
+                  fullWidth
+                  startIcon="key"
+                  size="large"
+                  variant="tertiary"
+                  onClick={() => navigate(LOGIN_ENTRA_ID, { state: location.state })}
+                >
+                  Log in with Entra ID
                 </Button>
               </Stack>
 

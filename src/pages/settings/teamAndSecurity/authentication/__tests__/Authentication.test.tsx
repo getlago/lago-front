@@ -232,8 +232,8 @@ describe('Authentication', () => {
 
     const selectorButtons = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
 
-    // Click the Okta selector (3rd one)
-    await user.click(selectorButtons[2])
+    // Click the Okta selector (4th one, after Entra ID)
+    await user.click(selectorButtons[3])
 
     await waitFor(() => {
       expect(testMockNavigateFn).toHaveBeenCalled()

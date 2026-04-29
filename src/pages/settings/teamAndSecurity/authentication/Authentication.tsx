@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql, useQuery } from '@apollo/client'
 import { ConditionalWrapper, Icon } from 'lago-design-system'
 import { generatePath, useNavigate } from 'react-router-dom'
 
@@ -16,7 +16,7 @@ import {
   SettingsListWrapper,
   SettingsWithTabsPaddedContainer,
 } from '~/components/layouts/Settings'
-import { OKTA_AUTHENTICATION_ROUTE } from '~/core/router'
+import { ENTRA_ID_AUTHENTICATION_ROUTE, OKTA_AUTHENTICATION_ROUTE } from '~/core/router'
 import {
   AddOktaIntegrationDialogFragmentDoc,
   AuthenticationMethodsEnum,
@@ -31,7 +31,9 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Okta from '~/public/images/okta.svg'
 import { MenuPopper } from '~/styles'
 
+import { useAddEntraIdDialog } from './dialogs/AddEntraIdDialog'
 import { useAddOktaDialog } from './dialogs/AddOktaDialog'
+import { useDeleteEntraIdIntegrationDialog } from './dialogs/DeleteEntraIdIntegrationDialog'
 import { useDeleteOktaIntegrationDialog } from './dialogs/DeleteOktaIntegrationDialog'
 import { useUpdateLoginMethodDialog } from './dialogs/UpdateLoginMethodDialog'
 
@@ -52,6 +54,43 @@ gql`
   }
 `
 
+const GET_ENTRA_ID_INTEGRATIONS = gql`
+  query GetEntraIdIntegrations($limit: Int!) {
+    integrations(limit: $limit) {
+      collection {
+        ... on EntraIdIntegration {
+          id
+          domain
+          host
+          clientId
+          clientSecret
+          tenantId
+        }
+      }
+    }
+  }
+`
+
+type EntraIdIntegration = {
+  __typename: 'EntraIdIntegration'
+  id: string
+  domain?: string | null
+  host?: string | null
+  clientId?: string | null
+  clientSecret?: string | null
+  tenantId?: string | null
+}
+
+type GetAuthIntegrationsResult = {
+  integrations?: {
+    collection: Array<EntraIdIntegration>
+  } | null
+}
+
+const ENTRA_ID_METHOD = 'entra_id' as const
+type OrganizationAuthenticationMethod = AuthenticationMethodsEnum | typeof ENTRA_ID_METHOD
+const ENTRA_ID_PREMIUM_INTEGRATION = 'entra_id' as unknown as PremiumIntegrationTypeEnum
+
 const Authentication = () => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
@@ -64,38 +103,58 @@ const Authentication = () => {
 
   const premiumWarningDialog = usePremiumWarningDialog()
   const { openAddOktaDialog } = useAddOktaDialog()
+  const { openAddEntraIdDialog } = useAddEntraIdDialog()
   const { openDeleteOktaIntegrationDialog } = useDeleteOktaIntegrationDialog()
+  const { openDeleteEntraIdIntegrationDialog } = useDeleteEntraIdIntegrationDialog()
   const { openUpdateLoginMethodDialog } = useUpdateLoginMethodDialog()
 
   const { data: authIntegrationsData, loading: authIntegrationsLoading } =
     useGetAuthIntegrationsQuery({ variables: { limit: 10 } })
+  const { data: entraIdIntegrationsData, loading: entraIdIntegrationsLoading } =
+    useQuery<GetAuthIntegrationsResult>(GET_ENTRA_ID_INTEGRATIONS, { variables: { limit: 10 } })
 
   const hasAccessToOktaPremiumIntegration = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.Okta,
+  )
+  const hasAccessToEntraIdPremiumIntegration = !!premiumIntegrations?.includes(
+    ENTRA_ID_PREMIUM_INTEGRATION,
   )
 
   const oktaIntegration = authIntegrationsData?.integrations?.collection.find(
     (integration) => integration.__typename === 'OktaIntegration',
   ) as OktaIntegration | undefined
+  const entraIdIntegration = entraIdIntegrationsData?.integrations?.collection.find(
+    (integration) => integration.__typename === 'EntraIdIntegration',
+  ) as EntraIdIntegration | undefined
 
   const shouldSeeOktaIntegration = hasAccessToOktaPremiumIntegration && isPremium
+  const shouldSeeEntraIdIntegration = hasAccessToEntraIdPremiumIntegration && isPremium
+  const authIntegrationLoading = authIntegrationsLoading || entraIdIntegrationsLoading
 
   const getEndContent = ({
     type,
     method,
   }: {
     type: 'enabled' | 'disabled'
-    method: AuthenticationMethodsEnum
+    method: OrganizationAuthenticationMethod
   }) => {
     let isPopperVisible = true
     let icon = undefined
+    const organizationAuthenticationMethods = (authenticationMethods || []) as string[]
     const isUniqueAuthenticationMethodEnabled =
-      authenticationMethods?.length === 1 && authenticationMethods?.includes(method)
+      organizationAuthenticationMethods.length === 1 &&
+      organizationAuthenticationMethods.includes(method)
 
     if (method === AuthenticationMethodsEnum.Okta && !shouldSeeOktaIntegration) {
       isPopperVisible = false
       icon = <Icon name="sparkles" size="medium" />
     } else if (method === AuthenticationMethodsEnum.Okta && !oktaIntegration?.id) {
+      isPopperVisible = false
+      icon = undefined
+    } else if (method === ENTRA_ID_METHOD && !shouldSeeEntraIdIntegration) {
+      isPopperVisible = false
+      icon = <Icon name="sparkles" size="medium" />
+    } else if (method === ENTRA_ID_METHOD && !entraIdIntegration?.id) {
       isPopperVisible = false
       icon = undefined
     } else if (type === 'enabled') {
@@ -120,7 +179,11 @@ const Authentication = () => {
 
     return (
       <ConditionalWrapper
-        condition={isUniqueAuthenticationMethodEnabled && method !== AuthenticationMethodsEnum.Okta}
+        condition={
+          isUniqueAuthenticationMethodEnabled &&
+          method !== AuthenticationMethodsEnum.Okta &&
+          method !== ENTRA_ID_METHOD
+        }
         validWrapper={(children) => (
           <Tooltip title={translate('text_1752158016615ah5wceoz1ed')} placement="top">
             {children}
@@ -138,7 +201,7 @@ const Authentication = () => {
                 size="small"
                 startIcon="link"
                 variant="primary"
-                loading={authIntegrationsLoading}
+                loading={authIntegrationLoading}
                 onClick={() => {
                   if (!shouldSeeOktaIntegration) {
                     return premiumWarningDialog.open()
@@ -154,6 +217,27 @@ const Authentication = () => {
                 {translate('text_657078c28394d6b1ae1b9789')}
               </Button>
             )}
+          {method === ENTRA_ID_METHOD && shouldSeeEntraIdIntegration && !entraIdIntegration?.id && (
+            <Button
+              size="small"
+              startIcon="link"
+              variant="primary"
+              loading={authIntegrationLoading}
+              onClick={() => {
+                if (!shouldSeeEntraIdIntegration) {
+                  return premiumWarningDialog.open()
+                }
+
+                return openAddEntraIdDialog({
+                  integration: entraIdIntegration,
+                  callback: (id) =>
+                    navigate(generatePath(ENTRA_ID_AUTHENTICATION_ROUTE, { integrationId: id })),
+                })
+              }}
+            >
+              {translate('text_657078c28394d6b1ae1b9789')}
+            </Button>
+          )}
 
           {isPopperVisible && (
             <Popper
@@ -215,7 +299,7 @@ const Authentication = () => {
                         startIcon="pen"
                         variant="quaternary"
                         align="left"
-                        loading={authIntegrationsLoading}
+                        loading={authIntegrationLoading}
                         onClick={(e) => {
                           e.stopPropagation()
 
@@ -245,13 +329,67 @@ const Authentication = () => {
                           startIcon="trash"
                           variant="quaternary"
                           align="left"
-                          loading={authIntegrationsLoading}
+                          loading={authIntegrationLoading}
                           disabled={isUniqueAuthenticationMethodEnabled}
                           onClick={(e) => {
                             e.stopPropagation()
 
                             openDeleteOktaIntegrationDialog({
                               integration: oktaIntegration,
+                              callback: () => {
+                                refetchOrganizationInfos()
+                              },
+                            })
+                          }}
+                        >
+                          {translate('text_17522481192202remk2eytrr')}
+                        </Button>
+                      </ConditionalWrapper>
+                    </>
+                  )}
+                  {method === ENTRA_ID_METHOD && entraIdIntegration?.id && (
+                    <>
+                      <Button
+                        startIcon="pen"
+                        variant="quaternary"
+                        align="left"
+                        loading={authIntegrationLoading}
+                        onClick={(e) => {
+                          e.stopPropagation()
+
+                          openAddEntraIdDialog({
+                            integration: entraIdIntegration,
+                            callback: () => {
+                              refetchOrganizationInfos()
+                            },
+                          })
+                        }}
+                      >
+                        {translate('text_664c8fa719b5e7ad81c86018')}
+                      </Button>
+                      <ConditionalWrapper
+                        condition={isUniqueAuthenticationMethodEnabled}
+                        validWrapper={(children) => (
+                          <Tooltip
+                            title={translate('text_1752158016615ah5wceoz1ed')}
+                            placement="bottom"
+                          >
+                            {children}
+                          </Tooltip>
+                        )}
+                        invalidWrapper={(children) => <>{children}</>}
+                      >
+                        <Button
+                          startIcon="trash"
+                          variant="quaternary"
+                          align="left"
+                          loading={authIntegrationLoading}
+                          disabled={isUniqueAuthenticationMethodEnabled}
+                          onClick={(e) => {
+                            e.stopPropagation()
+
+                            openDeleteEntraIdIntegrationDialog({
+                              integration: entraIdIntegration,
                               callback: () => {
                                 refetchOrganizationInfos()
                               },
@@ -312,6 +450,40 @@ const Authentication = () => {
                   ? 'enabled'
                   : 'disabled',
                 method: AuthenticationMethodsEnum.GoogleOauth,
+              })}
+            />
+            <Selector
+              title="Microsoft Entra ID"
+              subtitle="Enterprise SSO via Microsoft identity platform."
+              icon={
+                <Avatar size="big" variant="connector">
+                  <Icon name="key" color="black" />
+                </Avatar>
+              }
+              onClick={() => {
+                if (!shouldSeeEntraIdIntegration) {
+                  return premiumWarningDialog.open()
+                }
+
+                if (entraIdIntegration?.id) {
+                  return navigate(
+                    generatePath(ENTRA_ID_AUTHENTICATION_ROUTE, {
+                      integrationId: entraIdIntegration.id,
+                    }),
+                  )
+                }
+
+                return openAddEntraIdDialog({
+                  integration: entraIdIntegration,
+                  callback: (id) =>
+                    navigate(generatePath(ENTRA_ID_AUTHENTICATION_ROUTE, { integrationId: id })),
+                })
+              }}
+              endContent={getEndContent({
+                method: ENTRA_ID_METHOD,
+                type: (authenticationMethods as string[] | undefined)?.includes(ENTRA_ID_METHOD)
+                  ? 'enabled'
+                  : 'disabled',
               })}
             />
 
