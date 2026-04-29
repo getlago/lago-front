@@ -54,7 +54,9 @@ const QuotesList = (): JSX.Element => {
       title: translate('text_1775747115932pql5mtb30dc'),
       minWidth: 80,
       textAlign: 'right',
-      content: ({ versions }) => <Typography color="grey600">{versions[0]?.version}</Typography>,
+      content: ({ versions }) => (
+        <Typography color="grey600">{versions[0]?.version ?? '-'}</Typography>
+      ),
     },
     { ...quoteOrderTypeColumn(translate, 'text_1775747115932x8ryaymh8ej'), minWidth: 220 },
     quoteCreatedAtColumn(translate, 'text_624efab67eb2570101d117e3', intlFormatDateTimeOrgaTZ),

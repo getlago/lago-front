@@ -56,9 +56,9 @@ const VoidQuote = () => {
     refetchQueries: ['getQuotes'],
   })
 
-  const performVoid = async () => {
-    const versionId = quote?.versions[0]?.id
+  const versionId = quote?.versions[0]?.id
 
+  const performVoid = async () => {
     if (!quoteId || !versionId) return null
 
     const result = await voidQuoteVersionMutation({
@@ -93,8 +93,6 @@ const VoidQuote = () => {
 
   const onVoidAndGenerateNewVersion = async () => {
     const voided = await performVoid()
-
-    const versionId = quote?.versions[0]?.id
 
     if (voided && versionId) {
       const clonedQuote = await cloneQuoteVersion(versionId)
