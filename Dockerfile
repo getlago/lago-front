@@ -38,16 +38,23 @@ COPY . .
 
 # Late ARGs — declared here so a change to APP_VERSION only invalidates the
 # final `pnpm build` step, never the install above.
+# SENTRY_AUTH_TOKEN is intentionally NOT an ARG: it's a credential, and ARG
+# values can leak into the final image's history layers and are flagged by
+# the Dockerfile linter (SecretsUsedInArgOrEnv). It's mounted as a build
+# secret on the RUN below instead.
 ARG SENTRY_DSN
 ARG SENTRY_ORG
 ARG SENTRY_FRONT_PROJECT
-ARG SENTRY_AUTH_TOKEN
 ARG APP_VERSION
 ENV APP_VERSION=$APP_VERSION
 
-# `pnpm build` runs `prebuild` first, which builds `lago-design-system`
-# (source is now present, unlike in the deps stage).
-RUN pnpm build
+# `pnpm build` runs `prebuild` first, which builds `lago-design-system`.
+# `--mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN` exposes
+# the secret only as an env var to this single RUN — never written to the
+# image filesystem, never persisted in build history. Requires the calling
+# workflow to pass `secrets: sentry_auth_token=...` to docker buildx build.
+RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
+    pnpm build
 
 
 # --- runtime stage: nginx serving the built dist ---------------------------
