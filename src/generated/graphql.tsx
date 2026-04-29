@@ -3832,6 +3832,7 @@ export enum EventTypeEnum {
 export enum FeatureFlagEnum {
   EnrichedEventsAggregation = 'enriched_events_aggregation',
   MultiCurrency = 'multi_currency',
+  MultiEntityBilling = 'multi_entity_billing',
   MultiplePaymentMethods = 'multiple_payment_methods',
   NonPersistableChargeCacheOptimization = 'non_persistable_charge_cache_optimization',
   PaymentGatedSubscriptions = 'payment_gated_subscriptions',
