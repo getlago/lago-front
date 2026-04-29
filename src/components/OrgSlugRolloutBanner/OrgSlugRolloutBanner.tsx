@@ -8,7 +8,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 // TODO(org-slug-rollout): two-phase removal — see ticket §7.
-// Cloud cleanup ≈1 week after May 8, 2026; self-hosted cleanup when the OSS release ships.
+// Cloud cleanup ≈1 week after May 11, 2026; self-hosted cleanup when the OSS release ships.
 
 export const ORG_SLUG_ROLLOUT_BANNER_TEST_ID = 'org-slug-rollout-banner'
 export const ORG_SLUG_ROLLOUT_BANNER_CLOUD_VARIANT = 'cloud'
