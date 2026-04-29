@@ -1,26 +1,16 @@
 import { Properties, PropertiesInput } from '~/generated/graphql'
 
-// Retype because displayInInvoice needs to be string for Combobox but API sends boolean or undefined
-type PropertiesMappedToForm = Omit<PropertiesInput, 'presentationGroupKeys'> & {
-  presentationGroupKeys: Array<
-    Omit<NonNullable<PropertiesInput['presentationGroupKeys']>[number], 'options'> & {
-      options: {
-        displayInInvoice?: 'true' | 'false'
-      }
-    }
-  >
-}
-
-const getPropertyShape = (properties: Properties | undefined): PropertiesMappedToForm => {
+const getPropertyShape = (properties: Properties | undefined): PropertiesInput => {
   return {
     amount: properties?.amount || undefined,
     pricingGroupKeys: !!properties?.pricingGroupKeys?.length ? properties?.pricingGroupKeys : [],
+    // ComboBoxField stores displayInInvoice as 'true'/'false' strings at runtime,
+    // but we keep PropertiesInput (boolean) for type compatibility across consumers.
     presentationGroupKeys: (properties?.presentationGroupKeys || []).map((key) => ({
       ...key,
       options: {
         ...key.options,
-        // ComboBoxField stores strings; cast to satisfy GraphQL types
-        displayInInvoice: key.options?.displayInInvoice ? 'true' : 'false',
+        displayInInvoice: (key.options?.displayInInvoice ? 'true' : 'false') as unknown as boolean,
       },
     })),
     packageSize:
