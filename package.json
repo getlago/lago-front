@@ -123,7 +123,7 @@
     "@nangohq/frontend": "0.70.1",
     "@sentry/react": "10.49.0",
     "@superset-ui/embedded-sdk": "0.3.0",
-    "@tanstack/react-form": "1.29.0",
+    "@tanstack/react-form": "1.29.1",
     "@tanstack/react-virtual": "3.13.24",
     "@tiptap/core": "3.22.4",
     "@tiptap/extension-blockquote": "3.22.4",
