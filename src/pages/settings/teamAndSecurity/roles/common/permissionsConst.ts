@@ -65,8 +65,6 @@ export const permissionGroupMapping: PermissionGroupMapping = {
     'InvoicesVoid',
     'InvoicesExport',
   ],
-  orderForms: ['OrderFormsCreate', 'OrderFormsSign', 'OrderFormsView', 'OrderFormsVoid'],
-  orders: ['OrdersCreate', 'OrdersView', 'OrdersExecute'],
   organization: [
     'OrganizationView',
     'OrganizationUpdate',
@@ -131,8 +129,6 @@ export const groupNameMapping: Record<string, string> = {
   features: 'text_1752692673070k7z0mmf0494',
   invoiceCustomSections: 'text_1765882631575jrjzdfbdvn5',
   invoices: 'text_63ac86d797f728a87b2f9f85',
-  orderForms: 'text_1776155115321hj4ycaxlwby',
-  orders: 'text_1776155115321305hkemk0da',
   organization: 'text_173289482048511y9ieyywq5',
   payments: 'text_6672ebb8b1b50be550eccbed',
   plans: 'text_62442e40cea25600b0b6d85a',
@@ -236,17 +232,6 @@ export const permissionDescriptionMapping: Partial<Record<PermissionName, string
   InvoicesUpdate: 'text_1766047581849kg8h3krio7b',
   InvoicesView: 'text_17660475818496eb8mnaygrc',
   InvoicesVoid: 'text_1766047581850xfdxud1g9ic',
-
-  // Order Forms
-  OrderFormsCreate: 'text_1776155115321lq4jxg31apg',
-  OrderFormsSign: 'text_1776155115321p69xyj9gc3s',
-  OrderFormsView: 'text_1776155115322i21879iijst',
-  OrderFormsVoid: 'text_1776155115322saj5ykjtdgk',
-
-  // Orders
-  OrdersCreate: 'text_1776155115322jjyn2clxe1v',
-  OrdersExecute: 'text_1776155115322tvm19jjj47e',
-  OrdersView: 'text_1776155115322hbw4qqubvmd',
 
   // Organization
   OrganizationView: 'text_1766047581850c4xikdtb4v6',

@@ -33,19 +33,25 @@ jest.mock('../useCloneQuote', () => ({
   }),
 }))
 
-const createMockVersion = (
-  overrides: Partial<QuoteListItemFragment> = {},
-): QuoteListItemFragment => ({
-  id: 'quote-v1',
-  number: 'QT-001',
-  status: StatusEnum.Draft,
-  version: 1,
-  orderType: 'SubscriptionCreation' as QuoteListItemFragment['orderType'],
-  currency: 'EUR',
-  createdAt: '2026-04-01T10:00:00Z',
-  customer: { id: 'cust-1', name: 'Acme' },
-  ...overrides,
-})
+const createMockQuote = (
+  overrides: Partial<Omit<QuoteListItemFragment, 'versions'>> & {
+    status?: StatusEnum
+    version?: number
+    versionId?: string
+  } = {},
+): QuoteListItemFragment => {
+  const { status = StatusEnum.Draft, version = 1, versionId = 'version-1', ...rest } = overrides
+
+  return {
+    id: 'quote-v1',
+    number: 'QT-001',
+    orderType: 'SubscriptionCreation' as QuoteListItemFragment['orderType'],
+    createdAt: '2026-04-01T10:00:00Z',
+    customer: { id: 'cust-1', name: 'Acme' },
+    versions: [{ id: versionId, status, version }],
+    ...rest,
+  }
+}
 
 describe('useQuoteVersionActions', () => {
   beforeEach(() => {
@@ -69,7 +75,7 @@ describe('useQuoteVersionActions', () => {
       it('THEN should return 4 actions: approve, edit, void, duplicate', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
-        const actions = result.current.getActions(createMockVersion({ status: StatusEnum.Draft }))
+        const actions = result.current.getActions(createMockQuote({ status: StatusEnum.Draft }))
 
         expect(actions).toHaveLength(4)
         expect(actions[0].icon).toBe('validate-unfilled')
@@ -84,12 +90,16 @@ describe('useQuoteVersionActions', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
         const actions = result.current.getActions(
-          createMockVersion({ id: 'draft-1', status: StatusEnum.Draft }),
+          createMockQuote({
+            id: 'draft-1',
+            versionId: 'version-draft-1',
+            status: StatusEnum.Draft,
+          }),
         )
 
         actions[0].onAction()
 
-        expect(mockApproveQuote).toHaveBeenCalledWith('draft-1')
+        expect(mockApproveQuote).toHaveBeenCalledWith('version-draft-1')
       })
     })
 
@@ -98,12 +108,18 @@ describe('useQuoteVersionActions', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
         const actions = result.current.getActions(
-          createMockVersion({ id: 'draft-1', status: StatusEnum.Draft }),
+          createMockQuote({
+            id: 'draft-1',
+            versionId: 'version-draft-1',
+            status: StatusEnum.Draft,
+          }),
         )
 
         actions[1].onAction()
 
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/draft-1/edit')
+        expect(testMockNavigateFn).toHaveBeenCalledWith(
+          '/quote/draft-1/version/version-draft-1/edit',
+        )
       })
     })
 
@@ -112,12 +128,18 @@ describe('useQuoteVersionActions', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
         const actions = result.current.getActions(
-          createMockVersion({ id: 'draft-1', status: StatusEnum.Draft }),
+          createMockQuote({
+            id: 'draft-1',
+            versionId: 'version-draft-1',
+            status: StatusEnum.Draft,
+          }),
         )
 
         actions[2].onAction()
 
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/draft-1/void')
+        expect(testMockNavigateFn).toHaveBeenCalledWith(
+          '/quote/draft-1/version/version-draft-1/void',
+        )
       })
     })
 
@@ -126,8 +148,9 @@ describe('useQuoteVersionActions', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
         const actions = result.current.getActions(
-          createMockVersion({
+          createMockQuote({
             id: 'draft-1',
+            versionId: 'version-draft-1',
             number: 'QT-001',
             version: 3,
             status: StatusEnum.Draft,
@@ -136,7 +159,7 @@ describe('useQuoteVersionActions', () => {
 
         actions[3].onAction()
 
-        expect(mockOpenCloneDialog).toHaveBeenCalledWith('draft-1', 'QT-001 - v3')
+        expect(mockOpenCloneDialog).toHaveBeenCalledWith('version-draft-1', 'QT-001 - v3')
       })
     })
   })
@@ -146,9 +169,7 @@ describe('useQuoteVersionActions', () => {
       it('THEN should return an empty array', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
-        const actions = result.current.getActions(
-          createMockVersion({ status: StatusEnum.Approved }),
-        )
+        const actions = result.current.getActions(createMockQuote({ status: StatusEnum.Approved }))
 
         expect(actions).toHaveLength(0)
       })
@@ -160,7 +181,7 @@ describe('useQuoteVersionActions', () => {
       it('THEN should return only the duplicate action', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
-        const actions = result.current.getActions(createMockVersion({ status: StatusEnum.Voided }))
+        const actions = result.current.getActions(createMockQuote({ status: StatusEnum.Voided }))
 
         expect(actions).toHaveLength(1)
         expect(actions[0].icon).toBe('duplicate')
@@ -178,7 +199,7 @@ describe('useQuoteVersionActions', () => {
 
         const { result } = renderHook(() => useQuoteVersionActions())
 
-        const actions = result.current.getActions(createMockVersion({ status: StatusEnum.Draft }))
+        const actions = result.current.getActions(createMockQuote({ status: StatusEnum.Draft }))
 
         expect(actions.map((a) => a.icon)).not.toContain('validate-unfilled')
         expect(actions).toHaveLength(3)
@@ -194,7 +215,7 @@ describe('useQuoteVersionActions', () => {
 
         const { result } = renderHook(() => useQuoteVersionActions())
 
-        const actions = result.current.getActions(createMockVersion({ status: StatusEnum.Draft }))
+        const actions = result.current.getActions(createMockQuote({ status: StatusEnum.Draft }))
 
         expect(actions.map((a) => a.icon)).not.toContain('pen')
         expect(actions).toHaveLength(3)
@@ -210,7 +231,7 @@ describe('useQuoteVersionActions', () => {
 
         const { result } = renderHook(() => useQuoteVersionActions())
 
-        const actions = result.current.getActions(createMockVersion({ status: StatusEnum.Draft }))
+        const actions = result.current.getActions(createMockQuote({ status: StatusEnum.Draft }))
 
         expect(actions.map((a) => a.icon)).not.toContain('stop')
         expect(actions).toHaveLength(3)
@@ -226,7 +247,7 @@ describe('useQuoteVersionActions', () => {
 
         const { result } = renderHook(() => useQuoteVersionActions())
 
-        const actions = result.current.getActions(createMockVersion({ status: StatusEnum.Draft }))
+        const actions = result.current.getActions(createMockQuote({ status: StatusEnum.Draft }))
 
         expect(actions.map((a) => a.icon)).not.toContain('duplicate')
         expect(actions).toHaveLength(3)
@@ -239,7 +260,7 @@ describe('useQuoteVersionActions', () => {
 
         const { result } = renderHook(() => useQuoteVersionActions())
 
-        const actions = result.current.getActions(createMockVersion({ status: StatusEnum.Draft }))
+        const actions = result.current.getActions(createMockQuote({ status: StatusEnum.Draft }))
 
         expect(actions).toHaveLength(0)
       })

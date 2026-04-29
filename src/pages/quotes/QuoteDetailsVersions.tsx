@@ -1,67 +1,57 @@
-import { FetchMoreQueryOptions, OperationVariables } from '@apollo/client'
 import { Fragment } from 'react'
 
 import { Chip } from '~/components/designSystem/Chip'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { GetQuotesQuery, QuoteDetailItemFragment, QuoteListItemFragment } from '~/generated/graphql'
+import { QuoteDetailItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
-import { createQuotesPaginationHandler } from './common/quotesPaginationHandler'
-import { quoteCreatedAtColumn, quoteStatusColumn } from './common/quoteTableColumns'
+import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
 import { useQuoteVersionActions } from './hooks/useQuoteVersionActions'
+
+type QuoteVersion = QuoteDetailItemFragment['versions'][number]
 
 interface QuoteDetailsVersionsProps {
   quote: QuoteDetailItemFragment
-  versions: QuoteListItemFragment[]
-  versionsLoading: boolean
-  fetchMore:
-    | ((
-        fetchMoreOptions: FetchMoreQueryOptions<OperationVariables, GetQuotesQuery>,
-      ) => Promise<unknown>)
-    | undefined
-  metadata: GetQuotesQuery['quotes']['metadata'] | undefined
 }
 
 export const QUOTE_VERSIONS_TABLE_TEST_ID = 'quote-versions-table'
 
-const QuoteDetailsVersions = ({
-  quote,
-  versions,
-  versionsLoading: loading,
-  fetchMore,
-  metadata,
-}: QuoteDetailsVersionsProps): JSX.Element => {
+const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { getActions } = useQuoteVersionActions()
 
-  const versionColumns: Array<TableColumn<QuoteListItemFragment>> = [
-    quoteStatusColumn(translate),
+  const versionColumns: Array<TableColumn<QuoteVersion>> = [
+    {
+      key: 'status',
+      title: translate('text_63ac86d797f728a87b2f9fa7'),
+      minWidth: 100,
+      content: ({ status }) => <Status {...getQuoteStatusMapping(status, translate)} />,
+    },
     {
       key: 'version',
       maxSpace: true,
       title: translate('text_1775747115932pql5mtb30dc'),
       minWidth: 80,
-      content: ({ number, version }) => (
+      content: ({ version }) => (
         <Typography color="grey600">
-          {number} - v{version}
+          {quote.number} - v{version}
         </Typography>
       ),
     },
     {
-      key: 'currency',
-      title: translate('text_632b4acf0c41206cbcb8c324'),
-      minWidth: 100,
-      content: ({ currency }) => <Typography color="grey600">{currency || '-'}</Typography>,
-    },
-    {
-      ...quoteCreatedAtColumn(translate, 'text_17758254440392sc27lxm6ua', intlFormatDateTimeOrgaTZ),
+      key: 'createdAt',
+      title: translate('text_17758254440392sc27lxm6ua'),
+      minWidth: 120,
       maxSpace: true,
+      content: ({ createdAt }) => (
+        <Typography color="grey600">{intlFormatDateTimeOrgaTZ(createdAt).date}</Typography>
+      ),
     },
   ]
 
@@ -94,8 +84,8 @@ const QuoteDetailsVersions = ({
       : []),
   ]
 
-  const versionActionColumn = (version: QuoteListItemFragment) => {
-    const actions = getActions(version)
+  const versionActionColumn = (version: QuoteVersion) => {
+    const actions = getActions(quote, version)
 
     if (actions.length === 0) return null
 
@@ -131,17 +121,14 @@ const QuoteDetailsVersions = ({
           <Typography variant="subhead1">{translate('text_1775825275651t25f8xbhmai')}</Typography>
           <Typography variant="caption">{translate('text_1775825275651evevz6qh4d0')}</Typography>
         </div>
-        <InfiniteScroll onBottom={createQuotesPaginationHandler(metadata, loading, fetchMore)}>
-          <Table
-            name="quote-versions"
-            data={versions}
-            isLoading={loading}
-            containerSize={0}
-            columns={versionColumns}
-            actionColumnTooltip={() => translate('text_1776414006125pcxcyeblul7')}
-            actionColumn={versionActionColumn}
-          />
-        </InfiniteScroll>
+        <Table
+          name="quote-versions"
+          data={quote.versions}
+          containerSize={0}
+          columns={versionColumns}
+          actionColumnTooltip={() => translate('text_1776414006125pcxcyeblul7')}
+          actionColumn={versionActionColumn}
+        />
       </section>
     </DetailsPage.Container>
   )

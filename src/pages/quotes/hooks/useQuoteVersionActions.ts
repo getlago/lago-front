@@ -2,7 +2,7 @@ import { IconName } from 'lago-design-system'
 import { generatePath, useNavigate } from 'react-router-dom'
 
 import { EDIT_QUOTE_ROUTE, VOID_QUOTE_ROUTE } from '~/core/router'
-import { QuoteListItemFragment, StatusEnum } from '~/generated/graphql'
+import { StatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 
@@ -15,6 +15,18 @@ export interface QuoteVersionAction {
   onAction: () => void
 }
 
+interface QuoteInfo {
+  id: string
+  number: string
+  versions: Array<{ id: string; status: StatusEnum; version: number }>
+}
+
+interface VersionInfo {
+  id: string
+  status: StatusEnum
+  version: number
+}
+
 export const useQuoteVersionActions = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
@@ -22,8 +34,13 @@ export const useQuoteVersionActions = () => {
   const { approveQuote } = useApproveQuote()
   const { openCloneDialog } = useCloneQuote()
 
-  const getActions = (version: QuoteListItemFragment): QuoteVersionAction[] => {
-    const { id, status, number, version: versionNumber } = version
+  const getActions = (quote: QuoteInfo, version?: VersionInfo): QuoteVersionAction[] => {
+    const { id, number } = quote
+    const targetVersion = version ?? quote.versions[0]
+
+    if (!targetVersion) return []
+
+    const { id: versionId, status, version: versionNumber } = targetVersion
 
     if (status === StatusEnum.Approved) return []
 
@@ -34,7 +51,7 @@ export const useQuoteVersionActions = () => {
         actions.push({
           icon: 'validate-unfilled',
           label: translate('text_1776414006125k6n9d1baloi'),
-          onAction: () => approveQuote(id),
+          onAction: () => approveQuote(versionId),
         })
       }
 
@@ -42,7 +59,7 @@ export const useQuoteVersionActions = () => {
         actions.push({
           icon: 'pen',
           label: translate('text_17764140061256c7yby4p5ze'),
-          onAction: () => navigate(generatePath(EDIT_QUOTE_ROUTE, { quoteId: id })),
+          onAction: () => navigate(generatePath(EDIT_QUOTE_ROUTE, { quoteId: id, versionId })),
         })
       }
 
@@ -50,7 +67,7 @@ export const useQuoteVersionActions = () => {
         actions.push({
           icon: 'stop',
           label: translate('text_1776414006125xh19d6399qv'),
-          onAction: () => navigate(generatePath(VOID_QUOTE_ROUTE, { quoteId: id })),
+          onAction: () => navigate(generatePath(VOID_QUOTE_ROUTE, { quoteId: id, versionId })),
         })
       }
     }
@@ -59,7 +76,7 @@ export const useQuoteVersionActions = () => {
       actions.push({
         icon: 'duplicate',
         label: translate('text_17764140061251m8snap6nft'),
-        onAction: () => openCloneDialog(id, `${number} - v${versionNumber}`),
+        onAction: () => openCloneDialog(versionId, `${number} - v${versionNumber}`),
       })
     }
 

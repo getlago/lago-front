@@ -11,10 +11,12 @@ gql`
   fragment QuoteListItem on Quote {
     id
     number
-    status
-    version
+    versions {
+      id
+      status
+      version
+    }
     orderType
-    currency
     createdAt
     customer {
       id
@@ -25,18 +27,16 @@ gql`
   query getQuotes(
     $page: Int
     $limit: Int
-    $status: [StatusEnum!]
-    $customer: [ID!]
-    $number: [String!]
-    $latestVersionOnly: Boolean
+    $statuses: [StatusEnum!]
+    $customers: [ID!]
+    $numbers: [String!]
   ) {
     quotes(
       page: $page
       limit: $limit
-      status: $status
-      customer: $customer
-      number: $number
-      latestVersionOnly: $latestVersionOnly
+      statuses: $statuses
+      customers: $customers
+      numbers: $numbers
     ) {
       metadata {
         currentPage

@@ -17,11 +17,13 @@ import {
   quoteStatusColumn,
 } from './common/quoteTableColumns'
 import { useQuotes } from './hooks/useQuotes'
+import { useQuoteVersionActions } from './hooks/useQuoteVersionActions'
 
 const QuotesList = (): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const { quotes, loading, error, fetchMore, metadata } = useQuotes({ latestVersionOnly: true })
+  const { quotes, loading, error, fetchMore, metadata } = useQuotes()
+  const { getActions } = useQuoteVersionActions()
 
   const columns: Array<TableColumn<QuoteListItemFragment>> = [
     {
@@ -48,11 +50,13 @@ const QuotesList = (): JSX.Element => {
     },
     quoteStatusColumn(translate),
     {
-      key: 'version',
+      key: 'versions.0.version',
       title: translate('text_1775747115932pql5mtb30dc'),
       minWidth: 80,
       textAlign: 'right',
-      content: ({ version }) => <Typography color="grey600">{version}</Typography>,
+      content: ({ versions }) => (
+        <Typography color="grey600">{versions[0]?.version ?? '-'}</Typography>
+      ),
     },
     { ...quoteOrderTypeColumn(translate, 'text_1775747115932x8ryaymh8ej'), minWidth: 220 },
     quoteCreatedAtColumn(translate, 'text_624efab67eb2570101d117e3', intlFormatDateTimeOrgaTZ),
@@ -74,6 +78,18 @@ const QuotesList = (): JSX.Element => {
           }
           containerSize={0}
           columns={columns}
+          actionColumnTooltip={() => translate('text_1776414006125pcxcyeblul7')}
+          actionColumn={(quote) => {
+            const actions = getActions(quote)
+
+            if (actions.length === 0) return null
+
+            return actions.map(({ icon, label, onAction }) => ({
+              startIcon: icon,
+              title: label,
+              onAction: () => onAction(),
+            }))
+          }}
           placeholder={{
             emptyState: {
               title: translate('text_17757391860814p20fr87x9g'),

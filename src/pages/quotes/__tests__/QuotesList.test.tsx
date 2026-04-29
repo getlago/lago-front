@@ -41,30 +41,24 @@ const mockQuotes = [
   {
     id: 'quote-1',
     number: 'QT-2026-0042',
-    status: StatusEnum.Draft,
-    version: 2,
+    versions: [{ id: 'version-1', status: StatusEnum.Draft, version: 2 }],
     orderType: OrderTypeEnum.SubscriptionAmendment,
-    currency: 'EUR',
     createdAt: '2026-04-09T15:00:00Z',
     customer: { id: 'customer-001', name: 'Acme Corp' },
   },
   {
     id: 'quote-2',
     number: 'QT-2026-0038',
-    status: StatusEnum.Approved,
-    version: 2,
+    versions: [{ id: 'version-2', status: StatusEnum.Approved, version: 2 }],
     orderType: OrderTypeEnum.SubscriptionCreation,
-    currency: 'USD',
     createdAt: '2026-04-01T09:00:00Z',
     customer: { id: 'customer-002', name: 'Globex Inc' },
   },
   {
     id: 'quote-3',
     number: 'QT-2026-0015',
-    status: StatusEnum.Voided,
-    version: 1,
+    versions: [{ id: 'version-3', status: StatusEnum.Voided, version: 1 }],
     orderType: OrderTypeEnum.OneOff,
-    currency: 'EUR',
     createdAt: '2026-03-10T08:00:00Z',
     customer: { id: 'customer-003', name: 'Wayne Enterprises' },
   },
@@ -84,12 +78,10 @@ describe('QuotesList', () => {
 
   describe('GIVEN the component is rendered', () => {
     describe('WHEN quotes are loaded', () => {
-      it('THEN should call useQuotes with latestVersionOnly', () => {
+      it('THEN should call useQuotes with no arguments', () => {
         render(<QuotesList />)
 
-        expect(mockUseQuotes).toHaveBeenCalledWith(
-          expect.objectContaining({ latestVersionOnly: true }),
-        )
+        expect(mockUseQuotes).toHaveBeenCalled()
       })
 
       it('THEN should render the quotes table with rows', () => {

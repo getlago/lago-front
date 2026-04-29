@@ -53,9 +53,7 @@ export const useCreateQuote = (): UseCreateQuoteReturn => {
         input: {
           customerId: values.customerId,
           orderType: values.orderType,
-          billingItems: values.subscriptionId
-            ? { subscriptionId: values.subscriptionId }
-            : undefined,
+          subscriptionId: values.subscriptionId || undefined,
           owners: values.owners,
         },
       },
