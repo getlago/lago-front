@@ -50,6 +50,15 @@ export const serializeFilters = (
   })
 }
 
+// Transform the string we get from UI to the boolean for API
+const serializeDisplayInInvoiceValue = (
+  value: 'true' | 'false' | undefined,
+): boolean | undefined => {
+  if (value === 'true') return true
+  if (value === 'false') return false
+  return undefined
+}
+
 export const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnum) => {
   return {
     ...properties,
@@ -59,7 +68,16 @@ export const serializeProperties = (properties: Properties, chargeModel: ChargeM
             ? properties?.pricingGroupKeys
             : undefined,
           presentationGroupKeys: !!properties?.presentationGroupKeys?.length
-            ? properties?.presentationGroupKeys
+            ? properties.presentationGroupKeys.map((key) => ({
+                ...key,
+                options: {
+                  ...key.options,
+                  // ComboBoxField stores strings; convert back to boolean for the API
+                  displayInInvoice: serializeDisplayInInvoiceValue(
+                    key.options?.displayInInvoice as 'true' | 'false' | undefined,
+                  ),
+                },
+              }))
             : undefined,
         }
       : { pricingGroupKeys: undefined, presentationGroupKeys: undefined }),

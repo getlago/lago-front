@@ -38,13 +38,12 @@ export const propertiesZodSchema = z.object({
   presentationGroupKeys: z
     .array(
       z.object({
-        value: z.string(),
-        options: z
-          .object({
-            displayInInvoice: z.boolean().optional().nullable(),
-          })
-          .optional()
-          .nullable(),
+        value: z.string().min(1, { message: 'text_1777466316764zx64sbfshro' }),
+        options: z.object({
+          displayInInvoice: z.enum(['true', 'false'], {
+            message: 'text_1777466316764ao0o7elsjut',
+          }),
+        }),
       }),
     )
     .max(2)
@@ -310,4 +309,30 @@ export function validateChargeProperties(
   if (!props) return
 
   validators[chargeModel as ChargeModelEnum]?.({ props, ctx, pathPrefix })
+
+  // Validate presentationGroupKeys for all charge models
+  if (props.presentationGroupKeys) {
+    for (let i = 0; i < props.presentationGroupKeys.length; i++) {
+      const group = props.presentationGroupKeys[i]
+
+      if (!group.value) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'text_1777466316764zx64sbfshro',
+          path: [...pathPrefix, 'presentationGroupKeys', String(i), 'value'],
+        })
+      }
+
+      if (
+        group.options?.displayInInvoice !== 'true' &&
+        group.options?.displayInInvoice !== 'false'
+      ) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'text_1777466316764ao0o7elsjut',
+          path: [...pathPrefix, 'presentationGroupKeys', String(i), 'options', 'displayInInvoice'],
+        })
+      }
+    }
+  }
 }
