@@ -6,16 +6,6 @@ import { render } from '~/test-utils'
 import { useQuoteVersionActions } from '../hooks/useQuoteVersionActions'
 import QuoteDetailsVersions, { QUOTE_VERSIONS_TABLE_TEST_ID } from '../QuoteDetailsVersions'
 
-const mockIntersectionObserver = jest.fn()
-
-mockIntersectionObserver.mockReturnValue({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
-})
-
-globalThis.IntersectionObserver = mockIntersectionObserver
-
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
@@ -40,36 +30,19 @@ const mockUseQuoteVersionActions = useQuoteVersionActions as jest.MockedFunction
   typeof useQuoteVersionActions
 >
 
-const mockVersions = [
-  {
-    id: 'quote-v2',
-    number: 'QT-2026-0042',
-    status: StatusEnum.Draft,
-    version: 2,
-    orderType: OrderTypeEnum.SubscriptionAmendment,
-    currency: 'EUR',
-    createdAt: '2026-04-09T15:00:00Z',
-    customer: { id: 'customer-001', name: 'Acme Corp' },
-  },
-  {
-    id: 'quote-v1',
-    number: 'QT-2026-0042',
-    status: StatusEnum.Approved,
-    version: 1,
-    orderType: OrderTypeEnum.SubscriptionCreation,
-    currency: 'EUR',
-    createdAt: '2026-04-01T10:00:00Z',
-    customer: { id: 'customer-001', name: 'Acme Corp' },
-  },
-]
-
 const mockQuote: QuoteDetailItemFragment = {
   id: 'quote-v2',
   number: 'QT-2026-0042',
-  status: StatusEnum.Draft,
-  version: 2,
+  versions: [
+    { id: 'version-v2', status: StatusEnum.Draft, version: 2, createdAt: '2026-04-09T15:00:00Z' },
+    {
+      id: 'version-v1',
+      status: StatusEnum.Approved,
+      version: 1,
+      createdAt: '2026-04-01T10:00:00Z',
+    },
+  ],
   orderType: OrderTypeEnum.SubscriptionAmendment,
-  currency: 'EUR',
   createdAt: '2026-04-09T15:00:00Z',
   customer: {
     id: 'customer-001',
@@ -82,14 +55,6 @@ const mockQuote: QuoteDetailItemFragment = {
   ],
 }
 
-const defaultProps = {
-  quote: mockQuote,
-  versions: mockVersions,
-  versionsLoading: false,
-  fetchMore: jest.fn(),
-  metadata: { currentPage: 1, totalPages: 1, totalCount: 2 },
-}
-
 describe('QuoteDetailsVersions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -100,25 +65,25 @@ describe('QuoteDetailsVersions', () => {
   describe('GIVEN the component is rendered with a quote', () => {
     describe('WHEN displaying quote details', () => {
       it('THEN should render the versions section', () => {
-        render(<QuoteDetailsVersions {...defaultProps} />)
+        render(<QuoteDetailsVersions quote={mockQuote} />)
 
         expect(screen.getByTestId(QUOTE_VERSIONS_TABLE_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should display the quote number', () => {
-        render(<QuoteDetailsVersions {...defaultProps} />)
+        render(<QuoteDetailsVersions quote={mockQuote} />)
 
         expect(screen.getByText('QT-2026-0042')).toBeInTheDocument()
       })
 
       it('THEN should display the customer name and external id', () => {
-        render(<QuoteDetailsVersions {...defaultProps} />)
+        render(<QuoteDetailsVersions quote={mockQuote} />)
 
         expect(screen.getByText('Acme Corp - ext-acme-001')).toBeInTheDocument()
       })
 
       it('THEN should display owner emails as chips', () => {
-        render(<QuoteDetailsVersions {...defaultProps} />)
+        render(<QuoteDetailsVersions quote={mockQuote} />)
 
         expect(screen.getByText('alice@example.com')).toBeInTheDocument()
         expect(screen.getByText('bob@example.com')).toBeInTheDocument()
@@ -129,7 +94,7 @@ describe('QuoteDetailsVersions', () => {
       it('THEN should not display the owners section', () => {
         const quoteWithoutOwners = { ...mockQuote, owners: [] }
 
-        render(<QuoteDetailsVersions {...defaultProps} quote={quoteWithoutOwners} />)
+        render(<QuoteDetailsVersions quote={quoteWithoutOwners} />)
 
         expect(screen.getByTestId(QUOTE_VERSIONS_TABLE_TEST_ID)).toBeInTheDocument()
         expect(screen.queryByText('alice@example.com')).not.toBeInTheDocument()
@@ -139,14 +104,14 @@ describe('QuoteDetailsVersions', () => {
 
     describe('WHEN displaying the versions table', () => {
       it('THEN should render version rows', () => {
-        render(<QuoteDetailsVersions {...defaultProps} />)
+        render(<QuoteDetailsVersions quote={mockQuote} />)
 
         expect(screen.getByTestId('table-row-0')).toBeInTheDocument()
         expect(screen.getByTestId('table-row-1')).toBeInTheDocument()
       })
 
       it('THEN should display version numbers with quote number', () => {
-        render(<QuoteDetailsVersions {...defaultProps} />)
+        render(<QuoteDetailsVersions quote={mockQuote} />)
 
         expect(screen.getByText('QT-2026-0042 - v2')).toBeInTheDocument()
         expect(screen.getByText('QT-2026-0042 - v1')).toBeInTheDocument()
@@ -154,87 +119,21 @@ describe('QuoteDetailsVersions', () => {
     })
   })
 
-  describe('GIVEN the versions are loading', () => {
-    it('THEN should pass loading to the table', () => {
-      render(
-        <QuoteDetailsVersions
-          {...defaultProps}
-          versions={[]}
-          versionsLoading={true}
-          metadata={undefined}
-        />,
-      )
-
-      expect(screen.getByTestId('table-quote-versions')).toBeInTheDocument()
-    })
-  })
-
-  describe('GIVEN the currency column', () => {
-    describe('WHEN a version has no currency', () => {
-      it('THEN should display a dash fallback', () => {
-        const versionsWithNoCurrency = [{ ...mockVersions[0], currency: '' }]
-
-        render(<QuoteDetailsVersions {...defaultProps} versions={versionsWithNoCurrency} />)
-
-        expect(screen.getByText('-')).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN the infinite scroll pagination', () => {
-    describe('WHEN more pages are available and onBottom is triggered', () => {
-      it('THEN should call fetchMore with next page', () => {
-        const mockFetchMore = jest.fn()
-
-        render(
-          <QuoteDetailsVersions
-            {...defaultProps}
-            fetchMore={mockFetchMore}
-            metadata={{ currentPage: 1, totalPages: 3, totalCount: 10 }}
-          />,
-        )
-
-        // Trigger the IntersectionObserver callback to simulate scrolling to bottom
-        const observerCallback = mockIntersectionObserver.mock.calls[0][0]
-
-        observerCallback([{ isIntersecting: true }])
-
-        expect(mockFetchMore).toHaveBeenCalledWith({
-          variables: { page: 2 },
-        })
-      })
-    })
-
-    describe('WHEN already on the last page', () => {
-      it('THEN should not call fetchMore', () => {
-        const mockFetchMore = jest.fn()
-
-        render(
-          <QuoteDetailsVersions
-            {...defaultProps}
-            fetchMore={mockFetchMore}
-            metadata={{ currentPage: 2, totalPages: 2, totalCount: 10 }}
-          />,
-        )
-
-        const observerCallback = mockIntersectionObserver.mock.calls[0][0]
-
-        observerCallback([{ isIntersecting: true }])
-
-        expect(mockFetchMore).not.toHaveBeenCalled()
-      })
-    })
-  })
-
   describe('GIVEN the version action column', () => {
     describe('WHEN a version has actions available', () => {
-      it('THEN should call getActions with each version', () => {
+      it('THEN should call getActions with the quote and each version', () => {
         mockGetActions.mockReturnValue([{ icon: 'pen', label: 'Edit', onAction: jest.fn() }])
 
-        render(<QuoteDetailsVersions {...defaultProps} />)
+        render(<QuoteDetailsVersions quote={mockQuote} />)
 
-        expect(mockGetActions).toHaveBeenCalledWith(expect.objectContaining({ id: 'quote-v2' }))
-        expect(mockGetActions).toHaveBeenCalledWith(expect.objectContaining({ id: 'quote-v1' }))
+        expect(mockGetActions).toHaveBeenCalledWith(
+          mockQuote,
+          expect.objectContaining({ id: 'version-v2' }),
+        )
+        expect(mockGetActions).toHaveBeenCalledWith(
+          mockQuote,
+          expect.objectContaining({ id: 'version-v1' }),
+        )
       })
     })
 
@@ -242,7 +141,7 @@ describe('QuoteDetailsVersions', () => {
       it('THEN should render without action buttons', () => {
         mockGetActions.mockReturnValue([])
 
-        render(<QuoteDetailsVersions {...defaultProps} />)
+        render(<QuoteDetailsVersions quote={mockQuote} />)
 
         expect(screen.queryByTestId('table-row-0-action-button')).not.toBeInTheDocument()
       })

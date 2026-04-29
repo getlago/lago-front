@@ -2,7 +2,6 @@ import { OrderTypeEnum, StatusEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useQuote } from '../hooks/useQuote'
-import { useQuotes } from '../hooks/useQuotes'
 import { useQuoteVersionActions } from '../hooks/useQuoteVersionActions'
 import QuoteDetails from '../QuoteDetails'
 
@@ -48,11 +47,11 @@ jest.mock('../OrderFormsList', () => ({
 const mockQuote = {
   id: 'quote-draft-001',
   number: 'QT-2026-0042',
-  status: StatusEnum.Draft,
-  version: 1,
   orderType: OrderTypeEnum.SubscriptionCreation,
-  currency: 'EUR',
   createdAt: '2026-04-09T10:00:00Z',
+  versions: [
+    { id: 'version-1', status: StatusEnum.Draft, version: 1, createdAt: '2026-04-09T10:00:00Z' },
+  ],
   customer: {
     id: 'customer-001',
     name: 'Acme Corp',
@@ -64,16 +63,11 @@ jest.mock('../hooks/useQuote', () => ({
   useQuote: jest.fn(),
 }))
 
-jest.mock('../hooks/useQuotes', () => ({
-  useQuotes: jest.fn(),
-}))
-
 jest.mock('../hooks/useQuoteVersionActions', () => ({
   useQuoteVersionActions: jest.fn(),
 }))
 
 const mockUseQuote = useQuote as jest.MockedFunction<typeof useQuote>
-const mockUseQuotes = useQuotes as jest.MockedFunction<typeof useQuotes>
 const mockUseQuoteVersionActions = useQuoteVersionActions as jest.MockedFunction<
   typeof useQuoteVersionActions
 >
@@ -89,14 +83,6 @@ describe('QuoteDetails', () => {
       quote: mockQuote,
       loading: false,
       error: undefined,
-    })
-
-    mockUseQuotes.mockReturnValue({
-      quotes: [mockQuote],
-      loading: false,
-      error: undefined,
-      fetchMore: jest.fn(),
-      metadata: { currentPage: 1, totalPages: 1, totalCount: 1 },
     })
 
     mockUseQuoteVersionActions.mockReturnValue({
@@ -247,14 +233,12 @@ describe('QuoteDetails', () => {
       })
     })
 
-    describe('WHEN there are no versions loaded yet', () => {
+    describe('WHEN the quote is not loaded yet', () => {
       it('THEN should pass empty actions items', () => {
-        mockUseQuotes.mockReturnValue({
-          quotes: [],
+        mockUseQuote.mockReturnValue({
+          quote: undefined,
           loading: true,
           error: undefined,
-          fetchMore: jest.fn(),
-          metadata: undefined,
         })
 
         render(<QuoteDetails />)
