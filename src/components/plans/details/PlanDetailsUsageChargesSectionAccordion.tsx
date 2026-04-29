@@ -6,6 +6,7 @@ import { Charge, CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { PlanDetailsChargeWrapperSwitch } from './PlanDetailsChargeWrapperSwitch'
+import PlanDetailsPresentationGroupKeys from './PlanDetailsPresentationGroupKeys'
 
 interface ChargeWithIndex extends Charge {
   [index: number]: unknown
@@ -46,6 +47,8 @@ export const PlanDetailsUsageChargesSectionAccordion = ({
           values={charge.properties}
           chargeAppliedPricingUnit={charge.appliedPricingUnit}
         />
+        {/* Presentation Group Keys */}
+        <PlanDetailsPresentationGroupKeys charge={charge} />
       </ConditionalWrapper>
 
       {/* filter details */}

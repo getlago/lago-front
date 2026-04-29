@@ -4064,5 +4064,7 @@
   "text_17774502138910ajpyk51rzl": "Use dynamic attributes (e.g., user type, location) to break down units for analytics — these details can show up on the customer’s invoice PDF if defined.",
   "text_17774502138919dkx20lgvpi": "Add a presentation group key",
   "text_1777450213892iqwuovg4s4v": "Enter key name",
-  "text_17774521952176h65ipy7idk": "Display in invoice"
+  "text_17774521952176h65ipy7idk": "Display on invoice",
+  "text_1777456950225zgyccgcm3x4": "On invoice",
+  "text_1777456950225qhho55pdxm8": "Not on invoice"
 }
