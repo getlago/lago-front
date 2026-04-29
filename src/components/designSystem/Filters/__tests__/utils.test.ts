@@ -1230,7 +1230,7 @@ describe('Filters utils', () => {
         expect.objectContaining({
           statuses: ['draft', 'approved'],
           numbers: ['QT-001', 'QT-002'],
-          orderType: ['one_off', 'subscription_creation'],
+          orderTypes: ['one_off', 'subscription_creation'],
         }),
       )
     })

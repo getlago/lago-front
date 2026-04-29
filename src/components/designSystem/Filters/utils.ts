@@ -708,7 +708,7 @@ export const formatFiltersForQuotesQuery = (searchParams: URLSearchParams) =>
       multipleCustomers: 'customers',
       quoteStatus: 'statuses',
       quoteNumber: 'numbers',
-      quoteOrderType: 'orderType',
+      quoteOrderType: 'orderTypes',
       userIds: 'owners',
     },
   })

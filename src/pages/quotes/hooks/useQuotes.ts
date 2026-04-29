@@ -33,7 +33,7 @@ gql`
     $fromDate: ISO8601Date
     $toDate: ISO8601Date
     $owners: [ID!]
-    $orderType: [OrderTypeEnum!]
+    $orderTypes: [OrderTypeEnum!]
   ) {
     quotes(
       page: $page
@@ -44,7 +44,7 @@ gql`
       fromDate: $fromDate
       toDate: $toDate
       owners: $owners
-      orderType: $orderType
+      orderTypes: $orderTypes
     ) {
       metadata {
         currentPage
