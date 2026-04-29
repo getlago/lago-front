@@ -4074,9 +4074,9 @@
   "text_1777281711979fsxgdzarsdb": "More actions",
   "text_1777385516575oti5gavf3ze": "Taxes will be recalculated after invoice generation, using the current tax configuration. They may differ from the original invoice.",
   "text_17774609583343asd6ddpg4o": "Heads-up: URLs will soon include your organization slug",
-  "text_1777460958334ulbsddgq9pn": "On May 11, 2026, all URLs will include your organization's slug. For example, <b>/customers</b> will become <b>/{{slug}}/customers</b>.<br>Existing bookmarks and shared links using legacy URLs may lead to a 404 page in some circumstances.<br>You can view your slug at any time and edit it whenever you'd like.",
+  "text_1777460958334ulbsddgq9pn": "On May 11, 2026, all URLs will include your organization's slug. For example, <b>/customers</b> will become <b>/{{slug}}/customers</b>.<br>Existing bookmarks and shared links using legacy URLs may lead to a 404 page-not-found in some circumstances.<br>You can view your slug at any time and edit it whenever you'd like.",
   "text_1777460958334tydafvw4tjn": "Heads-up: URLs will soon include your organization slug",
-  "text_177746095833445oggkposdq": "Soon, all URLs will include your organization's slug. For example, <b>/customers</b> will become <b>/{{slug}}/customers</b>.<br>Existing bookmarks and shared links using legacy URLs may lead to a 404 page in some circumstances once you upgrade.<br>You can view your slug at any time and edit it whenever you'd like.",
+  "text_177746095833445oggkposdq": "Soon, all URLs will include your organization's slug. For example, <b>/customers</b> will become <b>/{{slug}}/customers</b>.<br>Existing bookmarks and shared links using legacy URLs may lead to a 404 page-not-found in some circumstances.<br>You can view your slug at any time and edit it whenever you'd like.",
   "text_1777460958334ehtlaesho6e": "Edit your slug",
   "text_1777471747994p4c7cm9pri6": "Subscription {{externalSubscriptionId}} was canceled",
   "text_17774717479940xot2f14xbr": "Subscription {{externalSubscriptionId}} is incomplete"
