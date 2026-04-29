@@ -611,8 +611,8 @@ describe('serializePlanInput()', () => {
             },
             properties: {
               presentationGroupKeys: [
-                { value: 'region', options: { displayInInvoice: true } },
-                { value: 'country', options: { displayInInvoice: false } },
+                { value: 'region', options: { displayInInvoice: 'true' as unknown as boolean } },
+                { value: 'country', options: { displayInInvoice: 'false' as unknown as boolean } },
               ],
             },
             taxCodes: [],
