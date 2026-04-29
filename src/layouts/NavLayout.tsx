@@ -2,6 +2,7 @@ import { tw } from 'lago-design-system'
 import { forwardRef, PropsWithChildren } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
+import { OrgSlugRolloutBanner } from '~/components/OrgSlugRolloutBanner/OrgSlugRolloutBanner'
 
 const NavWrapper = ({ children }: PropsWithChildren) => {
   return <div className="flex h-screen w-full">{children}</div>
@@ -82,6 +83,7 @@ const ContentWrapper = forwardRef<HTMLDivElement, PropsWithChildren<{ 'data-test
   ({ children, 'data-test': dataTest }, ref) => {
     return (
       <div className="flex-1 overflow-y-auto" ref={ref} data-test={dataTest}>
+        <OrgSlugRolloutBanner />
         {children}
       </div>
     )
