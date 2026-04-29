@@ -19,6 +19,7 @@ import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptio
 import {
   BILLABLE_METRIC_DETAILS_ROUTE,
   CREATE_BILLABLE_METRIC_ROUTE,
+  DUPLICATE_BILLABLE_METRIC_ROUTE,
   UPDATE_BILLABLE_METRIC_ROUTE,
 } from '~/core/router'
 import { useBillableMetricsLazyQuery } from '~/generated/graphql'
@@ -50,7 +51,7 @@ gql`
 `
 
 const BillableMetricsList = () => {
-  const { translate } = useInternationalization()
+  const { translate, locale } = useInternationalization()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
@@ -67,6 +68,49 @@ const BillableMetricsList = () => {
 
   const canUpdateBillableMetrics = hasPermissions(['billableMetricsUpdate'])
   const canDeleteBillableMetrics = hasPermissions(['billableMetricsDelete'])
+  const canCreateBillableMetrics = hasPermissions(['billableMetricsCreate'])
+
+  const getActions = (id: string): ActionItem<{ id: string }>[] => {
+    const actions: ActionItem<{ id: string }>[] = []
+
+    if (canUpdateBillableMetrics) {
+      actions.push({
+        startIcon: 'pen',
+        title: translate('text_6256de3bba111e00b3bfa531'),
+        onAction: () =>
+          navigate(
+            generatePath(UPDATE_BILLABLE_METRIC_ROUTE, {
+              billableMetricId: id,
+            }),
+          ),
+      })
+    }
+
+    if (canCreateBillableMetrics) {
+      actions.push({
+        startIcon: 'duplicate',
+        title: translate('text_64fa170e02f348164797a6af'),
+        onAction: () =>
+          navigate(
+            generatePath(DUPLICATE_BILLABLE_METRIC_ROUTE, {
+              billableMetricId: id,
+            }),
+          ),
+      })
+    }
+
+    if (canDeleteBillableMetrics) {
+      actions.push({
+        startIcon: 'trash',
+        title: translate('text_6256de3bba111e00b3bfa533'),
+        onAction: () => {
+          deleteDialogRef.current?.openDialog({ billableMetricId: id })
+        },
+      })
+    }
+
+    return actions
+  }
 
   const billableMetricsTotalCount = data?.billableMetrics?.metadata?.totalCount
 
@@ -159,40 +203,18 @@ const BillableMetricsList = () => {
               ),
             },
           ]}
-          actionColumnTooltip={
-            canUpdateBillableMetrics && canDeleteBillableMetrics
-              ? () => translate('text_6256de3bba111e00b3bfa51b')
-              : undefined
-          }
-          actionColumn={(billableMetric) => {
-            const { id } = billableMetric
-            const actions: ActionItem<typeof billableMetric>[] = []
+          actionColumnTooltip={({ id }) => {
+            const actions = getActions(id)
 
-            if (canUpdateBillableMetrics) {
-              actions.push({
-                startIcon: 'pen',
-                title: translate('text_6256de3bba111e00b3bfa531'),
-                onAction: () =>
-                  navigate(
-                    generatePath(UPDATE_BILLABLE_METRIC_ROUTE, {
-                      billableMetricId: id,
-                    }),
-                  ),
-              })
-            }
+            if (!actions.length) return ''
 
-            if (canDeleteBillableMetrics) {
-              actions.push({
-                startIcon: 'trash',
-                title: translate('text_6256de3bba111e00b3bfa533'),
-                onAction: () => {
-                  deleteDialogRef.current?.openDialog({ billableMetricId: id })
-                },
-              })
-            }
+            const listLocale = locale === 'en' ? 'en-GB' : locale
 
-            return actions
+            return new Intl.ListFormat(listLocale, { type: 'disjunction' }).format(
+              actions.map((a) => String(a.title)),
+            )
           }}
+          actionColumn={({ id }) => getActions(id)}
           placeholder={{
             errorState: !!variables?.searchTerm
               ? {
