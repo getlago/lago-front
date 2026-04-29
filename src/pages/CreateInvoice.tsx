@@ -765,7 +765,7 @@ const CreateInvoice = () => {
                   <Typography variant="caption" color="grey600">
                     {translate('text_6453819268763979024ad01b')}
                   </Typography>
-                  <Typography>{DateTime.now().toFormat('LLL. dd, yyyy')}</Typography>
+                  <Typography>{intlFormatDateTime(DateTime.now().toISO()).date}</Typography>
                 </div>
 
                 <div className={tw('flex gap-4', customerIsPartner && 'flex-row-reverse')}>

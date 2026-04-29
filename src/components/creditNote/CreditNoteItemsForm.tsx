@@ -1,12 +1,12 @@
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
-import { DateTime } from 'luxon'
 import { FC, useMemo } from 'react'
 
 import { CreditNoteFormItem } from '~/components/creditNote/CreditNoteFormItem'
 import { CreditNoteForm, FeesPerInvoice, FromFee } from '~/components/creditNote/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { Checkbox } from '~/components/form/Checkbox'
+import { intlFormatDateTime } from '~/core/timezone'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -149,9 +149,7 @@ export const CreditNoteItemsForm: FC<CreditNoteItemsFormProps> = ({
                   formikKey={`fees.${subKey}.fees.${feeIndex}`}
                   maxValue={fee?.maxAmount || 0}
                   feeSucceededAt={
-                    !!fee?.succeededAt
-                      ? DateTime.fromISO(fee?.succeededAt).toFormat('LLL. dd, yyyy')
-                      : undefined
+                    !!fee?.succeededAt ? intlFormatDateTime(fee?.succeededAt).date : undefined
                   }
                   isReadOnly={fee?.isReadOnly}
                 />

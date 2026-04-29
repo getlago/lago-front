@@ -22,6 +22,7 @@ import {
 } from '~/components/wallets/utils/dataTestConstants'
 import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
+import { intlFormatDateTime } from '~/core/timezone'
 import { CurrencyEnum, GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { TWalletDataForm } from '~/pages/wallet/types'
@@ -148,7 +149,7 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
               error={
                 formikProps.errors.expirationAt === dateErrorCodes.shouldBeInFuture
                   ? translate('text_630ccd87b251590eaa5f9831', {
-                      date: DateTime.now().toFormat('LLL. dd, yyyy'),
+                      date: intlFormatDateTime(DateTime.now().toISO() || '').date,
                     })
                   : undefined
               }
