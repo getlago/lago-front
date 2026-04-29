@@ -22,15 +22,6 @@
       "description": "Disable updates for pnpm overrides used to pin transitive security patches"
     },
     {
-      "matchDepNames": ["node"],
-      "rangeStrategy": "bump"
-    },
-    {
-      "matchManagers": ["github-actions"],
-      "matchDepNames": ["node"],
-      "rangeStrategy": "bump"
-    },
-    {
       "matchPackageNames": ["@types/react", "@types/react-dom", "@types/react-router-dom"],
       "groupName": "React types",
       "commitMessagePrefix": "chore(deps):"
