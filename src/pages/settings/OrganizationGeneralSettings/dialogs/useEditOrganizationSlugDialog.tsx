@@ -117,14 +117,14 @@ export const useEditOrganizationSlugDialog = () => {
         title: translate('text_1776867582729jiym04jk1ax'),
         description: translate('text_1776867582730aqe2kknmohd'),
         children: (
-          <div className="flex flex-col gap-6 px-6 pb-2 pt-6">
+          <div className="flex flex-col gap-6 p-8">
             <div className="flex items-center gap-3 overflow-hidden rounded-xl border border-grey-300 px-3 py-2">
-              <span className="font-mono shrink-0 rounded-md bg-grey-100 px-2 py-1 text-sm text-grey-700">
+              <span className="shrink-0 rounded-md border border-grey-300 bg-grey-100 px-2 py-1 text-sm text-grey-700">
                 {translate('text_1776867582730qd932fynpjo')}
               </span>
               <form.Subscribe selector={(state) => state.values.slug}>
                 {(slugValue) => (
-                  <span className="font-mono truncate text-sm text-grey-700">
+                  <span className="truncate font-code text-sm text-grey-700">
                     {window.location.origin}
                     {'/'}
                     {slugValue}

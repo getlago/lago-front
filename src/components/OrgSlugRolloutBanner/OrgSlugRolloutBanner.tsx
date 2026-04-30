@@ -87,8 +87,8 @@ export const OrgSlugRolloutBanner = () => {
           </Button>
           <Button
             icon="close"
-            variant="quaternary"
-            size="small"
+            variant="quaternary-dark"
+            size="medium"
             data-test={ORG_SLUG_ROLLOUT_BANNER_DISMISS_TEST_ID}
             onClick={handleDismiss}
           />
