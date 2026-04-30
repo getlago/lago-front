@@ -1,5 +1,8 @@
 import { Button } from '../designSystem/Button'
 
+export const RIGHT_ASIDE_PAGE_HEADER_TEST_ID = 'right-aside-page-header'
+export const RIGHT_ASIDE_PAGE_HEADER_DIVIDER_TEST_ID = 'right-aside-page-header-divider'
+
 const Wrapper = ({ children }: { children: React.ReactNode }) => {
   return <div className="flex h-full flex-col">{children}</div>
 }
@@ -31,11 +34,19 @@ type SubheaderProps = {
 
 const Header = ({ title, onClose, children, isCloseButtonDisabled }: HeaderProps) => {
   return (
-    <div className="flex flex-row items-center justify-between gap-4 px-12 py-3 shadow-b">
+    <div
+      className="flex flex-row items-center justify-between gap-4 px-12 py-3 shadow-b"
+      data-test={RIGHT_ASIDE_PAGE_HEADER_TEST_ID}
+    >
       {title}
       <div className="flex flex-row items-center gap-3">
         {children}
-        {children && <div className="h-10 border-l border-grey-300" />}
+        {children && (
+          <div
+            className="h-10 border-l border-grey-300"
+            data-test={RIGHT_ASIDE_PAGE_HEADER_DIVIDER_TEST_ID}
+          />
+        )}
         <Button
           variant="quaternary"
           icon="close"
