@@ -124,8 +124,6 @@ const SettingsNavLayout = () => {
   const navigate = useNavigate()
   const { organization: { canCreateBillingEntity } = {} } = useOrganizationInfos()
   const contentRef = useRef<HTMLDivElement>(null)
-  const burgerRef = useRef<HTMLButtonElement>(null)
-
   const [open, setOpen] = useState(false)
 
   const { data: billingEntities, loading: billingEntitiesLoading } = useGetBillingEntitiesQuery({})
@@ -175,16 +173,11 @@ const SettingsNavLayout = () => {
   return (
     <NavLayout.NavWrapper>
       <NavLayout.NavBurgerButton
-        ref={burgerRef}
-        isOpen={open}
         data-test={SETTINGS_NAV_BURGER_BUTTON_TEST_ID}
         onClick={() => setOpen((prev) => !prev)}
       />
       <ClickAwayListener
-        onClickAway={(event) => {
-          // Skip click-away when the burger toggles the menu, otherwise
-          // close-via-burger would race with the toggle and end up reopening.
-          if (burgerRef.current?.contains(event.target as Node)) return
+        onClickAway={() => {
           if (open) setOpen(false)
         }}
       >
