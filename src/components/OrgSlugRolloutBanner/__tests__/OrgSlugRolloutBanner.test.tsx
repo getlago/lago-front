@@ -1,11 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 
 import { getItemFromLS, setItemFromLS } from '~/core/apolloClient/cacheUtils'
+import { orgSlugOverridesVar } from '~/core/apolloClient/reactiveVars'
 import { envGlobalVar } from '~/core/apolloClient/reactiveVars/envGlobalVar'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { ORG_SLUG_BANNER_DISMISSED_LS_KEY } from '~/core/constants/localStorageKeys'
 import { GENERAL_SETTINGS_ROUTE } from '~/core/router'
-import { orgSlugOverridesVar } from '~/core/apolloClient/reactiveVars'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
