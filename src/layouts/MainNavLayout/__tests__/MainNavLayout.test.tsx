@@ -108,6 +108,7 @@ describe('MainNavLayout', () => {
       organization: defaultOrganization,
       loading: false,
       refetchOrganizationInfos: mockRefetchOrganizationInfos,
+      hasFeatureFlag: jest.fn(() => false),
     })
 
     mockUseSideNavInfosQuery.mockReturnValue({
@@ -134,6 +135,7 @@ describe('MainNavLayout', () => {
         organization: undefined,
         loading: true,
         refetchOrganizationInfos: mockRefetchOrganizationInfos,
+        hasFeatureFlag: jest.fn(() => false),
       })
 
       render(<MainNavLayout />)

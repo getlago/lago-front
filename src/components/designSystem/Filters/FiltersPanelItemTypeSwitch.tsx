@@ -29,6 +29,7 @@ import { FiltersItemIssuingDate } from '~/components/designSystem/Filters/filter
 import { FiltersItemLogEventsAndTypes } from '~/components/designSystem/Filters/filtersElements/FiltersItemLogEventsAndTypes'
 import { FiltersItemLoggedDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemLoggedDate'
 import { FiltersItemMetadata } from '~/components/designSystem/Filters/filtersElements/FiltersItemMetadata'
+import { FiltersItemMultipleCustomers } from '~/components/designSystem/Filters/filtersElements/FiltersItemMultipleCustomers'
 import { FiltersItemOverridden } from '~/components/designSystem/Filters/filtersElements/FiltersItemOverridden'
 import { FiltersItemPartiallyPaid } from '~/components/designSystem/Filters/filtersElements/FiltersItemPartiallyPaid'
 import { FiltersItemPaymentDisputeLost } from '~/components/designSystem/Filters/filtersElements/FiltersItemPaymentDisputeLost'
@@ -36,6 +37,9 @@ import { FiltersItemPaymentOverdue } from '~/components/designSystem/Filters/fil
 import { FiltersItemPaymentStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemPaymentStatus'
 import { FiltersItemPeriod } from '~/components/designSystem/Filters/filtersElements/FiltersItemPeriod'
 import { FiltersItemPlanCode } from '~/components/designSystem/Filters/filtersElements/FiltersItemPlanCode'
+import { FiltersItemQuoteNumber } from '~/components/designSystem/Filters/filtersElements/FiltersItemQuoteNumber'
+import { FiltersItemQuoteOrderType } from '~/components/designSystem/Filters/filtersElements/FiltersItemQuoteOrderType'
+import { FiltersItemQuoteStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemQuoteStatus'
 import { FiltersItemRequestPath } from '~/components/designSystem/Filters/filtersElements/FiltersItemRequestPath'
 import { FiltersItemResourceIds } from '~/components/designSystem/Filters/filtersElements/FiltersItemResourceIds'
 import { FiltersItemResourceTypes } from '~/components/designSystem/Filters/filtersElements/FiltersItemResourceTypes'
@@ -132,6 +136,11 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.webhookEventTypes]: <FiltersItemWebhookEventTypes {...props} />,
     [AvailableFiltersEnum.webhookHttpStatuses]: <FiltersItemWebhookHttpStatuses {...props} />,
     [AvailableFiltersEnum.userIds]: <FiltersItemUserIds {...props} />,
+    [AvailableFiltersEnum.multipleCustomers]: <FiltersItemMultipleCustomers {...props} />,
+    [AvailableFiltersEnum.quoteCreatedAt]: <FiltersItemDate {...props} />,
+    [AvailableFiltersEnum.quoteNumber]: <FiltersItemQuoteNumber {...props} />,
+    [AvailableFiltersEnum.quoteOrderType]: <FiltersItemQuoteOrderType {...props} />,
+    [AvailableFiltersEnum.quoteStatus]: <FiltersItemQuoteStatus {...props} />,
     [AvailableFiltersEnum.webhookStatus]: <FiltersItemWebhookStatus {...props} />,
     [AvailableFiltersEnum.isCustomerTinEmpty]: <FiltersItemIsCustomerTinEmpty {...props} />,
     [AvailableFiltersEnum.zipcodes]: <FiltersItemZipcodes {...props} />,
