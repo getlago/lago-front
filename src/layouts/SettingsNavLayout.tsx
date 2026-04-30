@@ -31,6 +31,7 @@ import {
   EDIT_PRICING_UNIT,
   FULL_INTEGRATIONS_ROUTE,
   FULL_INTEGRATIONS_ROUTE_ID,
+  GENERAL_SETTINGS_ROUTE,
   HOME_ROUTE,
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
@@ -68,6 +69,12 @@ const generateTabs = ({
   translate: TranslateFunc
   hasPermissions: (permissionsToCheck: Array<keyof TMembershipPermissions>) => boolean
 }) => [
+  {
+    title: translate('text_1776867582729i8hvt0ot0wl'),
+    link: GENERAL_SETTINGS_ROUTE,
+    match: [GENERAL_SETTINGS_ROUTE],
+    hidden: !hasPermissions(['organizationView']),
+  },
   {
     title: translate('text_62b1edddbf5f461ab9712733'),
     link: generatePath(INTEGRATIONS_ROUTE, {
@@ -122,6 +129,7 @@ const SettingsNavLayout = () => {
   const navigate = useNavigate()
   const { organization: { canCreateBillingEntity } = {} } = useOrganizationInfos()
   const contentRef = useRef<HTMLDivElement>(null)
+  const burgerRef = useRef<HTMLButtonElement>(null)
 
   const [open, setOpen] = useState(false)
 
@@ -172,11 +180,16 @@ const SettingsNavLayout = () => {
   return (
     <NavLayout.NavWrapper>
       <NavLayout.NavBurgerButton
+        ref={burgerRef}
+        isOpen={open}
         data-test={SETTINGS_NAV_BURGER_BUTTON_TEST_ID}
         onClick={() => setOpen((prev) => !prev)}
       />
       <ClickAwayListener
-        onClickAway={() => {
+        onClickAway={(event) => {
+          // Skip click-away when the burger toggles the menu, otherwise
+          // close-via-burger would race with the toggle and end up reopening.
+          if (burgerRef.current?.contains(event.target as Node)) return
           if (open) setOpen(false)
         }}
       >

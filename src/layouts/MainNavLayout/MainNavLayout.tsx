@@ -46,6 +46,7 @@ const MainNavLayout = () => {
 
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }
   const contentRef = useRef<HTMLDivElement>(null)
+  const burgerRef = useRef<HTMLButtonElement>(null)
   const isLoading = currentOrganizationLoading || currentUserLoading || versionLoading
 
   useEffect(() => {
@@ -57,12 +58,19 @@ const MainNavLayout = () => {
   const handleNavItemClick = () => setOpen(false)
 
   return (
-    <div data-test={MAIN_NAV_LAYOUT_WRAPPER_TEST_ID}>
+    <div className="h-full" data-test={MAIN_NAV_LAYOUT_WRAPPER_TEST_ID}>
       <NavLayout.NavWrapper>
-        <NavLayout.NavBurgerButton onClick={() => setOpen((prev) => !prev)} />
+        <NavLayout.NavBurgerButton
+          ref={burgerRef}
+          isOpen={open}
+          onClick={() => setOpen((prev) => !prev)}
+        />
 
         <ClickAwayListener
-          onClickAway={() => {
+          onClickAway={(event) => {
+            // Skip click-away when the burger toggles the menu, otherwise
+            // close-via-burger would race with the toggle and end up reopening.
+            if (burgerRef.current?.contains(event.target as Node)) return
             if (open) setOpen(false)
           }}
         >
