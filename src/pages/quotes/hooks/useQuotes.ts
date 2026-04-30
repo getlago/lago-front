@@ -30,6 +30,10 @@ gql`
     $statuses: [StatusEnum!]
     $customers: [ID!]
     $numbers: [String!]
+    $fromDate: ISO8601Date
+    $toDate: ISO8601Date
+    $owners: [ID!]
+    $orderTypes: [OrderTypeEnum!]
   ) {
     quotes(
       page: $page
@@ -37,6 +41,10 @@ gql`
       statuses: $statuses
       customers: $customers
       numbers: $numbers
+      fromDate: $fromDate
+      toDate: $toDate
+      owners: $owners
+      orderTypes: $orderTypes
     ) {
       metadata {
         currentPage

@@ -31,3 +31,5 @@ export const API_LOGS_FILTER_PREFIX = 'apil'
 export const SUBSCRIPTION_LIST_FILTER_PREFIX = 'sub'
 
 export const SECURITY_LOGS_FILTER_PREFIX = 'secul'
+
+export const QUOTE_LIST_FILTER_PREFIX = 'qu'

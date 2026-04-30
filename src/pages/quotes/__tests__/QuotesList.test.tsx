@@ -1,5 +1,6 @@
 import { screen } from '@testing-library/react'
 
+import { filterDataInlineSeparator } from '~/components/designSystem/Filters/types'
 import { OrderTypeEnum, StatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
@@ -153,6 +154,60 @@ describe('QuotesList', () => {
         render(<QuotesList />)
 
         expect(screen.queryByTestId('table-row-0')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN URL search params contain quote filters', () => {
+    afterEach(() => {
+      window.history.replaceState({}, '', '/')
+    })
+
+    describe('WHEN quoteStatus filter is set', () => {
+      it('THEN should pass statuses to useQuotes', () => {
+        window.history.replaceState({}, '', '?qu_quoteStatus=draft%2Capproved')
+
+        render(<QuotesList />)
+
+        expect(mockUseQuotes).toHaveBeenCalledWith(
+          expect.objectContaining({
+            statuses: ['draft', 'approved'],
+          }),
+        )
+      })
+    })
+
+    describe('WHEN multipleCustomers filter is set', () => {
+      it('THEN should pass customer ids to useQuotes', () => {
+        const paramValue = `cust-1${filterDataInlineSeparator}Acme Corp`
+
+        window.history.replaceState(
+          {},
+          '',
+          `?qu_multipleCustomers=${encodeURIComponent(paramValue)}`,
+        )
+
+        render(<QuotesList />)
+
+        expect(mockUseQuotes).toHaveBeenCalledWith(
+          expect.objectContaining({
+            customers: ['cust-1'],
+          }),
+        )
+      })
+    })
+
+    describe('WHEN no quote filters are set', () => {
+      it('THEN should call useQuotes without filter properties', () => {
+        window.history.replaceState({}, '', '/')
+
+        render(<QuotesList />)
+
+        expect(mockUseQuotes).toHaveBeenCalledWith(
+          expect.not.objectContaining({
+            statuses: expect.anything(),
+          }),
+        )
       })
     })
   })
