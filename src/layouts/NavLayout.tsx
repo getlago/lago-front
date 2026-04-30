@@ -2,10 +2,9 @@ import { tw } from 'lago-design-system'
 import { forwardRef, PropsWithChildren } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { OrgSlugRolloutBanner } from '~/components/OrgSlugRolloutBanner/OrgSlugRolloutBanner'
 
 const NavWrapper = ({ children }: PropsWithChildren) => {
-  return <div className="flex h-screen w-full">{children}</div>
+  return <div className="relative flex size-full">{children}</div>
 }
 
 // Need to accept ref cause it's used within a ClickAwayListener
@@ -28,10 +27,23 @@ const Nav = forwardRef<HTMLElement, PropsWithChildren<{ isOpen: boolean; classNa
 
 Nav.displayName = 'Nav'
 
-const NavBurgerButton = ({ onClick }: { onClick: () => void }) => {
+const NavBurgerButton = forwardRef<
+  HTMLButtonElement,
+  { onClick: () => void; isOpen?: boolean; 'data-test'?: string }
+>(({ onClick, isOpen, 'data-test': dataTest }, ref) => {
   return (
     <Button
-      className="absolute left-4 top-2 z-drawer !w-[36px] !p-[10px] md:hidden"
+      ref={ref}
+      // Only spread data-test when defined so Button's default ("button")
+      // remains in place for callers that don't pass one.
+      {...(dataTest ? { 'data-test': dataTest } : {})}
+      className={tw(
+        'absolute left-4 top-2 z-drawer !w-[36px] !p-[10px] md:hidden',
+        // Hide on mobile while the sidebar is open: the sidebar header (org
+        // switcher) takes that exact spot, so leaving the burger visible would
+        // overlay the logo.
+        isOpen && 'hidden',
+      )}
       icon="burger"
       variant="quaternary"
       onClick={(e) => {
@@ -40,7 +52,9 @@ const NavBurgerButton = ({ onClick }: { onClick: () => void }) => {
       }}
     />
   )
-}
+})
+
+NavBurgerButton.displayName = 'NavBurgerButton'
 
 const NavStickyElementContainer = ({
   children,
@@ -83,7 +97,6 @@ const ContentWrapper = forwardRef<HTMLDivElement, PropsWithChildren<{ 'data-test
   ({ children, 'data-test': dataTest }, ref) => {
     return (
       <div className="flex-1 overflow-y-auto" ref={ref} data-test={dataTest}>
-        <OrgSlugRolloutBanner />
         {children}
       </div>
     )

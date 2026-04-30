@@ -1,13 +1,16 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 
+import { getItemFromLS, setItemFromLS } from '~/core/apolloClient/cacheUtils'
 import { envGlobalVar } from '~/core/apolloClient/reactiveVars/envGlobalVar'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
+import { ORG_SLUG_BANNER_DISMISSED_LS_KEY } from '~/core/constants/localStorageKeys'
 import { GENERAL_SETTINGS_ROUTE } from '~/core/router'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import {
   ORG_SLUG_ROLLOUT_BANNER_CLOUD_VARIANT,
+  ORG_SLUG_ROLLOUT_BANNER_DISMISS_TEST_ID,
   ORG_SLUG_ROLLOUT_BANNER_SELFHOSTED_VARIANT,
   ORG_SLUG_ROLLOUT_BANNER_TEST_ID,
   OrgSlugRolloutBanner,
@@ -31,10 +34,17 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: jest.fn(),
 }))
 
+jest.mock('~/core/apolloClient/cacheUtils', () => ({
+  getItemFromLS: jest.fn(() => undefined),
+  setItemFromLS: jest.fn(),
+}))
+
 const mockedEnvGlobalVar = envGlobalVar as jest.MockedFunction<typeof envGlobalVar>
 const mockedUseOrganizationInfos = useOrganizationInfos as jest.MockedFunction<
   typeof useOrganizationInfos
 >
+const mockedGetItemFromLS = getItemFromLS as jest.MockedFunction<typeof getItemFromLS>
+const mockedSetItemFromLS = setItemFromLS as jest.MockedFunction<typeof setItemFromLS>
 
 const baseEnv = {
   disablePdfGeneration: false,
@@ -59,6 +69,7 @@ const renderBanner = () => render(<OrgSlugRolloutBanner />, { wrapper: AllThePro
 describe('OrgSlugRolloutBanner', () => {
   beforeEach(() => {
     setOrganization({ slug: 'acme' })
+    mockedGetItemFromLS.mockReturnValue(undefined)
   })
 
   afterEach(() => {
@@ -143,7 +154,7 @@ describe('OrgSlugRolloutBanner', () => {
     expect(screen.queryByTestId(ORG_SLUG_ROLLOUT_BANNER_TEST_ID)).not.toBeInTheDocument()
   })
 
-  it('interpolates the slug into the description copy', () => {
+  it('interpolates the real organization slug into the description copy', () => {
     setOrganization({ slug: 'rocket' })
     mockedEnvGlobalVar.mockReturnValue(baseEnv)
 
@@ -162,5 +173,34 @@ describe('OrgSlugRolloutBanner', () => {
     fireEvent.click(cta)
 
     expect(testMockNavigateFn).toHaveBeenCalledWith(GENERAL_SETTINGS_ROUTE)
+  })
+
+  it('renders the dismiss X button when the banner is visible', () => {
+    mockedEnvGlobalVar.mockReturnValue(baseEnv)
+
+    renderBanner()
+
+    expect(screen.getByTestId(ORG_SLUG_ROLLOUT_BANNER_DISMISS_TEST_ID)).toBeInTheDocument()
+  })
+
+  it('persists dismissal in localStorage and unmounts the banner when X is clicked', () => {
+    mockedEnvGlobalVar.mockReturnValue(baseEnv)
+
+    renderBanner()
+
+    fireEvent.click(screen.getByTestId(ORG_SLUG_ROLLOUT_BANNER_DISMISS_TEST_ID))
+
+    expect(mockedSetItemFromLS).toHaveBeenCalledWith(ORG_SLUG_BANNER_DISMISSED_LS_KEY, true)
+    expect(screen.queryByTestId(ORG_SLUG_ROLLOUT_BANNER_TEST_ID)).not.toBeInTheDocument()
+  })
+
+  it('returns null on mount when localStorage already has a truthy dismiss flag', () => {
+    mockedEnvGlobalVar.mockReturnValue(baseEnv)
+    mockedGetItemFromLS.mockReturnValue(true)
+
+    renderBanner()
+
+    expect(screen.queryByTestId(ORG_SLUG_ROLLOUT_BANNER_TEST_ID)).not.toBeInTheDocument()
+    expect(mockedGetItemFromLS).toHaveBeenCalledWith(ORG_SLUG_BANNER_DISMISSED_LS_KEY)
   })
 })

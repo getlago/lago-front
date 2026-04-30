@@ -14,6 +14,7 @@ import { DevtoolsErrorBoundary } from '~/components/developers/DevtoolsErrorBoun
 import { DEVTOOL_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { DevtoolsView } from '~/components/developers/DevtoolsView'
 import { ErrorBoundary } from '~/components/ErrorBoundary'
+import { OrgSlugRolloutBanner } from '~/components/OrgSlugRolloutBanner/OrgSlugRolloutBanner'
 import { RouteWrapper } from '~/components/RouteWrapper'
 import { UserIdentifier } from '~/components/UserIdentifier'
 import {
@@ -119,15 +120,18 @@ const App = () => {
                   <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
                     <BrowserRouter basename="/">
                       <Panel id="app-panel-group">
-                        <PanelGroup direction="horizontal">
-                          <Panel id="app-panel">
-                            <div className="h-full overflow-auto" data-app-wrapper>
-                              <RouteWrapper />
-                            </div>
-                          </Panel>
+                        <div className="flex h-full flex-col">
+                          <OrgSlugRolloutBanner />
+                          <PanelGroup direction="horizontal" className="flex-1">
+                            <Panel id="app-panel">
+                              <div className="h-full overflow-auto" data-app-wrapper>
+                                <RouteWrapper />
+                              </div>
+                            </Panel>
 
-                          <AiAgent />
-                        </PanelGroup>
+                            <AiAgent />
+                          </PanelGroup>
+                        </div>
                       </Panel>
                     </BrowserRouter>
                     <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
