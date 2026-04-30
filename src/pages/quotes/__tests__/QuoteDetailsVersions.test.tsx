@@ -42,6 +42,13 @@ const mockQuote: QuoteDetailItemFragment = {
       createdAt: '2026-04-01T10:00:00Z',
     },
   ],
+  currentVersion: {
+    id: 'version-v2',
+    status: StatusEnum.Draft,
+    version: 2,
+    content: null,
+    createdAt: '2026-04-09T15:00:00Z',
+  },
   orderType: OrderTypeEnum.SubscriptionAmendment,
   createdAt: '2026-04-09T15:00:00Z',
   customer: {

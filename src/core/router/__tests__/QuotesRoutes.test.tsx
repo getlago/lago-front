@@ -1,4 +1,5 @@
 import {
+  APPROVE_QUOTE_ROUTE,
   QUOTE_DETAILS_ROUTE,
   QUOTES_LIST_ROUTE,
   QUOTES_TAB_ROUTE,
@@ -17,6 +18,10 @@ describe('QuotesRoutes', () => {
 
     it('defines the quote details route path', () => {
       expect(QUOTE_DETAILS_ROUTE).toBe('/quote/:quoteId/:tab')
+    })
+
+    it('defines the approve quote route path', () => {
+      expect(APPROVE_QUOTE_ROUTE).toBe('/quote/:quoteId/version/:versionId/approve')
     })
   })
 
