@@ -9,6 +9,7 @@ const QuoteDetails = lazyLoad(() => import('~/pages/quotes/QuoteDetails'))
 const CreateQuote = lazyLoad(() => import('~/pages/quotes/CreateQuote'))
 const EditQuote = lazyLoad(() => import('~/pages/quotes/EditQuote'))
 const VoidQuote = lazyLoad(() => import('~/pages/quotes/VoidQuote'))
+const ApproveQuote = lazyLoad(() => import('~/pages/quotes/ApproveQuote'))
 
 // ----------- Routes -----------
 export const QUOTES_LIST_ROUTE = '/quotes'
@@ -17,6 +18,7 @@ export const QUOTE_DETAILS_ROUTE = '/quote/:quoteId/:tab'
 export const CREATE_QUOTE_ROUTE = '/quote/create'
 export const EDIT_QUOTE_ROUTE = '/quote/:quoteId/version/:versionId/edit'
 export const VOID_QUOTE_ROUTE = '/quote/:quoteId/version/:versionId/void'
+export const APPROVE_QUOTE_ROUTE = '/quote/:quoteId/version/:versionId/approve'
 
 export const quotesRoutes: CustomRouteObject[] = [
   {
@@ -57,5 +59,14 @@ export const quotesVoidRoutes: CustomRouteObject[] = [
     private: true,
     element: <VoidQuote />,
     permissions: ['quotesVoid'],
+  },
+]
+
+export const quotesApprovalRoutes: CustomRouteObject[] = [
+  {
+    path: APPROVE_QUOTE_ROUTE,
+    private: true,
+    element: <ApproveQuote />,
+    permissions: ['quotesApprove'],
   },
 ]

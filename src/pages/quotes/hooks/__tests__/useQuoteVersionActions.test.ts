@@ -5,7 +5,7 @@ import { testMockNavigateFn } from '~/test-utils'
 
 import { useQuoteVersionActions } from '../useQuoteVersionActions'
 
-const mockApproveQuote = jest.fn()
+const mockGoToApproveQuote = jest.fn()
 const mockOpenCloneDialog = jest.fn()
 const mockHasPermissions = jest.fn()
 
@@ -23,7 +23,7 @@ jest.mock('~/hooks/usePermissions', () => ({
 
 jest.mock('../useApproveQuote', () => ({
   useApproveQuote: () => ({
-    approveQuote: mockApproveQuote,
+    goToApproveQuote: mockGoToApproveQuote,
   }),
 }))
 
@@ -86,7 +86,7 @@ describe('useQuoteVersionActions', () => {
     })
 
     describe('WHEN approve action is triggered', () => {
-      it('THEN should call approveQuote with the version id', () => {
+      it('THEN should call goToApproveQuote with the version id', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
         const actions = result.current.getActions(
@@ -99,7 +99,7 @@ describe('useQuoteVersionActions', () => {
 
         actions[0].onAction()
 
-        expect(mockApproveQuote).toHaveBeenCalledWith('version-draft-1')
+        expect(mockGoToApproveQuote).toHaveBeenCalledWith('draft-1', 'version-draft-1')
       })
     })
 

@@ -1,8 +1,28 @@
+import { gql } from '@apollo/client'
+import { generatePath, useNavigate } from 'react-router-dom'
+
+import { APPROVE_QUOTE_ROUTE } from '~/core/router'
+import { useApproveQuoteVersionMutation } from '~/generated/graphql'
+
+gql`
+  mutation approveQuoteVersion($input: ApproveQuoteVersionInput!) {
+    approveQuoteVersion(input: $input) {
+      id
+      status
+    }
+  }
+`
+
 export const useApproveQuote = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const approveQuote = (_quoteId: string) => {
-    // No-op — will be implemented later
+  const navigate = useNavigate()
+
+  const goToApproveQuote = (quoteId: string, versionId: string) => {
+    navigate(generatePath(APPROVE_QUOTE_ROUTE, { quoteId, versionId }))
   }
 
-  return { approveQuote }
+  const [approveQuote] = useApproveQuoteVersionMutation({
+    refetchQueries: ['getQuotes'],
+  })
+
+  return { goToApproveQuote, approveQuote }
 }

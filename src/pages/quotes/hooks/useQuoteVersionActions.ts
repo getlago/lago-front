@@ -31,7 +31,7 @@ export const useQuoteVersionActions = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
-  const { approveQuote } = useApproveQuote()
+  const { goToApproveQuote } = useApproveQuote()
   const { openCloneDialog } = useCloneQuote()
 
   const getActions = (quote: QuoteInfo, version?: VersionInfo): QuoteVersionAction[] => {
@@ -51,7 +51,7 @@ export const useQuoteVersionActions = () => {
         actions.push({
           icon: 'validate-unfilled',
           label: translate('text_1776414006125k6n9d1baloi'),
-          onAction: () => approveQuote(versionId),
+          onAction: () => goToApproveQuote(id, versionId),
         })
       }
 
