@@ -10,12 +10,11 @@ import {
   Filters,
   formatFiltersForUsageOverviewQuery,
 } from '~/components/designSystem/Filters'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type UsageBreakdownIndividualSectionProps = {
-  premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
   availableFilters: AvailableFiltersEnum[]
   filtersPrefix: string
   isBillableMetricRecurring: boolean
@@ -23,7 +22,6 @@ type UsageBreakdownIndividualSectionProps = {
 }
 
 const UsageBreakdownIndividualSection = ({
-  premiumWarningDialogRef,
   availableFilters,
   filtersPrefix,
   isBillableMetricRecurring,
@@ -32,6 +30,7 @@ const UsageBreakdownIndividualSection = ({
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
   const [showDeletedBillableMetrics, setShowDeletedBillableMetrics] = useState<boolean>(false)
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const timeGranularity = useMemo(() => {
     const filters = formatFiltersForUsageOverviewQuery(searchParams)
@@ -79,7 +78,7 @@ const UsageBreakdownIndividualSection = ({
               onClick={(e) => {
                 if (!hasAccessToAnalyticsDashboardsFeature) {
                   e.stopPropagation()
-                  premiumWarningDialogRef.current?.openDialog()
+                  premiumWarningDialog.open()
                 } else {
                   onClick()
                 }
