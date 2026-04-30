@@ -1,5 +1,7 @@
-import { generatePath } from 'react-router-dom'
+import { useMemo } from 'react'
+import { generatePath, useSearchParams } from 'react-router-dom'
 
+import { formatFiltersForQuotesQuery } from '~/components/designSystem/Filters'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
@@ -22,7 +24,16 @@ import { useQuoteVersionActions } from './hooks/useQuoteVersionActions'
 const QuotesList = (): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const { quotes, loading, error, fetchMore, metadata } = useQuotes()
+  const [searchParams] = useSearchParams()
+
+  const filtersForQuotesQuery = useMemo(
+    () => formatFiltersForQuotesQuery(searchParams),
+    [searchParams],
+  )
+
+  const { quotes, loading, error, fetchMore, metadata } = useQuotes({
+    ...filtersForQuotesQuery,
+  })
   const { getActions } = useQuoteVersionActions()
 
   const columns: Array<TableColumn<QuoteListItemFragment>> = [
@@ -66,6 +77,7 @@ const QuotesList = (): JSX.Element => {
     <DetailsPage.Container>
       <InfiniteScroll onBottom={createQuotesPaginationHandler(metadata, loading, fetchMore)}>
         <Table
+          containerClassName="border-t border-grey-300"
           name="quotes-list"
           data={quotes}
           isLoading={loading}

@@ -9,6 +9,7 @@ import {
   formatFiltersForInvoiceQuery,
   formatFiltersForMrrQuery,
   formatFiltersForQuery,
+  formatFiltersForQuotesQuery,
   formatFiltersForRevenueStreamsQuery,
   formatFiltersForSecurityLogsQuery,
   formatFiltersForWebhookLogsQuery,
@@ -277,6 +278,22 @@ describe('Filters utils', () => {
       const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.timeGranularity, 'daily')
 
       expect(result).toBe('Daily')
+    })
+    it('should format active filter quoteCreatedAt value display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.quoteCreatedAt,
+        '2026-01-01,2026-01-31',
+      )
+
+      expect(result).toBe('1/1/2026 - 1/31/2026')
+    })
+    it('should format active filter multipleCustomers value display extracting names', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.multipleCustomers,
+        `cust-1${filterDataInlineSeparator}Acme Corp,cust-2${filterDataInlineSeparator}Beta Inc`,
+      )
+
+      expect(result).toBe('Acme Corp, Beta Inc')
     })
   })
 
@@ -882,6 +899,40 @@ describe('Filters utils', () => {
 
       expect(result).toEqual(['user-1', 'user-2'])
     })
+
+    it('should parse multipleCustomers filter and extract ids before separator', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.multipleCustomers](
+        `cust-1${filterDataInlineSeparator}Acme Corp,cust-2${filterDataInlineSeparator}Beta Inc`,
+      )
+
+      expect(result).toEqual(['cust-1', 'cust-2'])
+    })
+
+    it('should parse quoteCreatedAt filter into fromDate and toDate', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.quoteCreatedAt]('2026-01-01,2026-01-31')
+
+      expect(result).toEqual({ fromDate: '2026-01-01', toDate: '2026-01-31' })
+    })
+
+    it('should parse quoteNumber filter correctly', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.quoteNumber]('QT-001,QT-002')
+
+      expect(result).toEqual(['QT-001', 'QT-002'])
+    })
+
+    it('should parse quoteOrderType filter correctly', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.quoteOrderType](
+        'one_off,subscription_creation',
+      )
+
+      expect(result).toEqual(['one_off', 'subscription_creation'])
+    })
+
+    it('should parse quoteStatus filter correctly', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.quoteStatus]('draft,approved')
+
+      expect(result).toEqual(['draft', 'approved'])
+    })
   })
 
   describe('formatMetadataFilter', () => {
@@ -1162,6 +1213,91 @@ describe('Filters utils', () => {
           logTypes: ['api_key'],
         }),
       )
+    })
+  })
+
+  describe('formatFiltersForQuotesQuery', () => {
+    it('should format quote filters with prefix', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('qu_quoteStatus', 'draft,approved')
+      searchParams.set('qu_quoteNumber', 'QT-001,QT-002')
+      searchParams.set('qu_quoteOrderType', 'one_off,subscription_creation')
+
+      const result = formatFiltersForQuotesQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          statuses: ['draft', 'approved'],
+          numbers: ['QT-001', 'QT-002'],
+          orderTypes: ['one_off', 'subscription_creation'],
+        }),
+      )
+    })
+
+    it('should format multipleCustomers filter extracting ids', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'qu_multipleCustomers',
+        `cust-1${filterDataInlineSeparator}Acme Corp,cust-2${filterDataInlineSeparator}Beta Inc`,
+      )
+
+      const result = formatFiltersForQuotesQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          customers: ['cust-1', 'cust-2'],
+        }),
+      )
+    })
+
+    it('should format quoteCreatedAt filter into fromDate and toDate', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('qu_quoteCreatedAt', '2026-01-01,2026-01-31')
+
+      const result = formatFiltersForQuotesQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          fromDate: '2026-01-01',
+          toDate: '2026-01-31',
+        }),
+      )
+    })
+
+    it('should format userIds filter as owners', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'qu_userIds',
+        `user-1${filterDataInlineSeparator}alice@example.com,user-2${filterDataInlineSeparator}bob@example.com`,
+      )
+
+      const result = formatFiltersForQuotesQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          owners: ['user-1', 'user-2'],
+        }),
+      )
+    })
+
+    it('should ignore filters with a different prefix', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('secul_logTypes', 'api_key')
+      searchParams.set('qu_quoteStatus', 'draft')
+
+      const result = formatFiltersForQuotesQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          statuses: ['draft'],
+        }),
+      )
+      expect(result).not.toHaveProperty('logTypes')
     })
   })
 })

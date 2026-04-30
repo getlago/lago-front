@@ -22,6 +22,7 @@ import {
   MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX,
   MRR_BREAKDOWN_PLANS_FILTER_PREFIX,
   PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX,
+  QUOTE_LIST_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
   REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
@@ -54,6 +55,7 @@ import {
   InvoiceAvailableFilters,
   MrrBreakdownPlansAvailableFilters,
   MrrOverviewAvailableFilters,
+  QuoteAvailableFilters,
   RevenueStreamsAvailablePopperFilters,
   RevenueStreamsCustomersAvailableFilters,
   RevenueStreamsPlansAvailableFilters,
@@ -131,6 +133,7 @@ export const FiltersItemDates = [
   AvailableFiltersEnum.issuingDate,
   AvailableFiltersEnum.loggedDate,
   AvailableFiltersEnum.webhookDate,
+  AvailableFiltersEnum.quoteCreatedAt,
 ]
 
 // TODO: Fix this type
@@ -187,12 +190,23 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.logEvents]: (value: string) => value.split(',').filter(Boolean),
   [AvailableFiltersEnum.logTypes]: (value: string) => value.split(',').filter(Boolean),
   [AvailableFiltersEnum.metadata]: (value: string) => parseMetadataFilter(value),
+  [AvailableFiltersEnum.multipleCustomers]: (value: string) =>
+    value.split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.overriden]: (value: string) => value === 'true',
   [AvailableFiltersEnum.partiallyPaid]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentDisputeLost]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.planCode]: (value: string) => value,
+  [AvailableFiltersEnum.quoteCreatedAt]: (value: string) => {
+    return {
+      fromDate: value.split(',')[0],
+      toDate: value.split(',')[1],
+    }
+  },
+  [AvailableFiltersEnum.quoteNumber]: (value: string) => value.split(','),
+  [AvailableFiltersEnum.quoteOrderType]: (value: string) => value.split(','),
+  [AvailableFiltersEnum.quoteStatus]: (value: string) => value.split(','),
   [AvailableFiltersEnum.requestPaths]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.resourceIds]: (value: string) => value.split(',').map((v) => v.trim()),
   [AvailableFiltersEnum.resourceTypes]: (value: string) => (value as string).split(','),
@@ -644,6 +658,7 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.issuingDate:
     case AvailableFiltersEnum.loggedDate:
     case AvailableFiltersEnum.webhookDate:
+    case AvailableFiltersEnum.quoteCreatedAt:
       return value
         .split(',')
         .map((v) => {
@@ -657,6 +672,7 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.apiKeyIds:
     case AvailableFiltersEnum.billingEntityIds:
     case AvailableFiltersEnum.userIds:
+    case AvailableFiltersEnum.multipleCustomers:
       return value
         .split(',')
         .map((v) => v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0])
@@ -682,6 +698,20 @@ export const formatFiltersForSecurityLogsQuery = (searchParams: URLSearchParams)
     filtersNamePrefix: SECURITY_LOGS_FILTER_PREFIX,
   })
 }
+
+export const formatFiltersForQuotesQuery = (searchParams: URLSearchParams) =>
+  formatFiltersForQuery({
+    searchParams,
+    availableFilters: QuoteAvailableFilters,
+    filtersNamePrefix: QUOTE_LIST_FILTER_PREFIX,
+    keyMap: {
+      multipleCustomers: 'customers',
+      quoteStatus: 'statuses',
+      quoteNumber: 'numbers',
+      quoteOrderType: 'orderTypes',
+      userIds: 'owners',
+    },
+  })
 
 export const isOutstandingUrlParams = ({
   prefix,
