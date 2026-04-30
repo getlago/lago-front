@@ -23,6 +23,11 @@ gql`
       id
       email
     }
+    subscription {
+      id
+      name
+      externalId
+    }
     currentVersion {
       id
       status

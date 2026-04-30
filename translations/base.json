@@ -4117,7 +4117,7 @@
   "text_1776414006125vf2t8yuiwka": "Void quote {{quoteNumber}}",
   "text_177641400612546jssznk1w0": "Voiding a quote prevents it from being converted into an order form. If a quote is voided, it becomes inactive and cannot be used for execution. To proceed, you will need to create a new version of the quote, which can then be reviewed and eventually converted into an order form.",
   "text_1776414006125gijz56nk7sv": "Quote successfully voided",
-  "text_1776414006125387qynzm000": "Edit quote",
+  "text_1776414006125387qynzm000": "Save in draft",
   "text_1776414006125wn9p70fx8qg": "Duplicating quote {{quoteNumberAndVersion}}",
   "text_1776414006125pkw558zpwid": "Duplicating a quote version will instantly void all previous versions. This action cannot be undone. The new quote will be saved as a draft.",
   "text_17764159264034mafl126pox": "Void and create new version",
@@ -4137,5 +4137,8 @@
   "text_1776851047915xli269uyejs": "Quote preview",
   "text_1776851578529wbonlz6ss8y": "Valid",
   "text_1776851578529rcah0zepkul": "{{days}} day from approval | {{days}} days from approval",
-  "text_17768523811635qaasto1ziv": "No content available"
+  "text_17768523811635qaasto1ziv": "No content available",
+  "text_17775394497682uzyy0lyyq7": "Quote saved successfully",
+  "text_1777540287773ez178bggf4h": "Main settings",
+  "text_1777552621583netdlhbg5i7": "Execution details"
 }
