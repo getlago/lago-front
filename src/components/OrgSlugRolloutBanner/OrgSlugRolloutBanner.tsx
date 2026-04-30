@@ -1,15 +1,32 @@
 import { Icon } from 'lago-design-system'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { getItemFromLS, setItemFromLS } from '~/core/apolloClient/cacheUtils'
 import { envGlobalVar } from '~/core/apolloClient/reactiveVars'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { ORG_SLUG_BANNER_DISMISSED_LS_KEY } from '~/core/constants/localStorageKeys'
-import { GENERAL_SETTINGS_ROUTE } from '~/core/router'
+import {
+  customerObjectCreationRoutes,
+  customerVoidRoutes,
+  GENERAL_SETTINGS_ROUTE,
+  objectCreationRoutes,
+} from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+
+// Centered/full-screen create-and-edit pages (no sidebar). The banner is hidden
+// on these routes so it doesn't intrude on focused form flows.
+const CENTERED_PAGE_PATHS: string[] = [
+  ...objectCreationRoutes,
+  ...customerObjectCreationRoutes,
+  ...customerVoidRoutes,
+].flatMap(({ path }) => {
+  if (Array.isArray(path)) return path
+  if (path) return [path]
+  return []
+})
 
 // TODO(org-slug-rollout): two-phase removal — see ticket LAGO-1437.
 // Cloud cleanup ≈1 week after May 11, 2026; self-hosted cleanup when the OSS release ships.
@@ -23,6 +40,7 @@ export const ORG_SLUG_ROLLOUT_BANNER_SELFHOSTED_VARIANT = 'self-hosted'
 export const OrgSlugRolloutBanner = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const { apiUrl, appEnv } = envGlobalVar()
   const { organization } = useOrganizationInfos()
 
@@ -36,6 +54,12 @@ export const OrgSlugRolloutBanner = () => {
   // check (no slug → unauthenticated → don't render the banner).
   if (!slug) return null
   if (isDismissed) return null
+
+  // Hide on full-screen create / edit pages (no sidebar) to avoid intruding
+  // on focused form flows.
+  const isCenteredPage = CENTERED_PAGE_PATHS.some((p) => matchPath(p, pathname))
+
+  if (isCenteredPage) return null
 
   const isLagoCloud = /\.getlago\.com/.test(apiUrl)
   const isDev = appEnv === AppEnvEnum.development
