@@ -22,20 +22,26 @@ type HeaderProps = {
   children?: React.ReactNode
   title: React.ReactNode
   onClose: () => void
+  isCloseButtonDisabled?: boolean
 }
 
 type SubheaderProps = {
   children?: React.ReactNode
 }
 
-const Header = ({ title, onClose, children }: HeaderProps) => {
+const Header = ({ title, onClose, children, isCloseButtonDisabled }: HeaderProps) => {
   return (
     <div className="flex flex-row items-center justify-between gap-4 px-12 py-3 shadow-b">
       {title}
       <div className="flex flex-row items-center gap-3">
         {children}
         {children && <div className="h-10 border-l border-grey-300" />}
-        <Button variant="quaternary" icon="close" onClick={onClose} />
+        <Button
+          variant="quaternary"
+          icon="close"
+          onClick={onClose}
+          disabled={isCloseButtonDisabled}
+        />
       </div>
     </div>
   )

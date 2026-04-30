@@ -59,7 +59,7 @@ const EditQuote = () => {
 
     if (!markdown || !versionId) return
 
-    await updateQuoteVersion({ id: versionId, content: markdown })
+    await updateQuoteVersion({ id: versionId, content: markdown }, false)
   }, AUTO_SAVE_DELAY_MS)
 
   const handleSaveContent = async () => {
@@ -69,7 +69,7 @@ const EditQuote = () => {
 
     if (!versionId || !markdown) return
 
-    await updateQuoteVersion({ id: versionId, content: markdown }, true)
+    await updateQuoteVersion({ id: versionId, content: markdown })
 
     onClose()
   }

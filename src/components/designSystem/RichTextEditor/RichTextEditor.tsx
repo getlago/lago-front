@@ -46,6 +46,7 @@ interface RichTextEditorProps {
   getMarkdownRef?: React.MutableRefObject<(() => string) | null>
   downloadPdfRef?: React.MutableRefObject<(() => void) | null>
   onPlanBlocksChange?: (planIds: string[]) => void
+  onChange?: () => void
 }
 
 const RichTextEditor = ({
@@ -57,12 +58,15 @@ const RichTextEditor = ({
   getMarkdownRef,
   downloadPdfRef,
   onPlanBlocksChange,
+  onChange,
 }: RichTextEditorProps) => {
   const { translate } = useInternationalization()
   const onPlanBlocksChangeRef = useRef(onPlanBlocksChange)
+  const onChangeRef = useRef(onChange)
   const [plans, setPlans] = useState<Record<string, EntityData>>(plansFromProps)
 
   onPlanBlocksChangeRef.current = onPlanBlocksChange
+  onChangeRef.current = onChange
 
   const setPlan = useCallback((id: string, data: EntityData) => {
     setPlans((prev) => ({ ...prev, [id]: data }))
@@ -167,16 +171,18 @@ const RichTextEditor = ({
           }
         : ''),
     onUpdate: ({ editor: editorInstance }) => {
-      if (!onPlanBlocksChangeRef.current) return
+      if (onPlanBlocksChangeRef.current) {
+        const planIds: string[] = []
 
-      const planIds: string[] = []
+        editorInstance.state.doc.descendants((node) => {
+          if (node.type.name === 'planBlock' && node.attrs.planId) {
+            planIds.push(String(node.attrs.planId))
+          }
+        })
+        onPlanBlocksChangeRef.current(planIds)
+      }
 
-      editorInstance.state.doc.descendants((node) => {
-        if (node.type.name === 'planBlock' && node.attrs.planId) {
-          planIds.push(String(node.attrs.planId))
-        }
-      })
-      onPlanBlocksChangeRef.current(planIds)
+      onChangeRef.current?.()
     },
   })
 

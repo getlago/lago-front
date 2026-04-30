@@ -1,7 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
-import { ComboBox } from '~/components/form/ComboBox/ComboBox'
 import { MultipleComboBox } from '~/components/form/MultipleComboBox/MultipleComboBox'
 import { MultipleComboBoxData } from '~/components/form/MultipleComboBox/types'
 import { TextInput } from '~/components/form/TextInput'
@@ -39,16 +38,20 @@ const EditQuoteAside = ({ quote }: EditQuoteAsideProps) => {
       }))
   }, [membersData?.memberships?.collection])
 
-  const [selectedOwners, setSelectedOwners] = useState<MultipleComboBoxData[]>(() => {
-    if (!quote?.owners) return []
+  const [selectedOwners, setSelectedOwners] = useState<MultipleComboBoxData[]>([])
 
-    return quote.owners
-      .filter((owner) => !!owner.email)
-      .map((owner) => ({
-        label: owner.email as string,
-        value: owner.id,
-      }))
-  })
+  useEffect(() => {
+    if (!quote?.owners) return
+
+    setSelectedOwners(
+      quote.owners
+        .filter((owner) => !!owner.email)
+        .map((owner) => ({
+          label: owner.email as string,
+          value: owner.id,
+        })),
+    )
+  }, [quote?.owners])
 
   const handleOwnersChange = (newOwners: MultipleComboBoxData[]) => {
     setSelectedOwners(newOwners)
@@ -67,19 +70,13 @@ const EditQuoteAside = ({ quote }: EditQuoteAsideProps) => {
         <Typography variant="bodyHl" color="grey700">
           {translate('text_1777540287773ez178bggf4h')}
         </Typography>
-        <ComboBox
-          data-test={EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID}
-          disabled
-          label={translate('text_1776238919927x1y2z3a4b5c')}
-          data={[
-            {
-              label: translate(getQuoteOrderTypeTranslationKey(quote.orderType)),
-              value: quote.orderType,
-            },
-          ]}
-          value={quote.orderType}
-          onChange={() => {}}
-        />
+        <div data-test={EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID}>
+          <TextInput
+            disabled
+            label={translate('text_1776238919927x1y2z3a4b5c')}
+            value={translate(getQuoteOrderTypeTranslationKey(quote.orderType))}
+          />
+        </div>
         <div data-test={EDIT_QUOTE_ASIDE_OWNERS_COMBOBOX_TEST_ID}>
           <MultipleComboBox
             label={translate('text_1776429591588dnpx1guz0cl')}
@@ -109,7 +106,11 @@ const EditQuoteAside = ({ quote }: EditQuoteAsideProps) => {
             <TextInput
               disabled
               label={translate('text_1776238919927d6e7f8g9h0i')}
-              value={quote.subscription.name ?? quote.subscription.externalId}
+              value={
+                quote.subscription.name
+                  ? `${quote.subscription.name} - ${quote.subscription.externalId}`
+                  : quote.subscription.externalId
+              }
             />
           </div>
         )}
