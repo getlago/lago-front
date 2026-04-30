@@ -203,4 +203,16 @@ describe('OrgSlugRolloutBanner', () => {
     expect(screen.queryByTestId(ORG_SLUG_ROLLOUT_BANNER_TEST_ID)).not.toBeInTheDocument()
     expect(mockedGetItemFromLS).toHaveBeenCalledWith(ORG_SLUG_BANNER_DISMISSED_LS_KEY)
   })
+
+  it('returns null on full-screen create / edit pages (e.g. /customer/create)', () => {
+    mockedEnvGlobalVar.mockReturnValue(baseEnv)
+    window.history.pushState({}, '', '/customer/create')
+
+    renderBanner()
+
+    expect(screen.queryByTestId(ORG_SLUG_ROLLOUT_BANNER_TEST_ID)).not.toBeInTheDocument()
+
+    // Reset for subsequent tests
+    window.history.pushState({}, '', '/')
+  })
 })
