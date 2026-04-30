@@ -40,9 +40,10 @@ export const useQuoteVersionActions = () => {
 
     if (!targetVersion) return []
 
-    const { id: versionId, status, version: versionNumber } = targetVersion
+    // If the latest version is approved, no actions are available on any version
+    if (quote.versions[0]?.status === StatusEnum.Approved) return []
 
-    if (status === StatusEnum.Approved) return []
+    const { id: versionId, status, version: versionNumber } = targetVersion
 
     const actions: QuoteVersionAction[] = []
 

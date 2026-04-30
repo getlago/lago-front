@@ -164,12 +164,64 @@ describe('useQuoteVersionActions', () => {
     })
   })
 
-  describe('GIVEN an approved version', () => {
-    describe('WHEN getActions is called', () => {
+  describe('GIVEN the latest version is approved', () => {
+    describe('WHEN getActions is called without a specific version', () => {
       it('THEN should return an empty array', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
         const actions = result.current.getActions(createMockQuote({ status: StatusEnum.Approved }))
+
+        expect(actions).toHaveLength(0)
+      })
+    })
+
+    describe('WHEN getActions is called for an older voided version', () => {
+      it('THEN should still return an empty array', () => {
+        const { result } = renderHook(() => useQuoteVersionActions())
+
+        const quote: QuoteListItemFragment = {
+          id: 'quote-1',
+          number: 'QT-001',
+          orderType: 'SubscriptionCreation' as QuoteListItemFragment['orderType'],
+          createdAt: '2026-04-01T10:00:00Z',
+          customer: { id: 'cust-1', name: 'Acme' },
+          versions: [
+            { id: 'v2', status: StatusEnum.Approved, version: 2 },
+            { id: 'v1', status: StatusEnum.Voided, version: 1 },
+          ],
+        }
+
+        const actions = result.current.getActions(quote, {
+          id: 'v1',
+          status: StatusEnum.Voided,
+          version: 1,
+        })
+
+        expect(actions).toHaveLength(0)
+      })
+    })
+
+    describe('WHEN getActions is called for an older draft version', () => {
+      it('THEN should still return an empty array', () => {
+        const { result } = renderHook(() => useQuoteVersionActions())
+
+        const quote: QuoteListItemFragment = {
+          id: 'quote-1',
+          number: 'QT-001',
+          orderType: 'SubscriptionCreation' as QuoteListItemFragment['orderType'],
+          createdAt: '2026-04-01T10:00:00Z',
+          customer: { id: 'cust-1', name: 'Acme' },
+          versions: [
+            { id: 'v2', status: StatusEnum.Approved, version: 2 },
+            { id: 'v1', status: StatusEnum.Draft, version: 1 },
+          ],
+        }
+
+        const actions = result.current.getActions(quote, {
+          id: 'v1',
+          status: StatusEnum.Draft,
+          version: 1,
+        })
 
         expect(actions).toHaveLength(0)
       })
