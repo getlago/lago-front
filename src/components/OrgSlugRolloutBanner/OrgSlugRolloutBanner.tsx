@@ -1,6 +1,6 @@
 import { Icon } from 'lago-design-system'
 import { useState } from 'react'
-import { matchPath, useLocation, useNavigate } from 'react-router-dom'
+import { matchPath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { getItemFromLS, setItemFromLS } from '~/core/apolloClient/cacheUtils'
@@ -12,6 +12,8 @@ import {
   customerVoidRoutes,
   GENERAL_SETTINGS_ROUTE,
   objectCreationRoutes,
+  useLocation,
+  useNavigate,
 } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
