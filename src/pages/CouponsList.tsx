@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
 import { useDeleteCoupon } from '~/components/coupons/useDeleteCoupon'
@@ -17,7 +17,12 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { COUPON_DETAILS_ROUTE, CREATE_COUPON_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
+import {
+  COUPON_DETAILS_ROUTE,
+  CREATE_COUPON_ROUTE,
+  UPDATE_COUPON_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import {
   CouponCaptionFragmentDoc,
   CouponsQuery,

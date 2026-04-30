@@ -1,8 +1,7 @@
-import { gql } from '@apollo/client'
+import { gql, useReactiveVar } from '@apollo/client'
 import { useEffect, useMemo } from 'react'
 
-import { getItemFromLS } from '~/core/apolloClient'
-import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
+import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars'
 import {
   CurrentUserInfosFragment,
   MembershipPermissionsFragmentDoc,
@@ -23,6 +22,7 @@ gql`
       organization {
         id
         name
+        slug
         logoUrl
         accessibleByCurrentSession
       }
@@ -48,7 +48,7 @@ type UseCurrentUser = () => {
 
 export const useCurrentUser: UseCurrentUser = () => {
   const { isAuthenticated } = useIsAuthenticated()
-  const currentOrganizationId = getItemFromLS(ORGANIZATION_LS_KEY_ID)
+  const currentOrganizationId = useReactiveVar(currentOrganizationVar)
 
   const {
     data,

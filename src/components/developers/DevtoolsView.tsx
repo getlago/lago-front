@@ -1,12 +1,12 @@
 import { FC, useEffect } from 'react'
 import { Panel, PanelResizeHandle } from 'react-resizable-panels'
-import { useLocation, useNavigate } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { devToolsNavigationMapping, DevtoolsRouter } from '~/components/developers/DevtoolsRouter'
 import { addToast } from '~/core/apolloClient'
+import { useLocation, useNavigate } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'

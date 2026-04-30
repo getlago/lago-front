@@ -11,7 +11,7 @@ describe.skip('Create taxes', () => {
   })
 
   it('should create taxes', () => {
-    cy.visit('/settings/taxes')
+    cy.visitApp('/settings/taxes')
     cy.url().should('include', '/settings/taxes')
 
     // Make sure no tax exists
@@ -38,7 +38,7 @@ describe.skip('Create taxes', () => {
   })
 
   it('should assign tax to organization', () => {
-    cy.visit('/settings/invoice')
+    cy.visitApp('/settings/invoice')
     cy.url().should('include', '/settings/invoice')
 
     // Make sure no tax are already assigned

@@ -33,8 +33,21 @@ jest.mock('~/hooks/core/useLocationHistory', () => ({
   }),
 }))
 
+const TEST_SLUG = 'test-slug'
+
 jest.mock('~/core/router', () => ({
   routes: [],
+  useNavigate: () => mockNavigate,
+  useLocation: () => ({
+    // First segment of `pathname` is treated as the active org slug by
+    // RouteWrapper's MemoryRouter→BrowserRouter bridge.
+    pathname: `/${TEST_SLUG}/api-keys`,
+    strippedPathname: '/api-keys',
+    search: '',
+    hash: '',
+    state: null,
+    key: 'default',
+  }),
 }))
 
 describe('RouteWrapper', () => {
@@ -73,7 +86,9 @@ describe('RouteWrapper', () => {
           )
 
           await waitFor(() => {
-            expect(mockNavigate).toHaveBeenCalledWith('/api-keys/create')
+            expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_SLUG}/api-keys/create`, {
+              skipSlugPrepend: true,
+            })
             expect(mockSetMainRouterUrl).toHaveBeenCalledWith('')
           })
         })
@@ -92,7 +107,9 @@ describe('RouteWrapper', () => {
           )
 
           await waitFor(() => {
-            expect(mockNavigate).toHaveBeenCalledWith('/webhook/123/edit')
+            expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_SLUG}/webhook/123/edit`, {
+              skipSlugPrepend: true,
+            })
             expect(mockSetMainRouterUrl).toHaveBeenCalledWith('')
           })
         })
@@ -111,7 +128,9 @@ describe('RouteWrapper', () => {
           )
 
           await waitFor(() => {
-            expect(mockNavigate).toHaveBeenCalledWith('/api-keys/456/edit')
+            expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_SLUG}/api-keys/456/edit`, {
+              skipSlugPrepend: true,
+            })
             expect(mockSetMainRouterUrl).toHaveBeenCalledWith('')
           })
         })

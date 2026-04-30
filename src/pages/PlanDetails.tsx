@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
@@ -18,6 +18,7 @@ import {
   PLAN_DETAILS_ROUTE,
   PLANS_ROUTE,
   UPDATE_PLAN_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import {
   DeletePlanDialogFragment,

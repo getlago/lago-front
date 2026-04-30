@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
-import { DUNNINGS_SETTINGS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
+import { DUNNINGS_SETTINGS_ROUTE, ERROR_404_ROUTE, useNavigate } from '~/core/router'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreateDunningCampaignInput,

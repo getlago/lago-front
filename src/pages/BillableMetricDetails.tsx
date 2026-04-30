@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { BillableMetricDetailsActivityLogs } from '~/components/billableMetrics/BillableMetricDetailsActivityLogs'
 import { BillableMetricDetailsOverview } from '~/components/billableMetrics/BillableMetricDetailsOverview'
@@ -19,6 +19,7 @@ import {
   BILLABLE_METRICS_ROUTE,
   DUPLICATE_BILLABLE_METRIC_ROUTE,
   UPDATE_BILLABLE_METRIC_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useGetBillableMetricForHeaderDetailsQuery } from '~/generated/graphql'

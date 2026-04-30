@@ -1,13 +1,6 @@
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import { useEffect, useRef, useState } from 'react'
-import {
-  generatePath,
-  Location,
-  Outlet,
-  useLocation,
-  useNavigate,
-  useParams,
-} from 'react-router-dom'
+import { generatePath, Location, Outlet, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
@@ -31,6 +24,7 @@ import {
   EDIT_PRICING_UNIT,
   FULL_INTEGRATIONS_ROUTE,
   FULL_INTEGRATIONS_ROUTE_ID,
+  GENERAL_SETTINGS_ROUTE,
   HOME_ROUTE,
   INTEGRATIONS_ROUTE,
   INVOICE_SETTINGS_ROUTE,
@@ -45,6 +39,8 @@ import {
   TEAM_AND_SECURITY_TAB_ROUTE,
   UPDATE_DUNNING_ROUTE,
   UPDATE_TAX_ROUTE,
+  useLocation,
+  useNavigate,
 } from '~/core/router'
 import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
@@ -68,6 +64,12 @@ const generateTabs = ({
   translate: TranslateFunc
   hasPermissions: (permissionsToCheck: Array<keyof TMembershipPermissions>) => boolean
 }) => [
+  {
+    title: translate('text_1776867582729i8hvt0ot0wl'),
+    link: GENERAL_SETTINGS_ROUTE,
+    match: [GENERAL_SETTINGS_ROUTE],
+    hidden: !hasPermissions(['organizationView']),
+  },
   {
     title: translate('text_62b1edddbf5f461ab9712733'),
     link: generatePath(INTEGRATIONS_ROUTE, {

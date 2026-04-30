@@ -111,7 +111,7 @@ describe('Multi-organization redirect flows', () => {
       cy.get('[data-test="side-nav-user-infos"]').click()
       cy.contains(testUsers.userA.org1Name).click()
       // 3. Create a customer in Org1
-      cy.visit('/customers')
+      cy.visitApp('/customers')
       cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="${CREATE_CUSTOMER_DATA_TEST}"]`, {
         timeout: 10000,
       }).click()
@@ -124,7 +124,12 @@ describe('Multi-organization redirect flows', () => {
         const customerIdMatch = org1CustomerUrl.match(/\/customer\/([^/]+)/)
         const org1CustomerId = customerIdMatch ? customerIdMatch[1] : null
         cy.log('Org1 Customer ID:', org1CustomerId)
-        // 4. logout, visit orga 1 url and login with customer in org2
+        // 4. logout, visit orga 1 url and login with customer in org2.
+        // Slug-less path is intentional: the test probes what happens when
+        // a logged-out user visits a legacy cross-org URL. Auth guard fires,
+        // saves state, redirects to login. After login as User B, Home.tsx
+        // cannot resolve a slug from `location.state.from` so falls to the
+        // permission-based default (Org2 home).
         cy.logout()
         cy.visit(`/customer/${org1CustomerId}`)
         cy.get('input[name="email"]').type(testUsers.userB.email)
@@ -145,7 +150,7 @@ describe('Multi-organization redirect flows', () => {
 
       // 2. Navigate to a deep page (e.g., customers/:id)
       // Create a customer to get a deep link
-      cy.visit('/customers')
+      cy.visitApp('/customers')
       cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="${CREATE_CUSTOMER_DATA_TEST}"]`, {
         timeout: 10000,
       }).click()
@@ -170,7 +175,7 @@ describe('Multi-organization redirect flows', () => {
       cy.login(testUsers.userA.email, testUsers.userA.password)
 
       // 2. Navigate to customers with query params
-      cy.visit('/customers?search=test&page=2')
+      cy.visitApp('/customers?search=test&page=2')
       cy.url().should('include', 'search=test')
       cy.url().should('include', 'page=2')
 

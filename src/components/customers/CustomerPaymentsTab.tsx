@@ -1,11 +1,11 @@
 import { FC } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { CustomerPaymentsList } from '~/components/customers/CustomerPaymentsList'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { PageSectionTitle } from '~/components/layouts/Section'
-import { CREATE_PAYMENT_ROUTE } from '~/core/router'
+import { CREATE_PAYMENT_ROUTE, useNavigate } from '~/core/router'
 import { useGetPaymentsListQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'

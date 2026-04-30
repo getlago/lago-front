@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -22,7 +22,7 @@ import {
   DeleteCampaignDialog,
   DeleteCampaignDialogRef,
 } from '~/components/settings/dunnings/DeleteCampaignDialog'
-import { CREATE_DUNNING_ROUTE, UPDATE_DUNNING_ROUTE } from '~/core/router'
+import { CREATE_DUNNING_ROUTE, UPDATE_DUNNING_ROUTE, useNavigate } from '~/core/router'
 import {
   DeleteCampaignFragmentDoc,
   PremiumIntegrationTypeEnum,

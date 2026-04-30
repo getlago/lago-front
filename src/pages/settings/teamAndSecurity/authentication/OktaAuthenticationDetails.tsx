@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { StatusType } from '~/components/designSystem/Status'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { AUTHENTICATION_ROUTE } from '~/core/router'
+import { AUTHENTICATION_ROUTE, useNavigate } from '~/core/router'
 import {
   AddOktaIntegrationDialogFragmentDoc,
   AuthenticationMethodsEnum,

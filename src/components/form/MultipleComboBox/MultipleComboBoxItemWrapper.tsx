@@ -1,9 +1,9 @@
 import { cx } from 'class-variance-authority'
 import { Icon } from 'lago-design-system'
-import { Link } from 'react-router-dom'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Typography } from '~/components/designSystem/Typography'
+import { Link } from '~/core/router'
 
 import { MultipleComboBoxData } from './types'
 

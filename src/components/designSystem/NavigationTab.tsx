@@ -3,8 +3,9 @@ import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import { Icon, IconName } from 'lago-design-system'
 import { ReactNode, useEffect, useState } from 'react'
-import { matchPath, useLocation, useNavigate } from 'react-router-dom'
+import { matchPath } from 'react-router-dom'
 
+import { useLocation, useNavigate } from '~/core/router'
 import { tw } from '~/styles/utils'
 
 import { Skeleton } from './Skeleton'
@@ -79,7 +80,7 @@ export const NavigationTab = ({
   currentTab,
 }: NavigationTabProps) => {
   const navigate = useNavigate()
-  const { pathname } = useLocation()
+  const { strippedPathname: pathname } = useLocation()
   const nonHiddenTabs = tabs.filter((t) => !t.hidden)
 
   // Default value is not 0 to prevent useEffect value udpate to flash first component

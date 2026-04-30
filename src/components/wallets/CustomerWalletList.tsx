@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
@@ -14,7 +14,7 @@ import { formatAmount, formatCredits } from '~/components/wallets/utils'
 import { CREATE_WALLET_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import WalletActions from '~/components/wallets/WalletActions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CREATE_WALLET_ROUTE, WALLET_DETAILS_ROUTE } from '~/core/router'
+import { CREATE_WALLET_ROUTE, useNavigate, WALLET_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,

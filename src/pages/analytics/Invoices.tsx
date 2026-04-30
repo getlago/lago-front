@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useMemo, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import {
@@ -24,6 +24,7 @@ import { ChartWrapper } from '~/components/layouts/Charts'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
 import { ANALYTICS_INVOICES_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { Link } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import {
   DeleteFeatureDialog,
@@ -13,7 +13,12 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { FeatureDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { FEATURE_DETAILS_ROUTE, FEATURES_ROUTE, UPDATE_FEATURE_ROUTE } from '~/core/router'
+import {
+  FEATURE_DETAILS_ROUTE,
+  FEATURES_ROUTE,
+  UPDATE_FEATURE_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import {
   FeatureForDeleteFeatureDialogFragmentDoc,
   useGetFeatureForDetailsQuery,

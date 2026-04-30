@@ -1,5 +1,5 @@
 import { RefObject } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { AddCouponToCustomerDialogRef } from '~/components/customers/AddCouponToCustomerDialog'
 import { DeleteCustomerDialogRef } from '~/components/customers/DeleteCustomerDialog'
@@ -11,6 +11,7 @@ import {
   CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE,
   CUSTOMERS_LIST_ROUTE,
   UPDATE_CUSTOMER_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import { CustomerDetailsFragment, useGenerateCustomerPortalUrlMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

@@ -54,6 +54,47 @@
   // Wrong — triggers full MUI bundle parsing
   import { Button } from '@mui/material'
   ```
+- Never import `useNavigate`, `Link`, or `useLocation` from `react-router-dom`.
+  Import them from `~/core/router` — the slug-aware wrappers auto-prepend
+  `/${organizationSlug}` to navigation targets and expose `strippedPathname`
+  on the location object. Enforced by the custom
+  `lago/no-direct-rrd-nav-import` ESLint rule. Other `react-router-dom`
+  exports (`useParams`, `matchPath`, `generatePath`, `Outlet`, etc.) are
+  unrestricted.
+  ```typescript
+  // Correct
+  import { useNavigate, Link, useLocation } from '~/core/router'
+  // Wrong — bypasses slug-awareness, flagged by ESLint as error
+  import { useNavigate, Link, useLocation } from 'react-router-dom'
+  ```
+
+## Cypress e2e tests
+
+- Authenticated navigation goes through `cy.visitApp(path)`, not `cy.visit(path)`.
+  `cy.visitApp` prepends `/${orgSlug}` captured by `cy.login()` / `cy.signup()`
+  so spec files write paths as they would look without the slug (e.g.
+  `cy.visitApp('/customers')` lands on `/${slug}/customers`).
+  ```typescript
+  // Correct — authenticated
+  cy.login().visitApp('/customers')
+  cy.visitApp('/settings/taxes')
+  // Correct — public paths pass through unchanged
+  cy.visit('/login')
+  cy.visit('/sign-up')
+  ```
+- For strict URL assertions use the slug-tolerant regex pattern instead of
+  `be.equal(baseUrl + '/path')`:
+  ```typescript
+  // Correct
+  cy.url().should('match', /\/[^/]+\/create\/plans$/)
+  // Wrong — `baseUrl + '/create/plans'` is never the full URL anymore
+  cy.url().should('be.equal', Cypress.config().baseUrl + '/create/plans')
+  ```
+- `cy.url().should('include', '/path')` continues to work — `/acme/customers`
+  still includes `/customers` — so existing `include` assertions need no changes.
+- Keep `cy.visit()` with slug-less paths only when the test is intentionally
+  probing legacy-URL behavior (e.g. testing the auth-guard redirect from a
+  slug-less path to `/login`). Always add an inline comment explaining why.
 
 ## Detailed Guidelines (read on demand)
 

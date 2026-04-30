@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { generatePath, NavigateFunction, useNavigate } from 'react-router-dom'
+import { generatePath, NavigateFunction } from 'react-router-dom'
 
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
 import { StatusProps, StatusType } from '~/components/designSystem/Status'
@@ -12,6 +12,7 @@ import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   UPDATE_SUBSCRIPTION,
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
+  useNavigate,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {

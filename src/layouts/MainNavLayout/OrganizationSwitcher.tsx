@@ -2,7 +2,6 @@ import { ApolloClient, ApolloError } from '@apollo/client'
 import { captureException } from '@sentry/react'
 import { ConditionalWrapper, Icon } from 'lago-design-system'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -11,9 +10,9 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { VerticalMenuSectionTitle } from '~/components/designSystem/VerticalMenu'
-import { logOut, switchCurrentOrganization } from '~/core/apolloClient'
+import { addToast, logOut, switchCurrentOrganization } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
-import { HOME_ROUTE } from '~/core/router'
+import { HOME_ROUTE, useNavigate } from '~/core/router'
 import {
   AuthenticationMethodsEnum,
   CurrentUserInfosFragment,
@@ -84,9 +83,20 @@ export const OrganizationSwitcher = ({
     setIsSwitchingOrg(true)
 
     try {
+      const targetOrg = organizationList?.find((org) => org.id === organizationId)
+
+      // Never navigate to `/undefined/`. If the target org or its slug can't
+      // be resolved from the membership list, bail out — the catch block
+      // below handles Sentry reporting and user feedback.
+      if (!targetOrg?.slug) {
+        throw new Error('Organization switch aborted: missing target org slug')
+      }
+
       await switchCurrentOrganization(client, organizationId)
 
-      navigate(HOME_ROUTE)
+      // `skipSlugPrepend` — the target slug is the NEW org, different from the
+      // one currently in `useParams()`, so we must bypass the wrapper's auto-prepend.
+      navigate(`/${targetOrg.slug}${HOME_ROUTE}`, { skipSlugPrepend: true })
 
       const refetchPromises = [refetchOrganizationInfos(), refetchCurrentUserInfos()]
 
@@ -100,6 +110,11 @@ export const OrganizationSwitcher = ({
             errorType: 'OrganizationSwitchError',
             component: 'OrganizationSwitcher',
           },
+          extra: { organizationId },
+        })
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_622f7a3dc32ce100c46a5154',
         })
       }
     } finally {

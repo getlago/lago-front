@@ -1,10 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import type { Location } from 'react-router-dom'
 
-import {
-  ORGANIZATION_LS_KEY_ID,
-  REDIRECT_AFTER_LOGIN_LS_KEY,
-} from '~/core/constants/localStorageKeys'
+import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/constants/localStorageKeys'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 
 // Import Home component after all mocks are set up
@@ -15,12 +12,23 @@ const mockNavigate = jest.fn()
 const mockUseLocation = jest.fn()
 const mockGetItemFromLS = jest.fn()
 const mockRemoveItemFromLS = jest.fn()
+const mockGetCurrentOrganizationId = jest.fn()
 const mockHasPermissions = jest.fn()
 const mockFindFirstViewPermission = jest.fn()
 const mockHasOrganizationPremiumAddon = jest.fn()
 const mockGetRouteForPermission = jest.fn()
 const mockUseCurrentUser = jest.fn()
 const mockUseOrganizationInfos = jest.fn()
+
+const TEST_ORG_SLUG = 'test-org'
+const TEST_ORG_ID = 'org-a'
+
+const defaultMemberships = [
+  {
+    id: 'membership-1',
+    organization: { id: TEST_ORG_ID, name: 'Test Org', slug: TEST_ORG_SLUG },
+  },
+]
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -35,6 +43,11 @@ jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
   getItemFromLS: (key: string) => mockGetItemFromLS(key),
   removeItemFromLS: (key: string) => mockRemoveItemFromLS(key),
+}))
+
+jest.mock('~/core/apolloClient/reactiveVars', () => ({
+  ...jest.requireActual('~/core/apolloClient/reactiveVars'),
+  getCurrentOrganizationId: () => mockGetCurrentOrganizationId(),
 }))
 
 jest.mock('~/hooks/useCurrentUser', () => ({
@@ -56,11 +69,29 @@ jest.mock('~/core/router/utils/permissionRouteMap', () => ({
   getRouteForPermission: (permission: string | null) => mockGetRouteForPermission(permission),
 }))
 
+jest.mock('~/core/router/legacyPaths', () => ({
+  LEGACY_APP_PATH_SEGMENTS: new Set([
+    'analytics',
+    'customers',
+    'plans',
+    'invoices',
+    'settings',
+    'billable-metrics',
+    'coupons',
+    'add-ons',
+    'payments',
+    'credit-notes',
+    'subscriptions',
+    'features',
+  ]),
+}))
+
 describe('Home', () => {
   beforeEach(() => {
     mockNavigate.mockClear()
     mockGetItemFromLS.mockClear()
     mockRemoveItemFromLS.mockClear()
+    mockGetCurrentOrganizationId.mockClear()
     mockHasPermissions.mockClear()
     mockFindFirstViewPermission.mockClear()
     mockHasOrganizationPremiumAddon.mockClear()
@@ -69,10 +100,14 @@ describe('Home', () => {
     mockUseOrganizationInfos.mockClear()
     mockUseLocation.mockReturnValue({ state: null })
 
-    // Default mock values for a logged-in user
+    // Default: reactive var returns the test org ID
+    mockGetCurrentOrganizationId.mockReturnValue(TEST_ORG_ID)
+
+    // Default mock values for a logged-in user with slug
     mockUseCurrentUser.mockReturnValue({
       loading: false,
-      currentMembership: { id: 'membership-1' },
+      currentUser: { memberships: defaultMemberships },
+      currentMembership: defaultMemberships[0],
     })
     mockUseOrganizationInfos.mockReturnValue({
       loading: false,
@@ -81,7 +116,15 @@ describe('Home', () => {
   })
 
   describe('redirect from login with saved location', () => {
-    const savedLocation: Location = {
+    const savedLocationWithSlug: Location = {
+      pathname: `/${TEST_ORG_SLUG}/customers/123`,
+      search: '?tab=overview',
+      hash: '',
+      state: null,
+      key: 'saved-key',
+    }
+
+    const savedLocationLegacy: Location = {
       pathname: '/customers/123',
       search: '?tab=overview',
       hash: '',
@@ -89,57 +132,87 @@ describe('Home', () => {
       key: 'saved-key',
     }
 
-    it('should redirect to saved location when orgId matches', async () => {
+    it('should redirect to saved location when slug belongs to user', async () => {
       mockUseLocation.mockReturnValue({
         state: {
-          from: savedLocation,
-          orgId: 'org-a',
+          from: savedLocationWithSlug,
+          orgId: TEST_ORG_ID,
         },
-      })
-      mockGetItemFromLS.mockImplementation((key: string) => {
-        if (key === ORGANIZATION_LS_KEY_ID) return 'org-a'
-
-        return undefined
       })
 
       renderHook(() => Home())
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(savedLocation, { replace: true })
+        expect(mockNavigate).toHaveBeenCalledWith(savedLocationWithSlug, { replace: true })
       })
     })
 
-    it('should redirect to saved location when orgId is null (first login)', async () => {
+    it('should prepend slug to legacy saved location and preserve search + hash', async () => {
       mockUseLocation.mockReturnValue({
         state: {
-          from: savedLocation,
+          from: savedLocationLegacy,
           orgId: null,
         },
       })
-      mockGetItemFromLS.mockImplementation((key: string) => {
-        if (key === ORGANIZATION_LS_KEY_ID) return 'org-a'
-
-        return undefined
-      })
 
       renderHook(() => Home())
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(savedLocation, { replace: true })
+        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/customers/123?tab=overview`, {
+          replace: true,
+        })
       })
     })
 
-    it('should NOT redirect to saved location when orgId does not match', async () => {
+    it('should NOT prepend slug to legacy saved location when user has multiple memberships', async () => {
+      mockUseCurrentUser.mockReturnValue({
+        loading: false,
+        currentUser: {
+          memberships: [
+            ...defaultMemberships,
+            {
+              id: 'membership-2',
+              organization: { id: 'org-b', name: 'Other Org', slug: 'other-org' },
+            },
+          ],
+        },
+        currentMembership: defaultMemberships[0],
+      })
       mockUseLocation.mockReturnValue({
         state: {
-          from: savedLocation,
-          orgId: 'org-a',
+          from: savedLocationLegacy,
+          orgId: null,
         },
       })
-      mockGetItemFromLS.mockImplementation((key: string) => {
-        if (key === ORGANIZATION_LS_KEY_ID) return 'org-b'
+      mockHasPermissions.mockImplementation((perms: string[]) => perms.includes('customersView'))
+      mockHasOrganizationPremiumAddon.mockReturnValue(false)
 
-        return undefined
+      renderHook(() => Home())
+
+      await waitFor(() => {
+        // Falls through to default customers homepage — NOT the saved legacy path.
+        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/customers`, { replace: true })
+        expect(mockNavigate).not.toHaveBeenCalledWith(
+          `/${TEST_ORG_SLUG}/customers/123?tab=overview`,
+          { replace: true },
+        )
+      })
+    })
+
+    it('should fall through to default when saved slug belongs to unknown org', async () => {
+      const unknownSlugLocation: Location = {
+        pathname: '/unknown-org/customers/123',
+        search: '',
+        hash: '',
+        state: null,
+        key: 'saved-key',
+      }
+
+      mockUseLocation.mockReturnValue({
+        state: {
+          from: unknownSlugLocation,
+          orgId: 'org-a',
+        },
       })
       mockHasPermissions.mockImplementation((perms: string[]) => {
         return perms.includes('customersView')
@@ -149,25 +222,18 @@ describe('Home', () => {
       renderHook(() => Home())
 
       await waitFor(() => {
-        // Should fall through to default navigation (customers list)
-        expect(mockNavigate).toHaveBeenCalledWith('/customers', { replace: true })
-        expect(mockNavigate).not.toHaveBeenCalledWith(savedLocation, { replace: true })
+        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/customers`, { replace: true })
       })
     })
 
     it('should ignore saved location with root pathname', async () => {
-      const rootLocation = { ...savedLocation, pathname: '/' }
+      const rootLocation = { ...savedLocationWithSlug, pathname: '/' }
 
       mockUseLocation.mockReturnValue({
         state: {
           from: rootLocation,
-          orgId: 'org-a',
+          orgId: TEST_ORG_ID,
         },
-      })
-      mockGetItemFromLS.mockImplementation((key: string) => {
-        if (key === ORGANIZATION_LS_KEY_ID) return 'org-a'
-
-        return undefined
       })
       mockHasPermissions.mockImplementation((perms: string[]) => {
         return perms.includes('customersView')
@@ -177,8 +243,7 @@ describe('Home', () => {
       renderHook(() => Home())
 
       await waitFor(() => {
-        // Should fall through to default navigation
-        expect(mockNavigate).toHaveBeenCalledWith('/customers', { replace: true })
+        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/customers`, { replace: true })
         expect(mockNavigate).not.toHaveBeenCalledWith(rootLocation, { replace: true })
       })
     })
@@ -197,11 +262,13 @@ describe('Home', () => {
     })
 
     describe('WHEN the component renders after SSO login', () => {
-      it('THEN should navigate to the stored redirect path', async () => {
+      it('THEN should navigate to the stored redirect path with slug prepended', async () => {
         renderHook(() => Home())
 
         await waitFor(() => {
-          expect(mockNavigate).toHaveBeenCalledWith(ssoRedirectPath, { replace: true })
+          expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}${ssoRedirectPath}`, {
+            replace: true,
+          })
         })
       })
 
@@ -210,6 +277,22 @@ describe('Home', () => {
 
         await waitFor(() => {
           expect(mockRemoveItemFromLS).toHaveBeenCalledWith(REDIRECT_AFTER_LOGIN_LS_KEY)
+        })
+      })
+
+      it('THEN should NOT double-prepend slug if path already has it', async () => {
+        const pathWithSlug = `/${TEST_ORG_SLUG}/customers/123/information`
+
+        mockGetItemFromLS.mockImplementation((key: string) => {
+          if (key === REDIRECT_AFTER_LOGIN_LS_KEY) return pathWithSlug
+
+          return undefined
+        })
+
+        renderHook(() => Home())
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(pathWithSlug, { replace: true })
         })
       })
     })
@@ -231,9 +314,42 @@ describe('Home', () => {
         renderHook(() => Home())
 
         await waitFor(() => {
-          expect(mockNavigate).toHaveBeenCalledWith(ssoRedirectPath, { replace: true })
+          expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}${ssoRedirectPath}`, {
+            replace: true,
+          })
           expect(mockNavigate).not.toHaveBeenCalledWith(savedLocation, { replace: true })
         })
+      })
+    })
+
+    describe('WHEN deps change after the SSO redirect has fired (race condition)', () => {
+      it('THEN should NOT issue a second navigate to the default permission-based route', async () => {
+        // First render: SSO LS present, default perms also satisfy analytics
+        mockHasPermissions.mockReturnValue(true)
+        mockHasOrganizationPremiumAddon.mockReturnValue(false)
+
+        const { rerender } = renderHook(() => Home())
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}${ssoRedirectPath}`, {
+            replace: true,
+          })
+        })
+
+        mockGetItemFromLS.mockReturnValue(undefined)
+        mockHasOrganizationPremiumAddon.mockReturnValue(true)
+
+        rerender()
+
+        // Wait a tick to give the effect a chance to re-fire
+        await new Promise((resolve) => setTimeout(resolve, 50))
+
+        // Only the SSO navigate should have fired — no analytics fallback.
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).not.toHaveBeenCalledWith(
+          `/${TEST_ORG_SLUG}/analytics/revenueStreams`,
+          { replace: true },
+        )
       })
     })
   })
@@ -272,7 +388,7 @@ describe('Home', () => {
       renderHook(() => Home())
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/analytics', { replace: true })
+        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/analytics`, { replace: true })
       })
     })
 
@@ -287,7 +403,9 @@ describe('Home', () => {
       renderHook(() => Home())
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/analytics/revenue-streams', { replace: true })
+        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/analytics/revenue-streams`, {
+          replace: true,
+        })
       })
     })
 
@@ -300,7 +418,7 @@ describe('Home', () => {
       renderHook(() => Home())
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/customers', { replace: true })
+        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/customers`, { replace: true })
       })
     })
 
@@ -308,14 +426,14 @@ describe('Home', () => {
       mockHasPermissions.mockReturnValue(false)
       mockHasOrganizationPremiumAddon.mockReturnValue(false)
       mockFindFirstViewPermission.mockReturnValue('plansView')
-      mockGetRouteForPermission.mockReturnValue('/plans')
+      mockGetRouteForPermission.mockReturnValue('plans')
 
       renderHook(() => Home())
 
       await waitFor(() => {
         expect(mockFindFirstViewPermission).toHaveBeenCalled()
         expect(mockGetRouteForPermission).toHaveBeenCalledWith('plansView')
-        expect(mockNavigate).toHaveBeenCalledWith('/plans', { replace: true })
+        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/plans`, { replace: true })
       })
     })
 
@@ -411,13 +529,14 @@ describe('Home', () => {
       // Now loaded
       mockUseCurrentUser.mockReturnValue({
         loading: false,
-        currentMembership: { id: 'membership-1' },
+        currentUser: { memberships: defaultMemberships },
+        currentMembership: defaultMemberships[0],
       })
 
       rerender()
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/customers', { replace: true })
+        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/customers`, { replace: true })
       })
     })
   })
@@ -433,7 +552,7 @@ describe('Home', () => {
       renderHook(() => Home())
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/analytics', { replace: true })
+        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/analytics`, { replace: true })
       })
     })
 
@@ -449,7 +568,9 @@ describe('Home', () => {
       renderHook(() => Home())
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/analytics/revenue-streams', { replace: true })
+        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/analytics/revenue-streams`, {
+          replace: true,
+        })
       })
     })
 
@@ -471,7 +592,7 @@ describe('Home', () => {
       renderHook(() => Home())
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/customers', { replace: true })
+        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/customers`, { replace: true })
       })
     })
   })

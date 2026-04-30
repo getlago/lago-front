@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
 import { getIn, useFormik } from 'formik'
 import { useCallback, useRef, useState } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 import { boolean, number, object, string } from 'yup'
 
 import { Accordion } from '~/components/designSystem/Accordion'
@@ -28,7 +28,7 @@ import {
 import { addToast } from '~/core/apolloClient'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_DETAILS_TAB_ROUTE, WALLET_DETAILS_ROUTE } from '~/core/router'
+import { CUSTOMER_DETAILS_TAB_ROUTE, useNavigate, WALLET_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
   METADATA_VALUE_MAX_LENGTH_DEFAULT,

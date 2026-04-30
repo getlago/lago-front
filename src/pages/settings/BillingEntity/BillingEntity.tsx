@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { SETTINGS_ROUTE } from '~/core/router'
+import { SETTINGS_ROUTE, useNavigate } from '~/core/router'
 import { BillingEntity, useGetBillingEntityQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import BillingEntityMain from '~/pages/settings/BillingEntity/sections/BillingEntityMain'

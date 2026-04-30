@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
 import { useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import {
   DeleteBillableMetricDialog,
@@ -20,6 +20,7 @@ import {
   BILLABLE_METRIC_DETAILS_ROUTE,
   CREATE_BILLABLE_METRIC_ROUTE,
   UPDATE_BILLABLE_METRIC_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import { useBillableMetricsLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

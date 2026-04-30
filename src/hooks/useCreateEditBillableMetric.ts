@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { BILLABLE_METRIC_DETAILS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
+import { BILLABLE_METRIC_DETAILS_ROUTE, ERROR_404_ROUTE, useNavigate } from '~/core/router'
 import {
   AggregationTypeEnum,
   BillableMetricItemFragmentDoc,

@@ -1,4 +1,4 @@
-import { Location, matchPath, NavigateOptions, useNavigate } from 'react-router-dom'
+import { Location, matchPath, NavigateOptions, useParams } from 'react-router-dom'
 
 import {
   addLocationToHistory,
@@ -7,8 +7,16 @@ import {
   locationHistoryVar,
 } from '~/core/apolloClient'
 import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
-import { CustomRouteObject, FORBIDDEN_ROUTE, HOME_ROUTE, LOGIN_ROUTE } from '~/core/router'
+import {
+  CustomRouteObject,
+  FORBIDDEN_ROUTE,
+  HOME_ROUTE,
+  LOGIN_ROUTE,
+  useNavigate,
+} from '~/core/router'
+import { stripOrgSlug } from '~/core/router/utils/stripOrgSlug'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { hasIframeParams } from '~/hooks/useIframeConfig'
 import { TMembershipPermissions, usePermissions } from '~/hooks/usePermissions'
 
 type GoBack = (
@@ -29,9 +37,11 @@ type UseLocationHistoryReturn = () => {
 const getPreviousLocation = ({
   previousCount = -1,
   exclude,
+  organizationSlug,
 }: {
   previousCount?: number
   exclude?: string | string[]
+  organizationSlug?: string
 }) => {
   const previousLocations = locationHistoryVar()
   const index = exclude
@@ -40,11 +50,15 @@ const getPreviousLocation = ({
           return false
         }
 
-        // If exclude, find index of the first location that doesn't match
+        // History pathnames include the org slug (e.g. `/acme/settings/taxes`),
+        // but `exclude` patterns are slug-unaware route constants
+        // (e.g. `/settings/taxes`). Strip the slug before matching.
+        const strippedPathname = stripOrgSlug(location.pathname, organizationSlug)
+
         const isExcluded =
           typeof exclude === 'string'
-            ? matchPath(exclude, location.pathname)
-            : exclude.some((pathToExclude) => matchPath(pathToExclude, location.pathname))
+            ? matchPath(exclude, strippedPathname)
+            : exclude.some((pathToExclude) => matchPath(pathToExclude, strippedPathname))
 
         return !isExcluded
       })
@@ -82,10 +96,16 @@ const checkRoutePermissions = (
 
 export const useLocationHistory: UseLocationHistoryReturn = () => {
   const navigate = useNavigate()
+  // `useParams()` can return undefined outside a Router context (e.g. some tests).
+  const params = useParams<{ organizationSlug?: string }>()
+  const organizationSlug = params?.organizationSlug
   const { loading: isCurrentUserLoading } = useCurrentUser()
   const { hasPermissions, hasPermissionsOr } = usePermissions()
   const goBack: GoBack = (fallback, options) => {
-    const { previous, remainingHistory } = getPreviousLocation(options || {})
+    const { previous, remainingHistory } = getPreviousLocation({
+      ...(options || {}),
+      organizationSlug,
+    })
 
     if (options?.state) {
       navigate(previous || fallback, { state: options.state })
@@ -110,9 +130,20 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
       } else if (routeConfig.private && !isAuthenticated) {
         /**
          * In case of navigation to a private route while NOT authenticated
-         * Redirect to login and store the intended destination in router state
+         * Redirect to login and store the intended destination in router state.
+         *
+         * Iframe params (`?sfdc=true` / `?ifrm=true`) are propagated onto the
+         * `/login` URL so `useIframeConfig` (read inside Login.tsx) keeps
+         * detecting the embed context and hides Google/Okta buttons. Without
+         * this, Salesforce/Hubspot users would see the full SSO UI inside the
+         * iframe — Google/Okta auth flows can't complete in an embedded frame
+         * (CSP / popup blockers / cookie scoping), only email+password works.
          */
-        navigate(LOGIN_ROUTE, {
+        const loginPath = hasIframeParams(location.search)
+          ? `${LOGIN_ROUTE}${location.search}`
+          : LOGIN_ROUTE
+
+        navigate(loginPath, {
           state: {
             from: location,
             orgId: getItemFromLS(ORGANIZATION_LS_KEY_ID),

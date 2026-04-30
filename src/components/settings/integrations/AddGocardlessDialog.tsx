@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
 import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import { Button } from '~/components/designSystem/Button'
@@ -11,7 +11,7 @@ import { TextInputField } from '~/components/form'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { buildGocardlessAuthUrl } from '~/core/constants/externalUrls'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { GOCARDLESS_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
+import { GOCARDLESS_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddGocardlessPaymentProviderInput,
   AddGocardlessProviderDialogFragment,
