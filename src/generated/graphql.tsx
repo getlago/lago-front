@@ -13909,14 +13909,14 @@ export type CreateQuoteMutationVariables = Exact<{
 
 export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote?: { __typename?: 'Quote', id: string } | null };
 
-export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, content?: string | null, createdAt: any } };
+export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, content?: string | null, createdAt: any } };
 
 export type GetQuoteQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, content?: string | null, createdAt: any } } | null };
+export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, content?: string | null, createdAt: any } } | null };
 
 export type QuoteListItemFragment = { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number }>, customer: { __typename?: 'Customer', id: string, name?: string | null } };
 
@@ -13934,6 +13934,20 @@ export type GetQuotesQueryVariables = Exact<{
 
 
 export type GetQuotesQuery = { __typename?: 'Query', quotes: { __typename?: 'QuoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number }>, customer: { __typename?: 'Customer', id: string, name?: string | null } }> } };
+
+export type UpdateQuoteVersionMutationVariables = Exact<{
+  input: UpdateQuoteVersionInput;
+}>;
+
+
+export type UpdateQuoteVersionMutation = { __typename?: 'Mutation', updateQuoteVersion?: { __typename?: 'QuoteVersion', id: string } | null };
+
+export type UpdateQuoteMutationVariables = Exact<{
+  input: UpdateQuoteInput;
+}>;
+
+
+export type UpdateQuoteMutation = { __typename?: 'Mutation', updateQuote?: { __typename?: 'Quote', id: string, currentVersion: { __typename?: 'QuoteVersion', id: string, version: number, status: StatusEnum } } | null };
 
 export type AdyenIntegrationDetailsFragment = { __typename?: 'AdyenProvider', id: string, apiKey?: any | null, code: string, hmacKey?: any | null, livePrefix?: string | null, merchantAccount?: string | null, successRedirectUrl?: string | null, name: string };
 
@@ -19117,6 +19131,11 @@ export const QuoteDetailItemFragmentDoc = gql`
   owners {
     id
     email
+  }
+  subscription {
+    id
+    name
+    externalId
   }
   currentVersion {
     id
@@ -37453,6 +37472,77 @@ export type GetQuotesQueryHookResult = ReturnType<typeof useGetQuotesQuery>;
 export type GetQuotesLazyQueryHookResult = ReturnType<typeof useGetQuotesLazyQuery>;
 export type GetQuotesSuspenseQueryHookResult = ReturnType<typeof useGetQuotesSuspenseQuery>;
 export type GetQuotesQueryResult = Apollo.QueryResult<GetQuotesQuery, GetQuotesQueryVariables>;
+export const UpdateQuoteVersionDocument = gql`
+    mutation updateQuoteVersion($input: UpdateQuoteVersionInput!) {
+  updateQuoteVersion(input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateQuoteVersionMutationFn = Apollo.MutationFunction<UpdateQuoteVersionMutation, UpdateQuoteVersionMutationVariables>;
+
+/**
+ * __useUpdateQuoteVersionMutation__
+ *
+ * To run a mutation, you first call `useUpdateQuoteVersionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateQuoteVersionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateQuoteVersionMutation, { data, loading, error }] = useUpdateQuoteVersionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateQuoteVersionMutation(baseOptions?: Apollo.MutationHookOptions<UpdateQuoteVersionMutation, UpdateQuoteVersionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateQuoteVersionMutation, UpdateQuoteVersionMutationVariables>(UpdateQuoteVersionDocument, options);
+      }
+export type UpdateQuoteVersionMutationHookResult = ReturnType<typeof useUpdateQuoteVersionMutation>;
+export type UpdateQuoteVersionMutationResult = Apollo.MutationResult<UpdateQuoteVersionMutation>;
+export type UpdateQuoteVersionMutationOptions = Apollo.BaseMutationOptions<UpdateQuoteVersionMutation, UpdateQuoteVersionMutationVariables>;
+export const UpdateQuoteDocument = gql`
+    mutation updateQuote($input: UpdateQuoteInput!) {
+  updateQuote(input: $input) {
+    id
+    currentVersion {
+      id
+      version
+      status
+    }
+  }
+}
+    `;
+export type UpdateQuoteMutationFn = Apollo.MutationFunction<UpdateQuoteMutation, UpdateQuoteMutationVariables>;
+
+/**
+ * __useUpdateQuoteMutation__
+ *
+ * To run a mutation, you first call `useUpdateQuoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateQuoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateQuoteMutation, { data, loading, error }] = useUpdateQuoteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateQuoteMutation(baseOptions?: Apollo.MutationHookOptions<UpdateQuoteMutation, UpdateQuoteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateQuoteMutation, UpdateQuoteMutationVariables>(UpdateQuoteDocument, options);
+      }
+export type UpdateQuoteMutationHookResult = ReturnType<typeof useUpdateQuoteMutation>;
+export type UpdateQuoteMutationResult = Apollo.MutationResult<UpdateQuoteMutation>;
+export type UpdateQuoteMutationOptions = Apollo.BaseMutationOptions<UpdateQuoteMutation, UpdateQuoteMutationVariables>;
 export const GetAdyenIntegrationsDetailsDocument = gql`
     query getAdyenIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
   paymentProvider(id: $id) {
