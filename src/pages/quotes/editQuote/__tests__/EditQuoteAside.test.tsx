@@ -86,25 +86,19 @@ describe('EditQuoteAside', () => {
       it('THEN should render the quote type field', () => {
         render(<EditQuoteAside quote={mockQuote} />)
 
-        expect(
-          screen.getByTestId(EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID),
-        ).toBeInTheDocument()
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should render the owners combobox', () => {
         render(<EditQuoteAside quote={mockQuote} />)
 
-        expect(
-          screen.getByTestId(EDIT_QUOTE_ASIDE_OWNERS_COMBOBOX_TEST_ID),
-        ).toBeInTheDocument()
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_OWNERS_COMBOBOX_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should render the customer field', () => {
         render(<EditQuoteAside quote={mockQuote} />)
 
-        expect(
-          screen.getByTestId(EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID),
-        ).toBeInTheDocument()
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID)).toBeInTheDocument()
       })
     })
   })
@@ -136,9 +130,7 @@ describe('EditQuoteAside', () => {
 
         render(<EditQuoteAside quote={quoteWithSubscription} />)
 
-        expect(
-          screen.getByTestId(EDIT_QUOTE_ASIDE_SUBSCRIPTION_INPUT_TEST_ID),
-        ).toBeInTheDocument()
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_SUBSCRIPTION_INPUT_TEST_ID)).toBeInTheDocument()
       })
     })
   })

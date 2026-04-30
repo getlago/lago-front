@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
 
+import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox } from '~/components/form/ComboBox/ComboBox'
 import { MultipleComboBox } from '~/components/form/MultipleComboBox/MultipleComboBox'
 import { MultipleComboBoxData } from '~/components/form/MultipleComboBox/types'
 import { TextInput } from '~/components/form/TextInput'
-import { Typography } from '~/components/designSystem/Typography'
 import { QuoteDetailItemFragment, useGetMembersForCreateQuoteQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
