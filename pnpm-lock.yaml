@@ -347,8 +347,8 @@ importers:
         specifier: 0.7.1
         version: 0.7.1
       cssnano:
-        specifier: 7.1.5
-        version: 7.1.5(postcss@8.5.10)
+        specifier: 7.1.7
+        version: 7.1.7(postcss@8.5.10)
       cypress:
         specifier: 15.14.1
         version: 15.14.1
@@ -4818,11 +4818,11 @@ packages:
     peerDependencies:
       postcss: ^8.5.10
 
-  cssnano@7.1.5:
-    resolution: {integrity: sha512-4yEvjF2zcoAOWfNq6X687ORJc5SvM5xbg6EGuLSBmGoWZbsL69wpmw1tA3fZt7OwIG+G4ndjF95RSS4luvim7A==}
+  cssnano@7.1.7:
+    resolution: {integrity: sha512-N5LGn/OlhMxDTvKACwUPMzT34SSj1b022pvUAE/Vh6r2WD1aUCbc+QNIP/JjX9VVxebdJWZQ3352Lt4oF7dQ/g==}
     engines: {node: ^18.12.0 || ^20.9.0 || >=22.0}
     peerDependencies:
-      postcss: ^8.4.32
+      postcss: ^8.5.10
 
   csso@5.0.5:
     resolution: {integrity: sha512-0LrrStPOdJj+SPCCrGhzryycLjwcgUSHBtxNA8aIDxf0GLsRh1cKYhB00Gd1lDOS4yGH69+SNn13+TWbVHETFQ==}
@@ -13620,7 +13620,7 @@ snapshots:
     dependencies:
       postcss: 8.5.10
 
-  cssnano@7.1.5(postcss@8.5.10):
+  cssnano@7.1.7(postcss@8.5.10):
     dependencies:
       cssnano-preset-default: 7.0.15(postcss@8.5.10)
       lilconfig: 3.1.3
