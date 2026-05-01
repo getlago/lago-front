@@ -40,8 +40,8 @@ importers:
         specifier: 0.70.1
         version: 0.70.1
       '@sentry/react':
-        specifier: 10.49.0
-        version: 10.49.0(react@18.3.1)
+        specifier: 10.50.0
+        version: 10.50.0(react@18.3.1)
       '@superset-ui/embedded-sdk':
         specifier: 0.3.0
         version: 0.3.0
@@ -3054,28 +3054,28 @@ packages:
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
 
-  '@sentry-internal/browser-utils@10.49.0':
-    resolution: {integrity: sha512-n0QRx0Ysx6mPfIydTkz7VP0FmwM+/EqMZiRqdsU3aTYsngE9GmEDV0OL1bAy6a8N/C1xf9vntkuAtj6N/8Z51w==}
+  '@sentry-internal/browser-utils@10.50.0':
+    resolution: {integrity: sha512-42bxyRTxnCmYlWnvz4CxikuQNanw8UNma2WJrtxJ0f1MAJV2GhQGSHDLnA+lvFlmiz6qct3pfen/NXGyOTegTA==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/feedback@10.49.0':
-    resolution: {integrity: sha512-JNsUBGv0faCFE7MeZUH99Y9lU9qq3LBALbLxpE1x7ngNrQnVYRlcFgdqaD/btNBKr8awjYL8gmcSkHBWskGqLQ==}
+  '@sentry-internal/feedback@10.50.0':
+    resolution: {integrity: sha512-0k9XZF0wn86f77mIO2U3gNNyDZooy139CnEanRzHinrN106vVzvBZ6TUEQoHtoO1fqQxr+nWWVrqV/PXUqk47w==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/replay-canvas@10.49.0':
-    resolution: {integrity: sha512-7D/NrgH1Qwx5trDYaaTSSJmCb1yVQQLqFG4G/S9x2ltzl9876lSGJL8UeW8ReNQgF3CDAcwbmm/9aXaVSBUNZA==}
+  '@sentry-internal/replay-canvas@10.50.0':
+    resolution: {integrity: sha512-jx6RKBmcJSWdI92qDGS/sBv1w+7Cww879Z/moX7bw7ipHa/Ts3iDcB3rgZwvhmi17U+mvYsbJeL2DXkPo3TjPw==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/replay@10.49.0':
-    resolution: {integrity: sha512-IEy4lwHVMiRE3JAcn+kFKjsTgalDOCSTf20SoFd+nkt6rN/k1RDyr4xpdfF//Kj3UdeTmbuibYjK5H/FLhhnGg==}
+  '@sentry-internal/replay@10.50.0':
+    resolution: {integrity: sha512-51FYNfnvVLAWw1rrEWPFfwHuMRb9mkVCFGA4J9/un7SpeGBsQDziGB0Di4fsCxI7+EdSBpfLHPF0csKtCCw0oQ==}
     engines: {node: '>=18'}
 
   '@sentry/babel-plugin-component-annotate@5.2.0':
     resolution: {integrity: sha512-8LbOI5Kzb5F0+7LVQPi2+zGz1iPiRRFhM+7uZ/ZQ33L9BmDOYNIy3xWxCfMw2JCuMXXaxF47XCjGmR22/B0WPg==}
     engines: {node: '>= 18'}
 
-  '@sentry/browser@10.49.0':
-    resolution: {integrity: sha512-bGCHc+wK2Dx67YoSbmtlt04alqWfQ+dasD/GVipVOq50gvw/BBIDHTEWRJEjACl+LrvszeY54V+24p8z4IgysA==}
+  '@sentry/browser@10.50.0':
+    resolution: {integrity: sha512-1f6rAvET6myiTaSeYqvaaBwvq1LfxqWjAPIoAW/NVC9bPMkeEcuvgDajHrnZMrBeWoJ81NMyoLkyX+iOc7MoFA==}
     engines: {node: '>=18'}
 
   '@sentry/bundler-plugin-core@5.2.0':
@@ -3134,12 +3134,12 @@ packages:
     engines: {node: '>= 10'}
     hasBin: true
 
-  '@sentry/core@10.49.0':
-    resolution: {integrity: sha512-UaFeum3LUM1mB0d67jvKnqId1yWQjyqmaDV6kWngG03x+jqXb08tJdGpSoxjXZe13jFBbiBL/wKDDYIK7rCK4g==}
+  '@sentry/core@10.50.0':
+    resolution: {integrity: sha512-J4A+vzUO3adl0TkFCjaN1+4miamrjHiEIYuLHiuu1lmAjq5WIVw32ObvAh4yMwNtxyaEMosTrrh5M6f12XSJFg==}
     engines: {node: '>=18'}
 
-  '@sentry/react@10.49.0':
-    resolution: {integrity: sha512-WdfJve0orTiumr25Ozgs2p2KaJR9xV82Z5V9IYBi0TadsurSWK6xI6SAFjw84tQht9Fp8q4UCn3QYCnApF4BfA==}
+  '@sentry/react@10.50.0':
+    resolution: {integrity: sha512-MZHYjEZAtFIa4zPrWS4oXlo+gMppRvfETqUqF920Sj2jN2U7WjboU03lDmjfDqEcH7QiwjQyl13jHd2nwAyrrw==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^16.14.0 || 17.x || 18.x || 19.x
@@ -8564,10 +8564,12 @@ packages:
 
   uuid@10.0.0:
     resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   v8-compile-cache-lib@3.0.1:
@@ -11797,33 +11799,33 @@ snapshots:
 
   '@rtsao/scc@1.1.0': {}
 
-  '@sentry-internal/browser-utils@10.49.0':
+  '@sentry-internal/browser-utils@10.50.0':
     dependencies:
-      '@sentry/core': 10.49.0
+      '@sentry/core': 10.50.0
 
-  '@sentry-internal/feedback@10.49.0':
+  '@sentry-internal/feedback@10.50.0':
     dependencies:
-      '@sentry/core': 10.49.0
+      '@sentry/core': 10.50.0
 
-  '@sentry-internal/replay-canvas@10.49.0':
+  '@sentry-internal/replay-canvas@10.50.0':
     dependencies:
-      '@sentry-internal/replay': 10.49.0
-      '@sentry/core': 10.49.0
+      '@sentry-internal/replay': 10.50.0
+      '@sentry/core': 10.50.0
 
-  '@sentry-internal/replay@10.49.0':
+  '@sentry-internal/replay@10.50.0':
     dependencies:
-      '@sentry-internal/browser-utils': 10.49.0
-      '@sentry/core': 10.49.0
+      '@sentry-internal/browser-utils': 10.50.0
+      '@sentry/core': 10.50.0
 
   '@sentry/babel-plugin-component-annotate@5.2.0': {}
 
-  '@sentry/browser@10.49.0':
+  '@sentry/browser@10.50.0':
     dependencies:
-      '@sentry-internal/browser-utils': 10.49.0
-      '@sentry-internal/feedback': 10.49.0
-      '@sentry-internal/replay': 10.49.0
-      '@sentry-internal/replay-canvas': 10.49.0
-      '@sentry/core': 10.49.0
+      '@sentry-internal/browser-utils': 10.50.0
+      '@sentry-internal/feedback': 10.50.0
+      '@sentry-internal/replay': 10.50.0
+      '@sentry-internal/replay-canvas': 10.50.0
+      '@sentry/core': 10.50.0
 
   '@sentry/bundler-plugin-core@5.2.0':
     dependencies:
@@ -11882,12 +11884,12 @@ snapshots:
       - encoding
       - supports-color
 
-  '@sentry/core@10.49.0': {}
+  '@sentry/core@10.50.0': {}
 
-  '@sentry/react@10.49.0(react@18.3.1)':
+  '@sentry/react@10.50.0(react@18.3.1)':
     dependencies:
-      '@sentry/browser': 10.49.0
-      '@sentry/core': 10.49.0
+      '@sentry/browser': 10.50.0
+      '@sentry/core': 10.50.0
       react: 18.3.1
 
   '@sentry/rollup-plugin@5.2.0(rollup@4.59.0)':
