@@ -1,5 +1,4 @@
 import { Icon, tw } from 'lago-design-system'
-import { useRef } from 'react'
 
 import { AiBadge } from '~/components/designSystem/AiBadge'
 import { Chip } from '~/components/designSystem/Chip'
@@ -7,7 +6,6 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
 import PremiumFeature from '~/components/premium/PremiumFeature'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -37,7 +35,6 @@ export const BadgeAI = ({
 
 const Forecasts = () => {
   const { translate } = useInternationalization()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
 
   const hasAccessToForecastsFeature = hasOrganizationPremiumAddon(
@@ -45,50 +42,44 @@ const Forecasts = () => {
   )
 
   return (
-    <>
-      <FullscreenPage.Wrapper>
-        <div className="flex items-center gap-2">
-          <Typography variant="headline" color="grey700">
-            {translate('text_1753014457040hxp6wkphkvw')}
-          </Typography>
+    <FullscreenPage.Wrapper>
+      <div className="flex items-center gap-2">
+        <Typography variant="headline" color="grey700">
+          {translate('text_1753014457040hxp6wkphkvw')}
+        </Typography>
 
-          <Tooltip
-            placement="top-start"
-            title={translate('text_17530144570400ri03obw5mv')}
-            className="flex"
-          >
-            <Icon name="info-circle" className="text-grey-600" />
-          </Tooltip>
+        <Tooltip
+          placement="top-start"
+          title={translate('text_17530144570400ri03obw5mv')}
+          className="flex"
+        >
+          <Icon name="info-circle" className="text-grey-600" />
+        </Tooltip>
 
-          <BadgeAI badgeClassName="px-2 py-1" iconSize={16} textClassName="text-sm" />
+        <BadgeAI badgeClassName="px-2 py-1" iconSize={16} textClassName="text-sm" />
 
-          <Chip
-            className="bg-purple-100 !px-2 !py-0.5 text-purple-600"
-            color="info600"
-            size="small"
-            label={translate('text_65d8d71a640c5400917f8a13')}
-          />
-        </div>
+        <Chip
+          className="bg-purple-100 !px-2 !py-0.5 text-purple-600"
+          color="info600"
+          size="small"
+          label={translate('text_65d8d71a640c5400917f8a13')}
+        />
+      </div>
 
-        {!hasAccessToForecastsFeature && (
-          <div className="max-w-2xl">
-            <div>
-              <PremiumFeature
-                title={translate('text_1761560753771d6ppz3evqxc')}
-                description={translate('text_1761560714509hv9325ywuzq')}
-                feature={translate('text_1753014457040hxp6wkphkvw')}
-              />
-            </div>
+      {!hasAccessToForecastsFeature && (
+        <div className="max-w-2xl">
+          <div>
+            <PremiumFeature
+              title={translate('text_1761560753771d6ppz3evqxc')}
+              description={translate('text_1761560714509hv9325ywuzq')}
+              feature={translate('text_1753014457040hxp6wkphkvw')}
+            />
           </div>
-        )}
+        </div>
+      )}
 
-        {hasAccessToForecastsFeature && (
-          <ForecastsOverviewSection premiumWarningDialogRef={premiumWarningDialogRef} />
-        )}
-      </FullscreenPage.Wrapper>
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
-    </>
+      {hasAccessToForecastsFeature && <ForecastsOverviewSection />}
+    </FullscreenPage.Wrapper>
   )
 }
 

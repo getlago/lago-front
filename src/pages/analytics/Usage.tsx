@@ -12,7 +12,7 @@ const Usage = () => {
     <FullscreenPage.Wrapper>
       <UsageOverviewSection premiumWarningDialogRef={premiumWarningDialogRef} />
 
-      <UsageBreakdownSection premiumWarningDialogRef={premiumWarningDialogRef} />
+      <UsageBreakdownSection />
 
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </FullscreenPage.Wrapper>

@@ -20,6 +20,7 @@ gql`
   fragment MainOrganizationInfos on CurrentOrganization {
     id
     name
+    slug
     logoUrl
     timezone
     defaultCurrency

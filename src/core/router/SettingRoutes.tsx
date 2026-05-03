@@ -40,6 +40,9 @@ const CreateInvoiceCustomSection = lazyLoad(
 )
 
 const TaxesSettings = lazyLoad(() => import('~/pages/settings/TaxesSettings'))
+const OrganizationGeneralSettings = lazyLoad(
+  () => import('~/pages/settings/OrganizationGeneralSettings/OrganizationGeneralSettings'),
+)
 const Integrations = lazyLoad(() => import('~/pages/settings/Integrations'))
 
 const AnrokIntegrationDetails = lazyLoad(() => import('~/pages/settings/AnrokIntegrationDetails'))
@@ -109,6 +112,7 @@ const OktaAuthenticationDetails = lazyLoad(
 export const SETTINGS_ROUTE = '/settings'
 export const INVOICE_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/invoice-sections`
 export const TAXES_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/taxes`
+export const GENERAL_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/general`
 export const ROOT_INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
 export const INTEGRATIONS_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/:integrationGroup`
 export const FULL_INTEGRATIONS_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/:integrationGroup/:tab`
@@ -235,6 +239,12 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <TaxesSettings />,
         permissions: ['organizationTaxesView'],
+      },
+      {
+        path: [GENERAL_SETTINGS_ROUTE],
+        private: true,
+        element: <OrganizationGeneralSettings />,
+        permissions: ['organizationView'],
       },
       {
         path: INTEGRATIONS_ROUTE,
