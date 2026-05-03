@@ -30,7 +30,7 @@ Nav.displayName = 'Nav'
 const NavBurgerButton = ({ onClick }: { onClick: () => void }) => {
   return (
     <Button
-      className="absolute left-4 top-3 z-drawer md:hidden"
+      className="absolute left-4 top-2 z-drawer !w-[36px] !p-[10px] md:hidden"
       icon="burger"
       variant="quaternary"
       onClick={(e) => {

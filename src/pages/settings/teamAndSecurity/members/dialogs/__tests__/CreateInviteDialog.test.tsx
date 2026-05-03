@@ -150,6 +150,10 @@ describe('CreateInviteDialog', () => {
   afterEach(() => {
     cleanup()
     jest.clearAllMocks()
+    // NiceModal keeps open modals in module-level state that survives cleanup().
+    // Purge them so leaked dialogs from one test don't bleed into the next.
+    NiceModal.remove(FORM_DIALOG_NAME)
+    NiceModal.remove(CENTRALIZED_DIALOG_NAME)
   })
 
   describe('Opening', () => {

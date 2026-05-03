@@ -127,7 +127,7 @@ export const AddLagoTaxManagementDialog = forwardRef<
 
       navigate(
         generatePath(TAX_MANAGEMENT_INTEGRATION_ROUTE, {
-          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+          integrationGroup: IntegrationsTabsOptionsEnum.Community,
         }),
       )
 

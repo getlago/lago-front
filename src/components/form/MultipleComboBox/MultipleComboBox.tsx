@@ -24,6 +24,7 @@ const DEFAULT_LIMIT_TAGS = 2
 
 export const MultipleComboBox = ({
   data: rawData,
+  loading,
   value,
   disabled,
   sortValues = true,
@@ -99,7 +100,7 @@ export const MultipleComboBox = ({
           : undefined
       }
       onClose={() => setOpen(false)}
-      forcePopupIcon={forcePopupIcon}
+      forcePopupIcon={loading || forcePopupIcon}
       disableCloseOnSelect={disableCloseOnSelect}
       disableClearable={disableClearable}
       disabled={disabled}
@@ -175,7 +176,9 @@ export const MultipleComboBox = ({
         },
       }}
       clearIcon={<Icon name="close-circle-filled" />}
-      popupIcon={<Icon name="chevron-up-down" />}
+      popupIcon={
+        loading ? <Icon name="processing" animation="spin" /> : <Icon name="chevron-up-down" />
+      }
       noOptionsText={emptyText ?? translate('text_623b3acb8ee4e000ba87d082')}
       clearOnBlur
       freeSolo={freeSolo}

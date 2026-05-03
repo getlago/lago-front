@@ -107,6 +107,7 @@ export const ComboBox = ({
             className={className}
             error={error}
             hasValueSelected={!!value}
+            loading={!!searchQuery && isLoading}
             searchQuery={debouncedSearch}
             helperText={helperText}
             label={label}

@@ -34,6 +34,7 @@ export const TabButton = forwardRef<HTMLButtonElement, TabButtonProps>(
     return (
       <button
         {...props}
+        type="button"
         ref={ref}
         className={tw(
           'transition-250 flex min-h-10 items-center justify-center rounded-xl px-3 py-[6px] font-sans outline-none transition-colors ease-in',

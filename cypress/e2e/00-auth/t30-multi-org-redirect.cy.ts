@@ -2,7 +2,7 @@ import {
   CREATE_CUSTOMER_DATA_TEST,
   SUBMIT_CUSTOMER_DATA_TEST,
 } from '~/components/customers/utils/dataTestConstants'
-import { DESKTOP_ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
+import { ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
 
 // Note: some login are done manually without using cy.login command
 // to preserve the router state needed for redirect testing
@@ -112,10 +112,9 @@ describe('Multi-organization redirect flows', () => {
       cy.contains(testUsers.userA.org1Name).click()
       // 3. Create a customer in Org1
       cy.visit('/customers')
-      cy.get(
-        `[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="${CREATE_CUSTOMER_DATA_TEST}"]`,
-        { timeout: 10000 },
-      ).click()
+      cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="${CREATE_CUSTOMER_DATA_TEST}"]`, {
+        timeout: 10000,
+      }).click()
       cy.get('input[name="name"]').type('Customer Org1 Multi-Org Test')
       cy.get('input[name="externalId"]').type(`customer-org1-${Date.now()}`)
       cy.get(`[data-test="${SUBMIT_CUSTOMER_DATA_TEST}"]`).click()
@@ -147,10 +146,9 @@ describe('Multi-organization redirect flows', () => {
       // 2. Navigate to a deep page (e.g., customers/:id)
       // Create a customer to get a deep link
       cy.visit('/customers')
-      cy.get(
-        `[data-test="${DESKTOP_ACTIONS_BLOCK_TEST_ID}"] [data-test="${CREATE_CUSTOMER_DATA_TEST}"]`,
-        { timeout: 10000 },
-      ).click()
+      cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="${CREATE_CUSTOMER_DATA_TEST}"]`, {
+        timeout: 10000,
+      }).click()
       cy.get('input[name="name"]').type('Customer for Org Switch Test')
       cy.get('input[name="externalId"]').type(`customer-org-switch-${Date.now()}`)
       cy.get(`[data-test="${SUBMIT_CUSTOMER_DATA_TEST}"]`).click()

@@ -141,6 +141,7 @@ export const JsonEditor = ({
             )}
           >
             <button
+              type="button"
               className={tw(
                 'flex size-full cursor-pointer items-center justify-center rounded-none border-none bg-none transition-opacity',
                 isHover ? 'opacity-100' : 'opacity-0',

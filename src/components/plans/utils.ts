@@ -1,4 +1,9 @@
-import { ALL_FILTER_VALUES, getIntervalTranslationKey } from '~/core/constants/form'
+import {
+  ALL_FILTER_VALUES,
+  AnyChargeModel,
+  chargeModelLookupTranslation,
+  getIntervalTranslationKey,
+} from '~/core/constants/form'
 import { PlanInterval, PrivilegeValueTypeEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
@@ -64,4 +69,16 @@ export const isPlanIntervalAnnual = (interval: PlanInterval | undefined): boolea
   if (!interval) return false
 
   return [PlanInterval.Semiannual, PlanInterval.Yearly].includes(interval)
+}
+
+export const getFormattedChargeSelectorSubtitle = ({
+  chargeModel,
+  code,
+  translate,
+}: {
+  chargeModel: AnyChargeModel
+  code: string
+  translate: TranslateFunc
+}): string => {
+  return [translate(chargeModelLookupTranslation[chargeModel]), code].filter(Boolean).join(' • ')
 }

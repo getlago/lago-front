@@ -64,7 +64,9 @@ const AvalaraIntegrations = () => {
   const { data, loading } = useGetAvalaraIntegrationsListQuery({
     variables: { limit: 1000, types: [IntegrationTypeEnum.Avalara] },
   })
-  const connections = data?.integrations?.collection as AvalaraIntegrationsFragment[] | undefined
+  const connections = (
+    data?.integrations?.collection as AvalaraIntegrationsFragment[] | undefined
+  )?.filter((c): c is AvalaraIntegrationsFragment => c !== null)
   const deleteDialogCallback =
     connections && connections?.length === 1
       ? () =>

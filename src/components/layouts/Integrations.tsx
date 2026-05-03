@@ -12,7 +12,7 @@ const IntegrationsContainer: FC<PropsWithChildren<{ className?: string }>> = ({
   className,
   children,
 }) => {
-  return <div className={tw('flex flex-col gap-8 px-12 pb-20', className)}>{children}</div>
+  return <div className={tw('flex flex-col gap-8 px-4 pb-20 md:px-12', className)}>{children}</div>
 }
 
 const IntegrationsHeadline: FC<PropsWithChildren<{ label: string; description?: string }>> = ({

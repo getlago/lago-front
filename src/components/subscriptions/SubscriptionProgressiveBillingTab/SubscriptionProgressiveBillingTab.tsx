@@ -6,7 +6,6 @@ import { NavigationTab, TabManagedBy } from '~/components/designSystem/Navigatio
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import PremiumFeature from '~/components/premium/PremiumFeature'
-import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import {
   SubscriptionForProgressiveBillingTabFragment,
   SubscriptionForUseProgressiveBillingTabFragmentDoc,
@@ -171,11 +170,9 @@ export const SubscriptionProgressiveBillingTab: FC<SubscriptionProgressiveBillin
       <div className="flex flex-col items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
           <Typography variant="subhead1">{translate('text_1724179887722baucvj7bvc1')}</Typography>
-          <Typography
-            variant="caption"
-            color="grey600"
-            html={translate('text_1724179887723kdf3nisf6hp', { href: PROGRESSIVE_BILLING_DOC_URL })}
-          />
+          <Typography variant="caption" color="grey600">
+            {translate('text_1724179887723kdf3nisf6hp')}
+          </Typography>
         </div>
 
         {!hasPremiumIntegration && (

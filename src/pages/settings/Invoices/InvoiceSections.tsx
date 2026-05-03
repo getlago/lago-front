@@ -72,8 +72,8 @@ const InvoiceSections = () => {
   const navigate = useNavigate()
   const deleteCustomSectionDialogRef = useRef<DeleteCustomSectionDialogRef>(null)
 
-  const canEditInvoiceSettings = hasPermissions(['organizationInvoicesUpdate'])
-  const canEditOrCreatePricingUnits = hasPermissions(['pricingUnitsCreate', 'pricingUnitsUpdate'])
+  const canCreatePricingUnits = hasPermissions(['pricingUnitsCreate'])
+  const canEditPricingUnits = hasPermissions(['pricingUnitsUpdate'])
   const canViewPricingUnits = hasPermissions(['pricingUnitsView'])
 
   const {
@@ -121,7 +121,7 @@ const InvoiceSections = () => {
                 action={
                   <Button
                     variant="inline"
-                    disabled={!canEditOrCreatePricingUnits}
+                    disabled={!canCreatePricingUnits}
                     onClick={() => navigate(CREATE_PRICING_UNIT)}
                   >
                     {translate('text_1742230191029lznwj3y41nb')}
@@ -171,10 +171,14 @@ const InvoiceSections = () => {
                       },
                     ]}
                     actionColumnTooltip={() => translate('text_63e51ef4985f0ebd75c212fc')}
-                    onRowActionLink={({ id }) =>
-                      generatePath(EDIT_PRICING_UNIT, {
-                        pricingUnitId: id,
-                      })
+                    onRowActionLink={
+                      canEditPricingUnits
+                        ? ({ id }) => {
+                            return generatePath(EDIT_PRICING_UNIT, {
+                              pricingUnitId: id,
+                            })
+                          }
+                        : undefined
                     }
                     actionColumn={({ id }) => [
                       {
@@ -202,7 +206,7 @@ const InvoiceSections = () => {
               action={
                 <Button
                   variant="inline"
-                  disabled={!canEditInvoiceSettings}
+                  disabled={!hasPermissions(['invoiceCustomSectionsCreate'])}
                   onClick={() => navigate(CREATE_INVOICE_CUSTOM_SECTION)}
                 >
                   {translate('text_1742230191029lznwj3y41nb')}
@@ -246,6 +250,7 @@ const InvoiceSections = () => {
                     {
                       startIcon: 'pen',
                       title: translate('text_1732638001460kne05vskb7e'),
+                      disabled: !hasPermissions(['invoiceCustomSectionsUpdate']),
                       onAction: () =>
                         navigate(
                           generatePath(EDIT_INVOICE_CUSTOM_SECTION, { sectionId: section.id }),

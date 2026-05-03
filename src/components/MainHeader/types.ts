@@ -34,6 +34,7 @@ export interface MainHeaderDropdownItem {
   hidden?: boolean
   danger?: boolean
   dataTest?: string
+  startIcon?: IconName
   endIcon?: IconName
   tooltip?: string
 }

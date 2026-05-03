@@ -4,7 +4,6 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
 import { Icon, IconName } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath, Link } from 'react-router-dom'
 import { boolean, number, object, string } from 'yup'
 
@@ -15,7 +14,6 @@ import { Avatar, AvatarBadge } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Chip } from '~/components/designSystem/Chip'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { Drawer } from '~/components/designSystem/Drawer'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { NavigationTab } from '~/components/designSystem/NavigationTab'
@@ -28,6 +26,7 @@ import { ChargeTable, HorizontalDataTable } from '~/components/designSystem/Tabl
 import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import {
   ButtonSelectorField,
   Checkbox,
@@ -63,6 +62,7 @@ import { tw } from '~/styles/utils'
 
 import DialogTest from './tabs/DialogTest'
 import DrawerTest from './tabs/DrawerTest'
+import EditorTest from './tabs/EditorTest'
 
 const FORM_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'form' })
 const LINK_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'links' })
@@ -74,6 +74,9 @@ const SKELETON_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: '
 const TABLE_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'table' })
 const DIALOG_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'dialog' })
 const DRAWER_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'drawer' })
+const RICH_TEXT_EDITOR_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, {
+  tab: 'rich-text-editor',
+})
 
 const Container = ({ children }: { children: React.ReactNode }) => (
   <div className="px-12 pb-20 pt-8">{children}</div>
@@ -96,7 +99,6 @@ const ComboboxHeader = ({ children }: { children: React.ReactNode }) => (
 )
 
 const DesignSystem = () => {
-  const dialogRef = useRef<DialogRef>(null)
   const formikProps = useFormik({
     initialValues: {
       checkbox: false,
@@ -321,31 +323,6 @@ const DesignSystem = () => {
                       allowFullScreen
                     ></iframe>
                   </Drawer>
-                  <Button onClick={() => dialogRef.current?.openDialog()}>Dialog</Button>
-                  <Dialog
-                    ref={dialogRef}
-                    title="Imma dialog"
-                    description="And I'm happy to see you"
-                    actions={({ closeDialog }) => (
-                      <>
-                        <Button variant="quaternary" onClick={() => closeDialog()}>
-                          Oups
-                        </Button>
-                        <Button onClick={() => closeDialog()}>Ok bye</Button>
-                      </>
-                    )}
-                  >
-                    <Typography className="mb-4">
-                      <iframe
-                        title="Happy to see you"
-                        src="https://giphy.com/embed/l2Jhok92mZ2PZHjDG"
-                        width="480"
-                        height="256"
-                        frameBorder="0"
-                        allowFullScreen
-                      ></iframe>
-                    </Typography>
-                  </Dialog>
                   <Tooltip placement="top-end" title="Hola muchacho 🥸!">
                     <Button variant="secondary">Tooltip</Button>
                   </Tooltip>
@@ -1426,6 +1403,25 @@ const DesignSystem = () => {
                     <Typography color="white">color white</Typography>
                   </VerticalBlock>
                 </Block>
+                <Typography className="mb-4 mt-8" variant="headline">
+                  TypographyWithCopy
+                </Typography>
+                <Block className="mb-0">
+                  <VerticalBlock>
+                    <TypographyWithCopy variant="body" color="grey700">
+                      db7a5c02-a7c8-4c48-a44f-3e5b1f2a9e3d
+                    </TypographyWithCopy>
+                    <TypographyWithCopy variant="captionCode" color="grey700">
+                      sub_ext_12345
+                    </TypographyWithCopy>
+                    <TypographyWithCopy variant="caption" color="grey600">
+                      PLAN_CODE_MONTHLY
+                    </TypographyWithCopy>
+                    <TypographyWithCopy variant="bodyHl" color="grey700">
+                      INV-2024-001-234
+                    </TypographyWithCopy>
+                  </VerticalBlock>
+                </Block>
               </Container>
             ),
           },
@@ -2256,6 +2252,11 @@ const DesignSystem = () => {
             title: 'Drawers',
             link: DRAWER_TAB_URL,
             component: <DrawerTest />,
+          },
+          {
+            title: 'Rich Text Editor',
+            link: RICH_TEXT_EDITOR_TAB_URL,
+            component: <EditorTest />,
           },
           // disabled simple tab
           {

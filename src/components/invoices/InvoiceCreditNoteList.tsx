@@ -19,6 +19,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 gql`
@@ -53,6 +54,8 @@ export const InvoiceCreditNoteList = () => {
   const { invoiceId, customerId } = useParams()
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
+  const canIssueCreditNote = hasPermissions(['creditNotesCreate'])
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { data, loading, error, fetchMore, variables } = useGetInvoiceCreditNotesQuery({
     variables: { invoiceId: invoiceId as string, limit: 20 },
@@ -76,7 +79,7 @@ export const InvoiceCreditNoteList = () => {
       {(!loading || !!creditNotes?.length) && (
         <div className="flex h-18 items-center justify-between shadow-b">
           <Typography variant="subhead1">{translate('text_636bdef6565341dcb9cfb129')}</Typography>
-          {data?.invoice?.status !== InvoiceStatusTypeEnum.Draft && (
+          {data?.invoice?.status !== InvoiceStatusTypeEnum.Draft && canIssueCreditNote && (
             <>
               {data?.invoice?.status !== InvoiceStatusTypeEnum.Voided && (
                 <>

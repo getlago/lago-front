@@ -166,8 +166,8 @@ export const OrganizationSwitcher = ({
               >
                 <VerticalMenuSectionTitle title={currentUser?.email || ''} loading={isLoading} />
 
-                {organizationList
-                  .toSorted((a, b) => {
+                {[...organizationList]
+                  .sort((a, b) => {
                     // First sort by accessibleByCurrentSession (accessible first)
                     if (a.accessibleByCurrentSession !== b.accessibleByCurrentSession) {
                       return a.accessibleByCurrentSession ? -1 : 1

@@ -24,15 +24,16 @@ jest.mock('~/hooks/usePermissions', () => ({
   }),
 }))
 
-jest.mock('~/hooks/useCurrentUser', () => ({
-  useCurrentUser: () => ({ isPremium: true }),
+jest.mock('~/hooks/wallet/useWalletActions', () => ({
+  useWalletActions: () => ({
+    actions: [],
+    terminateDialogRef: { current: null },
+    voidDialogRef: { current: null },
+  }),
 }))
 
-jest.mock('~/hooks/useDeveloperTool', () => ({
-  useDeveloperTool: () => ({
-    setUrl: jest.fn(),
-    openPanel: jest.fn(),
-  }),
+jest.mock('~/components/MainHeader/useMainHeaderTabContent', () => ({
+  useMainHeaderTabContent: () => <div data-test="active-tab-content">Tab Content</div>,
 }))
 
 // Mock child components that have their own queries
@@ -48,11 +49,6 @@ jest.mock('~/components/wallets/WalletInformations', () => ({
 
 jest.mock('~/components/wallets/WalletTransactions', () => ({
   WalletTransactions: () => <div data-test="mock-wallet-transactions" />,
-}))
-
-jest.mock('~/components/wallets/WalletActions', () => ({
-  __esModule: true,
-  default: () => <div data-test="mock-wallet-actions" />,
 }))
 
 const mockUseGetWalletDetailsQuery = jest.fn()
@@ -124,7 +120,7 @@ describe('WalletDetails', () => {
 
   describe('GIVEN the wallet query succeeds', () => {
     describe('WHEN wallet data is loaded', () => {
-      it('THEN should show the navigation tabs', () => {
+      it('THEN should not show the error placeholder', () => {
         mockUseGetWalletDetailsQuery.mockReturnValue({
           data: { wallet: mockWallet },
           error: undefined,
@@ -134,6 +130,18 @@ describe('WalletDetails', () => {
         render(<WalletDetails />)
 
         expect(screen.queryByTestId(GENERIC_PLACEHOLDER_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should render the active tab content', () => {
+        mockUseGetWalletDetailsQuery.mockReturnValue({
+          data: { wallet: mockWallet },
+          error: undefined,
+          loading: false,
+        })
+
+        render(<WalletDetails />)
+
+        expect(screen.getByTestId('active-tab-content')).toBeInTheDocument()
       })
     })
   })

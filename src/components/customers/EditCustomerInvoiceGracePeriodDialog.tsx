@@ -1,19 +1,16 @@
 import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
-import { useFormik } from 'formik'
-import { forwardRef } from 'react'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { forwardRef, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { number, object } from 'yup'
+import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
 import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
-import {
-  UpdateCustomerInput,
-  useUpdateCustomerInvoiceGracePeriodMutation,
-} from '~/generated/graphql'
+import { useUpdateCustomerInvoiceGracePeriodMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   fragment EditCustomerInvoiceGracePeriod on Customer {
@@ -29,6 +26,12 @@ gql`
   }
 `
 
+const editCustomerInvoiceGracePeriodValidationSchema = z.object({
+  invoiceGracePeriod: z
+    .union([z.number().max(365, { message: 'text_63bed78ae69de9cad5c348e4' }), z.literal('')])
+    .refine((val) => val !== '', { message: 'text_177583191144596sed2y63wo' }),
+})
+
 export type EditCustomerInvoiceGracePeriodDialogRef = DialogRef
 
 interface EditCustomerInvoiceGracePeriodDialogProps {
@@ -41,6 +44,7 @@ export const EditCustomerInvoiceGracePeriodDialog = forwardRef<
 >(({ invoiceGracePeriod }: EditCustomerInvoiceGracePeriodDialogProps, ref) => {
   const { customerId } = useParams()
   const { translate } = useInternationalization()
+  const closeDialogRef = useRef<(() => void) | null>(null)
   const [updateCustomerInvoiceGracePeriod] = useUpdateCustomerInvoiceGracePeriodMutation({
     onCompleted(res) {
       if (res?.updateCustomerInvoiceGracePeriod) {
@@ -51,33 +55,37 @@ export const EditCustomerInvoiceGracePeriodDialog = forwardRef<
       }
     },
   })
-  const formikProps = useFormik<Pick<UpdateCustomerInput, 'invoiceGracePeriod'>>({
-    initialValues: {
-      invoiceGracePeriod: invoiceGracePeriod ?? 0,
+
+  const form = useAppForm({
+    defaultValues: {
+      invoiceGracePeriod: (invoiceGracePeriod ?? '') as number | '',
     },
-    validationSchema: object().shape({
-      invoiceGracePeriod: number().required('').max(365, 'text_63bed78ae69de9cad5c348e4'),
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: async (values) => {
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: editCustomerInvoiceGracePeriodValidationSchema,
+    },
+    onSubmit: async ({ value }) => {
       await updateCustomerInvoiceGracePeriod({
         variables: {
           input: {
             id: customerId || '',
-            ...values,
+            invoiceGracePeriod: Number(value.invoiceGracePeriod) || 0,
           },
         },
       })
+      closeDialogRef.current?.()
     },
   })
+
+  const isDirty = useStore(form.store, (state) => state.isDirty)
+  const canSubmit = useStore(form.store, (state) => state.canSubmit)
 
   return (
     <Dialog
       ref={ref}
       title={translate('text_638dff9779fb99299bee90b0')}
       description={translate('text_638dff9779fb99299bee90b4')}
-      onClose={() => formikProps.resetForm()}
+      onClose={() => form.reset()}
       actions={({ closeDialog }) => (
         <>
           <Button variant="quaternary" onClick={closeDialog}>
@@ -85,10 +93,10 @@ export const EditCustomerInvoiceGracePeriodDialog = forwardRef<
           </Button>
           <Button
             variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
+            disabled={!canSubmit || !isDirty}
             onClick={async () => {
-              await formikProps.submitForm()
-              closeDialog()
+              closeDialogRef.current = closeDialog
+              await form.handleSubmit()
             }}
           >
             {translate('text_638dff9779fb99299bee90cc')}
@@ -97,20 +105,22 @@ export const EditCustomerInvoiceGracePeriodDialog = forwardRef<
       )}
     >
       <div className="mb-8">
-        <TextInputField
-          name="invoiceGracePeriod"
-          beforeChangeFormatter={['positiveNumber', 'int']}
-          label={translate('text_638dff9779fb99299bee90bc')}
-          placeholder={translate('text_638dff9779fb99299bee90c0')}
-          formikProps={formikProps}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                {translate('text_638dff9779fb99299bee90c4')}
-              </InputAdornment>
-            ),
-          }}
-        />
+        <form.AppField name="invoiceGracePeriod">
+          {(field) => (
+            <field.TextInputField
+              beforeChangeFormatter={['positiveNumber', 'int']}
+              label={translate('text_638dff9779fb99299bee90bc')}
+              placeholder={translate('text_638dff9779fb99299bee90c0')}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    {translate('text_638dff9779fb99299bee90c4')}
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
+        </form.AppField>
       </div>
     </Dialog>
   )

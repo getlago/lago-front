@@ -183,7 +183,7 @@ const config: Config = {
         170: '42.5rem',
         180: '45rem',
         192: '48rem',
-        footer: '5rem',
+        footer: '4rem',
         nav: '4rem',
         formMainPadding: '3rem',
       },

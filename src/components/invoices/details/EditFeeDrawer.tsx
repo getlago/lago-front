@@ -762,12 +762,11 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
           </DrawerLayout.Content>
 
           <DrawerLayout.StickyFooter>
-            <Button variant="quaternary" size="large" onClick={closeDrawer}>
+            <Button variant="quaternary" onClick={closeDrawer}>
               {translate('text_6411e6b530cb47007488b027')}
             </Button>
 
             <Button
-              size="large"
               disabled={!formikProps.isValid || !formikProps.dirty || !isChargeFilterIdValid}
               loading={formikProps.isSubmitting}
               onClick={formikProps.submitForm}

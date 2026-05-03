@@ -525,36 +525,6 @@ const Integrations = () => {
                       />
                       <Selector
                         fullWidth
-                        title={translate('text_657078c28394d6b1ae1b9713')}
-                        subtitle={translate('text_657078c28394d6b1ae1b971f')}
-                        icon={
-                          <Avatar size="big" variant="connector-full">
-                            {<LagoTaxManagement />}
-                          </Avatar>
-                        }
-                        endContent={getEndContent({
-                          showConnectedBadge: hasTaxManagement,
-                        })}
-                        hoverActions={getHoverActions(
-                          hasTaxManagement,
-                          generatePath(TAX_MANAGEMENT_INTEGRATION_ROUTE, {
-                            integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                          }),
-                        )}
-                        onClick={() => {
-                          if (hasTaxManagement) {
-                            navigate(
-                              generatePath(TAX_MANAGEMENT_INTEGRATION_ROUTE, {
-                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                              }),
-                            )
-                          } else {
-                            addLagoTaxManagementDialog.current?.openDialog()
-                          }
-                        }}
-                      />
-                      <Selector
-                        fullWidth
                         title={translate('text_661ff6e56ef7e1b7c542b239')}
                         subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
                         endContent={getEndContent({
@@ -783,33 +753,6 @@ const Integrations = () => {
                         }}
                       />
                       <Selector
-                        title={translate('text_1733427981129n3wxjui0bex')}
-                        subtitle={translate('text_634ea0ecc6147de10ddb6631')}
-                        icon={
-                          <Avatar size="big" variant="connector-full">
-                            <Moneyhash />
-                          </Avatar>
-                        }
-                        endContent={getEndContent({
-                          showConnectedBadge: hasMoneyhashIntegration,
-                        })}
-                        hoverActions={getHoverActions(
-                          hasMoneyhashIntegration,
-                          MONEYHASH_INTEGRATION_ROUTE,
-                        )}
-                        onClick={() => {
-                          if (hasMoneyhashIntegration) {
-                            navigate(MONEYHASH_INTEGRATION_ROUTE)
-                          } else {
-                            const element = document.activeElement as HTMLElement
-
-                            element.blur && element.blur()
-                            addMoneyhashDialogRef.current?.openDialog()
-                          }
-                        }}
-                        fullWidth
-                      />
-                      <Selector
                         title={translate('text_1749724395108m0swrna0zt4')}
                         subtitle={translate('text_634ea0ecc6147de10ddb6631')}
                         icon={
@@ -832,6 +775,63 @@ const Integrations = () => {
 
                             element.blur && element.blur()
                             addFlutterwaveDialogRef.current?.openDialog()
+                          }
+                        }}
+                        fullWidth
+                      />
+                      <Selector
+                        fullWidth
+                        title={translate('text_657078c28394d6b1ae1b9713')}
+                        subtitle={translate('text_657078c28394d6b1ae1b971f')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            {<LagoTaxManagement />}
+                          </Avatar>
+                        }
+                        endContent={getEndContent({
+                          showConnectedBadge: hasTaxManagement,
+                        })}
+                        hoverActions={getHoverActions(
+                          hasTaxManagement,
+                          generatePath(TAX_MANAGEMENT_INTEGRATION_ROUTE, {
+                            integrationGroup: IntegrationsTabsOptionsEnum.Community,
+                          }),
+                        )}
+                        onClick={() => {
+                          if (hasTaxManagement) {
+                            navigate(
+                              generatePath(TAX_MANAGEMENT_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Community,
+                              }),
+                            )
+                          } else {
+                            addLagoTaxManagementDialog.current?.openDialog()
+                          }
+                        }}
+                      />
+                      <Selector
+                        title={translate('text_1733427981129n3wxjui0bex')}
+                        subtitle={translate('text_634ea0ecc6147de10ddb6631')}
+                        icon={
+                          <Avatar size="big" variant="connector-full">
+                            <Moneyhash />
+                          </Avatar>
+                        }
+                        endContent={getEndContent({
+                          showConnectedBadge: hasMoneyhashIntegration,
+                        })}
+                        hoverActions={getHoverActions(
+                          hasMoneyhashIntegration,
+                          MONEYHASH_INTEGRATION_ROUTE,
+                        )}
+                        onClick={() => {
+                          if (hasMoneyhashIntegration) {
+                            navigate(MONEYHASH_INTEGRATION_ROUTE)
+                          } else {
+                            const element = document.activeElement as HTMLElement
+
+                            element.blur && element.blur()
+                            addMoneyhashDialogRef.current?.openDialog()
                           }
                         }}
                         fullWidth

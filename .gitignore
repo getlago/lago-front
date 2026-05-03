@@ -15,3 +15,5 @@ v8-compile-cache*
 /.vscode
 TestResults/
 docker-compose.worktree.yml
+.claude/settings.local.json
+docs/

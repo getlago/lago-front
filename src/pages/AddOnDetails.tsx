@@ -4,6 +4,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 
 import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
 import { Card } from '~/components/designSystem/Card'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
@@ -117,7 +118,11 @@ const AddOnDetails = () => {
               },
               {
                 label: translate('text_6627e7b9732dbfb6c472e02d'),
-                value: addOn?.code,
+                value: addOn?.code ? (
+                  <TypographyWithCopy variant="body" color="grey700">
+                    {addOn.code}
+                  </TypographyWithCopy>
+                ) : undefined,
               },
               {
                 label: translate('text_632b4acf0c41206cbcb8c324'),

@@ -26,6 +26,7 @@ interface BasicMultipleComboBoxProps extends Omit<
   MultipleComboBoxInputProps,
   'params' | 'searchQuery'
 > {
+  loading?: boolean
   disabled?: boolean
   freeSolo?: boolean
   showOptionsOnlyWhenTyping?: boolean

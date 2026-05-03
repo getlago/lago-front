@@ -6,6 +6,7 @@ import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { ShowMoreText } from '~/components/designSystem/ShowMoreText'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   SettingsListItem,
   SettingsListItemHeader,
@@ -14,7 +15,6 @@ import {
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   EditBillingEntityDocumentLocaleDialog,
   EditBillingEntityDocumentLocaleDialogRef,
@@ -148,7 +148,7 @@ const BillingEntityInvoiceSettings = () => {
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
   const editFinalizeZeroAmountInvoiceDialogRef =
     useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
 
   const { data, error, loading } = useGetBillingEntitySettingsQuery({
     variables: {
@@ -253,7 +253,7 @@ const BillingEntityInvoiceSettings = () => {
           onClick={() => {
             isPremium
               ? editGracePeriodDialogRef?.current?.openDialog()
-              : premiumWarningDialogRef.current?.openDialog()
+              : premiumWarningDialog.open()
           }}
         >
           {translate('text_637f819eff19cd55a56d55e4')}
@@ -466,8 +466,6 @@ const BillingEntityInvoiceSettings = () => {
       {items.map((item) => (
         <div key={`billing-entity-invoice-settings-dialog-${item.id}`}>{item.dialog}</div>
       ))}
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }

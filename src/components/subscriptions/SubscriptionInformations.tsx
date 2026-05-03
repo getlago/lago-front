@@ -5,7 +5,9 @@ import { generatePath, Link } from 'react-router-dom'
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Alert } from '~/components/designSystem/Alert'
 import { Status } from '~/components/designSystem/Status'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { getBillingTimeEnumTranslationKey } from '~/core/constants/form'
 import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMapping'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/core/router'
@@ -25,11 +27,21 @@ gql`
     subscriptionAt
     endingAt
     terminatedAt
+    billingTime
+    downgradePlanDate
     nextSubscriptionAt
     nextSubscriptionType
     nextPlan {
       id
       name
+    }
+    previousPlan {
+      id
+      name
+    }
+    previousSubscription {
+      id
+      downgradePlanDate
     }
     customer {
       id
@@ -65,13 +77,44 @@ const SubscriptionEndOrTerminatedAt = ({
   return '-'
 }
 
-export const SubscriptionInformations = ({
+export const SubscriptionDowngradeAlert = ({
   subscription,
 }: {
   subscription?: SubscriptionForSubscriptionInformationsFragment | null
 }) => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+
+  let content: string | null = null
+
+  if (
+    subscription?.nextPlan?.id &&
+    subscription?.nextSubscriptionType === NextSubscriptionTypeEnum.Downgrade
+  ) {
+    content = translate('text_62681c60582e4f00aa82938a', {
+      planName: subscription.nextPlan.name,
+      dateStartNewPlan: intlFormatDateTimeOrgaTZ(subscription.downgradePlanDate).date,
+    })
+  } else if (subscription?.previousPlan?.id && subscription?.status === StatusTypeEnum.Pending) {
+    content = translate('text_1776951742342o96gqg8qg8j', {
+      planName: subscription.previousPlan.name,
+      dateStartNewPlan: intlFormatDateTimeOrgaTZ(
+        subscription.previousSubscription?.downgradePlanDate,
+      ).date,
+    })
+  }
+
+  if (!content) return null
+
+  return <Alert type="info">{content}</Alert>
+}
+
+export const SubscriptionInformations = ({
+  subscription,
+}: {
+  subscription?: SubscriptionForSubscriptionInformationsFragment | null
+}) => {
+  const { translate } = useInternationalization()
 
   const isCustomerDeleted = !!subscription?.customer?.deletedAt
 
@@ -88,18 +131,21 @@ export const SubscriptionInformations = ({
         {translate('text_6335e8900c69f8ebdfef5312')}
       </DetailsPage.SectionTitle>
       <div className="flex flex-col gap-4">
-        {!!subscription?.nextPlan?.id &&
-          subscription?.nextSubscriptionType === NextSubscriptionTypeEnum.Downgrade && (
-            <Alert type="info">
-              {translate('text_62681c60582e4f00aa82938a', {
-                planName: subscription?.nextPlan?.name,
-                dateStartNewPlan: intlFormatDateTimeOrgaTZ(subscription?.nextSubscriptionAt).date,
-              })}
-            </Alert>
-          )}
+        <SubscriptionDowngradeAlert subscription={subscription} />
+
+        <DetailsPage.InfoGridItem
+          label={translate('text_62d7f6178ec94cd09370e5fb')}
+          value={<Status {...subscriptionStatusMapping(subscription?.status ?? undefined)} />}
+        />
         <DetailsPage.InfoGridItem
           label={translate('text_65201c5a175a4b0238abf298')}
-          value={subscription?.externalId}
+          value={
+            subscription?.externalId ? (
+              <TypographyWithCopy variant="body" color="grey700">
+                {subscription.externalId}
+              </TypographyWithCopy>
+            ) : undefined
+          }
         />
         <DetailsPage.InfoGrid
           grid={[
@@ -124,8 +170,10 @@ export const SubscriptionInformations = ({
               ),
             },
             {
-              label: translate('text_62d7f6178ec94cd09370e5fb'),
-              value: <Status {...subscriptionStatusMapping(subscription?.status ?? undefined)} />,
+              label: translate('text_62ea7cd44cd4b14bb9ac1db7'),
+              value: subscription?.billingTime
+                ? translate(getBillingTimeEnumTranslationKey[subscription.billingTime])
+                : '-',
             },
             {
               label: translate('text_65201c5a175a4b0238abf29e'),

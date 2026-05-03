@@ -86,7 +86,7 @@ const WalletPage = () => {
         variables: {
           input: {
             walletId: wallet?.id,
-            paidCredits: amount,
+            paidCredits: String(amount),
           },
         },
       })

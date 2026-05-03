@@ -30,6 +30,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 gql`
@@ -66,6 +67,7 @@ gql`
 
 const Dunnings = () => {
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
   const deleteCampaignDialogRef = useRef<DeleteCampaignDialogRef>(null)
 
@@ -124,7 +126,7 @@ const Dunnings = () => {
                     hasAccessToFeature ? (
                       <Button
                         variant="inline"
-                        disabled={loading}
+                        disabled={loading || !hasPermissions(['dunningCampaignsCreate'])}
                         onClick={() => {
                           navigate(CREATE_DUNNING_ROUTE)
                         }}
@@ -217,6 +219,7 @@ const Dunnings = () => {
                               {
                                 startIcon: 'pen',
                                 title: translate('text_17321873136602nzwuvcycbr'),
+                                disabled: !hasPermissions(['dunningCampaignsUpdate']),
                                 onAction: () => {
                                   navigate(
                                     generatePath(UPDATE_DUNNING_ROUTE, {
@@ -228,6 +231,7 @@ const Dunnings = () => {
                               {
                                 startIcon: 'trash',
                                 title: translate('text_1732187313660we30lb9kg57'),
+                                disabled: !hasPermissions(['dunningCampaignsDelete']),
                                 onAction: () => {
                                   deleteCampaignDialogRef.current?.openDialog(campaign)
                                 },

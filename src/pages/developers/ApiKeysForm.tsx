@@ -51,18 +51,13 @@ const canOnlyRead = (permission: ApiKeysPermissionsEnum) =>
   permission === ApiKeysPermissionsEnum.CustomerUsage ||
   permission === ApiKeysPermissionsEnum.SecurityLog
 
-const isDefaultUnchecked = (permission: ApiKeysPermissionsEnum) =>
-  permission === ApiKeysPermissionsEnum.Alert
-
 const DEFAULT_PERMISSIONS: Record<ApiKeysPermissionsEnum, string[]> = Object.values(
   ApiKeysPermissionsEnum,
 ).reduce(
   (acc, permission) => {
     let defaultValue: string[] = [READ_PERMISSION, WRITE_PERMISSION] // Default: both read and write
 
-    if (isDefaultUnchecked(permission)) {
-      defaultValue = [] // Keep empty array to have the permission uncheked on creation
-    } else if (canOnlyRead(permission)) {
+    if (canOnlyRead(permission)) {
       defaultValue = [READ_PERMISSION] // Read-only permissions
     }
 

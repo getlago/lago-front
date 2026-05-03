@@ -13,8 +13,8 @@ import {
 
 // Helper function to validate fromValue is less than toValue
 const validateFromToValues = (
-  fromValue: string | number | undefined,
-  toValue: string | number | undefined,
+  fromValue: string | number | null | undefined,
+  toValue: string | number | null | undefined,
   isLastRange: boolean,
 ): boolean => {
   // For the last range, toValue can be empty/undefined (meaning infinity)

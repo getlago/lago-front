@@ -177,11 +177,11 @@ const CustomerDetails = () => {
       />
 
       {/* Tab content */}
-      {activeTabContent && <div className="p-12">{activeTabContent}</div>}
+      {activeTabContent && <div className="p-4 md:p-12">{activeTabContent}</div>}
 
       {/* Error state (non-404) */}
       {!!error && !isNotFoundError && (
-        <div className="px-12 pb-20 pt-12">
+        <div className="px-4 pb-20 pt-12 md:px-12">
           <GenericPlaceholder
             title={translate('text_6250304370f0f700a8fdc270')}
             subtitle={translate('text_6250304370f0f700a8fdc274')}

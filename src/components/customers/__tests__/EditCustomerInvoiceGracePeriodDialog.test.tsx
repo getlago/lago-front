@@ -56,240 +56,288 @@ describe('EditCustomerInvoiceGracePeriodDialog', () => {
     jest.clearAllMocks()
   })
 
-  describe('Rendering', () => {
-    it('renders the dialog with correct title and description', async () => {
-      await prepare()
+  describe('GIVEN the dialog is opened', () => {
+    describe('WHEN rendered with default props', () => {
+      it('THEN should display the dialog title and description', async () => {
+        await prepare()
 
-      expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
-      expect(screen.getByTestId('dialog-description')).toBeInTheDocument()
-    })
-
-    it('renders the input field with the initial grace period value', async () => {
-      await prepare({ invoiceGracePeriod: 10 })
-
-      const input = screen.getByRole('textbox')
-
-      expect(input).toHaveValue('10')
-    })
-
-    it('renders with default value of 0 when invoiceGracePeriod is null', async () => {
-      await prepare({ invoiceGracePeriod: null })
-
-      const input = screen.getByRole('textbox')
-
-      expect(input).toHaveValue('0')
-    })
-
-    it('renders with default value of 0 when invoiceGracePeriod is undefined', async () => {
-      const ref = createRef<EditCustomerInvoiceGracePeriodDialogRef>()
-
-      await act(() =>
-        render(<EditCustomerInvoiceGracePeriodDialog ref={ref} invoiceGracePeriod={undefined} />),
-      )
-
-      await act(() => {
-        ref.current?.openDialog()
+        expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+        expect(screen.getByTestId('dialog-description')).toBeInTheDocument()
       })
 
-      const input = screen.getByRole('textbox')
+      it('THEN should render cancel and submit buttons', async () => {
+        await prepare()
 
-      expect(input).toHaveValue('0')
+        const buttons = screen.getAllByRole('button')
+
+        expect(buttons).toHaveLength(2)
+      })
     })
 
-    it('renders cancel and submit buttons', async () => {
-      await prepare()
+    describe('WHEN invoiceGracePeriod has a value', () => {
+      it('THEN should display the grace period value in the input', async () => {
+        await prepare({ invoiceGracePeriod: 10 })
 
-      const buttons = screen.getAllByRole('button')
+        const input = screen.getByRole('textbox')
 
-      expect(buttons).toHaveLength(2)
+        expect(input).toHaveValue('10')
+      })
+    })
+
+    describe('WHEN invoiceGracePeriod is null', () => {
+      it('THEN should display an empty input (placeholder shown)', async () => {
+        await prepare({ invoiceGracePeriod: null })
+
+        const input = screen.getByRole('textbox')
+
+        expect(input).toHaveValue('')
+      })
+    })
+
+    describe('WHEN invoiceGracePeriod is undefined', () => {
+      it('THEN should display an empty input (placeholder shown)', async () => {
+        const ref = createRef<EditCustomerInvoiceGracePeriodDialogRef>()
+
+        await act(() =>
+          render(<EditCustomerInvoiceGracePeriodDialog ref={ref} invoiceGracePeriod={undefined} />),
+        )
+
+        await act(() => {
+          ref.current?.openDialog()
+        })
+
+        const input = screen.getByRole('textbox')
+
+        expect(input).toHaveValue('')
+      })
     })
   })
 
-  describe('Form Validation', () => {
-    it('disables submit button when form is pristine', async () => {
-      await prepare()
+  describe('GIVEN the form validation', () => {
+    describe('WHEN the form is pristine', () => {
+      it('THEN should disable the submit button', async () => {
+        await prepare()
 
-      const buttons = screen.getAllByRole('button')
-      const submitButton = buttons[1]
+        const buttons = screen.getAllByRole('button')
+        const submitButton = buttons[1]
 
-      expect(submitButton).toBeDisabled()
-    })
-
-    it('enables submit button when form value changes and is valid', async () => {
-      const user = userEvent.setup()
-
-      await prepare({ invoiceGracePeriod: 5 })
-
-      const input = screen.getByRole('textbox')
-
-      await user.clear(input)
-      await user.type(input, '10')
-
-      const buttons = screen.getAllByRole('button')
-      const submitButton = buttons[1]
-
-      await waitFor(() => {
-        expect(submitButton).not.toBeDisabled()
-      })
-    })
-
-    it('shows error when grace period exceeds 365 days', async () => {
-      const user = userEvent.setup()
-
-      await prepare({ invoiceGracePeriod: 5 })
-
-      const input = screen.getByRole('textbox')
-
-      await user.clear(input)
-      await user.type(input, '400')
-
-      const buttons = screen.getAllByRole('button')
-      const submitButton = buttons[1]
-
-      await waitFor(() => {
         expect(submitButton).toBeDisabled()
       })
     })
-  })
 
-  describe('Form Submission', () => {
-    it('calls mutation with correct variables on submit', async () => {
-      const user = userEvent.setup()
-      const mutationMock = {
-        request: {
-          query: UpdateCustomerInvoiceGracePeriodDocument,
-          variables: {
-            input: {
-              id: CUSTOMER_ID,
-              invoiceGracePeriod: 15,
-            },
-          },
-        },
-        result: {
-          data: {
-            updateCustomerInvoiceGracePeriod: {
-              id: CUSTOMER_ID,
-              invoiceGracePeriod: 15,
-            },
-          },
-        },
-      }
+    describe('WHEN the user changes the value to a valid number', () => {
+      it('THEN should enable the submit button', async () => {
+        const user = userEvent.setup()
 
-      await prepare({ invoiceGracePeriod: 5, mocks: [mutationMock] })
+        await prepare({ invoiceGracePeriod: 5 })
 
-      const input = screen.getByRole('textbox')
+        const input = screen.getByRole('textbox')
 
-      await user.clear(input)
-      await user.type(input, '15')
+        await user.clear(input)
+        await user.type(input, '10')
 
-      const buttons = screen.getAllByRole('button')
-      const submitButton = buttons[1]
+        const buttons = screen.getAllByRole('button')
+        const submitButton = buttons[1]
 
-      await user.click(submitButton)
+        await waitFor(() => {
+          expect(submitButton).not.toBeDisabled()
+        })
+      })
+    })
 
-      await waitFor(() => {
-        expect(mockAddToast).toHaveBeenCalledWith({
-          severity: 'success',
-          translateKey: 'text_638dff9779fb99299bee914a',
+    describe('WHEN the grace period exceeds 365 days', () => {
+      it('THEN should keep the submit button disabled', async () => {
+        const user = userEvent.setup()
+
+        await prepare({ invoiceGracePeriod: 5 })
+
+        const input = screen.getByRole('textbox')
+
+        await user.clear(input)
+        await user.type(input, '400')
+
+        // Trigger validation by clicking submit
+        const buttons = screen.getAllByRole('button')
+        const submitButton = buttons[1]
+
+        await user.click(submitButton)
+
+        await waitFor(() => {
+          expect(submitButton).toBeDisabled()
+        })
+      })
+    })
+
+    describe('WHEN the field is cleared (empty)', () => {
+      it('THEN should disable the submit button due to required validation', async () => {
+        const user = userEvent.setup()
+
+        await prepare({ invoiceGracePeriod: 5 })
+
+        const input = screen.getByRole('textbox')
+
+        await user.clear(input)
+
+        // Trigger validation by clicking submit
+        const buttons = screen.getAllByRole('button')
+        const submitButton = buttons[1]
+
+        await user.click(submitButton)
+
+        await waitFor(() => {
+          expect(submitButton).toBeDisabled()
         })
       })
     })
   })
 
-  describe('Dialog Actions', () => {
-    it('closes dialog when cancel button is clicked', async () => {
-      const user = userEvent.setup()
+  describe('GIVEN the form submission', () => {
+    describe('WHEN the user submits a valid grace period', () => {
+      it('THEN should call the mutation with correct variables and show success toast', async () => {
+        const user = userEvent.setup()
+        const mutationMock = {
+          request: {
+            query: UpdateCustomerInvoiceGracePeriodDocument,
+            variables: {
+              input: {
+                id: CUSTOMER_ID,
+                invoiceGracePeriod: 15,
+              },
+            },
+          },
+          result: {
+            data: {
+              updateCustomerInvoiceGracePeriod: {
+                id: CUSTOMER_ID,
+                invoiceGracePeriod: 15,
+              },
+            },
+          },
+        }
 
-      await prepare()
+        await prepare({ invoiceGracePeriod: 5, mocks: [mutationMock] })
 
-      expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+        const input = screen.getByRole('textbox')
 
-      const buttons = screen.getAllByRole('button')
-      const cancelButton = buttons[0]
+        await user.clear(input)
+        await user.type(input, '15')
 
-      await user.click(cancelButton)
+        const buttons = screen.getAllByRole('button')
+        const submitButton = buttons[1]
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('dialog-title')).not.toBeInTheDocument()
-      })
-    })
+        await user.click(submitButton)
 
-    it('resets form when dialog is closed', async () => {
-      const user = userEvent.setup()
-      const ref = createRef<DialogRef>()
-
-      await act(() =>
-        render(<EditCustomerInvoiceGracePeriodDialog ref={ref} invoiceGracePeriod={5} />),
-      )
-
-      // Open dialog
-      await act(() => {
-        ref.current?.openDialog()
-      })
-
-      const input = screen.getByRole('textbox')
-
-      // Change value
-      await user.clear(input)
-      await user.type(input, '20')
-      expect(input).toHaveValue('20')
-
-      // Close dialog
-      const buttons = screen.getAllByRole('button')
-      const cancelButton = buttons[0]
-
-      await user.click(cancelButton)
-
-      // Reopen dialog
-      await act(() => {
-        ref.current?.openDialog()
-      })
-
-      // Value should be reset to initial
-      await waitFor(() => {
-        expect(screen.getByRole('textbox')).toHaveValue('5')
+        await waitFor(() => {
+          expect(mockAddToast).toHaveBeenCalledWith(
+            expect.objectContaining({ severity: 'success' }),
+          )
+        })
       })
     })
   })
 
-  describe('Dialog Ref', () => {
-    it('exposes openDialog method via ref', async () => {
-      const ref = createRef<DialogRef>()
+  describe('GIVEN the dialog actions', () => {
+    describe('WHEN the cancel button is clicked', () => {
+      it('THEN should close the dialog', async () => {
+        const user = userEvent.setup()
 
-      await act(() =>
-        render(<EditCustomerInvoiceGracePeriodDialog ref={ref} invoiceGracePeriod={5} />),
-      )
+        await prepare()
 
-      expect(screen.queryByTestId('dialog-title')).not.toBeInTheDocument()
-
-      await act(() => {
-        ref.current?.openDialog()
-      })
-
-      await waitFor(() => {
         expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+
+        const buttons = screen.getAllByRole('button')
+        const cancelButton = buttons[0]
+
+        await user.click(cancelButton)
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('dialog-title')).not.toBeInTheDocument()
+        })
       })
     })
 
-    it('exposes closeDialog method via ref', async () => {
-      const ref = createRef<DialogRef>()
+    describe('WHEN the dialog is closed and reopened', () => {
+      it('THEN should reset the form to its initial value', async () => {
+        const user = userEvent.setup()
+        const ref = createRef<DialogRef>()
 
-      await act(() =>
-        render(<EditCustomerInvoiceGracePeriodDialog ref={ref} invoiceGracePeriod={5} />),
-      )
+        await act(() =>
+          render(<EditCustomerInvoiceGracePeriodDialog ref={ref} invoiceGracePeriod={5} />),
+        )
 
-      await act(() => {
-        ref.current?.openDialog()
+        // Open dialog
+        await act(() => {
+          ref.current?.openDialog()
+        })
+
+        const input = screen.getByRole('textbox')
+
+        // Change value
+        await user.clear(input)
+        await user.type(input, '20')
+        expect(input).toHaveValue('20')
+
+        // Close dialog
+        const buttons = screen.getAllByRole('button')
+        const cancelButton = buttons[0]
+
+        await user.click(cancelButton)
+
+        // Reopen dialog
+        await act(() => {
+          ref.current?.openDialog()
+        })
+
+        // Value should be reset to initial
+        await waitFor(() => {
+          expect(screen.getByRole('textbox')).toHaveValue('5')
+        })
       })
+    })
+  })
 
-      expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+  describe('GIVEN the dialog ref API', () => {
+    describe('WHEN openDialog is called', () => {
+      it('THEN should show the dialog', async () => {
+        const ref = createRef<DialogRef>()
 
-      await act(() => {
-        ref.current?.closeDialog()
-      })
+        await act(() =>
+          render(<EditCustomerInvoiceGracePeriodDialog ref={ref} invoiceGracePeriod={5} />),
+        )
 
-      await waitFor(() => {
         expect(screen.queryByTestId('dialog-title')).not.toBeInTheDocument()
+
+        await act(() => {
+          ref.current?.openDialog()
+        })
+
+        await waitFor(() => {
+          expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN closeDialog is called', () => {
+      it('THEN should hide the dialog', async () => {
+        const ref = createRef<DialogRef>()
+
+        await act(() =>
+          render(<EditCustomerInvoiceGracePeriodDialog ref={ref} invoiceGracePeriod={5} />),
+        )
+
+        await act(() => {
+          ref.current?.openDialog()
+        })
+
+        expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+
+        await act(() => {
+          ref.current?.closeDialog()
+        })
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('dialog-title')).not.toBeInTheDocument()
+        })
       })
     })
   })

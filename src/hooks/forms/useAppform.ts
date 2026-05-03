@@ -1,6 +1,7 @@
 import { createFormHook } from '@tanstack/react-form'
 
 import AmountInputField from '~/components/form/AmountInput/AmountInputFieldForTanstack'
+import ButtonSelectorField from '~/components/form/ButtonSelector/ButtonSelectorFieldForTanstack'
 import CheckboxField from '~/components/form/Checkbox/CheckboxFieldForTanstack'
 import ComboBoxField from '~/components/form/ComboBox/ComboBoxFieldForTanstack'
 import DatePickerField from '~/components/form/DatePicker/DatePickerFieldForTanstack'
@@ -24,6 +25,7 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
     RadioField,
     DatePickerField,
     AmountInputField,
+    ButtonSelectorField,
   },
   formComponents: {
     SubmitButton,

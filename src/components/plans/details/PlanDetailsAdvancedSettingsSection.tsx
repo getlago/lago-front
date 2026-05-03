@@ -3,7 +3,6 @@ import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { getEntitlementFormattedValue, mapChargeIntervalCopy } from '~/components/plans/utils'
-import { PROGRESSIVE_BILLING_DOC_URL } from '~/core/constants/externalUrls'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -42,13 +41,9 @@ export const PlanDetailsAdvancedSettingsSection = ({
               <Typography variant="bodyHl" color="grey700">
                 {translate('text_1724179887722baucvj7bvc1')}
               </Typography>
-              <Typography
-                variant="caption"
-                color="grey600"
-                html={translate('text_1724179887723kdf3nisf6hp', {
-                  href: PROGRESSIVE_BILLING_DOC_URL,
-                })}
-              />
+              <Typography variant="caption" color="grey600">
+                {translate('text_1724179887723kdf3nisf6hp')}
+              </Typography>
             </div>
 
             <Accordion

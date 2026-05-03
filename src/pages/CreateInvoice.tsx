@@ -68,6 +68,7 @@ import {
   useFetchDraftInvoiceTaxesMutation,
   useGetAddonListForInfoiceLazyQuery,
   useGetBillingEntityQuery,
+  useGetBillingEntityTaxesForCreateInvoiceQuery,
   useGetInfosForCreateInvoiceQuery,
   useGetInvoiceFeesForCreateInvoiceQuery,
   useVoidInvoiceMutation,
@@ -80,6 +81,34 @@ import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActio
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
+
+export const computeHasTaxProvider = (
+  customer?: {
+    anrokCustomer?: { id: string } | null
+    avalaraCustomer?: { id: string } | null
+  } | null,
+): boolean => {
+  return !!customer?.anrokCustomer?.id || !!customer?.avalaraCustomer?.id
+}
+
+export const resolveCustomerApplicableTax = ({
+  hasTaxProvider,
+  customerTaxes,
+  billingEntityTaxes,
+  orgTaxes,
+}: {
+  hasTaxProvider: boolean
+  customerTaxes?: TaxInfosForCreateInvoiceFragment[] | null
+  billingEntityTaxes?: TaxInfosForCreateInvoiceFragment[] | null
+  orgTaxes?: TaxInfosForCreateInvoiceFragment[]
+}): TaxInfosForCreateInvoiceFragment[] | undefined => {
+  if (hasTaxProvider) return []
+  if (!!customerTaxes?.length) return customerTaxes
+
+  if (!!billingEntityTaxes?.length) return billingEntityTaxes
+
+  return orgTaxes
+}
 
 gql`
   fragment TaxInfosForCreateInvoice on Tax {
@@ -184,6 +213,15 @@ gql`
     }
 
     taxes(page: 1, limit: 1000, appliedToOrganization: true) {
+      collection {
+        id
+        ...TaxInfosForCreateInvoice
+      }
+    }
+  }
+
+  query getBillingEntityTaxesForCreateInvoice($billingEntityId: ID!) {
+    billingEntityTaxes(billingEntityId: $billingEntityId) {
       collection {
         id
         ...TaxInfosForCreateInvoice
@@ -299,7 +337,15 @@ const CreateInvoice = () => {
   })
 
   const billingEntity = billingEntityData?.billingEntity
-  const hasTaxProvider = !!customer?.anrokCustomer?.id || !!customer?.avalaraCustomer?.id
+
+  const { data: billingEntityTaxesData } = useGetBillingEntityTaxesForCreateInvoiceQuery({
+    variables: {
+      billingEntityId: billingEntity?.id as string,
+    },
+    skip: !billingEntity?.id,
+  })
+
+  const hasTaxProvider = computeHasTaxProvider(customer)
   const customerName = customer?.displayName
   const customerIsPartner = customer?.accountType === CustomerAccountTypeEnum.Partner
 
@@ -321,12 +367,21 @@ const CreateInvoice = () => {
     zipcode: customer?.zipcode,
   })
 
-  const customerApplicableTax = useMemo(() => {
-    if (hasTaxProvider) return []
-    if (!!customer?.taxes?.length) return customer?.taxes
-
-    return taxes?.collection
-  }, [customer?.taxes, hasTaxProvider, taxes?.collection])
+  const customerApplicableTax = useMemo(
+    () =>
+      resolveCustomerApplicableTax({
+        hasTaxProvider,
+        customerTaxes: customer?.taxes,
+        billingEntityTaxes: billingEntityTaxesData?.billingEntityTaxes?.collection,
+        orgTaxes: taxes?.collection,
+      }),
+    [
+      billingEntityTaxesData?.billingEntityTaxes?.collection,
+      customer?.taxes,
+      hasTaxProvider,
+      taxes?.collection,
+    ],
+  )
 
   const [getAddOns, { data: addOnData }] = useGetAddonListForInfoiceLazyQuery({
     variables: { limit: 20 },

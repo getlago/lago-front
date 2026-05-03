@@ -1,20 +1,18 @@
 import type { TypographyProps as MuiTypographyProps } from '@mui/material/Typography'
 import { Icon } from 'lago-design-system'
-import { FC, lazy, Suspense } from 'react'
+import { FC } from 'react'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Typography, TypographyColor } from '~/components/designSystem/Typography'
 import { ProviderTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import Adyen from '~/public/images/adyen.svg'
+import Cashfree from '~/public/images/cashfree.svg'
+import Flutterwave from '~/public/images/flutterwave.svg'
+import Gocardless from '~/public/images/gocardless.svg'
+import Moneyhash from '~/public/images/moneyhash.svg'
+import Stripe from '~/public/images/stripe.svg'
 import { tw } from '~/styles/utils'
-
-// Lazy load payment provider icons to avoid loading all SVGs on every page
-const Adyen = lazy(() => import('~/public/images/adyen.svg'))
-const Cashfree = lazy(() => import('~/public/images/cashfree.svg'))
-const Flutterwave = lazy(() => import('~/public/images/flutterwave.svg'))
-const Gocardless = lazy(() => import('~/public/images/gocardless.svg'))
-const Moneyhash = lazy(() => import('~/public/images/moneyhash.svg'))
-const Stripe = lazy(() => import('~/public/images/stripe.svg'))
 
 interface PaymentProviderChipProps {
   paymentProvider?: ProviderTypeEnum | 'manual' | 'manual_long'
@@ -44,7 +42,7 @@ const ProviderIcon: FC<{ provider: ProviderTypeEnum }> = ({ provider }) => {
     [ProviderTypeEnum.Moneyhash]: <Moneyhash />,
   }
 
-  return <Suspense fallback={null}>{icons[provider]}</Suspense>
+  return icons[provider]
 }
 
 export const PaymentProviderChip: FC<PaymentProviderChipProps> = ({

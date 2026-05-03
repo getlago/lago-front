@@ -26,7 +26,7 @@ export const SearchInput = ({
   return (
     <TextInput
       cleanable
-      className={tw('max-w-60 [&_input]:h-10 [&_input]:!pl-3', className)}
+      className={tw('min-w-60 max-w-60 [&_input]:h-10 [&_input]:!pl-3', className)}
       placeholder={placeholder}
       value={localValue}
       disabled={disabled}
