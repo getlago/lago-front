@@ -39,7 +39,7 @@ type AnnotatedSubscription = {
   payInAdvance: boolean
   isDowngrade?: boolean
   isScheduled?: boolean
-  isOverriden?: boolean
+  isOverridden?: boolean
   customer: {
     id: string
     name?: string
@@ -99,7 +99,7 @@ const annotateSubscriptions = (
         applicableTimezone: customerTimezone || customer?.applicableTimezone,
       },
       isScheduled: status === StatusTypeEnum.Pending,
-      isOverriden: !!plan.isOverridden,
+      isOverridden: !!plan.isOverridden,
     }
 
     const _subDowngrade = isDowngrading &&
@@ -117,7 +117,7 @@ const annotateSubscriptions = (
         } as StatusProps,
         payInAdvance: !!plan.payInAdvance,
         isDowngrade: true,
-        isOverriden: !!nextPlan.parent,
+        isOverridden: !!nextPlan.parent,
         customer: {
           id: customerId || customer?.id,
           name: customer?.name || undefined,

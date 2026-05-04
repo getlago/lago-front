@@ -7,20 +7,20 @@ import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { RadioGroupField } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-type ImpactOverridenSubscriptionsDialogProps = {
+type ImpactOverriddenSubscriptionsDialogProps = {
   onSave: (value: boolean) => void
 }
 
-export type ImpactOverridenSubscriptionsDialogRef = {
-  openDialog: ({ onSave }: ImpactOverridenSubscriptionsDialogProps) => void
+export type ImpactOverriddenSubscriptionsDialogRef = {
+  openDialog: ({ onSave }: ImpactOverriddenSubscriptionsDialogProps) => void
   closeDialog: () => void
 }
 
-export const ImpactOverridenSubscriptionsDialog = forwardRef<ImpactOverridenSubscriptionsDialogRef>(
-  (_, ref) => {
+export const ImpactOverriddenSubscriptionsDialog =
+  forwardRef<ImpactOverriddenSubscriptionsDialogRef>((_, ref) => {
     const { translate } = useInternationalization()
     const dialogRef = useRef<DialogRef>(null)
-    const [localData, setLocalData] = useState<ImpactOverridenSubscriptionsDialogProps>()
+    const [localData, setLocalData] = useState<ImpactOverriddenSubscriptionsDialogProps>()
 
     const formikProps = useFormik<{ cascadeUpdates: boolean }>({
       initialValues: {
@@ -87,7 +87,6 @@ export const ImpactOverridenSubscriptionsDialog = forwardRef<ImpactOverridenSubs
         />
       </Dialog>
     )
-  },
-)
+  })
 
-ImpactOverridenSubscriptionsDialog.displayName = 'ImpactOverridenSubscriptionsDialog'
+ImpactOverriddenSubscriptionsDialog.displayName = 'ImpactOverriddenSubscriptionsDialog'
