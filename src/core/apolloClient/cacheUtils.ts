@@ -163,17 +163,35 @@ export const switchCurrentOrganization = async (
   // 1. Reset devtools navigation to prevent stale queries with old transactionIds
   resetDevtoolsNavigation()
 
-  // 2. Stop all active queries to prevent race conditions
+  // 2. Cancel in-flight queries scoped to the previous org. If we let them
+  //    return after the var change, they'd write old-org data into a cache
+  //    that we're about to repopulate for the new org → race.
   client.stop()
 
-  // 3. Clear the cache BEFORE updating organization context
-  // This prevents queries from firing with new org ID against stale cache
+  // 3. Clear the cache before updating the org context.
   await client.clearStore()
 
-  // 4. NOW update the organization ID - safe because cache is cleared and queries are stopped
+  // 4. Update the org id (and LS). The auth link reads from the var, so any
+  //    request fired AFTER this line carries the new `x-lago-organization`
+  //    header.
   setCurrentOrganizationId(organizationId)
 
-  // 5. Clear other org-specific state
+  // 5. Re-fire every active observable query with the new header. Crucial
+  //    for the hard-refresh-with-stale-LS path: in that case
+  //    `OrganizationLayout`'s gate keeps `Outlet` unmounted, so children
+  //    never get a fresh mount that would create new observers — the
+  //    observers in `OrganizationLayout` itself (e.g. `useCurrentUser`)
+  //    were stopped at step 2 and would otherwise sit dead, leaving the
+  //    UI stuck on `loading: true` until a second hard refresh.
+  //
+  //    Fire-and-forget on purpose: callers (e.g. `OrganizationSwitcher`)
+  //    typically navigate to the new org URL right after this resolves,
+  //    and we don't want to delay that navigation behind a network
+  //    round-trip. The slug-aware gate in `useOrganizationInfos` covers
+  //    the brief window where the cache is empty / refetch in flight.
+  client.reFetchObservableQueries()
+
+  // 6. Clear other org-specific state
   removeItemFromLS(DEVTOOL_AUTO_SAVE_KEY)
 }
 

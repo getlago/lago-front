@@ -36,6 +36,8 @@ const createMockClient = (queryResponse?: unknown) =>
   ({
     stop: jest.fn(),
     clearStore: jest.fn().mockResolvedValue(undefined),
+    resetStore: jest.fn().mockResolvedValue(undefined),
+    reFetchObservableQueries: jest.fn().mockResolvedValue([]),
     query: jest.fn().mockResolvedValue(
       queryResponse ?? {
         data: {
@@ -64,7 +66,7 @@ describe('switchCurrentOrganization', () => {
         expect(mockSetCurrentOrganizationId).toHaveBeenCalledWith('org-new-123')
       })
 
-      it('THEN should clear the client store before updating the organization id', async () => {
+      it('THEN should clear the store BEFORE updating the organization id, then re-fire active observers AFTER the new org id is set', async () => {
         const client = createMockClient()
         const callOrder: string[] = []
 
@@ -74,10 +76,18 @@ describe('switchCurrentOrganization', () => {
         mockSetCurrentOrganizationId.mockImplementation(() => {
           callOrder.push('setCurrentOrganizationId')
         })
+        ;(client.reFetchObservableQueries as jest.Mock).mockImplementation(() => {
+          callOrder.push('reFetchObservableQueries')
+          return Promise.resolve([])
+        })
 
         await switchCurrentOrganization(client, 'org-456')
 
-        expect(callOrder).toEqual(['clearStore', 'setCurrentOrganizationId'])
+        expect(callOrder).toEqual([
+          'clearStore',
+          'setCurrentOrganizationId',
+          'reFetchObservableQueries',
+        ])
       })
     })
   })

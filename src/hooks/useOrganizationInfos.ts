@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import {
@@ -69,6 +70,14 @@ export const useOrganizationInfos: UseOrganizationInfos = () => {
 
   const isStale =
     !!organizationSlug && !!data?.organization && data.organization.slug !== organizationSlug
+
+  // Defense in depth: when stale data is detected, force a refetch
+  useEffect(() => {
+    if (isStale) {
+      refetch()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isStale])
 
   const organization = isStale ? undefined : data?.organization || undefined
 
