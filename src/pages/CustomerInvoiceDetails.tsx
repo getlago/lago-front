@@ -597,12 +597,7 @@ const CustomerInvoiceDetails = () => {
             tab: CustomerInvoiceDetailsTabsOptionsEnum.payments,
           }),
         ],
-        content: (
-          <InvoicePaymentList
-            canRecordPayment={canRecordPayment}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />
-        ),
+        content: <InvoicePaymentList canRecordPayment={canRecordPayment} />,
       })
     }
 
