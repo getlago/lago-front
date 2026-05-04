@@ -1,10 +1,11 @@
+import { useReactiveVar } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { getItemFromLS, setItemFromLS } from '~/core/apolloClient/cacheUtils'
-import { envGlobalVar } from '~/core/apolloClient/reactiveVars'
+import { envGlobalVar, orgSlugOverridesVar } from '~/core/apolloClient/reactiveVars'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { ORG_SLUG_BANNER_DISMISSED_LS_KEY } from '~/core/constants/localStorageKeys'
 import {
@@ -14,7 +15,7 @@ import {
   objectCreationRoutes,
 } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 // Centered/full-screen create-and-edit pages (no sidebar). The banner is hidden
 // on these routes so it doesn't intrude on focused form flows.
@@ -31,6 +32,17 @@ const CENTERED_PAGE_PATHS: string[] = [
 // TODO(org-slug-rollout): two-phase removal — see ticket LAGO-1437.
 // Cloud cleanup ≈1 week after May 11, 2026; self-hosted cleanup when the OSS release ships.
 
+type DismissedOrgsMap = Record<string, true>
+
+// Dismissals are keyed by organization **id** (stable) rather than slug
+// (mutable via the edit dialog). Slug changes would otherwise resurface the
+// banner on the same org after a rename.
+const readDismissedOrgs = (): DismissedOrgsMap => {
+  const raw = getItemFromLS(ORG_SLUG_BANNER_DISMISSED_LS_KEY)
+
+  return raw && typeof raw === 'object' ? (raw as DismissedOrgsMap) : {}
+}
+
 export const ORG_SLUG_ROLLOUT_BANNER_TEST_ID = 'org-slug-rollout-banner'
 export const ORG_SLUG_ROLLOUT_BANNER_DISMISS_TEST_ID = 'org-slug-rollout-banner-dismiss'
 export const ORG_SLUG_ROLLOUT_BANNER_EDIT_TEST_ID = 'org-slug-rollout-banner-edit'
@@ -42,13 +54,43 @@ export const OrgSlugRolloutBanner = () => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { apiUrl, appEnv } = envGlobalVar()
-  const { organization } = useOrganizationInfos()
+  // Source the slug from a per-org-id reactive var, with `useCurrentUser` as
+  // the fallback. The var holds local in-memory overrides written by the edit
+  // dialog — it survives org switches, so coming back to a previously-edited
+  // org still reflects the local edit even when the cache round-trip returns
+  // stale data. Reactive vars are always reactive (independent from Apollo
+  // cache observers), avoiding all the post-`client.stop()` quirks.
+  const { currentMembership, refetchCurrentUserInfos } = useCurrentUser()
 
-  const [isDismissed, setIsDismissed] = useState(
-    () => getItemFromLS(ORG_SLUG_BANNER_DISMISSED_LS_KEY) === true,
+  const orgId = currentMembership?.organization?.id
+  const slugFromMembership = currentMembership?.organization?.slug
+  const slugOverrides = useReactiveVar(orgSlugOverridesVar)
+
+  const slug = (orgId && slugOverrides[orgId]) || slugFromMembership
+
+  // Apollo cache is persisted (apollo3-cache-persist, see core/apolloClient/init.ts).
+  // Users who loaded the app before the `slug` field was added to the
+  // `CurrentUserInfos` fragment have a cached membership without it, so on
+  // refresh the cache returns an org with `slug: undefined`. Detect that and
+  // force a refetch to populate the field.
+  useEffect(() => {
+    if (currentMembership && !currentMembership.organization?.slug) {
+      refetchCurrentUserInfos()
+    }
+  }, [currentMembership, refetchCurrentUserInfos])
+
+  // Per-org dismiss: localStorage stores a `{ [orgId]: true }` map keyed by
+  // organization id (stable across slug renames). Reading happens on each
+  // render so switching orgs immediately reflects the right dismissed state.
+  const [isDismissed, setIsDismissed] = useState<boolean>(() =>
+    orgId ? !!readDismissedOrgs()[orgId] : false,
   )
 
-  const slug = organization?.slug
+  // Re-sync the dismiss flag whenever the active org changes (org switcher →
+  // new org id → re-read LS).
+  useEffect(() => {
+    setIsDismissed(orgId ? !!readDismissedOrgs()[orgId] : false)
+  }, [orgId])
 
   // Safety net: also doubles as our "user is authenticated + org data loaded"
   // check (no slug → unauthenticated → don't render the banner).
@@ -79,12 +121,20 @@ export const OrgSlugRolloutBanner = () => {
       : 'text_177746095833445oggkposdq'
 
   const handleDismiss = () => {
-    setItemFromLS(ORG_SLUG_BANNER_DISMISSED_LS_KEY, true)
+    if (orgId) {
+      const dismissedOrgs = readDismissedOrgs()
+
+      setItemFromLS(ORG_SLUG_BANNER_DISMISSED_LS_KEY, { ...dismissedOrgs, [orgId]: true })
+    }
     setIsDismissed(true)
   }
 
   return (
+    // `key={slug}` forces a remount on org switch so the slug interpolation
+    // in the description copy is always fresh — protects against any stale
+    // render coming from React/Apollo's reconciliation timing.
     <div
+      key={slug}
       className="sticky top-0 z-navBar w-full bg-purple-100"
       data-test={ORG_SLUG_ROLLOUT_BANNER_TEST_ID}
       data-variant={variant}

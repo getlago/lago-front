@@ -1,11 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 
 import { getItemFromLS, setItemFromLS } from '~/core/apolloClient/cacheUtils'
+import { orgSlugOverridesVar } from '~/core/apolloClient/reactiveVars'
 import { envGlobalVar } from '~/core/apolloClient/reactiveVars/envGlobalVar'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { ORG_SLUG_BANNER_DISMISSED_LS_KEY } from '~/core/constants/localStorageKeys'
 import { GENERAL_SETTINGS_ROUTE } from '~/core/router'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import {
@@ -30,8 +31,8 @@ jest.mock('~/core/apolloClient/reactiveVars/envGlobalVar', () => ({
   })),
 }))
 
-jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: jest.fn(),
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: jest.fn(),
 }))
 
 jest.mock('~/core/apolloClient/cacheUtils', () => ({
@@ -40,9 +41,7 @@ jest.mock('~/core/apolloClient/cacheUtils', () => ({
 }))
 
 const mockedEnvGlobalVar = envGlobalVar as jest.MockedFunction<typeof envGlobalVar>
-const mockedUseOrganizationInfos = useOrganizationInfos as jest.MockedFunction<
-  typeof useOrganizationInfos
->
+const mockedUseCurrentUser = useCurrentUser as jest.MockedFunction<typeof useCurrentUser>
 const mockedGetItemFromLS = getItemFromLS as jest.MockedFunction<typeof getItemFromLS>
 const mockedSetItemFromLS = setItemFromLS as jest.MockedFunction<typeof setItemFromLS>
 
@@ -58,9 +57,14 @@ const baseEnv = {
   lagoSupersetUrl: '',
 }
 
-const setOrganization = (organization: { slug?: string | null } | undefined) => {
-  mockedUseOrganizationInfos.mockReturnValue({
-    organization: organization as never,
+const setOrganization = (organization: { id?: string; slug?: string | null } | undefined) => {
+  mockedUseCurrentUser.mockReturnValue({
+    currentMembership: organization
+      ? ({
+          organization: { id: 'org-id-default', ...organization } as never,
+        } as never)
+      : undefined,
+    refetchCurrentUserInfos: jest.fn(),
   } as never)
 }
 
@@ -70,6 +74,9 @@ describe('OrgSlugRolloutBanner', () => {
   beforeEach(() => {
     setOrganization({ slug: 'acme' })
     mockedGetItemFromLS.mockReturnValue(undefined)
+    // Reset the reactive var between tests — it's a module-level singleton
+    // that would otherwise leak overrides across cases.
+    orgSlugOverridesVar({})
   })
 
   afterEach(() => {
@@ -183,25 +190,40 @@ describe('OrgSlugRolloutBanner', () => {
     expect(screen.getByTestId(ORG_SLUG_ROLLOUT_BANNER_DISMISS_TEST_ID)).toBeInTheDocument()
   })
 
-  it('persists dismissal in localStorage and unmounts the banner when X is clicked', () => {
+  it('persists dismissal in localStorage scoped to the current org id when X is clicked', () => {
+    setOrganization({ id: 'org-1', slug: 'acme' })
     mockedEnvGlobalVar.mockReturnValue(baseEnv)
 
     renderBanner()
 
     fireEvent.click(screen.getByTestId(ORG_SLUG_ROLLOUT_BANNER_DISMISS_TEST_ID))
 
-    expect(mockedSetItemFromLS).toHaveBeenCalledWith(ORG_SLUG_BANNER_DISMISSED_LS_KEY, true)
+    expect(mockedSetItemFromLS).toHaveBeenCalledWith(ORG_SLUG_BANNER_DISMISSED_LS_KEY, {
+      'org-1': true,
+    })
     expect(screen.queryByTestId(ORG_SLUG_ROLLOUT_BANNER_TEST_ID)).not.toBeInTheDocument()
   })
 
-  it('returns null on mount when localStorage already has a truthy dismiss flag', () => {
+  it('returns null on mount when the current org id is in the dismissed map', () => {
+    setOrganization({ id: 'org-1', slug: 'acme' })
     mockedEnvGlobalVar.mockReturnValue(baseEnv)
-    mockedGetItemFromLS.mockReturnValue(true)
+    mockedGetItemFromLS.mockReturnValue({ 'org-1': true })
 
     renderBanner()
 
     expect(screen.queryByTestId(ORG_SLUG_ROLLOUT_BANNER_TEST_ID)).not.toBeInTheDocument()
     expect(mockedGetItemFromLS).toHaveBeenCalledWith(ORG_SLUG_BANNER_DISMISSED_LS_KEY)
+  })
+
+  it('still renders the banner when a different org id is dismissed (per-org dismiss)', () => {
+    setOrganization({ id: 'org-1', slug: 'acme' })
+    mockedEnvGlobalVar.mockReturnValue(baseEnv)
+    // Only "org-2" was dismissed previously, not "org-1".
+    mockedGetItemFromLS.mockReturnValue({ 'org-2': true })
+
+    renderBanner()
+
+    expect(screen.getByTestId(ORG_SLUG_ROLLOUT_BANNER_TEST_ID)).toBeInTheDocument()
   })
 
   it('returns null on full-screen create / edit pages (e.g. /customer/create)', () => {

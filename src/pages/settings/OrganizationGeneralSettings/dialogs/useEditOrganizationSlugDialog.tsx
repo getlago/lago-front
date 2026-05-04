@@ -5,6 +5,7 @@ import { useRef } from 'react'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { setOrgSlugOverride } from '~/core/apolloClient/reactiveVars'
 import { LagoApiError, useUpdateOrganizationSlugMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -36,12 +37,27 @@ export const useEditOrganizationSlugDialog = () => {
   const dataRef = useRef<EditOrganizationSlugDialogData | null>(null)
   const successRef = useRef<{ orgId: string; savedSlug: string } | null>(null)
 
-  // NOTE: in this branch URLs do not yet include the org slug (LAGO-1346
-  // ships that). When LAGO-1344/1345 land, an `update(cache, ...)` patch on
-  // `Organization:${id}` will be needed here to keep `OrganizationLayout` in
-  // sync with the new URL slug — see the original commit on
-  // `LAGO-1342-organization-slug` for the full implementation.
-  const [updateOrganizationSlug] = useUpdateOrganizationSlugMutation()
+  const [updateOrganizationSlug] = useUpdateOrganizationSlugMutation({
+    // The mutation returns `CurrentOrganization` (auto-normalized by Apollo),
+    // but consumers like the org-slug rollout banner read the slug from the
+    // `Organization` entity nested inside `currentUser.memberships` — a
+    // separate cache entry. Without this patch, that entity keeps the old
+    // slug post-rename and downstream reads (banner copy, switcher, etc.)
+    // stay stale until a full refetch lands.
+    update(cache, { data }) {
+      if (!data?.updateOrganization?.id || !data.updateOrganization.slug) return
+
+      cache.modify({
+        id: cache.identify({
+          __typename: 'Organization',
+          id: data.updateOrganization.id,
+        }),
+        fields: {
+          slug: () => data.updateOrganization?.slug ?? '',
+        },
+      })
+    },
+  })
 
   const form = useAppForm({
     defaultValues: editOrganizationSlugDefaultValues,
@@ -92,6 +108,13 @@ export const useEditOrganizationSlugDialog = () => {
 
       if (savedSlug && orgId) {
         successRef.current = { orgId, savedSlug }
+
+        // Record the new slug in the per-org-id override map read by the
+        // org-slug rollout banner. The map persists across org switches, so
+        // coming back to this org will still reflect the edit locally even
+        // when the cache round-trip would return stale data. Bypasses Apollo
+        // cache observer flakiness post-`client.stop() + clearStore()`.
+        setOrgSlugOverride(orgId, savedSlug)
       }
     },
   })

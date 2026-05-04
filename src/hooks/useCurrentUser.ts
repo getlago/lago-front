@@ -23,6 +23,7 @@ gql`
       organization {
         id
         name
+        slug
         logoUrl
         accessibleByCurrentSession
       }
