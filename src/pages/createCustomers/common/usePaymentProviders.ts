@@ -51,6 +51,13 @@ gql`
           name
           code
         }
+
+        ... on PaystackProvider {
+          __typename
+          id
+          name
+          code
+        }
       }
     }
   }

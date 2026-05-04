@@ -12,6 +12,7 @@ const PROVIDER_LABEL_KEYS: Record<ProviderTypeEnum, string> = {
   [ProviderTypeEnum.Cashfree]: 'text_17367626793434wkg1rk0114',
   [ProviderTypeEnum.Flutterwave]: 'text_1749724395108m0swrna0zt4',
   [ProviderTypeEnum.Moneyhash]: 'text_1733427981129n3wxjui0bex',
+  [ProviderTypeEnum.Paystack]: 'text_1777918719745atbfk53dngh',
 }
 
 const MANUAL_PAYMENT_LABEL_KEY = 'text_173799550683709p2rqkoqd5'

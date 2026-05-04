@@ -127,6 +127,12 @@ gql`
           code
         }
 
+        ... on PaystackProvider {
+          id
+          name
+          code
+        }
+
         ... on AdyenProvider {
           id
           name

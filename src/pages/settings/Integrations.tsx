@@ -57,6 +57,10 @@ import {
   AddNetsuiteDialogRef,
 } from '~/components/settings/integrations/AddNetsuiteDialog'
 import {
+  AddPaystackDialog,
+  AddPaystackDialogRef,
+} from '~/components/settings/integrations/AddPaystackDialog'
+import {
   AddSalesforceDialog,
   AddSalesforceDialogRef,
 } from '~/components/settings/integrations/AddSalesforceDialog'
@@ -83,6 +87,7 @@ import {
   INTEGRATIONS_ROUTE,
   MONEYHASH_INTEGRATION_ROUTE,
   NETSUITE_INTEGRATION_ROUTE,
+  PAYSTACK_INTEGRATION_ROUTE,
   SALESFORCE_INTEGRATION_ROUTE,
   STRIPE_INTEGRATION_ROUTE,
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
@@ -110,6 +115,7 @@ import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
 import Moneyhash from '~/public/images/moneyhash.svg'
 import Netsuite from '~/public/images/netsuite.svg'
 import Oso from '~/public/images/oso.svg'
+import Paystack from '~/public/images/paystack.svg'
 import Salesforce from '~/public/images/salesforce.svg'
 import Segment from '~/public/images/segment.svg'
 import Stripe from '~/public/images/stripe.svg'
@@ -140,6 +146,10 @@ gql`
         }
 
         ... on FlutterwaveProvider {
+          id
+        }
+
+        ... on PaystackProvider {
           id
         }
       }
@@ -190,6 +200,7 @@ const Integrations = () => {
   const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
   const addMoneyhashDialogRef = useRef<AddMoneyhashDialogRef>(null)
   const addFlutterwaveDialogRef = useRef<AddFlutterwaveDialogRef>(null)
+  const addPaystackDialogRef = useRef<AddPaystackDialogRef>(null)
 
   const { data, loading } = useIntegrationsSettingQuery({
     variables: { limit: 1000 },
@@ -220,6 +231,9 @@ const Integrations = () => {
   )
   const hasFlutterwaveIntegration = data?.paymentProviders?.collection?.some(
     (provider) => provider?.__typename === 'FlutterwaveProvider',
+  )
+  const hasPaystackIntegration = data?.paymentProviders?.collection?.some(
+    (provider) => provider?.__typename === 'PaystackProvider',
   )
   const hasTaxManagement = !!hasBillingEntitiesWithTaxManagement
   const hasAccessToAvalaraPremiumIntegration = !!premiumIntegrations?.includes(
@@ -781,6 +795,39 @@ const Integrations = () => {
                         fullWidth
                       />
                       <Selector
+                        title={translate('text_1777918719745atbfk53dngh')}
+                        subtitle={translate('text_634ea0ecc6147de10ddb6631')}
+                        icon={
+                          <Avatar size="big" variant="connector-full" className="bg-white">
+                            <Paystack />
+                          </Avatar>
+                        }
+                        endContent={getEndContent({
+                          showConnectedBadge: hasPaystackIntegration,
+                        })}
+                        hoverActions={getHoverActions(
+                          hasPaystackIntegration,
+                          generatePath(PAYSTACK_INTEGRATION_ROUTE, {
+                            integrationGroup: IntegrationsTabsOptionsEnum.Community,
+                          }),
+                        )}
+                        onClick={() => {
+                          if (hasPaystackIntegration) {
+                            navigate(
+                              generatePath(PAYSTACK_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Community,
+                              }),
+                            )
+                          } else {
+                            const element = document.activeElement as HTMLElement
+
+                            element.blur && element.blur()
+                            addPaystackDialogRef.current?.openDialog()
+                          }
+                        }}
+                        fullWidth
+                      />
+                      <Selector
                         fullWidth
                         title={translate('text_657078c28394d6b1ae1b9713')}
                         subtitle={translate('text_657078c28394d6b1ae1b971f')}
@@ -861,6 +908,7 @@ const Integrations = () => {
       <AddHubspotDialog ref={addHubspotDialogRef} />
       <AddSalesforceDialog ref={addSalesforceDialogRef} />
       <AddFlutterwaveDialog ref={addFlutterwaveDialogRef} />
+      <AddPaystackDialog ref={addPaystackDialogRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )

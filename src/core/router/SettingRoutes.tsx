@@ -79,6 +79,10 @@ const FlutterwaveIntegrations = lazyLoad(() => import('~/pages/settings/Flutterw
 const FlutterwaveIntegrationDetails = lazyLoad(
   () => import('~/pages/settings/FlutterwaveIntegrationDetails'),
 )
+const PaystackIntegrations = lazyLoad(() => import('~/pages/settings/PaystackIntegrations'))
+const PaystackIntegrationDetails = lazyLoad(
+  () => import('~/pages/settings/PaystackIntegrationDetails'),
+)
 const GocardlessIntegrationOauthCallback = lazyLoad(
   () => import('~/pages/settings/GocardlessIntegrationOauthCallback'),
 )
@@ -137,6 +141,8 @@ export const MONEYHASH_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/moneyhash`
 export const MONEYHASH_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/moneyhash/:integrationId`
 export const FLUTTERWAVE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/flutterwave`
 export const FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/flutterwave/:integrationId`
+export const PAYSTACK_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/paystack`
+export const PAYSTACK_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/paystack/:integrationId`
 export const GOCARDLESS_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless`
 export const GOCARDLESS_INTEGRATION_OAUTH_CALLBACK_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/gocardless/callback`
 export const GOCARDLESS_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless/:integrationId`
@@ -383,6 +389,18 @@ export const settingRoutes: CustomRouteObject[] = [
         path: FLUTTERWAVE_INTEGRATION_ROUTE,
         private: true,
         element: <FlutterwaveIntegrations />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: PAYSTACK_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <PaystackIntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: PAYSTACK_INTEGRATION_ROUTE,
+        private: true,
+        element: <PaystackIntegrations />,
         permissions: ['organizationIntegrationsView'],
       },
       {

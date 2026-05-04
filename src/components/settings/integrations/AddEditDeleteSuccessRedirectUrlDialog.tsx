@@ -15,18 +15,21 @@ import {
   FlutterwaveForCreateAndEditSuccessRedirectUrlFragment,
   GocardlessForCreateAndEditSuccessRedirectUrlFragment,
   MoneyhashForCreateAndEditSuccessRedirectUrlFragment,
+  PaystackForCreateAndEditSuccessRedirectUrlFragment,
   StripeForCreateAndEditSuccessRedirectUrlFragment,
   UpdateAdyenPaymentProviderInput,
   UpdateCashfreePaymentProviderInput,
   UpdateFlutterwavePaymentProviderInput,
   UpdateGocardlessPaymentProviderInput,
   UpdateMoneyhashPaymentProviderInput,
+  UpdatePaystackPaymentProviderInput,
   UpdateStripePaymentProviderInput,
   useUpdateAdyenPaymentProviderMutation,
   useUpdateCashfreePaymentProviderMutation,
   useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation,
   useUpdateGocardlessPaymentProviderMutation,
   useUpdateMoneyhashPaymentProviderMutation,
+  useUpdatePaystackPaymentProviderSuccessRedirectUrlMutation,
   useUpdateStripePaymentProviderMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -60,6 +63,11 @@ gql`
   fragment MoneyhashForCreateAndEditSuccessRedirectUrl on MoneyhashProvider {
     id
     flowId
+    successRedirectUrl
+  }
+
+  fragment PaystackForCreateAndEditSuccessRedirectUrl on PaystackProvider {
+    id
     successRedirectUrl
   }
 
@@ -106,6 +114,15 @@ gql`
       flowId
     }
   }
+
+  mutation updatePaystackPaymentProviderSuccessRedirectUrl(
+    $input: UpdatePaystackPaymentProviderInput!
+  ) {
+    updatePaystackPaymentProvider(input: $input) {
+      id
+      successRedirectUrl
+    }
+  }
 `
 
 const AddEditDeleteSuccessRedirectUrlDialogMode = {
@@ -121,6 +138,7 @@ const AddEditDeleteSuccessRedirectUrlDialogProviderType = {
   Cashfree: 'Cashfree',
   Flutterwave: 'Flutterwave',
   Moneyhash: 'Moneyhash',
+  Paystack: 'Paystack',
 } as const
 
 type LocalProviderType = {
@@ -133,6 +151,7 @@ type LocalProviderType = {
     | GocardlessForCreateAndEditSuccessRedirectUrlFragment
     | StripeForCreateAndEditSuccessRedirectUrlFragment
     | MoneyhashForCreateAndEditSuccessRedirectUrlFragment
+    | PaystackForCreateAndEditSuccessRedirectUrlFragment
     | null
 }
 
@@ -235,6 +254,17 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
       },
     })
 
+    const [updatePaystackProvider] = useUpdatePaystackPaymentProviderSuccessRedirectUrlMutation({
+      onCompleted(data) {
+        if (data && data.updatePaystackPaymentProvider) {
+          addToast({
+            message: successToastMessage,
+            severity: 'success',
+          })
+        }
+      },
+    })
+
     const formikProps = useFormik<
       | UpdateAdyenPaymentProviderInput
       | UpdateCashfreePaymentProviderInput
@@ -242,6 +272,7 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
       | UpdateGocardlessPaymentProviderInput
       | UpdateStripePaymentProviderInput
       | UpdateMoneyhashPaymentProviderInput
+      | UpdatePaystackPaymentProviderInput
     >({
       initialValues: {
         id: localData?.provider?.id || '',
@@ -261,6 +292,7 @@ export const AddEditDeleteSuccessRedirectUrlDialog =
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.Flutterwave]:
             updateFlutterwaveProvider,
           [AddEditDeleteSuccessRedirectUrlDialogProviderType.Moneyhash]: updateMoneyhashProvider,
+          [AddEditDeleteSuccessRedirectUrlDialogProviderType.Paystack]: updatePaystackProvider,
         }
 
         const method = methodLoojup[localData?.type as LocalProviderType['type']]

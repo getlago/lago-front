@@ -22,6 +22,7 @@ import Cashfree from '~/public/images/cashfree.svg'
 import Flutterwave from '~/public/images/flutterwave.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import Moneyhash from '~/public/images/moneyhash.svg'
+import Paystack from '~/public/images/paystack.svg'
 import Stripe from '~/public/images/stripe.svg'
 
 import StripePaymentProviderContent from './StripePaymentProviderContent'
@@ -41,6 +42,7 @@ const avatarMapping: Record<ProviderTypeEnum, ReactNode> = {
   [ProviderTypeEnum.Gocardless]: <GoCardless />,
   [ProviderTypeEnum.Stripe]: <Stripe />,
   [ProviderTypeEnum.Moneyhash]: <Moneyhash />,
+  [ProviderTypeEnum.Paystack]: <Paystack />,
 }
 
 const defaultProps: PaymentProvidersAccordionProps = {
@@ -92,6 +94,7 @@ const PaymentProvidersAccordion = withForm({
       const unsupportedPaymentProviders: ProviderTypeEnum[] = [
         ProviderTypeEnum.Cashfree,
         ProviderTypeEnum.Flutterwave,
+        ProviderTypeEnum.Paystack,
       ]
 
       return !unsupportedPaymentProviders.includes(paymentProvider)

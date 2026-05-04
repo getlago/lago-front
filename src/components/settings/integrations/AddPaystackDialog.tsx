@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath, useNavigate } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import { Button } from '~/components/designSystem/Button'
@@ -9,31 +9,31 @@ import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { MONEYHASH_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
+import { PAYSTACK_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
-  AddMoneyhashPaymentProviderInput,
-  AddMoneyhashProviderDialogFragment,
+  AddPaystackPaymentProviderInput,
   LagoApiError,
-  MoneyhashIntegrationDetailsFragmentDoc,
-  useAddMoneyhashApiKeyMutation,
-  useGetProviderByCodeForMoneyhashLazyQuery,
-  useUpdateMoneyhashApiKeyMutation,
+  PaystackIntegrationDetailsFragment,
+  useAddPaystackPaymentProviderMutation,
+  useGetProviderByCodeForPaystackLazyQuery,
+  useUpdatePaystackPaymentProviderMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { DeleteMoneyhashIntegrationDialogRef } from './DeleteMoneyhashIntegrationDialog'
+import { DeletePaystackIntegrationDialogRef } from './DeletePaystackIntegrationDialog'
 
 gql`
-  fragment AddMoneyhashProviderDialog on MoneyhashProvider {
+  fragment AddPaystackProviderDialog on PaystackProvider {
     id
     name
     code
-    apiKey
-    flowId
+    secretKey
+    successRedirectUrl
   }
-  query getProviderByCodeForMoneyhash($code: String) {
+
+  query getProviderByCodeForPaystack($code: String) {
     paymentProvider(code: $code) {
-      ... on AdyenProvider {
+      ... on FlutterwaveProvider {
         id
       }
       ... on CashfreeProvider {
@@ -42,7 +42,7 @@ gql`
       ... on GocardlessProvider {
         id
       }
-      ... on FlutterwaveProvider {
+      ... on AdyenProvider {
         id
       }
       ... on StripeProvider {
@@ -56,98 +56,108 @@ gql`
       }
     }
   }
-  mutation addMoneyhashApiKey($input: AddMoneyhashPaymentProviderInput!) {
-    addMoneyhashPaymentProvider(input: $input) {
+
+  mutation addPaystackPaymentProvider($input: AddPaystackPaymentProviderInput!) {
+    addPaystackPaymentProvider(input: $input) {
       id
-      ...AddMoneyhashProviderDialog
-      ...MoneyhashIntegrationDetails
+      ...AddPaystackProviderDialog
     }
   }
-  mutation updateMoneyhashApiKey($input: UpdateMoneyhashPaymentProviderInput!) {
-    updateMoneyhashPaymentProvider(input: $input) {
+
+  mutation updatePaystackPaymentProvider($input: UpdatePaystackPaymentProviderInput!) {
+    updatePaystackPaymentProvider(input: $input) {
       id
-      ...AddMoneyhashProviderDialog
-      ...MoneyhashIntegrationDetails
+      ...AddPaystackProviderDialog
     }
   }
-  ${MoneyhashIntegrationDetailsFragmentDoc}
 `
 
-type TAddMoneyhashDialogProps = Partial<{
-  deleteModalRef: RefObject<DeleteMoneyhashIntegrationDialogRef>
-  provider: AddMoneyhashProviderDialogFragment
+type TAddPaystackDialogProps = Partial<{
+  deleteModalRef: RefObject<DeletePaystackIntegrationDialogRef>
+  provider: PaystackIntegrationDetailsFragment
   deleteDialogCallback: () => void
 }>
 
-export interface AddMoneyhashDialogRef {
-  openDialog: (props?: TAddMoneyhashDialogProps) => unknown
+export interface AddPaystackDialogRef {
+  openDialog: (props?: TAddPaystackDialogProps) => unknown
   closeDialog: () => unknown
 }
 
-export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => {
+export const AddPaystackDialog = forwardRef<AddPaystackDialogRef>((_, ref) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<TAddMoneyhashDialogProps | undefined>(undefined)
-  const moneyhashProvider = localData?.provider
-  const isEdition = !!moneyhashProvider
+  const [localData, setLocalData] = useState<TAddPaystackDialogProps | undefined>(undefined)
+  const paystackProvider = localData?.provider
+  const isEdition = !!paystackProvider
 
-  const [addApiKey] = useAddMoneyhashApiKeyMutation({
-    onCompleted({ addMoneyhashPaymentProvider }) {
-      if (addMoneyhashPaymentProvider?.id) {
+  const [addPaystackProvider] = useAddPaystackPaymentProviderMutation({
+    onCompleted(data) {
+      if (data?.addPaystackPaymentProvider) {
+        addToast({
+          severity: 'success',
+          translateKey: 'text_1777918719746ystjjipgfes',
+        })
         navigate(
-          generatePath(MONEYHASH_INTEGRATION_DETAILS_ROUTE, {
-            integrationId: addMoneyhashPaymentProvider.id,
+          generatePath(PAYSTACK_INTEGRATION_DETAILS_ROUTE, {
+            integrationId: data.addPaystackPaymentProvider.id,
             integrationGroup: IntegrationsTabsOptionsEnum.Community,
           }),
         )
+      }
+    },
+    onError() {
+      addToast({
+        severity: 'danger',
+        translateKey: 'text_629728388c4d2300e2d380d5',
+      })
+    },
+  })
+  const [updatePaystackProvider] = useUpdatePaystackPaymentProviderMutation({
+    onCompleted(data) {
+      if (data?.updatePaystackPaymentProvider) {
         addToast({
-          message: translate('text_1733730115018i122xlyi662'),
           severity: 'success',
+          translateKey: 'text_17779187197468w6ryc8oyug',
         })
       }
     },
-  })
-
-  const [updateApiKey] = useUpdateMoneyhashApiKeyMutation({
-    onCompleted({ updateMoneyhashPaymentProvider }) {
-      if (updateMoneyhashPaymentProvider?.id) {
-        addToast({
-          message: translate('text_17337300102103wt4s6yz2gh'),
-          severity: 'success',
-        })
-      }
+    onError() {
+      addToast({
+        severity: 'danger',
+        translateKey: 'text_629728388c4d2300e2d380d5',
+      })
     },
   })
+  const [getProviderByCode] = useGetProviderByCodeForPaystackLazyQuery()
 
-  const [getMoneyhashProviderByCode] = useGetProviderByCodeForMoneyhashLazyQuery()
-
-  const formikProps = useFormik<AddMoneyhashPaymentProviderInput>({
+  const formikProps = useFormik<AddPaystackPaymentProviderInput>({
     initialValues: {
-      name: moneyhashProvider?.name || '',
-      code: moneyhashProvider?.code || '',
-      apiKey: moneyhashProvider?.apiKey || '',
-      flowId: moneyhashProvider?.flowId || '',
+      name: paystackProvider?.name || '',
+      code: paystackProvider?.code || '',
+      secretKey: paystackProvider?.secretKey || '',
+      successRedirectUrl: paystackProvider?.successRedirectUrl || '',
     },
     validationSchema: object().shape({
       name: string().required(''),
       code: string().required(''),
-      apiKey: string().required(''),
-      flowId: string().required(''),
+      secretKey: string().required(''),
+      successRedirectUrl: string().url(''),
     }),
-    onSubmit: async ({ apiKey, flowId, ...values }, formikBag) => {
-      const res = await getMoneyhashProviderByCode({
+    onSubmit: async (values, formikBag) => {
+      const { name, code, secretKey, successRedirectUrl } = values
+
+      const res = await getProviderByCode({
         context: { silentErrorCodes: [LagoApiError.NotFound] },
         variables: {
-          code: values.code,
+          code,
         },
       })
-
       const isNotAllowedToMutate =
         (!!res.data?.paymentProvider?.id && !isEdition) ||
         (isEdition &&
           !!res.data?.paymentProvider?.id &&
-          res.data?.paymentProvider?.id !== moneyhashProvider?.id)
+          res.data?.paymentProvider?.id !== paystackProvider?.id)
 
       if (isNotAllowedToMutate) {
         formikBag.setFieldError('code', translate('text_632a2d437e341dcc76817556'))
@@ -155,22 +165,24 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
       }
 
       if (isEdition) {
-        await updateApiKey({
+        await updatePaystackProvider({
           variables: {
             input: {
-              ...values,
-              id: moneyhashProvider?.id,
-              flowId,
+              id: paystackProvider?.id || '',
+              name,
+              code,
+              successRedirectUrl: successRedirectUrl || undefined,
             },
           },
         })
       } else {
-        await addApiKey({
+        await addPaystackProvider({
           variables: {
             input: {
-              ...values,
-              apiKey,
-              flowId,
+              name,
+              code,
+              secretKey,
+              successRedirectUrl: successRedirectUrl || undefined,
             },
           },
         })
@@ -194,14 +206,9 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
     <Dialog
       ref={dialogRef}
       title={translate(
-        isEdition ? 'text_658461066530343fe1808cd9' : 'text_1733489819311q0nzqi3u7wz',
-        {
-          name: moneyhashProvider?.name,
-        },
+        isEdition ? 'text_1777918719746j08zl7ss77c' : 'text_177791871974582yz2oec7in',
       )}
-      description={translate(
-        isEdition ? 'text_17337299668343fncntgiyhf' : 'text_1733491430992msh3b2v8nlx',
-      )}
+      description={translate('text_1777918719746zp4eauk5br2')}
       onClose={formikProps.resetForm}
       actions={({ closeDialog }) => (
         <div className="flex w-full items-center gap-3">
@@ -212,8 +219,8 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
               onClick={() => {
                 closeDialog()
                 localData?.deleteModalRef?.current?.openDialog({
-                  provider: moneyhashProvider,
-                  callback: localData.deleteDialogCallback,
+                  provider: paystackProvider,
+                  callback: localData?.deleteDialogCallback,
                 })
               }}
             >
@@ -230,7 +237,7 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
               onClick={formikProps.submitForm}
             >
               {translate(
-                isEdition ? 'text_1733729938415dtehv31k9in' : 'text_1733489819311q0nzqi3u7wz',
+                isEdition ? 'text_65845f35d7d69c3ab4793dac' : 'text_177791871974582yz2oec7in',
               )}
             </Button>
           </div>
@@ -241,8 +248,6 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
         <div className="flex items-start gap-6">
           <TextInputField
             className="flex-1"
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
             formikProps={formikProps}
             name="name"
             label={translate('text_6584550dc4cec7adf861504d')}
@@ -257,21 +262,21 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
           />
         </div>
         <TextInputField
-          name="apiKey"
+          name="secretKey"
           disabled={isEdition}
-          label={translate('text_645d071272418a14c1c76a77')}
-          placeholder={translate('text_645d071272418a14c1c76a83')}
+          label={translate('text_17497252876688ai900wowoc')}
+          placeholder={translate('text_177791871974610eoawd1lvy')}
           formikProps={formikProps}
         />
         <TextInputField
-          name="flowId"
-          label={translate('text_1737453888927uw38sepj7xy')}
-          placeholder={translate('text_1737453902655bnm8uycr7o7')}
           formikProps={formikProps}
+          name="successRedirectUrl"
+          label={translate('text_65367cb78324b77fcb6af21c')}
+          placeholder={translate('text_1733303818769298k0fvsgcz')}
         />
       </div>
     </Dialog>
   )
 })
 
-AddMoneyhashDialog.displayName = 'AddMoneyhashDialog'
+AddPaystackDialog.displayName = 'AddPaystackDialog'
