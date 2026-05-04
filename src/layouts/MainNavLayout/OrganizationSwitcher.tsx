@@ -2,6 +2,7 @@ import { ApolloClient, ApolloError } from '@apollo/client'
 import { captureException } from '@sentry/react'
 import { ConditionalWrapper, Icon } from 'lago-design-system'
 import { useState } from 'react'
+import { useParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -58,11 +59,26 @@ export const OrganizationSwitcher = ({
 }: OrganizationSwitcherProps) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  const { organizationSlug } = useParams<{ organizationSlug: string }>()
   const [isSwitchingOrg, setIsSwitchingOrg] = useState(false)
 
   const organizationList: OrganizationFromMembership[] | undefined = currentUser?.memberships.map(
     (membership) => membership.organization,
   )
+
+  // Visual identity (logo + name) is derived from the URL slug, NOT from the
+  // `organization` prop returned by `useOrganizationInfos`. The `organization`
+  // query is keyed at the Apollo root field level (`Query.organization`) and
+  // does not include the org-id header in its cache key — combined with the
+  // persisted IndexedDB cache that is shared across tabs, it can briefly serve
+  // the previous tab's org data on mount. Sourcing from `currentUser.memberships`
+  // + URL slug makes the visual deterministic per tab and immune to the
+  // header/cache race. The `organization` prop is still used for fields that
+  // aren't carried on `CurrentUserInfos.memberships[].organization`
+  // (e.g. `authenticatedMethod`).
+  const currentOrgFromSlug = currentUser?.memberships.find(
+    (m) => m.organization.slug === organizationSlug,
+  )?.organization
 
   /**
    * Switches the current organization context.
@@ -137,26 +153,26 @@ export const OrganizationSwitcher = ({
             size="small"
             disabled={isLoading}
           >
-            {isLoading ? (
+            {isLoading && !currentOrgFromSlug ? (
               <div className="flex flex-row items-center gap-2">
                 <Skeleton variant="circular" size="small" />
                 <Skeleton variant="text" className="w-30" />
               </div>
             ) : (
               <>
-                {organization?.logoUrl ? (
+                {currentOrgFromSlug?.logoUrl ? (
                   <Avatar size="small" variant="connector">
                     <img
-                      src={organization?.logoUrl as string}
-                      alt={`${organization?.name}'s logo`}
+                      src={currentOrgFromSlug.logoUrl as string}
+                      alt={`${currentOrgFromSlug.name}'s logo`}
                     />
                   </Avatar>
                 ) : (
                   <Avatar
                     variant="company"
-                    identifier={organization?.name || ''}
+                    identifier={currentOrgFromSlug?.name || ''}
                     size="small"
-                    initials={(organization?.name ?? 'Lago')[0]}
+                    initials={(currentOrgFromSlug?.name ?? 'Lago')[0]}
                   />
                 )}
                 <Typography
@@ -165,7 +181,7 @@ export const OrganizationSwitcher = ({
                   data-test={ORGANIZATION_SWITCHER_NAME_TEST_ID}
                   variant="caption"
                 >
-                  {organization?.name}
+                  {currentOrgFromSlug?.name}
                 </Typography>
               </>
             )}
@@ -219,7 +235,7 @@ export const OrganizationSwitcher = ({
                         align="left"
                         size="small"
                         fullWidth
-                        variant={id === organization?.id ? 'secondary' : 'quaternary'}
+                        variant={id === currentOrgFromSlug?.id ? 'secondary' : 'quaternary'}
                         disabled={!accessibleByCurrentSession || isSwitchingOrg}
                         endIcon={accessibleByCurrentSession ? undefined : 'lock'}
                         data-test={ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID}

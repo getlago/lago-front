@@ -55,10 +55,15 @@ export const AllTheProviders = ({
 
 const customRender = (
   ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'> & { mocks?: TestMocksType },
+  options?: Omit<RenderOptions, 'wrapper'> & {
+    mocks?: TestMocksType
+    useParams?: { [key: string]: string }
+  },
 ) =>
   render(ui, {
-    wrapper: (props) => <AllTheProviders {...props} mocks={options?.mocks} />,
+    wrapper: (props) => (
+      <AllTheProviders {...props} mocks={options?.mocks} useParams={options?.useParams} />
+    ),
     ...options,
   })
 

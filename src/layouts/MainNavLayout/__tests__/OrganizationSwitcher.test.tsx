@@ -42,7 +42,8 @@ describe('OrganizationSwitcher', () => {
         id: 'membership-1',
         organization: {
           id: 'org-1',
-          name: 'Test Org',
+          name: 'Test Organization',
+          slug: 'test-org',
           logoUrl: null,
           accessibleByCurrentSession: true,
         },
@@ -52,6 +53,7 @@ describe('OrganizationSwitcher', () => {
         organization: {
           id: 'org-2',
           name: 'Another Org',
+          slug: 'another-org',
           logoUrl: null,
           accessibleByCurrentSession: true,
         },
@@ -62,9 +64,15 @@ describe('OrganizationSwitcher', () => {
   const mockOrganization = {
     id: 'org-1',
     name: 'Test Organization',
+    slug: 'test-org',
     logoUrl: null,
     authenticatedMethod: 'EMAIL',
   }
+
+  // Visual identity in OrganizationSwitcher is now derived from the URL slug
+  // (`useParams().organizationSlug`) + `currentUser.memberships`. Tests must
+  // mock `organizationSlug` so the lookup resolves to a membership.
+  const renderOptions = { useParams: { organizationSlug: 'test-org' } }
 
   const defaultProps = {
     client: mockClient,
@@ -112,19 +120,19 @@ describe('OrganizationSwitcher', () => {
 
   describe('Component rendering', () => {
     it('renders the organization switcher container', () => {
-      render(<OrganizationSwitcher {...defaultProps} />)
+      render(<OrganizationSwitcher {...defaultProps} />, renderOptions)
 
       expect(screen.getByTestId(ORGANIZATION_SWITCHER_TEST_ID)).toBeInTheDocument()
     })
 
     it('renders the organization switcher button', () => {
-      render(<OrganizationSwitcher {...defaultProps} />)
+      render(<OrganizationSwitcher {...defaultProps} />, renderOptions)
 
       expect(screen.getByTestId(ORGANIZATION_SWITCHER_BUTTON_TEST_ID)).toBeInTheDocument()
     })
 
     it('renders the organization name', () => {
-      render(<OrganizationSwitcher {...defaultProps} />)
+      render(<OrganizationSwitcher {...defaultProps} />, renderOptions)
 
       expect(screen.getByTestId(ORGANIZATION_SWITCHER_NAME_TEST_ID)).toBeInTheDocument()
       expect(screen.getByTestId(ORGANIZATION_SWITCHER_NAME_TEST_ID)).toHaveTextContent(
@@ -133,7 +141,7 @@ describe('OrganizationSwitcher', () => {
     })
 
     it('disables button when loading', () => {
-      render(<OrganizationSwitcher {...defaultProps} isLoading={true} />)
+      render(<OrganizationSwitcher {...defaultProps} isLoading={true} />, renderOptions)
 
       expect(screen.getByTestId(ORGANIZATION_SWITCHER_BUTTON_TEST_ID)).toBeDisabled()
     })
