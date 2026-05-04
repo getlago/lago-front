@@ -20,6 +20,20 @@ import { hasIframeParams } from '~/hooks/useIframeConfig'
 
 const Error404 = lazy(() => import('~/pages/Error404'))
 
+/**
+ * Slug-migration Sentry events use a named `Error` subclass + `captureException`
+ * (instead of `captureMessage`) so Sentry's issue title generator picks up the
+ * meaningful `{name}: {message}` pair instead of the topmost stack frame from
+ * the synthetic stacktrace it attaches to messages (which renders as
+ * `commitHookEffectListMount` because we capture from inside a `useEffect`).
+ */
+class SlugMigrationEvent extends Error {
+  constructor(name: string, message: string) {
+    super(message)
+    this.name = name
+  }
+}
+
 const OrganizationLayout = () => {
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
   const { currentUser, loading } = useCurrentUser()
@@ -91,15 +105,23 @@ const OrganizationLayout = () => {
       state: { autoRecoveredFromLegacy: true },
     })
 
-    Sentry.captureMessage('legacy_url_auto_recovered', {
-      level: 'info',
-      tags: {
-        attemptedSlug: organizationSlug ?? '',
-        recoveredToSlug: recoveredSlug ?? '',
-        mode: soleMembershipSlug ? 'single-org' : 'multi-org-iframe',
+    // Sentry groups by `exception.type` (= `Error.name`), so each
+    // `SlugMigrationEvent` subclass name yields its own issue with the
+    // correct level. The `feature: 'slug-migration'` tag is the unified
+    // search/alert handle across all three events.
+    Sentry.captureException(
+      new SlugMigrationEvent('SlugMigrationAutoRecovered', 'legacy_url_auto_recovered'),
+      {
+        level: 'info',
+        tags: {
+          feature: 'slug-migration',
+          attemptedSlug: organizationSlug ?? '',
+          recoveredToSlug: recoveredSlug ?? '',
+          mode: soleMembershipSlug ? 'single-org' : 'multi-org-iframe',
+        },
+        extra: { fullPath: location.pathname },
       },
-      extra: { fullPath: location.pathname },
-    })
+    )
     // Note: we rebuild the target inline rather than reading from a memoized
     // value to keep the dependency surface minimal and the intent obvious.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -127,6 +149,7 @@ const OrganizationLayout = () => {
 
     const sharedContext = {
       tags: {
+        feature: 'slug-migration',
         attemptedSlug: organizationSlug ?? '',
         referrerType: document.referrer ? 'external' : 'direct',
       },
@@ -141,18 +164,24 @@ const OrganizationLayout = () => {
 
     if (isMissedMigration) {
       // Bug: a link/button inside the app wasn't migrated to use the slug wrapper.
-      Sentry.captureMessage('slug_migration_missed_link', {
-        level: 'error',
-        ...sharedContext,
-        tags: { ...sharedContext.tags, source: 'missed_migration' },
-      })
+      Sentry.captureException(
+        new SlugMigrationEvent('SlugMigrationMissedLink', 'slug_migration_missed_link'),
+        {
+          level: 'error',
+          ...sharedContext,
+          tags: { ...sharedContext.tags, source: 'missed_migration' },
+        },
+      )
     } else {
       // External hit: old bookmark, stale link, or typed URL.
-      Sentry.captureMessage('legacy_url_accessed', {
-        level: 'warning',
-        ...sharedContext,
-        tags: { ...sharedContext.tags, source: 'external' },
-      })
+      Sentry.captureException(
+        new SlugMigrationEvent('SlugMigrationLegacyUrl', 'legacy_url_accessed'),
+        {
+          level: 'warning',
+          ...sharedContext,
+          tags: { ...sharedContext.tags, source: 'external' },
+        },
+      )
     }
   }, [
     loading,

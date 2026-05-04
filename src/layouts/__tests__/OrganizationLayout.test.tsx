@@ -50,6 +50,7 @@ jest.mock('@apollo/client', () => ({
 
 jest.mock('@sentry/react', () => ({
   captureMessage: jest.fn(),
+  captureException: jest.fn(),
 }))
 
 jest.mock('~/core/apolloClient', () => ({
@@ -200,8 +201,11 @@ describe('OrganizationLayout', () => {
 
         renderHook(() => OrganizationLayout())
 
-        expect(Sentry.captureMessage).toHaveBeenCalledWith(
-          'legacy_url_accessed',
+        expect(Sentry.captureException).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: 'SlugMigrationLegacyUrl',
+            message: 'legacy_url_accessed',
+          }),
           expect.objectContaining({
             level: 'warning',
             tags: expect.objectContaining({
@@ -225,8 +229,11 @@ describe('OrganizationLayout', () => {
 
         renderHook(() => OrganizationLayout())
 
-        expect(Sentry.captureMessage).toHaveBeenCalledWith(
-          'slug_migration_missed_link',
+        expect(Sentry.captureException).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: 'SlugMigrationMissedLink',
+            message: 'slug_migration_missed_link',
+          }),
           expect.objectContaining({
             level: 'error',
             tags: expect.objectContaining({
@@ -249,7 +256,7 @@ describe('OrganizationLayout', () => {
 
         renderHook(() => OrganizationLayout())
 
-        expect(Sentry.captureMessage).not.toHaveBeenCalled()
+        expect(Sentry.captureException).not.toHaveBeenCalled()
       })
     })
   })
@@ -284,8 +291,11 @@ describe('OrganizationLayout', () => {
           skipSlugPrepend: true,
         }),
       )
-      expect(Sentry.captureMessage).toHaveBeenCalledWith(
-        'legacy_url_auto_recovered',
+      expect(Sentry.captureException).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'SlugMigrationAutoRecovered',
+          message: 'legacy_url_auto_recovered',
+        }),
         expect.objectContaining({
           level: 'info',
           tags: expect.objectContaining({
@@ -296,12 +306,12 @@ describe('OrganizationLayout', () => {
         }),
       )
       // The 404-path events must NOT fire — auto-recover has its own event.
-      expect(Sentry.captureMessage).not.toHaveBeenCalledWith(
-        'legacy_url_accessed',
+      expect(Sentry.captureException).not.toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'SlugMigrationLegacyUrl' }),
         expect.anything(),
       )
-      expect(Sentry.captureMessage).not.toHaveBeenCalledWith(
-        'slug_migration_missed_link',
+      expect(Sentry.captureException).not.toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'SlugMigrationMissedLink' }),
         expect.anything(),
       )
     })
@@ -347,8 +357,11 @@ describe('OrganizationLayout', () => {
             skipSlugPrepend: true,
           }),
         )
-        expect(Sentry.captureMessage).toHaveBeenCalledWith(
-          'legacy_url_auto_recovered',
+        expect(Sentry.captureException).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: 'SlugMigrationAutoRecovered',
+            message: 'legacy_url_auto_recovered',
+          }),
           expect.objectContaining({
             level: 'info',
             tags: expect.objectContaining({
@@ -406,8 +419,8 @@ describe('OrganizationLayout', () => {
         renderHook(() => OrganizationLayout())
 
         expect(mockNavigate).not.toHaveBeenCalled()
-        expect(Sentry.captureMessage).not.toHaveBeenCalledWith(
-          'legacy_url_auto_recovered',
+        expect(Sentry.captureException).not.toHaveBeenCalledWith(
+          expect.objectContaining({ name: 'SlugMigrationAutoRecovered' }),
           expect.anything(),
         )
       })
