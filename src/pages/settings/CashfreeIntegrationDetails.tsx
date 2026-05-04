@@ -30,7 +30,7 @@ import {
   useGetCashfreeIntegrationsDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import Cashfree from '~/public/images/cashfree.svg'
 
@@ -76,8 +76,8 @@ const CashfreeIntegrationDetails = () => {
   const addDialogRef = useRef<AddCashfreeDialogRef>(null)
   const deleteDialogRef = useRef<DeleteCashfreeIntegrationDialogRef>(null)
   const { apiUrl } = envGlobalVar()
-  const { organization } = useOrganizationInfos()
-  const currentOrganizationId = organization?.id || ''
+  const { currentMembership } = useCurrentUser()
+  const currentOrganizationId = currentMembership?.organization.id || ''
   const { translate } = useInternationalization()
   const { data, loading } = useGetCashfreeIntegrationsDetailsQuery({
     variables: {
