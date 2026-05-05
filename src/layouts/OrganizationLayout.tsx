@@ -34,6 +34,9 @@ class SlugMigrationEvent extends Error {
   }
 }
 
+/** Sentry `mode` tag — distinguishes which recovery branch resolved the slug. */
+type RecoveryMode = 'single-org' | 'multi-org-iframe' | 'multi-org'
+
 const OrganizationLayout = () => {
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
   const { currentUser, loading } = useCurrentUser()
@@ -49,33 +52,22 @@ const OrganizationLayout = () => {
   )?.organization
 
   // Auto-recovery for legacy pre-migration paths (e.g. `/customers`).
-  //
-  // - Single-membership users: redirect to `/${theirOnlySlug}${legacyPath}`.
-  //   No ambiguity — we know which org they meant.
-  // - Multi-membership users on iframe-embedded URLs (`?ifrm=true` /
-  //   `?sfdc=true`, used by Hubspot/Salesforce CRM cards): use the
-  //   LS-based slug from `resolveOrgSlug(currentUser)`. Pre-migration the
-  //   iframe relied implicitly on the LS-injected `x-lago-organization`
-  //   header for GraphQL scoping, so trusting LS to derive the slug here
-  //   restores the same UX contract — when LS is correct the iframe loads,
-  //   when LS is stale the inner queries 404 (same as pre-migration, no regression).
-  // - Multi-membership users on non-iframe slug-less URLs: NO auto-recover.
-  //   They still get the explicit 404 + "go home" flow because they have
-  //   agency to pick the right org manually.
-  //
-  // Scope-limited to `LEGACY_APP_PATH_SEGMENTS` on purpose: genuinely unknown
-  // slugs (typos, revoked orgs, etc.) still produce a 404 — silently
-  // redirecting an unknown slug would mask real errors.
   const isLegacyPath = LEGACY_APP_PATH_SEGMENTS.has(organizationSlug ?? '')
+
+  // Single-membership recovery — UNCHANGED.
   const soleMembershipSlug =
     currentUser?.memberships.length === 1
       ? currentUser.memberships[0]?.organization.slug
       : undefined
 
   const isIframeContext = hasIframeParams(location.search)
-  const lsBasedSlugForIframe = isIframeContext ? resolveOrgSlug(currentUser) : undefined
 
-  const recoveredSlug = soleMembershipSlug ?? lsBasedSlugForIframe
+  // Multi-membership recovery — applies when `soleMembershipSlug` is undefined
+  // (i.e., user has ≥2 memberships). LS-first → `memberships[0]` fallback.
+  const multiMembershipRecoverySlug = !soleMembershipSlug ? resolveOrgSlug(currentUser) : undefined
+
+  const recoveredSlug = soleMembershipSlug ?? multiMembershipRecoverySlug
+
   const shouldAutoRecoverLegacyPath = !loading && !org && isLegacyPath && !!recoveredSlug
 
   // If currentOrgId already exists and differs from org.id, the user switched org
@@ -91,24 +83,41 @@ const OrganizationLayout = () => {
     }
   }, [org?.id, currentOrgId, client])
 
-  // Auto-recover legacy paths for single-membership users and for
-  // multi-membership users on iframe-embedded URLs (see block above).
-  // Runs in an effect (not render) to avoid React's "cannot update during
-  // render" warning when navigation triggers a parent re-render. `replace`
-  // keeps history clean — the legacy URL never gets a back-button entry.
+  // Auto-recover legacy paths universally. Runs in an effect (not render) to
+  // avoid React's "cannot update during render" warning when navigation
+  // triggers a parent re-render. `replace` keeps history clean — the legacy
+  // URL never gets a back-button entry.
+  //
+  // Two Sentry events may fire here:
+  //
+  // 1. `legacy_url_auto_recovered` (info) — always, when recovery happens.
+  //    The `mode` tag (`single-org` / `multi-org-iframe` / `multi-org`) marks
+  //    which recovery branch resolved the slug, for analytics.
+  // 2. `slug_migration_missed_link` (error) — additionally, when the previous
+  //    in-app path was slug-prefixed. This is the developer-actionable signal
+  //    that an in-app link wasn't migrated to the slug wrapper. Auto-recovery
+  //    silences the user-facing 404, but we keep this signal so the bug
+  //    remains visible in Sentry and dev alerts can fire on it.
   useEffect(() => {
     if (!shouldAutoRecoverLegacyPath) return
 
     navigate(`/${recoveredSlug}${location.pathname}${location.search}${location.hash}`, {
       replace: true,
       skipSlugPrepend: true,
-      state: { autoRecoveredFromLegacy: true },
     })
+
+    // Sentry `mode` tag — purely analytical, distinguishes which recovery
+    // branch resolved the slug.
+    const recoveryMode = (): RecoveryMode => {
+      if (soleMembershipSlug) return 'single-org'
+      if (isIframeContext) return 'multi-org-iframe'
+      return 'multi-org'
+    }
 
     // Sentry groups by `exception.type` (= `Error.name`), so each
     // `SlugMigrationEvent` subclass name yields its own issue with the
     // correct level. The `feature: 'slug-migration'` tag is the unified
-    // search/alert handle across all three events.
+    // search/alert handle across all migration events.
     Sentry.captureException(
       new SlugMigrationEvent('SlugMigrationAutoRecovered', 'legacy_url_auto_recovered'),
       {
@@ -117,28 +126,17 @@ const OrganizationLayout = () => {
           feature: 'slug-migration',
           attemptedSlug: organizationSlug ?? '',
           recoveredToSlug: recoveredSlug ?? '',
-          mode: soleMembershipSlug ? 'single-org' : 'multi-org-iframe',
+          mode: recoveryMode(),
         },
         extra: { fullPath: location.pathname },
       },
     )
-    // Note: we rebuild the target inline rather than reading from a memoized
-    // value to keep the dependency surface minimal and the intent obvious.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldAutoRecoverLegacyPath])
 
-  // Track legacy path hits in Sentry once the user data has loaded and the
-  // slug was confirmed invalid. Kept in an effect (rather than during render)
-  // so it doesn't fire multiple times on StrictMode / re-renders and doesn't
-  // couple render output to side-effects.
-  //
-  // Skipped when `shouldAutoRecoverLegacyPath` is true — that case emits its
-  // own `legacy_url_auto_recovered` event and the user never sees a 404.
-  useEffect(() => {
-    if (loading || org || shouldAutoRecoverLegacyPath) return
-
-    if (!isLegacyPath) return
-
+    // Detect missed-migration in-app links. `previousPath` is read from
+    // `locationHistoryVar` which records pathnames the user navigated through;
+    // if the previous one starts with the current org's slug, the user was
+    // already inside the app and a non-migrated link sent them to a
+    // slug-less path. That's a real bug — emit `error` so it's actionable.
     const previousLocations = locationHistoryVar()
     const previousPath = previousLocations[0]?.pathname
     const orgIdFromLS = getCurrentOrganizationId()
@@ -147,51 +145,26 @@ const OrganizationLayout = () => {
     )?.organization
     const isMissedMigration = currentOrg?.slug && previousPath?.startsWith(`/${currentOrg.slug}/`)
 
-    const sharedContext = {
-      tags: {
-        feature: 'slug-migration',
-        attemptedSlug: organizationSlug ?? '',
-        referrerType: document.referrer ? 'external' : 'direct',
-      },
-      extra: {
-        fullPath: location.pathname,
-        hasOrgInLS: !!orgIdFromLS,
-        referrer: document.referrer || 'direct',
-        currentOrgId: orgIdFromLS,
-        previousPath: previousPath || null,
-      },
-    }
-
     if (isMissedMigration) {
-      // Bug: a link/button inside the app wasn't migrated to use the slug wrapper.
       Sentry.captureException(
         new SlugMigrationEvent('SlugMigrationMissedLink', 'slug_migration_missed_link'),
         {
           level: 'error',
-          ...sharedContext,
-          tags: { ...sharedContext.tags, source: 'missed_migration' },
-        },
-      )
-    } else {
-      // External hit: old bookmark, stale link, or typed URL.
-      Sentry.captureException(
-        new SlugMigrationEvent('SlugMigrationLegacyUrl', 'legacy_url_accessed'),
-        {
-          level: 'warning',
-          ...sharedContext,
-          tags: { ...sharedContext.tags, source: 'external' },
+          tags: {
+            feature: 'slug-migration',
+            attemptedSlug: organizationSlug ?? '',
+            source: 'missed_migration',
+          },
+          extra: {
+            fullPath: location.pathname,
+            previousPath: previousPath || null,
+            currentOrgId: orgIdFromLS,
+          },
         },
       )
     }
-  }, [
-    loading,
-    org,
-    organizationSlug,
-    currentUser,
-    location.pathname,
-    isLegacyPath,
-    shouldAutoRecoverLegacyPath,
-  ])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldAutoRecoverLegacyPath])
 
   if (!isAuthenticated) return null
 

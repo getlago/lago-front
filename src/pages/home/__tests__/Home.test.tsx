@@ -164,7 +164,7 @@ describe('Home', () => {
       })
     })
 
-    it('should NOT prepend slug to legacy saved location when user has multiple memberships', async () => {
+    it('should prepend slug to legacy saved location for multi-membership users (universal recovery)', async () => {
       mockUseCurrentUser.mockReturnValue({
         loading: false,
         currentUser: {
@@ -190,9 +190,10 @@ describe('Home', () => {
       renderHook(() => Home())
 
       await waitFor(() => {
-        // Falls through to default customers homepage — NOT the saved legacy path.
-        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/customers`, { replace: true })
-        expect(mockNavigate).not.toHaveBeenCalledWith(
+        // Multi-org user: now also lands on the original intended path
+        // (the legacy gate that previously fell through to default has
+        // been removed — see `OrganizationLayout` universal auto-recovery).
+        expect(mockNavigate).toHaveBeenCalledWith(
           `/${TEST_ORG_SLUG}/customers/123?tab=overview`,
           { replace: true },
         )

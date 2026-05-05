@@ -11,7 +11,6 @@ import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'
 import { ensureSlugPrefix, pathHasValidSlug, resolveOrgSlug } from '~/core/router/utils/orgSlug'
 import { getRouteForPermission } from '~/core/router/utils/permissionRouteMap'
 import { CurrentUserInfosFragment } from '~/generated/graphql'
-import { hasIframeParams } from '~/hooks/useIframeConfig'
 import { TMembershipPermissions } from '~/hooks/usePermissions'
 
 type CurrentUser = CurrentUserInfosFragment | undefined
@@ -54,8 +53,9 @@ export type ResolveRedirectResult = {
  *   1. `ssoRedirectPath` — drained by caller after success.
  *   2. `savedLocation` (router-state `from`) — validated against the user's
  *      memberships to avoid stale-org leaks; legacy slug-less paths get
- *      prepended for single-membership users, OR for any user when the URL
- *      carries iframe context params (Salesforce/Hubspot embeds).
+ *      prepended with the resolved slug for ALL users (single-org and
+ *      multi-org), matching the universal auto-recovery in
+ *      `OrganizationLayout`.
  *   3. Permission-based default (analytics → customers → first view route).
  *   4. `FORBIDDEN_ROUTE` fallback.
  *
@@ -107,24 +107,12 @@ export const resolveRedirectTarget = (
       isLegacySegment && !pathHasValidSlug(savedLocation.pathname, currentUser)
 
     if (isSlugLessLegacyPath) {
-      // Legacy slug-less path — prepend current org slug when:
-      //   a) user has a single membership (no ambiguity), OR
-      //   b) URL carries iframe context params — Salesforce/Hubspot embeds
-      //      hide chrome and lock the URL, so the user has no agency to
-      //      switch orgs manually. We trust the LS-based slug (the same
-      //      contract pre-migration used via the `x-lago-organization`
-      //      header for GraphQL scoping).
-      const isSingleMembership = currentUser?.memberships?.length === 1
-      const isIframeContext = hasIframeParams(savedLocation.search)
+      const search = savedLocation.search || ''
+      const hash = savedLocation.hash || ''
 
-      if (isSingleMembership || isIframeContext) {
-        const search = savedLocation.search || ''
-        const hash = savedLocation.hash || ''
-
-        return {
-          to: `/${slug}${savedLocation.pathname}${search}${hash}`,
-          consumesSsoLs: false,
-        }
+      return {
+        to: `/${slug}${savedLocation.pathname}${search}${hash}`,
+        consumesSsoLs: false,
       }
     }
   }

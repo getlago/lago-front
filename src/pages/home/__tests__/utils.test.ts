@@ -117,8 +117,7 @@ describe('resolveRedirectTarget()', () => {
   })
 
   describe('GIVEN savedLocation is a legacy path AND the user has multiple memberships', () => {
-    it('THEN does NOT auto-prepend (ambiguous) and falls through to default', () => {
-      mockHasPermissions.mockReturnValueOnce(true) // analytics
+    it('THEN auto-prepends the resolved slug (universal recovery, ambiguity accepted)', () => {
       const result = resolveRedirectTarget(
         baseInput({
           currentUser: buildUser([
@@ -129,7 +128,10 @@ describe('resolveRedirectTarget()', () => {
         }),
       )
 
-      expect(result).toEqual({ to: `/${SLUG}/analytics`, consumesSsoLs: false })
+      expect(result).toEqual({
+        to: `/${SLUG}/customers/123`,
+        consumesSsoLs: false,
+      })
     })
   })
 
@@ -196,8 +198,7 @@ describe('resolveRedirectTarget()', () => {
       })
     })
 
-    it('THEN does NOT auto-recover when the iframe flag is `false` (defensive)', () => {
-      mockHasPermissions.mockReturnValueOnce(true) // analytics
+    it('THEN still auto-prepends when the iframe flag is `false` — universal recovery does not depend on iframe context', () => {
       const result = resolveRedirectTarget(
         baseInput({
           currentUser: multiOrgUser,
@@ -208,7 +209,10 @@ describe('resolveRedirectTarget()', () => {
         }),
       )
 
-      expect(result).toEqual({ to: `/${SLUG}/analytics`, consumesSsoLs: false })
+      expect(result).toEqual({
+        to: `/${SLUG}/customer/abc-123/create/subscription?sfdc=false`,
+        consumesSsoLs: false,
+      })
     })
   })
 
