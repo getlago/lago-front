@@ -327,6 +327,7 @@ const CustomerInvoiceDetails = () => {
   } = useGetInvoiceFeesQuery({
     variables: { id: invoiceId as string },
     skip: !invoiceId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
   const invoice = data?.invoice
   const invoiceFees = feesData?.invoice?.fees
