@@ -14,7 +14,7 @@ import AreaChart from '~/components/designSystem/graphs/AreaChart'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
 import { HorizontalDataTable } from '~/components/designSystem/Table/HorizontalDataTable'
 import { Typography } from '~/components/designSystem/Typography'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -36,10 +36,6 @@ gql`
     startingMrr
   }
 `
-
-type MrrOverviewSectionProps = {
-  premiumWarningDialogRef: React.RefObject<PremiumWarningDialogRef>
-}
 
 const AmountCell = ({
   value,
@@ -63,8 +59,9 @@ const AmountCell = ({
   )
 }
 
-export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSectionProps) => {
+export const MrrOverviewSection = () => {
   const { translate } = useInternationalization()
+  const premiumWarningDialog = usePremiumWarningDialog()
   const {
     selectedCurrency,
     defaultCurrency,
@@ -103,7 +100,7 @@ export const MrrOverviewSection = ({ premiumWarningDialogRef }: MrrOverviewSecti
               onClick={(e) => {
                 if (!hasAccessToAnalyticsDashboardsFeature) {
                   e.stopPropagation()
-                  premiumWarningDialogRef.current?.openDialog()
+                  premiumWarningDialog.open()
                 } else {
                   onClick()
                 }
