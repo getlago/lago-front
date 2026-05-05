@@ -11,8 +11,9 @@ import { MainHeaderAction } from '~/components/MainHeader/types'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { ADD_ONS_ROUTE, UPDATE_ADD_ON_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { CurrencyEnum, useGetAddOnForDetailsQuery } from '~/generated/graphql'
+import { CurrencyEnum, LagoApiError, useGetAddOnForDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
@@ -41,10 +42,23 @@ const AddOnDetails = () => {
 
   const deleteDialogRef = useRef<DeleteAddOnDialogRef>(null)
 
-  const { data: addOnResult, loading: isAddOnLoading } = useGetAddOnForDetailsQuery({
+  const {
+    data: addOnResult,
+    loading: isAddOnLoading,
+    error: addOnError,
+  } = useGetAddOnForDetailsQuery({
     variables: {
       addOn: addOnId as string,
     },
+    skip: !addOnId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+  })
+
+  useNotFoundRedirect({
+    error: addOnError,
+    loading: isAddOnLoading,
+    redirectTo: ADD_ONS_ROUTE,
+    translateKey: 'text_1777995443788l735b53lgd1',
   })
 
   const addOn = addOnResult?.addOn
