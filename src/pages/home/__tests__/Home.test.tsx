@@ -193,10 +193,9 @@ describe('Home', () => {
         // Multi-org user: now also lands on the original intended path
         // (the legacy gate that previously fell through to default has
         // been removed — see `OrganizationLayout` universal auto-recovery).
-        expect(mockNavigate).toHaveBeenCalledWith(
-          `/${TEST_ORG_SLUG}/customers/123?tab=overview`,
-          { replace: true },
-        )
+        expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/customers/123?tab=overview`, {
+          replace: true,
+        })
       })
     })
 
