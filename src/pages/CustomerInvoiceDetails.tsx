@@ -90,6 +90,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useGeneratePaymentUrl } from '~/hooks/useGeneratePaymentUrl'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 import { useDownloadInvoice } from '~/pages/invoiceDetails/common/useDownloadInvoice'
@@ -310,6 +311,14 @@ const CustomerInvoiceDetails = () => {
   const { data, loading, error, refetch } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
     skip: !invoiceId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+  })
+
+  useNotFoundRedirect({
+    error,
+    loading,
+    redirectTo: INVOICES_ROUTE,
+    translateKey: 'text_1777995443788zg01psy967w',
   })
   const {
     data: feesData,
@@ -318,6 +327,7 @@ const CustomerInvoiceDetails = () => {
   } = useGetInvoiceFeesQuery({
     variables: { id: invoiceId as string },
     skip: !invoiceId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
   const invoice = data?.invoice
   const invoiceFees = feesData?.invoice?.fees

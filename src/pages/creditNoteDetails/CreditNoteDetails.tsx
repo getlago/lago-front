@@ -35,12 +35,14 @@ import {
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
   CustomerForCreditNoteDetailsExternalSyncFragmentDoc,
+  LagoApiError,
   useGetCreditNoteForDetailsQuery,
   useRetryTaxReportingMutation,
   useSyncIntegrationCreditNoteMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 import { useDownloadCreditNote } from '~/pages/creditNoteDetails/common/useDownloadCreditNote'
@@ -120,6 +122,14 @@ const CreditNoteDetails = () => {
   const { data, loading, error } = useGetCreditNoteForDetailsQuery({
     variables: { id: creditNoteId as string },
     skip: !creditNoteId || !customerId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+  })
+
+  useNotFoundRedirect({
+    error,
+    loading,
+    redirectTo: CREDIT_NOTES_ROUTE,
+    translateKey: 'text_1777995443788l05iwih1hig',
   })
 
   const { showResendEmailDialog } = useResendEmailDialog()
