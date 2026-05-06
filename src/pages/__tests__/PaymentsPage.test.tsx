@@ -62,8 +62,13 @@ jest.mock('~/components/invoices/PaymentsList', () => ({
   PaymentsList: () => <div data-test="payments-list-mock">PaymentsList</div>,
 }))
 
-jest.mock('~/components/PremiumWarningDialog', () => ({
-  PremiumWarningDialog: () => null,
+const mockOpenPremiumWarningDialog = jest.fn()
+
+jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
+  usePremiumWarningDialog: () => ({
+    open: mockOpenPremiumWarningDialog,
+    close: jest.fn(),
+  }),
 }))
 
 describe('PaymentsPage', () => {
@@ -71,6 +76,7 @@ describe('PaymentsPage', () => {
     jest.clearAllMocks()
     capturedConfig = null
     mockIsPremium.mockReturnValue(true)
+    mockOpenPremiumWarningDialog.mockClear()
   })
 
   describe('GIVEN the page is rendered', () => {
@@ -140,7 +146,7 @@ describe('PaymentsPage', () => {
         expect(action?.type === 'action' && action.endIcon).toBe('sparkles')
       })
 
-      it('THEN clicking the action should not navigate', () => {
+      it('THEN clicking the action should open the premium warning dialog', () => {
         render(<PaymentsPage />)
 
         const action = capturedConfig?.actions?.items[0]
@@ -150,6 +156,7 @@ describe('PaymentsPage', () => {
         }
 
         expect(testMockNavigateFn).not.toHaveBeenCalled()
+        expect(mockOpenPremiumWarningDialog).toHaveBeenCalled()
       })
     })
   })
