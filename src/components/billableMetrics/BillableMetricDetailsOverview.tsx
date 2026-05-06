@@ -11,7 +11,7 @@ import {
   formatAggregationType,
   formatRoundingFunction,
 } from '~/core/formats/formatBillableMetricsItems'
-import { useGetBillableMetricForDetailsOverviewQuery } from '~/generated/graphql'
+import { LagoApiError, useGetBillableMetricForDetailsOverviewQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -48,6 +48,7 @@ export const BillableMetricDetailsOverview = () => {
   const { data, loading } = useGetBillableMetricForDetailsOverviewQuery({
     variables: { id: billableMetricId as string },
     skip: !billableMetricId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
   const billableMetric = data?.billableMetric
 

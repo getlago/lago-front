@@ -16,6 +16,7 @@ import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
 import {
   CouponFrequency,
   CouponTypeEnum,
+  LagoApiError,
   useGetCouponForDetailsOverviewQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -60,6 +61,7 @@ export const CouponDetailsOverview = () => {
   const { data, loading } = useGetCouponForDetailsOverviewQuery({
     variables: { id: couponId as string },
     skip: !couponId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
 
   const coupon = data?.coupon

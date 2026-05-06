@@ -28,12 +28,14 @@ import {
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
+  LagoApiError,
   StatusTypeEnum,
   SubscriptionForProgressiveBillingTabFragmentDoc,
   useGetSubscriptionForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useSubscriptionPermissionsActions } from '~/hooks/useSubscriptionPermissionsActions'
 
@@ -79,11 +81,22 @@ const SubscriptionDetails = () => {
   const { planId = '', customerId = '', subscriptionId = '' } = useParams()
   const { translate } = useInternationalization()
   const { openTerminateCustomerSubscriptionDialog } = useTerminateCustomerSubscriptionDialog()
-  const { data: subscriptionResult, loading: isSubscriptionLoading } =
-    useGetSubscriptionForDetailsQuery({
-      variables: { subscriptionId: subscriptionId as string },
-      skip: !subscriptionId,
-    })
+  const {
+    data: subscriptionResult,
+    loading: isSubscriptionLoading,
+    error: subscriptionError,
+  } = useGetSubscriptionForDetailsQuery({
+    variables: { subscriptionId: subscriptionId as string },
+    skip: !subscriptionId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+  })
+
+  useNotFoundRedirect({
+    error: subscriptionError,
+    loading: isSubscriptionLoading,
+    redirectTo: SUBSCRIPTIONS_ROUTE,
+    translateKey: 'text_1777995443788yxv3i6i9276',
+  })
 
   const activeTabContent = useMainHeaderTabContent()
 

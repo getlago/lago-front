@@ -23,10 +23,12 @@ import {
 import {
   DeletePlanDialogFragment,
   DeletePlanDialogFragmentDoc,
+  LagoApiError,
   useGetPlanForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
@@ -53,11 +55,23 @@ const PlanDetails = () => {
   const { isPremium } = useCurrentUser()
 
   const deletePlanDialogRef = useRef<DeletePlanDialogRef>(null)
-  const { data: planResult, loading: isPlanLoading } = useGetPlanForDetailsQuery({
+  const {
+    data: planResult,
+    loading: isPlanLoading,
+    error: planError,
+  } = useGetPlanForDetailsQuery({
     variables: { planId: planId as string },
     skip: !planId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
   const plan = planResult?.plan
+
+  useNotFoundRedirect({
+    error: planError,
+    loading: isPlanLoading,
+    redirectTo: PLANS_ROUTE,
+    translateKey: 'text_17779954437882bskjocn0qv',
+  })
 
   useEffect(() => {
     // WARNING: This page should not be used to show overridden plan's details

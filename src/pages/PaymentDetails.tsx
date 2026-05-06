@@ -39,12 +39,14 @@ import {
   CurrencyEnum,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
+  LagoApiError,
   PaymentTypeEnum,
   ProviderTypeEnum,
   useGetPaymentDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
@@ -172,10 +174,23 @@ const PaymentDetails = () => {
   const { timezone } = useOrganizationInfos()
   const { customerId, paymentId } = useParams()
 
-  const { data = {}, loading } = useGetPaymentDetailsQuery({
+  const {
+    data = {},
+    loading,
+    error,
+  } = useGetPaymentDetailsQuery({
     variables: {
       id: paymentId as string,
     },
+    skip: !paymentId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+  })
+
+  useNotFoundRedirect({
+    error,
+    loading,
+    redirectTo: PAYMENTS_ROUTE,
+    translateKey: 'text_1777995443788h3delxx2sno',
   })
 
   const { showResendEmailDialog } = useResendEmailDialog()

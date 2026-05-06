@@ -6,7 +6,11 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { getPrivilegeValueTypeTranslationKey } from '~/core/constants/form'
-import { PrivilegeValueTypeEnum, useGetFeatureForDetailsOverviewQuery } from '~/generated/graphql'
+import {
+  LagoApiError,
+  PrivilegeValueTypeEnum,
+  useGetFeatureForDetailsOverviewQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -40,6 +44,7 @@ export const FeatureDetailsOverview = () => {
   const { data, loading } = useGetFeatureForDetailsOverviewQuery({
     variables: { id: featureId },
     skip: !featureId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
   const feature = data?.feature
 

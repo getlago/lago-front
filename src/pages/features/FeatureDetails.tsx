@@ -21,10 +21,12 @@ import {
 } from '~/core/router'
 import {
   FeatureForDeleteFeatureDialogFragmentDoc,
+  LagoApiError,
   useGetFeatureForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
@@ -49,10 +51,23 @@ const FeatureDetails = () => {
 
   const deleteDialogRef = useRef<DeleteFeatureDialogRef>(null)
 
-  const { data: featureResult, loading: isFeatureLoading } = useGetFeatureForDetailsQuery({
+  const {
+    data: featureResult,
+    loading: isFeatureLoading,
+    error: featureError,
+  } = useGetFeatureForDetailsQuery({
     variables: {
       feature: featureId as string,
     },
+    skip: !featureId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+  })
+
+  useNotFoundRedirect({
+    error: featureError,
+    loading: isFeatureLoading,
+    redirectTo: FEATURES_ROUTE,
+    translateKey: 'text_1777995443788m0uv1vvtz7j',
   })
 
   const feature = featureResult?.feature
