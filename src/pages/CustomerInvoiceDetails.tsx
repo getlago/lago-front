@@ -829,6 +829,7 @@ const CustomerInvoiceDetails = () => {
         {
           label: translate('text_1737471851634wpeojigr27w'),
           hidden: !authorizations.canRecordPayment,
+          endIcon: isPremium ? undefined : ('sparkles' as const),
           onClick: (closePopper: () => void) => {
             if (isPremium) {
               navigate(
