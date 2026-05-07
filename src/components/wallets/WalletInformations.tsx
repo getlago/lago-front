@@ -9,6 +9,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
+  FeatureFlagEnum,
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
   WalletDetailsFragment,
@@ -39,9 +40,14 @@ const SectionTitle = ({ title, subtitle }: { title: string; subtitle: string }) 
 
 const WalletInformations = ({ wallet }: WalletInformationsProps) => {
   const { translate } = useInternationalization()
-  const { intlFormatDateTimeOrgaTZ, organization: { defaultCurrency } = {} } =
-    useOrganizationInfos()
+  const {
+    intlFormatDateTimeOrgaTZ,
+    hasFeatureFlag,
+    organization: { defaultCurrency } = {},
+  } = useOrganizationInfos()
   const { isPremium } = useCurrentUser()
+
+  const showBillingEntityRow = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
   const formatAmount = (cents?: string | null) =>
     cents
@@ -124,7 +130,21 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
                 ? intlFormatDateTimeOrgaTZ(wallet?.expirationAt)?.date
                 : '-',
             },
-            { label: '', value: '' },
+            showBillingEntityRow
+              ? {
+                  label: translate('text_17436114971570doqrwuwhf0'),
+                  // TODO(multi-entity-billing): once BE exposes Wallet.billingEntity
+                  // (ING-82/ING-84), prefer it over customer.billingEntity. The "inherited"
+                  // suffix should appear only when wallet.billingEntity is null.
+                  value: (() => {
+                    const entityLabel =
+                      wallet?.customer?.billingEntity?.name || wallet?.customer?.billingEntity?.code
+
+                    if (!entityLabel) return '-'
+                    return `${entityLabel} (${translate('text_1764327933607jgtpungo2pp')})`
+                  })(),
+                }
+              : { label: '', value: '' },
             {
               label: translate('text_1758286730208kztcznofxvr'),
               value: paidTopUpMinAmountCents || translate('text_1772536695408bfc3c38pg36'),

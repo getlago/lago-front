@@ -966,6 +966,7 @@ export type ChargeUsage = {
   filters?: Maybe<Array<ChargeFilterUsage>>;
   groupedUsage: Array<GroupedChargeUsage>;
   id: Scalars['ID']['output'];
+  presentationBreakdowns?: Maybe<Array<PresentationBreakdownUsage>>;
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
   units: Scalars['Float']['output'];
 };
@@ -3887,6 +3888,7 @@ export type Fee = InvoiceItem & {
   itemType: Scalars['String']['output'];
   offsettableAmountCents: Scalars['BigInt']['output'];
   preciseUnitAmount: Scalars['Float']['output'];
+  presentationBreakdowns?: Maybe<Array<PresentationBreakdownUsage>>;
   pricingUnitUsage?: Maybe<PricingUnitUsage>;
   properties?: Maybe<FeeProperties>;
   subscription?: Maybe<Subscription>;
@@ -4294,6 +4296,7 @@ export type GroupedChargeUsage = {
   filters?: Maybe<Array<ChargeFilterUsage>>;
   groupedBy?: Maybe<Scalars['JSON']['output']>;
   id: Scalars['ID']['output'];
+  presentationBreakdowns?: Maybe<Array<PresentationBreakdownUsage>>;
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
   units: Scalars['Float']['output'];
 };
@@ -6799,6 +6802,32 @@ export enum PremiumIntegrationTypeEnum {
   Xero = 'xero'
 }
 
+export type PresentationBreakdownUsage = {
+  __typename?: 'PresentationBreakdownUsage';
+  presentationBy: Scalars['JSON']['output'];
+  units: Scalars['String']['output'];
+};
+
+export type PresentationGroupKey = {
+  __typename?: 'PresentationGroupKey';
+  options?: Maybe<PresentationGroupKeyOptions>;
+  value: Scalars['String']['output'];
+};
+
+export type PresentationGroupKeyInput = {
+  options?: InputMaybe<PresentationGroupKeyOptionsInput>;
+  value: Scalars['String']['input'];
+};
+
+export type PresentationGroupKeyOptions = {
+  __typename?: 'PresentationGroupKeyOptions';
+  displayInInvoice?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type PresentationGroupKeyOptionsInput = {
+  displayInInvoice?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 /** Create Adjusted Fee Input */
 export type PreviewAdjustedFeeInput = {
   chargeFilterId?: InputMaybe<Scalars['ID']['input']>;
@@ -6901,6 +6930,7 @@ export type ProjectedChargeUsage = {
   filters?: Maybe<Array<ProjectedChargeFilterUsage>>;
   groupedUsage: Array<ProjectedGroupedChargeUsage>;
   id: Scalars['ID']['output'];
+  presentationBreakdowns?: Maybe<Array<PresentationBreakdownUsage>>;
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
   pricingUnitProjectedAmountCents?: Maybe<Scalars['BigInt']['output']>;
   projectedAmountCents: Scalars['BigInt']['output'];
@@ -6915,6 +6945,7 @@ export type ProjectedGroupedChargeUsage = {
   filters?: Maybe<Array<ProjectedChargeFilterUsage>>;
   groupedBy?: Maybe<Scalars['JSON']['output']>;
   id: Scalars['ID']['output'];
+  presentationBreakdowns?: Maybe<Array<PresentationBreakdownUsage>>;
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
   pricingUnitProjectedAmountCents?: Maybe<Scalars['BigInt']['output']>;
   projectedAmountCents: Scalars['BigInt']['output'];
@@ -6935,6 +6966,7 @@ export type Properties = {
   packageSize?: Maybe<Scalars['BigInt']['output']>;
   perTransactionMaxAmount?: Maybe<Scalars['String']['output']>;
   perTransactionMinAmount?: Maybe<Scalars['String']['output']>;
+  presentationGroupKeys?: Maybe<Array<PresentationGroupKey>>;
   pricingGroupKeys?: Maybe<Array<Scalars['String']['output']>>;
   rate?: Maybe<Scalars['String']['output']>;
   volumeRanges?: Maybe<Array<VolumeRange>>;
@@ -6952,6 +6984,7 @@ export type PropertiesInput = {
   packageSize?: InputMaybe<Scalars['BigInt']['input']>;
   perTransactionMaxAmount?: InputMaybe<Scalars['String']['input']>;
   perTransactionMinAmount?: InputMaybe<Scalars['String']['input']>;
+  presentationGroupKeys?: InputMaybe<Array<PresentationGroupKeyInput>>;
   pricingGroupKeys?: InputMaybe<Array<Scalars['String']['input']>>;
   rate?: InputMaybe<Scalars['String']['input']>;
   volumeRanges?: InputMaybe<Array<VolumeRangeInput>>;
@@ -7443,6 +7476,7 @@ export type QueryCustomerPortalSubscriptionArgs = {
 
 
 export type QueryCustomerPortalSubscriptionsArgs = {
+  currency?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   planCode?: InputMaybe<Scalars['String']['input']>;
@@ -7838,6 +7872,7 @@ export type QueryPaymentProvidersArgs = {
 
 
 export type QueryPaymentRequestsArgs = {
+  currency?: InputMaybe<Scalars['String']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -7931,6 +7966,7 @@ export type QuerySubscriptionEntitlementsArgs = {
 
 
 export type QuerySubscriptionsArgs = {
+  currency?: InputMaybe<Scalars['String']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   overriden?: InputMaybe<Scalars['Boolean']['input']>;
@@ -12208,7 +12244,7 @@ export type GetSubscriptionForDetailsOverviewQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionForDetailsOverviewQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingTime?: BillingTimeEnum | null, downgradePlanDate?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null }, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousSubscription?: { __typename?: 'Subscription', id: string, downgradePlanDate?: any | null } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string, deletedAt?: any | null } } | null };
+export type GetSubscriptionForDetailsOverviewQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingTime?: BillingTimeEnum | null, downgradePlanDate?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null }, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousSubscription?: { __typename?: 'Subscription', id: string, downgradePlanDate?: any | null } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string, deletedAt?: any | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } } } | null };
 
 export type GetEntitlementsForSubscriptionDetailsQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -12217,7 +12253,7 @@ export type GetEntitlementsForSubscriptionDetailsQueryVariables = Exact<{
 
 export type GetEntitlementsForSubscriptionDetailsQuery = { __typename?: 'Query', subscriptionEntitlements: { __typename?: 'SubscriptionEntitlementCollection', collection: Array<{ __typename?: 'SubscriptionEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'SubscriptionEntitlementPrivilegeObject', code: string, name?: string | null, value?: string | null, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> } };
 
-export type SubscriptionForSubscriptionInformationsFragment = { __typename?: 'Subscription', id: string, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingTime?: BillingTimeEnum | null, downgradePlanDate?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousSubscription?: { __typename?: 'Subscription', id: string, downgradePlanDate?: any | null } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string, deletedAt?: any | null }, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null } };
+export type SubscriptionForSubscriptionInformationsFragment = { __typename?: 'Subscription', id: string, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingTime?: BillingTimeEnum | null, downgradePlanDate?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousSubscription?: { __typename?: 'Subscription', id: string, downgradePlanDate?: any | null } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string, deletedAt?: any | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } }, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null } };
 
 export type ThresholdForRecurringThresholdsTableFragment = { __typename?: 'UsageThreshold', id: string, amountCents: any, thresholdDisplayName?: string | null };
 
@@ -13302,7 +13338,7 @@ export type PlansQueryVariables = Exact<{
 
 export type PlansQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, activeSubscriptionsCount: number, createdAt: any, draftInvoicesCount: number }> } };
 
-export type SubscriptionForSubscriptionsListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, payInAdvance: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null };
+export type SubscriptionForSubscriptionsListFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } }, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, payInAdvance: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null };
 
 export type GetSubscriptionsListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -13315,7 +13351,7 @@ export type GetSubscriptionsListQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscriptionsListQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, payInAdvance: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type GetSubscriptionsListQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } }, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, payInAdvance: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type GetInvoiceCollectionsForAnalyticsQueryVariables = Exact<{
   currency: CurrencyEnum;
@@ -14922,14 +14958,14 @@ export type UpdateWalletAlertMutationVariables = Exact<{
 
 export type UpdateWalletAlertMutation = { __typename?: 'Mutation', updateCustomerWalletAlert?: { __typename?: 'Alert', id: string } | null };
 
-export type WalletDetailsFragment = { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, paidTopUpMinAmountCents?: any | null, paidTopUpMinCredits?: any | null, paidTopUpMaxAmountCents?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', details?: { __typename?: 'PaymentMethodDetails', type?: string | null, brand?: string | null, last4?: string | null } | null } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', method: RecurringTransactionMethodEnum, transactionName?: string | null, paidCredits: string, grantedCredits: string, trigger: RecurringTransactionTriggerEnum, thresholdCredits?: string | null, expirationAt?: any | null, interval?: RecurringTransactionIntervalEnum | null }> | null };
+export type WalletDetailsFragment = { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, paidTopUpMinAmountCents?: any | null, paidTopUpMinCredits?: any | null, paidTopUpMaxAmountCents?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', details?: { __typename?: 'PaymentMethodDetails', type?: string | null, brand?: string | null, last4?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', method: RecurringTransactionMethodEnum, transactionName?: string | null, paidCredits: string, grantedCredits: string, trigger: RecurringTransactionTriggerEnum, thresholdCredits?: string | null, expirationAt?: any | null, interval?: RecurringTransactionIntervalEnum | null }> | null };
 
 export type GetWalletDetailsQueryVariables = Exact<{
   walletId: Scalars['ID']['input'];
 }>;
 
 
-export type GetWalletDetailsQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, paidTopUpMinAmountCents?: any | null, paidTopUpMinCredits?: any | null, paidTopUpMaxAmountCents?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', details?: { __typename?: 'PaymentMethodDetails', type?: string | null, brand?: string | null, last4?: string | null } | null } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', method: RecurringTransactionMethodEnum, transactionName?: string | null, paidCredits: string, grantedCredits: string, trigger: RecurringTransactionTriggerEnum, thresholdCredits?: string | null, expirationAt?: any | null, interval?: RecurringTransactionIntervalEnum | null }> | null } | null };
+export type GetWalletDetailsQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, paidTopUpMinAmountCents?: any | null, paidTopUpMinCredits?: any | null, paidTopUpMaxAmountCents?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', details?: { __typename?: 'PaymentMethodDetails', type?: string | null, brand?: string | null, last4?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', method: RecurringTransactionMethodEnum, transactionName?: string | null, paidCredits: string, grantedCredits: string, trigger: RecurringTransactionTriggerEnum, thresholdCredits?: string | null, expirationAt?: any | null, interval?: RecurringTransactionIntervalEnum | null }> | null } | null };
 
 export type BillableMetricForWalletScopeSectionFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string };
 
@@ -17006,6 +17042,11 @@ export const SubscriptionForSubscriptionInformationsFragmentDoc = gql`
     displayName
     externalId
     deletedAt
+    billingEntity {
+      id
+      code
+      name
+    }
   }
   plan {
     id
@@ -18647,6 +18688,11 @@ export const SubscriptionForSubscriptionsListFragmentDoc = gql`
     name
     displayName
     applicableTimezone
+    billingEntity {
+      id
+      code
+      name
+    }
   }
   plan {
     id
@@ -19529,6 +19575,14 @@ export const WalletDetailsFragmentDoc = gql`
       type
       brand
       last4
+    }
+  }
+  customer {
+    id
+    billingEntity {
+      id
+      code
+      name
     }
   }
   selectedInvoiceCustomSections {

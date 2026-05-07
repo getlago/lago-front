@@ -7,6 +7,7 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { ComboBox } from '~/components/form'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
@@ -28,6 +29,7 @@ import {
 import {
   CreateCustomerWalletInput,
   CurrencyEnum,
+  FeatureFlagEnum,
   GetWalletInfosForWalletFormQuery,
   LagoApiError,
   RecurringTransactionMethodEnum,
@@ -41,6 +43,7 @@ import {
   WalletForUpdateFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { ScopeSection } from '~/pages/wallet/components/ScopeSection'
 import { SettingsSection } from '~/pages/wallet/components/SettingsSection'
@@ -157,7 +160,25 @@ const CreateWallet = () => {
 
   const { customerId = '', walletId = '' } = useParams()
   const { translate } = useInternationalization()
-  const { organization } = useOrganizationInfos()
+  const { organization, hasFeatureFlag } = useOrganizationInfos()
+
+  // TODO(multi-entity-billing): demo only — wire to wallet form payload once
+  // ING-82/ING-84 (Create/UpdateCustomerWalletInput.billingEntityId) is delivered.
+  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+  const [demoBillingEntityCode, setDemoBillingEntityCode] = useState<string>('')
+  const {
+    options: billingEntityOptions,
+    isLoading: billingEntitiesLoading,
+    hasMultipleEntities,
+    defaultEntityCode,
+  } = useBillingEntitiesOptions({
+    skip: !hasMultiEntityBilling,
+  })
+  const showBillingEntityPicker = hasMultiEntityBilling
+  const billingEntityPickerValue = hasMultipleEntities
+    ? demoBillingEntityCode
+    : (defaultEntityCode ?? '')
+  const billingEntityPickerDisabled = !hasMultipleEntities
 
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
@@ -480,6 +501,21 @@ const CreateWallet = () => {
               )}
               description={translate('text_1748422458559917eelhobh5')}
             />
+
+            {showBillingEntityPicker && (
+              <ComboBox
+                label={translate('text_1743611497157teaa1zu8l24')}
+                placeholder={translate('text_174360002513391n72uwg6bb')}
+                data={billingEntityOptions}
+                loading={billingEntitiesLoading}
+                value={billingEntityPickerValue}
+                onChange={(value) => setDemoBillingEntityCode(value as string)}
+                disabled={billingEntityPickerDisabled}
+                disableClearable={billingEntityPickerDisabled}
+                sortValues={false}
+                PopperProps={{ displayInDialog: true }}
+              />
+            )}
 
             <SettingsSection
               formikProps={formikProps}

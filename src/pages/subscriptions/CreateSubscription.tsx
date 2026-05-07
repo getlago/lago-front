@@ -18,7 +18,7 @@ import { Selector } from '~/components/designSystem/Selector'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
-import { BasicComboBoxData, ComboboxItem } from '~/components/form'
+import { BasicComboBoxData, ComboBox, ComboboxItem } from '~/components/form'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import {
   EditInvoiceDisplayNameDialog,
@@ -72,6 +72,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
+import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -192,6 +193,24 @@ const CreateSubscription = () => {
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
   const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
+
+  // TODO(multi-entity-billing): demo only — wire to subscription form payload once
+  // ING-78 (CreateSubscriptionInput.billingEntityId) is delivered by backend.
+  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+  const [demoBillingEntityCode, setDemoBillingEntityCode] = useState<string>('')
+  const {
+    options: billingEntityOptions,
+    isLoading: billingEntitiesLoading,
+    hasMultipleEntities,
+    defaultEntityCode,
+  } = useBillingEntitiesOptions({
+    skip: !hasMultiEntityBilling,
+  })
+  const showBillingEntityPicker = hasMultiEntityBilling
+  const billingEntityPickerValue = hasMultipleEntities
+    ? demoBillingEntityCode
+    : (defaultEntityCode ?? '')
+  const billingEntityPickerDisabled = !hasMultipleEntities
 
   const [getPlans, { loading: planLoading, data: planData }] = useGetPlansLazyQuery({
     variables: { limit: 1000 },
@@ -621,6 +640,21 @@ const CreateSubscription = () => {
                           className="flex flex-col gap-6"
                           data-test="create-subscription-form-wrapper"
                         >
+                          {showBillingEntityPicker && (
+                            <ComboBox
+                              label={translate('text_1743611497157teaa1zu8l24')}
+                              placeholder={translate('text_174360002513391n72uwg6bb')}
+                              data={billingEntityOptions}
+                              loading={billingEntitiesLoading}
+                              value={billingEntityPickerValue}
+                              onChange={(value) => setDemoBillingEntityCode(value as string)}
+                              disabled={billingEntityPickerDisabled}
+                              disableClearable={billingEntityPickerDisabled}
+                              sortValues={false}
+                              PopperProps={{ displayInDialog: true }}
+                            />
+                          )}
+
                           {!!shouldDisplaySubscriptionExternalId && (
                             <div className="flex flex-row gap-3 [&>*:first-child]:flex-1">
                               <subscriptionForm.AppField name="externalId">

@@ -65,6 +65,14 @@ gql`
         last4
       }
     }
+    customer {
+      id
+      billingEntity {
+        id
+        code
+        name
+      }
+    }
     selectedInvoiceCustomSections {
       id
       name

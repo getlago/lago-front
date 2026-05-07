@@ -14,15 +14,24 @@ import { Typography } from '~/components/designSystem/Typography'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
-import { SubscriptionsList } from '~/components/subscriptions/SubscriptionsList'
+import {
+  AnnotatedSubscription,
+  SubscriptionsList,
+} from '~/components/subscriptions/SubscriptionsList'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import { SUBSCRIPTION_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
-import { StatusTypeEnum, Subscription, useGetSubscriptionsListLazyQuery } from '~/generated/graphql'
+import {
+  FeatureFlagEnum,
+  StatusTypeEnum,
+  Subscription,
+  useGetSubscriptionsListLazyQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment SubscriptionForSubscriptionsList on Subscription {
@@ -42,6 +51,11 @@ gql`
       name
       displayName
       applicableTimezone
+      billingEntity {
+        id
+        code
+        name
+      }
     }
     plan {
       id
@@ -98,6 +112,9 @@ gql`
 const SubscriptionsPage = () => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
+  const { hasFeatureFlag } = useOrganizationInfos()
+
+  const showBillingEntityColumn = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
   const filtersForSubscriptionQuery = useMemo(() => {
     return formatFiltersForSubscriptionQuery(searchParams)
@@ -206,6 +223,35 @@ const SubscriptionsPage = () => {
                   </Typography>
                 ),
               },
+
+              ...(showBillingEntityColumn
+                ? [
+                    {
+                      key: 'customer.billingEntity.name' as const,
+                      title: translate('text_17436114971570doqrwuwhf0'),
+                      minWidth: 140,
+                      // TODO(multi-entity-billing): once BE exposes Subscription.billingEntity
+                      // (ING-78/ING-80), prefer it over customer.billingEntity. The "inherited"
+                      // suffix should appear only when subscription.billingEntity is null.
+                      content: ({ customer }: AnnotatedSubscription) => {
+                        const entityLabel =
+                          customer?.billingEntity?.name || customer?.billingEntity?.code
+
+                        if (!entityLabel)
+                          return (
+                            <Typography variant="body" noWrap>
+                              -
+                            </Typography>
+                          )
+                        return (
+                          <Typography variant="body" noWrap>
+                            {entityLabel} ({translate('text_1764327933607jgtpungo2pp')})
+                          </Typography>
+                        )
+                      },
+                    },
+                  ]
+                : []),
 
               {
                 key: 'isOverridden',

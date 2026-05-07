@@ -3,10 +3,16 @@ import { useMemo } from 'react'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Typography } from '~/components/designSystem/Typography'
 import { getTimezoneConfig } from '~/core/timezone'
-import { AddCustomerDrawerFragment, CustomerTypeEnum, TimezoneEnum } from '~/generated/graphql'
+import {
+  AddCustomerDrawerFragment,
+  CustomerTypeEnum,
+  FeatureFlagEnum,
+  TimezoneEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 
 import HelperText from './HelperText'
@@ -40,6 +46,12 @@ const CustomerInformation = withForm({
   }) {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
+    const { hasFeatureFlag } = useOrganizationInfos()
+
+    const canEditBillingEntity =
+      !isEdition ||
+      customer?.canEditAttributes ||
+      hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
     const timezoneComboboxData = useMemo(
       () =>
@@ -76,11 +88,11 @@ const CustomerInformation = withForm({
             <field.ComboBoxField
               label={translate('text_1743611497157teaa1zu8l24')}
               placeholder={translate('text_174360002513391n72uwg6bb')}
-              disabled={isEdition && !customer?.canEditAttributes}
+              disabled={!canEditBillingEntity}
               PopperProps={{ displayInDialog: true }}
               loading={isLoadingBillingEntities}
               data={billingEntitiesList}
-              disableClearable={isEdition && !customer?.canEditAttributes}
+              disableClearable
               sortValues={false}
             />
           )}

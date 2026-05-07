@@ -12,6 +12,7 @@ import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMa
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/core/router'
 import {
+  FeatureFlagEnum,
   NextSubscriptionTypeEnum,
   StatusTypeEnum,
   SubscriptionForSubscriptionInformationsFragment,
@@ -49,6 +50,11 @@ gql`
       displayName
       externalId
       deletedAt
+      billingEntity {
+        id
+        code
+        name
+      }
     }
     plan {
       id
@@ -115,6 +121,9 @@ export const SubscriptionInformations = ({
   subscription?: SubscriptionForSubscriptionInformationsFragment | null
 }) => {
   const { translate } = useInternationalization()
+  const { hasFeatureFlag } = useOrganizationInfos()
+
+  const showBillingEntityRow = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
   const isCustomerDeleted = !!subscription?.customer?.deletedAt
 
@@ -182,6 +191,20 @@ export const SubscriptionInformations = ({
             {
               label: translate('text_65201c5a175a4b0238abf2a0'),
               value: <SubscriptionEndOrTerminatedAt subscription={subscription} />,
+            },
+            showBillingEntityRow && {
+              label: translate('text_17436114971570doqrwuwhf0'),
+              // TODO(multi-entity-billing): once BE exposes Subscription.billingEntity
+              // (ING-78/ING-80), prefer it over customer.billingEntity. The "inherited"
+              // suffix should appear only when subscription.billingEntity is null.
+              value: (() => {
+                const entityLabel =
+                  subscription?.customer?.billingEntity?.name ||
+                  subscription?.customer?.billingEntity?.code
+
+                if (!entityLabel) return '-'
+                return `${entityLabel} (${translate('text_1764327933607jgtpungo2pp')})`
+              })(),
             },
             !!subscription?.plan?.parent?.id && {
               label: translate('text_65201c5a175a4b0238abf2a2'),

@@ -25,7 +25,7 @@ import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternat
 import { usePermissions } from '~/hooks/usePermissions'
 import { useSubscriptionPermissionsActions } from '~/hooks/useSubscriptionPermissionsActions'
 
-type AnnotatedSubscription = {
+export type AnnotatedSubscription = {
   id: string
   externalId?: Subscription['externalId']
   name: Subscription['name']
@@ -44,6 +44,11 @@ type AnnotatedSubscription = {
     name?: string
     displayName?: string
     applicableTimezone: TimezoneEnum
+    billingEntity?: {
+      id: string
+      code: string
+      name?: string | null
+    }
   }
 }
 
@@ -96,6 +101,7 @@ const annotateSubscriptions = (
         name: customer?.name || undefined,
         displayName: customer?.displayName,
         applicableTimezone: customerTimezone || customer?.applicableTimezone,
+        billingEntity: customer?.billingEntity ?? undefined,
       },
       isScheduled: status === StatusTypeEnum.Pending,
       isOverridden: !!plan.isOverridden,

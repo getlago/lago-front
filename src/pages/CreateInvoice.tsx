@@ -75,6 +75,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
@@ -642,6 +643,24 @@ const CreateInvoice = () => {
     translate,
   ])
 
+  // TODO(multi-entity-billing): demo only — wire to invoice form payload once
+  // ING-86 (CreateInvoiceInput.billingEntityId) is delivered by backend.
+  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+  const [demoBillingEntityCode, setDemoBillingEntityCode] = useState<string>('')
+  const {
+    options: billingEntityOptions,
+    isLoading: billingEntitiesLoading,
+    hasMultipleEntities,
+    defaultEntityCode,
+  } = useBillingEntitiesOptions({
+    skip: !hasMultiEntityBilling,
+  })
+  const showBillingEntityPicker = hasMultiEntityBilling
+  const billingEntityPickerValue = hasMultipleEntities
+    ? demoBillingEntityCode
+    : (defaultEntityCode ?? '')
+  const billingEntityPickerDisabled = !hasMultipleEntities
+
   if (!!error && !loading) {
     return (
       <GenericPlaceholder
@@ -702,7 +721,7 @@ const CreateInvoice = () => {
         <div className="mx-auto my-12 min-h-full max-w-5xl px-4">
           <Card
             className={tw('gap-8', {
-              'mb-12': hasAccessToMultiPaymentFlow,
+              'mb-12': hasAccessToMultiPaymentFlow || showBillingEntityPicker,
             })}
           >
             {loading ? (
@@ -1254,6 +1273,27 @@ const CreateInvoice = () => {
               </>
             )}
           </Card>
+
+          {showBillingEntityPicker && (
+            <Card className={tw({ 'mb-12': hasAccessToMultiPaymentFlow })}>
+              <div className="flex flex-col gap-1">
+                <Typography variant="subhead1">
+                  {translate('text_1743611497157teaa1zu8l24')}
+                </Typography>
+              </div>
+              <ComboBox
+                placeholder={translate('text_174360002513391n72uwg6bb')}
+                data={billingEntityOptions}
+                loading={billingEntitiesLoading}
+                value={billingEntityPickerValue}
+                onChange={(value) => setDemoBillingEntityCode(value as string)}
+                disabled={billingEntityPickerDisabled}
+                disableClearable={billingEntityPickerDisabled}
+                sortValues={false}
+                PopperProps={{ displayInDialog: true }}
+              />
+            </Card>
+          )}
 
           {hasAccessToMultiPaymentFlow && (customer?.externalId || customer?.id) && (
             <Card>

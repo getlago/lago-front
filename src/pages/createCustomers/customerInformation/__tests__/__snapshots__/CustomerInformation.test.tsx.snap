@@ -547,7 +547,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="caption"
           >
             <span>
-              Customer events will be based on this timezone. If empty, events will be based on UTC, UTC ±0:00 
+              Customer events will be based on this timezone. If empty, events will be based on UTC, UTC +00:00 
               <a
                 href="/settings/billing-entity/general"
               >
@@ -1165,7 +1165,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="caption"
           >
             <span>
-              Customer events will be based on this timezone. If empty, events will be based on UTC, UTC ±0:00 
+              Customer events will be based on this timezone. If empty, events will be based on UTC, UTC +00:00 
               <a
                 href="/settings/billing-entity/TBE/general"
               >
@@ -1767,7 +1767,7 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
             data-test="caption"
           >
             <span>
-              Customer events will be based on this timezone. If empty, events will be based on UTC, UTC ±0:00 
+              Customer events will be based on this timezone. If empty, events will be based on UTC, UTC +00:00 
               <a
                 href="/settings/billing-entity/general"
               >
