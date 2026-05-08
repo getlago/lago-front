@@ -95,6 +95,14 @@ export const permissionGroupMapping: PermissionGroupMapping = {
   ],
   plans: ['PlansCreate', 'PlansDelete', 'PlansUpdate', 'PlansView'],
   pricingUnits: ['PricingUnitsCreate', 'PricingUnitsUpdate', 'PricingUnitsView'],
+  quotes: [
+    'QuotesApprove',
+    'QuotesClone',
+    'QuotesCreate',
+    'QuotesUpdate',
+    'QuotesView',
+    'QuotesVoid',
+  ],
   roles: ['RolesCreate', 'RolesDelete', 'RolesUpdate', 'RolesView'],
   securityLogs: ['SecurityLogsView'],
   subscriptions: ['SubscriptionsCreate', 'SubscriptionsUpdate', 'SubscriptionsView'],
@@ -125,6 +133,7 @@ export const groupNameMapping: Record<string, string> = {
   payments: 'text_6672ebb8b1b50be550eccbed',
   plans: 'text_62442e40cea25600b0b6d85a',
   pricingUnits: 'text_17502505476284yyq70yy6mx',
+  quotes: 'text_1778232548237zuvovxrdp3s',
   roles: 'text_1765448879791epmkg4xijkn',
   securityLogs: 'text_17730476805600nudrokzkk5',
   subscriptions: 'text_6250304370f0f700a8fdc28d',
@@ -264,6 +273,14 @@ export const permissionDescriptionMapping: Record<PermissionName, string> = {
   PricingUnitsCreate: 'text_1766047581851sjxfx26kocx',
   PricingUnitsUpdate: 'text_1766047581851z3d9is40izc',
   PricingUnitsView: 'text_17660476446747j5vtzpcqea',
+
+  // Quotes
+  QuotesApprove: 'text_1778232548237lowm64qljfp',
+  QuotesClone: 'text_177823254823718y2tah0jcx',
+  QuotesCreate: 'text_1778232548237tdgidv9off9',
+  QuotesUpdate: 'text_1778232548237f1f1pja8esj',
+  QuotesView: 'text_1778232548237p4cirr96hwe',
+  QuotesVoid: 'text_177823254823762hkchuyv10',
 
   // Roles
   RolesCreate: 'text_1766999821840apnk9dhpeud',
