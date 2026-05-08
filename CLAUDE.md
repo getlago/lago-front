@@ -76,13 +76,56 @@ Multiple tabs can run on different orgs simultaneously; the legacy
 `localStorage`-based current-org state is now a transitional bridge and must
 not drive UI decisions.
 
+### Mental model
+
+Two complementary primitives:
+
+1. **URL slug** (`useParams().organizationSlug`) — the **per-tab source of
+   truth** for "which org is the user viewing here". Set by the user (typing,
+   clicking the org switcher, following a link). Independent across tabs.
+2. **`currentOrganizationVar`** (Apollo `makeVar<string | null>`) — a
+   **per-tab in-memory centralized cache** of the org id, derived from the
+   URL slug + `currentUser.memberships`. Populated by `OrganizationLayout`'s
+   `useEffect` on every authenticated render. Read synchronously by the
+   Apollo auth link to inject the `x-lago-organization` HTTP header.
+
+The var is a **denormalized read of the URL** — not a competing source of
+truth. Feature components that need the slug or org reference for UI or
+identifier construction must derive directly from `useParams()` +
+memberships; reading the var is reserved for a small, audited set of
+infrastructure call sites (the Apollo auth link, `OrganizationLayout`'s
+switch detection, the post-login org-recovery in `cacheUtils.onLogIn`, and
+the slug-first-with-var-fallback membership resolution in `useCurrentUser`).
+See **Consistency rule** below for the canonical list and the rationale per
+caller.
+
+### Consistency rule — which API to use, by caller
+
+| Caller | Source to read | API |
+|---|---|---|
+| React component **inside** `/:organizationSlug/...` routes | URL + memberships | `useParams().organizationSlug` then `currentUser.memberships.find(m => m.organization.slug === slug)` (or `useCurrentUser().currentMembership` shortcut) |
+| React component **outside** Routes (`AiAgent`, `UserIdentifier`, anything sibling to `RouteWrapper` in `App.tsx`) | URL + memberships | `window.location.pathname.split('/')[1]` then `currentUser.memberships.find(...)` — `useParams` returns `{}` here because there's no matched-route context |
+| Non-React code that needs synchronous access (Apollo auth link only) | Var | `getCurrentOrganizationId()` |
+| `OrganizationLayout` itself, for org-switch detection | Var (compared against derived `org.id`) | `useReactiveVar(currentOrganizationVar)` — this is the single sync point that bridges URL → var |
+
+**Do not** read `currentOrganizationVar` from feature components for UI or identifier construction. That is the bug pattern we corrected during LAGO-1349 (logo flashing wrong org cross-tab, webhook URLs baking the wrong UUID, slug page showing the other tab's value, etc.). The fix in every case was migrating off the var and onto `useParams` + memberships.
+
+Legitimate var reads in the codebase (audit anchor, keep this short):
+
+- `src/core/apolloClient/init.ts` — auth link (the canonical reason the var exists).
+- `src/layouts/OrganizationLayout.tsx` — switch detection on the `currentOrgId !== org.id` mismatch.
+- `src/core/apolloClient/cacheUtils.ts:onLogIn` — reads the var as `previousOrganizationId` to bias the post-login org choice (transitional behaviour, will become a no-op once LS bootstrap is removed in LAGO-1458).
+- `src/hooks/useCurrentUser.ts` — slug-first resolution of `currentMembership` with var as a fallback for routes outside `/:organizationSlug` (login, customer portal). The fallback exists so callers in those non-org routes still get a membership; if a future audit shows nobody consumes `currentMembership` from those contexts, the fallback can be dropped.
+
+Anything else reading the var in a feature component is a regression — fix it.
+
 ### Source-of-truth hierarchy
 
 | Concern | Source | Notes |
 |---|---|---|
 | Which org is the user viewing in this tab | URL slug (`useParams().organizationSlug`) | Resolves to a `Membership` via `currentUser.memberships` |
 | Auth | `LAGO_USER_AUTH_TOKEN_KEY` in LS | Unchanged |
-| Apollo `x-lago-organization` header | `currentOrganizationVar` (LS-backed) | Internal bridge — `OrganizationLayout` keeps it in sync with the URL slug. Never read directly to drive UI. |
+| Apollo `x-lago-organization` header | `currentOrganizationVar` (in-memory, per-tab) | Centralized synchronous cache of the slug-derived org id. `OrganizationLayout` keeps it in sync with the URL slug. Never read directly to drive UI. |
 | Browser-survival of OAuth round-trip | `REDIRECT_AFTER_LOGIN_LS_KEY` | Read & cleared exclusively by `Home.tsx` |
 
 ### `useCurrentUser` vs `useOrganizationInfos`
