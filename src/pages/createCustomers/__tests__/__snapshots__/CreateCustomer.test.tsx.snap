@@ -3137,8 +3137,8 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
               </div>
             </div>
             <div
-              class=MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-hash-MuiCollapse-root
-              style="min-height: 0px; height: auto; transition-duration: 0ms; transition-timing-function: undefined;"
+              class=MuiCollapse-root MuiCollapse-vertical css-hash-MuiCollapse-root
+              style="min-height: 0px; height: 0px; transition-duration: 0ms; transition-timing-function: undefined;"
             >
               <div
                 class=MuiCollapse-wrapper MuiCollapse-vertical css-hash-MuiCollapse-wrapper
