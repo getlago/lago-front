@@ -106,11 +106,7 @@ const EditQuoteAside = ({ quote }: EditQuoteAsideProps) => {
             <TextInput
               disabled
               label={translate('text_1776238919927d6e7f8g9h0i')}
-              value={
-                quote.subscription.name
-                  ? `${quote.subscription.name} - ${quote.subscription.externalId}`
-                  : quote.subscription.externalId
-              }
+              value={`${quote.subscription.plan.name} - ${quote.subscription.externalId}`}
             />
           </div>
         )}

@@ -27,6 +27,10 @@ gql`
       id
       name
       externalId
+      plan {
+        id
+        name
+      }
     }
     currentVersion {
       id

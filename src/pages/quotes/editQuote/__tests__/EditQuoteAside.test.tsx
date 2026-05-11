@@ -125,6 +125,11 @@ describe('EditQuoteAside', () => {
             id: 'sub-1',
             name: 'My Subscription',
             externalId: 'ext-sub-1',
+            plan: {
+              __typename: 'Plan' as const,
+              id: 'plan-1',
+              name: 'Premium Plan',
+            },
           },
         }
 
