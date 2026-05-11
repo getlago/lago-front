@@ -33,7 +33,7 @@ const EditQuoteAside = ({ quote }: EditQuoteAsideProps) => {
     return membersData.memberships.collection
       .filter((membership) => !!membership.user.email)
       .map((membership) => ({
-        label: membership.user.email as string,
+        label: membership.user.email || '',
         value: membership.user.id,
       }))
   }, [membersData?.memberships?.collection])
@@ -47,7 +47,7 @@ const EditQuoteAside = ({ quote }: EditQuoteAsideProps) => {
       quote.owners
         .filter((owner) => !!owner.email)
         .map((owner) => ({
-          label: owner.email as string,
+          label: owner.email || '',
           value: owner.id,
         })),
     )
