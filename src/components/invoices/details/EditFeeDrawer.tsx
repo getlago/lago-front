@@ -255,7 +255,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
         resetForm()
       }
     },
-    refetchQueries: ['getInvoiceDetails'],
+    refetchQueries: ['getInvoiceDetails', 'getInvoiceFees'],
   })
 
   const initialValues = useMemo(() => {
