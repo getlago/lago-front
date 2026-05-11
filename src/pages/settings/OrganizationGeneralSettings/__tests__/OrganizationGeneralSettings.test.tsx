@@ -8,7 +8,6 @@ import OrganizationGeneralSettings from '../OrganizationGeneralSettings'
 const mockMainHeaderConfigure = jest.fn()
 const mockHasPermissions = jest.fn()
 const mockOpenEditOrganizationSlugDialog = jest.fn()
-const mockUseOrganizationInfos = jest.fn()
 
 jest.mock('~/components/MainHeader/MainHeader', () => ({
   MainHeader: {
@@ -27,35 +26,27 @@ jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
 
-jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => mockUseOrganizationInfos(),
-}))
-
 jest.mock('../dialogs/useEditOrganizationSlugDialog', () => ({
   useEditOrganizationSlugDialog: () => ({
     openEditOrganizationSlugDialog: mockOpenEditOrganizationSlugDialog,
   }),
 }))
 
+const renderWithSlug = (slug: string | undefined) =>
+  render(<OrganizationGeneralSettings />, {
+    useParams: slug ? { organizationSlug: slug } : {},
+  })
+
 describe('OrganizationGeneralSettings', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
-    mockUseOrganizationInfos.mockReturnValue({
-      organization: { slug: 'acme' },
-      loading: false,
-    })
   })
 
-  describe('GIVEN the page is loading', () => {
-    describe('WHEN loading is true', () => {
+  describe('GIVEN the URL has no organizationSlug yet', () => {
+    describe('WHEN the slug param is missing', () => {
       it('THEN should not display the slug content', () => {
-        mockUseOrganizationInfos.mockReturnValue({
-          organization: null,
-          loading: true,
-        })
-
-        render(<OrganizationGeneralSettings />)
+        renderWithSlug(undefined)
 
         expect(screen.queryByTestId('current-organization-slug')).not.toBeInTheDocument()
         expect(screen.queryByTestId('edit-organization-slug-button')).not.toBeInTheDocument()
@@ -63,10 +54,10 @@ describe('OrganizationGeneralSettings', () => {
     })
   })
 
-  describe('GIVEN the page is loaded with an organization slug', () => {
+  describe('GIVEN the URL has an organizationSlug', () => {
     describe('WHEN the user has organizationUpdate permission', () => {
       it('THEN should display the current slug', () => {
-        render(<OrganizationGeneralSettings />)
+        renderWithSlug('acme')
 
         const slugElement = screen.getByTestId('current-organization-slug')
 
@@ -74,13 +65,13 @@ describe('OrganizationGeneralSettings', () => {
       })
 
       it('THEN should display the edit button', () => {
-        render(<OrganizationGeneralSettings />)
+        renderWithSlug('acme')
 
         expect(screen.getByTestId('edit-organization-slug-button')).toBeInTheDocument()
       })
 
       it('THEN should enable the edit button', () => {
-        render(<OrganizationGeneralSettings />)
+        renderWithSlug('acme')
 
         expect(screen.getByTestId('edit-organization-slug-button')).not.toBeDisabled()
       })
@@ -90,7 +81,7 @@ describe('OrganizationGeneralSettings', () => {
       it('THEN should call openEditOrganizationSlugDialog with current slug', async () => {
         const user = userEvent.setup()
 
-        render(<OrganizationGeneralSettings />)
+        renderWithSlug('acme')
 
         await user.click(screen.getByTestId('edit-organization-slug-button'))
 
@@ -104,7 +95,7 @@ describe('OrganizationGeneralSettings', () => {
       it('THEN should not display the edit button', () => {
         mockHasPermissions.mockReturnValue(false)
 
-        render(<OrganizationGeneralSettings />)
+        renderWithSlug('acme')
 
         expect(screen.queryByTestId('edit-organization-slug-button')).not.toBeInTheDocument()
       })
@@ -112,35 +103,9 @@ describe('OrganizationGeneralSettings', () => {
       it('THEN should still display the slug', () => {
         mockHasPermissions.mockReturnValue(false)
 
-        render(<OrganizationGeneralSettings />)
+        renderWithSlug('acme')
 
         expect(screen.getByTestId('current-organization-slug')).toHaveTextContent('/acme')
-      })
-    })
-  })
-
-  describe('GIVEN the organization has no slug', () => {
-    describe('WHEN slug is empty', () => {
-      it('THEN should display a dash placeholder', () => {
-        mockUseOrganizationInfos.mockReturnValue({
-          organization: { slug: '' },
-          loading: false,
-        })
-
-        render(<OrganizationGeneralSettings />)
-
-        expect(screen.getByTestId('current-organization-slug')).toHaveTextContent('—')
-      })
-
-      it('THEN should disable the edit button', () => {
-        mockUseOrganizationInfos.mockReturnValue({
-          organization: { slug: '' },
-          loading: false,
-        })
-
-        render(<OrganizationGeneralSettings />)
-
-        expect(screen.getByTestId('edit-organization-slug-button')).toBeDisabled()
       })
     })
   })

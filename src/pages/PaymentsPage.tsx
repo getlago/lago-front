@@ -1,12 +1,11 @@
 import { gql } from '@apollo/client'
-import { useNavigate } from 'react-router-dom'
 
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { PaymentsList } from '~/components/invoices/PaymentsList'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
-import { CREATE_PAYMENT_ROUTE } from '~/core/router'
+import { CREATE_PAYMENT_ROUTE, useNavigate } from '~/core/router'
 import { PaymentForPaymentsListFragmentDoc, useGetPaymentsListLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'

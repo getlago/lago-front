@@ -1,7 +1,7 @@
 import { FC, Fragment } from 'react'
-import { Link } from 'react-router-dom'
 
 import { Typography } from '~/components/designSystem/Typography'
+import { Link } from '~/core/router'
 
 import { BreadcrumbItem } from './types'
 

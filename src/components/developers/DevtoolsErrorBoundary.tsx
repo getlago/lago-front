@@ -1,9 +1,9 @@
 import { ApolloError } from '@apollo/client'
 import * as Sentry from '@sentry/react'
 import { ReactNode } from 'react'
-import { useLocation } from 'react-router-dom'
 
 import { addToast } from '~/core/apolloClient'
+import { useLocation } from '~/core/router'
 
 interface DevtoolsErrorBoundaryProps {
   children: ReactNode

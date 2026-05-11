@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
@@ -21,7 +21,7 @@ import {
   DeleteAdyenIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteAdyenIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { ADYEN_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
+import { ADYEN_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddAdyenProviderDialogFragmentDoc,
   AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc,

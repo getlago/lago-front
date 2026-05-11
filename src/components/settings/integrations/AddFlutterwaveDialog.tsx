@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import { Button } from '~/components/designSystem/Button'
@@ -9,7 +9,7 @@ import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
+import { FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddFlutterwavePaymentProviderInput,
   FlutterwaveIntegrationDetailsFragment,

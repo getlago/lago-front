@@ -265,6 +265,14 @@ export const permissionDescriptionMapping: Record<PermissionName, string> = {
   PricingUnitsUpdate: 'text_1766047581851z3d9is40izc',
   PricingUnitsView: 'text_17660476446747j5vtzpcqea',
 
+  // Quotes
+  QuotesApprove: 'text_1778232548237lowm64qljfp',
+  QuotesClone: 'text_177823254823718y2tah0jcx',
+  QuotesCreate: 'text_1778232548237tdgidv9off9',
+  QuotesUpdate: 'text_1778232548237f1f1pja8esj',
+  QuotesView: 'text_1778232548237p4cirr96hwe',
+  QuotesVoid: 'text_177823254823762hkchuyv10',
+
   // Roles
   RolesCreate: 'text_1766999821840apnk9dhpeud',
   RolesDelete: 'text_17669998218407sg2nrlk1xu',

@@ -1,6 +1,6 @@
 import { useFormik } from 'formik'
 import { useEffect, useRef, useState } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 import { number, object, string } from 'yup'
 
 import { AddOnCodeSnippet } from '~/components/addOns/AddOnCodeSnippet'
@@ -14,7 +14,7 @@ import { WarningDialog, WarningDialogRef } from '~/components/designSystem/Warni
 import { AmountInputField, ComboBoxField, TextInput, TextInputField } from '~/components/form'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { FORM_ERRORS_ENUM, SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME } from '~/core/constants/form'
-import { ADD_ON_DETAILS_ROUTE, ADD_ONS_ROUTE } from '~/core/router'
+import { ADD_ON_DETAILS_ROUTE, ADD_ONS_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { scrollToTop } from '~/core/utils/domUtils'
 import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'

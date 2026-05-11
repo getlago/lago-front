@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { generatePath, Link, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar, AvatarBadge } from '~/components/designSystem/Avatar'
@@ -30,7 +30,7 @@ import {
 } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import { CUSTOMER_INVOICE_DETAILS_ROUTE, Link } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { DateFormat, intlFormatDateTime, TimeFormat } from '~/core/timezone'
 import {

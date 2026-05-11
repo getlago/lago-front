@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { Icon } from 'lago-design-system'
 import { memo, useRef } from 'react'
-import { generatePath, Link, LinkProps, useParams } from 'react-router-dom'
+import { generatePath, LinkProps, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
@@ -35,7 +35,7 @@ import {
 } from '~/core/constants/externalUrls'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import { CUSTOMER_INVOICE_DETAILS_ROUTE, Link } from '~/core/router'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
   AvalaraIntegrationInfosForInvoiceOverviewFragment,

@@ -1,4 +1,6 @@
 import { gql } from '@apollo/client'
+import { useEffect } from 'react'
+import { useParams } from 'react-router-dom'
 
 import {
   intlFormatDateTime,
@@ -58,6 +60,7 @@ type UseOrganizationInfos = () => {
 
 export const useOrganizationInfos: UseOrganizationInfos = () => {
   const { isAuthenticated } = useIsAuthenticated()
+  const { organizationSlug } = useParams<{ organizationSlug: string }>()
   const { data, loading, refetch } = useGetOrganizationInfosQuery({
     fetchPolicy: 'cache-first',
     nextFetchPolicy: 'cache-first',
@@ -65,15 +68,28 @@ export const useOrganizationInfos: UseOrganizationInfos = () => {
     skip: !isAuthenticated,
   })
 
-  const orgaTimezone = data?.organization?.timezone || TimezoneEnum.TzUtc
+  const isStale =
+    !!organizationSlug && !!data?.organization && data.organization.slug !== organizationSlug
+
+  // Defense in depth: when stale data is detected, force a refetch
+  useEffect(() => {
+    if (isStale) {
+      refetch()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isStale])
+
+  const organization = isStale ? undefined : data?.organization || undefined
+
+  const orgaTimezone = organization?.timezone || TimezoneEnum.TzUtc
   const timezoneConfig = TimeZonesConfig[orgaTimezone]
 
-  const featureFlags = data?.organization?.featureFlags
-  const premiumIntegrations = data?.organization?.premiumIntegrations
+  const featureFlags = organization?.featureFlags
+  const premiumIntegrations = organization?.premiumIntegrations
 
   return {
-    loading,
-    organization: data?.organization || undefined,
+    loading: loading || isStale,
+    organization,
     timezone: orgaTimezone || TimezoneEnum.TzUtc,
     timezoneConfig,
     hasFeatureFlag: (flag: FeatureFlagEnum) => !!featureFlags?.includes(flag),

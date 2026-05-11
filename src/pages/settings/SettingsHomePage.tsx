@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Spinner } from '~/components/designSystem/Spinner'
-import { BILLING_ENTITY_ROUTE } from '~/core/router'
+import { BILLING_ENTITY_ROUTE, useNavigate } from '~/core/router'
 import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 
 const SettingsHomePage = () => {
@@ -28,6 +28,8 @@ const SettingsHomePage = () => {
       return
     }
 
+    // The `~/core/router` wrapper auto-prepends the org slug, so we can pass
+    // the absolute route constant directly.
     return navigate(
       generatePath(BILLING_ENTITY_ROUTE, {
         billingEntityCode: defaultBillingEntity.code,

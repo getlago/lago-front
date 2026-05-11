@@ -966,6 +966,7 @@ export type ChargeUsage = {
   filters?: Maybe<Array<ChargeFilterUsage>>;
   groupedUsage: Array<GroupedChargeUsage>;
   id: Scalars['ID']['output'];
+  presentationBreakdowns?: Maybe<Array<PresentationBreakdownUsage>>;
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
   units: Scalars['Float']['output'];
 };
@@ -3835,6 +3836,7 @@ export enum FeatureFlagEnum {
   MultiEntityBilling = 'multi_entity_billing',
   MultiplePaymentMethods = 'multiple_payment_methods',
   NonPersistableChargeCacheOptimization = 'non_persistable_charge_cache_optimization',
+  OrderForms = 'order_forms',
   PaymentGatedSubscriptions = 'payment_gated_subscriptions',
   PostgresEnrichedEvents = 'postgres_enriched_events',
   WalletTraceability = 'wallet_traceability'
@@ -3887,6 +3889,7 @@ export type Fee = InvoiceItem & {
   itemType: Scalars['String']['output'];
   offsettableAmountCents: Scalars['BigInt']['output'];
   preciseUnitAmount: Scalars['Float']['output'];
+  presentationBreakdowns?: Maybe<Array<PresentationBreakdownUsage>>;
   pricingUnitUsage?: Maybe<PricingUnitUsage>;
   properties?: Maybe<FeeProperties>;
   subscription?: Maybe<Subscription>;
@@ -4294,6 +4297,7 @@ export type GroupedChargeUsage = {
   filters?: Maybe<Array<ChargeFilterUsage>>;
   groupedBy?: Maybe<Scalars['JSON']['output']>;
   id: Scalars['ID']['output'];
+  presentationBreakdowns?: Maybe<Array<PresentationBreakdownUsage>>;
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
   units: Scalars['Float']['output'];
 };
@@ -4402,6 +4406,7 @@ export enum IntegrationTypeEnum {
   MultiEntitiesPro = 'multi_entities_pro',
   Netsuite = 'netsuite',
   Okta = 'okta',
+  OrderForms = 'order_forms',
   Preview = 'preview',
   ProgressiveBilling = 'progressive_billing',
   ProjectedUsage = 'projected_usage',
@@ -6555,6 +6560,12 @@ export enum PermissionEnum {
   PricingUnitsCreate = 'pricing_units_create',
   PricingUnitsUpdate = 'pricing_units_update',
   PricingUnitsView = 'pricing_units_view',
+  QuotesApprove = 'quotes_approve',
+  QuotesClone = 'quotes_clone',
+  QuotesCreate = 'quotes_create',
+  QuotesUpdate = 'quotes_update',
+  QuotesView = 'quotes_view',
+  QuotesVoid = 'quotes_void',
   RolesCreate = 'roles_create',
   RolesDelete = 'roles_delete',
   RolesUpdate = 'roles_update',
@@ -6661,6 +6672,12 @@ export type Permissions = {
   pricingUnitsCreate: Scalars['Boolean']['output'];
   pricingUnitsUpdate: Scalars['Boolean']['output'];
   pricingUnitsView: Scalars['Boolean']['output'];
+  quotesApprove: Scalars['Boolean']['output'];
+  quotesClone: Scalars['Boolean']['output'];
+  quotesCreate: Scalars['Boolean']['output'];
+  quotesUpdate: Scalars['Boolean']['output'];
+  quotesView: Scalars['Boolean']['output'];
+  quotesVoid: Scalars['Boolean']['output'];
   rolesCreate: Scalars['Boolean']['output'];
   rolesDelete: Scalars['Boolean']['output'];
   rolesUpdate: Scalars['Boolean']['output'];
@@ -6788,6 +6805,7 @@ export enum PremiumIntegrationTypeEnum {
   MultiEntitiesPro = 'multi_entities_pro',
   Netsuite = 'netsuite',
   Okta = 'okta',
+  OrderForms = 'order_forms',
   Preview = 'preview',
   ProgressiveBilling = 'progressive_billing',
   ProjectedUsage = 'projected_usage',
@@ -6798,6 +6816,32 @@ export enum PremiumIntegrationTypeEnum {
   SecurityLogs = 'security_logs',
   Xero = 'xero'
 }
+
+export type PresentationBreakdownUsage = {
+  __typename?: 'PresentationBreakdownUsage';
+  presentationBy: Scalars['JSON']['output'];
+  units: Scalars['String']['output'];
+};
+
+export type PresentationGroupKey = {
+  __typename?: 'PresentationGroupKey';
+  options?: Maybe<PresentationGroupKeyOptions>;
+  value: Scalars['String']['output'];
+};
+
+export type PresentationGroupKeyInput = {
+  options?: InputMaybe<PresentationGroupKeyOptionsInput>;
+  value: Scalars['String']['input'];
+};
+
+export type PresentationGroupKeyOptions = {
+  __typename?: 'PresentationGroupKeyOptions';
+  displayInInvoice?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type PresentationGroupKeyOptionsInput = {
+  displayInInvoice?: InputMaybe<Scalars['Boolean']['input']>;
+};
 
 /** Create Adjusted Fee Input */
 export type PreviewAdjustedFeeInput = {
@@ -6901,6 +6945,7 @@ export type ProjectedChargeUsage = {
   filters?: Maybe<Array<ProjectedChargeFilterUsage>>;
   groupedUsage: Array<ProjectedGroupedChargeUsage>;
   id: Scalars['ID']['output'];
+  presentationBreakdowns?: Maybe<Array<PresentationBreakdownUsage>>;
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
   pricingUnitProjectedAmountCents?: Maybe<Scalars['BigInt']['output']>;
   projectedAmountCents: Scalars['BigInt']['output'];
@@ -6915,6 +6960,7 @@ export type ProjectedGroupedChargeUsage = {
   filters?: Maybe<Array<ProjectedChargeFilterUsage>>;
   groupedBy?: Maybe<Scalars['JSON']['output']>;
   id: Scalars['ID']['output'];
+  presentationBreakdowns?: Maybe<Array<PresentationBreakdownUsage>>;
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
   pricingUnitProjectedAmountCents?: Maybe<Scalars['BigInt']['output']>;
   projectedAmountCents: Scalars['BigInt']['output'];
@@ -6935,6 +6981,7 @@ export type Properties = {
   packageSize?: Maybe<Scalars['BigInt']['output']>;
   perTransactionMaxAmount?: Maybe<Scalars['String']['output']>;
   perTransactionMinAmount?: Maybe<Scalars['String']['output']>;
+  presentationGroupKeys?: Maybe<Array<PresentationGroupKey>>;
   pricingGroupKeys?: Maybe<Array<Scalars['String']['output']>>;
   rate?: Maybe<Scalars['String']['output']>;
   volumeRanges?: Maybe<Array<VolumeRange>>;
@@ -6952,6 +6999,7 @@ export type PropertiesInput = {
   packageSize?: InputMaybe<Scalars['BigInt']['input']>;
   perTransactionMaxAmount?: InputMaybe<Scalars['String']['input']>;
   perTransactionMinAmount?: InputMaybe<Scalars['String']['input']>;
+  presentationGroupKeys?: InputMaybe<Array<PresentationGroupKeyInput>>;
   pricingGroupKeys?: InputMaybe<Array<Scalars['String']['input']>>;
   rate?: InputMaybe<Scalars['String']['input']>;
   volumeRanges?: InputMaybe<Array<VolumeRangeInput>>;
@@ -7443,6 +7491,7 @@ export type QueryCustomerPortalSubscriptionArgs = {
 
 
 export type QueryCustomerPortalSubscriptionsArgs = {
+  currency?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   planCode?: InputMaybe<Scalars['String']['input']>;
@@ -7838,6 +7887,7 @@ export type QueryPaymentProvidersArgs = {
 
 
 export type QueryPaymentRequestsArgs = {
+  currency?: InputMaybe<Scalars['String']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -7931,6 +7981,7 @@ export type QuerySubscriptionEntitlementsArgs = {
 
 
 export type QuerySubscriptionsArgs = {
+  currency?: InputMaybe<Scalars['String']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   overriden?: InputMaybe<Scalars['Boolean']['input']>;

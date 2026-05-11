@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useCallback, useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
@@ -11,6 +11,7 @@ import {
   DeleteAlertDialog,
   DeleteAlertDialogRef,
 } from '~/components/subscriptions/alerts/DeleteAlertDialog'
+import { useNavigate } from '~/core/router'
 import {
   CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE,
   CREATE_ALERT_PLAN_SUBSCRIPTION_ROUTE,

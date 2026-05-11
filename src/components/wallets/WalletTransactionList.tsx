@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { FC, ReactNode, useEffect, useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Avatar, AvatarBadge } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -28,7 +28,7 @@ import {
   WalletDetailsDrawerRef,
 } from '~/components/wallets/WalletDetailsDrawer'
 import { addToast } from '~/core/apolloClient'
-import { CREATE_WALLET_TOP_UP_ROUTE } from '~/core/router'
+import { CREATE_WALLET_TOP_UP_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'

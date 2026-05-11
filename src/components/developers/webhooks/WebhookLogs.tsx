@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
-import { generatePath, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import {
@@ -14,6 +14,7 @@ import { WebhookLogDetails } from '~/components/developers/webhooks/WebhookLogDe
 import { WebhookLogTable } from '~/components/developers/webhooks/WebhookLogTable'
 import { SearchInput } from '~/components/SearchInput'
 import { WEBHOOK_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
+import { useNavigate } from '~/core/router'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { useGetWebhookLogLazyQuery, WebhookLogFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

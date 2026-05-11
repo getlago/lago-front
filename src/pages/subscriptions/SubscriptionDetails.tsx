@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useMemo } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -24,6 +24,7 @@ import {
   SUBSCRIPTIONS_ROUTE,
   UPDATE_SUBSCRIPTION,
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
+  useNavigate,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {

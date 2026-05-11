@@ -1,7 +1,7 @@
 import { FetchResult, gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 import { array, object, string } from 'yup'
 
 import { Button } from '~/components/designSystem/Button'
@@ -13,7 +13,7 @@ import { TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FeatureDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { FEATURE_DETAILS_ROUTE, FEATURES_ROUTE } from '~/core/router'
+import { FEATURE_DETAILS_ROUTE, FEATURES_ROUTE, useNavigate } from '~/core/router'
 import { scrollToAndExpandAccordion } from '~/core/utils/domUtils'
 import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import {

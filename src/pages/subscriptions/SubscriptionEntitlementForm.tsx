@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { useCallback, useId, useMemo, useRef, useState } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 import { array, object, string } from 'yup'
 
 import { Button } from '~/components/designSystem/Button'
@@ -19,7 +19,11 @@ import {
   SEARCH_SUBSCRIPTION_ENTITLEMENT_PRIVILEGE_SELECT_OPTIONS_INPUT_CLASSNAME,
 } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
+  PLAN_SUBSCRIPTION_DETAILS_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
   CreateOrUpdateSubscriptionEntitlementInput,

@@ -1,6 +1,6 @@
 import { ApolloError, gql } from '@apollo/client'
 import { useMemo } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { CreditNoteForm, FeesPerInvoice, FromFee } from '~/components/creditNote/types'
 import {
@@ -14,7 +14,11 @@ import {
   composeGroupedByDisplayName,
   composeMultipleValuesWithSepator,
 } from '~/core/formats/formatInvoiceItemsMap'
-import { CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
+  ERROR_404_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import { serializeCreditNoteInput } from '~/core/serializers'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -10,6 +10,7 @@ import {
   INTEGRATIONS_ROUTE,
   NETSUITE_INTEGRATION_DETAILS_ROUTE,
   NETSUITE_INTEGRATION_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import {
   DeleteNetsuiteIntegrationDialogFragmentDoc,

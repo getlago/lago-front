@@ -4,7 +4,7 @@ import MUITableCell, { type TableCellProps } from '@mui/material/TableCell'
 import MUITableHead from '@mui/material/TableHead'
 import MUITableRow, { type TableRowProps } from '@mui/material/TableRow'
 import { MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import {
@@ -15,6 +15,8 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { useNavigate } from '~/core/router'
+import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
 import { ResponsiveStyleValue, setResponsiveProperty } from '~/core/utils/responsiveProps'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
@@ -322,6 +324,9 @@ export const Table = <T extends DataItem>({
   const tableRef = useRef<HTMLTableElement>(null)
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  // `useParams()` can return undefined outside a Router context (e.g. some tests).
+  const params = useParams<{ organizationSlug?: string }>()
+  const organizationSlug = params?.organizationSlug
 
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `${TABLE_ID}-row-${i}`,
@@ -399,8 +404,12 @@ export const Table = <T extends DataItem>({
     // Make sure anything other than the action column button is clicked
     const link = onRowActionLink(item)
 
+    // `window.open` bypasses the `useNavigate` wrapper, so prepend the org
+    // slug manually via the shared util (same guard logic as the wrapper).
+    const prefixedLink = prependOrgSlug(link, organizationSlug)
+
     if (hasSideKeyPressed) {
-      window.open(link, '_blank')
+      window.open(prefixedLink, '_blank')
     } else {
       navigate(link)
     }
