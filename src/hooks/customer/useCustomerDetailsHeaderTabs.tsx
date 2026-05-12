@@ -1,4 +1,3 @@
-import { RefObject } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { CustomerActivityLogs } from '~/components/customers/CustomerActivityLogs'
@@ -11,7 +10,6 @@ import { CustomerSettings } from '~/components/customers/CustomerSettings'
 import { CustomerSubscriptionsList } from '~/components/customers/overview/CustomerSubscriptionsList'
 import { CustomerUsage } from '~/components/customers/usage/CustomerUsage'
 import { MainHeaderTab } from '~/components/MainHeader/types'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { CustomerWalletsList } from '~/components/wallets/CustomerWalletList'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import {
@@ -29,14 +27,12 @@ interface UseCustomerDetailsTabsParams {
   customerId: string
   customer: CustomerDetailsFragment | undefined | null
   loading: boolean
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
 }
 
 export function useCustomerDetailsHeaderTabs({
   customerId,
   customer,
   loading,
-  premiumWarningDialogRef,
 }: UseCustomerDetailsTabsParams): MainHeaderTab[] | undefined {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
@@ -102,7 +98,7 @@ export function useCustomerDetailsHeaderTabs({
         tab: CustomerDetailsTabsOptions.usage,
       }),
       hidden: !hasPermissions(['analyticsView']),
-      content: <CustomerUsage premiumWarningDialogRef={premiumWarningDialogRef} />,
+      content: <CustomerUsage />,
     },
     {
       title: translate('text_628cf761cbe6820138b8f2e6'),

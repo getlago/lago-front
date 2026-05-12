@@ -1,7 +1,5 @@
 import { renderHook } from '@testing-library/react'
-import { RefObject } from 'react'
 
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { CustomerAccountTypeEnum, CustomerDetailsFragment } from '~/generated/graphql'
 
 import { useCustomerDetailsHeaderTabs } from '../useCustomerDetailsHeaderTabs'
@@ -103,7 +101,6 @@ const defaultParams = {
   customerId: 'cust-1',
   customer: createMockCustomer(),
   loading: false,
-  premiumWarningDialogRef: { current: null } as RefObject<PremiumWarningDialogRef>,
 }
 
 describe('useCustomerDetailsHeaderTabs', () => {
