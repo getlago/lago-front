@@ -1,6 +1,11 @@
 import { Alert } from '~/components/designSystem/Alert'
-import { isCanceledWithPaymentReason } from '~/core/utils/subscriptionUtils'
 import {
+  formatTimeoutCountdown,
+  getPaymentActivationRule,
+  isCanceledWithPaymentReason,
+} from '~/core/utils/subscriptionUtils'
+import {
+  ActivationRuleStatusEnum,
   CancelationReasonEnum,
   NextSubscriptionTypeEnum,
   StatusTypeEnum,
@@ -23,6 +28,14 @@ export const SubscriptionDetailAlerts = ({ subscription }: SubscriptionDetailAle
 
   const isPendingDowngrade =
     !!subscription?.previousPlan?.id && subscription?.status === StatusTypeEnum.Pending
+
+  const paymentActivationRule = getPaymentActivationRule(subscription)
+  const incompleteCountdown =
+    subscription?.status === StatusTypeEnum.Incomplete &&
+    paymentActivationRule?.status === ActivationRuleStatusEnum.Pending &&
+    paymentActivationRule.expiresAt
+      ? formatTimeoutCountdown(paymentActivationRule.expiresAt, translate)
+      : null
 
   return (
     <>
@@ -47,7 +60,10 @@ export const SubscriptionDetailAlerts = ({ subscription }: SubscriptionDetailAle
       )}
 
       {subscription?.status === StatusTypeEnum.Incomplete && (
-        <Alert type="warning">{translate('text_1774352080433yerw1efzlhz')}</Alert>
+        <Alert type="warning">
+          {translate('text_1774352080433yerw1efzlhz')}
+          {incompleteCountdown && ` ${incompleteCountdown}`}
+        </Alert>
       )}
 
       {isCanceledWithPaymentReason(subscription) && (

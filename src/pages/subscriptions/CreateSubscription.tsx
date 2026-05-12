@@ -311,6 +311,26 @@ const CreateSubscription = () => {
     }
   }, [subscription, formType, subscriptionForm, currentDateRef])
 
+  // Backend rejects update/upgrade/downgrade on `incomplete` subscriptions (see Subscriptions::ValidateService).
+  // Redirect to the detail page when the form was reached via direct URL on an incomplete sub.
+  useEffect(() => {
+    if (
+      subscription?.status === StatusTypeEnum.Incomplete &&
+      formType !== FORM_TYPE_ENUM.creation &&
+      customerId &&
+      subscription?.id
+    ) {
+      navigate(
+        generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+          customerId,
+          subscriptionId: subscription.id,
+          tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+        }),
+        { replace: true },
+      )
+    }
+  }, [subscription?.status, subscription?.id, formType, customerId, navigate])
+
   const [shouldDisplaySubscriptionExternalId, setShouldDisplaySubscriptionExternalId] =
     useState<boolean>(!!subscription?.externalId)
   const [shouldDisplaySubscriptionName, setShouldDisplaySubscriptionName] = useState<boolean>(
