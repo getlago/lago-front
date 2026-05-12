@@ -9,29 +9,29 @@ describe('permissionRouteMap', () => {
       expect(typeof map).toBe('object')
     })
 
-    it('includes expected view permission mappings', () => {
+    it('includes expected view permission mappings (relative paths under :organizationSlug)', () => {
       const map = getPermissionRouteMap()
 
-      // Check some expected mappings exist
-      expect(map.customersView).toBe('/customers')
-      expect(map.billableMetricsView).toBe('/billable-metrics')
-      expect(map.plansView).toBe('/plans')
-      expect(map.couponsView).toBe('/coupons')
-      expect(map.addonsView).toBe('/add-ons')
-      expect(map.invoicesView).toBe('/invoices')
-      expect(map.paymentsView).toBe('/payments')
-      expect(map.creditNotesView).toBe('/credit-notes')
-      expect(map.subscriptionsView).toBe('/subscriptions')
-      expect(map.featuresView).toBe('/features')
+      // After route restructure, paths are relative (no leading /)
+      expect(map.customersView).toBe('customers')
+      expect(map.billableMetricsView).toBe('billable-metrics')
+      expect(map.plansView).toBe('plans')
+      expect(map.couponsView).toBe('coupons')
+      expect(map.addonsView).toBe('add-ons')
+      expect(map.invoicesView).toBe('invoices')
+      expect(map.paymentsView).toBe('payments')
+      expect(map.creditNotesView).toBe('credit-notes')
+      expect(map.subscriptionsView).toBe('subscriptions')
+      expect(map.featuresView).toBe('features')
     })
 
-    it('includes settings route mappings', () => {
+    it('includes settings route mappings (relative paths)', () => {
       const map = getPermissionRouteMap()
 
-      expect(map.organizationInvoicesView).toBe('/settings/invoice-sections')
-      expect(map.organizationTaxesView).toBe('/settings/taxes')
-      expect(map.organizationMembersView).toBe('/settings/team-and-security')
-      expect(map.dunningCampaignsView).toBe('/settings/dunnings')
+      expect(map.organizationInvoicesView).toBe('settings/invoice-sections')
+      expect(map.organizationTaxesView).toBe('settings/taxes')
+      expect(map.organizationMembersView).toBe('settings/team-and-security')
+      expect(map.dunningCampaignsView).toBe('settings/dunnings')
     })
 
     it('returns the same cached map on subsequent calls', () => {
@@ -53,9 +53,9 @@ describe('permissionRouteMap', () => {
 
   describe('getRouteForPermission', () => {
     it('returns the correct route for a valid view permission', () => {
-      expect(getRouteForPermission('customersView')).toBe('/customers')
-      expect(getRouteForPermission('plansView')).toBe('/plans')
-      expect(getRouteForPermission('invoicesView')).toBe('/invoices')
+      expect(getRouteForPermission('customersView')).toBe('customers')
+      expect(getRouteForPermission('plansView')).toBe('plans')
+      expect(getRouteForPermission('invoicesView')).toBe('invoices')
     })
 
     it('returns null for non-view permissions', () => {

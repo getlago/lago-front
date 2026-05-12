@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
@@ -22,6 +22,7 @@ import {
   CREATE_PRICING_UNIT,
   EDIT_INVOICE_CUSTOM_SECTION,
   EDIT_PRICING_UNIT,
+  useNavigate,
 } from '~/core/router'
 import {
   DeleteCustomSectionFragmentDoc,

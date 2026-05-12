@@ -3836,6 +3836,7 @@ export enum FeatureFlagEnum {
   MultiEntityBilling = 'multi_entity_billing',
   MultiplePaymentMethods = 'multiple_payment_methods',
   NonPersistableChargeCacheOptimization = 'non_persistable_charge_cache_optimization',
+  OrderForms = 'order_forms',
   PaymentGatedSubscriptions = 'payment_gated_subscriptions',
   PostgresEnrichedEvents = 'postgres_enriched_events',
   WalletTraceability = 'wallet_traceability'
@@ -4405,6 +4406,7 @@ export enum IntegrationTypeEnum {
   MultiEntitiesPro = 'multi_entities_pro',
   Netsuite = 'netsuite',
   Okta = 'okta',
+  OrderForms = 'order_forms',
   Preview = 'preview',
   ProgressiveBilling = 'progressive_billing',
   ProjectedUsage = 'projected_usage',
@@ -6558,6 +6560,12 @@ export enum PermissionEnum {
   PricingUnitsCreate = 'pricing_units_create',
   PricingUnitsUpdate = 'pricing_units_update',
   PricingUnitsView = 'pricing_units_view',
+  QuotesApprove = 'quotes_approve',
+  QuotesClone = 'quotes_clone',
+  QuotesCreate = 'quotes_create',
+  QuotesUpdate = 'quotes_update',
+  QuotesView = 'quotes_view',
+  QuotesVoid = 'quotes_void',
   RolesCreate = 'roles_create',
   RolesDelete = 'roles_delete',
   RolesUpdate = 'roles_update',
@@ -6664,6 +6672,12 @@ export type Permissions = {
   pricingUnitsCreate: Scalars['Boolean']['output'];
   pricingUnitsUpdate: Scalars['Boolean']['output'];
   pricingUnitsView: Scalars['Boolean']['output'];
+  quotesApprove: Scalars['Boolean']['output'];
+  quotesClone: Scalars['Boolean']['output'];
+  quotesCreate: Scalars['Boolean']['output'];
+  quotesUpdate: Scalars['Boolean']['output'];
+  quotesView: Scalars['Boolean']['output'];
+  quotesVoid: Scalars['Boolean']['output'];
   rolesCreate: Scalars['Boolean']['output'];
   rolesDelete: Scalars['Boolean']['output'];
   rolesUpdate: Scalars['Boolean']['output'];
@@ -6791,6 +6805,7 @@ export enum PremiumIntegrationTypeEnum {
   MultiEntitiesPro = 'multi_entities_pro',
   Netsuite = 'netsuite',
   Okta = 'okta',
+  OrderForms = 'order_forms',
   Preview = 'preview',
   ProgressiveBilling = 'progressive_billing',
   ProjectedUsage = 'projected_usage',

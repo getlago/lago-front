@@ -6,7 +6,8 @@ describe('Log in', () => {
     cy.get('input[name="email"]').type(userEmail)
     cy.get('input[name="password"]').type(userPassword)
     cy.get('[data-test="submit"]').click()
-    cy.url().should('be.equal', Cypress.config().baseUrl + '/')
+
+    cy.url().should('match', /\/[^/]+\/(customers|analytics)/)
     cy.get('[data-test="incorrect-login-or-password-alert"]').should('not.exist')
   })
 

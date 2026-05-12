@@ -1,7 +1,7 @@
 import { useFormik } from 'formik'
 import { tw } from 'lago-design-system'
 import { forwardRef, useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 import { array, object, string } from 'yup'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -13,7 +13,7 @@ import { addToast } from '~/core/apolloClient'
 import { LAGO_TAX_DOCUMENTATION_URL } from '~/core/constants/externalUrls'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
-import { TAX_MANAGEMENT_INTEGRATION_ROUTE } from '~/core/router'
+import { TAX_MANAGEMENT_INTEGRATION_ROUTE, useNavigate } from '~/core/router'
 import {
   CountryCode,
   LagoApiError,

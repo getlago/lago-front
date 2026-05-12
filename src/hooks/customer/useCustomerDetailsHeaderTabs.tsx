@@ -1,5 +1,5 @@
 import { RefObject } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { CustomerActivityLogs } from '~/components/customers/CustomerActivityLogs'
 import { CustomerAppliedCouponsList } from '~/components/customers/CustomerAppliedCouponsList'
@@ -18,6 +18,7 @@ import {
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
   UPDATE_CUSTOMER_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import { CustomerAccountTypeEnum, CustomerDetailsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

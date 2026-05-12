@@ -1,11 +1,12 @@
 import { gql } from '@apollo/client'
 import { useMemo, useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { ResetProgressiveBillingDialogRef } from '~/components/subscriptions/ResetProgressiveBillingDialog'
 import {
   EDIT_PROGRESSIVE_BILLING_CUSTOMER_SUBSCRIPTION_ROUTE,
   EDIT_PROGRESSIVE_BILLING_PLAN_SUBSCRIPTION_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import {
   SubscriptionForUseProgressiveBillingTabThresholdsHeaderFragment,

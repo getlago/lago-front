@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { GraphQLFormattedError } from 'graphql'
 import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -11,7 +11,7 @@ import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { TextInputField } from '~/components/form'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { SALESFORCE_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
+import { SALESFORCE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   CreateSalesforceIntegrationInput,
   DeleteSalesforceIntegrationDialogFragmentDoc,

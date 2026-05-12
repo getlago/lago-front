@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -86,6 +86,7 @@ import {
   SALESFORCE_INTEGRATION_ROUTE,
   STRIPE_INTEGRATION_ROUTE,
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
+  useNavigate,
   XERO_INTEGRATION_ROUTE,
 } from '~/core/router'
 import {

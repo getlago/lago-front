@@ -1,6 +1,5 @@
 import { ApolloClient, ApolloQueryResult, gql } from '@apollo/client'
 
-import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
 import {
   CurrentUserFragmentDoc,
   GetCurrentUserInfosForLoginQuery,
@@ -11,7 +10,9 @@ import { DEVTOOL_AUTO_SAVE_KEY, resetDevtoolsNavigation } from '~/hooks/useDevel
 import {
   addToast,
   AUTH_TOKEN_LS_KEY,
+  getCurrentOrganizationId,
   resetLocationHistoryVar,
+  setCurrentOrganizationId,
   TMP_AUTH_TOKEN_LS_KEY,
   updateAuthTokenVar,
   updateCustomerPortalTokenVar,
@@ -102,7 +103,7 @@ const getCurrentUserOrganization = async (client: ApolloClient<object>, token: s
 
 export const onLogIn = async (client: ApolloClient<object>, token: string) => {
   let organization
-  const previousOrganizationId = getItemFromLS(ORGANIZATION_LS_KEY_ID)
+  const previousOrganizationId = getCurrentOrganizationId()
 
   try {
     const response = await getCurrentUserOrganization(client, token)
@@ -127,7 +128,7 @@ export const onLogIn = async (client: ApolloClient<object>, token: string) => {
       if (previousOrganization && previousOrganization.accessibleByCurrentSession) {
         organization = previousOrganization
       } else {
-        removeItemFromLS(ORGANIZATION_LS_KEY_ID)
+        setCurrentOrganizationId(null)
       }
     }
 
@@ -137,8 +138,8 @@ export const onLogIn = async (client: ApolloClient<object>, token: string) => {
         .filter((org) => org.accessibleByCurrentSession)
         .sort((a, b) => a.name.toLowerCase()?.localeCompare(b.name.toLowerCase() ?? '') ?? 0)[0]
 
-    // Set the organization id in local storage
-    setItemFromLS(ORGANIZATION_LS_KEY_ID, organization?.id)
+    // Set the organization id via reactive var (syncs to localStorage)
+    setCurrentOrganizationId(organization?.id ?? null)
   } catch {
     // If an error occurs, display a toast to inform the user that the login failed
     addToast({
@@ -148,7 +149,7 @@ export const onLogIn = async (client: ApolloClient<object>, token: string) => {
 
     // Remove all local storage items related to the auth
     removeItemFromLS(AUTH_TOKEN_LS_KEY)
-    removeItemFromLS(ORGANIZATION_LS_KEY_ID)
+    setCurrentOrganizationId(null)
 
     // In case of error, we want to log out the user
     await logOut(client, true)
@@ -162,17 +163,35 @@ export const switchCurrentOrganization = async (
   // 1. Reset devtools navigation to prevent stale queries with old transactionIds
   resetDevtoolsNavigation()
 
-  // 2. Stop all active queries to prevent race conditions
+  // 2. Cancel in-flight queries scoped to the previous org. If we let them
+  //    return after the var change, they'd write old-org data into a cache
+  //    that we're about to repopulate for the new org → race.
   client.stop()
 
-  // 3. Clear the cache BEFORE updating organization context
-  // This prevents queries from firing with new org ID against stale cache
+  // 3. Clear the cache before updating the org context.
   await client.clearStore()
 
-  // 4. NOW update the organization ID - safe because cache is cleared and queries are stopped
-  setItemFromLS(ORGANIZATION_LS_KEY_ID, organizationId)
+  // 4. Update the org id (and LS). The auth link reads from the var, so any
+  //    request fired AFTER this line carries the new `x-lago-organization`
+  //    header.
+  setCurrentOrganizationId(organizationId)
 
-  // 5. Clear other org-specific state
+  // 5. Re-fire every active observable query with the new header. Crucial
+  //    for the hard-refresh-with-stale-LS path: in that case
+  //    `OrganizationLayout`'s gate keeps `Outlet` unmounted, so children
+  //    never get a fresh mount that would create new observers — the
+  //    observers in `OrganizationLayout` itself (e.g. `useCurrentUser`)
+  //    were stopped at step 2 and would otherwise sit dead, leaving the
+  //    UI stuck on `loading: true` until a second hard refresh.
+  //
+  //    Fire-and-forget on purpose: callers (e.g. `OrganizationSwitcher`)
+  //    typically navigate to the new org URL right after this resolves,
+  //    and we don't want to delay that navigation behind a network
+  //    round-trip. The slug-aware gate in `useOrganizationInfos` covers
+  //    the brief window where the cache is empty / refetch in flight.
+  client.reFetchObservableQueries()
+
+  // 6. Clear other org-specific state
   removeItemFromLS(DEVTOOL_AUTO_SAVE_KEY)
 }
 

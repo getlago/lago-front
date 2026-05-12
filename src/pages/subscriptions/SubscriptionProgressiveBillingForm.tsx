@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
 import { useCallback, useMemo, useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -13,7 +13,11 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
+  PLAN_SUBSCRIPTION_DETAILS_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import {
   CurrencyEnum,
   useGetSubscriptionForProgressiveBillingFormQuery,

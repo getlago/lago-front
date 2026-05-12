@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
@@ -23,6 +23,7 @@ import {
   AVALARA_INTEGRATION_DETAILS_ROUTE,
   AVALARA_INTEGRATION_ROUTE,
   INTEGRATIONS_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import {
   AddAvalaraIntegrationDialogFragmentDoc,

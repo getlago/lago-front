@@ -86,26 +86,24 @@ describe('GoogleAuthCallback', () => {
         expect(setItemOrder).toBeLessThan(onLogInOrder)
       })
 
-      it('THEN should remove the redirect path from localStorage after onLogIn', async () => {
+      it('THEN should NOT remove redirect path from localStorage (Home.tsx handles cleanup)', async () => {
         renderHook(() => GoogleAuthCallback())
 
         await waitFor(() => {
-          expect(mockRemoveItemFromLS).toHaveBeenCalledWith(REDIRECT_AFTER_LOGIN_LS_KEY)
+          expect(mockOnLogIn).toHaveBeenCalled()
         })
 
-        // Verify removeItemFromLS was called after onLogIn
-        const removeOrder = mockRemoveItemFromLS.mock.invocationCallOrder[0]
-        const onLogInOrder = mockOnLogIn.mock.invocationCallOrder[0]
-
-        expect(removeOrder).toBeGreaterThan(onLogInOrder)
+        expect(mockRemoveItemFromLS).not.toHaveBeenCalledWith(REDIRECT_AFTER_LOGIN_LS_KEY)
       })
 
-      it('THEN should navigate to the redirect path', async () => {
+      it('THEN should NOT navigate directly (Home.tsx handles redirect via localStorage bridge)', async () => {
         renderHook(() => GoogleAuthCallback())
 
         await waitFor(() => {
-          expect(mockNavigate).toHaveBeenCalledWith({ pathname: redirectPath })
+          expect(mockOnLogIn).toHaveBeenCalled()
         })
+
+        expect(mockNavigate).not.toHaveBeenCalledWith({ pathname: redirectPath })
       })
     })
   })

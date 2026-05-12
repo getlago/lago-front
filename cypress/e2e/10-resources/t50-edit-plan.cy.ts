@@ -10,7 +10,7 @@ describe('Edit plan', () => {
   })
 
   it('should be able to close the form without warning dialog when no data has changed', () => {
-    cy.visit('/plans')
+    cy.visitApp('/plans')
     cy.get(`[data-test="${planWithChargesName}"] [data-test="open-action-button"]`).click({
       force: true,
     })
@@ -22,7 +22,7 @@ describe('Edit plan', () => {
   })
 
   it('should be able to update plan code', () => {
-    cy.visit('/plans')
+    cy.visitApp('/plans')
     cy.get(`[data-test="${planWithChargesName}"] [data-test="open-action-button"]`).click({
       force: true,
     })
@@ -37,7 +37,7 @@ describe('Edit plan', () => {
   })
 
   it('should add plan to customer', () => {
-    cy.visit('/customers')
+    cy.visitApp('/customers')
     cy.get('[data-test="table-customers-list"] tr').contains(customerName).click()
     cy.get('[data-test="add-subscription"]').click()
 
@@ -51,7 +51,7 @@ describe('Edit plan', () => {
   })
 
   it('should not be able to update locked fields of a used plan', () => {
-    cy.visit('/plans')
+    cy.visitApp('/plans')
     cy.get(`[data-test="${planWithChargesName}"] [data-test="open-action-button"]`).click({
       force: true,
     })

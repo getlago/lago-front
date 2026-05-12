@@ -2,7 +2,7 @@ import { ApolloClient, ApolloError } from '@apollo/client'
 import { captureException } from '@sentry/react'
 import { ConditionalWrapper, Icon } from 'lago-design-system'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -11,9 +11,9 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { VerticalMenuSectionTitle } from '~/components/designSystem/VerticalMenu'
-import { logOut, switchCurrentOrganization } from '~/core/apolloClient'
+import { addToast, logOut, switchCurrentOrganization } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
-import { HOME_ROUTE } from '~/core/router'
+import { HOME_ROUTE, useNavigate } from '~/core/router'
 import {
   AuthenticationMethodsEnum,
   CurrentUserInfosFragment,
@@ -59,11 +59,26 @@ export const OrganizationSwitcher = ({
 }: OrganizationSwitcherProps) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  const { organizationSlug } = useParams<{ organizationSlug: string }>()
   const [isSwitchingOrg, setIsSwitchingOrg] = useState(false)
 
   const organizationList: OrganizationFromMembership[] | undefined = currentUser?.memberships.map(
     (membership) => membership.organization,
   )
+
+  // Visual identity (logo + name) is derived from the URL slug, NOT from the
+  // `organization` prop returned by `useOrganizationInfos`. The `organization`
+  // query is keyed at the Apollo root field level (`Query.organization`) and
+  // does not include the org-id header in its cache key — combined with the
+  // persisted IndexedDB cache that is shared across tabs, it can briefly serve
+  // the previous tab's org data on mount. Sourcing from `currentUser.memberships`
+  // + URL slug makes the visual deterministic per tab and immune to the
+  // header/cache race. The `organization` prop is still used for fields that
+  // aren't carried on `CurrentUserInfos.memberships[].organization`
+  // (e.g. `authenticatedMethod`).
+  const currentOrgFromSlug = currentUser?.memberships.find(
+    (m) => m.organization.slug === organizationSlug,
+  )?.organization
 
   /**
    * Switches the current organization context.
@@ -84,9 +99,20 @@ export const OrganizationSwitcher = ({
     setIsSwitchingOrg(true)
 
     try {
+      const targetOrg = organizationList?.find((org) => org.id === organizationId)
+
+      // Never navigate to `/undefined/`. If the target org or its slug can't
+      // be resolved from the membership list, bail out — the catch block
+      // below handles Sentry reporting and user feedback.
+      if (!targetOrg?.slug) {
+        throw new Error('Organization switch aborted: missing target org slug')
+      }
+
       await switchCurrentOrganization(client, organizationId)
 
-      navigate(HOME_ROUTE)
+      // `skipSlugPrepend` — the target slug is the NEW org, different from the
+      // one currently in `useParams()`, so we must bypass the wrapper's auto-prepend.
+      navigate(`/${targetOrg.slug}${HOME_ROUTE}`, { skipSlugPrepend: true })
 
       const refetchPromises = [refetchOrganizationInfos(), refetchCurrentUserInfos()]
 
@@ -100,6 +126,11 @@ export const OrganizationSwitcher = ({
             errorType: 'OrganizationSwitchError',
             component: 'OrganizationSwitcher',
           },
+          extra: { organizationId },
+        })
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_622f7a3dc32ce100c46a5154',
         })
       }
     } finally {
@@ -122,26 +153,26 @@ export const OrganizationSwitcher = ({
             size="small"
             disabled={isLoading}
           >
-            {isLoading ? (
+            {isLoading && !currentOrgFromSlug ? (
               <div className="flex flex-row items-center gap-2">
                 <Skeleton variant="circular" size="small" />
                 <Skeleton variant="text" className="w-30" />
               </div>
             ) : (
               <>
-                {organization?.logoUrl ? (
+                {currentOrgFromSlug?.logoUrl ? (
                   <Avatar size="small" variant="connector">
                     <img
-                      src={organization?.logoUrl as string}
-                      alt={`${organization?.name}'s logo`}
+                      src={currentOrgFromSlug.logoUrl as string}
+                      alt={`${currentOrgFromSlug.name}'s logo`}
                     />
                   </Avatar>
                 ) : (
                   <Avatar
                     variant="company"
-                    identifier={organization?.name || ''}
+                    identifier={currentOrgFromSlug?.name || ''}
                     size="small"
-                    initials={(organization?.name ?? 'Lago')[0]}
+                    initials={(currentOrgFromSlug?.name ?? 'Lago')[0]}
                   />
                 )}
                 <Typography
@@ -150,7 +181,7 @@ export const OrganizationSwitcher = ({
                   data-test={ORGANIZATION_SWITCHER_NAME_TEST_ID}
                   variant="caption"
                 >
-                  {organization?.name}
+                  {currentOrgFromSlug?.name}
                 </Typography>
               </>
             )}
@@ -204,7 +235,7 @@ export const OrganizationSwitcher = ({
                         align="left"
                         size="small"
                         fullWidth
-                        variant={id === organization?.id ? 'secondary' : 'quaternary'}
+                        variant={id === currentOrgFromSlug?.id ? 'secondary' : 'quaternary'}
                         disabled={!accessibleByCurrentSession || isSwitchingOrg}
                         endIcon={accessibleByCurrentSession ? undefined : 'lock'}
                         data-test={ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID}

@@ -1,14 +1,14 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { FC, useEffect } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_DETAILS_ROUTE, ERROR_404_ROUTE } from '~/core/router'
+import { CUSTOMER_DETAILS_ROUTE, ERROR_404_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { Locale, LocaleEnum } from '~/core/translations'
 import {

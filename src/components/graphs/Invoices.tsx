@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 
 import { buildUrlForInvoicesWithFilters } from '~/components/designSystem/Filters'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
@@ -12,6 +11,7 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { ChartWrapper } from '~/components/layouts/Charts'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { Link } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,

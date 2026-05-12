@@ -1,12 +1,13 @@
 import { Icon, IconName } from 'lago-design-system'
 import _omit from 'lodash/omit'
 import { ReactNode } from 'react'
-import { matchPath, useLocation } from 'react-router-dom'
+import { matchPath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
+import { useLocation } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { ButtonLink, ButtonLinkTabProps } from './ButtonLink'
@@ -42,7 +43,7 @@ export const VerticalMenu = ({
   ...props
 }: VerticalMenusProps) => {
   const { translate } = useInternationalization()
-  const { pathname } = useLocation()
+  const { strippedPathname: pathname } = useLocation()
   const activeTab = tabs.find(
     (tab) => tab.link === pathname || !!tab.match?.find((path) => !!matchPath(path, pathname)),
   )

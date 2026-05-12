@@ -1,8 +1,8 @@
 import { ApolloError } from '@apollo/client'
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { useNavigate } from '~/core/router'
 
 type UseNotFoundRedirectArgs = {
   error: ApolloError | undefined

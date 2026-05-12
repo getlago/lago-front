@@ -1,3 +1,5 @@
+import { useParams } from 'react-router-dom'
+
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import {
@@ -8,7 +10,6 @@ import {
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { useEditOrganizationSlugDialog } from './dialogs/useEditOrganizationSlugDialog'
@@ -16,11 +17,13 @@ import { useEditOrganizationSlugDialog } from './dialogs/useEditOrganizationSlug
 const OrganizationGeneralSettings = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { organization, loading } = useOrganizationInfos()
   const { openEditOrganizationSlugDialog } = useEditOrganizationSlugDialog()
 
+  const { organizationSlug } = useParams<{ organizationSlug: string }>()
+
   const canUpdate = hasPermissions(['organizationUpdate'])
-  const currentSlug = organization?.slug || ''
+  const currentSlug = organizationSlug || ''
+  const loading = !currentSlug
 
   return (
     <>
