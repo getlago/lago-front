@@ -1,9 +1,8 @@
-import { useNavigate } from 'react-router-dom'
-
 import {
   GenericPlaceholder,
   GenericPlaceholderProps,
 } from '~/components/designSystem/GenericPlaceholder'
+import { useNavigate } from '~/core/router'
 import { MappableTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import EmptyImage from '~/public/images/maneki/empty.svg'

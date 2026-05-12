@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -12,7 +12,7 @@ import { WarningDialog, WarningDialogRef } from '~/components/designSystem/Warni
 import { TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
+import { INVOICE_SETTINGS_ROUTE, useNavigate } from '~/core/router'
 import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import {
   CreatePricingUnitInput,

@@ -5,6 +5,7 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PlanDetailsOverview } from '~/components/plans/details/PlanDetailsOverview'
 import {
   FeatureFlagEnum,
+  LagoApiError,
   SubscriptionForSubscriptionInformationsFragmentDoc,
   useGetSubscriptionForDetailsOverviewQuery,
 } from '~/generated/graphql'
@@ -44,6 +45,7 @@ export const SubscriptionDetailsOverview = () => {
     useGetSubscriptionForDetailsOverviewQuery({
       variables: { subscriptionId: subscriptionId as string },
       skip: !subscriptionId,
+      context: { silentErrorCodes: [LagoApiError.NotFound] },
     })
   const subscription = subscriptionResult?.subscription
 

@@ -1,12 +1,12 @@
 import { gql } from '@apollo/client'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { DialogRef } from '~/components/designSystem/Dialog'
 import { WarningDialog } from '~/components/designSystem/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
-import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
+import { CUSTOMER_DETAILS_TAB_ROUTE, useNavigate } from '~/core/router'
 import {
   CustomerDetailsFragment,
   CustomerDetailsFragmentDoc,

@@ -1,7 +1,7 @@
 import { gql, MutationFunction } from '@apollo/client'
 import { ConditionalWrapper } from 'lago-design-system'
 import { FC, useMemo } from 'react'
-import { generatePath, Link, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { CreditNoteDetailsOverviewTable } from '~/components/creditNote/CreditNoteDetailsOverviewTable'
 import { Button } from '~/components/designSystem/Button'
@@ -16,7 +16,7 @@ import {
 } from '~/core/constants/statusCreditNoteMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE, Link } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import {

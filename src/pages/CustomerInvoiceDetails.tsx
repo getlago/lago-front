@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { useCallback, useMemo, useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import { Alert } from '~/components/designSystem/Alert'
@@ -45,6 +45,7 @@ import {
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_VOID_ROUTE,
   INVOICES_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -90,6 +91,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useGeneratePaymentUrl } from '~/hooks/useGeneratePaymentUrl'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 import { useDownloadInvoice } from '~/pages/invoiceDetails/common/useDownloadInvoice'
@@ -310,6 +312,14 @@ const CustomerInvoiceDetails = () => {
   const { data, loading, error, refetch } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
     skip: !invoiceId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+  })
+
+  useNotFoundRedirect({
+    error,
+    loading,
+    redirectTo: INVOICES_ROUTE,
+    translateKey: 'text_1777995443788zg01psy967w',
   })
   const {
     data: feesData,
@@ -318,6 +328,7 @@ const CustomerInvoiceDetails = () => {
   } = useGetInvoiceFeesQuery({
     variables: { id: invoiceId as string },
     skip: !invoiceId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
   const invoice = data?.invoice
   const invoiceFees = feesData?.invoice?.fees
@@ -597,12 +608,7 @@ const CustomerInvoiceDetails = () => {
             tab: CustomerInvoiceDetailsTabsOptionsEnum.payments,
           }),
         ],
-        content: (
-          <InvoicePaymentList
-            canRecordPayment={canRecordPayment}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />
-        ),
+        content: <InvoicePaymentList canRecordPayment={canRecordPayment} />,
       })
     }
 
@@ -834,6 +840,7 @@ const CustomerInvoiceDetails = () => {
         {
           label: translate('text_1737471851634wpeojigr27w'),
           hidden: !authorizations.canRecordPayment,
+          endIcon: isPremium ? undefined : ('sparkles' as const),
           onClick: (closePopper: () => void) => {
             if (isPremium) {
               navigate(

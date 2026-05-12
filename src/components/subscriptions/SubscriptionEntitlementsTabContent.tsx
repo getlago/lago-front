@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Button } from '~/components/designSystem/Button'
@@ -19,6 +19,7 @@ import {
   CREATE_ENTITLEMENT_PLAN_SUBSCRIPTION_ROUTE,
   UPDATE_ENTITLEMENT_CUSTOMER_SUBSCRIPTION_ROUTE,
   UPDATE_ENTITLEMENT_PLAN_SUBSCRIPTION_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import { useGetEntitlementsForSubscriptionDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

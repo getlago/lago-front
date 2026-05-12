@@ -1,13 +1,18 @@
 import { IconName } from 'lago-design-system'
 import { useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
 import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
 import { TerminateCustomerWalletDialogRef } from '~/components/wallets/TerminateCustomerWalletDialog'
 import { VoidWalletDialogRef } from '~/components/wallets/VoidWalletDialog'
 import { addToast } from '~/core/apolloClient'
-import { CREATE_WALLET_TOP_UP_ROUTE, EDIT_WALLET_ROUTE, WALLET_DETAILS_ROUTE } from '~/core/router'
+import {
+  CREATE_WALLET_TOP_UP_ROUTE,
+  EDIT_WALLET_ROUTE,
+  useNavigate,
+  WALLET_DETAILS_ROUTE,
+} from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { CurrencyEnum, WalletStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

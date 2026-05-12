@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
@@ -16,7 +16,11 @@ import {
   DeleteFlutterwaveIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteFlutterwaveIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
+import {
+  FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE,
+  INTEGRATIONS_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import {
   DeleteFlutterwaveIntegrationDialogFragmentDoc,
   FlutterwaveProvider,

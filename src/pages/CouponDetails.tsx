@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { CouponDetailsActivityLogs } from '~/components/coupons/CouponDetailsActivityLogs'
 import { CouponDetailsAppliedCoupons } from '~/components/coupons/CouponDetailsAppliedCoupons'
@@ -12,14 +12,21 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE, UPDATE_COUPON_ROUTE } from '~/core/router'
+import {
+  COUPON_DETAILS_ROUTE,
+  COUPONS_ROUTE,
+  UPDATE_COUPON_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import {
   DeleteCouponFragmentDoc,
+  LagoApiError,
   TerminateCouponFragmentDoc,
   useGetCouponForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 import { usePermissionsCouponActions } from '~/hooks/usePermissionsCouponActions'
 
@@ -58,11 +65,19 @@ const CouponDetails = () => {
   const { openDialog: openDeleteDialog } = useDeleteCoupon()
   const { openDialog: openTerminateDialog } = useTerminateCoupon()
 
-  const { data, loading } = useGetCouponForDetailsQuery({
+  const { data, loading, error } = useGetCouponForDetailsQuery({
     variables: {
       id: couponId as string,
     },
     skip: !couponId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+  })
+
+  useNotFoundRedirect({
+    error,
+    loading,
+    redirectTo: COUPONS_ROUTE,
+    translateKey: 'text_1777995443788jkq4zx3m74e',
   })
 
   const coupon = data?.coupon

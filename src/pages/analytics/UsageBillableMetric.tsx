@@ -1,6 +1,6 @@
 import { tw } from 'lago-design-system'
 import { useRef, useState } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { UsageBreakdownType } from '~/components/analytics/usage/types'
@@ -22,7 +22,7 @@ import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/Prem
 import { ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX } from '~/core/constants/filters'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { ANALYTIC_TABS_ROUTE } from '~/core/router'
+import { ANALYTIC_TABS_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

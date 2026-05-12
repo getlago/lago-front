@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
-import { captureException } from '@sentry/react'
 import { useEffect, useRef } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import {
   AddCouponToCustomerDialog,
@@ -15,8 +14,8 @@ import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { CUSTOMERS_LIST_ROUTE } from '~/core/router'
+import { hasDefinedGQLError } from '~/core/apolloClient'
+import { CUSTOMERS_LIST_ROUTE, useLocation, useNavigate } from '~/core/router'
 import {
   AddCustomerDrawerFragmentDoc,
   CustomerMainInfosFragmentDoc,
@@ -27,7 +26,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerDetailsHeaderActions } from '~/hooks/customer/useCustomerDetailsHeaderActions'
 import { useCustomerDetailsHeaderEntity } from '~/hooks/customer/useCustomerDetailsHeaderEntity'
 import { useCustomerDetailsHeaderTabs } from '~/hooks/customer/useCustomerDetailsHeaderTabs'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 gql`
@@ -78,7 +77,6 @@ const CustomerDetails = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const location = useLocation()
-  const { organization } = useOrganizationInfos()
   const { customerId } = useParams()
 
   const shouldPollIntegrations = (location.state as { shouldPollIntegrations?: boolean })
@@ -93,7 +91,6 @@ const CustomerDetails = () => {
   })
 
   const customer = data?.customer
-  const isNotFoundError = hasDefinedGQLError('NotFound', error)
   const hasAnyIntegrationCustomer =
     !!customer?.netsuiteCustomer ||
     !!customer?.anrokCustomer ||
@@ -127,24 +124,12 @@ const CustomerDetails = () => {
     }
   }, [shouldPollIntegrations, hasAnyIntegrationCustomer, stopPolling, navigate, location.pathname])
 
-  // When customer is not found (404), redirect to customers list with error toast
-  useEffect(() => {
-    if (loading || !isNotFoundError) return
-
-    captureException(new Error('Customer not found'), {
-      extra: {
-        customerId,
-        organizationId: organization?.id,
-        url: location.pathname,
-      },
-    })
-
-    addToast({
-      severity: 'info',
-      translateKey: 'text_17701996981731m5uguxyg8b',
-    })
-    navigate(CUSTOMERS_LIST_ROUTE, { replace: true })
-  }, [loading, isNotFoundError, customerId, navigate, location.pathname, organization?.id])
+  useNotFoundRedirect({
+    error,
+    loading,
+    redirectTo: CUSTOMERS_LIST_ROUTE,
+    translateKey: 'text_17701996981731m5uguxyg8b',
+  })
 
   const actions = useCustomerDetailsHeaderActions({
     customerId: customerId as string,
@@ -180,7 +165,7 @@ const CustomerDetails = () => {
       {activeTabContent && <div className="p-4 md:p-12">{activeTabContent}</div>}
 
       {/* Error state (non-404) */}
-      {!!error && !isNotFoundError && (
+      {!!error && !hasDefinedGQLError('NotFound', error) && (
         <div className="px-4 pb-20 pt-12 md:px-12">
           <GenericPlaceholder
             title={translate('text_6250304370f0f700a8fdc270')}

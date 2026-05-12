@@ -1,4 +1,4 @@
-import { generatePath, matchPath, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, matchPath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
@@ -12,7 +12,7 @@ import {
 } from '~/components/developers/devtoolsRoutes'
 import { WebhookLogs } from '~/components/developers/webhooks/WebhookLogs'
 import { WebhookOverview } from '~/components/developers/webhooks/WebhookOverview'
-import { UPDATE_WEBHOOK_ROUTE } from '~/core/router'
+import { UPDATE_WEBHOOK_ROUTE, useLocation, useNavigate } from '~/core/router'
 import { WebhookEndpointSignatureAlgoEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
@@ -31,7 +31,7 @@ export const WEBHOOK_DETAIL_DELETE_BUTTON_TEST_ID = 'webhook-detail-delete-butto
 
 export const WebhookDetail = () => {
   const { webhookId = '' } = useParams<{ webhookId: string }>()
-  const { pathname } = useLocation()
+  const { strippedPathname: pathname } = useLocation()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { closePanel, setMainRouterUrl } = useDeveloperTool()

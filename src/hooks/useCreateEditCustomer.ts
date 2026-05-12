@@ -1,6 +1,6 @@
 import { FetchResult, gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { addToast, hasDefinedGQLError, PspErrorCode } from '~/core/apolloClient'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
@@ -9,6 +9,7 @@ import {
   CUSTOMER_DETAILS_TAB_ROUTE,
   CUSTOMERS_LIST_ROUTE,
   ERROR_404_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import {
   AddCustomerDrawerFragment,

@@ -58,6 +58,8 @@ jest.mock('~/core/apolloClient', () => ({
 jest.mock('~/core/router', () => ({
   ROLE_DETAILS_ROUTE: '/settings/roles/:roleId',
   HOME_ROUTE: '/',
+  useNavigate: () => mockNavigate,
+  useLocation: () => mockUseLocation(),
 }))
 
 jest.mock('~/generated/graphql', () => ({

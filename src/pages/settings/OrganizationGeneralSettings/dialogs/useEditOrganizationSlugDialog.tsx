@@ -5,7 +5,8 @@ import { useRef } from 'react'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { setOrgSlugOverride } from '~/core/apolloClient/reactiveVars'
+import { rewriteSlugInLocationHistory } from '~/core/apolloClient/reactiveVars'
+import { GENERAL_SETTINGS_ROUTE, useNavigate } from '~/core/router'
 import { LagoApiError, useUpdateOrganizationSlugMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -33,17 +34,20 @@ type EditOrganizationSlugDialogData = {
 export const useEditOrganizationSlugDialog = () => {
   const formDialog = useFormDialog()
   const { translate } = useInternationalization()
+  const navigate = useNavigate()
 
   const dataRef = useRef<EditOrganizationSlugDialogData | null>(null)
   const successRef = useRef<{ orgId: string; savedSlug: string } | null>(null)
 
   const [updateOrganizationSlug] = useUpdateOrganizationSlugMutation({
-    // The mutation returns `CurrentOrganization` (auto-normalized by Apollo),
-    // but consumers like the org-slug rollout banner read the slug from the
-    // `Organization` entity nested inside `currentUser.memberships` — a
-    // separate cache entry. Without this patch, that entity keeps the old
-    // slug post-rename and downstream reads (banner copy, switcher, etc.)
-    // stay stale until a full refetch lands.
+    // The mutation's return type is `CurrentOrganization`, which is a separate
+    // cache entry from the `Organization` that lives inside the current user's
+    // memberships. Apollo's auto-normalization only touches the returned type,
+    // so without this `update` the memberships would still carry the old slug
+    // and `OrganizationLayout` would render Error404 for the new URL until a
+    // full refetch landed — the race that caused the 404 flash on submit.
+    // Patching the `Organization:${id}` entry directly keeps the SPA flow
+    // (no hard reload, no cache clearing) while staying in sync instantly.
     update(cache, { data }) {
       if (!data?.updateOrganization?.id || !data.updateOrganization.slug) return
 
@@ -108,13 +112,6 @@ export const useEditOrganizationSlugDialog = () => {
 
       if (savedSlug && orgId) {
         successRef.current = { orgId, savedSlug }
-
-        // Record the new slug in the per-org-id override map read by the
-        // org-slug rollout banner. The map persists across org switches, so
-        // coming back to this org will still reflect the edit locally even
-        // when the cache round-trip would return stale data. Bypasses Apollo
-        // cache observer flakiness post-`client.stop() + clearStore()`.
-        setOrgSlugOverride(orgId, savedSlug)
       }
     },
   })
@@ -140,14 +137,14 @@ export const useEditOrganizationSlugDialog = () => {
         title: translate('text_1776867582729jiym04jk1ax'),
         description: translate('text_1776867582730aqe2kknmohd'),
         children: (
-          <div className="flex flex-col gap-6 p-8">
+          <div className="flex flex-col gap-6 px-6 pb-2 pt-6">
             <div className="flex items-center gap-3 overflow-hidden rounded-xl border border-grey-300 px-3 py-2">
-              <span className="shrink-0 rounded-md border border-grey-300 bg-grey-100 px-2 py-1 text-sm text-grey-700">
+              <span className="font-mono shrink-0 rounded-md bg-grey-100 px-2 py-1 text-sm text-grey-700">
                 {translate('text_1776867582730qd932fynpjo')}
               </span>
               <form.Subscribe selector={(state) => state.values.slug}>
                 {(slugValue) => (
-                  <span className="truncate font-code text-sm text-grey-700">
+                  <span className="font-mono truncate text-sm text-grey-700">
                     {window.location.origin}
                     {'/'}
                     {slugValue}
@@ -181,12 +178,22 @@ export const useEditOrganizationSlugDialog = () => {
       })
       .then((response) => {
         if (response.reason === 'success' && successRef.current && dataRef.current) {
-          // NOTE: in this branch URLs do not yet include the org slug, so we
-          // skip the post-rename navigation and the `locationHistoryVar`
-          // rewrite that the original LAGO-1342 implementation performs. They
-          // become relevant once LAGO-1344/1345/1346 ship the slug-aware
-          // router. See the original commit on `LAGO-1342-organization-slug`
-          // for the full migration.
+          const { savedSlug } = successRef.current
+          const { currentSlug: oldSlug } = dataRef.current
+
+          // Keep `goBack(...)` consumers (e.g. "Back to app" in
+          // SettingsNavLayout) in sync with the new slug so they don't
+          // navigate to the pre-rename URL and land on Error404.
+          rewriteSlugInLocationHistory(oldSlug, savedSlug)
+
+          // The `update` callback on the mutation already patched the
+          // `Organization:${id}` cache entry with the new slug, so by the
+          // time OrganizationLayout re-renders under the new URL it finds
+          // the membership matching the new slug and renders normally.
+          navigate(`/${savedSlug}${GENERAL_SETTINGS_ROUTE}`, {
+            skipSlugPrepend: true,
+          })
+
           addToast({
             severity: 'success',
             translateKey: 'text_17768675827302s9i3t87uhn',

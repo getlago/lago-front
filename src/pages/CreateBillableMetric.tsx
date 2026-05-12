@@ -3,7 +3,7 @@ import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
 import _omit from 'lodash/omit'
 import { useEffect, useRef, useState } from 'react'
-import { useMatch, useNavigate } from 'react-router-dom'
+import { matchPath } from 'react-router-dom'
 import { array, bool, number, object, string } from 'yup'
 
 import { BillableMetricCodeSnippet } from '~/components/billableMetrics/BillableMetricCodeSnippet'
@@ -35,7 +35,12 @@ import {
   formatAggregationType,
   formatRoundingFunction,
 } from '~/core/formats/formatBillableMetricsItems'
-import { BILLABLE_METRICS_ROUTE, DUPLICATE_BILLABLE_METRIC_ROUTE } from '~/core/router'
+import {
+  BILLABLE_METRICS_ROUTE,
+  DUPLICATE_BILLABLE_METRIC_ROUTE,
+  useLocation,
+  useNavigate,
+} from '~/core/router'
 import { scrollToTop } from '~/core/utils/domUtils'
 import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import {
@@ -77,7 +82,8 @@ enum AggregateOnTab {
 }
 
 const CreateBillableMetric = () => {
-  const isDuplicate = !!useMatch(DUPLICATE_BILLABLE_METRIC_ROUTE)
+  const { strippedPathname } = useLocation()
+  const isDuplicate = !!matchPath(DUPLICATE_BILLABLE_METRIC_ROUTE, strippedPathname)
   const { translate } = useInternationalization()
   const navigate = useNavigate()
 

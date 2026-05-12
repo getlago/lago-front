@@ -1,11 +1,11 @@
 import { Icon, IconName } from 'lago-design-system'
 import { FC, PropsWithChildren } from 'react'
-import { Link } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Chip } from '~/components/designSystem/Chip'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
+import { Link } from '~/core/router'
 import { tw } from '~/styles/utils'
 
 const IntegrationsContainer: FC<PropsWithChildren<{ className?: string }>> = ({

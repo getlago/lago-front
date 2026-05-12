@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
@@ -20,7 +20,11 @@ import {
   DeleteGocardlessIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteGocardlessIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { GOCARDLESS_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
+import {
+  GOCARDLESS_INTEGRATION_DETAILS_ROUTE,
+  INTEGRATIONS_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import {
   AddGocardlessProviderDialogFragmentDoc,
   DeleteGocardlessIntegrationDialogFragmentDoc,

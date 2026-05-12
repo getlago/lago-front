@@ -1,7 +1,7 @@
 import { ApolloError, ApolloQueryResult, gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useEffect, useRef, useState } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import {
   SubscriptionUsageDetailDrawer,
@@ -21,7 +21,11 @@ import { addToast, hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
+  PLAN_SUBSCRIPTION_DETAILS_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'

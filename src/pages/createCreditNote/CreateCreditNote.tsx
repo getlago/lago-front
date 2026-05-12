@@ -1,7 +1,7 @@
 import { useFormik } from 'formik'
 import { Icon } from 'lago-design-system'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 import { array, object, Schema, string } from 'yup'
 
 import { CreditNoteEstimationLine } from '~/components/creditNote/CreditNoteEstimationLine'
@@ -29,7 +29,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import { CUSTOMER_INVOICE_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   generateAddOnFeesSchema,

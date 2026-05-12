@@ -1,5 +1,3 @@
-import { isValidElement, ReactElement } from 'react'
-
 import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
 import {
   ActivityTypeEnum,
@@ -13,7 +11,7 @@ import {
 import {
   buildLinkToActivityLog,
   formatActivityType,
-  formatResourceObject,
+  getResourceLink,
   isDeletedActivityType,
 } from '../utils'
 
@@ -125,214 +123,155 @@ describe('activityLogs utils', () => {
     })
   })
 
-  describe('formatResourceObject', () => {
+  describe('getResourceLink', () => {
     it('should return null when resource is null', () => {
-      const result = formatResourceObject(null, {
-        resourceType: 'Invoice',
-        activityType: ActivityTypeEnum.InvoiceGenerated,
-      })
-
-      expect(result).toBeNull()
+      expect(
+        getResourceLink(null, {
+          resourceType: 'Invoice',
+          activityType: ActivityTypeEnum.InvoiceGenerated,
+        }),
+      ).toBeNull()
     })
 
     it('should return null when resource is undefined', () => {
-      const result = formatResourceObject(undefined, {
-        resourceType: 'Invoice',
-        activityType: ActivityTypeEnum.InvoiceGenerated,
-      })
-
-      expect(result).toBeNull()
+      expect(
+        getResourceLink(undefined, {
+          resourceType: 'Invoice',
+          activityType: ActivityTypeEnum.InvoiceGenerated,
+        }),
+      ).toBeNull()
     })
 
-    it('should return plain text for deleted resources', () => {
-      const resource = {
-        id: 'coupon-123',
-        __typename: 'Coupon' as const,
-      }
-      const result = formatResourceObject(resource, {
-        resourceType: 'Coupon',
-        activityType: ActivityTypeEnum.CouponDeleted,
-      })
-
-      expect(result).toBe('coupon-123')
+    it('should return null for deleted resources', () => {
+      expect(
+        getResourceLink(
+          { id: 'coupon-123', __typename: 'Coupon' as const },
+          { resourceType: 'Coupon', activityType: ActivityTypeEnum.CouponDeleted },
+        ),
+      ).toBeNull()
     })
 
-    it('should return link for BillableMetric resource', () => {
-      const resource = {
-        id: 'metric-123',
-        __typename: 'BillableMetric' as const,
-      }
-      const result = formatResourceObject(resource, {
-        resourceType: 'BillableMetric',
-        activityType: ActivityTypeEnum.BillableMetricCreated,
-      })
-
-      expect(result).not.toBeNull()
-      expect(isValidElement(result)).toBe(true)
-      expect((result as ReactElement).type).toBe('a')
-      expect((result as ReactElement).props.href).toContain('metric-123')
+    it('should return null when activityType is not provided', () => {
+      expect(
+        getResourceLink({ id: 'invoice-123', __typename: 'Invoice' as const } as Invoice, {
+          resourceType: 'Invoice',
+        }),
+      ).toBeNull()
     })
 
-    it('should return link for BillingEntity resource', () => {
-      const resource: BillingEntity = {
-        id: 'entity-123',
-        code: 'entity-code',
-        __typename: 'BillingEntity' as const,
-      } as BillingEntity
-      const result = formatResourceObject(resource, {
-        resourceType: 'BillingEntity',
-        activityType: ActivityTypeEnum.BillingEntitiesCreated,
-      })
+    it('should return path for BillableMetric', () => {
+      const link = getResourceLink(
+        { id: 'metric-123', __typename: 'BillableMetric' as const },
+        { resourceType: 'BillableMetric', activityType: ActivityTypeEnum.BillableMetricCreated },
+      )
 
-      expect(result).not.toBeNull()
-      expect(isValidElement(result)).toBe(true)
-      expect((result as ReactElement).type).toBe('a')
-      expect((result as ReactElement).props.href).toContain('entity-code')
+      expect(link).toContain('metric-123')
     })
 
-    it('should return link for Coupon resource', () => {
-      const resource = {
-        id: 'coupon-123',
-        __typename: 'Coupon' as const,
-      }
-      const result = formatResourceObject(resource, {
-        resourceType: 'Coupon',
-        activityType: ActivityTypeEnum.CouponCreated,
-      })
+    it('should return path for BillingEntity using its code', () => {
+      const link = getResourceLink(
+        {
+          id: 'entity-123',
+          code: 'entity-code',
+          __typename: 'BillingEntity' as const,
+        } as BillingEntity,
+        { resourceType: 'BillingEntity', activityType: ActivityTypeEnum.BillingEntitiesCreated },
+      )
 
-      expect(result).not.toBeNull()
-      expect(isValidElement(result)).toBe(true)
-      expect((result as ReactElement).type).toBe('a')
-      expect((result as ReactElement).props.href).toContain('coupon-123')
+      expect(link).toContain('entity-code')
     })
 
-    it('should return link for CreditNote resource with customer and invoice', () => {
-      const resource: CreditNote = {
-        id: 'credit-note-123',
-        customer: { id: 'customer-123' },
-        invoice: { id: 'invoice-123' },
-        __typename: 'CreditNote' as const,
-      } as CreditNote
-      const result = formatResourceObject(resource, {
-        resourceType: 'CreditNote',
-        activityType: ActivityTypeEnum.CreditNoteCreated,
-      })
+    it('should return path for Coupon', () => {
+      const link = getResourceLink(
+        { id: 'coupon-123', __typename: 'Coupon' as const },
+        { resourceType: 'Coupon', activityType: ActivityTypeEnum.CouponCreated },
+      )
 
-      expect(result).not.toBeNull()
-      expect(isValidElement(result)).toBe(true)
-      expect((result as ReactElement).type).toBe('a')
-      expect((result as ReactElement).props.href).toContain('customer-123')
-      expect((result as ReactElement).props.href).toContain('invoice-123')
-      expect((result as ReactElement).props.href).toContain('credit-note-123')
+      expect(link).toContain('coupon-123')
     })
 
-    it('should return plain text for CreditNote without customer or invoice', () => {
-      const resource: CreditNote = {
-        id: 'credit-note-123',
-        __typename: 'CreditNote' as const,
-      } as CreditNote
-      const result = formatResourceObject(resource, {
-        resourceType: 'CreditNote',
-        activityType: ActivityTypeEnum.CreditNoteCreated,
-      })
+    it('should return path for CreditNote when both customer and invoice are present', () => {
+      const link = getResourceLink(
+        {
+          id: 'credit-note-123',
+          customer: { id: 'customer-123' },
+          invoice: { id: 'invoice-123' },
+          __typename: 'CreditNote' as const,
+        } as CreditNote,
+        { resourceType: 'CreditNote', activityType: ActivityTypeEnum.CreditNoteCreated },
+      )
 
-      expect(result).toBe('credit-note-123')
+      expect(link).toContain('customer-123')
+      expect(link).toContain('invoice-123')
+      expect(link).toContain('credit-note-123')
     })
 
-    it('should return link for Invoice resource', () => {
-      const resource: Invoice = {
-        id: 'invoice-123',
-        customer: { id: 'customer-123' },
-        __typename: 'Invoice' as const,
-      } as Invoice
-      const result = formatResourceObject(resource, {
-        resourceType: 'Invoice',
-        activityType: ActivityTypeEnum.InvoiceGenerated,
-      })
+    it('should return null for CreditNote without customer or invoice', () => {
+      const link = getResourceLink(
+        { id: 'credit-note-123', __typename: 'CreditNote' as const } as CreditNote,
+        { resourceType: 'CreditNote', activityType: ActivityTypeEnum.CreditNoteCreated },
+      )
 
-      expect(result).not.toBeNull()
-      expect(isValidElement(result)).toBe(true)
-      expect((result as ReactElement).type).toBe('a')
-      expect((result as ReactElement).props.href).toContain('customer-123')
-      expect((result as ReactElement).props.href).toContain('invoice-123')
+      expect(link).toBeNull()
     })
 
-    it('should return link for Feature resource', () => {
-      const resource = {
-        id: 'feature-123',
-        __typename: 'FeatureObject' as const,
-      }
-      const result = formatResourceObject(resource, {
-        resourceType: 'Feature',
-        activityType: ActivityTypeEnum.FeatureCreated,
-      })
+    it('should return path for Invoice', () => {
+      const link = getResourceLink(
+        {
+          id: 'invoice-123',
+          customer: { id: 'customer-123' },
+          __typename: 'Invoice' as const,
+        } as Invoice,
+        { resourceType: 'Invoice', activityType: ActivityTypeEnum.InvoiceGenerated },
+      )
 
-      expect(result).not.toBeNull()
-      expect(isValidElement(result)).toBe(true)
-      expect((result as ReactElement).type).toBe('a')
-      expect((result as ReactElement).props.href).toContain('feature-123')
+      expect(link).toContain('customer-123')
+      expect(link).toContain('invoice-123')
     })
 
-    it('should return link for Plan resource', () => {
-      const resource = {
-        id: 'plan-123',
-        __typename: 'Plan' as const,
-      }
-      const result = formatResourceObject(resource, {
-        resourceType: 'Plan',
-        activityType: ActivityTypeEnum.PlanCreated,
-      })
+    it('should return path for Feature', () => {
+      const link = getResourceLink(
+        { id: 'feature-123', __typename: 'FeatureObject' as const },
+        { resourceType: 'Feature', activityType: ActivityTypeEnum.FeatureCreated },
+      )
 
-      expect(result).not.toBeNull()
-      expect(isValidElement(result)).toBe(true)
-      expect((result as ReactElement).type).toBe('a')
-      expect((result as ReactElement).props.href).toContain('plan-123')
+      expect(link).toContain('feature-123')
     })
 
-    it('should return link for Wallet resource', () => {
-      const resource = {
-        id: 'wallet-123',
-        walletCustomer: { id: 'customer-123' },
-        __typename: 'Wallet' as const,
-      } as unknown as Wallet
-      const result = formatResourceObject(resource, {
-        resourceType: 'Wallet',
-        activityType: ActivityTypeEnum.WalletCreated,
-      })
+    it('should return path for Plan', () => {
+      const link = getResourceLink(
+        { id: 'plan-123', __typename: 'Plan' as const },
+        { resourceType: 'Plan', activityType: ActivityTypeEnum.PlanCreated },
+      )
 
-      expect(result).not.toBeNull()
-      expect(isValidElement(result)).toBe(true)
-      expect((result as ReactElement).type).toBe('a')
-      expect((result as ReactElement).props.href).toContain('customer-123')
+      expect(link).toContain('plan-123')
     })
 
-    it('should return plain text for unsupported resource types', () => {
-      const resource = {
-        id: 'subscription-123',
-        __typename: 'Subscription' as const,
-      }
-      const result = formatResourceObject(resource, {
-        resourceType: 'Subscription' as keyof typeof ResourceTypeEnum,
-        activityType: ActivityTypeEnum.SubscriptionStarted,
-      })
+    it("should return path for Wallet using its customer's id", () => {
+      const link = getResourceLink(
+        {
+          id: 'wallet-123',
+          walletCustomer: { id: 'customer-123' },
+          __typename: 'Wallet' as const,
+        } as unknown as Wallet,
+        { resourceType: 'Wallet', activityType: ActivityTypeEnum.WalletCreated },
+      )
 
-      expect(result).toBe('subscription-123')
+      expect(link).toContain('customer-123')
     })
 
-    it('should return plain text when activityType is not provided', () => {
-      const resource = {
-        id: 'invoice-123',
-        customer: { id: 'customer-123' },
-        __typename: 'Invoice' as const,
-      } as unknown as Invoice
-      const result = formatResourceObject(resource, {
-        resourceType: 'Invoice',
-      })
-
-      expect(result).toBe('invoice-123')
+    it('should return null for unsupported resource types', () => {
+      expect(
+        getResourceLink(
+          { id: 'subscription-123', __typename: 'Subscription' as const },
+          {
+            resourceType: 'Subscription' as keyof typeof ResourceTypeEnum,
+            activityType: ActivityTypeEnum.SubscriptionStarted,
+          },
+        ),
+      ).toBeNull()
     })
   })
-
   describe('buildLinkToActivityLog', () => {
     it('should build link with default activityIds filter', () => {
       const result = buildLinkToActivityLog('log-123')

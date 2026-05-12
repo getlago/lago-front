@@ -6,15 +6,13 @@ import { useEffect, useMemo, useRef } from 'react'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
 import { envGlobalVar, getItemFromLS, removeItemFromLS, setItemFromLS } from '~/core/apolloClient'
-import {
-  ORGANIZATION_LS_KEY_ID,
-  SUPERSET_FILTERS_LS_KEY_PREFIX,
-} from '~/core/constants/localStorageKeys'
+import { SUPERSET_FILTERS_LS_KEY_PREFIX } from '~/core/constants/localStorageKeys'
 import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { encodeRison } from '~/core/utils/risonEncoder'
 import { extractNativeFilters } from '~/core/utils/supersetFilters'
 import { useSupersetDashboardsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import '~/main.css'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { PageHeader } from '~/styles'
@@ -37,6 +35,7 @@ gql`
 
 const Dashboards = () => {
   const { translate } = useInternationalization()
+  const { currentMembership } = useCurrentUser()
 
   const dashboardRef = useRef<string>('')
 
@@ -57,7 +56,12 @@ const Dashboards = () => {
     let embedded: null | EmbeddedDashboard = null
 
     const persistFilters = isFeatureFlagActive(FeatureFlags.SUPERSET_PERSISTENT_FILTERS)
-    const orgId = getItemFromLS(ORGANIZATION_LS_KEY_ID) || ''
+    // Filter persistence key is scoped to the org from the URL slug (resolved
+    // through `currentMembership`, which is now slug-driven). Reading the orgId
+    // directly from LS would scope filters to whatever org was last selected
+    // browser-wide, causing cross-org filter leak when multiple tabs are open
+    // on different orgs.
+    const orgId = currentMembership?.organization.id || ''
     const filtersLsKey = `${SUPERSET_FILTERS_LS_KEY_PREFIX}${orgId}`
 
     const debouncedSaveFilters = persistFilters
@@ -118,7 +122,7 @@ const Dashboards = () => {
       embedded?.unmount()
       dashboardRef.current = ''
     }
-  }, [dashboard])
+  }, [dashboard, currentMembership?.organization.id])
 
   return (
     <>
