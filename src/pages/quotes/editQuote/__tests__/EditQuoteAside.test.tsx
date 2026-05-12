@@ -4,8 +4,8 @@ import { OrderTypeEnum, QuoteDetailItemFragment, StatusEnum } from '~/generated/
 import { render } from '~/test-utils'
 
 import EditQuoteAside, {
+  EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID,
   EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID,
-  EDIT_QUOTE_ASIDE_OWNERS_COMBOBOX_TEST_ID,
   EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID,
   EDIT_QUOTE_ASIDE_SUBSCRIPTION_INPUT_TEST_ID,
 } from '../EditQuoteAside'
@@ -16,23 +16,8 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-const mockUpdateQuote = jest.fn()
-
-jest.mock('../../hooks/useUpdateQuote', () => ({
-  useUpdateQuote: () => ({
-    updateQuote: mockUpdateQuote,
-    isUpdatingQuote: false,
-  }),
-}))
-
-let mockMembersQueryData: unknown = undefined
-
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useGetMembersForCreateQuoteQuery: () => ({
-    data: mockMembersQueryData,
-    loading: false,
-  }),
 }))
 
 const mockQuote: QuoteDetailItemFragment = {
@@ -55,8 +40,14 @@ const mockQuote: QuoteDetailItemFragment = {
     id: 'customer-1',
     name: 'Acme Corp',
     externalId: 'ext-cust-1',
+    billingEntity: {
+      __typename: 'BillingEntity',
+      id: 'be-1',
+      code: 'default',
+      name: 'Default Entity',
+    },
   },
-  owners: [{ __typename: 'User', id: 'user-1', email: 'alice@example.com' }],
+  owners: [],
   subscription: null,
   currentVersion: {
     __typename: 'QuoteVersion',
@@ -71,14 +62,6 @@ const mockQuote: QuoteDetailItemFragment = {
 describe('EditQuoteAside', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockMembersQueryData = {
-      memberships: {
-        collection: [
-          { id: 'member-1', user: { id: 'user-1', email: 'alice@example.com' } },
-          { id: 'member-2', user: { id: 'user-2', email: 'bob@example.com' } },
-        ],
-      },
-    }
   })
 
   describe('GIVEN a quote is provided', () => {
@@ -89,16 +72,35 @@ describe('EditQuoteAside', () => {
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID)).toBeInTheDocument()
       })
 
-      it('THEN should render the owners combobox', () => {
-        render(<EditQuoteAside quote={mockQuote} />)
-
-        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_OWNERS_COMBOBOX_TEST_ID)).toBeInTheDocument()
-      })
-
       it('THEN should render the customer field', () => {
         render(<EditQuoteAside quote={mockQuote} />)
 
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID)).toBeInTheDocument()
+      })
+
+      it('THEN should render the billing entity field', () => {
+        render(<EditQuoteAside quote={mockQuote} />)
+
+        expect(
+          screen.getByTestId(EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID),
+        ).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a quote with no billing entity', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should NOT render the billing entity field', () => {
+        const quoteWithoutBillingEntity = {
+          ...mockQuote,
+          customer: { ...mockQuote.customer, billingEntity: null },
+        }
+
+        render(<EditQuoteAside quote={quoteWithoutBillingEntity} />)
+
+        expect(
+          screen.queryByTestId(EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
   })
@@ -149,10 +151,10 @@ describe('EditQuoteAside', () => {
           screen.queryByTestId(EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID),
         ).not.toBeInTheDocument()
         expect(
-          screen.queryByTestId(EDIT_QUOTE_ASIDE_OWNERS_COMBOBOX_TEST_ID),
+          screen.queryByTestId(EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID),
         ).not.toBeInTheDocument()
         expect(
-          screen.queryByTestId(EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID),
+          screen.queryByTestId(EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID),
         ).not.toBeInTheDocument()
         expect(
           screen.queryByTestId(EDIT_QUOTE_ASIDE_SUBSCRIPTION_INPUT_TEST_ID),

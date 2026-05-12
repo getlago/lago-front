@@ -18,6 +18,12 @@ gql`
       id
       name
       externalId
+      currency
+      billingEntity {
+        id
+        code
+        name
+      }
     }
     owners {
       id

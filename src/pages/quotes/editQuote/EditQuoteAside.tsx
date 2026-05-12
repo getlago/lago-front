@@ -1,19 +1,16 @@
-import { useEffect, useMemo, useState } from 'react'
-
 import { Typography } from '~/components/designSystem/Typography'
-import { MultipleComboBox } from '~/components/form/MultipleComboBox/MultipleComboBox'
-import { MultipleComboBoxData } from '~/components/form/MultipleComboBox/types'
+import { ComboBox } from '~/components/form/ComboBox/ComboBox'
 import { TextInput } from '~/components/form/TextInput'
-import { QuoteDetailItemFragment, useGetMembersForCreateQuoteQuery } from '~/generated/graphql'
+import { QuoteDetailItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { getQuoteOrderTypeTranslationKey } from '../common/getQuoteOrderTypeTranslationKey'
-import { useUpdateQuote } from '../hooks/useUpdateQuote'
 
 export const EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID = 'edit-quote-aside-quote-type'
-export const EDIT_QUOTE_ASIDE_OWNERS_COMBOBOX_TEST_ID = 'edit-quote-aside-owners'
 export const EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID = 'edit-quote-aside-customer'
+export const EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID = 'edit-quote-aside-billing-entity'
 export const EDIT_QUOTE_ASIDE_SUBSCRIPTION_INPUT_TEST_ID = 'edit-quote-aside-subscription'
+export const EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID = 'edit-quote-aside-currency'
 
 interface EditQuoteAsideProps {
   quote: QuoteDetailItemFragment | null | undefined
@@ -21,48 +18,10 @@ interface EditQuoteAsideProps {
 
 const EditQuoteAside = ({ quote }: EditQuoteAsideProps) => {
   const { translate } = useInternationalization()
-  const { updateQuote } = useUpdateQuote()
-
-  const { data: membersData, loading: membersLoading } = useGetMembersForCreateQuoteQuery({
-    variables: { page: 1, limit: 100 },
-  })
-
-  const comboboxOwnersData = useMemo(() => {
-    if (!membersData?.memberships?.collection) return []
-
-    return membersData.memberships.collection
-      .filter((membership) => !!membership.user.email)
-      .map((membership) => ({
-        label: membership.user.email || '',
-        value: membership.user.id,
-      }))
-  }, [membersData?.memberships?.collection])
-
-  const [selectedOwners, setSelectedOwners] = useState<MultipleComboBoxData[]>([])
-
-  useEffect(() => {
-    if (!quote?.owners) return
-
-    setSelectedOwners(
-      quote.owners
-        .filter((owner) => !!owner.email)
-        .map((owner) => ({
-          label: owner.email || '',
-          value: owner.id,
-        })),
-    )
-  }, [quote?.owners])
-
-  const handleOwnersChange = (newOwners: MultipleComboBoxData[]) => {
-    setSelectedOwners(newOwners)
-    if (!quote) return
-    updateQuote({
-      id: quote.id,
-      owners: newOwners.map((owner) => owner.value),
-    })
-  }
 
   if (!quote) return null
+
+  const gridClassName = 'grid grid-cols-[7.5rem_1fr] items-center gap-0 gap-y-2'
 
   return (
     <>
@@ -70,23 +29,38 @@ const EditQuoteAside = ({ quote }: EditQuoteAsideProps) => {
         <Typography variant="bodyHl" color="grey700">
           {translate('text_1777540287773ez178bggf4h')}
         </Typography>
-        <div data-test={EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID}>
-          <TextInput
-            disabled
-            label={translate('text_1776238919927x1y2z3a4b5c')}
-            value={translate(getQuoteOrderTypeTranslationKey(quote.orderType))}
-          />
-        </div>
-        <div data-test={EDIT_QUOTE_ASIDE_OWNERS_COMBOBOX_TEST_ID}>
-          <MultipleComboBox
-            label={translate('text_1776429591588dnpx1guz0cl')}
-            placeholder={translate('text_1776429591588ale04shf9wf')}
-            data={comboboxOwnersData}
-            loading={membersLoading}
-            value={selectedOwners}
-            disableCloseOnSelect
-            onChange={handleOwnersChange}
-          />
+        <div className={gridClassName}>
+          <Typography
+            variant="caption"
+            color="grey600"
+            data-test={EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID}
+          >
+            {translate('text_1776238919927x1y2z3a4b5c')}
+          </Typography>
+          <TextInput disabled value={translate(getQuoteOrderTypeTranslationKey(quote.orderType))} />
+          {quote.customer.billingEntity && (
+            <>
+              <Typography
+                variant="caption"
+                color="grey600"
+                data-test={EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID}
+              >
+                {translate('text_17436114971570doqrwuwhf0')}
+              </Typography>
+              <ComboBox
+                disabled
+                disableClearable
+                data={[
+                  {
+                    value: quote.customer.billingEntity.id,
+                    label: quote.customer.billingEntity.name || quote.customer.billingEntity.code,
+                  },
+                ]}
+                value={quote.customer.billingEntity.id}
+                onChange={() => {}}
+              />
+            </>
+          )}
         </div>
       </div>
       <hr className="border-grey-300" />
@@ -94,22 +68,53 @@ const EditQuoteAside = ({ quote }: EditQuoteAsideProps) => {
         <Typography variant="bodyHl" color="grey700">
           {translate('text_1777552621583netdlhbg5i7')}
         </Typography>
-        <div data-test={EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID}>
-          <TextInput
-            disabled
-            label={translate('text_1776238919927l1m2n3o4p5q')}
-            value={quote.customer.name ?? ''}
-          />
+        <div className={gridClassName}>
+          <Typography
+            variant="caption"
+            color="grey600"
+            data-test={EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID}
+          >
+            {translate('text_1776238919927l1m2n3o4p5q')}
+          </Typography>
+          <TextInput disabled value={quote.customer.name ?? ''} />
+          {quote.customer.currency && (
+            <>
+              <Typography
+                variant="caption"
+                color="grey600"
+                data-test={EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID}
+              >
+                {translate('text_632b4acf0c41206cbcb8c324')}
+              </Typography>
+              <ComboBox
+                disabled
+                disableClearable
+                data={[
+                  {
+                    value: quote.customer.currency,
+                  },
+                ]}
+                value={quote.customer.currency}
+                onChange={() => {}}
+              />
+            </>
+          )}
+          {quote.subscription && (
+            <>
+              <Typography
+                variant="caption"
+                color="grey600"
+                data-test={EDIT_QUOTE_ASIDE_SUBSCRIPTION_INPUT_TEST_ID}
+              >
+                {translate('text_1776238919927d6e7f8g9h0i')}
+              </Typography>
+              <TextInput
+                disabled
+                value={`${quote.subscription.plan.name} - ${quote.subscription.externalId}`}
+              />
+            </>
+          )}
         </div>
-        {quote.subscription && (
-          <div data-test={EDIT_QUOTE_ASIDE_SUBSCRIPTION_INPUT_TEST_ID}>
-            <TextInput
-              disabled
-              label={translate('text_1776238919927d6e7f8g9h0i')}
-              value={`${quote.subscription.plan.name} - ${quote.subscription.externalId}`}
-            />
-          </div>
-        )}
       </div>
     </>
   )
