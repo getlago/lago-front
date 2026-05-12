@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
-import { APPROVE_QUOTE_ROUTE } from '~/core/router'
+import { APPROVE_QUOTE_ROUTE, useNavigate } from '~/core/router'
 import { useApproveQuoteVersionMutation } from '~/generated/graphql'
 
 gql`

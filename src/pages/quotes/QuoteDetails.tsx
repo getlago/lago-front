@@ -1,11 +1,16 @@
 import { useEffect } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { QuoteDetailsTabsOptionsEnum, QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { QUOTE_DETAILS_ROUTE, QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE } from '~/core/router'
+import {
+  QUOTE_DETAILS_ROUTE,
+  QUOTES_LIST_ROUTE,
+  QUOTES_TAB_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { useQuote } from './hooks/useQuote'

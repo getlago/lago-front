@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
-import { EDIT_QUOTE_ROUTE } from '~/core/router'
+import { EDIT_QUOTE_ROUTE, useNavigate } from '~/core/router'
 import { useCloneQuoteVersionMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

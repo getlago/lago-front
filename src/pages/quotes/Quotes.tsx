@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { generatePath, useLocation, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { AvailableFiltersEnum, Filters } from '~/components/designSystem/Filters'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -8,7 +8,13 @@ import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTa
 import PremiumFeature from '~/components/premium/PremiumFeature'
 import { QUOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { CREATE_QUOTE_ROUTE, QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE } from '~/core/router'
+import {
+  CREATE_QUOTE_ROUTE,
+  QUOTES_LIST_ROUTE,
+  QUOTES_TAB_ROUTE,
+  useLocation,
+  useNavigate,
+} from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'

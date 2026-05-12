@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { addToast } from '~/core/apolloClient'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { QUOTE_DETAILS_ROUTE } from '~/core/router'
+import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { CreateQuoteInput, useCreateQuoteMutation } from '~/generated/graphql'
 
 gql`

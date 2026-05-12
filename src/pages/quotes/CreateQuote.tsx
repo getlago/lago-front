@@ -1,14 +1,13 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useCallback, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { ComboboxItem } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { QUOTES_LIST_ROUTE } from '~/core/router'
+import { QUOTES_LIST_ROUTE, useNavigate } from '~/core/router'
 import {
   OrderTypeEnum,
   StatusTypeEnum,

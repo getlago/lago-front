@@ -1,7 +1,7 @@
 import { IconName } from 'lago-design-system'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
-import { EDIT_QUOTE_ROUTE, VOID_QUOTE_ROUTE } from '~/core/router'
+import { EDIT_QUOTE_ROUTE, useNavigate, VOID_QUOTE_ROUTE } from '~/core/router'
 import { StatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
