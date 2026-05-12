@@ -1,10 +1,11 @@
 import { ReactNode, Suspense, useEffect } from 'react'
-import { RouteObject, useLocation, useNavigate, useRoutes } from 'react-router-dom'
+import { RouteObject, useRoutes } from 'react-router-dom'
 
 import { Spinner } from '~/components/designSystem/Spinner'
 import { DEVTOOL_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { drawerStack } from '~/components/drawers/drawerStack'
-import { CustomRouteObject, routes } from '~/core/router'
+import { CustomRouteObject, routes, useLocation, useNavigate } from '~/core/router'
+import { NEVER_SLUG_PREFIXES } from '~/core/router/slugPrefixes'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { DEVTOOL_TAB_PARAMS, useDeveloperTool } from '~/hooks/useDeveloperTool'
@@ -93,14 +94,23 @@ export const RouteWrapper = () => {
     drawerStack.clearAll()
   }, [location])
 
-  // Listen for navigation requests from the MemoryRouter (devtools panel)
-  // This allows the devtools panel to navigate in the BrowserRouter without a page reload
+  // Bridge devtools MemoryRouter → BrowserRouter without a page reload.
+  // RouteWrapper sits outside `:organizationSlug`, so the slug-aware
+  // `useNavigate` wrapper has no slug to prepend. We derive it from the
+  // first segment of the current URL (authoritative per-tab) and pass
+  // `skipSlugPrepend: true`. Public paths are skipped via
+  // `NEVER_SLUG_PREFIXES`.
   useEffect(() => {
-    if (mainRouterUrl) {
-      navigate(mainRouterUrl)
-      setMainRouterUrl('')
-    }
-  }, [mainRouterUrl, navigate, setMainRouterUrl])
+    if (!mainRouterUrl) return
+
+    const firstSegment = location.pathname.split('/')[1] ?? ''
+    const onPublicPath = NEVER_SLUG_PREFIXES.some((prefix) => location.pathname.startsWith(prefix))
+    const slug = !onPublicPath && firstSegment ? firstSegment : undefined
+    const target = slug ? `/${slug}${mainRouterUrl}` : mainRouterUrl
+
+    navigate(target, { skipSlugPrepend: true })
+    setMainRouterUrl('')
+  }, [mainRouterUrl, location.pathname, navigate, setMainRouterUrl])
 
   const formattedRoutes = routesFormatter(routes, isAuthenticated)
 

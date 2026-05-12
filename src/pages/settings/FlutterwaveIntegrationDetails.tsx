@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -25,7 +25,7 @@ import {
 } from '~/components/settings/integrations/DeleteFlutterwaveIntegrationDialog'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { FLUTTERWAVE_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
+import { FLUTTERWAVE_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   FlutterwaveIntegrationDetailsFragment,
@@ -33,7 +33,7 @@ import {
   useFlutterwaveIntegrationDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import Flutterwave from '~/public/images/flutterwave.svg'
 import { MenuPopper, PopperOpener } from '~/styles'
@@ -76,8 +76,16 @@ const FlutterwaveIntegrationDetails = () => {
   const deleteDialogRef = useRef<DeleteFlutterwaveIntegrationDialogRef>(null)
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { apiUrl } = envGlobalVar()
-  const { organization } = useOrganizationInfos()
-  const currentOrganizationId = organization?.id || ''
+  // CRITICAL: this organizationId is baked into a webhook URL the user copies
+  // into the third-party provider's dashboard. If we read it from
+  // `useOrganizationInfos().organization?.id`, the value comes from Apollo's
+  // `Query.organization` cache — root-field-keyed, no per-org partitioning,
+  // restored cross-tab from persisted IndexedDB. That cross-tab leak can
+  // briefly bake the WRONG org's UUID into the URL the user copies, routing
+  // every future provider webhook to the wrong org permanently.
+  // Source from `currentMembership` (slug-driven) instead.
+  const { currentMembership } = useCurrentUser()
+  const currentOrganizationId = currentMembership?.organization.id || ''
   const { translate } = useInternationalization()
   const { data, loading } = useFlutterwaveIntegrationDetailsQuery({
     variables: {

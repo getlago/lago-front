@@ -4,7 +4,7 @@ import { useFormik } from 'formik'
 import _get from 'lodash/get'
 import { DateTime } from 'luxon'
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 import { array, number, object, string } from 'yup'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -50,7 +50,7 @@ import {
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { formatAddress } from '~/core/formats/formatAddress'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { formatInvoiceDisplayValue, invoiceFeesToFeeInput } from '~/core/utils/invoiceUtils'
@@ -765,7 +765,7 @@ const CreateInvoice = () => {
                   <Typography variant="caption" color="grey600">
                     {translate('text_6453819268763979024ad01b')}
                   </Typography>
-                  <Typography>{DateTime.now().toFormat('LLL. dd, yyyy')}</Typography>
+                  <Typography>{intlFormatDateTime(DateTime.now().toISO()).date}</Typography>
                 </div>
 
                 <div className={tw('flex gap-4', customerIsPartner && 'flex-row-reverse')}>

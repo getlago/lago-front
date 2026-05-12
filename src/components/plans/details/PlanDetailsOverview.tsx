@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PlanDetailsFixedChargesSection } from '~/components/plans/details/PlanDetailsFixedChargesSection'
 import { getIntervalTranslationKey } from '~/core/constants/form'
@@ -70,7 +71,11 @@ export const PlanDetailsOverview = ({
               },
               {
                 label: translate('text_642d5eb2783a2ad10d670320'),
-                value: plan?.code,
+                value: plan?.code ? (
+                  <TypographyWithCopy variant="body" color="grey700">
+                    {plan.code}
+                  </TypographyWithCopy>
+                ) : undefined,
               },
               {
                 label: translate('text_65201b8216455901fe273dc1'),

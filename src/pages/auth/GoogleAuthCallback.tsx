@@ -1,16 +1,11 @@
 import { gql, useApolloClient } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
+// eslint-disable-next-line lago/no-direct-rrd-nav-import -- Auth callback renders outside /:organizationSlug; the slug wrapper would be incorrect here.
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { GoogleAuthModeEnum } from '~/components/auth/GoogleAuthButton'
-import {
-  hasDefinedGQLError,
-  LagoGQLError,
-  onLogIn,
-  removeItemFromLS,
-  setItemFromLS,
-} from '~/core/apolloClient'
+import { hasDefinedGQLError, LagoGQLError, onLogIn, setItemFromLS } from '~/core/apolloClient'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/constants/localStorageKeys'
 import { INVITATION_ROUTE_FORM, LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
 import { LagoApiError, useGoogleLoginUserMutation } from '~/generated/graphql'
@@ -26,6 +21,7 @@ gql`
 const GoogleAuthCallback = () => {
   const navigate = useNavigate()
   const client = useApolloClient()
+  const hasRun = useRef(false)
   const [googleLoginUser] = useGoogleLoginUserMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
   })
@@ -37,11 +33,17 @@ const GoogleAuthCallback = () => {
   const mode = state.mode as GoogleAuthModeEnum
   const redirectPath = state.redirectPath
 
-  if (!code) {
-    navigate(LOGIN_ROUTE)
-  }
-
   useEffect(() => {
+    // Guard against React StrictMode double-execution.
+    // The OAuth code can only be consumed once by the backend.
+    if (hasRun.current) return
+    hasRun.current = true
+
+    if (!code) {
+      navigate(LOGIN_ROUTE)
+      return
+    }
+
     const googleCallback = async () => {
       if (mode === 'signup') {
         return navigate({
@@ -86,20 +88,15 @@ const GoogleAuthCallback = () => {
       }
 
       // Store redirect path in localStorage before onLogIn to survive
-      // race condition with the onlyPublic route guard. When onLogIn sets
+      // the race condition with the onlyPublic route guard. When onLogIn sets
       // authTokenVar, the guard may redirect to HOME before this callback
-      // can navigate — localStorage ensures Home can still find the path.
+      // can navigate — localStorage ensures Home.tsx can still find the path.
+      // Home.tsx is the SINGLE point of cleanup for REDIRECT_AFTER_LOGIN_LS_KEY.
       if (redirectPath) {
         setItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY, redirectPath)
       }
 
       await onLogIn(client, res.data?.googleLoginUser?.token)
-
-      removeItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
-
-      if (redirectPath) {
-        navigate({ pathname: redirectPath })
-      }
     }
 
     googleCallback()

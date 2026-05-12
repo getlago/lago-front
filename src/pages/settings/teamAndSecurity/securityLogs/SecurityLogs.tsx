@@ -136,6 +136,7 @@ const SecurityLogs = () => {
         <Table
           name="security-logs"
           containerSize={{ default: 4 }}
+          rowSize={72}
           columns={columns}
           data={securityLogs}
           isLoading={isLoadingSecurityLogs}

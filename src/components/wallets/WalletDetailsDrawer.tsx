@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { generatePath, Link, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar, AvatarBadge } from '~/components/designSystem/Avatar'
@@ -21,6 +21,7 @@ import { NavigationTab, TabManagedBy } from '~/components/designSystem/Navigatio
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import WalletTransactionItems from '~/components/wallets/WalletTransactionItems'
 import { buildGoCardlessPaymentUrl, buildStripePaymentUrl } from '~/core/constants/externalUrls'
 import {
@@ -29,7 +30,7 @@ import {
 } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_INVOICE_DETAILS_ROUTE } from '~/core/router'
+import { CUSTOMER_INVOICE_DETAILS_ROUTE, Link } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { DateFormat, intlFormatDateTime, TimeFormat } from '~/core/timezone'
 import {
@@ -556,7 +557,11 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                               />
                               <DetailRow
                                 label={translate('text_6298bd525e359200d5ea01f2')}
-                                value={id}
+                                value={
+                                  <TypographyWithCopy variant="body" color="grey700">
+                                    {id}
+                                  </TypographyWithCopy>
+                                }
                               />
                             </div>
                           </section>
@@ -607,7 +612,13 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                                   />
                                   <DetailRow
                                     label={translate('text_1741944051511g2xahsgoyn7')}
-                                    value={invoice?.id}
+                                    value={
+                                      invoice?.id ? (
+                                        <TypographyWithCopy variant="body" color="grey700">
+                                          {invoice.id}
+                                        </TypographyWithCopy>
+                                      ) : undefined
+                                    }
                                   />
                                   <DetailRow
                                     label={translate('text_64188b3d9735d5007d71226c')}
@@ -707,7 +718,16 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                                           <div key={`payment-${index}`} className={tw(GRID)}>
                                             <DetailRow
                                               label={translate('text_1741943835752p8v8nrgnuyl')}
-                                              value={payment?.id}
+                                              value={
+                                                payment?.id ? (
+                                                  <TypographyWithCopy
+                                                    variant="body"
+                                                    color="grey700"
+                                                  >
+                                                    {payment.id}
+                                                  </TypographyWithCopy>
+                                                ) : undefined
+                                              }
                                             />
                                             <DetailRow
                                               label={translate('text_1737112054603c6phsbkyvmx')}

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
 import { useCallback, useRef } from 'react'
-import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
@@ -15,9 +15,9 @@ import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import {
-  ImpactOverridenSubscriptionsDialog,
-  ImpactOverridenSubscriptionsDialogRef,
-} from '~/components/plans/ImpactOverridenSubscriptionsDialog'
+  ImpactOverriddenSubscriptionsDialog,
+  ImpactOverriddenSubscriptionsDialogRef,
+} from '~/components/plans/ImpactOverriddenSubscriptionsDialog'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
@@ -37,6 +37,7 @@ import {
   PLAN_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import {
   CurrencyEnum,
@@ -155,7 +156,8 @@ const CreatePlan = () => {
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { form, isEdition, loading, plan, type } = usePlanForm({})
   const warningDialogRef = useRef<WarningDialogRef>(null)
-  const impactOverridenSubscriptionsDialogRef = useRef<ImpactOverridenSubscriptionsDialogRef>(null)
+  const impactOverriddenSubscriptionsDialogRef =
+    useRef<ImpactOverriddenSubscriptionsDialogRef>(null)
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
 
   const canBeEdited = !plan?.subscriptionsCount
@@ -212,7 +214,7 @@ const CreatePlan = () => {
 
   const handleFormSubmit = useCallback(() => {
     if (plan?.hasOverriddenPlans && isEdition) {
-      return impactOverridenSubscriptionsDialogRef.current?.openDialog({
+      return impactOverriddenSubscriptionsDialogRef.current?.openDialog({
         onSave: async (cascadeUpdates) => {
           form.setFieldValue('cascadeUpdates', cascadeUpdates)
 
@@ -357,7 +359,7 @@ const CreatePlan = () => {
         continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={() => planCloseRedirection()}
       />
-      <ImpactOverridenSubscriptionsDialog ref={impactOverridenSubscriptionsDialogRef} />
+      <ImpactOverriddenSubscriptionsDialog ref={impactOverriddenSubscriptionsDialogRef} />
       <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </PlanFormProvider>

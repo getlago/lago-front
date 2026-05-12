@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { generatePath, NavigateFunction, useNavigate } from 'react-router-dom'
+import { generatePath, NavigateFunction } from 'react-router-dom'
 
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
 import { StatusProps, StatusType } from '~/components/designSystem/Status'
@@ -12,6 +12,7 @@ import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   UPDATE_SUBSCRIPTION,
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
+  useNavigate,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
@@ -38,7 +39,7 @@ type AnnotatedSubscription = {
   payInAdvance: boolean
   isDowngrade?: boolean
   isScheduled?: boolean
-  isOverriden?: boolean
+  isOverridden?: boolean
   customer: {
     id: string
     name?: string
@@ -98,7 +99,7 @@ const annotateSubscriptions = (
         applicableTimezone: customerTimezone || customer?.applicableTimezone,
       },
       isScheduled: status === StatusTypeEnum.Pending,
-      isOverriden: !!plan.isOverridden,
+      isOverridden: !!plan.isOverridden,
     }
 
     const _subDowngrade = isDowngrading &&
@@ -116,7 +117,7 @@ const annotateSubscriptions = (
         } as StatusProps,
         payInAdvance: !!plan.payInAdvance,
         isDowngrade: true,
-        isOverriden: !!nextPlan.parent,
+        isOverridden: !!nextPlan.parent,
         customer: {
           id: customerId || customer?.id,
           name: customer?.name || undefined,

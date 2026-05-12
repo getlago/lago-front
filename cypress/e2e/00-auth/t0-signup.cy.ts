@@ -17,7 +17,7 @@ describe('Sign up', () => {
     cy.get('input[name="password"]').type(userPassword)
     cy.get(`[data-test="${SIGNUP_SUBMIT_BUTTON_TEST_ID}"]`).click()
 
-    cy.url().should('be.equal', Cypress.config().baseUrl + '/')
+    cy.url().should('match', /\/[^/]+\/(customers|analytics)/)
     cy.get('[data-test="side-nav-name"]').contains('Company name')
   })
 

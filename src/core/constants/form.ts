@@ -1,4 +1,5 @@
 import {
+  BillingTimeEnum,
   ChargeModelEnum,
   CouponFrequency,
   CouponTypeEnum,
@@ -157,4 +158,9 @@ export const getPrivilegeValueTypeTranslationKey: Record<PrivilegeValueTypeEnum,
   [PrivilegeValueTypeEnum.Integer]: 'text_1752846323920cemx0vj1r16',
   [PrivilegeValueTypeEnum.String]: 'text_1752846323920ueyo3sru7na',
   [PrivilegeValueTypeEnum.Select]: 'text_1752846323920ry5qxxvzrg7',
+}
+
+export const getBillingTimeEnumTranslationKey: Record<BillingTimeEnum, string> = {
+  [BillingTimeEnum.Anniversary]: 'text_1776883338722o7e5us2iq7h',
+  [BillingTimeEnum.Calendar]: 'text_177688333872224m25xpq3m2',
 }

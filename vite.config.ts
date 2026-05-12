@@ -81,20 +81,26 @@ export default defineConfig(({ mode }) => {
         authToken: sentryAuthToken,
         release: {
           name: appVersion,
-          // Use release-based source map instead of Debug IDs
-          // This is needed because Debug ID injection is not working correctly
-          // with this build setup. The legacy method matches source maps by
-          // release name + file path instead of Debug IDs.
-          // Docs: https://docs.sentry.io/platforms/javascript/sourcemaps/uploading/vite/
-          uploadLegacySourcemaps: {
-            paths: ['./dist'],
-            urlPrefix: '~/',
-          },
         },
         sourcemaps: {
-          disable: true,
+          // Modern Debug ID-based upload: the plugin injects a stable Debug
+          // ID into each emitted JS file at build time and writes the same
+          // ID into the matching .map. Sentry symbolicates errors by reading
+          // the ID from the served JS — no release-name + path coupling,
+          // and only .map files get uploaded (vs both .js and .map under
+          // the legacy uploader), roughly halving request count.
+          assets: ['./dist/**'],
+          // Skip Shiki language and theme grammar chunks (renamed with a
+          // stable prefix in #3428). They're tokenizer data, not app code
+          // — runtime errors don't originate inside them, so symbolicating
+          // them in Sentry has no practical value.
+          ignore: ['./dist/assets/shiki-lang-*', './dist/assets/shiki-theme-*'],
+          // We deliberately do NOT delete .map files after upload. Lago is
+          // open source — the JS sources are already public on GitHub, so
+          // shipping source maps to production exposes nothing new and lets
+          // self-hosters / contributors debug their own deployments with
+          // readable stack frames in browser devtools.
         },
-        debug: true,
         telemetry: false,
       }),
     )
@@ -196,9 +202,32 @@ export default defineConfig(({ mode }) => {
       target: 'esnext',
       rollupOptions: {
         output: {
-          chunkFileNames: 'assets/[name].[hash].js',
+          // Prefix Shiki language/theme chunks with `shiki-lang-` /
+          // `shiki-theme-` so the Sentry uploader can ignore them via a
+          // single glob (see `uploadLegacySourcemaps.ignore` above). This
+          // does NOT change runtime behavior — chunks remain individually
+          // code-split and lazy-loaded, only the output filename changes.
+          chunkFileNames: (chunkInfo) => {
+            const id = chunkInfo.facadeModuleId || ''
+            if (/[\\/]shiki[\\/](?:dist[\\/])?langs[\\/]/.test(id) || /@shikijs[\\/]langs[\\/]/.test(id)) {
+              return 'assets/shiki-lang-[name].[hash].js'
+            }
+            if (/[\\/]shiki[\\/](?:dist[\\/])?themes[\\/]/.test(id) || /@shikijs[\\/]themes[\\/]/.test(id)) {
+              return 'assets/shiki-theme-[name].[hash].js'
+            }
+            return 'assets/[name].[hash].js'
+          },
           entryFileNames: 'assets/[name].[hash].js',
-          sourcemapFileNames: 'assets/[name].[hash].js.map',
+          sourcemapFileNames: (chunkInfo) => {
+            const id = chunkInfo.facadeModuleId || ''
+            if (/[\\/]shiki[\\/](?:dist[\\/])?langs[\\/]/.test(id) || /@shikijs[\\/]langs[\\/]/.test(id)) {
+              return 'assets/shiki-lang-[name].[hash].js.map'
+            }
+            if (/[\\/]shiki[\\/](?:dist[\\/])?themes[\\/]/.test(id) || /@shikijs[\\/]themes[\\/]/.test(id)) {
+              return 'assets/shiki-theme-[name].[hash].js.map'
+            }
+            return 'assets/[name].[hash].js.map'
+          },
           manualChunks: {
             'vendor-react': ['react', 'react-dom', 'react-router-dom'],
             'vendor-apollo': ['@apollo/client', 'graphql'],

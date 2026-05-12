@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
-import { ERROR_404_ROUTE, INVOICE_SETTINGS_ROUTE } from '~/core/router'
+import { ERROR_404_ROUTE, INVOICE_SETTINGS_ROUTE, useNavigate } from '~/core/router'
 import {
   CreateInvoiceCustomSectionInput,
   InvoiceCustomSectionFormFragment,

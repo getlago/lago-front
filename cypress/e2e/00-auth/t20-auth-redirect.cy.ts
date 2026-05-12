@@ -30,7 +30,7 @@ describe('Authentication redirect flows', () => {
       cy.get('[data-test="side-nav-name"]').contains(testUser.org1Name)
 
       // 2. Navigate to a specific page (customers list)
-      cy.visit('/customers')
+      cy.visitApp('/customers')
       cy.url().should('include', '/customers')
 
       // 3. Logout
@@ -55,13 +55,17 @@ describe('Authentication redirect flows', () => {
       cy.url().should('include', Cypress.config().baseUrl)
 
       // 2. Navigate to a specific page (customers list)
-      cy.visit('/customers')
+      cy.visitApp('/customers')
       cy.url().should('include', '/customers')
 
       // 3. Logout
       cy.logout()
 
-      // 4. Try to access the plans page (should redirect to login with saved state)
+      // 4. Try to access the plans page (should redirect to login with saved state).
+      // Intentionally uses a slug-less path here: the auth guard fires before
+      // `OrganizationLayout` can resolve anything, saves `location.state.from`,
+      // and redirects to `/login`. After re-login, `Home.tsx` restores the
+      // saved path and prepends the current org slug.
       cy.visit('/plans')
       cy.url().should('include', '/login')
 
@@ -96,13 +100,15 @@ describe('Authentication redirect flows', () => {
       cy.login(testUser.email, testUser.password)
 
       // Navigate to a specific page
-      cy.visit('/settings/taxes')
+      cy.visitApp('/settings/taxes')
       cy.url().should('include', '/settings/taxes')
 
       // Simulate session expiration by clearing auth token
       cy.clearLocalStorage('authToken')
 
-      // Try to navigate to another protected page (should redirect to login)
+      // Try to navigate to another protected page (should redirect to login).
+      // Slug-less path is intentional: no valid session → auth guard catches
+      // this before slug resolution and redirects to `/login`.
       cy.visit('/customers')
       cy.url().should('include', '/login')
 
@@ -134,14 +140,15 @@ describe('Authentication redirect flows', () => {
       cy.login(testUser.email, testUser.password)
 
       // Navigate to page with query params
-      cy.visit('/customers?search=test&status=active')
+      cy.visitApp('/customers?search=test&status=active')
       cy.url().should('include', 'search=test')
       cy.url().should('include', 'status=active')
 
       // Logout
       cy.logout()
 
-      // Try to access the same page with query params
+      // Try to access the same page with query params (slug-less intentionally
+      // — logged out → auth guard redirects to `/login` with saved state).
       cy.visit('/customers?search=test&status=active')
       cy.url().should('include', '/login')
 

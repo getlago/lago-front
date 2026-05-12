@@ -2,16 +2,16 @@ import { act, cleanup, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
-import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
+import { ChargeModelEnum, CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { PlanFormType } from '~/hooks/plans/usePlanForm'
 import { render } from '~/test-utils'
 
 import {
   PLAN_SETTINGS_REMOVE_DESCRIPTION_TEST_ID,
-  PlanSettingsFormValues,
   PlanSettingsSection,
 } from '../PlanSettingsSection'
+import { LocalFixedChargeInput, LocalUsageChargeInput, PlanFormInput } from '../types'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -40,18 +40,59 @@ jest.mock('~/components/taxes/TaxesSelectorSection', () => ({
   ),
 }))
 
-const DEFAULT_INITIAL_VALUES: PlanSettingsFormValues = {
+type TestFormValues = Pick<
+  PlanFormInput,
+  | 'name'
+  | 'code'
+  | 'description'
+  | 'interval'
+  | 'amountCurrency'
+  | 'taxes'
+  | 'fixedCharges'
+  | 'charges'
+  | 'billChargesMonthly'
+  | 'billFixedChargesMonthly'
+>
+
+const DEFAULT_INITIAL_VALUES: TestFormValues = {
   name: '',
   code: '',
   description: '',
   interval: PlanInterval.Monthly,
   amountCurrency: CurrencyEnum.Usd,
   taxes: [],
+  fixedCharges: [],
+  charges: [],
+  billChargesMonthly: false,
+  billFixedChargesMonthly: false,
 }
+
+const createMockFixedCharge = (): LocalFixedChargeInput =>
+  ({
+    id: 'fixed-charge-1',
+    chargeModel: ChargeModelEnum.Standard,
+    invoiceDisplayName: 'Fixed Charge',
+    payInAdvance: false,
+    prorated: false,
+    properties: { amount: '50' },
+    addOn: { id: 'addon-1', name: 'Setup Fee', code: 'setup_fee' },
+    taxes: [],
+  }) as unknown as LocalFixedChargeInput
+
+const createMockUsageCharge = (): LocalUsageChargeInput =>
+  ({
+    id: 'charge-1',
+    chargeModel: ChargeModelEnum.Standard,
+    invoiceDisplayName: 'Test Charge',
+    payInAdvance: false,
+    prorated: false,
+    properties: { amount: '10' },
+    taxes: [],
+  }) as unknown as LocalUsageChargeInput
 
 const PlanSettingsSectionWrapper = (
   props: Partial<Omit<React.ComponentProps<typeof PlanSettingsSection>, 'form'>> & {
-    defaultValues?: PlanSettingsFormValues
+    defaultValues?: TestFormValues
   },
 ) => {
   const { defaultValues, ...rest } = props
@@ -263,12 +304,12 @@ describe('PlanSettingsSection', () => {
           render(
             <PlanSettingsSectionWrapper
               defaultValues={{
+                ...DEFAULT_INITIAL_VALUES,
                 name: 'Test Plan',
                 code: 'test_plan',
                 description: 'A test plan',
                 interval: PlanInterval.Yearly,
                 amountCurrency: CurrencyEnum.Eur,
-                taxes: [],
               }}
             />,
           ),
@@ -303,6 +344,147 @@ describe('PlanSettingsSection', () => {
         ) as HTMLInputElement
 
         expect(currencyInput).toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN the bill-monthly switches', () => {
+    describe('WHEN the plan interval is Monthly', () => {
+      it('THEN should not display any bill-monthly switch even with charges', async () => {
+        await act(() =>
+          render(
+            <PlanSettingsSectionWrapper
+              defaultValues={{
+                ...DEFAULT_INITIAL_VALUES,
+                interval: PlanInterval.Monthly,
+                fixedCharges: [createMockFixedCharge()],
+                charges: [createMockUsageCharge()],
+              }}
+            />,
+          ),
+        )
+
+        expect(screen.queryByLabelText('billFixedChargesMonthly')).not.toBeInTheDocument()
+        expect(screen.queryByLabelText('billChargesMonthly')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the plan interval is Yearly with no charges', () => {
+      it('THEN should not display any bill-monthly switch', async () => {
+        await act(() =>
+          render(
+            <PlanSettingsSectionWrapper
+              defaultValues={{
+                ...DEFAULT_INITIAL_VALUES,
+                interval: PlanInterval.Yearly,
+              }}
+            />,
+          ),
+        )
+
+        expect(screen.queryByLabelText('billFixedChargesMonthly')).not.toBeInTheDocument()
+        expect(screen.queryByLabelText('billChargesMonthly')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the plan interval is Yearly with fixed charges only', () => {
+      it('THEN should display only the billFixedChargesMonthly switch', async () => {
+        await act(() =>
+          render(
+            <PlanSettingsSectionWrapper
+              defaultValues={{
+                ...DEFAULT_INITIAL_VALUES,
+                interval: PlanInterval.Yearly,
+                fixedCharges: [createMockFixedCharge()],
+              }}
+            />,
+          ),
+        )
+
+        expect(screen.getByLabelText('billFixedChargesMonthly')).toBeInTheDocument()
+        expect(screen.queryByLabelText('billChargesMonthly')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the plan interval is Yearly with usage charges only', () => {
+      it('THEN should display only the billChargesMonthly switch', async () => {
+        await act(() =>
+          render(
+            <PlanSettingsSectionWrapper
+              defaultValues={{
+                ...DEFAULT_INITIAL_VALUES,
+                interval: PlanInterval.Yearly,
+                charges: [createMockUsageCharge()],
+              }}
+            />,
+          ),
+        )
+
+        expect(screen.getByLabelText('billChargesMonthly')).toBeInTheDocument()
+        expect(screen.queryByLabelText('billFixedChargesMonthly')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the plan interval is Semiannual with both charge types', () => {
+      it('THEN should display both bill-monthly switches', async () => {
+        await act(() =>
+          render(
+            <PlanSettingsSectionWrapper
+              defaultValues={{
+                ...DEFAULT_INITIAL_VALUES,
+                interval: PlanInterval.Semiannual,
+                fixedCharges: [createMockFixedCharge()],
+                charges: [createMockUsageCharge()],
+              }}
+            />,
+          ),
+        )
+
+        expect(screen.getByLabelText('billFixedChargesMonthly')).toBeInTheDocument()
+        expect(screen.getByLabelText('billChargesMonthly')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN isInSubscriptionForm is true with annual interval and charges', () => {
+      it('THEN should render the switches as disabled', async () => {
+        await act(() =>
+          render(
+            <PlanSettingsSectionWrapper
+              isInSubscriptionForm
+              defaultValues={{
+                ...DEFAULT_INITIAL_VALUES,
+                interval: PlanInterval.Yearly,
+                fixedCharges: [createMockFixedCharge()],
+                charges: [createMockUsageCharge()],
+              }}
+            />,
+          ),
+        )
+
+        expect(screen.getByLabelText('billFixedChargesMonthly')).toBeDisabled()
+        expect(screen.getByLabelText('billChargesMonthly')).toBeDisabled()
+      })
+    })
+
+    describe('WHEN isEdition is true and canBeEdited is false', () => {
+      it('THEN should render the switches as disabled', async () => {
+        await act(() =>
+          render(
+            <PlanSettingsSectionWrapper
+              isEdition
+              canBeEdited={false}
+              defaultValues={{
+                ...DEFAULT_INITIAL_VALUES,
+                interval: PlanInterval.Yearly,
+                fixedCharges: [createMockFixedCharge()],
+                charges: [createMockUsageCharge()],
+              }}
+            />,
+          ),
+        )
+
+        expect(screen.getByLabelText('billFixedChargesMonthly')).toBeDisabled()
+        expect(screen.getByLabelText('billChargesMonthly')).toBeDisabled()
       })
     })
   })

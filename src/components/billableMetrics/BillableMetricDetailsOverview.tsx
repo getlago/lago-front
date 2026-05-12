@@ -5,12 +5,13 @@ import { CodeSnippet } from '~/components/CodeSnippet'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
   formatAggregationType,
   formatRoundingFunction,
 } from '~/core/formats/formatBillableMetricsItems'
-import { useGetBillableMetricForDetailsOverviewQuery } from '~/generated/graphql'
+import { LagoApiError, useGetBillableMetricForDetailsOverviewQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -47,6 +48,7 @@ export const BillableMetricDetailsOverview = () => {
   const { data, loading } = useGetBillableMetricForDetailsOverviewQuery({
     variables: { id: billableMetricId as string },
     skip: !billableMetricId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
   const billableMetric = data?.billableMetric
 
@@ -69,7 +71,11 @@ export const BillableMetricDetailsOverview = () => {
               },
               {
                 label: translate('text_62876e85e32e0300e1803127'),
-                value: billableMetric?.code,
+                value: billableMetric?.code ? (
+                  <TypographyWithCopy variant="body" color="grey700">
+                    {billableMetric.code}
+                  </TypographyWithCopy>
+                ) : undefined,
               },
             ]}
           />

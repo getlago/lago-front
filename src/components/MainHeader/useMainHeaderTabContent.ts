@@ -1,5 +1,6 @@
 import { ReactNode, useMemo } from 'react'
-import { useLocation } from 'react-router-dom'
+
+import { useLocation } from '~/core/router'
 
 import { useMainHeaderReader } from './MainHeaderContext'
 import { MainHeaderTab } from './types'
@@ -17,14 +18,15 @@ import { isTabActive } from './utils'
  */
 export const useMainHeaderTabContent = (): ReactNode | null => {
   const { config } = useMainHeaderReader()
-  const { pathname } = useLocation()
+  // Tab constants are slug-unaware; strip the slug from pathname for matching.
+  const { strippedPathname } = useLocation()
 
   return useMemo(() => {
     if (!config?.tabs) return null
 
     const visibleTabs = config.tabs.filter((tab: MainHeaderTab) => !tab.hidden)
-    const activeTab = visibleTabs.find((tab: MainHeaderTab) => isTabActive(tab, pathname))
+    const activeTab = visibleTabs.find((tab: MainHeaderTab) => isTabActive(tab, strippedPathname))
 
     return activeTab?.content ?? visibleTabs[0]?.content ?? null
-  }, [config?.tabs, pathname])
+  }, [config?.tabs, strippedPathname])
 }

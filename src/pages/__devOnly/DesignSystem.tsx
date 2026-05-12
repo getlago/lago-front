@@ -4,7 +4,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
 import { Icon, IconName } from 'lago-design-system'
-import { generatePath, Link } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 import { boolean, number, object, string } from 'yup'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
@@ -26,6 +26,7 @@ import { ChargeTable, HorizontalDataTable } from '~/components/designSystem/Tabl
 import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import {
   ButtonSelectorField,
   Checkbox,
@@ -42,7 +43,7 @@ import {
 import { AmountInputField } from '~/components/form/AmountInput'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
+import { Link, ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import { CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
@@ -1400,6 +1401,25 @@ const DesignSystem = () => {
                     <Typography color="disabled">color disabled</Typography>
                     <Typography color="danger600">color danger600</Typography>
                     <Typography color="white">color white</Typography>
+                  </VerticalBlock>
+                </Block>
+                <Typography className="mb-4 mt-8" variant="headline">
+                  TypographyWithCopy
+                </Typography>
+                <Block className="mb-0">
+                  <VerticalBlock>
+                    <TypographyWithCopy variant="body" color="grey700">
+                      db7a5c02-a7c8-4c48-a44f-3e5b1f2a9e3d
+                    </TypographyWithCopy>
+                    <TypographyWithCopy variant="captionCode" color="grey700">
+                      sub_ext_12345
+                    </TypographyWithCopy>
+                    <TypographyWithCopy variant="caption" color="grey600">
+                      PLAN_CODE_MONTHLY
+                    </TypographyWithCopy>
+                    <TypographyWithCopy variant="bodyHl" color="grey700">
+                      INV-2024-001-234
+                    </TypographyWithCopy>
                   </VerticalBlock>
                 </Block>
               </Container>

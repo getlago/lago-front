@@ -2,13 +2,7 @@ import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import {
-  generatePath,
-  useLocation,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from 'react-router-dom'
+import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
 import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
 import { Alert } from '~/components/designSystem/Alert'
@@ -49,12 +43,14 @@ import {
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
+  useLocation,
+  useNavigate,
 } from '~/core/router'
 import {
   deserializeActivationRules,
   serializeActivationRules,
 } from '~/core/serializers/serializeActivationRules'
-import { getTimezoneConfig } from '~/core/timezone'
+import { DateFormat, getTimezoneConfig, intlFormatDateTime } from '~/core/timezone'
 import {
   subscriptionFormSchema,
   SubscriptionFormValues,
@@ -416,12 +412,20 @@ const CreateSubscription = () => {
 
         if (formattedCurrentDate === february29) return translate('text_62ea7cd44cd4b14bb9ac1d9a')
 
-        return translate('text_62ea7cd44cd4b14bb9ac1d96', { date: currentDate.toFormat('LLL. dd') })
+        return translate('text_62ea7cd44cd4b14bb9ac1d96', {
+          date: intlFormatDateTime(currentDate.toISO() || '', {
+            formatDate: DateFormat.DATE_MED_SHORT,
+          }).date,
+        })
 
       case PlanInterval.Semiannual:
         return billingTime === BillingTimeEnum.Calendar
           ? translate('text_1757502242292q05inkc09vq')
-          : translate('text_1757504174992y39ailqcch0', { date: currentDate.toFormat('LLL. dd') })
+          : translate('text_1757504174992y39ailqcch0', {
+              date: intlFormatDateTime(currentDate.toISO() || '', {
+                formatDate: DateFormat.DATE_MED_SHORT,
+              }).date,
+            })
 
       case PlanInterval.Quarterly:
         if (billingTime === BillingTimeEnum.Calendar)

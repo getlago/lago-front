@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { DEVTOOL_ROUTE } from '~/components/developers/devtoolsRoutes'
+import { useNavigate } from '~/core/router/useNavigate'
 import { usePanel, UsePanelReturn } from '~/hooks/ui/usePanel'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 

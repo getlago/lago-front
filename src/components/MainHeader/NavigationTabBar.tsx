@@ -3,8 +3,9 @@ import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import { Icon, IconName } from 'lago-design-system'
 import { useMemo } from 'react'
-import { matchPath, useLocation, useNavigate } from 'react-router-dom'
+import { matchPath } from 'react-router-dom'
 
+import { useLocation, useNavigate } from '~/core/router'
 import { tw } from '~/styles/utils'
 
 import { isTabActive } from './utils'
@@ -45,15 +46,15 @@ export const NavigationTabBar = ({
   tabs,
 }: NavigationTabBarProps) => {
   const navigate = useNavigate()
-  const { pathname } = useLocation()
+  const { strippedPathname } = useLocation()
   const nonHiddenTabs = tabs.filter((t) => !t.hidden)
 
   // Active tab is derived state — computed from URL, no useState/useEffect needed.
   const activeTabIndex = useMemo(() => {
-    const idx = nonHiddenTabs.findIndex((tab) => isTabActive(tab, pathname))
+    const idx = nonHiddenTabs.findIndex((tab) => isTabActive(tab, strippedPathname))
 
     return idx === -1 ? 0 : idx
-  }, [nonHiddenTabs, pathname])
+  }, [nonHiddenTabs, strippedPathname])
 
   return (
     <div className={tw('flex flex-row shadow-b', className)} data-test={NAVIGATION_TAB_BAR_TEST_ID}>
@@ -79,7 +80,7 @@ export const NavigationTabBar = ({
             label={<Typography variant="captionHl">{tab.title}</Typography>}
             value={tabIndex}
             onClick={() => {
-              if (tab.link && !matchPath(tab.link, pathname)) {
+              if (tab.link && !matchPath(tab.link, strippedPathname)) {
                 navigate(tab.link)
               }
             }}

@@ -17,6 +17,7 @@ import Toolbar, {
   TOOLBAR_IMAGE_BUTTON_TEST_ID,
   TOOLBAR_ITALIC_BUTTON_TEST_ID,
   TOOLBAR_ORDERED_LIST_BUTTON_TEST_ID,
+  TOOLBAR_OVERFLOW_BUTTON_TEST_ID,
   TOOLBAR_REDO_BUTTON_TEST_ID,
   TOOLBAR_STRIKE_BUTTON_TEST_ID,
   TOOLBAR_SUBSCRIPT_BUTTON_TEST_ID,
@@ -97,6 +98,25 @@ const createMockEditor = (overrides: Record<string, boolean> = {}) => {
     runMock,
   }
 }
+
+global.ResizeObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+}))
+
+jest.mock('~/components/designSystem/RichTextEditor/Toolbar/useToolbarOverflow', () => {
+  const GROUP_NAMES = ['undoRedo', 'textStyling', 'lists', 'alignment', 'media'] as const
+
+  return {
+    GROUP_NAMES,
+    useToolbarOverflow: () => ({
+      visibleGroups: new Set(GROUP_NAMES),
+      overflowedGroups: [],
+      hasOverflow: false,
+    }),
+  }
+})
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -320,6 +340,18 @@ describe('Toolbar', () => {
         await user.hover(screen.getByTestId(testId))
 
         expect(await screen.findByRole('tooltip')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the toolbar overflow behavior', () => {
+    describe('WHEN all groups fit in the container', () => {
+      it('THEN should not show the overflow button', async () => {
+        const { editor } = createMockEditor()
+
+        await act(() => render(<Toolbar editor={editor} />))
+
+        expect(screen.queryByTestId(TOOLBAR_OVERFLOW_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

@@ -1,8 +1,8 @@
-import { gql } from '@apollo/client'
+import { gql, useReactiveVar } from '@apollo/client'
 import { useEffect, useMemo } from 'react'
+import { useParams } from 'react-router-dom'
 
-import { getItemFromLS } from '~/core/apolloClient'
-import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
+import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars'
 import {
   CurrentUserInfosFragment,
   MembershipPermissionsFragmentDoc,
@@ -23,6 +23,7 @@ gql`
       organization {
         id
         name
+        slug
         logoUrl
         accessibleByCurrentSession
       }
@@ -48,7 +49,8 @@ type UseCurrentUser = () => {
 
 export const useCurrentUser: UseCurrentUser = () => {
   const { isAuthenticated } = useIsAuthenticated()
-  const currentOrganizationId = getItemFromLS(ORGANIZATION_LS_KEY_ID)
+  const currentOrganizationId = useReactiveVar(currentOrganizationVar)
+  const { organizationSlug } = useParams<{ organizationSlug: string }>()
 
   const {
     data,
@@ -61,11 +63,23 @@ export const useCurrentUser: UseCurrentUser = () => {
     skip: !isAuthenticated,
   })
 
+  // `currentMembership` is derived from the URL slug (per-tab source of truth)
+  // rather than from `currentOrganizationVar` (LS-backed, browser-global).
+  // This makes permission checks, role lookups, and gating UI consistent with
+  // the org the URL is pointing at — even when another tab last wrote a
+  // different orgId to LS. Falls back to LS-based lookup for routes that
+  // don't carry a slug (e.g. `/login`, customer portal) so callers outside
+  // the `/:organizationSlug` scope keep working.
   const currentMembership = useMemo(() => {
-    return data?.currentUser?.memberships?.find(
-      (membership) => membership.organization.id === currentOrganizationId,
-    )
-  }, [data?.currentUser?.memberships, currentOrganizationId])
+    const memberships = data?.currentUser?.memberships
+    const fromSlug =
+      organizationSlug &&
+      memberships?.find((membership) => membership.organization.slug === organizationSlug)
+
+    if (fromSlug) return fromSlug
+
+    return memberships?.find((membership) => membership.organization.id === currentOrganizationId)
+  }, [data?.currentUser?.memberships, currentOrganizationId, organizationSlug])
 
   // Make sure we refetch the current user infos on some specific cases
   // - When the current organization changes but the user is still pointing to the old organization

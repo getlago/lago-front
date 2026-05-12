@@ -27,9 +27,16 @@ const Nav = forwardRef<HTMLElement, PropsWithChildren<{ isOpen: boolean; classNa
 
 Nav.displayName = 'Nav'
 
-const NavBurgerButton = ({ onClick }: { onClick: () => void }) => {
+const NavBurgerButton = ({
+  onClick,
+  'data-test': dataTest,
+}: {
+  onClick: () => void
+  'data-test'?: string
+}) => {
   return (
     <Button
+      {...(dataTest ? { 'data-test': dataTest } : {})}
       className="absolute left-4 top-2 z-drawer !w-[36px] !p-[10px] md:hidden"
       icon="burger"
       variant="quaternary"

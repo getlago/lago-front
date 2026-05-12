@@ -34,6 +34,10 @@ export const UserIdentifier = () => {
   // If for some reason we constantly get null on the meQuery, avoid inifnite refetch
   const refetchCountRef = useRef<number>(0)
 
+  const slugFromPath = window.location.pathname.split('/')[1] ?? ''
+  const isOrgDataStale =
+    !!slugFromPath && !!data?.organization && data.organization.slug !== slugFromPath
+
   useEffect(() => {
     if (!isAuthenticated) {
       refetchCountRef.current = 0
@@ -51,11 +55,15 @@ export const UserIdentifier = () => {
     } else {
       const { id, email } = data?.me || {}
 
-      Settings.defaultZone = getTimezoneConfig(data?.organization?.timezone).name
+      if (isOrgDataStale) {
+        refetch()
+      } else {
+        Settings.defaultZone = getTimezoneConfig(data?.organization?.timezone).name
+      }
 
       getCurrentScope().setUser({ id, email: email || undefined })
     }
-  }, [data, isAuthenticated, refetch])
+  }, [data, isAuthenticated, isOrgDataStale, refetch])
 
   return null
 }

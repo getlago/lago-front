@@ -1,13 +1,15 @@
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
-import { generatePath, Link } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Status } from '~/components/designSystem/Status'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { getBillingTimeEnumTranslationKey } from '~/core/constants/form'
 import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMapping'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS } from '~/core/router'
+import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, Link } from '~/core/router'
 import {
   formatSubscriptionEndDate,
   getPaymentActivationRule,
@@ -27,6 +29,8 @@ gql`
     subscriptionAt
     endingAt
     terminatedAt
+    billingTime
+    downgradePlanDate
     nextSubscriptionAt
     nextSubscriptionType
     cancelationReason
@@ -40,6 +44,14 @@ gql`
     nextPlan {
       id
       name
+    }
+    previousPlan {
+      id
+      name
+    }
+    previousSubscription {
+      id
+      downgradePlanDate
     }
     customer {
       id
@@ -85,8 +97,18 @@ export const SubscriptionInformations = ({
         <SubscriptionDetailAlerts subscription={subscription} />
 
         <DetailsPage.InfoGridItem
+          label={translate('text_62d7f6178ec94cd09370e5fb')}
+          value={<Status {...subscriptionStatusMapping(subscription?.status ?? undefined)} />}
+        />
+        <DetailsPage.InfoGridItem
           label={translate('text_65201c5a175a4b0238abf298')}
-          value={subscription?.externalId}
+          value={
+            subscription?.externalId ? (
+              <TypographyWithCopy variant="body" color="grey700">
+                {subscription.externalId}
+              </TypographyWithCopy>
+            ) : undefined
+          }
         />
         <DetailsPage.InfoGrid
           grid={[
@@ -111,8 +133,10 @@ export const SubscriptionInformations = ({
               ),
             },
             {
-              label: translate('text_62d7f6178ec94cd09370e5fb'),
-              value: <Status {...subscriptionStatusMapping(subscription?.status ?? undefined)} />,
+              label: translate('text_62ea7cd44cd4b14bb9ac1db7'),
+              value: subscription?.billingTime
+                ? translate(getBillingTimeEnumTranslationKey[subscription.billingTime])
+                : '-',
             },
             {
               label: translate('text_65201c5a175a4b0238abf29e'),

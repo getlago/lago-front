@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Status, StatusProps, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
@@ -9,7 +9,11 @@ import { SubscriptionsList } from '~/components/subscriptions/SubscriptionsList'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { CREATE_SUBSCRIPTION, CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
+import {
+  CREATE_SUBSCRIPTION,
+  CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import {
   StatusTypeEnum,
   Subscription,
@@ -153,11 +157,11 @@ export const CustomerSubscriptionsList = () => {
                 ),
               },
               {
-                key: 'isOverriden',
+                key: 'isOverridden',
                 title: translate('text_65281f686a80b400c8e2f6c4'),
-                content: ({ isOverriden }) => (
+                content: ({ isOverridden }) => (
                   <Typography>
-                    {isOverriden
+                    {isOverridden
                       ? translate('text_65281f686a80b400c8e2f6dd')
                       : translate('text_65281f686a80b400c8e2f6d1')}
                   </Typography>

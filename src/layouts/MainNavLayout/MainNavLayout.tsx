@@ -1,11 +1,12 @@
 import { gql, useApolloClient } from '@apollo/client'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import { useEffect, useRef, useState } from 'react'
-import { Location, Outlet, useLocation } from 'react-router-dom'
+import { Location, Outlet } from 'react-router-dom'
 
 import { Spinner } from '~/components/designSystem/Spinner'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderProvider } from '~/components/MainHeader/MainHeaderContext'
+import { useLocation } from '~/core/router'
 import { useSideNavInfosQuery } from '~/generated/graphql'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'

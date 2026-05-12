@@ -125,7 +125,6 @@ const App = () => {
                               <RouteWrapper />
                             </div>
                           </Panel>
-
                           <AiAgent />
                         </PanelGroup>
                       </Panel>

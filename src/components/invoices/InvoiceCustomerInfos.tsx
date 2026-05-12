@@ -2,14 +2,14 @@ import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { memo } from 'react'
-import { generatePath, Link } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { formatAddress } from '~/core/formats/formatAddress'
-import { CUSTOMER_DETAILS_ROUTE } from '~/core/router'
+import { CUSTOMER_DETAILS_ROUTE, Link } from '~/core/router'
 import {
   CustomerAccountTypeEnum,
   InvoiceForInvoiceInfosFragment,

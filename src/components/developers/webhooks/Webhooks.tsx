@@ -6,6 +6,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { WEBHOOK_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { useDeleteWebhook } from '~/components/developers/webhooks/useDeleteWebhook'
 import {
@@ -14,14 +15,12 @@ import {
   SettingsListItemLoadingSkeleton,
 } from '~/components/layouts/Settings'
 import { addToast } from '~/core/apolloClient'
-import { maskValue } from '~/core/formats/maskValue'
 import { CREATE_WEBHOOK_ROUTE, UPDATE_WEBHOOK_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useGetOrganizationHmacDataQuery, useGetWebhookListQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useWebhookEventTypes } from '~/hooks/useWebhookEventTypes'
-import { tw } from '~/styles/utils'
 
 const WEBHOOK_COUNT_LIMIT = 25
 
@@ -185,34 +184,15 @@ export const Webhooks = () => {
                       maxSpace: true,
                       content: ({ hmacKey }) => (
                         <div className="flex items-center gap-2 py-3">
-                          <Tooltip
-                            placement="top-start"
-                            title={translate('text_623b42ff8ee4e000ba87d0c6')}
-                            disableHoverListener={!showOrganizationHmac}
+                          <TypographyWithCopy
+                            className="ml-0 line-break-auto [text-wrap:auto]"
+                            color="grey700"
+                            variant="captionCode"
+                            masked={!showOrganizationHmac}
+                            maskOptions={{ dotsCount: 8, visibleChars: 3 }}
                           >
-                            <Typography
-                              className={tw('line-break-auto [text-wrap:auto]', {
-                                'cursor-pointer': showOrganizationHmac,
-                              })}
-                              color="grey700"
-                              variant="captionCode"
-                              onClick={
-                                showOrganizationHmac
-                                  ? () => {
-                                      copyToClipboard(hmacKey || '')
-                                      addToast({
-                                        severity: 'info',
-                                        translateKey: 'text_1731675102864b4dna9o03pv',
-                                      })
-                                    }
-                                  : undefined
-                              }
-                            >
-                              {showOrganizationHmac
-                                ? hmacKey
-                                : maskValue(hmacKey || '', { dotsCount: 8, visibleChars: 3 })}
-                            </Typography>
-                          </Tooltip>
+                            {hmacKey || ''}
+                          </TypographyWithCopy>
 
                           <Tooltip
                             placement="top-start"

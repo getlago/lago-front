@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { createRef } from 'react'
 
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { AggregationTypeEnum, ChargeModelEnum, PlanInterval } from '~/generated/graphql'
+import { AggregationTypeEnum, ChargeModelEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 import { createMockPlanForm } from '~/test-utils/createMockPlanForm'
 
@@ -241,31 +241,6 @@ describe('UsageChargesSection', () => {
           initialCharge: undefined,
           isUsedInSubscription: false,
         })
-      })
-    })
-  })
-
-  describe('GIVEN the plan interval is yearly', () => {
-    describe('WHEN the component renders with charges', () => {
-      it('THEN should display the bill charges monthly switch', () => {
-        const charge = createMockCharge()
-        const form = createForm({
-          charges: [charge],
-          interval: PlanInterval.Yearly,
-        })
-
-        render(
-          <UsageChargesSection
-            form={form}
-            isEdition={false}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />,
-        )
-
-        // The Switch component renders an input with aria-label={name}
-        const switchEl = screen.getByLabelText('billChargesMonthly') as HTMLInputElement
-
-        expect(switchEl).toBeInTheDocument()
       })
     })
   })

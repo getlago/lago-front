@@ -16,3 +16,5 @@ v8-compile-cache*
 TestResults/
 docker-compose.worktree.yml
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
+docs/

@@ -6,6 +6,7 @@ import { formatCouponValue } from '~/components/coupons/utils'
 import { Card } from '~/components/designSystem/Card'
 import { Status } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
   getCouponFrequencyTranslationKey,
@@ -15,6 +16,7 @@ import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
 import {
   CouponFrequency,
   CouponTypeEnum,
+  LagoApiError,
   useGetCouponForDetailsOverviewQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -59,6 +61,7 @@ export const CouponDetailsOverview = () => {
   const { data, loading } = useGetCouponForDetailsOverviewQuery({
     variables: { id: couponId as string },
     skip: !couponId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
 
   const coupon = data?.coupon
@@ -95,7 +98,11 @@ export const CouponDetailsOverview = () => {
             },
             {
               label: translate('text_664cb90097bfa800e6efa3e7'),
-              value: coupon?.code,
+              value: coupon?.code ? (
+                <TypographyWithCopy variant="body" color="grey700">
+                  {coupon.code}
+                </TypographyWithCopy>
+              ) : undefined,
             },
             coupon?.couponType === CouponTypeEnum.FixedAmount && {
               label: translate('text_632b4acf0c41206cbcb8c324'),

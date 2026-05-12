@@ -8,6 +8,12 @@ import RichTextEditor, {
   RICH_TEXT_EDITOR_TEST_ID,
 } from '../RichTextEditor'
 
+global.ResizeObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+}))
+
 // Capture the config passed to SlashCommands.configure()
 let capturedSlashCommandsConfig: Record<string, unknown> = {}
 

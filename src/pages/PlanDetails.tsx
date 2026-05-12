@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
@@ -18,14 +18,17 @@ import {
   PLAN_DETAILS_ROUTE,
   PLANS_ROUTE,
   UPDATE_PLAN_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import {
   DeletePlanDialogFragment,
   DeletePlanDialogFragmentDoc,
+  LagoApiError,
   useGetPlanForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
@@ -52,14 +55,26 @@ const PlanDetails = () => {
   const { isPremium } = useCurrentUser()
 
   const deletePlanDialogRef = useRef<DeletePlanDialogRef>(null)
-  const { data: planResult, loading: isPlanLoading } = useGetPlanForDetailsQuery({
+  const {
+    data: planResult,
+    loading: isPlanLoading,
+    error: planError,
+  } = useGetPlanForDetailsQuery({
     variables: { planId: planId as string },
     skip: !planId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
   const plan = planResult?.plan
 
+  useNotFoundRedirect({
+    error: planError,
+    loading: isPlanLoading,
+    redirectTo: PLANS_ROUTE,
+    translateKey: 'text_17779954437882bskjocn0qv',
+  })
+
   useEffect(() => {
-    // WARNING: This page should not be used to show overriden plan's details
+    // WARNING: This page should not be used to show overridden plan's details
     // If a parent plan is detected, redirect to the plans list
     if (!!plan?.parent?.id) {
       navigate(PLANS_ROUTE, { replace: true })
