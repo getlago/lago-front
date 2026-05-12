@@ -21,6 +21,9 @@ export const SubscriptionDetailAlerts = ({ subscription }: SubscriptionDetailAle
     !!subscription?.nextPlan?.id &&
     subscription?.nextSubscriptionType === NextSubscriptionTypeEnum.Downgrade
 
+  const isPendingDowngrade =
+    !!subscription?.previousPlan?.id && subscription?.status === StatusTypeEnum.Pending
+
   return (
     <>
       {isDowngrade && (
@@ -28,6 +31,17 @@ export const SubscriptionDetailAlerts = ({ subscription }: SubscriptionDetailAle
           {translate('text_62681c60582e4f00aa82938a', {
             planName: subscription?.nextPlan?.name,
             dateStartNewPlan: intlFormatDateTimeOrgaTZ(subscription?.nextSubscriptionAt).date,
+          })}
+        </Alert>
+      )}
+
+      {isPendingDowngrade && (
+        <Alert type="info">
+          {translate('text_1776951742342o96gqg8qg8j', {
+            planName: subscription?.previousPlan?.name,
+            dateStartNewPlan: intlFormatDateTimeOrgaTZ(
+              subscription?.previousSubscription?.downgradePlanDate,
+            ).date,
           })}
         </Alert>
       )}

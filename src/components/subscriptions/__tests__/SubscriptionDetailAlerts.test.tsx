@@ -32,6 +32,8 @@ const createSubscription = (
     subscriptionAt: '2026-01-01T00:00:00Z',
     nextSubscriptionType: null,
     nextPlan: null,
+    previousPlan: null,
+    previousSubscription: null,
     cancelationReason: null,
     activationRules: [],
     customer: {
@@ -121,6 +123,44 @@ describe('SubscriptionDetailAlerts', () => {
         render(<SubscriptionDetailAlerts subscription={subscription} />)
 
         expect(screen.getByTestId('alert-type-info')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a pending subscription with a previous plan (incoming downgrade)', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should display the pending downgrade info alert', () => {
+        const subscription = createSubscription({
+          status: StatusTypeEnum.Pending,
+          previousPlan: { id: 'plan-0', name: 'Higher Plan' },
+          previousSubscription: {
+            id: 'sub-0',
+            downgradePlanDate: '2026-05-22',
+          } as SubscriptionForSubscriptionInformationsFragment['previousSubscription'],
+        })
+
+        render(<SubscriptionDetailAlerts subscription={subscription} />)
+
+        expect(screen.getByText('text_1776951742342o96gqg8qg8j')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a subscription with previous plan but not Pending status', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should not display the pending downgrade alert', () => {
+        const subscription = createSubscription({
+          status: StatusTypeEnum.Active,
+          previousPlan: { id: 'plan-0', name: 'Higher Plan' },
+          previousSubscription: {
+            id: 'sub-0',
+            downgradePlanDate: '2026-05-22',
+          } as SubscriptionForSubscriptionInformationsFragment['previousSubscription'],
+        })
+
+        render(<SubscriptionDetailAlerts subscription={subscription} />)
+
+        expect(screen.queryByText('text_1776951742342o96gqg8qg8j')).not.toBeInTheDocument()
       })
     })
   })
