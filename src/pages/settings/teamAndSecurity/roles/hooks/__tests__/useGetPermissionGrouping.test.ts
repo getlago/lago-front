@@ -2,6 +2,10 @@ import { renderHook } from '@testing-library/react'
 
 import { useGetPermissionGrouping } from '../useGetPermissionGrouping'
 
+jest.mock('~/core/apolloClient', () => ({
+  envGlobalVar: () => ({ appEnv: 'production' }),
+}))
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
@@ -52,6 +56,14 @@ describe('useGetPermissionGrouping', () => {
     expect(result.current.permissionGrouping).toHaveProperty('other')
     expect(result.current.permissionGrouping.other.permissions).toHaveLength(1)
     expect(result.current.permissionGrouping.other.permissions[0].name).toBe('unknownPermission')
+  })
+
+  it('falls back to permission key name when description mapping is missing', () => {
+    const { result } = renderHook(() => useGetPermissionGrouping(['unknownPermission' as never]))
+
+    expect(result.current.permissionGrouping.other.permissions[0].description).toBe(
+      'unknownPermission',
+    )
   })
 
   it('adds multiple unmapped permissions to "other" key', () => {

@@ -1,3 +1,5 @@
+import { envGlobalVar } from '~/core/apolloClient'
+import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
   groupNameMapping,
@@ -16,7 +18,20 @@ export const useGetPermissionGrouping = (
   const { translate } = useInternationalization()
 
   const getPermissionDescription = (permissionName: PermissionName): string => {
-    return translate(permissionDescriptionMapping[permissionName]) || permissionName
+    const translationKey = permissionDescriptionMapping[permissionName]
+
+    if (!translationKey) {
+      const { appEnv } = envGlobalVar()
+
+      if (appEnv === AppEnvEnum.development) {
+        // eslint-disable-next-line no-console
+        console.warn(`Missing permission description mapping for: ${permissionName}`)
+      }
+
+      return permissionName
+    }
+
+    return translate(translationKey) || permissionName
   }
 
   const getPermissionGroupDisplayName = (groupKey: string): string => {

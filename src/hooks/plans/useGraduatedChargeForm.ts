@@ -107,7 +107,7 @@ export const useGraduatedChargeForm: UseGraduatedChargeForm = ({
               firstUnit:
                 graduatedRanges.length === 1
                   ? `${ONE_TIER_EXAMPLE_UNITS}`
-                  : String(Number(range.fromValue) || 0),
+                  : String((Number(range.fromValue) || 0) + 1),
               total: acc.reduce<number>((accTotal, rangeCost) => {
                 return accTotal + rangeCost.total
               }, 0),
