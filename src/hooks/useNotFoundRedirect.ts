@@ -1,4 +1,5 @@
 import { ApolloError } from '@apollo/client'
+import { captureException } from '@sentry/react'
 import { useEffect } from 'react'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -22,6 +23,14 @@ export const useNotFoundRedirect = ({
 
   useEffect(() => {
     if (loading || !isNotFoundError) return
+
+    captureException(error, {
+      tags: {
+        errorType: 'NotFoundRedirect',
+        fromPath: window.location.pathname,
+        redirectTo,
+      },
+    })
 
     addToast({
       severity: 'info',

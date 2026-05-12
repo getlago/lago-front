@@ -1,10 +1,15 @@
 import { ApolloError } from '@apollo/client'
+import { captureException } from '@sentry/react'
 import { renderHook, waitFor } from '@testing-library/react'
 
 import { addToast } from '~/core/apolloClient'
 import { LagoApiError } from '~/generated/graphql'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { AllTheProviders } from '~/test-utils'
+
+jest.mock('@sentry/react', () => ({
+  captureException: jest.fn(),
+}))
 
 const mockNavigate = jest.fn()
 
@@ -62,6 +67,7 @@ describe('useNotFoundRedirect', () => {
 
         expect(mockNavigate).not.toHaveBeenCalled()
         expect(addToast).not.toHaveBeenCalled()
+        expect(captureException).not.toHaveBeenCalled()
       })
     })
   })
@@ -81,6 +87,7 @@ describe('useNotFoundRedirect', () => {
 
         expect(mockNavigate).not.toHaveBeenCalled()
         expect(addToast).not.toHaveBeenCalled()
+        expect(captureException).not.toHaveBeenCalled()
       })
     })
   })
@@ -99,6 +106,29 @@ describe('useNotFoundRedirect', () => {
 
         await waitFor(() => {
           expect(mockNavigate).toHaveBeenCalledWith('/resources', { replace: true })
+        })
+      })
+
+      it('THEN should report the error to Sentry', async () => {
+        const notFoundError = createNotFoundError()
+
+        renderHook(
+          () =>
+            useNotFoundRedirect({
+              ...defaultArgs,
+              error: notFoundError,
+            }),
+          { wrapper: customWrapper },
+        )
+
+        await waitFor(() => {
+          expect(captureException).toHaveBeenCalledWith(notFoundError, {
+            tags: {
+              errorType: 'NotFoundRedirect',
+              fromPath: window.location.pathname,
+              redirectTo: '/resources',
+            },
+          })
         })
       })
 
@@ -136,6 +166,7 @@ describe('useNotFoundRedirect', () => {
 
         expect(mockNavigate).not.toHaveBeenCalled()
         expect(addToast).not.toHaveBeenCalled()
+        expect(captureException).not.toHaveBeenCalled()
       })
     })
   })
