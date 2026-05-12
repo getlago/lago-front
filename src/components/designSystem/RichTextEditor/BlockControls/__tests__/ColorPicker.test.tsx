@@ -1,17 +1,13 @@
 import { cleanup, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import tailwindConfig from 'lago-configs/tailwind'
-import resolveConfig from 'tailwindcss/resolveConfig'
 
 import { render } from '~/test-utils'
 
 import ColorPicker from '../ColorPicker'
 
-const fullConfig = resolveConfig(tailwindConfig)
-const themeColors = fullConfig.theme.colors
-const red100 = (themeColors.red as Record<number, string>)[100]
-const red600 = (themeColors.red as Record<number, string>)[600]
-const blue600 = (themeColors.blue as Record<number, string>)[600]
+const red100 = 'var(--color-red-100)'
+const red600 = 'var(--color-red-600)'
+const blue600 = 'var(--color-blue-600)'
 
 const defaultProps = {
   activeBackgroundColor: null,

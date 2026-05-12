@@ -1,5 +1,5 @@
 import plugin from 'tailwindcss/plugin'
-import { Config } from 'tailwindcss/types/config'
+// import { Config } from 'tailwindcss/types/config'
 
 export const colors = {
   grey: {
@@ -73,7 +73,7 @@ export const colors = {
   },
 }
 
-const config: Config = {
+const config = {
   content: ['./src/**/*.{ts,tsx,html}'],
   theme: {
     colors: {

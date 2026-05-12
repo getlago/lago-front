@@ -1,21 +1,10 @@
-import tailwindConfig from 'lago-configs/tailwind'
 import { Icon, tw } from 'lago-design-system'
-import resolveConfig from 'tailwindcss/resolveConfig'
-
 import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-const fullConfig = resolveConfig(tailwindConfig)
-const themeColors = fullConfig.theme.colors
-
 const getColor = (name: string, shade: number): string => {
-  const color = themeColors[name as keyof typeof themeColors]
-
-  if (typeof color === 'object' && color !== null && shade in color) {
-    return (color as Record<number, string>)[shade]
-  }
-
-  return '#000000'
+  // Tailwind v4 exposes theme colors as CSS custom properties
+  return `var(--color-${name}-${shade})`
 }
 
 // Background colors — light shades from the Tailwind theme

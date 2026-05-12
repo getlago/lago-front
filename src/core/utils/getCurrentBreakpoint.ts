@@ -1,27 +1,22 @@
-import tailwindConfig from 'lago-configs/tailwind'
-import resolveConfig from 'tailwindcss/resolveConfig'
+// Tailwind v4: no resolveConfig — screens are defined in CSS.
 
-const fullConfig = resolveConfig(tailwindConfig)
-
-type BreakpointKey = keyof typeof fullConfig.theme.screens
-
-const getBreakpointValue = (value: BreakpointKey): number => {
-  const breakpointString = fullConfig.theme.screens[value]
-  const pxIndex = breakpointString.indexOf('px')
-  const numericValue = breakpointString.slice(0, pxIndex)
-
-  return Number(numericValue)
+const SCREENS: Record<string, number> = {
+  sm: 640,
+  md: 768,
+  lg: 1024,
+  xl: 1280,
+  '2xl': 1536,
 }
+
+type BreakpointKey = keyof typeof SCREENS
 
 export const getCurrentBreakpoint = (): BreakpointKey => {
   let currentBreakpoint: BreakpointKey = 'sm'
   let biggestBreakpointValue = 0
 
-  for (const breakpoint of Object.keys(fullConfig.theme.screens) as BreakpointKey[]) {
-    const breakpointValue = getBreakpointValue(breakpoint)
-
-    if (breakpointValue > biggestBreakpointValue && window.innerWidth >= breakpointValue) {
-      biggestBreakpointValue = breakpointValue
+  for (const [breakpoint, value] of Object.entries(SCREENS) as [BreakpointKey, number][]) {
+    if (value > biggestBreakpointValue && window.innerWidth >= value) {
+      biggestBreakpointValue = value
       currentBreakpoint = breakpoint
     }
   }
