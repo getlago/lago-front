@@ -1832,6 +1832,7 @@ export type CreateCustomerWalletAlertInput = {
 /** Create Wallet Input */
 export type CreateCustomerWalletInput = {
   appliesTo?: InputMaybe<AppliesToInput>;
+  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
@@ -1979,6 +1980,7 @@ export type CreateInvoiceCustomSectionInput = {
 
 /** Create Invoice input arguments */
 export type CreateInvoiceInput = {
+  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
@@ -2161,6 +2163,7 @@ export type CreateSubscriptionChargeFilterInput = {
 /** Create Subscription input arguments */
 export type CreateSubscriptionInput = {
   activationRules?: InputMaybe<Array<SubscriptionActivationRuleInput>>;
+  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   billingTime: BillingTimeEnum;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
@@ -4015,6 +4018,7 @@ export enum FeeTypesEnum {
 
 /** Create Invoice input arguments */
 export type FetchDraftInvoiceTaxesInput = {
+  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
