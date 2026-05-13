@@ -2,7 +2,7 @@ import { ApolloClient, ApolloLink, Operation, split } from '@apollo/client'
 import { onError } from '@apollo/client/link/error'
 import { RetryLink } from '@apollo/client/link/retry'
 import { getMainDefinition } from '@apollo/client/utilities'
-import { captureException } from '@sentry/react'
+import { captureException, captureMessage } from '@sentry/react'
 import ActionCable from 'actioncable'
 import { LocalForageWrapper, persistCache } from 'apollo3-cache-persist'
 import ApolloLinkTimeout from 'apollo-link-timeout'
@@ -36,6 +36,8 @@ const AUTH_ERRORS = [
 ]
 
 const TIMEOUT = 300000 // 5 minutes timeout
+const SLOW_QUERY_THRESHOLD_MS = 8000 // threshold for considering a query as "slow" and logging it in Sentry
+
 const { apiUrl, appVersion } = envGlobalVar()
 
 const { cableUrl } = buildWebSocketUrl(apiUrl)
@@ -103,6 +105,51 @@ export const initializeApolloClient = async () => {
       operation.variables = omitDeep(operation.variables, '__typename')
     }
     return forward(operation)
+  })
+
+  // Sits before retryLink in the chain, so durationMs is the total wall-clock
+  // time the user waited — retries included. Intentional: a query that took 7s
+  // because of 2 retries is still bad UX, even if each attempt was "fast".
+  const slowQueryLink = new ApolloLink((operation, forward) => {
+    const definition = getMainDefinition(operation.query)
+    const operationType =
+      definition.kind === 'OperationDefinition' ? definition.operation : 'unknown'
+
+    // Subscriptions are long-lived WebSocket streams — duration is not meaningful.
+    if (operationType === 'subscription') return forward(operation)
+
+    const { disableSlowQueryTracking = false } = operation.getContext()
+
+    if (disableSlowQueryTracking) return forward(operation)
+
+    const startTime = performance.now()
+
+    return forward(operation).map((response) => {
+      const durationMs = performance.now() - startTime
+
+      if (durationMs > SLOW_QUERY_THRESHOLD_MS) {
+        captureMessage(
+          `Slow GraphQL operation: ${operation.operationName || 'unknown'} (${(durationMs / 1000).toFixed(2)}s)`,
+          {
+            level: 'warning',
+            tags: {
+              slowQuery: true,
+              operation: operationType,
+              operationName: operation.operationName || 'unknown',
+              organizationId: getCurrentOrganizationId() || 'unknown',
+            },
+            extra: {
+              durationMs: Math.round(durationMs),
+              thresholdMs: SLOW_QUERY_THRESHOLD_MS,
+              variables: operation.variables,
+            },
+            fingerprint: ['slow-graphql', operation.operationName || 'unknown'],
+          },
+        )
+      }
+
+      return response
+    })
   })
 
   const timeoutLink = new ApolloLinkTimeout(TIMEOUT)
@@ -241,6 +288,7 @@ export const initializeApolloClient = async () => {
     authLink,
     tokenRefreshLink,
     cleanupLink,
+    slowQueryLink,
     retryLink,
     timeoutLink,
     errorLink,
