@@ -47,6 +47,7 @@ const mockQuote: QuoteDetailItemFragment = {
     status: StatusEnum.Draft,
     version: 2,
     content: null,
+    billingItems: null,
     createdAt: '2026-04-09T15:00:00Z',
   },
   orderType: OrderTypeEnum.SubscriptionAmendment,
@@ -55,6 +56,14 @@ const mockQuote: QuoteDetailItemFragment = {
     id: 'customer-001',
     name: 'Acme Corp',
     externalId: 'ext-acme-001',
+    currency: null,
+    netPaymentTerm: null,
+    billingEntity: {
+      id: 'be-1',
+      code: 'default',
+      name: 'Default Entity',
+      netPaymentTerm: 0,
+    },
   },
   owners: [
     { id: 'user-1', email: 'alice@example.com' },

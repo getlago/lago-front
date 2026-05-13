@@ -5,6 +5,7 @@ import { render } from '~/test-utils'
 
 import EditQuoteAside, {
   EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID,
+  EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID,
   EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID,
   EDIT_QUOTE_ASIDE_END_DATE_TEST_ID,
   EDIT_QUOTE_ASIDE_PAYMENT_TERM_TEST_ID,
@@ -115,7 +116,7 @@ describe('EditQuoteAside', () => {
         const quoteWithoutBillingEntity = {
           ...mockQuote,
           customer: { ...mockQuote.customer, billingEntity: null },
-        }
+        } as unknown as QuoteDetailItemFragment
 
         render(<EditQuoteAside quote={quoteWithoutBillingEntity} />)
 
@@ -181,6 +182,22 @@ describe('EditQuoteAside', () => {
         expect(
           screen.queryByTestId(EDIT_QUOTE_ASIDE_SUBSCRIPTION_INPUT_TEST_ID),
         ).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID),
+        ).not.toBeInTheDocument()
+        expect(screen.queryByTestId(EDIT_QUOTE_ASIDE_START_DATE_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId(EDIT_QUOTE_ASIDE_END_DATE_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId(EDIT_QUOTE_ASIDE_PAYMENT_TERM_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a quote with customer currency', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should render the currency field', () => {
+        render(<EditQuoteAside quote={mockQuote} />)
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID)).toBeInTheDocument()
       })
     })
   })
@@ -248,7 +265,7 @@ describe('EditQuoteAside', () => {
               netPaymentTerm: null,
             },
           },
-        }
+        } as unknown as QuoteDetailItemFragment
 
         render(<EditQuoteAside quote={quoteWithNoTerm} />)
 

@@ -57,12 +57,21 @@ const mockQuote = {
     status: StatusEnum.Draft,
     version: 1,
     content: null,
+    billingItems: null,
     createdAt: '2026-04-09T10:00:00Z',
   },
   customer: {
     id: 'customer-001',
     name: 'Acme Corp',
     externalId: 'ext-acme-001',
+    currency: null,
+    netPaymentTerm: null,
+    billingEntity: {
+      id: 'be-1',
+      code: 'default',
+      name: 'Default Entity',
+      netPaymentTerm: 0,
+    },
   },
 }
 
