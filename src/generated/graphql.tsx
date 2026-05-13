@@ -14053,14 +14053,14 @@ export type CreateQuoteMutationVariables = Exact<{
 
 export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote?: { __typename?: 'Quote', id: string } | null };
 
-export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, content?: string | null, createdAt: any } };
+export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, currency?: CurrencyEnum | null, netPaymentTerm?: number | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number } }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, content?: string | null, billingItems?: any | null, createdAt: any } };
 
 export type GetQuoteQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, content?: string | null, createdAt: any } } | null };
+export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, currency?: CurrencyEnum | null, netPaymentTerm?: number | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number } }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, content?: string | null, billingItems?: any | null, createdAt: any } } | null };
 
 export type QuoteListItemFragment = { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number }>, customer: { __typename?: 'Customer', id: string, name?: string | null } };
 
@@ -19475,10 +19475,12 @@ export const QuoteDetailItemFragmentDoc = gql`
     name
     externalId
     currency
+    netPaymentTerm
     billingEntity {
       id
       code
       name
+      netPaymentTerm
     }
   }
   owners {
@@ -19489,6 +19491,7 @@ export const QuoteDetailItemFragmentDoc = gql`
     id
     name
     externalId
+    subscriptionAt
     plan {
       id
       name
@@ -19499,6 +19502,7 @@ export const QuoteDetailItemFragmentDoc = gql`
     status
     version
     content
+    billingItems
     createdAt
   }
 }

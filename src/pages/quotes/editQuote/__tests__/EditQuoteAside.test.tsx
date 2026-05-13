@@ -6,18 +6,36 @@ import { render } from '~/test-utils'
 import EditQuoteAside, {
   EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID,
   EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID,
+  EDIT_QUOTE_ASIDE_END_DATE_TEST_ID,
+  EDIT_QUOTE_ASIDE_PAYMENT_TERM_TEST_ID,
   EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID,
+  EDIT_QUOTE_ASIDE_START_DATE_TEST_ID,
   EDIT_QUOTE_ASIDE_SUBSCRIPTION_INPUT_TEST_ID,
 } from '../EditQuoteAside'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
-    translate: (key: string) => key,
+    translate: (key: string, params?: Record<string, unknown>) => {
+      if (key === 'text_64c7a89b6c67eb6c98898125') return '0 days (at issuing date)'
+      if (key === 'text_64c7a89b6c67eb6c9889815f' && params?.days)
+        return `${params.days} day${Number(params.days) !== 1 ? 's' : ''}`
+
+      return key
+    },
   }),
 }))
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
+}))
+
+jest.mock('~/pages/quotes/hooks/useUpdateQuote', () => ({
+  useUpdateQuote: () => ({
+    updateQuoteVersion: jest.fn(),
+    isUpdatingQuoteVersion: false,
+    updateQuote: jest.fn(),
+    isUpdatingQuote: false,
+  }),
 }))
 
 const mockQuote: QuoteDetailItemFragment = {
@@ -40,11 +58,13 @@ const mockQuote: QuoteDetailItemFragment = {
     id: 'customer-1',
     name: 'Acme Corp',
     externalId: 'ext-cust-1',
+    netPaymentTerm: 30,
     billingEntity: {
       __typename: 'BillingEntity',
       id: 'be-1',
       code: 'default',
       name: 'Default Entity',
+      netPaymentTerm: 60,
     },
   },
   owners: [],
@@ -55,6 +75,7 @@ const mockQuote: QuoteDetailItemFragment = {
     status: StatusEnum.Draft,
     version: 1,
     content: 'Some content',
+    billingItems: null,
     createdAt: '2026-01-01',
   },
 }
@@ -127,6 +148,7 @@ describe('EditQuoteAside', () => {
             id: 'sub-1',
             name: 'My Subscription',
             externalId: 'ext-sub-1',
+            subscriptionAt: '2026-03-15T00:00:00Z',
             plan: {
               __typename: 'Plan' as const,
               id: 'plan-1',
@@ -159,6 +181,78 @@ describe('EditQuoteAside', () => {
         expect(
           screen.queryByTestId(EDIT_QUOTE_ASIDE_SUBSCRIPTION_INPUT_TEST_ID),
         ).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a quote with dates and payment term', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should render the start date field', () => {
+        render(<EditQuoteAside quote={mockQuote} />)
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_START_DATE_TEST_ID)).toBeInTheDocument()
+      })
+
+      it('THEN should render the end date field', () => {
+        render(<EditQuoteAside quote={mockQuote} />)
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_END_DATE_TEST_ID)).toBeInTheDocument()
+      })
+
+      it('THEN should render the payment term field', () => {
+        render(<EditQuoteAside quote={mockQuote} />)
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_PAYMENT_TERM_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a quote with netPaymentTerm of 0', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should display "0 days (at issuing date)"', () => {
+        const quoteWithZeroTerm = {
+          ...mockQuote,
+          customer: { ...mockQuote.customer, netPaymentTerm: 0 },
+        }
+
+        render(<EditQuoteAside quote={quoteWithZeroTerm} />)
+
+        expect(screen.getByDisplayValue('0 days (at issuing date)')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a quote with null customer netPaymentTerm', () => {
+    describe('WHEN the billing entity has a netPaymentTerm', () => {
+      it('THEN should fall back to billing entity netPaymentTerm', () => {
+        const quoteWithNullCustomerTerm = {
+          ...mockQuote,
+          customer: { ...mockQuote.customer, netPaymentTerm: null },
+        }
+
+        render(<EditQuoteAside quote={quoteWithNullCustomerTerm} />)
+
+        expect(screen.getByDisplayValue('60 days')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the billing entity also has no netPaymentTerm', () => {
+      it('THEN should display "-"', () => {
+        const quoteWithNoTerm = {
+          ...mockQuote,
+          customer: {
+            ...mockQuote.customer,
+            netPaymentTerm: null,
+            billingEntity: {
+              ...mockQuote.customer.billingEntity,
+              netPaymentTerm: null,
+            },
+          },
+        }
+
+        render(<EditQuoteAside quote={quoteWithNoTerm} />)
+
+        expect(screen.getByDisplayValue('-')).toBeInTheDocument()
       })
     })
   })

@@ -19,10 +19,12 @@ gql`
       name
       externalId
       currency
+      netPaymentTerm
       billingEntity {
         id
         code
         name
+        netPaymentTerm
       }
     }
     owners {
@@ -33,6 +35,7 @@ gql`
       id
       name
       externalId
+      subscriptionAt
       plan {
         id
         name
@@ -43,6 +46,7 @@ gql`
       status
       version
       content
+      billingItems
       createdAt
     }
   }
