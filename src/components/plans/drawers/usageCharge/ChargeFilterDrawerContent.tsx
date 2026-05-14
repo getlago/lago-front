@@ -1,5 +1,4 @@
 import { useStore } from '@tanstack/react-form'
-import { RefObject } from 'react'
 import { z } from 'zod'
 
 import { Chip } from '~/components/designSystem/Chip'
@@ -8,7 +7,6 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ChargeFilter } from '~/components/plans/chargeAccordion/ChargeFilter'
 import { ChargeWrapperSwitch } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { LocalChargeFilterInput, LocalUsageChargeInput } from '~/components/plans/types'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useChargeFilterDrawerContext } from '~/contexts/ChargeFilterDrawerContext'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import {
@@ -53,7 +51,6 @@ const chargeFilterDefaultValues: ChargeFilterFormValues = {
 interface ChargeFilterDrawerContentExtraProps {
   billableMetricFilters: BillableMetricFilter[]
   existingFilterValues?: Set<string>
-  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
   chargeIndex: number
   filterIndex: number
 }
@@ -61,7 +58,6 @@ interface ChargeFilterDrawerContentExtraProps {
 const chargeFilterDrawerContentDefaultProps: ChargeFilterDrawerContentExtraProps = {
   billableMetricFilters: [],
   existingFilterValues: undefined,
-  premiumWarningDialogRef: undefined,
   chargeIndex: 0,
   filterIndex: 0,
 }
@@ -73,7 +69,6 @@ export const ChargeFilterDrawerContent = withForm({
     form,
     billableMetricFilters,
     existingFilterValues,
-    premiumWarningDialogRef,
     chargeIndex,
     filterIndex,
   }) {
@@ -152,7 +147,6 @@ export const ChargeFilterDrawerContent = withForm({
                 form={form}
                 isEdition={isEdition}
                 localCharge={{ chargeModel } as LocalUsageChargeInput}
-                premiumWarningDialogRef={premiumWarningDialogRef}
                 propertyCursor="properties"
               />
             </CenteredPage.PageSection>

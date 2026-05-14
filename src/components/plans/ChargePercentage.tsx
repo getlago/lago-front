@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
-import { memo, RefObject, useCallback } from 'react'
+import { memo, useCallback } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { useChargeFormContext, usePropertyValues } from '~/contexts/ChargeFormContext'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -34,15 +34,12 @@ gql`
   }
 `
 
-interface ChargePercentageProps {
-  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
-}
-
-export const ChargePercentage = memo(({ premiumWarningDialogRef }: ChargePercentageProps) => {
+export const ChargePercentage = memo(() => {
   const { form, propertyCursor, currency, disabled, chargePricingUnitShortName } =
     useChargeFormContext()
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
+  const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const valuePointer = usePropertyValues(form, propertyCursor)
 
   const showFixedAmount = valuePointer?.fixedAmount !== undefined
@@ -469,7 +466,7 @@ export const ChargePercentage = memo(({ premiumWarningDialogRef }: ChargePercent
                       perTransactionMinAmount: '',
                     })
                   } else {
-                    premiumWarningDialogRef?.current?.openDialog()
+                    openPremiumWarningDialog()
                   }
 
                   closePopper()
@@ -490,7 +487,7 @@ export const ChargePercentage = memo(({ premiumWarningDialogRef }: ChargePercent
                       perTransactionMaxAmount: '',
                     })
                   } else {
-                    premiumWarningDialogRef?.current?.openDialog()
+                    openPremiumWarningDialog()
                   }
 
                   closePopper()
