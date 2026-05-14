@@ -67,7 +67,7 @@ jobs:
         run: pnpm cypress install
 
       - name: Cypress run
-        uses: cypress-io/github-action@v7.1.10
+        uses: cypress-io/github-action@v7.3.0
         with:
           browser: chrome
           install: false

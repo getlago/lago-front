@@ -119,7 +119,7 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.infosCalculation).toStrictEqual([
           {
-            firstUnit: '1',
+            firstUnit: '2',
             total: 0,
             perUnit: 0,
             flatFee: 0,
@@ -170,7 +170,7 @@ describe('useGraduatedRange()', () => {
         ])
         expect(result.current.infosCalculation).toStrictEqual([
           {
-            firstUnit: '2',
+            firstUnit: '3',
             total: 0,
             perUnit: 0,
             flatFee: 0,
@@ -222,7 +222,7 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.infosCalculation).toStrictEqual([
           {
-            firstUnit: '1',
+            firstUnit: '2',
             total: 9,
             perUnit: 0,
             flatFee: 0,
@@ -245,7 +245,7 @@ describe('useGraduatedRange()', () => {
         await act(async () => await result.current.handleUpdate(1, 'perUnitAmount', '8'))
         expect(result.current.infosCalculation).toStrictEqual([
           {
-            firstUnit: '2',
+            firstUnit: '3',
             total: 17,
             perUnit: 0,
             flatFee: 0,
@@ -273,7 +273,7 @@ describe('useGraduatedRange()', () => {
         await act(async () => await result.current.handleUpdate(1, 'flatAmount', '9'))
         expect(result.current.infosCalculation).toStrictEqual([
           {
-            firstUnit: '2',
+            firstUnit: '3',
             total: 26,
             perUnit: 0,
             flatFee: 0,
@@ -323,7 +323,7 @@ describe('useGraduatedRange()', () => {
         ])
         expect(result.current.infosCalculation).toStrictEqual([
           {
-            firstUnit: '4',
+            firstUnit: '5',
             total: 0,
             perUnit: 0,
             flatFee: 0,
@@ -347,7 +347,7 @@ describe('useGraduatedRange()', () => {
         await act(async () => await result.current.handleUpdate(1, 'toValue', 8))
         expect(result.current.infosCalculation).toStrictEqual([
           {
-            firstUnit: '8',
+            firstUnit: '9',
             total: 0,
             perUnit: 0,
             flatFee: 0,
@@ -453,7 +453,7 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.infosCalculation).toStrictEqual([
           {
-            firstUnit: '1',
+            firstUnit: '2',
             total: 0,
             perUnit: 0,
             flatFee: 0,
@@ -504,7 +504,7 @@ describe('useGraduatedRange()', () => {
         ])
         expect(result.current.infosCalculation).toStrictEqual([
           {
-            firstUnit: '2',
+            firstUnit: '3',
             total: 0,
             perUnit: 0,
             flatFee: 0,
@@ -556,7 +556,7 @@ describe('useGraduatedRange()', () => {
 
         expect(result.current.infosCalculation).toStrictEqual([
           {
-            firstUnit: '1',
+            firstUnit: '2',
             total: 9,
             perUnit: 0,
             flatFee: 0,
@@ -579,7 +579,7 @@ describe('useGraduatedRange()', () => {
         await act(async () => await result.current.handleUpdate(1, 'perUnitAmount', '8'))
         expect(result.current.infosCalculation).toStrictEqual([
           {
-            firstUnit: '2',
+            firstUnit: '3',
             total: 17,
             perUnit: 0,
             flatFee: 0,
@@ -607,7 +607,7 @@ describe('useGraduatedRange()', () => {
         await act(async () => await result.current.handleUpdate(1, 'flatAmount', '9'))
         expect(result.current.infosCalculation).toStrictEqual([
           {
-            firstUnit: '2',
+            firstUnit: '3',
             total: 26,
             perUnit: 0,
             flatFee: 0,
@@ -657,7 +657,7 @@ describe('useGraduatedRange()', () => {
         ])
         expect(result.current.infosCalculation).toStrictEqual([
           {
-            firstUnit: '4',
+            firstUnit: '5',
             total: 0,
             perUnit: 0,
             flatFee: 0,
@@ -681,7 +681,7 @@ describe('useGraduatedRange()', () => {
         await act(async () => await result.current.handleUpdate(1, 'toValue', 8))
         expect(result.current.infosCalculation).toStrictEqual([
           {
-            firstUnit: '8',
+            firstUnit: '9',
             total: 0,
             perUnit: 0,
             flatFee: 0,

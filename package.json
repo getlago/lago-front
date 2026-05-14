@@ -39,7 +39,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@babel/preset-env": "7.29.3",
+    "@babel/preset-env": "7.29.5",
     "@babel/preset-react": "7.28.5",
     "@babel/preset-typescript": "7.28.5",
     "@emotion/react": "11.14.0",
@@ -89,11 +89,11 @@
     "eslint-plugin-tailwindcss": "3.18.3",
     "gettext-extractor": "4.0.6",
     "glob": "13.0.6",
-    "globals": "17.5.0",
+    "globals": "17.6.0",
     "husky": "9.1.7",
     "jest": "30.3.0",
     "jest-environment-jsdom": "30.3.0",
-    "jest-junit": "16.0.0",
+    "jest-junit": "17.0.0",
     "jscodeshift": "17.3.0",
     "npm-run-all2": "8.0.4",
     "postcss": "8.5.13",
@@ -188,6 +188,7 @@
   },
   "pnpm": {
     "overrides": {
+      "axios": ">=1.15.2",
       "flatted": ">=3.4.2",
       "svgo": ">=3.3.3",
       "follow-redirects": ">=1.16.0",

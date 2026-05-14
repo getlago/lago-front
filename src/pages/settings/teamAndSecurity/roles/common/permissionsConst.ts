@@ -131,7 +131,7 @@ export const groupNameMapping: Record<string, string> = {
   wallets: 'text_62d175066d2dbf1d50bc937c',
 }
 
-export const permissionDescriptionMapping: Record<PermissionName, string> = {
+export const permissionDescriptionMapping: Partial<Record<PermissionName, string>> = {
   // Addons
   AddonsCreate: 'text_1766047581847fumm5ku57ir',
   AddonsDelete: 'text_17660475818471if48pmb0dl',
