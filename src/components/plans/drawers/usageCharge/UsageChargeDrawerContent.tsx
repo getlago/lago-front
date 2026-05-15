@@ -377,7 +377,6 @@ export const UsageChargeDrawerContent = withForm({
               form={filterForm}
               billableMetricFilters={form.state.values.billableMetric?.filters || []}
               existingFilterValues={existingFilterValues}
-              premiumWarningDialogRef={premiumWarningDialogRef}
               chargeIndex={editIndex}
               filterIndex={currentFilterIndex}
             />
@@ -602,7 +601,6 @@ export const UsageChargeDrawerContent = withForm({
                   form={form}
                   isEdition={isEdition || false}
                   localCharge={formValues as unknown as LocalUsageChargeInput}
-                  premiumWarningDialogRef={premiumWarningDialogRef}
                   propertyCursor="properties"
                   onExpandCustomCharge={openCustomChargeDrawer}
                 />

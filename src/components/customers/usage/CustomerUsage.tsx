@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { RefObject, useState } from 'react'
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
@@ -9,7 +9,6 @@ import MonthSelectorDropdown, {
   TPeriodScopeTranslationLookupValue,
 } from '~/components/graphs/MonthSelectorDropdown'
 import { PageSectionTitle } from '~/components/layouts/Section'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useGetCustomerSubscriptionForUsageQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -24,11 +23,7 @@ gql`
   }
 `
 
-interface CustomerUsageProps {
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
-}
-
-export const CustomerUsage = ({ premiumWarningDialogRef }: CustomerUsageProps) => {
+export const CustomerUsage = () => {
   const { customerId = '' } = useParams()
   const { organization } = useOrganizationInfos()
   const { translate } = useInternationalization()
@@ -46,11 +41,7 @@ export const CustomerUsage = ({ premiumWarningDialogRef }: CustomerUsageProps) =
         title={translate('text_65564e8e4af2340050d431be')}
         subtitle={translate('text_173764736415670g9n7v9tth')}
         customAction={
-          <MonthSelectorDropdown
-            periodScope={periodScope}
-            setPeriodScope={setPeriodScope}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />
+          <MonthSelectorDropdown periodScope={periodScope} setPeriodScope={setPeriodScope} />
         }
       />
 

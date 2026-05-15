@@ -13,7 +13,6 @@ import {
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { CUSTOMERS_LIST_ROUTE, useLocation, useNavigate } from '~/core/router'
 import {
@@ -72,7 +71,6 @@ const MAX_POLLING_ATTEMPTS = 3
 const CustomerDetails = () => {
   const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const pollingAttemptsRef = useRef(0)
   const { translate } = useInternationalization()
   const navigate = useNavigate()
@@ -144,7 +142,6 @@ const CustomerDetails = () => {
     customerId: customerId as string,
     customer,
     loading,
-    premiumWarningDialogRef,
   })
 
   const activeTabContent = useMainHeaderTabContent()
@@ -180,7 +177,6 @@ const CustomerDetails = () => {
 
       <DeleteCustomerDialog ref={deleteDialogRef} />
       <AddCouponToCustomerDialog ref={addCouponDialogRef} customer={customer} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </div>
   )
 }
