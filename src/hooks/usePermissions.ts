@@ -82,6 +82,12 @@ gql`
       plansDelete
       plansUpdate
       plansView
+      quotesApprove
+      quotesClone
+      quotesCreate
+      quotesUpdate
+      quotesView
+      quotesVoid
       pricingUnitsCreate
       pricingUnitsUpdate
       pricingUnitsView
