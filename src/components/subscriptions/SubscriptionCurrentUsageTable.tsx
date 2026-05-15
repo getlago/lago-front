@@ -10,6 +10,7 @@ import {
 } from '~/components/customers/usage/SubscriptionUsageDetailDrawer'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
 import { Skeleton } from '~/components/designSystem/Skeleton'
@@ -52,7 +53,6 @@ import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternat
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { tw } from '~/styles/utils'
 
 import { usePremiumWarningDialog } from '../dialogs/PremiumWarningDialog'
 
@@ -109,6 +109,7 @@ gql`
       }
       filters {
         id
+        invoiceDisplayName
       }
       groupedUsage {
         amountCents
@@ -154,6 +155,7 @@ gql`
       }
       filters {
         id
+        invoiceDisplayName
       }
       groupedUsage {
         amountCents
@@ -213,7 +215,6 @@ type SubscriptionCurrentUsageTableComponentProps = {
   customerData?: CustomerForSubscriptionUsageQuery['customer']
   customerLoading: boolean
   customerError?: ApolloError
-  showExcludingTaxLabel?: boolean
 
   refetchUsage: (
     forceProjected?: boolean,
@@ -259,6 +260,80 @@ export type MixedCharge = {
   units?: string | number
 }
 
+type UsageSummaryPanelProps = {
+  usageData?: UsageData
+  currency: CurrencyEnum
+  isLoading: boolean
+  hasError: boolean
+  translate: TranslateFunc
+  locale?: LocaleEnum
+  getFormattedDate: (date: string) => string
+  showProjectedColumn: boolean
+}
+
+const UsageSummaryPanel = ({
+  usageData,
+  currency,
+  isLoading,
+  hasError,
+  translate,
+  locale,
+  getFormattedDate,
+  showProjectedColumn,
+}: UsageSummaryPanelProps) => {
+  const currencyDisplay = locale ? 'narrowSymbol' : 'symbol'
+
+  const formatAmount = (cents: string | number | null | undefined): string =>
+    intlFormatNumber(deserializeAmount(cents || 0, currency) || 0, {
+      currencyDisplay,
+      currency,
+      locale,
+    })
+
+  const renderValue = (value: string) =>
+    isLoading ? (
+      <Skeleton variant="text" className="mt-1 w-36" />
+    ) : (
+      <Typography variant="bodyHl" color="grey700" noWrap>
+        {value}
+      </Typography>
+    )
+
+  const dateRange =
+    !hasError && !!usageData?.fromDatetime && !!usageData?.toDatetime
+      ? `${getFormattedDate(usageData.fromDatetime)} - ${getFormattedDate(usageData.toDatetime)}`
+      : '-'
+
+  return (
+    <div className="w-full shadow-b">
+      <div className="flex w-fit items-stretch divide-x divide-grey-300 py-4">
+        <div className="flex flex-col gap-1 px-8 first:pl-0">
+          <Typography variant="captionHl" color="grey600" noWrap>
+            {translate('text_1778841363033djjc5c8dsvx')}
+          </Typography>
+          {renderValue(dateRange)}
+        </div>
+
+        <div className="flex flex-col gap-1 px-8">
+          <Typography variant="captionHl" color="grey600" noWrap>
+            {translate('text_17788413630335ar3zl10prt')}
+          </Typography>
+          {renderValue(formatAmount(usageData?.amountCents))}
+        </div>
+
+        {showProjectedColumn && (
+          <div className="flex flex-col gap-1 px-8">
+            <Typography variant="captionHl" color="grey600" noWrap>
+              {translate('text_17788413630339w2go4tbxga')}
+            </Typography>
+            {renderValue(formatAmount(usageData?.projectedAmountCents))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export const SubscriptionCurrentUsageTableComponent = ({
   usageData,
   usageLoading,
@@ -269,7 +344,6 @@ export const SubscriptionCurrentUsageTableComponent = ({
   customerData,
   customerLoading,
   customerError,
-  showExcludingTaxLabel = false,
   refetchUsage,
   noUsageOverride,
   translate,
@@ -307,7 +381,6 @@ export const SubscriptionCurrentUsageTableComponent = ({
 
   const TRANSLATION_MAP = showProjected
     ? {
-        title: translate('text_1753095692838zn4t5a0wrg1'),
         unitsHeader: translate('text_17531019276915hby502cvzy'),
         amountHeader: translate('text_1753101927691j5chrkhmoma'),
         emptyUsage:
@@ -316,7 +389,6 @@ export const SubscriptionCurrentUsageTableComponent = ({
             : translate('text_1754662542899l1ms7k49n67'),
       }
     : {
-        title: translate('text_17530956928381jy5n59318d'),
         unitsHeader: translate('text_1753095789277t9kbe8y5pmh'),
         amountHeader: translate('text_1753101927691fbbwyk7p39q'),
         emptyUsage:
@@ -338,36 +410,47 @@ export const SubscriptionCurrentUsageTableComponent = ({
 
   return (
     <section>
-      <div className="flex h-10 flex-row items-start justify-between shadow-b">
-        <div className="flex flex-row gap-2">
+      <div className="flex flex-row items-center justify-between">
+        <div className="flex flex-col gap-1">
           <Typography variant="subhead1" color="grey700" noWrap>
             {translate('text_1725983967306cf8dwr2r4u2')}
           </Typography>
-          <Tooltip placement="top-start" title={translate('text_62d7f6178ec94cd09370e4b3')}>
-            <Button
-              variant="quaternary"
-              icon="reload"
-              size="small"
-              className={tw(usageLoading && '[&>svg]:animate-spin')}
-              disabled={usageLoading}
-              onClick={async () => {
-                refetchUsage()
-              }}
-            />
-          </Tooltip>
-        </div>
-
-        {isLoading && <Skeleton variant="text" className="mt-1 w-36" />}
-
-        {!isLoading && !hasError && !!usageData?.fromDatetime && !!usageData?.toDatetime && (
-          <Typography variant="caption" color="grey600" noWrap>
-            {translate('text_633dae57ca9a923dd53c2097', {
-              fromDate: usageData?.fromDatetime ? getFormattedDate(usageData?.fromDatetime) : '-',
-              toDate: usageData?.toDatetime ? getFormattedDate(usageData?.toDatetime) : '-',
-            })}
+          <Typography variant="caption" color="grey600">
+            {translate('text_1778496527600gzfmf3x6r2q')}
           </Typography>
-        )}
+        </div>
+        <Tooltip placement="top-end" title={translate('text_62d7f6178ec94cd09370e4b3')}>
+          <Button
+            variant="quaternary"
+            size="small"
+            disabled={usageLoading}
+            onClick={async () => {
+              refetchUsage()
+            }}
+          >
+            {translate('text_1738748043939zqoqzz350yj')}
+          </Button>
+        </Tooltip>
       </div>
+
+      <UsageSummaryPanel
+        usageData={usageData}
+        currency={currency}
+        isLoading={isLoading}
+        hasError={hasError}
+        translate={translate}
+        locale={locale}
+        getFormattedDate={getFormattedDate}
+        // Re-uses whatever projectedAmountCents is already in `usageData`. That
+        // value is only populated when the Projected tab has been visited and
+        // the premium-gated `useProjectedUsageForSubscriptionUsageQuery` has
+        // run. We deliberately don't trigger an extra projected fetch from the
+        // Current tab — pending alignment with Anna on whether the projected
+        // value should always be loaded (separate API call + premium flag).
+        showProjectedColumn={
+          !!hasAccessToProjectedUsage && usageData?.projectedAmountCents !== undefined
+        }
+      />
 
       <NavigationTab
         managedBy={TabManagedBy.INDEX}
@@ -463,77 +546,74 @@ export const SubscriptionCurrentUsageTableComponent = ({
 
       {!hasError && !!usageData?.chargesUsage.length && !showPremiumError && (
         <>
-          <div className="flex h-12 flex-row items-center justify-between shadow-b">
-            <Typography variant="bodyHl" color="grey700" noWrap>
-              {TRANSLATION_MAP.title}{' '}
-              {showExcludingTaxLabel ? translate('text_1753095789277h17a2varizl') : ''}
-            </Typography>
-
-            {isLoading ? (
-              <Skeleton variant="text" className="w-36" />
-            ) : (
-              <Typography variant="bodyHl" color="grey700" noWrap>
-                {intlFormatNumber(
-                  deserializeAmount((usageData as MixedCharge)?.[amountCentsKey] || 0, currency) ||
-                    0,
-                  {
-                    currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-                    currency,
-                    locale,
-                  },
-                )}
-              </Typography>
-            )}
-          </div>
-
           <Table
             name="subscription-current-usage-table"
             containerSize={0}
             rowSize={72}
+            // Add a small px-1 horizontal padding to every body cell so the
+            // hover/active states on the now-clickable rows don't sit flush
+            // against the table edges.
+            containerClassName="[&_tbody>tr>td]:px-1"
             isLoading={isLoading}
             hasError={hasError}
             data={usageData?.chargesUsage || []}
+            onRowActionClick={(row) =>
+              handleOpenUsageDetailDrawer(row as SubscriptionUsageDetailDrawerUsage)
+            }
             columns={[
               {
                 key: 'charge.invoiceDisplayName',
                 title: translate('text_1725983967306dtwnapp4mw9'),
                 maxSpace: true,
                 content: (row) => {
-                  const hasAnyGroupedUsageFilters = row.groupedUsage.some(
-                    (groupedUsage) => !!groupedUsage?.filters?.length,
-                  )
-                  const hasAnyGroupedUsageUnits = row.groupedUsage.some(
-                    (groupedUsage) => Number((groupedUsage as MixedCharge)?.[unitsKey] || 0) > 0,
-                  )
+                  const filterLabels = (row.filters ?? [])
+                    .map((f) => f?.invoiceDisplayName)
+                    .filter((label): label is string => !!label)
+
+                  // All groupedUsage entries share the same set of grouped-by
+                  // keys (they're grouped by the same pricing-group-keys config),
+                  // so take them from the first entry that has them.
+                  const firstGroupedBy = row.groupedUsage?.find(
+                    (g) =>
+                      g?.groupedBy &&
+                      typeof g.groupedBy === 'object' &&
+                      !Array.isArray(g.groupedBy),
+                  )?.groupedBy as Record<string, unknown> | undefined
+                  const groupedByKeys = firstGroupedBy ? Object.keys(firstGroupedBy) : []
 
                   return (
-                    <div className="py-3">
+                    <div className="flex flex-col gap-1 py-3">
                       <Typography variant="body" color="grey700">
                         {row.charge.invoiceDisplayName || row.billableMetric?.name}
                       </Typography>
-                      <div className="flex w-full flex-row gap-1">
-                        <Typography variant="caption" color="grey600" component={'span'}>
+                      <div className="flex flex-wrap items-center gap-1">
+                        <Typography variant="caption" color="grey600" component="span">
                           {row.billableMetric?.code}
-                          {(!!row.filters?.length ||
-                            hasAnyGroupedUsageFilters ||
-                            hasAnyGroupedUsageUnits) && (
-                            <>
-                              <Typography variant="caption" color="grey600" component={'span'}>
-                                {' • '}
-                              </Typography>
-                              <button
-                                className="h-auto whitespace-nowrap rounded-none p-0 text-purple-600 hover:underline focus:underline"
-                                onClick={() =>
-                                  handleOpenUsageDetailDrawer(
-                                    row as SubscriptionUsageDetailDrawerUsage,
-                                  )
-                                }
-                              >
-                                {translate('text_1725983967306c736sdyjohn')}
-                              </button>
-                            </>
-                          )}
                         </Typography>
+
+                        {filterLabels.length > 0 && (
+                          <>
+                            <Typography variant="caption" color="grey600" component="span">
+                              {' • '}
+                              {translate('text_177883198759933bb02ulslv')}
+                            </Typography>
+                            {filterLabels.map((label, i) => (
+                              <Chip key={`filter-${i}`} label={label} size="small" />
+                            ))}
+                          </>
+                        )}
+
+                        {groupedByKeys.length > 0 && (
+                          <>
+                            <Typography variant="caption" color="grey600" component="span">
+                              {' • '}
+                              {translate('text_1778831987599grvoqfl2yd2')}
+                            </Typography>
+                            {groupedByKeys.map((key) => (
+                              <Chip key={`gb-${key}`} label={key} size="small" />
+                            ))}
+                          </>
+                        )}
                       </div>
                     </div>
                   )
