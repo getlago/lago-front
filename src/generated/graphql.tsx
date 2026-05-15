@@ -10708,6 +10708,8 @@ export type GetCustomerCreditNotesQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<CurrencyEnum>;
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
 }>;
 
 
@@ -22392,12 +22394,14 @@ export type GetAppliedCouponsForCustomerLazyQueryHookResult = ReturnType<typeof 
 export type GetAppliedCouponsForCustomerSuspenseQueryHookResult = ReturnType<typeof useGetAppliedCouponsForCustomerSuspenseQuery>;
 export type GetAppliedCouponsForCustomerQueryResult = Apollo.QueryResult<GetAppliedCouponsForCustomerQuery, GetAppliedCouponsForCustomerQueryVariables>;
 export const GetCustomerCreditNotesDocument = gql`
-    query getCustomerCreditNotes($customerId: ID!, $page: Int, $limit: Int, $searchTerm: String) {
+    query getCustomerCreditNotes($customerId: ID!, $page: Int, $limit: Int, $searchTerm: String, $currency: CurrencyEnum, $billingEntityIds: [ID!]) {
   creditNotes(
     customerId: $customerId
     page: $page
     limit: $limit
     searchTerm: $searchTerm
+    currency: $currency
+    billingEntityIds: $billingEntityIds
   ) {
     ...CreditNotesForTable
   }
@@ -22420,6 +22424,8 @@ export const GetCustomerCreditNotesDocument = gql`
  *      page: // value for 'page'
  *      limit: // value for 'limit'
  *      searchTerm: // value for 'searchTerm'
+ *      currency: // value for 'currency'
+ *      billingEntityIds: // value for 'billingEntityIds'
  *   },
  * });
  */

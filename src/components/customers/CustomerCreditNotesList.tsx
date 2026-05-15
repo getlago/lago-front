@@ -1,12 +1,13 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
+import { useEffect, useState } from 'react'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
+import { BillingEntityPicker, CurrencyPicker } from '~/components/form'
 import { PageSectionTitle } from '~/components/layouts/Section'
-import { SearchInput } from '~/components/SearchInput'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
@@ -16,12 +17,25 @@ import {
   useGetCustomerCreditNotesLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 gql`
-  query getCustomerCreditNotes($customerId: ID!, $page: Int, $limit: Int, $searchTerm: String) {
-    creditNotes(customerId: $customerId, page: $page, limit: $limit, searchTerm: $searchTerm) {
+  query getCustomerCreditNotes(
+    $customerId: ID!
+    $page: Int
+    $limit: Int
+    $searchTerm: String
+    $currency: CurrencyEnum
+    $billingEntityIds: [ID!]
+  ) {
+    creditNotes(
+      customerId: $customerId
+      page: $page
+      limit: $limit
+      searchTerm: $searchTerm
+      currency: $currency
+      billingEntityIds: $billingEntityIds
+    ) {
       ...CreditNotesForTable
     }
   }
@@ -45,11 +59,30 @@ export const CustomerCreditNotesList = ({
   customerTimezone,
 }: CustomerCreditNotesListProps) => {
   const { translate } = useInternationalization()
+  const [selectedCurrency, setSelectedCurrency] = useState<CurrencyEnum | undefined>(undefined)
+  const [selectedBillingEntity, setSelectedBillingEntity] = useState<{
+    id: string
+    code: string
+    label: string
+  } | null>(null)
+
   const [getCreditNotes, { data, loading, error, fetchMore, variables }] =
     useGetCustomerCreditNotesLazyQuery({
       variables: { customerId, limit: 20 },
     })
-  const { debouncedSearch, isLoading } = useDebouncedSearch(getCreditNotes, loading)
+
+  useEffect(() => {
+    getCreditNotes({
+      variables: {
+        customerId,
+        limit: 20,
+        currency: selectedCurrency,
+        billingEntityIds: selectedBillingEntity ? [selectedBillingEntity.id] : undefined,
+      },
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerId, selectedCurrency, selectedBillingEntity])
+
   const creditNotes = data?.creditNotes?.collection
 
   return (
@@ -96,14 +129,26 @@ export const CustomerCreditNotesList = ({
           title={translate('text_63725b30957fd5b26b308ddf')}
           subtitle={translate('text_1737895837105yr0kl7kkyuz')}
           customAction={
-            <SearchInput
-              onChange={debouncedSearch}
-              placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
-            />
+            <div className="flex items-center gap-2">
+              <CurrencyPicker
+                value={selectedCurrency}
+                onChange={(currency) => setSelectedCurrency(currency)}
+                onClear={() => setSelectedCurrency(undefined)}
+                placeholder={translate('text_632b4acf0c41206cbcb8c324')}
+                containerClassName="w-36"
+              />
+              <BillingEntityPicker
+                value={selectedBillingEntity?.code}
+                onChange={({ id, code, label }) => setSelectedBillingEntity({ id, code, label })}
+                onClear={() => setSelectedBillingEntity(null)}
+                placeholder={translate('text_17436114971570doqrwuwhf0')}
+                containerClassName="w-40"
+              />
+            </div>
           }
         />
 
-        {!!error && !isLoading ? (
+        {!!error && !loading ? (
           <GenericPlaceholder
             title={translate('text_636d023ce11a9d038819b579')}
             subtitle={translate('text_636d023ce11a9d038819b57b')}
@@ -116,7 +161,7 @@ export const CustomerCreditNotesList = ({
           <CreditNotesTable
             creditNotes={creditNotes}
             fetchMore={fetchMore}
-            isLoading={isLoading}
+            isLoading={loading}
             metadata={data?.creditNotes?.metadata}
             customerTimezone={customerTimezone}
             error={error}
