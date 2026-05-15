@@ -18,6 +18,10 @@ import {
   InvoiceTableSection,
 } from '~/components/invoices/details/InvoiceDetailsTable'
 import {
+  ViewFeeDetailsDrawer,
+  ViewFeeDetailsDrawerRef,
+} from '~/components/invoices/details/ViewFeeDetailsDrawer'
+import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
@@ -46,6 +50,7 @@ import {
   FeeDetailsForInvoiceOverviewFragment,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
   FeeForInvoiceDetailsTableFooterFragmentDoc,
+  FeeForViewFeeDetailsDrawerFragmentDoc,
   HubspotIntegrationInfosForInvoiceOverviewFragment,
   InvoiceStatusTypeEnum,
   LagoApiError,
@@ -145,6 +150,7 @@ gql`
 
     ...FeeForInvoiceDetailsTableBodyLine
     ...FeeForInvoiceDetailsTableFooter
+    ...FeeForViewFeeDetailsDrawer
   }
 
   fragment CustomerForInvoiceOverview on Customer {
@@ -196,6 +202,7 @@ gql`
 
   ${FeeForInvoiceDetailsTableBodyLineFragmentDoc}
   ${FeeForInvoiceDetailsTableFooterFragmentDoc}
+  ${FeeForViewFeeDetailsDrawerFragmentDoc}
 `
 
 interface InvoiceOverviewProps {
@@ -384,6 +391,7 @@ const InvoiceOverview = memo(
     const deleteAdjustedFeeDialogRef = useRef<DeleteAdjustedFeeDialogRef>(null)
     const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
     const editFeeDrawerRef = useRef<EditFeeDrawerRef>(null)
+    const viewFeeDetailsDrawerRef = useRef<ViewFeeDetailsDrawerRef>(null)
 
     if (hasError) {
       return (
@@ -555,6 +563,7 @@ const InvoiceOverview = memo(
                 customer={customer}
                 invoice={invoice}
                 editFeeDrawerRef={editFeeDrawerRef}
+                viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef}
                 deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                 fees={fees}
               />
@@ -820,6 +829,7 @@ const InvoiceOverview = memo(
         <DeleteAdjustedFeeDialog ref={deleteAdjustedFeeDialogRef} />
         <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
         <EditFeeDrawer ref={editFeeDrawerRef} />
+        <ViewFeeDetailsDrawer ref={viewFeeDetailsDrawerRef} />
       </>
     )
   },

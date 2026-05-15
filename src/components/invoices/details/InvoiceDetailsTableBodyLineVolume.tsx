@@ -1,11 +1,15 @@
 import { gql } from '@apollo/client'
-import { memo } from 'react'
+import { tw } from 'lago-design-system'
+import { memo, RefObject } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
+import { ViewFeeDetailsDrawerRef } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import { FeeMetadata } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, FeeForInvoiceDetailsTableBodyLineFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+import { FeeActionsCell, openViewFeeDetailsDrawer } from './FeeActionsCell'
 
 gql`
   fragment FeeForInvoiceDetailsTableBodyLineVolume on Fee {
@@ -29,18 +33,24 @@ gql`
 type InvoiceDetailsTableBodyLineVolumeProps = {
   currency: CurrencyEnum
   fee: (FeeForInvoiceDetailsTableBodyLineFragment & { metadata: FeeMetadata }) | undefined
-  isDraftInvoice: boolean
   hideVat?: boolean
+  viewFeeDetailsDrawerRef?: RefObject<ViewFeeDetailsDrawerRef>
 }
 
 export const InvoiceDetailsTableBodyLineVolume = memo(
-  ({ currency, fee, isDraftInvoice, hideVat }: InvoiceDetailsTableBodyLineVolumeProps) => {
+  ({ currency, fee, hideVat, viewFeeDetailsDrawerRef }: InvoiceDetailsTableBodyLineVolumeProps) => {
     const { translate } = useInternationalization()
     const amountDetails = fee?.amountDetails
 
+    const handleRowClick = () => openViewFeeDetailsDrawer(fee, viewFeeDetailsDrawerRef)
+    const rowClickableClass = fee ? 'cursor-pointer hover:bg-grey-100' : undefined
+
     return (
       <>
-        <tr className="details-line">
+        <tr
+          className={tw('details-line', rowClickableClass)}
+          onClick={fee ? handleRowClick : undefined}
+        >
           <td>
             <Typography variant="body" color="grey600">
               {translate('text_659e67cd63512ef532843078')}
@@ -89,12 +99,15 @@ export const InvoiceDetailsTableBodyLineVolume = memo(
               })}
             </Typography>
           </td>
-          {isDraftInvoice && <td>{/* Action column */}</td>}
+          <FeeActionsCell fee={fee} viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef} />
         </tr>
 
         {Number(amountDetails?.flatUnitAmount || 0) > 0 && (
           <>
-            <tr className="details-line">
+            <tr
+              className={tw('details-line', rowClickableClass)}
+              onClick={fee ? handleRowClick : undefined}
+            >
               <td>
                 <Typography variant="body" color="grey600">
                   {translate('text_659e67cd63512ef5328430b5')}
@@ -142,7 +155,7 @@ export const InvoiceDetailsTableBodyLineVolume = memo(
                   })}
                 </Typography>
               </td>
-              {isDraftInvoice && <td>{/* Action column */}</td>}
+              <FeeActionsCell fee={fee} viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef} />
             </tr>
           </>
         )}

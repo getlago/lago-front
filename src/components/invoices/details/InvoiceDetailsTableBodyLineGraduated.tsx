@@ -1,11 +1,14 @@
 import { gql } from '@apollo/client'
-import { memo } from 'react'
+import { tw } from 'lago-design-system'
+import { memo, RefObject } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
+import { ViewFeeDetailsDrawerRef } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import { FeeMetadata } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, FeeForInvoiceDetailsTableBodyLineFragment } from '~/generated/graphql'
 
+import { FeeActionsCell, openViewFeeDetailsDrawer } from './FeeActionsCell'
 import { useGetRangeLabel } from './useGetRangeLabel'
 
 gql`
@@ -35,18 +38,30 @@ gql`
 type InvoiceDetailsTableBodyLineGraduatedProps = {
   currency: CurrencyEnum
   fee: (FeeForInvoiceDetailsTableBodyLineFragment & { metadata: FeeMetadata }) | undefined
-  isDraftInvoice: boolean
   hideVat?: boolean
+  viewFeeDetailsDrawerRef?: RefObject<ViewFeeDetailsDrawerRef>
 }
 
 export const InvoiceDetailsTableBodyLineGraduated = memo(
-  ({ currency, fee, isDraftInvoice, hideVat }: InvoiceDetailsTableBodyLineGraduatedProps) => {
+  ({
+    currency,
+    fee,
+    hideVat,
+    viewFeeDetailsDrawerRef,
+  }: InvoiceDetailsTableBodyLineGraduatedProps) => {
     const { getRangeLabel } = useGetRangeLabel()
+
+    const handleRowClick = () => openViewFeeDetailsDrawer(fee, viewFeeDetailsDrawerRef)
+    const rowClickableClass = fee ? 'cursor-pointer hover:bg-grey-100' : undefined
 
     return (
       <>
         {fee?.amountDetails?.graduatedRanges?.map((graduatedRange, i) => (
-          <tr key={`fee-${fee.id}-graduated-range-fee-per-unit-${i}`} className="details-line">
+          <tr
+            key={`fee-${fee.id}-graduated-range-fee-per-unit-${i}`}
+            className={tw('details-line', rowClickableClass)}
+            onClick={fee ? handleRowClick : undefined}
+          >
             <td>
               <Typography variant="body" color="grey600">
                 {getRangeLabel(
@@ -101,7 +116,7 @@ export const InvoiceDetailsTableBodyLineGraduated = memo(
                 })}
               </Typography>
             </td>
-            {isDraftInvoice && <td>{/* Action column */}</td>}
+            <FeeActionsCell fee={fee} viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef} />
           </tr>
         ))}
 
@@ -110,7 +125,11 @@ export const InvoiceDetailsTableBodyLineGraduated = memo(
             if (Number(graduatedRange?.flatUnitAmount) === 0) return null
 
             return (
-              <tr key={`fee-${fee.id}-graduated-range-flat-fee-${i}`} className="details-line">
+              <tr
+                key={`fee-${fee.id}-graduated-range-flat-fee-${i}`}
+                className={tw('details-line', rowClickableClass)}
+                onClick={fee ? handleRowClick : undefined}
+              >
                 <td>
                   <Typography variant="body" color="grey600">
                     {getRangeLabel(
@@ -164,7 +183,7 @@ export const InvoiceDetailsTableBodyLineGraduated = memo(
                     })}
                   </Typography>
                 </td>
-                {isDraftInvoice && <td>{/* Action column */}</td>}
+                <FeeActionsCell fee={fee} viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef} />
               </tr>
             )
           })}
