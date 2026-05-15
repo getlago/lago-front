@@ -171,7 +171,7 @@ interface InvoiceDetailsTableProps {
   customer: Pick<Customer, 'id' | 'applicableTimezone'> | null | undefined
   invoice: InvoiceForDetailsTableFragment | null | undefined
   editFeeDrawerRef: RefObject<EditFeeDrawerRef>
-  viewFeeDetailsDrawerRef: RefObject<ViewFeeDetailsDrawerRef>
+  viewFeeDetailsDrawerRef?: RefObject<ViewFeeDetailsDrawerRef>
   deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
   isDraftOverride?: boolean
   fees: FeeDetailsForInvoiceOverviewFragment[] | null | undefined
