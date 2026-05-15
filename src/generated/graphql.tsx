@@ -2760,6 +2760,8 @@ export type Customer = {
   name?: Maybe<Scalars['String']['output']>;
   netPaymentTerm?: Maybe<Scalars['Int']['output']>;
   netsuiteCustomer?: Maybe<NetsuiteCustomer>;
+  /** Overdue balance per currency */
+  overdueBalances: Array<CustomerOverdueBalance>;
   paymentProvider?: Maybe<ProviderTypeEnum>;
   paymentProviderCode?: Maybe<Scalars['String']['output']>;
   phone?: Maybe<Scalars['String']['output']>;
@@ -2860,6 +2862,12 @@ export type CustomerMetadataInput = {
   id?: InputMaybe<Scalars['ID']['input']>;
   key: Scalars['String']['input'];
   value: Scalars['String']['input'];
+};
+
+export type CustomerOverdueBalance = {
+  __typename?: 'CustomerOverdueBalance';
+  amountCents: Scalars['BigInt']['output'];
+  currency: CurrencyEnum;
 };
 
 export type CustomerPortalCustomer = {
