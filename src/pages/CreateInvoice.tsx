@@ -650,16 +650,12 @@ const CreateInvoice = () => {
   const {
     options: billingEntityOptions,
     isLoading: billingEntitiesLoading,
-    hasMultipleEntities,
     defaultEntityCode,
   } = useBillingEntitiesOptions({
     skip: !hasMultiEntityBilling,
   })
   const showBillingEntityPicker = hasMultiEntityBilling
-  const billingEntityPickerValue = hasMultipleEntities
-    ? demoBillingEntityCode
-    : (defaultEntityCode ?? '')
-  const billingEntityPickerDisabled = !hasMultipleEntities
+  const billingEntityPickerValue = demoBillingEntityCode || (defaultEntityCode ?? '')
 
   if (!!error && !loading) {
     return (
@@ -1287,8 +1283,7 @@ const CreateInvoice = () => {
                 loading={billingEntitiesLoading}
                 value={billingEntityPickerValue}
                 onChange={(value) => setDemoBillingEntityCode(value as string)}
-                disabled={billingEntityPickerDisabled}
-                disableClearable={billingEntityPickerDisabled}
+                disableClearable
                 sortValues={false}
                 PopperProps={{ displayInDialog: true }}
               />

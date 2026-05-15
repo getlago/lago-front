@@ -197,16 +197,12 @@ const CreateSubscription = () => {
   const {
     options: billingEntityOptions,
     isLoading: billingEntitiesLoading,
-    hasMultipleEntities,
     defaultEntityCode,
   } = useBillingEntitiesOptions({
     skip: !hasMultiEntityBilling,
   })
   const showBillingEntityPicker = hasMultiEntityBilling
-  const billingEntityPickerValue = hasMultipleEntities
-    ? demoBillingEntityCode
-    : (defaultEntityCode ?? '')
-  const billingEntityPickerDisabled = !hasMultipleEntities
+  const billingEntityPickerValue = demoBillingEntityCode || (defaultEntityCode ?? '')
 
   const [getPlans, { loading: planLoading, data: planData }] = useGetPlansLazyQuery({
     variables: { limit: 1000 },
@@ -593,6 +589,20 @@ const CreateSubscription = () => {
                       )}
                     </subscriptionForm.AppField>
 
+                    {!!subscriptionPlanId && showBillingEntityPicker && (
+                      <ComboBox
+                        label={translate('text_1743611497157teaa1zu8l24')}
+                        placeholder={translate('text_174360002513391n72uwg6bb')}
+                        data={billingEntityOptions}
+                        loading={billingEntitiesLoading}
+                        value={billingEntityPickerValue}
+                        onChange={(value) => setDemoBillingEntityCode(value as string)}
+                        disableClearable
+                        sortValues={false}
+                        PopperProps={{ displayInDialog: true }}
+                      />
+                    )}
+
                     {!!showCurrencyError ? (
                       <Alert type="danger">{translate('text_632dbaf1d577afb32ae751f5')}</Alert>
                     ) : (
@@ -636,21 +646,6 @@ const CreateSubscription = () => {
                           className="flex flex-col gap-6"
                           data-test="create-subscription-form-wrapper"
                         >
-                          {showBillingEntityPicker && (
-                            <ComboBox
-                              label={translate('text_1743611497157teaa1zu8l24')}
-                              placeholder={translate('text_174360002513391n72uwg6bb')}
-                              data={billingEntityOptions}
-                              loading={billingEntitiesLoading}
-                              value={billingEntityPickerValue}
-                              onChange={(value) => setDemoBillingEntityCode(value as string)}
-                              disabled={billingEntityPickerDisabled}
-                              disableClearable={billingEntityPickerDisabled}
-                              sortValues={false}
-                              PopperProps={{ displayInDialog: true }}
-                            />
-                          )}
-
                           {!!shouldDisplaySubscriptionExternalId && (
                             <div className="flex flex-row gap-3 [&>*:first-child]:flex-1">
                               <subscriptionForm.AppField name="externalId">

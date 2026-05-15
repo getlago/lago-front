@@ -1,9 +1,8 @@
-import { Button } from '~/components/designSystem/Button'
-import { Popper } from '~/components/designSystem/Popper'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
+import { ComboBox } from '~/components/form/ComboBox/ComboBox'
+import { LockedPickerBox } from '~/components/form/LockedPickerBox'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { MenuPopper } from '~/styles'
 
 export const AnalyticsPeriodScopeEnum = {
   Year: 'year',
@@ -27,71 +26,41 @@ const MonthSelectorDropdown = ({
   periodScope: TPeriodScopeTranslationLookupValue
   setPeriodScope: (periodScope: TPeriodScopeTranslationLookupValue) => void
 }) => {
-  const { isPremium, currentUser } = useCurrentUser()
+  const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
+  const boxWidth = 48
+
+  if (!isPremium) {
+    return (
+      <LockedPickerBox
+        placeholder={translate(PeriodScopeTranslationLookup[periodScope])}
+        onClick={() => openPremiumWarningDialog()}
+        containerClassName={`w-${boxWidth}`}
+      />
+    )
+  }
+
+  const periodOptions = Object.values(AnalyticsPeriodScopeEnum).map((value) => ({
+    value,
+    label: translate(PeriodScopeTranslationLookup[value]),
+    isDefault: false,
+  }))
 
   return (
-    <>
-      {isPremium && !!currentUser ? (
-        <Popper
-          PopperProps={{ placement: 'bottom-end' }}
-          opener={
-            <Button variant="inline" endIcon={'chevron-down'}>
-              {translate(PeriodScopeTranslationLookup[periodScope])}
-            </Button>
-          }
-        >
-          {({ closePopper }) => (
-            <MenuPopper>
-              <Button
-                disabled={periodScope === AnalyticsPeriodScopeEnum.Year}
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  setPeriodScope(AnalyticsPeriodScopeEnum.Year)
-                  closePopper()
-                }}
-              >
-                {translate(PeriodScopeTranslationLookup[AnalyticsPeriodScopeEnum.Year])}
-              </Button>
-              <Button
-                disabled={periodScope === AnalyticsPeriodScopeEnum.Quarter}
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  setPeriodScope(AnalyticsPeriodScopeEnum.Quarter)
-                  closePopper()
-                }}
-              >
-                {translate(PeriodScopeTranslationLookup[AnalyticsPeriodScopeEnum.Quarter])}
-              </Button>
-              <Button
-                disabled={periodScope === AnalyticsPeriodScopeEnum.Month}
-                variant="quaternary"
-                align="left"
-                onClick={() => {
-                  setPeriodScope(AnalyticsPeriodScopeEnum.Month)
-                  closePopper()
-                }}
-              >
-                {translate(PeriodScopeTranslationLookup[AnalyticsPeriodScopeEnum.Month])}
-              </Button>
-            </MenuPopper>
-          )}
-        </Popper>
-      ) : (
-        <Button
-          variant="quaternary"
-          endIcon="sparkles"
-          onClick={() => {
-            openPremiumWarningDialog()
-          }}
-        >
-          {translate(PeriodScopeTranslationLookup[periodScope])}
-        </Button>
-      )}
-    </>
+    <ComboBox
+      data={periodOptions}
+      value={periodScope}
+      onChange={(next) => {
+        if (next) {
+          setPeriodScope(next as TPeriodScopeTranslationLookupValue)
+        }
+      }}
+      disableClearable
+      sortValues={false}
+      containerClassName={`w-${boxWidth}`}
+      PopperProps={{ placement: 'bottom-end', displayInDialog: true }}
+    />
   )
 }
 

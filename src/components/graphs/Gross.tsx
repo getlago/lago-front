@@ -20,8 +20,18 @@ import { TGraphProps } from './types'
 import { formatDataForAreaChart, TAreaChartDataResult } from './utils'
 
 gql`
-  query getGrossRevenues($currency: CurrencyEnum!, $externalCustomerId: String, $months: Int) {
-    grossRevenues(currency: $currency, externalCustomerId: $externalCustomerId, months: $months) {
+  query getGrossRevenues(
+    $currency: CurrencyEnum!
+    $externalCustomerId: String
+    $months: Int
+    $billingEntityId: ID
+  ) {
+    grossRevenues(
+      currency: $currency
+      externalCustomerId: $externalCustomerId
+      months: $months
+      billingEntityId: $billingEntityId
+    ) {
       collection {
         amountCents
         currency
@@ -68,10 +78,16 @@ const Gross = ({
   demoMode = false,
   period,
   externalCustomerId,
-}: TGraphProps & { externalCustomerId?: string }) => {
+  billingEntityId,
+}: TGraphProps & { externalCustomerId?: string; billingEntityId?: string }) => {
   const { translate } = useInternationalization()
   const { data, loading, error } = useGetGrossRevenuesQuery({
-    variables: { currency: currency, externalCustomerId: externalCustomerId, months: 12 },
+    variables: {
+      currency: currency,
+      externalCustomerId: externalCustomerId,
+      months: 12,
+      billingEntityId: billingEntityId || undefined,
+    },
     skip: demoMode || blur || !currency,
   })
 

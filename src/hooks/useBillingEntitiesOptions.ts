@@ -4,6 +4,7 @@ import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export type BillingEntityOption = {
+  id: string
   value: string
   label: string
   isDefault: boolean
@@ -71,6 +72,7 @@ export const useBillingEntitiesOptions = ({
             : ''
 
           return {
+            id: entity.id,
             value: entity.code,
             label: `${entity.name || entity.code}${defaultSuffix}`,
             isDefault: !!entity.isDefault,
@@ -82,6 +84,7 @@ export const useBillingEntitiesOptions = ({
 
     if (includeInheritOption) {
       formatted.unshift({
+        id: '',
         value: '',
         label: inheritLabel ?? translate('text_1778155404199jv285agrvax'),
         isDefault: false,

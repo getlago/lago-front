@@ -60,6 +60,7 @@ gql`
   fragment WalletAccordion on Wallet {
     id
     balanceCents
+    code
     consumedAmountCents
     consumedCredits
     createdAt

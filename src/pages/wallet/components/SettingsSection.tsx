@@ -9,7 +9,7 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import {
   AmountInputField,
-  ComboBoxField,
+  CurrencyPicker,
   DatePickerField,
   TextInput,
   TextInputField,
@@ -23,8 +23,9 @@ import {
 import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { intlFormatDateTime } from '~/core/timezone'
-import { CurrencyEnum, GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
+import { FeatureFlagEnum, GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { TWalletDataForm } from '~/pages/wallet/types'
 import { MenuPopper } from '~/styles'
 import { tw } from '~/styles/utils'
@@ -53,6 +54,9 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
   setShowMaxTopUp,
 }) => {
   const { translate } = useInternationalization()
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
+  const showCurrencyDropdown = hasMultiCurrency || !customerData?.customer?.currency
 
   return (
     <section className="flex flex-col gap-6 pb-12 shadow-b">
@@ -72,7 +76,7 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
 
       <div
         className={tw('grid grid-cols-[48px_48px_1fr_120px] items-end gap-3', {
-          'grid-cols-[48px_48px_minmax(160px,1fr)]': !!customerData?.customer?.currency,
+          'grid-cols-[48px_48px_minmax(160px,1fr)]': !showCurrencyDropdown,
         })}
       >
         <TextInput
@@ -90,22 +94,18 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
           label={translate('text_62d18855b22699e5cf55f87d')}
           formikProps={formikProps}
           InputProps={{
-            endAdornment: !!customerData?.customer?.currency && (
+            endAdornment: !showCurrencyDropdown && !!customerData?.customer?.currency && (
               <InputAdornment position="end">
-                {getCurrencySymbol(customerData?.customer?.currency)}
+                {getCurrencySymbol(customerData.customer.currency)}
               </InputAdornment>
             ),
           }}
         />
-        {!customerData?.customer?.currency && (
-          <ComboBoxField
-            disableClearable
-            name="currency"
-            data={Object.values(CurrencyEnum).map((currencyType) => ({
-              value: currencyType,
-            }))}
-            formikProps={formikProps}
-            PopperProps={{ displayInDialog: true }}
+        {showCurrencyDropdown && (
+          <CurrencyPicker
+            value={formikProps.values.currency}
+            onChange={(currency) => formikProps.setFieldValue('currency', currency)}
+            disabled={formType === FORM_TYPE_ENUM.edition}
           />
         )}
       </div>

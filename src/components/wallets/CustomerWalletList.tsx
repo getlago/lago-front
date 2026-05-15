@@ -21,6 +21,7 @@ import {
   CustomerWalletFragment,
   TimezoneEnum,
   useGetCustomerWalletListQuery,
+  WalletAccordionFragmentDoc,
   WalletForUpdateFragmentDoc,
   WalletInfosForTransactionsFragmentDoc,
   WalletStatusEnum,
@@ -34,29 +35,6 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 const ACTIVE_WALLET_COUNT_LIMIT = 6
 
 gql`
-  fragment WalletAccordion on Wallet {
-    id
-    balanceCents
-    consumedAmountCents
-    consumedCredits
-    createdAt
-    creditsBalance
-    currency
-    expirationAt
-    lastBalanceSyncAt
-    lastConsumedCreditAt
-    lastOngoingBalanceSyncAt
-    name
-    rateAmount
-    status
-    terminatedAt
-    ongoingBalanceCents
-    creditsOngoingBalance
-    priority
-
-    ...WalletInfosForTransactions
-  }
-
   fragment CustomerWallet on Wallet {
     ...WalletForUpdate
     ...WalletAccordion
@@ -76,6 +54,7 @@ gql`
     }
   }
 
+  ${WalletAccordionFragmentDoc}
   ${WalletForUpdateFragmentDoc}
   ${WalletInfosForTransactionsFragmentDoc}
 `
@@ -121,7 +100,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
       key: 'id',
       maxSpace: true,
       title: translate('text_1772536695408sddzumtfq2t'),
-      content: ({ createdAt, currency, name, rateAmount }) => (
+      content: ({ code, createdAt, currency, name, rateAmount }) => (
         <div className="flex flex-col">
           <Typography variant="bodyHl" color="grey700">
             {name ||
@@ -130,12 +109,17 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
               })}
           </Typography>
           <Typography variant="caption" color="grey600">
-            {`${translate('text_62da6ec24a8e24e44f812872', {
-              rateAmount: intlFormatNumber(Number(rateAmount) || 0, {
-                currencyDisplay: 'symbol',
-                currency,
+            {[
+              code,
+              translate('text_62da6ec24a8e24e44f812872', {
+                rateAmount: intlFormatNumber(Number(rateAmount) || 0, {
+                  currencyDisplay: 'symbol',
+                  currency,
+                }),
               }),
-            })}`}
+            ]
+              .filter(Boolean)
+              .join(' • ')}
           </Typography>
         </div>
       ),

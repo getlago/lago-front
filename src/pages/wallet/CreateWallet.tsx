@@ -59,6 +59,7 @@ const WALLET_DEFAULT_PRIORITY = 50
 gql`
   fragment WalletForUpdate on Wallet {
     id
+    currency
     expirationAt
     name
     rateAmount
@@ -169,16 +170,12 @@ const CreateWallet = () => {
   const {
     options: billingEntityOptions,
     isLoading: billingEntitiesLoading,
-    hasMultipleEntities,
     defaultEntityCode,
   } = useBillingEntitiesOptions({
     skip: !hasMultiEntityBilling,
   })
   const showBillingEntityPicker = hasMultiEntityBilling
-  const billingEntityPickerValue = hasMultipleEntities
-    ? demoBillingEntityCode
-    : (defaultEntityCode ?? '')
-  const billingEntityPickerDisabled = !hasMultipleEntities
+  const billingEntityPickerValue = demoBillingEntityCode || (defaultEntityCode ?? '')
 
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
@@ -219,7 +216,10 @@ const CreateWallet = () => {
   }, [wallet])
 
   const currency =
-    customerData?.customer?.currency || organization?.defaultCurrency || CurrencyEnum.Usd
+    wallet?.currency ||
+    customerData?.customer?.currency ||
+    organization?.defaultCurrency ||
+    CurrencyEnum.Usd
 
   const navigateToCustomerWalletTab = useCallback(
     (id?: string) => {
@@ -510,8 +510,7 @@ const CreateWallet = () => {
                 loading={billingEntitiesLoading}
                 value={billingEntityPickerValue}
                 onChange={(value) => setDemoBillingEntityCode(value as string)}
-                disabled={billingEntityPickerDisabled}
-                disableClearable={billingEntityPickerDisabled}
+                disableClearable
                 sortValues={false}
                 PopperProps={{ displayInDialog: true }}
               />
