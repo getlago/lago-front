@@ -3,12 +3,8 @@ import { screen } from '@testing-library/react'
 import { CurrencyEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import {
-  INVOICE_TAX_ITEM,
-  INVOICE_TAX_ITEM_NO_TAX,
-  InvoiceTaxesDisplay,
-  TaxMapType,
-} from '../InvoiceTaxesDisplay'
+import { INVOICE_TAX_ITEM, INVOICE_TAX_ITEM_NO_TAX } from '../dataTestConstants'
+import { InvoiceTaxesDisplay, TaxMapType } from '../InvoiceTaxesDisplay'
 
 jest.mock('~/core/formats/intlFormatNumber', () => ({
   intlFormatNumber: jest.fn((amount: number, options?: { currency?: string }) => {

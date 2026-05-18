@@ -26,6 +26,7 @@ import {
   ApplyTaxDialog,
   ApplyTaxDialogRef,
 } from '~/pages/settings/BillingEntity/sections/taxes/ApplyTaxDialog'
+import { APPLY_TAX_BUTTON_TEST_ID } from '~/pages/settings/BillingEntity/sections/taxes/dataTestConstants'
 import {
   RemoveTaxDialog,
   RemoveTaxDialogRef,
@@ -125,7 +126,7 @@ const BillingEntityTaxesSettings = () => {
                               applyTaxDialogRef?.current?.openDialog(billingEntity.id)
                             }
                           }}
-                          data-test="apply-tax-button"
+                          data-test={APPLY_TAX_BUTTON_TEST_ID}
                         >
                           {translate('text_1743241419871j03yn6wurna')}
                         </Button>
