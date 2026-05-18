@@ -11,6 +11,10 @@ import {
   useGetTaxesForApplyTaxLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import {
+  APPLY_TAX_DIALOG_SUBMIT_BUTTON_TEST_ID,
+  APPLY_TAX_DIALOG_TEST_ID,
+} from '~/pages/settings/BillingEntity/sections/taxes/dataTestConstants'
 
 gql`
   fragment TaxItemForApplyTax on Tax {
@@ -92,6 +96,7 @@ export const ApplyTaxDialog = forwardRef<ApplyTaxDialogRef>((_, ref) => {
   return (
     <Dialog
       ref={dialogRef}
+      data-test={APPLY_TAX_DIALOG_TEST_ID}
       title={translate('text_1743600025132l3aadb2il09')}
       description={<Typography>{translate('text_17436000251322d5x6wtpjq1')}</Typography>}
       actions={({ closeDialog }) => (
@@ -102,6 +107,7 @@ export const ApplyTaxDialog = forwardRef<ApplyTaxDialogRef>((_, ref) => {
 
           <Button
             variant="primary"
+            data-test={APPLY_TAX_DIALOG_SUBMIT_BUTTON_TEST_ID}
             onClick={async () => {
               if (billingEntityId && taxCode) {
                 applyTax({
