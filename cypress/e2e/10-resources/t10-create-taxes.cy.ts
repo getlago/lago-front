@@ -43,14 +43,14 @@ describe('Create taxes', () => {
 
   it('should assign tax to billing entity', () => {
     // Navigate to settings — auto-redirects to default billing entity page
+    // after the billing entities GraphQL query resolves
     cy.visitApp('/settings')
+    cy.url().should('include', '/billing-entity/')
 
     // Extract billing entity code from redirected URL
     cy.url().then((url) => {
       const match = url.match(/billing-entity\/([^/]+)/)
-      const billingEntityCode = match?.[1]
-
-      expect(billingEntityCode).to.exist
+      const billingEntityCode = match?.[1] as string
 
       // Navigate to the billing entity's taxes settings
       cy.visitApp(`/settings/billing-entity/${billingEntityCode}/taxes`)
