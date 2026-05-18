@@ -31,7 +31,7 @@ interface SelectorProps {
   'data-test'?: string
 }
 
-interface SelectorActionItem {
+export interface SelectorActionItem {
   /** Icon name. Defaults to 'dots-horizontal' */
   icon?: IconName
   /** Tooltip text. When absent, no tooltip is rendered. */
