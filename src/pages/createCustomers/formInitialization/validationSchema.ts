@@ -193,7 +193,13 @@ export const validationSchema = z.object({
           return true
         }
 
-        if ([ProviderTypeEnum.Cashfree, ProviderTypeEnum.Flutterwave].includes(data.providerType)) {
+        if (
+          [
+            ProviderTypeEnum.Cashfree,
+            ProviderTypeEnum.Flutterwave,
+            ProviderTypeEnum.Paystack,
+          ].includes(data.providerType)
+        ) {
           return true
         }
 

@@ -69,6 +69,9 @@ gql`
       ... on MoneyhashProvider {
         name
       }
+      ... on PaystackProvider {
+        name
+      }
       ... on StripeProvider {
         name
       }

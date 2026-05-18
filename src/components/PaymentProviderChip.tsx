@@ -11,6 +11,7 @@ import Cashfree from '~/public/images/cashfree.svg'
 import Flutterwave from '~/public/images/flutterwave.svg'
 import Gocardless from '~/public/images/gocardless.svg'
 import Moneyhash from '~/public/images/moneyhash.svg'
+import Paystack from '~/public/images/paystack.svg'
 import Stripe from '~/public/images/stripe.svg'
 import { tw } from '~/styles/utils'
 
@@ -30,6 +31,7 @@ const providerLabels: Record<ProviderTypeEnum, string> = {
   [ProviderTypeEnum.Cashfree]: 'text_17367626793434wkg1rk0114',
   [ProviderTypeEnum.Flutterwave]: 'text_1749724395108m0swrna0zt4',
   [ProviderTypeEnum.Moneyhash]: 'text_1733427981129n3wxjui0bex',
+  [ProviderTypeEnum.Paystack]: 'text_1777918719745atbfk53dngh',
 }
 
 const ProviderIcon: FC<{ provider: ProviderTypeEnum }> = ({ provider }) => {
@@ -40,6 +42,7 @@ const ProviderIcon: FC<{ provider: ProviderTypeEnum }> = ({ provider }) => {
     [ProviderTypeEnum.Cashfree]: <Cashfree />,
     [ProviderTypeEnum.Flutterwave]: <Flutterwave />,
     [ProviderTypeEnum.Moneyhash]: <Moneyhash />,
+    [ProviderTypeEnum.Paystack]: <Paystack />,
   }
 
   return icons[provider]

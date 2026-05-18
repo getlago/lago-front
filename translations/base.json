@@ -4161,5 +4161,17 @@
   "text_1776851047915xli269uyejs": "Quote preview",
   "text_1776851578529wbonlz6ss8y": "Valid",
   "text_1776851578529rcah0zepkul": "{{days}} day from approval | {{days}} days from approval",
-  "text_17768523811635qaasto1ziv": "No content available"
+  "text_17768523811635qaasto1ziv": "No content available",
+  "text_1777918719745atbfk53dngh": "Paystack",
+  "text_177791871974582yz2oec7in": "Connect Paystack",
+  "text_1777918719746j08zl7ss77c": "Edit Paystack",
+  "text_1777918719746zp4eauk5br2": "Connect with Paystack to collect payments from your customers",
+  "text_177791871974610eoawd1lvy": "Enter your Paystack secret key",
+  "text_17779187197468r7u2m51gv7": "Paystack integration deleted successfully",
+  "text_1777918719746ystjjipgfes": "Paystack integration created successfully",
+  "text_17779187197468w6ryc8oyug": "Paystack integration updated successfully",
+  "text_1777918719746ry1nr3umglw": "Accept payments from your customers via Paystack",
+  "text_1777918719746yy1e6vq8cx4": "Add the following Webhook URL in the Webhooks section of your Paystack dashboard.",
+  "text_1777918719746slvcrbxiqr3": "Are you sure you want to delete this Paystack integration?",
+  "text_1777918719746yfiw5h24icv": "Paystack integrations"
 }

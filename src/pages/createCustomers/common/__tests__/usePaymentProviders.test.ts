@@ -62,6 +62,12 @@ async function prepare({
           name: 'Moneyhash MENA',
           code: 'moneyhash-mena',
         },
+        {
+          __typename: 'PaystackProvider',
+          id: '7',
+          name: 'Paystack Nigeria',
+          code: 'paystack-ng',
+        },
       ],
     },
   }
@@ -114,7 +120,7 @@ describe('usePaymentProviders', () => {
       // After loading completes
       expect(result.current.isLoadingPaymentProviders).toBe(false)
       expect(result.current.paymentProviders).toBeDefined()
-      expect(result.current.paymentProviders?.paymentProviders?.collection).toHaveLength(6)
+      expect(result.current.paymentProviders?.paymentProviders?.collection).toHaveLength(7)
 
       const collection = result.current.paymentProviders?.paymentProviders?.collection
 
@@ -135,6 +141,12 @@ describe('usePaymentProviders', () => {
         id: '6',
         name: 'Moneyhash MENA',
         code: 'moneyhash-mena',
+      })
+      expect(collection?.[6]).toEqual({
+        __typename: 'PaystackProvider',
+        id: '7',
+        name: 'Paystack Nigeria',
+        code: 'paystack-ng',
       })
     })
 
@@ -208,6 +220,7 @@ describe('usePaymentProviders', () => {
       expect(providerTypes).toContain('CashfreeProvider')
       expect(providerTypes).toContain('FlutterwaveProvider')
       expect(providerTypes).toContain('MoneyhashProvider')
+      expect(providerTypes).toContain('PaystackProvider')
     })
   })
 
@@ -246,6 +259,10 @@ describe('usePaymentProviders', () => {
       const moneyhashType = result.current.getPaymentProvider('moneyhash-mena')
 
       expect(moneyhashType).toBe(ProviderTypeEnum.Moneyhash)
+
+      const paystackType = result.current.getPaymentProvider('paystack-ng')
+
+      expect(paystackType).toBe(ProviderTypeEnum.Paystack)
     })
 
     it('should return undefined for invalid code', async () => {
