@@ -36,6 +36,7 @@ export function formatActivityType(activityType: ActivityTypeEnum) {
   // List of known action suffixes
   const actions = [
     'payment_status_updated',
+    'ready_to_finalize',
     'paid_credit_added',
     'refund_failure',
     'payment_failure',

@@ -152,6 +152,8 @@ export enum ActivityTypeEnum {
   InvoicePaymentOverdue = 'invoice_payment_overdue',
   /** invoice.payment_status_updated */
   InvoicePaymentStatusUpdated = 'invoice_payment_status_updated',
+  /** invoice.ready_to_finalize */
+  InvoiceReadyToFinalize = 'invoice_ready_to_finalize',
   /** invoice.regenerated */
   InvoiceRegenerated = 'invoice_regenerated',
   /** invoice.voided */
@@ -2760,6 +2762,8 @@ export type Customer = {
   name?: Maybe<Scalars['String']['output']>;
   netPaymentTerm?: Maybe<Scalars['Int']['output']>;
   netsuiteCustomer?: Maybe<NetsuiteCustomer>;
+  /** Overdue balance per currency */
+  overdueBalances: Array<CustomerOverdueBalance>;
   paymentProvider?: Maybe<ProviderTypeEnum>;
   paymentProviderCode?: Maybe<Scalars['String']['output']>;
   phone?: Maybe<Scalars['String']['output']>;
@@ -2860,6 +2864,12 @@ export type CustomerMetadataInput = {
   id?: InputMaybe<Scalars['ID']['input']>;
   key: Scalars['String']['input'];
   value: Scalars['String']['input'];
+};
+
+export type CustomerOverdueBalance = {
+  __typename?: 'CustomerOverdueBalance';
+  amountCents: Scalars['BigInt']['output'];
+  currency: CurrencyEnum;
 };
 
 export type CustomerPortalCustomer = {
@@ -3828,6 +3838,7 @@ export enum EventTypeEnum {
   InvoicePaymentFailure = 'invoice_payment_failure',
   InvoicePaymentOverdue = 'invoice_payment_overdue',
   InvoicePaymentStatusUpdated = 'invoice_payment_status_updated',
+  InvoiceReadyToFinalize = 'invoice_ready_to_finalize',
   InvoiceResynced = 'invoice_resynced',
   InvoiceVoided = 'invoice_voided',
   PaymentProviderError = 'payment_provider_error',
