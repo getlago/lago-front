@@ -52,9 +52,9 @@ describe('Create one-off', () => {
     // - 10% on $3,020.00 = $302.00 (applied to item with ten_tax only)
     // - Total = $6,040.00 + $1,208.00 + $302.00 = $7,550.00
     cy.get('[data-test="one-off-invoice-subtotal-value"]').should('have.text', '$6,040.00')
-    cy.get('[data-test="one-off-invoice-tax-item-0-label"]').should('have.text', 'twenty (20%)')
+    cy.get('[data-test="one-off-invoice-tax-item-0-label"]').should('have.text', 'Twenty tax (20%)')
     cy.get('[data-test="one-off-invoice-tax-item-0-value"]').should('have.text', '$1,208.00')
-    cy.get('[data-test="one-off-invoice-tax-item-1-label"]').should('have.text', 'ten (10%)')
+    cy.get('[data-test="one-off-invoice-tax-item-1-label"]').should('have.text', 'Ten tax (10%)')
     cy.get('[data-test="one-off-invoice-tax-item-1-value"]').should('have.text', '$302.00')
     cy.get('[data-test="one-off-invoice-subtotal-amount-due-value"]').should(
       'have.text',
@@ -82,7 +82,7 @@ describe('Create one-off', () => {
     )
     cy.get('[data-test="invoice-details-table-footer-tax-0-label"]').should(
       'have.text',
-      'twenty (20.00% on $6,040.00)',
+      'Twenty tax (20.00% on $6,040.00)',
     )
     cy.get('[data-test="invoice-details-table-footer-tax-0-value"]').should(
       'have.text',
@@ -90,7 +90,7 @@ describe('Create one-off', () => {
     )
     cy.get('[data-test="invoice-details-table-footer-tax-1-label"]').should(
       'have.text',
-      'ten (10.00% on $3,020.00)',
+      'Ten tax (10.00% on $3,020.00)',
     )
     cy.get('[data-test="invoice-details-table-footer-tax-1-value"]').should('have.text', '$302.00')
     cy.get('[data-test="invoice-details-table-footer-subtotal-incl-tax-value"]').should(
@@ -136,9 +136,9 @@ describe('Create one-off', () => {
       // - 10% tax on $10,065.66 = $1,006.57
       // - Total = $10,065.66 + $2,013.13 + $1,006.57 = $13,085.36
       cy.get('[data-test="one-off-invoice-subtotal-value"]').should('have.text', '$10,065.66')
-      cy.get('[data-test="one-off-invoice-tax-item-0-label"]').should('have.text', 'twenty (20%)')
+      cy.get('[data-test="one-off-invoice-tax-item-0-label"]').should('have.text', 'Twenty tax (20%)')
       cy.get('[data-test="one-off-invoice-tax-item-0-value"]').should('have.text', '$2,013.13')
-      cy.get('[data-test="one-off-invoice-tax-item-1-label"]').should('have.text', 'ten (10%)')
+      cy.get('[data-test="one-off-invoice-tax-item-1-label"]').should('have.text', 'Ten tax (10%)')
       cy.get('[data-test="one-off-invoice-tax-item-1-value"]').should('have.text', '$1,006.57')
       cy.get('[data-test="one-off-invoice-subtotal-amount-due-value"]').should(
         'have.text',
