@@ -4,8 +4,14 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-export const INVOICE_TAX_ITEM = 'one-off-invoice-tax-item'
-export const INVOICE_TAX_ITEM_NO_TAX = 'one-off-invoice-tax-item-no-tax'
+import {
+  INVOICE_TAX_ITEM,
+  INVOICE_TAX_ITEM_LABEL_SUFFIX,
+  INVOICE_TAX_ITEM_NO_TAX,
+  INVOICE_TAX_ITEM_VALUE_SUFFIX,
+} from '~/components/invoices/dataTestConstants'
+
+export { INVOICE_TAX_ITEM, INVOICE_TAX_ITEM_NO_TAX } from '~/components/invoices/dataTestConstants'
 
 export type TaxMapType = Map<
   string,
@@ -73,10 +79,18 @@ export const InvoiceTaxesDisplay = ({
                 key={`${INVOICE_TAX_ITEM}-${i}`}
                 data-test={`${INVOICE_TAX_ITEM}-${i}`}
               >
-                <Typography variant="bodyHl" color="grey600">
+                <Typography
+                  variant="bodyHl"
+                  color="grey600"
+                  data-test={`${INVOICE_TAX_ITEM}-${i}${INVOICE_TAX_ITEM_LABEL_SUFFIX}`}
+                >
                   {taxToDisplay.label}
                 </Typography>
-                <Typography variant="body" color="grey700">
+                <Typography
+                  variant="body"
+                  color="grey700"
+                  data-test={`${INVOICE_TAX_ITEM}-${i}${INVOICE_TAX_ITEM_VALUE_SUFFIX}`}
+                >
                   {taxValue}
                 </Typography>
               </div>
@@ -98,10 +112,18 @@ export const InvoiceTaxesDisplay = ({
                 key={`${INVOICE_TAX_ITEM}-${i}`}
                 data-test={`${INVOICE_TAX_ITEM}-${i}`}
               >
-                <Typography variant="bodyHl" color="grey600">
+                <Typography
+                  variant="bodyHl"
+                  color="grey600"
+                  data-test={`${INVOICE_TAX_ITEM}-${i}${INVOICE_TAX_ITEM_LABEL_SUFFIX}`}
+                >
                   {taxToDisplay.label}
                 </Typography>
-                <Typography variant="body" color="grey700">
+                <Typography
+                  variant="body"
+                  color="grey700"
+                  data-test={`${INVOICE_TAX_ITEM}-${i}${INVOICE_TAX_ITEM_VALUE_SUFFIX}`}
+                >
                   {!hasAnyFee
                     ? '-'
                     : intlFormatNumber(taxToDisplay.amount, {
