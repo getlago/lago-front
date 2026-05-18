@@ -1,15 +1,14 @@
 import { Typography } from '~/components/designSystem/Typography'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { CurrencyEnum } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-
 import {
   INVOICE_TAX_ITEM,
   INVOICE_TAX_ITEM_LABEL_SUFFIX,
   INVOICE_TAX_ITEM_NO_TAX,
   INVOICE_TAX_ITEM_VALUE_SUFFIX,
 } from '~/components/invoices/dataTestConstants'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { CurrencyEnum } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export { INVOICE_TAX_ITEM, INVOICE_TAX_ITEM_NO_TAX } from '~/components/invoices/dataTestConstants'
 
