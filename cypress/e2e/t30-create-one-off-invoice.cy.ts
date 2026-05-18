@@ -64,18 +64,10 @@ describe('Create one-off', () => {
 
     cy.get('[data-test="create-invoice-button"]').click({ force: true })
 
-    // Check created invoice amounts display — navigate to invoices tab
-    cy.get('[data-test="navigation-tab-bar"] [role="tab"]')
-      .contains('Invoices')
-      .click({ force: true })
-    cy.get('#table-customer-invoices-row-0').should('exist')
+    // After creation, the app navigates to the invoice detail page (overview tab)
+    cy.url().should('include', '/overview')
 
-    cy.get('#table-customer-invoices-row-0')
-      .focus()
-      .click({ force: true })
-      .url()
-      .should('include', '/overview')
-
+    // Verify invoice amounts on the detail page
     cy.get('[data-test="invoice-details-table-footer-subtotal-excl-tax-value"]').should(
       'have.text',
       '$6,040.00',
