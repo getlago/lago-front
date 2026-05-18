@@ -64,10 +64,10 @@ describe('Create one-off', () => {
 
     cy.get('[data-test="create-invoice-button"]').click({ force: true })
 
-    // Check created invoice amounts display
-    cy.get('[data-test="navigation-tab-bar"]').within(() => {
-      cy.get('[role="tab"]').contains('Invoices').click({ force: true })
-    })
+    // Check created invoice amounts display — navigate to invoices tab
+    cy.get('[data-test="navigation-tab-bar"] [role="tab"]')
+      .contains('Invoices')
+      .click({ force: true })
     cy.get('#table-customer-invoices-row-0').should('exist')
 
     cy.get('#table-customer-invoices-row-0')
