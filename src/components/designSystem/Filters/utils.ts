@@ -17,6 +17,7 @@ import {
   API_LOGS_FILTER_PREFIX,
   CREDIT_NOTE_LIST_FILTER_PREFIX,
   CUSTOMER_ANALYTICS_FILTER_PREFIX,
+  CUSTOMER_CREDIT_NOTES_FILTER_PREFIX,
   CUSTOMER_LIST_FILTER_PREFIX,
   CUSTOMER_PAYMENTS_FILTER_PREFIX,
   FORECASTS_FILTER_PREFIX,
@@ -54,6 +55,7 @@ import {
   CreditNoteAvailableFilters,
   CustomerAnalyticsAvailableFilters,
   CustomerAvailableFilters,
+  CustomerCreditNotesAvailableFilters,
   CustomerInvoicesAvailableFilters,
   CustomerPaymentsAvailableFilters,
   filterDataInlineSeparator,
@@ -432,6 +434,16 @@ export const formatFiltersForCustomerPaymentsQuery = (
     availableFilters: CustomerPaymentsAvailableFilters,
     filtersNamePrefix: CUSTOMER_PAYMENTS_FILTER_PREFIX,
   }) as { currency?: CurrencyEnum }
+}
+
+export const formatFiltersForCustomerCreditNotesQuery = (
+  searchParams: URLSearchParams,
+): { currency?: CurrencyEnum; billingEntityId?: string } => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: CustomerCreditNotesAvailableFilters,
+    filtersNamePrefix: CUSTOMER_CREDIT_NOTES_FILTER_PREFIX,
+  }) as { currency?: CurrencyEnum; billingEntityId?: string }
 }
 
 export const formatFiltersForRevenueStreamsQuery = (searchParams: URLSearchParams) => {

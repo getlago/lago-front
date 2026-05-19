@@ -1,23 +1,28 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
-import { BillingEntityFilterPicker } from '~/components/billingEntity/BillingEntityFilterPicker'
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { Avatar } from '~/components/designSystem/Avatar'
+import { Filters } from '~/components/designSystem/Filters'
+import { AvailableFiltersEnum } from '~/components/designSystem/Filters/types'
+import { formatFiltersForCustomerCreditNotesQuery } from '~/components/designSystem/Filters/utils'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
-import { CurrencyPicker } from '~/components/form'
 import { PageSectionTitle } from '~/components/layouts/Section'
+import { CUSTOMER_CREDIT_NOTES_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreditNotesForTableFragmentDoc,
   CurrencyEnum,
+  FeatureFlagEnum,
   TimezoneEnum,
   useGetCustomerCreditNotesLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 gql`
@@ -60,12 +65,16 @@ export const CustomerCreditNotesList = ({
   customerTimezone,
 }: CustomerCreditNotesListProps) => {
   const { translate } = useInternationalization()
-  const [selectedCurrency, setSelectedCurrency] = useState<CurrencyEnum | undefined>(undefined)
-  const [selectedBillingEntity, setSelectedBillingEntity] = useState<{
-    id: string
-    code: string
-    label: string
-  } | null>(null)
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
+  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+  const availableFilters = [
+    ...(hasMultiCurrency ? [AvailableFiltersEnum.currency] : []),
+    ...(hasMultiEntityBilling ? [AvailableFiltersEnum.billingEntityId] : []),
+  ]
+  const [searchParams] = useSearchParams()
+
+  const { currency, billingEntityId } = formatFiltersForCustomerCreditNotesQuery(searchParams)
 
   const [getCreditNotes, { data, loading, error, fetchMore, variables }] =
     useGetCustomerCreditNotesLazyQuery({
@@ -77,12 +86,12 @@ export const CustomerCreditNotesList = ({
       variables: {
         customerId,
         limit: 20,
-        currency: selectedCurrency,
-        billingEntityIds: selectedBillingEntity ? [selectedBillingEntity.id] : undefined,
+        currency,
+        billingEntityIds: billingEntityId ? [billingEntityId] : undefined,
       },
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customerId, selectedCurrency, selectedBillingEntity])
+  }, [customerId, currency, billingEntityId])
 
   const creditNotes = data?.creditNotes?.collection
 
@@ -129,25 +138,18 @@ export const CustomerCreditNotesList = ({
         <PageSectionTitle
           title={translate('text_63725b30957fd5b26b308ddf')}
           subtitle={translate('text_1737895837105yr0kl7kkyuz')}
-          customAction={
-            <div className="flex items-center gap-2">
-              <CurrencyPicker
-                value={selectedCurrency}
-                onChange={(currency) => setSelectedCurrency(currency)}
-                onClear={() => setSelectedCurrency(undefined)}
-                placeholder={translate('text_632b4acf0c41206cbcb8c324')}
-                containerClassName="w-36"
-              />
-              <BillingEntityFilterPicker
-                value={selectedBillingEntity?.code}
-                onChange={({ id, code, label }) => setSelectedBillingEntity({ id, code, label })}
-                onClear={() => setSelectedBillingEntity(null)}
-                placeholder={translate('text_17436114971570doqrwuwhf0')}
-                containerClassName="w-40"
-              />
-            </div>
-          }
         />
+
+        {availableFilters.length > 0 && (
+          <Filters.Provider
+            filtersNamePrefix={CUSTOMER_CREDIT_NOTES_FILTER_PREFIX}
+            availableFilters={availableFilters}
+          >
+            <div className="mb-4 flex items-center gap-2">
+              <Filters.Component />
+            </div>
+          </Filters.Provider>
+        )}
 
         {!!error && !loading ? (
           <GenericPlaceholder

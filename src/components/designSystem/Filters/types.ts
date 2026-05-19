@@ -300,6 +300,11 @@ export const CustomerInvoicesAvailableFilters = [
 
 export const CustomerPaymentsAvailableFilters = [AvailableFiltersEnum.currency]
 
+export const CustomerCreditNotesAvailableFilters = [
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.billingEntityId,
+]
+
 export const SecurityLogsAvailableFilters = [
   AvailableFiltersEnum.loggedDate,
   AvailableFiltersEnum.logEvents,
