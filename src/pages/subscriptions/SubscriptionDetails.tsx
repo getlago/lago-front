@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
+import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
@@ -276,7 +277,7 @@ const SubscriptionDetails = () => {
         ],
         content: (
           <DetailsPage.Container>
-            <div className="bg-grey-100" />
+            <Typography variant="body">{translate('text_17792001643312864fz7j4gq')}</Typography>
           </DetailsPage.Container>
         ),
         hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
@@ -300,7 +301,7 @@ const SubscriptionDetails = () => {
         ],
         content: (
           <DetailsPage.Container>
-            <div className="bg-grey-100" />
+            <Typography variant="body">{translate('text_17792001643316pbexygvpu2')}</Typography>
           </DetailsPage.Container>
         ),
         hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
