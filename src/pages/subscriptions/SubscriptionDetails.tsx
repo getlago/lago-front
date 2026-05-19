@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
+import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
@@ -27,6 +28,7 @@ import {
   useNavigate,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   LagoApiError,
   StatusTypeEnum,
@@ -257,6 +259,52 @@ const SubscriptionDetails = () => {
           </DetailsPage.Container>
         ),
         hidden: !subscription?.externalId || !isPremium || !hasPermissions(['auditLogsView']),
+      },
+      {
+        title: translate('text_17792001643312864fz7j4gq'),
+        link: !!customerId
+          ? getCustomerSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
+            )
+          : getPlanSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
+            ),
+        match: [
+          getCustomerSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
+          ),
+          getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.editOverview),
+        ],
+        content: (
+          <DetailsPage.Container>
+            <Typography variant="body">{translate('text_17792001643312864fz7j4gq')}</Typography>
+          </DetailsPage.Container>
+        ),
+        hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
+      },
+      {
+        title: translate('text_17792001643316pbexygvpu2'),
+        link: !!customerId
+          ? getCustomerSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+            )
+          : getPlanSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+            ),
+        match: [
+          getCustomerSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+          ),
+          getPlanSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+          ),
+        ],
+        content: (
+          <DetailsPage.Container>
+            <Typography variant="body">{translate('text_17792001643316pbexygvpu2')}</Typography>
+          </DetailsPage.Container>
+        ),
+        hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
       },
     ]
   }, [

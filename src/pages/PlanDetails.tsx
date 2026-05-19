@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
+import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
@@ -20,6 +21,7 @@ import {
   UPDATE_PLAN_ROUTE,
   useNavigate,
 } from '~/core/router'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   DeletePlanDialogFragment,
   DeletePlanDialogFragmentDoc,
@@ -187,6 +189,31 @@ const PlanDetails = () => {
             }),
             content: <PlanDetailsActivityLogs planId={planId as string} />,
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
+          },
+          {
+            title: translate('text_17792001643312864fz7j4gq'),
+            link: generatePath(PLAN_DETAILS_ROUTE, {
+              planId: planId as string,
+              tab: PlanDetailsTabsOptionsEnum.editOverview,
+            }),
+            match: [
+              generatePath(PLAN_DETAILS_ROUTE, {
+                planId: planId as string,
+                tab: PlanDetailsTabsOptionsEnum.editOverview,
+              }),
+              generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
+                customerId: customerId || '',
+                subscriptionId: subscriptionId || '',
+                planId: planId as string,
+                tab: PlanDetailsTabsOptionsEnum.editOverview,
+              }),
+            ],
+            content: (
+              <DetailsPage.Container>
+                <Typography variant="body">{translate('text_17792001643312864fz7j4gq')}</Typography>
+              </DetailsPage.Container>
+            ),
+            hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
           },
         ]}
       />
