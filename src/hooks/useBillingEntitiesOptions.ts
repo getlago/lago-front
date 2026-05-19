@@ -83,7 +83,7 @@ export const useBillingEntitiesOptions = ({
             isDefault: !!entity.isDefault,
           }
         })
-        .sort((a) => (a.isDefault ? -1 : 1)) ?? []
+        .sort((a, b) => Number(b.isDefault) - Number(a.isDefault)) ?? []
 
     const defaultEntity = formatted.find((option) => option.isDefault)
 

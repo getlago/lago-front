@@ -29,14 +29,13 @@ const MonthSelectorDropdown = ({
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-  const boxWidth = 48
 
   if (!isPremium) {
     return (
       <LockedPickerBox
         placeholder={translate(PeriodScopeTranslationLookup[periodScope])}
         onClick={() => openPremiumWarningDialog()}
-        containerClassName={`w-${boxWidth}`}
+        containerClassName="w-48"
       />
     )
   }
@@ -58,7 +57,7 @@ const MonthSelectorDropdown = ({
       }}
       disableClearable
       sortValues={false}
-      containerClassName={`w-${boxWidth}`}
+      containerClassName="w-48"
       PopperProps={{ placement: 'bottom-end', displayInDialog: true }}
     />
   )

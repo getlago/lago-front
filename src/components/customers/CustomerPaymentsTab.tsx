@@ -3,16 +3,15 @@ import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { CustomerPaymentsList } from '~/components/customers/CustomerPaymentsList'
 import { Filters } from '~/components/designSystem/Filters'
-import { CustomerPaymentsAvailableFilters } from '~/components/designSystem/Filters/types'
 import { formatFiltersForCustomerPaymentsQuery } from '~/components/designSystem/Filters/utils'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { CUSTOMER_PAYMENTS_FILTER_PREFIX } from '~/core/constants/filters'
 import { CREATE_PAYMENT_ROUTE, useNavigate } from '~/core/router'
-import { FeatureFlagEnum, useGetPaymentsListQuery } from '~/generated/graphql'
+import { useGetPaymentsListQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useCustomerFilterDefaults } from '~/hooks/useCustomerFilterDefaults'
 import { usePermissions } from '~/hooks/usePermissions'
 
 interface CustomerPaymentsTabProps {
@@ -24,8 +23,10 @@ export const CustomerPaymentsTab: FC<CustomerPaymentsTabProps> = ({ externalCust
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
-  const { hasFeatureFlag } = useOrganizationInfos()
-  const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
+  const filtersProps = useCustomerFilterDefaults({
+    filtersNamePrefix: CUSTOMER_PAYMENTS_FILTER_PREFIX,
+    include: ['currency'],
+  })
   const [searchParams] = useSearchParams()
 
   const { currency } = formatFiltersForCustomerPaymentsQuery(searchParams)
@@ -64,11 +65,8 @@ export const CustomerPaymentsTab: FC<CustomerPaymentsTabProps> = ({ externalCust
         />
       )}
 
-      {hasMultiCurrency && (
-        <Filters.Provider
-          filtersNamePrefix={CUSTOMER_PAYMENTS_FILTER_PREFIX}
-          availableFilters={CustomerPaymentsAvailableFilters}
-        >
+      {filtersProps && (
+        <Filters.Provider {...filtersProps}>
           <div className="flex items-center gap-2">
             <Filters.Component />
           </div>

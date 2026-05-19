@@ -43,6 +43,7 @@ export const CustomerUsage = () => {
     customerCurrency: data?.customer?.currency ?? undefined,
     filtersNamePrefix: CUSTOMER_ANALYTICS_FILTER_PREFIX,
     include: ['currency', 'entity'],
+    withDefaults: true,
   })
 
   const { currency, billingEntityId } = formatFiltersForCustomerAnalyticsQuery(searchParams)

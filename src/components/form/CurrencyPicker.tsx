@@ -37,7 +37,7 @@ export const CurrencyPicker = ({
         onClear()
       }
     }}
-    disableClearable
+    disableClearable={!onClear}
     PopperProps={{ displayInDialog: true, ...PopperProps }}
   />
 )

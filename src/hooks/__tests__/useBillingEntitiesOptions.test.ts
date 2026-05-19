@@ -97,6 +97,7 @@ describe('useBillingEntitiesOptions', () => {
 
       expect(result.current.options).toHaveLength(3)
       expect(result.current.options[0]).toEqual({
+        id: '',
         value: '',
         label: 'Use customer default',
         isDefault: false,

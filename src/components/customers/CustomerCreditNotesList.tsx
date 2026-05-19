@@ -1,28 +1,29 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useEffect } from 'react'
+import { debounce } from 'lodash'
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Filters } from '~/components/designSystem/Filters'
-import { AvailableFiltersEnum } from '~/components/designSystem/Filters/types'
 import { formatFiltersForCustomerCreditNotesQuery } from '~/components/designSystem/Filters/utils'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
 import { PageSectionTitle } from '~/components/layouts/Section'
+import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_CREDIT_NOTES_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreditNotesForTableFragmentDoc,
   CurrencyEnum,
-  FeatureFlagEnum,
   TimezoneEnum,
   useGetCustomerCreditNotesLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useCustomerFilterDefaults } from '~/hooks/useCustomerFilterDefaults'
+import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 gql`
@@ -65,13 +66,10 @@ export const CustomerCreditNotesList = ({
   customerTimezone,
 }: CustomerCreditNotesListProps) => {
   const { translate } = useInternationalization()
-  const { hasFeatureFlag } = useOrganizationInfos()
-  const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
-  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
-  const availableFilters = [
-    ...(hasMultiCurrency ? [AvailableFiltersEnum.currency] : []),
-    ...(hasMultiEntityBilling ? [AvailableFiltersEnum.billingEntityId] : []),
-  ]
+  const filtersProps = useCustomerFilterDefaults({
+    filtersNamePrefix: CUSTOMER_CREDIT_NOTES_FILTER_PREFIX,
+    include: ['currency', 'entity'],
+  })
   const [searchParams] = useSearchParams()
 
   const { currency, billingEntityId } = formatFiltersForCustomerCreditNotesQuery(searchParams)
@@ -81,17 +79,31 @@ export const CustomerCreditNotesList = ({
       variables: { customerId, limit: 20 },
     })
 
+  const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined)
+
   useEffect(() => {
     getCreditNotes({
       variables: {
         customerId,
         limit: 20,
+        searchTerm,
         currency,
         billingEntityIds: billingEntityId ? [billingEntityId] : undefined,
       },
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customerId, currency, billingEntityId])
+  }, [customerId, searchTerm, currency, billingEntityId])
+
+  const debouncedSetSearchTerm = useMemo(
+    () => debounce((value: string) => setSearchTerm(value || undefined), DEBOUNCE_SEARCH_MS),
+    [],
+  )
+
+  useEffect(() => {
+    return () => {
+      debouncedSetSearchTerm.cancel()
+    }
+  }, [debouncedSetSearchTerm])
 
   const creditNotes = data?.creditNotes?.collection
 
@@ -140,16 +152,17 @@ export const CustomerCreditNotesList = ({
           subtitle={translate('text_1737895837105yr0kl7kkyuz')}
         />
 
-        {availableFilters.length > 0 && (
-          <Filters.Provider
-            filtersNamePrefix={CUSTOMER_CREDIT_NOTES_FILTER_PREFIX}
-            availableFilters={availableFilters}
-          >
-            <div className="mb-4 flex items-center gap-2">
+        <div className="mb-4 flex items-center gap-3">
+          <SearchInput
+            onChange={debouncedSetSearchTerm}
+            placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
+          />
+          {filtersProps && (
+            <Filters.Provider {...filtersProps}>
               <Filters.Component />
-            </div>
-          </Filters.Provider>
-        )}
+            </Filters.Provider>
+          )}
+        </div>
 
         {!!error && !loading ? (
           <GenericPlaceholder

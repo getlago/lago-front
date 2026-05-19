@@ -13,6 +13,7 @@ type UseCustomerFilterDefaultsArgs = {
   /**
    * Currency to seed the default. Optional: when omitted, falls back to the
    * organization's default currency, then to `USD` as a safety net.
+   * Only used when `withDefaults` is true.
    */
   customerCurrency?: CurrencyEnum
   filtersNamePrefix: string
@@ -22,12 +23,19 @@ type UseCustomerFilterDefaultsArgs = {
    * out, that kind is silently dropped from the returned `availableFilters`.
    */
   include: CustomerFilterKind[]
+  /**
+   * When true, seeds `staticFilters` so that the `<Filters.Provider>`
+   * pre-populates the URL with default values on mount (e.g. customer
+   * currency, default billing entity). Use for views where filters are
+   * mandatory (analytics). Defaults to `false` — filters start empty.
+   */
+  withDefaults?: boolean
 }
 
 export type CustomerFilterProviderProps = {
   filtersNamePrefix: string
   availableFilters: AvailableFiltersEnum[]
-  staticFilters: Partial<Record<AvailableFiltersEnum, string>>
+  staticFilters?: Partial<Record<AvailableFiltersEnum, string>>
 }
 
 /**
@@ -59,12 +67,11 @@ export const useCustomerFilterDefaults = ({
   customerCurrency,
   filtersNamePrefix,
   include,
+  withDefaults = false,
 }: UseCustomerFilterDefaultsArgs): CustomerFilterProviderProps | null => {
   const { organization, hasFeatureFlag } = useOrganizationInfos()
   const { options } = useBillingEntitiesOptions()
   const defaultBillingEntity = options.find((option) => option.isDefault) ?? options[0]
-
-  const resolvedCurrency = customerCurrency || organization?.defaultCurrency || CurrencyEnum.Usd
 
   const wantCurrency = include.includes('currency') && hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
   const wantEntity =
@@ -73,20 +80,32 @@ export const useCustomerFilterDefaults = ({
     !!defaultBillingEntity
 
   const availableFilters: AvailableFiltersEnum[] = []
-  const staticFilters: Partial<Record<AvailableFiltersEnum, string>> = {}
 
   if (wantCurrency) {
     availableFilters.push(AvailableFiltersEnum.currency)
+  }
+
+  if (wantEntity) {
+    availableFilters.push(AvailableFiltersEnum.billingEntityId)
+  }
+
+  if (availableFilters.length === 0) return null
+
+  if (!withDefaults) {
+    return { filtersNamePrefix, availableFilters }
+  }
+
+  const resolvedCurrency = customerCurrency || organization?.defaultCurrency || CurrencyEnum.Usd
+  const staticFilters: Partial<Record<AvailableFiltersEnum, string>> = {}
+
+  if (wantCurrency) {
     staticFilters[AvailableFiltersEnum.currency] = resolvedCurrency
   }
 
   if (wantEntity && defaultBillingEntity) {
-    availableFilters.push(AvailableFiltersEnum.billingEntityId)
     staticFilters[AvailableFiltersEnum.billingEntityId] =
       `${defaultBillingEntity.id}${filterDataInlineSeparator}${defaultBillingEntity.name || defaultBillingEntity.value}`
   }
-
-  if (availableFilters.length === 0) return null
 
   return { filtersNamePrefix, availableFilters, staticFilters }
 }
