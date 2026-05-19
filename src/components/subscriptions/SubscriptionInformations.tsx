@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { generatePath } from 'react-router-dom'
 
+import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Alert } from '~/components/designSystem/Alert'
 import { Status } from '~/components/designSystem/Status'
@@ -32,6 +33,7 @@ gql`
     downgradePlanDate
     nextSubscriptionAt
     nextSubscriptionType
+    billingEntityId
     nextPlan {
       id
       name
@@ -194,17 +196,12 @@ export const SubscriptionInformations = ({
             },
             showBillingEntityRow && {
               label: translate('text_17436114971570doqrwuwhf0'),
-              // TODO(multi-entity-billing): once BE exposes Subscription.billingEntity
-              // (ING-78/ING-80), prefer it over customer.billingEntity. The "inherited"
-              // suffix should appear only when subscription.billingEntity is null.
-              value: (() => {
-                const entityLabel =
-                  subscription?.customer?.billingEntity?.name ||
-                  subscription?.customer?.billingEntity?.code
-
-                if (!entityLabel) return '-'
-                return `${entityLabel} (${translate('text_1764327933607jgtpungo2pp')})`
-              })(),
+              value: (
+                <BillingEntityLabel
+                  ownId={subscription?.billingEntityId}
+                  customerEntity={subscription?.customer?.billingEntity}
+                />
+              ),
             },
             !!subscription?.plan?.parent?.id && {
               label: translate('text_65201c5a175a4b0238abf2a2'),

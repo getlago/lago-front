@@ -40,6 +40,7 @@ export type AnnotatedSubscription = {
   isDowngrade?: boolean
   isScheduled?: boolean
   isOverridden?: boolean
+  billingEntityId?: string | null
   customer: {
     id: string
     name?: string
@@ -82,6 +83,7 @@ const annotateSubscriptions = (
       terminatedAt,
       customer,
       nextSubscription,
+      billingEntityId,
     } = subscription || {}
 
     const isDowngrading = !!nextPlan && nextSubscriptionType === NextSubscriptionTypeEnum.Downgrade
@@ -97,6 +99,7 @@ const annotateSubscriptions = (
       frequency: plan.interval,
       statusType: subscriptionStatusMapping(status),
       payInAdvance: !!plan.payInAdvance,
+      billingEntityId: billingEntityId ?? undefined,
       customer: {
         id: customerId || customer?.id,
         name: customer?.name || undefined,

@@ -7,6 +7,7 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 import { array, number, object, string } from 'yup'
 
+import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -75,7 +76,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
-import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
@@ -432,6 +432,7 @@ const CreateInvoice = () => {
   const formikProps = useFormik<InvoiceFormInput>({
     initialValues: {
       customerId: customerId || '',
+      billingEntityId: customer?.billingEntity?.id || undefined,
       currency: data?.customer?.currency || billingEntity?.defaultCurrency || CurrencyEnum.Usd,
       fees: prefillFees || [],
       paymentMethod: undefined,
@@ -643,19 +644,7 @@ const CreateInvoice = () => {
     translate,
   ])
 
-  // TODO(multi-entity-billing): demo only — wire to invoice form payload once
-  // ING-86 (CreateInvoiceInput.billingEntityId) is delivered by backend.
-  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
-  const [demoBillingEntityCode, setDemoBillingEntityCode] = useState<string>('')
-  const {
-    options: billingEntityOptions,
-    isLoading: billingEntitiesLoading,
-    defaultEntityCode,
-  } = useBillingEntitiesOptions({
-    skip: !hasMultiEntityBilling,
-  })
-  const showBillingEntityPicker = hasMultiEntityBilling
-  const billingEntityPickerValue = demoBillingEntityCode || (defaultEntityCode ?? '')
+  const showBillingEntityPicker = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
   if (!!error && !loading) {
     return (
@@ -1277,15 +1266,9 @@ const CreateInvoice = () => {
                   {translate('text_1743611497157teaa1zu8l24')}
                 </Typography>
               </div>
-              <ComboBox
-                placeholder={translate('text_174360002513391n72uwg6bb')}
-                data={billingEntityOptions}
-                loading={billingEntitiesLoading}
-                value={billingEntityPickerValue}
-                onChange={(value) => setDemoBillingEntityCode(value as string)}
-                disableClearable
-                sortValues={false}
-                PopperProps={{ displayInDialog: true }}
+              <BillingEntityFormPicker
+                value={formikProps.values.billingEntityId}
+                onChange={(id) => formikProps.setFieldValue('billingEntityId', id)}
               />
             </Card>
           )}

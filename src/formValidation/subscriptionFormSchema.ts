@@ -14,6 +14,7 @@ export interface SubscriptionFormValues {
   billingTime: BillingTimeEnum
   paymentMethod?: SelectedPaymentMethod
   invoiceCustomSection?: InvoiceCustomSectionInput
+  billingEntityId?: string
 }
 
 export const subscriptionFormSchema = z

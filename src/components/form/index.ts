@@ -1,5 +1,4 @@
 export * from './AmountInput'
-export * from './BillingEntityPicker'
 export * from './ButtonSelector'
 export * from './Checkbox'
 export * from './ComboBox'

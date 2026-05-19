@@ -3,6 +3,7 @@ import { Icon, tw } from 'lago-design-system'
 import { useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
+import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
 import {
   Filters,
   formatFiltersForSubscriptionQuery,
@@ -46,6 +47,7 @@ gql`
     subscriptionAt
     endingAt
     terminatedAt
+    billingEntityId
     customer {
       id
       name
@@ -227,28 +229,17 @@ const SubscriptionsPage = () => {
               ...(showBillingEntityColumn
                 ? [
                     {
-                      key: 'customer.billingEntity.name' as const,
+                      key: 'billingEntityId' as const,
                       title: translate('text_17436114971570doqrwuwhf0'),
                       minWidth: 140,
-                      // TODO(multi-entity-billing): once BE exposes Subscription.billingEntity
-                      // (ING-78/ING-80), prefer it over customer.billingEntity. The "inherited"
-                      // suffix should appear only when subscription.billingEntity is null.
-                      content: ({ customer }: AnnotatedSubscription) => {
-                        const entityLabel =
-                          customer?.billingEntity?.name || customer?.billingEntity?.code
-
-                        if (!entityLabel)
-                          return (
-                            <Typography variant="body" noWrap>
-                              -
-                            </Typography>
-                          )
-                        return (
-                          <Typography variant="body" noWrap>
-                            {entityLabel} ({translate('text_1764327933607jgtpungo2pp')})
-                          </Typography>
-                        )
-                      },
+                      content: ({ billingEntityId, customer }: AnnotatedSubscription) => (
+                        <Typography variant="body" noWrap>
+                          <BillingEntityLabel
+                            ownId={billingEntityId}
+                            customerEntity={customer?.billingEntity}
+                          />
+                        </Typography>
+                      ),
                     },
                   ]
                 : []),

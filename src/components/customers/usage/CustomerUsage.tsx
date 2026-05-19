@@ -3,7 +3,8 @@ import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
-import { BillingEntityPicker, CurrencyPicker } from '~/components/form'
+import { BillingEntityFilterPicker } from '~/components/billingEntity/BillingEntityFilterPicker'
+import { CurrencyPicker } from '~/components/form'
 import Gross from '~/components/graphs/Gross'
 import MonthSelectorDropdown, {
   AnalyticsPeriodScopeEnum,
@@ -71,7 +72,7 @@ export const CustomerUsage = () => {
             )}
 
             {hasMultiEntityBilling && (
-              <BillingEntityPicker
+              <BillingEntityFilterPicker
                 value={selectedBillingEntity?.code}
                 onChange={({ id, code, label }) => setSelectedBillingEntity({ id, code, label })}
                 onClear={() => setSelectedBillingEntity(null)}

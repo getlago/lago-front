@@ -273,6 +273,7 @@ export const useAddSubscription: UseAddSubscription = ({
         planId,
         billingTime,
         paymentMethod,
+        billingEntityId,
         ...values
       },
       { ...planValues },
@@ -301,6 +302,7 @@ export const useAddSubscription: UseAddSubscription = ({
                   customerId,
                   planId,
                   billingTime,
+                  billingEntityId: billingEntityId || undefined,
                   ...(!existingSubscription
                     ? {
                         subscriptionAt: DateTime.fromISO(subsDate).toUTC().toISO(),

@@ -5,8 +5,12 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export type BillingEntityOption = {
   id: string
+  /** Entity code — used as the ComboBox value. */
   value: string
+  /** ComboBox display label (entity name + "(default)" suffix when default). */
   label: string
+  /** Raw entity name, without the "(default)" suffix — for display outside the picker. */
+  name?: string | null
   isDefault: boolean
 }
 
@@ -57,7 +61,7 @@ export const useBillingEntitiesOptions = ({
 }: UseBillingEntitiesOptionsParams = {}): UseBillingEntitiesOptionsResult => {
   const { translate } = useInternationalization()
   const { data, loading } = useGetBillingEntitiesQuery({
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'cache-first',
     skip,
   })
 
@@ -75,6 +79,7 @@ export const useBillingEntitiesOptions = ({
             id: entity.id,
             value: entity.code,
             label: `${entity.name || entity.code}${defaultSuffix}`,
+            name: entity.name,
             isDefault: !!entity.isDefault,
           }
         })

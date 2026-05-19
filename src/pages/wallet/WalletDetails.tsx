@@ -65,6 +65,7 @@ gql`
         last4
       }
     }
+    billingEntityId
     customer {
       id
       billingEntity {

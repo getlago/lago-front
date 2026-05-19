@@ -5,11 +5,13 @@ import { LockedPickerBox } from '~/components/form/LockedPickerBox'
 import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
+import { BILLING_ENTITY_COMBOBOX_DEFAULTS } from './comboBoxDefaults'
+
 // ComboBoxProps is a union (basic | grouped). Narrow to the basic branch
 // — discriminated by `renderGroupHeader?: never` — and strip the props we own.
 type FlatComboBoxProps = Extract<ComboBoxProps, { renderGroupHeader?: never }>
 
-type BillingEntityPickerProps = Omit<FlatComboBoxProps, 'data' | 'value' | 'onChange'> & {
+type BillingEntityFilterPickerProps = Omit<FlatComboBoxProps, 'data' | 'value' | 'onChange'> & {
   /** Entity code (option's `value`). */
   value: string | undefined
   /** Receives the entity's id, code, and label so callers can pick whichever they need
@@ -22,7 +24,14 @@ type BillingEntityPickerProps = Omit<FlatComboBoxProps, 'data' | 'value' | 'onCh
   onClear?: () => void
 }
 
-export const BillingEntityPicker = ({
+/**
+ * Picker tuned for **filter dropdowns** (e.g. customer credit notes / usage list):
+ * code-based value, clearable, exposes the full entity tuple in onChange so
+ * callers can store whichever shape they need.
+ *
+ * For form fields persisting `billingEntityId` use `BillingEntityFormPicker`.
+ */
+export const BillingEntityFilterPicker = ({
   value,
   onChange,
   onClear,
@@ -30,7 +39,7 @@ export const BillingEntityPicker = ({
   containerClassName,
   PopperProps,
   ...rest
-}: BillingEntityPickerProps) => {
+}: BillingEntityFilterPickerProps) => {
   const { options, isLoading } = useBillingEntitiesOptions()
   const { isPremium } = useCurrentUser()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
@@ -48,6 +57,7 @@ export const BillingEntityPicker = ({
   return (
     <ComboBox
       {...rest}
+      {...BILLING_ENTITY_COMBOBOX_DEFAULTS}
       placeholder={placeholder}
       containerClassName={containerClassName}
       data={options}
@@ -64,9 +74,7 @@ export const BillingEntityPicker = ({
           onChange({ id: selected.id, code: selected.value, label: selected.label })
         }
       }}
-      disableClearable
-      sortValues={false}
-      PopperProps={{ displayInDialog: true, ...PopperProps }}
+      PopperProps={{ ...BILLING_ENTITY_COMBOBOX_DEFAULTS.PopperProps, ...PopperProps }}
     />
   )
 }

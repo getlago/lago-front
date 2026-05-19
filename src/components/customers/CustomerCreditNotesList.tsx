@@ -2,11 +2,12 @@ import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useEffect, useState } from 'react'
 
+import { BillingEntityFilterPicker } from '~/components/billingEntity/BillingEntityFilterPicker'
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
-import { BillingEntityPicker, CurrencyPicker } from '~/components/form'
+import { CurrencyPicker } from '~/components/form'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -137,7 +138,7 @@ export const CustomerCreditNotesList = ({
                 placeholder={translate('text_632b4acf0c41206cbcb8c324')}
                 containerClassName="w-36"
               />
-              <BillingEntityPicker
+              <BillingEntityFilterPicker
                 value={selectedBillingEntity?.code}
                 onChange={({ id, code, label }) => setSelectedBillingEntity({ id, code, label })}
                 onClear={() => setSelectedBillingEntity(null)}

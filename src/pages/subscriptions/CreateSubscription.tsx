@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
+import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -12,7 +13,7 @@ import { Selector } from '~/components/designSystem/Selector'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
-import { BasicComboBoxData, ComboBox, ComboboxItem } from '~/components/form'
+import { BasicComboBoxData, ComboboxItem } from '~/components/form'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import {
   EditInvoiceDisplayNameDialog,
@@ -68,7 +69,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
-import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -113,6 +113,9 @@ gql`
       name
       displayName
       externalId
+      billingEntity {
+        id
+      }
     }
   }
 
@@ -190,19 +193,7 @@ const CreateSubscription = () => {
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
   const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
-  // TODO(multi-entity-billing): demo only — wire to subscription form payload once
-  // ING-78 (CreateSubscriptionInput.billingEntityId) is delivered by backend.
   const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
-  const [demoBillingEntityCode, setDemoBillingEntityCode] = useState<string>('')
-  const {
-    options: billingEntityOptions,
-    isLoading: billingEntitiesLoading,
-    defaultEntityCode,
-  } = useBillingEntitiesOptions({
-    skip: !hasMultiEntityBilling,
-  })
-  const showBillingEntityPicker = hasMultiEntityBilling
-  const billingEntityPickerValue = demoBillingEntityCode || (defaultEntityCode ?? '')
 
   const [getPlans, { loading: planLoading, data: planData }] = useGetPlansLazyQuery({
     variables: { limit: 1000 },
@@ -272,6 +263,27 @@ const CreateSubscription = () => {
   const subscriptionIsDirty = useStore(subscriptionForm.store, (s) => s.isDirty)
   const subscriptionCanSubmit = useStore(subscriptionForm.store, (s) => s.canSubmit)
   const subscriptionIsSubmitting = useStore(subscriptionForm.store, (s) => s.isSubmitting)
+  const subscriptionBillingEntityId = useStore(
+    subscriptionForm.store,
+    (s) => s.values.billingEntityId,
+  )
+  const isEditingSubscription = formType === FORM_TYPE_ENUM.edition
+
+  // Default billingEntityId to the customer's current entity on first load.
+  useEffect(() => {
+    if (!hasMultiEntityBilling) return
+    if (subscriptionBillingEntityId) return
+    const customerEntityId = customer?.billingEntity?.id
+
+    if (customerEntityId) {
+      subscriptionForm.setFieldValue('billingEntityId', customerEntityId)
+    }
+  }, [
+    hasMultiEntityBilling,
+    customer?.billingEntity?.id,
+    subscriptionBillingEntityId,
+    subscriptionForm,
+  ])
 
   const { form: planForm, plan } = usePlanForm({
     planIdToFetch: subscriptionPlanId,
@@ -589,17 +601,11 @@ const CreateSubscription = () => {
                       )}
                     </subscriptionForm.AppField>
 
-                    {!!subscriptionPlanId && showBillingEntityPicker && (
-                      <ComboBox
+                    {!!subscriptionPlanId && !isEditingSubscription && (
+                      <BillingEntityFormPicker
                         label={translate('text_1743611497157teaa1zu8l24')}
-                        placeholder={translate('text_174360002513391n72uwg6bb')}
-                        data={billingEntityOptions}
-                        loading={billingEntitiesLoading}
-                        value={billingEntityPickerValue}
-                        onChange={(value) => setDemoBillingEntityCode(value as string)}
-                        disableClearable
-                        sortValues={false}
-                        PopperProps={{ displayInDialog: true }}
+                        value={subscriptionBillingEntityId}
+                        onChange={(id) => subscriptionForm.setFieldValue('billingEntityId', id)}
                       />
                     )}
 

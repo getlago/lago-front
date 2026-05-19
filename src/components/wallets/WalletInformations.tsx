@@ -1,3 +1,4 @@
+import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
@@ -133,16 +134,12 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
             showBillingEntityRow
               ? {
                   label: translate('text_17436114971570doqrwuwhf0'),
-                  // TODO(multi-entity-billing): once BE exposes Wallet.billingEntity
-                  // (ING-82/ING-84), prefer it over customer.billingEntity. The "inherited"
-                  // suffix should appear only when wallet.billingEntity is null.
-                  value: (() => {
-                    const entityLabel =
-                      wallet?.customer?.billingEntity?.name || wallet?.customer?.billingEntity?.code
-
-                    if (!entityLabel) return '-'
-                    return `${entityLabel} (${translate('text_1764327933607jgtpungo2pp')})`
-                  })(),
+                  value: (
+                    <BillingEntityLabel
+                      ownId={wallet?.billingEntityId}
+                      customerEntity={wallet?.customer?.billingEntity}
+                    />
+                  ),
                 }
               : { label: '', value: '' },
             {
