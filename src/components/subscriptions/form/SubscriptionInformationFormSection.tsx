@@ -159,10 +159,7 @@ export const SubscriptionInformationFormSection = withForm({
           description={translate('text_66630368f4333b00795b0e1c')}
         />
 
-        <div
-          className="flex flex-col gap-6"
-          data-test="create-subscription-form-wrapper"
-        >
+        <div className="flex flex-col gap-6" data-test="create-subscription-form-wrapper">
           {!!shouldDisplaySubscriptionExternalId && (
             <div className="flex flex-row gap-3 [&>*:first-child]:flex-1">
               <form.AppField name="externalId">
@@ -308,12 +305,7 @@ export const SubscriptionInformationFormSection = withForm({
                     subscriptionAtValue: state.values.subscriptionAt,
                   })}
                 >
-                  {({
-                    endingAtErrors,
-                    subscriptionAtErrors,
-                    endingAtValue,
-                    subscriptionAtValue,
-                  }) =>
+                  {({ endingAtErrors, subscriptionAtErrors, endingAtValue, subscriptionAtValue }) =>
                     !endingAtErrors?.length &&
                     !subscriptionAtErrors?.length && (
                       <SubscriptionDatesOffsetHelperComponent

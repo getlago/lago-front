@@ -4,7 +4,7 @@ import { render } from '~/test-utils'
 
 import { InvoicingPaymentsFormSection } from '../InvoicingPaymentsFormSection'
 
-const mockPaymentMethodsInvoiceSettings = jest.fn((_props: Record<string, unknown>) => null)
+const mockPaymentMethodsInvoiceSettings: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 
 jest.mock('~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings', () => ({
   PaymentMethodsInvoiceSettings: (props: Record<string, unknown>) => {

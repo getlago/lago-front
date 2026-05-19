@@ -1,12 +1,8 @@
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { SubscriptionFormValues } from '~/formValidation/subscriptionFormSchema'
-import {
-  BillingTimeEnum,
-  GetSubscriptionForCreateSubscriptionQuery,
-} from '~/generated/graphql'
+import { BillingTimeEnum, GetSubscriptionForCreateSubscriptionQuery } from '~/generated/graphql'
 
-export type SubscriptionDefaultsSource =
-  GetSubscriptionForCreateSubscriptionQuery['subscription']
+export type SubscriptionDefaultsSource = GetSubscriptionForCreateSubscriptionQuery['subscription']
 
 export const buildSubscriptionDefaultValues = (
   subscription: SubscriptionDefaultsSource,

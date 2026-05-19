@@ -91,7 +91,12 @@ const createMockForm = (values: Record<string, unknown> = {}) => ({
   }) => {
     const value = selector({
       fieldMeta: {},
-      values: { billingTime: BillingTimeEnum.Calendar, subscriptionAt: '', endingAt: '', ...values },
+      values: {
+        billingTime: BillingTimeEnum.Calendar,
+        subscriptionAt: '',
+        endingAt: '',
+        ...values,
+      },
     })
 
     return <>{children(value)}</>
