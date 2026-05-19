@@ -11,7 +11,11 @@ import {
   UsageChargeDrawer,
   UsageChargeDrawerRef,
 } from '~/components/plans/drawers/usageCharge/UsageChargeDrawer'
-import { getFormattedChargeSelectorSubtitle, mapChargeIntervalCopy } from '~/components/plans/utils'
+import {
+  buildChargeHoverActions,
+  getFormattedChargeSelectorSubtitle,
+  mapChargeIntervalCopy,
+} from '~/components/plans/utils'
 import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -160,31 +164,14 @@ export const UsageChargesSection = ({
         }
         hoverActions={
           <SelectorActions
-            actions={[
-              {
-                icon: 'trash',
-                tooltipCopy: translate('text_63ea0f84f400488553caa786'),
-                onClick: (e) => {
-                  e.stopPropagation()
-                  e.preventDefault()
-
-                  const deleteCharge = () => {
-                    handleChargeDelete(i)
-                  }
-
-                  if (actionType !== 'duplicate' && isUsedInSubscription) {
-                    removeChargeWarningDialogRef?.current?.openDialog({ callback: deleteCharge })
-                  } else {
-                    deleteCharge()
-                  }
-                },
-              },
-              {
-                icon: 'pen',
-                tooltipCopy: translate('text_63e51ef4985f0ebd75c212fc'),
-                onClick: () => openUsageChargeDrawer(),
-              },
-            ]}
+            actions={buildChargeHoverActions({
+              showDelete: !isInSubscriptionForm,
+              showWarningOnDelete: actionType !== 'duplicate' && isUsedInSubscription,
+              onDelete: () => handleChargeDelete(i),
+              onEdit: openUsageChargeDrawer,
+              removeChargeWarningDialogRef,
+              translate,
+            })}
           />
         }
         onClick={() => openUsageChargeDrawer()}
