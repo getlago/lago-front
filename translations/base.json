@@ -931,7 +931,7 @@
   "text_6661ffe746c680007e2df0d6": "Fees that vary based on your customers usage.",
   "text_6661ffe746c680007e2df0e1": "Add a minimum commitment",
   "text_6661ffe746c680007e2df0e2": "Create plan",
-  "text_66630368f4333b00795b0e1c": "Override plan’s parameters.",
+  "text_66630368f4333b00795b0e1c": "Define how the subscription will function.",
   "text_66630368f4333b00795b0e2d": "Override plan’s pricing definition.",
   "text_66676ed0d8c3d481637e99b7": "Override the optional advanced settings",
   "text_6669b493fae79a0095e63986": "Charge can’t be invoiced in advance due to their aggregation type being defined as max.",
@@ -3433,7 +3433,7 @@
   "text_1762159805730gne2kxieeqo": "Values defined here will apply to all billing entities. Override them below if needed.",
   "text_1762159805730r5zfutgdloi": "Mapping per billing entities",
   "text_1762159805730hqzi614r672": "Adjust values for each billing entity if required.",
-  "text_1762862388271au34vz50g8i": "Payment Methods Invoice Settings",
+  "text_1762862388271au34vz50g8i": "Invoicing & payments settings",
   "text_17628623882713knw0jtohiw": "Invoice custom footer",
   "text_17634566456760qoj7hs7jrh": "Payment & invoicing settings",
   "text_1760101157939jviogsjfcsn": "E-invoicing",
@@ -4162,5 +4162,7 @@
   "text_1776851578529wbonlz6ss8y": "Valid",
   "text_1776851578529rcah0zepkul": "{{days}} day from approval | {{days}} days from approval",
   "text_17768523811635qaasto1ziv": "No content available",
-  "text_1779108075497ugghnttia9w": "Invoice {{invoiceNumber}} for {{totalAmount}} is ready to be finalized"
+  "text_1779108075497ugghnttia9w": "Invoice {{invoiceNumber}} for {{totalAmount}} is ready to be finalized",
+  "text_17791987800304a3fihrighy": "Subscription settings",
+  "text_1779198780030g64up7d4imi": "Define how the subscription is paid and define the invoice settings."
 }
