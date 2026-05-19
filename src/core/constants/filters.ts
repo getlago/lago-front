@@ -35,3 +35,7 @@ export const SECURITY_LOGS_FILTER_PREFIX = 'secul'
 export const QUOTE_LIST_FILTER_PREFIX = 'qu'
 
 export const CUSTOMER_ANALYTICS_FILTER_PREFIX = 'cua'
+
+export const CUSTOMER_INVOICES_DRAFT_FILTER_PREFIX = 'cid'
+
+export const CUSTOMER_INVOICES_FINALIZED_FILTER_PREFIX = 'cif'

@@ -7995,6 +7995,7 @@ export type QueryPaymentRequestsArgs = {
 
 
 export type QueryPaymentsArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
   externalCustomerId?: InputMaybe<Scalars['ID']['input']>;
   invoiceId?: InputMaybe<Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -10772,6 +10773,8 @@ export type GetCustomerInvoicesQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum> | InvoiceStatusTypeEnum>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<CurrencyEnum>;
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
 }>;
 
 
@@ -22644,13 +22647,15 @@ export type GeneratePaymentUrlMutationHookResult = ReturnType<typeof useGenerate
 export type GeneratePaymentUrlMutationResult = Apollo.MutationResult<GeneratePaymentUrlMutation>;
 export type GeneratePaymentUrlMutationOptions = Apollo.BaseMutationOptions<GeneratePaymentUrlMutation, GeneratePaymentUrlMutationVariables>;
 export const GetCustomerInvoicesDocument = gql`
-    query getCustomerInvoices($customerId: ID!, $limit: Int, $page: Int, $status: [InvoiceStatusTypeEnum!], $searchTerm: String) {
+    query getCustomerInvoices($customerId: ID!, $limit: Int, $page: Int, $status: [InvoiceStatusTypeEnum!], $searchTerm: String, $currency: CurrencyEnum, $billingEntityIds: [ID!]) {
   customerInvoices(
     customerId: $customerId
     limit: $limit
     page: $page
     status: $status
     searchTerm: $searchTerm
+    currency: $currency
+    billingEntityIds: $billingEntityIds
   ) {
     ...InvoiceForInvoiceList
   }
@@ -22674,6 +22679,8 @@ export const GetCustomerInvoicesDocument = gql`
  *      page: // value for 'page'
  *      status: // value for 'status'
  *      searchTerm: // value for 'searchTerm'
+ *      currency: // value for 'currency'
+ *      billingEntityIds: // value for 'billingEntityIds'
  *   },
  * });
  */

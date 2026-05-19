@@ -53,6 +53,7 @@ import {
   CreditNoteAvailableFilters,
   CustomerAnalyticsAvailableFilters,
   CustomerAvailableFilters,
+  CustomerInvoicesAvailableFilters,
   filterDataInlineSeparator,
   ForecastsAvailableFilters,
   InvoiceAvailableFilters,
@@ -407,6 +408,17 @@ export const formatFiltersForCustomerAnalyticsQuery = (
     searchParams,
     availableFilters: CustomerAnalyticsAvailableFilters,
     filtersNamePrefix: CUSTOMER_ANALYTICS_FILTER_PREFIX,
+  }) as { currency?: CurrencyEnum; billingEntityId?: string }
+}
+
+export const formatFiltersForCustomerInvoicesQuery = (
+  searchParams: URLSearchParams,
+  filtersNamePrefix: string,
+): { currency?: CurrencyEnum; billingEntityId?: string } => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: CustomerInvoicesAvailableFilters,
+    filtersNamePrefix,
   }) as { currency?: CurrencyEnum; billingEntityId?: string }
 }
 
