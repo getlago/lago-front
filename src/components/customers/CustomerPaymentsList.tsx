@@ -3,7 +3,7 @@ import { generatePath } from 'react-router-dom'
 
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Status } from '~/components/designSystem/Status'
-import { Table } from '~/components/designSystem/Table/Table'
+import { Table, TableProps } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { buildPaymentDocumentData } from '~/components/emails/buildDocumentData'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
@@ -33,6 +33,7 @@ interface CustomerPaymentsListProps {
   loading: boolean
   metadata?: GetPaymentsListQuery['payments']['metadata']
   fetchMore?: GetPaymentsListQueryHookResult['fetchMore']
+  placeholder?: TableProps<PaymentForPaymentsListFragment>['placeholder']
 }
 
 export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
@@ -40,6 +41,7 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
   loading,
   metadata,
   fetchMore,
+  placeholder,
 }) => {
   const { translate } = useInternationalization()
 
@@ -65,6 +67,7 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
         data={payments}
         containerSize={{ default: 4 }}
         isLoading={loading}
+        placeholder={placeholder}
         actionColumn={({ paymentReceipt, customer }) => {
           const canResendEmail =
             hasPermissions(['paymentReceiptsSend']) &&

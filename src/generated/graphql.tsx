@@ -13532,6 +13532,7 @@ export type GetPaymentsListQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<CurrencyEnum>;
 }>;
 
 
@@ -35250,13 +35251,14 @@ export type GetPaymentDetailsLazyQueryHookResult = ReturnType<typeof useGetPayme
 export type GetPaymentDetailsSuspenseQueryHookResult = ReturnType<typeof useGetPaymentDetailsSuspenseQuery>;
 export type GetPaymentDetailsQueryResult = Apollo.QueryResult<GetPaymentDetailsQuery, GetPaymentDetailsQueryVariables>;
 export const GetPaymentsListDocument = gql`
-    query getPaymentsList($invoiceId: ID, $externalCustomerId: ID, $limit: Int, $page: Int, $searchTerm: String) {
+    query getPaymentsList($invoiceId: ID, $externalCustomerId: ID, $limit: Int, $page: Int, $searchTerm: String, $currency: CurrencyEnum) {
   payments(
     invoiceId: $invoiceId
     externalCustomerId: $externalCustomerId
     limit: $limit
     page: $page
     searchTerm: $searchTerm
+    currency: $currency
   ) {
     metadata {
       currentPage
@@ -35287,6 +35289,7 @@ export const GetPaymentsListDocument = gql`
  *      limit: // value for 'limit'
  *      page: // value for 'page'
  *      searchTerm: // value for 'searchTerm'
+ *      currency: // value for 'currency'
  *   },
  * });
  */

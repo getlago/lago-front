@@ -645,6 +645,7 @@ const CreateInvoice = () => {
   ])
 
   const showBillingEntityPicker = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+  const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
 
   if (!!error && !loading) {
     return (
@@ -849,7 +850,7 @@ const CreateInvoice = () => {
                   data={Object.values(CurrencyEnum).map((currencyType) => ({
                     value: currencyType,
                   }))}
-                  disabled={!!customer?.currency}
+                  disabled={!!customer?.currency && !hasMultiCurrency}
                   formikProps={formikProps}
                   label={translate('text_6453819268763979024ad057')}
                   name="currency"

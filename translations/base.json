@@ -1107,7 +1107,7 @@
   "text_66ab42d4ece7e6b7078993d0": "is",
   "text_66ab42d4ece7e6b7078993e2": "is between",
   "text_66ab4886cc65a6006ee7258c": "Reset filters",
-  "text_66ab48ea4ed9cd01084c60b8": "Could you enter another keyword or adjust your filters?",
+  "text_66ab48ea4ed9cd01084c60b8": "Could you adjust your filters?",
   "text_66ab4ad87fc8510054f237c2": "Remove",
   "text_66b21236c939426d07ff9930": "Export CSV",
   "text_66b21236c939426d07ff9932": "This export might take a few minutes. We'll send you an email with the download link as soon as it's ready. ",
@@ -4162,5 +4162,6 @@
   "text_1776851578529rcah0zepkul": "{{days}} day from approval | {{days}} days from approval",
   "text_17768523811635qaasto1ziv": "No content available",
   "text_17791856837133nbboq5tcxi": "Entity",
-  "text_1779108075497ugghnttia9w": "Invoice {{invoiceNumber}} for {{totalAmount}} is ready to be finalized"
+  "text_1779108075497ugghnttia9w": "Invoice {{invoiceNumber}} for {{totalAmount}} is ready to be finalized",
+  "text_17791984503020n5cyfczunj": "List of payments recorded or made from this customer."
 }
