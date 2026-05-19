@@ -609,7 +609,7 @@ const CreateSubscription = () => {
                         )}
 
                         <CenteredPage.PageSectionTitle
-                          title={translate('text_6335e8900c69f8ebdfef5312')}
+                          title={translate('text_17791987800304a3fihrighy')}
                           description={translate('text_66630368f4333b00795b0e1c')}
                         />
 
@@ -793,6 +793,7 @@ const CreateSubscription = () => {
                         <CenteredPage.PageSection>
                           <CenteredPage.PageSectionTitle
                             title={translate('text_1762862388271au34vz50g8i')}
+                            description={translate('text_1779198780030g64up7d4imi')}
                           />
                           <PaymentMethodsInvoiceSettings
                             customer={customer}
