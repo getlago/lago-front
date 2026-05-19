@@ -20,6 +20,7 @@ import {
   UPDATE_PLAN_ROUTE,
   useNavigate,
 } from '~/core/router'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   DeletePlanDialogFragment,
   DeletePlanDialogFragmentDoc,
@@ -187,6 +188,31 @@ const PlanDetails = () => {
             }),
             content: <PlanDetailsActivityLogs planId={planId as string} />,
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
+          },
+          {
+            title: translate('text_17792001643312864fz7j4gq'),
+            link: generatePath(PLAN_DETAILS_ROUTE, {
+              planId: planId as string,
+              tab: PlanDetailsTabsOptionsEnum.editOverview,
+            }),
+            match: [
+              generatePath(PLAN_DETAILS_ROUTE, {
+                planId: planId as string,
+                tab: PlanDetailsTabsOptionsEnum.editOverview,
+              }),
+              generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
+                customerId: customerId || '',
+                subscriptionId: subscriptionId || '',
+                planId: planId as string,
+                tab: PlanDetailsTabsOptionsEnum.editOverview,
+              }),
+            ],
+            content: (
+              <DetailsPage.Container>
+                <div className="bg-grey-100" />
+              </DetailsPage.Container>
+            ),
+            hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
           },
         ]}
       />
