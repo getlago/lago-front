@@ -34,25 +34,31 @@ export const useToolbarOverflow = ({
 
     if (!container) return
 
-    const containerWidth = container.clientWidth
+    const containerStyles = getComputedStyle(container)
+    const containerWidth =
+      container.clientWidth -
+      parseFloat(containerStyles.paddingLeft) -
+      parseFloat(containerStyles.paddingRight)
     const kebabWidth = kebabRef.current?.scrollWidth ?? 0
+
+    // Measure all visible groups first so the cache is fully populated
+    // before the fitting loop. This prevents groups after a `break` from
+    // being permanently skipped when they were never reached on initial calc.
+    for (const name of GROUP_NAMES) {
+      const el = groupRefs[name].current
+
+      if (el) {
+        widthCache.current.set(name, el.scrollWidth)
+      }
+    }
 
     let usedWidth = 0
     const newVisible = new Set<GroupName>()
 
     for (const name of GROUP_NAMES) {
-      const el = groupRefs[name].current
-      let groupWidth: number
+      const groupWidth = widthCache.current.get(name)
 
-      if (el) {
-        groupWidth = el.scrollWidth
-        widthCache.current.set(name, groupWidth)
-      } else {
-        const cached = widthCache.current.get(name)
-
-        if (cached === undefined) continue // never measured, skip
-        groupWidth = cached
-      }
+      if (groupWidth === undefined) continue // never measured, skip
 
       // Between groups: gap + separator(1px) + gap. No separator before first group.
       const groupSpacing = newVisible.size > 0 ? gap + separatorWidth + gap : 0

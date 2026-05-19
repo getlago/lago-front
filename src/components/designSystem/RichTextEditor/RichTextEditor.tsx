@@ -153,7 +153,7 @@ const RichTextEditor = ({
     ],
     editorProps: {
       attributes: {
-        class: 'max-w-none focus:outline-none min-h-[300px] my-4 px-10',
+        class: 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10',
       },
     },
     content:
