@@ -4,8 +4,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
-import { BILLING_ENTITY_COMBOBOX_DEFAULTS } from './comboBoxDefaults'
-
 type BillingEntityFormPickerProps = {
   /** Currently selected billing entity id (form value). */
   value: string | undefined | null
@@ -41,7 +39,9 @@ export const BillingEntityFormPicker = ({
 
   return (
     <ComboBox
-      {...BILLING_ENTITY_COMBOBOX_DEFAULTS}
+      disableClearable
+      sortValues={false}
+      PopperProps={{ displayInDialog: true }}
       label={label}
       placeholder={translate('text_174360002513391n72uwg6bb')}
       data={options}
