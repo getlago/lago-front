@@ -6,7 +6,7 @@ import { generatePath, useSearchParams } from 'react-router-dom'
 import { CustomerOverview } from '~/components/customers/overview/CustomerOverview'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Filters } from '~/components/designSystem/Filters'
-import { CustomerInvoicesAvailableFilters } from '~/components/designSystem/Filters/types'
+import { AvailableFiltersEnum } from '~/components/designSystem/Filters/types'
 import { formatFiltersForCustomerInvoicesQuery } from '~/components/designSystem/Filters/utils'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { SearchInput } from '~/components/SearchInput'
@@ -17,6 +17,7 @@ import {
 import { CUSTOMER_DRAFT_INVOICES_LIST_ROUTE } from '~/core/router'
 import {
   CurrencyEnum,
+  FeatureFlagEnum,
   InvoiceForInvoiceListFragmentDoc,
   InvoiceStatusTypeEnum,
   TimezoneEnum,
@@ -24,6 +25,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { CustomerInvoicesList } from './CustomerInvoicesList'
 
@@ -71,6 +73,13 @@ export const CustomerInvoicesTab = ({
   userCurrency,
 }: CustomerInvoicesTabProps) => {
   const { translate } = useInternationalization()
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
+  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+  const availableFilters = [
+    ...(hasMultiCurrency ? [AvailableFiltersEnum.currency] : []),
+    ...(hasMultiEntityBilling ? [AvailableFiltersEnum.billingEntityId] : []),
+  ]
   const [searchParams] = useSearchParams()
 
   const draftFilters = formatFiltersForCustomerInvoicesQuery(
@@ -180,14 +189,16 @@ export const CustomerInvoicesTab = ({
           subtitle={translate('text_1737655039923xyw73dt51ee')}
         />
 
-        <Filters.Provider
-          filtersNamePrefix={CUSTOMER_INVOICES_DRAFT_FILTER_PREFIX}
-          availableFilters={CustomerInvoicesAvailableFilters}
-        >
-          <div className="mb-4 flex items-center gap-2">
-            <Filters.Component />
-          </div>
-        </Filters.Provider>
+        {availableFilters.length > 0 && (
+          <Filters.Provider
+            filtersNamePrefix={CUSTOMER_INVOICES_DRAFT_FILTER_PREFIX}
+            availableFilters={availableFilters}
+          >
+            <div className="mb-4 flex items-center gap-2">
+              <Filters.Component />
+            </div>
+          </Filters.Provider>
+        )}
 
         <CustomerInvoicesList
           isSearching={isDraftFiltering}
@@ -219,18 +230,20 @@ export const CustomerInvoicesTab = ({
           subtitle={translate('text_1737654864705k68zqvg5u9d')}
         />
 
-        <Filters.Provider
-          filtersNamePrefix={CUSTOMER_INVOICES_FINALIZED_FILTER_PREFIX}
-          availableFilters={CustomerInvoicesAvailableFilters}
-        >
-          <div className="mb-4 flex items-center gap-3">
-            <SearchInput
-              onChange={debouncedSetSearchTerm}
-              placeholder={translate('text_63c6861d9991cdd5a92c1419')}
-            />
-            <Filters.Component />
-          </div>
-        </Filters.Provider>
+        <div className="mb-4 flex items-center gap-3">
+          <SearchInput
+            onChange={debouncedSetSearchTerm}
+            placeholder={translate('text_63c6861d9991cdd5a92c1419')}
+          />
+          {availableFilters.length > 0 && (
+            <Filters.Provider
+              filtersNamePrefix={CUSTOMER_INVOICES_FINALIZED_FILTER_PREFIX}
+              availableFilters={availableFilters}
+            >
+              <Filters.Component />
+            </Filters.Provider>
+          )}
+        </div>
 
         <CustomerInvoicesList
           isSearching={isFiltering}
