@@ -7544,6 +7544,8 @@ export type QueryCustomerArgs = {
 
 
 export type QueryCustomerInvoicesArgs = {
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  currency?: InputMaybe<CurrencyEnum>;
   customerId: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
