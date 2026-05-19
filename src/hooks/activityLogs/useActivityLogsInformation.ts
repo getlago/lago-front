@@ -48,6 +48,7 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.InvoicePaymentFailure]: 'text_1747404656632e428r46tabf',
   [ActivityTypeEnum.InvoicePaymentOverdue]: 'text_1747404656632mx2lodxufuz',
   [ActivityTypeEnum.InvoicePaymentStatusUpdated]: 'text_1747404656632gzd7vuk85kk',
+  [ActivityTypeEnum.InvoiceReadyToFinalize]: 'text_1779108075497ugghnttia9w',
   [ActivityTypeEnum.InvoiceVoided]: 'text_174740465663220m8nkwjqjq',
   [ActivityTypeEnum.PaymentReceiptCreated]: 'text_1747404656632xnc93fx6cw8',
   [ActivityTypeEnum.PaymentReceiptGenerated]: 'text_1747404806714bdtx6o45wx8',
@@ -180,6 +181,7 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.InvoicePaymentFailure:
       case ActivityTypeEnum.InvoicePaymentOverdue:
       case ActivityTypeEnum.InvoicePaymentStatusUpdated:
+      case ActivityTypeEnum.InvoiceReadyToFinalize:
       case ActivityTypeEnum.InvoiceVoided:
         currency = activityObject.currency as CurrencyEnum
         amount = Number(activityObject.total_amount_cents) || 0

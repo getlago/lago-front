@@ -152,6 +152,8 @@ export enum ActivityTypeEnum {
   InvoicePaymentOverdue = 'invoice_payment_overdue',
   /** invoice.payment_status_updated */
   InvoicePaymentStatusUpdated = 'invoice_payment_status_updated',
+  /** invoice.ready_to_finalize */
+  InvoiceReadyToFinalize = 'invoice_ready_to_finalize',
   /** invoice.regenerated */
   InvoiceRegenerated = 'invoice_regenerated',
   /** invoice.voided */
@@ -3840,6 +3842,7 @@ export enum EventTypeEnum {
   InvoicePaymentFailure = 'invoice_payment_failure',
   InvoicePaymentOverdue = 'invoice_payment_overdue',
   InvoicePaymentStatusUpdated = 'invoice_payment_status_updated',
+  InvoiceReadyToFinalize = 'invoice_ready_to_finalize',
   InvoiceResynced = 'invoice_resynced',
   InvoiceVoided = 'invoice_voided',
   PaymentProviderError = 'payment_provider_error',

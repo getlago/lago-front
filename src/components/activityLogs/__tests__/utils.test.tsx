@@ -39,6 +39,12 @@ describe('activityLogs utils', () => {
       )
     })
 
+    it('should format activity type with ready_to_finalize suffix', () => {
+      expect(formatActivityType(ActivityTypeEnum.InvoiceReadyToFinalize)).toBe(
+        'invoice.ready_to_finalize',
+      )
+    })
+
     it('should format activity type with paid_credit_added suffix', () => {
       expect(formatActivityType(ActivityTypeEnum.InvoicePaidCreditAdded)).toBe(
         'invoice.paid_credit_added',
