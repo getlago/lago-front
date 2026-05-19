@@ -17,11 +17,6 @@ import {
   EditInvoiceDisplayNameDialogRef,
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
-import {
-  PaymentMethodsInvoiceSettingsProps,
-  ViewTypeEnum,
-} from '~/components/paymentMethodsInvoiceSettings/types'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
@@ -32,6 +27,7 @@ import PremiumFeature from '~/components/premium/PremiumFeature'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { FeatureEntitlementSection } from '~/components/subscriptions/FeatureEntitlementSection'
 import { buildSubscriptionDefaultValues } from '~/components/subscriptions/form/buildSubscriptionDefaultValues'
+import { InvoicingPaymentsFormSection } from '~/components/subscriptions/form/InvoicingPaymentsFormSection'
 import { SubscriptionInformationFormSection } from '~/components/subscriptions/form/SubscriptionInformationFormSection'
 import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
@@ -507,23 +503,11 @@ const CreateSubscription = () => {
                       />
 
                       {/* Section: Invoicing & payments */}
-                      {hasAccessToMultiPaymentFlow && (customer?.externalId || customer?.id) && (
-                        <CenteredPage.PageSection>
-                          <CenteredPage.PageSectionTitle
-                            title={translate('text_1762862388271au34vz50g8i')}
-                            description={translate('text_1779198780030g64up7d4imi')}
-                          />
-                          <PaymentMethodsInvoiceSettings
-                            customer={customer}
-                            formikProps={
-                              {
-                                values: subscriptionForm.state.values,
-                                setFieldValue: subscriptionForm.setFieldValue,
-                              } as PaymentMethodsInvoiceSettingsProps<ViewTypeEnum.Subscription>['formikProps']
-                            }
-                            viewType={ViewTypeEnum.Subscription}
-                          />
-                        </CenteredPage.PageSection>
+                      {hasAccessToMultiPaymentFlow && (
+                        <InvoicingPaymentsFormSection
+                          form={subscriptionForm}
+                          customer={customer ?? null}
+                        />
                       )}
                     </>
                   )}
