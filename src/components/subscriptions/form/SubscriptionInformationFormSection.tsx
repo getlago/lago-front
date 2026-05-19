@@ -175,22 +175,22 @@ export const SubscriptionInformationFormSection = withForm({
                   />
                 )}
               </form.AppField>
-              <Tooltip
-                className="mt-7 h-fit"
-                disableHoverListener={formType !== FORM_TYPE_ENUM.creation}
-                placement="top-end"
-                title={translate('text_63aa085d28b8510cd46443ff')}
-              >
-                <Button
-                  icon="trash"
-                  disabled={formType !== FORM_TYPE_ENUM.creation}
-                  variant="quaternary"
-                  onClick={() => {
-                    form.setFieldValue('externalId', '')
-                    setShouldDisplaySubscriptionExternalId(false)
-                  }}
-                />
-              </Tooltip>
+              {formType === FORM_TYPE_ENUM.creation && (
+                <Tooltip
+                  className="mt-7 h-fit"
+                  placement="top-end"
+                  title={translate('text_63aa085d28b8510cd46443ff')}
+                >
+                  <Button
+                    icon="trash"
+                    variant="quaternary"
+                    onClick={() => {
+                      form.setFieldValue('externalId', '')
+                      setShouldDisplaySubscriptionExternalId(false)
+                    }}
+                  />
+                </Tooltip>
+              )}
             </div>
           )}
 
