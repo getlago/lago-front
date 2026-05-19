@@ -27,6 +27,7 @@ import {
   useNavigate,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   LagoApiError,
   StatusTypeEnum,
@@ -257,6 +258,52 @@ const SubscriptionDetails = () => {
           </DetailsPage.Container>
         ),
         hidden: !subscription?.externalId || !isPremium || !hasPermissions(['auditLogsView']),
+      },
+      {
+        title: translate('text_17792001643312864fz7j4gq'),
+        link: !!customerId
+          ? getCustomerSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
+            )
+          : getPlanSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
+            ),
+        match: [
+          getCustomerSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
+          ),
+          getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.editOverview),
+        ],
+        content: (
+          <DetailsPage.Container>
+            <div className="bg-grey-100" />
+          </DetailsPage.Container>
+        ),
+        hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
+      },
+      {
+        title: translate('text_17792001643316pbexygvpu2'),
+        link: !!customerId
+          ? getCustomerSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+            )
+          : getPlanSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+            ),
+        match: [
+          getCustomerSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+          ),
+          getPlanSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+          ),
+        ],
+        content: (
+          <DetailsPage.Container>
+            <div className="bg-grey-100" />
+          </DetailsPage.Container>
+        ),
+        hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
       },
     ]
   }, [
