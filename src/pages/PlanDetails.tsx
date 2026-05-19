@@ -210,9 +210,7 @@ const PlanDetails = () => {
             ],
             content: (
               <DetailsPage.Container>
-                <Typography variant="body">
-                  {translate('text_17792001643312864fz7j4gq')}
-                </Typography>
+                <Typography variant="body">{translate('text_17792001643312864fz7j4gq')}</Typography>
               </DetailsPage.Container>
             ),
             hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
