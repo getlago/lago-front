@@ -4,9 +4,11 @@ import { BillingTimeEnum, GetSubscriptionForCreateSubscriptionQuery } from '~/ge
 
 export type SubscriptionDefaultsSource = GetSubscriptionForCreateSubscriptionQuery['subscription']
 
+export type SubscriptionFormType = keyof typeof FORM_TYPE_ENUM
+
 export const buildSubscriptionDefaultValues = (
   subscription: SubscriptionDefaultsSource,
-  formType: string,
+  formType: SubscriptionFormType,
   currentDate: string,
 ): SubscriptionFormValues => ({
   planId: formType !== FORM_TYPE_ENUM.upgradeDowngrade ? subscription?.plan?.id || '' : '',

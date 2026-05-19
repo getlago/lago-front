@@ -19,7 +19,10 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
-import { buildSubscriptionDefaultValues } from './buildSubscriptionDefaultValues'
+import {
+  buildSubscriptionDefaultValues,
+  SubscriptionFormType,
+} from './buildSubscriptionDefaultValues'
 
 const getBillingTimeSelectorTranslationKey = (planInterval?: PlanInterval) => {
   switch (planInterval) {
@@ -35,7 +38,7 @@ const getBillingTimeSelectorTranslationKey = (planInterval?: PlanInterval) => {
 }
 
 interface SubscriptionInformationFormSectionExtraProps {
-  formType: string
+  formType: SubscriptionFormType
   subscription: GetSubscriptionForCreateSubscriptionQuery['subscription'] | undefined
   customerTimezone?: TimezoneEnum | null
   shouldDisplaySubscriptionExternalId: boolean

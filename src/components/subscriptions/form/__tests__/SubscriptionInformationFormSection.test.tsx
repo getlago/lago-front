@@ -4,6 +4,7 @@ import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { BillingTimeEnum, PlanInterval } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+import { SubscriptionFormType } from '../buildSubscriptionDefaultValues'
 import { SubscriptionInformationFormSection } from '../SubscriptionInformationFormSection'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -105,7 +106,7 @@ const createMockForm = (values: Record<string, unknown> = {}) => ({
 
 const renderSection = (
   overrides: Partial<{
-    formType: string
+    formType: SubscriptionFormType
     shouldDisplaySubscriptionExternalId: boolean
     shouldDisplaySubscriptionName: boolean
     selectedPlanInterval: PlanInterval
