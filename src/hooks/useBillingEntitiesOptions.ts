@@ -1,3 +1,4 @@
+import { WatchQueryFetchPolicy } from '@apollo/client'
 import { useMemo } from 'react'
 
 import { useGetBillingEntitiesQuery } from '~/generated/graphql'
@@ -31,6 +32,13 @@ type UseBillingEntitiesOptionsParams = {
    * Skip the network query (e.g. when caller hasn't loaded yet).
    */
   skip?: boolean
+  /**
+   * Override the Apollo fetch policy. Defaults to `cache-first` (fast,
+   * stale-tolerant — fine for filter pickers). Form callers that freeze
+   * `defaultValues` at mount should use `network-only` so the form never
+   * picks up cached cross-org leftovers after an org switch.
+   */
+  fetchPolicy?: WatchQueryFetchPolicy
 }
 
 type UseBillingEntitiesOptionsResult = {
@@ -58,10 +66,11 @@ export const useBillingEntitiesOptions = ({
   includeInheritOption = false,
   inheritLabel,
   skip = false,
+  fetchPolicy = 'cache-first',
 }: UseBillingEntitiesOptionsParams = {}): UseBillingEntitiesOptionsResult => {
   const { translate } = useInternationalization()
   const { data, loading } = useGetBillingEntitiesQuery({
-    fetchPolicy: 'cache-first',
+    fetchPolicy,
     skip,
   })
 
