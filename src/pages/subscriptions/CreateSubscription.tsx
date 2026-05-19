@@ -46,17 +46,13 @@ import {
   useNavigate,
 } from '~/core/router'
 import { DateFormat, getTimezoneConfig, intlFormatDateTime } from '~/core/timezone'
-import {
-  subscriptionFormSchema,
-  SubscriptionFormValues,
-} from '~/formValidation/subscriptionFormSchema'
+import { subscriptionFormSchema } from '~/formValidation/subscriptionFormSchema'
 import {
   AddSubscriptionPlanFragmentDoc,
   BillingTimeEnum,
   CurrencyEnum,
   FeatureEntitlementForPlanFragmentDoc,
   FeatureFlagEnum,
-  GetSubscriptionForCreateSubscriptionQuery,
   PlanInterval,
   StatusTypeEnum,
   TimezoneEnum,
@@ -66,6 +62,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
+import { buildSubscriptionDefaultValues } from '~/components/subscriptions/form/buildSubscriptionDefaultValues'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { usePlanForm } from '~/hooks/plans/usePlanForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -149,29 +146,6 @@ gql`
   ${AddSubscriptionPlanFragmentDoc}
   ${FeatureEntitlementForPlanFragmentDoc}
 `
-
-type SubscriptionData = GetSubscriptionForCreateSubscriptionQuery['subscription']
-
-const buildSubscriptionDefaultValues = (
-  sub: SubscriptionData,
-  ft: string,
-  currentDate: string,
-): SubscriptionFormValues => ({
-  planId: ft !== FORM_TYPE_ENUM.upgradeDowngrade ? sub?.plan?.id || '' : '',
-  name: ft !== FORM_TYPE_ENUM.upgradeDowngrade ? sub?.name || '' : '',
-  externalId: sub?.externalId || '',
-  subscriptionAt: sub?.subscriptionAt || currentDate,
-  endingAt: sub?.endingAt || undefined,
-  billingTime: sub?.billingTime || BillingTimeEnum.Calendar,
-  paymentMethod: {
-    paymentMethodType: sub?.paymentMethodType,
-    paymentMethodId: sub?.paymentMethod?.id,
-  },
-  invoiceCustomSection: {
-    invoiceCustomSections: sub?.selectedInvoiceCustomSections || [],
-    skipInvoiceCustomSections: sub?.skipInvoiceCustomSections || false,
-  },
-})
 
 const CreateSubscription = () => {
   const location = useLocation()
