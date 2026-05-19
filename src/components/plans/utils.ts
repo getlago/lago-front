@@ -1,3 +1,7 @@
+import { RefObject } from 'react'
+
+import { SelectorActionItem } from '~/components/designSystem/Selector'
+import { RemoveChargeWarningDialogRef } from '~/components/plans/RemoveChargeWarningDialog'
 import {
   ALL_FILTER_VALUES,
   AnyChargeModel,
@@ -81,4 +85,49 @@ export const getFormattedChargeSelectorSubtitle = ({
   translate: TranslateFunc
 }): string => {
   return [translate(chargeModelLookupTranslation[chargeModel]), code].filter(Boolean).join(' • ')
+}
+
+export const buildChargeHoverActions = ({
+  showDelete,
+  showWarningOnDelete,
+  onDelete,
+  onEdit,
+  removeChargeWarningDialogRef,
+  translate,
+}: {
+  showDelete: boolean
+  showWarningOnDelete: boolean
+  onDelete: () => void
+  onEdit: () => void
+  removeChargeWarningDialogRef: RefObject<RemoveChargeWarningDialogRef>
+  translate: TranslateFunc
+}): SelectorActionItem[] => {
+  const actions: SelectorActionItem[] = []
+
+  if (showDelete) {
+    const onTrashClick = (e: React.MouseEvent) => {
+      e.stopPropagation()
+      e.preventDefault()
+
+      if (showWarningOnDelete) {
+        removeChargeWarningDialogRef.current?.openDialog({ callback: onDelete })
+      } else {
+        onDelete()
+      }
+    }
+
+    actions.push({
+      icon: 'trash',
+      tooltipCopy: translate('text_63ea0f84f400488553caa786'),
+      onClick: onTrashClick,
+    })
+  }
+
+  actions.push({
+    icon: 'pen',
+    tooltipCopy: translate('text_63e51ef4985f0ebd75c212fc'),
+    onClick: onEdit,
+  })
+
+  return actions
 }
