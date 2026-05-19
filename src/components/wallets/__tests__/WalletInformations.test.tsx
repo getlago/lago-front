@@ -15,6 +15,7 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: { defaultCurrency: 'USD' },
     intlFormatDateTimeOrgaTZ: () => ({ date: '2024-01-01' }),
+    hasFeatureFlag: () => false,
   }),
 }))
 jest.mock('~/hooks/useCurrentUser', () => ({
