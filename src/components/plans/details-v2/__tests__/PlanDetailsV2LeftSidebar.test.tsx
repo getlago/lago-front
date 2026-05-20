@@ -18,6 +18,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
         text_1779289915866vguw0lfmz06: 'Progressive billing',
         text_1779289915866mr56w61hhi5: 'Entitlements',
       }
+
       return map[key] ?? key
     },
   }),
@@ -27,11 +28,7 @@ const renderSidebar = (
   props: Partial<React.ComponentProps<typeof PlanDetailsV2LeftSidebar>> = {},
 ) =>
   render(
-    <PlanDetailsV2LeftSidebar
-      activeSectionId="plan-settings"
-      onItemClick={jest.fn()}
-      {...props}
-    />,
+    <PlanDetailsV2LeftSidebar activeSectionId="plan-settings" onItemClick={jest.fn()} {...props} />,
   )
 
 describe('PlanDetailsV2LeftSidebar', () => {

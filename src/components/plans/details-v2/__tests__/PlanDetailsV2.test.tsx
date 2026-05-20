@@ -1,11 +1,7 @@
 import { MockedProvider } from '@apollo/client/testing'
 import { screen, waitFor } from '@testing-library/react'
 
-import {
-  CurrencyEnum,
-  GetPlanForDetailsV2Document,
-  PlanInterval,
-} from '~/generated/graphql'
+import { CurrencyEnum, GetPlanForDetailsV2Document, PlanInterval } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { PlanDetailsV2 } from '../PlanDetailsV2'
@@ -84,8 +80,6 @@ describe('PlanDetailsV2', () => {
       </MockedProvider>,
     )
 
-    expect(
-      screen.queryByRole('navigation', { name: /plan sections/i }),
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('navigation', { name: /plan sections/i })).not.toBeInTheDocument()
   })
 })

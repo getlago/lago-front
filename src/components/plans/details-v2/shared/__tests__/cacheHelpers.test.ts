@@ -40,12 +40,11 @@ describe('cacheHelpers', () => {
   it('cacheArrayInsert appends a new item to the parent field', () => {
     const cache = buildCache()
 
-    cacheArrayInsert(
-      cache,
-      { __typename: 'Plan', id: 'plan_1' },
-      'charges',
-      { __typename: 'Charge', id: 'charge_c', invoiceDisplayName: 'C' },
-    )
+    cacheArrayInsert(cache, { __typename: 'Plan', id: 'plan_1' }, 'charges', {
+      __typename: 'Charge',
+      id: 'charge_c',
+      invoiceDisplayName: 'C',
+    })
 
     const result = cache.extract()
     const planEntry = result['Plan:plan_1'] as { charges: Reference[] }
@@ -57,13 +56,7 @@ describe('cacheHelpers', () => {
   it('cacheArrayRemove drops the matching item and evicts the entity', () => {
     const cache = buildCache()
 
-    cacheArrayRemove(
-      cache,
-      { __typename: 'Plan', id: 'plan_1' },
-      'charges',
-      'charge_a',
-      'Charge',
-    )
+    cacheArrayRemove(cache, { __typename: 'Plan', id: 'plan_1' }, 'charges', 'charge_a', 'Charge')
 
     const result = cache.extract()
     const planEntry = result['Plan:plan_1'] as { charges: Reference[] }

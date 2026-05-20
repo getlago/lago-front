@@ -70,6 +70,7 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
         const visible = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0]
+
         if (visible) setActiveSectionId(visible.target.id)
       },
       { rootMargin: '-20% 0px -60% 0px', threshold: 0 },
@@ -77,6 +78,7 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
 
     visibleSectionIds.forEach((id) => {
       const el = document.getElementById(id)
+
       if (el) observer.observe(el)
     })
 
@@ -104,7 +106,7 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
       />
       <div className="flex flex-1 flex-col gap-12">
         {visibleSectionIds.map((id) => (
-          <section key={id} id={id} className="scroll-mt-12 min-h-48 rounded-xl bg-grey-100" />
+          <section key={id} id={id} className="min-h-48 scroll-mt-12 rounded-xl bg-grey-100" />
         ))}
       </div>
     </div>

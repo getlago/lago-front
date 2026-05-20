@@ -18,7 +18,7 @@ let mockIsEdition = false
 let mockLoading = false
 let mockPlan: Record<string, unknown> | undefined
 let mockType = 'creation'
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 let mockCachedForm: any
 
 jest.mock('~/hooks/plans/usePlanForm', () => ({

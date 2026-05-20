@@ -1,6 +1,6 @@
+import { revalidateLogic } from '@tanstack/react-form'
 import { act, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { revalidateLogic } from '@tanstack/react-form'
 
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'

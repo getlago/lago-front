@@ -79,6 +79,7 @@ export const PlanDetailsV2LeftSidebar = ({
             if (isGroup) {
               setExpanded((prev) => {
                 const next = new Set(prev)
+
                 if (next.has(item.id)) {
                   next.delete(item.id)
                 } else {
@@ -97,7 +98,7 @@ export const PlanDetailsV2LeftSidebar = ({
         </button>
         {isGroup && isExpanded && (
           <div className="flex flex-col">
-            {item.children!.map((child) => renderItem(child, depth + 1))}
+            {item.children?.map((child) => renderItem(child, depth + 1))}
           </div>
         )}
       </div>
@@ -105,10 +106,7 @@ export const PlanDetailsV2LeftSidebar = ({
   }
 
   return (
-    <nav
-      className="sticky top-12 flex w-56 flex-col gap-1 self-start"
-      aria-label="Plan sections"
-    >
+    <nav className="sticky top-12 flex w-56 flex-col gap-1 self-start" aria-label="Plan sections">
       {sections.map((item) => renderItem(item))}
     </nav>
   )

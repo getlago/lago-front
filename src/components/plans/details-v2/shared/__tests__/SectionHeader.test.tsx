@@ -22,12 +22,7 @@ describe('SectionHeader', () => {
   it('renders the action button and fires onClick', async () => {
     const handleClick = jest.fn()
 
-    render(
-      <SectionHeader
-        title="Charges"
-        action={{ label: 'Add charge', onClick: handleClick }}
-      />,
-    )
+    render(<SectionHeader title="Charges" action={{ label: 'Add charge', onClick: handleClick }} />)
 
     await userEvent.click(screen.getByRole('button', { name: /add charge/i }))
 
