@@ -101,6 +101,7 @@ const CustomerRequestOverduePayment: FC = () => {
       silentErrorCodes: [
         LagoApiError.InvoicesNotOverdue,
         LagoApiError.InvoicesNotReadyForPaymentProcessing,
+        LagoApiError.InvoicesHaveDifferentBillingEntities,
       ],
     },
     onCompleted() {
@@ -122,6 +123,14 @@ const CustomerRequestOverduePayment: FC = () => {
 
       if (hasDefinedGQLError('InvoicesNotReadyForPaymentProcessing', mutationError)) {
         handlePaymentNotReady()
+      }
+
+      if (hasDefinedGQLError('InvoicesHaveDifferentBillingEntities', mutationError)) {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_1779287451539r5rgwbiz2k1',
+        })
+        paymentRequestStatus.client.refetchQueries({ include: ['getRequestOverduePaymentInfos'] })
       }
     },
   })

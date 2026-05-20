@@ -127,6 +127,7 @@ gql`
       subscriptionAt
       endingAt
       billingTime
+      billingEntityId
       periodEndDate
       status
       startedAt
@@ -269,17 +270,23 @@ const CreateSubscription = () => {
   )
   const isEditingSubscription = formType === FORM_TYPE_ENUM.edition
 
-  // Default billingEntityId to the customer's current entity on first load.
+  // Default billingEntityId on first load:
+  // - upgrade/downgrade flow → preserve the existing subscription's explicit entity
+  // - pure creation flow → use the customer's current default entity
   useEffect(() => {
     if (!hasMultiEntityBilling) return
     if (subscriptionBillingEntityId) return
-    const customerEntityId = customer?.billingEntity?.id
+    const defaultEntityId =
+      (formType === FORM_TYPE_ENUM.upgradeDowngrade ? subscription?.billingEntityId : null) ??
+      customer?.billingEntity?.id
 
-    if (customerEntityId) {
-      subscriptionForm.setFieldValue('billingEntityId', customerEntityId)
+    if (defaultEntityId) {
+      subscriptionForm.setFieldValue('billingEntityId', defaultEntityId)
     }
   }, [
     hasMultiEntityBilling,
+    formType,
+    subscription?.billingEntityId,
     customer?.billingEntity?.id,
     subscriptionBillingEntityId,
     subscriptionForm,
