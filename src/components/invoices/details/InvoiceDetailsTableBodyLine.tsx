@@ -81,6 +81,12 @@ gql`
     appliedTaxes {
       id
       taxRate
+      tax {
+        id
+        name
+        code
+        rate
+      }
     }
     amountDetails {
       freeUnits # for package charge model
