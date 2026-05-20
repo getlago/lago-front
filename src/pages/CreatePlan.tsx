@@ -13,11 +13,8 @@ import {
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
+import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
-import {
-  ImpactOverriddenSubscriptionsDialog,
-  ImpactOverriddenSubscriptionsDialogRef,
-} from '~/components/plans/ImpactOverriddenSubscriptionsDialog'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
@@ -156,8 +153,7 @@ const CreatePlan = () => {
   const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { form, isEdition, loading, plan, type } = usePlanForm({})
   const warningDialogRef = useRef<WarningDialogRef>(null)
-  const impactOverriddenSubscriptionsDialogRef =
-    useRef<ImpactOverriddenSubscriptionsDialogRef>(null)
+  const { openCascadeDialog } = useCascadeFormDialog()
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
 
   const canBeEdited = !plan?.subscriptionsCount
@@ -213,18 +209,20 @@ const CreatePlan = () => {
   }, [isDirty, planCloseRedirection])
 
   const handleFormSubmit = useCallback(() => {
-    if (plan?.hasOverriddenPlans && isEdition) {
-      return impactOverriddenSubscriptionsDialogRef.current?.openDialog({
-        onSave: async (cascadeUpdates) => {
+    if (isEdition && plan?.hasOverriddenPlans) {
+      return openCascadeDialog({
+        title: translate('text_1729604107534r3hsj7i64gp'),
+        mainActionLabel: translate('text_1729604107534dfyz8j53ho5'),
+        hasOverriddenPlans: true,
+        onConfirm: async (cascadeUpdates) => {
           form.setFieldValue('cascadeUpdates', cascadeUpdates)
-
           return form.handleSubmit()
         },
       })
     }
 
     return form.handleSubmit()
-  }, [form, plan?.hasOverriddenPlans, isEdition])
+  }, [form, plan?.hasOverriddenPlans, isEdition, openCascadeDialog, translate])
 
   const pageTitle = isEdition
     ? translate('text_625fd165963a7b00c8f59767')
@@ -359,7 +357,6 @@ const CreatePlan = () => {
         continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={() => planCloseRedirection()}
       />
-      <ImpactOverriddenSubscriptionsDialog ref={impactOverriddenSubscriptionsDialogRef} />
       <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
       <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </PlanFormProvider>
