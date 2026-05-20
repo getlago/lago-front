@@ -57,9 +57,12 @@ import ErrorFilled from '~/icons/error-filled.svg'
 import ErrorUnfilled from '~/icons/error-unfilled.svg'
 import EyeHidden from '~/icons/eye-hidden.svg'
 import Eye from '~/icons/eye.svg'
+import File from '~/icons/file.svg'
 import Filter from '~/icons/filter.svg'
 import FlashFilled from '~/icons/flash-filled.svg'
 import Flash from '~/icons/flash.svg'
+import FolderClose from '~/icons/folder-close.svg'
+import FolderOpen from '~/icons/folder-open.svg'
 import Forecast from '~/icons/forecast.svg'
 import Formulas from '~/icons/formulas.svg'
 import Globe from '~/icons/globe.svg'
@@ -211,9 +214,12 @@ export const ALL_ICONS = {
   'error-unfilled': ErrorUnfilled,
   'eye-hidden': EyeHidden,
   eye: Eye,
+  file: File,
   filter: Filter,
   flash: Flash,
   'flash-filled': FlashFilled,
+  'folder-close': FolderClose,
+  'folder-open': FolderOpen,
   forecast: Forecast,
   formulas: Formulas,
   globe: Globe,
