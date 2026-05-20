@@ -1,8 +1,9 @@
-import { gql, InMemoryCache, Reference } from '@apollo/client'
+import { InMemoryCache, Reference } from '@apollo/client'
+import { parse } from 'graphql'
 
 import { cacheArrayInsert, cacheArrayRemove } from '../cacheHelpers'
 
-const PROBE_QUERY = gql`
+const PROBE_QUERY = parse(`
   query Probe {
     plan(id: "plan_1") @client {
       __typename
@@ -14,7 +15,7 @@ const PROBE_QUERY = gql`
       }
     }
   }
-`
+`)
 
 const buildCache = () => {
   const cache = new InMemoryCache()

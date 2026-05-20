@@ -11546,11 +11546,6 @@ export type GetPlanForDetailsV2QueryVariables = Exact<{
 
 export type GetPlanForDetailsV2Query = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, hasOverriddenPlans?: boolean | null } | null };
 
-export type ProbeQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ProbeQuery = { __typename?: 'Query', plan?: { __typename: 'Plan', id: string, charges?: Array<{ __typename: 'Charge', id: string, invoiceDisplayName?: string | null }> | null } | null };
-
 export type PlanDetailsActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -26110,54 +26105,6 @@ export type GetPlanForDetailsV2QueryHookResult = ReturnType<typeof useGetPlanFor
 export type GetPlanForDetailsV2LazyQueryHookResult = ReturnType<typeof useGetPlanForDetailsV2LazyQuery>;
 export type GetPlanForDetailsV2SuspenseQueryHookResult = ReturnType<typeof useGetPlanForDetailsV2SuspenseQuery>;
 export type GetPlanForDetailsV2QueryResult = Apollo.QueryResult<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>;
-export const ProbeDocument = gql`
-    query Probe {
-  plan(id: "plan_1") @client {
-    __typename
-    id
-    charges {
-      __typename
-      id
-      invoiceDisplayName
-    }
-  }
-}
-    `;
-
-/**
- * __useProbeQuery__
- *
- * To run a query within a React component, call `useProbeQuery` and pass it any options that fit your needs.
- * When your component renders, `useProbeQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useProbeQuery({
- *   variables: {
- *   },
- * });
- */
-export function useProbeQuery(baseOptions?: Apollo.QueryHookOptions<ProbeQuery, ProbeQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ProbeQuery, ProbeQueryVariables>(ProbeDocument, options);
-      }
-export function useProbeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProbeQuery, ProbeQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ProbeQuery, ProbeQueryVariables>(ProbeDocument, options);
-        }
-// @ts-ignore
-export function useProbeSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ProbeQuery, ProbeQueryVariables>): Apollo.UseSuspenseQueryResult<ProbeQuery, ProbeQueryVariables>;
-export function useProbeSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProbeQuery, ProbeQueryVariables>): Apollo.UseSuspenseQueryResult<ProbeQuery | undefined, ProbeQueryVariables>;
-export function useProbeSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProbeQuery, ProbeQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ProbeQuery, ProbeQueryVariables>(ProbeDocument, options);
-        }
-export type ProbeQueryHookResult = ReturnType<typeof useProbeQuery>;
-export type ProbeLazyQueryHookResult = ReturnType<typeof useProbeLazyQuery>;
-export type ProbeSuspenseQueryHookResult = ReturnType<typeof useProbeSuspenseQuery>;
-export type ProbeQueryResult = Apollo.QueryResult<ProbeQuery, ProbeQueryVariables>;
 export const PlanDetailsActivityLogsDocument = gql`
     query PlanDetailsActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
   activityLogs(
