@@ -14008,7 +14008,7 @@ export type GetCustomersForCreateQuoteQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomersForCreateQuoteQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', collection: Array<{ __typename?: 'Customer', id: string, displayName: string, externalId: string }> } };
+export type GetCustomersForCreateQuoteQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', collection: Array<{ __typename?: 'Customer', id: string, displayName: string, externalId: string, currency?: CurrencyEnum | null }> } };
 
 export type GetCustomerSubscriptionsForCreateQuoteQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
@@ -14052,6 +14052,13 @@ export type CreateQuoteMutationVariables = Exact<{
 
 
 export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote?: { __typename?: 'Quote', id: string } | null };
+
+export type UpdateCustomerCurrencyForQuoteMutationVariables = Exact<{
+  input: UpdateCustomerInput;
+}>;
+
+
+export type UpdateCustomerCurrencyForQuoteMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null } | null };
 
 export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, name?: string | null, externalId: string, currency?: CurrencyEnum | null, netPaymentTerm?: number | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number } }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, content?: string | null, billingItems?: any | null, createdAt: any } };
 
@@ -37684,6 +37691,7 @@ export const GetCustomersForCreateQuoteDocument = gql`
       id
       displayName
       externalId
+      currency
     }
   }
 }
@@ -37967,6 +37975,40 @@ export function useCreateQuoteMutation(baseOptions?: Apollo.MutationHookOptions<
 export type CreateQuoteMutationHookResult = ReturnType<typeof useCreateQuoteMutation>;
 export type CreateQuoteMutationResult = Apollo.MutationResult<CreateQuoteMutation>;
 export type CreateQuoteMutationOptions = Apollo.BaseMutationOptions<CreateQuoteMutation, CreateQuoteMutationVariables>;
+export const UpdateCustomerCurrencyForQuoteDocument = gql`
+    mutation updateCustomerCurrencyForQuote($input: UpdateCustomerInput!) {
+  updateCustomer(input: $input) {
+    id
+    currency
+  }
+}
+    `;
+export type UpdateCustomerCurrencyForQuoteMutationFn = Apollo.MutationFunction<UpdateCustomerCurrencyForQuoteMutation, UpdateCustomerCurrencyForQuoteMutationVariables>;
+
+/**
+ * __useUpdateCustomerCurrencyForQuoteMutation__
+ *
+ * To run a mutation, you first call `useUpdateCustomerCurrencyForQuoteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCustomerCurrencyForQuoteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCustomerCurrencyForQuoteMutation, { data, loading, error }] = useUpdateCustomerCurrencyForQuoteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCustomerCurrencyForQuoteMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerCurrencyForQuoteMutation, UpdateCustomerCurrencyForQuoteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCustomerCurrencyForQuoteMutation, UpdateCustomerCurrencyForQuoteMutationVariables>(UpdateCustomerCurrencyForQuoteDocument, options);
+      }
+export type UpdateCustomerCurrencyForQuoteMutationHookResult = ReturnType<typeof useUpdateCustomerCurrencyForQuoteMutation>;
+export type UpdateCustomerCurrencyForQuoteMutationResult = Apollo.MutationResult<UpdateCustomerCurrencyForQuoteMutation>;
+export type UpdateCustomerCurrencyForQuoteMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerCurrencyForQuoteMutation, UpdateCustomerCurrencyForQuoteMutationVariables>;
 export const GetQuoteDocument = gql`
     query getQuote($id: ID!) {
   quote(id: $id) {

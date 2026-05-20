@@ -4,12 +4,24 @@ import { generatePath } from 'react-router-dom'
 import { addToast } from '~/core/apolloClient'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
-import { CreateQuoteInput, useCreateQuoteMutation } from '~/generated/graphql'
+import {
+  CreateQuoteInput,
+  CurrencyEnum,
+  useCreateQuoteMutation,
+  useUpdateCustomerCurrencyForQuoteMutation,
+} from '~/generated/graphql'
 
 gql`
   mutation createQuote($input: CreateQuoteInput!) {
     createQuote(input: $input) {
       id
+    }
+  }
+
+  mutation updateCustomerCurrencyForQuote($input: UpdateCustomerInput!) {
+    updateCustomer(input: $input) {
+      id
+      currency
     }
   }
 `
@@ -19,6 +31,9 @@ interface CreateQuoteValues {
   orderType: CreateQuoteInput['orderType']
   subscriptionId?: string
   owners?: string[]
+  currency?: CurrencyEnum
+  customerExternalId?: string
+  hasCustomerCurrency?: boolean
 }
 
 interface UseCreateQuoteReturn {
@@ -28,6 +43,8 @@ interface UseCreateQuoteReturn {
 
 export const useCreateQuote = (): UseCreateQuoteReturn => {
   const navigate = useNavigate()
+
+  const [updateCustomerCurrency] = useUpdateCustomerCurrencyForQuoteMutation()
 
   const [createQuote, { loading }] = useCreateQuoteMutation({
     onCompleted({ createQuote: createdQuote }) {
@@ -48,6 +65,18 @@ export const useCreateQuote = (): UseCreateQuoteReturn => {
   })
 
   const onSave = async (values: CreateQuoteValues): Promise<void> => {
+    if (!values.hasCustomerCurrency && values.currency && values.customerExternalId) {
+      await updateCustomerCurrency({
+        variables: {
+          input: {
+            id: values.customerId,
+            externalId: values.customerExternalId,
+            currency: values.currency,
+          },
+        },
+      })
+    }
+
     await createQuote({
       variables: {
         input: {
@@ -55,6 +84,7 @@ export const useCreateQuote = (): UseCreateQuoteReturn => {
           orderType: values.orderType,
           subscriptionId: values.subscriptionId || undefined,
           owners: values.owners,
+          billingItems: values.currency ? { currency: values.currency } : undefined,
         },
       },
     })

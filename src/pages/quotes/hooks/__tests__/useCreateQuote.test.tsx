@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
-import { OrderTypeEnum } from '~/generated/graphql'
+import { CurrencyEnum, OrderTypeEnum } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
 import { useCreateQuote } from '../useCreateQuote'
@@ -24,6 +24,7 @@ jest.mock('~/core/apolloClient', () => ({
 
 let capturedMutationOnCompleted: ((data: Record<string, unknown>) => void) | undefined
 const mockCreateQuote = jest.fn()
+const mockUpdateCustomerCurrency = jest.fn()
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
@@ -31,6 +32,7 @@ jest.mock('~/generated/graphql', () => ({
     capturedMutationOnCompleted = options?.onCompleted
     return [mockCreateQuote, { loading: false }]
   },
+  useUpdateCustomerCurrencyForQuoteMutation: () => [mockUpdateCustomerCurrency],
 }))
 
 const wrapper = ({ children }: { children: ReactNode }) => (
@@ -75,6 +77,7 @@ describe('useCreateQuote', () => {
               orderType: OrderTypeEnum.OneOff,
               subscriptionId: undefined,
               owners: undefined,
+              billingItems: undefined,
             },
           },
         })
@@ -102,6 +105,7 @@ describe('useCreateQuote', () => {
               orderType: OrderTypeEnum.SubscriptionAmendment,
               subscriptionId: 'sub-789',
               owners: undefined,
+              billingItems: undefined,
             },
           },
         })
@@ -129,6 +133,7 @@ describe('useCreateQuote', () => {
               orderType: OrderTypeEnum.OneOff,
               subscriptionId: undefined,
               owners: ['user-1', 'user-2'],
+              billingItems: undefined,
             },
           },
         })
@@ -155,6 +160,82 @@ describe('useCreateQuote', () => {
               orderType: OrderTypeEnum.OneOff,
               subscriptionId: undefined,
               owners: undefined,
+              billingItems: undefined,
+            },
+          },
+        })
+      })
+    })
+
+    describe('WHEN called with currency and customer had no prior currency', () => {
+      it('THEN should call updateCustomerCurrency then createQuote with billingItems', async () => {
+        mockUpdateCustomerCurrency.mockResolvedValue({
+          data: { updateCustomer: { id: 'customer-123', currency: CurrencyEnum.Eur } },
+        })
+        mockCreateQuote.mockResolvedValue({ data: { createQuote: { id: 'quote-5' } } })
+
+        const { result } = renderHook(() => useCreateQuote(), { wrapper })
+
+        await act(async () => {
+          await result.current.onSave({
+            customerId: 'customer-123',
+            orderType: OrderTypeEnum.OneOff,
+            currency: CurrencyEnum.Eur,
+            customerExternalId: 'ext-123',
+            hasCustomerCurrency: false,
+          })
+        })
+
+        expect(mockUpdateCustomerCurrency).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              id: 'customer-123',
+              externalId: 'ext-123',
+              currency: CurrencyEnum.Eur,
+            },
+          },
+        })
+
+        expect(mockCreateQuote).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              customerId: 'customer-123',
+              orderType: OrderTypeEnum.OneOff,
+              subscriptionId: undefined,
+              owners: undefined,
+              billingItems: { currency: CurrencyEnum.Eur },
+            },
+          },
+        })
+      })
+    })
+
+    describe('WHEN called with currency and customer already had currency', () => {
+      it('THEN should NOT call updateCustomerCurrency but should pass billingItems', async () => {
+        mockCreateQuote.mockResolvedValue({ data: { createQuote: { id: 'quote-6' } } })
+
+        const { result } = renderHook(() => useCreateQuote(), { wrapper })
+
+        await act(async () => {
+          await result.current.onSave({
+            customerId: 'customer-456',
+            orderType: OrderTypeEnum.OneOff,
+            currency: CurrencyEnum.Usd,
+            customerExternalId: 'ext-456',
+            hasCustomerCurrency: true,
+          })
+        })
+
+        expect(mockUpdateCustomerCurrency).not.toHaveBeenCalled()
+
+        expect(mockCreateQuote).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              customerId: 'customer-456',
+              orderType: OrderTypeEnum.OneOff,
+              subscriptionId: undefined,
+              owners: undefined,
+              billingItems: { currency: CurrencyEnum.Usd },
             },
           },
         })
