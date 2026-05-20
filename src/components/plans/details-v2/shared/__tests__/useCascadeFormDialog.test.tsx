@@ -22,11 +22,11 @@ const NiceModalWrapper = ({ children }: { children: ReactNode }) => (
 )
 
 type HarnessProps = {
-  planChildrenCount: number
+  hasOverriddenPlans: boolean
   onConfirm: (v: boolean) => Promise<void> | void
 }
 
-const Harness = ({ planChildrenCount, onConfirm }: HarnessProps) => {
+const Harness = ({ hasOverriddenPlans, onConfirm }: HarnessProps) => {
   const { openCascadeDialog } = useCascadeFormDialog()
 
   return (
@@ -36,7 +36,7 @@ const Harness = ({ planChildrenCount, onConfirm }: HarnessProps) => {
         openCascadeDialog({
           title: 'cascade-title',
           mainActionLabel: 'save-edits',
-          planChildrenCount,
+          hasOverriddenPlans,
           onConfirm,
         })
       }
@@ -56,7 +56,7 @@ describe('useCascadeFormDialog', () => {
 
     render(
       <NiceModalWrapper>
-        <Harness planChildrenCount={0} onConfirm={onConfirm} />
+        <Harness hasOverriddenPlans={false} onConfirm={onConfirm} />
       </NiceModalWrapper>,
     )
 
@@ -73,7 +73,7 @@ describe('useCascadeFormDialog', () => {
 
     render(
       <NiceModalWrapper>
-        <Harness planChildrenCount={3} onConfirm={onConfirm} />
+        <Harness hasOverriddenPlans={true} onConfirm={onConfirm} />
       </NiceModalWrapper>,
     )
 
@@ -95,7 +95,7 @@ describe('useCascadeFormDialog', () => {
 
     render(
       <NiceModalWrapper>
-        <Harness planChildrenCount={3} onConfirm={onConfirm} />
+        <Harness hasOverriddenPlans={true} onConfirm={onConfirm} />
       </NiceModalWrapper>,
     )
 

@@ -12,7 +12,7 @@ type OpenCascadeDialogInput = {
   title: ReactNode
   description?: ReactNode
   mainActionLabel: string
-  planChildrenCount: number
+  hasOverriddenPlans: boolean
   onConfirm: (cascadeUpdates: boolean) => Promise<void> | void
   danger?: boolean
 }
@@ -34,7 +34,7 @@ export const useCascadeFormDialog = () => {
   })
 
   const openCascadeDialog = async (input: OpenCascadeDialogInput) => {
-    if (input.planChildrenCount === 0) {
+    if (!input.hasOverriddenPlans) {
       await input.onConfirm(false)
       return
     }
