@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
-import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
@@ -11,6 +10,7 @@ import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/Delete
 import { PlanDetailsActivityLogs } from '~/components/plans/details/PlanDetailsActivityLogs'
 import { PlanDetailsOverview } from '~/components/plans/details/PlanDetailsOverview'
 import PlanSubscriptionList from '~/components/plans/details/PlanSubscriptionList'
+import { PlanDetailsV2 } from '~/components/plans/details-v2/PlanDetailsV2'
 import { updateDuplicatePlanVar } from '~/core/apolloClient'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -208,11 +208,7 @@ const PlanDetails = () => {
                 tab: PlanDetailsTabsOptionsEnum.editOverview,
               }),
             ],
-            content: (
-              <DetailsPage.Container>
-                <Typography variant="body">{translate('text_17792001643312864fz7j4gq')}</Typography>
-              </DetailsPage.Container>
-            ),
+            content: <PlanDetailsV2 planId={planId as string} />,
             hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
           },
         ]}

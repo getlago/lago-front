@@ -1,5 +1,4 @@
-import { InMemoryCache, Reference } from '@apollo/client'
-import gql from 'graphql-tag'
+import { gql, InMemoryCache, Reference } from '@apollo/client'
 
 import { cacheArrayInsert, cacheArrayRemove } from '../cacheHelpers'
 

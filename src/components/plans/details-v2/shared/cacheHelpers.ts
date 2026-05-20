@@ -11,9 +11,12 @@ export const cacheArrayInsert = (
   cache.modify({
     id: cache.identify(parent),
     fields: {
-      [field]: (existing: Reference[] = [], { toReference }) => {
-        const ref = toReference(newItem as Reference)
-        return [...existing, ref ?? newItem]
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      [field]: (existing: any, { toReference }: { toReference: (o: any) => Reference | undefined }) => {
+        const list = (existing as readonly unknown[] | undefined) ?? []
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const ref = toReference(newItem as any)
+        return [...list, ref ?? newItem]
       },
     },
   })
@@ -29,8 +32,11 @@ export const cacheArrayRemove = (
   cache.modify({
     id: cache.identify(parent),
     fields: {
-      [field]: (existing: Reference[] = [], { readField }) =>
-        existing.filter((ref) => readField('id', ref) !== itemId),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      [field]: (existing: any, { readField }: { readField: (k: string, ref: any) => unknown }) => {
+        const list = (existing as readonly Reference[] | undefined) ?? []
+        return list.filter((ref) => readField('id', ref) !== itemId)
+      },
     },
   })
   cache.evict({ id: cache.identify({ __typename: itemTypename, id: itemId }) })

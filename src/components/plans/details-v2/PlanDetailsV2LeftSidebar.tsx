@@ -1,6 +1,7 @@
+import { Icon } from 'lago-design-system'
 import { useMemo, useState } from 'react'
 
-import { Button } from '~/components/designSystem/Button'
+import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 
@@ -58,16 +59,21 @@ export const PlanDetailsV2LeftSidebar = ({
     const isGroup = !!item.children?.length
     const isActive = activeSectionId === item.id
     const isExpanded = expanded.has(item.id)
+    const iconName: 'chevron-down' | 'chevron-right' | 'document' = isGroup
+      ? isExpanded
+        ? 'chevron-down'
+        : 'chevron-right'
+      : 'document'
 
     return (
       <div key={item.id} className="flex flex-col">
-        <Button
-          variant="quaternary"
-          align="left"
-          fullWidth
+        <button
+          type="button"
           aria-current={isActive ? 'true' : undefined}
-          startIcon={isGroup ? (isExpanded ? 'chevron-down' : 'chevron-right') : 'document'}
-          className={tw('justify-start', isActive && 'bg-grey-100')}
+          className={tw(
+            'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left hover:bg-grey-100',
+            isActive && 'bg-grey-100',
+          )}
           style={{ paddingLeft: 12 + depth * 16 }}
           onClick={() => {
             if (isGroup) {
@@ -84,8 +90,11 @@ export const PlanDetailsV2LeftSidebar = ({
             onItemClick(item.id)
           }}
         >
-          {translate(item.labelKey)}
-        </Button>
+          <Icon name={iconName} size="small" />
+          <Typography variant="body" color={isActive ? 'grey700' : 'grey600'}>
+            {translate(item.labelKey)}
+          </Typography>
+        </button>
         {isGroup && isExpanded && (
           <div className="flex flex-col">
             {item.children!.map((child) => renderItem(child, depth + 1))}
