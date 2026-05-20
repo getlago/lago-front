@@ -3,27 +3,9 @@ import { ReactNode } from 'react'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useAppForm, withForm } from '~/hooks/forms/useAppform'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 const CASCADE_FORM_ID = 'cascade-updates-form'
-
-const CascadeUpdatesField = withForm({
-  defaultValues: { cascadeUpdates: true },
-  render: function Render({ form }) {
-    const { translate } = useInternationalization()
-
-    return (
-      <form.AppField name="cascadeUpdates">
-        {(field) => (
-          <field.SwitchField
-            label={translate('text_1779289915866s3gisblcite')}
-            subLabel={translate('text_1779289915866itrqeyj7658')}
-          />
-        )}
-      </form.AppField>
-    )
-  },
-})
 
 type OpenCascadeDialogInput = {
   title: ReactNode
@@ -39,6 +21,7 @@ type SubmitMeta = {
 }
 
 export const useCascadeFormDialog = () => {
+  const { translate } = useInternationalization()
   const formDialog = useFormDialog()
 
   const form = useAppForm({
@@ -72,7 +55,16 @@ export const useCascadeFormDialog = () => {
       ),
       children: (
         <form.AppForm>
-          <CascadeUpdatesField form={form} />
+          <div className="p-4">
+            <form.AppField name="cascadeUpdates">
+              {(field) => (
+                <field.SwitchField
+                  label={translate('text_1779289915866s3gisblcite')}
+                  subLabel={translate('text_1779289915866itrqeyj7658')}
+                />
+              )}
+            </form.AppField>
+          </div>
         </form.AppForm>
       ),
     })
