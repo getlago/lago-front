@@ -93,7 +93,8 @@ const CreateBillableMetric = () => {
 
   const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
   const customExpressionDrawerRef = useRef<CustomExpressionDrawerRef>(null)
-  const canBeEdited = !isDuplicate && !billableMetric?.hasSubscriptions && !billableMetric?.hasPlans
+  const canBeEdited =
+    isDuplicate || (!billableMetric?.hasSubscriptions && !billableMetric?.hasPlans)
 
   const formikProps = useFormik<
     CreateBillableMetricInput & {
