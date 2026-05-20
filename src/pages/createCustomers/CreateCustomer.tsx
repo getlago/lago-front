@@ -52,7 +52,7 @@ const CreateCustomer = () => {
     options: billingEntitiesList,
     isLoading: isLoadingBillingEntities,
     defaultEntityCode,
-  } = useBillingEntitiesOptions({ fetchPolicy: 'network-only' })
+  } = useBillingEntitiesOptions()
 
   const isFormReady = !isLoadingBillingEntities && !loading
 

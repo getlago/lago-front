@@ -14,7 +14,7 @@ type BillingEntityLabelProps = {
  * Renders a billing-entity label following the dive-in precedence:
  *
  *   1. If the row has its own `billingEntityId`, resolve it to the entity's
- *      label via the org's cached billing-entities collection.
+ *      label via the org's billing-entities collection.
  *   2. Otherwise, fall back to the customer's default entity with an
  *      "(inherit from customer)" suffix to surface the implicit semantics.
  *   3. If neither is available, render `-`.

@@ -162,7 +162,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
               </div>
             </div>
             <div
-              class=MuiAutocomplete-root MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
+              class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
             >
               <div
                 class="flex flex-col gap-1 group/combobox-input"
@@ -201,7 +201,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       role="combobox"
                       spellcheck="false"
                       type="text"
-                      value="Default Entity (default)"
+                      value=""
                     />
                     <div
                       class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
@@ -2342,7 +2342,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
               </div>
             </div>
             <div
-              class=MuiAutocomplete-root MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
+              class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
             >
               <div
                 class="flex flex-col gap-1 group/combobox-input"
@@ -2381,7 +2381,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       role="combobox"
                       spellcheck="false"
                       type="text"
-                      value="Default Entity (default)"
+                      value=""
                     />
                     <div
                       class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
@@ -3346,7 +3346,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
               </div>
             </div>
             <div
-              class=MuiAutocomplete-root MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
+              class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
             >
               <div
                 class="flex flex-col gap-1 group/combobox-input"
@@ -3385,7 +3385,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       role="combobox"
                       spellcheck="false"
                       type="text"
-                      value="Default Entity (default)"
+                      value=""
                     />
                     <div
                       class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
@@ -4350,7 +4350,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
               </div>
             </div>
             <div
-              class=MuiAutocomplete-root MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
+              class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
             >
               <div
                 class="flex flex-col gap-1 group/combobox-input"
@@ -4389,7 +4389,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       role="combobox"
                       spellcheck="false"
                       type="text"
-                      value="Default Entity (default)"
+                      value=""
                     />
                     <div
                       class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
@@ -5351,7 +5351,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
               </div>
             </div>
             <div
-              class=MuiAutocomplete-root MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
+              class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
             >
               <div
                 class="flex flex-col gap-1 group/combobox-input"
@@ -5390,7 +5390,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
                       role="combobox"
                       spellcheck="false"
                       type="text"
-                      value="Default Entity (default)"
+                      value=""
                     />
                     <div
                       class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
@@ -6301,7 +6301,7 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
               </div>
             </div>
             <div
-              class=MuiAutocomplete-root MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
+              class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
             >
               <div
                 class="flex flex-col gap-1 group/combobox-input"
@@ -6340,7 +6340,7 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
                       role="combobox"
                       spellcheck="false"
                       type="text"
-                      value="Default Entity (default)"
+                      value=""
                     />
                     <div
                       class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
