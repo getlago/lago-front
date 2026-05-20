@@ -4166,5 +4166,15 @@
   "text_17791987800304a3fihrighy": "Subscription settings",
   "text_1779198780030g64up7d4imi": "Define how the subscription is paid and define the invoice settings.",
   "text_17792001643312864fz7j4gq": "Edit overview",
-  "text_17792001643316pbexygvpu2": "Subscription plan"
+  "text_17792001643316pbexygvpu2": "Subscription plan",
+  "text_177928991586601f21f0x87c": "Plan settings",
+  "text_1779289915866etwoweh1syv": "Subscription fee",
+  "text_1779289915866aj39dyv1wps": "Fixed charges",
+  "text_1779289915866ngi8sv5t9lg": "Usage-based charges",
+  "text_1779289915866m899iy5nykb": "Advanced settings",
+  "text_17792899158664ii2pmrd2le": "Minimum commitment",
+  "text_1779289915866vguw0lfmz06": "Progressive billing",
+  "text_1779289915866mr56w61hhi5": "Entitlements",
+  "text_1779289915866s3gisblcite": "Apply changes to all overridden subscriptions of this plan",
+  "text_1779289915866itrqeyj7658": "When enabled, edits cascade to every subscription that overrides this plan."
 }
