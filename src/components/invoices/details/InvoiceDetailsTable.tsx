@@ -13,7 +13,6 @@ import {
 import { InvoiceDetailsTableFooter } from '~/components/invoices/details/InvoiceDetailsTableFooter'
 import { InvoiceDetailsTableHeader } from '~/components/invoices/details/InvoiceDetailsTableHeader'
 import { InvoiceDetailsTablePeriodLine } from '~/components/invoices/details/InvoiceDetailsTablePeriodLine'
-import { ViewFeeDetailsDrawerRef } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import { groupAndFormatFees } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
@@ -171,7 +170,6 @@ interface InvoiceDetailsTableProps {
   customer: Pick<Customer, 'id' | 'applicableTimezone'> | null | undefined
   invoice: InvoiceForDetailsTableFragment | null | undefined
   editFeeDrawerRef: RefObject<EditFeeDrawerRef>
-  viewFeeDetailsDrawerRef?: RefObject<ViewFeeDetailsDrawerRef>
   deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
   isDraftOverride?: boolean
   fees: FeeDetailsForInvoiceOverviewFragment[] | null | undefined
@@ -252,7 +250,6 @@ export const InvoiceDetailsTable = memo(
   ({
     customer,
     editFeeDrawerRef,
-    viewFeeDetailsDrawerRef,
     deleteAdjustedFeeDialogRef,
     invoice,
     isDraftOverride,
@@ -320,7 +317,6 @@ export const InvoiceDetailsTable = memo(
                         : undefined
                     }
                     editFeeDrawerRef={editFeeDrawerRef}
-                    viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef}
                     deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                     isDraftInvoice={isDraftInvoice}
                     fee={
@@ -388,7 +384,6 @@ export const InvoiceDetailsTable = memo(
                       currency={currency}
                       displayName={subscription.name || subscription.plan.name}
                       editFeeDrawerRef={editFeeDrawerRef}
-                      viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef}
                       deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                       fee={undefined}
                       isDraftInvoice={false}
@@ -481,7 +476,6 @@ export const InvoiceDetailsTable = memo(
                                 displayName={fee.metadata.displayName}
                                 succeededDate={succeededDate}
                                 editFeeDrawerRef={editFeeDrawerRef}
-                                viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef}
                                 deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                                 isDraftInvoice={isDraftInvoice}
                                 fee={fee}

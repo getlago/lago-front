@@ -1,16 +1,16 @@
 import { gql } from '@apollo/client'
 import { tw } from 'lago-design-system'
-import { memo, RefObject } from 'react'
+import { memo } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
-import { ViewFeeDetailsDrawerRef } from '~/components/invoices/details/ViewFeeDetailsDrawer'
+import { useViewFeeDetailsDrawer } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import { FeeMetadata } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, FeeForInvoiceDetailsTableBodyLineFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { FeeActionsCell, openViewFeeDetailsDrawer } from './FeeActionsCell'
+import { FeeActionsCell } from './FeeActionsCell'
 
 gql`
   fragment FeeForInvoiceDetailsTableBodyLinePackage on Fee {
@@ -38,20 +38,17 @@ type InvoiceDetailsTableBodyLinePackageProps = {
   currency: CurrencyEnum
   fee: (FeeForInvoiceDetailsTableBodyLineFragment & { metadata: FeeMetadata }) | undefined
   hideVat?: boolean
-  viewFeeDetailsDrawerRef?: RefObject<ViewFeeDetailsDrawerRef>
 }
 
 export const InvoiceDetailsTableBodyLinePackage = memo(
-  ({
-    currency,
-    fee,
-    hideVat,
-    viewFeeDetailsDrawerRef,
-  }: InvoiceDetailsTableBodyLinePackageProps) => {
+  ({ currency, fee, hideVat }: InvoiceDetailsTableBodyLinePackageProps) => {
     const { translate } = useInternationalization()
     const amountDetails = fee?.amountDetails
 
-    const handleRowClick = () => openViewFeeDetailsDrawer(fee, viewFeeDetailsDrawerRef)
+    const viewFeeDetails = useViewFeeDetailsDrawer()
+    const handleRowClick = () => {
+      if (fee) viewFeeDetails.open(fee)
+    }
     const rowClickableClass = fee ? 'cursor-pointer hover:bg-grey-100' : undefined
 
     return (
@@ -110,7 +107,7 @@ export const InvoiceDetailsTableBodyLinePackage = memo(
                 })}
               </Typography>
             </td>
-            <FeeActionsCell fee={fee} viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef} />
+            <FeeActionsCell fee={fee} />
           </tr>
         )}
 
@@ -179,7 +176,7 @@ export const InvoiceDetailsTableBodyLinePackage = memo(
               )}
             </Typography>
           </td>
-          <FeeActionsCell fee={fee} viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef} />
+          <FeeActionsCell fee={fee} />
         </tr>
       </>
     )

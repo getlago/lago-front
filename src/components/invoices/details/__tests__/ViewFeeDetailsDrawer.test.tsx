@@ -1,5 +1,5 @@
-import { render as plainRender, screen } from '@testing-library/react'
-import { createRef, ReactNode } from 'react'
+import { render as plainRender, renderHook, screen } from '@testing-library/react'
+import { ReactNode } from 'react'
 
 import {
   VIEW_FEE_DETAILS_DRAWER_TEST_ID,
@@ -7,21 +7,18 @@ import {
   VIEW_FEE_DETAILS_OVERVIEW_TEST_ID,
   VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID,
 } from '~/components/invoices/details/invoiceDetailsTestIds'
-import {
-  ViewFeeDetailsDrawer,
-  ViewFeeDetailsDrawerRef,
-} from '~/components/invoices/details/ViewFeeDetailsDrawer'
+import { useViewFeeDetailsDrawer } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import {
   CurrencyEnum,
   FeeForViewFeeDetailsDrawerFragment,
   FeeTypesEnum,
   PlanInterval,
 } from '~/generated/graphql'
-import { render } from '~/test-utils'
+import { AllTheProviders } from '~/test-utils'
 
-// Mock the drawer hook so the test doesn't pull in the Vite-only `drawerStack`
-// module. We capture the props passed to `drawer.open()` so we can render the
-// children ourselves and assert on the body content.
+// Mock the underlying drawer hook so the test doesn't pull in the Vite-only
+// `drawerStack` module. We capture the props passed to `drawer.open()` so we
+// can render the children ourselves and assert on the body content.
 const mockDrawerOpen = jest.fn()
 const mockDrawerClose = jest.fn()
 
@@ -72,64 +69,56 @@ const buildFee = (
     ...overrides,
   }) as unknown as FeeForViewFeeDetailsDrawerFragment
 
+const renderHookUnderTest = () =>
+  renderHook(() => useViewFeeDetailsDrawer(), {
+    wrapper: ({ children }) => <AllTheProviders>{children}</AllTheProviders>,
+  })
+
 // Get the children passed to the most recent drawer.open() call so we can mount
 // them in isolation and assert on the actual DOM.
 const getBodyFromLastOpen = (): ReactNode => {
   const lastCall = mockDrawerOpen.mock.calls[mockDrawerOpen.mock.calls.length - 1]
+
   return (lastCall?.[0] as { children: ReactNode } | undefined)?.children
 }
 
-describe('ViewFeeDetailsDrawer', () => {
+describe('useViewFeeDetailsDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  describe('GIVEN a fresh drawer ref', () => {
-    describe('WHEN the drawer component mounts without being opened', () => {
-      it('THEN should NOT call drawer.open', () => {
-        const ref = createRef<ViewFeeDetailsDrawerRef>()
-        render(<ViewFeeDetailsDrawer ref={ref} />)
+  describe('GIVEN the hook is mounted but never invoked', () => {
+    it('THEN should NOT call drawer.open', () => {
+      renderHookUnderTest()
 
-        expect(mockDrawerOpen).not.toHaveBeenCalled()
-      })
-
-      it('THEN should return null (no rendered DOM)', () => {
-        const ref = createRef<ViewFeeDetailsDrawerRef>()
-        const { container } = render(<ViewFeeDetailsDrawer ref={ref} />)
-
-        expect(container.firstChild).toBeNull()
-      })
+      expect(mockDrawerOpen).not.toHaveBeenCalled()
     })
   })
 
-  describe('GIVEN the ref is used to open the drawer', () => {
-    describe('WHEN openDrawer is invoked with a fee', () => {
-      it('THEN should call drawer.open with title, children and actions', () => {
-        const ref = createRef<ViewFeeDetailsDrawerRef>()
-        render(<ViewFeeDetailsDrawer ref={ref} />)
+  describe('GIVEN open is invoked with a fee', () => {
+    it('THEN should call drawer.open with title, children and actions', () => {
+      const { result } = renderHookUnderTest()
 
-        ref.current?.openDrawer({ fee: buildFee() })
+      result.current.open(buildFee())
 
-        expect(mockDrawerOpen).toHaveBeenCalledTimes(1)
-        expect(mockDrawerOpen).toHaveBeenCalledWith(
-          expect.objectContaining({
-            title: expect.any(String),
-            children: expect.anything(),
-            actions: expect.anything(),
-          }),
-        )
-      })
+      expect(mockDrawerOpen).toHaveBeenCalledTimes(1)
+      expect(mockDrawerOpen).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: expect.any(String),
+          children: expect.anything(),
+          actions: expect.anything(),
+        }),
+      )
     })
+  })
 
-    describe('WHEN closeDrawer is invoked', () => {
-      it('THEN should call drawer.close', () => {
-        const ref = createRef<ViewFeeDetailsDrawerRef>()
-        render(<ViewFeeDetailsDrawer ref={ref} />)
+  describe('GIVEN close is invoked', () => {
+    it('THEN should call drawer.close', () => {
+      const { result } = renderHookUnderTest()
 
-        ref.current?.closeDrawer()
+      result.current.close()
 
-        expect(mockDrawerClose).toHaveBeenCalledTimes(1)
-      })
+      expect(mockDrawerClose).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -141,10 +130,9 @@ describe('ViewFeeDetailsDrawer', () => {
         ['overview section', VIEW_FEE_DETAILS_OVERVIEW_TEST_ID],
         ['source item section', VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID],
       ])('THEN should render the %s (single-view variant)', (_, testId) => {
-        const ref = createRef<ViewFeeDetailsDrawerRef>()
-        render(<ViewFeeDetailsDrawer ref={ref} />)
+        const { result } = renderHookUnderTest()
 
-        ref.current?.openDrawer({ fee: buildFee() })
+        result.current.open(buildFee())
         // The drawer body wraps itself in a <MemoryRouter>; use plain RTL
         // render here so we don't end up with nested Routers.
         plainRender(<>{getBodyFromLastOpen()}</>)
@@ -157,16 +145,13 @@ describe('ViewFeeDetailsDrawer', () => {
   describe('GIVEN a fee with presentation breakdowns', () => {
     describe('WHEN the drawer body is rendered', () => {
       it('THEN should render Overview and Presentation group key tabs', () => {
-        const ref = createRef<ViewFeeDetailsDrawerRef>()
-        render(<ViewFeeDetailsDrawer ref={ref} />)
+        const { result } = renderHookUnderTest()
 
-        ref.current?.openDrawer({
-          fee: buildFee({
+        result.current.open(
+          buildFee({
             presentationBreakdowns: [{ presentationBy: { region: 'us-east' }, units: '60' }],
           } as unknown as Partial<FeeForViewFeeDetailsDrawerFragment>),
-        })
-        // The drawer body wraps itself in a <MemoryRouter>; use plain RTL
-        // render here so we don't end up with nested Routers.
+        )
         plainRender(<>{getBodyFromLastOpen()}</>)
 
         expect(screen.getByTestId(VIEW_FEE_DETAILS_OVERVIEW_TEST_ID)).toBeInTheDocument()
@@ -178,34 +163,28 @@ describe('ViewFeeDetailsDrawer', () => {
   describe('GIVEN a fee with a trueUpParentFee in the tabbed variant', () => {
     describe('WHEN the Overview tab is rendered', () => {
       it('THEN should display the parent fee id in the Parent ID row', () => {
-        const ref = createRef<ViewFeeDetailsDrawerRef>()
-        render(<ViewFeeDetailsDrawer ref={ref} />)
+        const { result } = renderHookUnderTest()
 
-        ref.current?.openDrawer({
-          fee: buildFee({
+        result.current.open(
+          buildFee({
             trueUpParentFee: { id: 'parent-fee-1' },
             presentationBreakdowns: [{ presentationBy: { region: 'us' }, units: '10' }],
           } as unknown as Partial<FeeForViewFeeDetailsDrawerFragment>),
-        })
-        // The drawer body wraps itself in a <MemoryRouter>; use plain RTL
-        // render here so we don't end up with nested Routers.
+        )
         plainRender(<>{getBodyFromLastOpen()}</>)
 
         expect(screen.getAllByText('parent-fee-1').length).toBeGreaterThan(0)
       })
 
       it('THEN should NOT render the Parent ID row when trueUpParentFee is null', () => {
-        const ref = createRef<ViewFeeDetailsDrawerRef>()
-        render(<ViewFeeDetailsDrawer ref={ref} />)
+        const { result } = renderHookUnderTest()
 
-        ref.current?.openDrawer({
-          fee: buildFee({
+        result.current.open(
+          buildFee({
             trueUpParentFee: null,
             presentationBreakdowns: [{ presentationBy: { region: 'us' }, units: '10' }],
           } as unknown as Partial<FeeForViewFeeDetailsDrawerFragment>),
-        })
-        // The drawer body wraps itself in a <MemoryRouter>; use plain RTL
-        // render here so we don't end up with nested Routers.
+        )
         plainRender(<>{getBodyFromLastOpen()}</>)
 
         expect(screen.queryByText('parent-fee-1')).not.toBeInTheDocument()

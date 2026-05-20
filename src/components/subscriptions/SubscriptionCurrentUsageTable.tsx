@@ -16,7 +16,7 @@ import { NavigationTab, TabManagedBy } from '~/components/designSystem/Navigatio
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
-import { Typography } from '~/components/designSystem/Typography'
+import { Typography, TypographyColor } from '~/components/designSystem/Typography'
 import { findChargeUsageByBillableMetricId } from '~/components/subscriptions/utils'
 import { addToast, hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
@@ -290,11 +290,11 @@ const UsageSummaryPanel = ({
       locale,
     })
 
-  const renderValue = (value: string) =>
+  const renderValue = (value: string, textColor: TypographyColor = 'grey700') =>
     isLoading ? (
       <Skeleton variant="text" className="mt-1 w-36" />
     ) : (
-      <Typography variant="bodyHl" color="grey700" noWrap>
+      <Typography variant="bodyHl" color={textColor} noWrap>
         {value}
       </Typography>
     )
@@ -326,7 +326,7 @@ const UsageSummaryPanel = ({
             <Typography variant="captionHl" color="grey600" noWrap>
               {translate('text_17788413630339w2go4tbxga')}
             </Typography>
-            {renderValue(formatAmount(usageData?.projectedAmountCents))}
+            {renderValue(formatAmount(usageData?.projectedAmountCents), 'grey600')}
           </div>
         )}
       </div>
@@ -441,15 +441,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
         translate={translate}
         locale={locale}
         getFormattedDate={getFormattedDate}
-        // Re-uses whatever projectedAmountCents is already in `usageData`. That
-        // value is only populated when the Projected tab has been visited and
-        // the premium-gated `useProjectedUsageForSubscriptionUsageQuery` has
-        // run. We deliberately don't trigger an extra projected fetch from the
-        // Current tab — pending alignment with Anna on whether the projected
-        // value should always be loaded (separate API call + premium flag).
-        showProjectedColumn={
-          !!hasAccessToProjectedUsage && usageData?.projectedAmountCents !== undefined
-        }
+        showProjectedColumn={!!hasAccessToProjectedUsage}
       />
 
       <NavigationTab
@@ -703,8 +695,6 @@ export const SubscriptionCurrentUsageTable = ({
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const [activeTab, setActiveTab] = useState<number>(0)
 
-  const showProjected = activeTab === 1
-
   const hasAccessToProjectedUsage = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.ProjectedUsage,
   )
@@ -728,7 +718,12 @@ export const SubscriptionCurrentUsageTable = ({
 
   const subscription = subscriptionData?.subscription
 
-  const fetchProjected = hasAccessToProjectedUsage && showProjected
+  // When the user has premium access, always fetch the projected query so the
+  // summary panel can show the projected end-of-period value on the Current
+  // tab too. The projected query is a superset of the current one (it returns
+  // both `amountCents` and `projectedAmountCents`), so non-premium users
+  // continue to use the lighter current-only query.
+  const fetchProjected = hasAccessToProjectedUsage
 
   const queryParams = {
     context: {

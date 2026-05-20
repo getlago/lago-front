@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { tw } from 'lago-design-system'
 import { DateTime } from 'luxon'
-import { forwardRef, useImperativeHandle, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -86,13 +86,12 @@ gql`
   }
 `
 
-type ViewFeeDetailsDrawerProps = {
-  fee: FeeForViewFeeDetailsDrawerFragment
-}
-
-export interface ViewFeeDetailsDrawerRef {
-  openDrawer: (data: ViewFeeDetailsDrawerProps) => unknown
-  closeDrawer: () => unknown
+// Public surface of the `useViewFeeDetailsDrawer` hook. Consumers call
+// `open(fee)` to display the drawer; `close()` is exposed so a caller can
+// dismiss it programmatically (e.g. after a follow-up action).
+export type UseViewFeeDetailsDrawerReturn = {
+  open: (fee: FeeForViewFeeDetailsDrawerFragment) => void
+  close: () => void
 }
 
 // Spec'd format is `MMMM D, YYYY - HH:mm:ss UTC` (e.g. May 11, 2026 - 14:32:05 UTC).
@@ -315,6 +314,9 @@ const PresentationGroupKeyTable = ({ fee }: PresentationGroupKeyTableProps) => {
     return null
   }
 
+  const isMeaningful = (value: unknown): boolean =>
+    value !== null && value !== undefined && String(value).length > 0
+
   const firstPresentationBy = breakdowns.find((b) => !!b.presentationBy)?.presentationBy as
     | Record<string, unknown>
     | undefined
@@ -330,17 +332,25 @@ const PresentationGroupKeyTable = ({ fee }: PresentationGroupKeyTableProps) => {
     (columnKeys[1] ? ` ${translate('text_1778496527600i320tl9y47e')} ${columnKeys[1]}` : '')
 
   // The design-system Table requires each row to have a string `id`. Breakdowns
-  // from the API don't have one — synthesise a stable index-based id.
+  // from the API don't have one — synthesise a stable index-based id. Drop
+  // breakdowns whose `presentationBy` has no meaningful values so the user
+  // never sees a row of empty chips.
   type Row = {
     id: string
     presentationBy: Record<string, unknown>
     units: string
   }
-  const rows: Row[] = breakdowns.map((b, i) => ({
-    id: `breakdown-${i}`,
-    presentationBy: (b.presentationBy ?? {}) as Record<string, unknown>,
-    units: b.units,
-  }))
+  const rows: Row[] = breakdowns
+    .map((b, i) => ({
+      id: `breakdown-${i}`,
+      presentationBy: (b.presentationBy ?? {}) as Record<string, unknown>,
+      units: b.units,
+    }))
+    .filter((r) => Object.values(r.presentationBy).some(isMeaningful))
+
+  if (rows.length === 0) {
+    return null
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -363,9 +373,11 @@ const PresentationGroupKeyTable = ({ fee }: PresentationGroupKeyTableProps) => {
             ),
             content: ({ presentationBy }) => (
               <div className="flex gap-1">
-                {columnKeys.map((key) => (
-                  <Chip key={key} label={String(presentationBy?.[key] ?? '-')} />
-                ))}
+                {columnKeys
+                  .filter((key) => isMeaningful(presentationBy?.[key]))
+                  .map((key) => (
+                    <Chip key={key} label={String(presentationBy?.[key])} />
+                  ))}
               </div>
             ),
           },
@@ -427,30 +439,39 @@ const ViewFeeDetailsBody = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment }
   )
 }
 
-export const ViewFeeDetailsDrawer = forwardRef<ViewFeeDetailsDrawerRef>((_, ref) => {
+/**
+ * Hook to open the read-only fee-details drawer.
+ *
+ * Usage:
+ * ```tsx
+ * const viewFeeDetails = useViewFeeDetailsDrawer()
+ * <button onClick={() => viewFeeDetails.open(fee)}>View fee details</button>
+ * ```
+ *
+ * Follows the new drawer system (see `src/pages/__devOnly/tabs/DrawerTest.tsx`)
+ * — no `<ViewFeeDetailsDrawer ref={...} />` mount, no `useImperativeHandle`.
+ * Each consumer calls the hook directly; NiceModal handles the registry.
+ */
+export const useViewFeeDetailsDrawer = (): UseViewFeeDetailsDrawerReturn => {
   const { translate } = useInternationalization()
   const viewFeeDetailsDrawer = useDrawer()
 
-  const openViewFeeDetailsDrawer = (data: ViewFeeDetailsDrawerProps) => {
-    viewFeeDetailsDrawer.open({
-      title: translate('text_1778496527600pn3sn6m4ni0'),
-      children: <ViewFeeDetailsBody key={data.fee.id} fee={data.fee} />,
-      actions: (
-        <div className="flex items-center justify-end gap-3">
-          <Button onClick={() => viewFeeDetailsDrawer.close()}>
-            {translate('text_62f50d26c989ab03196884ae')}
-          </Button>
-        </div>
-      ),
-    })
-  }
+  const open = useCallback(
+    (fee: FeeForViewFeeDetailsDrawerFragment) => {
+      viewFeeDetailsDrawer.open({
+        title: translate('text_1778496527600pn3sn6m4ni0'),
+        children: <ViewFeeDetailsBody key={fee.id} fee={fee} />,
+        actions: (
+          <div className="flex items-center justify-end gap-3">
+            <Button onClick={() => viewFeeDetailsDrawer.close()}>
+              {translate('text_62f50d26c989ab03196884ae')}
+            </Button>
+          </div>
+        ),
+      })
+    },
+    [translate, viewFeeDetailsDrawer],
+  )
 
-  useImperativeHandle(ref, () => ({
-    openDrawer: openViewFeeDetailsDrawer,
-    closeDrawer: () => viewFeeDetailsDrawer.close(),
-  }))
-
-  return null
-})
-
-ViewFeeDetailsDrawer.displayName = 'ViewFeeDetailsDrawer'
+  return { open, close: viewFeeDetailsDrawer.close }
+}

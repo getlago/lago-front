@@ -312,6 +312,31 @@ export function validateChargeProperties(
 
   // Validate presentationGroupKeys for all charge models
   if (props.presentationGroupKeys) {
+    // Pre-compute trimmed values so we can flag duplicates with a single pass
+    // below. Empty rows fall through and get the "value is required" error
+    // they'd already get, rather than a misleading duplicate error.
+    const trimmedValues = props.presentationGroupKeys.map((g) => (g.value ?? '').trim())
+    const seen = new Map<string, number>()
+    const duplicateIndices = new Set<number>()
+
+    for (let i = 0; i < trimmedValues.length; i++) {
+      const v = trimmedValues[i]
+
+      if (!v) continue
+
+      const firstIndex = seen.get(v)
+
+      if (firstIndex !== undefined) {
+        // Mark BOTH the first occurrence and the current one — the user
+        // should be able to fix either side, so highlighting both rows
+        // reads better than silently blaming the second.
+        duplicateIndices.add(firstIndex)
+        duplicateIndices.add(i)
+      } else {
+        seen.set(v, i)
+      }
+    }
+
     for (let i = 0; i < props.presentationGroupKeys.length; i++) {
       const group = props.presentationGroupKeys[i]
 
@@ -319,6 +344,12 @@ export function validateChargeProperties(
         ctx.addIssue({
           code: 'custom',
           message: 'text_1777466316764zx64sbfshro',
+          path: [...pathPrefix, 'presentationGroupKeys', String(i), 'value'],
+        })
+      } else if (duplicateIndices.has(i)) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'text_17791906642738j2tip131uw',
           path: [...pathPrefix, 'presentationGroupKeys', String(i), 'value'],
         })
       }

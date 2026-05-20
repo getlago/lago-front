@@ -1,6 +1,5 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createRef } from 'react'
 
 import { DeleteAdjustedFeeDialogRef } from '~/components/invoices/details/DeleteAdjustedFeeDialog'
 import { EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
@@ -10,7 +9,6 @@ import {
   FEE_ACTIONS_CELL_TEST_ID,
   FEE_ROW_TEST_ID_PREFIX,
 } from '~/components/invoices/details/invoiceDetailsTestIds'
-import { ViewFeeDetailsDrawerRef } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import {
   ChargeModelEnum,
   CurrencyEnum,
@@ -27,6 +25,18 @@ import { render } from '~/test-utils'
 // covered by FeeActionsCell.test.tsx in isolation. This integration suite focuses
 // on row-level wiring: data-test ids, the action cell being rendered on every
 // row, and the row click handler invoking the drawer with the correct fee.
+
+// The drawer is now opened via a hook called inside BodyLine/FeeActionsCell.
+// Stub the hook so we can spy on `open(fee)` without booting NiceModal.
+const mockHookOpen = jest.fn()
+const mockHookClose = jest.fn()
+
+jest.mock('~/components/invoices/details/ViewFeeDetailsDrawer', () => ({
+  useViewFeeDetailsDrawer: () => ({
+    open: mockHookOpen,
+    close: mockHookClose,
+  }),
+}))
 
 const buildFinalizedInvoice = (): InvoiceForDetailsTableFragment =>
   ({
@@ -87,16 +97,12 @@ const buildFinalizedInvoice = (): InvoiceForDetailsTableFragment =>
     ],
   }) as unknown as InvoiceForDetailsTableFragment
 
-const renderTable = (
-  invoice: InvoiceForDetailsTableFragment,
-  viewFeeDetailsDrawerRef: React.RefObject<ViewFeeDetailsDrawerRef>,
-) =>
+const renderTable = (invoice: InvoiceForDetailsTableFragment) =>
   render(
     <InvoiceDetailsTable
       customer={{ id: 'customer-1', applicableTimezone: TimezoneEnum.TzAmericaNewYork }}
       invoice={invoice}
       editFeeDrawerRef={{ current: null } as unknown as React.RefObject<EditFeeDrawerRef>}
-      viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef}
       deleteAdjustedFeeDialogRef={
         { current: null } as unknown as React.RefObject<DeleteAdjustedFeeDialogRef>
       }
@@ -112,15 +118,13 @@ describe('InvoiceDetailsTableBodyLine — clickable rows + action menu', () => {
   describe('GIVEN a finalized invoice with a fee', () => {
     describe('WHEN the table renders', () => {
       it('THEN should render the fee row with a deterministic data-test id', () => {
-        const ref = createRef<ViewFeeDetailsDrawerRef>()
-        renderTable(buildFinalizedInvoice(), ref)
+        renderTable(buildFinalizedInvoice())
 
         expect(screen.getByTestId(`${FEE_ROW_TEST_ID_PREFIX}-fee-charge-1`)).toBeInTheDocument()
       })
 
       it('THEN should render the 3-dots actions cell on the fee row', () => {
-        const ref = createRef<ViewFeeDetailsDrawerRef>()
-        renderTable(buildFinalizedInvoice(), ref)
+        renderTable(buildFinalizedInvoice())
 
         expect(screen.getAllByTestId(FEE_ACTIONS_CELL_TEST_ID).length).toBeGreaterThan(0)
         expect(screen.getAllByTestId(FEE_ACTIONS_BUTTON_TEST_ID).length).toBeGreaterThan(0)
@@ -130,26 +134,19 @@ describe('InvoiceDetailsTableBodyLine — clickable rows + action menu', () => {
     describe('WHEN user clicks the fee row', () => {
       it('THEN should open the view-fee-details drawer with the row fee', async () => {
         const user = userEvent.setup()
-        const openDrawer = jest.fn()
-        const ref = {
-          current: { openDrawer, closeDrawer: jest.fn() },
-        } as unknown as React.RefObject<ViewFeeDetailsDrawerRef>
 
-        renderTable(buildFinalizedInvoice(), ref)
+        renderTable(buildFinalizedInvoice())
 
         await user.click(screen.getByTestId(`${FEE_ROW_TEST_ID_PREFIX}-fee-charge-1`))
 
-        expect(openDrawer).toHaveBeenCalledTimes(1)
-        expect(openDrawer).toHaveBeenCalledWith(
-          expect.objectContaining({ fee: expect.objectContaining({ id: 'fee-charge-1' }) }),
-        )
+        expect(mockHookOpen).toHaveBeenCalledTimes(1)
+        expect(mockHookOpen).toHaveBeenCalledWith(expect.objectContaining({ id: 'fee-charge-1' }))
       })
     })
 
     describe('WHEN multiple rows render (fee + subtotal + pricing-unit subtotal)', () => {
       it('THEN each row should have its own 3-dots actions cell', () => {
-        const ref = createRef<ViewFeeDetailsDrawerRef>()
-        renderTable(buildFinalizedInvoice(), ref)
+        renderTable(buildFinalizedInvoice())
 
         // One per fee row at minimum. Each FeeActionsCell renders the dots
         // button so menu/copy actions are reachable on every row.

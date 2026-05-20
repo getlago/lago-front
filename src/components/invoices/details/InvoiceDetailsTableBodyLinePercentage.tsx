@@ -1,15 +1,15 @@
 import { gql } from '@apollo/client'
 import { tw } from 'lago-design-system'
-import { memo, RefObject } from 'react'
+import { memo } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
-import { ViewFeeDetailsDrawerRef } from '~/components/invoices/details/ViewFeeDetailsDrawer'
+import { useViewFeeDetailsDrawer } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import { FeeMetadata } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, FeeForInvoiceDetailsTableBodyLineFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { FeeActionsCell, openViewFeeDetailsDrawer } from './FeeActionsCell'
+import { FeeActionsCell } from './FeeActionsCell'
 
 gql`
   fragment FeeForInvoiceDetailsTableBodyLinePercentage on Fee {
@@ -42,16 +42,10 @@ type InvoiceDetailsTableBodyLinePercentageProps = {
   currency: CurrencyEnum
   fee: (FeeForInvoiceDetailsTableBodyLineFragment & { metadata: FeeMetadata }) | undefined
   hideVat?: boolean
-  viewFeeDetailsDrawerRef?: RefObject<ViewFeeDetailsDrawerRef>
 }
 
 export const InvoiceDetailsTableBodyLinePercentage = memo(
-  ({
-    currency,
-    fee,
-    hideVat,
-    viewFeeDetailsDrawerRef,
-  }: InvoiceDetailsTableBodyLinePercentageProps) => {
+  ({ currency, fee, hideVat }: InvoiceDetailsTableBodyLinePercentageProps) => {
     const { translate } = useInternationalization()
     const {
       freeEvents,
@@ -65,7 +59,10 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
       minMaxAdjustmentTotalAmount,
     } = fee?.amountDetails || {}
 
-    const handleRowClick = () => openViewFeeDetailsDrawer(fee, viewFeeDetailsDrawerRef)
+    const viewFeeDetails = useViewFeeDetailsDrawer()
+    const handleRowClick = () => {
+      if (fee) viewFeeDetails.open(fee)
+    }
     const rowClickableClass = fee ? 'cursor-pointer hover:bg-grey-100' : undefined
 
     return (
@@ -128,7 +125,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
                 })}
               </Typography>
             </td>
-            <FeeActionsCell fee={fee} viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef} />
+            <FeeActionsCell fee={fee} />
           </tr>
         )}
 
@@ -179,7 +176,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
               })}
             </Typography>
           </td>
-          <FeeActionsCell fee={fee} viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef} />
+          <FeeActionsCell fee={fee} />
         </tr>
 
         {(Number(fixedFeeUnitAmount || 0) > 0 || Number(fixedFeeTotalAmount || 0) > 0) && (
@@ -234,7 +231,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
                 })}
               </Typography>
             </td>
-            <FeeActionsCell fee={fee} viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef} />
+            <FeeActionsCell fee={fee} />
           </tr>
         )}
 
@@ -290,7 +287,7 @@ export const InvoiceDetailsTableBodyLinePercentage = memo(
                 })}
               </Typography>
             </td>
-            <FeeActionsCell fee={fee} viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef} />
+            <FeeActionsCell fee={fee} />
           </tr>
         )}
       </>

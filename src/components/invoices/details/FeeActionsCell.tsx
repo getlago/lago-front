@@ -1,9 +1,7 @@
-import { RefObject } from 'react'
-
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
-import { ViewFeeDetailsDrawerRef } from '~/components/invoices/details/ViewFeeDetailsDrawer'
+import { useViewFeeDetailsDrawer } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { FeeForViewFeeDetailsDrawerFragment } from '~/generated/graphql'
@@ -19,25 +17,15 @@ import {
 
 type Fee = FeeForViewFeeDetailsDrawerFragment | null | undefined
 
-export const openViewFeeDetailsDrawer = (
-  fee: Fee,
-  ref: RefObject<ViewFeeDetailsDrawerRef> | undefined,
-): void => {
-  if (fee) {
-    ref?.current?.openDrawer({ fee })
-  }
-}
-
 export const ViewFeeDetailsButton = ({
   fee,
-  viewFeeDetailsDrawerRef,
   closePopper,
 }: {
   fee: Fee
-  viewFeeDetailsDrawerRef: RefObject<ViewFeeDetailsDrawerRef> | undefined
   closePopper: () => void
 }) => {
   const { translate } = useInternationalization()
+  const viewFeeDetails = useViewFeeDetailsDrawer()
 
   return (
     <Button
@@ -46,7 +34,9 @@ export const ViewFeeDetailsButton = ({
       align="left"
       data-test={FEE_VIEW_DETAILS_BUTTON_TEST_ID}
       onClick={() => {
-        openViewFeeDetailsDrawer(fee, viewFeeDetailsDrawerRef)
+        if (fee) {
+          viewFeeDetails.open(fee)
+        }
         closePopper()
       }}
     >
@@ -82,10 +72,9 @@ export const CopyFeeIdButton = ({ fee, closePopper }: { fee: Fee; closePopper: (
 
 type FeeActionsCellProps = {
   fee: Fee
-  viewFeeDetailsDrawerRef?: RefObject<ViewFeeDetailsDrawerRef>
 }
 
-export const FeeActionsCell = ({ fee, viewFeeDetailsDrawerRef }: FeeActionsCellProps) => {
+export const FeeActionsCell = ({ fee }: FeeActionsCellProps) => {
   const { translate } = useInternationalization()
 
   return (
@@ -112,11 +101,7 @@ export const FeeActionsCell = ({ fee, viewFeeDetailsDrawerRef }: FeeActionsCellP
         {({ closePopper }) => (
           <MenuPopper>
             <CopyFeeIdButton fee={fee} closePopper={closePopper} />
-            <ViewFeeDetailsButton
-              fee={fee}
-              viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef}
-              closePopper={closePopper}
-            />
+            <ViewFeeDetailsButton fee={fee} closePopper={closePopper} />
           </MenuPopper>
         )}
       </Popper>

@@ -8,7 +8,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { ViewFeeDetailsDrawerRef } from '~/components/invoices/details/ViewFeeDetailsDrawer'
+import { useViewFeeDetailsDrawer } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import { FeeMetadata } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -35,12 +35,7 @@ import { MenuPopper, PopperOpener } from '~/styles'
 
 import { DeleteAdjustedFeeDialogRef } from './DeleteAdjustedFeeDialog'
 import { EditFeeDrawerRef } from './EditFeeDrawer'
-import {
-  CopyFeeIdButton,
-  FeeActionsCell,
-  openViewFeeDetailsDrawer,
-  ViewFeeDetailsButton,
-} from './FeeActionsCell'
+import { CopyFeeIdButton, FeeActionsCell, ViewFeeDetailsButton } from './FeeActionsCell'
 import { InvoiceDetailsTableBodyLineGraduated } from './InvoiceDetailsTableBodyLineGraduated'
 import { InvoiceDetailsTableBodyLineGraduatedPercentage } from './InvoiceDetailsTableBodyLineGraduatedPercentage'
 import { InvoiceDetailsTableBodyLinePackage } from './InvoiceDetailsTableBodyLinePackage'
@@ -132,7 +127,6 @@ type InvoiceDetailsTableBodyLineBaseProps = {
   hideVat?: boolean
   displayFeeBoundaries?: boolean
   editFeeDrawerRef?: RefObject<EditFeeDrawerRef>
-  viewFeeDetailsDrawerRef?: RefObject<ViewFeeDetailsDrawerRef>
   deleteAdjustedFeeDialogRef?: RefObject<DeleteAdjustedFeeDialogRef>
   succeededDate?: string
   hasTaxProviderError?: boolean
@@ -232,7 +226,6 @@ export const InvoiceDetailsTableBodyLine = memo(
     deleteAdjustedFeeDialogRef,
     displayName,
     editFeeDrawerRef,
-    viewFeeDetailsDrawerRef,
     fee,
     hideVat,
     isDraftInvoice,
@@ -246,6 +239,7 @@ export const InvoiceDetailsTableBodyLine = memo(
   }: InvoiceDetailsTableBodyLineProps) => {
     const { invoiceId = '' } = useParams()
     const { translate } = useInternationalization()
+    const viewFeeDetails = useViewFeeDetailsDrawer()
     const chargeModel = fee?.charge?.chargeModel
     const isTrueUpFee = !!fee?.metadata?.isTrueUpFee
     const isCommitmentFee = !!fee?.metadata?.isCommitmentFee
@@ -303,11 +297,11 @@ export const InvoiceDetailsTableBodyLine = memo(
       return '0%'
     }, [fee, hasTaxProviderError])
 
-    const FeeActions = () => (
-      <FeeActionsCell fee={fee} viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef} />
-    )
+    const FeeActions = () => <FeeActionsCell fee={fee} />
 
-    const handleRowClick = () => openViewFeeDetailsDrawer(fee, viewFeeDetailsDrawerRef)
+    const handleRowClick = () => {
+      if (fee) viewFeeDetails.open(fee)
+    }
     const rowClickableClass = fee ? 'cursor-pointer hover:bg-grey-100' : undefined
 
     return (
@@ -471,11 +465,7 @@ export const InvoiceDetailsTableBodyLine = memo(
                       </Button>
 
                       <CopyFeeIdButton fee={fee} closePopper={closePopper} />
-                      <ViewFeeDetailsButton
-                        fee={fee}
-                        viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef}
-                        closePopper={closePopper}
-                      />
+                      <ViewFeeDetailsButton fee={fee} closePopper={closePopper} />
                     </MenuPopper>
                   )}
                 </Popper>
@@ -493,7 +483,6 @@ export const InvoiceDetailsTableBodyLine = memo(
                 currency={currency}
                 fee={fee}
                 hideVat={hideVat}
-                viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef}
               />
             )}
             {chargeModel === ChargeModelEnum.GraduatedPercentage && (
@@ -501,31 +490,19 @@ export const InvoiceDetailsTableBodyLine = memo(
                 currency={currency}
                 fee={fee}
                 hideVat={hideVat}
-                viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef}
               />
             )}
             {chargeModel === ChargeModelEnum.Volume && (
-              <InvoiceDetailsTableBodyLineVolume
-                currency={currency}
-                fee={fee}
-                hideVat={hideVat}
-                viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef}
-              />
+              <InvoiceDetailsTableBodyLineVolume currency={currency} fee={fee} hideVat={hideVat} />
             )}
             {chargeModel === ChargeModelEnum.Package && (
-              <InvoiceDetailsTableBodyLinePackage
-                currency={currency}
-                fee={fee}
-                hideVat={hideVat}
-                viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef}
-              />
+              <InvoiceDetailsTableBodyLinePackage currency={currency} fee={fee} hideVat={hideVat} />
             )}
             {chargeModel === ChargeModelEnum.Percentage && (
               <InvoiceDetailsTableBodyLinePercentage
                 currency={currency}
                 fee={fee}
                 hideVat={hideVat}
-                viewFeeDetailsDrawerRef={viewFeeDetailsDrawerRef}
               />
             )}
             <tr

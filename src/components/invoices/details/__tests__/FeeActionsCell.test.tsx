@@ -1,18 +1,13 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { RefObject } from 'react'
 
-import {
-  FeeActionsCell,
-  openViewFeeDetailsDrawer,
-} from '~/components/invoices/details/FeeActionsCell'
+import { FeeActionsCell } from '~/components/invoices/details/FeeActionsCell'
 import {
   FEE_ACTIONS_BUTTON_TEST_ID,
   FEE_ACTIONS_CELL_TEST_ID,
   FEE_COPY_ID_BUTTON_TEST_ID,
   FEE_VIEW_DETAILS_BUTTON_TEST_ID,
 } from '~/components/invoices/details/invoiceDetailsTestIds'
-import { ViewFeeDetailsDrawerRef } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { FeeForViewFeeDetailsDrawerFragment } from '~/generated/graphql'
@@ -25,6 +20,18 @@ jest.mock('~/core/apolloClient', () => ({
 
 jest.mock('~/core/utils/copyToClipboard', () => ({
   copyToClipboard: jest.fn(),
+}))
+
+// The drawer hook pulls in Vite-only modules through `drawerStack`. Stub it
+// at the closest seam so we can assert on `open(fee)` without booting NiceModal.
+const mockHookOpen = jest.fn()
+const mockHookClose = jest.fn()
+
+jest.mock('~/components/invoices/details/ViewFeeDetailsDrawer', () => ({
+  useViewFeeDetailsDrawer: () => ({
+    open: mockHookOpen,
+    close: mockHookClose,
+  }),
 }))
 
 const baseFee = {
@@ -76,6 +83,7 @@ describe('FeeActionsCell', () => {
         ['View fee details', FEE_VIEW_DETAILS_BUTTON_TEST_ID],
       ])('THEN should display the %s action', async (_, testId) => {
         const user = userEvent.setup()
+
         renderInTable(<FeeActionsCell fee={baseFee} />)
 
         await user.click(screen.getByTestId(FEE_ACTIONS_BUTTON_TEST_ID))
@@ -87,6 +95,7 @@ describe('FeeActionsCell', () => {
     describe('WHEN user clicks Copy fee ID', () => {
       it('THEN should copy the fee id to the clipboard', async () => {
         const user = userEvent.setup()
+
         renderInTable(<FeeActionsCell fee={baseFee} />)
 
         await user.click(screen.getByTestId(FEE_ACTIONS_BUTTON_TEST_ID))
@@ -97,6 +106,7 @@ describe('FeeActionsCell', () => {
 
       it('THEN should fire an info toast', async () => {
         const user = userEvent.setup()
+
         renderInTable(<FeeActionsCell fee={baseFee} />)
 
         await user.click(screen.getByTestId(FEE_ACTIONS_BUTTON_TEST_ID))
@@ -107,32 +117,28 @@ describe('FeeActionsCell', () => {
     })
 
     describe('WHEN user clicks View fee details', () => {
-      it('THEN should open the drawer via the provided ref', async () => {
+      it('THEN should open the drawer via the hook with the fee', async () => {
         const user = userEvent.setup()
-        const openDrawer = jest.fn()
-        const ref = {
-          current: { openDrawer, closeDrawer: jest.fn() },
-        } as unknown as RefObject<ViewFeeDetailsDrawerRef>
 
-        renderInTable(<FeeActionsCell fee={baseFee} viewFeeDetailsDrawerRef={ref} />)
+        renderInTable(<FeeActionsCell fee={baseFee} />)
 
         await user.click(screen.getByTestId(FEE_ACTIONS_BUTTON_TEST_ID))
         await user.click(await screen.findByTestId(FEE_VIEW_DETAILS_BUTTON_TEST_ID))
 
         await waitFor(() => {
-          expect(openDrawer).toHaveBeenCalledWith({ fee: baseFee })
+          expect(mockHookOpen).toHaveBeenCalledWith(baseFee)
         })
       })
 
-      it('THEN should NOT throw when no drawer ref is provided', async () => {
+      it('THEN should NOT call open when fee is null', async () => {
         const user = userEvent.setup()
-        renderInTable(<FeeActionsCell fee={baseFee} />)
+
+        renderInTable(<FeeActionsCell fee={null} />)
 
         await user.click(screen.getByTestId(FEE_ACTIONS_BUTTON_TEST_ID))
+        await user.click(await screen.findByTestId(FEE_VIEW_DETAILS_BUTTON_TEST_ID))
 
-        await expect(
-          user.click(await screen.findByTestId(FEE_VIEW_DETAILS_BUTTON_TEST_ID)),
-        ).resolves.not.toThrow()
+        expect(mockHookOpen).not.toHaveBeenCalled()
       })
     })
 
@@ -155,48 +161,6 @@ describe('FeeActionsCell', () => {
 
         expect(rowClick).not.toHaveBeenCalled()
       })
-    })
-  })
-})
-
-describe('openViewFeeDetailsDrawer', () => {
-  describe('GIVEN a valid fee and ref', () => {
-    it('WHEN called THEN should invoke ref.current.openDrawer with the fee', () => {
-      const openDrawer = jest.fn()
-      const ref = {
-        current: { openDrawer, closeDrawer: jest.fn() },
-      } as unknown as RefObject<ViewFeeDetailsDrawerRef>
-
-      openViewFeeDetailsDrawer(baseFee, ref)
-
-      expect(openDrawer).toHaveBeenCalledWith({ fee: baseFee })
-    })
-  })
-
-  describe('GIVEN a null fee', () => {
-    it('WHEN called THEN should NOT invoke openDrawer', () => {
-      const openDrawer = jest.fn()
-      const ref = {
-        current: { openDrawer, closeDrawer: jest.fn() },
-      } as unknown as RefObject<ViewFeeDetailsDrawerRef>
-
-      openViewFeeDetailsDrawer(null, ref)
-
-      expect(openDrawer).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('GIVEN a null ref', () => {
-    it('WHEN called THEN should NOT throw', () => {
-      expect(() => openViewFeeDetailsDrawer(baseFee, undefined)).not.toThrow()
-    })
-  })
-
-  describe('GIVEN a ref with null current', () => {
-    it('WHEN called THEN should NOT throw', () => {
-      const ref = { current: null } as RefObject<ViewFeeDetailsDrawerRef>
-
-      expect(() => openViewFeeDetailsDrawer(baseFee, ref)).not.toThrow()
     })
   })
 })

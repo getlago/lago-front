@@ -63,8 +63,12 @@ export const ChargeWrapperSwitch = memo(
           )}
           {localCharge?.chargeModel === ALL_CHARGE_MODELS.Dynamic && <DynamicCharge />}
 
-          {isUsageCharge && <PricingGroupKeys />}
-          {isUsageCharge && <PresentationGroupKeys />}
+          {isUsageCharge && (
+            <>
+              <PricingGroupKeys />
+              <PresentationGroupKeys />
+            </>
+          )}
         </div>
       </ChargeFormProvider>
     )
