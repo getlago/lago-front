@@ -57,6 +57,7 @@ const WALLET_DEFAULT_PRIORITY = 50
 gql`
   fragment WalletForUpdate on Wallet {
     id
+    billingEntityId
     currency
     expirationAt
     name
@@ -261,7 +262,8 @@ const CreateWallet = () => {
   const formikProps = useFormik<TWalletDataForm>({
     initialValues: {
       currency,
-      billingEntityId: customerData?.customer?.billingEntity?.id || undefined,
+      billingEntityId:
+        wallet?.billingEntityId || customerData?.customer?.billingEntity?.id || undefined,
       expirationAt: wallet?.expirationAt || undefined,
       grantedCredits: '',
       name: wallet?.name || '',
@@ -377,6 +379,7 @@ const CreateWallet = () => {
           ...values,
           recurringTransactionRules: recurringTransactionRulesFormatted,
           id: walletId,
+          billingEntityId: billingEntityId || undefined,
           appliesTo: formattedAppliesTo,
           paymentMethod,
           invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
@@ -492,13 +495,11 @@ const CreateWallet = () => {
               description={translate('text_1748422458559917eelhobh5')}
             />
 
-            {formType !== FORM_TYPE_ENUM.edition && (
-              <BillingEntityFormPicker
-                label={translate('text_1743611497157teaa1zu8l24')}
-                value={formikProps.values.billingEntityId}
-                onChange={(id) => formikProps.setFieldValue('billingEntityId', id)}
-              />
-            )}
+            <BillingEntityFormPicker
+              label={translate('text_1743611497157teaa1zu8l24')}
+              value={formikProps.values.billingEntityId}
+              onChange={(id) => formikProps.setFieldValue('billingEntityId', id)}
+            />
 
             <SettingsSection
               formikProps={formikProps}
