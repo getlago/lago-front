@@ -1,9 +1,19 @@
-import { cleanup, screen } from '@testing-library/react'
+import NiceModal from '@ebay/nice-modal-react'
+import { cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { ReactNode } from 'react'
 
+import { PREMIUM_WARNING_DIALOG_NAME } from '~/components/dialogs/const'
+import PremiumWarningDialog from '~/components/dialogs/PremiumWarningDialog'
 import { render } from '~/test-utils'
 
 import PremiumFeature from '../PremiumFeature'
+
+NiceModal.register(PREMIUM_WARNING_DIALOG_NAME, PremiumWarningDialog)
+
+const NiceModalWrapper = ({ children }: { children: ReactNode }) => (
+  <NiceModal.Provider>{children}</NiceModal.Provider>
+)
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -76,14 +86,20 @@ describe('PremiumFeature', () => {
     it('opens premium warning dialog when button is clicked', async () => {
       const user = userEvent.setup()
 
-      render(<PremiumFeature {...DEFAULT_PROPS} />)
+      render(
+        <NiceModalWrapper>
+          <PremiumFeature {...DEFAULT_PROPS} />
+        </NiceModalWrapper>,
+      )
 
       const button = screen.getByRole('button')
 
       await user.click(button)
 
       // Dialog should be opened - check for dialog content
-      expect(screen.getByRole('dialog')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument()
+      })
     })
   })
 
