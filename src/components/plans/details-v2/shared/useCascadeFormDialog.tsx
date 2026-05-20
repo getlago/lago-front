@@ -2,11 +2,28 @@ import { revalidateLogic } from '@tanstack/react-form'
 import { ReactNode } from 'react'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'
-import { useAppForm } from '~/hooks/forms/useAppform'
-
-import { CascadeUpdatesField, cascadeUpdatesFieldDefaultValues } from './CascadeUpdatesField'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 
 const CASCADE_FORM_ID = 'cascade-updates-form'
+
+const CascadeUpdatesField = withForm({
+  defaultValues: { cascadeUpdates: true },
+  render: function Render({ form }) {
+    const { translate } = useInternationalization()
+
+    return (
+      <form.AppField name="cascadeUpdates">
+        {(field) => (
+          <field.SwitchField
+            label={translate('text_1779289915866s3gisblcite')}
+            subLabel={translate('text_1779289915866itrqeyj7658')}
+          />
+        )}
+      </form.AppField>
+    )
+  },
+})
 
 type OpenCascadeDialogInput = {
   title: ReactNode
@@ -25,7 +42,7 @@ export const useCascadeFormDialog = () => {
   const formDialog = useFormDialog()
 
   const form = useAppForm({
-    defaultValues: cascadeUpdatesFieldDefaultValues,
+    defaultValues: { cascadeUpdates: true },
     validationLogic: revalidateLogic(),
     onSubmitMeta: {} as SubmitMeta,
     onSubmit: async ({ value, meta }) => {

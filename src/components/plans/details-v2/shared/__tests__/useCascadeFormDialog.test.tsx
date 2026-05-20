@@ -83,6 +83,10 @@ describe('useCascadeFormDialog', () => {
 
     await waitFor(() => expect(screen.getByText('cascade-title')).toBeInTheDocument())
 
+    // CascadeUpdatesField renders the toggle label + sub-label from translation keys
+    expect(screen.getByText('text_1779289915866s3gisblcite')).toBeInTheDocument()
+    expect(screen.getByText('text_1779289915866itrqeyj7658')).toBeInTheDocument()
+
     await act(async () => {
       await userEvent.click(screen.getByRole('button', { name: /save-edits/i }))
     })
