@@ -41,7 +41,10 @@ gql`
     currency
     hasCreditNotes
     creditNotesCreditsAvailableCount
-    creditNotesBalanceAmountCents
+    creditNotesBalances {
+      currency
+      amountCents
+    }
     applicableTimezone
     hasOverdueInvoices
     accountType

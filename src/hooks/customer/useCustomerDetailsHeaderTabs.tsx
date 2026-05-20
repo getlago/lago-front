@@ -41,7 +41,7 @@ export function useCustomerDetailsHeaderTabs({
 
   const {
     creditNotesCreditsAvailableCount,
-    creditNotesBalanceAmountCents,
+    creditNotesBalances,
     externalId,
     hasCreditNotes,
     applicableTimezone: safeTimezone,
@@ -135,7 +135,7 @@ export function useCustomerDetailsHeaderTabs({
         <CustomerCreditNotesList
           customerId={customerId}
           creditNotesCreditsAvailableCount={creditNotesCreditsAvailableCount}
-          creditNotesBalanceAmountCents={creditNotesBalanceAmountCents}
+          creditNotesBalances={creditNotesBalances}
           userCurrency={customer?.currency || undefined}
           customerTimezone={safeTimezone}
         />
