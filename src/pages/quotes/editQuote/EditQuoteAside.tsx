@@ -3,7 +3,7 @@ import { debounce } from 'lodash'
 import { useEffect, useMemo, useRef } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
-import { CurrencyEnum, type QuoteDetailItemFragment } from '~/generated/graphql'
+import { type CurrencyEnum, type QuoteDetailItemFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useUpdateQuote } from '~/pages/quotes/hooks/useUpdateQuote'
@@ -25,12 +25,16 @@ export const EDIT_QUOTE_ASIDE_PAYMENT_TERM_TEST_ID = 'edit-quote-aside-payment-t
 
 interface EditQuoteAsideProps {
   quote: QuoteDetailItemFragment | null | undefined
+  onSaveStart?: () => void
+  onSaveFinished?: () => void
 }
 
-const EditQuoteAside = ({ quote }: EditQuoteAsideProps) => {
+const EditQuoteAside = ({ quote, onSaveStart, onSaveFinished }: EditQuoteAsideProps) => {
   if (!quote) return null
 
-  return <EditQuoteAsideForm quote={quote} />
+  return (
+    <EditQuoteAsideForm quote={quote} onSaveStart={onSaveStart} onSaveFinished={onSaveFinished} />
+  )
 }
 
 const formatNetPaymentTerm = (
@@ -43,11 +47,18 @@ const formatNetPaymentTerm = (
   return translate('text_64c7a89b6c67eb6c9889815f', { days: netPaymentTerm }, netPaymentTerm)
 }
 
-const EditQuoteAsideForm = ({ quote }: { quote: QuoteDetailItemFragment }) => {
+const EditQuoteAsideForm = ({
+  quote,
+  onSaveStart,
+  onSaveFinished,
+}: {
+  quote: QuoteDetailItemFragment
+  onSaveStart?: () => void
+  onSaveFinished?: () => void
+}) => {
   const { translate } = useInternationalization()
-  const { updateQuoteVersion } = useUpdateQuote()
+  const { updateQuoteVersion } = useUpdateQuote({ onUpdateFinished: onSaveFinished })
 
-  const hasCustomerCurrency = !!quote.customer.currency
   const hasSubscription = !!quote.subscription
   const versionId = quote.currentVersion.id
 
@@ -74,18 +85,6 @@ const EditQuoteAsideForm = ({ quote }: { quote: QuoteDetailItemFragment }) => {
     }
   }
 
-  const currencyOptions = useMemo(() => {
-    if (!quote.customer.currency)
-      return Object.values(CurrencyEnum).map((currencyType) => ({
-        value: currencyType,
-      }))
-    return [
-      {
-        value: quote.customer.currency,
-      },
-    ]
-  }, [quote.customer.currency])
-
   const form = useAppForm({
     defaultValues: getDefaultValues(),
     validationLogic: revalidateLogic({ mode: 'change' }),
@@ -95,42 +94,48 @@ const EditQuoteAsideForm = ({ quote }: { quote: QuoteDetailItemFragment }) => {
   })
 
   // Auto-save billing items on date changes
-  const hasInitializedRef = useRef(false)
-  // Allow the use of updateQuoteVErsion in a memo without using eslint-disable-next-line
+  const initialBillingValuesRef = useRef({
+    startDate: getDefaultValues().startDate,
+    endDate: getDefaultValues().endDate,
+  })
+  // Allow the use of updateQuoteVersion in a memo without using eslint-disable-next-line
   const updateQuoteVersionRef = useRef(updateQuoteVersion)
+  const onSaveStartRef = useRef(onSaveStart)
 
   updateQuoteVersionRef.current = updateQuoteVersion
+  onSaveStartRef.current = onSaveStart
 
   const debouncedSaveBillingItems = useMemo(
     () =>
-      debounce((startDate?: string, endDate?: string, currency?: CurrencyEnum) => {
+      debounce((startDate?: string, endDate?: string) => {
         if (!versionId) return
 
         updateQuoteVersionRef.current(
           {
             id: versionId,
-            billingItems: { startDate, endDate, currency },
+            billingItems: { startDate, endDate },
           },
           false,
         )
+        initialBillingValuesRef.current = { startDate, endDate }
       }, AUTO_SAVE_DELAY_MS),
     [versionId],
   )
 
   const startDate = useStore(form.store, (state) => state.values.startDate)
   const endDate = useStore(form.store, (state) => state.values.endDate)
-  const currency = useStore(form.store, (state) => state.values.currency)
   const canSubmit = useStore(form.store, (state) => state.canSubmit)
 
   useEffect(() => {
-    if (!hasInitializedRef.current) {
-      hasInitializedRef.current = true
-      return
-    }
     if (!canSubmit) return
 
-    debouncedSaveBillingItems(startDate, endDate, currency)
-  }, [startDate, endDate, currency, canSubmit, debouncedSaveBillingItems])
+    const initial = initialBillingValuesRef.current
+
+    if (startDate === initial.startDate && endDate === initial.endDate) return
+
+    onSaveStartRef.current?.()
+    debouncedSaveBillingItems(startDate, endDate)
+  }, [startDate, endDate, canSubmit, debouncedSaveBillingItems])
 
   const gridClassName = 'grid grid-cols-[7.5rem_1fr] items-center gap-0 gap-y-2'
 
@@ -206,9 +211,14 @@ const EditQuoteAsideForm = ({ quote }: { quote: QuoteDetailItemFragment }) => {
           <form.AppField name="currency">
             {(field) => (
               <field.ComboBoxField
-                disabled={hasCustomerCurrency}
+                disabled
                 disableClearable
-                data={currencyOptions}
+                data={[
+                  ...(quote.customer.currency ? [{ value: quote.customer.currency }] : []),
+                  ...(billingItems?.currency && !quote.customer.currency
+                    ? [{ value: billingItems.currency }]
+                    : []),
+                ]}
               />
             )}
           </form.AppField>

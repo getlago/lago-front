@@ -1,9 +1,8 @@
-import { screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { screen } from '@testing-library/react'
 
-import { render, testMockNavigateFn } from '~/test-utils'
+import { render } from '~/test-utils'
 
-import EditQuote, { EDIT_QUOTE_SAVE_BUTTON_TEST_ID } from '../EditQuote'
+import EditQuote from '../EditQuote'
 
 // --- Mocks ---
 
@@ -108,14 +107,6 @@ jest.mock('../common/getQuoteStatusMapping', () => ({
   getQuoteStatusMapping: () => ({ type: 'outline', label: 'draft' }),
 }))
 
-// --- Helpers ---
-
-const getSaveButton = () => {
-  return document.querySelector(
-    `[data-testid="${EDIT_QUOTE_SAVE_BUTTON_TEST_ID}"]`,
-  ) as HTMLButtonElement
-}
-
 // --- Tests ---
 
 describe('EditQuote', () => {
@@ -129,16 +120,6 @@ describe('EditQuote', () => {
 
     useParamsMock.mockReturnValue({ quoteId: 'quote-123' })
     mockUseQuote.mockReturnValue({ quote: mockQuote, loading: false })
-  })
-
-  describe('GIVEN the page is rendered', () => {
-    describe('WHEN in default loaded state', () => {
-      it('THEN should render the save button', () => {
-        render(<EditQuote />)
-
-        expect(getSaveButton()).toBeInTheDocument()
-      })
-    })
   })
 
   describe('GIVEN the quote is loading', () => {
@@ -159,65 +140,6 @@ describe('EditQuote', () => {
         render(<EditQuote />)
 
         expect(screen.getByText('Q-001 - v1')).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN the save button is clicked', () => {
-    describe('WHEN quote is loaded', () => {
-      it('THEN should call updateQuoteVersion with version ID and navigate', async () => {
-        const user = userEvent.setup()
-
-        render(<EditQuote />)
-
-        const saveButton = getSaveButton()
-
-        expect(saveButton).toBeInTheDocument()
-        await user.click(saveButton)
-
-        await waitFor(() => {
-          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith({
-            id: 'version-1',
-            content: '# Mock markdown content',
-          })
-        })
-
-        await waitFor(() => {
-          expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-123/overview')
-        })
-      })
-    })
-  })
-
-  describe('GIVEN no quoteId param', () => {
-    describe('WHEN save button is clicked', () => {
-      it('THEN should not navigate', async () => {
-        const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
-
-        useParamsMock.mockReturnValue({})
-
-        const user = userEvent.setup()
-
-        render(<EditQuote />)
-
-        const saveButton = getSaveButton()
-
-        expect(saveButton).toBeInTheDocument()
-        await user.click(saveButton)
-
-        expect(testMockNavigateFn).not.toHaveBeenCalled()
-      })
-    })
-  })
-
-  describe('GIVEN isUpdating is true', () => {
-    describe('WHEN rendered', () => {
-      it('THEN save button should be disabled', () => {
-        mockIsUpdatingQuoteVersion = true
-
-        render(<EditQuote />)
-
-        expect(getSaveButton()).toBeDisabled()
       })
     })
   })

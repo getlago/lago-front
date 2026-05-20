@@ -27,7 +27,11 @@ gql`
   }
 `
 
-export const useUpdateQuote = () => {
+interface UseUpdateQuoteOptions {
+  onUpdateFinished?: () => void
+}
+
+export const useUpdateQuote = ({ onUpdateFinished }: UseUpdateQuoteOptions = {}) => {
   const [updateQuoteVersionMutation, { loading: isUpdatingQuoteVersion }] =
     useUpdateQuoteVersionMutation()
   const [updateQuoteMutation, { loading: isUpdatingQuote }] = useUpdateQuoteMutation()
@@ -45,6 +49,10 @@ export const useUpdateQuote = () => {
         severity: 'success',
         translateKey: 'text_17775394497682uzyy0lyyq7',
       })
+    }
+
+    if (result.data?.updateQuoteVersion) {
+      onUpdateFinished?.()
     }
 
     return result
