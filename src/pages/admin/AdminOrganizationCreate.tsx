@@ -1,7 +1,7 @@
 import { gql, useMutation } from '@apollo/client'
 import NiceModal from '@ebay/nice-modal-react'
 import { useState } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { REASON_MODAL_NAME } from '~/components/admin/const'
 import { ReasonModalProps } from '~/components/admin/ReasonModal'
@@ -10,7 +10,11 @@ import { Typography } from '~/components/designSystem/Typography'
 import { MultipleComboBox } from '~/components/form/MultipleComboBox/MultipleComboBox'
 import { TextInput } from '~/components/form/TextInput/TextInput'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { ADMIN_ORGANIZATION_DETAIL_ROUTE, ADMIN_ORGANIZATIONS_ROUTE } from '~/core/router'
+import {
+  ADMIN_ORGANIZATION_DETAIL_ROUTE,
+  ADMIN_ORGANIZATIONS_ROUTE,
+  useNavigate,
+} from '~/core/router'
 
 const ADMIN_CREATE_ORGANIZATION_MUTATION = gql`
   mutation AdminCreateOrganization($input: AdminCreateOrganizationInput!) {
@@ -77,7 +81,10 @@ const AdminOrganizationCreate = () => {
         const createdOrg = result.data?.adminCreateOrganization
 
         if (createdOrg?.id) {
-          navigate(generatePath(ADMIN_ORGANIZATION_DETAIL_ROUTE, { organizationId: createdOrg.id }))
+          navigate(
+            generatePath(ADMIN_ORGANIZATION_DETAIL_ROUTE, { organizationId: createdOrg.id }),
+            { skipSlugPrepend: true },
+          )
         }
       },
     })
@@ -92,7 +99,7 @@ const AdminOrganizationCreate = () => {
         <Button
           variant="quaternary"
           icon="close"
-          onClick={() => navigate(ADMIN_ORGANIZATIONS_ROUTE)}
+          onClick={() => navigate(ADMIN_ORGANIZATIONS_ROUTE, { skipSlugPrepend: true })}
         />
       </CenteredPage.Header>
 
@@ -132,7 +139,10 @@ const AdminOrganizationCreate = () => {
       </CenteredPage.Container>
 
       <CenteredPage.StickyFooter>
-        <Button variant="quaternary" onClick={() => navigate(ADMIN_ORGANIZATIONS_ROUTE)}>
+        <Button
+          variant="quaternary"
+          onClick={() => navigate(ADMIN_ORGANIZATIONS_ROUTE, { skipSlugPrepend: true })}
+        >
           Cancel
         </Button>
         <Button disabled={!isValid} onClick={handleCreate}>
