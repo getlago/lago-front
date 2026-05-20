@@ -1,5 +1,4 @@
 import { useStore } from '@tanstack/react-form'
-import { DateTime } from 'luxon'
 import { Dispatch, SetStateAction, useMemo } from 'react'
 
 import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
@@ -8,7 +7,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
-import { DateFormat, getTimezoneConfig, intlFormatDateTime } from '~/core/timezone'
+import { getTimezoneConfig } from '~/core/timezone'
 import {
   BillingTimeEnum,
   GetSubscriptionForCreateSubscriptionQuery,
@@ -23,6 +22,7 @@ import {
   buildSubscriptionDefaultValues,
   SubscriptionFormType,
 } from './buildSubscriptionDefaultValues'
+import { getBillingTimeHelperKey } from './getBillingTimeHelperKey'
 
 const getBillingTimeSelectorTranslationKey = (planInterval?: PlanInterval) => {
   switch (planInterval) {
@@ -85,70 +85,13 @@ export const SubscriptionInformationFormSection = withForm({
     const subscriptionAt = useStore(form.store, (state) => state.values.subscriptionAt)
 
     const billingTimeHelper = useMemo(() => {
-      const billingTime = subscriptionBillingTime
-      const currentDate = subscriptionAt
-        ? DateTime.fromISO(subscriptionAt)
-        : DateTime.now().setLocale('en-gb')
-      const formattedCurrentDate = currentDate.toFormat('LL/dd/yyyy')
-      const february29 = `02/29/${DateTime.now().year}`
-      const currentDay = currentDate.get('day')
+      const helper = getBillingTimeHelperKey(
+        subscriptionBillingTime,
+        subscriptionAt,
+        selectedPlanInterval,
+      )
 
-      if (!selectedPlanInterval) return undefined
-
-      switch (selectedPlanInterval) {
-        case PlanInterval.Monthly:
-          if (billingTime === BillingTimeEnum.Calendar)
-            return translate('text_62ea7cd44cd4b14bb9ac1d7e')
-
-          if (currentDay <= 28) {
-            return translate('text_62ea7cd44cd4b14bb9ac1d82', { day: currentDay })
-          } else if (currentDay === 29) {
-            return translate('text_62ea7cd44cd4b14bb9ac1d86')
-          } else if (currentDay === 30) {
-            return translate('text_62ea7cd44cd4b14bb9ac1d8a')
-          }
-          return translate('text_62ea7cd44cd4b14bb9ac1d8e')
-
-        case PlanInterval.Yearly:
-          if (billingTime === BillingTimeEnum.Calendar)
-            return translate('text_62ea7cd44cd4b14bb9ac1d92')
-
-          if (formattedCurrentDate === february29) return translate('text_62ea7cd44cd4b14bb9ac1d9a')
-
-          return translate('text_62ea7cd44cd4b14bb9ac1d96', {
-            date: intlFormatDateTime(currentDate.toISO() || '', {
-              formatDate: DateFormat.DATE_MED_SHORT,
-            }).date,
-          })
-
-        case PlanInterval.Semiannual:
-          return billingTime === BillingTimeEnum.Calendar
-            ? translate('text_1757502242292q05inkc09vq')
-            : translate('text_1757504174992y39ailqcch0', {
-                date: intlFormatDateTime(currentDate.toISO() || '', {
-                  formatDate: DateFormat.DATE_MED_SHORT,
-                }).date,
-              })
-
-        case PlanInterval.Quarterly:
-          if (billingTime === BillingTimeEnum.Calendar)
-            return translate('text_64d6357b00dea100ad1cba34')
-
-          if (currentDay <= 28) {
-            return translate('text_64d6357b00dea100ad1cba36', { day: currentDay })
-          } else if (currentDay === 29) {
-            return translate('text_64d63ec2f6bd3f41a6e353ac')
-          } else if (currentDay === 30) {
-            return translate('text_64d63ec2f6bd3f41a6e353b0')
-          }
-          return translate('text_64d63ec2f6bd3f41a6e353b4')
-
-        case PlanInterval.Weekly:
-        default:
-          return billingTime === BillingTimeEnum.Calendar
-            ? translate('text_62ea7cd44cd4b14bb9ac1d9e')
-            : translate('text_62ea7cd44cd4b14bb9ac1da2', { day: currentDate.weekdayLong })
-      }
+      return helper ? translate(helper.key, helper.variables) : undefined
     }, [subscriptionBillingTime, subscriptionAt, selectedPlanInterval, translate])
 
     return (

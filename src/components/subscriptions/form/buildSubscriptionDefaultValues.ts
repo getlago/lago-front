@@ -11,8 +11,11 @@ export const buildSubscriptionDefaultValues = (
   formType: SubscriptionFormType,
   currentDate: string,
 ): SubscriptionFormValues => ({
-  planId: formType !== FORM_TYPE_ENUM.upgradeDowngrade ? subscription?.plan?.id || '' : '',
-  name: formType !== FORM_TYPE_ENUM.upgradeDowngrade ? subscription?.name || '' : '',
+  planId:
+    subscription?.plan?.id && formType !== FORM_TYPE_ENUM.upgradeDowngrade
+      ? subscription.plan.id
+      : '',
+  name: subscription?.name && formType !== FORM_TYPE_ENUM.upgradeDowngrade ? subscription.name : '',
   externalId: subscription?.externalId || '',
   subscriptionAt: subscription?.subscriptionAt || currentDate,
   endingAt: subscription?.endingAt || undefined,
