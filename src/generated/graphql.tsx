@@ -9456,6 +9456,7 @@ export type UpdateCustomerWalletAlertInput = {
 /** Update Wallet Input */
 export type UpdateCustomerWalletInput = {
   appliesTo?: InputMaybe<AppliesToInput>;
+  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
