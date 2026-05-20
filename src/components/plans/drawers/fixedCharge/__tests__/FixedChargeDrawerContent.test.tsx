@@ -400,4 +400,64 @@ describe('FixedChargeDrawerContent', () => {
       })
     })
   })
+
+  describe('GIVEN isInSubscriptionForm={true} (sub plan override mode)', () => {
+    beforeEach(() => {
+      mockCurrentFormValues = mockExistingChargeFormValues
+      mockForm.store = mockCreateStore(mockExistingChargeFormValues)
+      mockForm.state = { values: mockExistingChargeFormValues }
+    })
+
+    const renderInSubscriptionForm = () =>
+      render(
+        <FixedChargeDrawerContent
+          isCreateMode={false}
+          isEdition
+          isInSubscriptionForm
+          disabled={false}
+        />,
+      )
+
+    it('THEN ChargeModelSelector should receive isInSubscriptionForm prop', () => {
+      renderInSubscriptionForm()
+
+      expect(lastChargeModelSelectorProps.isInSubscriptionForm).toBe(true)
+    })
+
+    it('THEN ChargePayInAdvanceOption should be disabled', () => {
+      renderInSubscriptionForm()
+
+      expect(lastChargePayInAdvanceOptionProps.disabled).toBe(true)
+    })
+
+    it('THEN prorated switch should be disabled', () => {
+      renderInSubscriptionForm()
+
+      const proratedField = screen.getByTestId('field-prorated')
+
+      expect(proratedField).toBeDisabled()
+    })
+
+    it('THEN units field should remain editable (sub override value)', () => {
+      renderInSubscriptionForm()
+
+      const unitsField = screen.getByTestId('field-units')
+
+      expect(unitsField).not.toBeDisabled()
+    })
+
+    it('THEN invoiceDisplayName should remain editable', () => {
+      renderInSubscriptionForm()
+
+      const displayNameField = screen.getByTestId('field-invoiceDisplayName')
+
+      expect(displayNameField).not.toBeDisabled()
+    })
+
+    it('THEN ChargeWrapperSwitch (pricing fields) should remain editable', () => {
+      renderInSubscriptionForm()
+
+      expect(lastChargeWrapperSwitchProps.disabled).toBeFalsy()
+    })
+  })
 })
