@@ -1,5 +1,5 @@
 import { gql, useLazyQuery } from '@apollo/client'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Chip } from '~/components/designSystem/Chip'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
@@ -7,7 +7,11 @@ import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
-import { ADMIN_ORGANIZATION_CREATE_ROUTE, ADMIN_ORGANIZATION_DETAIL_ROUTE } from '~/core/router'
+import {
+  ADMIN_ORGANIZATION_CREATE_ROUTE,
+  ADMIN_ORGANIZATION_DETAIL_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
@@ -81,7 +85,7 @@ const AdminOrganizations = () => {
               type: 'action',
               label: 'Create organization',
               variant: 'primary',
-              onClick: () => navigate(ADMIN_ORGANIZATION_CREATE_ROUTE),
+              onClick: () => navigate(ADMIN_ORGANIZATION_CREATE_ROUTE, { skipSlugPrepend: true }),
             },
           ],
         }}
