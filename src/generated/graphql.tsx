@@ -152,6 +152,8 @@ export enum ActivityTypeEnum {
   InvoicePaymentOverdue = 'invoice_payment_overdue',
   /** invoice.payment_status_updated */
   InvoicePaymentStatusUpdated = 'invoice_payment_status_updated',
+  /** invoice.ready_to_finalize */
+  InvoiceReadyToFinalize = 'invoice_ready_to_finalize',
   /** invoice.regenerated */
   InvoiceRegenerated = 'invoice_regenerated',
   /** invoice.voided */
@@ -1556,7 +1558,7 @@ export type Coupon = {
   amountCurrency?: Maybe<CurrencyEnum>;
   appliedCouponsCount: Scalars['Int']['output'];
   billableMetrics?: Maybe<Array<BillableMetric>>;
-  code?: Maybe<Scalars['String']['output']>;
+  code: Scalars['String']['output'];
   couponType: CouponTypeEnum;
   createdAt: Scalars['ISO8601DateTime']['output'];
   /** Number of customers using this coupon */
@@ -1742,7 +1744,7 @@ export type CreateCouponInput = {
   appliesTo?: InputMaybe<LimitationInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  code?: InputMaybe<Scalars['String']['input']>;
+  code: Scalars['String']['input'];
   couponType: CouponTypeEnum;
   description?: InputMaybe<Scalars['String']['input']>;
   expiration: CouponExpiration;
@@ -3840,6 +3842,7 @@ export enum EventTypeEnum {
   InvoicePaymentFailure = 'invoice_payment_failure',
   InvoicePaymentOverdue = 'invoice_payment_overdue',
   InvoicePaymentStatusUpdated = 'invoice_payment_status_updated',
+  InvoiceReadyToFinalize = 'invoice_ready_to_finalize',
   InvoiceResynced = 'invoice_resynced',
   InvoiceVoided = 'invoice_voided',
   PaymentProviderError = 'payment_provider_error',
@@ -7541,6 +7544,8 @@ export type QueryCustomerArgs = {
 
 
 export type QueryCustomerInvoicesArgs = {
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  currency?: InputMaybe<CurrencyEnum>;
   customerId: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -7990,6 +7995,7 @@ export type QueryPaymentRequestsArgs = {
 
 
 export type QueryPaymentsArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
   externalCustomerId?: InputMaybe<Scalars['ID']['input']>;
   invoiceId?: InputMaybe<Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8625,6 +8631,7 @@ export type Subscription = {
   activatedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   activationRules: Array<SubscriptionActivationRule>;
   activityLogs?: Maybe<Array<ActivityLog>>;
+  billingEntityId?: Maybe<Scalars['ID']['output']>;
   billingTime?: Maybe<BillingTimeEnum>;
   cancelationReason?: Maybe<CancelationReasonEnum>;
   canceledAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -9449,6 +9456,7 @@ export type UpdateCustomerWalletAlertInput = {
 /** Update Wallet Input */
 export type UpdateCustomerWalletInput = {
   appliesTo?: InputMaybe<AppliesToInput>;
+  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
@@ -9951,6 +9959,7 @@ export type Wallet = {
   activityLogs?: Maybe<Array<ActivityLog>>;
   appliesTo?: Maybe<WalletAppliesTo>;
   balanceCents: Scalars['BigInt']['output'];
+  billingEntityId?: Maybe<Scalars['ID']['output']>;
   code?: Maybe<Scalars['String']['output']>;
   consumedAmountCents: Scalars['BigInt']['output'];
   consumedCredits: Scalars['Float']['output'];
@@ -10475,16 +10484,16 @@ export type GetAppliedCouponsForCouponDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetAppliedCouponsForCouponDetailsQuery = { __typename?: 'Query', appliedCoupons: { __typename?: 'AppliedCouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AppliedCoupon', id: string, status: AppliedCouponStatusEnum, createdAt: any, terminatedAt?: any | null, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code?: string | null }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } }> } };
+export type GetAppliedCouponsForCouponDetailsQuery = { __typename?: 'Query', appliedCoupons: { __typename?: 'AppliedCouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AppliedCoupon', id: string, status: AppliedCouponStatusEnum, createdAt: any, terminatedAt?: any | null, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code: string }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } }> } };
 
-export type CouponDetailsForOverviewFragment = { __typename?: 'Coupon', name: string, code?: string | null, couponType: CouponTypeEnum, amountCurrency?: CurrencyEnum | null, status: CouponStatusEnum, frequency: CouponFrequency, reusable: boolean, expirationAt?: any | null, amountCents?: any | null, percentageRate?: number | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null };
+export type CouponDetailsForOverviewFragment = { __typename?: 'Coupon', name: string, code: string, couponType: CouponTypeEnum, amountCurrency?: CurrencyEnum | null, status: CouponStatusEnum, frequency: CouponFrequency, reusable: boolean, expirationAt?: any | null, amountCents?: any | null, percentageRate?: number | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null };
 
 export type GetCouponForDetailsOverviewQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCouponForDetailsOverviewQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, name: string, code?: string | null, couponType: CouponTypeEnum, amountCurrency?: CurrencyEnum | null, status: CouponStatusEnum, frequency: CouponFrequency, reusable: boolean, expirationAt?: any | null, amountCents?: any | null, percentageRate?: number | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null } | null };
+export type GetCouponForDetailsOverviewQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, name: string, code: string, couponType: CouponTypeEnum, amountCurrency?: CurrencyEnum | null, status: CouponStatusEnum, frequency: CouponFrequency, reusable: boolean, expirationAt?: any | null, amountCents?: any | null, percentageRate?: number | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null } | null };
 
 export type DeleteCouponFragment = { __typename?: 'Coupon', id: string, name: string, appliedCouponsCount: number };
 
@@ -10705,7 +10714,7 @@ export type GetAppliedCouponsForCustomerQueryVariables = Exact<{
 }>;
 
 
-export type GetAppliedCouponsForCustomerQuery = { __typename?: 'Query', appliedCoupons: { __typename?: 'AppliedCouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AppliedCoupon', id: string, status: AppliedCouponStatusEnum, createdAt: any, terminatedAt?: any | null, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code?: string | null } }> } };
+export type GetAppliedCouponsForCustomerQuery = { __typename?: 'Query', appliedCoupons: { __typename?: 'AppliedCouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AppliedCoupon', id: string, status: AppliedCouponStatusEnum, createdAt: any, terminatedAt?: any | null, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code: string } }> } };
 
 export type GetCustomerCreditNotesQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
@@ -12777,14 +12786,14 @@ export type UpdateBillingEntityMutationVariables = Exact<{
 
 export type UpdateBillingEntityMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, einvoicing: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string } | null } | null };
 
-export type EditCouponFragment = { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, appliedCouponsCount: number, code?: string | null, couponType: CouponTypeEnum, description?: string | null, expiration: CouponExpiration, expirationAt?: any | null, frequency: CouponFrequency, frequencyDuration?: number | null, limitedBillableMetrics: boolean, limitedPlans: boolean, name: string, percentageRate?: number | null, reusable: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null };
+export type EditCouponFragment = { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, appliedCouponsCount: number, code: string, couponType: CouponTypeEnum, description?: string | null, expiration: CouponExpiration, expirationAt?: any | null, frequency: CouponFrequency, frequencyDuration?: number | null, limitedBillableMetrics: boolean, limitedPlans: boolean, name: string, percentageRate?: number | null, reusable: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null };
 
 export type GetSingleCouponQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSingleCouponQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, appliedCouponsCount: number, code?: string | null, couponType: CouponTypeEnum, description?: string | null, expiration: CouponExpiration, expirationAt?: any | null, frequency: CouponFrequency, frequencyDuration?: number | null, limitedBillableMetrics: boolean, limitedPlans: boolean, name: string, percentageRate?: number | null, reusable: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null };
+export type GetSingleCouponQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, appliedCouponsCount: number, code: string, couponType: CouponTypeEnum, description?: string | null, expiration: CouponExpiration, expirationAt?: any | null, frequency: CouponFrequency, frequencyDuration?: number | null, limitedBillableMetrics: boolean, limitedPlans: boolean, name: string, percentageRate?: number | null, reusable: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null };
 
 export type CreateCouponMutationVariables = Exact<{
   input: CreateCouponInput;
@@ -13108,14 +13117,14 @@ export type BillableMetricsQueryVariables = Exact<{
 
 export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any }> } };
 
-export type CouponDetailsForHeaderFragment = { __typename?: 'Coupon', name: string, code?: string | null, status: CouponStatusEnum, couponType: CouponTypeEnum, percentageRate?: number | null, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, frequency: CouponFrequency };
+export type CouponDetailsForHeaderFragment = { __typename?: 'Coupon', name: string, code: string, status: CouponStatusEnum, couponType: CouponTypeEnum, percentageRate?: number | null, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, frequency: CouponFrequency };
 
 export type GetCouponForDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCouponForDetailsQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, name: string, code?: string | null, status: CouponStatusEnum, couponType: CouponTypeEnum, percentageRate?: number | null, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, frequency: CouponFrequency, appliedCouponsCount: number } | null };
+export type GetCouponForDetailsQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, name: string, code: string, status: CouponStatusEnum, couponType: CouponTypeEnum, percentageRate?: number | null, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, frequency: CouponFrequency, appliedCouponsCount: number } | null };
 
 export type CouponItemFragment = { __typename?: 'Coupon', id: string, name: string, customersCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
 
