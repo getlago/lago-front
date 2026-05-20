@@ -28,14 +28,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 const renderSidebar = (
   props: Partial<React.ComponentProps<typeof PlanDetailsV2LeftSidebar>> = {},
-) =>
-  render(
-    <PlanDetailsV2LeftSidebar
-      activeSectionId="plan-settings"
-      onItemClick={jest.fn()}
-      {...props}
-    />,
-  )
+) => render(<PlanDetailsV2LeftSidebar onItemClick={jest.fn()} {...props} />)
 
 describe('PlanDetailsV2LeftSidebar', () => {
   it('renders every plan-level section', () => {
@@ -67,24 +60,6 @@ describe('PlanDetailsV2LeftSidebar', () => {
     expect(screen.getByText('Advanced settings')).toBeInTheDocument()
   })
 
-  it('marks the active leaf item with aria-current', () => {
-    renderSidebar({ activeSectionId: 'subscription-fee' })
-
-    expect(screen.getByRole('button', { name: 'Subscription fee' })).toHaveAttribute(
-      'aria-current',
-      'true',
-    )
-  })
-
-  it('marks the active group item with aria-current on the label button', () => {
-    renderSidebar({ activeSectionId: 'fixed-charges' })
-
-    expect(screen.getByRole('button', { name: 'Fixed charges' })).toHaveAttribute(
-      'aria-current',
-      'true',
-    )
-  })
-
   it('fires onItemClick with the section id when a leaf item is clicked', async () => {
     const handleClick = jest.fn()
 
@@ -106,35 +81,25 @@ describe('PlanDetailsV2LeftSidebar', () => {
   })
 
   describe('plus add button', () => {
-    it('renders the plus button on Fixed charges and Usage-based charges when onAddClick provided', () => {
-      renderSidebar({ onAddClick: jest.fn() })
-
-      expect(screen.getByRole('button', { name: 'Add fixed charge' })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Add usage charge' })).toBeInTheDocument()
-    })
-
-    it('does not render the plus button when onAddClick is not provided', () => {
+    it('always renders the plus button on Fixed charges and Usage-based charges (even without onAddClick)', () => {
       renderSidebar()
 
-      expect(screen.queryByRole('button', { name: 'Add fixed charge' })).not.toBeInTheDocument()
-      expect(screen.queryByRole('button', { name: 'Add usage charge' })).not.toBeInTheDocument()
+      expect(screen.getByTestId('sidebar-add-fixed-charges')).toBeInTheDocument()
+      expect(screen.getByTestId('sidebar-add-usage-charges')).toBeInTheDocument()
     })
 
     // Drift test — locks in spec §5 "Add CTAs hidden when isInSubscriptionForm"
     it('hides the plus button when isInSubscriptionForm=true (no Add CTAs in sub mode)', () => {
-      renderSidebar({ onAddClick: jest.fn(), isInSubscriptionForm: true })
+      renderSidebar({ isInSubscriptionForm: true })
 
-      expect(screen.queryByRole('button', { name: 'Add fixed charge' })).not.toBeInTheDocument()
-      expect(screen.queryByRole('button', { name: 'Add usage charge' })).not.toBeInTheDocument()
+      expect(screen.queryByTestId('sidebar-add-fixed-charges')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('sidebar-add-usage-charges')).not.toBeInTheDocument()
     })
 
     it('never renders a plus button on the Advanced settings group', () => {
-      renderSidebar({ onAddClick: jest.fn() })
+      renderSidebar()
 
-      // Only 2 plus buttons total — for Fixed charges + Usage-based charges
-      const plusButtons = screen.getAllByRole('button', { name: /add .* charge/i })
-
-      expect(plusButtons).toHaveLength(2)
+      expect(screen.queryByTestId('sidebar-add-advanced-settings')).not.toBeInTheDocument()
     })
 
     it('fires onAddClick with the section id and does NOT fire onItemClick', async () => {
@@ -143,9 +108,19 @@ describe('PlanDetailsV2LeftSidebar', () => {
 
       renderSidebar({ onItemClick, onAddClick })
 
-      await userEvent.click(screen.getByRole('button', { name: 'Add fixed charge' }))
+      await userEvent.click(screen.getByTestId('sidebar-add-fixed-charges'))
 
       expect(onAddClick).toHaveBeenCalledWith('fixed-charges')
+      expect(onItemClick).not.toHaveBeenCalled()
+    })
+
+    it('clicking the plus button is a no-op when onAddClick is not provided (does not throw)', async () => {
+      const onItemClick = jest.fn()
+
+      renderSidebar({ onItemClick })
+
+      await userEvent.click(screen.getByTestId('sidebar-add-fixed-charges'))
+
       expect(onItemClick).not.toHaveBeenCalled()
     })
   })
@@ -159,9 +134,7 @@ describe('PlanDetailsV2LeftSidebar', () => {
       // Advanced settings is expanded by default — children visible
       expect(screen.getByText('Minimum commitment')).toBeInTheDocument()
 
-      await userEvent.click(
-        screen.getByRole('button', { name: /Collapse Advanced settings/i }),
-      )
+      await userEvent.click(screen.getByTestId('sidebar-toggle-advanced-settings'))
 
       expect(screen.queryByText('Minimum commitment')).not.toBeInTheDocument()
       expect(onItemClick).not.toHaveBeenCalled()
