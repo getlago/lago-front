@@ -235,6 +235,13 @@ jest.mock('~/components/drawers/const', () => ({
 let lastChargeModelSelectorProps: Record<string, unknown> = {}
 let lastChargePayInAdvanceOptionProps: Record<string, unknown> = {}
 
+const mockSelectorActions: jest.Mock<null, [{ actions: Array<{ icon: string }> }]> = jest.fn()
+
+jest.mock('~/components/designSystem/Selector', () => ({
+  ...jest.requireActual('~/components/designSystem/Selector'),
+  SelectorActions: (props: { actions: Array<{ icon: string }> }) => mockSelectorActions(props),
+}))
+
 jest.mock('~/components/plans/chargeAccordion/ChargeModelSelector', () => ({
   ChargeModelSelector: (props: Record<string, unknown>) => {
     lastChargeModelSelectorProps = props
@@ -265,8 +272,13 @@ jest.mock('~/components/plans/chargeAccordion/options/ChargeInvoicingStrategyOpt
   ChargeInvoicingStrategyOption: () => <div data-test="charge-invoicing-strategy-option" />,
 }))
 
+const mockSpendingMinimumOptionSection: jest.Mock<null, [{ disabled?: boolean }]> = jest.fn()
+
 jest.mock('~/components/plans/chargeAccordion/SpendingMinimumOptionSection', () => ({
-  SpendingMinimumOptionSection: () => <div data-test="spending-minimum-option-section" />,
+  SpendingMinimumOptionSection: (props: { disabled?: boolean }) => {
+    mockSpendingMinimumOptionSection(props)
+    return <div data-test="spending-minimum-option-section" />
+  },
 }))
 
 jest.mock('~/components/taxes/TaxesSelectorSection', () => ({
@@ -301,6 +313,8 @@ describe('UsageChargeDrawerContent', () => {
     mockForm.state = { values: mockDefaultFormValues }
     lastChargeModelSelectorProps = {}
     lastChargePayInAdvanceOptionProps = {}
+    mockSelectorActions.mockClear()
+    mockSpendingMinimumOptionSection.mockClear()
   })
 
   describe('GIVEN create mode with no billable metric selected', () => {
@@ -565,6 +579,63 @@ describe('UsageChargeDrawerContent', () => {
 
         expect(lastChargePayInAdvanceOptionProps.disabled).toBe(false)
       })
+    })
+  })
+
+  describe('GIVEN isInSubscriptionForm={true} (sub plan override mode)', () => {
+    const renderInSubscriptionForm = (values = mockEditFormValuesWithFilters) => {
+      mockCurrentFormValues = values
+
+      return render(
+        <UsageChargeDrawerContent
+          isCreateMode={false}
+          editIndex={0}
+          currency="USD"
+          interval="monthly"
+          isInSubscriptionForm
+        />,
+      )
+    }
+
+    it('THEN ChargeModelSelector should receive isInSubscriptionForm prop', () => {
+      renderInSubscriptionForm()
+
+      expect(lastChargeModelSelectorProps.isInSubscriptionForm).toBe(true)
+    })
+
+    it('THEN ChargePayInAdvanceOption should be disabled', () => {
+      renderInSubscriptionForm()
+
+      expect(lastChargePayInAdvanceOptionProps.disabled).toBe(true)
+    })
+
+    it('THEN the "Add filter" button should remain visible (filters belong to the charge, not the plan)', () => {
+      renderInSubscriptionForm()
+
+      expect(screen.getByTestId('add-charge-filter')).toBeInTheDocument()
+    })
+
+    it('THEN the filter row trash AND pen hover-actions should remain wired (filters are charge-scoped)', () => {
+      renderInSubscriptionForm()
+
+      // First filter row's SelectorActions must receive both trash and pen actions
+      // regardless of isInSubscriptionForm — filters live INSIDE a charge and follow
+      // charge-scoped semantics, not plan-scoped add/delete rules.
+      const filterRowActions = mockSelectorActions.mock.calls[0]?.[0]?.actions
+
+      expect(filterRowActions).toBeDefined()
+      expect(filterRowActions.map((action) => action.icon)).toEqual(['trash', 'pen'])
+    })
+
+    it('THEN SpendingMinimumOptionSection should remain editable (min spending is a value override)', () => {
+      renderInSubscriptionForm()
+
+      // Min spending is a value-override knob like amountCents/units, not a structural
+      // billing config like payInAdvance/prorated. It must NOT be gated on isInSubscriptionForm.
+      expect(mockSpendingMinimumOptionSection).toHaveBeenCalled()
+      const lastCall = mockSpendingMinimumOptionSection.mock.calls.at(-1)?.[0]
+
+      expect(lastCall?.disabled).toBeFalsy()
     })
   })
 })
