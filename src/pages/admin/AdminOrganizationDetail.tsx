@@ -11,6 +11,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { Switch } from '~/components/form/Switch/Switch'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { ADMIN_ORGANIZATIONS_ROUTE } from '~/core/router'
+import { AdminFeatureTypeEnum, FeatureFlagEnum } from '~/generated/graphql'
 
 const ADMIN_ORGANIZATION_QUERY = gql`
   query AdminOrganization($organizationId: ID!) {
@@ -62,17 +63,7 @@ const KNOWN_PREMIUM_INTEGRATIONS = [
   'multi_entities_enterprise',
 ]
 
-const KNOWN_FEATURE_FLAGS = [
-  'enriched_events_aggregation',
-  'multi_currency',
-  'multi_entity_billing',
-  'multiple_payment_methods',
-  'non_persistable_charge_cache_optimization',
-  'order_forms',
-  'payment_gated_subscriptions',
-  'postgres_enriched_events',
-  'wallet_traceability',
-]
+const KNOWN_FEATURE_FLAGS = Object.values(FeatureFlagEnum)
 
 const AdminOrganizationDetail = () => {
   const { organizationId } = useParams<{ organizationId: string }>()
@@ -161,22 +152,22 @@ const AdminOrganizationDetail = () => {
       ...toEnableIntegrations.map((key) => ({
         featureKey: key,
         enabled: true,
-        featureType: 'premium_integration',
+        featureType: AdminFeatureTypeEnum.PremiumIntegration,
       })),
       ...toDisableIntegrations.map((key) => ({
         featureKey: key,
         enabled: false,
-        featureType: 'premium_integration',
+        featureType: AdminFeatureTypeEnum.PremiumIntegration,
       })),
       ...toEnableFlags.map((key) => ({
         featureKey: key,
         enabled: true,
-        featureType: 'feature_flag',
+        featureType: AdminFeatureTypeEnum.FeatureFlag,
       })),
       ...toDisableFlags.map((key) => ({
         featureKey: key,
         enabled: false,
-        featureType: 'feature_flag',
+        featureType: AdminFeatureTypeEnum.FeatureFlag,
       })),
     ]
 
