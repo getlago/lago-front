@@ -39,7 +39,6 @@ import {
   EditPlanFragment,
   EditPlanFragmentDoc,
   LagoApiError,
-  PlanInterval,
   PlanItemFragmentDoc,
   useCreatePlanMutation,
   useGetSinglePlanQuery,
@@ -47,6 +46,7 @@ import {
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
+import { buildPlanSettingsValues } from '~/hooks/plans/utils'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
@@ -82,120 +82,123 @@ const buildDefaultValues = (
   type: PLAN_FORM_TYPE,
   initialCurrency: CurrencyEnum,
   hasAnyPricingUnitConfigured: boolean,
-): PlanFormInput => ({
-  name: type === FORM_TYPE_ENUM.duplicate ? '' : plan?.name || '',
-  code: type === FORM_TYPE_ENUM.duplicate ? '' : plan?.code || '',
-  description: plan?.description || '',
-  entitlements:
-    plan?.entitlements?.map(({ code, privileges, name, ...restEntitlement }) => ({
-      featureName: name || '',
-      featureCode: code,
-      privileges: privileges.map(
-        ({ code: privilegeCode, name: privilegeName, value, ...restPrivilege }) => ({
-          privilegeCode,
-          privilegeName,
-          value: value || '',
-          ...restPrivilege,
-        }),
-      ),
-      ...restEntitlement,
-    })) || [],
-  interval: plan?.interval || PlanInterval.Monthly,
-  taxes: plan?.taxes || [],
-  invoiceDisplayName: plan?.invoiceDisplayName || undefined,
-  payInAdvance: plan?.payInAdvance || false,
-  amountCents: isNaN(plan?.amountCents)
-    ? '0'
-    : String(deserializeAmount(plan?.amountCents || 0, initialCurrency)),
-  amountCurrency: initialCurrency,
-  trialPeriod: plan?.trialPeriod ?? 0,
-  billChargesMonthly: plan?.billChargesMonthly || false,
-  billFixedChargesMonthly: plan?.billFixedChargesMonthly || false,
-  minimumCommitment: !!plan?.minimumCommitment
-    ? {
-        ...plan?.minimumCommitment,
-        amountCents: String(
-          deserializeAmount(plan?.minimumCommitment.amountCents || 0, initialCurrency),
+): PlanFormInput => {
+  const settingsDefaults = buildPlanSettingsValues(plan ?? {})
+
+  return {
+    ...settingsDefaults,
+    name: type === FORM_TYPE_ENUM.duplicate ? '' : settingsDefaults.name,
+    code: type === FORM_TYPE_ENUM.duplicate ? '' : settingsDefaults.code,
+    amountCurrency: initialCurrency,
+    entitlements:
+      plan?.entitlements?.map(({ code, privileges, name, ...restEntitlement }) => ({
+        featureName: name || '',
+        featureCode: code,
+        privileges: privileges.map(
+          ({ code: privilegeCode, name: privilegeName, value, ...restPrivilege }) => ({
+            privilegeCode,
+            privilegeName,
+            value: value || '',
+            ...restPrivilege,
+          }),
         ),
-      }
-    : {},
-  nonRecurringUsageThresholds:
-    plan?.usageThresholds && plan?.usageThresholds.length > 0
-      ? plan?.usageThresholds
-          .filter(({ recurring }) => !recurring)
-          .map((threshold) => ({
-            ...threshold,
-            amountCents: deserializeAmount(threshold.amountCents || 0, initialCurrency),
-          }))
-          .sort((a, b) => a.amountCents - b.amountCents)
-      : undefined,
-  recurringUsageThreshold: plan?.usageThresholds
-    ?.map((threshold) => ({
-      ...threshold,
-      amountCents: deserializeAmount(threshold.amountCents || 0, initialCurrency),
-    }))
-    .find(({ recurring }) => !!recurring),
-  fixedCharges: plan?.fixedCharges || [],
-  charges: plan?.charges
-    ? (plan?.charges.map(
-        ({
-          taxes,
-          properties,
-          minAmountCents,
-          payInAdvance,
-          invoiceDisplayName,
-          filters,
-          appliedPricingUnit,
-          ...charge
-        }) => {
-          return {
-            appliedPricingUnit:
-              !hasAnyPricingUnitConfigured && !appliedPricingUnit
-                ? undefined
-                : {
-                    code: appliedPricingUnit?.pricingUnit?.code || initialCurrency,
-                    conversionRate: String(appliedPricingUnit?.conversionRate || ''),
-                    shortName: appliedPricingUnit?.pricingUnit?.shortName || initialCurrency,
-                    type: !!appliedPricingUnit?.pricingUnit?.code
-                      ? LocalPricingUnitType.Custom
-                      : LocalPricingUnitType.Fiat,
+        ...restEntitlement,
+      })) || [],
+    invoiceDisplayName: plan?.invoiceDisplayName || undefined,
+    payInAdvance: plan?.payInAdvance || false,
+    amountCents: isNaN(plan?.amountCents)
+      ? '0'
+      : String(deserializeAmount(plan?.amountCents || 0, initialCurrency)),
+    trialPeriod: plan?.trialPeriod ?? 0,
+    minimumCommitment: !!plan?.minimumCommitment
+      ? {
+          ...plan?.minimumCommitment,
+          amountCents: String(
+            deserializeAmount(plan?.minimumCommitment.amountCents || 0, initialCurrency),
+          ),
+        }
+      : {},
+    nonRecurringUsageThresholds:
+      plan?.usageThresholds && plan?.usageThresholds.length > 0
+        ? plan?.usageThresholds
+            .filter(({ recurring }) => !recurring)
+            .map((threshold) => ({
+              ...threshold,
+              amountCents: deserializeAmount(threshold.amountCents || 0, initialCurrency),
+            }))
+            .sort((a, b) => a.amountCents - b.amountCents)
+        : undefined,
+    recurringUsageThreshold: plan?.usageThresholds
+      ?.map((threshold) => ({
+        ...threshold,
+        amountCents: deserializeAmount(threshold.amountCents || 0, initialCurrency),
+      }))
+      .find(({ recurring }) => !!recurring),
+    fixedCharges: plan?.fixedCharges || [],
+    charges: plan?.charges
+      ? (plan?.charges.map(
+          ({
+            taxes,
+            properties,
+            minAmountCents,
+            payInAdvance,
+            invoiceDisplayName,
+            filters,
+            appliedPricingUnit,
+            ...charge
+          }) => {
+            return {
+              appliedPricingUnit:
+                !hasAnyPricingUnitConfigured && !appliedPricingUnit
+                  ? undefined
+                  : {
+                      code: appliedPricingUnit?.pricingUnit?.code || initialCurrency,
+                      conversionRate: String(appliedPricingUnit?.conversionRate || ''),
+                      shortName: appliedPricingUnit?.pricingUnit?.shortName || initialCurrency,
+                      type: !!appliedPricingUnit?.pricingUnit?.code
+                        ? LocalPricingUnitType.Custom
+                        : LocalPricingUnitType.Fiat,
+                    },
+              invoiceDisplayName: invoiceDisplayName || '',
+              taxes: taxes || [],
+              minAmountCents:
+                isNaN(minAmountCents) || minAmountCents === '0'
+                  ? undefined
+                  : String(
+                      deserializeAmount(
+                        minAmountCents || 0,
+                        plan.amountCurrency || CurrencyEnum.Usd,
+                      ),
+                    ),
+              payInAdvance: payInAdvance || false,
+              properties: properties ? getPropertyShape(properties) : undefined,
+              regroupPaidFees: charge.regroupPaidFees || null,
+              filters: (filters || []).map((filter) => {
+                const values = Object.entries(filter.values || {}).reduce<string[]>(
+                  (acc, [key, objectValues]) => {
+                    ;(objectValues as string[]).map((v) => {
+                      acc.push(transformFilterObjectToString(key, v))
+                    })
+
+                    return acc
                   },
-            invoiceDisplayName: invoiceDisplayName || '',
-            taxes: taxes || [],
-            minAmountCents:
-              isNaN(minAmountCents) || minAmountCents === '0'
-                ? undefined
-                : String(
-                    deserializeAmount(minAmountCents || 0, plan.amountCurrency || CurrencyEnum.Usd),
-                  ),
-            payInAdvance: payInAdvance || false,
-            properties: properties ? getPropertyShape(properties) : undefined,
-            regroupPaidFees: charge.regroupPaidFees || null,
-            filters: (filters || []).map((filter) => {
-              const values = Object.entries(filter.values || {}).reduce<string[]>(
-                (acc, [key, objectValues]) => {
-                  ;(objectValues as string[]).map((v) => {
-                    acc.push(transformFilterObjectToString(key, v))
-                  })
+                  [],
+                )
 
-                  return acc
-                },
-                [],
-              )
-
-              return {
-                ...filter,
-                properties: getPropertyShape(filter.properties),
-                values,
-              }
-            }),
-            ...charge,
-          }
-        },
-      ) as LocalUsageChargeInput[])
-    : ([] as LocalUsageChargeInput[]),
-  cascadeUpdates: undefined,
-})
+                return {
+                  ...filter,
+                  properties: getPropertyShape(filter.properties),
+                  values,
+                }
+              }),
+              ...charge,
+            }
+          },
+        ) as LocalUsageChargeInput[])
+      : ([] as LocalUsageChargeInput[]),
+    cascadeUpdates: undefined,
+  }
+}
 
 export const usePlanForm = ({
   planIdToFetch,
