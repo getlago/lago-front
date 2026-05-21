@@ -8,14 +8,10 @@ export default (async (env) => {
       ? await (mainConfig as UserConfigFn)(env)
       : (mainConfig as UserConfig)
 
-  // cypress-vite forces `output.inlineDynamicImports: true`, which rollup
-  // rejects together with `manualChunks`. mergeConfig() ignores `undefined`,
-  // so delete the key on the resolved config instead.
-  const output = resolved.build?.rollupOptions?.output
+  // cypress-vite controls entry/output for spec bundling — keep the plugins,
+  // resolve aliases, and define replacements from the main config but drop
+  // `build`/`server`/`preview` so cypress can manage them.
+  const { build: _build, server: _server, preview: _preview, ...rest } = resolved
 
-  if (output && !Array.isArray(output)) {
-    delete output.manualChunks
-  }
-
-  return resolved
+  return rest
 }) satisfies UserConfigFn
