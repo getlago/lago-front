@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client'
 import NiceModal from '@ebay/nice-modal-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -18,6 +19,25 @@ import {
   useAdminOrganizationQuery,
   useAdminToggleFeatureMutation,
 } from '~/generated/graphql'
+
+gql`
+  query AdminOrganization($organizationId: ID!) {
+    adminOrganization(organizationId: $organizationId) {
+      id
+      name
+      email
+      createdAt
+      premiumIntegrations
+      featureFlags
+    }
+  }
+
+  mutation AdminToggleFeature($input: AdminToggleFeatureInput!) {
+    adminToggleFeature(input: $input) {
+      id
+    }
+  }
+`
 
 const KNOWN_PREMIUM_INTEGRATIONS = Object.values(PremiumIntegrationTypeEnum)
 const KNOWN_FEATURE_FLAGS = Object.values(FeatureFlagEnum)

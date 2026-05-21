@@ -368,6 +368,12 @@ export type AdminCreateOrganizationInput = {
   timezone?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type AdminCreateOrganizationPayload = {
+  __typename?: 'AdminCreateOrganizationPayload';
+  inviteUrl: Scalars['String']['output'];
+  organization: AdminOrganization;
+};
+
 export enum AdminFeatureTypeEnum {
   /** Feature flag toggle */
   FeatureFlag = 'feature_flag',
@@ -5124,7 +5130,7 @@ export type Mutation = {
   /** Toggle a feature across multiple organizations */
   adminBatchToggleFeature?: Maybe<Array<AdminAuditLog>>;
   /** Create a new organization with pre-configured features */
-  adminCreateOrganization?: Maybe<AdminOrganization>;
+  adminCreateOrganization?: Maybe<AdminCreateOrganizationPayload>;
   /** Rollback a single admin audit log entry */
   adminRollbackChange?: Maybe<AdminAuditLog>;
   /** Toggle a feature flag or premium integration for an organization */
@@ -13792,7 +13798,7 @@ export type AdminCreateOrganizationMutationVariables = Exact<{
 }>;
 
 
-export type AdminCreateOrganizationMutation = { __typename?: 'Mutation', adminCreateOrganization?: { __typename?: 'AdminOrganization', id: string, name: string } | null };
+export type AdminCreateOrganizationMutation = { __typename?: 'Mutation', adminCreateOrganization?: { __typename?: 'AdminCreateOrganizationPayload', inviteUrl: string, organization: { __typename?: 'AdminOrganization', id: string, name: string } } | null };
 
 export type AdminOrganizationQueryVariables = Exact<{
   organizationId: Scalars['ID']['input'];
@@ -13806,7 +13812,7 @@ export type AdminToggleFeatureMutationVariables = Exact<{
 }>;
 
 
-export type AdminToggleFeatureMutation = { __typename?: 'Mutation', adminToggleFeature?: { __typename?: 'AdminAuditLog', id: string, action: AdminActionEnum, featureKey: string, featureType: AdminFeatureTypeEnum, afterValue: boolean, reason: string, createdAt: any } | null };
+export type AdminToggleFeatureMutation = { __typename?: 'Mutation', adminToggleFeature?: { __typename?: 'AdminAuditLog', id: string } | null };
 
 export type AdminOrganizationsQueryVariables = Exact<{
   searchTerm?: InputMaybe<Scalars['String']['input']>;
@@ -35869,8 +35875,11 @@ export type AdminToggleFeatureComparisonMutationOptions = Apollo.BaseMutationOpt
 export const AdminCreateOrganizationDocument = gql`
     mutation AdminCreateOrganization($input: AdminCreateOrganizationInput!) {
   adminCreateOrganization(input: $input) {
-    id
-    name
+    inviteUrl
+    organization {
+      id
+      name
+    }
   }
 }
     `;
@@ -35952,12 +35961,6 @@ export const AdminToggleFeatureDocument = gql`
     mutation AdminToggleFeature($input: AdminToggleFeatureInput!) {
   adminToggleFeature(input: $input) {
     id
-    action
-    featureKey
-    featureType
-    afterValue
-    reason
-    createdAt
   }
 }
     `;
