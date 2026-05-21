@@ -19,6 +19,10 @@ gql`
     description
     interval
     amountCurrency
+    amountCents
+    payInAdvance
+    trialPeriod
+    invoiceDisplayName
     hasOverriddenPlans
     billFixedChargesMonthly
     billChargesMonthly

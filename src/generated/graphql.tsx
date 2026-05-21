@@ -11546,14 +11546,14 @@ export type PlanForUsageChargeAccordionFragment = { __typename?: 'Plan', billCha
 
 export type VolumeRangesFragment = { __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null };
 
-export type PlanDetailsV2Fragment = { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, hasOverriddenPlans?: boolean | null, billFixedChargesMonthly?: boolean | null, billChargesMonthly?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null };
+export type PlanDetailsV2Fragment = { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, amountCents: any, payInAdvance: boolean, trialPeriod?: number | null, invoiceDisplayName?: string | null, hasOverriddenPlans?: boolean | null, billFixedChargesMonthly?: boolean | null, billChargesMonthly?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null };
 
 export type GetPlanForDetailsV2QueryVariables = Exact<{
   planId: Scalars['ID']['input'];
 }>;
 
 
-export type GetPlanForDetailsV2Query = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, hasOverriddenPlans?: boolean | null, billFixedChargesMonthly?: boolean | null, billChargesMonthly?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null } | null };
+export type GetPlanForDetailsV2Query = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, amountCents: any, payInAdvance: boolean, trialPeriod?: number | null, invoiceDisplayName?: string | null, hasOverriddenPlans?: boolean | null, billFixedChargesMonthly?: boolean | null, billChargesMonthly?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null } | null };
 
 export type PlanDetailsActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -16793,6 +16793,10 @@ export const PlanDetailsV2FragmentDoc = gql`
   description
   interval
   amountCurrency
+  amountCents
+  payInAdvance
+  trialPeriod
+  invoiceDisplayName
   hasOverriddenPlans
   billFixedChargesMonthly
   billChargesMonthly
