@@ -13,7 +13,7 @@
     // Language and module settings
     "target": "esnext",
     "module": "esnext",
-    "lib": ["es6", "dom", "esnext"],
+    "lib": ["dom", "esnext"],
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
 
