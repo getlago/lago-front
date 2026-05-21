@@ -1,7 +1,8 @@
 import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 
-import type { EntityData } from '../../common/RichTextEditorContext'
+import type { EntityData } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
+
 import { PlanBlock } from '../PlanBlock'
 import { getPlanBlockPreviewData, PlanBlockSchema } from '../PlanBlock.schema'
 
