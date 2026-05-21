@@ -3,43 +3,13 @@ import NiceModal from '@ebay/nice-modal-react'
 import { Chip } from '~/components/designSystem/Chip'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { FeatureFlagEnum, PremiumIntegrationTypeEnum } from '~/generated/graphql'
 
 import { REASON_MODAL_NAME } from './const'
 import { ReasonModalProps } from './ReasonModal'
 
-const KNOWN_PREMIUM_INTEGRATIONS = [
-  'beta_payment_authorization',
-  'netsuite',
-  'okta',
-  'avalara',
-  'xero',
-  'progressive_billing',
-  'lifetime_usage',
-  'hubspot',
-  'auto_dunning',
-  'revenue_analytics',
-  'salesforce',
-  'api_permissions',
-  'revenue_share',
-  'remove_branding_watermark',
-  'manual_payments',
-  'from_email',
-  'issue_receipts',
-  'preview',
-  'multi_entities_pro',
-  'multi_entities_enterprise',
-]
-
-const KNOWN_FEATURE_FLAGS = [
-  'multiple_payment_methods',
-  'non_persistable_charge_cache_optimization',
-  'postgres_enriched_events',
-  'enriched_events_aggregation',
-  'wallet_traceability',
-  'multi_currency',
-  'payment_gated_subscriptions',
-  'order_forms',
-]
+const KNOWN_PREMIUM_INTEGRATIONS = Object.values(PremiumIntegrationTypeEnum)
+const KNOWN_FEATURE_FLAGS = Object.values(FeatureFlagEnum)
 
 export interface OrgData {
   id: string
@@ -152,11 +122,13 @@ export const ComparisonMatrix = ({
         {
           key: 'featureType',
           title: 'Type',
-          minWidth: 100,
+          minWidth: 120,
           content: (row) => (
-            <Typography variant="caption" color="grey600" noWrap>
-              {row.featureType === 'premium_integration' ? 'Integration' : 'Flag'}
-            </Typography>
+            <Chip
+              label={row.featureType === 'premium_integration' ? 'Integration' : 'Flag'}
+              size="small"
+              color={row.featureType === 'premium_integration' ? 'info600' : 'purple600'}
+            />
           ),
         },
         ...organizations.map((org) => ({
