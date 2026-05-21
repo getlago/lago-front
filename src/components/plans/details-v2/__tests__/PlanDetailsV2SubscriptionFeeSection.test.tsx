@@ -7,9 +7,9 @@ import { ReactNode } from 'react'
 import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
 
-import { PlanDetailsV2SubscriptionFeeSection } from '../PlanDetailsV2SubscriptionFeeSection'
-
 import { planDetailsV2Fixture } from './fixtures'
+
+import { PlanDetailsV2SubscriptionFeeSection } from '../PlanDetailsV2SubscriptionFeeSection'
 
 NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 

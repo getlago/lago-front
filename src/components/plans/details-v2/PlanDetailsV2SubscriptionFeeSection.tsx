@@ -33,7 +33,8 @@ export const PlanDetailsV2SubscriptionFeeSection = ({
 
   const openDrawer = () => {
     drawerRef.current?.openDrawer({
-      amountCents: plan.amountCents != null ? String(plan.amountCents) : '',
+      amountCents:
+        plan.amountCents !== null && plan.amountCents !== undefined ? String(plan.amountCents) : '',
       payInAdvance: plan.payInAdvance ?? false,
       trialPeriod: plan.trialPeriod ?? 0,
       invoiceDisplayName: plan.invoiceDisplayName ?? undefined,
