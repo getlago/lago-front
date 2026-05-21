@@ -20,6 +20,7 @@ const ADMIN_ORGANIZATION_QUERY = gql`
       email
       createdAt
       premiumIntegrations
+      featureFlags
     }
   }
 `
@@ -61,6 +62,18 @@ const KNOWN_PREMIUM_INTEGRATIONS = [
   'multi_entities_enterprise',
 ]
 
+const KNOWN_FEATURE_FLAGS = [
+  'enriched_events_aggregation',
+  'multi_currency',
+  'multi_entity_billing',
+  'multiple_payment_methods',
+  'non_persistable_charge_cache_optimization',
+  'order_forms',
+  'payment_gated_subscriptions',
+  'postgres_enriched_events',
+  'wallet_traceability',
+]
+
 const AdminOrganizationDetail = () => {
   const { organizationId } = useParams<{ organizationId: string }>()
 
@@ -78,19 +91,29 @@ const AdminOrganizationDetail = () => {
     [org?.premiumIntegrations],
   )
 
+  const serverFeatureFlags: string[] = useMemo(() => org?.featureFlags ?? [], [org?.featureFlags])
+
   // Local state for batch editing
   const [localIntegrations, setLocalIntegrations] = useState<Set<string>>(new Set())
+  const [localFeatureFlags, setLocalFeatureFlags] = useState<Set<string>>(new Set())
 
   // Sync local state when server data changes
   useEffect(() => {
     setLocalIntegrations(new Set(serverIntegrations))
-  }, [serverIntegrations])
+    setLocalFeatureFlags(new Set(serverFeatureFlags))
+  }, [serverIntegrations, serverFeatureFlags])
 
   const isDirty = useMemo(() => {
-    if (serverIntegrations.length !== localIntegrations.size) return true
+    const integrationsDirty =
+      serverIntegrations.length !== localIntegrations.size ||
+      serverIntegrations.some((key) => !localIntegrations.has(key))
 
-    return serverIntegrations.some((key) => !localIntegrations.has(key))
-  }, [serverIntegrations, localIntegrations])
+    const flagsDirty =
+      serverFeatureFlags.length !== localFeatureFlags.size ||
+      serverFeatureFlags.some((key) => !localFeatureFlags.has(key))
+
+    return integrationsDirty || flagsDirty
+  }, [serverIntegrations, localIntegrations, serverFeatureFlags, localFeatureFlags])
 
   const handleToggleLocal = (key: string) => {
     setLocalIntegrations((prev) => {
@@ -106,25 +129,62 @@ const AdminOrganizationDetail = () => {
     })
   }
 
+  const handleToggleFlag = (key: string) => {
+    setLocalFeatureFlags((prev) => {
+      const next = new Set(prev)
+
+      if (next.has(key)) {
+        next.delete(key)
+      } else {
+        next.add(key)
+      }
+
+      return next
+    })
+  }
+
   const handleSave = () => {
-    // Compute what changed
-    const toEnable = KNOWN_PREMIUM_INTEGRATIONS.filter(
+    const toEnableIntegrations = KNOWN_PREMIUM_INTEGRATIONS.filter(
       (key) => localIntegrations.has(key) && !serverIntegrations.includes(key),
     )
-    const toDisable = KNOWN_PREMIUM_INTEGRATIONS.filter(
+    const toDisableIntegrations = KNOWN_PREMIUM_INTEGRATIONS.filter(
       (key) => !localIntegrations.has(key) && serverIntegrations.includes(key),
+    )
+    const toEnableFlags = KNOWN_FEATURE_FLAGS.filter(
+      (key) => localFeatureFlags.has(key) && !serverFeatureFlags.includes(key),
+    )
+    const toDisableFlags = KNOWN_FEATURE_FLAGS.filter(
+      (key) => !localFeatureFlags.has(key) && serverFeatureFlags.includes(key),
     )
 
     const changes = [
-      ...toEnable.map((key) => ({ featureKey: key, enabled: true })),
-      ...toDisable.map((key) => ({ featureKey: key, enabled: false })),
+      ...toEnableIntegrations.map((key) => ({
+        featureKey: key,
+        enabled: true,
+        featureType: 'premium_integration',
+      })),
+      ...toDisableIntegrations.map((key) => ({
+        featureKey: key,
+        enabled: false,
+        featureType: 'premium_integration',
+      })),
+      ...toEnableFlags.map((key) => ({
+        featureKey: key,
+        enabled: true,
+        featureType: 'feature_flag',
+      })),
+      ...toDisableFlags.map((key) => ({
+        featureKey: key,
+        enabled: false,
+        featureType: 'feature_flag',
+      })),
     ]
 
     if (changes.length === 0) return
 
     NiceModal.show<void, ReasonModalProps>(REASON_MODAL_NAME, {
-      title: `Update ${changes.length} integration${changes.length > 1 ? 's' : ''}`,
-      description: `Please provide a reason for updating premium integrations.`,
+      title: `Update ${changes.length} feature${changes.length > 1 ? 's' : ''}`,
+      description: `Please provide a reason for updating features.`,
       onConfirm: async (reason: string, notifyOrgAdmin: boolean) => {
         setIsSaving(true)
 
@@ -135,7 +195,7 @@ const AdminOrganizationDetail = () => {
                 input: {
                   organizationId,
                   featureKey: change.featureKey,
-                  featureType: 'premium_integration',
+                  featureType: change.featureType,
                   enabled: change.enabled,
                   reason,
                   notifyOrgAdmin,
@@ -153,6 +213,7 @@ const AdminOrganizationDetail = () => {
 
   const handleReset = () => {
     setLocalIntegrations(new Set(serverIntegrations))
+    setLocalFeatureFlags(new Set(serverFeatureFlags))
   }
 
   if (loading) {
@@ -211,6 +272,25 @@ const AdminOrganizationDetail = () => {
                 name={key}
                 checked={localIntegrations.has(key)}
                 onChange={() => handleToggleLocal(key)}
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-8">
+          <Typography variant="subhead1" className="mb-4">
+            Feature Flags
+          </Typography>
+          {KNOWN_FEATURE_FLAGS.map((key) => (
+            <div
+              key={key}
+              className="flex items-center justify-between border-b border-grey-300 py-3"
+            >
+              <Typography variant="body">{key}</Typography>
+              <Switch
+                name={`flag-${key}`}
+                checked={localFeatureFlags.has(key)}
+                onChange={() => handleToggleFlag(key)}
               />
             </div>
           ))}
