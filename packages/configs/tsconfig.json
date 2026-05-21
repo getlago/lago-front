@@ -11,7 +11,7 @@
   "include": ["./**/*.ts", "./**/*.tsx"],
   "compilerOptions": {
     // Language and module settings
-    "target": "es2022",
+    "target": "esnext",
     "module": "esnext",
     "lib": ["es6", "dom", "esnext"],
     "moduleResolution": "bundler",
