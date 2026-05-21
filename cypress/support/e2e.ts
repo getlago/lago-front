@@ -2,10 +2,10 @@
 // This example support/e2e.ts is processed and
 // loaded automatically before your test files.
 // ***********************************************************
-import { userEmail, userPassword } from './reusableConstants'
+import { NEVER_SLUG_PREFIXES } from '~/core/router/slugPrefixes'
+import { SIGNUP_SUBMIT_BUTTON_TEST_ID } from '~/pages/auth/signUpTestIds'
 
-import { NEVER_SLUG_PREFIXES } from '../../src/core/router/slugPrefixes'
-import { SIGNUP_SUBMIT_BUTTON_TEST_ID } from '../../src/pages/auth/signUpTestIds'
+import { userEmail, userPassword } from './reusableConstants'
 
 /**
  * Paths that pass through `cy.visitApp()` unchanged (no slug prepended).

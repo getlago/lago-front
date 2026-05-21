@@ -1,7 +1,8 @@
 import {
   APPLY_TAX_BUTTON_TEST_ID,
   APPLY_TAX_DIALOG_SUBMIT_BUTTON_TEST_ID,
-} from '../../../src/pages/settings/BillingEntity/sections/taxes/dataTestConstants'
+} from '~/pages/settings/BillingEntity/sections/taxes/dataTestConstants'
+
 import {
   TAX_TEN_CODE,
   TAX_TEN_NAME,

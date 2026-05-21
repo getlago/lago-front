@@ -1,7 +1,7 @@
 import {
   ACTIONS_BLOCK_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
-} from '../../../src/components/MainHeader/mainHeaderTestIds'
+} from '~/components/MainHeader/mainHeaderTestIds'
 
 describe('Add On', () => {
   beforeEach(() => {

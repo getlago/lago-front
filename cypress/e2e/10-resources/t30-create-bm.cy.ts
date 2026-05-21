@@ -1,4 +1,4 @@
-import { ACTIONS_BLOCK_TEST_ID } from '../../../src/components/MainHeader/mainHeaderTestIds'
+import { ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
 
 describe('Create billable metrics', () => {
   beforeEach(() => {

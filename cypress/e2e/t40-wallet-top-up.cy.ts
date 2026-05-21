@@ -1,18 +1,18 @@
 import {
   CREATE_CUSTOMER_DATA_TEST,
   SUBMIT_CUSTOMER_DATA_TEST,
-} from '../../src/components/customers/utils/dataTestConstants'
-import { DESKTOP_ACTIONS_BLOCK_TEST_ID } from '../../src/components/MainHeader/mainHeaderTestIds'
+} from '~/components/customers/utils/dataTestConstants'
+import { DESKTOP_ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
 import {
   CREATE_WALLET_DATA_TEST,
   SUBMIT_WALLET_DATA_TEST,
   WALLET_ACTIONS_DATA_TEST,
   WALLET_TOPUP_BUTTON_DATA_TEST,
-} from '../../src/components/wallets/utils/dataTestConstants'
+} from '~/components/wallets/utils/dataTestConstants'
 import {
   TOPUP_TYPE_FREE_CREDITS_DATA_TEST,
   TOPUP_TYPE_PREPAID_CREDITS_DATA_TEST,
-} from '../../src/components/wallets/utils/dataTestConstants'
+} from '~/components/wallets/utils/dataTestConstants'
 
 const randomId = Math.round(Math.random() * 10000)
 const walletCustomerName = `Wallet Customer ${randomId}`

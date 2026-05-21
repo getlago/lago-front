@@ -1,8 +1,9 @@
 import {
   CREATE_CUSTOMER_DATA_TEST,
   SUBMIT_CUSTOMER_DATA_TEST,
-} from '../../../src/components/customers/utils/dataTestConstants'
-import { ACTIONS_BLOCK_TEST_ID } from '../../../src/components/MainHeader/mainHeaderTestIds'
+} from '~/components/customers/utils/dataTestConstants'
+import { ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
+
 import { customerName } from '../../support/reusableConstants'
 
 describe('Create customer', () => {

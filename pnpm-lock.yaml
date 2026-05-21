@@ -41,7 +41,7 @@ importers:
         version: 6.20.2(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mui/system@5.18.0(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(dayjs@1.11.13)(luxon@3.7.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@nangohq/frontend':
         specifier: 0.70.1
-        version: 0.70.1
+        version: 0.70.1(debug@4.4.3)
       '@sentry/react':
         specifier: 10.53.1
         version: 10.53.1(react@18.3.1)
@@ -355,6 +355,9 @@ importers:
       cypress:
         specifier: 15.14.2
         version: 15.14.2
+      cypress-vite:
+        specifier: 1.10.0
+        version: 1.10.0(chokidar@3.6.0)(debug@4.4.3)(vite@7.3.3(@types/node@24.12.3)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.8.3))
       dotenv:
         specifier: 17.4.2
         version: 17.4.2
@@ -4839,6 +4842,13 @@ packages:
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
+
+  cypress-vite@1.10.0:
+    resolution: {integrity: sha512-jZtf8IGr3xDer0I/gE69OqvWK8c+Tbn6OQSUeH3h9xJTiitfyuYo/WvevjSNJICg4IV/pEjlUclqpBpc5KF9fQ==}
+    peerDependencies:
+      chokidar: ^2 || ^3 || ^4 || ^5
+      debug: ^2 || ^3 || ^4
+      vite: ^2.9 || ^3 || ^4 || ^5 || ^6 || ^7 || ^8
 
   cypress@15.14.2:
     resolution: {integrity: sha512-xMWg/iEImeIThRQZdnf3BFJT1a84apM/R91Feoa4vVWGuYWDphMT5jLhRVTBVlCgi+6axegF1zqhNyjhug2SsQ==}
@@ -11572,15 +11582,15 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@nangohq/frontend@0.70.1':
+  '@nangohq/frontend@0.70.1(debug@4.4.3)':
     dependencies:
-      '@nangohq/types': 0.70.1
+      '@nangohq/types': 0.70.1(debug@4.4.3)
     transitivePeerDependencies:
       - debug
 
-  '@nangohq/types@0.70.1':
+  '@nangohq/types@0.70.1(debug@4.4.3)':
     dependencies:
-      axios: 1.16.0
+      axios: 1.16.0(debug@4.4.3)
       json-schema: 0.4.0
       type-fest: 4.41.0
     transitivePeerDependencies:
@@ -13087,9 +13097,9 @@ snapshots:
 
   axe-core@4.10.2: {}
 
-  axios@1.16.0:
+  axios@1.16.0(debug@4.4.3):
     dependencies:
-      follow-redirects: 1.16.0
+      follow-redirects: 1.16.0(debug@4.4.3)
       form-data: 4.0.5
       proxy-from-env: 2.1.0
     transitivePeerDependencies:
@@ -13611,6 +13621,12 @@ snapshots:
   csstype@3.1.3: {}
 
   csstype@3.2.3: {}
+
+  cypress-vite@1.10.0(chokidar@3.6.0)(debug@4.4.3)(vite@7.3.3(@types/node@24.12.3)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.8.3)):
+    dependencies:
+      chokidar: 3.6.0
+      debug: 4.4.3(supports-color@8.1.1)
+      vite: 7.3.3(@types/node@24.12.3)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.8.3)
 
   cypress@15.14.2:
     dependencies:
@@ -14392,7 +14408,9 @@ snapshots:
 
   flow-parser@0.258.1: {}
 
-  follow-redirects@1.16.0: {}
+  follow-redirects@1.16.0(debug@4.4.3):
+    optionalDependencies:
+      debug: 4.4.3(supports-color@8.1.1)
 
   for-each@0.3.5:
     dependencies:
