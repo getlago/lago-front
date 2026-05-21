@@ -4,8 +4,9 @@
     "noEmit": true,
     "sourceMap": false,
     "types": ["cypress"],
+    "baseUrl": "../src",
     "paths": {
-      "~/*": ["../src/*"]
+      "~/*": ["*"]
     }
   },
   "exclude": ["node_modules"]
