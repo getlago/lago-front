@@ -169,6 +169,25 @@ const AdminOrganizations = () => {
               },
             },
             {
+              key: 'email',
+              title: 'Feature Flags',
+              minWidth: 200,
+              maxSpace: true,
+              content: (org) => {
+                const flags: string[] = org.featureFlags || []
+
+                if (flags.length === 0) return <Typography color="grey600">-</Typography>
+
+                return (
+                  <div className="flex flex-wrap gap-1">
+                    {flags.map((flag: string) => (
+                      <Chip key={flag} label={flag} size="small" />
+                    ))}
+                  </div>
+                )
+              },
+            },
+            {
               key: 'createdAt',
               title: 'Created',
               minWidth: 160,
