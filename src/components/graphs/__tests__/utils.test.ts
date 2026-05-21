@@ -236,10 +236,31 @@ describe('components/graphs/utils', () => {
       expect(builtArray.length).toBe(13)
       expect(builtArray).toStrictEqual(
         data.map((d) => ({
-          ...d,
           month: DateTime.fromISO(d.month as string).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
+          amountCents: d.amountCents,
+          currency: d.currency,
         })),
       )
+    })
+
+    it('should sum amountCents when multiple rows share the same calendar month', () => {
+      const lastMonthISO = DateTime.utc().startOf('month').minus({ month: 1 }).toISO()
+      const data: TAreaChartDataResult = [
+        { month: lastMonthISO, amountCents: 100, currency: CurrencyEnum.Eur },
+        { month: lastMonthISO, amountCents: 250, currency: CurrencyEnum.Eur },
+      ]
+
+      const builtArray = padAndTransformDataOverLastTwelveMonth(data, CurrencyEnum.Eur)
+      const lastMonthSlot = builtArray[builtArray.length - 2]
+
+      expect(lastMonthSlot).toStrictEqual({
+        month: DateTime.utc()
+          .startOf('month')
+          .minus({ month: 1 })
+          .toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
+        amountCents: 350,
+        currency: CurrencyEnum.Eur,
+      })
     })
   })
 
