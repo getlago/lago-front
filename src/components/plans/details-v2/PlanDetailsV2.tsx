@@ -1,7 +1,11 @@
 import { gql } from '@apollo/client'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { LagoApiError, useGetPlanForDetailsV2Query } from '~/generated/graphql'
+import {
+  LagoApiError,
+  TaxForPlanSettingsSectionFragmentDoc,
+  useGetPlanForDetailsV2Query,
+} from '~/generated/graphql'
 
 import { PlanDetailsV2LeftSidebar } from './PlanDetailsV2LeftSidebar'
 import { PlanDetailsV2SectionId } from './sidebarSections'
@@ -15,6 +19,17 @@ gql`
     interval
     amountCurrency
     hasOverriddenPlans
+    billFixedChargesMonthly
+    billChargesMonthly
+    taxes {
+      ...TaxForPlanSettingsSection
+    }
+    fixedCharges {
+      id
+    }
+    charges {
+      id
+    }
   }
 
   query getPlanForDetailsV2($planId: ID!) {
@@ -22,6 +37,8 @@ gql`
       ...PlanDetailsV2
     }
   }
+
+  ${TaxForPlanSettingsSectionFragmentDoc}
 `
 
 const TOP_LEVEL_SECTION_IDS: PlanDetailsV2SectionId[] = [
