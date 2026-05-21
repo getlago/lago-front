@@ -1,8 +1,7 @@
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME,
-} from '~/core/constants/form'
-
+} from '../../src/core/constants/form'
 import { customerName } from '../support/reusableConstants'
 
 describe('Create one-off', () => {

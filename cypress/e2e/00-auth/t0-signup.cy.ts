@@ -4,8 +4,7 @@ import {
   SIGNUP_PASSWORD_VALIDATION_VISIBLE_TEST_ID,
   SIGNUP_SUBMIT_BUTTON_TEST_ID,
   SIGNUP_SUCCESS_ALERT_TEST_ID,
-} from '~/pages/auth/signUpTestIds'
-
+} from '../../../src/pages/auth/signUpTestIds'
 import { userEmail, userPassword } from '../../support/reusableConstants'
 
 describe('Sign up', () => {

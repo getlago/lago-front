@@ -1,8 +1,8 @@
 import {
   CREATE_CUSTOMER_DATA_TEST,
   SUBMIT_CUSTOMER_DATA_TEST,
-} from '~/components/customers/utils/dataTestConstants'
-import { ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
+} from '../../../src/components/customers/utils/dataTestConstants'
+import { ACTIONS_BLOCK_TEST_ID } from '../../../src/components/MainHeader/mainHeaderTestIds'
 
 // Note: some login are done manually without using cy.login command
 // to preserve the router state needed for redirect testing

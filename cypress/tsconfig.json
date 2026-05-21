@@ -3,13 +3,7 @@
   "compilerOptions": {
     "noEmit": true,
     "sourceMap": false,
-    "types": ["cypress"],
-    "rootDir": "..",
-    "baseUrl": "../src",
-    "paths": {
-      "~/*": ["*"]
-    },
-    "ignoreDeprecations": "6.0"
+    "types": ["cypress"]
   },
   "exclude": ["node_modules"]
 }

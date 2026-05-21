@@ -1,12 +1,11 @@
-import { ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
+import { ACTIONS_BLOCK_TEST_ID } from '../../../src/components/MainHeader/mainHeaderTestIds'
 import {
   CHARGE_PERCENTAGE_ADD_FIXED_FEE_TEST_ID,
   CHARGE_PERCENTAGE_REMOVE_FIXED_FEE_TEST_ID,
   GRADUATED_CHARGE_TABLE_ADD_TIER_TEST_ID,
   VOLUME_CHARGE_TABLE_ADD_TIER_TEST_ID,
-} from '~/components/plans/chargeTestIds'
-import { SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME } from '~/core/constants/form'
-
+} from '../../../src/components/plans/chargeTestIds'
+import { SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME } from '../../../src/core/constants/form'
 import { planWithChargesName } from '../../support/reusableConstants'
 
 // Helper: select a metered billable metric in the usage charge drawer.

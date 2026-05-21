@@ -1,8 +1,7 @@
 import {
   ACTIONS_BLOCK_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
-} from '~/components/MainHeader/mainHeaderTestIds'
-
+} from '../../../src/components/MainHeader/mainHeaderTestIds'
 import { customerName } from '../../support/reusableConstants'
 
 const randomId = Math.round(Math.random() * 10000)
