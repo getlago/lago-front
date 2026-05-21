@@ -42,10 +42,10 @@ import {
   PlanItemFragmentDoc,
   useCreatePlanMutation,
   useGetSinglePlanQuery,
-  useUpdatePlanMutation,
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
+import { usePlanUpdate } from '~/hooks/plans/usePlanUpdate'
 import { buildPlanSettingsValues } from '~/hooks/plans/utils'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
@@ -257,51 +257,43 @@ export const usePlanForm = ({
       }
     },
   })
-  const [update, { error: updateError }] = useUpdatePlanMutation({
-    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    onCompleted({ updatePlan }) {
-      if (!!updatePlan) {
-        const origin = searchParams.get('origin')
-        const originSubscriptionId = searchParams.get('subscriptionId')
-        const originCustomerId = searchParams.get('customerId')
+  const { update, error: updateError } = usePlanUpdate({
+    onSuccess(updatePlan) {
+      const origin = searchParams.get('origin')
+      const originSubscriptionId = searchParams.get('subscriptionId')
+      const originCustomerId = searchParams.get('customerId')
 
-        addToast({
-          severity: 'success',
-          translateKey: 'text_625fd165963a7b00c8f598a0',
-        })
-
-        if (
-          origin === REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE &&
-          originSubscriptionId &&
-          !!originCustomerId
-        ) {
-          navigate(
-            generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-              customerId: originCustomerId,
-              subscriptionId: originSubscriptionId,
-              tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
-            }),
-          )
-        } else if (
-          origin === REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE &&
-          !!originSubscriptionId &&
-          updatePlan?.id
-        ) {
-          navigate(
-            generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
-              planId: updatePlan?.id,
-              subscriptionId: originSubscriptionId,
-              tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
-            }),
-          )
-        } else {
-          navigate(
-            generatePath(PLAN_DETAILS_ROUTE, {
-              planId: updatePlan.id,
-              tab: PlanDetailsTabsOptionsEnum.overview,
-            }),
-          )
-        }
+      if (
+        origin === REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE &&
+        originSubscriptionId &&
+        !!originCustomerId
+      ) {
+        navigate(
+          generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+            customerId: originCustomerId,
+            subscriptionId: originSubscriptionId,
+            tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+          }),
+        )
+      } else if (
+        origin === REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE &&
+        !!originSubscriptionId &&
+        updatePlan?.id
+      ) {
+        navigate(
+          generatePath(PLAN_SUBSCRIPTION_DETAILS_ROUTE, {
+            planId: updatePlan?.id,
+            subscriptionId: originSubscriptionId,
+            tab: CustomerSubscriptionDetailsTabsOptionsEnum.usage,
+          }),
+        )
+      } else {
+        navigate(
+          generatePath(PLAN_DETAILS_ROUTE, {
+            planId: updatePlan.id,
+            tab: PlanDetailsTabsOptionsEnum.overview,
+          }),
+        )
       }
     },
   })
