@@ -1,10 +1,11 @@
 import { MockedProvider } from '@apollo/client/testing'
 import { screen, waitFor } from '@testing-library/react'
 
-import { CurrencyEnum, GetPlanForDetailsV2Document, PlanInterval } from '~/generated/graphql'
+import { GetPlanForDetailsV2Document } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { PlanDetailsV2 } from '../PlanDetailsV2'
+import { PLAN_DETAILS_V2_FIXTURE_ID, planDetailsV2Fixture } from './fixtures'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -12,31 +13,19 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-const PLAN_ID = 'plan_1'
-
 const planMock = {
-  request: { query: GetPlanForDetailsV2Document, variables: { planId: PLAN_ID } },
-  result: {
-    data: {
-      plan: {
-        __typename: 'Plan',
-        id: PLAN_ID,
-        name: 'Pro',
-        code: 'pro',
-        description: null,
-        interval: PlanInterval.Monthly,
-        amountCurrency: CurrencyEnum.Usd,
-        hasOverriddenPlans: false,
-      },
-    },
+  request: {
+    query: GetPlanForDetailsV2Document,
+    variables: { planId: PLAN_DETAILS_V2_FIXTURE_ID },
   },
+  result: { data: { plan: planDetailsV2Fixture } },
 }
 
 describe('PlanDetailsV2', () => {
   it('renders the sidebar and every plan section anchor once the query resolves', async () => {
     render(
       <MockedProvider mocks={[planMock]} addTypename={false}>
-        <PlanDetailsV2 planId={PLAN_ID} />
+        <PlanDetailsV2 planId={PLAN_DETAILS_V2_FIXTURE_ID} />
       </MockedProvider>,
     )
 
@@ -60,7 +49,7 @@ describe('PlanDetailsV2', () => {
   it('hides the sub-flow sections when isInSubscriptionForm=true', async () => {
     render(
       <MockedProvider mocks={[planMock]} addTypename={false}>
-        <PlanDetailsV2 planId={PLAN_ID} isInSubscriptionForm />
+        <PlanDetailsV2 planId={PLAN_DETAILS_V2_FIXTURE_ID} isInSubscriptionForm />
       </MockedProvider>,
     )
 
@@ -76,7 +65,7 @@ describe('PlanDetailsV2', () => {
   it('does not render the sidebar while the query is loading', () => {
     render(
       <MockedProvider mocks={[planMock]} addTypename={false}>
-        <PlanDetailsV2 planId={PLAN_ID} />
+        <PlanDetailsV2 planId={PLAN_DETAILS_V2_FIXTURE_ID} />
       </MockedProvider>,
     )
 
