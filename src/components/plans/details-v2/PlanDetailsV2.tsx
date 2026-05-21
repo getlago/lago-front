@@ -84,7 +84,9 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
     return <DetailsPage.Skeleton />
   }
 
-  if (!data?.plan) {
+  const plan = data?.plan
+
+  if (!plan) {
     return null
   }
 
@@ -100,17 +102,13 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
             return (
               <PlanDetailsV2PlanSettingsSection
                 key={id}
-                plan={data.plan}
+                plan={plan}
                 isInSubscriptionForm={isInSubscriptionForm}
               />
             )
           }
           return (
-            <section
-              key={id}
-              id={id}
-              className="min-h-48 scroll-mt-12 rounded-xl bg-grey-100"
-            />
+            <section key={id} id={id} className="min-h-48 scroll-mt-12 rounded-xl bg-grey-100" />
           )
         })}
         <section

@@ -1,15 +1,15 @@
 import { MockedProvider } from '@apollo/client/testing'
 import NiceModal from '@ebay/nice-modal-react'
-import { screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
 import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
-import { render } from '~/test-utils'
+
+import { planDetailsV2Fixture } from './fixtures'
 
 import { PlanDetailsV2PlanSettingsSection } from '../PlanDetailsV2PlanSettingsSection'
-import { planDetailsV2Fixture } from './fixtures'
 
 NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 
@@ -78,10 +78,9 @@ describe('PlanDetailsV2PlanSettingsSection', () => {
   })
 
   it('hides the Edit action when isInSubscriptionForm is true', () => {
-    render(
-      <PlanDetailsV2PlanSettingsSection plan={planDetailsV2Fixture} isInSubscriptionForm />,
-      { wrapper: Wrapper },
-    )
+    render(<PlanDetailsV2PlanSettingsSection plan={planDetailsV2Fixture} isInSubscriptionForm />, {
+      wrapper: Wrapper,
+    })
 
     expect(screen.queryByRole('button', { name: /actions/i })).not.toBeInTheDocument()
   })

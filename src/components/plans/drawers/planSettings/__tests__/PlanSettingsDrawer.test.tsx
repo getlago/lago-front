@@ -129,10 +129,9 @@ describe('PlanSettingsDrawer', () => {
   })
 
   it('opens the cascade dialog when plan has overridden subs', async () => {
-    const { ref } = renderHarness(
-      { ...planDetailsV2Fixture, hasOverriddenPlans: true },
-      [updateMockFactory(true)],
-    )
+    const { ref } = renderHarness({ ...planDetailsV2Fixture, hasOverriddenPlans: true }, [
+      updateMockFactory(true),
+    ])
 
     act(() => ref.current?.openDrawer())
 

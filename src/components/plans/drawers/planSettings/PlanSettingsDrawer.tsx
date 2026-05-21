@@ -25,18 +25,27 @@ type PlanSettingsDrawerProps = {
   plan: PlanDetailsV2Fragment
 }
 
-const buildDrawerDefaults = (plan: PlanDetailsV2Fragment): PlanFormInput => ({
-  ...buildPlanSettingsValues(plan),
-  amountCents: '0',
-  trialPeriod: 0,
-  payInAdvance: false,
-  minimumCommitment: {},
-  entitlements: [],
-  nonRecurringUsageThresholds: undefined,
-  recurringUsageThreshold: undefined,
-  invoiceDisplayName: undefined,
-  cascadeUpdates: undefined,
-})
+const buildDrawerDefaults = (plan: PlanDetailsV2Fragment): PlanFormInput => {
+  const settingsDefaults = buildPlanSettingsValues(plan)
+
+  return {
+    ...settingsDefaults,
+    // PlanSettingsSection only reads fixedCharges.length / charges.length to
+    // gate the bill*Monthly switches. We seed length-only stubs and cast to
+    // satisfy PlanFormInput — the drawer never edits these arrays.
+    fixedCharges: settingsDefaults.fixedCharges as unknown as PlanFormInput['fixedCharges'],
+    charges: settingsDefaults.charges as unknown as PlanFormInput['charges'],
+    amountCents: '0',
+    trialPeriod: 0,
+    payInAdvance: false,
+    minimumCommitment: {},
+    entitlements: [],
+    nonRecurringUsageThresholds: undefined,
+    recurringUsageThreshold: undefined,
+    invoiceDisplayName: undefined,
+    cascadeUpdates: undefined,
+  }
+}
 
 export const PlanSettingsDrawer = forwardRef<PlanSettingsDrawerRef, PlanSettingsDrawerProps>(
   ({ plan }, ref) => {
@@ -88,7 +97,6 @@ export const PlanSettingsDrawer = forwardRef<PlanSettingsDrawerRef, PlanSettings
             {(canSubmit) => (
               <Button
                 data-test="plan-settings-drawer-save"
-                form={PLAN_SETTINGS_FORM_ID}
                 onClick={handleSubmit}
                 disabled={!canSubmit}
               >

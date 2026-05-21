@@ -26,10 +26,7 @@ export const PlanDetailsV2PlanSettingsSection = ({
   const drawerRef = useRef<PlanSettingsDrawerRef>(null)
 
   return (
-    <section
-      id={PlanDetailsV2SectionId.PlanSettings}
-      className="flex scroll-mt-12 flex-col gap-6"
-    >
+    <section id={PlanDetailsV2SectionId.PlanSettings} className="flex scroll-mt-12 flex-col gap-6">
       <SectionHeader
         title={translate('text_642d5eb2783a2ad10d67031a')}
         description={translate('text_6661fc17337de3591e29e3c1')}

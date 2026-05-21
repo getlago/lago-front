@@ -4,8 +4,9 @@ import { screen, waitFor } from '@testing-library/react'
 import { GetPlanForDetailsV2Document } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { PlanDetailsV2 } from '../PlanDetailsV2'
 import { PLAN_DETAILS_V2_FIXTURE_ID, planDetailsV2Fixture } from './fixtures'
+
+import { PlanDetailsV2 } from '../PlanDetailsV2'
 
 jest.mock('~/components/plans/drawers/planSettings/PlanSettingsDrawer', () => {
   const { forwardRef, useImperativeHandle } = jest.requireActual('react')

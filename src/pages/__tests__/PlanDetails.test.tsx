@@ -30,6 +30,10 @@ jest.mock('~/components/plans/details/PlanDetailsOverview', () => ({
   PlanDetailsOverview: () => null,
 }))
 
+jest.mock('~/components/plans/details-v2/PlanDetailsV2', () => ({
+  PlanDetailsV2: () => null,
+}))
+
 jest.mock('~/components/plans/details/PlanDetailsActivityLogs', () => ({
   PlanDetailsActivityLogs: () => null,
 }))
