@@ -129,9 +129,11 @@ export const AuditLogTable = ({
                   {entry.featureKey}
                 </Typography>
                 {entry.featureType && (
-                  <Typography variant="caption" color="grey600" noWrap>
-                    {entry.featureType}
-                  </Typography>
+                  <Chip
+                    label={entry.featureType === 'premium_integration' ? 'Integration' : 'Flag'}
+                    size="small"
+                    color={entry.featureType === 'premium_integration' ? 'info600' : 'purple600'}
+                  />
                 )}
               </div>
             )
