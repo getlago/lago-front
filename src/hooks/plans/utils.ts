@@ -1,8 +1,4 @@
-import {
-  CurrencyEnum,
-  PlanInterval,
-  TaxForPlanSettingsSectionFragment,
-} from '~/generated/graphql'
+import { CurrencyEnum, PlanInterval, TaxForPlanSettingsSectionFragment } from '~/generated/graphql'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const formatAnyToValueForChargeFormArrays = (toValue: any, fromValue: number | string) => {

@@ -35,9 +35,7 @@ export const PlanSettingsInfo = ({ plan }: PlanSettingsInfoProps) => {
           },
           {
             label: translate('text_65201b8216455901fe273dc1'),
-            value: plan.interval
-              ? translate(getIntervalTranslationKey[plan.interval])
-              : undefined,
+            value: plan.interval ? translate(getIntervalTranslationKey[plan.interval]) : undefined,
           },
           {
             label: translate('text_632b4acf0c41206cbcb8c324'),

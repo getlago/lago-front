@@ -1,9 +1,9 @@
-import { MockedProvider } from '@apollo/client/testing'
+import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
-import { UpdatePlanDocument } from '~/generated/graphql'
+import { UpdatePlanDocument, UpdatePlanInput } from '~/generated/graphql'
 
 import { usePlanUpdate } from '../usePlanUpdate'
 
@@ -12,7 +12,7 @@ jest.mock('~/core/apolloClient', () => {
   return { ...actual, addToast: jest.fn() }
 })
 
-const wrapper = (mocks: Parameters<typeof MockedProvider>[0]['mocks']) =>
+const wrapper = (mocks: MockedResponse[]) =>
   function MockedWrapper({ children }: { children: ReactNode }) {
     return (
       <MockedProvider mocks={mocks} addTypename={false}>
@@ -23,10 +23,12 @@ const wrapper = (mocks: Parameters<typeof MockedProvider>[0]['mocks']) =>
 
 const PLAN_ID = 'plan_1'
 
-const updateMock = {
+const mutationInput = { id: PLAN_ID, name: 'X' } as unknown as UpdatePlanInput
+
+const updateMock: MockedResponse = {
   request: {
     query: UpdatePlanDocument,
-    variables: { input: { id: PLAN_ID, name: 'X' } },
+    variables: { input: mutationInput },
   },
   result: {
     data: { updatePlan: { __typename: 'Plan', id: PLAN_ID, name: 'X' } },
@@ -45,7 +47,7 @@ describe('usePlanUpdate', () => {
     })
 
     await act(async () => {
-      await result.current.update({ variables: { input: { id: PLAN_ID, name: 'X' } } })
+      await result.current.update({ variables: { input: mutationInput } })
     })
 
     await waitFor(() => {
