@@ -7,6 +7,7 @@ import { REASON_MODAL_NAME } from '~/components/admin/const'
 import { ReasonModalProps } from '~/components/admin/ReasonModal'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { MultipleComboBox } from '~/components/form/MultipleComboBox/MultipleComboBox'
 import { TextInput } from '~/components/form/TextInput/TextInput'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
@@ -16,13 +17,17 @@ import {
   ADMIN_ORGANIZATIONS_ROUTE,
   useNavigate,
 } from '~/core/router'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { FeatureFlagEnum, PremiumIntegrationTypeEnum } from '~/generated/graphql'
 
 const ADMIN_CREATE_ORGANIZATION_MUTATION = gql`
   mutation AdminCreateOrganization($input: AdminCreateOrganizationInput!) {
     adminCreateOrganization(input: $input) {
-      id
-      name
+      inviteUrl
+      organization {
+        id
+        name
+      }
     }
   }
 `
@@ -32,6 +37,7 @@ const KNOWN_FEATURE_FLAGS = Object.values(FeatureFlagEnum)
 
 const AdminOrganizationCreate = () => {
   const navigate = useNavigate()
+  const inviteLinkDialog = useCentralizedDialog()
 
   const [orgName, setOrgName] = useState('')
   const [ownerEmail, setOwnerEmail] = useState('')
@@ -42,6 +48,47 @@ const AdminOrganizationCreate = () => {
   const [createOrganization] = useMutation(ADMIN_CREATE_ORGANIZATION_MUTATION)
 
   const isValid = orgName.trim().length > 0 && ownerEmail.trim().length > 0
+
+  const showInviteLinkDialog = (inviteUrl: string, organizationId: string) => {
+    inviteLinkDialog
+      .open({
+        title: 'Organization Created',
+        description: `Share this invite link with the organization owner (${ownerEmail.trim()}).`,
+        actionText: 'Copy invite link',
+        children: (
+          <div className="flex flex-col gap-6 p-8">
+            <div className="flex items-baseline">
+              <Typography className="w-35 shrink-0" variant="caption" color="grey600">
+                Email
+              </Typography>
+              <Typography variant="body" color="grey700" noWrap>
+                {ownerEmail.trim()}
+              </Typography>
+            </div>
+            <div className="flex items-baseline">
+              <Typography className="w-35 shrink-0" variant="caption" color="grey600">
+                Invite URL
+              </Typography>
+              <Typography className="line-break-anywhere" variant="body" color="grey700">
+                {inviteUrl}
+              </Typography>
+            </div>
+          </div>
+        ),
+        onAction: () => {
+          copyToClipboard(inviteUrl)
+          addToast({
+            severity: 'info',
+            message: 'Invite link copied to clipboard.',
+          })
+        },
+      })
+      .then(() => {
+        navigate(generatePath(ADMIN_ORGANIZATION_DETAIL_ROUTE, { organizationId }), {
+          skipSlugPrepend: true,
+        })
+      })
+  }
 
   const handleCreate = () => {
     NiceModal.show<void, ReasonModalProps>(REASON_MODAL_NAME, {
@@ -62,13 +109,10 @@ const AdminOrganizationCreate = () => {
           },
         })
 
-        const createdOrg = result.data?.adminCreateOrganization
+        const payload = result.data?.adminCreateOrganization
 
-        if (createdOrg?.id) {
-          navigate(
-            generatePath(ADMIN_ORGANIZATION_DETAIL_ROUTE, { organizationId: createdOrg.id }),
-            { skipSlugPrepend: true },
-          )
+        if (payload?.organization?.id) {
+          showInviteLinkDialog(payload.inviteUrl, payload.organization.id)
         } else {
           addToast({
             severity: 'danger',

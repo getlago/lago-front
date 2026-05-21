@@ -133,7 +133,6 @@ const AdminComparison = () => {
               loading={isLoadingOrgs}
               onChange={handleOrgSelectionChange}
               limitTags={MAX_ORGS}
-              showOptionsOnlyWhenTyping
             />
           </div>
 
