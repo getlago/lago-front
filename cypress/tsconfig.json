@@ -4,10 +4,12 @@
     "noEmit": true,
     "sourceMap": false,
     "types": ["cypress"],
+    "rootDir": "..",
     "baseUrl": "../src",
     "paths": {
       "~/*": ["*"]
-    }
+    },
+    "ignoreDeprecations": "6.0"
   },
   "exclude": ["node_modules"]
 }
