@@ -1,14 +1,14 @@
 import { Icon } from 'lago-design-system'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import EmailPreview, { DisplayEnum } from '~/components/emails/EmailPreview'
 import { Switch } from '~/components/form'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { LanguageSettingsButton } from '~/components/settings/LanguageSettingsButton'
 import { BILLING_ENTITY_EMAIL_SCENARIOS_ROUTE, BILLING_ENTITY_ROUTE } from '~/core/router'
 import { LocaleEnum } from '~/core/translations'
@@ -26,7 +26,7 @@ import { usePermissions } from '~/hooks/usePermissions'
 import { EMAIL_SCENARIOS } from '~/pages/settings/BillingEntity/sections/BillingEntityEmailScenarios'
 
 const BillingEntityEmailScenariosConfig = () => {
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
 
   const [invoiceLanguage, setInvoiceLanguage] = useState<LocaleEnum>(LocaleEnum.en)
   const [display, setDisplay] = useState<DisplayEnum>(DisplayEnum.desktop)
@@ -98,7 +98,7 @@ const BillingEntityEmailScenariosConfig = () => {
                       if (hasAccess) {
                         await updateEmailSettings(type as BillingEntityEmailSettingsEnum, value)
                       } else {
-                        premiumWarningDialogRef.current?.openDialog()
+                        openPremiumWarningDialog()
                       }
                     }}
                   />
@@ -161,8 +161,6 @@ const BillingEntityEmailScenariosConfig = () => {
             invoiceLanguage={invoiceLanguage}
           />
         </div>
-
-        <PremiumWarningDialog ref={premiumWarningDialogRef} />
       </div>
     </>
   )
