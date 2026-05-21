@@ -197,6 +197,8 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
     },
   ]
 
+  const isAdmin = !!currentUser?.csAdmin && !!currentUser?.email?.endsWith('@getlago.com')
+
   const getAdminTabs = (): NavTab[] => [
     {
       title: 'Organizations',
@@ -208,19 +210,19 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
         ADMIN_ORGANIZATION_CREATE_ROUTE,
         ADMIN_ORGANIZATION_DETAIL_ROUTE,
       ],
-      hidden: !currentUser?.csAdmin,
+      hidden: !isAdmin,
     },
     {
       title: 'Compare',
       icon: 'switch',
       link: ADMIN_COMPARE_ROUTE,
-      hidden: !currentUser?.csAdmin,
+      hidden: !isAdmin,
     },
     {
       title: 'Audit Log',
       icon: 'document',
       link: ADMIN_AUDIT_LOG_ROUTE,
-      hidden: !currentUser?.csAdmin,
+      hidden: !isAdmin,
     },
   ]
 
