@@ -1,6 +1,7 @@
 import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 
+import type { EntityData } from '../../common/RichTextEditorContext'
 import { PlanBlock } from '../PlanBlock'
 import { getPlanBlockPreviewData, PlanBlockSchema } from '../PlanBlock.schema'
 
@@ -154,7 +155,7 @@ describe('PlanBlock', () => {
   })
 
   describe('GIVEN the renderHTML via getHTML()', () => {
-    const getHtmlForPlanBlock = (planId: string, plans?: Record<string, unknown>) => {
+    const getHtmlForPlanBlock = (planId: string, plans?: Record<string, EntityData>) => {
       const editor = new Editor({
         extensions: [StarterKit, PlanBlockSchema.configure({ plans })],
         content: {
