@@ -118,6 +118,7 @@ const AdminOrganizationCreate = () => {
           />
 
           <MultipleComboBox
+            disableCloseOnSelect
             label="Premium Integrations"
             placeholder="Select integrations..."
             data={KNOWN_PREMIUM_INTEGRATIONS.map((key) => ({ value: key }))}
@@ -126,6 +127,7 @@ const AdminOrganizationCreate = () => {
           />
 
           <MultipleComboBox
+            disableCloseOnSelect
             label="Feature Flags"
             placeholder="Select feature flags..."
             data={KNOWN_FEATURE_FLAGS.map((key) => ({ value: key }))}
