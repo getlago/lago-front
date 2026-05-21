@@ -7,6 +7,17 @@ import { render } from '~/test-utils'
 import { PlanDetailsV2 } from '../PlanDetailsV2'
 import { PLAN_DETAILS_V2_FIXTURE_ID, planDetailsV2Fixture } from './fixtures'
 
+jest.mock('~/components/plans/drawers/planSettings/PlanSettingsDrawer', () => {
+  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
+
+  const PlanSettingsDrawer = forwardRef((_props: unknown, ref: unknown) => {
+    useImperativeHandle(ref, () => ({ openDrawer: jest.fn(), closeDrawer: jest.fn() }))
+    return null
+  })
+
+  return { __esModule: true, PlanSettingsDrawer }
+})
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,

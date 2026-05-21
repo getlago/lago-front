@@ -8,6 +8,7 @@ import {
 } from '~/generated/graphql'
 
 import { PlanDetailsV2LeftSidebar } from './PlanDetailsV2LeftSidebar'
+import { PlanDetailsV2PlanSettingsSection } from './PlanDetailsV2PlanSettingsSection'
 import { PlanDetailsV2SectionId } from './sidebarSections'
 
 gql`
@@ -94,9 +95,24 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
         onItemClick={handleItemClick}
       />
       <div className="flex flex-1 flex-col gap-12 py-12">
-        {TOP_LEVEL_SECTION_IDS.map((id) => (
-          <section key={id} id={id} className="min-h-48 scroll-mt-12 rounded-xl bg-grey-100" />
-        ))}
+        {TOP_LEVEL_SECTION_IDS.map((id) => {
+          if (id === PlanDetailsV2SectionId.PlanSettings) {
+            return (
+              <PlanDetailsV2PlanSettingsSection
+                key={id}
+                plan={data.plan}
+                isInSubscriptionForm={isInSubscriptionForm}
+              />
+            )
+          }
+          return (
+            <section
+              key={id}
+              id={id}
+              className="min-h-48 scroll-mt-12 rounded-xl bg-grey-100"
+            />
+          )
+        })}
         <section
           id={PlanDetailsV2SectionId.AdvancedSettings}
           className="flex scroll-mt-12 flex-col gap-12"
