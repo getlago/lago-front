@@ -7,7 +7,7 @@ const AdminGuard = () => {
 
   if (loading) return null
 
-  if (!currentUser?.csAdmin) {
+  if (!currentUser?.csAdmin || !currentUser?.email?.endsWith('@getlago.com')) {
     return <Navigate to="/404" replace />
   }
 
