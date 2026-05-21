@@ -71,10 +71,9 @@ describe('useUpdatePlanWithCascade', () => {
 
   it('runs updatePlan + onSuccess directly when the plan has no overrides', async () => {
     const onSuccess = jest.fn()
-    const { result } = renderHook(
-      () => useUpdatePlanWithCascade({ plan: basePlan, onSuccess }),
-      { wrapper: wrapper([updateMock]) },
-    )
+    const { result } = renderHook(() => useUpdatePlanWithCascade({ plan: basePlan, onSuccess }), {
+      wrapper: wrapper([updateMock]),
+    })
 
     act(() => {
       result.current.form.setFieldValue('name', 'Pro Renamed')

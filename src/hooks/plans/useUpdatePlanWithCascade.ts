@@ -38,10 +38,7 @@ export const buildUpdatePlanFormDefaults = (plan: PlanDetailsV2Fragment): PlanFo
   }
 }
 
-export const useUpdatePlanWithCascade = ({
-  plan,
-  onSuccess,
-}: UseUpdatePlanWithCascadeOptions) => {
+export const useUpdatePlanWithCascade = ({ plan, onSuccess }: UseUpdatePlanWithCascadeOptions) => {
   const { translate } = useInternationalization()
   const { openCascadeDialog } = useCascadeFormDialog()
 

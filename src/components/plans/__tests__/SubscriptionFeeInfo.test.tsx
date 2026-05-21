@@ -47,7 +47,7 @@ describe('SubscriptionFeeInfo', () => {
       <SubscriptionFeeInfo
         plan={{
           ...basePlan,
-          taxes: [{ id: 't1', code: 'vat20', name: 'VAT', rate: 20 }],
+          taxes: [{ id: 't1', name: 'VAT', rate: 20 }],
         }}
       />,
     )

@@ -42,11 +42,7 @@ export const PlanSettingsDrawer = forwardRef<PlanSettingsDrawerRef, PlanSettings
         mainAction: (
           <form.Subscribe selector={({ canSubmit }) => canSubmit}>
             {(canSubmit) => (
-              <Button
-                data-test="plan-settings-drawer-save"
-                onClick={submit}
-                disabled={!canSubmit}
-              >
+              <Button data-test="plan-settings-drawer-save" onClick={submit} disabled={!canSubmit}>
                 {translate('text_17295436903260tlyb1gp1i7')}
               </Button>
             )}

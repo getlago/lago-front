@@ -44,7 +44,7 @@ export const SubscriptionFeeInfo = ({ plan }: SubscriptionFeeInfoProps) => {
           },
           {
             label: translate('text_65201b8216455901fe273dcd'),
-            value: plan.trialPeriod,
+            value: plan.trialPeriod || '-',
           },
           {
             label: translate('text_645bb193927b375079d28a8f'),
