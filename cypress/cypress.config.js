@@ -16,7 +16,7 @@ export default defineConfig({
     baseUrl: process.env.CYPRESS_APP_URL,
     experimentalRunAllSpecs: true,
     setupNodeEvents(on) {
-      on('file:preprocessor', vitePreprocessor(path.resolve(__dirname, '../vite.config.ts')))
+      on('file:preprocessor', vitePreprocessor(path.resolve(__dirname, 'vite.config.ts')))
       on('after:spec', (_spec, results) => {
         if (results && results.video) {
           // Do we have failures for any retry attempts?
