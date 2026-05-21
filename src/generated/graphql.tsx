@@ -13756,6 +13756,44 @@ export type GetSubscriptionsListQueryVariables = Exact<{
 
 export type GetSubscriptionsListQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, payInAdvance: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
+export type AdminAuditLogsQueryVariables = Exact<{
+  organizationId?: InputMaybe<Scalars['ID']['input']>;
+  featureKey?: InputMaybe<Scalars['String']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type AdminAuditLogsQuery = { __typename?: 'Query', adminAuditLogs: { __typename?: 'AdminAuditLogCollection', collection: Array<{ __typename?: 'AdminAuditLog', id: string, actorEmail: string, action: AdminActionEnum, organizationId: string, organizationName: string, featureType: AdminFeatureTypeEnum, featureKey: string, beforeValue?: boolean | null, afterValue: boolean, reason: string, batchId?: string | null, rollbackOfId?: string | null, createdAt: any }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
+
+export type AdminRollbackChangeMutationVariables = Exact<{
+  input: AdminRollbackChangeInput;
+}>;
+
+
+export type AdminRollbackChangeMutation = { __typename?: 'Mutation', adminRollbackChange?: { __typename?: 'AdminAuditLog', id: string, action: AdminActionEnum, rollbackOfId?: string | null } | null };
+
+export type AdminOrganizationsComparisonQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type AdminOrganizationsComparisonQuery = { __typename?: 'Query', adminOrganizations: { __typename?: 'AdminOrganizationCollection', collection: Array<{ __typename?: 'AdminOrganization', id: string, name: string, premiumIntegrations: Array<string>, featureFlags: Array<string>, createdAt: any }> } };
+
+export type AdminToggleFeatureComparisonMutationVariables = Exact<{
+  input: AdminToggleFeatureInput;
+}>;
+
+
+export type AdminToggleFeatureComparisonMutation = { __typename?: 'Mutation', adminToggleFeature?: { __typename?: 'AdminAuditLog', id: string } | null };
+
+export type AdminCreateOrganizationMutationVariables = Exact<{
+  input: AdminCreateOrganizationInput;
+}>;
+
+
+export type AdminCreateOrganizationMutation = { __typename?: 'Mutation', adminCreateOrganization?: { __typename?: 'AdminOrganization', id: string, name: string } | null };
+
 export type AdminOrganizationQueryVariables = Exact<{
   organizationId: Scalars['ID']['input'];
 }>;
@@ -35641,6 +35679,227 @@ export type GetSubscriptionsListQueryHookResult = ReturnType<typeof useGetSubscr
 export type GetSubscriptionsListLazyQueryHookResult = ReturnType<typeof useGetSubscriptionsListLazyQuery>;
 export type GetSubscriptionsListSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionsListSuspenseQuery>;
 export type GetSubscriptionsListQueryResult = Apollo.QueryResult<GetSubscriptionsListQuery, GetSubscriptionsListQueryVariables>;
+export const AdminAuditLogsDocument = gql`
+    query AdminAuditLogs($organizationId: ID, $featureKey: String, $page: Int, $limit: Int) {
+  adminAuditLogs(
+    organizationId: $organizationId
+    featureKey: $featureKey
+    page: $page
+    limit: $limit
+  ) {
+    collection {
+      id
+      actorEmail
+      action
+      organizationId
+      organizationName
+      featureType
+      featureKey
+      beforeValue
+      afterValue
+      reason
+      batchId
+      rollbackOfId
+      createdAt
+    }
+    metadata {
+      currentPage
+      totalCount
+      totalPages
+    }
+  }
+}
+    `;
+
+/**
+ * __useAdminAuditLogsQuery__
+ *
+ * To run a query within a React component, call `useAdminAuditLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAdminAuditLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAdminAuditLogsQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *      featureKey: // value for 'featureKey'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useAdminAuditLogsQuery(baseOptions?: Apollo.QueryHookOptions<AdminAuditLogsQuery, AdminAuditLogsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AdminAuditLogsQuery, AdminAuditLogsQueryVariables>(AdminAuditLogsDocument, options);
+      }
+export function useAdminAuditLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AdminAuditLogsQuery, AdminAuditLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AdminAuditLogsQuery, AdminAuditLogsQueryVariables>(AdminAuditLogsDocument, options);
+        }
+// @ts-ignore
+export function useAdminAuditLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AdminAuditLogsQuery, AdminAuditLogsQueryVariables>): Apollo.UseSuspenseQueryResult<AdminAuditLogsQuery, AdminAuditLogsQueryVariables>;
+export function useAdminAuditLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AdminAuditLogsQuery, AdminAuditLogsQueryVariables>): Apollo.UseSuspenseQueryResult<AdminAuditLogsQuery | undefined, AdminAuditLogsQueryVariables>;
+export function useAdminAuditLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AdminAuditLogsQuery, AdminAuditLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<AdminAuditLogsQuery, AdminAuditLogsQueryVariables>(AdminAuditLogsDocument, options);
+        }
+export type AdminAuditLogsQueryHookResult = ReturnType<typeof useAdminAuditLogsQuery>;
+export type AdminAuditLogsLazyQueryHookResult = ReturnType<typeof useAdminAuditLogsLazyQuery>;
+export type AdminAuditLogsSuspenseQueryHookResult = ReturnType<typeof useAdminAuditLogsSuspenseQuery>;
+export type AdminAuditLogsQueryResult = Apollo.QueryResult<AdminAuditLogsQuery, AdminAuditLogsQueryVariables>;
+export const AdminRollbackChangeDocument = gql`
+    mutation AdminRollbackChange($input: AdminRollbackChangeInput!) {
+  adminRollbackChange(input: $input) {
+    id
+    action
+    rollbackOfId
+  }
+}
+    `;
+export type AdminRollbackChangeMutationFn = Apollo.MutationFunction<AdminRollbackChangeMutation, AdminRollbackChangeMutationVariables>;
+
+/**
+ * __useAdminRollbackChangeMutation__
+ *
+ * To run a mutation, you first call `useAdminRollbackChangeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAdminRollbackChangeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [adminRollbackChangeMutation, { data, loading, error }] = useAdminRollbackChangeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAdminRollbackChangeMutation(baseOptions?: Apollo.MutationHookOptions<AdminRollbackChangeMutation, AdminRollbackChangeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AdminRollbackChangeMutation, AdminRollbackChangeMutationVariables>(AdminRollbackChangeDocument, options);
+      }
+export type AdminRollbackChangeMutationHookResult = ReturnType<typeof useAdminRollbackChangeMutation>;
+export type AdminRollbackChangeMutationResult = Apollo.MutationResult<AdminRollbackChangeMutation>;
+export type AdminRollbackChangeMutationOptions = Apollo.BaseMutationOptions<AdminRollbackChangeMutation, AdminRollbackChangeMutationVariables>;
+export const AdminOrganizationsComparisonDocument = gql`
+    query AdminOrganizationsComparison($limit: Int) {
+  adminOrganizations(limit: $limit) {
+    collection {
+      id
+      name
+      premiumIntegrations
+      featureFlags
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useAdminOrganizationsComparisonQuery__
+ *
+ * To run a query within a React component, call `useAdminOrganizationsComparisonQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAdminOrganizationsComparisonQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAdminOrganizationsComparisonQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useAdminOrganizationsComparisonQuery(baseOptions?: Apollo.QueryHookOptions<AdminOrganizationsComparisonQuery, AdminOrganizationsComparisonQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AdminOrganizationsComparisonQuery, AdminOrganizationsComparisonQueryVariables>(AdminOrganizationsComparisonDocument, options);
+      }
+export function useAdminOrganizationsComparisonLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AdminOrganizationsComparisonQuery, AdminOrganizationsComparisonQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AdminOrganizationsComparisonQuery, AdminOrganizationsComparisonQueryVariables>(AdminOrganizationsComparisonDocument, options);
+        }
+// @ts-ignore
+export function useAdminOrganizationsComparisonSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AdminOrganizationsComparisonQuery, AdminOrganizationsComparisonQueryVariables>): Apollo.UseSuspenseQueryResult<AdminOrganizationsComparisonQuery, AdminOrganizationsComparisonQueryVariables>;
+export function useAdminOrganizationsComparisonSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AdminOrganizationsComparisonQuery, AdminOrganizationsComparisonQueryVariables>): Apollo.UseSuspenseQueryResult<AdminOrganizationsComparisonQuery | undefined, AdminOrganizationsComparisonQueryVariables>;
+export function useAdminOrganizationsComparisonSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AdminOrganizationsComparisonQuery, AdminOrganizationsComparisonQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<AdminOrganizationsComparisonQuery, AdminOrganizationsComparisonQueryVariables>(AdminOrganizationsComparisonDocument, options);
+        }
+export type AdminOrganizationsComparisonQueryHookResult = ReturnType<typeof useAdminOrganizationsComparisonQuery>;
+export type AdminOrganizationsComparisonLazyQueryHookResult = ReturnType<typeof useAdminOrganizationsComparisonLazyQuery>;
+export type AdminOrganizationsComparisonSuspenseQueryHookResult = ReturnType<typeof useAdminOrganizationsComparisonSuspenseQuery>;
+export type AdminOrganizationsComparisonQueryResult = Apollo.QueryResult<AdminOrganizationsComparisonQuery, AdminOrganizationsComparisonQueryVariables>;
+export const AdminToggleFeatureComparisonDocument = gql`
+    mutation AdminToggleFeatureComparison($input: AdminToggleFeatureInput!) {
+  adminToggleFeature(input: $input) {
+    id
+  }
+}
+    `;
+export type AdminToggleFeatureComparisonMutationFn = Apollo.MutationFunction<AdminToggleFeatureComparisonMutation, AdminToggleFeatureComparisonMutationVariables>;
+
+/**
+ * __useAdminToggleFeatureComparisonMutation__
+ *
+ * To run a mutation, you first call `useAdminToggleFeatureComparisonMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAdminToggleFeatureComparisonMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [adminToggleFeatureComparisonMutation, { data, loading, error }] = useAdminToggleFeatureComparisonMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAdminToggleFeatureComparisonMutation(baseOptions?: Apollo.MutationHookOptions<AdminToggleFeatureComparisonMutation, AdminToggleFeatureComparisonMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AdminToggleFeatureComparisonMutation, AdminToggleFeatureComparisonMutationVariables>(AdminToggleFeatureComparisonDocument, options);
+      }
+export type AdminToggleFeatureComparisonMutationHookResult = ReturnType<typeof useAdminToggleFeatureComparisonMutation>;
+export type AdminToggleFeatureComparisonMutationResult = Apollo.MutationResult<AdminToggleFeatureComparisonMutation>;
+export type AdminToggleFeatureComparisonMutationOptions = Apollo.BaseMutationOptions<AdminToggleFeatureComparisonMutation, AdminToggleFeatureComparisonMutationVariables>;
+export const AdminCreateOrganizationDocument = gql`
+    mutation AdminCreateOrganization($input: AdminCreateOrganizationInput!) {
+  adminCreateOrganization(input: $input) {
+    id
+    name
+  }
+}
+    `;
+export type AdminCreateOrganizationMutationFn = Apollo.MutationFunction<AdminCreateOrganizationMutation, AdminCreateOrganizationMutationVariables>;
+
+/**
+ * __useAdminCreateOrganizationMutation__
+ *
+ * To run a mutation, you first call `useAdminCreateOrganizationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAdminCreateOrganizationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [adminCreateOrganizationMutation, { data, loading, error }] = useAdminCreateOrganizationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAdminCreateOrganizationMutation(baseOptions?: Apollo.MutationHookOptions<AdminCreateOrganizationMutation, AdminCreateOrganizationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AdminCreateOrganizationMutation, AdminCreateOrganizationMutationVariables>(AdminCreateOrganizationDocument, options);
+      }
+export type AdminCreateOrganizationMutationHookResult = ReturnType<typeof useAdminCreateOrganizationMutation>;
+export type AdminCreateOrganizationMutationResult = Apollo.MutationResult<AdminCreateOrganizationMutation>;
+export type AdminCreateOrganizationMutationOptions = Apollo.BaseMutationOptions<AdminCreateOrganizationMutation, AdminCreateOrganizationMutationVariables>;
 export const AdminOrganizationDocument = gql`
     query AdminOrganization($organizationId: ID!) {
   adminOrganization(organizationId: $organizationId) {
