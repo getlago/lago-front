@@ -9,6 +9,7 @@ import {
 
 import { PlanDetailsV2LeftSidebar } from './PlanDetailsV2LeftSidebar'
 import { PlanDetailsV2PlanSettingsSection } from './PlanDetailsV2PlanSettingsSection'
+import { PlanDetailsV2SubscriptionFeeSection } from './PlanDetailsV2SubscriptionFeeSection'
 import { PlanDetailsV2SectionId } from './sidebarSections'
 
 gql`
@@ -105,6 +106,15 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
           if (id === PlanDetailsV2SectionId.PlanSettings) {
             return (
               <PlanDetailsV2PlanSettingsSection
+                key={id}
+                plan={plan}
+                isInSubscriptionForm={isInSubscriptionForm}
+              />
+            )
+          }
+          if (id === PlanDetailsV2SectionId.SubscriptionFee) {
+            return (
+              <PlanDetailsV2SubscriptionFeeSection
                 key={id}
                 plan={plan}
                 isInSubscriptionForm={isInSubscriptionForm}
