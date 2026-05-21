@@ -10,11 +10,13 @@ import { Typography } from '~/components/designSystem/Typography'
 import { MultipleComboBox } from '~/components/form/MultipleComboBox/MultipleComboBox'
 import { TextInput } from '~/components/form/TextInput/TextInput'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { addToast } from '~/core/apolloClient'
 import {
   ADMIN_ORGANIZATION_DETAIL_ROUTE,
   ADMIN_ORGANIZATIONS_ROUTE,
   useNavigate,
 } from '~/core/router'
+import { FeatureFlagEnum, PremiumIntegrationTypeEnum } from '~/generated/graphql'
 
 const ADMIN_CREATE_ORGANIZATION_MUTATION = gql`
   mutation AdminCreateOrganization($input: AdminCreateOrganizationInput!) {
@@ -25,28 +27,8 @@ const ADMIN_CREATE_ORGANIZATION_MUTATION = gql`
   }
 `
 
-const KNOWN_PREMIUM_INTEGRATIONS = [
-  'beta_payment_authorization',
-  'netsuite',
-  'okta',
-  'avalara',
-  'xero',
-  'progressive_billing',
-  'lifetime_usage',
-  'hubspot',
-  'auto_dunning',
-  'revenue_analytics',
-  'salesforce',
-  'api_permissions',
-  'revenue_share',
-  'remove_branding_watermark',
-  'manual_payments',
-  'from_email',
-  'issue_receipts',
-  'preview',
-  'multi_entities_pro',
-  'multi_entities_enterprise',
-]
+const KNOWN_PREMIUM_INTEGRATIONS = Object.values(PremiumIntegrationTypeEnum)
+const KNOWN_FEATURE_FLAGS = Object.values(FeatureFlagEnum)
 
 const AdminOrganizationCreate = () => {
   const navigate = useNavigate()
@@ -55,6 +37,7 @@ const AdminOrganizationCreate = () => {
   const [ownerEmail, setOwnerEmail] = useState('')
   const [timezone, setTimezone] = useState('')
   const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([])
+  const [selectedFeatureFlags, setSelectedFeatureFlags] = useState<string[]>([])
 
   const [createOrganization] = useMutation(ADMIN_CREATE_ORGANIZATION_MUTATION)
 
@@ -73,6 +56,7 @@ const AdminOrganizationCreate = () => {
               ownerEmail: ownerEmail.trim(),
               ...(timezone.trim() ? { timezone: timezone.trim() } : {}),
               premiumIntegrations: selectedIntegrations,
+              featureFlags: selectedFeatureFlags,
               reason,
             },
           },
@@ -85,6 +69,11 @@ const AdminOrganizationCreate = () => {
             generatePath(ADMIN_ORGANIZATION_DETAIL_ROUTE, { organizationId: createdOrg.id }),
             { skipSlugPrepend: true },
           )
+        } else {
+          addToast({
+            severity: 'danger',
+            message: 'Failed to create organization. Please try again.',
+          })
         }
       },
     })
@@ -134,6 +123,14 @@ const AdminOrganizationCreate = () => {
             data={KNOWN_PREMIUM_INTEGRATIONS.map((key) => ({ value: key }))}
             value={selectedIntegrations.map((key) => ({ value: key }))}
             onChange={(newValue) => setSelectedIntegrations(newValue.map((item) => item.value))}
+          />
+
+          <MultipleComboBox
+            label="Feature Flags"
+            placeholder="Select feature flags..."
+            data={KNOWN_FEATURE_FLAGS.map((key) => ({ value: key }))}
+            value={selectedFeatureFlags.map((key) => ({ value: key }))}
+            onChange={(newValue) => setSelectedFeatureFlags(newValue.map((item) => item.value))}
           />
         </div>
       </CenteredPage.Container>
