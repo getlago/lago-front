@@ -42,7 +42,6 @@ const SUB_FLOW_HIDDEN_SECTIONS = new Set<PlanDetailsV2SectionId>([
 type PlanDetailsV2Props = {
   planId: string
   isInSubscriptionForm?: boolean
-  subscriptionId?: string
 }
 
 export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDetailsV2Props) => {
