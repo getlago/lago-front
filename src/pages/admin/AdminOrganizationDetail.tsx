@@ -1,4 +1,3 @@
-import { gql, useMutation, useQuery } from '@apollo/client'
 import NiceModal from '@ebay/nice-modal-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -10,70 +9,28 @@ import { Spinner } from '~/components/designSystem/Spinner'
 import { Typography } from '~/components/designSystem/Typography'
 import { Switch } from '~/components/form/Switch/Switch'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { addToast } from '~/core/apolloClient'
 import { ADMIN_ORGANIZATIONS_ROUTE } from '~/core/router'
-import { AdminFeatureTypeEnum, FeatureFlagEnum } from '~/generated/graphql'
+import {
+  AdminFeatureTypeEnum,
+  FeatureFlagEnum,
+  PremiumIntegrationTypeEnum,
+  useAdminOrganizationQuery,
+  useAdminToggleFeatureMutation,
+} from '~/generated/graphql'
 
-const ADMIN_ORGANIZATION_QUERY = gql`
-  query AdminOrganization($organizationId: ID!) {
-    adminOrganization(organizationId: $organizationId) {
-      id
-      name
-      email
-      createdAt
-      premiumIntegrations
-      featureFlags
-    }
-  }
-`
-
-const ADMIN_TOGGLE_FEATURE_MUTATION = gql`
-  mutation AdminToggleFeature($input: AdminToggleFeatureInput!) {
-    adminToggleFeature(input: $input) {
-      id
-      action
-      featureKey
-      featureType
-      afterValue
-      reason
-      createdAt
-    }
-  }
-`
-
-const KNOWN_PREMIUM_INTEGRATIONS = [
-  'beta_payment_authorization',
-  'netsuite',
-  'okta',
-  'avalara',
-  'xero',
-  'progressive_billing',
-  'lifetime_usage',
-  'hubspot',
-  'auto_dunning',
-  'revenue_analytics',
-  'salesforce',
-  'api_permissions',
-  'revenue_share',
-  'remove_branding_watermark',
-  'manual_payments',
-  'from_email',
-  'issue_receipts',
-  'preview',
-  'multi_entities_pro',
-  'multi_entities_enterprise',
-]
-
+const KNOWN_PREMIUM_INTEGRATIONS = Object.values(PremiumIntegrationTypeEnum)
 const KNOWN_FEATURE_FLAGS = Object.values(FeatureFlagEnum)
 
 const AdminOrganizationDetail = () => {
   const { organizationId } = useParams<{ organizationId: string }>()
 
-  const { data, loading, refetch } = useQuery(ADMIN_ORGANIZATION_QUERY, {
-    variables: { organizationId },
+  const { data, loading, refetch } = useAdminOrganizationQuery({
+    variables: { organizationId: organizationId ?? '' },
     skip: !organizationId,
   })
 
-  const [toggleFeature] = useMutation(ADMIN_TOGGLE_FEATURE_MUTATION)
+  const [toggleFeature] = useAdminToggleFeatureMutation()
   const [isSaving, setIsSaving] = useState(false)
 
   const org = data?.adminOrganization
@@ -178,22 +135,35 @@ const AdminOrganizationDetail = () => {
       description: `Please provide a reason for updating features.`,
       onConfirm: async (reason: string, notifyOrgAdmin: boolean) => {
         setIsSaving(true)
+        let failedCount = 0
 
         try {
           for (const change of changes) {
-            await toggleFeature({
-              variables: {
-                input: {
-                  organizationId,
-                  featureKey: change.featureKey,
-                  featureType: change.featureType,
-                  enabled: change.enabled,
-                  reason,
-                  notifyOrgAdmin,
+            try {
+              await toggleFeature({
+                variables: {
+                  input: {
+                    organizationId: organizationId ?? '',
+                    featureKey: change.featureKey,
+                    featureType: change.featureType,
+                    enabled: change.enabled,
+                    reason,
+                    notifyOrgAdmin,
+                  },
                 },
-              },
+              })
+            } catch {
+              failedCount++
+            }
+          }
+
+          if (failedCount > 0) {
+            addToast({
+              severity: 'danger',
+              message: `${failedCount} of ${changes.length} updates failed.`,
             })
           }
+
           await refetch()
         } finally {
           setIsSaving(false)
