@@ -1558,7 +1558,7 @@ export type Coupon = {
   amountCurrency?: Maybe<CurrencyEnum>;
   appliedCouponsCount: Scalars['Int']['output'];
   billableMetrics?: Maybe<Array<BillableMetric>>;
-  code?: Maybe<Scalars['String']['output']>;
+  code: Scalars['String']['output'];
   couponType: CouponTypeEnum;
   createdAt: Scalars['ISO8601DateTime']['output'];
   /** Number of customers using this coupon */
@@ -1744,7 +1744,7 @@ export type CreateCouponInput = {
   appliesTo?: InputMaybe<LimitationInput>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  code?: InputMaybe<Scalars['String']['input']>;
+  code: Scalars['String']['input'];
   couponType: CouponTypeEnum;
   description?: InputMaybe<Scalars['String']['input']>;
   expiration: CouponExpiration;
@@ -3780,6 +3780,7 @@ export type Event = {
 
 export enum EventCategoryEnum {
   Alerts = 'ALERTS',
+  BillableMetrics = 'BILLABLE_METRICS',
   CreditNotes = 'CREDIT_NOTES',
   Customers = 'CUSTOMERS',
   DunningCampaigns = 'DUNNING_CAMPAIGNS',
@@ -3806,6 +3807,9 @@ export type EventCollection = {
 export enum EventTypeEnum {
   AlertTriggered = 'alert_triggered',
   All = 'all',
+  BillableMetricCreated = 'billable_metric_created',
+  BillableMetricDeleted = 'billable_metric_deleted',
+  BillableMetricUpdated = 'billable_metric_updated',
   CreditNoteCreated = 'credit_note_created',
   CreditNoteGenerated = 'credit_note_generated',
   CreditNoteProviderRefundFailure = 'credit_note_provider_refund_failure',
@@ -7540,6 +7544,8 @@ export type QueryCustomerArgs = {
 
 
 export type QueryCustomerInvoicesArgs = {
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  currency?: InputMaybe<CurrencyEnum>;
   customerId: Scalars['ID']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -7989,6 +7995,7 @@ export type QueryPaymentRequestsArgs = {
 
 
 export type QueryPaymentsArgs = {
+  currency?: InputMaybe<CurrencyEnum>;
   externalCustomerId?: InputMaybe<Scalars['ID']['input']>;
   invoiceId?: InputMaybe<Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8624,6 +8631,7 @@ export type Subscription = {
   activatedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   activationRules: Array<SubscriptionActivationRule>;
   activityLogs?: Maybe<Array<ActivityLog>>;
+  billingEntityId?: Maybe<Scalars['ID']['output']>;
   billingTime?: Maybe<BillingTimeEnum>;
   cancelationReason?: Maybe<CancelationReasonEnum>;
   canceledAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -9448,6 +9456,7 @@ export type UpdateCustomerWalletAlertInput = {
 /** Update Wallet Input */
 export type UpdateCustomerWalletInput = {
   appliesTo?: InputMaybe<AppliesToInput>;
+  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
@@ -9950,6 +9959,7 @@ export type Wallet = {
   activityLogs?: Maybe<Array<ActivityLog>>;
   appliesTo?: Maybe<WalletAppliesTo>;
   balanceCents: Scalars['BigInt']['output'];
+  billingEntityId?: Maybe<Scalars['ID']['output']>;
   code?: Maybe<Scalars['String']['output']>;
   consumedAmountCents: Scalars['BigInt']['output'];
   consumedCredits: Scalars['Float']['output'];
@@ -10474,16 +10484,16 @@ export type GetAppliedCouponsForCouponDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetAppliedCouponsForCouponDetailsQuery = { __typename?: 'Query', appliedCoupons: { __typename?: 'AppliedCouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AppliedCoupon', id: string, status: AppliedCouponStatusEnum, createdAt: any, terminatedAt?: any | null, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code?: string | null }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } }> } };
+export type GetAppliedCouponsForCouponDetailsQuery = { __typename?: 'Query', appliedCoupons: { __typename?: 'AppliedCouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AppliedCoupon', id: string, status: AppliedCouponStatusEnum, createdAt: any, terminatedAt?: any | null, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code: string }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } }> } };
 
-export type CouponDetailsForOverviewFragment = { __typename?: 'Coupon', name: string, code?: string | null, couponType: CouponTypeEnum, amountCurrency?: CurrencyEnum | null, status: CouponStatusEnum, frequency: CouponFrequency, reusable: boolean, expirationAt?: any | null, amountCents?: any | null, percentageRate?: number | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null };
+export type CouponDetailsForOverviewFragment = { __typename?: 'Coupon', name: string, code: string, couponType: CouponTypeEnum, amountCurrency?: CurrencyEnum | null, status: CouponStatusEnum, frequency: CouponFrequency, reusable: boolean, expirationAt?: any | null, amountCents?: any | null, percentageRate?: number | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null };
 
 export type GetCouponForDetailsOverviewQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCouponForDetailsOverviewQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, name: string, code?: string | null, couponType: CouponTypeEnum, amountCurrency?: CurrencyEnum | null, status: CouponStatusEnum, frequency: CouponFrequency, reusable: boolean, expirationAt?: any | null, amountCents?: any | null, percentageRate?: number | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null } | null };
+export type GetCouponForDetailsOverviewQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, name: string, code: string, couponType: CouponTypeEnum, amountCurrency?: CurrencyEnum | null, status: CouponStatusEnum, frequency: CouponFrequency, reusable: boolean, expirationAt?: any | null, amountCents?: any | null, percentageRate?: number | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null } | null };
 
 export type DeleteCouponFragment = { __typename?: 'Coupon', id: string, name: string, appliedCouponsCount: number };
 
@@ -10704,7 +10714,7 @@ export type GetAppliedCouponsForCustomerQueryVariables = Exact<{
 }>;
 
 
-export type GetAppliedCouponsForCustomerQuery = { __typename?: 'Query', appliedCoupons: { __typename?: 'AppliedCouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AppliedCoupon', id: string, status: AppliedCouponStatusEnum, createdAt: any, terminatedAt?: any | null, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code?: string | null } }> } };
+export type GetAppliedCouponsForCustomerQuery = { __typename?: 'Query', appliedCoupons: { __typename?: 'AppliedCouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AppliedCoupon', id: string, status: AppliedCouponStatusEnum, createdAt: any, terminatedAt?: any | null, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code: string } }> } };
 
 export type GetCustomerCreditNotesQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
@@ -11535,6 +11545,15 @@ export type PlanForSubscriptionFeeSectionFragment = { __typename?: 'Plan', id: s
 export type PlanForUsageChargeAccordionFragment = { __typename?: 'Plan', billChargesMonthly?: boolean | null };
 
 export type VolumeRangesFragment = { __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null };
+
+export type PlanDetailsV2Fragment = { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, hasOverriddenPlans?: boolean | null };
+
+export type GetPlanForDetailsV2QueryVariables = Exact<{
+  planId: Scalars['ID']['input'];
+}>;
+
+
+export type GetPlanForDetailsV2Query = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, hasOverriddenPlans?: boolean | null } | null };
 
 export type PlanDetailsActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -12767,14 +12786,14 @@ export type UpdateBillingEntityMutationVariables = Exact<{
 
 export type UpdateBillingEntityMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, einvoicing: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string } | null } | null };
 
-export type EditCouponFragment = { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, appliedCouponsCount: number, code?: string | null, couponType: CouponTypeEnum, description?: string | null, expiration: CouponExpiration, expirationAt?: any | null, frequency: CouponFrequency, frequencyDuration?: number | null, limitedBillableMetrics: boolean, limitedPlans: boolean, name: string, percentageRate?: number | null, reusable: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null };
+export type EditCouponFragment = { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, appliedCouponsCount: number, code: string, couponType: CouponTypeEnum, description?: string | null, expiration: CouponExpiration, expirationAt?: any | null, frequency: CouponFrequency, frequencyDuration?: number | null, limitedBillableMetrics: boolean, limitedPlans: boolean, name: string, percentageRate?: number | null, reusable: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null };
 
 export type GetSingleCouponQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSingleCouponQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, appliedCouponsCount: number, code?: string | null, couponType: CouponTypeEnum, description?: string | null, expiration: CouponExpiration, expirationAt?: any | null, frequency: CouponFrequency, frequencyDuration?: number | null, limitedBillableMetrics: boolean, limitedPlans: boolean, name: string, percentageRate?: number | null, reusable: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null };
+export type GetSingleCouponQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, appliedCouponsCount: number, code: string, couponType: CouponTypeEnum, description?: string | null, expiration: CouponExpiration, expirationAt?: any | null, frequency: CouponFrequency, frequencyDuration?: number | null, limitedBillableMetrics: boolean, limitedPlans: boolean, name: string, percentageRate?: number | null, reusable: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null };
 
 export type CreateCouponMutationVariables = Exact<{
   input: CreateCouponInput;
@@ -13098,14 +13117,14 @@ export type BillableMetricsQueryVariables = Exact<{
 
 export type BillableMetricsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, createdAt: any }> } };
 
-export type CouponDetailsForHeaderFragment = { __typename?: 'Coupon', name: string, code?: string | null, status: CouponStatusEnum, couponType: CouponTypeEnum, percentageRate?: number | null, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, frequency: CouponFrequency };
+export type CouponDetailsForHeaderFragment = { __typename?: 'Coupon', name: string, code: string, status: CouponStatusEnum, couponType: CouponTypeEnum, percentageRate?: number | null, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, frequency: CouponFrequency };
 
 export type GetCouponForDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCouponForDetailsQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, name: string, code?: string | null, status: CouponStatusEnum, couponType: CouponTypeEnum, percentageRate?: number | null, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, frequency: CouponFrequency, appliedCouponsCount: number } | null };
+export type GetCouponForDetailsQuery = { __typename?: 'Query', coupon?: { __typename?: 'Coupon', id: string, name: string, code: string, status: CouponStatusEnum, couponType: CouponTypeEnum, percentageRate?: number | null, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, frequency: CouponFrequency, appliedCouponsCount: number } | null };
 
 export type CouponItemFragment = { __typename?: 'Coupon', id: string, name: string, customersCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
 
@@ -16758,6 +16777,17 @@ export const InvoiceForInvoiceDetailsTableFragmentDoc = gql`
 }
     ${FeeForInvoiceDetailsTableFragmentDoc}
 ${InvoiceForFormatInvoiceItemMapFragmentDoc}`;
+export const PlanDetailsV2FragmentDoc = gql`
+    fragment PlanDetailsV2 on Plan {
+  id
+  name
+  code
+  description
+  interval
+  amountCurrency
+  hasOverriddenPlans
+}
+    `;
 export const FeatureObjectEntitlementPrivilegeForPlanFragmentDoc = gql`
     fragment FeatureObjectEntitlementPrivilegeForPlan on FeatureObject {
   id
@@ -26041,6 +26071,49 @@ export type GetTaxesForPlanQueryHookResult = ReturnType<typeof useGetTaxesForPla
 export type GetTaxesForPlanLazyQueryHookResult = ReturnType<typeof useGetTaxesForPlanLazyQuery>;
 export type GetTaxesForPlanSuspenseQueryHookResult = ReturnType<typeof useGetTaxesForPlanSuspenseQuery>;
 export type GetTaxesForPlanQueryResult = Apollo.QueryResult<GetTaxesForPlanQuery, GetTaxesForPlanQueryVariables>;
+export const GetPlanForDetailsV2Document = gql`
+    query getPlanForDetailsV2($planId: ID!) {
+  plan(id: $planId) {
+    ...PlanDetailsV2
+  }
+}
+    ${PlanDetailsV2FragmentDoc}`;
+
+/**
+ * __useGetPlanForDetailsV2Query__
+ *
+ * To run a query within a React component, call `useGetPlanForDetailsV2Query` and pass it any options that fit your needs.
+ * When your component renders, `useGetPlanForDetailsV2Query` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPlanForDetailsV2Query({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *   },
+ * });
+ */
+export function useGetPlanForDetailsV2Query(baseOptions: Apollo.QueryHookOptions<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables> & ({ variables: GetPlanForDetailsV2QueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>(GetPlanForDetailsV2Document, options);
+      }
+export function useGetPlanForDetailsV2LazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>(GetPlanForDetailsV2Document, options);
+        }
+// @ts-ignore
+export function useGetPlanForDetailsV2SuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>;
+export function useGetPlanForDetailsV2SuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanForDetailsV2Query | undefined, GetPlanForDetailsV2QueryVariables>;
+export function useGetPlanForDetailsV2SuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>(GetPlanForDetailsV2Document, options);
+        }
+export type GetPlanForDetailsV2QueryHookResult = ReturnType<typeof useGetPlanForDetailsV2Query>;
+export type GetPlanForDetailsV2LazyQueryHookResult = ReturnType<typeof useGetPlanForDetailsV2LazyQuery>;
+export type GetPlanForDetailsV2SuspenseQueryHookResult = ReturnType<typeof useGetPlanForDetailsV2SuspenseQuery>;
+export type GetPlanForDetailsV2QueryResult = Apollo.QueryResult<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>;
 export const PlanDetailsActivityLogsDocument = gql`
     query PlanDetailsActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
   activityLogs(

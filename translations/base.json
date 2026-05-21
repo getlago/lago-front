@@ -2412,11 +2412,6 @@
   "text_173142196943714qsq737sre": "This subscription is not yet active. Current usage is displayed only for active subscriptions.",
   "text_1731423623190elua4pl3ccr": "This subscription is not yet active. Lifetime usage is displayed only for active subscriptions.",
   "text_1729604107534r3hsj7i64gp": "Impact overridden subscriptions",
-  "text_17296041075348k56saczddu": "This plan is linked to overridden subscriptions. Any changes to a charge or filter will only apply to subscriptions that share the same price for that charge. Would you like to apply these changes to the relevant subscriptions?",
-  "text_17296041075346803c5xv8um": "Do not impact overridden subscriptions",
-  "text_1729604107534v8b3vembdla": "These changes will impact only non-overridden subscriptions.",
-  "text_1729604107534vznb0h27kje": "Impact overridden subscriptions",
-  "text_1729604107534rrec9gxuh54": "These changes will affect all linked subscriptions where specific prices have not been set manually.",
   "text_1729604107534dfyz8j53ho5": "Save editions",
   "text_1731079786592ksaixhj9ir9": "Token",
   "text_1731080136186pvllfpt35on": "Created",
@@ -4166,5 +4161,15 @@
   "text_17791987800304a3fihrighy": "Subscription settings",
   "text_1779198780030g64up7d4imi": "Define how the subscription is paid and define the invoice settings.",
   "text_17792001643312864fz7j4gq": "Edit overview",
-  "text_17792001643316pbexygvpu2": "Subscription plan"
+  "text_17792001643316pbexygvpu2": "Subscription plan",
+  "text_177928991586601f21f0x87c": "Plan settings",
+  "text_1779289915866etwoweh1syv": "Subscription fee",
+  "text_1779289915866aj39dyv1wps": "Fixed charges",
+  "text_1779289915866ngi8sv5t9lg": "Usage-based charges",
+  "text_1779289915866m899iy5nykb": "Advanced settings",
+  "text_17792899158664ii2pmrd2le": "Minimum commitment",
+  "text_1779289915866vguw0lfmz06": "Progressive billing",
+  "text_1779289915866mr56w61hhi5": "Entitlements",
+  "text_1779289915866s3gisblcite": "Apply changes to all overridden subscriptions of this plan",
+  "text_1779289915866itrqeyj7658": "When enabled, edits cascade to every subscription that overrides this plan."
 }
