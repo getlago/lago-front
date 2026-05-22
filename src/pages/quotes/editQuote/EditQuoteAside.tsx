@@ -34,7 +34,12 @@ interface EditQuoteAsideProps {
   onSaveError?: (payload: UpdateQuoteVersionInput) => void
 }
 
-const EditQuoteAside = ({ quote, onSaveStart, onSaveFinished, onSaveError }: EditQuoteAsideProps) => {
+const EditQuoteAside = ({
+  quote,
+  onSaveStart,
+  onSaveFinished,
+  onSaveError,
+}: EditQuoteAsideProps) => {
   if (!quote) return null
 
   return (

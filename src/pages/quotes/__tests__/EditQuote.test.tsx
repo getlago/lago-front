@@ -199,9 +199,7 @@ describe('EditQuote', () => {
 
         // Find the new button that appeared (the retry button)
         const allButtons = screen.getAllByTestId('button')
-        const retryButton = allButtons.find(
-          (btn) => !initialButtons.includes(btn),
-        ) as HTMLElement
+        const retryButton = allButtons.find((btn) => !initialButtons.includes(btn)) as HTMLElement
 
         await act(async () => {
           retryButton.click()

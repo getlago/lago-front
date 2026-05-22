@@ -137,10 +137,9 @@ describe('useUpdateQuote', () => {
           data: { updateQuoteVersion: { id: 'version-success' } },
         })
 
-        const { result } = renderHook(
-          () => useUpdateQuote({ onUpdateFinished, onUpdateError }),
-          { wrapper },
-        )
+        const { result } = renderHook(() => useUpdateQuote({ onUpdateFinished, onUpdateError }), {
+          wrapper,
+        })
 
         await act(async () => {
           await result.current.updateQuoteVersion({ id: 'version-success' } as never, false)
@@ -160,10 +159,9 @@ describe('useUpdateQuote', () => {
           data: { updateQuoteVersion: null },
         })
 
-        const { result } = renderHook(
-          () => useUpdateQuote({ onUpdateFinished, onUpdateError }),
-          { wrapper },
-        )
+        const { result } = renderHook(() => useUpdateQuote({ onUpdateFinished, onUpdateError }), {
+          wrapper,
+        })
 
         await act(async () => {
           await result.current.updateQuoteVersion({ id: 'version-fail' } as never, true)
