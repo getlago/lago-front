@@ -7,12 +7,12 @@ import {
   SubscriptionFeeDrawerRef,
   SubscriptionFeeFormValues,
 } from '~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer'
+import { SubscriptionFeeInfo } from '~/components/plans/SubscriptionFeeInfo'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { PlanDetailsV2Fragment, PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useUpdatePlanWithCascade } from '~/hooks/plans/useUpdatePlanWithCascade'
 
-import { SubscriptionFeeAccordion } from './accordions/SubscriptionFeeAccordion'
 import { SectionAccordion } from './shared/SectionAccordion'
 import { SectionHeader } from './shared/SectionHeader'
 import { PlanDetailsV2SectionId } from './sidebarSections'
@@ -72,7 +72,7 @@ export const PlanDetailsV2SubscriptionFeeSection = ({
           },
         ]}
       >
-        <SubscriptionFeeAccordion plan={plan} />
+        <SubscriptionFeeInfo plan={plan} />
       </SectionAccordion>
 
       <SubscriptionFeeDrawer ref={drawerRef} onSave={handleDrawerSave} isEdition />

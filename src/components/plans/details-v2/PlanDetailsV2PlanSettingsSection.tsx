@@ -5,10 +5,10 @@ import {
   PlanSettingsDrawer,
   PlanSettingsDrawerRef,
 } from '~/components/plans/drawers/planSettings/PlanSettingsDrawer'
+import { PlanSettingsInfo } from '~/components/plans/PlanSettingsInfo'
 import { PlanDetailsV2Fragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { PlanSettingsAccordion } from './accordions/PlanSettingsAccordion'
 import { SectionAccordion } from './shared/SectionAccordion'
 import { SectionHeader } from './shared/SectionHeader'
 import { PlanDetailsV2SectionId } from './sidebarSections'
@@ -43,7 +43,7 @@ export const PlanDetailsV2PlanSettingsSection = ({
           },
         ]}
       >
-        <PlanSettingsAccordion plan={plan} />
+        <PlanSettingsInfo plan={plan} />
       </SectionAccordion>
 
       <PlanSettingsDrawer ref={drawerRef} plan={plan} />
