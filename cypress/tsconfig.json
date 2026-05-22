@@ -3,11 +3,7 @@
   "compilerOptions": {
     "noEmit": true,
     "sourceMap": false,
-    "types": ["cypress"],
-    "baseUrl": "../src",
-    "paths": {
-      "~/*": ["*"]
-    }
+    "types": ["cypress"]
   },
   "exclude": ["node_modules"]
 }

@@ -11,9 +11,9 @@
   "include": ["./**/*.ts", "./**/*.tsx"],
   "compilerOptions": {
     // Language and module settings
-    "target": "es5",
+    "target": "esnext",
     "module": "esnext",
-    "lib": ["es6", "dom", "esnext"],
+    "lib": ["dom", "esnext"],
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
 

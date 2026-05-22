@@ -18,8 +18,6 @@ export const formatDuration = (seconds: number): string => {
     .normalize()
     .toObject()
 
-  // @ts-expect-error Intl.DurationFormat is not typed
-  // https://github.com/microsoft/TypeScript/issues/60608
   return new Intl.DurationFormat(locale, { style: 'narrow' }).format(durationObject)
 }
 

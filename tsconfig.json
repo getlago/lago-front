@@ -2,10 +2,9 @@
   "include": ["**/*.tsx", "**/*.ts", "**/*.d.ts"],
   "compilerOptions": {
     "outDir": "./dist",
-    "baseUrl": "src",
     "jsx": "react-jsx",
     "paths": {
-      "~/*": ["*"],
+      "~/*": ["./src/*"],
     },
   },
   "exclude": ["node_modules", "cypress", "packages"],
