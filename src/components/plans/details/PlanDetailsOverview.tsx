@@ -1,14 +1,12 @@
 import { gql } from '@apollo/client'
 
-import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PlanDetailsFixedChargesSection } from '~/components/plans/details/PlanDetailsFixedChargesSection'
-import { getIntervalTranslationKey } from '~/core/constants/form'
+import { PlanSettingsInfo } from '~/components/plans/PlanSettingsInfo'
 import {
   CurrencyEnum,
   EditPlanFragmentDoc,
   LagoApiError,
-  PlanInterval,
   useGetPlanForDetailsOverviewSectionQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -62,39 +60,7 @@ export const PlanDetailsOverview = ({
         <DetailsPage.SectionTitle variant="subhead1" noWrap>
           {translate('text_642d5eb2783a2ad10d67031a')}
         </DetailsPage.SectionTitle>
-        <div className="flex flex-col gap-4">
-          <DetailsPage.InfoGrid
-            grid={[
-              {
-                label: translate('text_62442e40cea25600b0b6d852'),
-                value: plan?.name,
-              },
-              {
-                label: translate('text_642d5eb2783a2ad10d670320'),
-                value: plan?.code ? (
-                  <TypographyWithCopy variant="body" color="grey700">
-                    {plan.code}
-                  </TypographyWithCopy>
-                ) : undefined,
-              },
-              {
-                label: translate('text_65201b8216455901fe273dc1'),
-                value: translate(getIntervalTranslationKey[plan?.interval as PlanInterval]),
-              },
-              {
-                label: translate('text_632b4acf0c41206cbcb8c324'),
-                value: plan?.amountCurrency,
-              },
-            ]}
-          />
-
-          {!!plan?.description && (
-            <DetailsPage.InfoGridItem
-              label={translate('text_6388b923e514213fed58331c')}
-              value={plan?.description}
-            />
-          )}
-        </div>
+        <PlanSettingsInfo plan={plan} />
       </section>
       <section>
         <DetailsPage.SectionTitle variant="subhead1" noWrap>
