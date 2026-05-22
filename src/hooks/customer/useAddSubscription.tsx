@@ -337,6 +337,7 @@ export const useAddSubscription: UseAddSubscription = ({
                   subscriptionAt: subscriptionAtForUpdate,
                   endingAt: !!subEndDate ? DateTime.fromISO(subEndDate).toUTC().toISO() : null,
                   name: name ?? undefined,
+                  billingEntityId: billingEntityId || undefined,
                   paymentMethod: parsedPaymentMethod,
                   planOverrides: hasPlanBeingChangedFromInitial
                     ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput) }

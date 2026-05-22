@@ -9842,6 +9842,7 @@ export type UpdateSubscriptionFixedChargeInput = {
 /** Update Subscription input arguments */
 export type UpdateSubscriptionInput = {
   activationRules?: InputMaybe<Array<SubscriptionActivationRuleInput>>;
+  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   endingAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;

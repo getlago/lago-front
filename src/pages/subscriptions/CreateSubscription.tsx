@@ -226,13 +226,17 @@ const CreateSubscription = () => {
   const isEditingSubscription = formType === FORM_TYPE_ENUM.edition
 
   // Default billingEntityId on first load:
-  // - upgrade/downgrade flow → preserve the existing subscription's explicit entity
+  // - edit / upgrade / downgrade flow → preserve the existing subscription's
+  //   explicit entity (Decision 5.6: explicit bindings are sticky and must
+  //   survive subscription mutations)
   // - pure creation flow → use the customer's current default entity
   useEffect(() => {
     if (!hasMultiEntityBilling) return
     if (subscriptionBillingEntityId) return
+    const hasExistingSubscription =
+      formType === FORM_TYPE_ENUM.edition || formType === FORM_TYPE_ENUM.upgradeDowngrade
     const defaultEntityId =
-      (formType === FORM_TYPE_ENUM.upgradeDowngrade ? subscription?.billingEntityId : null) ??
+      (hasExistingSubscription ? subscription?.billingEntityId : null) ??
       customer?.billingEntity?.id
 
     if (defaultEntityId) {
@@ -493,11 +497,16 @@ const CreateSubscription = () => {
                       )}
                     </subscriptionForm.AppField>
 
-                    {!!subscriptionPlanId && !isEditingSubscription && (
+                    {!!subscriptionPlanId && (
                       <BillingEntityFormPicker
                         label={translate('text_1743611497157teaa1zu8l24')}
                         value={subscriptionBillingEntityId}
                         onChange={(id) => subscriptionForm.setFieldValue('billingEntityId', id)}
+                        helperText={
+                          isEditingSubscription
+                            ? translate('text_1779457001221h9zixqumknp')
+                            : undefined
+                        }
                       />
                     )}
 

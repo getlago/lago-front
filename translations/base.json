@@ -4170,5 +4170,6 @@
   "text_1779289915866vguw0lfmz06": "Progressive billing",
   "text_1779289915866mr56w61hhi5": "Entitlements",
   "text_1779289915866s3gisblcite": "Apply changes to all overridden subscriptions of this plan",
-  "text_1779289915866itrqeyj7658": "When enabled, edits cascade to every subscription that overrides this plan."
+  "text_1779289915866itrqeyj7658": "When enabled, edits cascade to every subscription that overrides this plan.",
+  "text_1779457001221h9zixqumknp": "Editing this entity will affect draft and future invoices. Finalized invoices will keep their current billing entity."
 }

@@ -11,6 +11,8 @@ type BillingEntityFormPickerProps = {
   onChange: (id: string | undefined) => void
   /** Optional label rendered inside the ComboBox. */
   label?: string
+  /** Optional helper text rendered below the ComboBox. */
+  helperText?: string
 }
 
 /**
@@ -27,6 +29,7 @@ export const BillingEntityFormPicker = ({
   value,
   onChange,
   label,
+  helperText,
 }: BillingEntityFormPickerProps) => {
   const { translate } = useInternationalization()
   const { hasFeatureFlag } = useOrganizationInfos()
@@ -43,6 +46,7 @@ export const BillingEntityFormPicker = ({
       sortValues={false}
       PopperProps={{ displayInDialog: true }}
       label={label}
+      helperText={helperText}
       placeholder={translate('text_174360002513391n72uwg6bb')}
       data={options}
       loading={isLoading}
