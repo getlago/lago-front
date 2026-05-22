@@ -12,6 +12,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { RightAsidePage } from '~/components/layouts/RightAsidePage'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
+import { type UpdateQuoteVersionInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import EditQuoteAside from './editQuote/EditQuoteAside'
@@ -38,15 +39,21 @@ const EditQuote = () => {
     )
   }
 
-  const [isSaving, setIsSaving] = useState(false)
+  type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const [editorMode, setEditorMode] = useState<RichTextEditorMode>('edit')
 
   const onUpdateFinished = useCallback(() => {
-    setIsSaving(false)
+    setSaveStatus('saved')
+  }, [])
+
+  const onUpdateError = useCallback(() => {
+    setSaveStatus('error')
   }, [])
 
   const { updateQuoteVersion, isUpdatingQuoteVersion, isUpdatingQuote } = useUpdateQuote({
     onUpdateFinished,
+    onUpdateError,
   })
 
   const isUpdating = isUpdatingQuote || isUpdatingQuoteVersion
@@ -54,6 +61,7 @@ const EditQuote = () => {
   const getMarkdownRef = useRef<(() => string) | null>(null)
   const lastSavedContentRef = useRef('')
   const isReadyForChangesRef = useRef(false)
+  const failedPayloadRef = useRef<UpdateQuoteVersionInput | null>(null)
 
   // Arm change detection after the editor has fully initialized.
   // Tiptap fires multiple onChange events during setup — we wait for the
@@ -82,8 +90,20 @@ const EditQuote = () => {
 
         if (!markdown || !versionId) return
 
-        await updateQuoteVersionRef.current({ id: versionId, content: markdown }, false)
-        lastSavedContentRef.current = markdown
+        const payload: UpdateQuoteVersionInput = { id: versionId, content: markdown }
+
+        failedPayloadRef.current = payload
+
+        try {
+          const result = await updateQuoteVersionRef.current(payload, false)
+
+          if (result.data?.updateQuoteVersion) {
+            lastSavedContentRef.current = markdown
+            failedPayloadRef.current = null
+          }
+        } catch {
+          setSaveStatus('error')
+        }
       }, AUTO_SAVE_DELAY_MS),
     [versionId],
   )
@@ -97,9 +117,30 @@ const EditQuote = () => {
 
     if (currentContent === lastSavedContentRef.current) return
 
-    setIsSaving(true)
+    setSaveStatus('saving')
     debouncedSave()
   }
+
+  const handleRetry = useCallback(async () => {
+    const payload = failedPayloadRef.current
+
+    if (!payload) return
+
+    setSaveStatus('saving')
+
+    try {
+      const result = await updateQuoteVersionRef.current(payload, false)
+
+      if (result.data?.updateQuoteVersion) {
+        if ('content' in payload && payload.content) {
+          lastSavedContentRef.current = payload.content
+        }
+        failedPayloadRef.current = null
+      }
+    } catch {
+      setSaveStatus('error')
+    }
+  }, [])
 
   const handleClose = () => {
     debouncedSave.cancel()
@@ -110,7 +151,7 @@ const EditQuote = () => {
     <RightAsidePage.Wrapper>
       <RightAsidePage.Header
         title={
-          <div className="flex flex-row items-center gap-2">
+          <div className="flex flex-row items-center gap-3">
             {loading && (
               <>
                 <Skeleton variant="text" className="w-40" />
@@ -122,13 +163,26 @@ const EditQuote = () => {
                 <Typography variant="bodyHl" color="grey700">
                   {quote.number} - v{quote.currentVersion.version}
                 </Typography>
-                <Status
-                  type={StatusType.outline}
-                  label={translate(
-                    isSaving ? 'text_1779268404389431dgsiiysk' : 'text_1779268404389wpd2ysgatw4',
-                  )}
-                  endIcon={isSaving ? 'sync' : 'validate-filled'}
-                />
+                {saveStatus === 'error' ? (
+                  <>
+                    <Status
+                      type={StatusType.warning}
+                      label={translate('text_1779437694622y666yr137gm')}
+                      endIcon="warning-unfilled"
+                    />
+                    <Button variant="quaternary" size="small" icon="sync" onClick={handleRetry} />
+                  </>
+                ) : (
+                  <Status
+                    type={StatusType.outline}
+                    label={translate(
+                      saveStatus === 'saving'
+                        ? 'text_1779268404389431dgsiiysk'
+                        : 'text_1779268404389wpd2ysgatw4',
+                    )}
+                    endIcon={saveStatus === 'saving' ? 'sync' : 'validate-unfilled'}
+                  />
+                )}
               </>
             )}
           </div>
@@ -151,8 +205,12 @@ const EditQuote = () => {
         aside={
           <EditQuoteAside
             quote={quote}
-            onSaveStart={() => setIsSaving(true)}
+            onSaveStart={() => setSaveStatus('saving')}
             onSaveFinished={onUpdateFinished}
+            onSaveError={(payload) => {
+              failedPayloadRef.current = payload
+              setSaveStatus('error')
+            }}
           />
         }
       >

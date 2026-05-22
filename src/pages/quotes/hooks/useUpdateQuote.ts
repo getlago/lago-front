@@ -29,9 +29,10 @@ gql`
 
 interface UseUpdateQuoteOptions {
   onUpdateFinished?: () => void
+  onUpdateError?: () => void
 }
 
-export const useUpdateQuote = ({ onUpdateFinished }: UseUpdateQuoteOptions = {}) => {
+export const useUpdateQuote = ({ onUpdateFinished, onUpdateError }: UseUpdateQuoteOptions = {}) => {
   const [updateQuoteVersionMutation, { loading: isUpdatingQuoteVersion }] =
     useUpdateQuoteVersionMutation()
   const [updateQuoteMutation, { loading: isUpdatingQuote }] = useUpdateQuoteMutation()
@@ -44,15 +45,16 @@ export const useUpdateQuote = ({ onUpdateFinished }: UseUpdateQuoteOptions = {})
       variables: { input },
     })
 
-    if (result.data?.updateQuoteVersion && displayToast) {
-      addToast({
-        severity: 'success',
-        translateKey: 'text_17775394497682uzyy0lyyq7',
-      })
-    }
-
     if (result.data?.updateQuoteVersion) {
+      if (displayToast) {
+        addToast({
+          severity: 'success',
+          translateKey: 'text_17775394497682uzyy0lyyq7',
+        })
+      }
       onUpdateFinished?.()
+    } else {
+      onUpdateError?.()
     }
 
     return result

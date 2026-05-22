@@ -127,6 +127,55 @@ describe('useUpdateQuote', () => {
     })
   })
 
+  describe('GIVEN updateQuoteVersion is called with onUpdateFinished and onUpdateError callbacks', () => {
+    describe('WHEN mutation succeeds', () => {
+      it('THEN should call onUpdateFinished and NOT onUpdateError', async () => {
+        const onUpdateFinished = jest.fn()
+        const onUpdateError = jest.fn()
+
+        mockUpdateQuoteVersion.mockResolvedValueOnce({
+          data: { updateQuoteVersion: { id: 'version-success' } },
+        })
+
+        const { result } = renderHook(
+          () => useUpdateQuote({ onUpdateFinished, onUpdateError }),
+          { wrapper },
+        )
+
+        await act(async () => {
+          await result.current.updateQuoteVersion({ id: 'version-success' } as never, false)
+        })
+
+        expect(onUpdateFinished).toHaveBeenCalledTimes(1)
+        expect(onUpdateError).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN mutation returns null data', () => {
+      it('THEN should call onUpdateError and NOT onUpdateFinished', async () => {
+        const onUpdateFinished = jest.fn()
+        const onUpdateError = jest.fn()
+
+        mockUpdateQuoteVersion.mockResolvedValueOnce({
+          data: { updateQuoteVersion: null },
+        })
+
+        const { result } = renderHook(
+          () => useUpdateQuote({ onUpdateFinished, onUpdateError }),
+          { wrapper },
+        )
+
+        await act(async () => {
+          await result.current.updateQuoteVersion({ id: 'version-fail' } as never, true)
+        })
+
+        expect(onUpdateError).toHaveBeenCalledTimes(1)
+        expect(onUpdateFinished).not.toHaveBeenCalled()
+        expect(addToast).not.toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('GIVEN updateQuote is called', () => {
     describe('WHEN called with an input', () => {
       it('THEN should call the mutation with correct variables and return the result', async () => {

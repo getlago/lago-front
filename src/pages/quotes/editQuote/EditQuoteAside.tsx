@@ -3,7 +3,11 @@ import { debounce } from 'lodash'
 import { useEffect, useMemo, useRef } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
-import { type CurrencyEnum, type QuoteDetailItemFragment } from '~/generated/graphql'
+import {
+  type CurrencyEnum,
+  type QuoteDetailItemFragment,
+  type UpdateQuoteVersionInput,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useUpdateQuote } from '~/pages/quotes/hooks/useUpdateQuote'
@@ -27,13 +31,19 @@ interface EditQuoteAsideProps {
   quote: QuoteDetailItemFragment | null | undefined
   onSaveStart?: () => void
   onSaveFinished?: () => void
+  onSaveError?: (payload: UpdateQuoteVersionInput) => void
 }
 
-const EditQuoteAside = ({ quote, onSaveStart, onSaveFinished }: EditQuoteAsideProps) => {
+const EditQuoteAside = ({ quote, onSaveStart, onSaveFinished, onSaveError }: EditQuoteAsideProps) => {
   if (!quote) return null
 
   return (
-    <EditQuoteAsideForm quote={quote} onSaveStart={onSaveStart} onSaveFinished={onSaveFinished} />
+    <EditQuoteAsideForm
+      quote={quote}
+      onSaveStart={onSaveStart}
+      onSaveFinished={onSaveFinished}
+      onSaveError={onSaveError}
+    />
   )
 }
 
@@ -51,10 +61,12 @@ const EditQuoteAsideForm = ({
   quote,
   onSaveStart,
   onSaveFinished,
+  onSaveError,
 }: {
   quote: QuoteDetailItemFragment
   onSaveStart?: () => void
   onSaveFinished?: () => void
+  onSaveError?: (payload: UpdateQuoteVersionInput) => void
 }) => {
   const { translate } = useInternationalization()
   const { updateQuoteVersion } = useUpdateQuote({ onUpdateFinished: onSaveFinished })
@@ -101,23 +113,33 @@ const EditQuoteAsideForm = ({
   // Allow the use of updateQuoteVersion in a memo without using eslint-disable-next-line
   const updateQuoteVersionRef = useRef(updateQuoteVersion)
   const onSaveStartRef = useRef(onSaveStart)
+  const onSaveErrorRef = useRef(onSaveError)
 
   updateQuoteVersionRef.current = updateQuoteVersion
   onSaveStartRef.current = onSaveStart
+  onSaveErrorRef.current = onSaveError
 
   const debouncedSaveBillingItems = useMemo(
     () =>
-      debounce((startDate?: string, endDate?: string) => {
+      debounce(async (startDate?: string, endDate?: string) => {
         if (!versionId) return
 
-        updateQuoteVersionRef.current(
-          {
-            id: versionId,
-            billingItems: { startDate, endDate },
-          },
-          false,
-        )
-        initialBillingValuesRef.current = { startDate, endDate }
+        const payload: UpdateQuoteVersionInput = {
+          id: versionId,
+          billingItems: { startDate, endDate },
+        }
+
+        try {
+          const result = await updateQuoteVersionRef.current(payload, false)
+
+          if (result.data?.updateQuoteVersion) {
+            initialBillingValuesRef.current = { startDate, endDate }
+          } else {
+            onSaveErrorRef.current?.(payload)
+          }
+        } catch {
+          onSaveErrorRef.current?.(payload)
+        }
       }, AUTO_SAVE_DELAY_MS),
     [versionId],
   )

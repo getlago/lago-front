@@ -1,4 +1,5 @@
-import { screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
+import { act } from 'react'
 
 import { render } from '~/test-utils'
 
@@ -55,13 +56,21 @@ const mockUpdateQuote = jest.fn().mockResolvedValue({})
 let mockIsUpdatingQuoteVersion = false
 let mockIsUpdatingQuote = false
 
+let capturedOnUpdateFinished: (() => void) | undefined
+let capturedOnUpdateError: (() => void) | undefined
+
 jest.mock('../hooks/useUpdateQuote', () => ({
-  useUpdateQuote: () => ({
-    updateQuoteVersion: mockUpdateQuoteVersion,
-    isUpdatingQuoteVersion: mockIsUpdatingQuoteVersion,
-    isUpdatingQuote: mockIsUpdatingQuote,
-    updateQuote: mockUpdateQuote,
-  }),
+  useUpdateQuote: (opts?: { onUpdateFinished?: () => void; onUpdateError?: () => void }) => {
+    capturedOnUpdateFinished = opts?.onUpdateFinished
+    capturedOnUpdateError = opts?.onUpdateError
+
+    return {
+      updateQuoteVersion: mockUpdateQuoteVersion,
+      isUpdatingQuoteVersion: mockIsUpdatingQuoteVersion,
+      isUpdatingQuote: mockIsUpdatingQuote,
+      updateQuote: mockUpdateQuote,
+    }
+  },
 }))
 
 const mockQuote = {
@@ -140,6 +149,93 @@ describe('EditQuote', () => {
         render(<EditQuote />)
 
         expect(screen.getByText('Q-001 - v1')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN rendered in idle state', () => {
+      it('THEN should display the Saved status chip', () => {
+        render(<EditQuote />)
+
+        expect(screen.getByText('text_1779268404389wpd2ysgatw4')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the save encounters an error', () => {
+    describe('WHEN onUpdateError is triggered', () => {
+      it('THEN should display the error status chip and a retry button', async () => {
+        render(<EditQuote />)
+
+        const buttonsBeforeError = screen.getAllByTestId('button').length
+
+        act(() => {
+          capturedOnUpdateError?.()
+        })
+
+        await waitFor(() => {
+          expect(screen.getByText('text_1779437694622y666yr137gm')).toBeInTheDocument()
+        })
+
+        // The retry icon button should now be present (one more button than before)
+        const buttonsAfterError = screen.getAllByTestId('button').length
+
+        expect(buttonsAfterError).toBe(buttonsBeforeError + 1)
+      })
+    })
+
+    describe('WHEN the retry button is clicked without a stored payload', () => {
+      it('THEN should remain in error state since no payload is available', async () => {
+        render(<EditQuote />)
+
+        const initialButtons = screen.getAllByTestId('button')
+
+        act(() => {
+          capturedOnUpdateError?.()
+        })
+
+        await waitFor(() => {
+          expect(screen.getByText('text_1779437694622y666yr137gm')).toBeInTheDocument()
+        })
+
+        // Find the new button that appeared (the retry button)
+        const allButtons = screen.getAllByTestId('button')
+        const retryButton = allButtons.find(
+          (btn) => !initialButtons.includes(btn),
+        ) as HTMLElement
+
+        await act(async () => {
+          retryButton.click()
+        })
+
+        // The retry handler checks failedPayloadRef — with no prior save,
+        // it exits early, so the status stays as error
+        expect(screen.getByText('text_1779437694622y666yr137gm')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the save succeeds after an error', () => {
+    describe('WHEN onUpdateFinished is triggered', () => {
+      it('THEN should display the Saved status chip again', async () => {
+        render(<EditQuote />)
+
+        act(() => {
+          capturedOnUpdateError?.()
+        })
+
+        await waitFor(() => {
+          expect(screen.getByText('text_1779437694622y666yr137gm')).toBeInTheDocument()
+        })
+
+        act(() => {
+          capturedOnUpdateFinished?.()
+        })
+
+        await waitFor(() => {
+          expect(screen.getByText('text_1779268404389wpd2ysgatw4')).toBeInTheDocument()
+        })
+
+        expect(screen.queryByText('text_1779437694622y666yr137gm')).not.toBeInTheDocument()
       })
     })
   })
