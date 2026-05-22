@@ -8,8 +8,9 @@ import {
   SubscriptionFeeFormValues,
 } from '~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer'
 import { SubscriptionFeeInfo } from '~/components/plans/SubscriptionFeeInfo'
+import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { getIntervalTranslationKey } from '~/core/constants/form'
-import { PlanDetailsV2Fragment, PlanInterval } from '~/generated/graphql'
+import { PlanDetailsV2Fragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useUpdatePlanWithCascade } from '~/hooks/plans/useUpdatePlanWithCascade'
 
@@ -50,7 +51,7 @@ export const PlanDetailsV2SubscriptionFeeSection = ({
   }
 
   const intervalBadge = plan.interval ? (
-    <Chip label={translate(getIntervalTranslationKey[plan.interval as PlanInterval])} />
+    <Chip label={translate(getIntervalTranslationKey[plan.interval])} />
   ) : undefined
 
   return (
@@ -75,7 +76,9 @@ export const PlanDetailsV2SubscriptionFeeSection = ({
         <SubscriptionFeeInfo plan={plan} />
       </SectionAccordion>
 
-      <SubscriptionFeeDrawer ref={drawerRef} onSave={handleDrawerSave} isEdition />
+      <PlanFormProvider currency={plan.amountCurrency} interval={plan.interval}>
+        <SubscriptionFeeDrawer ref={drawerRef} onSave={handleDrawerSave} isEdition />
+      </PlanFormProvider>
     </section>
   )
 }
