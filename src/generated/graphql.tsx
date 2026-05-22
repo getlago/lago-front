@@ -11552,6 +11552,15 @@ export type PlanForUsageChargeAccordionFragment = { __typename?: 'Plan', billCha
 
 export type VolumeRangesFragment = { __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null };
 
+export type PlanDetailsV2Fragment = { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, hasOverriddenPlans?: boolean | null };
+
+export type GetPlanForDetailsV2QueryVariables = Exact<{
+  planId: Scalars['ID']['input'];
+}>;
+
+
+export type GetPlanForDetailsV2Query = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, hasOverriddenPlans?: boolean | null } | null };
+
 export type PlanDetailsActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -16775,6 +16784,17 @@ export const InvoiceForInvoiceDetailsTableFragmentDoc = gql`
 }
     ${FeeForInvoiceDetailsTableFragmentDoc}
 ${InvoiceForFormatInvoiceItemMapFragmentDoc}`;
+export const PlanDetailsV2FragmentDoc = gql`
+    fragment PlanDetailsV2 on Plan {
+  id
+  name
+  code
+  description
+  interval
+  amountCurrency
+  hasOverriddenPlans
+}
+    `;
 export const FeatureObjectEntitlementPrivilegeForPlanFragmentDoc = gql`
     fragment FeatureObjectEntitlementPrivilegeForPlan on FeatureObject {
   id
@@ -26095,6 +26115,49 @@ export type GetTaxesForPlanQueryHookResult = ReturnType<typeof useGetTaxesForPla
 export type GetTaxesForPlanLazyQueryHookResult = ReturnType<typeof useGetTaxesForPlanLazyQuery>;
 export type GetTaxesForPlanSuspenseQueryHookResult = ReturnType<typeof useGetTaxesForPlanSuspenseQuery>;
 export type GetTaxesForPlanQueryResult = Apollo.QueryResult<GetTaxesForPlanQuery, GetTaxesForPlanQueryVariables>;
+export const GetPlanForDetailsV2Document = gql`
+    query getPlanForDetailsV2($planId: ID!) {
+  plan(id: $planId) {
+    ...PlanDetailsV2
+  }
+}
+    ${PlanDetailsV2FragmentDoc}`;
+
+/**
+ * __useGetPlanForDetailsV2Query__
+ *
+ * To run a query within a React component, call `useGetPlanForDetailsV2Query` and pass it any options that fit your needs.
+ * When your component renders, `useGetPlanForDetailsV2Query` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPlanForDetailsV2Query({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *   },
+ * });
+ */
+export function useGetPlanForDetailsV2Query(baseOptions: Apollo.QueryHookOptions<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables> & ({ variables: GetPlanForDetailsV2QueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>(GetPlanForDetailsV2Document, options);
+      }
+export function useGetPlanForDetailsV2LazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>(GetPlanForDetailsV2Document, options);
+        }
+// @ts-ignore
+export function useGetPlanForDetailsV2SuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>;
+export function useGetPlanForDetailsV2SuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanForDetailsV2Query | undefined, GetPlanForDetailsV2QueryVariables>;
+export function useGetPlanForDetailsV2SuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>(GetPlanForDetailsV2Document, options);
+        }
+export type GetPlanForDetailsV2QueryHookResult = ReturnType<typeof useGetPlanForDetailsV2Query>;
+export type GetPlanForDetailsV2LazyQueryHookResult = ReturnType<typeof useGetPlanForDetailsV2LazyQuery>;
+export type GetPlanForDetailsV2SuspenseQueryHookResult = ReturnType<typeof useGetPlanForDetailsV2SuspenseQuery>;
+export type GetPlanForDetailsV2QueryResult = Apollo.QueryResult<GetPlanForDetailsV2Query, GetPlanForDetailsV2QueryVariables>;
 export const PlanDetailsActivityLogsDocument = gql`
     query PlanDetailsActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
   activityLogs(

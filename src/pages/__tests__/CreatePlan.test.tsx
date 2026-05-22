@@ -18,7 +18,7 @@ let mockIsEdition = false
 let mockLoading = false
 let mockPlan: Record<string, unknown> | undefined
 let mockType = 'creation'
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 let mockCachedForm: any
 
 jest.mock('~/hooks/plans/usePlanForm', () => ({
@@ -154,19 +154,11 @@ jest.mock('~/components/designSystem/WarningDialog', () => {
   return { WarningDialog: MockWarningDialog, WarningDialogRef: {} }
 })
 
-jest.mock('~/components/plans/ImpactOverriddenSubscriptionsDialog', () => {
-  const React = jest.requireActual('react')
-
-  const MockDialog = React.forwardRef((_props: unknown, ref: unknown) => {
-    React.useImperativeHandle(ref, () => ({ openDialog: jest.fn() }))
-
-    return React.createElement('div', { 'data-test': 'impact-dialog-mock' })
-  })
-
-  MockDialog.displayName = 'ImpactOverriddenSubscriptionsDialog'
-
-  return { ImpactOverriddenSubscriptionsDialog: MockDialog }
-})
+jest.mock('~/components/plans/details-v2/shared/useCascadeFormDialog', () => ({
+  useCascadeFormDialog: () => ({
+    openCascadeDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/components/invoices/EditInvoiceDisplayNameDialog', () => {
   const React = jest.requireActual('react')
