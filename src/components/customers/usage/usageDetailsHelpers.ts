@@ -24,6 +24,43 @@ export const sumBreakdownUnits = (
 export const isMeaningfulPresentationValue = (value: unknown): boolean =>
   value !== null && value !== undefined && String(value).length > 0
 
+// Build a stable key from a `presentationBy` object — sorted by key so
+// `{a:1,b:2}` and `{b:2,a:1}` collapse to the same string. Same shape as the
+// internal key used by `makeBreakdownRows` so dedupe stays consistent across
+// helpers.
+const stableKeyForPresentationBy = (presentationBy: unknown): string => {
+  const pby = (presentationBy ?? {}) as Record<string, unknown>
+
+  return JSON.stringify(
+    Object.keys(pby)
+      .sort()
+      .map((k) => [k, pby[k]]),
+  )
+}
+
+// Filter `tail` to only entries whose `presentationBy` key doesn't already
+// appear in `alreadyRendered`. We need this because the backend sometimes
+// includes the same breakdown both under a filter AND on the parent's
+// `presentationBreakdowns` (observed when a group has a no-id "catch-all"
+// filter — the filter and the tail describe the same fees). Without dedupe
+// the UI renders the row twice.
+export const dedupeTailBreakdowns = <T extends { presentationBy: unknown; units: string }>(
+  alreadyRendered: ReadonlyArray<ReadonlyArray<T> | null | undefined>,
+  tail: ReadonlyArray<T> | null | undefined,
+): T[] => {
+  if (!tail?.length) return []
+
+  const seen = new Set<string>()
+
+  for (const set of alreadyRendered) {
+    for (const b of set ?? []) {
+      seen.add(stableKeyForPresentationBy(b.presentationBy))
+    }
+  }
+
+  return tail.filter((b) => !seen.has(stableKeyForPresentationBy(b.presentationBy)))
+}
+
 export const makeBreakdownRows = (
   parentId: string,
   breakdowns: ReadonlyArray<{ presentationBy: unknown; units: string }> | null | undefined,
@@ -37,13 +74,10 @@ export const makeBreakdownRows = (
   for (const b of breakdowns ?? []) {
     const presentationBy = (b.presentationBy ?? {}) as Record<string, unknown>
 
-    // Drop breakdowns where every key has a null/undefined value — those
-    // would render as a row of empty chips, which the QA team flagged as
-    // confusing. The parent row's units still cover those fees.
-    const hasAnyMeaningfulValue = Object.values(presentationBy).some(isMeaningfulPresentationValue)
-
-    if (!hasAnyMeaningfulValue) continue
-
+    // We KEEP breakdowns whose `presentationBy` has no meaningful values —
+    // the QA team wants those rendered as an empty name cell + the units.
+    // Per-value null filtering happens inside `BreakdownNameCell` so the chips
+    // stay clean while the row remains visible.
     const stableKey = JSON.stringify(
       Object.keys(presentationBy)
         .sort()

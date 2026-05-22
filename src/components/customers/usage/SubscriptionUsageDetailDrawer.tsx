@@ -13,7 +13,7 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { intlFormatDateTime } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
-import { CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
+import { CurrencyEnum, ProjectedChargeUsage, TimezoneEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 // Side-effect import: registers the `CustomerUsageForUsageDetails` and
@@ -110,8 +110,13 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
     // Charge-level presentation breakdowns are already rendered in Section 1.
     // When that's the only thing this charge has, suppress Section 2 entirely
     // so the user doesn't see a contradictory "no filters / no PGK" alert next
-    // to the breakdowns that ARE displayed above.
-    const hasChargeLevelBreakdowns = (usage?.presentationBreakdowns?.length ?? 0) > 0
+    // to the breakdowns that ARE displayed above. Account for both the current
+    // and projected breakdown fields — either set indicates Section 1 will
+    // have breakdowns under it on its respective tab.
+    const hasChargeLevelBreakdowns =
+      (usage?.presentationBreakdowns?.length ?? 0) > 0 ||
+      ((usage as ProjectedChargeUsage | undefined)?.projectedPresentationBreakdowns?.length ?? 0) >
+        0
     const showSection2 = hasFiltersOrGroups || !hasChargeLevelBreakdowns
 
     useImperativeHandle(ref, () => ({

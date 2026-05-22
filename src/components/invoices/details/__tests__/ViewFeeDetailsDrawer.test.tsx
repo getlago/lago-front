@@ -7,7 +7,10 @@ import {
   VIEW_FEE_DETAILS_OVERVIEW_TEST_ID,
   VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID,
 } from '~/components/invoices/details/invoiceDetailsTestIds'
-import { useViewFeeDetailsDrawer } from '~/components/invoices/details/ViewFeeDetailsDrawer'
+import {
+  useViewFeeDetailsDrawer,
+  ViewFeeDetailsDrawerProvider,
+} from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import {
   CurrencyEnum,
   FeeForViewFeeDetailsDrawerFragment,
@@ -69,9 +72,15 @@ const buildFee = (
     ...overrides,
   }) as unknown as FeeForViewFeeDetailsDrawerFragment
 
+// The hook now reads from `ViewFeeDetailsDrawerProvider`, so each test mounts
+// the provider — the same shape that real consumers (e.g. InvoiceOverview) use.
 const renderHookUnderTest = () =>
   renderHook(() => useViewFeeDetailsDrawer(), {
-    wrapper: ({ children }) => <AllTheProviders>{children}</AllTheProviders>,
+    wrapper: ({ children }) => (
+      <AllTheProviders>
+        <ViewFeeDetailsDrawerProvider>{children}</ViewFeeDetailsDrawerProvider>
+      </AllTheProviders>
+    ),
   })
 
 // Get the children passed to the most recent drawer.open() call so we can mount

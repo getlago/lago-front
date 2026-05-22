@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { tw } from 'lago-design-system'
 import { DateTime } from 'luxon'
-import { useCallback, useState } from 'react'
+import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -439,20 +439,18 @@ const ViewFeeDetailsBody = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment }
   )
 }
 
-/**
- * Hook to open the read-only fee-details drawer.
- *
- * Usage:
- * ```tsx
- * const viewFeeDetails = useViewFeeDetailsDrawer()
- * <button onClick={() => viewFeeDetails.open(fee)}>View fee details</button>
- * ```
- *
- * Follows the new drawer system (see `src/pages/__devOnly/tabs/DrawerTest.tsx`)
- * — no `<ViewFeeDetailsDrawer ref={...} />` mount, no `useImperativeHandle`.
- * Each consumer calls the hook directly; NiceModal handles the registry.
- */
-export const useViewFeeDetailsDrawer = (): UseViewFeeDetailsDrawerReturn => {
+// Implementation note — the drawer registration MUST live on a component that
+// outlives any popper / menu / row that opens it. If we instead called
+// `useDrawer()` directly inside `ViewFeeDetailsButton`, the popper that hosts
+// the menu unmounts as soon as `closePopper()` runs after a click, which fires
+// the hook's `useEffect` cleanup and unregisters the NiceModal entry before
+// NiceModal can finish showing it — producing the "no modal found for id :rm:"
+// error reported by QA. A provider hoisted to a stable parent (page / layout)
+// keeps a single registration alive across all click sites.
+
+const ViewFeeDetailsDrawerContext = createContext<UseViewFeeDetailsDrawerReturn | null>(null)
+
+export const ViewFeeDetailsDrawerProvider = ({ children }: { children: ReactNode }) => {
   const { translate } = useInternationalization()
   const viewFeeDetailsDrawer = useDrawer()
 
@@ -473,5 +471,37 @@ export const useViewFeeDetailsDrawer = (): UseViewFeeDetailsDrawerReturn => {
     [translate, viewFeeDetailsDrawer],
   )
 
-  return { open, close: viewFeeDetailsDrawer.close }
+  const value = useMemo(
+    () => ({ open, close: viewFeeDetailsDrawer.close }),
+    [open, viewFeeDetailsDrawer.close],
+  )
+
+  return (
+    <ViewFeeDetailsDrawerContext.Provider value={value}>
+      {children}
+    </ViewFeeDetailsDrawerContext.Provider>
+  )
+}
+
+const NOOP_VIEW_FEE_DETAILS_DRAWER: UseViewFeeDetailsDrawerReturn = {
+  open: () => undefined,
+  close: () => undefined,
+}
+
+/**
+ * Hook to open the read-only fee-details drawer.
+ *
+ * Usage:
+ * ```tsx
+ * const viewFeeDetails = useViewFeeDetailsDrawer()
+ * <button onClick={() => viewFeeDetails.open(fee)}>View fee details</button>
+ * ```
+ *
+ * Best paired with `<ViewFeeDetailsDrawerProvider>` at a stable parent so the
+ * NiceModal registration survives popper/menu lifecycles. When no provider is
+ * present (e.g. the regenerate flow where row clicks shouldn't open the
+ * drawer) the hook returns a no-op so consumers don't need to gate.
+ */
+export const useViewFeeDetailsDrawer = (): UseViewFeeDetailsDrawerReturn => {
+  return useContext(ViewFeeDetailsDrawerContext) ?? NOOP_VIEW_FEE_DETAILS_DRAWER
 }

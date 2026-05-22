@@ -3,6 +3,7 @@ import {
   makeBreakdownRows,
   sumBreakdownUnits,
 } from '~/components/customers/usage/SubscriptionUsageDetailDrawer'
+import { dedupeTailBreakdowns } from '~/components/customers/usage/usageDetailsHelpers'
 
 describe('SubscriptionUsageDetailDrawer helpers', () => {
   describe('sumBreakdownUnits', () => {
@@ -129,20 +130,24 @@ describe('SubscriptionUsageDetailDrawer helpers', () => {
     })
 
     describe('GIVEN an empty presentationBy object', () => {
-      it('WHEN aggregating THEN should drop the row (no meaningful values to render)', () => {
+      it('WHEN aggregating THEN should keep the row (rendered as an empty name + units)', () => {
         const result = makeBreakdownRows('p', [{ presentationBy: {}, units: '8' }])
 
-        expect(result).toHaveLength(0)
+        expect(result).toHaveLength(1)
+        expect(result[0].presentationBy).toEqual({})
+        expect(result[0].breakdownUnits).toBe('8')
       })
     })
 
     describe('GIVEN a presentationBy object where every value is null/undefined', () => {
-      it('WHEN aggregating THEN should drop the row', () => {
+      it('WHEN aggregating THEN should keep the row (chips are filtered per-value in the cell)', () => {
         const result = makeBreakdownRows('p', [
           { presentationBy: { region: null, tier: undefined }, units: '8' },
         ])
 
-        expect(result).toHaveLength(0)
+        expect(result).toHaveLength(1)
+        expect(result[0].presentationBy).toEqual({ region: null, tier: undefined })
+        expect(result[0].breakdownUnits).toBe('8')
       })
     })
 
@@ -154,6 +159,74 @@ describe('SubscriptionUsageDetailDrawer helpers', () => {
 
         expect(result).toHaveLength(1)
         expect(result[0].presentationBy).toEqual({ region: 'us', tier: null })
+      })
+    })
+  })
+
+  describe('dedupeTailBreakdowns', () => {
+    describe('GIVEN an empty / missing tail', () => {
+      it.each([
+        ['null', null],
+        ['undefined', undefined],
+        ['empty array', []],
+      ])('WHEN passed %s THEN should return []', (_, tail) => {
+        expect(dedupeTailBreakdowns([], tail as never)).toEqual([])
+      })
+    })
+
+    describe('GIVEN the tail duplicates a filter breakdown', () => {
+      it('WHEN deduping THEN should drop the duplicate entry', () => {
+        const filterBreakdowns = [{ presentationBy: { department: 'eng' }, units: '3.0' }]
+        const tail = [{ presentationBy: { department: 'eng' }, units: '3.0' }]
+
+        expect(dedupeTailBreakdowns([filterBreakdowns], tail)).toEqual([])
+      })
+    })
+
+    describe('GIVEN the tail contains both duplicates and unique entries', () => {
+      it('WHEN deduping THEN should keep only the entries not seen in filters', () => {
+        const filterBreakdowns = [{ presentationBy: { department: 'eng' }, units: '3.0' }]
+        const tail = [
+          { presentationBy: { department: 'eng' }, units: '3.0' },
+          { presentationBy: { department: 'sales' }, units: '5.0' },
+        ]
+
+        expect(dedupeTailBreakdowns([filterBreakdowns], tail)).toEqual([
+          { presentationBy: { department: 'sales' }, units: '5.0' },
+        ])
+      })
+    })
+
+    describe('GIVEN multiple filter sets', () => {
+      it('WHEN deduping THEN should consider keys from any set', () => {
+        const filterA = [{ presentationBy: { department: 'eng' }, units: '3.0' }]
+        const filterB = [{ presentationBy: { department: 'sales' }, units: '5.0' }]
+        const tail = [
+          { presentationBy: { department: 'eng' }, units: '3.0' },
+          { presentationBy: { department: 'sales' }, units: '5.0' },
+          { presentationBy: { department: 'ops' }, units: '1.0' },
+        ]
+
+        expect(dedupeTailBreakdowns([filterA, filterB], tail)).toEqual([
+          { presentationBy: { department: 'ops' }, units: '1.0' },
+        ])
+      })
+    })
+
+    describe('GIVEN composite presentationBy keys in a different order', () => {
+      it('WHEN deduping THEN should still treat them as duplicates', () => {
+        const filterBreakdowns = [{ presentationBy: { region: 'us', tier: 'gold' }, units: '3.0' }]
+        const tail = [{ presentationBy: { tier: 'gold', region: 'us' }, units: '3.0' }]
+
+        expect(dedupeTailBreakdowns([filterBreakdowns], tail)).toEqual([])
+      })
+    })
+
+    describe('GIVEN null entries in alreadyRendered', () => {
+      it('WHEN deduping THEN should ignore them and not throw', () => {
+        const tail = [{ presentationBy: { department: 'eng' }, units: '3.0' }]
+
+        expect(dedupeTailBreakdowns([null, undefined, []], tail)).toEqual(tail)
       })
     })
   })

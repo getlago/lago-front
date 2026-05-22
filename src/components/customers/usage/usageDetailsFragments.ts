@@ -101,6 +101,10 @@ gql`
           presentationBy
           units
         }
+        projectedPresentationBreakdowns {
+          presentationBy
+          units
+        }
       }
       groupedUsage {
         id
@@ -126,13 +130,25 @@ gql`
             presentationBy
             units
           }
+          projectedPresentationBreakdowns {
+            presentationBy
+            units
+          }
         }
         presentationBreakdowns {
           presentationBy
           units
         }
+        projectedPresentationBreakdowns {
+          presentationBy
+          units
+        }
       }
       presentationBreakdowns {
+        presentationBy
+        units
+      }
+      projectedPresentationBreakdowns {
         presentationBy
         units
       }
