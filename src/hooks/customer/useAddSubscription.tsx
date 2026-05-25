@@ -43,6 +43,7 @@ gql`
       paymentMethod {
         id
       }
+      consolidateInvoice
       skipInvoiceCustomSections
       selectedInvoiceCustomSections {
         id
@@ -75,6 +76,7 @@ gql`
       paymentMethod {
         id
       }
+      consolidateInvoice
       skipInvoiceCustomSections
       selectedInvoiceCustomSections {
         id

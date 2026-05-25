@@ -15,6 +15,7 @@ export interface SubscriptionFormValues {
   paymentMethod?: SelectedPaymentMethod
   invoiceCustomSection?: InvoiceCustomSectionInput
   billingEntityId?: string
+  consolidateInvoice: boolean
 }
 
 export const subscriptionFormSchema = z

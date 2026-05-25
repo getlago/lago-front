@@ -17,6 +17,7 @@ const buildValidValues = (
   billingTime: BillingTimeEnum.Calendar,
   paymentMethod: undefined,
   invoiceCustomSection: undefined,
+  consolidateInvoice: true,
   ...overrides,
 })
 

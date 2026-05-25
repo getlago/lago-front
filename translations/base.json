@@ -4161,6 +4161,13 @@
   "text_17792001643316pbexygvpu2": "Subscription plan",
   "text_1779269934897no61nlpm9qz": "Credits available and credit notes",
   "text_1779287451539r5rgwbiz2k1": "Selected invoices belong to different billing entities. Please request payment for one billing entity at a time.",
+  "text_17787453510917ul9ghihdtv": "Billing settings",
+  "text_17787453510910bn5dsjxtqz": "Configure how this subscription is billed and how its invoices are issued.",
+  "text_177874535109128tmqdq682k": "Invoice consolidation",
+  "text_1778745351091h7z5baw0ta6": "Consolidate invoices",
+  "text_1778745351091u1rjnmr88ua": "When other subscriptions for this customer are billed on the same date, they will be merged into a single invoice. Recommended to reduce invoice volume.",
+  "text_1778745351091fxaqr5dwok8": "Isolate invoices",
+  "text_177874535109218palud3t3o": "This subscription always generates its own invoice, even when others are billed on the same date.",
   "text_177928991586601f21f0x87c": "Plan settings",
   "text_1779289915866etwoweh1syv": "Subscription fee",
   "text_1779289915866aj39dyv1wps": "Fixed charges",
@@ -4170,6 +4177,6 @@
   "text_1779289915866vguw0lfmz06": "Progressive billing",
   "text_1779289915866mr56w61hhi5": "Entitlements",
   "text_1779289915866s3gisblcite": "Apply changes to all overridden subscriptions of this plan",
-  "text_1779289915866itrqeyj7658": "When enabled, edits cascade to every subscription that overrides this plan.",
-  "text_1779457001221h9zixqumknp": "Editing this entity will affect future invoices. Draft and finalized invoices will keep their current billing entity."
+  "text_1779457001221h9zixqumknp": "Editing this entity will affect future invoices. Draft and finalized invoices will keep their current billing entity.",
+  "text_1779289915866itrqeyj7658": "When enabled, edits cascade to every subscription that overrides this plan."
 }

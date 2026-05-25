@@ -40,6 +40,7 @@ describe('buildSubscriptionDefaultValues', () => {
         billingTime: BillingTimeEnum.Calendar,
         paymentMethod: { paymentMethodType: undefined, paymentMethodId: undefined },
         invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
+        consolidateInvoice: true,
       })
     })
   })
