@@ -17,6 +17,11 @@ import {
   EditInvoiceDisplayNameDialogRef,
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
+import {
+  PaymentMethodsInvoiceSettingsProps,
+  ViewTypeEnum,
+} from '~/components/paymentMethodsInvoiceSettings/types'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
@@ -27,9 +32,9 @@ import PremiumFeature from '~/components/premium/PremiumFeature'
 import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { FeatureEntitlementSection } from '~/components/subscriptions/FeatureEntitlementSection'
 import { buildSubscriptionDefaultValues } from '~/components/subscriptions/form/buildSubscriptionDefaultValues'
-import { InvoicingPaymentsFormSection } from '~/components/subscriptions/form/InvoicingPaymentsFormSection'
 import { SubscriptionInformationFormSection } from '~/components/subscriptions/form/SubscriptionInformationFormSection'
 import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
+import { SubscriptionInvoiceConsolidationSection } from '~/components/subscriptions/SubscriptionInvoiceConsolidationSection'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -108,6 +113,7 @@ gql`
       paymentMethod {
         id
       }
+      consolidateInvoice
       skipInvoiceCustomSections
       selectedInvoiceCustomSections {
         id
@@ -503,12 +509,30 @@ const CreateSubscription = () => {
                       />
 
                       {/* Section: Invoicing & payments */}
-                      {hasAccessToMultiPaymentFlow && (
-                        <InvoicingPaymentsFormSection
-                          form={subscriptionForm}
-                          customer={customer ?? null}
+                      <CenteredPage.PageSection>
+                        <CenteredPage.PageSectionTitle
+                          title={translate('text_17787453510917ul9ghihdtv')}
+                          description={translate('text_17787453510910bn5dsjxtqz')}
                         />
-                      )}
+
+                        <SubscriptionInvoiceConsolidationSection
+                          form={subscriptionForm}
+                          fields={{ consolidateInvoice: 'consolidateInvoice' }}
+                        />
+
+                        {hasAccessToMultiPaymentFlow && (customer?.externalId || customer?.id) && (
+                          <PaymentMethodsInvoiceSettings
+                            customer={customer}
+                            formikProps={
+                              {
+                                values: subscriptionForm.state.values,
+                                setFieldValue: subscriptionForm.setFieldValue,
+                              } as PaymentMethodsInvoiceSettingsProps<ViewTypeEnum.Subscription>['formikProps']
+                            }
+                            viewType={ViewTypeEnum.Subscription}
+                          />
+                        )}
+                      </CenteredPage.PageSection>
                     </>
                   )}
                 </CenteredPage.SubsectionWrapper>

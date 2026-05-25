@@ -165,6 +165,24 @@ jest.mock('~/hooks/forms/useAppform', () => ({
       return WithFormWrapper
     },
   ),
+  withFieldGroup: jest.fn(
+    ({
+      render: RenderComponent,
+      props: defaultProps,
+    }: {
+      render: React.FC<Record<string, unknown>>
+      defaultValues: Record<string, unknown>
+      props?: Record<string, unknown>
+    }) => {
+      const WithFieldGroupWrapper = (receivedProps: Record<string, unknown>) => {
+        return <RenderComponent {...(defaultProps ?? {})} {...receivedProps} />
+      }
+
+      WithFieldGroupWrapper.displayName = 'WithFieldGroupWrapper'
+
+      return WithFieldGroupWrapper
+    },
+  ),
 }))
 
 jest.mock('@tanstack/react-form', () => ({

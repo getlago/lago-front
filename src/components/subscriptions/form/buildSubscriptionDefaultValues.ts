@@ -28,4 +28,5 @@ export const buildSubscriptionDefaultValues = (
     invoiceCustomSections: subscription?.selectedInvoiceCustomSections || [],
     skipInvoiceCustomSections: subscription?.skipInvoiceCustomSections || false,
   },
+  consolidateInvoice: subscription?.consolidateInvoice ?? true,
 })
