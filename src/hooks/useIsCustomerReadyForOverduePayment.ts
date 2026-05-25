@@ -25,7 +25,7 @@ export const useIsCustomerReadyForOverduePayment =
     const { data, loading, error } = useGetCustomerOverdueInvoicesReadyForPaymentProcessingQuery({
       variables: { id: customerId ?? '' },
       skip: !customerId,
-      fetchPolicy: 'network-only',
+      fetchPolicy: 'cache-and-network',
     })
 
     const invoices = data?.invoices

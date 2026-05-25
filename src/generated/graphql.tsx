@@ -4770,6 +4770,7 @@ export enum LagoApiError {
   InviteEmailMistmatch = 'invite_email_mistmatch',
   InviteNotFound = 'invite_not_found',
   InvoicesHaveDifferentBillingEntities = 'invoices_have_different_billing_entities',
+  InvoicesHaveDifferentCurrencies = 'invoices_have_different_currencies',
   InvoicesNotOverdue = 'invoices_not_overdue',
   InvoicesNotReadyForPaymentProcessing = 'invoices_not_ready_for_payment_processing',
   IsSucceeded = 'is_succeeded',
@@ -10958,7 +10959,7 @@ export type GetCustomerOverdueBalancesQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerOverdueBalancesQuery = { __typename?: 'Query', paymentRequests: { __typename?: 'PaymentRequestCollection', collection: Array<{ __typename?: 'PaymentRequest', createdAt: any }> }, overdueBalances: { __typename?: 'OverdueBalanceCollection', collection: Array<{ __typename?: 'OverdueBalance', amountCents: any, currency: CurrencyEnum, lagoInvoiceIds: Array<string> }> } };
+export type GetCustomerOverdueBalancesQuery = { __typename?: 'Query', paymentRequests: { __typename?: 'PaymentRequestCollection', collection: Array<{ __typename?: 'PaymentRequest', createdAt: any }> }, overdueBalances: { __typename?: 'OverdueBalanceCollection', collection: Array<{ __typename?: 'OverdueBalance', amountCents: any, billingEntityId?: string | null, currency: CurrencyEnum, lagoInvoiceIds: Array<string> }> } };
 
 export type GetCustomerGrossRevenuesQueryVariables = Exact<{
   externalCustomerId: Scalars['String']['input'];
@@ -10967,7 +10968,7 @@ export type GetCustomerGrossRevenuesQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerGrossRevenuesQuery = { __typename?: 'Query', grossRevenues: { __typename?: 'GrossRevenueCollection', collection: Array<{ __typename?: 'GrossRevenue', amountCents?: any | null, currency?: CurrencyEnum | null, invoicesCount: any, month: any }> } };
+export type GetCustomerGrossRevenuesQuery = { __typename?: 'Query', grossRevenues: { __typename?: 'GrossRevenueCollection', collection: Array<{ __typename?: 'GrossRevenue', amountCents?: any | null, billingEntityId?: string | null, currency?: CurrencyEnum | null, invoicesCount: any, month: any }> } };
 
 export type GetCustomerSubscriptionForListQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -13412,6 +13413,8 @@ export type LastPaymentRequestFragment = { __typename?: 'PaymentRequest', create
 
 export type GetRequestOverduePaymentInfosQueryVariables = Exact<{
   id: Scalars['ID']['input'];
+  currency?: InputMaybe<CurrencyEnum>;
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
 }>;
 
 
@@ -23486,6 +23489,7 @@ export const GetCustomerOverdueBalancesDocument = gql`
   ) {
     collection {
       amountCents
+      billingEntityId
       currency
       lagoInvoiceIds
     }
@@ -23539,6 +23543,7 @@ export const GetCustomerGrossRevenuesDocument = gql`
   ) {
     collection {
       amountCents
+      billingEntityId
       currency
       invoicesCount
       month
@@ -34747,7 +34752,7 @@ export type PreviewAdjustedFeeMutationHookResult = ReturnType<typeof usePreviewA
 export type PreviewAdjustedFeeMutationResult = Apollo.MutationResult<PreviewAdjustedFeeMutation>;
 export type PreviewAdjustedFeeMutationOptions = Apollo.BaseMutationOptions<PreviewAdjustedFeeMutation, PreviewAdjustedFeeMutationVariables>;
 export const GetRequestOverduePaymentInfosDocument = gql`
-    query getRequestOverduePaymentInfos($id: ID!) {
+    query getRequestOverduePaymentInfos($id: ID!, $currency: CurrencyEnum, $billingEntityIds: [ID!]) {
   organization {
     defaultCurrency
     ...OrganizationForDunningEmail
@@ -34763,7 +34768,12 @@ export const GetRequestOverduePaymentInfosDocument = gql`
       ...LastPaymentRequest
     }
   }
-  invoices(paymentOverdue: true, customerId: $id) {
+  invoices(
+    paymentOverdue: true
+    customerId: $id
+    currency: $currency
+    billingEntityIds: $billingEntityIds
+  ) {
     collection {
       ...InvoicesForRequestOverduePaymentForm
     }
@@ -34788,6 +34798,8 @@ ${InvoicesForRequestOverduePaymentFormFragmentDoc}`;
  * const { data, loading, error } = useGetRequestOverduePaymentInfosQuery({
  *   variables: {
  *      id: // value for 'id'
+ *      currency: // value for 'currency'
+ *      billingEntityIds: // value for 'billingEntityIds'
  *   },
  * });
  */

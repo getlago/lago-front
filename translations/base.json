@@ -4180,5 +4180,10 @@
   "text_1779457001221h9zixqumknp": "Editing this entity will affect future invoices. Draft and finalized invoices will keep their current billing entity.",
   "text_1779289915866itrqeyj7658": "When enabled, edits cascade to every subscription that overrides this plan.",
   "text_1779711754281pbvb802zcqp": "Total balance",
-  "text_1779712287978i7laolg3ga4": "List of credited notes. These amounts may impact future invoices; consider voiding the credits if needed."
+  "text_1779712287978i7laolg3ga4": "List of credited notes. These amounts may impact future invoices; consider voiding the credits if needed.",
+  "text_17797160260210wwib2sy0sb": "Review gross revenue and overdue balances by currency and billing entity",
+  "text_1779717091374n898sy7ygtm": "Selected invoices belong to different currencies. Please request payment for one currency at a time.",
+  "text_1779717247377c9a3lpk4f4r": "Select a specific currency and billing entity to request payment.",
+  "text_17797178971869lkybw92uxi": "Select a specific currency to request payment.",
+  "text_1779717897186t9k8by4zb4u": "Select a specific billing entity to request payment."
 }

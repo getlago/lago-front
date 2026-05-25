@@ -1,20 +1,29 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { FC, useEffect } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { FC, useEffect, useRef } from 'react'
+import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import { Button } from '~/components/designSystem/Button'
+import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_DETAILS_ROUTE, ERROR_404_ROUTE, useNavigate } from '~/core/router'
+import {
+  CUSTOMER_DETAILS_ROUTE,
+  CUSTOMER_DETAILS_TAB_ROUTE,
+  CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE,
+  ERROR_404_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { Locale, LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
   CustomerForDunningEmailFragmentDoc,
   CustomerForRequestOverduePaymentFormFragmentDoc,
+  FeatureFlagEnum,
   InvoicesForRequestOverduePaymentFormFragmentDoc,
   LagoApiError,
   LastPaymentRequestFragmentDoc,
@@ -23,8 +32,10 @@ import {
   useGetRequestOverduePaymentInfosQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useIsCustomerReadyForOverduePayment } from '~/hooks/useIsCustomerReadyForOverduePayment'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { EmailPreview } from '~/pages/CustomerRequestOverduePayment/components/EmailPreview'
 import { PageHeader } from '~/styles'
 
@@ -37,7 +48,11 @@ import {
 export const SUBMIT_PAYMENT_REQUEST_TEST_ID = 'submit-payment-request'
 
 gql`
-  query getRequestOverduePaymentInfos($id: ID!) {
+  query getRequestOverduePaymentInfos(
+    $id: ID!
+    $currency: CurrencyEnum
+    $billingEntityIds: [ID!]
+  ) {
     organization {
       defaultCurrency
       ...OrganizationForDunningEmail
@@ -56,7 +71,12 @@ gql`
       }
     }
 
-    invoices(paymentOverdue:true, customerId: $id) {
+    invoices(
+      paymentOverdue: true
+      customerId: $id
+      currency: $currency
+      billingEntityIds: $billingEntityIds
+    ) {
       collection {
         ...InvoicesForRequestOverduePaymentForm
       }
@@ -80,12 +100,69 @@ const CustomerRequestOverduePayment: FC = () => {
   const { translate } = useInternationalization()
   const { customerId } = useParams()
   const navigate = useNavigate()
+  const { goBack } = useLocationHistory()
   const { isPremium } = useCurrentUser()
   const { isCustomerReadyForOverduePayment, loading: isPaymentProcessingStatusLoading } =
     useIsCustomerReadyForOverduePayment()
 
+  // After a successful submit, the parent invoices refetch from `refetchQueries`
+  // can briefly resolve to `isCustomerReadyForOverduePayment=false` and
+  // `totalAmount=0` before this page unmounts — which would re-fire
+  // `handlePaymentNotReady` (danger toast) and the empty-amount redirect to
+  // 404. Latch a ref on submit to short-circuit those guards.
+  const hasSubmittedRef = useRef(false)
+
+  const [searchParams] = useSearchParams()
+  const currencyParam = (searchParams.get('currency') as CurrencyEnum | null) ?? undefined
+  const billingEntityIdParam = searchParams.get('billingEntityId') ?? undefined
+
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
+  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+
+  // Guard: each enabled flag introduces an axis that must be scoped explicitly
+  // — `multi_currency` requires `currency`, `multi_entity_billing` requires
+  // `billingEntityId`. Without scoping, the total amount would sum across
+  // mismatched buckets and the BE would later reject the mutation
+  // (invoices_have_different_currencies / _billing_entities). Redirect the
+  // operator back to the invoices tab so they pick a row from the breakdown.
+  const needsCurrencyScope = hasMultiCurrency && !currencyParam
+  const needsEntityScope = hasMultiEntityBilling && !billingEntityIdParam
+  const isUnscopedAccess = needsCurrencyScope || needsEntityScope
+
+  useEffect(() => {
+    if (hasSubmittedRef.current) return
+    if (!customerId) return
+    if (!isUnscopedAccess) return
+
+    // Pick the most specific message based on which scope is missing.
+    let translateKey = 'text_1779717897186t9k8by4zb4u' // billing entity only
+
+    if (needsCurrencyScope && needsEntityScope) {
+      translateKey = 'text_1779717247377c9a3lpk4f4r' // both
+    } else if (needsCurrencyScope) {
+      translateKey = 'text_17797178971869lkybw92uxi' // currency only
+    }
+
+    addToast({
+      severity: 'info',
+      translateKey,
+    })
+    navigate(
+      generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+        customerId,
+        tab: CustomerDetailsTabsOptions.invoices,
+      }),
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerId, isUnscopedAccess])
+
   const { data, loading, error } = useGetRequestOverduePaymentInfosQuery({
-    variables: { id: customerId ?? '' },
+    variables: {
+      id: customerId ?? '',
+      currency: currencyParam,
+      billingEntityIds: billingEntityIdParam ? [billingEntityIdParam] : undefined,
+    },
   })
 
   const customer = data?.customer
@@ -102,9 +179,12 @@ const CustomerRequestOverduePayment: FC = () => {
         LagoApiError.InvoicesNotOverdue,
         LagoApiError.InvoicesNotReadyForPaymentProcessing,
         LagoApiError.InvoicesHaveDifferentBillingEntities,
+        LagoApiError.InvoicesHaveDifferentCurrencies,
       ],
     },
     onCompleted() {
+      hasSubmittedRef.current = true
+
       addToast({
         severity: 'success',
         translateKey: 'text_66b9e095a7dc6c6d3dabeed4',
@@ -129,6 +209,14 @@ const CustomerRequestOverduePayment: FC = () => {
         addToast({
           severity: 'danger',
           translateKey: 'text_1779287451539r5rgwbiz2k1',
+        })
+        paymentRequestStatus.client.refetchQueries({ include: ['getRequestOverduePaymentInfos'] })
+      }
+
+      if (hasDefinedGQLError('InvoicesHaveDifferentCurrencies', mutationError)) {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_1779717091374n898sy7ygtm',
         })
         paymentRequestStatus.client.refetchQueries({ include: ['getRequestOverduePaymentInfos'] })
       }
@@ -206,6 +294,7 @@ const CustomerRequestOverduePayment: FC = () => {
 
   useEffect(
     () => {
+      if (hasSubmittedRef.current) return
       if (loading === false && totalAmount <= 0) {
         navigate(ERROR_404_ROUTE)
       }
@@ -215,6 +304,7 @@ const CustomerRequestOverduePayment: FC = () => {
   )
 
   useEffect(() => {
+    if (hasSubmittedRef.current) return
     // Check and redirect if invoices are not ready for payment processing
     // Runs when payment status changes (on mount and when dependencies update)
     if (!isPaymentProcessingStatusLoading && !isCustomerReadyForOverduePayment) {
@@ -226,25 +316,31 @@ const CustomerRequestOverduePayment: FC = () => {
   return (
     <>
       <PageHeader.Wrapper>
-        <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate(
-            'text_66b258f62100490d0eb5ca73',
-            {
-              amount: intlFormatNumber(totalAmount, {
-                currency: defaultCurrency,
-                currencyDisplay: 'narrowSymbol',
-              }),
-              count: totalInvoices,
-            },
-            totalInvoices,
-          )}
-        </Typography>
+        {loading ? (
+          <Skeleton variant="text" className="w-60" />
+        ) : (
+          <Typography variant="bodyHl" color="textSecondary" noWrap>
+            {translate(
+              'text_66b258f62100490d0eb5ca73',
+              {
+                amount: intlFormatNumber(totalAmount, {
+                  currency: defaultCurrency,
+                  currencyDisplay: 'narrowSymbol',
+                }),
+                count: totalInvoices,
+              },
+              totalInvoices,
+            )}
+          </Typography>
+        )}
 
         <Button
           variant="quaternary"
           icon="close"
           onClick={() =>
-            navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId ?? '' }))
+            goBack(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId ?? '' }), {
+              exclude: CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE,
+            })
           }
         />
       </PageHeader.Wrapper>
@@ -285,7 +381,9 @@ const CustomerRequestOverduePayment: FC = () => {
             variant="quaternary"
             size="large"
             onClick={() =>
-              navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId ?? '' }))
+              goBack(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId ?? '' }), {
+                exclude: CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE,
+              })
             }
           >
             {translate('text_6411e6b530cb47007488b027')}

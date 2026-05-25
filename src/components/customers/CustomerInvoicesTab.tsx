@@ -58,6 +58,7 @@ gql`
 interface CustomerInvoicesTabProps {
   customerId: string
   customerTimezone?: TimezoneEnum
+  customerBillingEntity?: { id: string; code: string; name?: string | null } | null
   externalId?: string
   userCurrency?: CurrencyEnum
   isPartner?: boolean
@@ -66,6 +67,7 @@ interface CustomerInvoicesTabProps {
 export const CustomerInvoicesTab = ({
   customerId,
   customerTimezone,
+  customerBillingEntity,
   isPartner,
   externalId,
   userCurrency,
@@ -179,7 +181,11 @@ export const CustomerInvoicesTab = ({
   return (
     <div className="flex flex-col gap-12">
       {!isPartner && (
-        <CustomerOverview externalCustomerId={externalId} userCurrency={userCurrency} />
+        <CustomerOverview
+          externalCustomerId={externalId}
+          userCurrency={userCurrency}
+          customerBillingEntity={customerBillingEntity}
+        />
       )}
 
       <div>

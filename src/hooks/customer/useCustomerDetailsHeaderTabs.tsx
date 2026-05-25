@@ -112,6 +112,7 @@ export function useCustomerDetailsHeaderTabs({
           userCurrency={customer?.currency || undefined}
           customerId={customerId}
           customerTimezone={safeTimezone}
+          customerBillingEntity={customerBillingEntity}
           isPartner={isPartner}
         />
       ),
