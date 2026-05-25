@@ -17,6 +17,9 @@ import { CustomerInvoiceBalancesLegacyCards } from './CustomerInvoiceBalancesLeg
 
 export { OVERDUE_INVOICES_ALERT_TEST_ID } from './CustomerInvoiceBalancesLegacyCards'
 
+export const CUSTOMER_OVERVIEW_BREAKDOWN = 'customer-overview-breakdown'
+export const CUSTOMER_OVERVIEW_LEGACY_CARDS = 'customer-overview-legacy-cards'
+
 gql`
   query getCustomerOverdueBalances(
     $externalCustomerId: String!
@@ -132,7 +135,9 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
 
   return (
     <div className="flex flex-col gap-12">
-      <section>
+      <section
+        data-test={showBreakdown ? CUSTOMER_OVERVIEW_BREAKDOWN : CUSTOMER_OVERVIEW_LEGACY_CARDS}
+      >
         <PageSectionTitle
           title={
             showBreakdown

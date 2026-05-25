@@ -18,6 +18,8 @@ type LockedPickerBoxProps = {
  * the ComboBox (placeholder, right adornment) but the input is read-only and
  * clicks fire `onClick` rather than opening a dropdown.
  */
+export const LOCKED_PICKER_BOX_DATA_TEST = 'locked-picker-box'
+
 export const LockedPickerBox = ({
   placeholder,
   onClick,
@@ -43,6 +45,7 @@ export const LockedPickerBox = ({
       readOnly: true,
       tabIndex: -1,
       className: 'cursor-pointer',
+      'data-test': LOCKED_PICKER_BOX_DATA_TEST,
     }}
   />
 )

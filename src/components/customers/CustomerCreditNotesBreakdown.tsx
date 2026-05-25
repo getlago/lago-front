@@ -9,6 +9,8 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CustomerCreditNotesBalance } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const CREDIT_NOTES_BREAKDOWN_ENTITY_CELL = 'credit-notes-breakdown-entity-cell'
+
 type CreditNotesBalanceRow = Pick<
   CustomerCreditNotesBalance,
   'currency' | 'billingEntityId' | 'amountCents' | 'creditsAvailableCount'
@@ -60,7 +62,7 @@ export const CustomerCreditNotesBreakdown = ({
         // rows = 1 network call; the per-row `options.find()` is O(N) over
         // a small org-level list — intentional simplicity, do not hoist.
         content: ({ billingEntityId, creditsAvailableCount }) => (
-          <div className="flex flex-col">
+          <div className="flex flex-col" data-test={CREDIT_NOTES_BREAKDOWN_ENTITY_CELL}>
             <Typography variant="bodyHl" color="grey700">
               <BillingEntityLabel ownId={billingEntityId} customerEntity={customerBillingEntity} />
             </Typography>

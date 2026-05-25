@@ -25,6 +25,8 @@ type BillingEntityFormPickerProps = {
  *   accepted by every `Create*Input.billingEntityId` mutation argument),
  *   while the ComboBox renders entity codes. Callers only deal with ids.
  */
+export const BILLING_ENTITY_FORM_PICKER_DATA_TEST = 'billing-entity-form-picker'
+
 export const BillingEntityFormPicker = ({
   value,
   onChange,
@@ -42,6 +44,7 @@ export const BillingEntityFormPicker = ({
 
   return (
     <ComboBox
+      data-test={BILLING_ENTITY_FORM_PICKER_DATA_TEST}
       disableClearable
       sortValues={false}
       PopperProps={{ displayInDialog: true }}

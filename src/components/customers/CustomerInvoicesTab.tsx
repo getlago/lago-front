@@ -55,6 +55,11 @@ gql`
   ${InvoiceForInvoiceListFragmentDoc}
 `
 
+export const INVOICES_TAB_CONTAINER = 'invoices-tab-container'
+export const INVOICES_TAB_SEE_MORE = 'invoices-tab-see-more'
+export const INVOICES_TAB_DRAFT_SECTION = 'invoices-tab-draft-section'
+export const INVOICES_TAB_FINALIZED_SECTION = 'invoices-tab-finalized-section'
+
 interface CustomerInvoicesTabProps {
   customerId: string
   customerTimezone?: TimezoneEnum
@@ -179,7 +184,7 @@ export const CustomerInvoicesTab = ({
   const showSeeMore = invoicesDraftCount > DRAFT_INVOICES_ITEMS_COUNT
 
   return (
-    <div className="flex flex-col gap-12">
+    <div className="flex flex-col gap-12" data-test={INVOICES_TAB_CONTAINER}>
       {!isPartner && (
         <CustomerOverview
           externalCustomerId={externalId}
@@ -188,7 +193,7 @@ export const CustomerInvoicesTab = ({
         />
       )}
 
-      <div>
+      <div data-test={INVOICES_TAB_DRAFT_SECTION}>
         <PageSectionTitle
           title={translate('text_638f4d756d899445f18a49ee')}
           subtitle={translate('text_1737655039923xyw73dt51ee')}
@@ -212,7 +217,10 @@ export const CustomerInvoicesTab = ({
         />
 
         {showSeeMore && (
-          <div className="flex flex-col items-center justify-center py-2 shadow-b">
+          <div
+            className="flex flex-col items-center justify-center py-2 shadow-b"
+            data-test={INVOICES_TAB_SEE_MORE}
+          >
             <ButtonLink
               type="button"
               to={generatePath(CUSTOMER_DRAFT_INVOICES_LIST_ROUTE, { customerId })}
@@ -226,7 +234,7 @@ export const CustomerInvoicesTab = ({
         )}
       </div>
 
-      <div>
+      <div data-test={INVOICES_TAB_FINALIZED_SECTION}>
         <PageSectionTitle
           title={translate('text_6250304370f0f700a8fdc291')}
           subtitle={translate('text_1737654864705k68zqvg5u9d')}

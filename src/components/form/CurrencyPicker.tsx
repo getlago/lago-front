@@ -19,6 +19,8 @@ type CurrencyPickerProps = Omit<FlatComboBoxProps, 'data' | 'value' | 'onChange'
   onClear?: () => void
 }
 
+export const CURRENCY_PICKER_DATA_TEST = 'currency-picker'
+
 export const CurrencyPicker = ({
   value,
   onChange,
@@ -28,6 +30,7 @@ export const CurrencyPicker = ({
 }: CurrencyPickerProps) => (
   <ComboBox
     {...rest}
+    data-test={CURRENCY_PICKER_DATA_TEST}
     data={CURRENCY_DATA}
     value={value}
     onChange={(next) => {

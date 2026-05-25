@@ -7,6 +7,8 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, CustomerCreditNotesBalance } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const LEGACY_CARD_CONTAINER = 'credit-notes-legacy-card-container'
+
 type CreditNotesBalanceRow = Pick<
   CustomerCreditNotesBalance,
   'currency' | 'billingEntityId' | 'amountCents' | 'creditsAvailableCount'
@@ -42,7 +44,10 @@ export const CustomerCreditNotesLegacyCard = ({
   const legacyCreditsAvailableCount = legacyBucket?.creditsAvailableCount ?? 0
 
   return (
-    <div className="flex h-18 items-center justify-between rounded-xl border border-grey-400 px-4 py-3">
+    <div
+      className="flex h-18 items-center justify-between rounded-xl border border-grey-400 px-4 py-3"
+      data-test={LEGACY_CARD_CONTAINER}
+    >
       <div className="flex items-center">
         <Avatar className="mr-3" size="big" variant="connector">
           <Icon name="wallet" color="dark" />

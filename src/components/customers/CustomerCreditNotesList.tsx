@@ -55,6 +55,8 @@ type CreditNotesBalanceRow = Pick<
   'currency' | 'billingEntityId' | 'amountCents' | 'creditsAvailableCount'
 >
 
+export const CREDIT_NOTES_LIST_CONTAINER = 'credit-notes-list-container'
+
 interface CustomerCreditNotesListProps {
   customerId: string
   customerBillingEntity?: { id: string; code: string; name?: string | null } | null
@@ -119,7 +121,7 @@ export const CustomerCreditNotesList = ({
   const creditNotes = data?.creditNotes?.collection
 
   return (
-    <div>
+    <div data-test={CREDIT_NOTES_LIST_CONTAINER}>
       <PageSectionTitle
         title={translate('text_1779269934897no61nlpm9qz')}
         subtitle={translate('text_1737895765672pwk47419syk')}

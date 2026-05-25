@@ -14,6 +14,9 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useCustomerFilterDefaults } from '~/hooks/useCustomerFilterDefaults'
 import { usePermissions } from '~/hooks/usePermissions'
 
+export const PAYMENTS_TAB_CONTAINER = 'payments-tab-container'
+export const PAYMENTS_TAB_CREATE_BUTTON = 'payments-tab-create-button'
+
 interface CustomerPaymentsTabProps {
   externalCustomerId: string
 }
@@ -44,7 +47,7 @@ export const CustomerPaymentsTab: FC<CustomerPaymentsTabProps> = ({ externalCust
   const canRecordPayment = hasPermissions(['paymentsCreate']) && isPremium
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4" data-test={PAYMENTS_TAB_CONTAINER}>
       {loading ? (
         <Skeleton variant="text" className="w-56" />
       ) : (
@@ -56,6 +59,7 @@ export const CustomerPaymentsTab: FC<CustomerPaymentsTabProps> = ({ externalCust
             canRecordPayment
               ? {
                   title: translate('text_1737471851634wpeojigr27w'),
+                  dataTest: PAYMENTS_TAB_CREATE_BUTTON,
                   onClick: () => {
                     navigate(generatePath(`${CREATE_PAYMENT_ROUTE}?${urlSearchParams.toString()}`))
                   },

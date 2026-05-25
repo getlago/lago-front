@@ -19,6 +19,9 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { tw } from '~/styles/utils'
 
+export const BREAKDOWN_ENTITY_CELL = 'breakdown-entity-cell'
+export const BREAKDOWN_REQUEST_PAYMENT_BUTTON = 'breakdown-request-payment-button'
+
 type GrossRevenueItem = NonNullable<
   GetCustomerGrossRevenuesQuery['grossRevenues']['collection']
 >[number]
@@ -127,7 +130,7 @@ export const CustomerInvoiceBalancesBreakdown = ({
         // per-row `options.find()` is O(N) over a handful of org entities —
         // intentional simplicity, do not hoist.
         content: ({ billingEntityId }) => (
-          <Typography variant="body" color="grey700" noWrap>
+          <Typography variant="body" color="grey700" noWrap data-test={BREAKDOWN_ENTITY_CELL}>
             <BillingEntityLabel ownId={billingEntityId} customerEntity={customerBillingEntity} />
           </Typography>
         ),
@@ -196,6 +199,7 @@ export const CustomerInvoiceBalancesBreakdown = ({
           return (
             <Button
               variant="quaternary"
+              data-test={BREAKDOWN_REQUEST_PAYMENT_BUTTON}
               disabled={!canRequest}
               onClick={() => {
                 const params = new URLSearchParams()

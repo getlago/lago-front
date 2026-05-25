@@ -4,6 +4,8 @@ import { LockedPickerBox } from '~/components/form/LockedPickerBox'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
+export const MONTH_SELECTOR_COMBO_BOX = 'month-selector-combo-box'
+
 export const AnalyticsPeriodScopeEnum = {
   Year: 'year',
   Quarter: 'quarter',
@@ -48,6 +50,7 @@ const MonthSelectorDropdown = ({
 
   return (
     <ComboBox
+      data-test={MONTH_SELECTOR_COMBO_BOX}
       data={periodOptions}
       value={periodScope}
       onChange={(next) => {
