@@ -5,6 +5,7 @@ import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
 import {
+  AvailableFiltersEnum,
   Filters,
   formatFiltersForSubscriptionQuery,
   SubscriptionAvailableFilters,
@@ -120,6 +121,16 @@ const SubscriptionsPage = () => {
 
   const showBillingEntityColumn = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
+  // Drop the `billingEntityIds` option from the popper when the flag is off
+  // so the legacy UX matches the pre-epic state (no entity filter visible).
+  const availableFilters = useMemo(
+    () =>
+      showBillingEntityColumn
+        ? SubscriptionAvailableFilters
+        : SubscriptionAvailableFilters.filter((f) => f !== AvailableFiltersEnum.billingEntityIds),
+    [showBillingEntityColumn],
+  )
+
   const filtersForSubscriptionQuery = useMemo(() => {
     return formatFiltersForSubscriptionQuery(searchParams)
   }, [searchParams])
@@ -155,7 +166,7 @@ const SubscriptionsPage = () => {
         filtersSection={
           <Filters.Provider
             filtersNamePrefix={SUBSCRIPTION_LIST_FILTER_PREFIX}
-            availableFilters={SubscriptionAvailableFilters}
+            availableFilters={availableFilters}
           >
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
               <SearchInput
