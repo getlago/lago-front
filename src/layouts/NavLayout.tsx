@@ -37,7 +37,7 @@ const NavBurgerButton = ({
   return (
     <Button
       {...(dataTest ? { 'data-test': dataTest } : {})}
-      className="absolute left-4 top-2 z-drawer !w-[36px] !p-[10px] md:hidden"
+      className="absolute left-4 top-2 z-drawer !w-[36px] !bg-white !p-[10px] md:hidden"
       icon="burger"
       variant="quaternary"
       onClick={(e) => {
