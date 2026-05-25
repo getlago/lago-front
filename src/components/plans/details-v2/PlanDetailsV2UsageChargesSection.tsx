@@ -29,6 +29,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useChargeMutationsWithCascade } from '~/hooks/plans/useChargeMutationsWithCascade'
+import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { SectionAccordion } from './shared/SectionAccordion'
@@ -144,7 +145,11 @@ type Props = {
 
 type UsageCharge = NonNullable<PlanForDetailsV2UsageChargesSectionFragment['charges']>[number]
 
-const toLocalInput = (charge: UsageCharge, planCurrency: CurrencyEnum): LocalUsageChargeInput => {
+const toLocalInput = (
+  charge: UsageCharge,
+  planCurrency: CurrencyEnum,
+  hasAnyPricingUnitConfigured: boolean,
+): LocalUsageChargeInput => {
   const minAmountCentsNumber = Number(charge.minAmountCents)
   const hasMinAmount =
     charge.minAmountCents !== null &&
@@ -155,16 +160,17 @@ const toLocalInput = (charge: UsageCharge, planCurrency: CurrencyEnum): LocalUsa
   return {
     id: charge.id,
     billableMetric: charge.billableMetric as never,
-    appliedPricingUnit: charge.appliedPricingUnit
-      ? {
-          code: charge.appliedPricingUnit.pricingUnit?.code ?? planCurrency,
-          conversionRate: String(charge.appliedPricingUnit.conversionRate ?? ''),
-          shortName: charge.appliedPricingUnit.pricingUnit?.shortName ?? planCurrency,
-          type: charge.appliedPricingUnit.pricingUnit?.code
-            ? LocalPricingUnitType.Custom
-            : LocalPricingUnitType.Fiat,
-        }
-      : undefined,
+    appliedPricingUnit:
+      !hasAnyPricingUnitConfigured && !charge.appliedPricingUnit
+        ? undefined
+        : {
+            code: charge.appliedPricingUnit?.pricingUnit?.code ?? planCurrency,
+            conversionRate: String(charge.appliedPricingUnit?.conversionRate ?? ''),
+            shortName: charge.appliedPricingUnit?.pricingUnit?.shortName ?? planCurrency,
+            type: charge.appliedPricingUnit?.pricingUnit?.code
+              ? LocalPricingUnitType.Custom
+              : LocalPricingUnitType.Fiat,
+          },
     chargeModel: charge.chargeModel,
     invoiceDisplayName: charge.invoiceDisplayName ?? '',
     invoiceable: charge.invoiceable ?? true,
@@ -198,6 +204,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
 >(({ plan, isInSubscriptionForm = false }, ref) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
+  const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
   const drawerRef = useRef<UsageChargeDrawerRef>(null)
 
   const canCreate = hasPermissions(['plansCreate']) && !isInSubscriptionForm
@@ -210,13 +217,13 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
   })
 
   const openCreate = () => drawerRef.current?.openDrawer()
+
   useImperativeHandle(ref, () => ({ openCreate }))
 
   const openEdit = (charge: LocalUsageChargeInput, index: number) =>
     drawerRef.current?.openDrawer(charge, index)
 
-  const planCurrency = plan.amountCurrency as CurrencyEnum
-
+  const planCurrency = plan.amountCurrency
   const charges = plan.charges ?? []
   const isEmpty = charges.length === 0
 
@@ -248,7 +255,8 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
           actions={[
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
-              onClick: () => openEdit(toLocalInput(charge, planCurrency), index),
+              onClick: () =>
+                openEdit(toLocalInput(charge, planCurrency, hasAnyPricingUnitConfigured), index),
               hidden: isInSubscriptionForm,
             },
             {

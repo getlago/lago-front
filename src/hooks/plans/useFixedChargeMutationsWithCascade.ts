@@ -121,9 +121,12 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
     cascadeUpdates,
   })
 
-  const handleSaveCharge = async (charge: LocalFixedChargeInput, index: number | null) => {
+  const handleSaveCharge = async (
+    charge: LocalFixedChargeInput,
+    index: number | null,
+  ): Promise<boolean> => {
     const isCreate = index === null
-    await openCascadeDialog({
+    return openCascadeDialog({
       title: translate('text_1729604107534r3hsj7i64gp'),
       mainActionLabel: translate('text_1729604107534dfyz8j53ho5'),
       hasOverriddenPlans,
@@ -141,8 +144,8 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
     })
   }
 
-  const handleDeleteCharge = async (chargeId: string) => {
-    await openCascadeDialog({
+  const handleDeleteCharge = async (chargeId: string): Promise<boolean> => {
+    return openCascadeDialog({
       title: translate('text_1729604107534r3hsj7i64gp'),
       mainActionLabel: translate('text_1729604107534dfyz8j53ho5'),
       hasOverriddenPlans,

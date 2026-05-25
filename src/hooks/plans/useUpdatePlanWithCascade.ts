@@ -85,7 +85,7 @@ export const useUpdatePlanWithCascade = ({ plan, onSuccess }: UseUpdatePlanWithC
     },
   })
 
-  const submit = () => {
+  const submit = async (): Promise<boolean> => {
     if (plan.hasOverriddenPlans) {
       return openCascadeDialog({
         title: translate('text_1729604107534r3hsj7i64gp'),
@@ -98,7 +98,8 @@ export const useUpdatePlanWithCascade = ({ plan, onSuccess }: UseUpdatePlanWithC
       })
     }
 
-    return form.handleSubmit()
+    await form.handleSubmit()
+    return true
   }
 
   return { form, submit }

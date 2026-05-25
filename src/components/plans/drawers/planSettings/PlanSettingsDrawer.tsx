@@ -36,13 +36,21 @@ export const PlanSettingsDrawer = forwardRef<PlanSettingsDrawerRef, PlanSettings
     const openSettingsDrawer = () => {
       form.reset(buildUpdatePlanFormDefaults(plan), { keepDefaultValues: true })
 
+      const submitVoid = () => {
+        void submit()
+      }
+
       drawer.open({
         title: translate('text_642d5eb2783a2ad10d67031a'),
-        form: { id: PLAN_SETTINGS_FORM_ID, submit },
+        form: { id: PLAN_SETTINGS_FORM_ID, submit: submitVoid },
         mainAction: (
           <form.Subscribe selector={({ canSubmit }) => canSubmit}>
             {(canSubmit) => (
-              <Button data-test="plan-settings-drawer-save" onClick={submit} disabled={!canSubmit}>
+              <Button
+                data-test="plan-settings-drawer-save"
+                onClick={submitVoid}
+                disabled={!canSubmit}
+              >
                 {translate('text_17295436903260tlyb1gp1i7')}
               </Button>
             )}

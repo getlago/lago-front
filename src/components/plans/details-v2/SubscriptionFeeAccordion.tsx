@@ -59,12 +59,12 @@ export const SubscriptionFeeAccordion = ({
     })
   }
 
-  const handleDrawerSave = (values: SubscriptionFeeFormValues) => {
+  const handleDrawerSave = async (values: SubscriptionFeeFormValues): Promise<boolean> => {
     form.setFieldValue('amountCents', values.amountCents)
     form.setFieldValue('payInAdvance', values.payInAdvance)
     form.setFieldValue('trialPeriod', values.trialPeriod)
     form.setFieldValue('invoiceDisplayName', values.invoiceDisplayName)
-    submit()
+    return submit()
   }
 
   const intervalBadge = plan.interval ? (
