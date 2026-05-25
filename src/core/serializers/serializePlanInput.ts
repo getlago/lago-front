@@ -13,7 +13,7 @@ const serializeScientificNotation = (value: string): string => {
   return Number(value).toLocaleString('en-US', { maximumFractionDigits: 15, useGrouping: false })
 }
 
-const serializeFilters = (
+export const serializeFilters = (
   filters: LocalChargeFilterInput[] | undefined,
   chargeModel: ChargeModelEnum,
 ): ChargeFilterInput[] | undefined => {
@@ -43,7 +43,7 @@ const serializeFilters = (
   })
 }
 
-const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnum) => {
+export const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnum) => {
   return {
     ...properties,
     ...(![ChargeModelEnum.Custom].includes(chargeModel)
