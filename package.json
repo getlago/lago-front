@@ -115,7 +115,7 @@
   "dependencies": {
     "@apollo/client": "3.14.1",
     "@ebay/nice-modal-react": "1.2.13",
-    "@fragaria/address-formatter": "6.7.1",
+    "@fragaria/address-formatter": "7.0.0",
     "@llm-ui/code": "0.13.3",
     "@llm-ui/markdown": "0.13.3",
     "@llm-ui/react": "0.13.3",
