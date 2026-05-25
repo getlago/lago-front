@@ -77,7 +77,6 @@ export const SubscriptionFeeAccordion = ({
         id={PlanDetailsV2SectionId.SubscriptionFee}
         title={plan.invoiceDisplayName || translate('text_642d5eb2783a2ad10d670336')}
         badge={intervalBadge}
-        initiallyOpen
         actions={[
           {
             label: translate('text_63e51ef4985f0ebd75c212fc'),
