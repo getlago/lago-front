@@ -1,9 +1,7 @@
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Typography } from '~/components/designSystem/Typography'
-import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { CurrencyEnum, EditPlanFragment } from '~/generated/graphql'
+import { SubscriptionFeeInfo } from '~/components/plans/SubscriptionFeeInfo'
+import { EditPlanFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export const PlanDetailsSubscriptionFeeAccordion = ({
@@ -21,50 +19,7 @@ export const PlanDetailsSubscriptionFeeAccordion = ({
         </Typography>
       }
     >
-      <div className="flex flex-col gap-6">
-        <DetailsPage.TableDisplay
-          name="subscription-fee"
-          header={[translate('text_624453d52e945301380e49b6')]}
-          body={[
-            [
-              intlFormatNumber(
-                deserializeAmount(plan?.amountCents || 0, plan?.amountCurrency || CurrencyEnum.Usd),
-                { currency: plan?.amountCurrency || CurrencyEnum.Usd },
-              ),
-            ],
-          ]}
-        />
-        <DetailsPage.InfoGrid
-          grid={[
-            {
-              label: translate('text_65201b8216455901fe273dd9'),
-              value: plan?.payInAdvance
-                ? translate('text_646e2d0cc536351b62ba6faa')
-                : translate('text_646e2d0cc536351b62ba6f8c'),
-            },
-            {
-              label: translate('text_65201b8216455901fe273dcd'),
-              value: plan?.trialPeriod,
-            },
-            {
-              label: translate('text_645bb193927b375079d28a8f'),
-              value: !!plan?.taxes?.length
-                ? plan?.taxes?.map((tax, i) => (
-                    <div key={`plan-details-subscription-fee-taxe-${i}`}>
-                      <Typography variant="body" color="grey700">
-                        {tax.name} (
-                        {intlFormatNumber(Number(tax.rate) / 100 || 0, {
-                          style: 'percent',
-                        })}
-                        )
-                      </Typography>
-                    </div>
-                  ))
-                : '-',
-            },
-          ]}
-        />
-      </div>
+      <SubscriptionFeeInfo plan={plan ?? {}} />
     </Accordion>
   )
 }

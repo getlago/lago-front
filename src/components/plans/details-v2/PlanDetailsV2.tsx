@@ -1,9 +1,14 @@
 import { gql } from '@apollo/client'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { LagoApiError, useGetPlanForDetailsV2Query } from '~/generated/graphql'
+import {
+  LagoApiError,
+  TaxForPlanSettingsSectionFragmentDoc,
+  useGetPlanForDetailsV2Query,
+} from '~/generated/graphql'
 
 import { PlanDetailsV2LeftSidebar } from './PlanDetailsV2LeftSidebar'
+import { PlanDetailsV2PlanSettingsSection } from './PlanDetailsV2PlanSettingsSection'
 import { PlanDetailsV2SectionId } from './sidebarSections'
 
 gql`
@@ -15,6 +20,17 @@ gql`
     interval
     amountCurrency
     hasOverriddenPlans
+    billFixedChargesMonthly
+    billChargesMonthly
+    taxes {
+      ...TaxForPlanSettingsSection
+    }
+    fixedCharges {
+      id
+    }
+    charges {
+      id
+    }
   }
 
   query getPlanForDetailsV2($planId: ID!) {
@@ -22,6 +38,8 @@ gql`
       ...PlanDetailsV2
     }
   }
+
+  ${TaxForPlanSettingsSectionFragmentDoc}
 `
 
 const TOP_LEVEL_SECTION_IDS: PlanDetailsV2SectionId[] = [
@@ -66,7 +84,9 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
     return <DetailsPage.Skeleton />
   }
 
-  if (!data?.plan) {
+  const plan = data?.plan
+
+  if (!plan) {
     return null
   }
 
@@ -77,9 +97,20 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
         onItemClick={handleItemClick}
       />
       <div className="flex flex-1 flex-col gap-12 py-12">
-        {TOP_LEVEL_SECTION_IDS.map((id) => (
-          <section key={id} id={id} className="min-h-48 scroll-mt-12 rounded-xl bg-grey-100" />
-        ))}
+        {TOP_LEVEL_SECTION_IDS.map((id) => {
+          if (id === PlanDetailsV2SectionId.PlanSettings) {
+            return (
+              <PlanDetailsV2PlanSettingsSection
+                key={id}
+                plan={plan}
+                isInSubscriptionForm={isInSubscriptionForm}
+              />
+            )
+          }
+          return (
+            <section key={id} id={id} className="min-h-48 scroll-mt-12 rounded-xl bg-grey-100" />
+          )
+        })}
         <section
           id={PlanDetailsV2SectionId.AdvancedSettings}
           className="flex scroll-mt-12 flex-col gap-12"

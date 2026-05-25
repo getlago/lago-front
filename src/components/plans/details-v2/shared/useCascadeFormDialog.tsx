@@ -55,7 +55,7 @@ export const useCascadeFormDialog = () => {
       ),
       children: (
         <form.AppForm>
-          <div className="p-4">
+          <div className="p-8">
             <form.AppField name="cascadeUpdates">
               {(field) => (
                 <field.SwitchField

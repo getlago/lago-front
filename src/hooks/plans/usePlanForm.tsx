@@ -39,6 +39,7 @@ import {
   EditPlanFragment,
   EditPlanFragmentDoc,
   LagoApiError,
+  PlanDetailsV2FragmentDoc,
   PlanItemFragmentDoc,
   useCreatePlanMutation,
   useGetSinglePlanQuery,
@@ -67,12 +68,14 @@ gql`
       ...PlanItem
       ...DeletePlanDialog
       ...EditPlan
+      ...PlanDetailsV2
     }
   }
 
   ${PlanItemFragmentDoc}
   ${DeletePlanDialogFragmentDoc}
   ${EditPlanFragmentDoc}
+  ${PlanDetailsV2FragmentDoc}
 `
 
 export type PlanFormType = ReturnType<typeof usePlanForm>['form']
