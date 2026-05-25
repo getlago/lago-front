@@ -11570,6 +11570,10 @@ export type PlanForDetailsV2FixedChargesSectionFragment = { __typename?: 'Plan',
 
 export type PlanForDetailsV2PlanSettingsSectionFragment = { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, billChargesMonthly?: boolean | null, billFixedChargesMonthly?: boolean | null, hasOverriddenPlans?: boolean | null, amountCents: any, payInAdvance: boolean, trialPeriod?: number | null, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null };
 
+export type UsageChargeForDetailsV2Fragment = { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, invoiceable: boolean, invoiceDisplayName?: string | null, minAmountCents: any, payInAdvance: boolean, prorated: boolean, regroupPaidFees?: RegroupPaidFeesEnum | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any, properties: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', conversionRate: number, pricingUnit: { __typename?: 'PricingUnit', id: string, name: string, code: string, shortName: string } } | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string> }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null };
+
+export type PlanForDetailsV2UsageChargesSectionFragment = { __typename?: 'Plan', id: string, hasOverriddenPlans?: boolean | null, interval: PlanInterval, amountCurrency: CurrencyEnum, billChargesMonthly?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, charges?: Array<{ __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, invoiceable: boolean, invoiceDisplayName?: string | null, minAmountCents: any, payInAdvance: boolean, prorated: boolean, regroupPaidFees?: RegroupPaidFeesEnum | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any, properties: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', conversionRate: number, pricingUnit: { __typename?: 'PricingUnit', id: string, name: string, code: string, shortName: string } } | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string> }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> | null };
+
 export type PlanForDetailsV2SubscriptionFeeAccordionFragment = { __typename?: 'Plan', amountCents: any, payInAdvance: boolean, trialPeriod?: number | null, invoiceDisplayName?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, id: string, name: string, code: string, description?: string | null, billChargesMonthly?: boolean | null, billFixedChargesMonthly?: boolean | null, hasOverriddenPlans?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null };
 
 export type PlanDetailsActivityLogsQueryVariables = Exact<{
@@ -12701,6 +12705,27 @@ export type DownloadPaymentReceiptXmlMutationVariables = Exact<{
 
 
 export type DownloadPaymentReceiptXmlMutation = { __typename?: 'Mutation', downloadXmlPaymentReceipt?: { __typename?: 'PaymentReceipt', id: string, xmlUrl?: string | null } | null };
+
+export type CreateChargeMutationVariables = Exact<{
+  input: ChargeCreateInput;
+}>;
+
+
+export type CreateChargeMutation = { __typename?: 'Mutation', createCharge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, invoiceable: boolean, invoiceDisplayName?: string | null, minAmountCents: any, payInAdvance: boolean, prorated: boolean, regroupPaidFees?: RegroupPaidFeesEnum | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any, properties: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', conversionRate: number, pricingUnit: { __typename?: 'PricingUnit', id: string, name: string, code: string, shortName: string } } | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string> }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null } | null };
+
+export type UpdateChargeMutationVariables = Exact<{
+  input: ChargeUpdateInput;
+}>;
+
+
+export type UpdateChargeMutation = { __typename?: 'Mutation', updateCharge?: { __typename?: 'Charge', id: string, chargeModel: ChargeModelEnum, invoiceable: boolean, invoiceDisplayName?: string | null, minAmountCents: any, payInAdvance: boolean, prorated: boolean, regroupPaidFees?: RegroupPaidFeesEnum | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any, properties: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', conversionRate: number, pricingUnit: { __typename?: 'PricingUnit', id: string, name: string, code: string, shortName: string } } | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string> }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null } | null };
+
+export type DestroyChargeMutationVariables = Exact<{
+  input: DestroyChargeInput;
+}>;
+
+
+export type DestroyChargeMutation = { __typename?: 'Mutation', destroyCharge?: { __typename?: 'DestroyChargePayload', id?: string | null } | null };
 
 export type GetCustomPricingUnitsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -16936,6 +16961,151 @@ export const PlanDetailsV2FragmentDoc = gql`
 }
     ${PlanForDetailsV2PlanSettingsSectionFragmentDoc}
 ${PlanForDetailsV2FixedChargesSectionFragmentDoc}`;
+export const GraduatedPercentageChargeFragmentDoc = gql`
+    fragment GraduatedPercentageCharge on GraduatedPercentageRange {
+  flatAmount
+  fromValue
+  rate
+  toValue
+}
+    `;
+export const PackageChargeFragmentDoc = gql`
+    fragment PackageCharge on Properties {
+  amount
+  packageSize
+  freeUnits
+}
+    `;
+export const StandardChargeFragmentDoc = gql`
+    fragment StandardCharge on Properties {
+  amount
+  pricingGroupKeys
+}
+    `;
+export const PercentageChargeFragmentDoc = gql`
+    fragment PercentageCharge on Properties {
+  fixedAmount
+  freeUnitsPerEvents
+  freeUnitsPerTotalAggregation
+  rate
+  perTransactionMinAmount
+  perTransactionMaxAmount
+}
+    `;
+export const CustomChargeFragmentDoc = gql`
+    fragment CustomCharge on Properties {
+  customProperties
+}
+    `;
+export const PricingGroupKeysFragmentDoc = gql`
+    fragment PricingGroupKeys on Properties {
+  pricingGroupKeys
+}
+    `;
+export const TaxForTaxesSelectorSectionFragmentDoc = gql`
+    fragment TaxForTaxesSelectorSection on Tax {
+  id
+  code
+  name
+  rate
+}
+    `;
+export const UsageChargeForDetailsV2FragmentDoc = gql`
+    fragment UsageChargeForDetailsV2 on Charge {
+  id
+  chargeModel
+  invoiceable
+  invoiceDisplayName
+  minAmountCents
+  payInAdvance
+  prorated
+  regroupPaidFees
+  properties {
+    graduatedRanges {
+      ...GraduatedCharge
+    }
+    graduatedPercentageRanges {
+      ...GraduatedPercentageCharge
+    }
+    volumeRanges {
+      ...VolumeRanges
+    }
+    ...PackageCharge
+    ...StandardCharge
+    ...PercentageCharge
+    ...CustomCharge
+    ...PricingGroupKeys
+  }
+  filters {
+    id
+    invoiceDisplayName
+    values
+    properties {
+      graduatedRanges {
+        ...GraduatedCharge
+      }
+      graduatedPercentageRanges {
+        ...GraduatedPercentageCharge
+      }
+      volumeRanges {
+        ...VolumeRanges
+      }
+      ...PackageCharge
+      ...StandardCharge
+      ...PercentageCharge
+      ...CustomCharge
+      ...PricingGroupKeys
+    }
+  }
+  appliedPricingUnit {
+    conversionRate
+    pricingUnit {
+      id
+      name
+      code
+      shortName
+    }
+  }
+  billableMetric {
+    id
+    name
+    code
+    aggregationType
+    recurring
+    filters {
+      key
+      values
+    }
+  }
+  taxes {
+    ...TaxForTaxesSelectorSection
+  }
+}
+    ${GraduatedChargeFragmentDoc}
+${GraduatedPercentageChargeFragmentDoc}
+${VolumeRangesFragmentDoc}
+${PackageChargeFragmentDoc}
+${StandardChargeFragmentDoc}
+${PercentageChargeFragmentDoc}
+${CustomChargeFragmentDoc}
+${PricingGroupKeysFragmentDoc}
+${TaxForTaxesSelectorSectionFragmentDoc}`;
+export const PlanForDetailsV2UsageChargesSectionFragmentDoc = gql`
+    fragment PlanForDetailsV2UsageChargesSection on Plan {
+  id
+  hasOverriddenPlans
+  interval
+  amountCurrency
+  billChargesMonthly
+  taxes {
+    ...TaxForPlanSettingsSection
+  }
+  charges {
+    ...UsageChargeForDetailsV2
+  }
+}
+    ${TaxForPlanSettingsSectionFragmentDoc}
+${UsageChargeForDetailsV2FragmentDoc}`;
 export const FeatureObjectEntitlementPrivilegeForPlanFragmentDoc = gql`
     fragment FeatureObjectEntitlementPrivilegeForPlan on FeatureObject {
   id
@@ -17861,14 +18031,6 @@ export const FeeForInvoiceFeesToFeeInputFragmentDoc = gql`
   }
 }
     `;
-export const TaxForTaxesSelectorSectionFragmentDoc = gql`
-    fragment TaxForTaxesSelectorSection on Tax {
-  id
-  code
-  name
-  rate
-}
-    `;
 export const EditAddOnFragmentDoc = gql`
     fragment EditAddOn on AddOn {
   id
@@ -18248,47 +18410,6 @@ export const BillableMetricForPlanFragmentDoc = gql`
     key
     values
   }
-}
-    `;
-export const GraduatedPercentageChargeFragmentDoc = gql`
-    fragment GraduatedPercentageCharge on GraduatedPercentageRange {
-  flatAmount
-  fromValue
-  rate
-  toValue
-}
-    `;
-export const PackageChargeFragmentDoc = gql`
-    fragment PackageCharge on Properties {
-  amount
-  packageSize
-  freeUnits
-}
-    `;
-export const StandardChargeFragmentDoc = gql`
-    fragment StandardCharge on Properties {
-  amount
-  pricingGroupKeys
-}
-    `;
-export const PercentageChargeFragmentDoc = gql`
-    fragment PercentageCharge on Properties {
-  fixedAmount
-  freeUnitsPerEvents
-  freeUnitsPerTotalAggregation
-  rate
-  perTransactionMinAmount
-  perTransactionMaxAmount
-}
-    `;
-export const CustomChargeFragmentDoc = gql`
-    fragment CustomCharge on Properties {
-  customProperties
-}
-    `;
-export const PricingGroupKeysFragmentDoc = gql`
-    fragment PricingGroupKeys on Properties {
-  pricingGroupKeys
 }
     `;
 export const UsageChargeForDrawerFragmentDoc = gql`
@@ -31059,6 +31180,105 @@ export function useDownloadPaymentReceiptXmlMutation(baseOptions?: Apollo.Mutati
 export type DownloadPaymentReceiptXmlMutationHookResult = ReturnType<typeof useDownloadPaymentReceiptXmlMutation>;
 export type DownloadPaymentReceiptXmlMutationResult = Apollo.MutationResult<DownloadPaymentReceiptXmlMutation>;
 export type DownloadPaymentReceiptXmlMutationOptions = Apollo.BaseMutationOptions<DownloadPaymentReceiptXmlMutation, DownloadPaymentReceiptXmlMutationVariables>;
+export const CreateChargeDocument = gql`
+    mutation createCharge($input: ChargeCreateInput!) {
+  createCharge(input: $input) {
+    ...UsageChargeForDetailsV2
+  }
+}
+    ${UsageChargeForDetailsV2FragmentDoc}`;
+export type CreateChargeMutationFn = Apollo.MutationFunction<CreateChargeMutation, CreateChargeMutationVariables>;
+
+/**
+ * __useCreateChargeMutation__
+ *
+ * To run a mutation, you first call `useCreateChargeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateChargeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createChargeMutation, { data, loading, error }] = useCreateChargeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateChargeMutation(baseOptions?: Apollo.MutationHookOptions<CreateChargeMutation, CreateChargeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateChargeMutation, CreateChargeMutationVariables>(CreateChargeDocument, options);
+      }
+export type CreateChargeMutationHookResult = ReturnType<typeof useCreateChargeMutation>;
+export type CreateChargeMutationResult = Apollo.MutationResult<CreateChargeMutation>;
+export type CreateChargeMutationOptions = Apollo.BaseMutationOptions<CreateChargeMutation, CreateChargeMutationVariables>;
+export const UpdateChargeDocument = gql`
+    mutation updateCharge($input: ChargeUpdateInput!) {
+  updateCharge(input: $input) {
+    ...UsageChargeForDetailsV2
+  }
+}
+    ${UsageChargeForDetailsV2FragmentDoc}`;
+export type UpdateChargeMutationFn = Apollo.MutationFunction<UpdateChargeMutation, UpdateChargeMutationVariables>;
+
+/**
+ * __useUpdateChargeMutation__
+ *
+ * To run a mutation, you first call `useUpdateChargeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateChargeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateChargeMutation, { data, loading, error }] = useUpdateChargeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateChargeMutation(baseOptions?: Apollo.MutationHookOptions<UpdateChargeMutation, UpdateChargeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateChargeMutation, UpdateChargeMutationVariables>(UpdateChargeDocument, options);
+      }
+export type UpdateChargeMutationHookResult = ReturnType<typeof useUpdateChargeMutation>;
+export type UpdateChargeMutationResult = Apollo.MutationResult<UpdateChargeMutation>;
+export type UpdateChargeMutationOptions = Apollo.BaseMutationOptions<UpdateChargeMutation, UpdateChargeMutationVariables>;
+export const DestroyChargeDocument = gql`
+    mutation destroyCharge($input: DestroyChargeInput!) {
+  destroyCharge(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyChargeMutationFn = Apollo.MutationFunction<DestroyChargeMutation, DestroyChargeMutationVariables>;
+
+/**
+ * __useDestroyChargeMutation__
+ *
+ * To run a mutation, you first call `useDestroyChargeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyChargeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyChargeMutation, { data, loading, error }] = useDestroyChargeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyChargeMutation(baseOptions?: Apollo.MutationHookOptions<DestroyChargeMutation, DestroyChargeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyChargeMutation, DestroyChargeMutationVariables>(DestroyChargeDocument, options);
+      }
+export type DestroyChargeMutationHookResult = ReturnType<typeof useDestroyChargeMutation>;
+export type DestroyChargeMutationResult = Apollo.MutationResult<DestroyChargeMutation>;
+export type DestroyChargeMutationOptions = Apollo.BaseMutationOptions<DestroyChargeMutation, DestroyChargeMutationVariables>;
 export const GetCustomPricingUnitsDocument = gql`
     query getCustomPricingUnits($limit: Int, $page: Int) {
   pricingUnits(limit: $limit, page: $page) {
