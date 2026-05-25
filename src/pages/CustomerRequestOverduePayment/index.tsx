@@ -158,6 +158,10 @@ const CustomerRequestOverduePayment: FC = () => {
   }, [customerId, isUnscopedAccess])
 
   const { data, loading, error } = useGetRequestOverduePaymentInfosQuery({
+    // Skip when the URL is unscoped under multi-axis flags — the guard above
+    // will redirect synchronously and this query would otherwise burn a
+    // wasted network call before unmount.
+    skip: !customerId || isUnscopedAccess,
     variables: {
       id: customerId ?? '',
       currency: currencyParam,

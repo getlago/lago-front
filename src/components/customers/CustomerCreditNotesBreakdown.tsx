@@ -43,46 +43,53 @@ export const CustomerCreditNotesBreakdown = ({
       .map((b) => ({ ...b, id: `${b.currency}|${b.billingEntityId}` }))
   }, [creditNotesBalances])
 
-  const columns: TableColumn<CreditNotesBalanceTableRow>[] = [
-    {
-      key: 'currency',
-      minWidth: 80,
-      title: translate('text_632b4acf0c41206cbcb8c324'),
-      content: ({ currency }) => <Chip size="medium" label={currency} />,
-    },
-    {
-      key: 'billingEntityId',
-      maxSpace: true,
-      title: translate('text_17436114971570doqrwuwhf0'),
-      content: ({ billingEntityId, creditsAvailableCount }) => (
-        <div className="flex flex-col">
-          <Typography variant="bodyHl" color="grey700">
-            <BillingEntityLabel ownId={billingEntityId} customerEntity={customerBillingEntity} />
+  const columns: TableColumn<CreditNotesBalanceTableRow>[] = useMemo(
+    () => [
+      {
+        key: 'currency',
+        minWidth: 80,
+        title: translate('text_632b4acf0c41206cbcb8c324'),
+        content: ({ currency }) => <Chip size="medium" label={currency} />,
+      },
+      {
+        key: 'billingEntityId',
+        maxSpace: true,
+        title: translate('text_17436114971570doqrwuwhf0'),
+        // `BillingEntityLabel` runs `useBillingEntitiesOptions()` per row.
+        // Apollo dedupes the underlying `getBillingEntities` request so N
+        // rows = 1 network call; the per-row `options.find()` is O(N) over
+        // a small org-level list — intentional simplicity, do not hoist.
+        content: ({ billingEntityId, creditsAvailableCount }) => (
+          <div className="flex flex-col">
+            <Typography variant="bodyHl" color="grey700">
+              <BillingEntityLabel ownId={billingEntityId} customerEntity={customerBillingEntity} />
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {translate(
+                'text_63725b30957fd5b26b308ddb',
+                { count: creditsAvailableCount },
+                creditsAvailableCount,
+              )}
+            </Typography>
+          </div>
+        ),
+      },
+      {
+        key: 'amountCents',
+        textAlign: 'right',
+        title: translate('text_1779711754281pbvb802zcqp'),
+        content: ({ amountCents, currency }) => (
+          <Typography variant="body" color="grey700">
+            {intlFormatNumber(deserializeAmount(amountCents, currency) || 0, {
+              currencyDisplay: 'symbol',
+              currency,
+            })}
           </Typography>
-          <Typography variant="caption" color="grey600">
-            {translate(
-              'text_63725b30957fd5b26b308ddb',
-              { count: creditsAvailableCount },
-              creditsAvailableCount,
-            )}
-          </Typography>
-        </div>
-      ),
-    },
-    {
-      key: 'amountCents',
-      textAlign: 'right',
-      title: translate('text_1779711754281pbvb802zcqp'),
-      content: ({ amountCents, currency }) => (
-        <Typography variant="body" color="grey700">
-          {intlFormatNumber(deserializeAmount(amountCents, currency) || 0, {
-            currencyDisplay: 'symbol',
-            currency,
-          })}
-        </Typography>
-      ),
-    },
-  ]
+        ),
+      },
+    ],
+    [translate, customerBillingEntity],
+  )
 
   return (
     <Table

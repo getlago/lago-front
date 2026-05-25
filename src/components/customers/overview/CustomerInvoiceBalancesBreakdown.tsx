@@ -108,63 +108,40 @@ export const CustomerInvoiceBalancesBreakdown = ({
     return Array.from(map.values())
   }, [grossRevenues, overdueBalances])
 
-  const columns: TableColumn<InvoiceBalanceRow>[] = [
-    {
-      key: 'currency',
-      minWidth: 80,
-      title: translate('text_632b4acf0c41206cbcb8c324'),
-      content: ({ currency }) => <Chip size="medium" label={currency} />,
-    },
-    {
-      key: 'billingEntityId',
-      minWidth: 160,
-      maxWidth: 320,
-      title: translate('text_17436114971570doqrwuwhf0'),
-      content: ({ billingEntityId }) => (
-        <Typography variant="body" color="grey700" noWrap>
-          <BillingEntityLabel ownId={billingEntityId} customerEntity={customerBillingEntity} />
-        </Typography>
-      ),
-    },
-    {
-      key: 'grossRevenueAmount',
-      textAlign: 'right',
-      maxSpace: true,
-      minWidth: 140,
-      title: translate('text_6553885df387fd0097fd7385'),
-      content: ({ grossRevenueAmount, grossRevenueInvoicesCount, currency }) => (
-        <div className="flex flex-col">
-          <Typography variant="body" color="grey700">
-            {intlFormatNumber(grossRevenueAmount, {
-              currencyDisplay: 'symbol',
-              currency,
-            })}
+  const columns: TableColumn<InvoiceBalanceRow>[] = useMemo(
+    () => [
+      {
+        key: 'currency',
+        minWidth: 80,
+        title: translate('text_632b4acf0c41206cbcb8c324'),
+        content: ({ currency }) => <Chip size="medium" label={currency} />,
+      },
+      {
+        key: 'billingEntityId',
+        minWidth: 160,
+        maxWidth: 320,
+        title: translate('text_17436114971570doqrwuwhf0'),
+        // `BillingEntityLabel` runs `useBillingEntitiesOptions()` per row. The
+        // hook hits the same `getBillingEntities` query which Apollo dedupes
+        // into a single in-flight request, so N rows = 1 network call. The
+        // per-row `options.find()` is O(N) over a handful of org entities —
+        // intentional simplicity, do not hoist.
+        content: ({ billingEntityId }) => (
+          <Typography variant="body" color="grey700" noWrap>
+            <BillingEntityLabel ownId={billingEntityId} customerEntity={customerBillingEntity} />
           </Typography>
-          <Typography variant="caption" color="grey600">
-            {translate(
-              'text_6670a7222702d70114cc795c',
-              { count: grossRevenueInvoicesCount },
-              grossRevenueInvoicesCount,
-            )}
-          </Typography>
-        </div>
-      ),
-    },
-    {
-      key: 'overdueAmount',
-      textAlign: 'right',
-      minWidth: 140,
-      title: translate('text_666c5b12fea4aa1e1b26bf55'),
-      content: ({ overdueAmount, overdueInvoicesCount, currency }) => {
-        const hasOverdue = overdueAmount > 0 && overdueInvoicesCount > 0
-
-        return (
+        ),
+      },
+      {
+        key: 'grossRevenueAmount',
+        textAlign: 'right',
+        maxSpace: true,
+        minWidth: 140,
+        title: translate('text_6553885df387fd0097fd7385'),
+        content: ({ grossRevenueAmount, grossRevenueInvoicesCount, currency }) => (
           <div className="flex flex-col">
-            <Typography
-              variant="body"
-              className={tw(hasOverdue ? 'text-yellow-700' : 'text-grey-600')}
-            >
-              {intlFormatNumber(overdueAmount, {
+            <Typography variant="body" color="grey700">
+              {intlFormatNumber(grossRevenueAmount, {
                 currencyDisplay: 'symbol',
                 currency,
               })}
@@ -172,52 +149,90 @@ export const CustomerInvoiceBalancesBreakdown = ({
             <Typography variant="caption" color="grey600">
               {translate(
                 'text_6670a7222702d70114cc795c',
-                { count: overdueInvoicesCount },
-                overdueInvoicesCount,
+                { count: grossRevenueInvoicesCount },
+                grossRevenueInvoicesCount,
               )}
             </Typography>
           </div>
-        )
+        ),
       },
-    },
-    {
-      key: 'id',
-      minWidth: 120,
-      title: '',
-      content: ({ currency, billingEntityId, overdueAmount, overdueInvoicesCount }) => {
-        const canRequest = overdueAmount > 0 && overdueInvoicesCount > 0
+      {
+        key: 'overdueAmount',
+        textAlign: 'right',
+        minWidth: 140,
+        title: translate('text_666c5b12fea4aa1e1b26bf55'),
+        content: ({ overdueAmount, overdueInvoicesCount, currency }) => {
+          const hasOverdue = overdueAmount > 0 && overdueInvoicesCount > 0
 
-        return (
-          <Button
-            variant="quaternary"
-            disabled={!canRequest}
-            onClick={() => {
-              const params = new URLSearchParams()
-
-              // Forward each scope only when its feature flag is enabled, so
-              // the URL mirrors the page guard logic (single-flag orgs don't
-              // get a redundant param).
-              if (hasMultiCurrency) {
-                params.set('currency', currency)
-              }
-              if (hasMultiEntityBilling && billingEntityId) {
-                params.set('billingEntityId', billingEntityId)
-              }
-
-              navigate({
-                pathname: generatePath(CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE, {
-                  customerId: customerId ?? '',
-                }),
-                search: params.toString() ? `?${params.toString()}` : '',
-              })
-            }}
-          >
-            {translate('text_66b258f62100490d0eb5caa2')}
-          </Button>
-        )
+          return (
+            <div className="flex flex-col">
+              <Typography
+                variant="body"
+                className={tw(hasOverdue ? 'text-yellow-700' : 'text-grey-600')}
+              >
+                {intlFormatNumber(overdueAmount, {
+                  currencyDisplay: 'symbol',
+                  currency,
+                })}
+              </Typography>
+              <Typography variant="caption" color="grey600">
+                {translate(
+                  'text_6670a7222702d70114cc795c',
+                  { count: overdueInvoicesCount },
+                  overdueInvoicesCount,
+                )}
+              </Typography>
+            </div>
+          )
+        },
       },
-    },
-  ]
+      {
+        key: 'id',
+        minWidth: 120,
+        title: '',
+        content: ({ currency, billingEntityId, overdueAmount, overdueInvoicesCount }) => {
+          const canRequest = overdueAmount > 0 && overdueInvoicesCount > 0
+
+          return (
+            <Button
+              variant="quaternary"
+              disabled={!canRequest}
+              onClick={() => {
+                const params = new URLSearchParams()
+
+                // Forward each scope only when its feature flag is enabled, so
+                // the URL mirrors the page guard logic (single-flag orgs don't
+                // get a redundant param).
+                if (hasMultiCurrency) {
+                  params.set('currency', currency)
+                }
+                if (hasMultiEntityBilling && billingEntityId) {
+                  params.set('billingEntityId', billingEntityId)
+                }
+
+                navigate({
+                  pathname: generatePath(CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE, {
+                    customerId: customerId ?? '',
+                  }),
+                  search: params.toString() ? `?${params.toString()}` : '',
+                })
+              }}
+            >
+              {translate('text_66b258f62100490d0eb5caa2')}
+            </Button>
+          )
+        },
+      },
+    ],
+    [
+      translate,
+      customerBillingEntity,
+      customerId,
+      hasMultiCurrency,
+      hasMultiEntityBilling,
+      navigate,
+    ],
+  )
 
   return (
     <Table
