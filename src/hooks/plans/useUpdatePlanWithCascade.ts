@@ -4,7 +4,7 @@ import { revalidateLogic } from '@tanstack/react-form'
 import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
 import { PlanFormInput } from '~/components/plans/types'
 import { serializePlanInput } from '~/core/serializers'
-import { planFormSchema } from '~/formValidation/planFormSchema'
+import { planSettingsOnlyFormSchema } from '~/formValidation/planFormSchema'
 import { PlanDetailsV2Fragment, TaxForPlanSettingsSectionFragmentDoc } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -77,7 +77,7 @@ export const useUpdatePlanWithCascade = ({ plan, onSuccess }: UseUpdatePlanWithC
   const form = useAppForm({
     defaultValues: buildUpdatePlanFormDefaults(plan),
     validationLogic: revalidateLogic(),
-    validators: { onDynamic: planFormSchema },
+    validators: { onDynamic: planSettingsOnlyFormSchema },
     onSubmit: async ({ value }) => {
       const serialized = serializePlanInput(value)
 
