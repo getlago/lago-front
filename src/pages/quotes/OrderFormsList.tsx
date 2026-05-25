@@ -14,10 +14,16 @@ import {
 } from './common/orderFormTableColumns'
 import { useOrderForms } from './hooks/useOrderForms'
 
-const OrderFormsList = (): JSX.Element => {
+interface OrderFormsListProps {
+  quoteNumber?: string
+}
+
+const OrderFormsList = ({ quoteNumber }: OrderFormsListProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const { orderForms, loading, error, fetchMore, metadata } = useOrderForms()
+  const { orderForms, loading, error, fetchMore, metadata } = useOrderForms(
+    quoteNumber ? { quoteNumber: [quoteNumber] } : undefined,
+  )
 
   const columns: Array<TableColumn<OrderFormListItemFragment>> = [
     {

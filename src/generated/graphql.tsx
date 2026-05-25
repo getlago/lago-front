@@ -14198,6 +14198,7 @@ export type GetOrderFormsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   status?: InputMaybe<Array<OrderFormStatusEnum> | OrderFormStatusEnum>;
+  quoteNumber?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
 }>;
 
 
@@ -38562,8 +38563,13 @@ export type UpdateCustomerCurrencyForQuoteMutationHookResult = ReturnType<typeof
 export type UpdateCustomerCurrencyForQuoteMutationResult = Apollo.MutationResult<UpdateCustomerCurrencyForQuoteMutation>;
 export type UpdateCustomerCurrencyForQuoteMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerCurrencyForQuoteMutation, UpdateCustomerCurrencyForQuoteMutationVariables>;
 export const GetOrderFormsDocument = gql`
-    query getOrderForms($page: Int, $limit: Int, $status: [OrderFormStatusEnum!]) {
-  orderForms(page: $page, limit: $limit, status: $status) {
+    query getOrderForms($page: Int, $limit: Int, $status: [OrderFormStatusEnum!], $quoteNumber: [String!]) {
+  orderForms(
+    page: $page
+    limit: $limit
+    status: $status
+    quoteNumber: $quoteNumber
+  ) {
     metadata {
       currentPage
       totalPages
@@ -38591,6 +38597,7 @@ export const GetOrderFormsDocument = gql`
  *      page: // value for 'page'
  *      limit: // value for 'limit'
  *      status: // value for 'status'
+ *      quoteNumber: // value for 'quoteNumber'
  *   },
  * });
  */

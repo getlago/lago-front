@@ -27,8 +27,13 @@ gql`
     }
   }
 
-  query getOrderForms($page: Int, $limit: Int, $status: [OrderFormStatusEnum!]) {
-    orderForms(page: $page, limit: $limit, status: $status) {
+  query getOrderForms(
+    $page: Int
+    $limit: Int
+    $status: [OrderFormStatusEnum!]
+    $quoteNumber: [String!]
+  ) {
+    orderForms(page: $page, limit: $limit, status: $status, quoteNumber: $quoteNumber) {
       metadata {
         currentPage
         totalPages
