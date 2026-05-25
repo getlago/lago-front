@@ -34,6 +34,26 @@ jest.mock('../hooks/useOrderForms', () => ({
   useOrderForms: jest.fn(),
 }))
 
+const mockHasPermissions = jest.fn()
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: mockHasPermissions,
+  }),
+}))
+
+jest.mock('~/generated/graphql', () => ({
+  ...jest.requireActual('~/generated/graphql'),
+  useGetQuoteLazyQuery: () => [jest.fn(), { loading: false }],
+}))
+
+jest.mock(
+  '~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf',
+  () => ({
+    downloadMarkdownPdf: jest.fn(),
+  }),
+)
+
 const mockUseOrderForms = useOrderForms as jest.MockedFunction<typeof useOrderForms>
 
 const mockOrderForms = [
@@ -66,6 +86,7 @@ const mockOrderForms = [
 describe('OrderFormsList', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasPermissions.mockReturnValue(true)
     mockUseOrderForms.mockReturnValue({
       orderForms: mockOrderForms,
       loading: false,
@@ -139,6 +160,16 @@ describe('OrderFormsList', () => {
         render(<OrderFormsList />)
 
         expect(screen.queryByTestId('table-row-0')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN order forms have actions', () => {
+      it('THEN should render action buttons for each row', () => {
+        render(<OrderFormsList />)
+
+        const actionButtons = screen.getAllByTestId('open-action-button')
+
+        expect(actionButtons.length).toBeGreaterThan(0)
       })
     })
   })
