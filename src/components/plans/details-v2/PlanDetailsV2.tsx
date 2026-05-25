@@ -3,34 +3,21 @@ import { gql } from '@apollo/client'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
   LagoApiError,
-  TaxForPlanSettingsSectionFragmentDoc,
+  PlanForDetailsV2PlanSettingsSectionFragmentDoc,
+  PlanForDetailsV2SubscriptionFeeSectionFragmentDoc,
   useGetPlanForDetailsV2Query,
 } from '~/generated/graphql'
 
 import { PlanDetailsV2LeftSidebar } from './PlanDetailsV2LeftSidebar'
 import { PlanDetailsV2PlanSettingsSection } from './PlanDetailsV2PlanSettingsSection'
+import { PlanDetailsV2SubscriptionFeeSection } from './PlanDetailsV2SubscriptionFeeSection'
 import { PlanDetailsV2SectionId } from './sidebarSections'
 
 gql`
   fragment PlanDetailsV2 on Plan {
     id
-    name
-    code
-    description
-    interval
-    amountCurrency
-    hasOverriddenPlans
-    billFixedChargesMonthly
-    billChargesMonthly
-    taxes {
-      ...TaxForPlanSettingsSection
-    }
-    fixedCharges {
-      id
-    }
-    charges {
-      id
-    }
+    ...PlanForDetailsV2PlanSettingsSection
+    ...PlanForDetailsV2SubscriptionFeeSection
   }
 
   query getPlanForDetailsV2($planId: ID!) {
@@ -39,7 +26,8 @@ gql`
     }
   }
 
-  ${TaxForPlanSettingsSectionFragmentDoc}
+  ${PlanForDetailsV2PlanSettingsSectionFragmentDoc}
+  ${PlanForDetailsV2SubscriptionFeeSectionFragmentDoc}
 `
 
 const TOP_LEVEL_SECTION_IDS: PlanDetailsV2SectionId[] = [
@@ -101,6 +89,15 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
           if (id === PlanDetailsV2SectionId.PlanSettings) {
             return (
               <PlanDetailsV2PlanSettingsSection
+                key={id}
+                plan={plan}
+                isInSubscriptionForm={isInSubscriptionForm}
+              />
+            )
+          }
+          if (id === PlanDetailsV2SectionId.SubscriptionFee) {
+            return (
+              <PlanDetailsV2SubscriptionFeeSection
                 key={id}
                 plan={plan}
                 isInSubscriptionForm={isInSubscriptionForm}

@@ -1,14 +1,40 @@
+import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 
 import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
 import { PlanFormInput } from '~/components/plans/types'
 import { serializePlanInput } from '~/core/serializers'
 import { planFormSchema } from '~/formValidation/planFormSchema'
-import { PlanDetailsV2Fragment } from '~/generated/graphql'
+import { PlanDetailsV2Fragment, TaxForPlanSettingsSectionFragmentDoc } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { usePlanUpdate } from '~/hooks/plans/usePlanUpdate'
 import { buildPlanSettingsValues } from '~/hooks/plans/utils'
+
+gql`
+  fragment PlanForUpdateWithCascade on Plan {
+    id
+    name
+    code
+    description
+    interval
+    amountCurrency
+    billChargesMonthly
+    billFixedChargesMonthly
+    hasOverriddenPlans
+    taxes {
+      ...TaxForPlanSettingsSection
+    }
+    fixedCharges {
+      id
+    }
+    charges {
+      id
+    }
+  }
+
+  ${TaxForPlanSettingsSectionFragmentDoc}
+`
 
 type UseUpdatePlanWithCascadeOptions = {
   plan: PlanDetailsV2Fragment

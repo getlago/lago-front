@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
 
@@ -5,13 +6,21 @@ import {
   PlanSettingsDrawer,
   PlanSettingsDrawerRef,
 } from '~/components/plans/drawers/planSettings/PlanSettingsDrawer'
-import { PlanDetailsV2Fragment } from '~/generated/graphql'
+import { PlanSettingsInfo } from '~/components/plans/PlanSettingsInfo'
+import { PlanDetailsV2Fragment, PlanForUpdateWithCascadeFragmentDoc } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { PlanSettingsAccordion } from './accordions/PlanSettingsAccordion'
 import { SectionAccordion } from './shared/SectionAccordion'
 import { SectionHeader } from './shared/SectionHeader'
 import { PlanDetailsV2SectionId } from './sidebarSections'
+
+gql`
+  fragment PlanForDetailsV2PlanSettingsSection on Plan {
+    ...PlanForUpdateWithCascade
+  }
+
+  ${PlanForUpdateWithCascadeFragmentDoc}
+`
 
 type PlanDetailsV2PlanSettingsSectionProps = {
   plan: PlanDetailsV2Fragment
@@ -43,7 +52,7 @@ export const PlanDetailsV2PlanSettingsSection = ({
           },
         ]}
       >
-        <PlanSettingsAccordion plan={plan} />
+        <PlanSettingsInfo plan={plan} />
       </SectionAccordion>
 
       <PlanSettingsDrawer ref={drawerRef} plan={plan} />
