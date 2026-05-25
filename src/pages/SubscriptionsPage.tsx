@@ -89,6 +89,7 @@ gql`
     $externalCustomerId: String
     $overriden: Boolean
     $planCode: String
+    $billingEntityIds: [ID!]
   ) {
     subscriptions(
       limit: $limit
@@ -98,6 +99,7 @@ gql`
       externalCustomerId: $externalCustomerId
       overriden: $overriden
       planCode: $planCode
+      billingEntityIds: $billingEntityIds
     ) {
       collection {
         ...SubscriptionForSubscriptionsList

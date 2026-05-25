@@ -13596,6 +13596,7 @@ export type GetSubscriptionsListQueryVariables = Exact<{
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
   overriden?: InputMaybe<Scalars['Boolean']['input']>;
   planCode?: InputMaybe<Scalars['String']['input']>;
+  billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
 }>;
 
 
@@ -35508,7 +35509,7 @@ export type PlansLazyQueryHookResult = ReturnType<typeof usePlansLazyQuery>;
 export type PlansSuspenseQueryHookResult = ReturnType<typeof usePlansSuspenseQuery>;
 export type PlansQueryResult = Apollo.QueryResult<PlansQuery, PlansQueryVariables>;
 export const GetSubscriptionsListDocument = gql`
-    query getSubscriptionsList($limit: Int, $page: Int, $searchTerm: String, $status: [StatusTypeEnum!], $externalCustomerId: String, $overriden: Boolean, $planCode: String) {
+    query getSubscriptionsList($limit: Int, $page: Int, $searchTerm: String, $status: [StatusTypeEnum!], $externalCustomerId: String, $overriden: Boolean, $planCode: String, $billingEntityIds: [ID!]) {
   subscriptions(
     limit: $limit
     page: $page
@@ -35517,6 +35518,7 @@ export const GetSubscriptionsListDocument = gql`
     externalCustomerId: $externalCustomerId
     overriden: $overriden
     planCode: $planCode
+    billingEntityIds: $billingEntityIds
   ) {
     collection {
       ...SubscriptionForSubscriptionsList
@@ -35549,6 +35551,7 @@ export const GetSubscriptionsListDocument = gql`
  *      externalCustomerId: // value for 'externalCustomerId'
  *      overriden: // value for 'overriden'
  *      planCode: // value for 'planCode'
+ *      billingEntityIds: // value for 'billingEntityIds'
  *   },
  * });
  */

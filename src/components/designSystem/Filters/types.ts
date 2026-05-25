@@ -282,6 +282,7 @@ export const ApiLogsAvailableFilters = [
 ]
 
 export const SubscriptionAvailableFilters = [
+  AvailableFiltersEnum.billingEntityIds,
   AvailableFiltersEnum.customerExternalId,
   AvailableFiltersEnum.overriden,
   AvailableFiltersEnum.planCode,
