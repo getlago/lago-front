@@ -17,6 +17,14 @@ gql`
       id
       name
     }
+    quote {
+      id
+      number
+      currentVersion {
+        id
+        version
+      }
+    }
   }
 
   query getOrderForms($page: Int, $limit: Int, $status: [OrderFormStatusEnum!]) {

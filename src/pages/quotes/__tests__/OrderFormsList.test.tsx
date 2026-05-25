@@ -43,6 +43,7 @@ const mockOrderForms = [
     status: OrderFormStatusEnum.Generated,
     createdAt: '2026-04-10T10:00:00Z',
     customer: { id: 'customer-001', name: 'Acme Corp' },
+    quote: { id: 'q-1', number: 'QUO-001', currentVersion: { id: 'qv-1', version: 1 } },
   },
   {
     id: 'of-2',
@@ -50,6 +51,7 @@ const mockOrderForms = [
     status: OrderFormStatusEnum.Signed,
     createdAt: '2026-04-11T14:00:00Z',
     customer: { id: 'customer-002', name: 'Globex Inc' },
+    quote: { id: 'q-2', number: 'QUO-002', currentVersion: { id: 'qv-2', version: 3 } },
   },
   {
     id: 'of-3',
@@ -57,6 +59,7 @@ const mockOrderForms = [
     status: OrderFormStatusEnum.Voided,
     createdAt: '2026-04-12T08:00:00Z',
     customer: { id: 'customer-003', name: 'Wayne Enterprises' },
+    quote: { id: 'q-3', number: 'QUO-003', currentVersion: { id: 'qv-3', version: 2 } },
   },
 ]
 

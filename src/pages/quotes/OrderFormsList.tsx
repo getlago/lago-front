@@ -7,7 +7,11 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { createOrderFormsPaginationHandler } from './common/orderFormsPaginationHandler'
-import { orderFormCreatedAtColumn, orderFormStatusColumn } from './common/orderFormTableColumns'
+import {
+  orderFormCreatedAtColumn,
+  orderFormSourceQuoteColumn,
+  orderFormStatusColumn,
+} from './common/orderFormTableColumns'
 import { useOrderForms } from './hooks/useOrderForms'
 
 const OrderFormsList = (): JSX.Element => {
@@ -38,6 +42,7 @@ const OrderFormsList = (): JSX.Element => {
         </Typography>
       ),
     },
+    orderFormSourceQuoteColumn(translate),
     orderFormStatusColumn(translate),
     orderFormCreatedAtColumn(translate, 'text_624efab67eb2570101d117e3', intlFormatDateTimeOrgaTZ),
   ]
