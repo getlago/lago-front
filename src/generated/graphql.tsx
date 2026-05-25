@@ -14292,6 +14292,13 @@ export type GetMembersForCreateQuoteQueryVariables = Exact<{
 
 export type GetMembersForCreateQuoteQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', collection: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } }> } };
 
+export type GetOrderFormForVoidQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetOrderFormForVoidQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null } } | null };
+
 export type VoidQuoteVersionMutationVariables = Exact<{
   input: VoidQuoteVersionInput;
 }>;
@@ -38843,6 +38850,56 @@ export type GetMembersForCreateQuoteQueryHookResult = ReturnType<typeof useGetMe
 export type GetMembersForCreateQuoteLazyQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteLazyQuery>;
 export type GetMembersForCreateQuoteSuspenseQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteSuspenseQuery>;
 export type GetMembersForCreateQuoteQueryResult = Apollo.QueryResult<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>;
+export const GetOrderFormForVoidDocument = gql`
+    query getOrderFormForVoid($id: ID!) {
+  orderForm(id: $id) {
+    id
+    number
+    status
+    createdAt
+    customer {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetOrderFormForVoidQuery__
+ *
+ * To run a query within a React component, call `useGetOrderFormForVoidQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrderFormForVoidQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrderFormForVoidQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetOrderFormForVoidQuery(baseOptions: Apollo.QueryHookOptions<GetOrderFormForVoidQuery, GetOrderFormForVoidQueryVariables> & ({ variables: GetOrderFormForVoidQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrderFormForVoidQuery, GetOrderFormForVoidQueryVariables>(GetOrderFormForVoidDocument, options);
+      }
+export function useGetOrderFormForVoidLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrderFormForVoidQuery, GetOrderFormForVoidQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrderFormForVoidQuery, GetOrderFormForVoidQueryVariables>(GetOrderFormForVoidDocument, options);
+        }
+// @ts-ignore
+export function useGetOrderFormForVoidSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrderFormForVoidQuery, GetOrderFormForVoidQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrderFormForVoidQuery, GetOrderFormForVoidQueryVariables>;
+export function useGetOrderFormForVoidSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrderFormForVoidQuery, GetOrderFormForVoidQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrderFormForVoidQuery | undefined, GetOrderFormForVoidQueryVariables>;
+export function useGetOrderFormForVoidSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrderFormForVoidQuery, GetOrderFormForVoidQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOrderFormForVoidQuery, GetOrderFormForVoidQueryVariables>(GetOrderFormForVoidDocument, options);
+        }
+export type GetOrderFormForVoidQueryHookResult = ReturnType<typeof useGetOrderFormForVoidQuery>;
+export type GetOrderFormForVoidLazyQueryHookResult = ReturnType<typeof useGetOrderFormForVoidLazyQuery>;
+export type GetOrderFormForVoidSuspenseQueryHookResult = ReturnType<typeof useGetOrderFormForVoidSuspenseQuery>;
+export type GetOrderFormForVoidQueryResult = Apollo.QueryResult<GetOrderFormForVoidQuery, GetOrderFormForVoidQueryVariables>;
 export const VoidQuoteVersionDocument = gql`
     mutation voidQuoteVersion($input: VoidQuoteVersionInput!) {
   voidQuoteVersion(input: $input) {
