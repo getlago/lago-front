@@ -6,12 +6,9 @@ import {
   UsageChargeDrawer,
   UsageChargeDrawerRef,
 } from '~/components/plans/drawers/usageCharge/UsageChargeDrawer'
-import { LocalPricingUnitType, LocalUsageChargeInput } from '~/components/plans/types'
+import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargeInfo } from '~/components/plans/UsageChargeInfo'
-import { transformFilterObjectToString } from '~/components/plans/utils'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
-import getPropertyShape from '~/core/serializers/getPropertyShape'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
   CustomChargeFragmentDoc,
@@ -30,6 +27,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useChargeMutationsWithCascade } from '~/hooks/plans/useChargeMutationsWithCascade'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
+import { toLocalUsageChargeInput } from '~/hooks/plans/utils'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { SectionAccordion } from './shared/SectionAccordion'
@@ -143,61 +141,6 @@ type Props = {
   isInSubscriptionForm?: boolean
 }
 
-type UsageCharge = NonNullable<PlanForDetailsV2UsageChargesSectionFragment['charges']>[number]
-
-const toLocalInput = (
-  charge: UsageCharge,
-  planCurrency: CurrencyEnum,
-  hasAnyPricingUnitConfigured: boolean,
-): LocalUsageChargeInput => {
-  const minAmountCentsNumber = Number(charge.minAmountCents)
-  const hasMinAmount =
-    charge.minAmountCents !== null &&
-    charge.minAmountCents !== undefined &&
-    !isNaN(minAmountCentsNumber) &&
-    String(charge.minAmountCents) !== '0'
-
-  return {
-    id: charge.id,
-    billableMetric: charge.billableMetric as never,
-    appliedPricingUnit:
-      !hasAnyPricingUnitConfigured && !charge.appliedPricingUnit
-        ? undefined
-        : {
-            code: charge.appliedPricingUnit?.pricingUnit?.code ?? planCurrency,
-            conversionRate: String(charge.appliedPricingUnit?.conversionRate ?? ''),
-            shortName: charge.appliedPricingUnit?.pricingUnit?.shortName ?? planCurrency,
-            type: charge.appliedPricingUnit?.pricingUnit?.code
-              ? LocalPricingUnitType.Custom
-              : LocalPricingUnitType.Fiat,
-          },
-    chargeModel: charge.chargeModel,
-    invoiceDisplayName: charge.invoiceDisplayName ?? '',
-    invoiceable: charge.invoiceable ?? true,
-    minAmountCents: hasMinAmount
-      ? String(deserializeAmount(charge.minAmountCents ?? 0, planCurrency))
-      : '',
-    payInAdvance: charge.payInAdvance ?? false,
-    prorated: charge.prorated ?? false,
-    properties: charge.properties ? getPropertyShape(charge.properties) : undefined,
-    filters: (charge.filters ?? []).map((filter) => ({
-      invoiceDisplayName: filter.invoiceDisplayName ?? '',
-      properties: getPropertyShape(filter.properties),
-      values: Object.entries((filter.values as Record<string, string[]>) || {}).reduce<string[]>(
-        (acc, [key, objectValues]) => {
-          ;(objectValues as string[]).forEach((v) => {
-            acc.push(transformFilterObjectToString(key, v))
-          })
-          return acc
-        },
-        [],
-      ),
-    })),
-    regroupPaidFees: charge.regroupPaidFees ?? null,
-    taxes: charge.taxes as never,
-  }
-}
-
 export const PlanDetailsV2UsageChargesSection = forwardRef<
   PlanDetailsV2UsageChargesSectionRef,
   Props
@@ -256,7 +199,10 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
               onClick: () =>
-                openEdit(toLocalInput(charge, planCurrency, hasAnyPricingUnitConfigured), index),
+                openEdit(
+                  toLocalUsageChargeInput(charge, planCurrency, hasAnyPricingUnitConfigured),
+                  index,
+                ),
               hidden: isInSubscriptionForm,
             },
             {

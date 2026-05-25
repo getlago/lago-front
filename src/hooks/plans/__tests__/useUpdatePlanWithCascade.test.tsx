@@ -23,6 +23,13 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+jest.mock('~/hooks/plans/useCustomPricingUnits', () => ({
+  useCustomPricingUnits: () => ({
+    hasAnyPricingUnitConfigured: false,
+    pricingUnits: [],
+  }),
+}))
+
 const basePlan = {
   __typename: 'Plan' as const,
   id: 'plan_1',

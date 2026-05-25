@@ -8,8 +8,13 @@ import { planSettingsOnlyFormSchema } from '~/formValidation/planFormSchema'
 import { PlanDetailsV2Fragment, TaxForPlanSettingsSectionFragmentDoc } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { usePlanUpdate } from '~/hooks/plans/usePlanUpdate'
-import { buildPlanSettingsValues } from '~/hooks/plans/utils'
+import {
+  buildPlanSettingsValues,
+  toLocalFixedChargeInput,
+  toLocalUsageChargeInput,
+} from '~/hooks/plans/utils'
 
 gql`
   fragment PlanForUpdateWithCascade on Plan {
@@ -67,6 +72,7 @@ export const buildUpdatePlanFormDefaults = (plan: PlanDetailsV2Fragment): PlanFo
 export const useUpdatePlanWithCascade = ({ plan, onSuccess }: UseUpdatePlanWithCascadeOptions) => {
   const { translate } = useInternationalization()
   const { openCascadeDialog } = useCascadeFormDialog()
+  const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
 
   const { update } = usePlanUpdate({
     onSuccess() {
@@ -79,7 +85,19 @@ export const useUpdatePlanWithCascade = ({ plan, onSuccess }: UseUpdatePlanWithC
     validationLogic: revalidateLogic(),
     validators: { onDynamic: planSettingsOnlyFormSchema },
     onSubmit: async ({ value }) => {
-      const serialized = serializePlanInput(value)
+      // Form holds id-only charge stubs because this hook drives settings-only
+      // drawers. updatePlan's input requires the full charges + fixedCharges
+      // arrays, so hydrate them from the plan prop (PlanDetailsV2Fragment
+      // carries the detailed shapes via the FixedCharges + UsageCharges
+      // section fragments) before running through the shared serializer.
+      const hydratedValue: PlanFormInput = {
+        ...value,
+        charges: (plan.charges ?? []).map((charge) =>
+          toLocalUsageChargeInput(charge, value.amountCurrency, hasAnyPricingUnitConfigured),
+        ),
+        fixedCharges: (plan.fixedCharges ?? []).map(toLocalFixedChargeInput),
+      }
+      const serialized = serializePlanInput(hydratedValue)
 
       await update({ variables: { input: { ...serialized, id: plan.id } } })
     },
