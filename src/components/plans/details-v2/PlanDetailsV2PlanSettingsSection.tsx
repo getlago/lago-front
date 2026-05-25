@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
 
 import {
@@ -7,19 +6,26 @@ import {
   PlanSettingsDrawerRef,
 } from '~/components/plans/drawers/planSettings/PlanSettingsDrawer'
 import { PlanSettingsInfo } from '~/components/plans/PlanSettingsInfo'
-import { PlanDetailsV2Fragment, PlanForUpdateWithCascadeFragmentDoc } from '~/generated/graphql'
+import {
+  PlanDetailsV2Fragment,
+  PlanForDetailsV2SubscriptionFeeAccordionFragmentDoc,
+  PlanForUpdateWithCascadeFragmentDoc,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { SectionAccordion } from './shared/SectionAccordion'
 import { SectionHeader } from './shared/SectionHeader'
 import { PlanDetailsV2SectionId } from './sidebarSections'
+import { SubscriptionFeeAccordion } from './SubscriptionFeeAccordion'
 
 gql`
   fragment PlanForDetailsV2PlanSettingsSection on Plan {
     ...PlanForUpdateWithCascade
+    ...PlanForDetailsV2SubscriptionFeeAccordion
   }
 
   ${PlanForUpdateWithCascadeFragmentDoc}
+  ${PlanForDetailsV2SubscriptionFeeAccordionFragmentDoc}
 `
 
 type PlanDetailsV2PlanSettingsSectionProps = {
@@ -41,7 +47,6 @@ export const PlanDetailsV2PlanSettingsSection = ({
         description={translate('text_6661fc17337de3591e29e3c1')}
       />
       <SectionAccordion
-        icon={<Icon name="file" size="small" color="dark" />}
         title={translate('text_642d5eb2783a2ad10d67031a')}
         initiallyOpen
         actions={[
@@ -54,6 +59,8 @@ export const PlanDetailsV2PlanSettingsSection = ({
       >
         <PlanSettingsInfo plan={plan} />
       </SectionAccordion>
+
+      <SubscriptionFeeAccordion plan={plan} isInSubscriptionForm={isInSubscriptionForm} />
 
       <PlanSettingsDrawer ref={drawerRef} plan={plan} />
     </section>

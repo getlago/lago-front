@@ -30,6 +30,11 @@ jest.mock('~/components/plans/drawers/planSettings/PlanSettingsDrawer', () => {
   return { __esModule: true, PlanSettingsDrawer }
 })
 
+jest.mock('../SubscriptionFeeAccordion', () => ({
+  __esModule: true,
+  SubscriptionFeeAccordion: () => null,
+}))
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,

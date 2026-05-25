@@ -1,23 +1,27 @@
 import { gql } from '@apollo/client'
+import { useRef } from 'react'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
   LagoApiError,
+  PlanForDetailsV2FixedChargesSectionFragmentDoc,
   PlanForDetailsV2PlanSettingsSectionFragmentDoc,
-  PlanForDetailsV2SubscriptionFeeSectionFragmentDoc,
   useGetPlanForDetailsV2Query,
 } from '~/generated/graphql'
 
+import {
+  PlanDetailsV2FixedChargesSection,
+  PlanDetailsV2FixedChargesSectionRef,
+} from './PlanDetailsV2FixedChargesSection'
 import { PlanDetailsV2LeftSidebar } from './PlanDetailsV2LeftSidebar'
 import { PlanDetailsV2PlanSettingsSection } from './PlanDetailsV2PlanSettingsSection'
-import { PlanDetailsV2SubscriptionFeeSection } from './PlanDetailsV2SubscriptionFeeSection'
 import { PlanDetailsV2SectionId } from './sidebarSections'
 
 gql`
   fragment PlanDetailsV2 on Plan {
     id
     ...PlanForDetailsV2PlanSettingsSection
-    ...PlanForDetailsV2SubscriptionFeeSection
+    ...PlanForDetailsV2FixedChargesSection
   }
 
   query getPlanForDetailsV2($planId: ID!) {
@@ -27,12 +31,11 @@ gql`
   }
 
   ${PlanForDetailsV2PlanSettingsSectionFragmentDoc}
-  ${PlanForDetailsV2SubscriptionFeeSectionFragmentDoc}
+  ${PlanForDetailsV2FixedChargesSectionFragmentDoc}
 `
 
 const TOP_LEVEL_SECTION_IDS: PlanDetailsV2SectionId[] = [
   PlanDetailsV2SectionId.PlanSettings,
-  PlanDetailsV2SectionId.SubscriptionFee,
   PlanDetailsV2SectionId.FixedCharges,
   PlanDetailsV2SectionId.UsageCharges,
 ]
@@ -60,12 +63,20 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
     context: { silentError: [LagoApiError.NotFound] },
   })
 
+  const fixedChargesRef = useRef<PlanDetailsV2FixedChargesSectionRef>(null)
+
   const advancedVisibleIds = isInSubscriptionForm
     ? ADVANCED_CHILD_SECTION_IDS.filter((id) => !SUB_FLOW_HIDDEN_SECTIONS.has(id))
     : ADVANCED_CHILD_SECTION_IDS
 
   const handleItemClick = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const handleAddClick = (id: PlanDetailsV2SectionId) => {
+    if (id === PlanDetailsV2SectionId.FixedCharges) {
+      fixedChargesRef.current?.openCreate()
+    }
   }
 
   if (loading && !data?.plan) {
@@ -83,8 +94,9 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
       <PlanDetailsV2LeftSidebar
         isInSubscriptionForm={isInSubscriptionForm}
         onItemClick={handleItemClick}
+        onAddClick={handleAddClick}
       />
-      <div className="flex flex-1 flex-col gap-12 py-12">
+      <div className="flex flex-1 flex-col gap-12 py-12 not-last-child:pb-12 not-last-child:shadow-b">
         {TOP_LEVEL_SECTION_IDS.map((id) => {
           if (id === PlanDetailsV2SectionId.PlanSettings) {
             return (
@@ -95,10 +107,11 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
               />
             )
           }
-          if (id === PlanDetailsV2SectionId.SubscriptionFee) {
+          if (id === PlanDetailsV2SectionId.FixedCharges) {
             return (
-              <PlanDetailsV2SubscriptionFeeSection
+              <PlanDetailsV2FixedChargesSection
                 key={id}
+                ref={fixedChargesRef}
                 plan={plan}
                 isInSubscriptionForm={isInSubscriptionForm}
               />
