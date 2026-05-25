@@ -98,26 +98,26 @@ describe('VoidOrderForm', () => {
 
   describe('GIVEN the close action', () => {
     describe('WHEN the close button is clicked', () => {
-      it('THEN should call goBack', async () => {
+      it('THEN should call goBack with order forms list fallback', async () => {
         const user = userEvent.setup()
 
         render(<VoidOrderForm />)
 
         await user.click(screen.getByTestId(VOID_ORDER_FORM_CLOSE_BUTTON_TEST_ID))
 
-        expect(mockGoBack).toHaveBeenCalled()
+        expect(mockGoBack).toHaveBeenCalledWith('/quotes/order-forms')
       })
     })
 
     describe('WHEN the cancel button is clicked', () => {
-      it('THEN should call goBack', async () => {
+      it('THEN should call goBack with order forms list fallback', async () => {
         const user = userEvent.setup()
 
         render(<VoidOrderForm />)
 
         await user.click(screen.getByTestId(VOID_ORDER_FORM_CANCEL_BUTTON_TEST_ID))
 
-        expect(mockGoBack).toHaveBeenCalled()
+        expect(mockGoBack).toHaveBeenCalledWith('/quotes/order-forms')
       })
     })
   })
@@ -149,9 +149,7 @@ describe('VoidOrderForm', () => {
 
         render(<VoidOrderForm />)
 
-        expect(
-          screen.queryByTestId(VOID_ORDER_FORM_VOID_BUTTON_TEST_ID),
-        ).not.toBeInTheDocument()
+        expect(screen.queryByTestId(VOID_ORDER_FORM_VOID_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

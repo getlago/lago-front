@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -8,6 +8,8 @@ import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { QUOTES_TAB_ROUTE } from '~/core/router'
 import { useGetOrderFormForVoidQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -56,7 +58,11 @@ const VoidOrderForm = () => {
   }
 
   const onClose = () => {
-    goBack()
+    goBack(
+      generatePath(QUOTES_TAB_ROUTE, {
+        tab: QuotesTabsOptionsEnum.orderForms,
+      }),
+    )
   }
 
   if (error) {
@@ -148,8 +154,7 @@ const VoidOrderForm = () => {
                     key: 'createdAt',
                     title: translate('text_624efab67eb2570101d117e3'),
                     minWidth: 140,
-                    content: ({ createdAt }) =>
-                      intlFormatDateTimeOrgaTZ(createdAt).date,
+                    content: ({ createdAt }) => intlFormatDateTimeOrgaTZ(createdAt).date,
                   },
                 ]}
               />

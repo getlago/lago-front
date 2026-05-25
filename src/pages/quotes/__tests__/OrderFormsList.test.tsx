@@ -47,12 +47,9 @@ jest.mock('~/generated/graphql', () => ({
   useGetQuoteLazyQuery: () => [jest.fn(), { loading: false }],
 }))
 
-jest.mock(
-  '~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf',
-  () => ({
-    downloadMarkdownPdf: jest.fn(),
-  }),
-)
+jest.mock('~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf', () => ({
+  downloadMarkdownPdf: jest.fn(),
+}))
 
 const mockUseOrderForms = useOrderForms as jest.MockedFunction<typeof useOrderForms>
 

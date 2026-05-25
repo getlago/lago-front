@@ -26,12 +26,9 @@ jest.mock('~/generated/graphql', () => ({
   useGetQuoteLazyQuery: () => [mockGetQuote, { loading: false }],
 }))
 
-jest.mock(
-  '~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf',
-  () => ({
-    downloadMarkdownPdf: jest.fn(),
-  }),
-)
+jest.mock('~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf', () => ({
+  downloadMarkdownPdf: jest.fn(),
+}))
 
 const createMockOrderForm = (
   overrides: Partial<OrderFormListItemFragment> = {},

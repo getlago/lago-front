@@ -41,10 +41,7 @@ export const useOrderFormActions = () => {
     })
 
     // Void — only for generated status, requires quotesVoid permission
-    if (
-      orderForm.status === OrderFormStatusEnum.Generated &&
-      hasPermissions(['quotesVoid'])
-    ) {
+    if (orderForm.status === OrderFormStatusEnum.Generated && hasPermissions(['quotesVoid'])) {
       actions.push({
         icon: 'stop',
         label: translate('text_1779715648584xw9xgemkv9y'),
