@@ -3,7 +3,8 @@ import { gql } from '@apollo/client'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
   LagoApiError,
-  TaxForPlanSettingsSectionFragmentDoc,
+  PlanForDetailsV2PlanSettingsSectionFragmentDoc,
+  PlanForDetailsV2SubscriptionFeeSectionFragmentDoc,
   useGetPlanForDetailsV2Query,
 } from '~/generated/graphql'
 
@@ -15,27 +16,8 @@ import { PlanDetailsV2SectionId } from './sidebarSections'
 gql`
   fragment PlanDetailsV2 on Plan {
     id
-    name
-    code
-    description
-    interval
-    amountCurrency
-    amountCents
-    payInAdvance
-    trialPeriod
-    invoiceDisplayName
-    hasOverriddenPlans
-    billFixedChargesMonthly
-    billChargesMonthly
-    taxes {
-      ...TaxForPlanSettingsSection
-    }
-    fixedCharges {
-      id
-    }
-    charges {
-      id
-    }
+    ...PlanForDetailsV2PlanSettingsSection
+    ...PlanForDetailsV2SubscriptionFeeSection
   }
 
   query getPlanForDetailsV2($planId: ID!) {
@@ -44,7 +26,8 @@ gql`
     }
   }
 
-  ${TaxForPlanSettingsSectionFragmentDoc}
+  ${PlanForDetailsV2PlanSettingsSectionFragmentDoc}
+  ${PlanForDetailsV2SubscriptionFeeSectionFragmentDoc}
 `
 
 const TOP_LEVEL_SECTION_IDS: PlanDetailsV2SectionId[] = [
