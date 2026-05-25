@@ -184,10 +184,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
   const isEmpty = charges.length === 0
 
   return (
-    <section
-      id={PlanDetailsV2SectionId.UsageCharges}
-      className="flex scroll-mt-12 flex-col gap-6"
-    >
+    <section id={PlanDetailsV2SectionId.UsageCharges} className="flex scroll-mt-12 flex-col gap-6">
       <SectionHeader
         title={translate('text_1779289915866ngi8sv5t9lg')}
         action={

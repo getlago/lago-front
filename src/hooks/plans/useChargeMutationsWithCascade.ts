@@ -5,10 +5,7 @@ import { LocalPricingUnitType, LocalUsageChargeInput } from '~/components/plans/
 import { addToast } from '~/core/apolloClient'
 import { cacheArrayInsert, cacheArrayRemove } from '~/core/apolloClient/cacheHelpers'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
-import {
-  serializeFilters,
-  serializeProperties,
-} from '~/core/serializers/serializePlanInput'
+import { serializeFilters, serializeProperties } from '~/core/serializers/serializePlanInput'
 import {
   ChargeCreateInput,
   ChargeUpdateInput,
@@ -60,11 +57,7 @@ const serializeAppliedPricingUnit = (
         conversionRate: Number(appliedPricingUnit.conversionRate),
       }
 
-export const useChargeMutationsWithCascade = ({
-  planId,
-  hasOverriddenPlans,
-  currency,
-}: Args) => {
+export const useChargeMutationsWithCascade = ({ planId, hasOverriddenPlans, currency }: Args) => {
   const { translate } = useInternationalization()
   const { openCascadeDialog } = useCascadeFormDialog()
 

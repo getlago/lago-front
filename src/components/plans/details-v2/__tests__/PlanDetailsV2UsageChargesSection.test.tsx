@@ -143,10 +143,9 @@ describe('PlanDetailsV2UsageChargesSection', () => {
 
   // Drift test: lock in that sub mode hides the Add CTA.
   it('hides the Add CTA when isInSubscriptionForm is true', () => {
-    render(
-      <PlanDetailsV2UsageChargesSection plan={planDetailsV2Fixture} isInSubscriptionForm />,
-      { wrapper: Wrapper },
-    )
+    render(<PlanDetailsV2UsageChargesSection plan={planDetailsV2Fixture} isInSubscriptionForm />, {
+      wrapper: Wrapper,
+    })
     expect(screen.queryByText('text_1772133285142oouequiz2t2')).not.toBeInTheDocument()
   })
 
