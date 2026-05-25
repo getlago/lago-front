@@ -1,4 +1,5 @@
 import {
+  ChargeModelEnum,
   CurrencyEnum,
   FixedChargeChargeModelEnum,
   PlanDetailsV2Fragment,
@@ -20,6 +21,34 @@ export const buildFixedChargeFixture = (overrides: Partial<FixedCharge> = {}): F
   properties: { amount: '49.99', graduatedRanges: null, volumeRanges: null },
   addOn: { __typename: 'AddOn', id: 'addon_1', name: 'Onboarding', code: 'onboarding' },
   taxes: [],
+  ...overrides,
+})
+
+type UsageCharge = NonNullable<PlanDetailsV2Fragment['charges']>[number]
+
+export const buildUsageChargeFixture = (overrides: Partial<UsageCharge> = {}): UsageCharge => ({
+  __typename: 'Charge',
+  id: 'ch_default',
+  chargeModel: ChargeModelEnum.Standard,
+  invoiceDisplayName: null,
+  invoiceable: true,
+  payInAdvance: false,
+  prorated: false,
+  minAmountCents: '0',
+  regroupPaidFees: null,
+  properties: { amount: '10', graduatedRanges: null, volumeRanges: null } as never,
+  filters: [],
+  appliedPricingUnit: null,
+  taxes: [],
+  billableMetric: {
+    __typename: 'BillableMetric',
+    id: 'bm_default',
+    name: 'API calls',
+    code: 'api_calls',
+    aggregationType: 'count_agg',
+    recurring: false,
+    filters: [],
+  } as never,
   ...overrides,
 })
 
