@@ -1,0 +1,215 @@
+import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Typography } from '~/components/designSystem/Typography'
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
+import { PlanDetailsChargeWrapperSwitch } from '~/components/plans/details/PlanDetailsChargeWrapperSwitch'
+import { isPlanIntervalAnnual, mapChargeIntervalCopy } from '~/components/plans/utils'
+import { composeChargeFilterDisplayName } from '~/core/formats/formatInvoiceItemsMap'
+import { chargeModelLookupTranslation } from '~/core/constants/form'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import {
+  AppliedPricingUnit,
+  ChargeFilter,
+  ChargeModelEnum,
+  CurrencyEnum,
+  Maybe,
+  PlanInterval,
+  Properties,
+  RegroupPaidFeesEnum,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+type Tax = { id: string; name: string; rate: number; code?: string }
+
+export type UsageChargeInfoCharge = {
+  __typename?: 'Charge'
+  id: string
+  chargeModel: ChargeModelEnum
+  invoiceDisplayName?: string | null
+  invoiceable?: boolean | null
+  payInAdvance?: boolean | null
+  prorated?: boolean | null
+  minAmountCents?: string | number | null
+  regroupPaidFees?: RegroupPaidFeesEnum | null
+  properties?: Maybe<Properties>
+  filters?: ReadonlyArray<ChargeFilter> | null
+  appliedPricingUnit?: Maybe<AppliedPricingUnit>
+  taxes?: ReadonlyArray<Tax> | null
+  billableMetric: {
+    id: string
+    name: string
+    code?: string
+    recurring?: boolean | null
+    filters?: ReadonlyArray<{ id?: string; key: string; values: string[] }> | null
+  }
+}
+
+export type UsageChargeInfoProps = {
+  charge: UsageChargeInfoCharge
+  currency: CurrencyEnum
+  planInterval?: PlanInterval | null
+  billChargesMonthly?: boolean | null
+  planTaxes?: ReadonlyArray<Tax> | null
+}
+
+export const UsageChargeInfo = ({
+  charge,
+  currency,
+  planInterval,
+  billChargesMonthly,
+  planTaxes,
+}: UsageChargeInfoProps) => {
+  const { translate } = useInternationalization()
+  const isAnnual = isPlanIntervalAnnual(planInterval ?? undefined)
+  const chargeTaxes = charge.taxes?.length ? charge.taxes : null
+  const fallbackTaxes = planTaxes?.length ? planTaxes : null
+  const taxesApplied = chargeTaxes ?? fallbackTaxes
+
+  const invoicingStrategy = (() => {
+    if (!charge.payInAdvance) return translate('text_66968fba80f8f89a8aefdec0')
+    if (charge.invoiceable) return translate('text_66968fba80f8f89a8aefdebf')
+    if (charge.regroupPaidFees === RegroupPaidFeesEnum.Invoice)
+      return translate('text_66968fba80f8f89a8aefdec0')
+    return translate('text_6682c52081acea9052074686')
+  })()
+
+  return (
+    <section className="flex flex-col gap-4">
+      {!!charge.appliedPricingUnit && (
+        <div className="p-4 shadow-b">
+          <DetailsPage.InfoGrid
+            grid={[
+              {
+                label: translate('text_17502505476284yyq70yy6mx'),
+                value: charge.appliedPricingUnit.pricingUnit.name,
+              },
+              {
+                label: translate('text_1750411499858su5b7bbp5t9'),
+                value: translate('text_1750424999815sw5whlu1xj0', {
+                  shortName: charge.appliedPricingUnit.pricingUnit?.shortName,
+                  conversionRateAmount: intlFormatNumber(
+                    charge.appliedPricingUnit?.conversionRate,
+                    { maximumFractionDigits: 15, currency },
+                  ),
+                }),
+              },
+            ]}
+          />
+        </div>
+      )}
+
+      <div className="px-4 pt-4">
+        <DetailsPage.InfoGrid
+          grid={[
+            {
+              label: translate('text_65201b8216455901fe273dd5'),
+              value: translate(chargeModelLookupTranslation[charge.chargeModel]),
+            },
+            {
+              label: translate('text_65201b8216455901fe273dc1'),
+              value: translate(
+                mapChargeIntervalCopy(
+                  (planInterval as PlanInterval) ?? PlanInterval.Monthly,
+                  (isAnnual && !!billChargesMonthly) || false,
+                ),
+              ),
+            },
+          ]}
+        />
+      </div>
+
+      <section className="flex flex-col gap-4 px-4 pb-4 shadow-b">
+        <ConditionalWrapper
+          condition={!!charge.billableMetric?.filters?.length}
+          invalidWrapper={(children) => <div>{children}</div>}
+          validWrapper={(children) => (
+            <Accordion
+              summary={
+                <Typography variant="bodyHl" color="grey700">
+                  {translate('text_64e620bca31226337ffc62ad')}
+                </Typography>
+              }
+            >
+              {children}
+            </Accordion>
+          )}
+        >
+          <PlanDetailsChargeWrapperSwitch
+            currency={currency}
+            chargeModel={charge.chargeModel}
+            values={charge.properties}
+            chargeAppliedPricingUnit={charge.appliedPricingUnit}
+          />
+        </ConditionalWrapper>
+
+        {charge.filters?.map((filter, i) => {
+          const fallbackName = composeChargeFilterDisplayName(filter as never)
+          return (
+            <Accordion
+              key={`usage-charge-info-${charge.id}-filter-${i}`}
+              summary={
+                <Typography noWrap variant="bodyHl" color="grey700">
+                  {filter.invoiceDisplayName || fallbackName}
+                </Typography>
+              }
+            >
+              <PlanDetailsChargeWrapperSwitch
+                currency={currency}
+                chargeModel={charge.chargeModel}
+                values={filter.properties}
+                chargeAppliedPricingUnit={charge.appliedPricingUnit}
+              />
+            </Accordion>
+          )
+        })}
+      </section>
+
+      <div className="px-4 pb-4">
+        <DetailsPage.InfoGrid
+          grid={[
+            {
+              label: translate('text_65201b8216455901fe273dd9'),
+              value: charge.payInAdvance
+                ? translate('text_646e2d0cc536351b62ba6faa')
+                : translate('text_646e2d0cc536351b62ba6f8c'),
+            },
+            {
+              label: translate('text_65201b8216455901fe273ddb'),
+              value: intlFormatNumber(
+                deserializeAmount(charge.minAmountCents ?? 0, currency),
+                {
+                  currencyDisplay: 'symbol',
+                  currency,
+                  pricingUnitShortName: charge.appliedPricingUnit?.pricingUnit?.shortName,
+                  maximumFractionDigits: 15,
+                },
+              ),
+            },
+            {
+              label: translate('text_65201b8216455901fe273df0'),
+              value: charge.prorated
+                ? translate('text_65251f46339c650084ce0d57')
+                : translate('text_65251f4cd55aeb004e5aa5ef'),
+            },
+            {
+              label: translate('text_6682c52081acea90520744ca'),
+              value: invoicingStrategy,
+            },
+            {
+              label: translate('text_645bb193927b375079d28a8f'),
+              value: taxesApplied
+                ? taxesApplied.map((tax) => (
+                    <div key={`usage-charge-${charge.id}-tax-${tax.id}`}>
+                      {tax.name} (
+                      {intlFormatNumber(Number(tax.rate) / 100 || 0, { style: 'percent' })})
+                    </div>
+                  ))
+                : '-',
+            },
+          ]}
+        />
+      </div>
+    </section>
+  )
+}
