@@ -1,11 +1,11 @@
-import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Typography } from '~/components/designSystem/Typography'
-import { ConditionalWrapper } from '~/components/ConditionalWrapper'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PlanDetailsChargeWrapperSwitch } from '~/components/plans/details/PlanDetailsChargeWrapperSwitch'
 import { isPlanIntervalAnnual, mapChargeIntervalCopy } from '~/components/plans/utils'
-import { composeChargeFilterDisplayName } from '~/core/formats/formatInvoiceItemsMap'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
+import { composeChargeFilterDisplayName } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
@@ -191,15 +191,12 @@ export const UsageChargeInfo = ({
             },
             {
               label: translate('text_65201b8216455901fe273ddb'),
-              value: intlFormatNumber(
-                deserializeAmount(charge.minAmountCents ?? 0, currency),
-                {
-                  currencyDisplay: 'symbol',
-                  currency,
-                  pricingUnitShortName: charge.appliedPricingUnit?.pricingUnit?.shortName,
-                  maximumFractionDigits: 15,
-                },
-              ),
+              value: intlFormatNumber(deserializeAmount(charge.minAmountCents ?? 0, currency), {
+                currencyDisplay: 'symbol',
+                currency,
+                pricingUnitShortName: charge.appliedPricingUnit?.pricingUnit?.shortName,
+                maximumFractionDigits: 15,
+              }),
             },
             {
               label: translate('text_65201b8216455901fe273df0'),

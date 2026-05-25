@@ -133,9 +133,7 @@ describe('UsageChargeInfo', () => {
         charge={buildCharge({ taxes: [] })}
         currency={CurrencyEnum.Usd}
         planInterval={PlanInterval.Monthly}
-        planTaxes={[
-          { __typename: 'Tax', id: 't1', name: 'VAT', code: 'vat', rate: 20 } as never,
-        ]}
+        planTaxes={[{ __typename: 'Tax', id: 't1', name: 'VAT', code: 'vat', rate: 20 } as never]}
       />,
     )
     expect(screen.getByText(/VAT/)).toBeInTheDocument()
@@ -210,9 +208,7 @@ describe('UsageChargeInfo', () => {
     render(
       <UsageChargeInfo
         charge={buildCharge({
-          taxes: [
-            { __typename: 'Tax', id: 't_gst', name: 'GST', code: 'gst', rate: 10 } as never,
-          ],
+          taxes: [{ __typename: 'Tax', id: 't_gst', name: 'GST', code: 'gst', rate: 10 } as never],
         })}
         currency={CurrencyEnum.Usd}
         planInterval={PlanInterval.Monthly}
