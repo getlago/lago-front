@@ -4178,5 +4178,7 @@
   "text_1779289915866mr56w61hhi5": "Entitlements",
   "text_1779289915866s3gisblcite": "Apply changes to all overridden subscriptions of this plan",
   "text_1779457001221h9zixqumknp": "Editing this entity will affect future invoices. Draft and finalized invoices will keep their current billing entity.",
-  "text_1779289915866itrqeyj7658": "When enabled, edits cascade to every subscription that overrides this plan."
+  "text_1779289915866itrqeyj7658": "When enabled, edits cascade to every subscription that overrides this plan.",
+  "text_1779711754281pbvb802zcqp": "Total balance",
+  "text_1779712287978i7laolg3ga4": "List of credited notes. These amounts may impact future invoices; consider voiding the credits if needed."
 }

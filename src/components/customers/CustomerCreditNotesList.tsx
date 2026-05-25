@@ -1,30 +1,29 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { debounce } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
-import { Avatar } from '~/components/designSystem/Avatar'
+import { CustomerCreditNotesBreakdown } from '~/components/customers/CustomerCreditNotesBreakdown'
+import { CustomerCreditNotesLegacyCard } from '~/components/customers/CustomerCreditNotesLegacyCard'
 import { Filters } from '~/components/designSystem/Filters'
 import { formatFiltersForCustomerCreditNotesQuery } from '~/components/designSystem/Filters/utils'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { Typography } from '~/components/designSystem/Typography'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_CREDIT_NOTES_FILTER_PREFIX } from '~/core/constants/filters'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreditNotesForTableFragmentDoc,
   CurrencyEnum,
   CustomerCreditNotesBalance,
+  FeatureFlagEnum,
   TimezoneEnum,
   useGetCustomerCreditNotesLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerFilterDefaults } from '~/hooks/useCustomerFilterDefaults'
 import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 gql`
@@ -51,22 +50,32 @@ gql`
   ${CreditNotesForTableFragmentDoc}
 `
 
+type CreditNotesBalanceRow = Pick<
+  CustomerCreditNotesBalance,
+  'currency' | 'billingEntityId' | 'amountCents' | 'creditsAvailableCount'
+>
+
 interface CustomerCreditNotesListProps {
   customerId: string
-  creditNotesCreditsAvailableCount?: number
-  creditNotesBalances?: Pick<CustomerCreditNotesBalance, 'currency' | 'amountCents'>[]
+  customerBillingEntity?: { id: string; code: string; name?: string | null } | null
+  creditNotesBalances?: CreditNotesBalanceRow[]
   userCurrency?: CurrencyEnum
   customerTimezone?: TimezoneEnum
 }
 
 export const CustomerCreditNotesList = ({
   customerId,
-  creditNotesCreditsAvailableCount,
+  customerBillingEntity,
   creditNotesBalances,
   userCurrency,
   customerTimezone,
 }: CustomerCreditNotesListProps) => {
   const { translate } = useInternationalization()
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
+  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+  const showBreakdown = hasMultiCurrency || hasMultiEntityBilling
+
   const filtersProps = useCustomerFilterDefaults({
     customerCurrency: userCurrency,
     filtersNamePrefix: CUSTOMER_CREDIT_NOTES_FILTER_PREFIX,
@@ -109,26 +118,30 @@ export const CustomerCreditNotesList = ({
 
   const creditNotes = data?.creditNotes?.collection
 
-  const displayCurrency = (currency as CurrencyEnum | undefined) ?? userCurrency ?? CurrencyEnum.Usd
-
-  // Always pick a single-currency bucket from `creditNotesBalances`:
-  // - active currency filter → bucket for that currency
-  // - otherwise → bucket for the customer's currency
-  // Never falls back to `creditNotesBalanceAmountCents` (legacy scalar that
-  // sums cross-currency without conversion — wrong when the customer has CN
-  // in more than one currency). Customers with no CN in the target currency
-  // see `0`, which is accurate.
-  const displayBalanceAmountCents = useMemo(() => {
-    const bucket = creditNotesBalances?.find((b) => b.currency === displayCurrency)
-
-    return bucket?.amountCents ?? 0
-  }, [displayCurrency, creditNotesBalances])
-
   return (
     <div>
       <PageSectionTitle
         title={translate('text_1779269934897no61nlpm9qz')}
         subtitle={translate('text_1737895765672pwk47419syk')}
+      />
+
+      <div className="mb-12">
+        {showBreakdown ? (
+          <CustomerCreditNotesBreakdown
+            creditNotesBalances={creditNotesBalances}
+            customerBillingEntity={customerBillingEntity}
+          />
+        ) : (
+          <CustomerCreditNotesLegacyCard
+            creditNotesBalances={creditNotesBalances}
+            userCurrency={userCurrency}
+          />
+        )}
+      </div>
+
+      <PageSectionTitle
+        title={translate('text_63725b30957fd5b26b308dd3')}
+        subtitle={translate('text_1779712287978i7laolg3ga4')}
       />
 
       <div className="mb-4 flex items-center gap-3">
@@ -141,30 +154,6 @@ export const CustomerCreditNotesList = ({
             <Filters.Component />
           </Filters.Provider>
         )}
-      </div>
-
-      <div className="mb-4 flex h-18 items-center justify-between rounded-xl border border-grey-400 px-4 py-3">
-        <div className="flex items-center">
-          <Avatar className="mr-3" size="big" variant="connector">
-            <Icon name="wallet" color="dark" />
-          </Avatar>
-          <div>
-            <Typography variant="bodyHl" color="grey700">
-              {translate('text_63725b30957fd5b26b308dd9')}
-            </Typography>
-            <Typography variant="caption" color="grey600">
-              {translate('text_63725b30957fd5b26b308ddb', {
-                count: creditNotesCreditsAvailableCount,
-              })}
-            </Typography>
-          </div>
-        </div>
-        <Typography variant="body" color="grey700">
-          {intlFormatNumber(deserializeAmount(displayBalanceAmountCents, displayCurrency) || 0, {
-            currencyDisplay: 'symbol',
-            currency: displayCurrency,
-          })}
-        </Typography>
       </div>
 
       {!!error && !loading ? (

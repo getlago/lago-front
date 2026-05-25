@@ -40,10 +40,11 @@ gql`
     hasActiveWallet
     currency
     hasCreditNotes
-    creditNotesCreditsAvailableCount
     creditNotesBalances {
       currency
+      billingEntityId
       amountCents
+      creditsAvailableCount
     }
     applicableTimezone
     hasOverdueInvoices

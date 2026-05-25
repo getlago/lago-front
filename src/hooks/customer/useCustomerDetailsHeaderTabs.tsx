@@ -40,7 +40,7 @@ export function useCustomerDetailsHeaderTabs({
   const { isPremium } = useCurrentUser()
 
   const {
-    creditNotesCreditsAvailableCount,
+    billingEntity: customerBillingEntity,
     creditNotesBalances,
     externalId,
     hasCreditNotes,
@@ -134,7 +134,7 @@ export function useCustomerDetailsHeaderTabs({
       content: (
         <CustomerCreditNotesList
           customerId={customerId}
-          creditNotesCreditsAvailableCount={creditNotesCreditsAvailableCount}
+          customerBillingEntity={customerBillingEntity}
           creditNotesBalances={creditNotesBalances}
           userCurrency={customer?.currency || undefined}
           customerTimezone={safeTimezone}
