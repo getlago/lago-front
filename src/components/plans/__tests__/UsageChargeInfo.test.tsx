@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 
 import {
   ChargeModelEnum,
@@ -6,6 +6,7 @@ import {
   PlanInterval,
   RegroupPaidFeesEnum,
 } from '~/generated/graphql'
+import { render } from '~/test-utils'
 
 import { UsageChargeInfo, UsageChargeInfoCharge } from '../UsageChargeInfo'
 
@@ -138,5 +139,40 @@ describe('UsageChargeInfo', () => {
       />,
     )
     expect(screen.getByText(/VAT/)).toBeInTheDocument()
+  })
+
+  it('uses succeeding-month strategy when payInAdvance + non-invoiceable + regroup is null', () => {
+    render(
+      <UsageChargeInfo
+        charge={buildCharge({
+          payInAdvance: true,
+          invoiceable: false,
+          regroupPaidFees: null,
+        })}
+        currency={CurrencyEnum.Usd}
+        planInterval={PlanInterval.Monthly}
+        planTaxes={[]}
+      />,
+    )
+    expect(screen.getByText('text_6682c52081acea9052074686')).toBeInTheDocument()
+  })
+
+  it('uses charge.taxes when present, ignoring plan taxes', () => {
+    render(
+      <UsageChargeInfo
+        charge={buildCharge({
+          taxes: [
+            { __typename: 'Tax', id: 't_gst', name: 'GST', code: 'gst', rate: 10 } as never,
+          ],
+        })}
+        currency={CurrencyEnum.Usd}
+        planInterval={PlanInterval.Monthly}
+        planTaxes={[
+          { __typename: 'Tax', id: 't_vat', name: 'VAT', code: 'vat', rate: 20 } as never,
+        ]}
+      />,
+    )
+    expect(screen.getByText(/GST/)).toBeInTheDocument()
+    expect(screen.queryByText(/VAT/)).not.toBeInTheDocument()
   })
 })

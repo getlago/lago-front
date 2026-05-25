@@ -144,7 +144,10 @@ export const UsageChargeInfo = ({
         </ConditionalWrapper>
 
         {charge.filters?.map((filter, i) => {
-          const fallbackName = composeChargeFilterDisplayName(filter as never)
+          const fallbackName = composeChargeFilterDisplayName({
+            ...filter,
+            values: filter.values as Record<string, string[]>,
+          })
           return (
             <Accordion
               key={`usage-charge-info-${charge.id}-filter-${i}`}
