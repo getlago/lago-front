@@ -74,6 +74,18 @@ export const UsageChargeInfo = ({
     return translate('text_6682c52081acea9052074686')
   })()
 
+  const invoicingRow = charge.billableMetric?.recurring
+    ? {
+        label: translate('text_646e2d0cc536351b62ba6f16'),
+        value: charge.invoiceable
+          ? translate('text_65251f46339c650084ce0d57')
+          : translate('text_65251f4cd55aeb004e5aa5ef'),
+      }
+    : {
+        label: translate('text_6682c52081acea90520744ca'),
+        value: invoicingStrategy,
+      }
+
   return (
     <section className="flex flex-col gap-4">
       {!!charge.appliedPricingUnit && (
@@ -195,10 +207,7 @@ export const UsageChargeInfo = ({
                 ? translate('text_65251f46339c650084ce0d57')
                 : translate('text_65251f4cd55aeb004e5aa5ef'),
             },
-            {
-              label: translate('text_6682c52081acea90520744ca'),
-              value: invoicingStrategy,
-            },
+            invoicingRow,
             {
               label: translate('text_645bb193927b375079d28a8f'),
               value: taxesApplied

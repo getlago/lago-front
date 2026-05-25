@@ -157,6 +157,55 @@ describe('UsageChargeInfo', () => {
     expect(screen.getByText('text_6682c52081acea9052074686')).toBeInTheDocument()
   })
 
+  it('uses "Invoiceable" row for recurring billable metrics', () => {
+    render(
+      <UsageChargeInfo
+        charge={buildCharge({
+          invoiceable: false,
+          billableMetric: {
+            __typename: 'BillableMetric',
+            id: 'bm_recurring',
+            name: 'Active users',
+            code: 'active_users',
+            recurring: true,
+            filters: [],
+          } as never,
+        })}
+        currency={CurrencyEnum.Usd}
+        planInterval={PlanInterval.Monthly}
+        planTaxes={[]}
+      />,
+    )
+    // "Invoiceable" label key (recurring 4th row)
+    expect(screen.getByText('text_646e2d0cc536351b62ba6f16')).toBeInTheDocument()
+    // "Invoicing strategy" label key (metered 4th row) must NOT appear
+    expect(screen.queryByText('text_6682c52081acea90520744ca')).not.toBeInTheDocument()
+    // The yes/no value for invoiceable=false (may appear more than once due to prorated row)
+    expect(screen.getAllByText('text_65251f4cd55aeb004e5aa5ef').length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('uses "Invoicing strategy" row for non-recurring (metered) billable metrics', () => {
+    render(
+      <UsageChargeInfo
+        charge={buildCharge({
+          billableMetric: {
+            __typename: 'BillableMetric',
+            id: 'bm_metered',
+            name: 'API calls',
+            code: 'api_calls',
+            recurring: false,
+            filters: [],
+          } as never,
+        })}
+        currency={CurrencyEnum.Usd}
+        planInterval={PlanInterval.Monthly}
+        planTaxes={[]}
+      />,
+    )
+    expect(screen.getByText('text_6682c52081acea90520744ca')).toBeInTheDocument()
+    expect(screen.queryByText('text_646e2d0cc536351b62ba6f16')).not.toBeInTheDocument()
+  })
+
   it('uses charge.taxes when present, ignoring plan taxes', () => {
     render(
       <UsageChargeInfo
