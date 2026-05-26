@@ -102,7 +102,7 @@ export const toLocalUsageChargeInput = (
       properties: getPropertyShape(filter.properties),
       values: Object.entries((filter.values as Record<string, string[]>) || {}).reduce<string[]>(
         (acc, [key, objectValues]) => {
-          ;(objectValues as string[]).forEach((v) => {
+          objectValues.forEach((v) => {
             acc.push(transformFilterObjectToString(key, v))
           })
           return acc
@@ -111,6 +111,6 @@ export const toLocalUsageChargeInput = (
       ),
     })),
     regroupPaidFees: charge.regroupPaidFees ?? null,
-    taxes: charge.taxes as never,
+    taxes: charge.taxes,
   }
 }

@@ -10,8 +10,6 @@ import {
   ChargeCreateInput,
   ChargeUpdateInput,
   CurrencyEnum,
-  Properties,
-  RegroupPaidFeesEnum,
   UsageChargeForDetailsV2FragmentDoc,
   useCreateChargeMutation,
   useDestroyChargeMutation,
@@ -64,6 +62,7 @@ export const useChargeMutationsWithCascade = ({ planId, hasOverriddenPlans, curr
   const [createCharge] = useCreateChargeMutation({
     update(cache, { data }) {
       const created = data?.createCharge
+
       if (!created) return
       cacheArrayInsert(cache, { __typename: 'Plan', id: planId }, 'charges', created)
     },
@@ -85,6 +84,7 @@ export const useChargeMutationsWithCascade = ({ planId, hasOverriddenPlans, curr
   const [destroyCharge] = useDestroyChargeMutation({
     update(cache, { data }) {
       const id = data?.destroyCharge?.id
+
       if (!id) return
       cacheArrayRemove(cache, { __typename: 'Plan', id: planId }, 'charges', id, 'Charge')
     },
@@ -111,10 +111,10 @@ export const useChargeMutationsWithCascade = ({ planId, hasOverriddenPlans, curr
         : undefined,
     payInAdvance: charge.payInAdvance || false,
     prorated: charge.prorated || false,
-    regroupPaidFees: (charge.regroupPaidFees as RegroupPaidFeesEnum) || undefined,
+    regroupPaidFees: charge.regroupPaidFees || undefined,
     taxCodes: charge.taxes?.map((t) => t.code) ?? [],
     properties: charge.properties
-      ? serializeProperties(charge.properties as Properties, charge.chargeModel)
+      ? serializeProperties(charge.properties, charge.chargeModel)
       : undefined,
     filters: serializeFilters(charge.filters, charge.chargeModel),
     cascadeUpdates,
@@ -135,10 +135,10 @@ export const useChargeMutationsWithCascade = ({ planId, hasOverriddenPlans, curr
         : undefined,
     payInAdvance: charge.payInAdvance || false,
     prorated: charge.prorated || false,
-    regroupPaidFees: (charge.regroupPaidFees as RegroupPaidFeesEnum) || undefined,
+    regroupPaidFees: charge.regroupPaidFees || undefined,
     taxCodes: charge.taxes?.map((t) => t.code) ?? [],
     properties: charge.properties
-      ? serializeProperties(charge.properties as Properties, charge.chargeModel)
+      ? serializeProperties(charge.properties, charge.chargeModel)
       : undefined,
     filters: serializeFilters(charge.filters, charge.chargeModel),
     cascadeUpdates,
@@ -149,6 +149,7 @@ export const useChargeMutationsWithCascade = ({ planId, hasOverriddenPlans, curr
     index: number | null,
   ): Promise<boolean> => {
     const isCreate = index === null
+
     return openCascadeDialog({
       title: translate('text_1729604107534r3hsj7i64gp'),
       mainActionLabel: translate('text_1729604107534dfyz8j53ho5'),
