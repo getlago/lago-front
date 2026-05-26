@@ -10,11 +10,7 @@ import {
 import { SubscriptionFeeInfo } from '~/components/plans/SubscriptionFeeInfo'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { getIntervalTranslationKey } from '~/core/constants/form'
-import {
-  PlanDetailsV2Fragment,
-  PlanForUpdateWithCascadeFragmentDoc,
-  PlanInterval,
-} from '~/generated/graphql'
+import { PlanDetailsV2Fragment, PlanForUpdateWithCascadeFragmentDoc } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useUpdatePlanWithCascade } from '~/hooks/plans/useUpdatePlanWithCascade'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -72,7 +68,7 @@ export const SubscriptionFeeAccordion = ({
   }
 
   const intervalBadge = plan.interval ? (
-    <Chip label={translate(getIntervalTranslationKey[plan.interval as PlanInterval])} />
+    <Chip label={translate(getIntervalTranslationKey[plan.interval])} />
   ) : undefined
 
   return (
