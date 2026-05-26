@@ -10,7 +10,7 @@ export const BreakdownNameCell = ({ presentationBy }: BreakdownNameCellProps) =>
     {Object.entries(presentationBy)
       .filter(([, value]) => isMeaningfulPresentationValue(value))
       .map(([key, value]) => (
-        <Chip key={key} label={String(value)} />
+        <Chip key={key} label={String(value)} variant="captionCode" size="small" />
       ))}
   </div>
 )

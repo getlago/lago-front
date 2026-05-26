@@ -138,7 +138,7 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
           billableMetricName: displayName,
         })}
         stickyBottomBar={({ closeDrawer }) => (
-          <Button size="large" onClick={closeDrawer}>
+          <Button size="medium" onClick={closeDrawer}>
             {translate('text_1726044816685r61awuydvji')}
           </Button>
         )}
@@ -206,11 +206,9 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
             <Typography variant="subhead1" color="grey700">
               {translate('text_17786802483174e1d300blik')}
             </Typography>
-
             {!hasFiltersOrGroups && (
               <Alert type="info">{translate('text_17786802483175q57751skt9')}</Alert>
             )}
-
             {hasAnyFilterInGroupUsage && (
               <GroupedUsageWithFiltersTable
                 usage={usage}

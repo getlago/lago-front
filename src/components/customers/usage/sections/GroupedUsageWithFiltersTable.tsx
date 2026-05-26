@@ -99,137 +99,159 @@ export const GroupedUsageWithFiltersTable = ({
       ? (row as ProjectedChargeFilterUsage).projectedPresentationBreakdowns
       : row.presentationBreakdowns
 
+  // Flatten every group's filter rows + breakdowns into ONE table data array.
+  // Rendering one Table per group made each Table auto-size its columns
+  // independently — "Default price" and "EU only" then ended up with the
+  // "Units" cell at different X positions. A single Table calculates column
+  // widths once, so everything lines up regardless of group.
+  //
+  // Each filter row carries its parent group's `groupedBy` on a private
+  // `__chipContextGroupedBy` field so the chip cell still has the per-group
+  // dimension context.
+  const flattenedRows = sortedGroupedUsage.flatMap((groupedUsage, groupedUsageIndex) => {
+    const filterRows =
+      groupedUsage.filters?.map((f) => ({
+        ...f,
+        // Table component expect all elements to have an ID
+        id: f.id || NO_ID_FILTER_DEFAULT_VALUE,
+        __chipContextGroupedBy: groupedUsage.groupedBy,
+      })) || []
+
+    return [
+      ...filterRows.flatMap((f) => [
+        f,
+        ...makeBreakdownRows(
+          `grouped-usage-${groupedUsageIndex}-filter-${f.id}`,
+          breakdownsForRow(f),
+        ),
+      ]),
+      // Tail breakdowns for fees in this group that are not tied to a
+      // filter. We dedupe against the filter-level breakdowns because the
+      // backend sometimes echoes the same data on both sides (e.g. when a
+      // group has a no-id "catch-all" filter); without this we render
+      // duplicate breakdown rows.
+      ...makeBreakdownRows(
+        `grouped-usage-${groupedUsageIndex}`,
+        dedupeTailBreakdowns(
+          filterRows.map((f) => breakdownsForRow(f)),
+          breakdownsForRow(groupedUsage as ProjectedGroupedChargeUsage),
+        ),
+      ),
+    ]
+  })
+
   return (
-    <div className="[&_table:not(#table-grouped-usage-with-filters-table-0)_thead]:hidden">
-      {sortedGroupedUsage.map((groupedUsage, groupedUsageIndex) => {
-        const filterRows =
-          groupedUsage.filters?.map((f) => ({
-            ...f,
-            // Table component expect all elements to have an ID
-            id: f.id || NO_ID_FILTER_DEFAULT_VALUE,
-          })) || []
+    <Table
+      name="grouped-usage-with-filters-table"
+      containerSize={0}
+      rowSize={!!pricingUnitShortName ? 72 : 48}
+      data={flattenedRows}
+      columns={[
+        {
+          key: 'invoiceDisplayName',
+          title: translate('text_1725983967306dtwnapp4mw9'),
+          truncateOverflow: true,
+          maxSpace: true,
+          content: (row) => {
+            // Discriminator first — `PresentationBreakdownRow` doesn't
+            // have `invoiceDisplayName` / `id` / `values`, so we can't
+            // safely touch any of them until we've narrowed past it.
+            if (isBreakdownRow(row)) {
+              return <BreakdownNameCell presentationBy={row.presentationBy} />
+            }
 
-        return (
-          <Table
-            key={`grouped-usage-${groupedUsageIndex}`}
-            name={`grouped-usage-with-filters-table-${groupedUsageIndex}`}
-            containerSize={0}
-            rowSize={!!pricingUnitShortName ? 72 : 48}
-            data={[
-              ...filterRows.flatMap((f) => [
-                f,
-                ...makeBreakdownRows(
-                  `grouped-usage-${groupedUsageIndex}-filter-${f.id}`,
-                  breakdownsForRow(f),
-                ),
-              ]),
-              // Tail breakdowns for fees in this group that are not tied to a
-              // filter. We dedupe against the filter-level breakdowns because
-              // the backend sometimes echoes the same data on both sides
-              // (e.g. when a group has a no-id "catch-all" filter); without
-              // this we render duplicate breakdown rows.
-              ...makeBreakdownRows(
-                `grouped-usage-${groupedUsageIndex}`,
-                dedupeTailBreakdowns(
-                  filterRows.map((f) => breakdownsForRow(f)),
-                  breakdownsForRow(groupedUsage as ProjectedGroupedChargeUsage),
-                ),
-              ),
-            ]}
-            columns={[
-              {
-                key: 'invoiceDisplayName',
-                title: translate('text_1725983967306dtwnapp4mw9'),
-                truncateOverflow: true,
-                maxSpace: true,
-                content: (row) => {
-                  if (isBreakdownRow(row)) {
-                    return <BreakdownNameCell presentationBy={row.presentationBy} />
-                  }
+            // User-configured display name on the filter (from
+            // `ChargeFilterUsage.invoiceDisplayName` — already fetched
+            // by the fragment). When present it wins over the chip
+            // construction below, matching `FiltersOnlyTable`.
+            if (row.invoiceDisplayName) {
+              return (
+                <Typography variant="body" color="grey700" noWrap>
+                  {row.invoiceDisplayName}
+                </Typography>
+              )
+            }
 
-                  if (row.id === NO_ID_FILTER_DEFAULT_VALUE) {
-                    return (
-                      <Typography variant="body" color="grey700" noWrap>
-                        {translate('text_64e620bca31226337ffc62ad')}
-                      </Typography>
-                    )
-                  }
+            if (row.id === NO_ID_FILTER_DEFAULT_VALUE) {
+              return (
+                <Typography variant="body" color="grey700" noWrap>
+                  {translate('text_64e620bca31226337ffc62ad')}
+                </Typography>
+              )
+            }
 
-                  const chipValues = buildChipValues(groupedUsage?.groupedBy, row)
+            const chipValues = buildChipValues(row.__chipContextGroupedBy, row)
 
-                  if (chipValues.length === 0) {
-                    return null
-                  }
+            if (chipValues.length === 0) {
+              return null
+            }
 
-                  return (
-                    <div className="flex flex-wrap items-center gap-1">
-                      {chipValues.map((value) => (
-                        <Chip key={value} label={value} size="small" />
-                      ))}
-                    </div>
-                  )
-                },
-              },
-              {
-                key: 'units',
-                title: unitsHeader,
-                textAlign: 'right',
-                minWidth: 70,
-                content: (row) => {
-                  if (isBreakdownRow(row)) {
-                    return (
-                      <Typography variant="body" color="grey600">
-                        {row.breakdownUnits}
-                      </Typography>
-                    )
-                  }
+            return (
+              <div className="flex flex-wrap items-center gap-1">
+                {chipValues.map((value) => (
+                  <Chip key={value} label={value} variant="captionCode" size="small" />
+                ))}
+              </div>
+            )
+          },
+        },
+        {
+          key: 'units',
+          title: unitsHeader,
+          textAlign: 'right',
+          minWidth: 70,
+          content: (row) => {
+            if (isBreakdownRow(row)) {
+              return (
+                <Typography variant="caption" color="grey600">
+                  {row.breakdownUnits}
+                </Typography>
+              )
+            }
 
-                  // Projected tab: show the raw `projectedUnits` from
-                  // GraphQL as the source of truth — non-additive
-                  // aggregations like max / unique_count won't equal
-                  // sum(projectedPresentationBreakdowns).
-                  // Current tab: when breakdowns exist, sum them so the
-                  // parent row reconciles with the breakdown rows below it.
-                  const rawUnits = showProjected
-                    ? (row as ProjectedChargeFilterUsage).projectedUnits
-                    : row.units
-                  const breakdowns = breakdownsForRow(row)
-                  const hasBreakdowns = (breakdowns?.length ?? 0) > 0
-                  const displayUnits =
-                    !showProjected && hasBreakdowns ? sumBreakdownUnits(breakdowns) : rawUnits
+            // Projected tab: show the raw `projectedUnits` from
+            // GraphQL as the source of truth — non-additive
+            // aggregations like max / unique_count won't equal
+            // sum(projectedPresentationBreakdowns).
+            // Current tab: when breakdowns exist, sum them so the
+            // parent row reconciles with the breakdown rows below it.
+            const rawUnits = showProjected
+              ? (row as ProjectedChargeFilterUsage).projectedUnits
+              : row.units
+            const breakdowns = breakdownsForRow(row)
+            const hasBreakdowns = (breakdowns?.length ?? 0) > 0
+            const displayUnits =
+              !showProjected && hasBreakdowns ? sumBreakdownUnits(breakdowns) : rawUnits
 
-                  return (
-                    <Typography variant="body" color="grey700">
-                      {displayUnits}
-                    </Typography>
-                  )
-                },
-              },
-              {
-                key: 'amountCents',
-                title: amountHeader,
-                textAlign: 'right',
-                minWidth: 100,
-                content: (row) => {
-                  if (isBreakdownRow(row)) {
-                    return null
-                  }
+            return (
+              <Typography variant="body" color="grey700">
+                {displayUnits}
+              </Typography>
+            )
+          },
+        },
+        {
+          key: 'amountCents',
+          title: amountHeader,
+          textAlign: 'right',
+          minWidth: 100,
+          content: (row) => {
+            if (isBreakdownRow(row)) {
+              return null
+            }
 
-                  return (
-                    <AmountCentsCell
-                      row={row}
-                      currency={currency}
-                      locale={locale}
-                      pricingUnitShortName={pricingUnitShortName}
-                      showProjected={showProjected}
-                    />
-                  )
-                },
-              },
-            ]}
-          />
-        )
-      })}
-    </div>
+            return (
+              <AmountCentsCell
+                row={row}
+                currency={currency}
+                locale={locale}
+                pricingUnitShortName={pricingUnitShortName}
+                showProjected={showProjected}
+              />
+            )
+          },
+        },
+      ]}
+    />
   )
 }

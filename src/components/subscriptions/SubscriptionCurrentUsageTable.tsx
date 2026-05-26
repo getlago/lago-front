@@ -1,6 +1,6 @@
 import { ApolloError, ApolloQueryResult, gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import {
@@ -101,6 +101,12 @@ gql`
             shortName
           }
         }
+        properties {
+          pricingGroupKeys
+          presentationGroupKeys {
+            value
+          }
+        }
       }
       billableMetric {
         id
@@ -145,6 +151,12 @@ gql`
           pricingUnit {
             id
             shortName
+          }
+        }
+        properties {
+          pricingGroupKeys
+          presentationGroupKeys {
+            value
           }
         }
       }
@@ -421,7 +433,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
         </div>
         <Tooltip placement="top-end" title={translate('text_62d7f6178ec94cd09370e4b3')}>
           <Button
-            variant="quaternary"
+            variant="inline"
             size="small"
             disabled={usageLoading}
             onClick={async () => {
@@ -536,141 +548,180 @@ export const SubscriptionCurrentUsageTableComponent = ({
         </div>
       )}
 
-      {!hasError && !!usageData?.chargesUsage.length && !showPremiumError && (
-        <>
-          <Table
-            name="subscription-current-usage-table"
-            containerSize={0}
-            rowSize={72}
-            // Add a small px-1 horizontal padding to every body cell so the
-            // hover/active states on the now-clickable rows don't sit flush
-            // against the table edges.
-            containerClassName="[&_tbody>tr>td]:px-1"
-            isLoading={isLoading}
-            hasError={hasError}
-            data={usageData?.chargesUsage || []}
-            onRowActionClick={(row) =>
-              handleOpenUsageDetailDrawer(row as SubscriptionUsageDetailDrawerUsage)
-            }
-            columns={[
-              {
-                key: 'charge.invoiceDisplayName',
-                title: translate('text_1725983967306dtwnapp4mw9'),
-                maxSpace: true,
-                content: (row) => {
-                  const filterLabels = (row.filters ?? [])
-                    .map((f) => f?.invoiceDisplayName)
-                    .filter((label): label is string => !!label)
+      {!hasError &&
+        !showPremiumError &&
+        // Render the Table during loading too so its `isLoading` skeleton
+        // shows on the Current/Projected tabs. Previously the cell was gated
+        // on `chargesUsage.length`, which skipped the loading state entirely.
+        (isLoading || !!usageData?.chargesUsage.length) && (
+          <>
+            <Table
+              name="subscription-current-usage-table"
+              containerSize={0}
+              rowSize={72}
+              // Add a small px-1 horizontal padding to every body cell so the
+              // hover/active states on the now-clickable rows don't sit flush
+              // against the table edges.
+              containerClassName="[&_tbody>tr>td]:px-1"
+              isLoading={isLoading}
+              hasError={hasError}
+              // While loading (initial fetch OR refresh via the reload
+              // button) we pass an empty data array so the Table's `isLoading`
+              // path renders ONLY the skeleton rows. The design-system Table
+              // otherwise appends skeletons after the existing rows, leaving
+              // stale data visible during refresh — QA flagged this.
+              data={isLoading ? [] : usageData?.chargesUsage || []}
+              onRowActionClick={(row) =>
+                handleOpenUsageDetailDrawer(row as SubscriptionUsageDetailDrawerUsage)
+              }
+              columns={[
+                {
+                  key: 'charge.invoiceDisplayName',
+                  title: translate('text_1725983967306dtwnapp4mw9'),
+                  maxSpace: true,
+                  content: (row) => {
+                    const filterLabels = (row.filters ?? [])
+                      .map((f) => f?.invoiceDisplayName)
+                      .filter((label): label is string => !!label)
 
-                  // All groupedUsage entries share the same set of grouped-by
-                  // keys (they're grouped by the same pricing-group-keys config),
-                  // so take them from the first entry that has them.
-                  const firstGroupedBy = row.groupedUsage?.find(
-                    (g) =>
-                      g?.groupedBy &&
-                      typeof g.groupedBy === 'object' &&
-                      !Array.isArray(g.groupedBy),
-                  )?.groupedBy as Record<string, unknown> | undefined
-                  const groupedByKeys = firstGroupedBy ? Object.keys(firstGroupedBy) : []
+                    // Pricing group keys ("priced per") and presentation group
+                    // keys ("split by") come from the charge config, not from
+                    // runtime usage data — so they surface even before the first
+                    // fee is recorded.
+                    const pricingGroupKeys = row.charge.properties?.pricingGroupKeys ?? []
+                    const presentationGroupKeys = (
+                      row.charge.properties?.presentationGroupKeys ?? []
+                    ).map((k) => k.value)
 
-                  return (
-                    <div className="flex flex-col gap-1 py-3">
-                      <Typography variant="body" color="grey700">
-                        {row.charge.invoiceDisplayName || row.billableMetric?.name}
-                      </Typography>
-                      <div className="flex flex-wrap items-center gap-1">
-                        <Typography variant="caption" color="grey600" component="span">
-                          {row.billableMetric?.code}
+                    return (
+                      <div className="flex flex-col gap-1 py-3">
+                        <Typography variant="body" color="grey700">
+                          {row.charge.invoiceDisplayName || row.billableMetric?.name}
                         </Typography>
+                        <div className="flex flex-wrap items-center gap-1">
+                          <Typography variant="caption" color="grey600" component="span">
+                            {row.billableMetric?.code}
+                          </Typography>
 
-                        {filterLabels.length > 0 && (
-                          <>
-                            <Typography variant="caption" color="grey600" component="span">
-                              {' • '}
-                              {translate('text_177883198759933bb02ulslv')}
-                            </Typography>
-                            {filterLabels.map((label, i) => (
-                              <Chip key={`filter-${i}`} label={label} size="small" />
-                            ))}
-                          </>
-                        )}
+                          {filterLabels.length > 0 && (
+                            <>
+                              <Typography variant="caption" color="grey600" component="span">
+                                {' • '}
+                                {translate('text_1779790016087nsol47cwuwg')}
+                              </Typography>
+                              {filterLabels.map((label, i) => (
+                                <Chip
+                                  key={`filter-${i}`}
+                                  label={label}
+                                  size="small"
+                                  variant="captionCode"
+                                />
+                              ))}
+                            </>
+                          )}
 
-                        {groupedByKeys.length > 0 && (
-                          <>
-                            <Typography variant="caption" color="grey600" component="span">
-                              {' • '}
-                              {translate('text_1778831987599grvoqfl2yd2')}
-                            </Typography>
-                            {groupedByKeys.map((key) => (
-                              <Chip key={`gb-${key}`} label={key} size="small" />
-                            ))}
-                          </>
-                        )}
+                          {pricingGroupKeys.length > 0 && (
+                            <>
+                              <Typography variant="caption" color="grey600" component="span">
+                                {' • '}
+                                {translate('text_177883198759933bb02ulslv')}
+                              </Typography>
+                              {pricingGroupKeys.map((key, i) => (
+                                <Fragment key={`pgk-${key}`}>
+                                  {i > 0 && (
+                                    <Typography variant="caption" color="grey600" component="span">
+                                      +
+                                    </Typography>
+                                  )}
+                                  <Chip label={key} size="small" variant="captionCode" />
+                                </Fragment>
+                              ))}
+                            </>
+                          )}
+
+                          {presentationGroupKeys.length > 0 && (
+                            <>
+                              <Typography variant="caption" color="grey600" component="span">
+                                {' • '}
+                                {translate('text_1778831987599grvoqfl2yd2')}
+                              </Typography>
+                              {presentationGroupKeys.map((key, i) => (
+                                <Fragment key={`presgk-${key}`}>
+                                  {i > 0 && (
+                                    <Typography variant="caption" color="grey600" component="span">
+                                      +
+                                    </Typography>
+                                  )}
+                                  <Chip label={key} size="small" variant="captionCode" />
+                                </Fragment>
+                              ))}
+                            </>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )
+                    )
+                  },
                 },
-              },
-              {
-                key: 'units',
-                title: TRANSLATION_MAP.unitsHeader,
-                textAlign: 'right',
-                minWidth: 70,
-                content: (row) => (
-                  <Typography variant="body" color="grey700">
-                    {(row as MixedCharge)?.[unitsKey]}
-                  </Typography>
-                ),
-              },
-              {
-                key: 'amountCents',
-                title: TRANSLATION_MAP.amountHeader,
-                textAlign: 'right',
-                minWidth: 100,
-                content: (row) => {
-                  const currencyDisplay = locale ? 'narrowSymbol' : 'symbol'
+                {
+                  key: 'units',
+                  title: TRANSLATION_MAP.unitsHeader,
+                  textAlign: 'right',
+                  minWidth: 70,
+                  content: (row) => (
+                    <Typography variant="body" color="grey700">
+                      {(row as MixedCharge)?.[unitsKey]}
+                    </Typography>
+                  ),
+                },
+                {
+                  key: 'amountCents',
+                  title: TRANSLATION_MAP.amountHeader,
+                  textAlign: 'right',
+                  minWidth: 100,
+                  content: (row) => {
+                    const currencyDisplay = locale ? 'narrowSymbol' : 'symbol'
 
-                  return (
-                    <div className="flex flex-col">
-                      <Typography variant="bodyHl" color="grey700">
-                        {intlFormatNumber(
-                          deserializeAmount(
-                            getPricingUnitAmountCents(row, showProjected) || 0,
-                            currency,
-                          ),
-                          {
-                            currency,
-                            locale,
-                            currencyDisplay,
-                            pricingUnitShortName:
-                              row.charge.appliedPricingUnit?.pricingUnit?.shortName,
-                          },
-                        )}
-                      </Typography>
-
-                      {!!row.charge.appliedPricingUnit && (
-                        <Typography variant="caption" color="grey600">
+                    return (
+                      <div className="flex flex-col">
+                        <Typography variant="bodyHl" color="grey700">
                           {intlFormatNumber(
                             deserializeAmount(
-                              (row as MixedCharge)?.[amountCentsKey] || 0,
+                              getPricingUnitAmountCents(row, showProjected) || 0,
                               currency,
                             ),
                             {
                               currency,
                               locale,
                               currencyDisplay,
+                              pricingUnitShortName:
+                                row.charge.appliedPricingUnit?.pricingUnit?.shortName,
                             },
                           )}
                         </Typography>
-                      )}
-                    </div>
-                  )
+
+                        {!!row.charge.appliedPricingUnit && (
+                          <Typography variant="caption" color="grey600">
+                            {intlFormatNumber(
+                              deserializeAmount(
+                                (row as MixedCharge)?.[amountCentsKey] || 0,
+                                currency,
+                              ),
+                              {
+                                currency,
+                                locale,
+                                currencyDisplay,
+                              },
+                            )}
+                          </Typography>
+                        )}
+                      </div>
+                    )
+                  },
                 },
-              },
-            ]}
-          />
-        </>
-      )}
+              ]}
+            />
+          </>
+        )}
 
       <SubscriptionUsageDetailDrawer
         ref={subscriptionUsageDetailDrawerRef}

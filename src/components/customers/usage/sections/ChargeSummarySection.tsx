@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react'
+
 import { AmountCentsCell } from '~/components/customers/usage/sections/AmountCentsCell'
 import { BreakdownNameCell } from '~/components/customers/usage/sections/BreakdownNameCell'
 import {
@@ -83,13 +85,54 @@ export const ChargeSummarySection = ({
     ? [chargeSummaryRow]
     : [chargeSummaryRow, ...breakdownRows]
 
+  // Measure the parent Table's actual rendered column widths and propagate
+  // them to the virtualized breakdown rows so the units / amount slots line
+  // up regardless of column auto-sizing (e.g. wider header text on the
+  // Projected tab: "Projected units" pushes the column past its 70px
+  // minWidth). Hardcoded pixel widths are too fragile here.
+  const tableContainerRef = useRef<HTMLDivElement>(null)
+  const [virtualRowColumnWidths, setVirtualRowColumnWidths] = useState<{
+    units?: number
+    amount?: number
+  }>({})
+
+  useEffect(() => {
+    if (!shouldVirtualizeBreakdowns) return
+
+    const container = tableContainerRef.current
+
+    if (!container) return
+
+    const measure = () => {
+      // The design-system Table renders header cells with `.lago-table-cell`
+      // inside `<thead>`. The column ORDER in `columns={[...]}` above is
+      // [name, units, amount], so we grab indices 1 and 2.
+      const headerCells = container.querySelectorAll<HTMLElement>('thead .lago-table-cell')
+
+      if (headerCells.length < 3) return
+
+      setVirtualRowColumnWidths({
+        units: headerCells[1].getBoundingClientRect().width,
+        amount: headerCells[2].getBoundingClientRect().width,
+      })
+    }
+
+    measure()
+
+    const observer = new ResizeObserver(measure)
+
+    observer.observe(container)
+
+    return () => observer.disconnect()
+  }, [shouldVirtualizeBreakdowns, showProjected, unitsHeader, amountHeader])
+
   return (
     <section className="mt-12 flex flex-col gap-4">
       <Typography variant="subhead1" color="grey700">
         {translate('text_1778680248317x4cg78xappu')}
       </Typography>
 
-      <div>
+      <div ref={tableContainerRef}>
         <Table
           name="charge-summary-table"
           containerSize={0}
@@ -178,7 +221,13 @@ export const ChargeSummarySection = ({
           ]}
         />
 
-        {shouldVirtualizeBreakdowns && <VirtualizedBreakdownRows rows={breakdownRows} />}
+        {shouldVirtualizeBreakdowns && (
+          <VirtualizedBreakdownRows
+            rows={breakdownRows}
+            unitsColumnWidth={virtualRowColumnWidths.units}
+            amountColumnWidth={virtualRowColumnWidths.amount}
+          />
+        )}
       </div>
     </section>
   )

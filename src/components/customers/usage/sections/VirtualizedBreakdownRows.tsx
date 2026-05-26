@@ -9,11 +9,28 @@ export const VIRTUALIZATION_THRESHOLD = 50
 const BREAKDOWN_ROW_HEIGHT = 48
 const MAX_VIRTUAL_LIST_HEIGHT = 216
 
+// Width of the indicator (in px) used by the parent design-system Table to
+// pad the inner cell. We mirror it on the units slot so the right edge of the
+// units text matches the parent table's right-aligned units column.
+// See `src/components/designSystem/Table/Table.tsx` (`PADDING_SPACING_RIGHT_PX`).
+const TABLE_INNER_CELL_RIGHT_PADDING_PX = 32
+
 type VirtualizedBreakdownRowsProps = {
   rows: PresentationBreakdownRow[]
+  // Measured widths of the parent Table's columns at runtime — passed down by
+  // the parent (`ChargeSummarySection`) which queries the live header cells
+  // via ResizeObserver. Passing them in keeps the virtualized rows aligned
+  // even when column widths change (e.g. longer header text on the Projected
+  // tab). When undefined, sensible fallbacks are used.
+  unitsColumnWidth?: number
+  amountColumnWidth?: number
 }
 
-export const VirtualizedBreakdownRows = ({ rows }: VirtualizedBreakdownRowsProps) => {
+export const VirtualizedBreakdownRows = ({
+  rows,
+  unitsColumnWidth,
+  amountColumnWidth,
+}: VirtualizedBreakdownRowsProps) => {
   const parentRef = useRef<HTMLDivElement>(null)
 
   const rowVirtualizer = useVirtualizer({
@@ -37,7 +54,7 @@ export const VirtualizedBreakdownRows = ({ rows }: VirtualizedBreakdownRowsProps
               key={row.id}
               ref={rowVirtualizer.measureElement}
               data-index={virtualRow.index}
-              className="flex w-full items-center justify-between border-b border-grey-200 px-4 py-3"
+              className="flex w-full items-center border-b border-grey-200 py-3"
               style={{
                 position: 'absolute',
                 top: 0,
@@ -46,10 +63,25 @@ export const VirtualizedBreakdownRows = ({ rows }: VirtualizedBreakdownRowsProps
                 transform: `translateY(${virtualRow.start}px)`,
               }}
             >
-              <BreakdownNameCell presentationBy={row.presentationBy} />
-              <Typography variant="body" color="grey600" className="shrink-0 pl-4">
-                {row.breakdownUnits}
-              </Typography>
+              <div className="min-w-0 flex-1">
+                <BreakdownNameCell presentationBy={row.presentationBy} />
+              </div>
+              <div
+                className="shrink-0 text-right"
+                style={{
+                  width: unitsColumnWidth,
+                  paddingRight: TABLE_INNER_CELL_RIGHT_PADDING_PX,
+                  boxSizing: 'border-box',
+                }}
+              >
+                <Typography variant="body" color="grey600">
+                  {row.breakdownUnits}
+                </Typography>
+              </div>
+              {/* Empty amount slot — reserves the same width as the parent
+                  Table's amount column so the units column lines up. The
+                  width is measured from the live parent table at render time. */}
+              <div className="shrink-0" style={{ width: amountColumnWidth }} />
             </div>
           )
         })}

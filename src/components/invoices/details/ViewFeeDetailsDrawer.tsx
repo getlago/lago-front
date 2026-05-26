@@ -190,12 +190,14 @@ const OverviewContent = ({ fee, showParentIdRow }: OverviewContentProps) => {
         <div className={tw(GRID)}>
           <DetailRow
             label={translate('text_1778485363573m3z3vhkli9m')}
-            value={<TypographyWithCopy>{fee.id}</TypographyWithCopy>}
+            value={<TypographyWithCopy color="grey700">{fee.id}</TypographyWithCopy>}
           />
           {showParentIdRow && !!fee.trueUpParentFee?.id && (
             <DetailRow
               label={translate('text_1778485363573omt0phjqyjf')}
-              value={<TypographyWithCopy>{fee.trueUpParentFee.id}</TypographyWithCopy>}
+              value={
+                <TypographyWithCopy color="grey700">{fee.trueUpParentFee.id}</TypographyWithCopy>
+              }
             />
           )}
           <DetailRow
@@ -280,7 +282,7 @@ const OverviewContent = ({ fee, showParentIdRow }: OverviewContentProps) => {
           <DetailRow label={translate('text_1778485363574w7zyl8tilba')} value={fee.feeType} />
           <DetailRow
             label={translate('text_1778485363574dygtpz792rx')}
-            value={<TypographyWithCopy>{fee.itemCode}</TypographyWithCopy>}
+            value={<TypographyWithCopy color="grey700">{fee.itemCode}</TypographyWithCopy>}
           />
           <DetailRow label={translate('text_177848536357404anic3s604')} value={fee.itemName} />
           {!!fee.invoiceDisplayName && (
@@ -293,7 +295,7 @@ const OverviewContent = ({ fee, showParentIdRow }: OverviewContentProps) => {
           {sourceItemId !== '-' && (
             <DetailRow
               label={translate('text_17784853635746778oyfl0yh')}
-              value={<TypographyWithCopy>{sourceItemId}</TypographyWithCopy>}
+              value={<TypographyWithCopy color="grey700">{sourceItemId}</TypographyWithCopy>}
             />
           )}
         </div>
@@ -362,6 +364,7 @@ const PresentationGroupKeyTable = ({ fee }: PresentationGroupKeyTableProps) => {
         name={VIEW_FEE_DETAILS_PGK_TABLE_TEST_ID}
         data={rows}
         containerSize={0}
+        rowSize={72}
         columns={[
           {
             key: 'id',
@@ -383,13 +386,14 @@ const PresentationGroupKeyTable = ({ fee }: PresentationGroupKeyTableProps) => {
           },
           {
             key: 'units',
+            textAlign: 'right',
             title: (
-              <Typography variant="captionHl" color="grey600">
+              <Typography className="pr-1" variant="captionHl" color="grey600">
                 {translate('text_1778485363573rg5koelt3xl')}
               </Typography>
             ),
             content: ({ units }) => (
-              <Typography variant="body" color="grey700">
+              <Typography className="pr-1" variant="body" color="grey700">
                 {units}
               </Typography>
             ),
