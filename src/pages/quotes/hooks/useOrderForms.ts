@@ -23,6 +23,7 @@ gql`
       currentVersion {
         id
         version
+        content
       }
     }
   }

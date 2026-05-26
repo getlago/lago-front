@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react'
+import { renderHook } from '@testing-library/react'
 
 import { OrderFormListItemFragment, OrderFormStatusEnum } from '~/generated/graphql'
 import { testMockNavigateFn } from '~/test-utils'
@@ -19,13 +19,6 @@ jest.mock('~/hooks/usePermissions', () => ({
   }),
 }))
 
-const mockGetQuote = jest.fn()
-
-jest.mock('~/generated/graphql', () => ({
-  ...jest.requireActual('~/generated/graphql'),
-  useGetQuoteLazyQuery: () => [mockGetQuote, { loading: false }],
-}))
-
 jest.mock('~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf', () => ({
   downloadMarkdownPdf: jest.fn(),
 }))
@@ -38,7 +31,11 @@ const createMockOrderForm = (
   status: OrderFormStatusEnum.Generated,
   createdAt: '2026-04-10T10:00:00Z',
   customer: { id: 'customer-001', name: 'Acme Corp' },
-  quote: { id: 'q-1', number: 'QUO-001', currentVersion: { id: 'qv-1', version: 1 } },
+  quote: {
+    id: 'q-1',
+    number: 'QUO-001',
+    currentVersion: { id: 'qv-1', version: 1, content: '# Hello World' },
+  },
   ...overrides,
 })
 
@@ -116,6 +113,25 @@ describe('useOrderFormActions', () => {
     })
   })
 
+  describe('GIVEN an order form whose quote has no content', () => {
+    describe('WHEN getActions is called', () => {
+      it('THEN should not include the download action', () => {
+        const { result } = renderHook(() => useOrderFormActions())
+        const actions = result.current.getActions(
+          createMockOrderForm({
+            quote: {
+              id: 'q-1',
+              number: 'QUO-001',
+              currentVersion: { id: 'qv-1', version: 1, content: null },
+            },
+          }),
+        )
+
+        expect(actions.find((a) => a.icon === 'download')).toBeUndefined()
+      })
+    })
+  })
+
   describe('GIVEN the void action', () => {
     describe('WHEN triggered', () => {
       it('THEN should navigate to the void order form route', () => {
@@ -131,58 +147,19 @@ describe('useOrderFormActions', () => {
   })
 
   describe('GIVEN the download action', () => {
-    describe('WHEN triggered and quote content is fetched successfully', () => {
-      it('THEN should call downloadMarkdownPdf with the content', async () => {
+    describe('WHEN triggered', () => {
+      it('THEN should call downloadMarkdownPdf with the content from the fragment', () => {
         const { downloadMarkdownPdf } = jest.requireMock(
           '~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf',
         )
-
-        mockGetQuote.mockResolvedValueOnce({
-          data: {
-            quote: {
-              id: 'q-1',
-              currentVersion: { content: '# Hello World' },
-            },
-          },
-        })
 
         const { result } = renderHook(() => useOrderFormActions())
         const actions = result.current.getActions(createMockOrderForm())
         const downloadAction = actions.find((a) => a.icon === 'download')
 
-        await act(async () => {
-          await downloadAction?.onAction()
-        })
+        downloadAction?.onAction()
 
-        expect(mockGetQuote).toHaveBeenCalledWith({ variables: { id: 'q-1' } })
         expect(downloadMarkdownPdf).toHaveBeenCalledWith({ markdown: '# Hello World' })
-      })
-    })
-
-    describe('WHEN triggered but quote has no content', () => {
-      it('THEN should not call downloadMarkdownPdf', async () => {
-        const { downloadMarkdownPdf } = jest.requireMock(
-          '~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf',
-        )
-
-        mockGetQuote.mockResolvedValueOnce({
-          data: {
-            quote: {
-              id: 'q-1',
-              currentVersion: { content: null },
-            },
-          },
-        })
-
-        const { result } = renderHook(() => useOrderFormActions())
-        const actions = result.current.getActions(createMockOrderForm())
-        const downloadAction = actions.find((a) => a.icon === 'download')
-
-        await act(async () => {
-          await downloadAction?.onAction()
-        })
-
-        expect(downloadMarkdownPdf).not.toHaveBeenCalled()
       })
     })
   })
