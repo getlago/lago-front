@@ -2187,7 +2187,7 @@
   "text_1725983967306qz0npfuhlo1": "Refresh this section",
   "text_1725983967306dtwnapp4mw9": "Charge name",
   "text_1725983967306cei92rkdtvb": "Usage",
-  "text_1726044816685r61awuydvji": "Close details",
+  "text_1726044816685r61awuydvji": "Close",
   "text_1726481163322ntor50xdm8k": "Lifetime usage",
   "text_1726481163322vbcsvivii5k": "Total usage since the subscription start date, excluding paid in advance charges.",
   "text_17264811633225nhatoh524y": "There is no defined lifetime usage for this subscription. Feel free to <a href=\"{{planLink}}\">edit the plan details</a> or <a href=\"{{subscriptionLink}}\">update this subscription</a> as needed.",
@@ -4246,5 +4246,6 @@
   "text_1778841363033djjc5c8dsvx": "Current billing period",
   "text_17788413630335ar3zl10prt": "Usage so far",
   "text_17788413630339w2go4tbxga": "Projected end of period",
-  "text_17791906642738j2tip131uw": "This value is already used"
+  "text_17791906642738j2tip131uw": "This value is already used",
+  "text_1779790016087nsol47cwuwg": "Filters"
 }
