@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { useRef } from 'react'
 
 import { Chip } from '~/components/designSystem/Chip'
@@ -14,34 +13,39 @@ import { getIntervalTranslationKey } from '~/core/constants/form'
 import { PlanDetailsV2Fragment, PlanForUpdateWithCascadeFragmentDoc } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useUpdatePlanWithCascade } from '~/hooks/plans/useUpdatePlanWithCascade'
+import { usePermissions } from '~/hooks/usePermissions'
 
 import { SectionAccordion } from './shared/SectionAccordion'
-import { SectionHeader } from './shared/SectionHeader'
 import { PlanDetailsV2SectionId } from './sidebarSections'
 
 gql`
-  fragment PlanForDetailsV2SubscriptionFeeSection on Plan {
+  fragment PlanForDetailsV2SubscriptionFeeAccordion on Plan {
     amountCents
     payInAdvance
     trialPeriod
     invoiceDisplayName
+    interval
+    amountCurrency
     ...PlanForUpdateWithCascade
   }
 
   ${PlanForUpdateWithCascadeFragmentDoc}
 `
 
-type PlanDetailsV2SubscriptionFeeSectionProps = {
+type SubscriptionFeeAccordionProps = {
   plan: PlanDetailsV2Fragment
   isInSubscriptionForm?: boolean
 }
 
-export const PlanDetailsV2SubscriptionFeeSection = ({
+export const SubscriptionFeeAccordion = ({
   plan,
   isInSubscriptionForm = false,
-}: PlanDetailsV2SubscriptionFeeSectionProps) => {
+}: SubscriptionFeeAccordionProps) => {
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
   const drawerRef = useRef<SubscriptionFeeDrawerRef>(null)
+
+  const canUpdate = hasPermissions(['plansUpdate']) && !isInSubscriptionForm
 
   const { form, submit } = useUpdatePlanWithCascade({ plan })
 
@@ -68,13 +72,9 @@ export const PlanDetailsV2SubscriptionFeeSection = ({
   ) : undefined
 
   return (
-    <section
-      id={PlanDetailsV2SectionId.SubscriptionFee}
-      className="flex scroll-mt-12 flex-col gap-6"
-    >
-      <SectionHeader title={translate('text_642d5eb2783a2ad10d670336')} />
+    <>
       <SectionAccordion
-        icon={<Icon name="file" size="small" color="dark" />}
+        id={PlanDetailsV2SectionId.SubscriptionFee}
         title={plan.invoiceDisplayName || translate('text_642d5eb2783a2ad10d670336')}
         badge={intervalBadge}
         initiallyOpen
@@ -82,7 +82,7 @@ export const PlanDetailsV2SubscriptionFeeSection = ({
           {
             label: translate('text_63e51ef4985f0ebd75c212fc'),
             onClick: openDrawer,
-            hidden: isInSubscriptionForm,
+            hidden: !canUpdate,
           },
         ]}
       >
@@ -92,6 +92,6 @@ export const PlanDetailsV2SubscriptionFeeSection = ({
       <PlanFormProvider currency={plan.amountCurrency} interval={plan.interval}>
         <SubscriptionFeeDrawer ref={drawerRef} onSave={handleDrawerSave} isEdition />
       </PlanFormProvider>
-    </section>
+    </>
   )
 }

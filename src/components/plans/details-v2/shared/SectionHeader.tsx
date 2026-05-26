@@ -31,7 +31,7 @@ export const SectionHeader = ({ title, description, action }: SectionHeaderProps
       </div>
       {showAction && (
         <Button
-          variant="quaternary"
+          variant="inline"
           onClick={action.onClick}
           disabled={action.disabled}
           startIcon="plus"

@@ -30,6 +30,19 @@ jest.mock('~/components/plans/drawers/planSettings/PlanSettingsDrawer', () => {
   return { __esModule: true, PlanSettingsDrawer }
 })
 
+jest.mock('../SubscriptionFeeAccordion', () => ({
+  __esModule: true,
+  SubscriptionFeeAccordion: () => null,
+}))
+
+const mockHasPermissions = jest.fn((perms?: string[]) => {
+  if (!perms) return true
+  return !perms.includes('none')
+})
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
@@ -46,6 +59,7 @@ describe('PlanDetailsV2PlanSettingsSection', () => {
   beforeEach(() => {
     mockOpenDrawer.mockClear()
     mockCloseDrawer.mockClear()
+    mockHasPermissions.mockReset().mockReturnValue(true)
   })
 
   it('renders the section header and accordion summary', () => {
@@ -81,6 +95,15 @@ describe('PlanDetailsV2PlanSettingsSection', () => {
     render(<PlanDetailsV2PlanSettingsSection plan={planDetailsV2Fixture} isInSubscriptionForm />, {
       wrapper: Wrapper,
     })
+
+    expect(screen.queryByRole('button', { name: /actions/i })).not.toBeInTheDocument()
+  })
+
+  it('hides the Edit action when plansUpdate permission is missing', () => {
+    mockHasPermissions.mockImplementation(
+      ((perms: string[]) => !perms.includes('plansUpdate')) as never,
+    )
+    render(<PlanDetailsV2PlanSettingsSection plan={planDetailsV2Fixture} />, { wrapper: Wrapper })
 
     expect(screen.queryByRole('button', { name: /actions/i })).not.toBeInTheDocument()
   })

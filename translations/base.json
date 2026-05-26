@@ -4178,5 +4178,9 @@
   "text_1779289915866vguw0lfmz06": "Progressive billing",
   "text_1779289915866mr56w61hhi5": "Entitlements",
   "text_1779289915866s3gisblcite": "Apply changes to all overridden subscriptions of this plan",
-  "text_1779289915866itrqeyj7658": "When enabled, edits cascade to every subscription that overrides this plan."
+  "text_1779289915866itrqeyj7658": "When enabled, edits cascade to every subscription that overrides this plan.",
+  "text_1779477955768bq18jsqhaom": "No fixed charges have been added yet",
+  "text_17794779557685zdm1q8ll85": "Fixed charge added to the plan",
+  "text_1779477955768pjf35u2m3ac": "Fixed charge updated",
+  "text_1779477955768h3bx1xogeeu": "Fixed charge deleted"
 }

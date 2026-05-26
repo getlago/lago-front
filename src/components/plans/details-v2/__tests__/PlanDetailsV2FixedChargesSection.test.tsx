@@ -1,0 +1,210 @@
+import { MockedProvider } from '@apollo/client/testing'
+import NiceModal from '@ebay/nice-modal-react'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { createRef, ReactNode } from 'react'
+
+import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
+import FormDialog from '~/components/dialogs/FormDialog'
+
+import { buildFixedChargeFixture, planDetailsV2Fixture } from './fixtures'
+
+import {
+  PlanDetailsV2FixedChargesSection,
+  PlanDetailsV2FixedChargesSectionRef,
+} from '../PlanDetailsV2FixedChargesSection'
+
+NiceModal.register(FORM_DIALOG_NAME, FormDialog)
+
+const mockOpenDrawer = jest.fn()
+const mockCloseDrawer = jest.fn()
+
+jest.mock('~/components/plans/drawers/fixedCharge/FixedChargeDrawer', () => {
+  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
+
+  const FixedChargeDrawer = forwardRef((_props: unknown, ref: unknown) => {
+    useImperativeHandle(ref, () => ({ openDrawer: mockOpenDrawer, closeDrawer: mockCloseDrawer }))
+    return null
+  })
+
+  return { __esModule: true, FixedChargeDrawer }
+})
+
+const mockHandleSaveCharge = jest.fn()
+const mockHandleDeleteCharge = jest.fn()
+
+jest.mock('~/hooks/plans/useFixedChargeMutationsWithCascade', () => ({
+  useFixedChargeMutationsWithCascade: () => ({
+    handleSaveCharge: mockHandleSaveCharge,
+    handleDeleteCharge: mockHandleDeleteCharge,
+  }),
+}))
+
+const mockHasPermissions = jest.fn((perms?: string[]) => {
+  if (!perms) return true
+  return !perms.includes('none')
+})
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({ translate: (k: string) => k }),
+}))
+
+const Wrapper = ({ children }: { children: ReactNode }) => (
+  <MockedProvider mocks={[]} addTypename={false}>
+    <NiceModal.Provider>{children}</NiceModal.Provider>
+  </MockedProvider>
+)
+
+describe('PlanDetailsV2FixedChargesSection', () => {
+  beforeEach(() => {
+    mockOpenDrawer.mockClear()
+    mockCloseDrawer.mockClear()
+    mockHandleSaveCharge.mockClear()
+    mockHandleDeleteCharge.mockClear()
+    mockHasPermissions.mockReset().mockReturnValue(true)
+  })
+
+  it('renders the empty-state helper when plan has no fixed charges', () => {
+    render(<PlanDetailsV2FixedChargesSection plan={planDetailsV2Fixture} />, { wrapper: Wrapper })
+
+    // Section header
+    expect(screen.getByText('text_1779289915866aj39dyv1wps')).toBeInTheDocument()
+    // Empty state
+    expect(screen.getByText('text_1779477955768bq18jsqhaom')).toBeInTheDocument()
+  })
+
+  it('renders an accordion per fixed charge with name + code', () => {
+    const plan = {
+      ...planDetailsV2Fixture,
+      fixedCharges: [
+        buildFixedChargeFixture({ id: 'fc_1' }),
+        buildFixedChargeFixture({
+          id: 'fc_2',
+          addOn: { __typename: 'AddOn', id: 'a2', name: 'Migration', code: 'migration' },
+        }),
+      ],
+    }
+
+    render(<PlanDetailsV2FixedChargesSection plan={plan} />, { wrapper: Wrapper })
+
+    expect(screen.getByText('Onboarding')).toBeInTheDocument()
+    expect(screen.getByText('Migration')).toBeInTheDocument()
+    expect(screen.queryByText('text_1779477955768bq18jsqhaom')).not.toBeInTheDocument()
+  })
+
+  it('opens drawer with no args when Add CTA is clicked', async () => {
+    render(<PlanDetailsV2FixedChargesSection plan={planDetailsV2Fixture} />, { wrapper: Wrapper })
+
+    await userEvent.click(await screen.findByText('text_176072970726882uau5y69f1'))
+
+    await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledWith())
+  })
+
+  it('opens drawer with current values when Edit is clicked on a charge', async () => {
+    const plan = {
+      ...planDetailsV2Fixture,
+      fixedCharges: [buildFixedChargeFixture({ id: 'fc_1' })],
+    }
+
+    render(<PlanDetailsV2FixedChargesSection plan={plan} />, { wrapper: Wrapper })
+
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }),
+    )
+
+    await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
+    const [chargeArg, indexArg] = mockOpenDrawer.mock.calls[0]
+    expect(chargeArg.id).toBe('fc_1')
+    expect(indexArg).toBe(0)
+  })
+
+  it('calls handleDeleteCharge when Delete is clicked', async () => {
+    const plan = {
+      ...planDetailsV2Fixture,
+      fixedCharges: [buildFixedChargeFixture({ id: 'fc_to_delete' })],
+    }
+
+    render(<PlanDetailsV2FixedChargesSection plan={plan} />, { wrapper: Wrapper })
+
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'text_63ea0f84f400488553caa786' }),
+    )
+
+    expect(mockHandleDeleteCharge).toHaveBeenCalledWith('fc_to_delete')
+  })
+
+  // Drift test: lock in the Add CTA in plan mode so a future refactor can't drop it.
+  it('keeps Add CTA visible when isInSubscriptionForm is false', () => {
+    render(<PlanDetailsV2FixedChargesSection plan={planDetailsV2Fixture} />, { wrapper: Wrapper })
+
+    expect(screen.getByText('text_176072970726882uau5y69f1')).toBeInTheDocument()
+  })
+
+  it('hides the Add CTA when isInSubscriptionForm is true', () => {
+    render(<PlanDetailsV2FixedChargesSection plan={planDetailsV2Fixture} isInSubscriptionForm />, {
+      wrapper: Wrapper,
+    })
+
+    expect(screen.queryByText('text_176072970726882uau5y69f1')).not.toBeInTheDocument()
+  })
+
+  it('hides Edit + Delete actions when isInSubscriptionForm is true', async () => {
+    const plan = {
+      ...planDetailsV2Fixture,
+      fixedCharges: [buildFixedChargeFixture({ id: 'fc_sub' })],
+    }
+
+    render(<PlanDetailsV2FixedChargesSection plan={plan} isInSubscriptionForm />, {
+      wrapper: Wrapper,
+    })
+
+    // No actions menu trigger renders when both Edit and Delete are hidden.
+    expect(screen.queryByRole('button', { name: /actions/i })).not.toBeInTheDocument()
+  })
+
+  it('hides Delete when plansDelete permission is missing', async () => {
+    mockHasPermissions.mockImplementation(
+      ((perms: string[]) => !perms.includes('plansDelete')) as any,
+    )
+    const plan = {
+      ...planDetailsV2Fixture,
+      fixedCharges: [buildFixedChargeFixture({ id: 'fc_no_perm' })],
+    }
+
+    render(<PlanDetailsV2FixedChargesSection plan={plan} />, { wrapper: Wrapper })
+
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    expect(screen.queryByText('text_63ea0f84f400488553caa786')).not.toBeInTheDocument()
+  })
+
+  it('hides Edit when plansUpdate permission is missing', async () => {
+    mockHasPermissions.mockImplementation(
+      ((perms: string[]) => !perms.includes('plansUpdate')) as any,
+    )
+    const plan = {
+      ...planDetailsV2Fixture,
+      fixedCharges: [buildFixedChargeFixture({ id: 'fc_no_update' })],
+    }
+
+    render(<PlanDetailsV2FixedChargesSection plan={plan} />, { wrapper: Wrapper })
+
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    expect(screen.queryByText('text_63e51ef4985f0ebd75c212fc')).not.toBeInTheDocument()
+  })
+
+  it('exposes openCreate via ref', async () => {
+    const ref = createRef<PlanDetailsV2FixedChargesSectionRef>()
+
+    render(<PlanDetailsV2FixedChargesSection ref={ref} plan={planDetailsV2Fixture} />, {
+      wrapper: Wrapper,
+    })
+
+    ref.current?.openCreate()
+    await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
+  })
+})
