@@ -17,6 +17,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useUpdatePlanWithCascade } from '~/hooks/plans/useUpdatePlanWithCascade'
+import { usePermissions } from '~/hooks/usePermissions'
 
 import { SectionAccordion } from './shared/SectionAccordion'
 import { PlanDetailsV2SectionId } from './sidebarSections'
@@ -45,7 +46,10 @@ export const SubscriptionFeeAccordion = ({
   isInSubscriptionForm = false,
 }: SubscriptionFeeAccordionProps) => {
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
   const drawerRef = useRef<SubscriptionFeeDrawerRef>(null)
+
+  const canUpdate = hasPermissions(['plansUpdate']) && !isInSubscriptionForm
 
   const { form, submit } = useUpdatePlanWithCascade({ plan })
 
@@ -82,7 +86,7 @@ export const SubscriptionFeeAccordion = ({
           {
             label: translate('text_63e51ef4985f0ebd75c212fc'),
             onClick: openDrawer,
-            hidden: isInSubscriptionForm,
+            hidden: !canUpdate,
           },
         ]}
       >

@@ -107,6 +107,7 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
   const drawerRef = useRef<FixedChargeDrawerRef>(null)
 
   const canCreate = hasPermissions(['plansCreate']) && !isInSubscriptionForm
+  const canUpdate = hasPermissions(['plansUpdate']) && !isInSubscriptionForm
   const canDelete = hasPermissions(['plansDelete']) && !isInSubscriptionForm
 
   const { handleSaveCharge, handleDeleteCharge } = useFixedChargeMutationsWithCascade({
@@ -153,7 +154,7 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
               onClick: () => openEdit(toLocalInput(fixedCharge), index),
-              hidden: isInSubscriptionForm,
+              hidden: !canUpdate,
             },
             {
               label: translate('text_63ea0f84f400488553caa786'),

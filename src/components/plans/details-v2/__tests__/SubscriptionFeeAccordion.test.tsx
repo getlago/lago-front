@@ -38,6 +38,14 @@ jest.mock('~/hooks/plans/useUpdatePlanWithCascade', () => ({
   }),
 }))
 
+const mockHasPermissions = jest.fn((perms?: string[]) => {
+  if (!perms) return true
+  return !perms.includes('none')
+})
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
@@ -54,6 +62,7 @@ describe('SubscriptionFeeAccordion', () => {
     mockCloseDrawer.mockClear()
     mockSetFieldValue.mockClear()
     mockSubmit.mockClear()
+    mockHasPermissions.mockReset().mockReturnValue(true)
   })
 
   it('renders the section anchor with the subscription-fee id', () => {
@@ -152,6 +161,15 @@ describe('SubscriptionFeeAccordion', () => {
     render(<SubscriptionFeeAccordion plan={planDetailsV2Fixture} isInSubscriptionForm />, {
       wrapper: Wrapper,
     })
+
+    expect(screen.queryByRole('button', { name: /actions/i })).not.toBeInTheDocument()
+  })
+
+  it('hides the Edit action when plansUpdate permission is missing', () => {
+    mockHasPermissions.mockImplementation(
+      ((perms: string[]) => !perms.includes('plansUpdate')) as never,
+    )
+    render(<SubscriptionFeeAccordion plan={planDetailsV2Fixture} />, { wrapper: Wrapper })
 
     expect(screen.queryByRole('button', { name: /actions/i })).not.toBeInTheDocument()
   })

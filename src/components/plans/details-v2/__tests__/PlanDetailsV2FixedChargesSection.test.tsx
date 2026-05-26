@@ -182,6 +182,21 @@ describe('PlanDetailsV2FixedChargesSection', () => {
     expect(screen.queryByText('text_63ea0f84f400488553caa786')).not.toBeInTheDocument()
   })
 
+  it('hides Edit when plansUpdate permission is missing', async () => {
+    mockHasPermissions.mockImplementation(
+      ((perms: string[]) => !perms.includes('plansUpdate')) as any,
+    )
+    const plan = {
+      ...planDetailsV2Fixture,
+      fixedCharges: [buildFixedChargeFixture({ id: 'fc_no_update' })],
+    }
+
+    render(<PlanDetailsV2FixedChargesSection plan={plan} />, { wrapper: Wrapper })
+
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    expect(screen.queryByText('text_63e51ef4985f0ebd75c212fc')).not.toBeInTheDocument()
+  })
+
   it('exposes openCreate via ref', async () => {
     const ref = createRef<PlanDetailsV2FixedChargesSectionRef>()
 
