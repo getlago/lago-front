@@ -3,9 +3,13 @@ import { revalidateLogic } from '@tanstack/react-form'
 
 import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
 import { PlanFormInput } from '~/components/plans/types'
-import { serializePlanInput } from '~/core/serializers'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { planSettingsOnlyFormSchema } from '~/formValidation/planFormSchema'
-import { PlanDetailsV2Fragment, TaxForPlanSettingsSectionFragmentDoc } from '~/generated/graphql'
+import {
+  PlanDetailsV2Fragment,
+  TaxForPlanSettingsSectionFragmentDoc,
+  UpdatePlanInput,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { usePlanUpdate } from '~/hooks/plans/usePlanUpdate'
@@ -79,15 +83,27 @@ export const useUpdatePlanWithCascade = ({ plan, onSuccess }: UseUpdatePlanWithC
     validationLogic: revalidateLogic(),
     validators: { onDynamic: planSettingsOnlyFormSchema },
     onSubmit: async ({ value }) => {
-      // Settings-only flow: charges + fixedCharges are now optional in
-      // UpdatePlanInput, so omit them from the payload entirely (BE preserves
-      // existing entries via partial-update semantics).
-      const serialized = serializePlanInput({ ...value, charges: [], fixedCharges: [] })
+      // Settings-only flow: charges + fixedCharges are now optional on
+      // UpdatePlanInput, so omit them from the payload entirely. BE preserves
+      // existing entries via partial-update semantics.
+      const input: UpdatePlanInput = {
+        id: plan.id,
+        name: value.name,
+        code: value.code,
+        description: value.description || undefined,
+        interval: value.interval,
+        amountCurrency: value.amountCurrency,
+        amountCents: Number(serializeAmount(value.amountCents, value.amountCurrency)),
+        payInAdvance: value.payInAdvance,
+        trialPeriod: Number(value.trialPeriod || 0),
+        invoiceDisplayName: value.invoiceDisplayName || undefined,
+        billChargesMonthly: value.billChargesMonthly,
+        billFixedChargesMonthly: value.billFixedChargesMonthly,
+        taxCodes: value.taxes?.map((tax) => tax.code) ?? [],
+        cascadeUpdates: value.cascadeUpdates,
+      }
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { charges, fixedCharges, ...settingsOnly } = serialized
-
-      await update({ variables: { input: { ...settingsOnly, id: plan.id } } })
+      await update({ variables: { input } })
     },
   })
 
