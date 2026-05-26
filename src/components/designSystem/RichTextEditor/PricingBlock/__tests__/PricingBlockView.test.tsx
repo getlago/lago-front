@@ -65,9 +65,7 @@ const renderPricingBlockView = ({
 
   return {
     ...render(
-      <RichTextEditorProvider
-        value={{ mode, mentionValues: {}, entities, onPricingCommand }}
-      >
+      <RichTextEditorProvider value={{ mode, mentionValues: {}, entities, onPricingCommand }}>
         <PricingBlockView {...nodeProps} />
       </RichTextEditorProvider>,
     ),

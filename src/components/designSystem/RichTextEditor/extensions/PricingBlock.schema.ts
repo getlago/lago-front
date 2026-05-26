@@ -109,11 +109,7 @@ export const PricingBlockSchema = Node.create({
           updateDOM(element: HTMLElement) {
             element.innerHTML = element.innerHTML.replaceAll(
               /<!--\s*entity:pricing:(plan|addOns):(.*?)\s*-->/g,
-              (
-                _match: string,
-                pricingType: string,
-                entityIds: string,
-              ) =>
+              (_match: string, pricingType: string, entityIds: string) =>
                 `<div data-type="pricing-block" data-pricing-type="${pricingType}" data-entity-ids="${entityIds}"></div>`,
             )
           },
@@ -145,8 +141,7 @@ export const PricingBlockSchema = Node.create({
     if (hasEntities && entityIds.length > 0) {
       const preview = getPricingBlockPreviewData(pricingType, entityIds, resolvedEntities)
       const bodyRows = preview.rows.map(
-        (row) =>
-          ['tr', {}, ['td', {}, row.nameValue], ['td', {}, row.codeValue]] as const,
+        (row) => ['tr', {}, ['td', {}, row.nameValue], ['td', {}, row.codeValue]] as const,
       )
 
       return wrapInBlockWrapper('pricingBlock', [
@@ -155,11 +150,7 @@ export const PricingBlockSchema = Node.create({
         [
           'table',
           { class: 'pricing-block__table' },
-          [
-            'thead',
-            {},
-            ['tr', {}, ['th', {}, preview.nameHeader], ['th', {}, preview.codeHeader]],
-          ],
+          ['thead', {}, ['tr', {}, ['th', {}, preview.nameHeader], ['th', {}, preview.codeHeader]]],
           ['tbody', {}, ...bodyRows],
         ],
       ])

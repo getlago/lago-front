@@ -14,9 +14,7 @@ export const PricingBlockView = ({ node, updateAttributes, selected }: NodeViewP
   const entityIds = (node.attrs.entityIds ?? []) as string[]
   const isEmpty = entityIds.length === 0
 
-  const resolvedEntities = entityIds
-    .map((id) => entities[id])
-    .filter(Boolean)
+  const resolvedEntities = entityIds.map((id) => entities[id]).filter(Boolean)
   const hasResolved = resolvedEntities.length > 0
 
   const handleClick = () => {
@@ -68,9 +66,7 @@ export const PricingBlockView = ({ node, updateAttributes, selected }: NodeViewP
 
   // Unresolved state: entityIds present but no matching entity data in context
   const fallbackText =
-    pricingType === 'plan'
-      ? `Plan: ${entityIds[0]}`
-      : `Add-ons: ${entityIds.join(', ')}`
+    pricingType === 'plan' ? `Plan: ${entityIds[0]}` : `Add-ons: ${entityIds.join(', ')}`
 
   return (
     <NodeViewWrapper className="spacer" data-type="pricingBlock">

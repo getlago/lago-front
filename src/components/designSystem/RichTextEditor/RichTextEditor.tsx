@@ -296,7 +296,7 @@ const RichTextEditor = ({
   return (
     <RichTextEditorProvider value={contextValue}>
       <div
-        className="rich-text-editor group/editor relative h-full max-h-screen w-full overflow-auto"
+        className="rich-text-editor group/editor relative size-full max-h-screen overflow-auto"
         data-test={RICH_TEXT_EDITOR_TEST_ID}
       >
         <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />

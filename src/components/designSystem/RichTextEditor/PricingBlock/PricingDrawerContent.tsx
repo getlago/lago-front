@@ -29,14 +29,13 @@ const PricingDrawerContent = withForm({
       skip: !isPlanSelection,
     })
 
-    const { data: addOnsData, loading: addOnsLoading } =
-      useGetAddOnsForFixedChargesSectionQuery({
-        variables: { limit: 100 },
-        notifyOnNetworkStatusChange: true,
-        fetchPolicy: 'network-only',
-        nextFetchPolicy: 'network-only',
-        skip: isPlanSelection,
-      })
+    const { data: addOnsData, loading: addOnsLoading } = useGetAddOnsForFixedChargesSectionQuery({
+      variables: { limit: 100 },
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'network-only',
+      nextFetchPolicy: 'network-only',
+      skip: isPlanSelection,
+    })
 
     if (isPlanSelection) {
       const comboBoxData = (plansData?.plans?.collection ?? []).map((plan) => ({

@@ -82,7 +82,6 @@ describe('SlashCommands', () => {
           'text_1774281559657cbz20fzcjka',
           'text_1774281559657yc3z031hm6x',
           'text_1774281559657l4kkx9ws4mz',
-          'text_1774369903715y1h6gjc2bmd',
         ])
       })
 
@@ -104,7 +103,7 @@ describe('SlashCommands', () => {
         }
 
         it('THEN should return all items for empty query', () => {
-          expect(filterItems('')).toHaveLength(7)
+          expect(filterItems('')).toHaveLength(6)
         })
 
         it('THEN should filter items by title case-insensitively', () => {
@@ -156,7 +155,6 @@ describe('SlashCommands', () => {
         ['Bullet List', 3],
         ['Table', 4],
         ['Code Block', 5],
-        ['Plan Block', 6],
       ])('WHEN "%s" command is called THEN should invoke editor chain', (_, index) => {
         const mockEditor = createMockEditor()
 

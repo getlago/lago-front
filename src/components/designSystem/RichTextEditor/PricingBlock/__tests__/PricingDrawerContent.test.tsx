@@ -107,10 +107,7 @@ describe('PricingDrawerContent', () => {
         })
 
         render(
-          <PricingDrawerContent
-            form={mockForm}
-            quoteType={OrderTypeEnum.SubscriptionCreation}
-          />,
+          <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.SubscriptionCreation} />,
         )
 
         const comboBox = screen.getByTestId(COMBO_BOX_FIELD_TEST_ID)
@@ -129,10 +126,7 @@ describe('PricingDrawerContent', () => {
         })
 
         render(
-          <PricingDrawerContent
-            form={mockForm}
-            quoteType={OrderTypeEnum.SubscriptionCreation}
-          />,
+          <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.SubscriptionCreation} />,
         )
 
         const comboBox = screen.getByTestId(COMBO_BOX_FIELD_TEST_ID)
@@ -149,10 +143,7 @@ describe('PricingDrawerContent', () => {
         })
 
         render(
-          <PricingDrawerContent
-            form={mockForm}
-            quoteType={OrderTypeEnum.SubscriptionCreation}
-          />,
+          <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.SubscriptionCreation} />,
         )
 
         const comboBox = screen.getByTestId(COMBO_BOX_FIELD_TEST_ID)
@@ -169,19 +160,14 @@ describe('PricingDrawerContent', () => {
         mockUsePlansQuery.mockReturnValue({
           data: {
             plans: {
-              collection: [
-                { id: 'plan-1', name: 'Starter', code: 'starter' },
-              ],
+              collection: [{ id: 'plan-1', name: 'Starter', code: 'starter' }],
             },
           },
           loading: false,
         })
 
         render(
-          <PricingDrawerContent
-            form={mockForm}
-            quoteType={OrderTypeEnum.SubscriptionAmendment}
-          />,
+          <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.SubscriptionAmendment} />,
         )
 
         const comboBox = screen.getByTestId(COMBO_BOX_FIELD_TEST_ID)
@@ -207,9 +193,7 @@ describe('PricingDrawerContent', () => {
           loading: false,
         })
 
-        render(
-          <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.OneOff} />,
-        )
+        render(<PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.OneOff} />)
 
         const multiComboBox = screen.getByTestId(MULTIPLE_COMBO_BOX_FIELD_TEST_ID)
 
@@ -226,9 +210,7 @@ describe('PricingDrawerContent', () => {
           loading: true,
         })
 
-        render(
-          <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.OneOff} />,
-        )
+        render(<PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.OneOff} />)
 
         const multiComboBox = screen.getByTestId(MULTIPLE_COMBO_BOX_FIELD_TEST_ID)
 
@@ -243,9 +225,7 @@ describe('PricingDrawerContent', () => {
           loading: false,
         })
 
-        render(
-          <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.OneOff} />,
-        )
+        render(<PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.OneOff} />)
 
         const multiComboBox = screen.getByTestId(MULTIPLE_COMBO_BOX_FIELD_TEST_ID)
 
@@ -263,10 +243,7 @@ describe('PricingDrawerContent', () => {
       })
 
       render(
-        <PricingDrawerContent
-          form={mockForm}
-          quoteType={OrderTypeEnum.SubscriptionCreation}
-        />,
+        <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.SubscriptionCreation} />,
       )
 
       expect(mockUsePlansQuery).toHaveBeenCalledWith(
@@ -286,9 +263,7 @@ describe('PricingDrawerContent', () => {
         loading: false,
       })
 
-      render(
-        <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.OneOff} />,
-      )
+      render(<PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.OneOff} />)
 
       expect(mockUsePlansQuery).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -303,9 +278,7 @@ describe('PricingDrawerContent', () => {
         loading: false,
       })
 
-      render(
-        <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.OneOff} />,
-      )
+      render(<PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.OneOff} />)
 
       expect(mockUseGetAddOnsForFixedChargesSectionQuery).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -325,10 +298,7 @@ describe('PricingDrawerContent', () => {
       })
 
       render(
-        <PricingDrawerContent
-          form={mockForm}
-          quoteType={OrderTypeEnum.SubscriptionCreation}
-        />,
+        <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.SubscriptionCreation} />,
       )
 
       expect(mockUseGetAddOnsForFixedChargesSectionQuery).toHaveBeenCalledWith(

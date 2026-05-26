@@ -146,7 +146,9 @@ describe('PricingBlock', () => {
         const storage = getStorage()
         const mockWrite = jest.fn()
         const mockCloseBlock = jest.fn()
-        const node = { attrs: { pricingType: 'addOns', entityIds: ['addon-1', 'addon-2', 'addon-3'] } }
+        const node = {
+          attrs: { pricingType: 'addOns', entityIds: ['addon-1', 'addon-2', 'addon-3'] },
+        }
 
         storage.markdown.serialize({ write: mockWrite, closeBlock: mockCloseBlock }, node)
 

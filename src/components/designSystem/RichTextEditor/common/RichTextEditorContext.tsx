@@ -1,7 +1,6 @@
 import { createContext, useContext } from 'react'
 
 import type { PricingBlockAttributes, PricingType } from '../extensions/PricingBlock.schema'
-
 import type { RichTextEditorMode } from '../RichTextEditor'
 
 export type EntityData = {
