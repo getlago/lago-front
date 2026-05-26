@@ -3,6 +3,7 @@ import { Editor, Range, ReactRenderer } from '@tiptap/react'
 import Suggestion, { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/suggestion'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
+import type { OnPricingCommand } from '../common/RichTextEditorContext'
 import { SlashMenu, type SlashMenuRef } from '../SlashMenu/SlashMenu'
 
 export interface SlashCommandItem {
@@ -49,20 +50,6 @@ export const slashCommandDefinitions: SlashCommandDefinition[] = [
     descriptionKey: 'text_1774281559657qdknwsvn5ka',
     command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
   },
-  {
-    titleKey: 'text_1774369903715y1h6gjc2bmd',
-    descriptionKey: 'text_1774369903715o2j58u6slmw',
-    command: (editor) => {
-      editor
-        .chain()
-        .focus()
-        .insertContent({
-          type: 'planBlock',
-          attrs: { planId: '' },
-        })
-        .run()
-    },
-  },
 ]
 
 export const SlashCommands = Extension.create({
@@ -77,6 +64,7 @@ export const SlashCommands = Extension.create({
   addOptions() {
     return {
       translate: ((key: string) => key) as (key: string) => string,
+      onPricingCommand: undefined as OnPricingCommand | undefined,
       suggestion: {
         char: '/',
         command: ({
@@ -138,7 +126,7 @@ export const SlashCommands = Extension.create({
   },
 
   addProseMirrorPlugins() {
-    const { translate } = this.options
+    const { translate, onPricingCommand } = this.options
 
     const resolvedItems: SlashCommandItem[] = slashCommandDefinitions.map((def) => ({
       title: translate(def.titleKey),
@@ -205,6 +193,21 @@ export const SlashCommands = Extension.create({
 
       document.addEventListener('keydown', handleKeyDown, true)
       document.addEventListener('mousedown', handleClickOutside, true)
+
+      if (onPricingCommand) {
+        resolvedItems.push({
+          title: translate('text_1774369903715y1h6gjc2bmd'),
+          description: translate('text_1774369903715o2j58u6slmw'),
+          command: (editor) => {
+            onPricingCommand({
+              onSave: (attrs, entityData) => {
+                editor.chain().focus().insertContent({ type: 'pricingBlock', attrs }).run()
+                void entityData
+              },
+            })
+          },
+        })
+      }
     }
 
     return [
