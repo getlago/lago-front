@@ -69,8 +69,8 @@ const PricingDrawerContent = withForm({
           <field.MultipleComboBoxField
             data={comboBoxData}
             loading={addOnsLoading}
-            label={translate('text_63d3a658c6d84a5843032145')}
-            placeholder={translate('text_63d3a658c6d84a5843032147')}
+            label={translate('text_1779802343220xh5jm32or13')}
+            placeholder={translate('text_17798023432203q6hytdp7om')}
           />
         )}
       </form.AppField>

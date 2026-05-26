@@ -196,8 +196,8 @@ export const SlashCommands = Extension.create({
 
       if (onPricingCommand) {
         resolvedItems.push({
-          title: translate('text_1774369903715y1h6gjc2bmd'),
-          description: translate('text_1774369903715o2j58u6slmw'),
+          title: translate('text_1779802343219a1cl5ckvtrn'),
+          description: translate('text_1779802343219rul1jvs7170'),
           command: (editor) => {
             onPricingCommand({
               onSave: (attrs, entityData) => {
