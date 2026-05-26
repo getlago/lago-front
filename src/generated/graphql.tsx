@@ -2659,6 +2659,7 @@ export type CurrentOrganization = {
   email?: Maybe<Scalars['String']['output']>;
   emailSettings?: Maybe<Array<EmailSettingsEnum>>;
   euTaxManagement: Scalars['Boolean']['output'];
+  eventsStore: EventsStoreEnum;
   featureFlags: Array<FeatureFlagEnum>;
   finalizeZeroAmountInvoice: Scalars['Boolean']['output'];
   gocardlessPaymentProviders?: Maybe<Array<GocardlessProvider>>;
@@ -3874,6 +3875,14 @@ export enum EventTypeEnum {
   WalletTransactionPaymentFailure = 'wallet_transaction_payment_failure',
   WalletTransactionUpdated = 'wallet_transaction_updated',
   WalletUpdated = 'wallet_updated'
+}
+
+/** Organization events store values */
+export enum EventsStoreEnum {
+  /** Clickhouse events store */
+  Clickhouse = 'clickhouse',
+  /** Postgres events store */
+  Postgres = 'postgres'
 }
 
 /** Organization Feature Flag Values */
@@ -9691,7 +9700,7 @@ export type UpdatePlanInput = {
   billChargesMonthly?: InputMaybe<Scalars['Boolean']['input']>;
   billFixedChargesMonthly?: InputMaybe<Scalars['Boolean']['input']>;
   cascadeUpdates?: InputMaybe<Scalars['Boolean']['input']>;
-  charges: Array<ChargeInput>;
+  charges?: InputMaybe<Array<ChargeInput>>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code: Scalars['String']['input'];

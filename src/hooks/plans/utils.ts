@@ -1,14 +1,9 @@
-import {
-  LocalFixedChargeInput,
-  LocalPricingUnitType,
-  LocalUsageChargeInput,
-} from '~/components/plans/types'
+import { LocalPricingUnitType, LocalUsageChargeInput } from '~/components/plans/types'
 import { transformFilterObjectToString } from '~/components/plans/utils'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
-  FixedChargeForDetailsV2Fragment,
   PlanInterval,
   TaxForPlanSettingsSectionFragment,
   UsageChargeForDetailsV2Fragment,
@@ -119,22 +114,3 @@ export const toLocalUsageChargeInput = (
     taxes: charge.taxes as never,
   }
 }
-
-// Hydrate a server-side FixedCharge into the local form shape. v1 plan-form
-// passes the server shape directly because the serializer destructures the
-// required fields (addOn, taxes, properties) — we still surface a typed helper
-// so v2 call sites can stay strongly typed.
-export const toLocalFixedChargeInput = (
-  fixedCharge: FixedChargeForDetailsV2Fragment,
-): LocalFixedChargeInput => ({
-  id: fixedCharge.id,
-  addOn: fixedCharge.addOn,
-  applyUnitsImmediately: false,
-  chargeModel: fixedCharge.chargeModel,
-  invoiceDisplayName: fixedCharge.invoiceDisplayName ?? '',
-  payInAdvance: fixedCharge.payInAdvance ?? false,
-  properties: fixedCharge.properties ?? {},
-  prorated: fixedCharge.prorated ?? false,
-  taxes: fixedCharge.taxes ?? [],
-  units: fixedCharge.units ? String(fixedCharge.units) : '',
-})

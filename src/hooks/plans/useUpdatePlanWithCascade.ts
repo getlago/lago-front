@@ -8,13 +8,8 @@ import { planSettingsOnlyFormSchema } from '~/formValidation/planFormSchema'
 import { PlanDetailsV2Fragment, TaxForPlanSettingsSectionFragmentDoc } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
-import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { usePlanUpdate } from '~/hooks/plans/usePlanUpdate'
-import {
-  buildPlanSettingsValues,
-  toLocalFixedChargeInput,
-  toLocalUsageChargeInput,
-} from '~/hooks/plans/utils'
+import { buildPlanSettingsValues } from '~/hooks/plans/utils'
 
 gql`
   fragment PlanForUpdateWithCascade on Plan {
@@ -72,7 +67,6 @@ export const buildUpdatePlanFormDefaults = (plan: PlanDetailsV2Fragment): PlanFo
 export const useUpdatePlanWithCascade = ({ plan, onSuccess }: UseUpdatePlanWithCascadeOptions) => {
   const { translate } = useInternationalization()
   const { openCascadeDialog } = useCascadeFormDialog()
-  const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
 
   const { update } = usePlanUpdate({
     onSuccess() {
@@ -85,21 +79,15 @@ export const useUpdatePlanWithCascade = ({ plan, onSuccess }: UseUpdatePlanWithC
     validationLogic: revalidateLogic(),
     validators: { onDynamic: planSettingsOnlyFormSchema },
     onSubmit: async ({ value }) => {
-      // Form holds id-only charge stubs because this hook drives settings-only
-      // drawers. updatePlan's input requires the full charges + fixedCharges
-      // arrays, so hydrate them from the plan prop (PlanDetailsV2Fragment
-      // carries the detailed shapes via the FixedCharges + UsageCharges
-      // section fragments) before running through the shared serializer.
-      const hydratedValue: PlanFormInput = {
-        ...value,
-        charges: (plan.charges ?? []).map((charge) =>
-          toLocalUsageChargeInput(charge, value.amountCurrency, hasAnyPricingUnitConfigured),
-        ),
-        fixedCharges: (plan.fixedCharges ?? []).map(toLocalFixedChargeInput),
-      }
-      const serialized = serializePlanInput(hydratedValue)
+      // Settings-only flow: charges + fixedCharges are now optional in
+      // UpdatePlanInput, so omit them from the payload entirely (BE preserves
+      // existing entries via partial-update semantics).
+      const serialized = serializePlanInput({ ...value, charges: [], fixedCharges: [] })
 
-      await update({ variables: { input: { ...serialized, id: plan.id } } })
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { charges, fixedCharges, ...settingsOnly } = serialized
+
+      await update({ variables: { input: { ...settingsOnly, id: plan.id } } })
     },
   })
 
