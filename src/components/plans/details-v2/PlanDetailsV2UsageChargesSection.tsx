@@ -151,6 +151,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
   const drawerRef = useRef<UsageChargeDrawerRef>(null)
 
   const canCreate = hasPermissions(['plansCreate']) && !isInSubscriptionForm
+  const canUpdate = hasPermissions(['plansUpdate']) && !isInSubscriptionForm
   const canDelete = hasPermissions(['plansDelete']) && !isInSubscriptionForm
 
   const { handleSaveCharge, handleDeleteCharge } = useChargeMutationsWithCascade({
@@ -203,7 +204,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
                   toLocalUsageChargeInput(charge, planCurrency, hasAnyPricingUnitConfigured),
                   index,
                 ),
-              hidden: isInSubscriptionForm,
+              hidden: !canUpdate,
             },
             {
               label: translate('text_63ea0f84f400488553caa786'),

@@ -174,6 +174,19 @@ describe('PlanDetailsV2UsageChargesSection', () => {
     expect(screen.queryByText('text_63ea0f84f400488553caa786')).not.toBeInTheDocument()
   })
 
+  it('hides Edit when plansUpdate permission is missing', async () => {
+    mockHasPermissions.mockImplementation(
+      ((perms: string[]) => !perms.includes('plansUpdate')) as never,
+    )
+    const plan = {
+      ...planDetailsV2Fixture,
+      charges: [buildUsageChargeFixture({ id: 'ch_no_update' })],
+    }
+    render(<PlanDetailsV2UsageChargesSection plan={plan} />, { wrapper: Wrapper })
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    expect(screen.queryByText('text_63e51ef4985f0ebd75c212fc')).not.toBeInTheDocument()
+  })
+
   // Drift test: filters render as read-only — no actions menu appears next to a filter row.
   it('does not render an actions menu on filter accordions in the section body', async () => {
     const plan = {
