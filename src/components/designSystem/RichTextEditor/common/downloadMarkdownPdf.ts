@@ -6,6 +6,10 @@ import type { EntityData } from './RichTextEditorContext'
 import { getBaseExtensions } from '../extensions/baseExtensions'
 import { configureMention, mentionBaseConfig } from '../extensions/Mention.schema'
 import { PricingBlockSchema } from '../extensions/PricingBlock.schema'
+// Ensure ProseMirror styles are present in document.styleSheets even when the
+// interactive RichTextEditor component is not mounted on the current page.
+// printHtmlContent copies all loaded stylesheets into the print iframe.
+import '../richTextEditor.css'
 
 export interface DownloadMarkdownPdfOptions {
   markdown: string
