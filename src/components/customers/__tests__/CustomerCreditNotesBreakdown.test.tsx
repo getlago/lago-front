@@ -49,8 +49,8 @@ const buildBalances = (
 
 describe('CustomerCreditNotesBreakdown', () => {
   describe('GIVEN a list of credit note balances', () => {
-    describe('WHEN some balances have amountCents > 0 and some are zero', () => {
-      it('THEN should render rows only for non-zero balances', async () => {
+    describe('WHEN balances mix non-zero and fully-consumed entries', () => {
+      it('THEN should render a row for every bucket, including fully consumed ones', async () => {
         const balances = buildBalances([
           {
             currency: CurrencyEnum.Eur,
@@ -81,12 +81,12 @@ describe('CustomerCreditNotesBreakdown', () => {
 
         const rows = screen.getAllByTestId(/^table-row-/)
 
-        expect(rows).toHaveLength(2)
+        expect(rows).toHaveLength(3)
       })
     })
 
     describe('WHEN all balances are zero', () => {
-      it('THEN should render no rows', () => {
+      it('THEN should still render a row per bucket (kept for UX coherence with the CN list)', () => {
         const balances = buildBalances([
           {
             currency: CurrencyEnum.Eur,
@@ -109,7 +109,9 @@ describe('CustomerCreditNotesBreakdown', () => {
           />,
         )
 
-        expect(screen.queryByTestId(/^table-row-/)).not.toBeInTheDocument()
+        const rows = screen.getAllByTestId(/^table-row-/)
+
+        expect(rows).toHaveLength(2)
       })
     })
 

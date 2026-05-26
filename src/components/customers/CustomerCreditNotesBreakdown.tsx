@@ -37,12 +37,14 @@ export const CustomerCreditNotesBreakdown = ({
 }: CustomerCreditNotesBreakdownProps) => {
   const { translate } = useInternationalization()
 
-  // Hide buckets with zero remaining balance — operator only cares about
-  // credits they can still spend.
+  // Show every (currency × billing_entity) bucket the BE returns — including
+  // those fully consumed (amount = 0) — so operators get a coherent view
+  // alongside the CN list below, where consumed credit notes still appear.
   const rows = useMemo<CreditNotesBalanceTableRow[]>(() => {
-    return (creditNotesBalances ?? [])
-      .filter((b) => Number(b.amountCents) > 0)
-      .map((b) => ({ ...b, id: `${b.currency}|${b.billingEntityId}` }))
+    return (creditNotesBalances ?? []).map((b) => ({
+      ...b,
+      id: `${b.currency}|${b.billingEntityId}`,
+    }))
   }, [creditNotesBalances])
 
   const columns: TableColumn<CreditNotesBalanceTableRow>[] = useMemo(
@@ -101,6 +103,12 @@ export const CustomerCreditNotesBreakdown = ({
       rowSize={72}
       columns={columns}
       isLoading={false}
+      placeholder={{
+        emptyState: {
+          title: translate('text_1779787131484noqpyk3t30h'),
+          subtitle: translate('text_1779787131485jkodbhlrj1v'),
+        },
+      }}
     />
   )
 }

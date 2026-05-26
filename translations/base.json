@@ -4159,7 +4159,7 @@
   "text_1779198780030g64up7d4imi": "Define how the subscription is paid and define the invoice settings.",
   "text_17792001643312864fz7j4gq": "Edit overview",
   "text_17792001643316pbexygvpu2": "Subscription plan",
-  "text_1779269934897no61nlpm9qz": "Credits available and credit notes",
+  "text_1779269934897no61nlpm9qz": "Credit available balances",
   "text_1779287451539r5rgwbiz2k1": "Selected invoices belong to different billing entities. Please request payment for one billing entity at a time.",
   "text_17787453510917ul9ghihdtv": "Billing settings",
   "text_17787453510910bn5dsjxtqz": "Configure how this subscription is billed and how its invoices are issued.",
@@ -4185,5 +4185,9 @@
   "text_1779717091374n898sy7ygtm": "Selected invoices belong to different currencies. Please request payment for one currency at a time.",
   "text_1779717247377c9a3lpk4f4r": "Select a specific currency and billing entity to request payment.",
   "text_17797178971869lkybw92uxi": "Select a specific currency to request payment.",
-  "text_1779717897186t9k8by4zb4u": "Select a specific billing entity to request payment."
+  "text_1779717897186t9k8by4zb4u": "Select a specific billing entity to request payment.",
+  "text_1779787031619tx5g643tprj": "No invoice balances yet",
+  "text_1779787031619oysgpqyces5": "Once invoices are issued, balances will appear here.",
+  "text_1779787131484noqpyk3t30h": "No credit available yet",
+  "text_1779787131485jkodbhlrj1v": "Once credit notes are issued, available credits will appear here."
 }

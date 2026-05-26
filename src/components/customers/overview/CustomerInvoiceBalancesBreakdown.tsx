@@ -246,6 +246,12 @@ export const CustomerInvoiceBalancesBreakdown = ({
       rowSize={72}
       columns={columns}
       isLoading={isLoading}
+      placeholder={{
+        emptyState: {
+          title: translate('text_1779787031619tx5g643tprj'),
+          subtitle: translate('text_1779787031619oysgpqyces5'),
+        },
+      }}
     />
   )
 }
