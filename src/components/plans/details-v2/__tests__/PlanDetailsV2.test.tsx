@@ -66,7 +66,8 @@ jest.mock('~/components/plans/details-v2/accordions/ProgressiveBillingAccordion'
 
   return {
     __esModule: true,
-    ProgressiveBillingAccordion: () => React.createElement('section', { id: 'progressive-billing' }),
+    ProgressiveBillingAccordion: () =>
+      React.createElement('section', { id: 'progressive-billing' }),
   }
 })
 

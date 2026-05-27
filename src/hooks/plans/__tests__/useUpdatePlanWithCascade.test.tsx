@@ -6,7 +6,12 @@ import { ReactNode } from 'react'
 import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
 import { addToast } from '~/core/apolloClient'
-import { CommitmentTypeEnum, CurrencyEnum, PlanInterval, UpdatePlanDocument } from '~/generated/graphql'
+import {
+  CommitmentTypeEnum,
+  CurrencyEnum,
+  PlanInterval,
+  UpdatePlanDocument,
+} from '~/generated/graphql'
 
 import { buildUpdatePlanFormDefaults, useUpdatePlanWithCascade } from '../useUpdatePlanWithCascade'
 

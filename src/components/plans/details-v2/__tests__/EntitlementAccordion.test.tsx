@@ -121,9 +121,7 @@ describe('EntitlementAccordion', () => {
   // ── 2. Add action not rendered when plansCreate permission is missing ───────
   it('does not render the Add action when plansCreate permission is missing', () => {
     // Deny plansCreate but allow everything else
-    mockHasPermissions.mockImplementation(
-      (perms: string[]) => !perms.includes('plansCreate'),
-    )
+    mockHasPermissions.mockImplementation((perms: string[]) => !perms.includes('plansCreate'))
 
     render(<EntitlementAccordion plan={planWithEntitlements} />, { wrapper: Wrapper })
 
@@ -136,9 +134,7 @@ describe('EntitlementAccordion', () => {
   // ── 3. Edit action hidden when plansUpdate permission is missing ───────────
   it('does not render the Edit action when plansUpdate permission is missing', () => {
     // Deny plansUpdate but allow everything else
-    mockHasPermissions.mockImplementation(
-      (perms: string[]) => !perms.includes('plansUpdate'),
-    )
+    mockHasPermissions.mockImplementation((perms: string[]) => !perms.includes('plansUpdate'))
 
     render(<EntitlementAccordion plan={planWithEntitlements} />, { wrapper: Wrapper })
 

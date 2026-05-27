@@ -1,11 +1,11 @@
 import { useRef } from 'react'
 
-import { EntitlementInfo } from '~/components/plans/EntitlementInfo'
 import {
   FeatureEntitlementDrawer,
   FeatureEntitlementDrawerRef,
   FeatureEntitlementFormValues,
 } from '~/components/plans/drawers/featureEntitlement/FeatureEntitlementDrawer'
+import { EntitlementInfo } from '~/components/plans/EntitlementInfo'
 import { PlanDetailsV2Fragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {

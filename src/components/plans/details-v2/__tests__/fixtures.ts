@@ -80,7 +80,13 @@ export const planDetailsV2Fixture: PlanDetailsV2Fragment & { __typename: 'Plan' 
     taxes: [],
   },
   usageThresholds: [
-    { __typename: 'UsageThreshold', id: 'ut-1', amountCents: 10000, recurring: false, thresholdDisplayName: null },
+    {
+      __typename: 'UsageThreshold',
+      id: 'ut-1',
+      amountCents: 10000,
+      recurring: false,
+      thresholdDisplayName: null,
+    },
   ],
   entitlements: [
     {

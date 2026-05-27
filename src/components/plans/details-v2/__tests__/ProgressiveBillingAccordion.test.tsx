@@ -41,7 +41,9 @@ jest.mock('~/hooks/plans/useUpdatePlanWithCascade', () => ({
   buildUpdatePlanFormDefaults: () => ({}),
 }))
 
-const mockPremiumIntegrations = jest.fn().mockReturnValue([PremiumIntegrationTypeEnum.ProgressiveBilling])
+const mockPremiumIntegrations = jest
+  .fn()
+  .mockReturnValue([PremiumIntegrationTypeEnum.ProgressiveBilling])
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: { premiumIntegrations: mockPremiumIntegrations() },
@@ -124,10 +126,9 @@ describe('ProgressiveBillingAccordion', () => {
   it('renders PremiumFeature paywall when org lacks the integration and has no thresholds', () => {
     mockPremiumIntegrations.mockReturnValue([])
 
-    const { container } = render(
-      <ProgressiveBillingAccordion plan={planDetailsV2Fixture} />,
-      { wrapper: Wrapper },
-    )
+    const { container } = render(<ProgressiveBillingAccordion plan={planDetailsV2Fixture} />, {
+      wrapper: Wrapper,
+    })
 
     // Section anchor still present
     expect(container.querySelector('#progressive-billing')).not.toBeNull()

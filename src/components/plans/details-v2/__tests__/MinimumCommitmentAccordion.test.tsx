@@ -6,7 +6,7 @@ import { ReactNode } from 'react'
 import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
 import { getIntervalTranslationKey } from '~/core/constants/form'
-import { CommitmentTypeEnum, CurrencyEnum, PlanInterval } from '~/generated/graphql'
+import { CommitmentTypeEnum, PlanInterval } from '~/generated/graphql'
 
 import { planDetailsV2Fixture } from './fixtures'
 
@@ -148,6 +148,8 @@ describe('MinimumCommitmentAccordion', () => {
     // Actions menu should not render
     expect(screen.queryByRole('button', { name: /actions/i })).not.toBeInTheDocument()
     // Add button (SectionHeader action) should not render
-    expect(screen.queryByRole('button', { name: 'text_6661ffe746c680007e2df0e1' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'text_6661ffe746c680007e2df0e1' }),
+    ).not.toBeInTheDocument()
   })
 })

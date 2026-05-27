@@ -77,7 +77,10 @@ export const MinimumCommitmentAccordion = ({
   ) : undefined
 
   return (
-    <section id={PlanDetailsV2SectionId.MinimumCommitment} className="flex scroll-mt-12 flex-col gap-6">
+    <section
+      id={PlanDetailsV2SectionId.MinimumCommitment}
+      className="flex scroll-mt-12 flex-col gap-6"
+    >
       <SectionHeader
         title={translate('text_65d601bffb11e0f9d1d9f569')}
         description={translate('text_6661fc17337de3591e29e451', {

@@ -157,9 +157,7 @@ export const serializeUsageThresholds = (
               {
                 recurring: !!recurringUsageThreshold.recurring,
                 thresholdDisplayName: recurringUsageThreshold.thresholdDisplayName ?? null,
-                amountCents: Number(
-                  serializeAmount(recurringUsageThreshold.amountCents, currency),
-                ),
+                amountCents: Number(serializeAmount(recurringUsageThreshold.amountCents, currency)),
               },
             ]
           : []),
