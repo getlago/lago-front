@@ -1,4 +1,4 @@
-import { LocalPricingUnitType } from '~/components/plans/types'
+import { LocalPricingUnitType, PlanFormInput } from '~/components/plans/types'
 import { transformFilterObjectToString } from '~/components/plans/utils'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
 import {
@@ -20,13 +20,15 @@ describe('serializeMinimumCommitment', () => {
   it('serializes amount to cents and maps tax codes', () => {
     expect(
       serializeMinimumCommitment(
-        { amountCents: '50', taxes: [{ code: 'vat' }] } as never,
+        { amountCents: '50', taxes: [{ code: 'vat' }] } as PlanFormInput['minimumCommitment'],
         CurrencyEnum.Usd,
       ),
     ).toEqual(expect.objectContaining({ amountCents: 5000, taxCodes: ['vat'], taxes: undefined }))
   })
   it('returns {} when empty', () => {
-    expect(serializeMinimumCommitment({} as never, CurrencyEnum.Usd)).toEqual({})
+    expect(
+      serializeMinimumCommitment({} as PlanFormInput['minimumCommitment'], CurrencyEnum.Usd),
+    ).toEqual({})
   })
 })
 
@@ -34,8 +36,8 @@ describe('serializeUsageThresholds', () => {
   it('combines non-recurring + recurring and serializes amounts', () => {
     expect(
       serializeUsageThresholds(
-        [{ amountCents: '100', recurring: false }] as never,
-        { amountCents: '200', recurring: true } as never,
+        [{ amountCents: '100', recurring: false }] as PlanFormInput['nonRecurringUsageThresholds'],
+        { amountCents: '200', recurring: true } as PlanFormInput['recurringUsageThreshold'],
         CurrencyEnum.Usd,
       ),
     ).toEqual([
@@ -67,7 +69,7 @@ describe('serializeEntitlements', () => {
             },
           ],
         },
-      ] as never),
+      ] as PlanFormInput['entitlements']),
     ).toEqual([
       {
         featureCode: 'seats',

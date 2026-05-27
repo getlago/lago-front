@@ -66,6 +66,7 @@ export const FeatureEntitlementDrawer = forwardRef<
         ...value,
         privileges: value.privileges || [],
       })
+
       if (result !== false) {
         entitlementDrawer.close()
       }

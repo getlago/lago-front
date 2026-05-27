@@ -9,6 +9,7 @@ import { addToast } from '~/core/apolloClient'
 import {
   CommitmentTypeEnum,
   CurrencyEnum,
+  PlanDetailsV2Fragment,
   PlanInterval,
   UpdatePlanDocument,
 } from '~/generated/graphql'
@@ -71,6 +72,8 @@ describe('buildUpdatePlanFormDefaults', () => {
       code: 'plan',
       interval: PlanInterval.Monthly,
       amountCurrency: CurrencyEnum.Usd,
+      amountCents: '0',
+      payInAdvance: false,
       minimumCommitment: {
         amountCents: 5000,
         commitmentType: CommitmentTypeEnum.MinimumCommitment,
@@ -81,7 +84,7 @@ describe('buildUpdatePlanFormDefaults', () => {
         { id: 'u2', amountCents: 20000, recurring: true, thresholdDisplayName: null },
       ],
       entitlements: [{ code: 'seats', name: 'Seats', privileges: [] }],
-    } as never)
+    } as PlanDetailsV2Fragment)
 
     expect(defaults.minimumCommitment?.amountCents).toBe('50')
     expect(defaults.nonRecurringUsageThresholds).toHaveLength(1)
@@ -98,11 +101,31 @@ describe('buildUpdatePlanFormDefaults', () => {
       code: 'p',
       interval: PlanInterval.Monthly,
       amountCurrency: CurrencyEnum.Usd,
-    } as never)
+      amountCents: '0',
+      payInAdvance: false,
+    } as PlanDetailsV2Fragment)
 
     expect(defaults.minimumCommitment).toEqual({})
     expect(defaults.entitlements).toEqual([])
     expect(defaults.nonRecurringUsageThresholds).toBeUndefined()
+  })
+
+  it('hydrates trialPeriod, payInAdvance and invoiceDisplayName from the plan', () => {
+    const defaults = buildUpdatePlanFormDefaults({
+      id: 'p1',
+      name: 'P',
+      code: 'p',
+      interval: PlanInterval.Monthly,
+      amountCurrency: CurrencyEnum.Usd,
+      amountCents: '0',
+      trialPeriod: 14,
+      payInAdvance: true,
+      invoiceDisplayName: 'Custom name',
+    } as PlanDetailsV2Fragment)
+
+    expect(defaults.trialPeriod).toBe(14)
+    expect(defaults.payInAdvance).toBe(true)
+    expect(defaults.invoiceDisplayName).toBe('Custom name')
   })
 })
 

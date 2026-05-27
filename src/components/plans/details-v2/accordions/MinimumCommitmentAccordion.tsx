@@ -11,6 +11,7 @@ import { mapChargeIntervalCopy } from '~/components/plans/utils'
 import PremiumFeature from '~/components/premium/PremiumFeature'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { getIntervalTranslationKey } from '~/core/constants/form'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CommitmentTypeEnum, CurrencyEnum, PlanDetailsV2Fragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import {
@@ -67,7 +68,9 @@ export const MinimumCommitmentAccordion = ({
 
   const openEditDrawer = () =>
     drawerRef.current?.openDrawer({
-      amountCents: commitment?.amountCents ? String(commitment.amountCents) : '',
+      amountCents: commitment?.amountCents
+        ? String(deserializeAmount(commitment.amountCents, currency))
+        : '',
       invoiceDisplayName: commitment?.invoiceDisplayName || undefined,
       taxes: commitment?.taxes || [],
     })

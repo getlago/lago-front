@@ -41,6 +41,7 @@ export const ProgressiveBillingDrawer = forwardRef<
     },
     onSubmit: async ({ value }) => {
       const result = await onSave(value)
+
       if (result !== false) {
         progressiveBillingDrawer.close()
       }

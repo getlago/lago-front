@@ -8,6 +8,7 @@ import {
 import { ProgressiveBillingInfo } from '~/components/plans/ProgressiveBillingInfo'
 import PremiumFeature from '~/components/premium/PremiumFeature'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
   PlanDetailsV2Fragment,
@@ -74,7 +75,7 @@ export const ProgressiveBillingAccordion = ({
     const nonRecurring = (plan.usageThresholds ?? [])
       .filter((t) => !t.recurring)
       .map((t) => ({
-        amountCents: String(t.amountCents),
+        amountCents: String(deserializeAmount(t.amountCents, currency)),
         thresholdDisplayName: t.thresholdDisplayName ?? undefined,
         recurring: false as const,
       }))
@@ -84,7 +85,7 @@ export const ProgressiveBillingAccordion = ({
       nonRecurringUsageThresholds: nonRecurring,
       recurringUsageThreshold: recurring
         ? {
-            amountCents: String(recurring.amountCents),
+            amountCents: String(deserializeAmount(recurring.amountCents, currency)),
             thresholdDisplayName: recurring.thresholdDisplayName ?? undefined,
             recurring: true as const,
           }

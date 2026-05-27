@@ -1,6 +1,7 @@
 import { MockedProvider } from '@apollo/client/testing'
 import NiceModal from '@ebay/nice-modal-react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
 import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
@@ -149,5 +150,22 @@ describe('ProgressiveBillingAccordion', () => {
     expect(
       screen.queryByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }),
     ).not.toBeInTheDocument()
+  })
+
+  // ── 4. Edit pre-fill deserializes cents → major units (guard for 100× bug) ─
+  it('calls openDrawer with the deserialized major-unit amounts when Edit is clicked', async () => {
+    render(<ProgressiveBillingAccordion plan={planWithThresholds} />, { wrapper: Wrapper })
+
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }),
+    )
+
+    await waitFor(() => {
+      expect(mockOpenDrawer).toHaveBeenCalledTimes(1)
+      const [arg] = mockOpenDrawer.mock.calls[0]
+
+      expect(arg.nonRecurringUsageThresholds[0].amountCents).toBe('100')
+    })
   })
 })

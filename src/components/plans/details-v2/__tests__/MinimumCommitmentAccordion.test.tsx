@@ -1,6 +1,7 @@
 import { MockedProvider } from '@apollo/client/testing'
 import NiceModal from '@ebay/nice-modal-react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
 import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
@@ -152,5 +153,19 @@ describe('MinimumCommitmentAccordion', () => {
     expect(
       screen.queryByRole('button', { name: 'text_6661ffe746c680007e2df0e1' }),
     ).not.toBeInTheDocument()
+  })
+
+  // ── 5. Edit pre-fill deserializes cents → major units (guard for 100× bug) ─
+  it('calls openDrawer with the deserialized major-unit amount when Edit is clicked', async () => {
+    render(<MinimumCommitmentAccordion plan={planWithCommitment} />, { wrapper: Wrapper })
+
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }),
+    )
+
+    await waitFor(() =>
+      expect(mockOpenDrawer).toHaveBeenCalledWith(expect.objectContaining({ amountCents: '50' })),
+    )
   })
 })

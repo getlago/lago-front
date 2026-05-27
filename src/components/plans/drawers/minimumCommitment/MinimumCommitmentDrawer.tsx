@@ -69,6 +69,7 @@ export const MinimumCommitmentDrawer = forwardRef<
         ...value,
         invoiceDisplayName: value.invoiceDisplayName || undefined,
       })
+
       if (result !== false) {
         minimumCommitmentDrawer.close()
       }
