@@ -3,6 +3,7 @@ import { FormikErrors, FormikProps } from 'formik'
 import { DateTime } from 'luxon'
 import { FC } from 'react'
 
+import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -64,6 +65,12 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
         <Typography variant="subhead1">{translate('text_6560809c38fb9de88d8a5090')}</Typography>
         <Typography variant="caption">{translate('text_1741101676181hja4m79j7qz')}</Typography>
       </div>
+
+      <BillingEntityFormPicker
+        label={translate('text_1743611497157teaa1zu8l24')}
+        value={formikProps.values.billingEntityId}
+        onChange={(id) => formikProps.setFieldValue('billingEntityId', id)}
+      />
 
       <TextInputField
         // eslint-disable-next-line jsx-a11y/no-autofocus

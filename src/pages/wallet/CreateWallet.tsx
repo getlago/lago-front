@@ -4,7 +4,6 @@ import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
-import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
@@ -493,12 +492,6 @@ const CreateWallet = () => {
                   : 'text_6560809c38fb9de88d8a505e',
               )}
               description={translate('text_1748422458559917eelhobh5')}
-            />
-
-            <BillingEntityFormPicker
-              label={translate('text_1743611497157teaa1zu8l24')}
-              value={formikProps.values.billingEntityId}
-              onChange={(id) => formikProps.setFieldValue('billingEntityId', id)}
             />
 
             <SettingsSection
