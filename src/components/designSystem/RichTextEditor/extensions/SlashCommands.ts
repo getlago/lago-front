@@ -200,9 +200,8 @@ export const SlashCommands = Extension.create({
           description: translate('text_1779802343219rul1jvs7170'),
           command: (editor) => {
             onPricingCommand({
-              onSave: (attrs, entityData) => {
+              onSave: (attrs) => {
                 editor.chain().focus().insertContent({ type: 'pricingBlock', attrs }).run()
-                void entityData
               },
             })
           },

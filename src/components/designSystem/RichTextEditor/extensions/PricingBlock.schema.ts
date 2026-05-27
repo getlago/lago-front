@@ -108,9 +108,9 @@ export const PricingBlockSchema = Node.create({
         parse: {
           updateDOM(element: HTMLElement) {
             element.innerHTML = element.innerHTML.replaceAll(
-              /<!--\s*entity:pricing:(plan|addOns):(.*?)\s*-->/g,
+              /<!--\s*entity:pricing:(plan|addOns):([^-]*(?:-(?!->)[^-]*)*)\s*-->/g,
               (_match: string, pricingType: string, entityIds: string) =>
-                `<div data-type="pricing-block" data-pricing-type="${pricingType}" data-entity-ids="${entityIds}"></div>`,
+                `<div data-type="pricing-block" data-pricing-type="${pricingType}" data-entity-ids="${entityIds.trim()}"></div>`,
             )
           },
         },
