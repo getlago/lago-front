@@ -113,9 +113,10 @@ describe('MinimumCommitmentAccordion', () => {
   it('renders PremiumFeature paywall when user is not premium and has no commitment', () => {
     mockIsPremium.mockReturnValue(false)
 
-    const { container } = render(<MinimumCommitmentAccordion plan={planDetailsV2Fixture} />, {
-      wrapper: Wrapper,
-    })
+    const { container } = render(
+      <MinimumCommitmentAccordion plan={{ ...planDetailsV2Fixture, minimumCommitment: null }} />,
+      { wrapper: Wrapper },
+    )
 
     // Section anchor still present
     expect(container.querySelector('#minimum-commitment')).not.toBeNull()

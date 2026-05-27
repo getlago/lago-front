@@ -126,9 +126,10 @@ describe('ProgressiveBillingAccordion', () => {
   it('renders PremiumFeature paywall when org lacks the integration and has no thresholds', () => {
     mockPremiumIntegrations.mockReturnValue([])
 
-    const { container } = render(<ProgressiveBillingAccordion plan={planDetailsV2Fixture} />, {
-      wrapper: Wrapper,
-    })
+    const { container } = render(
+      <ProgressiveBillingAccordion plan={{ ...planDetailsV2Fixture, usageThresholds: [] }} />,
+      { wrapper: Wrapper },
+    )
 
     // Section anchor still present
     expect(container.querySelector('#progressive-billing')).not.toBeNull()
