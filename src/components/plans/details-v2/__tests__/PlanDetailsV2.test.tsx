@@ -52,6 +52,33 @@ jest.mock('~/components/plans/drawers/usageCharge/UsageChargeDrawer', () => {
   return { __esModule: true, UsageChargeDrawer }
 })
 
+jest.mock('~/components/plans/details-v2/accordions/MinimumCommitmentAccordion', () => {
+  const React = jest.requireActual('react')
+
+  return {
+    __esModule: true,
+    MinimumCommitmentAccordion: () => React.createElement('section', { id: 'minimum-commitment' }),
+  }
+})
+
+jest.mock('~/components/plans/details-v2/accordions/ProgressiveBillingAccordion', () => {
+  const React = jest.requireActual('react')
+
+  return {
+    __esModule: true,
+    ProgressiveBillingAccordion: () => React.createElement('section', { id: 'progressive-billing' }),
+  }
+})
+
+jest.mock('~/components/plans/details-v2/accordions/EntitlementAccordion', () => {
+  const React = jest.requireActual('react')
+
+  return {
+    __esModule: true,
+    EntitlementAccordion: () => React.createElement('section', { id: 'entitlements' }),
+  }
+})
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
