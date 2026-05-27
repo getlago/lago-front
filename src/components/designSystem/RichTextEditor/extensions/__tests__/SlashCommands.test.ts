@@ -505,17 +505,26 @@ describe('SlashCommands', () => {
 
     describe('WHEN destroy is called multiple times', () => {
       it('THEN should only destroy once (idempotent)', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
         const editor = createSlashEditor()
         const storage = (editor.storage as any).slashCommands as {
           triggerMenu: (clientRect: () => DOMRect) => void
         }
 
+        ReactRendererMock.mockClear()
         storage.triggerMenu(() => new DOMRect())
 
-        // Trigger destroy twice via Escape then click outside
-        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
-        document.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
+        // Call the command callback twice — second call hits the `if (destroyed) return` guard
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          command: (item: { title: string; description: string; command: jest.Mock }) => void
+        }
+        const mockCommand = jest.fn()
+        const item = { title: 'Test', description: 'Test', command: mockCommand }
 
+        rendererProps.command(item)
+        rendererProps.command(item)
+
+        expect(mockCommand).toHaveBeenCalledTimes(2)
         expect(mockDestroyPopup).toHaveBeenCalledTimes(1)
         expect(mockDestroyRenderer).toHaveBeenCalledTimes(1)
 

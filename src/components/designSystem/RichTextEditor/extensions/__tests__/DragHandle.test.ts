@@ -151,6 +151,46 @@ describe('DragHandle', () => {
         editor.destroy()
       })
 
+      it('THEN should add the is-dragging class on dragstart and remove it on dragend', () => {
+        const editor = createEditor('<p>First</p>')
+        const grip = editor.view.dom.querySelector('.block-handle-grip') as HTMLElement
+
+        const dragStartEvent = new Event('dragstart', { bubbles: false }) as DragEvent
+
+        Object.defineProperty(dragStartEvent, 'dataTransfer', {
+          value: {
+            effectAllowed: '',
+            setDragImage: jest.fn(),
+          },
+        })
+
+        grip.dispatchEvent(dragStartEvent)
+
+        expect(editor.view.dom.classList.contains('is-dragging')).toBe(true)
+
+        const dragEndEvent = new Event('dragend', { bubbles: false })
+
+        grip.dispatchEvent(dragEndEvent)
+
+        expect(editor.view.dom.classList.contains('is-dragging')).toBe(false)
+
+        editor.destroy()
+      })
+
+      it('THEN should handle dragstart without dataTransfer gracefully', () => {
+        const editor = createEditor('<p>First</p>')
+        const grip = editor.view.dom.querySelector('.block-handle-grip') as HTMLElement
+
+        const dragEvent = new Event('dragstart', { bubbles: false })
+
+        grip.dispatchEvent(dragEvent)
+
+        expect(editor.view.dragging).toBeTruthy()
+        expect(editor.view.dragging?.move).toBe(true)
+
+        editor.destroy()
+      })
+
       it('THEN should set the drag image to the block DOM element', () => {
         const editor = createEditor('<p>First</p>')
         const grip = editor.view.dom.querySelector('.block-handle-grip') as HTMLElement
