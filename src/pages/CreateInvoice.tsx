@@ -392,7 +392,11 @@ const CreateInvoice = () => {
     enableReinitialize: true,
     validateOnMount: true,
     onSubmit: async ({ fees, paymentMethod, invoiceCustomSection, ...values }) => {
-      if (voidedInvoiceId && prefillData?.invoiceBuildRegenerationPreview?.id && actions.canVoid(prefillData?.invoiceBuildRegenerationPreview)) {
+      if (
+        voidedInvoiceId &&
+        prefillData?.invoiceBuildRegenerationPreview?.id &&
+        actions.canVoid(prefillData?.invoiceBuildRegenerationPreview)
+      ) {
         const res = await voidInvoice({
           variables: {
             input: {
@@ -411,7 +415,9 @@ const CreateInvoice = () => {
         variables: {
           input: {
             ...values,
-            ...(prefillData?.invoiceBuildRegenerationPreview?.id ? { voidedInvoiceId: prefillData?.invoiceBuildRegenerationPreview?.id } : {}),
+            ...(prefillData?.invoiceBuildRegenerationPreview?.id
+              ? { voidedInvoiceId: prefillData?.invoiceBuildRegenerationPreview?.id }
+              : {}),
             paymentMethod,
             invoiceCustomSection: toInvoiceCustomSectionReference(
               invoiceCustomSection as InvoiceCustomSectionInput,
