@@ -7,7 +7,7 @@ import { Typography } from '~/components/designSystem/Typography'
 
 export const VIRTUALIZATION_THRESHOLD = 50
 const BREAKDOWN_ROW_HEIGHT = 48
-const MAX_VIRTUAL_LIST_HEIGHT = 216
+const MAX_VIRTUAL_LIST_HEIGHT = 252
 
 // Width of the indicator (in px) used by the parent design-system Table to
 // pad the inner cell. We mirror it on the units slot so the right edge of the
@@ -54,7 +54,7 @@ export const VirtualizedBreakdownRows = ({
               key={row.id}
               ref={rowVirtualizer.measureElement}
               data-index={virtualRow.index}
-              className="flex w-full items-center border-b border-grey-200 py-3"
+              className="flex w-full items-center border-b border-grey-200 py-6"
               style={{
                 position: 'absolute',
                 top: 0,
