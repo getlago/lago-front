@@ -7,7 +7,6 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { ALL_CHARGE_MODELS, AnyChargeModel } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
-  AppliedPricingUnit,
   ChargeModelEnum,
   CurrencyEnum,
   FixedChargeChargeModelEnum,
@@ -35,7 +34,7 @@ export const PlanDetailsChargeWrapperSwitch = memo(
     currency: CurrencyEnum
     chargeModel: ChargeModelEnum | FixedChargeChargeModelEnum
     values?: Maybe<Properties> | Maybe<FixedChargeProperties>
-    chargeAppliedPricingUnit?: Maybe<AppliedPricingUnit>
+    chargeAppliedPricingUnit?: Maybe<{ pricingUnit?: Maybe<{ shortName?: string }> }>
   }) => {
     const componentId = useId()
     const { translate } = useInternationalization()

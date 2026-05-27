@@ -33,20 +33,29 @@ export const useCascadeFormDialog = () => {
     },
   })
 
-  const openCascadeDialog = async (input: OpenCascadeDialogInput) => {
+  const openCascadeDialog = async (input: OpenCascadeDialogInput): Promise<boolean> => {
     if (!input.hasOverriddenPlans) {
       await input.onConfirm(false)
-      return
+      return true
     }
 
     form.reset()
+
+    let confirmed = false
 
     await formDialog.open({
       title: input.title,
       description: input.description,
       form: {
         id: CASCADE_FORM_ID,
-        submit: () => form.handleSubmit({ onConfirm: input.onConfirm }),
+        submit: async () => {
+          await form.handleSubmit({
+            onConfirm: async (cascadeUpdates) => {
+              await input.onConfirm(cascadeUpdates)
+              confirmed = true
+            },
+          })
+        },
       },
       mainAction: (
         <form.AppForm>
@@ -68,6 +77,8 @@ export const useCascadeFormDialog = () => {
         </form.AppForm>
       ),
     })
+
+    return confirmed
   }
 
   return { openCascadeDialog }

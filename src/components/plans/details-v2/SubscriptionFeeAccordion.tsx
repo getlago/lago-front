@@ -59,12 +59,12 @@ export const SubscriptionFeeAccordion = ({
     })
   }
 
-  const handleDrawerSave = (values: SubscriptionFeeFormValues) => {
+  const handleDrawerSave = async (values: SubscriptionFeeFormValues): Promise<boolean> => {
     form.setFieldValue('amountCents', values.amountCents)
     form.setFieldValue('payInAdvance', values.payInAdvance)
     form.setFieldValue('trialPeriod', values.trialPeriod)
     form.setFieldValue('invoiceDisplayName', values.invoiceDisplayName)
-    submit()
+    return submit()
   }
 
   const intervalBadge = plan.interval ? (
@@ -77,7 +77,6 @@ export const SubscriptionFeeAccordion = ({
         id={PlanDetailsV2SectionId.SubscriptionFee}
         title={plan.invoiceDisplayName || translate('text_642d5eb2783a2ad10d670336')}
         badge={intervalBadge}
-        initiallyOpen
         actions={[
           {
             label: translate('text_63e51ef4985f0ebd75c212fc'),

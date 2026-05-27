@@ -65,7 +65,10 @@ interface FixedChargeDrawerProps {
   disabled?: boolean
   isEdition?: boolean
   isInSubscriptionForm?: boolean
-  onSave: (charge: LocalFixedChargeInput, index: number | null) => void
+  onSave: (
+    charge: LocalFixedChargeInput,
+    index: number | null,
+  ) => void | boolean | Promise<void | boolean>
   onDelete?: (index: number) => void
   removeChargeWarningDialogRef?: React.RefObject<RemoveChargeWarningDialogRef>
 }
@@ -91,7 +94,7 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
       validators: {
         onDynamic: fixedChargeDrawerSchema,
       },
-      onSubmit: ({ value }) => {
+      onSubmit: async ({ value }) => {
         const localFixedCharge: LocalFixedChargeInput = {
           addOn: value.addOn,
           applyUnitsImmediately: value.applyUnitsImmediately,
@@ -105,8 +108,13 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
           units: value.units,
         }
 
-        onSave(localFixedCharge, isCreateModeRef.current ? null : editIndexRef.current)
-        fixedChargeDrawer.close()
+        const result = await onSave(
+          localFixedCharge,
+          isCreateModeRef.current ? null : editIndexRef.current,
+        )
+        if (result !== false) {
+          fixedChargeDrawer.close()
+        }
       },
     })
 
