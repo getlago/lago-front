@@ -8,7 +8,9 @@ import { ProgressiveBillingDrawer, ProgressiveBillingDrawerRef } from '../Progre
 
 // --- Mocks ---
 
-let capturedOnSubmit: ((args: { value: Record<string, unknown> }) => void) | undefined
+let capturedOnSubmit:
+  | ((args: { value: Record<string, unknown> }) => void | Promise<void>)
+  | undefined
 let capturedDefaultValues: Record<string, unknown> | undefined
 let capturedDrawerOpenProps:
   | {
@@ -340,10 +342,10 @@ describe('ProgressiveBillingDrawer', () => {
 
   describe('GIVEN the form submission flow', () => {
     describe('WHEN the form is submitted', () => {
-      it('THEN should close the drawer after saving', () => {
+      it('THEN should close the drawer after saving', async () => {
         render(<ProgressiveBillingDrawer ref={drawerRef} onSave={mockOnSave} />)
 
-        capturedOnSubmit?.({ value: { ...defaultFormValues } })
+        await capturedOnSubmit?.({ value: { ...defaultFormValues } })
 
         expect(mockOnSave).toHaveBeenCalled()
         expect(mockDrawerClose).toHaveBeenCalled()

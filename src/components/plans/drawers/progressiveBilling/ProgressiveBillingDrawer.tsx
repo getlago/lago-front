@@ -19,7 +19,7 @@ export interface ProgressiveBillingDrawerRef {
 }
 
 interface ProgressiveBillingDrawerProps {
-  onSave: (values: ProgressiveBillingFormValues) => void
+  onSave: (values: ProgressiveBillingFormValues) => void | boolean | Promise<void | boolean>
   onDelete?: () => void
 }
 
@@ -39,9 +39,11 @@ export const ProgressiveBillingDrawer = forwardRef<
     validators: {
       onDynamic: progressiveBillingSchema,
     },
-    onSubmit: ({ value }) => {
-      onSave(value)
-      progressiveBillingDrawer.close()
+    onSubmit: async ({ value }) => {
+      const result = await onSave(value)
+      if (result !== false) {
+        progressiveBillingDrawer.close()
+      }
     },
   })
 
