@@ -68,7 +68,16 @@ jest.mock('~/generated/graphql', () => ({
     mockGetCustomerOverdueBalances,
     {
       data: {
-        overdueBalances: { collection: [] },
+        overdueBalances: {
+          collection: [
+            {
+              amountCents: '1000',
+              currency: 'USD',
+              billingEntityId: 'be-1',
+              lagoInvoiceIds: ['inv-1'],
+            },
+          ],
+        },
         paymentRequests: { collection: [] },
       },
       loading: false,
@@ -78,7 +87,19 @@ jest.mock('~/generated/graphql', () => ({
   useGetCustomerGrossRevenuesLazyQuery: jest.fn(() => [
     mockGetCustomerGrossRevenues,
     {
-      data: { grossRevenues: { collection: [] } },
+      data: {
+        grossRevenues: {
+          collection: [
+            {
+              amountCents: '5000',
+              currency: 'USD',
+              billingEntityId: 'be-1',
+              invoicesCount: 1,
+              month: '2026-05',
+            },
+          ],
+        },
+      },
       loading: false,
       error: undefined,
     },
@@ -200,6 +221,42 @@ describe('CustomerOverview', () => {
           mockGetCustomerGrossRevenues,
           { data: undefined, loading: false, error: new Error('gross error') },
         ])
+
+        const { container } = render(<CustomerOverview externalCustomerId="ext-123" />)
+
+        await waitFor(() => {
+          expect(container.firstChild).toBeNull()
+        })
+      })
+    })
+  })
+
+  describe('GIVEN breakdown mode and both gross and overdue collections are empty', () => {
+    describe('WHEN the component is rendered', () => {
+      it('THEN should hide the Invoice balances section entirely', async () => {
+        const { useGetCustomerOverdueBalancesLazyQuery, useGetCustomerGrossRevenuesLazyQuery } =
+          jest.requireMock('~/generated/graphql')
+
+        ;(useGetCustomerOverdueBalancesLazyQuery as jest.Mock).mockReturnValue([
+          mockGetCustomerOverdueBalances,
+          {
+            data: {
+              overdueBalances: { collection: [] },
+              paymentRequests: { collection: [] },
+            },
+            loading: false,
+            error: undefined,
+          },
+        ])
+        ;(useGetCustomerGrossRevenuesLazyQuery as jest.Mock).mockReturnValue([
+          mockGetCustomerGrossRevenues,
+          {
+            data: { grossRevenues: { collection: [] } },
+            loading: false,
+            error: undefined,
+          },
+        ])
+        mockHasFeatureFlag.mockReturnValue(true)
 
         const { container } = render(<CustomerOverview externalCustomerId="ext-123" />)
 

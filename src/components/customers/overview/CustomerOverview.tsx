@@ -133,6 +133,15 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
 
   if (overdueBalancesError && grossRevenuesError) return null
 
+  const isLoadingAnalytics = grossRevenuesLoading || overdueBalancesLoading
+  const hideEmptyBreakdown =
+    showBreakdown &&
+    !isLoadingAnalytics &&
+    grossRevenues.length === 0 &&
+    overdueBalances.length === 0
+
+  if (hideEmptyBreakdown) return null
+
   return (
     <div className="flex flex-col gap-12">
       <section
