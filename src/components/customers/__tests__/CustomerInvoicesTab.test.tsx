@@ -50,29 +50,13 @@ jest.mock('~/components/SearchInput', () => ({
   ),
 }))
 
-const mockGetDraftInvoices = jest.fn()
-const mockGetFinalizedInvoices = jest.fn()
-
-let mockDraftResult: {
-  data: { customerInvoices: { metadata: { totalCount: number } } } | null
-  loading: boolean
-  error: unknown
-}
-let mockFinalizedResult: {
-  data: unknown
-  loading: boolean
-  error: unknown
-  fetchMore: jest.Mock
-}
-
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useGetCustomerInvoicesLazyQuery: jest.fn(),
+  useGetCustomerInvoicesQuery: jest.fn(),
 }))
 
-// We need to dynamically return different values for the two calls
-const { useGetCustomerInvoicesLazyQuery } = jest.requireMock('~/generated/graphql') as {
-  useGetCustomerInvoicesLazyQuery: jest.Mock
+const { useGetCustomerInvoicesQuery } = jest.requireMock('~/generated/graphql') as {
+  useGetCustomerInvoicesQuery: jest.Mock
 }
 
 // --- Helpers ---
@@ -86,8 +70,12 @@ const defaultProps = {
   isPartner: false,
 }
 
+/**
+ * The component calls `useGetCustomerInvoicesQuery` twice — once for drafts,
+ * once for finalized — so we feed two sequential return values.
+ */
 const setupMocks = (draftTotalCount = 0) => {
-  mockDraftResult = {
+  const draftResult = {
     data: {
       customerInvoices: {
         metadata: { totalCount: draftTotalCount },
@@ -96,17 +84,16 @@ const setupMocks = (draftTotalCount = 0) => {
     loading: false,
     error: null,
   }
-  mockFinalizedResult = {
+  const finalizedResult = {
     data: null,
     loading: false,
     error: null,
     fetchMore: jest.fn(),
   }
 
-  // The hook is called twice: first for draft, second for finalized
-  useGetCustomerInvoicesLazyQuery
-    .mockReturnValueOnce([mockGetDraftInvoices, mockDraftResult])
-    .mockReturnValueOnce([mockGetFinalizedInvoices, mockFinalizedResult])
+  useGetCustomerInvoicesQuery
+    .mockReturnValueOnce(draftResult)
+    .mockReturnValueOnce(finalizedResult)
 }
 
 const renderComponent = (overrides = {}) =>
@@ -157,7 +144,6 @@ describe('CustomerInvoicesTab', () => {
 
   describe('GIVEN draft invoice count is within the display limit', () => {
     describe.each([
-      { count: 0, label: '0 drafts' },
       { count: 3, label: '3 drafts' },
       { count: 4, label: '4 drafts (exact limit)' },
     ])('WHEN there are $label', ({ count }) => {
@@ -171,49 +157,51 @@ describe('CustomerInvoicesTab', () => {
     })
   })
 
-  describe('GIVEN both multi_currency and multi_entity_billing flags are enabled', () => {
+  describe('GIVEN the customer has no draft invoices and no filter is active', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should hide the Draft section entirely', () => {
+        setupMocks(0)
+
+        renderComponent()
+
+        expect(screen.queryByTestId(INVOICES_TAB_DRAFT_SECTION)).not.toBeInTheDocument()
+      })
+
+      it('THEN should still render the Finalized section', () => {
+        setupMocks(0)
+
+        renderComponent()
+
+        expect(screen.getByTestId(INVOICES_TAB_FINALIZED_SECTION)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the customer has at least one draft invoice', () => {
     describe('WHEN the component renders as non-partner', () => {
       it('THEN should render the overview section', () => {
-        setupMocks()
+        setupMocks(1)
 
         renderComponent({ isPartner: false })
 
         expect(screen.getByTestId('mock-customer-overview')).toBeInTheDocument()
       })
 
-      it('THEN should render both draft and finalized sections with filters', () => {
-        setupMocks()
+      it('THEN should render both draft and finalized sections', () => {
+        setupMocks(1)
 
         renderComponent({ isPartner: false })
 
         expect(screen.getByTestId(INVOICES_TAB_DRAFT_SECTION)).toBeInTheDocument()
         expect(screen.getByTestId(INVOICES_TAB_FINALIZED_SECTION)).toBeInTheDocument()
-      })
-
-      it('THEN should call both draft and finalized query functions', () => {
-        setupMocks()
-
-        renderComponent({ isPartner: false })
-
-        expect(mockGetDraftInvoices).toHaveBeenCalled()
-        expect(mockGetFinalizedInvoices).toHaveBeenCalled()
       })
     })
   })
 
-  describe('GIVEN the tab renders', () => {
+  describe('GIVEN the tab renders with drafts present', () => {
     describe('WHEN the component mounts', () => {
-      it('THEN should render both draft and finalized sections', () => {
-        setupMocks()
-
-        renderComponent()
-
-        expect(screen.getByTestId(INVOICES_TAB_DRAFT_SECTION)).toBeInTheDocument()
-        expect(screen.getByTestId(INVOICES_TAB_FINALIZED_SECTION)).toBeInTheDocument()
-      })
-
       it('THEN should render the container', () => {
-        setupMocks()
+        setupMocks(1)
 
         renderComponent()
 
