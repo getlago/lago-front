@@ -22,6 +22,12 @@ let capturedAsideCallbacks: AsideCallbacks = {}
 
 // --- Mocks ---
 
+// drawerStack.ts uses import.meta.hot — mock the entire useDrawer module instead
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,

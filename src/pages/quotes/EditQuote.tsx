@@ -16,6 +16,7 @@ import { type UpdateQuoteVersionInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import EditQuoteAside from './editQuote/EditQuoteAside'
+import { usePricingDialog } from './hooks/usePricingDialog'
 import { useQuote } from './hooks/useQuote'
 import { useUpdateQuote } from './hooks/useUpdateQuote'
 
@@ -58,6 +59,8 @@ const EditQuote = () => {
   })
 
   const isUpdating = isUpdatingQuote || isUpdatingQuoteVersion
+
+  const { onPricingCommand, entities } = usePricingDialog(quote?.orderType)
 
   const getMarkdownRef = useRef<(() => string) | null>(null)
   const lastSavedContentRef = useRef('')
@@ -220,6 +223,8 @@ const EditQuote = () => {
           getMarkdownRef={getMarkdownRef}
           onChange={handleChange}
           mode={editorMode}
+          onPricingCommand={onPricingCommand}
+          entities={entities}
         />
       </RightAsidePage.Content>
     </RightAsidePage.Wrapper>

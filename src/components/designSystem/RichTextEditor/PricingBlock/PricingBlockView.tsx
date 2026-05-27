@@ -19,7 +19,7 @@ export const PricingBlockView = ({ node, updateAttributes, selected }: NodeViewP
 
   const handleClick = () => {
     onPricingCommand?.({
-      onSave: (attrs, _entityData) => {
+      onSave: (attrs) => {
         updateAttributes(attrs)
       },
       editData: isEmpty ? undefined : { pricingType, entityIds },
