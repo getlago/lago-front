@@ -97,6 +97,7 @@ gql`
       aggregationType
       recurring
       filters {
+        id
         key
         values
       }
@@ -215,11 +216,11 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
           noContentMargin
         >
           <UsageChargeInfo
-            charge={charge as never}
+            charge={charge}
             currency={plan.amountCurrency as CurrencyEnum}
             planInterval={plan.interval as PlanInterval}
             billChargesMonthly={plan.billChargesMonthly}
-            planTaxes={plan.taxes as never}
+            planTaxes={plan.taxes}
           />
         </SectionAccordion>
       ))}

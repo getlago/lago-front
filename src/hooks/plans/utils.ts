@@ -76,7 +76,7 @@ export const toLocalUsageChargeInput = (
 
   return {
     id: charge.id,
-    billableMetric: charge.billableMetric as never,
+    billableMetric: charge.billableMetric,
     appliedPricingUnit:
       !hasAnyPricingUnitConfigured && !charge.appliedPricingUnit
         ? undefined

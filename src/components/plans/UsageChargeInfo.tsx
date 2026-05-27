@@ -9,7 +9,6 @@ import { composeChargeFilterDisplayName } from '~/core/formats/formatInvoiceItem
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
-  AppliedPricingUnit,
   ChargeFilter,
   ChargeModelEnum,
   CurrencyEnum,
@@ -34,7 +33,10 @@ export type UsageChargeInfoCharge = {
   regroupPaidFees?: RegroupPaidFeesEnum | null
   properties?: Maybe<Properties>
   filters?: ReadonlyArray<ChargeFilter> | null
-  appliedPricingUnit?: Maybe<AppliedPricingUnit>
+  appliedPricingUnit?: Maybe<{
+    conversionRate: number
+    pricingUnit: { name: string; shortName?: string }
+  }>
   taxes?: ReadonlyArray<Tax> | null
   billableMetric: {
     id: string
