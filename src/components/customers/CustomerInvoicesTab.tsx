@@ -160,6 +160,12 @@ export const CustomerInvoicesTab = ({
 
   const showSeeMore = invoicesDraftCount > DRAFT_INVOICES_ITEMS_COUNT
 
+  // Hide the Draft section entirely when the customer has no drafts AND the
+  // user is not currently filtering. If a filter returns zero rows we keep
+  // the section visible so the operator can clear the filter without
+  // navigating away.
+  const showDraftSection = isDraftFiltering || loadingDraft || invoicesDraftCount > 0
+
   return (
     <div className="flex flex-col gap-12" data-test={INVOICES_TAB_CONTAINER}>
       {!isPartner && (
@@ -170,46 +176,48 @@ export const CustomerInvoicesTab = ({
         />
       )}
 
-      <div data-test={INVOICES_TAB_DRAFT_SECTION}>
-        <PageSectionTitle
-          title={translate('text_638f4d756d899445f18a49ee')}
-          subtitle={translate('text_1737655039923xyw73dt51ee')}
-        />
+      {showDraftSection && (
+        <div data-test={INVOICES_TAB_DRAFT_SECTION}>
+          <PageSectionTitle
+            title={translate('text_638f4d756d899445f18a49ee')}
+            subtitle={translate('text_1737655039923xyw73dt51ee')}
+          />
 
-        {draftFiltersProps && (
-          <Filters.Provider {...draftFiltersProps}>
-            <div className="mb-4 flex items-center gap-2">
-              <Filters.Component />
-            </div>
-          </Filters.Provider>
-        )}
+          {draftFiltersProps && (
+            <Filters.Provider {...draftFiltersProps}>
+              <div className="mb-4 flex items-center gap-2">
+                <Filters.Component />
+              </div>
+            </Filters.Provider>
+          )}
 
-        <CustomerInvoicesList
-          isSearching={isDraftFiltering}
-          isLoading={loadingDraft}
-          hasError={!!errorDraft}
-          customerTimezone={customerTimezone}
-          customerId={customerId}
-          invoiceData={dataDraft?.customerInvoices}
-        />
+          <CustomerInvoicesList
+            isSearching={isDraftFiltering}
+            isLoading={loadingDraft}
+            hasError={!!errorDraft}
+            customerTimezone={customerTimezone}
+            customerId={customerId}
+            invoiceData={dataDraft?.customerInvoices}
+          />
 
-        {showSeeMore && (
-          <div
-            className="flex flex-col items-center justify-center py-2 shadow-b"
-            data-test={INVOICES_TAB_SEE_MORE}
-          >
-            <ButtonLink
-              type="button"
-              to={generatePath(CUSTOMER_DRAFT_INVOICES_LIST_ROUTE, { customerId })}
-              buttonProps={{
-                variant: 'quaternary',
-              }}
+          {showSeeMore && (
+            <div
+              className="flex flex-col items-center justify-center py-2 shadow-b"
+              data-test={INVOICES_TAB_SEE_MORE}
             >
-              {translate('text_638f4d756d899445f18a4a0e')}
-            </ButtonLink>
-          </div>
-        )}
-      </div>
+              <ButtonLink
+                type="button"
+                to={generatePath(CUSTOMER_DRAFT_INVOICES_LIST_ROUTE, { customerId })}
+                buttonProps={{
+                  variant: 'quaternary',
+                }}
+              >
+                {translate('text_638f4d756d899445f18a4a0e')}
+              </ButtonLink>
+            </div>
+          )}
+        </div>
+      )}
 
       <div data-test={INVOICES_TAB_FINALIZED_SECTION}>
         <PageSectionTitle
