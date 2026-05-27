@@ -1,7 +1,12 @@
 import { LocalPricingUnitType } from '~/components/plans/types'
 import { transformFilterObjectToString } from '~/components/plans/utils'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
-import { serializePlanInput } from '~/core/serializers/serializePlanInput'
+import {
+  serializeEntitlements,
+  serializeMinimumCommitment,
+  serializePlanInput,
+  serializeUsageThresholds,
+} from '~/core/serializers/serializePlanInput'
 import {
   AggregationTypeEnum,
   ChargeModelEnum,
@@ -10,6 +15,78 @@ import {
   PlanInterval,
   PrivilegeValueTypeEnum,
 } from '~/generated/graphql'
+
+describe('serializeMinimumCommitment', () => {
+  it('serializes amount to cents and maps tax codes', () => {
+    expect(
+      serializeMinimumCommitment(
+        { amountCents: '50', taxes: [{ code: 'vat' }] } as never,
+        CurrencyEnum.Usd,
+      ),
+    ).toEqual(expect.objectContaining({ amountCents: 5000, taxCodes: ['vat'], taxes: undefined }))
+  })
+  it('returns {} when empty', () => {
+    expect(serializeMinimumCommitment({} as never, CurrencyEnum.Usd)).toEqual({})
+  })
+})
+
+describe('serializeUsageThresholds', () => {
+  it('combines non-recurring + recurring and serializes amounts', () => {
+    expect(
+      serializeUsageThresholds(
+        [{ amountCents: '100', recurring: false }] as never,
+        { amountCents: '200', recurring: true } as never,
+        CurrencyEnum.Usd,
+      ),
+    ).toEqual([
+      { recurring: false, thresholdDisplayName: null, amountCents: 10000 },
+      { recurring: true, thresholdDisplayName: null, amountCents: 20000 },
+    ])
+  })
+  it('returns undefined when nothing set', () => {
+    expect(serializeUsageThresholds(undefined, undefined, CurrencyEnum.Usd)).toBeUndefined()
+  })
+})
+
+describe('serializeEntitlements', () => {
+  it('strips display-only fields', () => {
+    expect(
+      serializeEntitlements([
+        {
+          featureId: 'f1',
+          featureName: 'Seats',
+          featureCode: 'seats',
+          privileges: [
+            {
+              privilegeCode: 'max',
+              privilegeName: 'Max',
+              value: '10',
+              valueType: 'integer',
+              config: {},
+              id: 'p1',
+            },
+          ],
+        },
+      ] as never),
+    ).toEqual([
+      {
+        featureCode: 'seats',
+        featureId: undefined,
+        featureName: undefined,
+        privileges: [
+          {
+            privilegeCode: 'max',
+            value: '10',
+            privilegeName: undefined,
+            valueType: undefined,
+            config: undefined,
+            id: undefined,
+          },
+        ],
+      },
+    ])
+  })
+})
 
 const fullProperty = {
   amount: '1',
