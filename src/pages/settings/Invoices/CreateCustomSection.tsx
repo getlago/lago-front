@@ -1,6 +1,5 @@
 import { useFormik } from 'formik'
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { object, string } from 'yup'
 
 import { Button } from '~/components/designSystem/Button'
@@ -14,7 +13,7 @@ import {
   PreviewCustomSectionDrawerRef,
 } from '~/components/settings/invoices/PreviewCustomSectionDrawer'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
-import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
+import { INVOICE_SETTINGS_ROUTE, useNavigate } from '~/core/router'
 import { scrollToTop } from '~/core/utils/domUtils'
 import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import { CreateInvoiceCustomSectionInput } from '~/generated/graphql'

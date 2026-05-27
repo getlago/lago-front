@@ -12,13 +12,9 @@ import { theme } from '~/styles'
 
 configure({ testIdAttribute: 'data-test' })
 
-const mockNavigate = jest.fn()
-
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-  useParams: jest.fn(),
-}))
+const { mockNavigate } = (
+  globalThis as unknown as { __testRouterMocks: { mockNavigate: jest.Mock } }
+).__testRouterMocks
 
 export type TestMocksType = MockedResponse<Record<string, unknown>, Record<string, unknown>>[]
 
@@ -59,10 +55,15 @@ export const AllTheProviders = ({
 
 const customRender = (
   ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'> & { mocks?: TestMocksType },
+  options?: Omit<RenderOptions, 'wrapper'> & {
+    mocks?: TestMocksType
+    useParams?: { [key: string]: string }
+  },
 ) =>
   render(ui, {
-    wrapper: (props) => <AllTheProviders {...props} mocks={options?.mocks} />,
+    wrapper: (props) => (
+      <AllTheProviders {...props} mocks={options?.mocks} useParams={options?.useParams} />
+    ),
     ...options,
   })
 

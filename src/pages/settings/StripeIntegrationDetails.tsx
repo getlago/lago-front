@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
@@ -21,7 +21,7 @@ import {
   DeleteStripeIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteStripeIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { INTEGRATIONS_ROUTE, STRIPE_INTEGRATION_ROUTE } from '~/core/router'
+import { INTEGRATIONS_ROUTE, STRIPE_INTEGRATION_ROUTE, useNavigate } from '~/core/router'
 import {
   AddStripeProviderDialogFragmentDoc,
   DeleteStripeIntegrationDialogFragmentDoc,

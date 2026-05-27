@@ -1,12 +1,13 @@
 import { gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
+import { PlanDetailsV2 } from '~/components/plans/details-v2/PlanDetailsV2'
 import { PlanDetailsActivityLogs } from '~/components/plans/details/PlanDetailsActivityLogs'
 import { PlanDetailsOverview } from '~/components/plans/details/PlanDetailsOverview'
 import PlanSubscriptionList from '~/components/plans/details/PlanSubscriptionList'
@@ -18,14 +19,18 @@ import {
   PLAN_DETAILS_ROUTE,
   PLANS_ROUTE,
   UPDATE_PLAN_ROUTE,
+  useNavigate,
 } from '~/core/router'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   DeletePlanDialogFragment,
   DeletePlanDialogFragmentDoc,
+  LagoApiError,
   useGetPlanForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
@@ -52,11 +57,23 @@ const PlanDetails = () => {
   const { isPremium } = useCurrentUser()
 
   const deletePlanDialogRef = useRef<DeletePlanDialogRef>(null)
-  const { data: planResult, loading: isPlanLoading } = useGetPlanForDetailsQuery({
+  const {
+    data: planResult,
+    loading: isPlanLoading,
+    error: planError,
+  } = useGetPlanForDetailsQuery({
     variables: { planId: planId as string },
     skip: !planId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
   const plan = planResult?.plan
+
+  useNotFoundRedirect({
+    error: planError,
+    loading: isPlanLoading,
+    redirectTo: PLANS_ROUTE,
+    translateKey: 'text_17779954437882bskjocn0qv',
+  })
 
   useEffect(() => {
     // WARNING: This page should not be used to show overridden plan's details
@@ -172,6 +189,27 @@ const PlanDetails = () => {
             }),
             content: <PlanDetailsActivityLogs planId={planId as string} />,
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
+          },
+          {
+            title: translate('text_17792001643312864fz7j4gq'),
+            link: generatePath(PLAN_DETAILS_ROUTE, {
+              planId: planId as string,
+              tab: PlanDetailsTabsOptionsEnum.editOverview,
+            }),
+            match: [
+              generatePath(PLAN_DETAILS_ROUTE, {
+                planId: planId as string,
+                tab: PlanDetailsTabsOptionsEnum.editOverview,
+              }),
+              generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
+                customerId: customerId || '',
+                subscriptionId: subscriptionId || '',
+                planId: planId as string,
+                tab: PlanDetailsTabsOptionsEnum.editOverview,
+              }),
+            ],
+            content: <PlanDetailsV2 planId={planId as string} />,
+            hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
           },
         ]}
       />

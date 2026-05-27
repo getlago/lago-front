@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { FC } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
@@ -13,6 +13,7 @@ import {
   buildXeroCreditNoteUrl,
 } from '~/core/constants/externalUrls'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
+import { Link } from '~/core/router'
 import { getConnectedIntegration } from '~/core/utils/integrations'
 import {
   AnrokIntegration,

@@ -1,16 +1,10 @@
 import { gql, useApolloClient } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
+// eslint-disable-next-line lago/no-direct-rrd-nav-import -- Auth callback renders outside /:organizationSlug; the slug wrapper would be incorrect here.
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
-import {
-  getItemFromLS,
-  hasDefinedGQLError,
-  LagoGQLError,
-  onLogIn,
-  removeItemFromLS,
-} from '~/core/apolloClient'
-import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/constants/localStorageKeys'
+import { hasDefinedGQLError, LagoGQLError, onLogIn } from '~/core/apolloClient'
 import { INVITATION_ROUTE_FORM, LOGIN_OKTA, LOGIN_ROUTE } from '~/core/router'
 import { LagoApiError, useOktaLoginUserMutation } from '~/generated/graphql'
 
@@ -25,6 +19,7 @@ gql`
 const OktaAuthCallback = () => {
   const navigate = useNavigate()
   const client = useApolloClient()
+  const hasRun = useRef(false)
   const [oktaLoginUser] = useOktaLoginUserMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     fetchPolicy: 'network-only',
@@ -37,11 +32,17 @@ const OktaAuthCallback = () => {
   const oktaState = state.state || ''
   const invitationToken = state.invitationToken || undefined
 
-  if (!code) {
-    navigate(LOGIN_ROUTE)
-  }
-
   useEffect(() => {
+    // Guard against React StrictMode double-execution.
+    // The OAuth code can only be consumed once by the backend.
+    if (hasRun.current) return
+    hasRun.current = true
+
+    if (!code) {
+      navigate(LOGIN_ROUTE)
+      return
+    }
+
     const oktaCallback = async () => {
       if (invitationToken) {
         return navigate({
@@ -81,16 +82,12 @@ const OktaAuthCallback = () => {
         return
       }
 
-      // Read redirect path from localStorage (set by LoginOkta before Okta redirect)
-      const redirectPath = getItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
-
+      // The redirect path is already stored in localStorage by LoginOkta before
+      // the Okta redirect. Home.tsx is the SINGLE point of cleanup for
+      // REDIRECT_AFTER_LOGIN_LS_KEY — we do NOT remove it here to avoid
+      // a race condition where onLogIn triggers the route guard redirect
+      // to HOME before this callback can navigate.
       await onLogIn(client, res.data?.oktaLogin?.token)
-
-      removeItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY)
-
-      if (redirectPath) {
-        navigate({ pathname: redirectPath })
-      }
     }
 
     oktaCallback()

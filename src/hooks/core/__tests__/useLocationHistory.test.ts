@@ -2,12 +2,14 @@ import { act, renderHook } from '@testing-library/react'
 import type { Location } from 'react-router-dom'
 
 import { authTokenVar, locationHistoryVar } from '~/core/apolloClient'
+import { FeatureFlagEnum } from '~/generated/graphql'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 
 const mockNavigate = jest.fn()
 const mockGetItemFromLS = jest.fn()
 const mockHasPermissions = jest.fn()
 const mockHasPermissionsOr = jest.fn()
+const mockHasFeatureFlag = jest.fn()
 
 const FALLBACK_URL = '/fallback'
 const MOCK_HISTORY_VAR = [
@@ -44,15 +46,28 @@ const MOCK_HISTORY_VAR = [
   },
 ]
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-}))
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom')
+
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+    useParams: jest.fn(actual.useParams),
+  }
+})
+
+const mockUseParams = jest.requireMock('react-router-dom').useParams as jest.Mock
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
     hasPermissions: mockHasPermissions,
     hasPermissionsOr: mockHasPermissionsOr,
+  }),
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    hasFeatureFlag: mockHasFeatureFlag,
   }),
 }))
 
@@ -79,11 +94,14 @@ describe('useLocationHistory()', () => {
     mockGetItemFromLS.mockClear()
     mockHasPermissions.mockClear()
     mockHasPermissionsOr.mockClear()
+    mockUseParams.mockReturnValue({})
+    mockHasFeatureFlag.mockClear()
     authTokenVar(undefined)
 
     // Default to true for backwards compatibility with existing tests
     mockHasPermissions.mockReturnValue(true)
     mockHasPermissionsOr.mockReturnValue(true)
+    mockHasFeatureFlag.mockReturnValue(true)
   })
 
   describe('onRouteEnter()', () => {
@@ -131,6 +149,98 @@ describe('useLocationHistory()', () => {
             orgId: null,
           },
           replace: true,
+        })
+      })
+
+      // Iframe context propagation: Salesforce/Hubspot embed Lago via
+      // `?sfdc=true` / `?ifrm=true`. When session expires, the auth guard
+      // must carry these flags onto `/login` so `useIframeConfig` (read by
+      // Login.tsx) hides Google/Okta — those flows can't complete in an
+      // embedded iframe. Without this, the iframe shows the full SSO UI and
+      // the user is locked out of the email+password fallback.
+      describe('GIVEN the requested URL carries iframe params', () => {
+        it('THEN propagates `?sfdc=true` (Salesforce) onto the /login URL', () => {
+          const sfdcLocation: Location = {
+            pathname: '/customer/abc-123/create/subscription',
+            search: '?sfdc=true',
+            hash: '',
+            state: null,
+            key: 'sfdc-key',
+          }
+
+          const { result } = renderHook(() => useLocationHistory())
+
+          act(() => {
+            result.current.onRouteEnter({ private: true }, sfdcLocation)
+          })
+
+          expect(mockNavigate).toHaveBeenCalledWith('/login?sfdc=true', {
+            state: { from: sfdcLocation, orgId: 'org-id-123' },
+            replace: true,
+          })
+        })
+
+        it('THEN propagates `?ifrm=true` (Hubspot) onto the /login URL', () => {
+          const ifrmLocation: Location = {
+            pathname: '/customer/abc-123/create-invoice',
+            search: '?ifrm=true',
+            hash: '',
+            state: null,
+            key: 'ifrm-key',
+          }
+
+          const { result } = renderHook(() => useLocationHistory())
+
+          act(() => {
+            result.current.onRouteEnter({ private: true }, ifrmLocation)
+          })
+
+          expect(mockNavigate).toHaveBeenCalledWith('/login?ifrm=true', {
+            state: { from: ifrmLocation, orgId: 'org-id-123' },
+            replace: true,
+          })
+        })
+
+        it('THEN preserves the full search string when other params are present alongside the iframe flag', () => {
+          const richLocation: Location = {
+            pathname: '/customer/abc-123/create/subscription',
+            search: '?sfdc=true&plan=foo',
+            hash: '',
+            state: null,
+            key: 'rich-key',
+          }
+
+          const { result } = renderHook(() => useLocationHistory())
+
+          act(() => {
+            result.current.onRouteEnter({ private: true }, richLocation)
+          })
+
+          expect(mockNavigate).toHaveBeenCalledWith('/login?sfdc=true&plan=foo', {
+            state: { from: richLocation, orgId: 'org-id-123' },
+            replace: true,
+          })
+        })
+
+        it('THEN does NOT propagate non-iframe search params (avoids leaking unrelated query state to /login)', () => {
+          const nonIframeLocation: Location = {
+            pathname: '/customers/123',
+            search: '?tab=overview&filter=active',
+            hash: '',
+            state: null,
+            key: 'non-iframe-key',
+          }
+
+          const { result } = renderHook(() => useLocationHistory())
+
+          act(() => {
+            result.current.onRouteEnter({ private: true }, nonIframeLocation)
+          })
+
+          expect(mockNavigate).toHaveBeenCalledWith('/login', {
+            state: { from: nonIframeLocation, orgId: 'org-id-123' },
+            replace: true,
+          })
         })
       })
     })
@@ -518,6 +628,90 @@ describe('useLocationHistory()', () => {
       })
     })
 
+    describe('feature flag gating', () => {
+      beforeEach(() => {
+        authTokenVar('test-token')
+      })
+
+      it('should redirect to home when feature flag is not active', () => {
+        mockHasFeatureFlag.mockReturnValue(false)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['quotesView'],
+              featureFlag: FeatureFlagEnum.OrderForms,
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasFeatureFlag).toHaveBeenCalledWith(FeatureFlagEnum.OrderForms)
+        expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+      })
+
+      it('should allow access when feature flag is active', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['quotesView'],
+              featureFlag: FeatureFlagEnum.OrderForms,
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasFeatureFlag).toHaveBeenCalledWith(FeatureFlagEnum.OrderForms)
+        expect(mockNavigate).not.toHaveBeenCalledWith('/', { replace: true })
+      })
+
+      it('should not check feature flag when no featureFlag field is specified', () => {
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['customersView'],
+            },
+            mockLocation,
+          )
+        })
+
+        expect(mockHasFeatureFlag).not.toHaveBeenCalled()
+      })
+
+      it('should check permissions before feature flag', () => {
+        mockHasPermissions.mockReturnValue(false)
+        mockHasFeatureFlag.mockReturnValue(false)
+
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() => {
+          result.current.onRouteEnter(
+            {
+              private: true,
+              permissions: ['quotesView'],
+              featureFlag: FeatureFlagEnum.OrderForms,
+            },
+            mockLocation,
+          )
+        })
+
+        // Should redirect to forbidden (permission check), not home (feature flag check)
+        expect(mockNavigate).toHaveBeenCalledWith('/forbidden')
+        expect(mockNavigate).not.toHaveBeenCalledWith('/', { replace: true })
+      })
+    })
+
     describe('location history tracking', () => {
       beforeEach(() => {
         authTokenVar('test-token')
@@ -706,6 +900,46 @@ describe('useLocationHistory()', () => {
         )
 
         expect(mockNavigate).toHaveBeenCalledWith(FALLBACK_URL)
+        expect(locationHistoryVar()).toEqual([])
+      })
+    })
+
+    describe('GIVEN the user is inside an organization context (slug-aware exclude)', () => {
+      const SLUG_HISTORY = [
+        { pathname: '/acme/add-ons', search: '', hash: '', state: null, key: 'k1' },
+        { pathname: '/acme/settings/taxes', search: '', hash: '', state: null, key: 'k2' },
+        { pathname: '/acme/customers', search: '', hash: '', state: null, key: 'k3' },
+      ]
+
+      beforeEach(() => {
+        mockUseParams.mockReturnValue({ organizationSlug: 'acme' })
+        locationHistoryVar(SLUG_HISTORY)
+      })
+
+      it('THEN should match slug-unaware exclude patterns against stripped pathnames', () => {
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() =>
+          result.current.goBack(FALLBACK_URL, {
+            exclude: '/settings/taxes',
+          }),
+        )
+
+        expect(mockNavigate).toHaveBeenCalledWith(SLUG_HISTORY[2])
+        expect(locationHistoryVar()).toEqual([])
+      })
+
+      it('THEN should fall back when all history entries are excluded (slug prepended to fallback)', () => {
+        const { result } = renderHook(() => useLocationHistory())
+
+        act(() =>
+          result.current.goBack(FALLBACK_URL, {
+            exclude: ['/settings/taxes', '/customers'],
+          }),
+        )
+
+        // The slug-aware navigate wrapper prepends /acme to the fallback
+        expect(mockNavigate).toHaveBeenCalledWith('/acme/fallback')
         expect(locationHistoryVar()).toEqual([])
       })
     })

@@ -1,18 +1,7 @@
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Typography } from '~/components/designSystem/Typography'
-import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { PlanDetailsUsageChargesSectionAccordion } from '~/components/plans/details/PlanDetailsUsageChargesSectionAccordion'
-import { isPlanIntervalAnnual, mapChargeIntervalCopy } from '~/components/plans/utils'
-import { chargeModelLookupTranslation } from '~/core/constants/form'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import {
-  Charge,
-  CurrencyEnum,
-  EditPlanFragment,
-  PlanInterval,
-  RegroupPaidFeesEnum,
-} from '~/generated/graphql'
+import { UsageChargeInfo, UsageChargeInfoCharge } from '~/components/plans/UsageChargeInfo'
+import { CurrencyEnum, EditPlanFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export const PlanDetailsUsageChargesSection = ({
@@ -38,21 +27,6 @@ export const PlanDetailsUsageChargesSection = ({
         recurringCharges: EditPlanFragment['charges']
       },
     ) ?? {}
-
-  const isAnnual = isPlanIntervalAnnual(plan?.interval)
-
-  const getInvoicingStrategyTextValue = (charge: Charge) => {
-    if (!charge.payInAdvance) {
-      return translate('text_66968fba80f8f89a8aefdec0')
-    }
-    if (charge.invoiceable) {
-      return translate('text_66968fba80f8f89a8aefdebf')
-    }
-    if (charge.regroupPaidFees === RegroupPaidFeesEnum.Invoice) {
-      return translate('text_66968fba80f8f89a8aefdec0')
-    }
-    return translate('text_6682c52081acea9052074686')
-  }
 
   return (
     <section className="flex flex-col gap-12">
@@ -81,112 +55,13 @@ export const PlanDetailsUsageChargesSection = ({
                 </div>
               }
             >
-              <section className="flex flex-col gap-4">
-                {!!charge.appliedPricingUnit && (
-                  <div className="p-4 shadow-b">
-                    <DetailsPage.InfoGrid
-                      grid={[
-                        {
-                          label: translate('text_17502505476284yyq70yy6mx'),
-                          value: charge.appliedPricingUnit.pricingUnit.name,
-                        },
-                        {
-                          label: translate('text_1750411499858su5b7bbp5t9'),
-                          value: translate('text_1750424999815sw5whlu1xj0', {
-                            shortName: charge.appliedPricingUnit.pricingUnit?.shortName,
-                            conversionRateAmount: intlFormatNumber(
-                              charge.appliedPricingUnit?.conversionRate,
-                              {
-                                maximumFractionDigits: 15,
-                                currency: currency,
-                              },
-                            ),
-                          }),
-                        },
-                      ]}
-                    />
-                  </div>
-                )}
-                {/* Charge main infos */}
-                <div className="px-4 pt-4">
-                  <DetailsPage.InfoGrid
-                    grid={[
-                      {
-                        label: translate('text_65201b8216455901fe273dd5'),
-                        value: translate(chargeModelLookupTranslation[charge.chargeModel]),
-                      },
-                      {
-                        label: translate('text_65201b8216455901fe273dc1'),
-                        value: translate(
-                          mapChargeIntervalCopy(
-                            plan?.interval as PlanInterval,
-                            (isAnnual && !!plan?.billChargesMonthly) || false,
-                          ),
-                        ),
-                      },
-                    ]}
-                  />
-                </div>
-                {/* Properties accordion */}
-                <PlanDetailsUsageChargesSectionAccordion
-                  currency={currency}
-                  charge={charge as Charge}
-                />
-                {/* Options */}
-                <div className="px-4 pb-4">
-                  <DetailsPage.InfoGrid
-                    grid={[
-                      {
-                        label: translate('text_65201b8216455901fe273dd9'),
-                        value: charge?.payInAdvance
-                          ? translate('text_646e2d0cc536351b62ba6faa')
-                          : translate('text_646e2d0cc536351b62ba6f8c'),
-                      },
-                      {
-                        label: translate('text_65201b8216455901fe273ddb'),
-                        value: intlFormatNumber(
-                          deserializeAmount(charge.minAmountCents, currency),
-                          {
-                            currencyDisplay: 'symbol',
-                            currency,
-                            pricingUnitShortName: charge.appliedPricingUnit?.pricingUnit?.shortName,
-                            maximumFractionDigits: 15,
-                          },
-                        ),
-                      },
-                      {
-                        label: translate('text_65201b8216455901fe273df0'),
-                        value: charge.prorated
-                          ? translate('text_65251f46339c650084ce0d57')
-                          : translate('text_65251f4cd55aeb004e5aa5ef'),
-                      },
-                      {
-                        label: translate('text_6682c52081acea90520744ca'),
-                        value: getInvoicingStrategyTextValue(charge as Charge),
-                      },
-                      {
-                        label: translate('text_645bb193927b375079d28a8f'),
-                        value:
-                          !!charge?.taxes?.length || !!plan?.taxes?.length
-                            ? (charge.taxes?.length ? charge.taxes : plan?.taxes)?.map(
-                                (tax, taxIndex) => (
-                                  <div
-                                    key={`plan-details-charge-${i}-section-accordion-tax-${taxIndex}`}
-                                  >
-                                    {tax.name} (
-                                    {intlFormatNumber(Number(tax.rate) / 100 || 0, {
-                                      style: 'percent',
-                                    })}
-                                    )
-                                  </div>
-                                ),
-                              )
-                            : '-',
-                      },
-                    ]}
-                  />
-                </div>
-              </section>
+              <UsageChargeInfo
+                charge={charge as UsageChargeInfoCharge}
+                currency={currency}
+                planInterval={plan?.interval}
+                billChargesMonthly={plan?.billChargesMonthly}
+                planTaxes={plan?.taxes}
+              />
             </Accordion>
           ))}
         </div>
@@ -216,117 +91,13 @@ export const PlanDetailsUsageChargesSection = ({
                 </div>
               }
             >
-              <section className="flex flex-col gap-4">
-                {!!charge.appliedPricingUnit && (
-                  <div className="p-4 shadow-b">
-                    <DetailsPage.InfoGrid
-                      grid={[
-                        {
-                          label: translate('text_17502505476284yyq70yy6mx'),
-                          value: charge.appliedPricingUnit.pricingUnit.name,
-                        },
-                        {
-                          label: translate('text_1750411499858su5b7bbp5t9'),
-                          value: translate('text_1750424999815sw5whlu1xj0', {
-                            shortName: charge.appliedPricingUnit?.pricingUnit?.shortName,
-                            conversionRateAmount: intlFormatNumber(
-                              charge.appliedPricingUnit?.conversionRate,
-                              {
-                                maximumFractionDigits: 15,
-                                currency: currency,
-                              },
-                            ),
-                          }),
-                        },
-                      ]}
-                    />
-                  </div>
-                )}
-
-                {/* Charge main infos */}
-                <div className="px-4 pt-4">
-                  <DetailsPage.InfoGrid
-                    grid={[
-                      {
-                        label: translate('text_65201b8216455901fe273dd5'),
-                        value: translate(chargeModelLookupTranslation[charge.chargeModel]),
-                      },
-                      {
-                        label: translate('text_65201b8216455901fe273dc1'),
-                        value: translate(
-                          mapChargeIntervalCopy(
-                            plan?.interval as PlanInterval,
-                            (plan?.interval === PlanInterval.Yearly &&
-                              !!plan?.billChargesMonthly) ||
-                              false,
-                          ),
-                        ),
-                      },
-                    ]}
-                  />
-                </div>
-                {/* Properties accordion */}
-                <PlanDetailsUsageChargesSectionAccordion
-                  currency={currency}
-                  charge={charge as Charge}
-                />
-                {/* Options */}
-                <div className="px-4 pb-4">
-                  <DetailsPage.InfoGrid
-                    grid={[
-                      {
-                        label: translate('text_65201b8216455901fe273dd9'),
-                        value: charge?.payInAdvance
-                          ? translate('text_646e2d0cc536351b62ba6faa')
-                          : translate('text_646e2d0cc536351b62ba6f8c'),
-                      },
-                      {
-                        label: translate('text_65201b8216455901fe273ddb'),
-                        value: intlFormatNumber(
-                          deserializeAmount(charge.minAmountCents, currency),
-                          {
-                            currencyDisplay: 'symbol',
-                            currency,
-                            pricingUnitShortName: charge.appliedPricingUnit?.pricingUnit?.shortName,
-                            maximumFractionDigits: 15,
-                          },
-                        ),
-                      },
-                      {
-                        label: translate('text_65201b8216455901fe273df0'),
-                        value: charge.prorated
-                          ? translate('text_65251f46339c650084ce0d57')
-                          : translate('text_65251f4cd55aeb004e5aa5ef'),
-                      },
-                      {
-                        label: translate('text_646e2d0cc536351b62ba6f16'),
-                        value: charge.invoiceable
-                          ? translate('text_65251f46339c650084ce0d57')
-                          : translate('text_65251f4cd55aeb004e5aa5ef'),
-                      },
-                      {
-                        label: translate('text_645bb193927b375079d28a8f'),
-                        value:
-                          !!charge?.taxes?.length || !!plan?.taxes?.length
-                            ? (charge.taxes?.length ? charge.taxes : plan?.taxes)?.map(
-                                (tax, taxIndex) => (
-                                  <div
-                                    key={`plan-details-charge-${i}-section-accordion-tax-${taxIndex}`}
-                                  >
-                                    {tax.name} (
-                                    {intlFormatNumber(Number(tax.rate) / 100 || 0, {
-                                      style: 'percent',
-                                    })}
-                                    )
-                                  </div>
-                                ),
-                              )
-                            : '-',
-                      },
-                    ]}
-                  />
-                </div>
-              </section>
+              <UsageChargeInfo
+                charge={charge as UsageChargeInfoCharge}
+                currency={currency}
+                planInterval={plan?.interval}
+                billChargesMonthly={plan?.billChargesMonthly}
+                planTaxes={plan?.taxes}
+              />
             </Accordion>
           ))}
         </div>

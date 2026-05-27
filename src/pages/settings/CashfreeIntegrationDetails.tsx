@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -20,7 +20,7 @@ import {
 } from '~/components/settings/integrations/DeleteCashfreeIntegrationDialog'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { CASHFREE_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
+import { CASHFREE_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   AddCashfreeProviderDialogFragmentDoc,
@@ -30,7 +30,7 @@ import {
   useGetCashfreeIntegrationsDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 import Cashfree from '~/public/images/cashfree.svg'
 
@@ -76,8 +76,8 @@ const CashfreeIntegrationDetails = () => {
   const addDialogRef = useRef<AddCashfreeDialogRef>(null)
   const deleteDialogRef = useRef<DeleteCashfreeIntegrationDialogRef>(null)
   const { apiUrl } = envGlobalVar()
-  const { organization } = useOrganizationInfos()
-  const currentOrganizationId = organization?.id || ''
+  const { currentMembership } = useCurrentUser()
+  const currentOrganizationId = currentMembership?.organization.id || ''
   const { translate } = useInternationalization()
   const { data, loading } = useGetCashfreeIntegrationsDetailsQuery({
     variables: {

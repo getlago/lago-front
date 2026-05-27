@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
@@ -14,7 +14,7 @@ import {
   DeleteHubspotIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { HUBSPOT_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
+import { HUBSPOT_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
   DeleteHubspotIntegrationDialogFragmentDoc,
   HubspotForCreateDialogFragmentDoc,

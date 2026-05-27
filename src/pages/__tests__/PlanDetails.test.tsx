@@ -30,6 +30,10 @@ jest.mock('~/components/plans/details/PlanDetailsOverview', () => ({
   PlanDetailsOverview: () => null,
 }))
 
+jest.mock('~/components/plans/details-v2/PlanDetailsV2', () => ({
+  PlanDetailsV2: () => null,
+}))
+
 jest.mock('~/components/plans/details/PlanDetailsActivityLogs', () => ({
   PlanDetailsActivityLogs: () => null,
 }))
@@ -66,6 +70,13 @@ jest.mock('~/generated/graphql', () => ({
     mockUseGetPlanForDetailsQuery(options),
 }))
 
+const mockIsFeatureFlagActive = jest.fn().mockReturnValue(false)
+
+jest.mock('~/core/utils/featureFlags', () => ({
+  ...jest.requireActual('~/core/utils/featureFlags'),
+  isFeatureFlagActive: (flag: string) => mockIsFeatureFlagActive(flag),
+}))
+
 interface MainHeaderDropdownAction {
   type: string
   items: { hidden?: boolean; label: string }[]
@@ -83,6 +94,7 @@ describe('PlanDetails', () => {
 
     useParamsMock.mockReturnValue({ planId: 'plan-123' })
     mockIsPremium.mockReturnValue(true)
+    mockIsFeatureFlagActive.mockReturnValue(false)
     mockUseGetPlanForDetailsQuery.mockReturnValue({
       data: {
         plan: {
@@ -241,6 +253,37 @@ describe('PlanDetails', () => {
         render(<PlanDetails />)
 
         expect(testMockNavigateFn).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the EDIT_DETAILS_PAGE feature flag', () => {
+    describe('WHEN the flag is off', () => {
+      it('THEN should hide the edit overview tab', () => {
+        mockHasPermissions.mockReturnValue(true)
+        mockIsFeatureFlagActive.mockReturnValue(false)
+
+        render(<PlanDetails />)
+
+        const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTabConfig[]
+        const editOverviewTab = tabs.find((t) => t.title === 'text_17792001643312864fz7j4gq')
+
+        expect(editOverviewTab?.hidden).toBe(true)
+      })
+    })
+
+    describe('WHEN the flag is on', () => {
+      it('THEN should render the edit overview tab as visible', () => {
+        mockHasPermissions.mockReturnValue(true)
+        mockIsFeatureFlagActive.mockReturnValue(true)
+
+        render(<PlanDetails />)
+
+        const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTabConfig[]
+        const editOverviewTab = tabs.find((t) => t.title === 'text_17792001643312864fz7j4gq')
+
+        expect(editOverviewTab).toBeDefined()
+        expect(editOverviewTab?.hidden).toBe(false)
       })
     })
   })

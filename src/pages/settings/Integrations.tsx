@@ -1,12 +1,13 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   SettingsListItem,
   SettingsListItemLoadingSkeleton,
@@ -15,7 +16,6 @@ import {
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   AddAdyenDialog,
   AddAdyenDialogRef,
@@ -86,6 +86,7 @@ import {
   SALESFORCE_INTEGRATION_ROUTE,
   STRIPE_INTEGRATION_ROUTE,
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
+  useNavigate,
   XERO_INTEGRATION_ROUTE,
 } from '~/core/router'
 import {
@@ -175,7 +176,7 @@ const Integrations = () => {
   const { isPremium } = useCurrentUser()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
 
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
   const addAvalaraDialogRef = useRef<AddAvalaraDialogRef>(null)
   const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
@@ -372,7 +373,7 @@ const Integrations = () => {
                         }
                         onClick={() => {
                           if (!isPremium) {
-                            premiumWarningDialogRef.current?.openDialog({
+                            openPremiumWarningDialog({
                               title: translate('text_661ff6e56ef7e1b7c542b1ea'),
                               description: translate('text_661ff6e56ef7e1b7c542b1f6'),
                               mailtoSubject: translate('text_666887641443e4a75b9ead3d'),
@@ -410,7 +411,7 @@ const Integrations = () => {
                         }
                         onClick={() => {
                           if (!hasAccessToAvalaraPremiumIntegration) {
-                            premiumWarningDialogRef.current?.openDialog({
+                            openPremiumWarningDialog({
                               title: translate('text_661ff6e56ef7e1b7c542b1ea'),
                               description: translate('text_661ff6e56ef7e1b7c542b1f6'),
                               mailtoSubject: translate('text_1744296980972iaigqgcpb8t'),
@@ -505,7 +506,7 @@ const Integrations = () => {
                         )}
                         onClick={() => {
                           if (!hasAccessToHubspotPremiumIntegration) {
-                            premiumWarningDialogRef.current?.openDialog({
+                            openPremiumWarningDialog({
                               title: translate('text_661ff6e56ef7e1b7c542b1ea'),
                               description: translate('text_661ff6e56ef7e1b7c542b1f6'),
                               mailtoSubject: translate('text_172718956805392syzumhdlm'),
@@ -544,7 +545,7 @@ const Integrations = () => {
                         }
                         onClick={() => {
                           if (!hasAccessToNetsuitePremiumIntegration) {
-                            premiumWarningDialogRef.current?.openDialog({
+                            openPremiumWarningDialog({
                               title: translate('text_661ff6e56ef7e1b7c542b1ea'),
                               description: translate('text_661ff6e56ef7e1b7c542b1f6'),
                               mailtoSubject: translate('text_661ff6e56ef7e1b7c542b220'),
@@ -582,7 +583,7 @@ const Integrations = () => {
                         )}
                         onClick={() => {
                           if (!hasAccessToSalesforcePremiumIntegration) {
-                            premiumWarningDialogRef.current?.openDialog({
+                            openPremiumWarningDialog({
                               title: translate('text_661ff6e56ef7e1b7c542b1ea'),
                               description: translate('text_661ff6e56ef7e1b7c542b1f6'),
                               mailtoSubject: translate('text_173150719524652xb2nd3f7r'),
@@ -667,7 +668,7 @@ const Integrations = () => {
                         }
                         onClick={() => {
                           if (!hasAccessToXeroPremiumIntegration) {
-                            premiumWarningDialogRef.current?.openDialog({
+                            openPremiumWarningDialog({
                               title: translate('text_661ff6e56ef7e1b7c542b1ea'),
                               description: translate('text_661ff6e56ef7e1b7c542b1f6'),
                               mailtoSubject: translate('text_6672ebb8b1b50be550ecca09'),
@@ -860,7 +861,6 @@ const Integrations = () => {
       <AddHubspotDialog ref={addHubspotDialogRef} />
       <AddSalesforceDialog ref={addSalesforceDialogRef} />
       <AddFlutterwaveDialog ref={addFlutterwaveDialogRef} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }

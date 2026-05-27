@@ -1,5 +1,5 @@
 import { type AnyFormApi } from '@tanstack/react-form'
-import { memo, RefObject } from 'react'
+import { memo } from 'react'
 
 import { ChargePercentage } from '~/components/plans/ChargePercentage'
 import { CustomCharge } from '~/components/plans/CustomCharge'
@@ -11,7 +11,6 @@ import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { StandardCharge } from '~/components/plans/StandardCharge'
 import { LocalFixedChargeInput, LocalUsageChargeInput } from '~/components/plans/types'
 import { VolumeChargeTable } from '~/components/plans/VolumeChargeTable'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { ChargeFormProvider } from '~/contexts/ChargeFormContext'
 import { ALL_CHARGE_MODELS } from '~/core/constants/form'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -24,7 +23,6 @@ interface ChargeWrapperSwitchProps {
   form: AnyFormApi
   isEdition: boolean
   localCharge: LocalFixedChargeInput | LocalUsageChargeInput
-  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
   propertyCursor: string
   onExpandCustomCharge?: (currentValue: string | undefined) => void
 }
@@ -37,7 +35,6 @@ export const ChargeWrapperSwitch = memo(
     disabled,
     form,
     localCharge,
-    premiumWarningDialogRef,
     propertyCursor,
     onExpandCustomCharge,
   }: ChargeWrapperSwitchProps) => {
@@ -58,9 +55,7 @@ export const ChargeWrapperSwitch = memo(
           {localCharge?.chargeModel === ALL_CHARGE_MODELS.GraduatedPercentage && (
             <GraduatedPercentageChargeTable />
           )}
-          {localCharge?.chargeModel === ALL_CHARGE_MODELS.Percentage && (
-            <ChargePercentage premiumWarningDialogRef={premiumWarningDialogRef} />
-          )}
+          {localCharge?.chargeModel === ALL_CHARGE_MODELS.Percentage && <ChargePercentage />}
           {localCharge?.chargeModel === ALL_CHARGE_MODELS.Volume && <VolumeChargeTable />}
           {localCharge?.chargeModel === ALL_CHARGE_MODELS.Custom && (
             <CustomCharge onExpandCustomCharge={onExpandCustomCharge} />

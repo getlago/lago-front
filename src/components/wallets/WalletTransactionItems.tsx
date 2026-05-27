@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { generatePath, Link } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
@@ -16,7 +16,7 @@ import {
   TRANSACTION_STATUS_LABEL_MAP,
 } from '~/components/wallets/WalletDetailsDrawer'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
+import { CUSTOMER_DETAILS_TAB_ROUTE, Link } from '~/core/router'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import { DateFormat, intlFormatDateTime, TimeFormat } from '~/core/timezone'
 import {

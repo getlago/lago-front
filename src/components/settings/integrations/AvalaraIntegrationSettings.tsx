@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -13,6 +13,7 @@ import {
 } from '~/components/settings/integrations/DeleteAvalaraIntegrationDialog'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { useNavigate } from '~/core/router'
 import {
   AVALARA_INTEGRATION_DETAILS_ROUTE,
   AVALARA_INTEGRATION_ROUTE,

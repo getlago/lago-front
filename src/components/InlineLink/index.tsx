@@ -1,5 +1,7 @@
 import { FC, PropsWithChildren } from 'react'
-import { Link, LinkProps } from 'react-router-dom'
+import { LinkProps } from 'react-router-dom'
+
+import { Link } from '~/core/router'
 
 const InlineLink: FC<PropsWithChildren<LinkProps>> = ({ children, ...props }) => {
   return (

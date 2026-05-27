@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
@@ -15,7 +15,7 @@ import {
   DeleteSalesforceIntegrationDialogRef,
 } from '~/components/settings/integrations/DeleteSalesforceIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { INTEGRATIONS_ROUTE, SALESFORCE_INTEGRATION_ROUTE } from '~/core/router'
+import { INTEGRATIONS_ROUTE, SALESFORCE_INTEGRATION_ROUTE, useNavigate } from '~/core/router'
 import {
   DeleteSalesforceIntegrationDialogFragmentDoc,
   IntegrationTypeEnum,

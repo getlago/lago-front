@@ -1,7 +1,6 @@
-import { useNavigate } from 'react-router-dom'
-
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
+import { useNavigate } from '~/core/router'
 import { TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { useMemo } from 'react'
-import { generatePath, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { PlanFormInput } from '~/components/plans/types'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
@@ -12,6 +12,8 @@ import {
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
+  useLocation,
+  useNavigate,
 } from '~/core/router'
 import { serializePlanInput } from '~/core/serializers'
 import {
@@ -41,6 +43,7 @@ gql`
       paymentMethod {
         id
       }
+      consolidateInvoice
       skipInvoiceCustomSections
       selectedInvoiceCustomSections {
         id
@@ -73,6 +76,7 @@ gql`
       paymentMethod {
         id
       }
+      consolidateInvoice
       skipInvoiceCustomSections
       selectedInvoiceCustomSections {
         id

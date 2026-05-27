@@ -1,4 +1,5 @@
 import { act, waitFor } from '@testing-library/react'
+// eslint-disable-next-line lago/no-direct-rrd-nav-import
 import { useLocation } from 'react-router-dom'
 
 import { initializeYup } from '~/formValidation/initializeYup'

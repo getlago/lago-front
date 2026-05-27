@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useEffect, useState } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { useCustomerPortalData } from '~/components/customerPortal/common/hooks/useCustomerPortalData'
 import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
@@ -15,6 +15,7 @@ import {
 } from '~/components/subscriptions/SubscriptionCurrentUsageTable'
 import { SubscriptionUsageLifetimeGraphComponent } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { useNavigate } from '~/core/router'
 import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
 import {
   CustomerProjectedUsageForUsageDetailsFragmentDoc,

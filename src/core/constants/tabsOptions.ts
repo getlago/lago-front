@@ -25,9 +25,11 @@ export enum CustomerInvoiceDetailsTabsOptionsEnum {
 export enum CustomerSubscriptionDetailsTabsOptionsEnum {
   activityLogs = 'activity-logs',
   alerts = 'alerts',
+  editOverview = 'edit-overview',
   entitlements = 'entitlements',
   overview = 'overview',
   progressiveBilling = 'progressive-billing',
+  subscriptionPlan = 'subscription-plan',
   usage = 'usage',
 }
 
@@ -38,6 +40,7 @@ export enum IntegrationsTabsOptionsEnum {
 
 export enum PlanDetailsTabsOptionsEnum {
   activityLogs = 'activity-logs',
+  editOverview = 'edit-overview',
   overview = 'overview',
   subscriptions = 'subscriptions',
 }
@@ -65,5 +68,16 @@ export enum CustomerDetailsTabsOptions {
 
 export enum FeatureDetailsTabsOptionsEnum {
   overview = 'overview',
+  activityLogs = 'activity-logs',
+}
+
+export enum QuotesTabsOptionsEnum {
+  quotes = 'quotes',
+  orderForms = 'order-forms',
+}
+
+export enum QuoteDetailsTabsOptionsEnum {
+  overview = 'overview',
+  orderForms = 'order-forms',
   activityLogs = 'activity-logs',
 }

@@ -11,11 +11,24 @@ import {
 } from '../MainNavMenuSections'
 
 const mockHasPermissions = jest.fn()
+const mockHasFeatureFlag = jest.fn()
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
     hasPermissions: mockHasPermissions,
   }),
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    hasFeatureFlag: mockHasFeatureFlag,
+  }),
+}))
+
+const mockIsPremium = jest.fn()
+
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => ({ isPremium: mockIsPremium() }),
 }))
 
 jest.mock('~/core/utils/featureFlags', () => ({
@@ -39,6 +52,8 @@ describe('MainNavMenuSections', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+    mockHasFeatureFlag.mockReturnValue(true)
+    mockIsPremium.mockReturnValue(true)
   })
 
   describe('Test ID constants', () => {
@@ -131,6 +146,7 @@ describe('MainNavMenuSections', () => {
       mockHasPermissions.mockImplementation((permissions: string[]) => {
         const billingPermissions = [
           'customersView',
+          'quotesView',
           'subscriptionsView',
           'invoicesView',
           'paymentsView',
@@ -150,13 +166,15 @@ describe('MainNavMenuSections', () => {
       expect(screen.queryByTestId(MAIN_NAV_BILLING_SECTION_TEST_ID)).not.toBeInTheDocument()
     })
 
-    it('does not render entire component when all sections are hidden', () => {
+    it('does not render any sections when all permissions are false', () => {
       mockHasPermissions.mockReturnValue(false)
 
-      const { container } = render(<MainNavMenuSections {...defaultProps} />)
+      render(<MainNavMenuSections {...defaultProps} />)
 
       expect(screen.queryByTestId(MAIN_NAV_MENU_SECTIONS_TEST_ID)).not.toBeInTheDocument()
-      expect(container.firstChild).toBeNull()
+      expect(screen.queryByTestId(MAIN_NAV_BILLING_SECTION_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(MAIN_NAV_REPORTS_SECTION_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(MAIN_NAV_CONFIGURATION_SECTION_TEST_ID)).not.toBeInTheDocument()
     })
 
     it('renders only sections with visible tabs', () => {
@@ -206,8 +224,34 @@ describe('MainNavMenuSections', () => {
       render(<MainNavMenuSections {...defaultProps} />)
 
       expect(mockHasPermissions).toHaveBeenCalledWith(['customersView'])
+      expect(mockHasPermissions).toHaveBeenCalledWith(['quotesView'])
       expect(mockHasPermissions).toHaveBeenCalledWith(['subscriptionsView'])
       expect(mockHasPermissions).toHaveBeenCalledWith(['invoicesView'])
+    })
+  })
+
+  describe('Feature flag gating', () => {
+    it('hides quotes nav item when order_forms feature flag is off', () => {
+      mockHasFeatureFlag.mockReturnValue(false)
+
+      // Allow all billing permissions except quotes will be hidden by feature flag
+      mockHasPermissions.mockImplementation((permissions: string[]) => {
+        const billingPermissions = [
+          'customersView',
+          'quotesView',
+          'subscriptionsView',
+          'invoicesView',
+          'paymentsView',
+          'creditNotesView',
+        ]
+
+        return billingPermissions.some((p) => permissions.includes(p))
+      })
+
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      // Billing section should still render (other billing tabs are visible)
+      expect(screen.getByTestId(MAIN_NAV_BILLING_SECTION_TEST_ID)).toBeInTheDocument()
     })
   })
 
@@ -215,6 +259,24 @@ describe('MainNavMenuSections', () => {
     it('exports successfully', () => {
       expect(MainNavMenuSections).toBeDefined()
       expect(typeof MainNavMenuSections).toBe('function')
+    })
+  })
+
+  describe('Premium indicator', () => {
+    it('renders sparkles icon on quotes nav item when user is not premium', () => {
+      mockIsPremium.mockReturnValue(false)
+
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(screen.getByTestId('quotes-nav-premium-icon')).toBeInTheDocument()
+    })
+
+    it('does not render sparkles icon on quotes nav item when user is premium', () => {
+      mockIsPremium.mockReturnValue(true)
+
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(screen.queryByTestId('quotes-nav-premium-icon')).not.toBeInTheDocument()
     })
   })
 })

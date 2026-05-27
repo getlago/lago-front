@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
-import { generatePath, useNavigate, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { BillableMetricDetailsActivityLogs } from '~/components/billableMetrics/BillableMetricDetailsActivityLogs'
 import { BillableMetricDetailsOverview } from '~/components/billableMetrics/BillableMetricDetailsOverview'
@@ -19,11 +19,13 @@ import {
   BILLABLE_METRICS_ROUTE,
   DUPLICATE_BILLABLE_METRIC_ROUTE,
   UPDATE_BILLABLE_METRIC_ROUTE,
+  useNavigate,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { useGetBillableMetricForHeaderDetailsQuery } from '~/generated/graphql'
+import { LagoApiError, useGetBillableMetricForHeaderDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
@@ -45,11 +47,19 @@ const BillableMetricDetails = () => {
 
   const deleteBillableMetricDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
 
-  const { data, loading } = useGetBillableMetricForHeaderDetailsQuery({
+  const { data, loading, error } = useGetBillableMetricForHeaderDetailsQuery({
     variables: {
       id: billableMetricId as string,
     },
     skip: !billableMetricId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+  })
+
+  useNotFoundRedirect({
+    error,
+    loading,
+    redirectTo: BILLABLE_METRICS_ROUTE,
+    translateKey: 'text_1777995443789mu6h3lr2kbg',
   })
 
   const billableMetric = data?.billableMetric

@@ -40,6 +40,7 @@ NodeViews (`MentionNodeView`, `PlanBlockView`) only handle **edit mode** -- inte
 ## Creating a custom node
 
 This guide walks through creating a new custom TipTap node that works in:
+
 - The interactive editor (edit mode)
 - On-screen preview (via `renderHTML`)
 - PDF download (via headless editor + `renderHTML`)
@@ -160,9 +161,9 @@ Create `extensions/CustomerBlock.ts`:
 ```ts
 import { ReactNodeViewRenderer } from '@tiptap/react'
 
-import { CustomerBlockView } from '../CustomerBlock/CustomerBlockView'
-
 import { CustomerBlockSchema } from './CustomerBlock.schema'
+
+import { CustomerBlockView } from '../CustomerBlock/CustomerBlockView'
 
 export type { CustomerBlockAttributes } from './CustomerBlock.schema'
 
@@ -189,7 +190,9 @@ export const CustomerBlockView = ({ node, updateAttributes, selected }: NodeView
   if (isEmpty) {
     return (
       <NodeViewWrapper>
-        <button className={`customer-block customer-block--empty ${selected ? 'customer-block--selected' : ''}`}>
+        <button
+          className={`customer-block customer-block--empty ${selected ? 'customer-block--selected' : ''}`}
+        >
           <span className="customer-block__placeholder">Select a customer</span>
         </button>
       </NodeViewWrapper>
@@ -284,14 +287,14 @@ const getHtml = (customerId: string, customers?: Record<string, unknown>) => {
 
 ## Summary: where to change what
 
-| What you want to change | Where to edit |
-|---|---|
-| How a node looks in **preview and PDF** | `renderHTML()` in the `.schema.ts` file |
-| How a node behaves in **edit mode** | The `NodeView` component (`*View.tsx`) |
-| **Markdown** serialization format | `addStorage()` in the `.schema.ts` file |
-| Shared styles (editor + PDF) | `richTextEditor.css` inside `.ProseMirror` |
-| Which extensions are always included | `baseExtensions.ts` |
-| PDF download logic | `downloadMarkdownPdf.ts` |
+| What you want to change                 | Where to edit                              |
+| --------------------------------------- | ------------------------------------------ |
+| How a node looks in **preview and PDF** | `renderHTML()` in the `.schema.ts` file    |
+| How a node behaves in **edit mode**     | The `NodeView` component (`*View.tsx`)     |
+| **Markdown** serialization format       | `addStorage()` in the `.schema.ts` file    |
+| Shared styles (editor + PDF)            | `richTextEditor.css` inside `.ProseMirror` |
+| Which extensions are always included    | `baseExtensions.ts`                        |
+| PDF download logic                      | `downloadMarkdownPdf.ts`                   |
 
 ## Key rules
 

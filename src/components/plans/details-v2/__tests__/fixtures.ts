@@ -1,0 +1,44 @@
+import {
+  CurrencyEnum,
+  FixedChargeChargeModelEnum,
+  PlanDetailsV2Fragment,
+  PlanInterval,
+} from '~/generated/graphql'
+
+export const PLAN_DETAILS_V2_FIXTURE_ID = 'plan_1'
+
+type FixedCharge = NonNullable<PlanDetailsV2Fragment['fixedCharges']>[number]
+
+export const buildFixedChargeFixture = (overrides: Partial<FixedCharge> = {}): FixedCharge => ({
+  __typename: 'FixedCharge',
+  id: 'fc_default',
+  invoiceDisplayName: null,
+  chargeModel: FixedChargeChargeModelEnum.Standard,
+  units: '1',
+  payInAdvance: false,
+  prorated: false,
+  properties: { amount: '49.99', graduatedRanges: null, volumeRanges: null },
+  addOn: { __typename: 'AddOn', id: 'addon_1', name: 'Onboarding', code: 'onboarding' },
+  taxes: [],
+  ...overrides,
+})
+
+export const planDetailsV2Fixture: PlanDetailsV2Fragment & { __typename: 'Plan' } = {
+  __typename: 'Plan',
+  id: PLAN_DETAILS_V2_FIXTURE_ID,
+  name: 'Pro',
+  code: 'pro',
+  description: null,
+  interval: PlanInterval.Monthly,
+  amountCurrency: CurrencyEnum.Usd,
+  amountCents: '1000',
+  payInAdvance: false,
+  trialPeriod: 0,
+  invoiceDisplayName: null,
+  hasOverriddenPlans: false,
+  billFixedChargesMonthly: false,
+  billChargesMonthly: false,
+  taxes: [],
+  fixedCharges: [],
+  charges: [],
+}

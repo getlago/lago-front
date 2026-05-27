@@ -16,7 +16,11 @@ import {
   RemoveChargeWarningDialogRef,
 } from '~/components/plans/RemoveChargeWarningDialog'
 import { LocalFixedChargeInput } from '~/components/plans/types'
-import { getFormattedChargeSelectorSubtitle, mapChargeIntervalCopy } from '~/components/plans/utils'
+import {
+  buildChargeHoverActions,
+  getFormattedChargeSelectorSubtitle,
+  mapChargeIntervalCopy,
+} from '~/components/plans/utils'
 import { useDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import {
   GraduatedChargeFragmentDoc,
@@ -191,38 +195,14 @@ export const FixedChargesSection = ({
                       }
                       hoverActions={
                         <SelectorActions
-                          actions={[
-                            {
-                              icon: 'trash',
-                              tooltipCopy: translate('text_63ea0f84f400488553caa786'),
-                              onClick: (e) => {
-                                e.stopPropagation()
-                                e.preventDefault()
-
-                                const deleteCharge = () => {
-                                  const localChargesAfterDelete = [
-                                    ...form.state.values.fixedCharges,
-                                  ]
-
-                                  localChargesAfterDelete.splice(i, 1)
-                                  form.setFieldValue('fixedCharges', localChargesAfterDelete)
-                                }
-
-                                if (actionType !== 'duplicate' && isUsedInSubscription) {
-                                  removeChargeWarningDialogRef?.current?.openDialog({
-                                    callback: deleteCharge,
-                                  })
-                                } else {
-                                  deleteCharge()
-                                }
-                              },
-                            },
-                            {
-                              icon: 'pen',
-                              tooltipCopy: translate('text_63e51ef4985f0ebd75c212fc'),
-                              onClick: () => openFixedChargeDrawer(),
-                            },
-                          ]}
+                          actions={buildChargeHoverActions({
+                            showDelete: !isInSubscriptionForm,
+                            showWarningOnDelete: actionType !== 'duplicate' && isUsedInSubscription,
+                            onDelete: () => handleChargeDelete(i),
+                            onEdit: openFixedChargeDrawer,
+                            removeChargeWarningDialogRef,
+                            translate,
+                          })}
                         />
                       }
                       data-test={`fixed-charge-selector-${i}`}

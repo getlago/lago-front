@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
-import { generatePath, useNavigate } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
@@ -16,6 +16,7 @@ import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMeta
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { FeatureDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { useNavigate } from '~/core/router'
 import {
   CREATE_FEATURE_ROUTE,
   FEATURE_DETAILS_ROUTE,
