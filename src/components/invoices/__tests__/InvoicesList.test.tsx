@@ -120,6 +120,15 @@ jest.mock('~/hooks/useResendEmailDialog', () => ({
   }),
 }))
 
+const mockOpenPremiumWarningDialog = jest.fn()
+
+jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
+  usePremiumWarningDialog: () => ({
+    open: mockOpenPremiumWarningDialog,
+    close: jest.fn(),
+  }),
+}))
+
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useDownloadInvoiceItemMutation: (options: typeof downloadInvoiceCallbacks) => {
@@ -1449,7 +1458,8 @@ describe('InvoicesList', () => {
       // Click triggers premium warning dialog - this tests line 156
       await user.click(recordPaymentButton)
 
-      // Navigation should NOT have been called since user is not premium
+      // Premium warning dialog should open and navigation should NOT have been called
+      expect(mockOpenPremiumWarningDialog).toHaveBeenCalled()
       expect(testMockNavigateFn).not.toHaveBeenCalled()
     })
 
@@ -1471,7 +1481,8 @@ describe('InvoicesList', () => {
       // Click triggers premium warning dialog - this tests line 176
       await user.click(issueCreditNoteButton)
 
-      // Navigation should NOT have been called since user is not premium
+      // Premium warning dialog should open and navigation should NOT have been called
+      expect(mockOpenPremiumWarningDialog).toHaveBeenCalled()
       expect(testMockNavigateFn).not.toHaveBeenCalled()
     })
   })
