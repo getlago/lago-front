@@ -6,9 +6,9 @@ import { ReactNode } from 'react'
 import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
 import { addToast } from '~/core/apolloClient'
-import { CurrencyEnum, PlanInterval, UpdatePlanDocument } from '~/generated/graphql'
+import { CommitmentTypeEnum, CurrencyEnum, PlanInterval, UpdatePlanDocument } from '~/generated/graphql'
 
-import { useUpdatePlanWithCascade } from '../useUpdatePlanWithCascade'
+import { buildUpdatePlanFormDefaults, useUpdatePlanWithCascade } from '../useUpdatePlanWithCascade'
 
 NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 
@@ -57,6 +57,49 @@ const wrapper = (mocks: MockedResponse[]) =>
       </MockedProvider>
     )
   }
+
+describe('buildUpdatePlanFormDefaults', () => {
+  it('hydrates min commitment, thresholds and entitlements from the plan', () => {
+    const defaults = buildUpdatePlanFormDefaults({
+      id: 'p1',
+      name: 'Plan',
+      code: 'plan',
+      interval: PlanInterval.Monthly,
+      amountCurrency: CurrencyEnum.Usd,
+      minimumCommitment: {
+        amountCents: 5000,
+        commitmentType: CommitmentTypeEnum.MinimumCommitment,
+        taxes: [],
+      },
+      usageThresholds: [
+        { id: 'u1', amountCents: 10000, recurring: false, thresholdDisplayName: null },
+        { id: 'u2', amountCents: 20000, recurring: true, thresholdDisplayName: null },
+      ],
+      entitlements: [{ code: 'seats', name: 'Seats', privileges: [] }],
+    } as never)
+
+    expect(defaults.minimumCommitment?.amountCents).toBe('50')
+    expect(defaults.nonRecurringUsageThresholds).toHaveLength(1)
+    expect(defaults.recurringUsageThreshold?.amountCents).toBe(200)
+    expect(defaults.entitlements[0]).toEqual(
+      expect.objectContaining({ featureCode: 'seats', featureName: 'Seats' }),
+    )
+  })
+
+  it('defaults to empty advanced fields when the plan has none', () => {
+    const defaults = buildUpdatePlanFormDefaults({
+      id: 'p1',
+      name: 'P',
+      code: 'p',
+      interval: PlanInterval.Monthly,
+      amountCurrency: CurrencyEnum.Usd,
+    } as never)
+
+    expect(defaults.minimumCommitment).toEqual({})
+    expect(defaults.entitlements).toEqual([])
+    expect(defaults.nonRecurringUsageThresholds).toBeUndefined()
+  })
+})
 
 describe('useUpdatePlanWithCascade', () => {
   beforeEach(() => {
