@@ -38,7 +38,10 @@ export const ProgressiveBillingInfo = ({ plan, currency }: ProgressiveBillingInf
                 ? translate('text_1724179887723hi673zmbvdj')
                 : translate('text_1724179887723917j8ezkd9v'),
               intlFormatNumber(
-                deserializeAmount(threshold.amountCents || 0, plan.amountCurrency || CurrencyEnum.Usd),
+                deserializeAmount(
+                  threshold.amountCents || 0,
+                  plan.amountCurrency || CurrencyEnum.Usd,
+                ),
                 { currency },
               ),
               threshold.thresholdDisplayName || '',
@@ -66,7 +69,10 @@ export const ProgressiveBillingInfo = ({ plan, currency }: ProgressiveBillingInf
             ...([plan.usageThresholds?.find((t) => t.recurring)]?.map((threshold) => [
               translate('text_17241798877230y851fdxzqu'),
               intlFormatNumber(
-                deserializeAmount(threshold?.amountCents || 0, plan.amountCurrency || CurrencyEnum.Usd),
+                deserializeAmount(
+                  threshold?.amountCents || 0,
+                  plan.amountCurrency || CurrencyEnum.Usd,
+                ),
                 { currency },
               ),
               threshold?.thresholdDisplayName || '',
