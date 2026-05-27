@@ -89,6 +89,12 @@ export const CustomerInvoiceBalancesLegacyCards: FC<CustomerInvoiceBalancesLegac
 
   const hasOverdueInvoices = overdueAggregate.invoiceCount > 0
 
+  const showOverdueAlert =
+    hasOverdueInvoices &&
+    !overdueBalancesError &&
+    !isPaymentProcessingStatusLoading &&
+    isCustomerReadyForOverduePayment
+
   const today = useMemo(() => DateTime.now().toUTC(), [])
   const lastPaymentRequestDate = useMemo(
     () => DateTime.fromISO(lastPaymentRequestCreatedAt ?? '').toUTC(),
@@ -98,65 +104,62 @@ export const CustomerInvoiceBalancesLegacyCards: FC<CustomerInvoiceBalancesLegac
 
   return (
     <Stack gap={4}>
-      {hasOverdueInvoices &&
-        !overdueBalancesError &&
-        !isPaymentProcessingStatusLoading &&
-        isCustomerReadyForOverduePayment && (
-          <Alert
-            type="warning"
-            data-test={OVERDUE_INVOICES_ALERT_TEST_ID}
-            ButtonProps={
-              !overdueBalancesLoading
-                ? {
-                    label: translate('text_66b258f62100490d0eb5caa2'),
-                    onClick: () =>
-                      navigate(
-                        generatePath(CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE, {
-                          customerId: customerId ?? '',
-                        }),
-                      ),
-                  }
-                : undefined
-            }
-          >
-            {overdueBalancesLoading ? (
-              <Stack flexDirection="column" gap={1}>
-                <Skeleton variant="text" className="w-37" />
-                <Skeleton variant="text" className="w-20" />
-              </Stack>
-            ) : (
-              <Stack flexDirection="column" gap={1}>
-                <Typography variant="bodyHl" color="textSecondary">
-                  {translate(
-                    'text_6670a7222702d70114cc7955',
-                    {
-                      count: overdueAggregate.invoiceCount,
-                      amount: intlFormatNumber(overdueAggregate.amountCents, {
-                        currencyDisplay: 'symbol',
-                        currency,
+      {showOverdueAlert && (
+        <Alert
+          type="warning"
+          data-test={OVERDUE_INVOICES_ALERT_TEST_ID}
+          ButtonProps={
+            !overdueBalancesLoading
+              ? {
+                  label: translate('text_66b258f62100490d0eb5caa2'),
+                  onClick: () =>
+                    navigate(
+                      generatePath(CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE, {
+                        customerId: customerId ?? '',
                       }),
-                    },
-                    overdueAggregate.invoiceCount,
-                  )}
-                </Typography>
-                <Typography variant="caption">
-                  {hasMadePaymentRequestToday
-                    ? translate('text_66b4f00bd67ccc185ea75c70', {
-                        relativeDay: lastPaymentRequestDate.toRelativeCalendar({
-                          locale: LocaleEnum.en,
-                        }),
-                        time: lastPaymentRequestCreatedAt
-                          ? intlFormatDateTimeOrgaTZ(lastPaymentRequestCreatedAt, {
-                              formatTime: TimeFormat.TIME_24_WITH_SECONDS,
-                            }).time
-                          : '-',
-                      })
-                    : translate('text_6670a2a7ae3562006c4ee3db')}
-                </Typography>
-              </Stack>
-            )}
-          </Alert>
-        )}
+                    ),
+                }
+              : undefined
+          }
+        >
+          {overdueBalancesLoading ? (
+            <Stack flexDirection="column" gap={1}>
+              <Skeleton variant="text" className="w-37" />
+              <Skeleton variant="text" className="w-20" />
+            </Stack>
+          ) : (
+            <Stack flexDirection="column" gap={1}>
+              <Typography variant="bodyHl" color="textSecondary">
+                {translate(
+                  'text_6670a7222702d70114cc7955',
+                  {
+                    count: overdueAggregate.invoiceCount,
+                    amount: intlFormatNumber(overdueAggregate.amountCents, {
+                      currencyDisplay: 'symbol',
+                      currency,
+                    }),
+                  },
+                  overdueAggregate.invoiceCount,
+                )}
+              </Typography>
+              <Typography variant="caption">
+                {hasMadePaymentRequestToday
+                  ? translate('text_66b4f00bd67ccc185ea75c70', {
+                      relativeDay: lastPaymentRequestDate.toRelativeCalendar({
+                        locale: LocaleEnum.en,
+                      }),
+                      time: lastPaymentRequestCreatedAt
+                        ? intlFormatDateTimeOrgaTZ(lastPaymentRequestCreatedAt, {
+                            formatTime: TimeFormat.TIME_24_WITH_SECONDS,
+                          }).time
+                        : '-',
+                    })
+                  : translate('text_6670a2a7ae3562006c4ee3db')}
+              </Typography>
+            </Stack>
+          )}
+        </Alert>
+      )}
 
       <Stack flexDirection="row" gap={4}>
         {hasPermissions(['analyticsView']) && !grossRevenuesError && (

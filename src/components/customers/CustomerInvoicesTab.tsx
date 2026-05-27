@@ -19,7 +19,7 @@ import {
   InvoiceForInvoiceListFragmentDoc,
   InvoiceStatusTypeEnum,
   TimezoneEnum,
-  useGetCustomerInvoicesLazyQuery,
+  useGetCustomerInvoicesQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerFilterDefaults } from '~/hooks/useCustomerFilterDefaults'
@@ -78,14 +78,18 @@ export const CustomerInvoicesTab = ({
   userCurrency,
 }: CustomerInvoicesTabProps) => {
   const { translate } = useInternationalization()
-  const draftFiltersProps = useCustomerFilterDefaults({
+  const baseFiltersProps = useCustomerFilterDefaults({
     filtersNamePrefix: CUSTOMER_INVOICES_DRAFT_FILTER_PREFIX,
     include: ['currency', 'entity'],
   })
-  const finalizedFiltersProps = useCustomerFilterDefaults({
-    filtersNamePrefix: CUSTOMER_INVOICES_FINALIZED_FILTER_PREFIX,
-    include: ['currency', 'entity'],
-  })
+
+  const draftFiltersProps = baseFiltersProps
+    ? { ...baseFiltersProps, filtersNamePrefix: CUSTOMER_INVOICES_DRAFT_FILTER_PREFIX }
+    : null
+
+  const finalizedFiltersProps = baseFiltersProps
+    ? { ...baseFiltersProps, filtersNamePrefix: CUSTOMER_INVOICES_FINALIZED_FILTER_PREFIX }
+    : null
   const [searchParams] = useSearchParams()
 
   const draftFilters = formatFiltersForCustomerInvoicesQuery(
@@ -97,24 +101,28 @@ export const CustomerInvoicesTab = ({
     CUSTOMER_INVOICES_FINALIZED_FILTER_PREFIX,
   )
 
-  const [getDraftInvoices, { data: dataDraft, error: errorDraft, loading: loadingDraft }] =
-    useGetCustomerInvoicesLazyQuery({
-      variables: {
-        customerId,
-        limit: DRAFT_INVOICES_ITEMS_COUNT,
-        status: [InvoiceStatusTypeEnum.Draft],
-      },
-    })
-
-  const [
-    getFinalizedInvoices,
-    {
-      data: dataFinalized,
-      error: errorFinalized,
-      fetchMore: fetchMoreFinalized,
-      loading: loadingFinalized,
+  const {
+    data: dataDraft,
+    error: errorDraft,
+    loading: loadingDraft,
+  } = useGetCustomerInvoicesQuery({
+    variables: {
+      customerId,
+      limit: DRAFT_INVOICES_ITEMS_COUNT,
+      status: [InvoiceStatusTypeEnum.Draft],
+      currency: draftFilters.currency,
+      billingEntityIds: draftFilters.billingEntityId ? [draftFilters.billingEntityId] : undefined,
     },
-  ] = useGetCustomerInvoicesLazyQuery({
+  })
+
+  const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined)
+
+  const {
+    data: dataFinalized,
+    error: errorFinalized,
+    fetchMore: fetchMoreFinalized,
+    loading: loadingFinalized,
+  } = useGetCustomerInvoicesQuery({
     variables: {
       customerId,
       limit: 20,
@@ -124,45 +132,14 @@ export const CustomerInvoicesTab = ({
         InvoiceStatusTypeEnum.Failed,
         InvoiceStatusTypeEnum.Pending,
       ],
+      searchTerm,
+      currency: finalizedFilters.currency,
+      billingEntityIds: finalizedFilters.billingEntityId
+        ? [finalizedFilters.billingEntityId]
+        : undefined,
     },
     notifyOnNetworkStatusChange: true,
   })
-
-  const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined)
-
-  useEffect(() => {
-    getDraftInvoices({
-      variables: {
-        customerId,
-        limit: DRAFT_INVOICES_ITEMS_COUNT,
-        status: [InvoiceStatusTypeEnum.Draft],
-        currency: draftFilters.currency,
-        billingEntityIds: draftFilters.billingEntityId ? [draftFilters.billingEntityId] : undefined,
-      },
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customerId, draftFilters.currency, draftFilters.billingEntityId])
-
-  useEffect(() => {
-    getFinalizedInvoices({
-      variables: {
-        customerId,
-        limit: 20,
-        status: [
-          InvoiceStatusTypeEnum.Finalized,
-          InvoiceStatusTypeEnum.Voided,
-          InvoiceStatusTypeEnum.Failed,
-          InvoiceStatusTypeEnum.Pending,
-        ],
-        searchTerm,
-        currency: finalizedFilters.currency,
-        billingEntityIds: finalizedFilters.billingEntityId
-          ? [finalizedFilters.billingEntityId]
-          : undefined,
-      },
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customerId, searchTerm, finalizedFilters.currency, finalizedFilters.billingEntityId])
 
   const debouncedSetSearchTerm = useMemo(
     () => debounce((value: string) => setSearchTerm(value || undefined), DEBOUNCE_SEARCH_MS),
