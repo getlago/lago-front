@@ -91,9 +91,7 @@ const setupMocks = (draftTotalCount = 0) => {
     fetchMore: jest.fn(),
   }
 
-  useGetCustomerInvoicesQuery
-    .mockReturnValueOnce(draftResult)
-    .mockReturnValueOnce(finalizedResult)
+  useGetCustomerInvoicesQuery.mockReturnValueOnce(draftResult).mockReturnValueOnce(finalizedResult)
 }
 
 const renderComponent = (overrides = {}) =>
