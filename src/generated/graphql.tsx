@@ -11562,18 +11562,22 @@ export type PlanForUsageChargeAccordionFragment = { __typename?: 'Plan', billCha
 
 export type VolumeRangesFragment = { __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null };
 
-export type PlanDetailsV2Fragment = { __typename?: 'Plan', id: string, amountCents: any, payInAdvance: boolean, trialPeriod?: number | null, invoiceDisplayName?: string | null, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, billChargesMonthly?: boolean | null, billFixedChargesMonthly?: boolean | null, hasOverriddenPlans?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null };
+export type PlanDetailsV2Fragment = { __typename?: 'Plan', id: string, hasOverriddenPlans?: boolean | null, interval: PlanInterval, amountCurrency: CurrencyEnum, billFixedChargesMonthly?: boolean | null, name: string, code: string, description?: string | null, billChargesMonthly?: boolean | null, amountCents: any, payInAdvance: boolean, trialPeriod?: number | null, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, units: string, payInAdvance: boolean, prorated: boolean, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null };
 
 export type GetPlanForDetailsV2QueryVariables = Exact<{
   planId: Scalars['ID']['input'];
 }>;
 
 
-export type GetPlanForDetailsV2Query = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, amountCents: any, payInAdvance: boolean, trialPeriod?: number | null, invoiceDisplayName?: string | null, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, billChargesMonthly?: boolean | null, billFixedChargesMonthly?: boolean | null, hasOverriddenPlans?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null } | null };
+export type GetPlanForDetailsV2Query = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, hasOverriddenPlans?: boolean | null, interval: PlanInterval, amountCurrency: CurrencyEnum, billFixedChargesMonthly?: boolean | null, name: string, code: string, description?: string | null, billChargesMonthly?: boolean | null, amountCents: any, payInAdvance: boolean, trialPeriod?: number | null, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, units: string, payInAdvance: boolean, prorated: boolean, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null } | null };
 
-export type PlanForDetailsV2PlanSettingsSectionFragment = { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, billChargesMonthly?: boolean | null, billFixedChargesMonthly?: boolean | null, hasOverriddenPlans?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null };
+export type FixedChargeForDetailsV2Fragment = { __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, units: string, payInAdvance: boolean, prorated: boolean, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null };
 
-export type PlanForDetailsV2SubscriptionFeeSectionFragment = { __typename?: 'Plan', amountCents: any, payInAdvance: boolean, trialPeriod?: number | null, invoiceDisplayName?: string | null, id: string, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, billChargesMonthly?: boolean | null, billFixedChargesMonthly?: boolean | null, hasOverriddenPlans?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null };
+export type PlanForDetailsV2FixedChargesSectionFragment = { __typename?: 'Plan', id: string, hasOverriddenPlans?: boolean | null, interval: PlanInterval, amountCurrency: CurrencyEnum, billFixedChargesMonthly?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, units: string, payInAdvance: boolean, prorated: boolean, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null }> | null };
+
+export type PlanForDetailsV2PlanSettingsSectionFragment = { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, billChargesMonthly?: boolean | null, billFixedChargesMonthly?: boolean | null, hasOverriddenPlans?: boolean | null, amountCents: any, payInAdvance: boolean, trialPeriod?: number | null, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null };
+
+export type PlanForDetailsV2SubscriptionFeeAccordionFragment = { __typename?: 'Plan', amountCents: any, payInAdvance: boolean, trialPeriod?: number | null, invoiceDisplayName?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, id: string, name: string, code: string, description?: string | null, billChargesMonthly?: boolean | null, billFixedChargesMonthly?: boolean | null, hasOverriddenPlans?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null };
 
 export type PlanDetailsActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -12713,6 +12717,27 @@ export type GetCustomPricingUnitsQueryVariables = Exact<{
 
 export type GetCustomPricingUnitsQuery = { __typename?: 'Query', pricingUnits: { __typename?: 'PricingUnitCollection', collection: Array<{ __typename?: 'PricingUnit', id: string, name: string, code: string, shortName: string }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
 
+export type CreateFixedChargeMutationVariables = Exact<{
+  input: FixedChargeCreateInput;
+}>;
+
+
+export type CreateFixedChargeMutation = { __typename?: 'Mutation', createFixedCharge?: { __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, units: string, payInAdvance: boolean, prorated: boolean, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null } | null };
+
+export type UpdateFixedChargeMutationVariables = Exact<{
+  input: FixedChargeUpdateInput;
+}>;
+
+
+export type UpdateFixedChargeMutation = { __typename?: 'Mutation', updateFixedCharge?: { __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, units: string, payInAdvance: boolean, prorated: boolean, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null } | null };
+
+export type DestroyFixedChargeMutationVariables = Exact<{
+  input: DestroyFixedChargeInput;
+}>;
+
+
+export type DestroyFixedChargeMutation = { __typename?: 'Mutation', destroyFixedCharge?: { __typename?: 'DestroyFixedChargePayload', id?: string | null } | null };
+
 export type GetSinglePlanQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -12732,7 +12757,7 @@ export type UpdatePlanMutationVariables = Exact<{
 }>;
 
 
-export type UpdatePlanMutation = { __typename?: 'Mutation', updatePlan?: { __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, activeSubscriptionsCount: number, createdAt: any, draftInvoicesCount: number, description?: string | null, interval: PlanInterval, payInAdvance: boolean, invoiceDisplayName?: string | null, amountCents: any, amountCurrency: CurrencyEnum, trialPeriod?: number | null, subscriptionsCount: number, billChargesMonthly?: boolean | null, hasOverriddenPlans?: boolean | null, billFixedChargesMonthly?: boolean | null, minimumCommitment?: { __typename?: 'Commitment', amountCents: any, commitmentType: CommitmentTypeEnum, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, charges?: Array<{ __typename?: 'Charge', id: string, minAmountCents: any, payInAdvance: boolean, chargeModel: ChargeModelEnum, invoiceable: boolean, prorated: boolean, invoiceDisplayName?: string | null, regroupPaidFees?: RegroupPaidFeesEnum | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', conversionRate: number, pricingUnit: { __typename?: 'PricingUnit', id: string, code: string, name: string, shortName: string } } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string>, id: string }> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any, properties: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null }> | null, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, prorated: boolean, units: string, chargeModel: FixedChargeChargeModelEnum, invoiceDisplayName?: string | null, payInAdvance: boolean, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> | null } | null };
+export type UpdatePlanMutation = { __typename?: 'Mutation', updatePlan?: { __typename?: 'Plan', id: string, name: string, code: string, chargesCount: number, activeSubscriptionsCount: number, createdAt: any, draftInvoicesCount: number, description?: string | null, interval: PlanInterval, payInAdvance: boolean, invoiceDisplayName?: string | null, amountCents: any, amountCurrency: CurrencyEnum, trialPeriod?: number | null, subscriptionsCount: number, billChargesMonthly?: boolean | null, hasOverriddenPlans?: boolean | null, billFixedChargesMonthly?: boolean | null, minimumCommitment?: { __typename?: 'Commitment', amountCents: any, commitmentType: CommitmentTypeEnum, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, charges?: Array<{ __typename?: 'Charge', id: string, minAmountCents: any, payInAdvance: boolean, chargeModel: ChargeModelEnum, invoiceable: boolean, prorated: boolean, invoiceDisplayName?: string | null, regroupPaidFees?: RegroupPaidFeesEnum | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', conversionRate: number, pricingUnit: { __typename?: 'PricingUnit', id: string, code: string, name: string, shortName: string } } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', key: string, values: Array<string>, id: string }> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any, properties: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null }> | null, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, units: string, payInAdvance: boolean, prorated: boolean, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null }> | null } | null };
 
 export type PlanForUpdateWithCascadeFragment = { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, billChargesMonthly?: boolean | null, billFixedChargesMonthly?: boolean | null, hasOverriddenPlans?: boolean | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null };
 
@@ -16833,28 +16858,95 @@ export const PlanForUpdateWithCascadeFragmentDoc = gql`
   }
 }
     ${TaxForPlanSettingsSectionFragmentDoc}`;
-export const PlanForDetailsV2PlanSettingsSectionFragmentDoc = gql`
-    fragment PlanForDetailsV2PlanSettingsSection on Plan {
-  ...PlanForUpdateWithCascade
-}
-    ${PlanForUpdateWithCascadeFragmentDoc}`;
-export const PlanForDetailsV2SubscriptionFeeSectionFragmentDoc = gql`
-    fragment PlanForDetailsV2SubscriptionFeeSection on Plan {
+export const PlanForDetailsV2SubscriptionFeeAccordionFragmentDoc = gql`
+    fragment PlanForDetailsV2SubscriptionFeeAccordion on Plan {
   amountCents
   payInAdvance
   trialPeriod
   invoiceDisplayName
+  interval
+  amountCurrency
   ...PlanForUpdateWithCascade
 }
     ${PlanForUpdateWithCascadeFragmentDoc}`;
+export const PlanForDetailsV2PlanSettingsSectionFragmentDoc = gql`
+    fragment PlanForDetailsV2PlanSettingsSection on Plan {
+  ...PlanForUpdateWithCascade
+  ...PlanForDetailsV2SubscriptionFeeAccordion
+}
+    ${PlanForUpdateWithCascadeFragmentDoc}
+${PlanForDetailsV2SubscriptionFeeAccordionFragmentDoc}`;
+export const GraduatedChargeFragmentDoc = gql`
+    fragment GraduatedCharge on GraduatedRange {
+  flatAmount
+  fromValue
+  perUnitAmount
+  toValue
+}
+    `;
+export const VolumeRangesFragmentDoc = gql`
+    fragment VolumeRanges on VolumeRange {
+  flatAmount
+  fromValue
+  perUnitAmount
+  toValue
+}
+    `;
+export const FixedChargeForDetailsV2FragmentDoc = gql`
+    fragment FixedChargeForDetailsV2 on FixedCharge {
+  id
+  invoiceDisplayName
+  chargeModel
+  units
+  payInAdvance
+  prorated
+  properties {
+    amount
+    graduatedRanges {
+      ...GraduatedCharge
+    }
+    volumeRanges {
+      ...VolumeRanges
+    }
+  }
+  addOn {
+    id
+    name
+    code
+  }
+  taxes {
+    id
+    name
+    rate
+    code
+  }
+}
+    ${GraduatedChargeFragmentDoc}
+${VolumeRangesFragmentDoc}`;
+export const PlanForDetailsV2FixedChargesSectionFragmentDoc = gql`
+    fragment PlanForDetailsV2FixedChargesSection on Plan {
+  id
+  hasOverriddenPlans
+  interval
+  amountCurrency
+  billFixedChargesMonthly
+  taxes {
+    ...TaxForPlanSettingsSection
+  }
+  fixedCharges {
+    ...FixedChargeForDetailsV2
+  }
+}
+    ${TaxForPlanSettingsSectionFragmentDoc}
+${FixedChargeForDetailsV2FragmentDoc}`;
 export const PlanDetailsV2FragmentDoc = gql`
     fragment PlanDetailsV2 on Plan {
   id
   ...PlanForDetailsV2PlanSettingsSection
-  ...PlanForDetailsV2SubscriptionFeeSection
+  ...PlanForDetailsV2FixedChargesSection
 }
     ${PlanForDetailsV2PlanSettingsSectionFragmentDoc}
-${PlanForDetailsV2SubscriptionFeeSectionFragmentDoc}`;
+${PlanForDetailsV2FixedChargesSectionFragmentDoc}`;
 export const FeatureObjectEntitlementPrivilegeForPlanFragmentDoc = gql`
     fragment FeatureObjectEntitlementPrivilegeForPlan on FeatureObject {
   id
@@ -18178,27 +18270,11 @@ export const BillableMetricForPlanFragmentDoc = gql`
   }
 }
     `;
-export const GraduatedChargeFragmentDoc = gql`
-    fragment GraduatedCharge on GraduatedRange {
-  flatAmount
-  fromValue
-  perUnitAmount
-  toValue
-}
-    `;
 export const GraduatedPercentageChargeFragmentDoc = gql`
     fragment GraduatedPercentageCharge on GraduatedPercentageRange {
   flatAmount
   fromValue
   rate
-  toValue
-}
-    `;
-export const VolumeRangesFragmentDoc = gql`
-    fragment VolumeRanges on VolumeRange {
-  flatAmount
-  fromValue
-  perUnitAmount
   toValue
 }
     `;
@@ -31087,6 +31163,105 @@ export type GetCustomPricingUnitsQueryHookResult = ReturnType<typeof useGetCusto
 export type GetCustomPricingUnitsLazyQueryHookResult = ReturnType<typeof useGetCustomPricingUnitsLazyQuery>;
 export type GetCustomPricingUnitsSuspenseQueryHookResult = ReturnType<typeof useGetCustomPricingUnitsSuspenseQuery>;
 export type GetCustomPricingUnitsQueryResult = Apollo.QueryResult<GetCustomPricingUnitsQuery, GetCustomPricingUnitsQueryVariables>;
+export const CreateFixedChargeDocument = gql`
+    mutation createFixedCharge($input: FixedChargeCreateInput!) {
+  createFixedCharge(input: $input) {
+    ...FixedChargeForDetailsV2
+  }
+}
+    ${FixedChargeForDetailsV2FragmentDoc}`;
+export type CreateFixedChargeMutationFn = Apollo.MutationFunction<CreateFixedChargeMutation, CreateFixedChargeMutationVariables>;
+
+/**
+ * __useCreateFixedChargeMutation__
+ *
+ * To run a mutation, you first call `useCreateFixedChargeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateFixedChargeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createFixedChargeMutation, { data, loading, error }] = useCreateFixedChargeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateFixedChargeMutation(baseOptions?: Apollo.MutationHookOptions<CreateFixedChargeMutation, CreateFixedChargeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateFixedChargeMutation, CreateFixedChargeMutationVariables>(CreateFixedChargeDocument, options);
+      }
+export type CreateFixedChargeMutationHookResult = ReturnType<typeof useCreateFixedChargeMutation>;
+export type CreateFixedChargeMutationResult = Apollo.MutationResult<CreateFixedChargeMutation>;
+export type CreateFixedChargeMutationOptions = Apollo.BaseMutationOptions<CreateFixedChargeMutation, CreateFixedChargeMutationVariables>;
+export const UpdateFixedChargeDocument = gql`
+    mutation updateFixedCharge($input: FixedChargeUpdateInput!) {
+  updateFixedCharge(input: $input) {
+    ...FixedChargeForDetailsV2
+  }
+}
+    ${FixedChargeForDetailsV2FragmentDoc}`;
+export type UpdateFixedChargeMutationFn = Apollo.MutationFunction<UpdateFixedChargeMutation, UpdateFixedChargeMutationVariables>;
+
+/**
+ * __useUpdateFixedChargeMutation__
+ *
+ * To run a mutation, you first call `useUpdateFixedChargeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateFixedChargeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateFixedChargeMutation, { data, loading, error }] = useUpdateFixedChargeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateFixedChargeMutation(baseOptions?: Apollo.MutationHookOptions<UpdateFixedChargeMutation, UpdateFixedChargeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateFixedChargeMutation, UpdateFixedChargeMutationVariables>(UpdateFixedChargeDocument, options);
+      }
+export type UpdateFixedChargeMutationHookResult = ReturnType<typeof useUpdateFixedChargeMutation>;
+export type UpdateFixedChargeMutationResult = Apollo.MutationResult<UpdateFixedChargeMutation>;
+export type UpdateFixedChargeMutationOptions = Apollo.BaseMutationOptions<UpdateFixedChargeMutation, UpdateFixedChargeMutationVariables>;
+export const DestroyFixedChargeDocument = gql`
+    mutation destroyFixedCharge($input: DestroyFixedChargeInput!) {
+  destroyFixedCharge(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyFixedChargeMutationFn = Apollo.MutationFunction<DestroyFixedChargeMutation, DestroyFixedChargeMutationVariables>;
+
+/**
+ * __useDestroyFixedChargeMutation__
+ *
+ * To run a mutation, you first call `useDestroyFixedChargeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyFixedChargeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyFixedChargeMutation, { data, loading, error }] = useDestroyFixedChargeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyFixedChargeMutation(baseOptions?: Apollo.MutationHookOptions<DestroyFixedChargeMutation, DestroyFixedChargeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyFixedChargeMutation, DestroyFixedChargeMutationVariables>(DestroyFixedChargeDocument, options);
+      }
+export type DestroyFixedChargeMutationHookResult = ReturnType<typeof useDestroyFixedChargeMutation>;
+export type DestroyFixedChargeMutationResult = Apollo.MutationResult<DestroyFixedChargeMutation>;
+export type DestroyFixedChargeMutationOptions = Apollo.BaseMutationOptions<DestroyFixedChargeMutation, DestroyFixedChargeMutationVariables>;
 export const GetSinglePlanDocument = gql`
     query getSinglePlan($id: ID!) {
   plan(id: $id) {

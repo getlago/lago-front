@@ -96,7 +96,10 @@ export const PlanDetailsV2LeftSidebar = ({
 
     return (
       <div key={item.id} className="flex flex-col gap-1">
-        <div className="group/bar flex w-full items-stretch rounded-lg hover:bg-grey-100">
+        <div
+          className="group/bar flex w-full items-stretch rounded-lg hover:bg-grey-100"
+          style={{ contentVisibility: 'auto', containIntrinsicSize: '0 36px' }}
+        >
           {isGroup && (
             <Tooltip
               title={translate(

@@ -1,0 +1,162 @@
+import { MockedProvider, MockedResponse } from '@apollo/client/testing'
+import NiceModal from '@ebay/nice-modal-react'
+import { act, renderHook, waitFor } from '@testing-library/react'
+import { ReactNode } from 'react'
+
+import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
+import FormDialog from '~/components/dialogs/FormDialog'
+import { LocalFixedChargeInput } from '~/components/plans/types'
+import {
+  CreateFixedChargeDocument,
+  DestroyFixedChargeDocument,
+  FixedChargeChargeModelEnum,
+  UpdateFixedChargeDocument,
+} from '~/generated/graphql'
+
+import { useFixedChargeMutationsWithCascade } from '../useFixedChargeMutationsWithCascade'
+
+NiceModal.register(FORM_DIALOG_NAME, FormDialog)
+
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({ translate: (k: string) => k }),
+}))
+
+const PLAN_ID = 'plan_1'
+
+const buildCharge = (overrides: Partial<LocalFixedChargeInput> = {}): LocalFixedChargeInput => ({
+  id: undefined,
+  addOn: {
+    __typename: 'AddOn',
+    id: 'addon_1',
+    name: 'Onboarding',
+    code: 'onboarding',
+  } as LocalFixedChargeInput['addOn'],
+  applyUnitsImmediately: false,
+  chargeModel: FixedChargeChargeModelEnum.Standard,
+  invoiceDisplayName: '',
+  payInAdvance: false,
+  properties: {},
+  prorated: false,
+  taxes: [],
+  units: '1',
+  ...overrides,
+})
+
+const fixedChargeResult = {
+  __typename: 'FixedCharge' as const,
+  id: 'fc_1',
+  invoiceDisplayName: null,
+  chargeModel: FixedChargeChargeModelEnum.Standard,
+  units: '1',
+  payInAdvance: false,
+  prorated: false,
+  properties: null,
+  addOn: { __typename: 'AddOn' as const, id: 'addon_1', name: 'Onboarding', code: 'onboarding' },
+  taxes: [],
+}
+
+const wrapper = (mocks: MockedResponse[]) =>
+  function MockedWrapper({ children }: { children: ReactNode }) {
+    return (
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <NiceModal.Provider>{children}</NiceModal.Provider>
+      </MockedProvider>
+    )
+  }
+
+describe('useFixedChargeMutationsWithCascade', () => {
+  it('createFixedCharge fires direct when hasOverriddenPlans=false', async () => {
+    let called = false
+
+    const createMock: MockedResponse = {
+      request: { query: CreateFixedChargeDocument },
+      variableMatcher: (vars) =>
+        vars?.input?.planId === PLAN_ID &&
+        vars?.input?.addOnId === 'addon_1' &&
+        vars?.input?.cascadeUpdates === false,
+      result: () => {
+        called = true
+        return { data: { createFixedCharge: { ...fixedChargeResult, id: 'fc_1' } } }
+      },
+    }
+
+    const { result } = renderHook(
+      () => useFixedChargeMutationsWithCascade({ planId: PLAN_ID, hasOverriddenPlans: false }),
+      { wrapper: wrapper([createMock]) },
+    )
+
+    await act(async () => {
+      await result.current.handleSaveCharge(buildCharge(), null)
+    })
+
+    await waitFor(() => expect(called).toBe(true))
+  })
+
+  it('updateFixedCharge fires direct when hasOverriddenPlans=false', async () => {
+    let called = false
+
+    const updateMock: MockedResponse = {
+      request: { query: UpdateFixedChargeDocument },
+      variableMatcher: (vars) =>
+        vars?.input?.id === 'fc_99' && vars?.input?.cascadeUpdates === false,
+      result: () => {
+        called = true
+        return {
+          data: {
+            updateFixedCharge: { ...fixedChargeResult, id: 'fc_99', invoiceDisplayName: 'Edited' },
+          },
+        }
+      },
+    }
+
+    const { result } = renderHook(
+      () => useFixedChargeMutationsWithCascade({ planId: PLAN_ID, hasOverriddenPlans: false }),
+      { wrapper: wrapper([updateMock]) },
+    )
+
+    await act(async () => {
+      await result.current.handleSaveCharge(buildCharge({ id: 'fc_99' }), 0)
+    })
+
+    await waitFor(() => expect(called).toBe(true))
+  })
+
+  it('destroyFixedCharge fires direct when hasOverriddenPlans=false', async () => {
+    let called = false
+
+    const destroyMock: MockedResponse = {
+      request: { query: DestroyFixedChargeDocument },
+      variableMatcher: (vars) =>
+        vars?.input?.id === 'fc_42' && vars?.input?.cascadeUpdates === false,
+      result: () => {
+        called = true
+        return { data: { destroyFixedCharge: { id: 'fc_42' } } }
+      },
+    }
+
+    const { result } = renderHook(
+      () => useFixedChargeMutationsWithCascade({ planId: PLAN_ID, hasOverriddenPlans: false }),
+      { wrapper: wrapper([destroyMock]) },
+    )
+
+    await act(async () => {
+      await result.current.handleDeleteCharge('fc_42')
+    })
+
+    await waitFor(() => expect(called).toBe(true))
+  })
+
+  it('opens cascade dialog when hasOverriddenPlans=true', async () => {
+    const { result } = renderHook(
+      () => useFixedChargeMutationsWithCascade({ planId: PLAN_ID, hasOverriddenPlans: true }),
+      { wrapper: wrapper([]) },
+    )
+
+    void result.current.handleSaveCharge(buildCharge(), null)
+
+    // Cascade dialog is rendered via NiceModal portal; its title key should appear.
+    await waitFor(() => {
+      expect(document.body.textContent).toContain('text_1729604107534r3hsj7i64gp')
+    })
+  })
+})

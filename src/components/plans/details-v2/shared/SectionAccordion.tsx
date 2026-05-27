@@ -9,13 +9,11 @@ import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 export type SectionAccordionAction = {
   label: string
   onClick: () => void
-  danger?: boolean
   hidden?: boolean
 }
 
 export type SectionAccordionProps = {
   id?: string
-  icon?: ReactNode
   title: ReactNode
   subtitle?: ReactNode
   badge?: ReactNode
@@ -27,7 +25,6 @@ export type SectionAccordionProps = {
 
 export const SectionAccordion = ({
   id,
-  icon,
   title,
   subtitle,
   badge,
@@ -39,65 +36,73 @@ export const SectionAccordion = ({
   const visibleActions = (actions ?? []).filter((a) => !a.hidden)
 
   return (
-    <Accordion
+    <div
       id={id}
-      initiallyOpen={initiallyOpen}
-      noContentMargin={noContentMargin}
-      summary={
-        <div className="flex flex-1 items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            {icon}
-            <div className="flex flex-col">
-              <Typography variant="body" color="grey700">
-                {title}
-              </Typography>
-              {!!subtitle && (
-                <Typography variant="caption" color="grey600">
-                  {subtitle}
+      className="scroll-mt-12"
+      style={{ contentVisibility: 'auto', containIntrinsicSize: '0 80px' }}
+    >
+      <Accordion
+        initiallyOpen={initiallyOpen}
+        noContentMargin={noContentMargin}
+        summary={
+          <div className="flex flex-1 items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col">
+                <Typography variant="bodyHl" color="grey700">
+                  {title}
                 </Typography>
-              )}
+                {!!subtitle && (
+                  <Typography variant="caption" color="grey600">
+                    {subtitle}
+                  </Typography>
+                )}
+              </div>
             </div>
-            {badge}
-          </div>
-          {visibleActions.length > 0 && (
-            <Popper
-              PopperProps={{ placement: 'bottom-end' }}
-              opener={
-                <Button
-                  aria-label="actions"
-                  variant="quaternary"
-                  size="small"
-                  icon="dots-horizontal"
-                  onClick={(e) => e.stopPropagation()}
-                />
-              }
-            >
-              {({ closePopper }) => (
-                <MenuPopper>
-                  {visibleActions.map((action) => (
+            <div className="flex items-center gap-3">
+              {badge}
+              {visibleActions.length > 0 && (
+                <Popper
+                  PopperProps={{ placement: 'bottom-end' }}
+                  opener={({ onClick: openPopper }) => (
                     <Button
-                      key={action.label}
+                      aria-label="actions"
                       variant="quaternary"
-                      align="left"
-                      fullWidth
-                      danger={action.danger}
+                      icon="dots-horizontal"
                       onClick={(e) => {
                         e.stopPropagation()
-                        closePopper()
-                        action.onClick()
+                        openPopper()
                       }}
-                    >
-                      {action.label}
-                    </Button>
-                  ))}
-                </MenuPopper>
+                    />
+                  )}
+                >
+                  {({ closePopper }) => (
+                    <MenuPopper>
+                      {visibleActions.map((action) => (
+                        <Button
+                          key={action.label}
+                          variant="quaternary"
+                          align="left"
+                          fullWidth
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                            closePopper()
+                            action.onClick()
+                          }}
+                        >
+                          {action.label}
+                        </Button>
+                      ))}
+                    </MenuPopper>
+                  )}
+                </Popper>
               )}
-            </Popper>
-          )}
-        </div>
-      }
-    >
-      {children}
-    </Accordion>
+            </div>
+          </div>
+        }
+      >
+        {children}
+      </Accordion>
+    </div>
   )
 }
