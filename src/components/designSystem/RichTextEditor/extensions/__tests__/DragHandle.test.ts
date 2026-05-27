@@ -393,4 +393,116 @@ describe('DragHandle', () => {
       })
     })
   })
+
+  describe('GIVEN the plus button in the handle group', () => {
+    describe('WHEN the document has block nodes', () => {
+      it('THEN should render a plus button for each block', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+        const plusButtons = editor.view.dom.querySelectorAll('.block-handle-plus')
+
+        editor.destroy()
+
+        expect(plusButtons.length).toBe(2)
+      })
+
+      it('THEN should render the plus icon via queueMicrotask', async () => {
+        const editor = createEditor('<p>Hello</p>')
+        const plusButton = editor.view.dom.querySelector('.block-handle-plus')
+
+        await act(async () => {
+          await new Promise((resolve) => setTimeout(resolve, 0))
+        })
+
+        editor.destroy()
+
+        expect(plusButton).not.toBeNull()
+        expect(plusButton?.querySelector('svg')).not.toBeNull()
+      })
+
+      it('THEN should have the block-handle-button class', () => {
+        const editor = createEditor('<p>Hello</p>')
+        const plusButton = editor.view.dom.querySelector('.block-handle-plus') as HTMLElement
+
+        editor.destroy()
+
+        expect(plusButton.classList.contains('block-handle-button')).toBe(true)
+      })
+
+      it('THEN should not be draggable', () => {
+        const editor = createEditor('<p>Hello</p>')
+        const plusButton = editor.view.dom.querySelector('.block-handle-plus') as HTMLElement
+
+        editor.destroy()
+
+        expect(plusButton.draggable).toBe(false)
+      })
+    })
+
+    describe('WHEN the plus button is clicked with slashCommands storage available', () => {
+      it('THEN should call triggerMenu with a clientRect function', () => {
+        const editor = createEditor('<p>Hello</p>')
+        const triggerMenu = jest.fn()
+
+        ;(editor.storage as any).slashCommands = { triggerMenu }
+
+        const plusButton = editor.view.dom.querySelector('.block-handle-plus') as HTMLElement
+
+        plusButton.click()
+
+        expect(triggerMenu).toHaveBeenCalledWith(expect.any(Function))
+
+        editor.destroy()
+      })
+
+      it('THEN should pass a function that returns the plus button bounding rect', () => {
+        const editor = createEditor('<p>Hello</p>')
+        const triggerMenu = jest.fn()
+
+        ;(editor.storage as any).slashCommands = { triggerMenu }
+
+        const plusButton = editor.view.dom.querySelector('.block-handle-plus') as HTMLElement
+
+        plusButton.click()
+
+        const clientRectFn = triggerMenu.mock.calls[0][0] as () => DOMRect
+        const rect = clientRectFn()
+
+        expect(rect).toEqual(
+          expect.objectContaining({
+            x: expect.any(Number),
+            y: expect.any(Number),
+            width: expect.any(Number),
+            height: expect.any(Number),
+          }),
+        )
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN the plus button is clicked without slashCommands storage', () => {
+      it('THEN should not throw an error', () => {
+        const editor = createEditor('<p>Hello</p>')
+        const plusButton = editor.view.dom.querySelector('.block-handle-plus') as HTMLElement
+
+        expect(() => plusButton.click()).not.toThrow()
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN the plus button is clicked with triggerMenu as null', () => {
+      it('THEN should not throw an error', () => {
+        const editor = createEditor('<p>Hello</p>')
+
+        ;(editor.storage as any).slashCommands = { triggerMenu: null }
+
+        const plusButton = editor.view.dom.querySelector('.block-handle-plus') as HTMLElement
+
+        expect(() => plusButton.click()).not.toThrow()
+
+        editor.destroy()
+      })
+    })
+  })
 })
