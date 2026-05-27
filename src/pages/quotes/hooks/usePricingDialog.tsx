@@ -6,138 +6,11 @@ import type {
   OnPricingCommand,
 } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
 import type { PricingBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/PricingBlock.schema'
-import { Typography } from '~/components/designSystem/Typography'
+import PricingDrawerContent from '~/components/designSystem/RichTextEditor/PricingBlock/PricingDrawerContent'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
-import { ComboboxItem } from '~/components/form'
-import {
-  OrderTypeEnum,
-  useGetAddOnsForFixedChargesSectionQuery,
-  usePlansQuery,
-} from '~/generated/graphql'
+import { CurrencyEnum, OrderTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useAppForm } from '~/hooks/forms/useAppform'
-
-// --- Drawer content components ---
-
-interface PlanSelectContentProps {
-  onSelect: (entity: { id: string; name: string; code: string } | undefined) => void
-  editEntityId?: string
-}
-
-const PlanSelectContent = ({ onSelect, editEntityId }: PlanSelectContentProps) => {
-  const { translate } = useInternationalization()
-  const { data, loading } = usePlansQuery({
-    variables: { limit: 100 },
-    fetchPolicy: 'network-only',
-    nextFetchPolicy: 'network-only',
-  })
-
-  const form = useAppForm({
-    defaultValues: { planId: editEntityId ?? '' },
-  })
-
-  const plans = data?.plans?.collection ?? []
-
-  const comboBoxData = plans.map((plan) => ({
-    value: plan.id,
-    label: `${plan.name} (${plan.code})`,
-    labelNode: (
-      <ComboboxItem>
-        <Typography variant="body" color="grey700" noWrap>
-          {plan.name}
-        </Typography>
-        <Typography variant="caption" color="grey600" noWrap>
-          {plan.code}
-        </Typography>
-      </ComboboxItem>
-    ),
-  }))
-
-  return (
-    <form.AppField
-      name="planId"
-      listeners={{
-        onChange: ({ value }) => {
-          const plan = plans.find((p) => p.id === value)
-
-          onSelect(plan ? { id: plan.id, name: plan.name, code: plan.code } : undefined)
-        },
-      }}
-    >
-      {(field) => (
-        <field.ComboBoxField
-          data={comboBoxData}
-          loading={loading}
-          label={translate('text_63d3a658c6d84a5843032145')}
-          placeholder={translate('text_63d3a658c6d84a5843032147')}
-        />
-      )}
-    </form.AppField>
-  )
-}
-
-interface AddOnSelectContentProps {
-  onSelect: (entities: { id: string; name: string; code: string }[]) => void
-  editEntityIds?: string[]
-}
-
-const AddOnSelectContent = ({ onSelect, editEntityIds }: AddOnSelectContentProps) => {
-  const { translate } = useInternationalization()
-  const { data, loading } = useGetAddOnsForFixedChargesSectionQuery({
-    variables: { limit: 100 },
-    fetchPolicy: 'network-only',
-    nextFetchPolicy: 'network-only',
-  })
-
-  const form = useAppForm({
-    defaultValues: { addOnIds: editEntityIds ?? ([] as string[]) },
-  })
-
-  const addOns = data?.addOns?.collection ?? []
-
-  const comboBoxData = addOns.map((addOn) => ({
-    value: addOn.id,
-    label: `${addOn.name} (${addOn.code})`,
-    labelNode: (
-      <ComboboxItem>
-        <Typography variant="body" color="grey700" noWrap>
-          {addOn.name}
-        </Typography>
-        <Typography variant="caption" color="grey600" noWrap>
-          {addOn.code}
-        </Typography>
-      </ComboboxItem>
-    ),
-  }))
-
-  return (
-    <form.AppField
-      name="addOnIds"
-      listeners={{
-        onChange: ({ value }) => {
-          const selected = (value ?? [])
-            .map((id) => {
-              const addOn = addOns.find((a) => a.id === id)
-
-              return addOn ? { id: addOn.id, name: addOn.name, code: addOn.code } : undefined
-            })
-            .filter(Boolean) as { id: string; name: string; code: string }[]
-
-          onSelect(selected)
-        },
-      }}
-    >
-      {(field) => (
-        <field.MultipleComboBoxField
-          data={comboBoxData}
-          loading={loading}
-          label={translate('text_1779802343220xh5jm32or13')}
-          placeholder={translate('text_17798023432203q6hytdp7om')}
-        />
-      )}
-    </form.AppField>
-  )
-}
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 // --- Hook ---
 
@@ -152,6 +25,7 @@ export const usePricingDialog = (
   quoteOrderType: OrderTypeEnum | undefined,
 ): UsePricingDialogReturn => {
   const { translate } = useInternationalization()
+  const { organization } = useOrganizationInfos()
   const formDrawer = useFormDrawer()
   const [entities, setEntities] = useState<Record<string, EntityData>>({})
   const selectedRef = useRef<{
@@ -169,53 +43,81 @@ export const usePricingDialog = (
         orderType === OrderTypeEnum.SubscriptionCreation ||
         orderType === OrderTypeEnum.SubscriptionAmendment
 
+      const currency = organization?.defaultCurrency ?? CurrencyEnum.Usd
+
       selectedRef.current = null
+
+      // Build initial values from editData
+      const initialPlanId =
+        isPlanSelection && editData?.pricingType === 'plan' ? editData.entityIds[0] : undefined
+
+      const initialAddOnItems =
+        !isPlanSelection && editData?.pricingType === 'addOns'
+          ? editData.entityIds.map((id) => {
+              const existing = entities[id]
+
+              return {
+                addOnId: id,
+                name: existing?.name ?? id,
+                code: existing?.code ?? '',
+                units: existing?.units ?? '1',
+                unitAmountCents: existing?.unitAmountCents ?? '0',
+              }
+            })
+          : undefined
 
       formDrawer.open({
         title: translate('text_1779802343219a1cl5ckvtrn'),
-        children: isPlanSelection ? (
-          <PlanSelectContent
-            editEntityId={editData?.pricingType === 'plan' ? editData.entityIds[0] : undefined}
-            onSelect={(plan) => {
-              if (plan) {
-                selectedRef.current = {
-                  attrs: { pricingType: 'plan', entityIds: [plan.id] },
-                  entityData: {
-                    [plan.id]: {
-                      entityId: plan.id,
-                      entityType: 'plan',
-                      name: plan.name,
-                      code: plan.code,
+        children: (
+          <PricingDrawerContent
+            quoteType={orderType}
+            currency={currency}
+            initialPlanId={initialPlanId}
+            initialAddOnItems={initialAddOnItems}
+            onChangeSelection={(data) => {
+              if (isPlanSelection) {
+                if (data.planId) {
+                  selectedRef.current = {
+                    attrs: { pricingType: 'plan', entityIds: [data.planId] },
+                    entityData: {
+                      [data.planId]: {
+                        entityId: data.planId,
+                        entityType: 'plan',
+                        name: data.planName ?? data.planId,
+                        code: data.planCode ?? '',
+                      },
                     },
-                  },
-                }
-              } else {
-                selectedRef.current = null
-              }
-            }}
-          />
-        ) : (
-          <AddOnSelectContent
-            editEntityIds={editData?.pricingType === 'addOns' ? editData.entityIds : undefined}
-            onSelect={(addOns) => {
-              if (addOns.length > 0) {
-                const entityData: Record<string, EntityData> = {}
-
-                addOns.forEach((a) => {
-                  entityData[a.id] = {
-                    entityId: a.id,
-                    entityType: 'addOn',
-                    name: a.name,
-                    code: a.code,
                   }
-                })
-
-                selectedRef.current = {
-                  attrs: { pricingType: 'addOns', entityIds: addOns.map((a) => a.id) },
-                  entityData,
+                } else {
+                  selectedRef.current = null
                 }
               } else {
-                selectedRef.current = null
+                const items = data.addOnItems ?? []
+
+                if (items.length > 0) {
+                  const entityData: Record<string, EntityData> = {}
+
+                  items.forEach((item) => {
+                    entityData[item.addOnId] = {
+                      entityId: item.addOnId,
+                      entityType: 'addOn',
+                      name: item.name,
+                      code: item.code,
+                      units: item.units,
+                      unitAmountCents: item.unitAmountCents,
+                    }
+                  })
+
+                  selectedRef.current = {
+                    attrs: {
+                      pricingType: 'addOns',
+                      entityIds: items.map((item) => item.addOnId),
+                    },
+                    entityData,
+                  }
+                } else {
+                  selectedRef.current = null
+                }
               }
             }}
           />
@@ -240,7 +142,7 @@ export const usePricingDialog = (
         },
       })
     },
-    [formDrawer, translate],
+    [formDrawer, translate, organization?.defaultCurrency, entities],
   )
 
   return { onPricingCommand, entities }

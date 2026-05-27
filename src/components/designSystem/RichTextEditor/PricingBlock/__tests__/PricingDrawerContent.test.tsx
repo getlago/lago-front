@@ -1,6 +1,7 @@
-import { screen } from '@testing-library/react'
+import { act, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
-import { OrderTypeEnum } from '~/generated/graphql'
+import { CurrencyEnum, OrderTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import PricingDrawerContent from '../PricingDrawerContent'
@@ -21,60 +22,12 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-const COMBO_BOX_FIELD_TEST_ID = 'combo-box-field'
-const MULTIPLE_COMBO_BOX_FIELD_TEST_ID = 'multiple-combo-box-field'
+const mockOnChangeSelection = jest.fn()
 
-jest.mock('~/hooks/forms/useAppform', () => ({
-  withForm: ({
-    render: Render,
-  }: {
-    defaultValues: unknown
-    props: unknown
-    render: React.FC<{ form: unknown; quoteType: OrderTypeEnum }>
-  }) => Render,
-}))
-
-const mockForm = {
-  AppField: ({
-    children,
-    name,
-  }: {
-    name: string
-    children: (field: {
-      ComboBoxField: React.FC<Record<string, unknown>>
-      MultipleComboBoxField: React.FC<Record<string, unknown>>
-    }) => React.ReactNode
-  }) => {
-    return (
-      <>
-        {children({
-          ComboBoxField: (props: Record<string, unknown>) => (
-            <div
-              data-test={COMBO_BOX_FIELD_TEST_ID}
-              data-loading={String(props.loading)}
-              data-name={name}
-            >
-              {(props.data as Array<{ value: string; label: string }>)?.map((item) => (
-                <div key={item.value}>{item.label}</div>
-              ))}
-            </div>
-          ),
-          MultipleComboBoxField: (props: Record<string, unknown>) => (
-            <div
-              data-test={MULTIPLE_COMBO_BOX_FIELD_TEST_ID}
-              data-loading={String(props.loading)}
-              data-name={name}
-            >
-              {(props.data as Array<{ value: string; label: string }>)?.map((item) => (
-                <div key={item.value}>{item.label}</div>
-              ))}
-            </div>
-          ),
-        })}
-      </>
-    )
-  },
-} as unknown as Parameters<typeof PricingDrawerContent>[0]['form']
+const defaultProps = {
+  currency: CurrencyEnum.Usd,
+  onChangeSelection: mockOnChangeSelection,
+}
 
 describe('PricingDrawerContent', () => {
   beforeEach(() => {
@@ -93,7 +46,7 @@ describe('PricingDrawerContent', () => {
 
   describe('GIVEN the quote type is SubscriptionCreation', () => {
     describe('WHEN plans data is loaded', () => {
-      it('THEN should display the combo box with plan options', () => {
+      it('THEN should render a plan combobox', () => {
         mockUsePlansQuery.mockReturnValue({
           data: {
             plans: {
@@ -107,56 +60,17 @@ describe('PricingDrawerContent', () => {
         })
 
         render(
-          <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.SubscriptionCreation} />,
+          <PricingDrawerContent {...defaultProps} quoteType={OrderTypeEnum.SubscriptionCreation} />,
         )
 
-        const comboBox = screen.getByTestId(COMBO_BOX_FIELD_TEST_ID)
-
-        expect(comboBox).toBeInTheDocument()
-        expect(comboBox).toHaveTextContent('Basic (basic)')
-        expect(comboBox).toHaveTextContent('Pro (pro)')
-      })
-    })
-
-    describe('WHEN plans data is loading', () => {
-      it('THEN should pass loading state to the combo box', () => {
-        mockUsePlansQuery.mockReturnValue({
-          data: undefined,
-          loading: true,
-        })
-
-        render(
-          <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.SubscriptionCreation} />,
-        )
-
-        const comboBox = screen.getByTestId(COMBO_BOX_FIELD_TEST_ID)
-
-        expect(comboBox).toHaveAttribute('data-loading', 'true')
-      })
-    })
-
-    describe('WHEN plans data is empty', () => {
-      it('THEN should render combo box with no options', () => {
-        mockUsePlansQuery.mockReturnValue({
-          data: { plans: { collection: [] } },
-          loading: false,
-        })
-
-        render(
-          <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.SubscriptionCreation} />,
-        )
-
-        const comboBox = screen.getByTestId(COMBO_BOX_FIELD_TEST_ID)
-
-        expect(comboBox).toBeInTheDocument()
-        expect(comboBox.children).toHaveLength(0)
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
       })
     })
   })
 
   describe('GIVEN the quote type is SubscriptionAmendment', () => {
     describe('WHEN plans data is loaded', () => {
-      it('THEN should also display the combo box with plan options', () => {
+      it('THEN should render a plan combobox', () => {
         mockUsePlansQuery.mockReturnValue({
           data: {
             plans: {
@@ -167,20 +81,20 @@ describe('PricingDrawerContent', () => {
         })
 
         render(
-          <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.SubscriptionAmendment} />,
+          <PricingDrawerContent
+            {...defaultProps}
+            quoteType={OrderTypeEnum.SubscriptionAmendment}
+          />,
         )
 
-        const comboBox = screen.getByTestId(COMBO_BOX_FIELD_TEST_ID)
-
-        expect(comboBox).toBeInTheDocument()
-        expect(comboBox).toHaveTextContent('Starter (starter)')
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
       })
     })
   })
 
   describe('GIVEN the quote type is OneOff', () => {
     describe('WHEN add-ons data is loaded', () => {
-      it('THEN should display the multiple combo box with add-on options', () => {
+      it('THEN should render an add-on combobox', () => {
         mockUseGetAddOnsForFixedChargesSectionQuery.mockReturnValue({
           data: {
             addOns: {
@@ -193,44 +107,71 @@ describe('PricingDrawerContent', () => {
           loading: false,
         })
 
-        render(<PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.OneOff} />)
+        render(<PricingDrawerContent {...defaultProps} quoteType={OrderTypeEnum.OneOff} />)
 
-        const multiComboBox = screen.getByTestId(MULTIPLE_COMBO_BOX_FIELD_TEST_ID)
-
-        expect(multiComboBox).toBeInTheDocument()
-        expect(multiComboBox).toHaveTextContent('Setup Fee (setup_fee)')
-        expect(multiComboBox).toHaveTextContent('Support (support)')
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
       })
     })
 
-    describe('WHEN add-ons data is loading', () => {
-      it('THEN should pass loading state to the multiple combo box', () => {
-        mockUseGetAddOnsForFixedChargesSectionQuery.mockReturnValue({
-          data: undefined,
-          loading: true,
-        })
-
-        render(<PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.OneOff} />)
-
-        const multiComboBox = screen.getByTestId(MULTIPLE_COMBO_BOX_FIELD_TEST_ID)
-
-        expect(multiComboBox).toHaveAttribute('data-loading', 'true')
-      })
-    })
-
-    describe('WHEN add-ons data is empty', () => {
-      it('THEN should render multiple combo box with no options', () => {
+    describe('WHEN an add-on is selected via initialAddOnItems', () => {
+      it('THEN should render the add-on item card with units and unit price fields', () => {
         mockUseGetAddOnsForFixedChargesSectionQuery.mockReturnValue({
           data: { addOns: { collection: [] } },
           loading: false,
         })
 
-        render(<PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.OneOff} />)
+        render(
+          <PricingDrawerContent
+            {...defaultProps}
+            quoteType={OrderTypeEnum.OneOff}
+            initialAddOnItems={[
+              {
+                addOnId: 'addon-1',
+                name: 'Setup Fee',
+                code: 'setup_fee',
+                units: '1',
+                unitAmountCents: '50',
+              },
+            ]}
+          />,
+        )
 
-        const multiComboBox = screen.getByTestId(MULTIPLE_COMBO_BOX_FIELD_TEST_ID)
+        expect(screen.getByTestId('add-on-item-0')).toBeInTheDocument()
+        expect(screen.getByText('Setup Fee')).toBeInTheDocument()
+        expect(screen.getByText('setup_fee')).toBeInTheDocument()
+      })
+    })
 
-        expect(multiComboBox).toBeInTheDocument()
-        expect(multiComboBox.children).toHaveLength(0)
+    describe('WHEN the remove button is clicked', () => {
+      it('THEN should remove the add-on item', async () => {
+        mockUseGetAddOnsForFixedChargesSectionQuery.mockReturnValue({
+          data: { addOns: { collection: [] } },
+          loading: false,
+        })
+
+        render(
+          <PricingDrawerContent
+            {...defaultProps}
+            quoteType={OrderTypeEnum.OneOff}
+            initialAddOnItems={[
+              {
+                addOnId: 'addon-1',
+                name: 'Setup Fee',
+                code: 'setup_fee',
+                units: '1',
+                unitAmountCents: '50',
+              },
+            ]}
+          />,
+        )
+
+        expect(screen.getByTestId('add-on-item-0')).toBeInTheDocument()
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId('remove-add-on-0'))
+        })
+
+        expect(screen.queryByTestId('add-on-item-0')).not.toBeInTheDocument()
       })
     })
   })
@@ -243,7 +184,7 @@ describe('PricingDrawerContent', () => {
       })
 
       render(
-        <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.SubscriptionCreation} />,
+        <PricingDrawerContent {...defaultProps} quoteType={OrderTypeEnum.SubscriptionCreation} />,
       )
 
       expect(mockUsePlansQuery).toHaveBeenCalledWith(
@@ -251,7 +192,6 @@ describe('PricingDrawerContent', () => {
           variables: { limit: 100 },
           fetchPolicy: 'network-only',
           nextFetchPolicy: 'network-only',
-          notifyOnNetworkStatusChange: true,
           skip: false,
         }),
       )
@@ -263,7 +203,7 @@ describe('PricingDrawerContent', () => {
         loading: false,
       })
 
-      render(<PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.OneOff} />)
+      render(<PricingDrawerContent {...defaultProps} quoteType={OrderTypeEnum.OneOff} />)
 
       expect(mockUsePlansQuery).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -278,14 +218,13 @@ describe('PricingDrawerContent', () => {
         loading: false,
       })
 
-      render(<PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.OneOff} />)
+      render(<PricingDrawerContent {...defaultProps} quoteType={OrderTypeEnum.OneOff} />)
 
       expect(mockUseGetAddOnsForFixedChargesSectionQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           variables: { limit: 100 },
           fetchPolicy: 'network-only',
           nextFetchPolicy: 'network-only',
-          notifyOnNetworkStatusChange: true,
           skip: false,
         }),
       )
@@ -298,7 +237,7 @@ describe('PricingDrawerContent', () => {
       })
 
       render(
-        <PricingDrawerContent form={mockForm} quoteType={OrderTypeEnum.SubscriptionCreation} />,
+        <PricingDrawerContent {...defaultProps} quoteType={OrderTypeEnum.SubscriptionCreation} />,
       )
 
       expect(mockUseGetAddOnsForFixedChargesSectionQuery).toHaveBeenCalledWith(

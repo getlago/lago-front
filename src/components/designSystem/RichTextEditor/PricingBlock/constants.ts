@@ -1,7 +1,17 @@
+export interface AddOnItem {
+  addOnId: string
+  name: string
+  code: string
+  units: string
+  unitAmountCents: string
+}
+
 export const pricingDrawerDefaultValues: {
   planId?: string
-  addOnIds?: string[]
+  addOnSelector?: string
+  addOnItems: AddOnItem[]
 } = {
   planId: undefined,
-  addOnIds: [],
+  addOnSelector: '',
+  addOnItems: [],
 }

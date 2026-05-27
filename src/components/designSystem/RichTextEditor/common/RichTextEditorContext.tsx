@@ -8,6 +8,8 @@ export type EntityData = {
   entityType: 'plan' | 'addOn'
   name: string
   code: string
+  units?: string
+  unitAmountCents?: string
 }
 
 export interface PricingCommandParams {
