@@ -1,4 +1,7 @@
-import { useCallback, useRef, useState } from 'react'
+import { revalidateLogic } from '@tanstack/react-form'
+import { DateTime } from 'luxon'
+import { useCallback, useMemo, useRef } from 'react'
+import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
 import type {
@@ -6,10 +9,12 @@ import type {
   OnPricingCommand,
 } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
 import type { PricingBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/PricingBlock.schema'
+import { pricingDrawerDefaultValues } from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
 import PricingDrawerContent from '~/components/designSystem/RichTextEditor/PricingBlock/PricingDrawerContent'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { CurrencyEnum, OrderTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 // --- Hook ---
@@ -27,14 +32,129 @@ export const usePricingDrawer = (
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
   const formDrawer = useFormDrawer()
-  const [entities, setEntities] = useState<Record<string, EntityData>>({})
-  const selectedRef = useRef<{
-    attrs: PricingBlockAttributes
-    entityData: Record<string, EntityData>
-  } | null>(null)
+  const entitiesRef = useRef<Record<string, EntityData>>({})
+  const onSaveRef = useRef<
+    ((attrs: PricingBlockAttributes, entityData: Record<string, EntityData>) => void) | null
+  >(null)
   const quoteOrderTypeRef = useRef(quoteOrderType)
 
   quoteOrderTypeRef.current = quoteOrderType
+
+  const validationSchema = useMemo(
+    () =>
+      z
+        .object({
+          planId: z.string(),
+          addOnItems: z.array(
+            z.object({
+              addOnId: z.string(),
+              name: z.string(),
+              code: z.string(),
+              units: z.string(),
+              unitAmountCents: z.string(),
+              fromDatetime: z.string(),
+              toDatetime: z.string(),
+            }),
+          ),
+        })
+        .superRefine((data, ctx) => {
+          const orderType = quoteOrderTypeRef.current ?? OrderTypeEnum.SubscriptionCreation
+          const isPlanSelection =
+            orderType === OrderTypeEnum.SubscriptionCreation ||
+            orderType === OrderTypeEnum.SubscriptionAmendment
+
+          if (isPlanSelection) return
+
+          // One-off: at least one confirmed add-on
+          const confirmed = data.addOnItems.filter((item) => item.addOnId)
+
+          if (confirmed.length === 0) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: translate('text_1779958764076n5tclla792h'),
+              path: ['addOnItems'],
+            })
+            return
+          }
+
+          // Each confirmed add-on needs units and unit price
+          data.addOnItems.forEach((item, index) => {
+            if (!item.addOnId) return
+
+            if (!item.units || item.units === '0') {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: translate('text_1779958764076e77b9cs2q5q'),
+                path: ['addOnItems', index, 'units'],
+              })
+            }
+
+            if (!item.unitAmountCents) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: translate('text_1779958764076kncdf7nqbts'),
+                path: ['addOnItems', index, 'unitAmountCents'],
+              })
+            }
+          })
+        }),
+    [translate],
+  )
+
+  const form = useAppForm({
+    defaultValues: pricingDrawerDefaultValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: validationSchema,
+    },
+    onSubmit: ({ value }) => {
+      const orderType = quoteOrderTypeRef.current ?? OrderTypeEnum.SubscriptionCreation
+      const isPlanSelection =
+        orderType === OrderTypeEnum.SubscriptionCreation ||
+        orderType === OrderTypeEnum.SubscriptionAmendment
+
+      if (isPlanSelection) {
+        if (!value.planId) return
+
+        const entityData: Record<string, EntityData> = {
+          [value.planId]: {
+            entityId: value.planId,
+            entityType: 'plan',
+            name: value.planId,
+            code: '',
+          },
+        }
+
+        onSaveRef.current?.({ pricingType: 'plan' as const, entityIds: [value.planId] }, entityData)
+        entitiesRef.current = { ...entitiesRef.current, ...entityData }
+      } else {
+        const confirmedItems = value.addOnItems.filter((item) => item.addOnId)
+
+        if (confirmedItems.length === 0) return
+
+        const entityData: Record<string, EntityData> = {}
+
+        confirmedItems.forEach((item) => {
+          entityData[item.addOnId] = {
+            entityId: item.addOnId,
+            entityType: 'addOn',
+            name: item.name,
+            code: item.code,
+            units: item.units,
+            unitAmountCents: item.unitAmountCents,
+            fromDatetime: item.fromDatetime,
+            toDatetime: item.toDatetime,
+          }
+        })
+
+        onSaveRef.current?.(
+          { pricingType: 'addOns' as const, entityIds: confirmedItems.map((item) => item.addOnId) },
+          entityData,
+        )
+        entitiesRef.current = { ...entitiesRef.current, ...entityData }
+      }
+    },
+  })
 
   const onPricingCommand: OnPricingCommand = useCallback(
     ({ onSave, editData }) => {
@@ -45,16 +165,18 @@ export const usePricingDrawer = (
 
       const currency = organization?.defaultCurrency ?? CurrencyEnum.Usd
 
-      selectedRef.current = null
+      onSaveRef.current = onSave
 
       // Build initial values from editData
       const initialPlanId =
-        isPlanSelection && editData?.pricingType === 'plan' ? editData.entityIds[0] : undefined
+        isPlanSelection && editData?.pricingType === 'plan' ? editData.entityIds[0] : ''
 
       const initialAddOnItems =
         !isPlanSelection && editData?.pricingType === 'addOns'
           ? editData.entityIds.map((id) => {
-              const existing = entities[id]
+              const existing = entitiesRef.current[id]
+
+              const today = DateTime.now()
 
               return {
                 addOnId: id,
@@ -62,91 +184,40 @@ export const usePricingDrawer = (
                 code: existing?.code ?? '',
                 units: existing?.units ?? '1',
                 unitAmountCents: existing?.unitAmountCents ?? '0',
+                fromDatetime: existing?.fromDatetime ?? today.startOf('day').toISO(),
+                toDatetime: existing?.toDatetime ?? today.endOf('day').toISO(),
               }
             })
-          : undefined
+          : []
+
+      form.reset({
+        planId: initialPlanId,
+        addOnItems: initialAddOnItems,
+      })
+
+      const handleSubmit = () => {
+        form.handleSubmit()
+      }
 
       formDrawer.open({
         title:
           orderType === OrderTypeEnum.OneOff
             ? translate('text_17799586575620rdqef1d7dq')
             : translate('text_17799586575628qyl2jk1tbn'),
-        children: (
-          <PricingDrawerContent
-            quoteType={orderType}
-            currency={currency}
-            initialPlanId={initialPlanId}
-            initialAddOnItems={initialAddOnItems}
-            onChangeSelection={(data) => {
-              if (isPlanSelection) {
-                if (data.planId) {
-                  selectedRef.current = {
-                    attrs: { pricingType: 'plan', entityIds: [data.planId] },
-                    entityData: {
-                      [data.planId]: {
-                        entityId: data.planId,
-                        entityType: 'plan',
-                        name: data.planName ?? data.planId,
-                        code: data.planCode ?? '',
-                      },
-                    },
-                  }
-                } else {
-                  selectedRef.current = null
-                }
-              } else {
-                const items = data.addOnItems ?? []
-
-                if (items.length > 0) {
-                  const entityData: Record<string, EntityData> = {}
-
-                  items.forEach((item) => {
-                    entityData[item.addOnId] = {
-                      entityId: item.addOnId,
-                      entityType: 'addOn',
-                      name: item.name,
-                      code: item.code,
-                      units: item.units,
-                      unitAmountCents: item.unitAmountCents,
-                    }
-                  })
-
-                  selectedRef.current = {
-                    attrs: {
-                      pricingType: 'addOns',
-                      entityIds: items.map((item) => item.addOnId),
-                    },
-                    entityData,
-                  }
-                } else {
-                  selectedRef.current = null
-                }
-              }
-            }}
-          />
-        ),
+        form: {
+          id: PRICING_DRAWER_FORM_ID,
+          submit: handleSubmit,
+        },
         mainAction: (
           <Button data-test="pricing-drawer-submit" type="submit">
             {translate('text_1779805897126caxqtv14ctd')}
           </Button>
         ),
-        form: {
-          id: PRICING_DRAWER_FORM_ID,
-          submit: () => {
-            if (!selectedRef.current) {
-              throw new Error('No pricing selection')
-            }
-
-            const { attrs, entityData } = selectedRef.current
-
-            onSave(attrs, entityData)
-            setEntities((prev) => ({ ...prev, ...entityData }))
-          },
-        },
+        children: <PricingDrawerContent form={form} quoteType={orderType} currency={currency} />,
       })
     },
-    [formDrawer, translate, organization?.defaultCurrency, entities],
+    [formDrawer, translate, organization?.defaultCurrency, form],
   )
 
-  return { onPricingCommand, entities }
+  return { onPricingCommand, entities: entitiesRef.current }
 }

@@ -1,9 +1,11 @@
-import { act, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { CurrencyEnum, OrderTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+import type { AddOnItem } from '../constants'
+import { pricingDrawerDefaultValues } from '../constants'
 import PricingDrawerContent from '../PricingDrawerContent'
 
 const mockUsePlansQuery = jest.fn()
@@ -22,11 +24,33 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-const mockOnChangeSelection = jest.fn()
+// Helper to render with a form wrapper
+const renderWithForm = ({
+  quoteType,
+  currency = CurrencyEnum.Usd,
+  initialValues,
+}: {
+  quoteType: OrderTypeEnum
+  currency?: CurrencyEnum
+  initialValues?: { planId?: string; addOnItems?: AddOnItem[] }
+}) => {
+  // We use a wrapper component that creates the form via useAppForm
+  // and passes it to PricingDrawerContent
+  const { useAppForm: useAppFormHook } = jest.requireActual('~/hooks/forms/useAppform')
 
-const defaultProps = {
-  currency: CurrencyEnum.Usd,
-  onChangeSelection: mockOnChangeSelection,
+  const Wrapper = () => {
+    const form = useAppFormHook({
+      defaultValues: {
+        ...pricingDrawerDefaultValues,
+        planId: initialValues?.planId ?? '',
+        addOnItems: initialValues?.addOnItems ?? [],
+      },
+    })
+
+    return <PricingDrawerContent form={form} quoteType={quoteType} currency={currency} />
+  }
+
+  return render(<Wrapper />)
 }
 
 describe('PricingDrawerContent', () => {
@@ -59,9 +83,7 @@ describe('PricingDrawerContent', () => {
           loading: false,
         })
 
-        render(
-          <PricingDrawerContent {...defaultProps} quoteType={OrderTypeEnum.SubscriptionCreation} />,
-        )
+        renderWithForm({ quoteType: OrderTypeEnum.SubscriptionCreation })
 
         expect(screen.getByRole('combobox')).toBeInTheDocument()
       })
@@ -80,12 +102,7 @@ describe('PricingDrawerContent', () => {
           loading: false,
         })
 
-        render(
-          <PricingDrawerContent
-            {...defaultProps}
-            quoteType={OrderTypeEnum.SubscriptionAmendment}
-          />,
-        )
+        renderWithForm({ quoteType: OrderTypeEnum.SubscriptionAmendment })
 
         expect(screen.getByRole('combobox')).toBeInTheDocument()
       })
@@ -94,7 +111,7 @@ describe('PricingDrawerContent', () => {
 
   describe('GIVEN the quote type is OneOff', () => {
     describe('WHEN add-ons data is loaded', () => {
-      it('THEN should render an add-on combobox', () => {
+      it('THEN should render an add-on button', () => {
         mockUseGetAddOnsForFixedChargesSectionQuery.mockReturnValue({
           data: {
             addOns: {
@@ -107,34 +124,35 @@ describe('PricingDrawerContent', () => {
           loading: false,
         })
 
-        render(<PricingDrawerContent {...defaultProps} quoteType={OrderTypeEnum.OneOff} />)
+        renderWithForm({ quoteType: OrderTypeEnum.OneOff })
 
-        expect(screen.getByRole('combobox')).toBeInTheDocument()
+        expect(screen.getByTestId('add-add-on-button')).toBeInTheDocument()
       })
     })
 
-    describe('WHEN an add-on is selected via initialAddOnItems', () => {
+    describe('WHEN an add-on is provided via initial values', () => {
       it('THEN should render the add-on item card with units and unit price fields', () => {
         mockUseGetAddOnsForFixedChargesSectionQuery.mockReturnValue({
           data: { addOns: { collection: [] } },
           loading: false,
         })
 
-        render(
-          <PricingDrawerContent
-            {...defaultProps}
-            quoteType={OrderTypeEnum.OneOff}
-            initialAddOnItems={[
+        renderWithForm({
+          quoteType: OrderTypeEnum.OneOff,
+          initialValues: {
+            addOnItems: [
               {
                 addOnId: 'addon-1',
                 name: 'Setup Fee',
                 code: 'setup_fee',
                 units: '1',
                 unitAmountCents: '50',
+                fromDatetime: '2026-05-28T00:00:00.000+02:00',
+                toDatetime: '2026-05-28T23:59:59.999+02:00',
               },
-            ]}
-          />,
-        )
+            ],
+          },
+        })
 
         expect(screen.getByTestId('add-on-item-0')).toBeInTheDocument()
         expect(screen.getByText('Setup Fee')).toBeInTheDocument()
@@ -142,34 +160,36 @@ describe('PricingDrawerContent', () => {
       })
     })
 
-    describe('WHEN the remove button is clicked', () => {
+    describe('WHEN the remove button is clicked via popper menu', () => {
       it('THEN should remove the add-on item', async () => {
         mockUseGetAddOnsForFixedChargesSectionQuery.mockReturnValue({
           data: { addOns: { collection: [] } },
           loading: false,
         })
 
-        render(
-          <PricingDrawerContent
-            {...defaultProps}
-            quoteType={OrderTypeEnum.OneOff}
-            initialAddOnItems={[
+        renderWithForm({
+          quoteType: OrderTypeEnum.OneOff,
+          initialValues: {
+            addOnItems: [
               {
                 addOnId: 'addon-1',
                 name: 'Setup Fee',
                 code: 'setup_fee',
                 units: '1',
                 unitAmountCents: '50',
+                fromDatetime: '2026-05-28T00:00:00.000+02:00',
+                toDatetime: '2026-05-28T23:59:59.999+02:00',
               },
-            ]}
-          />,
-        )
+            ],
+          },
+        })
 
         expect(screen.getByTestId('add-on-item-0')).toBeInTheDocument()
 
-        await act(async () => {
-          await userEvent.click(screen.getByTestId('remove-add-on-0'))
-        })
+        // Open the popper menu
+        await userEvent.click(screen.getByTestId('add-on-actions-0'))
+        // Click the delete button
+        await userEvent.click(screen.getByText('text_63aa085d28b8510cd46443ff'))
 
         expect(screen.queryByTestId('add-on-item-0')).not.toBeInTheDocument()
       })
@@ -183,9 +203,7 @@ describe('PricingDrawerContent', () => {
         loading: false,
       })
 
-      render(
-        <PricingDrawerContent {...defaultProps} quoteType={OrderTypeEnum.SubscriptionCreation} />,
-      )
+      renderWithForm({ quoteType: OrderTypeEnum.SubscriptionCreation })
 
       expect(mockUsePlansQuery).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -203,7 +221,7 @@ describe('PricingDrawerContent', () => {
         loading: false,
       })
 
-      render(<PricingDrawerContent {...defaultProps} quoteType={OrderTypeEnum.OneOff} />)
+      renderWithForm({ quoteType: OrderTypeEnum.OneOff })
 
       expect(mockUsePlansQuery).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -218,7 +236,7 @@ describe('PricingDrawerContent', () => {
         loading: false,
       })
 
-      render(<PricingDrawerContent {...defaultProps} quoteType={OrderTypeEnum.OneOff} />)
+      renderWithForm({ quoteType: OrderTypeEnum.OneOff })
 
       expect(mockUseGetAddOnsForFixedChargesSectionQuery).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -236,9 +254,7 @@ describe('PricingDrawerContent', () => {
         loading: false,
       })
 
-      render(
-        <PricingDrawerContent {...defaultProps} quoteType={OrderTypeEnum.SubscriptionCreation} />,
-      )
+      renderWithForm({ quoteType: OrderTypeEnum.SubscriptionCreation })
 
       expect(mockUseGetAddOnsForFixedChargesSectionQuery).toHaveBeenCalledWith(
         expect.objectContaining({

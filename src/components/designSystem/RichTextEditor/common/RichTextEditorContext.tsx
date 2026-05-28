@@ -10,6 +10,8 @@ export type EntityData = {
   code: string
   units?: string
   unitAmountCents?: string
+  fromDatetime?: string
+  toDatetime?: string
 }
 
 export interface PricingCommandParams {

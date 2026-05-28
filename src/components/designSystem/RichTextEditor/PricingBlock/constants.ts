@@ -4,14 +4,13 @@ export interface AddOnItem {
   code: string
   units: string
   unitAmountCents: string
+  fromDatetime: string
+  toDatetime: string
 }
 
-export const pricingDrawerDefaultValues: {
-  planId?: string
-  addOnSelector?: string
-  addOnItems: AddOnItem[]
-} = {
-  planId: undefined,
-  addOnSelector: '',
-  addOnItems: [],
+export const pricingDrawerDefaultValues = {
+  planId: '',
+  addOnItems: [] as AddOnItem[],
 }
+
+export type PricingDrawerFormValues = typeof pricingDrawerDefaultValues
