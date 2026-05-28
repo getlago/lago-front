@@ -21,6 +21,8 @@ import { useUpdateQuote } from './hooks/useUpdateQuote'
 
 const AUTO_SAVE_DELAY_MS = 2000
 
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
+
 const EditQuote = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
@@ -39,7 +41,6 @@ const EditQuote = () => {
     )
   }
 
-  type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const [editorMode, setEditorMode] = useState<RichTextEditorMode>('edit')
 

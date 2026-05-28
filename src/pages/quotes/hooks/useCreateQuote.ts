@@ -65,29 +65,36 @@ export const useCreateQuote = (): UseCreateQuoteReturn => {
   })
 
   const onSave = async (values: CreateQuoteValues): Promise<void> => {
-    if (!values.hasCustomerCurrency && values.currency && values.customerExternalId) {
-      await updateCustomerCurrency({
+    try {
+      if (!values.hasCustomerCurrency && values.currency && values.customerExternalId) {
+        await updateCustomerCurrency({
+          variables: {
+            input: {
+              id: values.customerId,
+              externalId: values.customerExternalId,
+              currency: values.currency,
+            },
+          },
+        })
+      }
+
+      await createQuote({
         variables: {
           input: {
-            id: values.customerId,
-            externalId: values.customerExternalId,
-            currency: values.currency,
+            customerId: values.customerId,
+            orderType: values.orderType,
+            subscriptionId: values.subscriptionId || undefined,
+            owners: values.owners,
+            currency: values.currency || undefined,
           },
         },
       })
+    } catch {
+      addToast({
+        severity: 'danger',
+        translateKey: 'text_1779972384579cgilv8fpjw6',
+      })
     }
-
-    await createQuote({
-      variables: {
-        input: {
-          customerId: values.customerId,
-          orderType: values.orderType,
-          subscriptionId: values.subscriptionId || undefined,
-          owners: values.owners,
-          currency: values.currency || undefined,
-        },
-      },
-    })
   }
 
   return {
