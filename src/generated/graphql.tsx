@@ -2095,9 +2095,12 @@ export type CreateQuoteInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   content?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<Scalars['String']['input']>;
   customerId: Scalars['ID']['input'];
+  endDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   orderType: OrderTypeEnum;
   owners?: InputMaybe<Array<Scalars['ID']['input']>>;
+  startDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   subscriptionId?: InputMaybe<Scalars['ID']['input']>;
 };
 
@@ -8256,10 +8259,13 @@ export type QuoteVersion = {
   billingItems?: Maybe<Scalars['JSON']['output']>;
   content?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['ISO8601DateTime']['output'];
+  currency?: Maybe<Scalars['String']['output']>;
+  endDate?: Maybe<Scalars['ISO8601Date']['output']>;
   id: Scalars['ID']['output'];
   organization: Organization;
   quote: Quote;
   shareToken?: Maybe<Scalars['String']['output']>;
+  startDate?: Maybe<Scalars['ISO8601Date']['output']>;
   status: StatusEnum;
   updatedAt: Scalars['ISO8601DateTime']['output'];
   version: Scalars['Int']['output'];
@@ -9753,7 +9759,10 @@ export type UpdateQuoteVersionInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   content?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<Scalars['String']['input']>;
+  endDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   id: Scalars['ID']['input'];
+  startDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
 };
 
 export type UpdateRecurringTransactionRuleInput = {
