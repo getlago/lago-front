@@ -84,7 +84,7 @@ export const useCreateQuote = (): UseCreateQuoteReturn => {
           orderType: values.orderType,
           subscriptionId: values.subscriptionId || undefined,
           owners: values.owners,
-          billingItems: values.currency ? { currency: values.currency } : undefined,
+          currency: values.currency || undefined,
         },
       },
     })

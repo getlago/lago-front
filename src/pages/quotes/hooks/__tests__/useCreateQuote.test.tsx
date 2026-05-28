@@ -77,7 +77,7 @@ describe('useCreateQuote', () => {
               orderType: OrderTypeEnum.OneOff,
               subscriptionId: undefined,
               owners: undefined,
-              billingItems: undefined,
+              currency: undefined,
             },
           },
         })
@@ -105,7 +105,7 @@ describe('useCreateQuote', () => {
               orderType: OrderTypeEnum.SubscriptionAmendment,
               subscriptionId: 'sub-789',
               owners: undefined,
-              billingItems: undefined,
+              currency: undefined,
             },
           },
         })
@@ -133,7 +133,7 @@ describe('useCreateQuote', () => {
               orderType: OrderTypeEnum.OneOff,
               subscriptionId: undefined,
               owners: ['user-1', 'user-2'],
-              billingItems: undefined,
+              currency: undefined,
             },
           },
         })
@@ -160,7 +160,7 @@ describe('useCreateQuote', () => {
               orderType: OrderTypeEnum.OneOff,
               subscriptionId: undefined,
               owners: undefined,
-              billingItems: undefined,
+              currency: undefined,
             },
           },
         })
@@ -168,7 +168,7 @@ describe('useCreateQuote', () => {
     })
 
     describe('WHEN called with currency and customer had no prior currency', () => {
-      it('THEN should call updateCustomerCurrency then createQuote with billingItems', async () => {
+      it('THEN should call updateCustomerCurrency then createQuote with currency', async () => {
         mockUpdateCustomerCurrency.mockResolvedValue({
           data: { updateCustomer: { id: 'customer-123', currency: CurrencyEnum.Eur } },
         })
@@ -203,7 +203,7 @@ describe('useCreateQuote', () => {
               orderType: OrderTypeEnum.OneOff,
               subscriptionId: undefined,
               owners: undefined,
-              billingItems: { currency: CurrencyEnum.Eur },
+              currency: CurrencyEnum.Eur,
             },
           },
         })
@@ -211,7 +211,7 @@ describe('useCreateQuote', () => {
     })
 
     describe('WHEN called with currency and customer already had currency', () => {
-      it('THEN should NOT call updateCustomerCurrency but should pass billingItems', async () => {
+      it('THEN should NOT call updateCustomerCurrency but should pass currency', async () => {
         mockCreateQuote.mockResolvedValue({ data: { createQuote: { id: 'quote-6' } } })
 
         const { result } = renderHook(() => useCreateQuote(), { wrapper })
@@ -235,7 +235,7 @@ describe('useCreateQuote', () => {
               orderType: OrderTypeEnum.OneOff,
               subscriptionId: undefined,
               owners: undefined,
-              billingItems: { currency: CurrencyEnum.Usd },
+              currency: CurrencyEnum.Usd,
             },
           },
         })

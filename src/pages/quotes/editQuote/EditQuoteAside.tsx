@@ -79,22 +79,20 @@ const EditQuoteAsideForm = ({
   const hasSubscription = !!quote.subscription
   const versionId = quote.currentVersion.id
 
-  const billingItems = quote.currentVersion.billingItems as
-    | { startDate?: string; endDate?: string; currency?: CurrencyEnum }
-    | null
-    | undefined
-
   const getDefaultValues = (): EditQuoteAsideFormValues => {
     return {
       orderTypeLabel: translate(getQuoteOrderTypeTranslationKey(quote.orderType)),
       customerName: quote.customer.name ?? '',
       billingEntityId: quote.customer.billingEntity?.id ?? '',
-      currency: quote.customer.currency ?? billingItems?.currency ?? undefined,
+      currency:
+        quote.customer.currency ??
+        (quote.currentVersion.currency as CurrencyEnum | undefined) ??
+        undefined,
       subscriptionLabel: quote.subscription
         ? `${quote.subscription.plan?.name ?? ''} - ${quote.subscription.externalId}`
         : undefined,
-      startDate: quote.subscription?.subscriptionAt ?? billingItems?.startDate ?? undefined,
-      endDate: billingItems?.endDate ?? undefined,
+      startDate: quote.subscription?.subscriptionAt ?? quote.currentVersion.startDate ?? undefined,
+      endDate: quote.currentVersion.endDate ?? undefined,
       netPaymentTermLabel: formatNetPaymentTerm(
         quote.customer.netPaymentTerm ?? quote.customer.billingEntity?.netPaymentTerm,
         translate,
@@ -110,8 +108,8 @@ const EditQuoteAsideForm = ({
     },
   })
 
-  // Auto-save billing items on date changes
-  const initialBillingValuesRef = useRef({
+  // Auto-save dates on change
+  const initialDatesRef = useRef({
     startDate: getDefaultValues().startDate,
     endDate: getDefaultValues().endDate,
   })
@@ -124,21 +122,22 @@ const EditQuoteAsideForm = ({
   onSaveStartRef.current = onSaveStart
   onSaveErrorRef.current = onSaveError
 
-  const debouncedSaveBillingItems = useMemo(
+  const debouncedSaveDates = useMemo(
     () =>
       debounce(async (startDate?: string, endDate?: string) => {
         if (!versionId) return
 
         const payload: UpdateQuoteVersionInput = {
           id: versionId,
-          billingItems: { startDate, endDate },
+          startDate,
+          endDate,
         }
 
         try {
           const result = await updateQuoteVersionRef.current(payload, false)
 
           if (result.data?.updateQuoteVersion) {
-            initialBillingValuesRef.current = { startDate, endDate }
+            initialDatesRef.current = { startDate, endDate }
           } else {
             onSaveErrorRef.current?.(payload)
           }
@@ -156,13 +155,13 @@ const EditQuoteAsideForm = ({
   useEffect(() => {
     if (!canSubmit) return
 
-    const initial = initialBillingValuesRef.current
+    const initial = initialDatesRef.current
 
     if (startDate === initial.startDate && endDate === initial.endDate) return
 
     onSaveStartRef.current?.()
-    debouncedSaveBillingItems(startDate, endDate)
-  }, [startDate, endDate, canSubmit, debouncedSaveBillingItems])
+    debouncedSaveDates(startDate, endDate)
+  }, [startDate, endDate, canSubmit, debouncedSaveDates])
 
   const gridClassName = 'grid grid-cols-[7.5rem_1fr] items-center gap-0 gap-y-2'
 
@@ -242,8 +241,8 @@ const EditQuoteAsideForm = ({
                 disableClearable
                 data={[
                   ...(quote.customer.currency ? [{ value: quote.customer.currency }] : []),
-                  ...(billingItems?.currency && !quote.customer.currency
-                    ? [{ value: billingItems.currency }]
+                  ...(quote.currentVersion.currency && !quote.customer.currency
+                    ? [{ value: quote.currentVersion.currency }]
                     : []),
                 ]}
               />

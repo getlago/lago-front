@@ -46,6 +46,9 @@ gql`
       status
       version
       content
+      currency
+      startDate
+      endDate
       billingItems
       createdAt
     }

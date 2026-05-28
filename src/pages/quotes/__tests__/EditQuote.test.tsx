@@ -102,6 +102,9 @@ const mockQuote = {
     status: 'draft',
     version: 1,
     content: 'Some content',
+    currency: null,
+    startDate: null,
+    endDate: null,
     createdAt: '2026-01-01',
   },
 }
