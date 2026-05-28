@@ -37,8 +37,8 @@ export const useToolbarOverflow = ({
     const containerStyles = getComputedStyle(container)
     const containerWidth =
       container.clientWidth -
-      parseFloat(containerStyles.paddingLeft) -
-      parseFloat(containerStyles.paddingRight)
+      Number.parseFloat(containerStyles.paddingLeft) -
+      Number.parseFloat(containerStyles.paddingRight)
     const kebabWidth = kebabRef.current?.scrollWidth ?? 0
 
     // Measure all visible groups first so the cache is fully populated
