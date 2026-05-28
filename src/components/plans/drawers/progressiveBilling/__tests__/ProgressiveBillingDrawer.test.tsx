@@ -351,5 +351,42 @@ describe('ProgressiveBillingDrawer', () => {
         expect(mockDrawerClose).toHaveBeenCalled()
       })
     })
+
+    describe('WHEN onSave returns false (cascade dialog cancelled)', () => {
+      it('THEN should NOT close the drawer', async () => {
+        const abortingOnSave = jest.fn().mockResolvedValue(false)
+
+        render(<ProgressiveBillingDrawer ref={drawerRef} onSave={abortingOnSave} />)
+
+        await capturedOnSubmit?.({ value: { ...defaultFormValues } })
+
+        expect(abortingOnSave).toHaveBeenCalled()
+        expect(mockDrawerClose).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN onSave returns true', () => {
+      it('THEN should close the drawer', async () => {
+        const confirmingOnSave = jest.fn().mockResolvedValue(true)
+
+        render(<ProgressiveBillingDrawer ref={drawerRef} onSave={confirmingOnSave} />)
+
+        await capturedOnSubmit?.({ value: { ...defaultFormValues } })
+
+        expect(mockDrawerClose).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN onSave returns void (sync)', () => {
+      it('THEN should close the drawer', async () => {
+        const voidOnSave = jest.fn().mockReturnValue(undefined)
+
+        render(<ProgressiveBillingDrawer ref={drawerRef} onSave={voidOnSave} />)
+
+        await capturedOnSubmit?.({ value: { ...defaultFormValues } })
+
+        expect(mockDrawerClose).toHaveBeenCalled()
+      })
+    })
   })
 })
