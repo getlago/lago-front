@@ -1,9 +1,24 @@
 import { screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { act } from 'react'
 
-import { render } from '~/test-utils'
+import { RIGHT_ASIDE_PAGE_HEADER_TEST_ID } from '~/components/layouts/RightAsidePage'
+import { render, testMockNavigateFn } from '~/test-utils'
 
 import EditQuote from '../EditQuote'
+
+// --- Shared state for mocks ---
+
+let capturedOnChange: (() => void) | undefined
+let mockMarkdownContent = '# Mock markdown content'
+
+type AsideCallbacks = {
+  onSaveStart?: () => void
+  onSaveFinished?: () => void
+  onSaveError?: (payload: unknown) => void
+}
+
+let capturedAsideCallbacks: AsideCallbacks = {}
 
 // --- Mocks ---
 
@@ -19,20 +34,23 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
 
   const MockRichTextEditor = ({
     getMarkdownRef,
+    onChange,
   }: {
     getMarkdownRef?: React.MutableRefObject<(() => string) | null>
+    onChange?: () => void
   }) => {
     React.useEffect(() => {
       if (getMarkdownRef) {
-        getMarkdownRef.current = () => '# Mock markdown content'
+        getMarkdownRef.current = () => mockMarkdownContent
       }
+      capturedOnChange = onChange
 
       return () => {
         if (getMarkdownRef) {
           getMarkdownRef.current = null
         }
       }
-    }, [getMarkdownRef])
+    }, [getMarkdownRef, onChange])
 
     return <div data-test="mock-rich-text-editor" />
   }
@@ -46,7 +64,19 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
 jest.mock('../editQuote/EditQuoteAside', () => {
   return {
     __esModule: true,
-    default: () => <div data-test="mock-edit-quote-aside" />,
+    default: (props: {
+      onSaveStart?: () => void
+      onSaveFinished?: () => void
+      onSaveError?: (payload: unknown) => void
+    }) => {
+      capturedAsideCallbacks = {
+        onSaveStart: props.onSaveStart,
+        onSaveFinished: props.onSaveFinished,
+        onSaveError: props.onSaveError,
+      }
+
+      return <div data-test="mock-edit-quote-aside" />
+    },
   }
 })
 
@@ -119,6 +149,15 @@ jest.mock('../common/getQuoteStatusMapping', () => ({
   getQuoteStatusMapping: () => ({ type: 'outline', label: 'draft' }),
 }))
 
+// --- Helpers ---
+
+const getCloseButton = () => {
+  const header = screen.getByTestId(RIGHT_ASIDE_PAGE_HEADER_TEST_ID)
+  const buttons = header.querySelectorAll('[data-test="button"]')
+
+  return buttons[buttons.length - 1] as HTMLButtonElement
+}
+
 // --- Tests ---
 
 describe('EditQuote', () => {
@@ -127,6 +166,9 @@ describe('EditQuote', () => {
 
     mockIsUpdatingQuoteVersion = false
     mockIsUpdatingQuote = false
+    mockMarkdownContent = '# Mock markdown content'
+    capturedOnChange = undefined
+    capturedAsideCallbacks = {}
 
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
@@ -237,6 +279,214 @@ describe('EditQuote', () => {
         })
 
         expect(screen.queryByText('text_1779437694622y666yr137gm')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the close button is clicked', () => {
+    describe('WHEN the quote is loaded', () => {
+      it('THEN should navigate to the quote details page', async () => {
+        const user = userEvent.setup()
+
+        render(<EditQuote />)
+
+        await user.click(getCloseButton())
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-123/overview')
+      })
+    })
+
+    describe('WHEN quoteId is not available', () => {
+      it('THEN should not navigate', async () => {
+        const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+
+        useParamsMock.mockReturnValue({})
+
+        const user = userEvent.setup()
+
+        render(<EditQuote />)
+
+        await user.click(getCloseButton())
+
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the editor mode toggle button', () => {
+    describe('WHEN the toggle button is clicked', () => {
+      it('THEN should switch from edit to preview mode', async () => {
+        const user = userEvent.setup()
+
+        render(<EditQuote />)
+
+        // In edit mode, the button shows the preview label
+        expect(screen.getByText('text_17792789377356rxkbkmpu81')).toBeInTheDocument()
+
+        // Click the toggle button (the first button in the header children area)
+        const toggleButton = screen
+          .getByText('text_17792789377356rxkbkmpu81')
+          .closest('[data-test="button"]') as HTMLElement
+
+        await user.click(toggleButton)
+
+        // Now in preview mode, the button shows the edit label
+        await waitFor(() => {
+          expect(screen.getByText('text_1779278937735vlpgsllouzy')).toBeInTheDocument()
+        })
+      })
+    })
+  })
+
+  describe('GIVEN the auto-save flow', () => {
+    beforeEach(() => {
+      jest.useFakeTimers()
+    })
+
+    afterEach(() => {
+      jest.useRealTimers()
+    })
+
+    describe('WHEN content changes after editor is ready', () => {
+      it('THEN should debounce and call updateQuoteVersion', async () => {
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: { updateQuoteVersion: { id: 'version-1' } },
+        })
+
+        render(<EditQuote />)
+
+        // Let the editor initialize (setTimeout(0) in useEffect)
+        await act(async () => {
+          jest.advanceTimersByTime(0)
+        })
+
+        // Simulate content change
+        mockMarkdownContent = '# Updated content'
+
+        act(() => {
+          capturedOnChange?.()
+        })
+
+        // Should show saving status
+        await waitFor(() => {
+          expect(screen.getByText('text_1779268404389431dgsiiysk')).toBeInTheDocument()
+        })
+
+        // Advance past the debounce delay (2000ms)
+        await act(async () => {
+          jest.advanceTimersByTime(2000)
+        })
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            expect.objectContaining({
+              id: 'version-1',
+              content: '# Updated content',
+            }),
+            false,
+          )
+        })
+      })
+    })
+
+    describe('WHEN content has not changed from baseline', () => {
+      it('THEN should not trigger a save', async () => {
+        render(<EditQuote />)
+
+        // Let the editor initialize
+        await act(async () => {
+          jest.advanceTimersByTime(0)
+        })
+
+        // Fire onChange without changing the content
+        act(() => {
+          capturedOnChange?.()
+        })
+
+        // Advance past debounce
+        await act(async () => {
+          jest.advanceTimersByTime(2000)
+        })
+
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the aside callbacks', () => {
+    describe('WHEN onSaveStart is called from the aside', () => {
+      it('THEN should set save status to saving', async () => {
+        render(<EditQuote />)
+
+        act(() => {
+          capturedAsideCallbacks.onSaveStart?.()
+        })
+
+        await waitFor(() => {
+          expect(screen.getByText('text_1779268404389431dgsiiysk')).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN onSaveError is called from the aside with a payload', () => {
+      it('THEN should set save status to error', async () => {
+        render(<EditQuote />)
+
+        act(() => {
+          capturedAsideCallbacks.onSaveError?.({ id: 'version-1', startDate: '2026-01-01' })
+        })
+
+        await waitFor(() => {
+          expect(screen.getByText('text_1779437694622y666yr137gm')).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN retry is clicked after aside error stored a payload', () => {
+      it('THEN should call updateQuoteVersion with the stored payload', async () => {
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: { updateQuoteVersion: { id: 'version-1' } },
+        })
+
+        render(<EditQuote />)
+
+        const initialButtons = screen.getAllByTestId('button')
+
+        // Trigger error from aside with a payload — this stores it in failedPayloadRef
+        act(() => {
+          capturedAsideCallbacks.onSaveError?.({ id: 'version-1', startDate: '2026-06-01' })
+        })
+
+        await waitFor(() => {
+          expect(screen.getByText('text_1779437694622y666yr137gm')).toBeInTheDocument()
+        })
+
+        // Find and click the retry button
+        const allButtons = screen.getAllByTestId('button')
+        const retryButton = allButtons.find((btn) => !initialButtons.includes(btn)) as HTMLElement
+
+        await act(async () => {
+          retryButton.click()
+        })
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 'version-1', startDate: '2026-06-01' }),
+            false,
+          )
+        })
+      })
+    })
+  })
+
+  describe('GIVEN the close button disabled state', () => {
+    describe('WHEN a mutation is in progress', () => {
+      it('THEN should disable the close button', () => {
+        mockIsUpdatingQuoteVersion = true
+
+        render(<EditQuote />)
+
+        expect(getCloseButton()).toBeDisabled()
       })
     })
   })
