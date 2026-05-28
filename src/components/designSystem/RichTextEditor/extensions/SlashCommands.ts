@@ -134,6 +134,20 @@ export const SlashCommands = Extension.create({
       command: def.command,
     }))
 
+    if (onPricingCommand) {
+      resolvedItems.push({
+        title: translate('text_1779802343219a1cl5ckvtrn'),
+        description: translate('text_1779802343219rul1jvs7170'),
+        command: (editor) => {
+          onPricingCommand({
+            onSave: (attrs) => {
+              editor.chain().focus().insertContent({ type: 'pricingBlock', attrs }).run()
+            },
+          })
+        },
+      })
+    }
+
     const editorRef = this.editor
 
     this.storage.triggerMenu = (clientRect: () => DOMRect) => {
@@ -193,20 +207,6 @@ export const SlashCommands = Extension.create({
 
       document.addEventListener('keydown', handleKeyDown, true)
       document.addEventListener('mousedown', handleClickOutside, true)
-
-      if (onPricingCommand) {
-        resolvedItems.push({
-          title: translate('text_1779802343219a1cl5ckvtrn'),
-          description: translate('text_1779802343219rul1jvs7170'),
-          command: (editor) => {
-            onPricingCommand({
-              onSave: (attrs) => {
-                editor.chain().focus().insertContent({ type: 'pricingBlock', attrs }).run()
-              },
-            })
-          },
-        })
-      }
     }
 
     return [
