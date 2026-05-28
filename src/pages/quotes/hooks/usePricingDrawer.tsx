@@ -16,14 +16,14 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 const PRICING_DRAWER_FORM_ID = 'pricing-drawer-form'
 
-interface UsePricingDialogReturn {
+interface UsePricingDrawerReturn {
   onPricingCommand: OnPricingCommand
   entities: Record<string, EntityData>
 }
 
-export const usePricingDialog = (
+export const usePricingDrawer = (
   quoteOrderType: OrderTypeEnum | undefined,
-): UsePricingDialogReturn => {
+): UsePricingDrawerReturn => {
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
   const formDrawer = useFormDrawer()
@@ -67,7 +67,10 @@ export const usePricingDialog = (
           : undefined
 
       formDrawer.open({
-        title: translate('text_1779802343219a1cl5ckvtrn'),
+        title:
+          orderType === OrderTypeEnum.OneOff
+            ? translate('text_17799586575620rdqef1d7dq')
+            : translate('text_17799586575628qyl2jk1tbn'),
         children: (
           <PricingDrawerContent
             quoteType={orderType}

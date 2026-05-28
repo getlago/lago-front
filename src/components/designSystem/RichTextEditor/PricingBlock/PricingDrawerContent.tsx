@@ -1,7 +1,8 @@
+import { Icon } from 'lago-design-system'
 import { useEffect, useMemo, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
 import { ComboboxItem } from '~/components/form'
 import { AmountInput } from '~/components/form/AmountInput/AmountInput'
@@ -14,6 +15,7 @@ import {
   usePlansQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { MenuPopper } from '~/styles/designSystem'
 
 import type { AddOnItem } from './constants'
 
@@ -64,6 +66,8 @@ const PricingDrawerContent = ({
 
   // Add-on selection state
   const [addOnItems, setAddOnItems] = useState<AddOnItem[]>(initialAddOnItems ?? [])
+  // Tracks pending (unselected) add-on rows
+  const [pendingAddOnIndices, setPendingAddOnIndices] = useState<Set<number>>(new Set())
 
   // Notify parent of selection changes
   useEffect(() => {
@@ -126,24 +130,47 @@ const PricingDrawerContent = ({
       ),
     }))
 
-  const handleAddOnSelect = (addOnId: string) => {
+  const handleAddPendingRow = () => {
+    const newIndex = addOnItems.length
+
+    // Add a placeholder item
+    setAddOnItems((prev) => [
+      ...prev,
+      { addOnId: '', name: '', code: '', units: '1', unitAmountCents: '' },
+    ])
+    setPendingAddOnIndices((prev) => new Set(prev).add(newIndex))
+  }
+
+  const handleAddOnSelect = (index: number, addOnId: string) => {
     const addOn = addOns.find((a) => a.id === addOnId)
 
     if (!addOn) return
 
-    const newItem: AddOnItem = {
-      addOnId: addOn.id,
-      name: addOn.name,
-      code: addOn.code,
-      units: '1',
-      unitAmountCents: '',
-    }
+    setAddOnItems((prev) =>
+      prev.map((item, i) =>
+        i === index ? { ...item, addOnId: addOn.id, name: addOn.name, code: addOn.code } : item,
+      ),
+    )
+    setPendingAddOnIndices((prev) => {
+      const next = new Set(prev)
 
-    setAddOnItems((prev) => [...prev, newItem])
+      next.delete(index)
+      return next
+    })
   }
 
   const handleRemoveAddOn = (index: number) => {
     setAddOnItems((prev) => prev.filter((_, i) => i !== index))
+    // Recompute pending indices after removal
+    setPendingAddOnIndices((prev) => {
+      const next = new Set<number>()
+
+      prev.forEach((i) => {
+        if (i < index) next.add(i)
+        else if (i > index) next.add(i - 1)
+      })
+      return next
+    })
   }
 
   const handleUpdateItem = (index: number, field: keyof AddOnItem, value: string) => {
@@ -154,28 +181,51 @@ const PricingDrawerContent = ({
 
   return (
     <div className="flex flex-col gap-6">
-      <ComboBox
-        data={comboBoxData}
-        loading={addOnsLoading}
-        value=""
-        label={translate('text_1779802343220xh5jm32or13')}
-        placeholder={translate('text_17798023432203q6hytdp7om')}
-        onChange={(value) => {
-          if (value) {
-            handleAddOnSelect(value)
-          }
-        }}
-      />
+      {addOnItems.map((item, index) => {
+        const isPending = pendingAddOnIndices.has(index)
 
-      {addOnItems.length > 0 && (
-        <div className="flex flex-col gap-4">
-          {addOnItems.map((item, index) => (
+        if (isPending) {
+          // Pending row: ComboBox + delete button
+          return (
             <div
-              key={item.addOnId}
-              className="flex flex-col gap-3 rounded-xl border border-grey-300 p-4"
-              data-test={`add-on-item-${index}`}
+              key={`pending-${index}`}
+              className="flex items-end gap-3"
+              data-test={`add-on-pending-${index}`}
             >
-              <div className="flex items-center justify-between">
+              <ComboBox
+                className="flex-1"
+                data={comboBoxData}
+                loading={addOnsLoading}
+                value=""
+                label={translate('text_1779802343220xh5jm32or13')}
+                placeholder={translate('text_17798023432203q6hytdp7om')}
+                onChange={(value) => {
+                  if (value) {
+                    handleAddOnSelect(index, value)
+                  }
+                }}
+              />
+              <Button
+                variant="quaternary"
+                size="medium"
+                icon="trash"
+                onClick={() => handleRemoveAddOn(index)}
+                data-test={`remove-add-on-${index}`}
+              />
+            </div>
+          )
+        }
+
+        // Selected add-on row: name/code + popper menu + unit/price inputs
+        return (
+          <div
+            key={item.addOnId}
+            className="flex flex-col gap-3 rounded-xl border border-grey-300 p-4"
+            data-test={`add-on-item-${index}`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Icon name="puzzle" color="dark" />
                 <div className="flex flex-col">
                   <Typography variant="bodyHl" color="grey700">
                     {item.name}
@@ -184,39 +234,83 @@ const PricingDrawerContent = ({
                     {item.code}
                   </Typography>
                 </div>
-                <Tooltip title={translate('text_628b8c693e464200e00e4a10')} placement="top-end">
+              </div>
+              <Popper
+                PopperProps={{ placement: 'bottom-end' }}
+                opener={
                   <Button
                     variant="quaternary"
                     size="small"
-                    icon="trash"
-                    onClick={() => handleRemoveAddOn(index)}
-                    data-test={`remove-add-on-${index}`}
+                    icon="dots-horizontal"
+                    data-test={`add-on-actions-${index}`}
                   />
-                </Tooltip>
-              </div>
-
-              <div className="flex gap-3">
-                <TextInput
-                  label={translate('text_65771fa3f4ab9a00720726ce')}
-                  placeholder="0"
-                  type="number"
-                  value={item.units}
-                  className="flex-1"
-                  onChange={(value) => handleUpdateItem(index, 'units', value)}
-                />
-
-                <AmountInput
-                  label={translate('text_6453819268763979024ad089')}
-                  currency={currency}
-                  value={item.unitAmountCents}
-                  className="flex-1"
-                  onChange={(value) => handleUpdateItem(index, 'unitAmountCents', value)}
-                />
-              </div>
+                }
+              >
+                {({ closePopper }) => (
+                  <MenuPopper>
+                    <Button
+                      startIcon="pen"
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        // Convert back to pending to allow re-selection
+                        setAddOnItems((prev) =>
+                          prev.map((it, i) =>
+                            i === index ? { ...it, addOnId: '', name: '', code: '' } : it,
+                          ),
+                        )
+                        setPendingAddOnIndices((prev) => new Set(prev).add(index))
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_63aa15caab5b16980b21b0b8')}
+                    </Button>
+                    <Button
+                      startIcon="trash"
+                      variant="quaternary"
+                      align="left"
+                      onClick={() => {
+                        handleRemoveAddOn(index)
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_63aa085d28b8510cd46443ff')}
+                    </Button>
+                  </MenuPopper>
+                )}
+              </Popper>
             </div>
-          ))}
-        </div>
-      )}
+
+            <div className="flex gap-3">
+              <TextInput
+                label={translate('text_65771fa3f4ab9a00720726ce')}
+                placeholder="0"
+                type="number"
+                value={item.units}
+                className="flex-1"
+                onChange={(value) => handleUpdateItem(index, 'units', value)}
+              />
+
+              <AmountInput
+                label={translate('text_6453819268763979024ad089')}
+                currency={currency}
+                value={item.unitAmountCents}
+                className="flex-1"
+                onChange={(value) => handleUpdateItem(index, 'unitAmountCents', value)}
+              />
+            </div>
+          </div>
+        )
+      })}
+
+      <Button
+        variant="quaternary"
+        startIcon="plus"
+        onClick={handleAddPendingRow}
+        data-test="add-add-on-button"
+      >
+        {translate('text_1779802343220xh5jm32or13')}
+      </Button>
     </div>
   )
 }
