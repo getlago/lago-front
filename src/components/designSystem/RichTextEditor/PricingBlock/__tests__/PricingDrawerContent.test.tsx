@@ -17,6 +17,12 @@ jest.mock('~/generated/graphql', () => ({
     mockUseGetAddOnsForFixedChargesSectionQuery(...args),
 }))
 
+// drawerStack.ts uses import.meta.hot — mock the entire useDrawer module instead
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
@@ -144,6 +150,7 @@ describe('PricingDrawerContent', () => {
                 addOnId: 'addon-1',
                 name: 'Setup Fee',
                 code: 'setup_fee',
+                description: '',
                 units: '1',
                 unitAmountCents: '50',
                 fromDatetime: '2026-05-28T00:00:00.000+02:00',
@@ -174,6 +181,7 @@ describe('PricingDrawerContent', () => {
                 addOnId: 'addon-1',
                 name: 'Setup Fee',
                 code: 'setup_fee',
+                description: '',
                 units: '1',
                 unitAmountCents: '50',
                 fromDatetime: '2026-05-28T00:00:00.000+02:00',

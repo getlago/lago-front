@@ -1,10 +1,13 @@
+import { revalidateLogic } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
+import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { ComboboxItem } from '~/components/form'
 import { ComboBox } from '~/components/form/ComboBox/ComboBox'
 import {
@@ -14,10 +17,11 @@ import {
   usePlansQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { withForm } from '~/hooks/forms/useAppform'
+import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 import { MenuPopper } from '~/styles/designSystem'
 
-import { pricingDrawerDefaultValues } from './constants'
+import { type AddOnItem, pricingDrawerDefaultValues } from './constants'
+import EditAddOnDrawer, { editAddOnDrawerDefaultValues } from './EditAddOnDrawer'
 
 interface PricingDrawerContentExtraProps {
   quoteType: OrderTypeEnum
@@ -57,6 +61,65 @@ const PricingDrawerContent = withForm({
 
     // Tracks pending (unselected) add-on rows — UI-only state
     const [pendingAddOnIndices, setPendingAddOnIndices] = useState<Set<number>>(new Set())
+
+    const editDrawer = useFormDrawer()
+    const editingIndexRef = useRef<number | null>(null)
+
+    const editAddOnSchema = useMemo(
+      () =>
+        z.object({
+          name: z.string(),
+          description: z.string(),
+          fromDatetime: z.string().min(1),
+          toDatetime: z.string().min(1),
+        }),
+      [],
+    )
+
+    const editForm = useAppForm({
+      defaultValues: editAddOnDrawerDefaultValues,
+      validationLogic: revalidateLogic(),
+      validators: {
+        onDynamic: editAddOnSchema,
+      },
+      onSubmit: ({ value }) => {
+        const index = editingIndexRef.current
+
+        if (index === null) return
+
+        form.setFieldValue(`addOnItems[${index}].name`, value.name)
+        form.setFieldValue(`addOnItems[${index}].description`, value.description)
+        form.setFieldValue(`addOnItems[${index}].fromDatetime`, value.fromDatetime)
+        form.setFieldValue(`addOnItems[${index}].toDatetime`, value.toDatetime)
+        editingIndexRef.current = null
+        editDrawer.close()
+      },
+    })
+
+    const openEditDrawer = (index: number, item: AddOnItem) => {
+      editingIndexRef.current = index
+
+      editForm.reset({
+        name: item.name,
+        description: item.description,
+        fromDatetime: item.fromDatetime,
+        toDatetime: item.toDatetime,
+      })
+
+      editDrawer.open({
+        title: item.name,
+        form: {
+          id: 'edit-add-on-form',
+          submit: () => editForm.handleSubmit(),
+        },
+        mainAction: (
+          <Button data-test="edit-add-on-submit" type="submit">
+            {translate('text_1779805897126caxqtv14ctd')}
+          </Button>
+        ),
+        children: <EditAddOnDrawer form={editForm} />,
+      })
+    }
 
     if (isPlanSelection) {
       const comboBoxData = plans.map((plan) => ({
@@ -121,6 +184,7 @@ const PricingDrawerContent = withForm({
               addOnId: '',
               name: '',
               code: '',
+              description: '',
               units: '1',
               unitAmountCents: '',
               fromDatetime: today.startOf('day').toISO(),
@@ -137,6 +201,7 @@ const PricingDrawerContent = withForm({
             form.setFieldValue(`addOnItems[${index}].addOnId`, addOn.id)
             form.setFieldValue(`addOnItems[${index}].name`, addOn.name)
             form.setFieldValue(`addOnItems[${index}].code`, addOn.code)
+            form.setFieldValue(`addOnItems[${index}].description`, '')
 
             setPendingAddOnIndices((prev) => {
               const next = new Set(prev)
@@ -161,10 +226,7 @@ const PricingDrawerContent = withForm({
           }
 
           const handleEditAddOn = (index: number) => {
-            form.setFieldValue(`addOnItems[${index}].addOnId`, '')
-            form.setFieldValue(`addOnItems[${index}].name`, '')
-            form.setFieldValue(`addOnItems[${index}].code`, '')
-            setPendingAddOnIndices((prev) => new Set(prev).add(index))
+            openEditDrawer(index, items[index])
           }
 
           return (

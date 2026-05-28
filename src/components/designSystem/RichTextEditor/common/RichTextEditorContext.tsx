@@ -8,6 +8,7 @@ export type EntityData = {
   entityType: 'plan' | 'addOn'
   name: string
   code: string
+  description?: string
   units?: string
   unitAmountCents?: string
   fromDatetime?: string
