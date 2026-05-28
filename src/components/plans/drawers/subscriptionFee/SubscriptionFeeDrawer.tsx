@@ -45,7 +45,7 @@ interface SubscriptionFeeDrawerProps {
   isInSubscriptionForm?: boolean
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
   isEdition?: boolean
-  onSave: (values: SubscriptionFeeFormValues) => void
+  onSave: (values: SubscriptionFeeFormValues) => void | boolean | Promise<void | boolean>
 }
 
 export const SubscriptionFeeDrawer = forwardRef<
@@ -63,12 +63,14 @@ export const SubscriptionFeeDrawer = forwardRef<
       onDynamic: subscriptionFeeSchema,
     },
     onSubmit: async ({ value }) => {
-      onSave({
+      const result = await onSave({
         ...value,
         trialPeriod: Number(value.trialPeriod) || 0,
         invoiceDisplayName: value.invoiceDisplayName || undefined,
       })
-      subscriptionFeeDrawer.close()
+      if (result !== false) {
+        subscriptionFeeDrawer.close()
+      }
     },
   })
 

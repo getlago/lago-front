@@ -218,7 +218,10 @@ interface UsageChargeDrawerProps {
   isInSubscriptionForm?: boolean
   premiumWarningDialogRef?: React.RefObject<PremiumWarningDialogRef>
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
-  onSave: (charge: LocalUsageChargeInput, index: number | null) => void
+  onSave: (
+    charge: LocalUsageChargeInput,
+    index: number | null,
+  ) => void | boolean | Promise<void | boolean>
   onDelete?: (index: number) => void
   removeChargeWarningDialogRef?: React.RefObject<RemoveChargeWarningDialogRef>
   amountCurrency?: string
@@ -277,9 +280,14 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
           taxes: value.taxes,
         }
 
-        onSave(localCharge, isCreateModeRef.current ? null : editIndexRef.current)
+        const result = await onSave(
+          localCharge,
+          isCreateModeRef.current ? null : editIndexRef.current,
+        )
 
-        chargeDrawer.close()
+        if (result !== false) {
+          chargeDrawer.close()
+        }
       },
     })
 

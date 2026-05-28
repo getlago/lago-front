@@ -3,9 +3,13 @@ import { revalidateLogic } from '@tanstack/react-form'
 
 import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
 import { PlanFormInput } from '~/components/plans/types'
-import { serializePlanInput } from '~/core/serializers'
-import { planFormSchema } from '~/formValidation/planFormSchema'
-import { PlanDetailsV2Fragment, TaxForPlanSettingsSectionFragmentDoc } from '~/generated/graphql'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
+import { planSettingsOnlyFormSchema } from '~/formValidation/planFormSchema'
+import {
+  PlanDetailsV2Fragment,
+  TaxForPlanSettingsSectionFragmentDoc,
+  UpdatePlanInput,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { usePlanUpdate } from '~/hooks/plans/usePlanUpdate'
@@ -77,15 +81,33 @@ export const useUpdatePlanWithCascade = ({ plan, onSuccess }: UseUpdatePlanWithC
   const form = useAppForm({
     defaultValues: buildUpdatePlanFormDefaults(plan),
     validationLogic: revalidateLogic(),
-    validators: { onDynamic: planFormSchema },
+    validators: { onDynamic: planSettingsOnlyFormSchema },
     onSubmit: async ({ value }) => {
-      const serialized = serializePlanInput(value)
+      // Settings-only flow: charges + fixedCharges are now optional on
+      // UpdatePlanInput, so omit them from the payload entirely. BE preserves
+      // existing entries via partial-update semantics.
+      const input: UpdatePlanInput = {
+        id: plan.id,
+        name: value.name,
+        code: value.code,
+        description: value.description || undefined,
+        interval: value.interval,
+        amountCurrency: value.amountCurrency,
+        amountCents: Number(serializeAmount(value.amountCents, value.amountCurrency)),
+        payInAdvance: value.payInAdvance,
+        trialPeriod: Number(value.trialPeriod || 0),
+        invoiceDisplayName: value.invoiceDisplayName || undefined,
+        billChargesMonthly: value.billChargesMonthly,
+        billFixedChargesMonthly: value.billFixedChargesMonthly,
+        taxCodes: value.taxes?.map((tax) => tax.code) ?? [],
+        cascadeUpdates: value.cascadeUpdates,
+      }
 
-      await update({ variables: { input: { ...serialized, id: plan.id } } })
+      await update({ variables: { input } })
     },
   })
 
-  const submit = () => {
+  const submit = async (): Promise<boolean> => {
     if (plan.hasOverriddenPlans) {
       return openCascadeDialog({
         title: translate('text_1729604107534r3hsj7i64gp'),
@@ -98,7 +120,8 @@ export const useUpdatePlanWithCascade = ({ plan, onSuccess }: UseUpdatePlanWithC
       })
     }
 
-    return form.handleSubmit()
+    await form.handleSubmit()
+    return true
   }
 
   return { form, submit }

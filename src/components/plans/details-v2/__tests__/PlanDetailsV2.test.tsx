@@ -41,6 +41,17 @@ jest.mock('~/components/plans/drawers/fixedCharge/FixedChargeDrawer', () => {
   return { __esModule: true, FixedChargeDrawer }
 })
 
+jest.mock('~/components/plans/drawers/usageCharge/UsageChargeDrawer', () => {
+  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
+
+  const UsageChargeDrawer = forwardRef((_props: unknown, ref: unknown) => {
+    useImperativeHandle(ref, () => ({ openDrawer: jest.fn(), closeDrawer: jest.fn() }))
+    return null
+  })
+
+  return { __esModule: true, UsageChargeDrawer }
+})
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
