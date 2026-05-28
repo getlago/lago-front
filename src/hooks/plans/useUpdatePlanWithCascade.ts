@@ -210,5 +210,11 @@ export const useUpdatePlanWithCascade = ({
     return true
   }
 
-  return { form, submit }
+  const applyAndSubmit = (mutate: () => void): Promise<boolean> => {
+    form.reset(buildUpdatePlanFormDefaults(plan), { keepDefaultValues: true })
+    mutate()
+    return submit()
+  }
+
+  return { form, submit, applyAndSubmit }
 }

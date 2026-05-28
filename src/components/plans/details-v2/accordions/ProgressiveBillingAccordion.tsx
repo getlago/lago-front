@@ -1,26 +1,23 @@
 import { useRef } from 'react'
 
 import { ProgressiveBillingFormValues } from '~/components/plans/drawers/progressiveBilling/constants'
+import { mapPlanThresholdsToDrawerValues } from '~/components/plans/drawers/progressiveBilling/mapToDrawerValues'
 import {
   ProgressiveBillingDrawer,
   ProgressiveBillingDrawerRef,
 } from '~/components/plans/drawers/progressiveBilling/ProgressiveBillingDrawer'
 import { ProgressiveBillingInfo } from '~/components/plans/ProgressiveBillingInfo'
-import PremiumFeature from '~/components/premium/PremiumFeature'
+import { ProgressiveBillingPremiumGate } from '~/components/plans/ProgressiveBillingPremiumGate'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
   PlanDetailsV2Fragment,
   PremiumIntegrationTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  buildUpdatePlanFormDefaults,
-  useUpdatePlanWithCascade,
-} from '~/hooks/plans/useUpdatePlanWithCascade'
+import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
+import { useUpdatePlanWithCascade } from '~/hooks/plans/useUpdatePlanWithCascade'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { usePermissions } from '~/hooks/usePermissions'
 
 import { SectionAccordion } from '../shared/SectionAccordion'
 import { SectionHeader } from '../shared/SectionHeader'
@@ -37,12 +34,8 @@ export const ProgressiveBillingAccordion = ({
 }: ProgressiveBillingAccordionProps) => {
   const { translate } = useInternationalization()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
-  const { hasPermissions } = usePermissions()
+  const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
   const drawerRef = useRef<ProgressiveBillingDrawerRef>(null)
-
-  const canCreate = hasPermissions(['plansCreate']) && !isInSubscriptionForm
-  const canUpdate = hasPermissions(['plansUpdate']) && !isInSubscriptionForm
-  const canDelete = hasPermissions(['plansDelete']) && !isInSubscriptionForm
 
   const currency = plan.amountCurrency || CurrencyEnum.Usd
   const hasThresholds = !!plan.usageThresholds?.length
@@ -51,13 +44,10 @@ export const ProgressiveBillingAccordion = ({
     PremiumIntegrationTypeEnum.ProgressiveBilling,
   )
 
-  const { form, submit } = useUpdatePlanWithCascade({ plan, includeAdvancedFields: true })
-
-  const applyAndSubmit = (mutate: () => void): Promise<boolean> => {
-    form.reset(buildUpdatePlanFormDefaults(plan), { keepDefaultValues: true })
-    mutate()
-    return submit()
-  }
+  const { form, applyAndSubmit } = useUpdatePlanWithCascade({
+    plan,
+    includeAdvancedFields: true,
+  })
 
   const handleSave = (values: ProgressiveBillingFormValues): Promise<boolean> =>
     applyAndSubmit(() => {
@@ -72,25 +62,7 @@ export const ProgressiveBillingAccordion = ({
     })
 
   const openEditDrawer = () => {
-    const nonRecurring = (plan.usageThresholds ?? [])
-      .filter((t) => !t.recurring)
-      .map((t) => ({
-        amountCents: String(deserializeAmount(t.amountCents, currency)),
-        thresholdDisplayName: t.thresholdDisplayName ?? undefined,
-        recurring: false as const,
-      }))
-    const recurring = (plan.usageThresholds ?? []).find((t) => t.recurring)
-
-    drawerRef.current?.openDrawer({
-      nonRecurringUsageThresholds: nonRecurring,
-      recurringUsageThreshold: recurring
-        ? {
-            amountCents: String(deserializeAmount(recurring.amountCents, currency)),
-            thresholdDisplayName: recurring.thresholdDisplayName ?? undefined,
-            recurring: true as const,
-          }
-        : undefined,
-    })
+    drawerRef.current?.openDrawer(mapPlanThresholdsToDrawerValues(plan.usageThresholds, currency))
   }
 
   return (
@@ -108,13 +80,7 @@ export const ProgressiveBillingAccordion = ({
         }}
       />
 
-      {!hasThresholds && !hasPremiumIntegration && (
-        <PremiumFeature
-          title={translate('text_1724345142892pcnx5m2k3r2')}
-          description={translate('text_1724345142892ljzi79afhmc')}
-          feature={translate('text_1724179887722baucvj7bvc1')}
-        />
-      )}
+      {!hasThresholds && !hasPremiumIntegration && <ProgressiveBillingPremiumGate />}
 
       {hasThresholds && (
         <SectionAccordion

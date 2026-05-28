@@ -6,16 +6,17 @@ import { Chip } from '~/components/designSystem/Chip'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { mapCommitmentToDrawerValues } from '~/components/plans/drawers/minimumCommitment/mapToDrawerValues'
 import {
   MinimumCommitmentDrawer,
   MinimumCommitmentDrawerRef,
   MinimumCommitmentFormValues,
 } from '~/components/plans/drawers/minimumCommitment/MinimumCommitmentDrawer'
+import { MinimumCommitmentPremiumGate } from '~/components/plans/MinimumCommitmentPremiumGate'
 import {
   mapChargeIntervalCopy,
   returnFirstDefinedArrayRatesSumAsString,
 } from '~/components/plans/utils'
-import PremiumFeature from '~/components/premium/PremiumFeature'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CommitmentTypeEnum, CurrencyEnum } from '~/generated/graphql'
@@ -46,11 +47,7 @@ export const CommitmentsSection = ({ form }: CommitmentsSectionProps) => {
   }, [commitment?.taxes])
 
   const openMinimumCommitmentDrawer = () => {
-    minimumCommitmentDrawerRef.current?.openDrawer({
-      amountCents: commitment?.amountCents || '',
-      invoiceDisplayName: commitment?.invoiceDisplayName || undefined,
-      taxes: commitment?.taxes || [],
-    })
+    minimumCommitmentDrawerRef.current?.openDrawer(mapCommitmentToDrawerValues(commitment))
   }
 
   const handleDrawerSave = (values: MinimumCommitmentFormValues) => {
@@ -118,13 +115,7 @@ export const CommitmentsSection = ({ form }: CommitmentsSectionProps) => {
         />
       )}
 
-      {!hasCommitment && !isPremium && (
-        <PremiumFeature
-          title={translate('text_17700400130439xuo82ha60n')}
-          description={translate('text_1770040013043awgs0eemonf')}
-          feature={translate('text_65d601bffb11e0f9d1d9f569')}
-        />
-      )}
+      {!hasCommitment && !isPremium && <MinimumCommitmentPremiumGate />}
 
       {!hasCommitment && isPremium && (
         <Button

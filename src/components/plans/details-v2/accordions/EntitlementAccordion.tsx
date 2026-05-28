@@ -1,6 +1,10 @@
 import { useRef } from 'react'
 
 import {
+  removeEntitlementByFeatureCode,
+  upsertEntitlement,
+} from '~/components/plans/drawers/featureEntitlement/entitlementHelpers'
+import {
   FeatureEntitlementDrawer,
   FeatureEntitlementDrawerRef,
   FeatureEntitlementFormValues,
@@ -8,11 +12,8 @@ import {
 import { EntitlementInfo } from '~/components/plans/EntitlementInfo'
 import { PlanDetailsV2Fragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  buildUpdatePlanFormDefaults,
-  useUpdatePlanWithCascade,
-} from '~/hooks/plans/useUpdatePlanWithCascade'
-import { usePermissions } from '~/hooks/usePermissions'
+import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
+import { useUpdatePlanWithCascade } from '~/hooks/plans/useUpdatePlanWithCascade'
 
 import { SectionAccordion } from '../shared/SectionAccordion'
 import { SectionHeader } from '../shared/SectionHeader'
@@ -28,48 +29,34 @@ export const EntitlementAccordion = ({
   isInSubscriptionForm = false,
 }: EntitlementAccordionProps) => {
   const { translate } = useInternationalization()
-  const { hasPermissions } = usePermissions()
+  const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
   const drawerRef = useRef<FeatureEntitlementDrawerRef>(null)
-
-  const canCreate = hasPermissions(['plansCreate']) && !isInSubscriptionForm
-  const canUpdate = hasPermissions(['plansUpdate']) && !isInSubscriptionForm
-  const canDelete = hasPermissions(['plansDelete']) && !isInSubscriptionForm
 
   const entitlements = plan.entitlements ?? []
 
-  const { form, submit } = useUpdatePlanWithCascade({ plan, includeAdvancedFields: true })
-
-  const applyAndSubmit = (mutate: () => void): Promise<boolean> => {
-    form.reset(buildUpdatePlanFormDefaults(plan), { keepDefaultValues: true })
-    mutate()
-    return submit()
-  }
+  const { form, applyAndSubmit } = useUpdatePlanWithCascade({
+    plan,
+    includeAdvancedFields: true,
+  })
 
   const handleSave = (values: FeatureEntitlementFormValues): Promise<boolean> =>
     applyAndSubmit(() => {
-      const current = form.state.values.entitlements || []
-      const idx = current.findIndex((e) => e.featureCode === values.featureCode)
-      const next = {
-        featureId: values.featureId,
-        featureName: values.featureName,
-        featureCode: values.featureCode,
-        privileges: values.privileges,
-      }
-      const updated = [...current]
-
-      if (idx >= 0) {
-        updated[idx] = next
-      } else {
-        updated.push(next)
-      }
-      form.setFieldValue('entitlements', updated)
+      form.setFieldValue(
+        'entitlements',
+        upsertEntitlement(form.state.values.entitlements, {
+          featureId: values.featureId,
+          featureName: values.featureName,
+          featureCode: values.featureCode,
+          privileges: values.privileges,
+        }),
+      )
     })
 
   const handleDelete = (featureCode: string): Promise<boolean> =>
     applyAndSubmit(() =>
       form.setFieldValue(
         'entitlements',
-        (form.state.values.entitlements || []).filter((e) => e.featureCode !== featureCode),
+        removeEntitlementByFeatureCode(form.state.values.entitlements, featureCode),
       ),
     )
 

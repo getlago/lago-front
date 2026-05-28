@@ -6,11 +6,12 @@ import { Chip } from '~/components/designSystem/Chip'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ProgressiveBillingFormValues } from '~/components/plans/drawers/progressiveBilling/constants'
+import { mapFormThresholdsToDrawerValues } from '~/components/plans/drawers/progressiveBilling/mapToDrawerValues'
 import {
   ProgressiveBillingDrawer,
   ProgressiveBillingDrawerRef,
 } from '~/components/plans/drawers/progressiveBilling/ProgressiveBillingDrawer'
-import PremiumFeature from '~/components/premium/PremiumFeature'
+import { ProgressiveBillingPremiumGate } from '~/components/plans/ProgressiveBillingPremiumGate'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PlanFormType } from '~/hooks/plans/usePlanForm'
@@ -54,20 +55,9 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
   }
 
   const openDrawer = () => {
-    progressiveBillingDrawerRef.current?.openDrawer({
-      nonRecurringUsageThresholds: (nonRecurringUsageThresholds ?? []).map((t) => ({
-        amountCents: String(t.amountCents),
-        thresholdDisplayName: t.thresholdDisplayName ?? undefined,
-        recurring: false as const,
-      })),
-      recurringUsageThreshold: recurringUsageThreshold
-        ? {
-            amountCents: String(recurringUsageThreshold.amountCents),
-            thresholdDisplayName: recurringUsageThreshold.thresholdDisplayName ?? undefined,
-            recurring: true as const,
-          }
-        : undefined,
-    })
+    progressiveBillingDrawerRef.current?.openDrawer(
+      mapFormThresholdsToDrawerValues(nonRecurringUsageThresholds, recurringUsageThreshold),
+    )
   }
 
   return (
@@ -109,13 +99,7 @@ export const ProgressiveBillingSection: FC<ProgressiveBillingSectionProps> = ({ 
         />
       )}
 
-      {!hasThresholds && !hasPremiumIntegration && (
-        <PremiumFeature
-          title={translate('text_1724345142892pcnx5m2k3r2')}
-          description={translate('text_1724345142892ljzi79afhmc')}
-          feature={translate('text_1724179887722baucvj7bvc1')}
-        />
-      )}
+      {!hasThresholds && !hasPremiumIntegration && <ProgressiveBillingPremiumGate />}
 
       {!hasThresholds && hasPremiumIntegration && (
         <Button
