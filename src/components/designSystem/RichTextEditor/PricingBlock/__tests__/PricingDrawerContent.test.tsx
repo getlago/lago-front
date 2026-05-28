@@ -4,8 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { CurrencyEnum, OrderTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import type { AddOnItem } from '../constants'
-import { pricingDrawerDefaultValues } from '../constants'
+import { type AddOnItem, pricingDrawerDefaultValues } from '../constants'
 import PricingDrawerContent from '../PricingDrawerContent'
 
 const mockUsePlansQuery = jest.fn()
