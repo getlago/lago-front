@@ -99,12 +99,14 @@ const PricingDrawerContent = withForm({
     const openEditDrawer = (index: number, item: AddOnItem) => {
       editingIndexRef.current = index
 
-      editForm.reset({
-        name: item.name,
-        description: item.description,
-        fromDatetime: item.fromDatetime,
-        toDatetime: item.toDatetime,
-      })
+      // Clear validation errors and field meta, then set values individually.
+      // Using reset(values) would update options.defaultValues, which gets
+      // overwritten back to empty by useForm's update() layout effect on re-render.
+      editForm.reset()
+      editForm.setFieldValue('name', item.name)
+      editForm.setFieldValue('description', item.description)
+      editForm.setFieldValue('fromDatetime', item.fromDatetime)
+      editForm.setFieldValue('toDatetime', item.toDatetime)
 
       editDrawer.open({
         title: item.name,
