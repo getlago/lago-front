@@ -7,7 +7,7 @@ import { Typography } from '~/components/designSystem/Typography'
 
 export const VIRTUALIZATION_THRESHOLD = 50
 const BREAKDOWN_ROW_HEIGHT = 48
-const MAX_VIRTUAL_LIST_HEIGHT = 252
+const MAX_VIRTUAL_LIST_HEIGHT = 440
 
 // Width of the indicator (in px) used by the parent design-system Table to
 // pad the inner cell. We mirror it on the units slot so the right edge of the
