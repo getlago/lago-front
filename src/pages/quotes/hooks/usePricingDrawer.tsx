@@ -216,6 +216,7 @@ export const usePricingDrawer = (
             {translate('text_17295436903260tlyb1gp1i7')}
           </Button>
         ),
+        cancelOrCloseText: 'cancel',
         children: <PricingDrawerContent form={form} quoteType={orderType} currency={currency} />,
       })
     },

@@ -1,5 +1,5 @@
+import InputAdornment from '@mui/material/InputAdornment'
 import { revalidateLogic } from '@tanstack/react-form'
-import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { useMemo, useRef, useState } from 'react'
 import { z } from 'zod'
@@ -10,9 +10,11 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { ComboboxItem } from '~/components/form'
 import { ComboBox } from '~/components/form/ComboBox/ComboBox'
+import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, useGetAddOnsForFixedChargesSectionQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { MenuPopper } from '~/styles/designSystem'
 
 import { type AddOnItem, pricingDrawerDefaultValues } from './constants'
@@ -31,6 +33,7 @@ const AddOnSelectionContent = withForm({
   props: addOnSelectionContentDefaultProps,
   render: function AddOnSelectionContent({ form, currency }) {
     const { translate } = useInternationalization()
+    const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
     const { data: addOnsData, loading: addOnsLoading } = useGetAddOnsForFixedChargesSectionQuery({
       variables: { limit: 100 },
@@ -105,211 +108,265 @@ const AddOnSelectionContent = withForm({
     }
 
     return (
-      <form.Field name="addOnItems" mode="array">
-        {(addOnItemsField) => {
-          const items = addOnItemsField.state.value
+      <div className="flex flex-col gap-12">
+        <div className="flex flex-col gap-2">
+          <Typography variant="headline">{translate('text_17799586575620rdqef1d7dq')}</Typography>
+          <Typography variant="body">{translate('text_17800447462496abqig1cu57')}</Typography>
+        </div>
+        <div className="flex flex-col gap-8">
+          <Typography variant="subhead1" color="grey700">
+            {translate('text_17800447462496h0wm2w3btg')}
+          </Typography>
+          <div className="flex flex-col">
+            <div className="flex h-11 flex-col justify-center shadow-b">
+              <Typography variant="bodyHl" color="grey500">
+                {translate('text_17800447462491xl4jay915z')}
+              </Typography>
+            </div>
+            <form.Field name="addOnItems" mode="array">
+              {(addOnItemsField) => {
+                const items = addOnItemsField.state.value
 
-          const comboBoxData = addOns
-            .filter((addOn) => !items.some((item) => item.addOnId === addOn.id))
-            .map((addOn) => ({
-              value: addOn.id,
-              label: `${addOn.name} (${addOn.code})`,
-              labelNode: (
-                <ComboboxItem>
-                  <Typography variant="body" color="grey700" noWrap>
-                    {addOn.name}
-                  </Typography>
-                  <Typography variant="caption" color="grey600" noWrap>
-                    {addOn.code}
-                  </Typography>
-                </ComboboxItem>
-              ),
-            }))
+                const comboBoxData = addOns
+                  .filter((addOn) => !items.some((item) => item.addOnId === addOn.id))
+                  .map((addOn) => ({
+                    value: addOn.id,
+                    label: `${addOn.name} (${addOn.code})`,
+                    labelNode: (
+                      <ComboboxItem>
+                        <Typography variant="body" color="grey700" noWrap>
+                          {addOn.name}
+                        </Typography>
+                        <Typography variant="caption" color="grey600" noWrap>
+                          {addOn.code}
+                        </Typography>
+                      </ComboboxItem>
+                    ),
+                  }))
 
-          const handleAddPendingRow = () => {
-            const newIndex = items.length
-            const today = DateTime.now()
+                const handleAddPendingRow = () => {
+                  const newIndex = items.length
+                  const today = DateTime.now()
 
-            addOnItemsField.pushValue({
-              addOnId: '',
-              name: '',
-              code: '',
-              description: '',
-              units: '1',
-              unitAmountCents: '',
-              fromDatetime: today.startOf('day').toISO(),
-              toDatetime: today.endOf('day').toISO(),
-            })
-            setPendingAddOnIndices((prev) => new Set(prev).add(newIndex))
-          }
+                  addOnItemsField.pushValue({
+                    addOnId: '',
+                    name: '',
+                    code: '',
+                    description: '',
+                    units: '1',
+                    unitAmountCents: '',
+                    fromDatetime: today.startOf('day').toISO(),
+                    toDatetime: today.endOf('day').toISO(),
+                  })
+                  setPendingAddOnIndices((prev) => new Set(prev).add(newIndex))
+                }
 
-          const handleAddOnSelect = (index: number, addOnId: string) => {
-            const addOn = addOns.find((a) => a.id === addOnId)
+                const handleAddOnSelect = (index: number, addOnId: string) => {
+                  const addOn = addOns.find((a) => a.id === addOnId)
 
-            if (!addOn) return
+                  if (!addOn) return
 
-            form.setFieldValue(`addOnItems[${index}].addOnId`, addOn.id)
-            form.setFieldValue(`addOnItems[${index}].name`, addOn.name)
-            form.setFieldValue(`addOnItems[${index}].code`, addOn.code)
-            form.setFieldValue(`addOnItems[${index}].description`, '')
+                  form.setFieldValue(`addOnItems[${index}].addOnId`, addOn.id)
+                  form.setFieldValue(`addOnItems[${index}].name`, addOn.name)
+                  form.setFieldValue(`addOnItems[${index}].code`, addOn.code)
+                  form.setFieldValue(`addOnItems[${index}].description`, '')
 
-            setPendingAddOnIndices((prev) => {
-              const next = new Set(prev)
+                  setPendingAddOnIndices((prev) => {
+                    const next = new Set(prev)
 
-              next.delete(index)
-              return next
-            })
-          }
+                    next.delete(index)
+                    return next
+                  })
+                }
 
-          const handleRemoveAddOn = (index: number) => {
-            addOnItemsField.removeValue(index)
-            // Recompute pending indices after removal
-            setPendingAddOnIndices((prev) => {
-              const next = new Set<number>()
+                const handleRemoveAddOn = (index: number) => {
+                  addOnItemsField.removeValue(index)
+                  // Recompute pending indices after removal
+                  setPendingAddOnIndices((prev) => {
+                    const next = new Set<number>()
 
-              prev.forEach((i) => {
-                if (i < index) next.add(i)
-                else if (i > index) next.add(i - 1)
-              })
-              return next
-            })
-          }
+                    prev.forEach((i) => {
+                      if (i < index) next.add(i)
+                      else if (i > index) next.add(i - 1)
+                    })
+                    return next
+                  })
+                }
 
-          const handleEditAddOn = (index: number) => {
-            openEditDrawer(index, items[index])
-          }
-
-          return (
-            <div className="flex flex-col gap-6">
-              {items.map((item, index) => {
-                const isPending = pendingAddOnIndices.has(index)
-
-                if (isPending) {
-                  return (
-                    <div
-                      key={`pending-${index}`}
-                      className="flex items-end gap-3"
-                      data-test={`add-on-pending-${index}`}
-                    >
-                      <ComboBox
-                        className="flex-1"
-                        data={comboBoxData}
-                        loading={addOnsLoading}
-                        value=""
-                        placeholder={translate('text_17798023432203q6hytdp7om')}
-                        onChange={(value) => {
-                          if (value) {
-                            handleAddOnSelect(index, value)
-                          }
-                        }}
-                      />
-                      <Button
-                        variant="quaternary"
-                        size="medium"
-                        icon="trash"
-                        onClick={() => handleRemoveAddOn(index)}
-                        data-test={`remove-add-on-${index}`}
-                      />
-                    </div>
-                  )
+                const handleEditAddOn = (index: number) => {
+                  openEditDrawer(index, items[index])
                 }
 
                 return (
-                  <div
-                    key={item.addOnId}
-                    className="flex flex-col gap-3 rounded-xl border border-grey-300 p-4"
-                    data-test={`add-on-item-${index}`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Icon name="puzzle" color="dark" />
-                        <div className="flex flex-col">
-                          <Typography variant="bodyHl" color="grey700">
-                            {item.name}
-                          </Typography>
-                          <Typography variant="caption" color="grey600">
-                            {item.code}
-                          </Typography>
+                  <div className="flex flex-col">
+                    {items.map((item, index) => {
+                      const isPending = pendingAddOnIndices.has(index)
+
+                      if (isPending) {
+                        return (
+                          <div
+                            key={`pending-${index}`}
+                            className="mt-8 grid grid-cols-[1fr_auto] items-center gap-3"
+                            data-test={`add-on-pending-${index}`}
+                          >
+                            <ComboBox
+                              className="flex-1"
+                              data={comboBoxData}
+                              loading={addOnsLoading}
+                              value=""
+                              placeholder={translate('text_17798023432203q6hytdp7om')}
+                              onChange={(value) => {
+                                if (value) {
+                                  handleAddOnSelect(index, value)
+                                }
+                              }}
+                            />
+                            <Button
+                              variant="quaternary"
+                              size="small"
+                              icon="trash"
+                              onClick={() => handleRemoveAddOn(index)}
+                              data-test={`remove-add-on-${index}`}
+                            />
+                          </div>
+                        )
+                      }
+
+                      return (
+                        <div
+                          key={item.addOnId}
+                          className="flex flex-col gap-3 pb-6 pt-3 shadow-b"
+                          data-test={`add-on-item-${index}`}
+                        >
+                          <div className="grid grid-cols-[1fr_auto] items-center gap-3">
+                            <div className="flex flex-col">
+                              <Typography variant="captionHl" color="grey600">
+                                {translate('text_633dae57ca9a923dd53c2097', {
+                                  fromDate: intlFormatDateTimeOrgaTZ(item.fromDatetime).date,
+                                  toDate: intlFormatDateTimeOrgaTZ(item.toDatetime).date,
+                                })}
+                              </Typography>
+                              <Typography variant="bodyHl" color="grey700">
+                                {item.name}
+                              </Typography>
+                              <Typography variant="caption" color="grey600">
+                                {item.description}
+                              </Typography>
+                            </div>
+                            <Popper
+                              PopperProps={{ placement: 'bottom-end' }}
+                              opener={
+                                <Button
+                                  variant="quaternary"
+                                  size="small"
+                                  icon="dots-horizontal"
+                                  data-test={`add-on-actions-${index}`}
+                                />
+                              }
+                            >
+                              {({ closePopper }) => (
+                                <MenuPopper>
+                                  <Button
+                                    startIcon="pen"
+                                    variant="quaternary"
+                                    align="left"
+                                    onClick={() => {
+                                      handleEditAddOn(index)
+                                      closePopper()
+                                    }}
+                                  >
+                                    {translate('text_63aa15caab5b16980b21b0b8')}
+                                  </Button>
+                                  <Button
+                                    startIcon="trash"
+                                    variant="quaternary"
+                                    align="left"
+                                    onClick={() => {
+                                      handleRemoveAddOn(index)
+                                      closePopper()
+                                    }}
+                                  >
+                                    {translate('text_63aa085d28b8510cd46443ff')}
+                                  </Button>
+                                </MenuPopper>
+                              )}
+                            </Popper>
+                          </div>
+
+                          <div className="grid grid-cols-[1fr_1fr_2fr] gap-3">
+                            <form.AppField name={`addOnItems[${index}].units`}>
+                              {(subField) => (
+                                <subField.TextInputField
+                                  label={translate('text_65771fa3f4ab9a00720726ce')}
+                                  placeholder="0"
+                                  type="number"
+                                  className="flex-1"
+                                />
+                              )}
+                            </form.AppField>
+
+                            <form.AppField name={`addOnItems[${index}].unitAmountCents`}>
+                              {(subField) => (
+                                <subField.AmountInputField
+                                  label={translate('text_6453819268763979024ad089')}
+                                  currency={currency}
+                                  className="flex-1"
+                                  InputProps={{
+                                    startAdornment: (
+                                      <InputAdornment position="start">
+                                        {getCurrencySymbol(currency)}
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                />
+                              )}
+                            </form.AppField>
+                            <form.Subscribe
+                              selector={(state) => ({
+                                units: state.values.addOnItems?.[index]?.units,
+                                unitAmountCents: state.values.addOnItems?.[index]?.unitAmountCents,
+                              })}
+                            >
+                              {({ units, unitAmountCents }) => (
+                                <div className="flex flex-col gap-1">
+                                  <Typography variant="captionHl" color="grey700" align="right">
+                                    {translate('text_17800586916250mj95szdi21')}
+                                  </Typography>
+                                  <Typography
+                                    variant="body"
+                                    color="grey700"
+                                    className="flex h-12 items-center justify-end"
+                                  >
+                                    {intlFormatNumber(
+                                      (parseFloat(units) || 0) * (parseFloat(unitAmountCents) || 0),
+                                      { currency },
+                                    )}
+                                  </Typography>
+                                </div>
+                              )}
+                            </form.Subscribe>
+                          </div>
                         </div>
-                      </div>
-                      <Popper
-                        PopperProps={{ placement: 'bottom-end' }}
-                        opener={
-                          <Button
-                            variant="quaternary"
-                            size="small"
-                            icon="dots-horizontal"
-                            data-test={`add-on-actions-${index}`}
-                          />
-                        }
-                      >
-                        {({ closePopper }) => (
-                          <MenuPopper>
-                            <Button
-                              startIcon="pen"
-                              variant="quaternary"
-                              align="left"
-                              onClick={() => {
-                                handleEditAddOn(index)
-                                closePopper()
-                              }}
-                            >
-                              {translate('text_63aa15caab5b16980b21b0b8')}
-                            </Button>
-                            <Button
-                              startIcon="trash"
-                              variant="quaternary"
-                              align="left"
-                              onClick={() => {
-                                handleRemoveAddOn(index)
-                                closePopper()
-                              }}
-                            >
-                              {translate('text_63aa085d28b8510cd46443ff')}
-                            </Button>
-                          </MenuPopper>
-                        )}
-                      </Popper>
-                    </div>
+                      )
+                    })}
 
-                    <div className="flex gap-3">
-                      <form.AppField name={`addOnItems[${index}].units`}>
-                        {(subField) => (
-                          <subField.TextInputField
-                            label={translate('text_65771fa3f4ab9a00720726ce')}
-                            placeholder="0"
-                            type="number"
-                            className="flex-1"
-                          />
-                        )}
-                      </form.AppField>
-
-                      <form.AppField name={`addOnItems[${index}].unitAmountCents`}>
-                        {(subField) => (
-                          <subField.AmountInputField
-                            label={translate('text_6453819268763979024ad089')}
-                            currency={currency}
-                            className="flex-1"
-                          />
-                        )}
-                      </form.AppField>
-                    </div>
+                    <Button
+                      variant="inline"
+                      startIcon="plus"
+                      align="left"
+                      className="mt-8"
+                      onClick={handleAddPendingRow}
+                      data-test="add-add-on-button"
+                    >
+                      {translate('text_1779802343220xh5jm32or13')}
+                    </Button>
                   </div>
                 )
-              })}
-
-              <Button
-                variant="quaternary"
-                startIcon="plus"
-                onClick={handleAddPendingRow}
-                data-test="add-add-on-button"
-              >
-                {translate('text_1779802343220xh5jm32or13')}
-              </Button>
-            </div>
-          )
-        }}
-      </form.Field>
+              }}
+            </form.Field>
+          </div>
+        </div>
+      </div>
     )
   },
 })
