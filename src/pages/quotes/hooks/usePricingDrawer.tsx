@@ -213,7 +213,7 @@ export const usePricingDrawer = (
         },
         mainAction: (
           <Button data-test="pricing-drawer-submit" type="submit">
-            {translate('text_1779805897126caxqtv14ctd')}
+            {translate('text_17295436903260tlyb1gp1i7')}
           </Button>
         ),
         children: <PricingDrawerContent form={form} quoteType={orderType} currency={currency} />,

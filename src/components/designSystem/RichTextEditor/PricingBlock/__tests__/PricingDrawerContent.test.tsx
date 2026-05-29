@@ -217,12 +217,11 @@ describe('PricingDrawerContent', () => {
           variables: { limit: 100 },
           fetchPolicy: 'network-only',
           nextFetchPolicy: 'network-only',
-          skip: false,
         }),
       )
     })
 
-    it('THEN should skip plans query for one-off quote type', () => {
+    it('THEN should not call plans query for one-off quote type', () => {
       mockUseGetAddOnsForFixedChargesSectionQuery.mockReturnValue({
         data: { addOns: { collection: [] } },
         loading: false,
@@ -230,11 +229,7 @@ describe('PricingDrawerContent', () => {
 
       renderWithForm({ quoteType: OrderTypeEnum.OneOff })
 
-      expect(mockUsePlansQuery).toHaveBeenCalledWith(
-        expect.objectContaining({
-          skip: true,
-        }),
-      )
+      expect(mockUsePlansQuery).not.toHaveBeenCalled()
     })
 
     it('THEN should fetch add-ons with correct options for one-off quote type', () => {
@@ -250,12 +245,11 @@ describe('PricingDrawerContent', () => {
           variables: { limit: 100 },
           fetchPolicy: 'network-only',
           nextFetchPolicy: 'network-only',
-          skip: false,
         }),
       )
     })
 
-    it('THEN should skip add-ons query for subscription creation quote type', () => {
+    it('THEN should not call add-ons query for subscription creation quote type', () => {
       mockUsePlansQuery.mockReturnValue({
         data: { plans: { collection: [] } },
         loading: false,
@@ -263,11 +257,7 @@ describe('PricingDrawerContent', () => {
 
       renderWithForm({ quoteType: OrderTypeEnum.SubscriptionCreation })
 
-      expect(mockUseGetAddOnsForFixedChargesSectionQuery).toHaveBeenCalledWith(
-        expect.objectContaining({
-          skip: true,
-        }),
-      )
+      expect(mockUseGetAddOnsForFixedChargesSectionQuery).not.toHaveBeenCalled()
     })
   })
 })
