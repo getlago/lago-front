@@ -12591,6 +12591,13 @@ export type DestroySubscriptionAlertMutationVariables = Exact<{
 
 export type DestroySubscriptionAlertMutation = { __typename?: 'Mutation', destroySubscriptionAlert?: { __typename?: 'Alert', id: string } | null };
 
+export type GetSubscriptionForDetailsV2PlanQueryVariables = Exact<{
+  subscriptionId: Scalars['ID']['input'];
+}>;
+
+
+export type GetSubscriptionForDetailsV2PlanQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, hasOverriddenPlans?: boolean | null, interval: PlanInterval, amountCurrency: CurrencyEnum, billFixedChargesMonthly?: boolean | null, billChargesMonthly?: boolean | null, name: string, code: string, description?: string | null, trialPeriod?: number | null, payInAdvance: boolean, amountCents: any, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, code?: string | null, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, units: string, payInAdvance: boolean, prorated: boolean, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null }> | null, charges?: Array<{ __typename?: 'Charge', id: string, code?: string | null, chargeModel: ChargeModelEnum, invoiceable: boolean, invoiceDisplayName?: string | null, minAmountCents: any, payInAdvance: boolean, prorated: boolean, regroupPaidFees?: RegroupPaidFeesEnum | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any, properties: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', conversionRate: number, pricingUnit: { __typename?: 'PricingUnit', id: string, name: string, code: string, shortName: string } } | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> | null, minimumCommitment?: { __typename?: 'Commitment', amountCents: any, commitmentType: CommitmentTypeEnum, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null } | null, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } } | null };
+
 export type DeleteTaxFragment = { __typename?: 'Tax', id: string, name: string, customersCount: number };
 
 export type DeleteTaxMutationVariables = Exact<{
@@ -30516,6 +30523,53 @@ export function useDestroySubscriptionAlertMutation(baseOptions?: Apollo.Mutatio
 export type DestroySubscriptionAlertMutationHookResult = ReturnType<typeof useDestroySubscriptionAlertMutation>;
 export type DestroySubscriptionAlertMutationResult = Apollo.MutationResult<DestroySubscriptionAlertMutation>;
 export type DestroySubscriptionAlertMutationOptions = Apollo.BaseMutationOptions<DestroySubscriptionAlertMutation, DestroySubscriptionAlertMutationVariables>;
+export const GetSubscriptionForDetailsV2PlanDocument = gql`
+    query getSubscriptionForDetailsV2Plan($subscriptionId: ID!) {
+  subscription(id: $subscriptionId) {
+    id
+    plan {
+      id
+      ...PlanDetailsV2
+    }
+  }
+}
+    ${PlanDetailsV2FragmentDoc}`;
+
+/**
+ * __useGetSubscriptionForDetailsV2PlanQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionForDetailsV2PlanQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionForDetailsV2PlanQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionForDetailsV2PlanQuery({
+ *   variables: {
+ *      subscriptionId: // value for 'subscriptionId'
+ *   },
+ * });
+ */
+export function useGetSubscriptionForDetailsV2PlanQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionForDetailsV2PlanQuery, GetSubscriptionForDetailsV2PlanQueryVariables> & ({ variables: GetSubscriptionForDetailsV2PlanQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSubscriptionForDetailsV2PlanQuery, GetSubscriptionForDetailsV2PlanQueryVariables>(GetSubscriptionForDetailsV2PlanDocument, options);
+      }
+export function useGetSubscriptionForDetailsV2PlanLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionForDetailsV2PlanQuery, GetSubscriptionForDetailsV2PlanQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSubscriptionForDetailsV2PlanQuery, GetSubscriptionForDetailsV2PlanQueryVariables>(GetSubscriptionForDetailsV2PlanDocument, options);
+        }
+// @ts-ignore
+export function useGetSubscriptionForDetailsV2PlanSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsV2PlanQuery, GetSubscriptionForDetailsV2PlanQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForDetailsV2PlanQuery, GetSubscriptionForDetailsV2PlanQueryVariables>;
+export function useGetSubscriptionForDetailsV2PlanSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsV2PlanQuery, GetSubscriptionForDetailsV2PlanQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForDetailsV2PlanQuery | undefined, GetSubscriptionForDetailsV2PlanQueryVariables>;
+export function useGetSubscriptionForDetailsV2PlanSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsV2PlanQuery, GetSubscriptionForDetailsV2PlanQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSubscriptionForDetailsV2PlanQuery, GetSubscriptionForDetailsV2PlanQueryVariables>(GetSubscriptionForDetailsV2PlanDocument, options);
+        }
+export type GetSubscriptionForDetailsV2PlanQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsV2PlanQuery>;
+export type GetSubscriptionForDetailsV2PlanLazyQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsV2PlanLazyQuery>;
+export type GetSubscriptionForDetailsV2PlanSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsV2PlanSuspenseQuery>;
+export type GetSubscriptionForDetailsV2PlanQueryResult = Apollo.QueryResult<GetSubscriptionForDetailsV2PlanQuery, GetSubscriptionForDetailsV2PlanQueryVariables>;
 export const DeleteTaxDocument = gql`
     mutation deleteTax($input: DestroyTaxInput!) {
   destroyTax(input: $input) {
