@@ -448,7 +448,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
     <div
       ref={containerRef}
       data-test={TOOLBAR_CONTAINER_TEST_ID}
-      className="sticky top-0 z-10 flex w-full min-w-0 gap-2 overflow-hidden bg-white py-3 shadow-b"
+      className="sticky top-0 z-10 flex w-full min-w-0 gap-2 overflow-hidden bg-white py-3 pl-12 shadow-b"
     >
       {/* Visible groups */}
       {GROUP_NAMES.filter((name) => visibleGroups.has(name)).map((name, index) => (

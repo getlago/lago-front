@@ -96,7 +96,7 @@
     "jest-environment-jsdom": "30.4.1",
     "jest-junit": "17.0.0",
     "jscodeshift": "17.3.0",
-    "npm-run-all2": "8.0.4",
+    "npm-run-all2": "9.0.0",
     "postcss": "8.5.14",
     "postcss-preset-env": "11.3.0",
     "prettier": "3.8.3",
@@ -181,7 +181,7 @@
     "recharts": "2.15.4",
     "remark-gfm": "4.0.1",
     "sanitize-html": "2.17.4",
-    "shiki": "4.0.2",
+    "shiki": "4.1.0",
     "tippy.js": "6.3.7",
     "tiptap-markdown": "0.9.0",
     "yup": "1.7.1",
@@ -197,7 +197,7 @@
     }
   },
   "engines": {
-    "node": "24.15.0"
+    "node": "24.16.0"
   },
   "browserslist": [
     "> 1%",

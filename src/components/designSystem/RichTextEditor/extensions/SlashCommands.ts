@@ -68,6 +68,12 @@ export const slashCommandDefinitions: SlashCommandDefinition[] = [
 export const SlashCommands = Extension.create({
   name: 'slashCommands',
 
+  addStorage() {
+    return {
+      triggerMenu: null as ((clientRect: () => DOMRect) => void) | null,
+    }
+  },
+
   addOptions() {
     return {
       translate: ((key: string) => key) as (key: string) => string,
@@ -139,6 +145,67 @@ export const SlashCommands = Extension.create({
       description: translate(def.descriptionKey),
       command: def.command,
     }))
+
+    const editorRef = this.editor
+
+    this.storage.triggerMenu = (clientRect: () => DOMRect) => {
+      let destroyed = false
+
+      const destroy = () => {
+        if (destroyed) return
+        destroyed = true
+        popup[0]?.destroy()
+        renderer?.destroy()
+        document.removeEventListener('keydown', handleKeyDown, true)
+        document.removeEventListener('mousedown', handleClickOutside, true)
+      }
+
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+          event.preventDefault()
+          destroy()
+
+          return
+        }
+
+        const handled = renderer.ref?.onKeyDown({ event } as SuggestionKeyDownProps)
+
+        if (handled) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+      }
+
+      const handleClickOutside = (event: MouseEvent) => {
+        if (!renderer.element.contains(event.target as Node)) {
+          destroy()
+        }
+      }
+
+      const renderer = new ReactRenderer(SlashMenu, {
+        props: {
+          items: resolvedItems,
+          command: (item: SlashCommandItem) => {
+            item.command(editorRef)
+            destroy()
+          },
+        },
+        editor: editorRef,
+      })
+
+      const popup = tippy('body', {
+        getReferenceClientRect: clientRect,
+        appendTo: () => document.body,
+        content: renderer.element,
+        showOnCreate: true,
+        interactive: true,
+        trigger: 'manual',
+        placement: 'bottom-start',
+      })
+
+      document.addEventListener('keydown', handleKeyDown, true)
+      document.addEventListener('mousedown', handleClickOutside, true)
+    }
 
     return [
       Suggestion({

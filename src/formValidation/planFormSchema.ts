@@ -147,8 +147,7 @@ function validateRecurringThreshold(
 // We use z.custom<PlanFormInput>() because PlanFormInput has complex nested types
 // (charges, filters, commitments) that don't map cleanly to z.object().
 // All validation — including simple required fields — lives in superRefine.
-export const planFormSchema = z.custom<PlanFormInput>().superRefine((data, ctx) => {
-  // Required settings fields — always mandatory regardless of form state
+const validateSettingsFields = (data: PlanFormInput, ctx: z.RefinementCtx) => {
   if (!data.name) {
     ctx.addIssue({ code: 'custom', message: 'text_624ea7c29103fd010732ab7d', path: ['name'] })
   }
@@ -165,12 +164,28 @@ export const planFormSchema = z.custom<PlanFormInput>().superRefine((data, ctx) 
       path: ['amountCurrency'],
     })
   }
+}
+
+export const planFormSchema = z.custom<PlanFormInput>().superRefine((data, ctx) => {
+  validateSettingsFields(data, ctx)
 
   // Charges
   validateUsageCharges(data.charges, ctx)
   validateFixedCharges(data.fixedCharges, ctx)
 
   // Commitments & Progressive billing
+  validateMinimumCommitment(data.minimumCommitment, ctx)
+  validateNonRecurringThresholds(data.nonRecurringUsageThresholds, ctx)
+  validateRecurringThreshold(data.recurringUsageThreshold, ctx)
+})
+
+// Slim schema for v2 inline-edit flows (sub fee section, plan settings drawer).
+// These flows update only settings fields via updatePlan but seed charges as
+// id-only stubs in the form state; running the full planFormSchema would
+// reject those stubs and block the mutation. The drawers themselves validate
+// the fields the user is editing.
+export const planSettingsOnlyFormSchema = z.custom<PlanFormInput>().superRefine((data, ctx) => {
+  validateSettingsFields(data, ctx)
   validateMinimumCommitment(data.minimumCommitment, ctx)
   validateNonRecurringThresholds(data.nonRecurringUsageThresholds, ctx)
   validateRecurringThreshold(data.recurringUsageThreshold, ctx)

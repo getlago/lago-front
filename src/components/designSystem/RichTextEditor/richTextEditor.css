@@ -361,23 +361,28 @@
   color: inherit;
 }
 
-/* Drag handle decoration — floated left into the padding gutter.
-   margin-top aligns the handle with the first line of the following block,
+/* Block handle group — floated left into the padding gutter.
+   Contains the plus button (slash commands) and grip button (drag handle).
+   margin-top aligns the group with the first line of the following block,
    accounting for spacer padding-top (6px default) + block-wrapper padding (2px). */
-.block-drag-handle {
-  @apply float-left mt-2 flex h-6 w-6 cursor-grab items-center justify-center rounded-lg text-grey-600 opacity-0 transition-all duration-200 ease-in-out;
-  margin-left: -28px;
+.block-handle-group {
+  @apply float-left mt-2 flex items-center gap-0.5 opacity-0 transition-all duration-200 ease-in-out;
+  margin-left: -56px;
 }
 
-.block-drag-handle:has(+ .spacer[data-type='heading-1']) {
+.block-handle-button {
+  @apply flex h-6 w-6 cursor-pointer items-center justify-center rounded-lg text-grey-600 transition-colors duration-200 ease-in-out;
+}
+
+.block-handle-group:has(+ .spacer[data-type='heading-1']) {
   margin-top: 36px;
 }
 
-.block-drag-handle:has(+ .spacer[data-type='heading-2']) {
+.block-handle-group:has(+ .spacer[data-type='heading-2']) {
   margin-top: 24px;
 }
 
-.block-drag-handle:has(+ .spacer[data-type='heading-3']) {
+.block-handle-group:has(+ .spacer[data-type='heading-3']) {
   margin-top: 20px;
 }
 
@@ -385,15 +390,15 @@
   @apply relative rounded-md p-2 pb-8;
 }
 
-/* Show handle when hovering the spacer/table next to it, or the handle itself */
-.block-drag-handle:has(+ .spacer:hover),
-.block-drag-handle:has(+ .tableWrapper:hover),
-.block-drag-handle:hover {
+/* Show handle group when hovering the spacer/table next to it, or the group itself */
+.block-handle-group:has(+ .spacer:hover),
+.block-handle-group:has(+ .tableWrapper:hover),
+.block-handle-group:hover {
   @apply opacity-100;
 }
 
-/* Highlight the handle being directly hovered */
-.ProseMirror:hover > .block-drag-handle:hover {
+/* Highlight individual buttons on hover */
+.ProseMirror:hover > .block-handle-group .block-handle-button:hover {
   @apply bg-grey-200;
 }
 

@@ -144,13 +144,9 @@ jest.mock('~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog', 
   return { EditFinalizeZeroAmountInvoiceDialog: MockDialog }
 })
 
-jest.mock('~/components/PremiumWarningDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'PremiumWarningDialog'
-  return { PremiumWarningDialog: MockDialog }
-})
+jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
+  usePremiumWarningDialog: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
 
 const createCustomerSettingsMock = (overrides = {}) => ({
   request: {

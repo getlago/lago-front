@@ -1,3 +1,6 @@
+import { Editor } from '@tiptap/core'
+import StarterKit from '@tiptap/starter-kit'
+
 import { slashCommandDefinitions, SlashCommands } from '../SlashCommands'
 
 const mockDestroyPopup = jest.fn()
@@ -25,6 +28,15 @@ jest.mock('@tiptap/react', () => ({
   })),
 }))
 
+jest.mock('@tiptap/suggestion', () => {
+  const { Plugin, PluginKey } = jest.requireActual('@tiptap/pm/state')
+
+  return {
+    __esModule: true,
+    default: jest.fn().mockReturnValue(new Plugin({ key: new PluginKey('mockSuggestion') })),
+  }
+})
+
 const mockTranslate = (key: string): string => {
   const translations: Record<string, string> = {
     text_1774281559656dn2u208gh80: 'Heading 1',
@@ -50,6 +62,12 @@ const resolveItems = () =>
     description: mockTranslate(def.descriptionKey),
     command: def.command,
   }))
+
+const createSlashEditor = () =>
+  new Editor({
+    extensions: [StarterKit, SlashCommands.configure({ translate: mockTranslate })],
+    content: '<p>Hello</p>',
+  })
 
 describe('SlashCommands', () => {
   describe('slashCommandDefinitions', () => {
@@ -288,6 +306,305 @@ describe('SlashCommands', () => {
 
         expect(mockHidePopup).not.toHaveBeenCalled()
         expect(result).toBe(false)
+      })
+    })
+  })
+
+  describe('GIVEN the triggerMenu storage API', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    describe('WHEN the extension storage is initialized', () => {
+      it('THEN should define triggerMenu as null by default', () => {
+        const storageInit = SlashCommands.config.addStorage as unknown as () => {
+          triggerMenu: null
+        }
+        const storage = storageInit()
+
+        expect(storage.triggerMenu).toBeNull()
+      })
+    })
+
+    describe('WHEN the editor is created with SlashCommands', () => {
+      it('THEN should populate triggerMenu as a function in storage', () => {
+        const editor = createSlashEditor()
+        const storage = (editor.storage as any).slashCommands as Record<string, unknown>
+
+        expect(typeof storage.triggerMenu).toBe('function')
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN triggerMenu is called', () => {
+      it('THEN should create a ReactRenderer with resolved items and a command callback', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const editor = createSlashEditor()
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        expect(ReactRendererMock).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            props: expect.objectContaining({
+              items: expect.any(Array),
+              command: expect.any(Function),
+            }),
+            editor,
+          }),
+        )
+
+        // Clean up
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+
+      it('THEN should create a tippy popup with correct options', () => {
+        const tippyMock = jest.requireMock('tippy.js').default as jest.Mock
+        const editor = createSlashEditor()
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+        const clientRect = () => new DOMRect(10, 20, 100, 50)
+
+        tippyMock.mockClear()
+        storage.triggerMenu(clientRect)
+
+        expect(tippyMock).toHaveBeenCalledWith(
+          'body',
+          expect.objectContaining({
+            getReferenceClientRect: clientRect,
+            showOnCreate: true,
+            interactive: true,
+            trigger: 'manual',
+            placement: 'bottom-start',
+          }),
+        )
+
+        // Clean up
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN Escape is pressed while the popup is open', () => {
+      it('THEN should destroy the popup and renderer', () => {
+        const editor = createSlashEditor()
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        storage.triggerMenu(() => new DOMRect())
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+
+        expect(mockDestroyPopup).toHaveBeenCalled()
+        expect(mockDestroyRenderer).toHaveBeenCalled()
+
+        editor.destroy()
+      })
+
+      it('THEN should prevent default on the Escape event', () => {
+        const editor = createSlashEditor()
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        storage.triggerMenu(() => new DOMRect())
+
+        const escapeEvent = new KeyboardEvent('keydown', {
+          key: 'Escape',
+          bubbles: true,
+          cancelable: true,
+        })
+        const preventDefaultSpy = jest.spyOn(escapeEvent, 'preventDefault')
+
+        document.dispatchEvent(escapeEvent)
+
+        expect(preventDefaultSpy).toHaveBeenCalled()
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN clicking outside the popup', () => {
+      it('THEN should destroy the popup and renderer', () => {
+        const editor = createSlashEditor()
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        storage.triggerMenu(() => new DOMRect())
+
+        document.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
+
+        expect(mockDestroyPopup).toHaveBeenCalled()
+        expect(mockDestroyRenderer).toHaveBeenCalled()
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN clicking inside the popup element', () => {
+      it('THEN should not destroy the popup', () => {
+        const editor = createSlashEditor()
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        storage.triggerMenu(() => new DOMRect())
+
+        // Append renderer element to DOM so events propagate through capture phase
+        document.body.appendChild(mockRendererElement)
+        mockRendererElement.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
+        document.body.removeChild(mockRendererElement)
+
+        expect(mockDestroyPopup).not.toHaveBeenCalled()
+        expect(mockDestroyRenderer).not.toHaveBeenCalled()
+
+        // Clean up
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN a command is selected from the menu', () => {
+      it('THEN should execute the command with the editor and destroy the popup', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const editor = createSlashEditor()
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          command: (item: { title: string; description: string; command: jest.Mock }) => void
+        }
+        const mockCommand = jest.fn()
+
+        rendererProps.command({
+          title: 'Test',
+          description: 'Test command',
+          command: mockCommand,
+        })
+
+        expect(mockCommand).toHaveBeenCalledWith(editor)
+        expect(mockDestroyPopup).toHaveBeenCalled()
+        expect(mockDestroyRenderer).toHaveBeenCalled()
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN destroy is called multiple times', () => {
+      it('THEN should only destroy once (idempotent)', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const editor = createSlashEditor()
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        // Call the command callback twice — second call hits the `if (destroyed) return` guard
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          command: (item: { title: string; description: string; command: jest.Mock }) => void
+        }
+        const mockCommand = jest.fn()
+        const item = { title: 'Test', description: 'Test', command: mockCommand }
+
+        rendererProps.command(item)
+        rendererProps.command(item)
+
+        expect(mockCommand).toHaveBeenCalledTimes(2)
+        expect(mockDestroyPopup).toHaveBeenCalledTimes(1)
+        expect(mockDestroyRenderer).toHaveBeenCalledTimes(1)
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN a non-Escape key is pressed and ref handles it', () => {
+      it('THEN should delegate to renderer ref onKeyDown and prevent default', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnKeyDown = jest.fn().mockReturnValue(true)
+
+        ReactRendererMock.mockImplementationOnce(() => ({
+          element: mockRendererElement,
+          destroy: mockDestroyRenderer,
+          updateProps: mockUpdateProps,
+          ref: { onKeyDown: mockOnKeyDown },
+        }))
+
+        const editor = createSlashEditor()
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        storage.triggerMenu(() => new DOMRect())
+
+        const arrowEvent = new KeyboardEvent('keydown', {
+          key: 'ArrowDown',
+          bubbles: true,
+          cancelable: true,
+        })
+        const preventDefaultSpy = jest.spyOn(arrowEvent, 'preventDefault')
+        const stopPropagationSpy = jest.spyOn(arrowEvent, 'stopPropagation')
+
+        document.dispatchEvent(arrowEvent)
+
+        expect(mockOnKeyDown).toHaveBeenCalled()
+        expect(preventDefaultSpy).toHaveBeenCalled()
+        expect(stopPropagationSpy).toHaveBeenCalled()
+
+        // Clean up
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN a non-Escape key is pressed and ref does not handle it', () => {
+      it('THEN should not prevent default', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnKeyDown = jest.fn().mockReturnValue(false)
+
+        ReactRendererMock.mockImplementationOnce(() => ({
+          element: mockRendererElement,
+          destroy: mockDestroyRenderer,
+          updateProps: mockUpdateProps,
+          ref: { onKeyDown: mockOnKeyDown },
+        }))
+
+        const editor = createSlashEditor()
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        storage.triggerMenu(() => new DOMRect())
+
+        const arrowEvent = new KeyboardEvent('keydown', {
+          key: 'ArrowDown',
+          bubbles: true,
+          cancelable: true,
+        })
+        const preventDefaultSpy = jest.spyOn(arrowEvent, 'preventDefault')
+
+        document.dispatchEvent(arrowEvent)
+
+        expect(mockOnKeyDown).toHaveBeenCalled()
+        expect(preventDefaultSpy).not.toHaveBeenCalled()
+
+        // Clean up
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
       })
     })
   })

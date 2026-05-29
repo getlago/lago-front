@@ -18,16 +18,38 @@ gql`
       id
       name
       externalId
+      currency
+      netPaymentTerm
+      billingEntity {
+        id
+        code
+        name
+        netPaymentTerm
+      }
     }
     owners {
       id
       email
+    }
+    subscription {
+      id
+      name
+      externalId
+      subscriptionAt
+      plan {
+        id
+        name
+      }
     }
     currentVersion {
       id
       status
       version
       content
+      currency
+      startDate
+      endDate
+      billingItems
       createdAt
     }
   }

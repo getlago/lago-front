@@ -52,7 +52,6 @@ export const PlanDetailsV2PlanSettingsSection = ({
       />
       <SectionAccordion
         title={translate('text_642d5eb2783a2ad10d67031a')}
-        initiallyOpen
         actions={[
           {
             label: translate('text_63e51ef4985f0ebd75c212fc'),

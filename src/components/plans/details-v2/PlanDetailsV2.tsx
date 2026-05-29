@@ -6,6 +6,7 @@ import {
   LagoApiError,
   PlanForDetailsV2FixedChargesSectionFragmentDoc,
   PlanForDetailsV2PlanSettingsSectionFragmentDoc,
+  PlanForDetailsV2UsageChargesSectionFragmentDoc,
   useGetPlanForDetailsV2Query,
 } from '~/generated/graphql'
 
@@ -15,6 +16,10 @@ import {
 } from './PlanDetailsV2FixedChargesSection'
 import { PlanDetailsV2LeftSidebar } from './PlanDetailsV2LeftSidebar'
 import { PlanDetailsV2PlanSettingsSection } from './PlanDetailsV2PlanSettingsSection'
+import {
+  PlanDetailsV2UsageChargesSection,
+  PlanDetailsV2UsageChargesSectionRef,
+} from './PlanDetailsV2UsageChargesSection'
 import { PlanDetailsV2SectionId } from './sidebarSections'
 
 gql`
@@ -22,6 +27,7 @@ gql`
     id
     ...PlanForDetailsV2PlanSettingsSection
     ...PlanForDetailsV2FixedChargesSection
+    ...PlanForDetailsV2UsageChargesSection
   }
 
   query getPlanForDetailsV2($planId: ID!) {
@@ -32,6 +38,7 @@ gql`
 
   ${PlanForDetailsV2PlanSettingsSectionFragmentDoc}
   ${PlanForDetailsV2FixedChargesSectionFragmentDoc}
+  ${PlanForDetailsV2UsageChargesSectionFragmentDoc}
 `
 
 const TOP_LEVEL_SECTION_IDS: PlanDetailsV2SectionId[] = [
@@ -64,6 +71,7 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
   })
 
   const fixedChargesRef = useRef<PlanDetailsV2FixedChargesSectionRef>(null)
+  const usageChargesRef = useRef<PlanDetailsV2UsageChargesSectionRef>(null)
 
   const advancedVisibleIds = isInSubscriptionForm
     ? ADVANCED_CHILD_SECTION_IDS.filter((id) => !SUB_FLOW_HIDDEN_SECTIONS.has(id))
@@ -76,6 +84,9 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
   const handleAddClick = (id: PlanDetailsV2SectionId) => {
     if (id === PlanDetailsV2SectionId.FixedCharges) {
       fixedChargesRef.current?.openCreate()
+    }
+    if (id === PlanDetailsV2SectionId.UsageCharges) {
+      usageChargesRef.current?.openCreate()
     }
   }
 
@@ -112,6 +123,16 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
               <PlanDetailsV2FixedChargesSection
                 key={id}
                 ref={fixedChargesRef}
+                plan={plan}
+                isInSubscriptionForm={isInSubscriptionForm}
+              />
+            )
+          }
+          if (id === PlanDetailsV2SectionId.UsageCharges) {
+            return (
+              <PlanDetailsV2UsageChargesSection
+                key={id}
+                ref={usageChargesRef}
                 plan={plan}
                 isInSubscriptionForm={isInSubscriptionForm}
               />

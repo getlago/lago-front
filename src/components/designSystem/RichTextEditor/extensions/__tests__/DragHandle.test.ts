@@ -34,7 +34,6 @@ const createEditor = (content = '<p>First</p><p>Second</p>') => {
 }
 
 const getDragHandleStorage = (editor: Editor): DragHandleStorage =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (editor.storage as any).dragHandle as DragHandleStorage
 
 describe('DragHandle', () => {
@@ -48,7 +47,7 @@ describe('DragHandle', () => {
     describe('WHEN the document has block nodes', () => {
       it('THEN should create drag handle decorations for each top-level block', () => {
         const editor = createEditor('<p>First</p><p>Second</p>')
-        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+        const handles = editor.view.dom.querySelectorAll('.block-handle-group')
 
         editor.destroy()
 
@@ -57,7 +56,7 @@ describe('DragHandle', () => {
 
       it('THEN should render each handle with the grip SVG', async () => {
         const editor = createEditor('<p>Hello</p>')
-        const handle = editor.view.dom.querySelector('.block-drag-handle')
+        const handle = editor.view.dom.querySelector('.block-handle-group')
 
         // renderGripIcon is deferred via queueMicrotask to avoid nested React render warnings.
         // Flush the microtask + React render with act.
@@ -71,18 +70,18 @@ describe('DragHandle', () => {
         expect(handle?.querySelector('svg')).not.toBeNull()
       })
 
-      it('THEN should set draggable to true on each handle', () => {
+      it('THEN should set draggable to true on the grip button', () => {
         const editor = createEditor('<p>Hello</p>')
-        const handle = editor.view.dom.querySelector('.block-drag-handle') as HTMLElement
+        const gripButton = editor.view.dom.querySelector('.block-handle-grip') as HTMLElement
 
         editor.destroy()
 
-        expect(handle.draggable).toBe(true)
+        expect(gripButton.draggable).toBe(true)
       })
 
       it('THEN should set contentEditable to false on each handle', () => {
         const editor = createEditor('<p>Hello</p>')
-        const handle = editor.view.dom.querySelector('.block-drag-handle') as HTMLElement
+        const handle = editor.view.dom.querySelector('.block-handle-group') as HTMLElement
 
         editor.destroy()
 
@@ -99,7 +98,7 @@ describe('DragHandle', () => {
         editor.commands.enter()
         editor.commands.insertContent('Third')
 
-        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+        const handles = editor.view.dom.querySelectorAll('.block-handle-group')
 
         editor.destroy()
 
@@ -110,10 +109,10 @@ describe('DragHandle', () => {
     describe('WHEN a drag handle is clicked', () => {
       it('THEN should select the corresponding block via NodeSelection', () => {
         const editor = createEditor('<p>First</p><p>Second</p>')
-        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
-        const firstHandle = handles[0] as HTMLElement
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const firstGrip = grips[0] as HTMLElement
 
-        firstHandle.click()
+        firstGrip.click()
 
         const { selection } = editor.state
         const selectedNode = editor.state.doc.nodeAt(selection.from)
@@ -129,8 +128,8 @@ describe('DragHandle', () => {
     describe('WHEN a handle is dragged', () => {
       it('THEN should set editor.view.dragging with selection content', () => {
         const editor = createEditor('<p>First</p><p>Second</p>')
-        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
-        const firstHandle = handles[0] as HTMLElement
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const firstGrip = grips[0] as HTMLElement
 
         // Use bubbles: false so the event only triggers our handler, not ProseMirror's
         // internal dragstart handler which requires browser APIs unavailable in jsdom.
@@ -143,7 +142,7 @@ describe('DragHandle', () => {
           },
         })
 
-        firstHandle.dispatchEvent(dragEvent)
+        firstGrip.dispatchEvent(dragEvent)
 
         expect(editor.view.dragging).toBeTruthy()
         expect(editor.view.dragging?.move).toBe(true)
@@ -152,9 +151,49 @@ describe('DragHandle', () => {
         editor.destroy()
       })
 
+      it('THEN should add the is-dragging class on dragstart and remove it on dragend', () => {
+        const editor = createEditor('<p>First</p>')
+        const grip = editor.view.dom.querySelector('.block-handle-grip') as HTMLElement
+
+        const dragStartEvent = new Event('dragstart', { bubbles: false }) as DragEvent
+
+        Object.defineProperty(dragStartEvent, 'dataTransfer', {
+          value: {
+            effectAllowed: '',
+            setDragImage: jest.fn(),
+          },
+        })
+
+        grip.dispatchEvent(dragStartEvent)
+
+        expect(editor.view.dom.classList.contains('is-dragging')).toBe(true)
+
+        const dragEndEvent = new Event('dragend', { bubbles: false })
+
+        grip.dispatchEvent(dragEndEvent)
+
+        expect(editor.view.dom.classList.contains('is-dragging')).toBe(false)
+
+        editor.destroy()
+      })
+
+      it('THEN should handle dragstart without dataTransfer gracefully', () => {
+        const editor = createEditor('<p>First</p>')
+        const grip = editor.view.dom.querySelector('.block-handle-grip') as HTMLElement
+
+        const dragEvent = new Event('dragstart', { bubbles: false })
+
+        grip.dispatchEvent(dragEvent)
+
+        expect(editor.view.dragging).toBeTruthy()
+        expect(editor.view.dragging?.move).toBe(true)
+
+        editor.destroy()
+      })
+
       it('THEN should set the drag image to the block DOM element', () => {
         const editor = createEditor('<p>First</p>')
-        const handle = editor.view.dom.querySelector('.block-drag-handle') as HTMLElement
+        const grip = editor.view.dom.querySelector('.block-handle-grip') as HTMLElement
 
         const setDragImage = jest.fn()
         const dragEvent = new Event('dragstart', { bubbles: false }) as DragEvent
@@ -166,7 +205,7 @@ describe('DragHandle', () => {
           },
         })
 
-        handle.dispatchEvent(dragEvent)
+        grip.dispatchEvent(dragEvent)
 
         expect(setDragImage).toHaveBeenCalledWith(expect.any(HTMLElement), 0, 0)
 
@@ -180,14 +219,14 @@ describe('DragHandle', () => {
       it('THEN should preserve existing decorations without rebuilding', () => {
         const editor = createEditor('<p>First</p><p>Second</p>')
 
-        const handlesBefore = editor.view.dom.querySelectorAll('.block-drag-handle')
+        const handlesBefore = editor.view.dom.querySelectorAll('.block-handle-group')
 
         expect(handlesBefore.length).toBe(2)
 
         // Trigger a non-doc-changing transaction (selection change)
         editor.commands.setTextSelection(1)
 
-        const handlesAfter = editor.view.dom.querySelectorAll('.block-drag-handle')
+        const handlesAfter = editor.view.dom.querySelectorAll('.block-handle-group')
 
         expect(handlesAfter.length).toBe(2)
 
@@ -203,7 +242,7 @@ describe('DragHandle', () => {
         editor.commands.setTextSelection(1)
         editor.chain().focus().toggleBulletList().run()
 
-        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+        const handles = editor.view.dom.querySelectorAll('.block-handle-group')
 
         expect(handles.length).toBe(2)
 
@@ -219,7 +258,7 @@ describe('DragHandle', () => {
         editor.commands.setTextSelection(1)
         editor.commands.setBlockBackgroundColor('#fee2e2')
 
-        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+        const handles = editor.view.dom.querySelectorAll('.block-handle-group')
 
         expect(handles.length).toBe(2)
 
@@ -235,7 +274,7 @@ describe('DragHandle', () => {
         editor.commands.setTextSelection(1)
         editor.commands.insertContent('Hello ')
 
-        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+        const handles = editor.view.dom.querySelectorAll('.block-handle-group')
 
         expect(handles.length).toBe(2)
 
@@ -248,7 +287,7 @@ describe('DragHandle', () => {
     describe('WHEN the editor is initialized', () => {
       it('THEN should create a handle for the empty paragraph', () => {
         const editor = createEditor('')
-        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
+        const handles = editor.view.dom.querySelectorAll('.block-handle-group')
 
         editor.destroy()
 
@@ -288,11 +327,11 @@ describe('DragHandle', () => {
 
         expect(tablePos).toBeGreaterThan(-1)
 
-        // Click the drag handle for the table (second top-level block)
-        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
-        const tableHandle = handles[1] as HTMLElement
+        // Click the grip button for the table (second top-level block)
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const tableGrip = grips[1] as HTMLElement
 
-        tableHandle.click()
+        tableGrip.click()
 
         expect(storage.selectedBlock).toEqual({ pos: tablePos })
 
@@ -310,10 +349,10 @@ describe('DragHandle', () => {
           }
         })
 
-        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
-        const tableHandle = handles[1] as HTMLElement
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const tableGrip = grips[1] as HTMLElement
 
-        tableHandle.click()
+        tableGrip.click()
 
         // Selection should be inside the table, not a NodeSelection
         const { from } = editor.state.selection
@@ -332,11 +371,11 @@ describe('DragHandle', () => {
         const editor = createEditor(TABLE_CONTENT)
         const storage = getDragHandleStorage(editor)
 
-        // Click the first handle (paragraph "Before table")
-        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
-        const paragraphHandle = handles[0] as HTMLElement
+        // Click the first grip (paragraph "Before table")
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const paragraphGrip = grips[0] as HTMLElement
 
-        paragraphHandle.click()
+        paragraphGrip.click()
 
         expect(storage.selectedBlock).toBeNull()
 
@@ -349,11 +388,11 @@ describe('DragHandle', () => {
         const editor = createEditor(TABLE_CONTENT)
         const storage = getDragHandleStorage(editor)
 
-        // Click table handle
-        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
-        const tableHandle = handles[1] as HTMLElement
+        // Click table grip
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const tableGrip = grips[1] as HTMLElement
 
-        tableHandle.click()
+        tableGrip.click()
 
         expect(storage.selectedBlock).not.toBeNull()
 
@@ -371,11 +410,11 @@ describe('DragHandle', () => {
         const editor = createEditor(TABLE_CONTENT)
         const storage = getDragHandleStorage(editor)
 
-        // Click table handle
-        const handles = editor.view.dom.querySelectorAll('.block-drag-handle')
-        const tableHandle = handles[1] as HTMLElement
+        // Click table grip
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const tableGrip = grips[1] as HTMLElement
 
-        tableHandle.click()
+        tableGrip.click()
 
         const tablePos = storage.selectedBlock?.pos ?? -1
 
@@ -389,6 +428,118 @@ describe('DragHandle', () => {
         editor.commands.setTextSelection(tableEnd - 3)
 
         expect(storage.selectedBlock).toEqual({ pos: tablePos })
+
+        editor.destroy()
+      })
+    })
+  })
+
+  describe('GIVEN the plus button in the handle group', () => {
+    describe('WHEN the document has block nodes', () => {
+      it('THEN should render a plus button for each block', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+        const plusButtons = editor.view.dom.querySelectorAll('.block-handle-plus')
+
+        editor.destroy()
+
+        expect(plusButtons.length).toBe(2)
+      })
+
+      it('THEN should render the plus icon via queueMicrotask', async () => {
+        const editor = createEditor('<p>Hello</p>')
+        const plusButton = editor.view.dom.querySelector('.block-handle-plus')
+
+        await act(async () => {
+          await new Promise((resolve) => setTimeout(resolve, 0))
+        })
+
+        editor.destroy()
+
+        expect(plusButton).not.toBeNull()
+        expect(plusButton?.querySelector('svg')).not.toBeNull()
+      })
+
+      it('THEN should have the block-handle-button class', () => {
+        const editor = createEditor('<p>Hello</p>')
+        const plusButton = editor.view.dom.querySelector('.block-handle-plus') as HTMLElement
+
+        editor.destroy()
+
+        expect(plusButton.classList.contains('block-handle-button')).toBe(true)
+      })
+
+      it('THEN should not be draggable', () => {
+        const editor = createEditor('<p>Hello</p>')
+        const plusButton = editor.view.dom.querySelector('.block-handle-plus') as HTMLElement
+
+        editor.destroy()
+
+        expect(plusButton.draggable).toBe(false)
+      })
+    })
+
+    describe('WHEN the plus button is clicked with slashCommands storage available', () => {
+      it('THEN should call triggerMenu with a clientRect function', () => {
+        const editor = createEditor('<p>Hello</p>')
+        const triggerMenu = jest.fn()
+
+        ;(editor.storage as any).slashCommands = { triggerMenu }
+
+        const plusButton = editor.view.dom.querySelector('.block-handle-plus') as HTMLElement
+
+        plusButton.click()
+
+        expect(triggerMenu).toHaveBeenCalledWith(expect.any(Function))
+
+        editor.destroy()
+      })
+
+      it('THEN should pass a function that returns the plus button bounding rect', () => {
+        const editor = createEditor('<p>Hello</p>')
+        const triggerMenu = jest.fn()
+
+        ;(editor.storage as any).slashCommands = { triggerMenu }
+
+        const plusButton = editor.view.dom.querySelector('.block-handle-plus') as HTMLElement
+
+        plusButton.click()
+
+        const clientRectFn = triggerMenu.mock.calls[0][0] as () => DOMRect
+        const rect = clientRectFn()
+
+        expect(rect).toEqual(
+          expect.objectContaining({
+            x: expect.any(Number),
+            y: expect.any(Number),
+            width: expect.any(Number),
+            height: expect.any(Number),
+          }),
+        )
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN the plus button is clicked without slashCommands storage', () => {
+      it('THEN should not throw an error', () => {
+        const editor = createEditor('<p>Hello</p>')
+        const plusButton = editor.view.dom.querySelector('.block-handle-plus') as HTMLElement
+
+        expect(() => plusButton.click()).not.toThrow()
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN the plus button is clicked with triggerMenu as null', () => {
+      it('THEN should not throw an error', () => {
+        const editor = createEditor('<p>Hello</p>')
+
+        ;(editor.storage as any).slashCommands = { triggerMenu: null }
+
+        const plusButton = editor.view.dom.querySelector('.block-handle-plus') as HTMLElement
+
+        expect(() => plusButton.click()).not.toThrow()
 
         editor.destroy()
       })

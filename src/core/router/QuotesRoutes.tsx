@@ -37,7 +37,7 @@ export const quotesRoutes: CustomRouteObject[] = [
   },
 ]
 
-export const quotesCreationRoutes: CustomRouteObject[] = [
+export const quotesModificationRoutes: CustomRouteObject[] = [
   {
     path: CREATE_QUOTE_ROUTE,
     private: true,
@@ -51,18 +51,12 @@ export const quotesCreationRoutes: CustomRouteObject[] = [
     element: <EditQuote />,
     permissions: ['quotesUpdate'],
   },
-]
-
-export const quotesVoidRoutes: CustomRouteObject[] = [
   {
     path: VOID_QUOTE_ROUTE,
     private: true,
     element: <VoidQuote />,
     permissions: ['quotesVoid'],
   },
-]
-
-export const quotesApprovalRoutes: CustomRouteObject[] = [
   {
     path: APPROVE_QUOTE_ROUTE,
     private: true,
