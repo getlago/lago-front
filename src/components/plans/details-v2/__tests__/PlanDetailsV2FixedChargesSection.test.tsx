@@ -33,13 +33,6 @@ jest.mock('~/components/plans/drawers/fixedCharge/FixedChargeDrawer', () => {
 const mockHandleSaveCharge = jest.fn()
 const mockHandleDeleteCharge = jest.fn()
 
-jest.mock('~/hooks/plans/useFixedChargeMutationsWithCascade', () => ({
-  useFixedChargeMutationsWithCascade: () => ({
-    handleSaveCharge: mockHandleSaveCharge,
-    handleDeleteCharge: mockHandleDeleteCharge,
-  }),
-}))
-
 const mockHasPermissions = jest.fn((perms?: string[]) => {
   if (!perms) return true
   return !perms.includes('none')
@@ -68,7 +61,16 @@ describe('PlanDetailsV2FixedChargesSection', () => {
   })
 
   it('renders the empty-state helper when plan has no fixed charges', () => {
-    render(<PlanDetailsV2FixedChargesSection plan={planDetailsV2Fixture} />, { wrapper: Wrapper })
+    render(
+      <PlanDetailsV2FixedChargesSection
+        plan={planDetailsV2Fixture}
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
 
     // Section header
     expect(screen.getByText('text_1779289915866aj39dyv1wps')).toBeInTheDocument()
@@ -88,7 +90,16 @@ describe('PlanDetailsV2FixedChargesSection', () => {
       ],
     }
 
-    render(<PlanDetailsV2FixedChargesSection plan={plan} />, { wrapper: Wrapper })
+    render(
+      <PlanDetailsV2FixedChargesSection
+        plan={plan}
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
 
     expect(screen.getByText('Onboarding')).toBeInTheDocument()
     expect(screen.getByText('Migration')).toBeInTheDocument()
@@ -96,7 +107,16 @@ describe('PlanDetailsV2FixedChargesSection', () => {
   })
 
   it('opens drawer with no args when Add CTA is clicked', async () => {
-    render(<PlanDetailsV2FixedChargesSection plan={planDetailsV2Fixture} />, { wrapper: Wrapper })
+    render(
+      <PlanDetailsV2FixedChargesSection
+        plan={planDetailsV2Fixture}
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
 
     await userEvent.click(await screen.findByText('text_176072970726882uau5y69f1'))
 
@@ -109,7 +129,16 @@ describe('PlanDetailsV2FixedChargesSection', () => {
       fixedCharges: [buildFixedChargeFixture({ id: 'fc_1' })],
     }
 
-    render(<PlanDetailsV2FixedChargesSection plan={plan} />, { wrapper: Wrapper })
+    render(
+      <PlanDetailsV2FixedChargesSection
+        plan={plan}
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
 
     await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
     await userEvent.click(
@@ -128,7 +157,16 @@ describe('PlanDetailsV2FixedChargesSection', () => {
       fixedCharges: [buildFixedChargeFixture({ id: 'fc_to_delete' })],
     }
 
-    render(<PlanDetailsV2FixedChargesSection plan={plan} />, { wrapper: Wrapper })
+    render(
+      <PlanDetailsV2FixedChargesSection
+        plan={plan}
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
 
     await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
     await userEvent.click(
@@ -140,15 +178,32 @@ describe('PlanDetailsV2FixedChargesSection', () => {
 
   // Drift test: lock in the Add CTA in plan mode so a future refactor can't drop it.
   it('keeps Add CTA visible when isInSubscriptionForm is false', () => {
-    render(<PlanDetailsV2FixedChargesSection plan={planDetailsV2Fixture} />, { wrapper: Wrapper })
+    render(
+      <PlanDetailsV2FixedChargesSection
+        plan={planDetailsV2Fixture}
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
 
     expect(screen.getByText('text_176072970726882uau5y69f1')).toBeInTheDocument()
   })
 
   it('hides the Add CTA when isInSubscriptionForm is true', () => {
-    render(<PlanDetailsV2FixedChargesSection plan={planDetailsV2Fixture} isInSubscriptionForm />, {
-      wrapper: Wrapper,
-    })
+    render(
+      <PlanDetailsV2FixedChargesSection
+        plan={planDetailsV2Fixture}
+        isInSubscriptionForm
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
 
     expect(screen.queryByText('text_176072970726882uau5y69f1')).not.toBeInTheDocument()
   })
@@ -159,9 +214,17 @@ describe('PlanDetailsV2FixedChargesSection', () => {
       fixedCharges: [buildFixedChargeFixture({ id: 'fc_sub' })],
     }
 
-    render(<PlanDetailsV2FixedChargesSection plan={plan} isInSubscriptionForm />, {
-      wrapper: Wrapper,
-    })
+    render(
+      <PlanDetailsV2FixedChargesSection
+        plan={plan}
+        isInSubscriptionForm
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
 
     // No actions menu trigger renders when both Edit and Delete are hidden.
     expect(screen.queryByRole('button', { name: /actions/i })).not.toBeInTheDocument()
@@ -176,7 +239,16 @@ describe('PlanDetailsV2FixedChargesSection', () => {
       fixedCharges: [buildFixedChargeFixture({ id: 'fc_no_perm' })],
     }
 
-    render(<PlanDetailsV2FixedChargesSection plan={plan} />, { wrapper: Wrapper })
+    render(
+      <PlanDetailsV2FixedChargesSection
+        plan={plan}
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
 
     await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
     expect(screen.queryByText('text_63ea0f84f400488553caa786')).not.toBeInTheDocument()
@@ -191,7 +263,16 @@ describe('PlanDetailsV2FixedChargesSection', () => {
       fixedCharges: [buildFixedChargeFixture({ id: 'fc_no_update' })],
     }
 
-    render(<PlanDetailsV2FixedChargesSection plan={plan} />, { wrapper: Wrapper })
+    render(
+      <PlanDetailsV2FixedChargesSection
+        plan={plan}
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
 
     await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
     expect(screen.queryByText('text_63e51ef4985f0ebd75c212fc')).not.toBeInTheDocument()
@@ -200,9 +281,17 @@ describe('PlanDetailsV2FixedChargesSection', () => {
   it('exposes openCreate via ref', async () => {
     const ref = createRef<PlanDetailsV2FixedChargesSectionRef>()
 
-    render(<PlanDetailsV2FixedChargesSection ref={ref} plan={planDetailsV2Fixture} />, {
-      wrapper: Wrapper,
-    })
+    render(
+      <PlanDetailsV2FixedChargesSection
+        ref={ref}
+        plan={planDetailsV2Fixture}
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
 
     ref.current?.openCreate()
     await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))

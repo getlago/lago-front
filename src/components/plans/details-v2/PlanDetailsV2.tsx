@@ -12,6 +12,7 @@ import {
   useGetPlanForDetailsV2Query,
 } from '~/generated/graphql'
 import { useChargeMutationsWithCascade } from '~/hooks/plans/useChargeMutationsWithCascade'
+import { useFixedChargeMutationsWithCascade } from '~/hooks/plans/useFixedChargeMutationsWithCascade'
 
 import { PlanDetailsV2AdvancedSection } from './PlanDetailsV2AdvancedSection'
 import {
@@ -74,6 +75,11 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
     currency: (data?.plan?.amountCurrency as CurrencyEnum) ?? CurrencyEnum.Usd,
   })
 
+  const fixedChargeMutations = useFixedChargeMutationsWithCascade({
+    planId: data?.plan?.id ?? '',
+    hasOverriddenPlans: data?.plan?.hasOverriddenPlans ?? false,
+  })
+
   const handleItemClick = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
@@ -122,6 +128,7 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
                 ref={fixedChargesRef}
                 plan={plan}
                 isInSubscriptionForm={isInSubscriptionForm}
+                fixedChargeMutations={fixedChargeMutations}
               />
             )
           }
