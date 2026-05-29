@@ -3898,6 +3898,7 @@ export enum FeatureFlagEnum {
   OrderForms = 'order_forms',
   PaymentGatedSubscriptions = 'payment_gated_subscriptions',
   PostgresEnrichedEvents = 'postgres_enriched_events',
+  StripeSharedPaymentToken = 'stripe_shared_payment_token',
   WalletTraceability = 'wallet_traceability'
 }
 
@@ -7040,9 +7041,11 @@ export type ProjectedChargeFilterUsage = {
   eventsCount: Scalars['Int']['output'];
   id?: Maybe<Scalars['ID']['output']>;
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
+  presentationBreakdowns?: Maybe<Array<PresentationBreakdownUsage>>;
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
   pricingUnitProjectedAmountCents?: Maybe<Scalars['BigInt']['output']>;
   projectedAmountCents: Scalars['BigInt']['output'];
+  projectedPresentationBreakdowns?: Maybe<Array<PresentationBreakdownUsage>>;
   projectedUnits: Scalars['Float']['output'];
   units: Scalars['Float']['output'];
   values: Scalars['ChargeFilterValues']['output'];
@@ -7061,6 +7064,7 @@ export type ProjectedChargeUsage = {
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
   pricingUnitProjectedAmountCents?: Maybe<Scalars['BigInt']['output']>;
   projectedAmountCents: Scalars['BigInt']['output'];
+  projectedPresentationBreakdowns?: Maybe<Array<PresentationBreakdownUsage>>;
   projectedUnits: Scalars['Float']['output'];
   units: Scalars['Float']['output'];
 };
@@ -7076,6 +7080,7 @@ export type ProjectedGroupedChargeUsage = {
   pricingUnitAmountCents?: Maybe<Scalars['BigInt']['output']>;
   pricingUnitProjectedAmountCents?: Maybe<Scalars['BigInt']['output']>;
   projectedAmountCents: Scalars['BigInt']['output'];
+  projectedPresentationBreakdowns?: Maybe<Array<PresentationBreakdownUsage>>;
   projectedUnits: Scalars['Float']['output'];
   units: Scalars['Float']['output'];
 };
@@ -7289,6 +7294,8 @@ export type Query = {
   invites: InviteCollection;
   /** Query a single Invoice of an organization */
   invoice?: Maybe<Invoice>;
+  /** Build a preview of a single Invoice of an organization for regeneration. */
+  invoiceBuildRegenerationPreview?: Maybe<Invoice>;
   /** Query invoice collections of an organization */
   invoiceCollections: FinalizedInvoiceCollectionCollection;
   /** Query invoice's credit note */
@@ -7889,6 +7896,11 @@ export type QueryInvitesArgs = {
 
 
 export type QueryInvoiceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryInvoiceBuildRegenerationPreviewArgs = {
   id: Scalars['ID']['input'];
 };
 
