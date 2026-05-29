@@ -27,7 +27,14 @@ type StatusLabelSuccess =
   | number
 type StatusLabelWarning = 'failed'
 type StatusLabelOutline = 'draft'
-type StatusLabelDefault = 'downgrade' | 'scheduled' | 'pending' | 'toPay' | 'processing' | 'n/a'
+type StatusLabelDefault =
+  | 'downgrade'
+  | 'scheduled'
+  | 'pending'
+  | 'incomplete'
+  | 'toPay'
+  | 'processing'
+  | 'n/a'
 type StatusLabelDanger =
   | 'disputed'
   | 'disputeLost'
@@ -59,6 +66,7 @@ const statusLabelMapping: Record<StatusLabel, string> = {
   failed: 'text_637656ef3d876b0269edc7a1',
   draft: 'text_63ac86d797f728a87b2f9f91',
   pending: 'text_62da6db136909f52c2704c30',
+  incomplete: 'text_1779882021466dr07sleoyk9',
   disputed: 'text_668fe99c939c8800dfeb504e',
   disputeLostOn: 'text_66141e30699a0631f0b2ed2c',
   disputeLost: 'text_66141e30699a0631f0b2ec9c',
