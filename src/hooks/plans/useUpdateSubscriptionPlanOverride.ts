@@ -1,0 +1,34 @@
+import { addToast } from '~/core/apolloClient'
+import {
+  CurrencyEnum,
+  LagoApiError,
+  PlanOverridesInput,
+  useUpdateSubscriptionMutation,
+} from '~/generated/graphql'
+
+type Args = {
+  subscriptionId: string
+  currency: CurrencyEnum
+}
+
+export const useUpdateSubscriptionPlanOverride = ({ subscriptionId }: Args) => {
+  const [updateSubscription] = useUpdateSubscriptionMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    refetchQueries: ['getSubscriptionForDetailsV2Plan'],
+    awaitRefetchQueries: true,
+    onCompleted(data) {
+      if (data?.updateSubscription?.id) {
+        addToast({ severity: 'success', translateKey: 'text_625fd165963a7b00c8f598a0' })
+      }
+    },
+  })
+
+  // Plan-level-only overrides. Charges are NEVER sent here — they go through
+  // updateSubscriptionCharge. Omitting `charges` preserves existing overrides.
+  const updatePlanOverride = async (planOverrides: PlanOverridesInput): Promise<boolean> => {
+    await updateSubscription({ variables: { input: { id: subscriptionId, planOverrides } } })
+    return true
+  }
+
+  return { updatePlanOverride }
+}
