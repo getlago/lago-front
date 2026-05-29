@@ -12825,6 +12825,13 @@ export type UpdateSubscriptionChargeMutationVariables = Exact<{
 
 export type UpdateSubscriptionChargeMutation = { __typename?: 'Mutation', updateSubscriptionCharge?: { __typename?: 'Charge', id: string, code?: string | null, chargeModel: ChargeModelEnum, invoiceable: boolean, invoiceDisplayName?: string | null, minAmountCents: any, payInAdvance: boolean, prorated: boolean, regroupPaidFees?: RegroupPaidFeesEnum | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any, properties: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', conversionRate: number, pricingUnit: { __typename?: 'PricingUnit', id: string, name: string, code: string, shortName: string } } | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null } | null };
 
+export type UpdateSubscriptionFixedChargeMutationVariables = Exact<{
+  input: UpdateSubscriptionFixedChargeInput;
+}>;
+
+
+export type UpdateSubscriptionFixedChargeMutation = { __typename?: 'Mutation', updateSubscriptionFixedCharge?: { __typename?: 'FixedCharge', id: string, code?: string | null, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, units: string, payInAdvance: boolean, prorated: boolean, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null } | null };
+
 export type PlanForUpdateWithCascadeFragment = { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, billChargesMonthly?: boolean | null, billFixedChargesMonthly?: boolean | null, hasOverriddenPlans?: boolean | null, trialPeriod?: number | null, payInAdvance: boolean, amountCents: any, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null, minimumCommitment?: { __typename?: 'Commitment', amountCents: any, commitmentType: CommitmentTypeEnum, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null } | null, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null };
 
 export type EditAddOnFragment = { __typename?: 'AddOn', id: string, name: string, code: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null };
@@ -31708,6 +31715,39 @@ export function useUpdateSubscriptionChargeMutation(baseOptions?: Apollo.Mutatio
 export type UpdateSubscriptionChargeMutationHookResult = ReturnType<typeof useUpdateSubscriptionChargeMutation>;
 export type UpdateSubscriptionChargeMutationResult = Apollo.MutationResult<UpdateSubscriptionChargeMutation>;
 export type UpdateSubscriptionChargeMutationOptions = Apollo.BaseMutationOptions<UpdateSubscriptionChargeMutation, UpdateSubscriptionChargeMutationVariables>;
+export const UpdateSubscriptionFixedChargeDocument = gql`
+    mutation updateSubscriptionFixedCharge($input: UpdateSubscriptionFixedChargeInput!) {
+  updateSubscriptionFixedCharge(input: $input) {
+    ...FixedChargeForDetailsV2
+  }
+}
+    ${FixedChargeForDetailsV2FragmentDoc}`;
+export type UpdateSubscriptionFixedChargeMutationFn = Apollo.MutationFunction<UpdateSubscriptionFixedChargeMutation, UpdateSubscriptionFixedChargeMutationVariables>;
+
+/**
+ * __useUpdateSubscriptionFixedChargeMutation__
+ *
+ * To run a mutation, you first call `useUpdateSubscriptionFixedChargeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateSubscriptionFixedChargeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateSubscriptionFixedChargeMutation, { data, loading, error }] = useUpdateSubscriptionFixedChargeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateSubscriptionFixedChargeMutation(baseOptions?: Apollo.MutationHookOptions<UpdateSubscriptionFixedChargeMutation, UpdateSubscriptionFixedChargeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateSubscriptionFixedChargeMutation, UpdateSubscriptionFixedChargeMutationVariables>(UpdateSubscriptionFixedChargeDocument, options);
+      }
+export type UpdateSubscriptionFixedChargeMutationHookResult = ReturnType<typeof useUpdateSubscriptionFixedChargeMutation>;
+export type UpdateSubscriptionFixedChargeMutationResult = Apollo.MutationResult<UpdateSubscriptionFixedChargeMutation>;
+export type UpdateSubscriptionFixedChargeMutationOptions = Apollo.BaseMutationOptions<UpdateSubscriptionFixedChargeMutation, UpdateSubscriptionFixedChargeMutationVariables>;
 export const GetSingleAddOnDocument = gql`
     query getSingleAddOn($id: ID!) {
   addOn(id: $id) {
