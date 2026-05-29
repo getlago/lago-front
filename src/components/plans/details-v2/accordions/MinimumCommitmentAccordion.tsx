@@ -50,7 +50,6 @@ export const MinimumCommitmentAccordion = ({
   })
   const { updatePlanOverride } = useUpdateSubscriptionPlanOverride({
     subscriptionId: subscriptionId ?? '',
-    currency,
   })
 
   const handleSave = (values: MinimumCommitmentFormValues): Promise<boolean> => {

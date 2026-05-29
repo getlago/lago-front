@@ -52,7 +52,6 @@ export const SubscriptionFeeAccordion = ({
   const { form, submit } = useUpdatePlanWithCascade({ plan })
   const { updatePlanOverride } = useUpdateSubscriptionPlanOverride({
     subscriptionId: subscriptionId ?? '',
-    currency: plan.amountCurrency,
   })
 
   const openDrawer = () => {

@@ -1,6 +1,5 @@
 import { addToast } from '~/core/apolloClient'
 import {
-  CurrencyEnum,
   LagoApiError,
   PlanOverridesInput,
   useUpdateSubscriptionMutation,
@@ -8,7 +7,6 @@ import {
 
 type Args = {
   subscriptionId: string
-  currency: CurrencyEnum
 }
 
 export const useUpdateSubscriptionPlanOverride = ({ subscriptionId }: Args) => {

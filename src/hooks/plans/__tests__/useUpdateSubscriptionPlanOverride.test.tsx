@@ -2,7 +2,7 @@ import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { ReactNode } from 'react'
 
-import { CurrencyEnum, UpdateSubscriptionDocument } from '~/generated/graphql'
+import { UpdateSubscriptionDocument } from '~/generated/graphql'
 
 import { useUpdateSubscriptionPlanOverride } from '../useUpdateSubscriptionPlanOverride'
 
@@ -34,8 +34,7 @@ describe('useUpdateSubscriptionPlanOverride', () => {
     }
 
     const { result } = renderHook(
-      () =>
-        useUpdateSubscriptionPlanOverride({ subscriptionId: SUB_ID, currency: CurrencyEnum.Usd }),
+      () => useUpdateSubscriptionPlanOverride({ subscriptionId: SUB_ID }),
       { wrapper: wrapper([mock]) },
     )
 
