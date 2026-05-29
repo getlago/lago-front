@@ -3,7 +3,10 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import { ReactNode } from 'react'
 
 import { LocalFixedChargeInput } from '~/components/plans/types'
-import { FixedChargeChargeModelEnum, UpdateSubscriptionFixedChargeDocument } from '~/generated/graphql'
+import {
+  FixedChargeChargeModelEnum,
+  UpdateSubscriptionFixedChargeDocument,
+} from '~/generated/graphql'
 
 import { useSubscriptionFixedChargeMutations } from '../useSubscriptionFixedChargeMutations'
 

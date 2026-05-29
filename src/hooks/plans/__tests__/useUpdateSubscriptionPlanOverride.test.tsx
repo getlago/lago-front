@@ -34,7 +34,8 @@ describe('useUpdateSubscriptionPlanOverride', () => {
     }
 
     const { result } = renderHook(
-      () => useUpdateSubscriptionPlanOverride({ subscriptionId: SUB_ID, currency: CurrencyEnum.Usd }),
+      () =>
+        useUpdateSubscriptionPlanOverride({ subscriptionId: SUB_ID, currency: CurrencyEnum.Usd }),
       { wrapper: wrapper([mock]) },
     )
 
@@ -43,7 +44,11 @@ describe('useUpdateSubscriptionPlanOverride', () => {
     })
 
     await waitFor(() => expect(captured).toBeDefined())
-    expect((captured as { planOverrides?: { description?: string } }).planOverrides?.description).toBe('Edited')
-    expect((captured as { planOverrides?: { charges?: unknown } }).planOverrides?.charges).toBeUndefined()
+    expect(
+      (captured as { planOverrides?: { description?: string } }).planOverrides?.description,
+    ).toBe('Edited')
+    expect(
+      (captured as { planOverrides?: { charges?: unknown } }).planOverrides?.charges,
+    ).toBeUndefined()
   })
 })
