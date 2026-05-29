@@ -27,6 +27,7 @@ import { FeatureEntitlementSection } from '~/components/subscriptions/FeatureEnt
 import { buildSubscriptionDefaultValues } from '~/components/subscriptions/form/buildSubscriptionDefaultValues'
 import { SubscriptionInformationFormSection } from '~/components/subscriptions/form/SubscriptionInformationFormSection'
 import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
+import { SubscriptionActivationRuleSection } from '~/components/subscriptions/SubscriptionActivationRuleSection'
 import { SubscriptionInvoiceConsolidationSection } from '~/components/subscriptions/SubscriptionInvoiceConsolidationSection'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
@@ -39,6 +40,7 @@ import {
   useLocation,
   useNavigate,
 } from '~/core/router'
+import { serializeActivationRules } from '~/core/serializers'
 import { getTimezoneConfig } from '~/core/timezone'
 import { subscriptionFormSchema } from '~/formValidation/subscriptionFormSchema'
 import {
@@ -91,6 +93,7 @@ gql`
       billingEntity {
         id
       }
+      paymentProvider
     }
   }
 
@@ -151,11 +154,20 @@ const CreateSubscription = () => {
       onDynamic: subscriptionFormSchema,
     },
     onSubmit: async ({ value }) => {
-      const { invoiceCustomSection, ...restValues } = value
+      const {
+        activationRuleTimeoutHours,
+        activationRuleType,
+        invoiceCustomSection,
+        ...restValues
+      } = value
 
       const localValues = {
         id: formType === FORM_TYPE_ENUM.edition ? subscription?.id : undefined,
         ...restValues,
+        activationRules: serializeActivationRules({
+          activationRuleTimeoutHours,
+          activationRuleType,
+        }),
         invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
       }
       const rootElement = document.getElementById('root')
@@ -293,6 +305,21 @@ const CreateSubscription = () => {
     )
   }, [subscription?.name, formType])
 
+  useEffect(() => {
+    if (!customerId || !subscription?.id || subscription.status !== StatusTypeEnum.Incomplete) {
+      return
+    }
+
+    navigate(
+      generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+        customerId,
+        subscriptionId: subscription.id,
+        tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+      }),
+      { replace: true },
+    )
+  }, [customerId, navigate, subscription?.id, subscription?.status])
+
   // Remove currency error is value changes
   useEffect(() => {
     setShowCurrencyError(false)
@@ -385,6 +412,9 @@ const CreateSubscription = () => {
   ])
 
   const customerName = customer?.displayName
+  const shouldDisplayActivationRuleSection =
+    !!(customer?.externalId || customer?.id) &&
+    (hasAccessToMultiPaymentFlow || !!customer?.paymentProvider)
 
   const navigateBack = useCallback(() => {
     const origin = searchParams.get('origin')
@@ -581,6 +611,16 @@ const CreateSubscription = () => {
                               setFieldValue: subscriptionForm.setFieldValue,
                             }}
                             viewType={ViewTypeEnum.Subscription}
+                          />
+                        )}
+
+                        {shouldDisplayActivationRuleSection && (
+                          <SubscriptionActivationRuleSection
+                            form={subscriptionForm}
+                            customerExternalId={customer?.externalId}
+                            customerHasPaymentProvider={!!customer?.paymentProvider}
+                            formType={formType}
+                            subscriptionStatus={subscription?.status}
                           />
                         )}
                       </CenteredPage.PageSection>

@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
+import { ActivationRuleFormTypeEnum } from '~/core/constants/subscriptionActivationRules'
 import { BillingTimeEnum } from '~/generated/graphql'
 
 export interface SubscriptionFormValues {
@@ -16,6 +17,8 @@ export interface SubscriptionFormValues {
   invoiceCustomSection?: InvoiceCustomSectionInput
   billingEntityId?: string
   consolidateInvoice: boolean
+  activationRuleType?: ActivationRuleFormTypeEnum
+  activationRuleTimeoutHours?: string
 }
 
 export const subscriptionFormSchema = z
@@ -35,6 +38,23 @@ export const subscriptionFormSchema = z
         message: 'text_624ea7c29103fd010732ab7d',
         path: ['subscriptionAt'],
       })
+    }
+
+    if (data.activationRuleType === ActivationRuleFormTypeEnum.OnPayment) {
+      const timeoutHours = Number(data.activationRuleTimeoutHours)
+
+      if (
+        data.activationRuleTimeoutHours === undefined ||
+        data.activationRuleTimeoutHours === '' ||
+        !Number.isInteger(timeoutHours) ||
+        timeoutHours < 0
+      ) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'text_1779882021466eoq8jjhfteu',
+          path: ['activationRuleTimeoutHours'],
+        })
+      }
     }
 
     if (!data.endingAt) return
