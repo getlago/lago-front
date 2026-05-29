@@ -72,4 +72,61 @@ describe('WalletInformations', () => {
 
     expect(screen.getByTestId(WALLET_INFORMATIONS_NO_RECURRING_TEST_ID)).toBeInTheDocument()
   })
+
+  it('GIVEN a target recurring rule with grantsTargetTopUp false WHEN rendered THEN should show the paid top-up type', () => {
+    render(
+      <WalletInformations
+        wallet={createMockWallet({
+          recurringTransactionRules: [
+            {
+              method: 'target',
+              trigger: 'threshold',
+              grantsTargetTopUp: false,
+            },
+          ],
+        })}
+      />,
+    )
+
+    expect(screen.getByText('text_178004748320594nw5fau04a')).toBeInTheDocument()
+    expect(screen.queryByText('text_17800474832056s97uz7bjy7')).not.toBeInTheDocument()
+  })
+
+  it('GIVEN a target recurring rule with grantsTargetTopUp true WHEN rendered THEN should show the free top-up type', () => {
+    render(
+      <WalletInformations
+        wallet={createMockWallet({
+          recurringTransactionRules: [
+            {
+              method: 'target',
+              trigger: 'threshold',
+              grantsTargetTopUp: true,
+            },
+          ],
+        })}
+      />,
+    )
+
+    expect(screen.getByText('text_17800474832056s97uz7bjy7')).toBeInTheDocument()
+    expect(screen.queryByText('text_178004748320594nw5fau04a')).not.toBeInTheDocument()
+  })
+
+  it('GIVEN a fixed recurring rule with grantsTargetTopUp null WHEN rendered THEN should show neither paid nor free', () => {
+    render(
+      <WalletInformations
+        wallet={createMockWallet({
+          recurringTransactionRules: [
+            {
+              method: 'fixed',
+              trigger: 'threshold',
+              grantsTargetTopUp: null,
+            },
+          ],
+        })}
+      />,
+    )
+
+    expect(screen.queryByText('text_178004748320594nw5fau04a')).not.toBeInTheDocument()
+    expect(screen.queryByText('text_17800474832056s97uz7bjy7')).not.toBeInTheDocument()
+  })
 })

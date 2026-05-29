@@ -82,6 +82,7 @@ gql`
       transactionName
       paidCredits
       grantedCredits
+      grantsTargetTopUp
       trigger
       thresholdCredits
       expirationAt

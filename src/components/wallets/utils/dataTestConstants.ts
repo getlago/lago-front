@@ -37,6 +37,7 @@ export const RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST =
   'recurring-ignore-paid-topup-limits-switch'
 export const RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST =
   'recurring-invoice-requires-successful-payment-switch'
+export const RECURRING_TOPUP_TYPE_DATA_TEST = 'recurring-topup-type'
 export const SHOW_RECURRING_EXPIRATION_AT_DATA_TEST = 'show-recurring-expiration-at'
 
 // SettingsSection

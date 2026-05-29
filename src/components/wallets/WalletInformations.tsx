@@ -76,6 +76,15 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
 
   const recurring = wallet?.recurringTransactionRules?.[0]
 
+  const recurringTopUpType =
+    recurring?.grantsTargetTopUp === null || recurring?.grantsTargetTopUp === undefined
+      ? '-'
+      : translate(
+          recurring.grantsTargetTopUp
+            ? 'text_17800474832056s97uz7bjy7'
+            : 'text_178004748320594nw5fau04a',
+        )
+
   const currency = wallet?.currency || defaultCurrency || CurrencyEnum.Usd
 
   const paidTopUpMinAmountCents = formatAmount(wallet?.paidTopUpMinAmountCents)
@@ -298,6 +307,10 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
                         : '-',
                     },
                   ]),
+              {
+                label: translate('text_1780047483204bk0fhgkeisn'),
+                value: recurringTopUpType,
+              },
               {
                 label: translate('text_1772536695408pz0actopowa'),
                 value: recurring?.expirationAt

@@ -81,6 +81,7 @@ gql`
     recurringTransactionRules {
       expirationAt
       grantedCredits
+      grantsTargetTopUp
       interval
       invoiceRequiresSuccessfulPayment
       lagoId
@@ -315,6 +316,7 @@ const CreateWallet = () => {
                 invoiceRequiresSuccessfulPayment,
                 paidCredits: rulePaidCredit,
                 grantedCredits: ruleGrantedCredit,
+                grantsTargetTopUp,
                 expirationAt,
                 ignorePaidTopUpLimits,
                 invoiceCustomSection: ruleInvoiceCustomSection,
@@ -347,6 +349,10 @@ const CreateWallet = () => {
                 paidCredits: rulePaidCredit === '' ? '0' : String(rulePaidCredit),
                 grantedCredits: ruleGrantedCredit === '' ? '0' : String(ruleGrantedCredit),
                 targetOngoingBalance: targetedBalance,
+                grantsTargetTopUp:
+                  method === RecurringTransactionMethodEnum.Target
+                    ? Boolean(grantsTargetTopUp)
+                    : null,
                 invoiceRequiresSuccessfulPayment,
                 ignorePaidTopUpLimits,
                 expirationAt: expirationAt === '' ? null : expirationAt,
