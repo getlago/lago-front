@@ -231,14 +231,24 @@ const CreateSubscription = () => {
   )
   const isEditingSubscription = formType === FORM_TYPE_ENUM.edition
 
-  // Default billingEntityId on first load:
+  // Default billingEntityId on first load only:
   // - edit / upgrade / downgrade flow → preserve the existing subscription's
   //   explicit entity (Decision 5.6: explicit bindings are sticky and must
   //   survive subscription mutations)
   // - pure creation flow → use the customer's current default entity
+  //
+  // Latched with a ref so the default fires *once* per mount. Without the
+  // latch, clearing the picker would immediately re-trigger the default
+  // because `subscriptionBillingEntityId` is back to falsy.
+  const hasInitializedBillingEntityDefaultRef = useRef(false)
+
   useEffect(() => {
     if (!hasMultiEntityBilling) return
-    if (subscriptionBillingEntityId) return
+    if (hasInitializedBillingEntityDefaultRef.current) return
+    if (subscriptionBillingEntityId) {
+      hasInitializedBillingEntityDefaultRef.current = true
+      return
+    }
     const hasExistingSubscription =
       formType === FORM_TYPE_ENUM.edition || formType === FORM_TYPE_ENUM.upgradeDowngrade
     const defaultEntityId =
@@ -247,6 +257,7 @@ const CreateSubscription = () => {
 
     if (defaultEntityId) {
       subscriptionForm.setFieldValue('billingEntityId', defaultEntityId)
+      hasInitializedBillingEntityDefaultRef.current = true
     }
   }, [
     hasMultiEntityBilling,
@@ -508,11 +519,11 @@ const CreateSubscription = () => {
                         label={translate('text_1743611497157teaa1zu8l24')}
                         value={subscriptionBillingEntityId}
                         onChange={(id) => subscriptionForm.setFieldValue('billingEntityId', id)}
-                        helperText={
+                        helperText={translate(
                           isEditingSubscription
-                            ? translate('text_1779457001221h9zixqumknp')
-                            : undefined
-                        }
+                            ? 'text_1779457001221h9zixqumknp'
+                            : 'text_17800541562349k15h7ik07c',
+                        )}
                       />
                     )}
 

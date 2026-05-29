@@ -94,7 +94,6 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
   ] = useGetCustomerOverdueBalancesLazyQuery({
     variables: {
       externalCustomerId: externalCustomerId || '',
-      currency,
     },
   })
   const [
@@ -103,7 +102,6 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
   ] = useGetCustomerGrossRevenuesLazyQuery({
     variables: {
       externalCustomerId: externalCustomerId || '',
-      currency,
     },
   })
 
@@ -112,7 +110,6 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
       variables: {
         expireCache: true,
         externalCustomerId: externalCustomerId || '',
-        currency,
       },
     })
 

@@ -304,7 +304,9 @@ export const useAddSubscription: UseAddSubscription = ({
                   customerId,
                   planId,
                   billingTime,
-                  billingEntityId: billingEntityId || undefined,
+                  // `null` (not `undefined`) on clear → BE stores NULL on the
+                  // subscription column, meaning "inherit from customer".
+                  billingEntityId: billingEntityId || null,
                   ...(!existingSubscription
                     ? {
                         subscriptionAt: DateTime.fromISO(subsDate).toUTC().toISO(),
@@ -339,7 +341,9 @@ export const useAddSubscription: UseAddSubscription = ({
                   subscriptionAt: subscriptionAtForUpdate,
                   endingAt: !!subEndDate ? DateTime.fromISO(subEndDate).toUTC().toISO() : null,
                   name: name ?? undefined,
-                  billingEntityId: billingEntityId || undefined,
+                  // `null` (not `undefined`) on clear → BE stores NULL on the
+                  // subscription column, meaning "inherit from customer".
+                  billingEntityId: billingEntityId || null,
                   paymentMethod: parsedPaymentMethod,
                   planOverrides: hasPlanBeingChangedFromInitial
                     ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput) }

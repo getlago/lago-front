@@ -378,7 +378,9 @@ const CreateWallet = () => {
           ...values,
           recurringTransactionRules: recurringTransactionRulesFormatted,
           id: walletId,
-          billingEntityId: billingEntityId || undefined,
+          // `null` (not `undefined`) on clear → BE stores NULL on the
+          // wallet column, meaning "inherit from customer".
+          billingEntityId: billingEntityId || null,
           appliesTo: formattedAppliesTo,
           paymentMethod,
           invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
@@ -415,7 +417,9 @@ const CreateWallet = () => {
         const input = {
           ...values,
           customerId,
-          billingEntityId: billingEntityId || undefined,
+          // `null` (not `undefined`) on clear → BE stores NULL on the
+          // wallet column, meaning "inherit from customer".
+          billingEntityId: billingEntityId || null,
           currency: valuesCurrency,
           rateAmount: String(rateAmount),
           grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),

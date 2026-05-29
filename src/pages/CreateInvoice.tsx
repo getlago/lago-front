@@ -76,6 +76,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
@@ -330,11 +331,17 @@ const CreateInvoice = () => {
     return invoiceFeesToFeeInput(prefillData?.invoice as Invoice)
   }, [prefillData?.invoice])
 
+  const { options: billingEntityOptions } = useBillingEntitiesOptions()
+  const [pickedBillingEntityId, setPickedBillingEntityId] = useState<string | undefined>(undefined)
+  const activeBillingEntityCode =
+    billingEntityOptions.find((o) => o.id === pickedBillingEntityId)?.value ??
+    customer?.billingEntity?.code
+
   const { data: billingEntityData } = useGetBillingEntityQuery({
     variables: {
-      code: customer?.billingEntity?.code as string,
+      code: activeBillingEntityCode as string,
     },
-    skip: !customer?.billingEntity?.code,
+    skip: !activeBillingEntityCode,
   })
 
   const billingEntity = billingEntityData?.billingEntity
@@ -707,7 +714,7 @@ const CreateInvoice = () => {
         <div className="mx-auto my-12 min-h-full max-w-5xl px-4">
           <Card
             className={tw('gap-8', {
-              'mb-12': hasAccessToMultiPaymentFlow || showBillingEntityPicker,
+              'mb-12': hasAccessToMultiPaymentFlow,
             })}
           >
             {loading ? (
@@ -771,6 +778,34 @@ const CreateInvoice = () => {
                     {translate('text_6453819268763979024ad01b')}
                   </Typography>
                   <Typography>{intlFormatDateTime(DateTime.now().toISO()).date}</Typography>
+                </div>
+
+                <div className="flex flex-row items-start gap-4">
+                  {showBillingEntityPicker && (
+                    <div className="w-80">
+                      <BillingEntityFormPicker
+                        label={translate('text_1743611497157teaa1zu8l24')}
+                        value={formikProps.values.billingEntityId}
+                        onChange={(id) => {
+                          formikProps.setFieldValue('billingEntityId', id)
+                          setPickedBillingEntityId(id)
+                        }}
+                        helperText={translate('text_17800541562349k15h7ik07c')}
+                      />
+                    </div>
+                  )}
+                  <div className="w-40">
+                    <ComboBoxField
+                      disableClearable
+                      data={Object.values(CurrencyEnum).map((currencyType) => ({
+                        value: currencyType,
+                      }))}
+                      disabled={!!customer?.currency && !hasMultiCurrency}
+                      formikProps={formikProps}
+                      label={translate('text_6453819268763979024ad057')}
+                      name="currency"
+                    />
+                  </div>
                 </div>
 
                 <div className={tw('flex gap-4', customerIsPartner && 'flex-row-reverse')}>
@@ -843,18 +878,6 @@ const CreateInvoice = () => {
                     )}
                   </div>
                 </div>
-
-                <ComboBoxField
-                  className="w-fit max-w-40"
-                  disableClearable
-                  data={Object.values(CurrencyEnum).map((currencyType) => ({
-                    value: currencyType,
-                  }))}
-                  disabled={!!customer?.currency && !hasMultiCurrency}
-                  formikProps={formikProps}
-                  label={translate('text_6453819268763979024ad057')}
-                  name="currency"
-                />
 
                 <div className="w-full">
                   <div className={tw(gridClassname, 'h-12 shadow-b [&>*]:flex [&>*]:items-center')}>
@@ -1259,20 +1282,6 @@ const CreateInvoice = () => {
               </>
             )}
           </Card>
-
-          {showBillingEntityPicker && (
-            <Card className={tw({ 'mb-12': hasAccessToMultiPaymentFlow })}>
-              <div className="flex flex-col gap-1">
-                <Typography variant="subhead1">
-                  {translate('text_1743611497157teaa1zu8l24')}
-                </Typography>
-              </div>
-              <BillingEntityFormPicker
-                value={formikProps.values.billingEntityId}
-                onChange={(id) => formikProps.setFieldValue('billingEntityId', id)}
-              />
-            </Card>
-          )}
 
           {hasAccessToMultiPaymentFlow && (customer?.externalId || customer?.id) && (
             <Card>

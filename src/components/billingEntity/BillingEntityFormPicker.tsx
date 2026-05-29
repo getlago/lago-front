@@ -45,7 +45,6 @@ export const BillingEntityFormPicker = ({
   return (
     <ComboBox
       data-test={BILLING_ENTITY_FORM_PICKER_DATA_TEST}
-      disableClearable
       sortValues={false}
       PopperProps={{ displayInDialog: true }}
       label={label}

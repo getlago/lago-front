@@ -70,6 +70,7 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
         label={translate('text_1743611497157teaa1zu8l24')}
         value={formikProps.values.billingEntityId}
         onChange={(id) => formikProps.setFieldValue('billingEntityId', id)}
+        helperText={translate('text_17800541562349k15h7ik07c')}
       />
 
       <TextInputField
