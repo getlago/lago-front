@@ -27,6 +27,7 @@ import { PlanDetailsV2SectionId } from './sidebarSections'
 gql`
   fragment FixedChargeForDetailsV2 on FixedCharge {
     id
+    code
     invoiceDisplayName
     chargeModel
     units
