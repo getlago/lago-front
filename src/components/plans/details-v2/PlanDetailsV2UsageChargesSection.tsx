@@ -25,10 +25,10 @@ import {
   VolumeRangesFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
 import { useChargeMutationsWithCascade } from '~/hooks/plans/useChargeMutationsWithCascade'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { toLocalUsageChargeInput } from '~/hooks/plans/utils'
-import { usePermissions } from '~/hooks/usePermissions'
 
 import { SectionAccordion } from './shared/SectionAccordion'
 import { SectionHeader } from './shared/SectionHeader'
@@ -147,13 +147,9 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
   Props
 >(({ plan, isInSubscriptionForm = false }, ref) => {
   const { translate } = useInternationalization()
-  const { hasPermissions } = usePermissions()
+  const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
   const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
   const drawerRef = useRef<UsageChargeDrawerRef>(null)
-
-  const canCreate = hasPermissions(['plansCreate']) && !isInSubscriptionForm
-  const canUpdate = hasPermissions(['plansUpdate']) && !isInSubscriptionForm
-  const canDelete = hasPermissions(['plansDelete']) && !isInSubscriptionForm
 
   const { handleSaveCharge, handleDeleteCharge } = useChargeMutationsWithCascade({
     planId: plan.id,

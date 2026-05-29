@@ -180,6 +180,51 @@ describe('useUpdatePlanWithCascade', () => {
     })
   })
 
+  it('applyAndSubmit runs the mutator after resetting and then submits', async () => {
+    const onSuccess = jest.fn()
+    const { result } = renderHook(
+      () =>
+        useUpdatePlanWithCascade({
+          plan: basePlan,
+          includeAdvancedFields: true,
+          onSuccess,
+        }),
+      { wrapper: wrapper([updateMock]) },
+    )
+
+    await act(async () => {
+      await result.current.applyAndSubmit(() => {
+        result.current.form.setFieldValue('name', 'Pro Renamed')
+      })
+    })
+
+    await waitFor(() => {
+      expect(onSuccess).toHaveBeenCalledTimes(1)
+    })
+    expect(result.current.form.state.values.name).toBe('Pro Renamed')
+  })
+
+  it('applyAndSubmit opens the cascade dialog when the plan has overridden subs', async () => {
+    const { result } = renderHook(
+      () =>
+        useUpdatePlanWithCascade({
+          plan: { ...basePlan, hasOverriddenPlans: true },
+          includeAdvancedFields: true,
+        }),
+      { wrapper: wrapper([updateMock]) },
+    )
+
+    act(() => {
+      void result.current.applyAndSubmit(() => {
+        result.current.form.setFieldValue('name', 'Pro Renamed')
+      })
+    })
+
+    await waitFor(() => {
+      expect(document.body.textContent).toContain('text_1729604107534r3hsj7i64gp')
+    })
+  })
+
   it('opens the cascade dialog when the plan has overridden subs', async () => {
     const { result } = renderHook(
       () =>

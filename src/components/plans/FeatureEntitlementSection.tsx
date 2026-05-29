@@ -6,6 +6,10 @@ import { Button } from '~/components/designSystem/Button'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
+  removeEntitlementByFeatureCode,
+  upsertEntitlement,
+} from '~/components/plans/drawers/featureEntitlement/entitlementHelpers'
+import {
   FeatureEntitlementDrawer,
   FeatureEntitlementDrawerRef,
   FeatureEntitlementFormValues,
@@ -58,24 +62,15 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({ 
   const entitlements = useStore(form.store, (s) => s.values.entitlements)
 
   const handleDrawerSave = (values: FeatureEntitlementFormValues) => {
-    const current = form.state.values.entitlements || []
-    const existingIndex = current.findIndex((e) => e.featureCode === values.featureCode)
-    const newFeatureObject = {
-      featureId: values.featureId,
-      featureName: values.featureName,
-      featureCode: values.featureCode,
-      privileges: values.privileges,
-    }
-
-    const updated = [...current]
-
-    if (existingIndex >= 0) {
-      updated[existingIndex] = newFeatureObject
-    } else {
-      updated.push(newFeatureObject)
-    }
-
-    form.setFieldValue('entitlements', updated)
+    form.setFieldValue(
+      'entitlements',
+      upsertEntitlement(form.state.values.entitlements, {
+        featureId: values.featureId,
+        featureName: values.featureName,
+        featureCode: values.featureCode,
+        privileges: values.privileges,
+      }),
+    )
   }
 
   return (
@@ -116,8 +111,9 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({ 
                         onClick: () => {
                           form.setFieldValue(
                             'entitlements',
-                            form.state.values.entitlements.filter(
-                              (e) => e.featureCode !== entitlement.featureCode,
+                            removeEntitlementByFeatureCode(
+                              form.state.values.entitlements,
+                              entitlement.featureCode,
                             ),
                           )
                         },
@@ -154,7 +150,7 @@ export const FeatureEntitlementSection: FC<FeatureEntitlementSectionProps> = ({ 
         onDelete={(featureCode) => {
           form.setFieldValue(
             'entitlements',
-            form.state.values.entitlements.filter((e) => e.featureCode !== featureCode),
+            removeEntitlementByFeatureCode(form.state.values.entitlements, featureCode),
           )
         }}
       />

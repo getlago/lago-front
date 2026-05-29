@@ -1,25 +1,22 @@
 import { useRef } from 'react'
 
 import { Chip } from '~/components/designSystem/Chip'
+import { mapCommitmentToDrawerValues } from '~/components/plans/drawers/minimumCommitment/mapToDrawerValues'
 import {
   MinimumCommitmentDrawer,
   MinimumCommitmentDrawerRef,
   MinimumCommitmentFormValues,
 } from '~/components/plans/drawers/minimumCommitment/MinimumCommitmentDrawer'
 import { MinimumCommitmentInfo } from '~/components/plans/MinimumCommitmentInfo'
+import { MinimumCommitmentPremiumGate } from '~/components/plans/MinimumCommitmentPremiumGate'
 import { mapChargeIntervalCopy } from '~/components/plans/utils'
-import PremiumFeature from '~/components/premium/PremiumFeature'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { getIntervalTranslationKey } from '~/core/constants/form'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CommitmentTypeEnum, CurrencyEnum, PlanDetailsV2Fragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import {
-  buildUpdatePlanFormDefaults,
-  useUpdatePlanWithCascade,
-} from '~/hooks/plans/useUpdatePlanWithCascade'
+import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
+import { useUpdatePlanWithCascade } from '~/hooks/plans/useUpdatePlanWithCascade'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { usePermissions } from '~/hooks/usePermissions'
 
 import { SectionAccordion } from '../shared/SectionAccordion'
 import { SectionHeader } from '../shared/SectionHeader'
@@ -36,24 +33,17 @@ export const MinimumCommitmentAccordion = ({
 }: MinimumCommitmentAccordionProps) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
-  const { hasPermissions } = usePermissions()
+  const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
   const drawerRef = useRef<MinimumCommitmentDrawerRef>(null)
-
-  const canCreate = hasPermissions(['plansCreate']) && !isInSubscriptionForm
-  const canUpdate = hasPermissions(['plansUpdate']) && !isInSubscriptionForm
-  const canDelete = hasPermissions(['plansDelete']) && !isInSubscriptionForm
 
   const currency = plan.amountCurrency || CurrencyEnum.Usd
   const commitment = plan.minimumCommitment
   const hasCommitment = !!commitment?.amountCents && !isNaN(Number(commitment.amountCents))
 
-  const { form, submit } = useUpdatePlanWithCascade({ plan, includeAdvancedFields: true })
-
-  const applyAndSubmit = (mutate: () => void): Promise<boolean> => {
-    form.reset(buildUpdatePlanFormDefaults(plan), { keepDefaultValues: true })
-    mutate()
-    return submit()
-  }
+  const { form, applyAndSubmit } = useUpdatePlanWithCascade({
+    plan,
+    includeAdvancedFields: true,
+  })
 
   const handleSave = (values: MinimumCommitmentFormValues): Promise<boolean> =>
     applyAndSubmit(() =>
@@ -67,13 +57,9 @@ export const MinimumCommitmentAccordion = ({
     applyAndSubmit(() => form.setFieldValue('minimumCommitment', {}))
 
   const openEditDrawer = () =>
-    drawerRef.current?.openDrawer({
-      amountCents: commitment?.amountCents
-        ? String(deserializeAmount(commitment.amountCents, currency))
-        : '',
-      invoiceDisplayName: commitment?.invoiceDisplayName || undefined,
-      taxes: commitment?.taxes || [],
-    })
+    drawerRef.current?.openDrawer(
+      mapCommitmentToDrawerValues(commitment, { deserialize: true, currency }),
+    )
 
   const intervalBadge = plan.interval ? (
     <Chip label={translate(getIntervalTranslationKey[plan.interval])} />
@@ -96,13 +82,7 @@ export const MinimumCommitmentAccordion = ({
         }}
       />
 
-      {!isPremium && !hasCommitment && (
-        <PremiumFeature
-          title={translate('text_17700400130439xuo82ha60n')}
-          description={translate('text_1770040013043awgs0eemonf')}
-          feature={translate('text_65d601bffb11e0f9d1d9f569')}
-        />
-      )}
+      {!isPremium && !hasCommitment && <MinimumCommitmentPremiumGate />}
 
       {hasCommitment && (
         <SectionAccordion

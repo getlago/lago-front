@@ -12,8 +12,8 @@ import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { PlanDetailsV2Fragment, PlanForUpdateWithCascadeFragmentDoc } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
 import { useUpdatePlanWithCascade } from '~/hooks/plans/useUpdatePlanWithCascade'
-import { usePermissions } from '~/hooks/usePermissions'
 
 import { SectionAccordion } from './shared/SectionAccordion'
 import { PlanDetailsV2SectionId } from './sidebarSections'
@@ -42,10 +42,8 @@ export const SubscriptionFeeAccordion = ({
   isInSubscriptionForm = false,
 }: SubscriptionFeeAccordionProps) => {
   const { translate } = useInternationalization()
-  const { hasPermissions } = usePermissions()
+  const { canUpdate } = useAccordionPermissions(isInSubscriptionForm)
   const drawerRef = useRef<SubscriptionFeeDrawerRef>(null)
-
-  const canUpdate = hasPermissions(['plansUpdate']) && !isInSubscriptionForm
 
   const { form, submit } = useUpdatePlanWithCascade({ plan })
 
