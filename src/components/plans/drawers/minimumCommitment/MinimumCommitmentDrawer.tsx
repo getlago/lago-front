@@ -45,7 +45,7 @@ export interface MinimumCommitmentDrawerRef {
 }
 
 interface MinimumCommitmentDrawerProps {
-  onSave: (values: MinimumCommitmentFormValues) => void
+  onSave: (values: MinimumCommitmentFormValues) => void | boolean | Promise<void | boolean>
   onDelete?: () => void
 }
 
@@ -64,12 +64,15 @@ export const MinimumCommitmentDrawer = forwardRef<
     validators: {
       onDynamic: minimumCommitmentSchema,
     },
-    onSubmit: ({ value }) => {
-      onSave({
+    onSubmit: async ({ value }) => {
+      const result = await onSave({
         ...value,
         invoiceDisplayName: value.invoiceDisplayName || undefined,
       })
-      minimumCommitmentDrawer.close()
+
+      if (result !== false) {
+        minimumCommitmentDrawer.close()
+      }
     },
   })
 

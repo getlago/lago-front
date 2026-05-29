@@ -3,7 +3,7 @@ import {
   LocalPricingUnitType,
   PlanFormInput,
 } from '~/components/plans/types'
-import { ChargeFilterInput, ChargeModelEnum, Properties } from '~/generated/graphql'
+import { ChargeFilterInput, ChargeModelEnum, CurrencyEnum, Properties } from '~/generated/graphql'
 
 import { serializeAmount } from './serializeAmount'
 
@@ -125,6 +125,61 @@ export const serializeProperties = (properties: Properties, chargeModel: ChargeM
   }
 }
 
+export const serializeMinimumCommitment = (
+  minimumCommitment: PlanFormInput['minimumCommitment'],
+  currency: CurrencyEnum,
+) =>
+  !!minimumCommitment && !!Object.keys(minimumCommitment).length
+    ? {
+        ...minimumCommitment,
+        amountCents: Number(serializeAmount(minimumCommitment.amountCents, currency)),
+        taxCodes: minimumCommitment.taxes?.map(({ code }) => code) || [],
+        taxes: undefined,
+      }
+    : {}
+
+export const serializeUsageThresholds = (
+  nonRecurringUsageThresholds: PlanFormInput['nonRecurringUsageThresholds'],
+  recurringUsageThreshold: PlanFormInput['recurringUsageThreshold'],
+  currency: CurrencyEnum,
+) =>
+  !!nonRecurringUsageThresholds?.length || !!recurringUsageThreshold
+    ? [
+        ...(nonRecurringUsageThresholds ?? []).map(
+          ({ amountCents, recurring, thresholdDisplayName }) => ({
+            recurring: !!recurring,
+            thresholdDisplayName: thresholdDisplayName ?? null,
+            amountCents: Number(serializeAmount(amountCents, currency)),
+          }),
+        ),
+        ...(recurringUsageThreshold
+          ? [
+              {
+                recurring: !!recurringUsageThreshold.recurring,
+                thresholdDisplayName: recurringUsageThreshold.thresholdDisplayName ?? null,
+                amountCents: Number(serializeAmount(recurringUsageThreshold.amountCents, currency)),
+              },
+            ]
+          : []),
+      ]
+    : undefined
+
+export const serializeEntitlements = (entitlements: PlanFormInput['entitlements']) =>
+  entitlements.map(({ privileges, ...entitlement }) => ({
+    ...entitlement,
+    // Not needed in the backend, only FE display purpose
+    featureId: undefined,
+    featureName: undefined,
+    privileges: privileges.map(({ ...privilege }) => ({
+      ...privilege,
+      // Not needed in the backend, only FE display purpose
+      privilegeName: undefined,
+      valueType: undefined,
+      config: undefined,
+      id: undefined,
+    })),
+  }))
+
 export const serializePlanInput = (values: PlanFormInput) => {
   const {
     amountCents,
@@ -144,20 +199,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
     amountCents: Number(serializeAmount(amountCents, values.amountCurrency)),
     trialPeriod: Number(trialPeriod || 0),
     taxCodes: planTaxes?.map(({ code }) => code) || [],
-    entitlements: entitlements.map(({ privileges, ...entitlement }) => ({
-      ...entitlement,
-      // Not needed in the backend, only FE display purpose
-      featureId: undefined,
-      featureName: undefined,
-      privileges: privileges.map(({ ...privilege }) => ({
-        ...privilege,
-        // Not needed in the backend, only FE display purpose
-        privilegeName: undefined,
-        valueType: undefined,
-        config: undefined,
-        id: undefined,
-      })),
-    })),
+    entitlements: serializeEntitlements(entitlements),
     fixedCharges: fixedCharges.map(({ addOn, ...fixedCharge }) => ({
       ...fixedCharge,
       addOnId: addOn.id,
@@ -177,47 +219,12 @@ export const serializePlanInput = (values: PlanFormInput) => {
         freeUnits: undefined,
       },
     })),
-    minimumCommitment:
-      !!minimumCommitment && !!Object.keys(minimumCommitment).length
-        ? {
-            ...minimumCommitment,
-            amountCents: Number(
-              serializeAmount(minimumCommitment.amountCents, values.amountCurrency),
-            ),
-            taxCodes: minimumCommitment.taxes?.map(({ code }) => code) || [],
-            // Reset tax array used for display purpose
-            taxes: undefined,
-          }
-        : {},
-    usageThresholds:
-      !!nonRecurringUsageThresholds?.length || !!recurringUsageThreshold
-        ? [
-            ...(nonRecurringUsageThresholds ?? []).map(
-              ({
-                amountCents: nonRecurringThresholdAmountCents,
-                recurring,
-                thresholdDisplayName,
-              }) => ({
-                recurring: !!recurring,
-                thresholdDisplayName: thresholdDisplayName ?? null,
-                amountCents: Number(
-                  serializeAmount(nonRecurringThresholdAmountCents, values.amountCurrency),
-                ),
-              }),
-            ),
-            ...(recurringUsageThreshold
-              ? [
-                  {
-                    recurring: !!recurringUsageThreshold.recurring,
-                    thresholdDisplayName: recurringUsageThreshold.thresholdDisplayName ?? null,
-                    amountCents: Number(
-                      serializeAmount(recurringUsageThreshold.amountCents, values.amountCurrency),
-                    ),
-                  },
-                ]
-              : []),
-          ]
-        : undefined,
+    minimumCommitment: serializeMinimumCommitment(minimumCommitment, values.amountCurrency),
+    usageThresholds: serializeUsageThresholds(
+      nonRecurringUsageThresholds,
+      recurringUsageThreshold,
+      values.amountCurrency,
+    ),
     charges: charges.map(
       ({
         billableMetric,

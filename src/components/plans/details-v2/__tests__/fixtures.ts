@@ -1,9 +1,11 @@
 import {
   ChargeModelEnum,
+  CommitmentTypeEnum,
   CurrencyEnum,
   FixedChargeChargeModelEnum,
   PlanDetailsV2Fragment,
   PlanInterval,
+  PrivilegeValueTypeEnum,
 } from '~/generated/graphql'
 
 export const PLAN_DETAILS_V2_FIXTURE_ID = 'plan_1'
@@ -70,4 +72,37 @@ export const planDetailsV2Fixture: PlanDetailsV2Fragment & { __typename: 'Plan' 
   taxes: [],
   fixedCharges: [],
   charges: [],
+  minimumCommitment: {
+    __typename: 'Commitment',
+    amountCents: 5000,
+    commitmentType: CommitmentTypeEnum.MinimumCommitment,
+    invoiceDisplayName: null,
+    taxes: [],
+  },
+  usageThresholds: [
+    {
+      __typename: 'UsageThreshold',
+      id: 'ut-1',
+      amountCents: 10000,
+      recurring: false,
+      thresholdDisplayName: null,
+    },
+  ],
+  entitlements: [
+    {
+      __typename: 'PlanEntitlement',
+      code: 'seats',
+      name: 'Seats',
+      privileges: [
+        {
+          __typename: 'PlanEntitlementPrivilegeObject',
+          code: 'max_seats',
+          name: null,
+          value: '10',
+          valueType: PrivilegeValueTypeEnum.Integer,
+          config: { __typename: 'PrivilegeConfigObject', selectOptions: null },
+        },
+      ],
+    },
+  ],
 }
