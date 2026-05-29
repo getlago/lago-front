@@ -1,4 +1,4 @@
-import { OrderTypeEnum } from '~/generated/graphql'
+import { CurrencyEnum, OrderTypeEnum } from '~/generated/graphql'
 
 import { createQuoteSchema } from '../validationSchema'
 
@@ -100,5 +100,58 @@ describe('createQuoteSchema', () => {
     })
 
     expect(result.success).toBe(true)
+  })
+
+  describe('GIVEN the currency field', () => {
+    describe('WHEN a valid CurrencyEnum value is provided', () => {
+      it('THEN should pass validation', () => {
+        const result = createQuoteSchema.safeParse({
+          customerId: 'customer-123',
+          orderType: OrderTypeEnum.OneOff,
+          subscriptionId: '',
+          currency: CurrencyEnum.Usd,
+        })
+
+        expect(result.success).toBe(true)
+      })
+    })
+
+    describe('WHEN currency is omitted', () => {
+      it('THEN should pass validation (optional field)', () => {
+        const result = createQuoteSchema.safeParse({
+          customerId: 'customer-123',
+          orderType: OrderTypeEnum.OneOff,
+          subscriptionId: '',
+        })
+
+        expect(result.success).toBe(true)
+      })
+    })
+
+    describe('WHEN currency is undefined', () => {
+      it('THEN should pass validation', () => {
+        const result = createQuoteSchema.safeParse({
+          customerId: 'customer-123',
+          orderType: OrderTypeEnum.OneOff,
+          subscriptionId: '',
+          currency: undefined,
+        })
+
+        expect(result.success).toBe(true)
+      })
+    })
+
+    describe('WHEN an invalid currency value is provided', () => {
+      it('THEN should fail validation', () => {
+        const result = createQuoteSchema.safeParse({
+          customerId: 'customer-123',
+          orderType: OrderTypeEnum.OneOff,
+          subscriptionId: '',
+          currency: 'INVALID_CURRENCY',
+        })
+
+        expect(result.success).toBe(false)
+      })
+    })
   })
 })

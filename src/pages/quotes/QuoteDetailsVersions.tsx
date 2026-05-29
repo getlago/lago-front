@@ -97,7 +97,7 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
   }
 
   return (
-    <DetailsPage.Container className="gap-12 pt-12">
+    <DetailsPage.Container className="max-w-full gap-12 pt-12">
       <section className="flex flex-col gap-4 pb-12 shadow-b">
         <div className="flex flex-col gap-2">
           <Typography variant="subhead1">{translate('text_17757493673753qivx6ijtc0')}</Typography>
