@@ -41,17 +41,15 @@ export const useSubscriptionFixedChargeMutations = ({ subscriptionId }: Args) =>
     applyUnitsImmediately: charge.applyUnitsImmediately ?? false,
   })
 
-  // index is ignored — the sub tab edits only (no create/delete).
-  const handleSaveCharge = async (
-    charge: LocalFixedChargeInput,
-    _index: number | null,
-  ): Promise<boolean> => {
+  // Sub tab edits only (no create/delete), so the shared handler's index arg is
+  // unused here — a narrower-arity fn stays assignable to FixedChargeMutations.
+  const handleSaveCharge = async (charge: LocalFixedChargeInput): Promise<boolean> => {
     await updateSubscriptionFixedCharge({ variables: { input: buildInput(charge) } })
     return true
   }
 
-  // Delete is hidden on the sub tab; provide a no-op for the shared handler shape.
-  const handleDeleteCharge = async (_chargeId: string): Promise<boolean> => false
+  // Delete is hidden on the sub tab; no-op to satisfy the shared handler shape.
+  const handleDeleteCharge = async (): Promise<boolean> => false
 
   return { handleSaveCharge, handleDeleteCharge }
 }

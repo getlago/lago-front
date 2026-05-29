@@ -64,7 +64,7 @@ describe('useSubscriptionFixedChargeMutations', () => {
     )
 
     await act(async () => {
-      await result.current.handleSaveCharge(buildCharge(), 0)
+      await result.current.handleSaveCharge(buildCharge())
     })
 
     await waitFor(() => expect(called).toBe(true))
