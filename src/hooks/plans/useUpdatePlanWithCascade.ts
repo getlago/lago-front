@@ -3,10 +3,18 @@ import { revalidateLogic } from '@tanstack/react-form'
 
 import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
 import { PlanFormInput } from '~/components/plans/types'
-import { serializeAmount } from '~/core/serializers/serializeAmount'
+import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
+import {
+  serializeEntitlements,
+  serializeMinimumCommitment,
+  serializeUsageThresholds,
+} from '~/core/serializers/serializePlanInput'
 import { planSettingsOnlyFormSchema } from '~/formValidation/planFormSchema'
 import {
+  CurrencyEnum,
+  FeatureEntitlementPrivilegeForPlanFragmentDoc,
   PlanDetailsV2Fragment,
+  TaxForPlanAndChargesInPlanFormFragmentDoc,
   TaxForPlanSettingsSectionFragmentDoc,
   UpdatePlanInput,
 } from '~/generated/graphql'
@@ -35,18 +43,46 @@ gql`
     charges {
       id
     }
+    trialPeriod
+    payInAdvance
+    amountCents
+    minimumCommitment {
+      amountCents
+      commitmentType
+      invoiceDisplayName
+      taxes {
+        ...TaxForPlanAndChargesInPlanForm
+      }
+    }
+    usageThresholds {
+      id
+      amountCents
+      recurring
+      thresholdDisplayName
+    }
+    entitlements {
+      code
+      name
+      privileges {
+        ...FeatureEntitlementPrivilegeForPlan
+      }
+    }
   }
 
   ${TaxForPlanSettingsSectionFragmentDoc}
+  ${TaxForPlanAndChargesInPlanFormFragmentDoc}
+  ${FeatureEntitlementPrivilegeForPlanFragmentDoc}
 `
 
 type UseUpdatePlanWithCascadeOptions = {
   plan: PlanDetailsV2Fragment
   onSuccess?: () => void
+  includeAdvancedFields?: boolean
 }
 
 export const buildUpdatePlanFormDefaults = (plan: PlanDetailsV2Fragment): PlanFormInput => {
   const settingsDefaults = buildPlanSettingsValues(plan)
+  const currency = plan.amountCurrency ?? CurrencyEnum.Usd
 
   return {
     ...settingsDefaults,
@@ -57,18 +93,54 @@ export const buildUpdatePlanFormDefaults = (plan: PlanDetailsV2Fragment): PlanFo
     fixedCharges: settingsDefaults.fixedCharges as unknown as PlanFormInput['fixedCharges'],
     charges: settingsDefaults.charges as unknown as PlanFormInput['charges'],
     amountCents: '0',
-    trialPeriod: 0,
-    payInAdvance: false,
-    minimumCommitment: {},
-    entitlements: [],
-    nonRecurringUsageThresholds: undefined,
-    recurringUsageThreshold: undefined,
-    invoiceDisplayName: undefined,
+    trialPeriod: plan.trialPeriod ?? 0,
+    payInAdvance: plan.payInAdvance ?? false,
+    invoiceDisplayName: plan.invoiceDisplayName ?? undefined,
+    minimumCommitment: plan.minimumCommitment
+      ? {
+          ...plan.minimumCommitment,
+          amountCents: String(deserializeAmount(plan.minimumCommitment.amountCents ?? 0, currency)),
+        }
+      : {},
+    nonRecurringUsageThresholds:
+      plan.usageThresholds && plan.usageThresholds.length > 0
+        ? plan.usageThresholds
+            .filter(({ recurring }) => !recurring)
+            .map((threshold) => ({
+              ...threshold,
+              amountCents: deserializeAmount(threshold.amountCents ?? 0, currency),
+            }))
+            .sort((a, b) => a.amountCents - b.amountCents)
+        : undefined,
+    recurringUsageThreshold: plan.usageThresholds
+      ?.map((threshold) => ({
+        ...threshold,
+        amountCents: deserializeAmount(threshold.amountCents ?? 0, currency),
+      }))
+      .find(({ recurring }) => !!recurring),
+    entitlements:
+      plan.entitlements?.map(({ code, privileges, name, ...rest }) => ({
+        featureName: name || '',
+        featureCode: code,
+        privileges: privileges.map(
+          ({ code: privilegeCode, name: privilegeName, value, ...restPrivilege }) => ({
+            privilegeCode,
+            privilegeName,
+            value: value || '',
+            ...restPrivilege,
+          }),
+        ),
+        ...rest,
+      })) || [],
     cascadeUpdates: undefined,
   }
 }
 
-export const useUpdatePlanWithCascade = ({ plan, onSuccess }: UseUpdatePlanWithCascadeOptions) => {
+export const useUpdatePlanWithCascade = ({
+  plan,
+  onSuccess,
+  includeAdvancedFields = false,
+}: UseUpdatePlanWithCascadeOptions) => {
   const { translate } = useInternationalization()
   const { openCascadeDialog } = useCascadeFormDialog()
 
@@ -101,6 +173,20 @@ export const useUpdatePlanWithCascade = ({ plan, onSuccess }: UseUpdatePlanWithC
         billFixedChargesMonthly: value.billFixedChargesMonthly,
         taxCodes: value.taxes?.map((tax) => tax.code) ?? [],
         cascadeUpdates: value.cascadeUpdates,
+        ...(includeAdvancedFields
+          ? {
+              minimumCommitment: serializeMinimumCommitment(
+                value.minimumCommitment,
+                value.amountCurrency,
+              ),
+              usageThresholds: serializeUsageThresholds(
+                value.nonRecurringUsageThresholds,
+                value.recurringUsageThreshold,
+                value.amountCurrency,
+              ),
+              entitlements: serializeEntitlements(value.entitlements),
+            }
+          : {}),
       }
 
       await update({ variables: { input } })
@@ -124,5 +210,11 @@ export const useUpdatePlanWithCascade = ({ plan, onSuccess }: UseUpdatePlanWithC
     return true
   }
 
-  return { form, submit }
+  const applyAndSubmit = (mutate: () => void): Promise<boolean> => {
+    form.reset(buildUpdatePlanFormDefaults(plan), { keepDefaultValues: true })
+    mutate()
+    return submit()
+  }
+
+  return { form, submit, applyAndSubmit }
 }

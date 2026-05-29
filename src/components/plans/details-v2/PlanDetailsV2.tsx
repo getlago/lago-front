@@ -4,12 +4,14 @@ import { useRef } from 'react'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
   LagoApiError,
+  PlanForDetailsV2AdvancedSectionFragmentDoc,
   PlanForDetailsV2FixedChargesSectionFragmentDoc,
   PlanForDetailsV2PlanSettingsSectionFragmentDoc,
   PlanForDetailsV2UsageChargesSectionFragmentDoc,
   useGetPlanForDetailsV2Query,
 } from '~/generated/graphql'
 
+import { PlanDetailsV2AdvancedSection } from './PlanDetailsV2AdvancedSection'
 import {
   PlanDetailsV2FixedChargesSection,
   PlanDetailsV2FixedChargesSectionRef,
@@ -28,6 +30,7 @@ gql`
     ...PlanForDetailsV2PlanSettingsSection
     ...PlanForDetailsV2FixedChargesSection
     ...PlanForDetailsV2UsageChargesSection
+    ...PlanForDetailsV2AdvancedSection
   }
 
   query getPlanForDetailsV2($planId: ID!) {
@@ -39,6 +42,7 @@ gql`
   ${PlanForDetailsV2PlanSettingsSectionFragmentDoc}
   ${PlanForDetailsV2FixedChargesSectionFragmentDoc}
   ${PlanForDetailsV2UsageChargesSectionFragmentDoc}
+  ${PlanForDetailsV2AdvancedSectionFragmentDoc}
 `
 
 const TOP_LEVEL_SECTION_IDS: PlanDetailsV2SectionId[] = [
@@ -46,17 +50,6 @@ const TOP_LEVEL_SECTION_IDS: PlanDetailsV2SectionId[] = [
   PlanDetailsV2SectionId.FixedCharges,
   PlanDetailsV2SectionId.UsageCharges,
 ]
-
-const ADVANCED_CHILD_SECTION_IDS: PlanDetailsV2SectionId[] = [
-  PlanDetailsV2SectionId.MinimumCommitment,
-  PlanDetailsV2SectionId.ProgressiveBilling,
-  PlanDetailsV2SectionId.Entitlements,
-]
-
-const SUB_FLOW_HIDDEN_SECTIONS = new Set<PlanDetailsV2SectionId>([
-  PlanDetailsV2SectionId.ProgressiveBilling,
-  PlanDetailsV2SectionId.Entitlements,
-])
 
 type PlanDetailsV2Props = {
   planId: string
@@ -72,10 +65,6 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
 
   const fixedChargesRef = useRef<PlanDetailsV2FixedChargesSectionRef>(null)
   const usageChargesRef = useRef<PlanDetailsV2UsageChargesSectionRef>(null)
-
-  const advancedVisibleIds = isInSubscriptionForm
-    ? ADVANCED_CHILD_SECTION_IDS.filter((id) => !SUB_FLOW_HIDDEN_SECTIONS.has(id))
-    : ADVANCED_CHILD_SECTION_IDS
 
   const handleItemClick = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -142,14 +131,7 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
             <section key={id} id={id} className="min-h-48 scroll-mt-12 rounded-xl bg-grey-100" />
           )
         })}
-        <section
-          id={PlanDetailsV2SectionId.AdvancedSettings}
-          className="flex scroll-mt-12 flex-col gap-12"
-        >
-          {advancedVisibleIds.map((id) => (
-            <section key={id} id={id} className="min-h-48 scroll-mt-12 rounded-xl bg-grey-100" />
-          ))}
-        </section>
+        <PlanDetailsV2AdvancedSection plan={plan} isInSubscriptionForm={isInSubscriptionForm} />
       </div>
     </div>
   )
