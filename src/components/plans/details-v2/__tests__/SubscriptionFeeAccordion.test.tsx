@@ -156,13 +156,13 @@ describe('SubscriptionFeeAccordion', () => {
     expect(screen.getByRole('button', { name: /actions/i })).toBeInTheDocument()
   })
 
-  // Drift test: lock in that sub mode hides the actions menu entirely.
-  it('hides the Edit action when isInSubscriptionForm is true', () => {
+  // Drift test: lock in that sub mode shows the Edit action (canUpdate=true via subscriptionsUpdate).
+  it('shows the Edit action when isInSubscriptionForm is true', () => {
     render(<SubscriptionFeeAccordion plan={planDetailsV2Fixture} isInSubscriptionForm />, {
       wrapper: Wrapper,
     })
 
-    expect(screen.queryByRole('button', { name: /actions/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /actions/i })).toBeInTheDocument()
   })
 
   it('hides the Edit action when plansUpdate permission is missing', () => {

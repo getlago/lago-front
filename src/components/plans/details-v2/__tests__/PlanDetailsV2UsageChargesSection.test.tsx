@@ -178,8 +178,8 @@ describe('PlanDetailsV2UsageChargesSection', () => {
     expect(screen.queryByText('text_1772133285142oouequiz2t2')).not.toBeInTheDocument()
   })
 
-  // Drift test: lock in that sub mode hides per-accordion Edit + Delete.
-  it('hides Edit + Delete actions when isInSubscriptionForm is true', () => {
+  // Drift test: lock in that sub mode shows Edit but hides Delete (canUpdate=true, canDelete=false).
+  it('shows Edit but hides Add + Delete when isInSubscriptionForm is true', async () => {
     const plan = {
       ...planDetailsV2Fixture,
       charges: [buildUsageChargeFixture({ id: 'ch_sub' })],
@@ -194,7 +194,12 @@ describe('PlanDetailsV2UsageChargesSection', () => {
         wrapper: Wrapper,
       },
     )
-    expect(screen.queryByRole('button', { name: /actions/i })).not.toBeInTheDocument()
+    // Actions menu renders because Edit is visible (canUpdate=true via subscriptionsUpdate)
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    // Edit IS present
+    expect(screen.getByText('text_63e51ef4985f0ebd75c212fc')).toBeInTheDocument()
+    // Delete is NOT present (canDelete=false in sub mode)
+    expect(screen.queryByText('text_63ea0f84f400488553caa786')).not.toBeInTheDocument()
   })
 
   it('hides Delete when plansDelete permission is missing', async () => {
