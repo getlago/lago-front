@@ -3,6 +3,7 @@ import { useRef } from 'react'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
+  CurrencyEnum,
   LagoApiError,
   PlanForDetailsV2AdvancedSectionFragmentDoc,
   PlanForDetailsV2FixedChargesSectionFragmentDoc,
@@ -10,6 +11,7 @@ import {
   PlanForDetailsV2UsageChargesSectionFragmentDoc,
   useGetPlanForDetailsV2Query,
 } from '~/generated/graphql'
+import { useChargeMutationsWithCascade } from '~/hooks/plans/useChargeMutationsWithCascade'
 
 import { PlanDetailsV2AdvancedSection } from './PlanDetailsV2AdvancedSection'
 import {
@@ -65,6 +67,12 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
 
   const fixedChargesRef = useRef<PlanDetailsV2FixedChargesSectionRef>(null)
   const usageChargesRef = useRef<PlanDetailsV2UsageChargesSectionRef>(null)
+
+  const usageChargeMutations = useChargeMutationsWithCascade({
+    planId: data?.plan?.id ?? '',
+    hasOverriddenPlans: data?.plan?.hasOverriddenPlans ?? false,
+    currency: (data?.plan?.amountCurrency as CurrencyEnum) ?? CurrencyEnum.Usd,
+  })
 
   const handleItemClick = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -124,6 +132,7 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
                 ref={usageChargesRef}
                 plan={plan}
                 isInSubscriptionForm={isInSubscriptionForm}
+                chargeMutations={usageChargeMutations}
               />
             )
           }

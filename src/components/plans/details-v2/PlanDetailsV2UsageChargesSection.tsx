@@ -26,7 +26,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
-import { useChargeMutationsWithCascade } from '~/hooks/plans/useChargeMutationsWithCascade'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { toLocalUsageChargeInput } from '~/hooks/plans/utils'
 
@@ -137,25 +136,27 @@ export type PlanDetailsV2UsageChargesSectionRef = {
   openCreate: () => void
 }
 
+export type UsageChargeMutations = {
+  handleSaveCharge: (charge: LocalUsageChargeInput, index: number | null) => Promise<boolean>
+  handleDeleteCharge: (chargeId: string) => Promise<boolean>
+}
+
 type Props = {
   plan: PlanForDetailsV2UsageChargesSectionFragment
   isInSubscriptionForm?: boolean
+  chargeMutations: UsageChargeMutations
 }
 
 export const PlanDetailsV2UsageChargesSection = forwardRef<
   PlanDetailsV2UsageChargesSectionRef,
   Props
->(({ plan, isInSubscriptionForm = false }, ref) => {
+>(({ plan, isInSubscriptionForm = false, chargeMutations }, ref) => {
   const { translate } = useInternationalization()
   const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
   const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
   const drawerRef = useRef<UsageChargeDrawerRef>(null)
 
-  const { handleSaveCharge, handleDeleteCharge } = useChargeMutationsWithCascade({
-    planId: plan.id,
-    hasOverriddenPlans: plan.hasOverriddenPlans ?? false,
-    currency: plan.amountCurrency as CurrencyEnum,
-  })
+  const { handleSaveCharge, handleDeleteCharge } = chargeMutations
 
   const openCreate = () => drawerRef.current?.openDrawer()
 
