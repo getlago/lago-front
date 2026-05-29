@@ -10,10 +10,12 @@ import {
 import { SubscriptionFeeInfo } from '~/components/plans/SubscriptionFeeInfo'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { getIntervalTranslationKey } from '~/core/constants/form'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { PlanDetailsV2Fragment, PlanForUpdateWithCascadeFragmentDoc } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
 import { useUpdatePlanWithCascade } from '~/hooks/plans/useUpdatePlanWithCascade'
+import { useUpdateSubscriptionPlanOverride } from '~/hooks/plans/useUpdateSubscriptionPlanOverride'
 
 import { SectionAccordion } from './shared/SectionAccordion'
 import { PlanDetailsV2SectionId } from './sidebarSections'
@@ -35,17 +37,23 @@ gql`
 type SubscriptionFeeAccordionProps = {
   plan: PlanDetailsV2Fragment
   isInSubscriptionForm?: boolean
+  subscriptionId?: string
 }
 
 export const SubscriptionFeeAccordion = ({
   plan,
   isInSubscriptionForm = false,
+  subscriptionId,
 }: SubscriptionFeeAccordionProps) => {
   const { translate } = useInternationalization()
   const { canUpdate } = useAccordionPermissions(isInSubscriptionForm)
   const drawerRef = useRef<SubscriptionFeeDrawerRef>(null)
 
   const { form, submit } = useUpdatePlanWithCascade({ plan })
+  const { updatePlanOverride } = useUpdateSubscriptionPlanOverride({
+    subscriptionId: subscriptionId ?? '',
+    currency: plan.amountCurrency,
+  })
 
   const openDrawer = () => {
     drawerRef.current?.openDrawer({
@@ -58,6 +66,16 @@ export const SubscriptionFeeAccordion = ({
   }
 
   const handleDrawerSave = async (values: SubscriptionFeeFormValues): Promise<boolean> => {
+    // Sub mode: route the plan-level fee edit through updateSubscription(planOverrides);
+    // never call updatePlan, which would mutate the shared base plan (R3).
+    // payInAdvance + trialPeriod are disabled in the sub drawer and intentionally not sent here.
+    if (subscriptionId) {
+      return updatePlanOverride({
+        amountCents: Number(serializeAmount(values.amountCents, plan.amountCurrency)),
+        invoiceDisplayName: values.invoiceDisplayName || undefined,
+      })
+    }
+
     form.setFieldValue('amountCents', values.amountCents)
     form.setFieldValue('payInAdvance', values.payInAdvance)
     form.setFieldValue('trialPeriod', values.trialPeriod)

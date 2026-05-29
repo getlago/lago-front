@@ -7,7 +7,10 @@ import { useSubscriptionChargeMutations } from '~/hooks/plans/useSubscriptionCha
 import { useSubscriptionFixedChargeMutations } from '~/hooks/plans/useSubscriptionFixedChargeMutations'
 
 type Args = {
-  plan: PlanDetailsV2Fragment
+  plan:
+    | Pick<PlanDetailsV2Fragment, 'id' | 'amountCurrency' | 'hasOverriddenPlans'>
+    | null
+    | undefined
   subscriptionId?: string
 }
 
@@ -17,18 +20,18 @@ type Result = {
 }
 
 export const useDetailsV2ChargeMutations = ({ plan, subscriptionId }: Args): Result => {
-  const currency = (plan.amountCurrency as CurrencyEnum) ?? CurrencyEnum.Usd
+  const currency = (plan?.amountCurrency as CurrencyEnum) ?? CurrencyEnum.Usd
 
   // All four hooks run unconditionally (rules of hooks). The plan-mode hooks
   // only set up mutation fns; they are never invoked when subscriptionId is set.
   const planUsage = useChargeMutationsWithCascade({
-    planId: plan.id,
-    hasOverriddenPlans: plan.hasOverriddenPlans ?? false,
+    planId: plan?.id ?? '',
+    hasOverriddenPlans: plan?.hasOverriddenPlans ?? false,
     currency,
   })
   const planFixed = useFixedChargeMutationsWithCascade({
-    planId: plan.id,
-    hasOverriddenPlans: plan.hasOverriddenPlans ?? false,
+    planId: plan?.id ?? '',
+    hasOverriddenPlans: plan?.hasOverriddenPlans ?? false,
   })
   const subUsage = useSubscriptionChargeMutations({
     subscriptionId: subscriptionId ?? '',
