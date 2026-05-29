@@ -790,7 +790,6 @@ const CreateInvoice = () => {
                           formikProps.setFieldValue('billingEntityId', id)
                           setPickedBillingEntityId(id)
                         }}
-                        helperText={translate('text_17800541562349k15h7ik07c')}
                       />
                     </div>
                   )}
