@@ -301,9 +301,11 @@ const SubscriptionDetails = () => {
           ),
         ],
         content: (
-          <DetailsPage.Container>
+          // v2 layout: horizontal padding only — avoids DetailsPage.Container's
+          // legacy pb-20 / flex-col. Vertical spacing comes from the content's py-12.
+          <div className="px-4 md:px-12">
             <SubscriptionDetailsV2Plan subscriptionId={subscriptionId as string} />
-          </DetailsPage.Container>
+          </div>
         ),
         hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
       },
