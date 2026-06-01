@@ -139,64 +139,74 @@ gql`
   ${TaxForTaxesSelectorSectionFragmentDoc}
 `
 
-export const usageChargeDrawerSchema = z
-  .object({
-    billableMetricId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
-    billableMetric: z.custom<BillableMetricForPlanFragment>(),
-    appliedPricingUnit: z.custom<LocalPricingUnitInput>().optional(),
-    chargeModel: z.enum(ChargeModelEnum),
-    id: z.string().optional(),
-    invoiceDisplayName: z.string(),
-    invoiceable: z.boolean(),
-    minAmountCents: z.string(),
-    payInAdvance: z.boolean(),
-    prorated: z.boolean(),
-    properties: z.record(z.string(), z.unknown()).optional(),
-    filters: z.custom<LocalChargeFilterInput[]>().optional(),
-    regroupPaidFees: z.string().nullable(),
-    taxes: z.array(
-      z.object({ id: z.string(), code: z.string(), name: z.string(), rate: z.number() }),
-    ),
-  })
-  .superRefine((data, ctx) => {
-    // Validate default properties (always required, even when filters are present)
-    if (data.properties) {
-      validateChargeProperties(data.chargeModel, data.properties, ctx, ['properties'])
-    }
+// `code` is only required when the field is shown (v2 details/edition via
+// `showCode`); the legacy plan form keeps it optional so its hidden, empty code
+// never blocks submit.
+export const buildUsageChargeDrawerSchema = (requireCode: boolean) =>
+  z
+    .object({
+      billableMetricId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+      billableMetric: z.custom<BillableMetricForPlanFragment>(),
+      appliedPricingUnit: z.custom<LocalPricingUnitInput>().optional(),
+      chargeModel: z.enum(ChargeModelEnum),
+      code: requireCode
+        ? z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' })
+        : z.string(),
+      id: z.string().optional(),
+      invoiceDisplayName: z.string(),
+      invoiceable: z.boolean(),
+      minAmountCents: z.string(),
+      payInAdvance: z.boolean(),
+      prorated: z.boolean(),
+      properties: z.record(z.string(), z.unknown()).optional(),
+      filters: z.custom<LocalChargeFilterInput[]>().optional(),
+      regroupPaidFees: z.string().nullable(),
+      taxes: z.array(
+        z.object({ id: z.string(), code: z.string(), name: z.string(), rate: z.number() }),
+      ),
+    })
+    .superRefine((data, ctx) => {
+      // Validate default properties (always required, even when filters are present)
+      if (data.properties) {
+        validateChargeProperties(data.chargeModel, data.properties, ctx, ['properties'])
+      }
 
-    // Validate filter properties and filter values
-    if (data.filters?.length) {
-      for (let fi = 0; fi < data.filters.length; fi++) {
-        validateChargeProperties(
-          data.chargeModel,
-          data.filters[fi].properties as PropertiesZodInput,
-          ctx,
-          ['filters', String(fi), 'properties'],
-        )
+      // Validate filter properties and filter values
+      if (data.filters?.length) {
+        for (let fi = 0; fi < data.filters.length; fi++) {
+          validateChargeProperties(
+            data.chargeModel,
+            data.filters[fi].properties as PropertiesZodInput,
+            ctx,
+            ['filters', String(fi), 'properties'],
+          )
 
-        if (!data.filters[fi].values?.length) {
-          ctx.addIssue({
-            code: 'custom',
-            message: '',
-            path: ['filters', String(fi), 'values'],
-          })
+          if (!data.filters[fi].values?.length) {
+            ctx.addIssue({
+              code: 'custom',
+              message: '',
+              path: ['filters', String(fi), 'values'],
+            })
+          }
         }
       }
-    }
 
-    // Validate appliedPricingUnit conversion rate when custom
-    if (
-      data.appliedPricingUnit?.type === LocalPricingUnitType.Custom &&
-      (!data.appliedPricingUnit.conversionRate ||
-        Number(data.appliedPricingUnit.conversionRate || 0) <= 0)
-    ) {
-      ctx.addIssue({
-        code: 'custom',
-        message: '',
-        path: ['appliedPricingUnit', 'conversionRate'],
-      })
-    }
-  })
+      // Validate appliedPricingUnit conversion rate when custom
+      if (
+        data.appliedPricingUnit?.type === LocalPricingUnitType.Custom &&
+        (!data.appliedPricingUnit.conversionRate ||
+          Number(data.appliedPricingUnit.conversionRate || 0) <= 0)
+      ) {
+        ctx.addIssue({
+          code: 'custom',
+          message: '',
+          path: ['appliedPricingUnit', 'conversionRate'],
+        })
+      }
+    })
+
+// Backward-compatible export (code optional) — kept for existing safeParse tests.
+export const usageChargeDrawerSchema = buildUsageChargeDrawerSchema(false)
 
 export interface UsageChargeDrawerRef {
   openDrawer: (
@@ -215,11 +225,15 @@ interface UsageChargeDrawerProps {
   disabled?: boolean
   isEdition?: boolean
   isInSubscriptionForm?: boolean
+  // TEMP (LAGO-1498): drop showCode + existingChargeCodes once the old
+  // plan/subscription forms are retired and the Code field becomes unconditional.
+  showCode?: boolean
+  existingChargeCodes?: (string | null | undefined)[]
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
   onSave: (
     charge: LocalUsageChargeInput,
     index: number | null,
-  ) => void | boolean | Promise<void | boolean>
+  ) => void | boolean | 'codeConflict' | Promise<void | boolean | 'codeConflict'>
   onDelete?: (index: number) => void
   removeChargeWarningDialogRef?: React.RefObject<RemoveChargeWarningDialogRef>
   amountCurrency?: string
@@ -235,6 +249,8 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
       disabled,
       isEdition,
       isInSubscriptionForm,
+      showCode = false,
+      existingChargeCodes,
       subscriptionFormType,
       onSave,
       onDelete,
@@ -258,13 +274,14 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
       defaultValues: DEFAULT_VALUES,
       validationLogic: revalidateLogic(),
       validators: {
-        onDynamic: usageChargeDrawerSchema,
+        onDynamic: buildUsageChargeDrawerSchema(showCode),
       },
-      onSubmit: async ({ value }) => {
+      onSubmit: async ({ value, formApi }) => {
         const localCharge: LocalUsageChargeInput = {
           billableMetric: value.billableMetric,
           appliedPricingUnit: value.appliedPricingUnit,
           chargeModel: value.chargeModel,
+          code: value.code || undefined,
           id: value.id,
           invoiceDisplayName: value.invoiceDisplayName || undefined,
           invoiceable: value.invoiceable,
@@ -281,6 +298,16 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
           localCharge,
           isCreateModeRef.current ? null : editIndexRef.current,
         )
+
+        // Backend rejected a duplicate code: surface it under the Code input
+        // (same pattern as plan-settings code) and keep the drawer open.
+        if (result === 'codeConflict') {
+          formApi.setFieldMeta('code', (meta) => ({
+            ...meta,
+            errorMap: { ...meta.errorMap, onDynamic: { message: 'text_632a2d437e341dcc76817556' } },
+          }))
+          return
+        }
 
         if (result !== false) {
           chargeDrawer.close()
@@ -330,6 +357,8 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
               isEdition={isEdition}
               disabled={disabled}
               isInSubscriptionForm={isInSubscriptionForm}
+              showCode={showCode}
+              existingChargeCodes={existingChargeCodes}
               subscriptionFormType={subscriptionFormType}
               amountCurrency={amountCurrency}
               editIndex={editIndexRef.current}
@@ -392,6 +421,7 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
               billableMetric: charge.billableMetric,
               appliedPricingUnit: charge.appliedPricingUnit,
               chargeModel: charge.chargeModel,
+              code: charge.code || '',
               id: charge.id,
               invoiceDisplayName: charge.invoiceDisplayName || '',
               invoiceable: charge.invoiceable ?? true,

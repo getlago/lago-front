@@ -138,7 +138,10 @@ export type PlanDetailsV2UsageChargesSectionRef = {
 }
 
 export type UsageChargeMutations = {
-  handleSaveCharge: (charge: LocalUsageChargeInput, index: number | null) => Promise<boolean>
+  handleSaveCharge: (
+    charge: LocalUsageChargeInput,
+    index: number | null,
+  ) => Promise<boolean | 'codeConflict'>
   handleDeleteCharge: (chargeId: string) => Promise<boolean>
 }
 
@@ -194,7 +197,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
         <SectionAccordion
           key={charge.id}
           title={charge.invoiceDisplayName || charge.billableMetric.name}
-          subtitle={charge.billableMetric.code}
+          subtitle={charge.code}
           actions={[
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
@@ -231,6 +234,8 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
           ref={drawerRef}
           isEdition
           isInSubscriptionForm={isInSubscriptionForm}
+          showCode
+          existingChargeCodes={charges.map((c) => c.code)}
           amountCurrency={plan.amountCurrency}
           onSave={handleSaveCharge}
           onDelete={(index) => {

@@ -37,6 +37,7 @@ import {
   SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
 } from '~/core/constants/form'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
+import { generateUniqueCode } from '~/core/utils/generateUniqueCode'
 import {
   AggregationTypeEnum,
   ChargeModelEnum,
@@ -64,6 +65,9 @@ interface UsageChargeDrawerContentExtraProps {
   isEdition?: boolean
   disabled?: boolean
   isInSubscriptionForm?: boolean
+  // TEMP (LAGO-1498): Code is shown only via the v2 details/edition UI.
+  showCode?: boolean
+  existingChargeCodes?: (string | null | undefined)[]
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
   amountCurrency?: string
   editIndex: number
@@ -78,6 +82,8 @@ const usageChargeDrawerContentDefaultProps: UsageChargeDrawerContentExtraProps =
   isEdition: false,
   disabled: false,
   isInSubscriptionForm: false,
+  showCode: false,
+  existingChargeCodes: undefined,
   subscriptionFormType: undefined,
   amountCurrency: undefined,
   editIndex: -1,
@@ -96,6 +102,8 @@ export const UsageChargeDrawerContent = withForm({
     isEdition,
     disabled,
     isInSubscriptionForm,
+    showCode,
+    existingChargeCodes,
     subscriptionFormType,
     amountCurrency,
     editIndex,
@@ -524,6 +532,15 @@ export const UsageChargeDrawerContent = withForm({
                       form.setFieldValue('properties', getPropertyShape({}))
                       form.setFieldValue('filters', selectedBm.filters?.length ? [] : undefined)
 
+                      // Seed a unique charge code from the billable-metric code;
+                      // backend still enforces final uniqueness.
+                      if (showCode && isCreateMode) {
+                        form.setFieldValue(
+                          'code',
+                          generateUniqueCode(selectedBm.code, existingChargeCodes ?? []),
+                        )
+                      }
+
                       if (hasAnyPricingUnitConfigured && amountCurrency) {
                         form.setFieldValue('appliedPricingUnit', {
                           code: amountCurrency,
@@ -560,6 +577,19 @@ export const UsageChargeDrawerContent = withForm({
                   title={formValues.billableMetric.name}
                   subtitle={formValues.billableMetric.code}
                 />
+
+                {showCode && (
+                  <form.AppField name="code">
+                    {(field) => (
+                      <field.TextInputField
+                        label={translate('text_629728388c4d2300e2d380b7')}
+                        placeholder={translate('text_629728388c4d2300e2d380d9')}
+                        beforeChangeFormatter="code"
+                        disabled={isInSubscriptionForm}
+                      />
+                    )}
+                  </form.AppField>
+                )}
               </CenteredPage.PageSection>
 
               {/* Pricing unit settings */}

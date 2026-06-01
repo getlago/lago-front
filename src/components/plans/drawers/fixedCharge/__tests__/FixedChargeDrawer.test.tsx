@@ -352,6 +352,7 @@ describe('FixedChargeDrawer', () => {
           addOn: { id: 'addon-1', name: 'Setup', code: 'setup' },
           applyUnitsImmediately: false,
           chargeModel: 'standard' as FixedChargeDrawerFormValues['chargeModel'],
+          code: 'setup',
           invoiceDisplayName: 'Test',
           payInAdvance: false,
           properties: { amount: '100' },
@@ -365,11 +366,33 @@ describe('FixedChargeDrawer', () => {
         expect(mockOnSave).toHaveBeenCalledWith(
           expect.objectContaining({
             chargeModel: 'standard',
+            code: 'setup',
             payInAdvance: false,
             units: '5',
           }),
           -1,
         )
+      })
+    })
+
+    describe('WHEN onSave reports a duplicate code', () => {
+      it('THEN surfaces the error under the Code field (and keeps the drawer open)', async () => {
+        mockOnSave.mockResolvedValueOnce('codeConflict')
+        const setFieldMeta = jest.fn()
+
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} showCode />)
+
+        const submit = capturedOnSubmit as unknown as (args: {
+          value: Record<string, unknown>
+          formApi: { setFieldMeta: jest.Mock }
+        }) => Promise<void>
+
+        await submit({
+          value: { ...capturedDefaultValues, code: 'dup_code' },
+          formApi: { setFieldMeta },
+        })
+
+        expect(setFieldMeta).toHaveBeenCalledWith('code', expect.any(Function))
       })
     })
 

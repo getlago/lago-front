@@ -19,6 +19,7 @@ import {
   SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
 } from '~/core/constants/form'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
+import { generateUniqueCode } from '~/core/utils/generateUniqueCode'
 import {
   FixedChargeChargeModelEnum,
   GraduatedChargeFragmentDoc,
@@ -63,6 +64,9 @@ interface FixedChargeDrawerContentExtraProps {
   isInSubscriptionForm: boolean
   disabled: boolean
   alertMessage?: string
+  // TEMP (LAGO-1498): Code is shown only via the v2 details/edition UI.
+  showCode?: boolean
+  existingChargeCodes?: (string | null | undefined)[]
 }
 
 const fixedChargeDrawerContentDefaultProps: FixedChargeDrawerContentExtraProps = {
@@ -71,6 +75,8 @@ const fixedChargeDrawerContentDefaultProps: FixedChargeDrawerContentExtraProps =
   isInSubscriptionForm: false,
   disabled: false,
   alertMessage: undefined,
+  showCode: false,
+  existingChargeCodes: undefined,
 }
 
 export const FixedChargeDrawerContent = withForm({
@@ -83,6 +89,8 @@ export const FixedChargeDrawerContent = withForm({
     isInSubscriptionForm,
     disabled,
     alertMessage,
+    showCode,
+    existingChargeCodes,
   }) {
     const { translate } = useInternationalization()
     const { currency } = usePlanFormContext()
@@ -208,6 +216,15 @@ export const FixedChargeDrawerContent = withForm({
                         name: selectedAddOn.name,
                         code: selectedAddOn.code,
                       })
+
+                      // Seed a unique charge code from the add-on code; backend
+                      // still enforces final uniqueness.
+                      if (showCode && isCreateMode) {
+                        form.setFieldValue(
+                          'code',
+                          generateUniqueCode(selectedAddOn.code, existingChargeCodes ?? []),
+                        )
+                      }
                     }
                   },
                 }}
@@ -235,6 +252,19 @@ export const FixedChargeDrawerContent = withForm({
                   title={formValues.addOn.name}
                   subtitle={formValues.addOn.code}
                 />
+
+                {showCode && (
+                  <form.AppField name="code">
+                    {(field) => (
+                      <field.TextInputField
+                        label={translate('text_629728388c4d2300e2d380b7')}
+                        placeholder={translate('text_629728388c4d2300e2d380d9')}
+                        beforeChangeFormatter="code"
+                        disabled={isInSubscriptionForm}
+                      />
+                    )}
+                  </form.AppField>
+                )}
               </CenteredPage.PageSection>
 
               {/* Pricing settings */}

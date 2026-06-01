@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 
 import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
 import { LocalPricingUnitType, LocalUsageChargeInput } from '~/components/plans/types'
-import { addToast } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { cacheArrayInsert, cacheArrayRemove } from '~/core/apolloClient/cacheHelpers'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { serializeFilters, serializeProperties } from '~/core/serializers/serializePlanInput'
@@ -10,6 +10,7 @@ import {
   ChargeCreateInput,
   ChargeUpdateInput,
   CurrencyEnum,
+  LagoApiError,
   UsageChargeForDetailsV2FragmentDoc,
   useCreateChargeMutation,
   useDestroyChargeMutation,
@@ -60,6 +61,7 @@ export const useChargeMutationsWithCascade = ({ planId, hasOverriddenPlans, curr
   const { openCascadeDialog } = useCascadeFormDialog()
 
   const [createCharge] = useCreateChargeMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     update(cache, { data }) {
       const created = data?.createCharge
 
@@ -74,6 +76,7 @@ export const useChargeMutationsWithCascade = ({ planId, hasOverriddenPlans, curr
   })
 
   const [updateCharge] = useUpdateChargeMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted(data) {
       if (data?.updateCharge?.id) {
         addToast({ severity: 'success', translateKey: 'text_1779736085470h5bm2lrvwsp' })
@@ -102,6 +105,7 @@ export const useChargeMutationsWithCascade = ({ planId, hasOverriddenPlans, curr
     planId,
     billableMetricId: charge.billableMetric.id,
     chargeModel: charge.chargeModel,
+    code: charge.code || undefined,
     appliedPricingUnit: serializeAppliedPricingUnit(charge.appliedPricingUnit),
     invoiceDisplayName: charge.invoiceDisplayName || undefined,
     invoiceable: charge.invoiceable,
@@ -126,6 +130,7 @@ export const useChargeMutationsWithCascade = ({ planId, hasOverriddenPlans, curr
   ): ChargeUpdateInput => ({
     id: charge.id ?? '',
     chargeModel: charge.chargeModel,
+    code: charge.code || undefined,
     appliedPricingUnit: serializeAppliedPricingUnit(charge.appliedPricingUnit),
     invoiceDisplayName: charge.invoiceDisplayName || undefined,
     invoiceable: charge.invoiceable,
@@ -147,21 +152,39 @@ export const useChargeMutationsWithCascade = ({ planId, hasOverriddenPlans, curr
   const handleSaveCharge = async (
     charge: LocalUsageChargeInput,
     index: number | null,
-  ): Promise<boolean> => {
+  ): Promise<boolean | 'codeConflict'> => {
     const isCreate = index === null
+    let codeConflict = false
 
-    return openCascadeDialog({
+    const confirmed = await openCascadeDialog({
       title: translate('text_1729604107534r3hsj7i64gp'),
       mainActionLabel: translate('text_1729604107534dfyz8j53ho5'),
       hasOverriddenPlans,
       onConfirm: async (cascadeUpdates) => {
-        if (isCreate) {
-          await createCharge({ variables: { input: buildCreateInput(charge, cascadeUpdates) } })
-        } else {
-          await updateCharge({ variables: { input: buildUpdateInput(charge, cascadeUpdates) } })
+        try {
+          if (isCreate) {
+            await createCharge({ variables: { input: buildCreateInput(charge, cascadeUpdates) } })
+          } else {
+            await updateCharge({ variables: { input: buildUpdateInput(charge, cascadeUpdates) } })
+          }
+        } catch (error) {
+          // Duplicate code: swallow here so the drawer can show a field-level
+          // error; rethrow anything else to keep the default error handling.
+          if (
+            hasDefinedGQLError(
+              'ValueAlreadyExist',
+              error as Parameters<typeof hasDefinedGQLError>[1],
+            )
+          ) {
+            codeConflict = true
+            return
+          }
+          throw error
         }
       },
     })
+
+    return codeConflict ? 'codeConflict' : confirmed
   }
 
   const handleDeleteCharge = async (chargeId: string): Promise<boolean> => {
