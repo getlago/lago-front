@@ -61,10 +61,10 @@ const AddOnSelectionContent = withForm({
         z.object({
           invoiceDisplayName: z.string(),
           description: z.string(),
-          fromDatetime: z.string().min(1),
-          toDatetime: z.string().min(1),
+          fromDatetime: z.string().min(1, { message: translate('text_1780327356834f5f3nndfg80') }),
+          toDatetime: z.string().min(1, { message: translate('text_17803273568346wguor4j5u5') }),
         }),
-      [],
+      [translate],
     )
 
     const editForm = useAppForm({
@@ -101,9 +101,16 @@ const AddOnSelectionContent = withForm({
 
       editDrawer.open({
         title: translate('text_1780302522400cvm8js8nfg2'),
+        closeOnError: false,
         form: {
           id: 'edit-add-on-form',
-          submit: () => editForm.handleSubmit(),
+          submit: async () => {
+            await editForm.handleSubmit()
+
+            if (!editForm.state.canSubmit) {
+              throw new Error('Validation failed')
+            }
+          },
         },
         mainAction: (
           <Button data-test="edit-add-on-submit" type="submit">
