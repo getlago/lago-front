@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
-import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
@@ -16,7 +16,6 @@ import {
   getFormattedChargeSelectorSubtitle,
   mapChargeIntervalCopy,
 } from '~/components/plans/utils'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { PlanInterval } from '~/generated/graphql'
@@ -41,7 +40,6 @@ export const USAGE_CHARGES_ADD_BUTTON_TEST_ID = 'add-usage-charge'
 interface UsageChargesSectionProps {
   form: PlanFormType
   alreadyExistingCharges?: LocalUsageChargeInput[] | null
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
   canBeEdited?: boolean
   isInSubscriptionForm?: boolean
   isEdition: boolean
@@ -54,7 +52,6 @@ export const UsageChargesSection = ({
   canBeEdited,
   isInSubscriptionForm,
   isEdition,
-  premiumWarningDialogRef,
   subscriptionFormType,
 }: UsageChargesSectionProps) => {
   const { translate } = useInternationalization()
@@ -216,7 +213,6 @@ export const UsageChargesSection = ({
         disabled={isEdition && !canBeEdited}
         isEdition={isEdition}
         isInSubscriptionForm={isInSubscriptionForm}
-        premiumWarningDialogRef={premiumWarningDialogRef}
         subscriptionFormType={subscriptionFormType}
         onSave={handleDrawerSave}
         onDelete={handleChargeDelete}

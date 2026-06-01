@@ -13,7 +13,6 @@ import {
   LocalPricingUnitType,
   LocalUsageChargeInput,
 } from '~/components/plans/types'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { PlanFormProvider, usePlanFormContext } from '~/contexts/PlanFormContext'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
 import {
@@ -216,7 +215,6 @@ interface UsageChargeDrawerProps {
   disabled?: boolean
   isEdition?: boolean
   isInSubscriptionForm?: boolean
-  premiumWarningDialogRef?: React.RefObject<PremiumWarningDialogRef>
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
   onSave: (
     charge: LocalUsageChargeInput,
@@ -237,7 +235,6 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
       disabled,
       isEdition,
       isInSubscriptionForm,
-      premiumWarningDialogRef,
       subscriptionFormType,
       onSave,
       onDelete,
@@ -333,7 +330,6 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
               isEdition={isEdition}
               disabled={disabled}
               isInSubscriptionForm={isInSubscriptionForm}
-              premiumWarningDialogRef={premiumWarningDialogRef}
               subscriptionFormType={subscriptionFormType}
               amountCurrency={amountCurrency}
               editIndex={editIndexRef.current}
