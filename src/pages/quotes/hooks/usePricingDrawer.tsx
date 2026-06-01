@@ -262,13 +262,20 @@ export const usePricingDrawer = (
             })
           : []
 
-      form.reset({
-        planId: initialPlanId,
-        addOnItems: initialAddOnItems,
-      })
+      form.reset(
+        {
+          planId: initialPlanId,
+          addOnItems: initialAddOnItems,
+        },
+        { keepDefaultValues: true },
+      )
 
-      const handleSubmit = () => {
-        form.handleSubmit()
+      const handleSubmit = async () => {
+        await form.handleSubmit()
+
+        if (!form.state.canSubmit) {
+          throw new Error('Validation failed')
+        }
       }
 
       formDrawer.open({
@@ -286,6 +293,7 @@ export const usePricingDrawer = (
           </Button>
         ),
         cancelOrCloseText: 'cancel',
+        closeOnError: false,
         children: (
           <PricingDrawerContent
             form={form}
