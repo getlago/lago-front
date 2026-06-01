@@ -6,6 +6,7 @@ import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
+import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { ComboboxItem } from '~/components/form'
@@ -93,7 +94,7 @@ const AddOnSelectionContent = withForm({
       editForm.setFieldValue('toDatetime', item.toDatetime)
 
       editDrawer.open({
-        title: item.name,
+        title: translate('text_1780302522400cvm8js8nfg2'),
         form: {
           id: 'edit-add-on-form',
           submit: () => editForm.handleSubmit(),
@@ -221,13 +222,18 @@ const AddOnSelectionContent = withForm({
                                 }
                               }}
                             />
-                            <Button
-                              variant="quaternary"
-                              size="small"
-                              icon="trash"
-                              onClick={() => handleRemoveAddOn(index)}
-                              data-test={`remove-add-on-${index}`}
-                            />
+                            <Tooltip
+                              title={translate('text_628b8c693e464200e00e4a10')}
+                              placement="top-end"
+                            >
+                              <Button
+                                variant="quaternary"
+                                size="small"
+                                icon="trash"
+                                onClick={() => handleRemoveAddOn(index)}
+                                data-test={`remove-add-on-${index}`}
+                              />
+                            </Tooltip>
                           </div>
                         )
                       }
