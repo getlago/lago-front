@@ -1,3 +1,4 @@
+import type { EntityData } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
 import type { AddOnItem } from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
 
 // --- Backend contract types (snake_case) ---
@@ -86,4 +87,71 @@ export const toBillingItems = (
   })
 
   return { addons }
+}
+
+// --- Deserialization ---
+
+interface FromBillingItemsResult {
+  entities: Record<string, EntityData>
+  addOnItems: AddOnItem[]
+  originalPayloads: Record<string, AddOnPayload>
+}
+
+export const fromBillingItems = (
+  billingItems: BillingItemsPayload,
+): FromBillingItemsResult => {
+  const entities: Record<string, EntityData> = {}
+  const addOnItems: AddOnItem[] = []
+  const originalPayloads: Record<string, AddOnPayload> = {}
+
+  const sorted = [...billingItems.addons].sort(
+    (a, b) => a.payload.position - b.payload.position,
+  )
+
+  for (const addon of sorted) {
+    const { payload, overrides, id } = addon
+
+    // Merge: overrides win over payload
+    const effective = {
+      name: overrides.name ?? payload.name,
+      description: overrides.description ?? payload.description,
+      units: overrides.units ?? payload.units,
+      unit_amount_cents: overrides.unit_amount_cents ?? payload.unit_amount_cents,
+      total_amount_cents: overrides.total_amount_cents ?? payload.total_amount_cents,
+      invoice_display_name: overrides.invoice_display_name ?? payload.invoice_display_name,
+      from_datetime: overrides.from_datetime ?? payload.from_datetime,
+      to_datetime: overrides.to_datetime ?? payload.to_datetime,
+    }
+
+    entities[id] = {
+      entityId: id,
+      entityType: 'addOn',
+      name: effective.name,
+      invoiceDisplayName: effective.invoice_display_name,
+      code: payload.add_on_code,
+      description: effective.description,
+      units: String(effective.units),
+      unitAmountCents: String(effective.unit_amount_cents),
+      totalAmount: String(effective.total_amount_cents),
+      fromDatetime: effective.from_datetime ?? '',
+      toDatetime: effective.to_datetime ?? '',
+    }
+
+    addOnItems.push({
+      addOnId: id,
+      name: effective.name,
+      invoiceDisplayName: effective.invoice_display_name,
+      code: payload.add_on_code,
+      description: effective.description,
+      units: String(effective.units),
+      unitAmountCents: String(effective.unit_amount_cents),
+      totalAmount: String(effective.total_amount_cents),
+      fromDatetime: effective.from_datetime ?? '',
+      toDatetime: effective.to_datetime ?? '',
+    })
+
+    originalPayloads[id] = payload
+  }
+
+  return { entities, addOnItems, originalPayloads }
 }

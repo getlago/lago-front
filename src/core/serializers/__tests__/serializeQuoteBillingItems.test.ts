@@ -1,6 +1,6 @@
 import type { AddOnItem } from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
 
-import { type AddOnPayload, toBillingItems } from '../serializeQuoteBillingItems'
+import { type AddOnPayload, type BillingItemsPayload, fromBillingItems, toBillingItems } from '../serializeQuoteBillingItems'
 
 describe('toBillingItems', () => {
   const makePayload = (overrides: Partial<AddOnPayload> = {}): AddOnPayload => ({
@@ -128,5 +128,171 @@ describe('toBillingItems', () => {
     const result = toBillingItems(items, payloads)
 
     expect(result.addons[0].overrides).toEqual({})
+  })
+})
+
+describe('fromBillingItems', () => {
+  const makeBillingItems = (): BillingItemsPayload => ({
+    addons: [
+      {
+        type: 'addon',
+        id: 'addon-1',
+        payload: {
+          position: 1,
+          add_on_code: 'setup',
+          name: 'Setup Fee',
+          description: 'One-time setup',
+          units: 1,
+          unit_amount_cents: 50000,
+          total_amount_cents: 50000,
+          invoice_display_name: 'Setup Fee',
+          from_datetime: null,
+          to_datetime: null,
+          tax_codes: [],
+        },
+        overrides: {},
+      },
+    ],
+  })
+
+  it('reconstructs entities from payload with no overrides', () => {
+    const result = fromBillingItems(makeBillingItems())
+
+    expect(result.entities['addon-1']).toEqual({
+      entityId: 'addon-1',
+      entityType: 'addOn',
+      name: 'Setup Fee',
+      invoiceDisplayName: 'Setup Fee',
+      code: 'setup',
+      description: 'One-time setup',
+      units: '1',
+      unitAmountCents: '50000',
+      totalAmount: '50000',
+      fromDatetime: '',
+      toDatetime: '',
+    })
+  })
+
+  it('merges overrides onto payload for effective values', () => {
+    const billingItems: BillingItemsPayload = {
+      addons: [
+        {
+          type: 'addon',
+          id: 'addon-1',
+          payload: {
+            position: 1,
+            add_on_code: 'setup',
+            name: 'Setup Fee',
+            description: 'One-time setup',
+            units: 1,
+            unit_amount_cents: 50000,
+            total_amount_cents: 50000,
+            invoice_display_name: 'Setup Fee',
+            from_datetime: null,
+            to_datetime: null,
+            tax_codes: [],
+          },
+          overrides: {
+            invoice_display_name: 'Custom Name',
+            units: 3,
+            unit_amount_cents: 60000,
+            total_amount_cents: 180000,
+            from_datetime: '2026-04-01',
+            to_datetime: '2026-06-30',
+          },
+        },
+      ],
+    }
+
+    const result = fromBillingItems(billingItems)
+
+    expect(result.entities['addon-1'].invoiceDisplayName).toBe('Custom Name')
+    expect(result.entities['addon-1'].units).toBe('3')
+    expect(result.entities['addon-1'].unitAmountCents).toBe('60000')
+    expect(result.entities['addon-1'].totalAmount).toBe('180000')
+    expect(result.entities['addon-1'].fromDatetime).toBe('2026-04-01')
+    expect(result.entities['addon-1'].toDatetime).toBe('2026-06-30')
+  })
+
+  it('reconstructs addOnItems for form state', () => {
+    const result = fromBillingItems(makeBillingItems())
+
+    expect(result.addOnItems).toEqual([
+      {
+        addOnId: 'addon-1',
+        name: 'Setup Fee',
+        invoiceDisplayName: 'Setup Fee',
+        code: 'setup',
+        description: 'One-time setup',
+        units: '1',
+        unitAmountCents: '50000',
+        totalAmount: '50000',
+        fromDatetime: '',
+        toDatetime: '',
+      },
+    ])
+  })
+
+  it('preserves original payloads for future diff', () => {
+    const billingItems = makeBillingItems()
+    const result = fromBillingItems(billingItems)
+
+    expect(result.originalPayloads['addon-1']).toEqual(billingItems.addons[0].payload)
+  })
+
+  it('sorts by position', () => {
+    const billingItems: BillingItemsPayload = {
+      addons: [
+        {
+          type: 'addon',
+          id: 'addon-b',
+          payload: {
+            position: 2,
+            add_on_code: 'b',
+            name: 'B',
+            description: '',
+            units: 1,
+            unit_amount_cents: 100,
+            total_amount_cents: 100,
+            invoice_display_name: 'B',
+            from_datetime: null,
+            to_datetime: null,
+            tax_codes: [],
+          },
+          overrides: {},
+        },
+        {
+          type: 'addon',
+          id: 'addon-a',
+          payload: {
+            position: 1,
+            add_on_code: 'a',
+            name: 'A',
+            description: '',
+            units: 1,
+            unit_amount_cents: 200,
+            total_amount_cents: 200,
+            invoice_display_name: 'A',
+            from_datetime: null,
+            to_datetime: null,
+            tax_codes: [],
+          },
+          overrides: {},
+        },
+      ],
+    }
+
+    const result = fromBillingItems(billingItems)
+
+    expect(result.addOnItems[0].addOnId).toBe('addon-a')
+    expect(result.addOnItems[1].addOnId).toBe('addon-b')
+  })
+
+  it('handles empty addons array', () => {
+    const result = fromBillingItems({ addons: [] })
+
+    expect(result.entities).toEqual({})
+    expect(result.addOnItems).toEqual([])
+    expect(result.originalPayloads).toEqual({})
   })
 })
