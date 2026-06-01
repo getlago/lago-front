@@ -97,16 +97,12 @@ interface FromBillingItemsResult {
   originalPayloads: Record<string, AddOnPayload>
 }
 
-export const fromBillingItems = (
-  billingItems: BillingItemsPayload,
-): FromBillingItemsResult => {
+export const fromBillingItems = (billingItems: BillingItemsPayload): FromBillingItemsResult => {
   const entities: Record<string, EntityData> = {}
   const addOnItems: AddOnItem[] = []
   const originalPayloads: Record<string, AddOnPayload> = {}
 
-  const sorted = [...billingItems.addons].sort(
-    (a, b) => a.payload.position - b.payload.position,
-  )
+  const sorted = [...billingItems.addons].sort((a, b) => a.payload.position - b.payload.position)
 
   for (const addon of sorted) {
     const { payload, overrides, id } = addon

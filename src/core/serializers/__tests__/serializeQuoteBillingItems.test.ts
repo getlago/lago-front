@@ -1,6 +1,11 @@
 import type { AddOnItem } from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
 
-import { type AddOnPayload, type BillingItemsPayload, fromBillingItems, toBillingItems } from '../serializeQuoteBillingItems'
+import {
+  type AddOnPayload,
+  type BillingItemsPayload,
+  fromBillingItems,
+  toBillingItems,
+} from '../serializeQuoteBillingItems'
 
 describe('toBillingItems', () => {
   const makePayload = (overrides: Partial<AddOnPayload> = {}): AddOnPayload => ({
@@ -78,10 +83,7 @@ describe('toBillingItems', () => {
   })
 
   it('assigns position based on array index', () => {
-    const items: AddOnItem[] = [
-      makeAddOnItem({ addOnId: 'a' }),
-      makeAddOnItem({ addOnId: 'b' }),
-    ]
+    const items: AddOnItem[] = [makeAddOnItem({ addOnId: 'a' }), makeAddOnItem({ addOnId: 'b' })]
     const payloads: Record<string, AddOnPayload> = {
       a: makePayload({ add_on_code: 'a' }),
       b: makePayload({ add_on_code: 'b' }),
@@ -94,7 +96,9 @@ describe('toBillingItems', () => {
   })
 
   it('converts string form values to numbers', () => {
-    const items: AddOnItem[] = [makeAddOnItem({ units: '5', unitAmountCents: '10000', totalAmount: '50001' })]
+    const items: AddOnItem[] = [
+      makeAddOnItem({ units: '5', unitAmountCents: '10000', totalAmount: '50001' }),
+    ]
     const payloads: Record<string, AddOnPayload> = { 'addon-1': makePayload() }
 
     const result = toBillingItems(items, payloads)

@@ -1,4 +1,8 @@
-import { type AddOnForFixedChargesSectionFragment, CurrencyEnum, OrderTypeEnum } from '~/generated/graphql'
+import {
+  type AddOnForFixedChargesSectionFragment,
+  CurrencyEnum,
+  OrderTypeEnum,
+} from '~/generated/graphql'
 import { withForm } from '~/hooks/forms/useAppform'
 
 import AddOnSelectionContent from './AddOnSelectionContent'

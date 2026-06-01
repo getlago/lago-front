@@ -37,16 +37,12 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-jest.mock('~/contexts/PlanFormContext', () => {
-  const { CurrencyEnum } = jest.requireActual('~/generated/graphql')
-
-  return {
-    PlanFormProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-    usePlanFormContext: () => ({
-      currency: CurrencyEnum.Usd,
-    }),
-  }
-})
+jest.mock('~/contexts/PlanFormContext', () => ({
+  PlanFormProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  usePlanFormContext: () => ({
+    currency: CurrencyEnum.Usd,
+  }),
+}))
 
 jest.mock('~/core/apolloClient', () => ({
   useDuplicatePlanVar: () => ({ type: '' }),
@@ -351,7 +347,13 @@ describe('FixedChargeDrawer', () => {
 
         const formValues: FixedChargeDrawerFormValues = {
           addOnId: 'addon-1',
-          addOn: { id: 'addon-1', name: 'Setup', code: 'setup', amountCents: '0', amountCurrency: CurrencyEnum.Usd },
+          addOn: {
+            id: 'addon-1',
+            name: 'Setup',
+            code: 'setup',
+            amountCents: '0',
+            amountCurrency: CurrencyEnum.Usd,
+          },
           applyUnitsImmediately: false,
           chargeModel: 'standard' as FixedChargeDrawerFormValues['chargeModel'],
           invoiceDisplayName: 'Test',
