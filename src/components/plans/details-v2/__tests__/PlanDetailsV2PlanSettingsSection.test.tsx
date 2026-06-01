@@ -91,10 +91,18 @@ describe('PlanDetailsV2PlanSettingsSection', () => {
     ).toBeInTheDocument()
   })
 
-  it('hides the Edit action when isInSubscriptionForm is true', () => {
-    render(<PlanDetailsV2PlanSettingsSection plan={planDetailsV2Fixture} isInSubscriptionForm />, {
-      wrapper: Wrapper,
-    })
+  it('hides the Plan settings Edit action when subscriptionId is set', () => {
+    // Plan-settings override is a deferred fast-follow (R3); the Edit action is hidden
+    // via `!canUpdate || !!subscriptionId`. isInSubscriptionForm alone (canUpdate=true
+    // via subscriptionsUpdate) no longer hides it — only subscriptionId does.
+    render(
+      <PlanDetailsV2PlanSettingsSection
+        plan={planDetailsV2Fixture}
+        isInSubscriptionForm
+        subscriptionId="sub_1"
+      />,
+      { wrapper: Wrapper },
+    )
 
     expect(screen.queryByRole('button', { name: /actions/i })).not.toBeInTheDocument()
   })

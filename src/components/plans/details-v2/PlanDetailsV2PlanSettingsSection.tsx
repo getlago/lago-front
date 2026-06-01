@@ -32,11 +32,13 @@ gql`
 type PlanDetailsV2PlanSettingsSectionProps = {
   plan: PlanDetailsV2Fragment
   isInSubscriptionForm?: boolean
+  subscriptionId?: string
 }
 
 export const PlanDetailsV2PlanSettingsSection = ({
   plan,
   isInSubscriptionForm = false,
+  subscriptionId,
 }: PlanDetailsV2PlanSettingsSectionProps) => {
   const { translate } = useInternationalization()
   const { canUpdate } = useAccordionPermissions(isInSubscriptionForm)
@@ -54,14 +56,19 @@ export const PlanDetailsV2PlanSettingsSection = ({
           {
             label: translate('text_63e51ef4985f0ebd75c212fc'),
             onClick: () => drawerRef.current?.openDrawer(),
-            hidden: !canUpdate,
+            // Plan-settings override via planOverrides is a deferred fast-follow; hidden in sub mode so updatePlan never hits a shared base plan (R3).
+            hidden: !canUpdate || !!subscriptionId,
           },
         ]}
       >
         <PlanSettingsInfo plan={plan} />
       </SectionAccordion>
 
-      <SubscriptionFeeAccordion plan={plan} isInSubscriptionForm={isInSubscriptionForm} />
+      <SubscriptionFeeAccordion
+        plan={plan}
+        isInSubscriptionForm={isInSubscriptionForm}
+        subscriptionId={subscriptionId}
+      />
 
       <PlanSettingsDrawer ref={drawerRef} plan={plan} />
     </section>

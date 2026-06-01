@@ -208,7 +208,7 @@ describe('PlanDetailsV2FixedChargesSection', () => {
     expect(screen.queryByText('text_176072970726882uau5y69f1')).not.toBeInTheDocument()
   })
 
-  it('hides Edit + Delete actions when isInSubscriptionForm is true', async () => {
+  it('shows Edit but hides Add + Delete when isInSubscriptionForm is true', async () => {
     const plan = {
       ...planDetailsV2Fixture,
       fixedCharges: [buildFixedChargeFixture({ id: 'fc_sub' })],
@@ -226,8 +226,14 @@ describe('PlanDetailsV2FixedChargesSection', () => {
       { wrapper: Wrapper },
     )
 
-    // No actions menu trigger renders when both Edit and Delete are hidden.
-    expect(screen.queryByRole('button', { name: /actions/i })).not.toBeInTheDocument()
+    // Actions menu renders because Edit is visible (canUpdate=true via subscriptionsUpdate)
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    // Edit IS present
+    expect(screen.getByText('text_63e51ef4985f0ebd75c212fc')).toBeInTheDocument()
+    // Delete is NOT present (canDelete=false in sub mode)
+    expect(screen.queryByText('text_63ea0f84f400488553caa786')).not.toBeInTheDocument()
+    // Add CTA is NOT present (canCreate=false in sub mode — already covered by the
+    // 'hides the Add CTA when isInSubscriptionForm is true' test above)
   })
 
   it('hides Delete when plansDelete permission is missing', async () => {

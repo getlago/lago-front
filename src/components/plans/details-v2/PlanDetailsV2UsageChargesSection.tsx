@@ -36,6 +36,7 @@ import { PlanDetailsV2SectionId } from './sidebarSections'
 gql`
   fragment UsageChargeForDetailsV2 on Charge {
     id
+    code
     chargeModel
     invoiceable
     invoiceDisplayName

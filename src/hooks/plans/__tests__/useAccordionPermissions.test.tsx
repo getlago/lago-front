@@ -8,12 +8,14 @@ type PlanPermissions = {
   plansCreate: boolean
   plansUpdate: boolean
   plansDelete: boolean
+  subscriptionsUpdate: boolean
 }
 
 const DEFAULT_PERMISSIONS: PlanPermissions = {
   plansCreate: true,
   plansUpdate: true,
   plansDelete: true,
+  subscriptionsUpdate: true,
 }
 
 const mockCurrentUser = {
@@ -77,10 +79,18 @@ describe('useAccordionPermissions', () => {
     expect(prepare({ plansDelete: false }).result.current.canDelete).toBe(false)
   })
 
-  it('forces all flags to false when isInSubscriptionForm=true', () => {
-    const { result } = prepare(DEFAULT_PERMISSIONS, true)
+  it('allows update via subscriptionsUpdate but blocks create/delete in sub mode', () => {
+    const { result } = prepare({ subscriptionsUpdate: true }, true)
 
-    expect(result.current).toEqual({ canCreate: false, canUpdate: false, canDelete: false })
+    expect(result.current.canUpdate).toBe(true)
+    expect(result.current.canCreate).toBe(false)
+    expect(result.current.canDelete).toBe(false)
+  })
+
+  it('blocks update in sub mode without subscriptionsUpdate', () => {
+    const { result } = prepare({ subscriptionsUpdate: false }, true)
+
+    expect(result.current.canUpdate).toBe(false)
   })
 
   it('keeps unrelated flags true when only one permission is revoked', () => {

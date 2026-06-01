@@ -3,7 +3,6 @@ import { useRef } from 'react'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
-  CurrencyEnum,
   LagoApiError,
   PlanForDetailsV2AdvancedSectionFragmentDoc,
   PlanForDetailsV2FixedChargesSectionFragmentDoc,
@@ -11,8 +10,7 @@ import {
   PlanForDetailsV2UsageChargesSectionFragmentDoc,
   useGetPlanForDetailsV2Query,
 } from '~/generated/graphql'
-import { useChargeMutationsWithCascade } from '~/hooks/plans/useChargeMutationsWithCascade'
-import { useFixedChargeMutationsWithCascade } from '~/hooks/plans/useFixedChargeMutationsWithCascade'
+import { useDetailsV2ChargeMutations } from '~/hooks/plans/useDetailsV2ChargeMutations'
 
 import { PlanDetailsV2AdvancedSection } from './PlanDetailsV2AdvancedSection'
 import {
@@ -57,9 +55,14 @@ const TOP_LEVEL_SECTION_IDS: PlanDetailsV2SectionId[] = [
 type PlanDetailsV2Props = {
   planId: string
   isInSubscriptionForm?: boolean
+  subscriptionId?: string
 }
 
-export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDetailsV2Props) => {
+export const PlanDetailsV2 = ({
+  planId,
+  isInSubscriptionForm = false,
+  subscriptionId,
+}: PlanDetailsV2Props) => {
   const { data, loading } = useGetPlanForDetailsV2Query({
     variables: { planId },
     skip: !planId,
@@ -69,15 +72,9 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
   const fixedChargesRef = useRef<PlanDetailsV2FixedChargesSectionRef>(null)
   const usageChargesRef = useRef<PlanDetailsV2UsageChargesSectionRef>(null)
 
-  const usageChargeMutations = useChargeMutationsWithCascade({
-    planId: data?.plan?.id ?? '',
-    hasOverriddenPlans: data?.plan?.hasOverriddenPlans ?? false,
-    currency: (data?.plan?.amountCurrency as CurrencyEnum) ?? CurrencyEnum.Usd,
-  })
-
-  const fixedChargeMutations = useFixedChargeMutationsWithCascade({
-    planId: data?.plan?.id ?? '',
-    hasOverriddenPlans: data?.plan?.hasOverriddenPlans ?? false,
+  const { usageChargeMutations, fixedChargeMutations } = useDetailsV2ChargeMutations({
+    plan: data?.plan,
+    subscriptionId,
   })
 
   const handleItemClick = (id: string) => {
@@ -104,7 +101,7 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
   }
 
   return (
-    <div className="flex gap-8 px-12">
+    <div className="flex gap-8">
       <PlanDetailsV2LeftSidebar
         isInSubscriptionForm={isInSubscriptionForm}
         onItemClick={handleItemClick}
@@ -118,6 +115,7 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
                 key={id}
                 plan={plan}
                 isInSubscriptionForm={isInSubscriptionForm}
+                subscriptionId={subscriptionId}
               />
             )
           }
@@ -147,7 +145,11 @@ export const PlanDetailsV2 = ({ planId, isInSubscriptionForm = false }: PlanDeta
             <section key={id} id={id} className="min-h-48 scroll-mt-12 rounded-xl bg-grey-100" />
           )
         })}
-        <PlanDetailsV2AdvancedSection plan={plan} isInSubscriptionForm={isInSubscriptionForm} />
+        <PlanDetailsV2AdvancedSection
+          plan={plan}
+          isInSubscriptionForm={isInSubscriptionForm}
+          subscriptionId={subscriptionId}
+        />
       </div>
     </div>
   )

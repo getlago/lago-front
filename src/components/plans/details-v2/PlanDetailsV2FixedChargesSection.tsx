@@ -27,6 +27,7 @@ import { PlanDetailsV2SectionId } from './sidebarSections'
 gql`
   fragment FixedChargeForDetailsV2 on FixedCharge {
     id
+    code
     invoiceDisplayName
     chargeModel
     units
@@ -92,6 +93,7 @@ type FixedCharge = NonNullable<PlanDetailsV2Fragment['fixedCharges']>[number]
 
 const toLocalInput = (fixedCharge: FixedCharge): LocalFixedChargeInput => ({
   id: fixedCharge.id,
+  code: fixedCharge.code,
   addOn: fixedCharge.addOn,
   applyUnitsImmediately: false,
   chargeModel: fixedCharge.chargeModel,
