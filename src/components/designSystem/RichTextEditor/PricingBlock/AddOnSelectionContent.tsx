@@ -12,7 +12,11 @@ import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { ComboboxItem } from '~/components/form'
 import { ComboBox } from '~/components/form/ComboBox/ComboBox'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum, useGetAddOnsForFixedChargesSectionQuery } from '~/generated/graphql'
+import {
+  type AddOnForFixedChargesSectionFragment,
+  CurrencyEnum,
+  useGetAddOnsForFixedChargesSectionQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -23,16 +27,18 @@ import EditAddOnDrawer, { editAddOnDrawerDefaultValues } from './EditAddOnDrawer
 
 interface AddOnSelectionContentExtraProps {
   currency: CurrencyEnum
+  onAddOnPayloadCapture?: (addOnId: string, addOn: AddOnForFixedChargesSectionFragment) => void
 }
 
 const addOnSelectionContentDefaultProps: AddOnSelectionContentExtraProps = {
   currency: CurrencyEnum.Usd,
+  onAddOnPayloadCapture: undefined,
 }
 
 const AddOnSelectionContent = withForm({
   defaultValues: pricingDrawerDefaultValues,
   props: addOnSelectionContentDefaultProps,
-  render: function AddOnSelectionContent({ form, currency }) {
+  render: function AddOnSelectionContent({ form, currency, onAddOnPayloadCapture }) {
     const { translate } = useInternationalization()
     const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
@@ -178,6 +184,8 @@ const AddOnSelectionContent = withForm({
                   form.setFieldValue(`addOnItems[${index}].code`, addOn.code)
                   form.setFieldValue(`addOnItems[${index}].description`, '')
                   form.setFieldValue(`addOnItems[${index}].totalAmount`, '')
+
+                  onAddOnPayloadCapture?.(addOn.id, addOn)
 
                   setPendingAddOnIndices((prev) => {
                     const next = new Set(prev)

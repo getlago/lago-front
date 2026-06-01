@@ -18,7 +18,11 @@ import {
   fromBillingItems,
   toBillingItems,
 } from '~/core/serializers/serializeQuoteBillingItems'
-import { CurrencyEnum, OrderTypeEnum } from '~/generated/graphql'
+import {
+  type AddOnForFixedChargesSectionFragment,
+  CurrencyEnum,
+  OrderTypeEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -66,6 +70,25 @@ export const usePricingDrawer = (
     entitiesRef.current = { ...entitiesRef.current, ...entities }
     payloadsRef.current = { ...payloadsRef.current, ...originalPayloads }
   }, [initialBillingItems])
+
+  const captureAddOnPayload = useCallback(
+    (addOnId: string, addOn: AddOnForFixedChargesSectionFragment) => {
+      payloadsRef.current[addOnId] = {
+        position: 0, // will be set correctly by toBillingItems
+        add_on_code: addOn.code,
+        name: addOn.name,
+        description: addOn.description ?? '',
+        units: 1,
+        unit_amount_cents: Number(addOn.amountCents),
+        total_amount_cents: Number(addOn.amountCents), // units=1 × amountCents
+        invoice_display_name: addOn.invoiceDisplayName ?? '',
+        from_datetime: null,
+        to_datetime: null,
+        tax_codes: addOn.taxes?.map((t) => t.code) ?? [],
+      }
+    },
+    [],
+  )
 
   const validationSchema = useMemo(
     () =>
@@ -253,10 +276,17 @@ export const usePricingDrawer = (
           </Button>
         ),
         cancelOrCloseText: 'cancel',
-        children: <PricingDrawerContent form={form} quoteType={orderType} currency={currency} />,
+        children: (
+          <PricingDrawerContent
+            form={form}
+            quoteType={orderType}
+            currency={currency}
+            onAddOnPayloadCapture={captureAddOnPayload}
+          />
+        ),
       })
     },
-    [formDrawer, translate, organization?.defaultCurrency, form],
+    [formDrawer, translate, organization?.defaultCurrency, form, captureAddOnPayload],
   )
 
   return { onPricingCommand, entities: entitiesRef.current }

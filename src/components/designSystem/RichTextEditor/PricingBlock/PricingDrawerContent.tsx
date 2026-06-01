@@ -1,4 +1,4 @@
-import { CurrencyEnum, OrderTypeEnum } from '~/generated/graphql'
+import { type AddOnForFixedChargesSectionFragment, CurrencyEnum, OrderTypeEnum } from '~/generated/graphql'
 import { withForm } from '~/hooks/forms/useAppform'
 
 import AddOnSelectionContent from './AddOnSelectionContent'
@@ -8,17 +8,19 @@ import PlanSelectionContent from './PlanSelectionContent'
 interface PricingDrawerContentExtraProps {
   quoteType: OrderTypeEnum
   currency: CurrencyEnum
+  onAddOnPayloadCapture?: (addOnId: string, addOn: AddOnForFixedChargesSectionFragment) => void
 }
 
 const pricingDrawerContentDefaultProps: PricingDrawerContentExtraProps = {
   quoteType: OrderTypeEnum.OneOff,
   currency: CurrencyEnum.Usd,
+  onAddOnPayloadCapture: undefined,
 }
 
 const PricingDrawerContent = withForm({
   defaultValues: pricingDrawerDefaultValues,
   props: pricingDrawerContentDefaultProps,
-  render: function PricingDrawerContent({ form, quoteType, currency }) {
+  render: function PricingDrawerContent({ form, quoteType, currency, onAddOnPayloadCapture }) {
     const isPlanSelection =
       quoteType === OrderTypeEnum.SubscriptionCreation ||
       quoteType === OrderTypeEnum.SubscriptionAmendment
@@ -27,7 +29,13 @@ const PricingDrawerContent = withForm({
       return <PlanSelectionContent form={form} />
     }
 
-    return <AddOnSelectionContent form={form} currency={currency} />
+    return (
+      <AddOnSelectionContent
+        form={form}
+        currency={currency}
+        onAddOnPayloadCapture={onAddOnPayloadCapture}
+      />
+    )
   },
 })
 
