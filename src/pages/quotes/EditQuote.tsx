@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
+import type { OnPricingCommand } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
 import RichTextEditor, {
   type RichTextEditorMode,
 } from '~/components/designSystem/RichTextEditor/RichTextEditor'
@@ -12,6 +13,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { RightAsidePage } from '~/components/layouts/RightAsidePage'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
+import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import { type UpdateQuoteVersionInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -60,7 +62,10 @@ const EditQuote = () => {
 
   const isUpdating = isUpdatingQuote || isUpdatingQuoteVersion
 
-  const { onPricingCommand, entities } = usePricingDrawer(quote?.orderType)
+  const { onPricingCommand, entities } = usePricingDrawer(
+    quote?.orderType,
+    quote?.currentVersion?.billingItems,
+  )
 
   const getMarkdownRef = useRef<(() => string) | null>(null)
   const lastSavedContentRef = useRef('')
@@ -146,6 +151,34 @@ const EditQuote = () => {
     }
   }, [])
 
+  const savePricingBlock = useCallback(
+    async (billingItems?: BillingItemsPayload) => {
+      if (!versionId) return
+
+      const content = getMarkdownRef.current?.()
+
+      if (!content) return
+
+      setSaveStatus('saving')
+
+      const payload: UpdateQuoteVersionInput = { id: versionId, content, billingItems }
+
+      failedPayloadRef.current = payload
+
+      try {
+        const result = await updateQuoteVersionRef.current(payload, false)
+
+        if (result.data?.updateQuoteVersion) {
+          lastSavedContentRef.current = content
+          failedPayloadRef.current = null
+        }
+      } catch {
+        setSaveStatus('error')
+      }
+    },
+    [versionId],
+  )
+
   const handleClose = () => {
     debouncedSave.cancel()
     onClose()
@@ -223,7 +256,20 @@ const EditQuote = () => {
           getMarkdownRef={getMarkdownRef}
           onChange={handleChange}
           mode={editorMode}
-          onPricingCommand={onPricingCommand}
+          onPricingCommand={useCallback<OnPricingCommand>(
+            ({ onSave, editData }) => {
+              onPricingCommand({
+                onSave: (attrs, entityData, billingItems) => {
+                  // 1. Insert/update the TipTap node (existing behavior)
+                  onSave(attrs, entityData, billingItems)
+                  // 2. Unified save: content + billingItems together
+                  savePricingBlock(billingItems)
+                },
+                editData,
+              })
+            },
+            [onPricingCommand, savePricingBlock],
+          )}
           entities={entities}
         />
       </RightAsidePage.Content>
