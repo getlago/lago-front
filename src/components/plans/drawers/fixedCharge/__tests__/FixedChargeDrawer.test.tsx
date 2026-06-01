@@ -1,6 +1,8 @@
 import { render } from '@testing-library/react'
 import { createRef } from 'react'
 
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+
 import {
   FixedChargeDrawer,
   FixedChargeDrawerFormValues,
@@ -377,7 +379,7 @@ describe('FixedChargeDrawer', () => {
 
     describe('WHEN onSave reports a duplicate code', () => {
       it('THEN surfaces the error under the Code field (and keeps the drawer open)', async () => {
-        mockOnSave.mockResolvedValueOnce('codeConflict')
+        mockOnSave.mockResolvedValueOnce(FORM_ERRORS_ENUM.existingCode)
         const setFieldMeta = jest.fn()
 
         render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} showCode />)

@@ -31,7 +31,11 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { useChargeForm } from '~/hooks/plans/useChargeForm'
 
-import { DEFAULT_VALUES, type FixedChargeDrawerFormValues } from './constants'
+import {
+  DEFAULT_VALUES,
+  EXISTING_CODE_ERROR_MESSAGE,
+  type FixedChargeDrawerFormValues,
+} from './constants'
 
 gql`
   fragment AddOnForFixedChargesSection on AddOn {
@@ -254,7 +258,24 @@ export const FixedChargeDrawerContent = withForm({
                 />
 
                 {showCode && (
-                  <form.AppField name="code">
+                  <form.AppField
+                    name="code"
+                    listeners={{
+                      // Clear the server "code already exists" error once the user
+                      // edits the code so the submit button re-enables. Gated by the
+                      // message so the zod required-check isn't wiped.
+                      onChange: () => {
+                        const meta = form.getFieldMeta('code')
+
+                        if (meta?.errorMap?.onDynamic?.message === EXISTING_CODE_ERROR_MESSAGE) {
+                          form.setFieldMeta('code', (current) => ({
+                            ...current,
+                            errorMap: { ...current.errorMap, onDynamic: undefined },
+                          }))
+                        }
+                      },
+                    }}
+                  >
                     {(field) => (
                       <field.TextInputField
                         label={translate('text_629728388c4d2300e2d380b7')}

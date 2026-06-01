@@ -7,6 +7,7 @@ import { ReactNode } from 'react'
 import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
 import { LocalFixedChargeInput } from '~/components/plans/types'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import {
   CreateFixedChargeDocument,
   DestroyFixedChargeDocument,
@@ -61,7 +62,13 @@ const fixedChargeResult = {
 const wrapper = (mocks: MockedResponse[]) =>
   function MockedWrapper({ children }: { children: ReactNode }) {
     return (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      // errorPolicy 'all' mirrors the app client: GraphQL errors resolve in
+      // `result.errors` rather than throwing.
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+        defaultOptions={{ mutate: { errorPolicy: 'all' } }}
+      >
         <NiceModal.Provider>{children}</NiceModal.Provider>
       </MockedProvider>
     )
@@ -192,7 +199,7 @@ describe('useFixedChargeMutationsWithCascade', () => {
     expect(capturedInput?.properties).toStrictEqual({ amount: '10' })
   })
 
-  it("returns 'codeConflict' when the backend reports a duplicate code", async () => {
+  it('returns the existing-code error when the backend reports a duplicate code', async () => {
     const createMock: MockedResponse = {
       request: { query: CreateFixedChargeDocument },
       variableMatcher: () => true,
@@ -210,13 +217,13 @@ describe('useFixedChargeMutationsWithCascade', () => {
       { wrapper: wrapper([createMock]) },
     )
 
-    let outcome: boolean | 'codeConflict' | undefined
+    let outcome: boolean | FORM_ERRORS_ENUM.existingCode | undefined
 
     await act(async () => {
       outcome = await result.current.handleSaveCharge(buildCharge({ code: 'dup_code' }), null)
     })
 
-    expect(outcome).toBe('codeConflict')
+    expect(outcome).toBe(FORM_ERRORS_ENUM.existingCode)
   })
 
   it('opens cascade dialog when hasOverriddenPlans=true', async () => {

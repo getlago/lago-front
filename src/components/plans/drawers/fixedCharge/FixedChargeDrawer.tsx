@@ -10,6 +10,7 @@ import { LocalFixedChargeInput } from '~/components/plans/types'
 import { PlanFormProvider, usePlanFormContext } from '~/contexts/PlanFormContext'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
 import {
+  FORM_ERRORS_ENUM,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_ADD_ON_IN_FIXED_CHARGE_DRAWER_INPUT_CLASSNAME,
 } from '~/core/constants/form'
@@ -22,7 +23,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import { DEFAULT_VALUES } from './constants'
+import { DEFAULT_VALUES, EXISTING_CODE_ERROR_MESSAGE } from './constants'
 import { FixedChargeDrawerContent } from './FixedChargeDrawerContent'
 
 export { type FixedChargeDrawerFormValues, DEFAULT_VALUES } from './constants'
@@ -79,7 +80,11 @@ interface FixedChargeDrawerProps {
   onSave: (
     charge: LocalFixedChargeInput,
     index: number | null,
-  ) => void | boolean | 'codeConflict' | Promise<void | boolean | 'codeConflict'>
+  ) =>
+    | void
+    | boolean
+    | FORM_ERRORS_ENUM.existingCode
+    | Promise<void | boolean | FORM_ERRORS_ENUM.existingCode>
   onDelete?: (index: number) => void
   removeChargeWarningDialogRef?: React.RefObject<RemoveChargeWarningDialogRef>
 }
@@ -136,10 +141,10 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
 
         // Backend rejected a duplicate code: surface it under the Code input
         // (same pattern as plan-settings code) and keep the drawer open.
-        if (result === 'codeConflict') {
+        if (result === FORM_ERRORS_ENUM.existingCode) {
           formApi.setFieldMeta('code', (meta) => ({
             ...meta,
-            errorMap: { ...meta.errorMap, onDynamic: { message: 'text_632a2d437e341dcc76817556' } },
+            errorMap: { ...meta.errorMap, onDynamic: { message: EXISTING_CODE_ERROR_MESSAGE } },
           }))
           return
         }

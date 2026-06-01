@@ -1,9 +1,10 @@
-import { ApolloError, gql } from '@apollo/client'
+import { gql } from '@apollo/client'
 
 import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { cacheArrayInsert, cacheArrayRemove } from '~/core/apolloClient/cacheHelpers'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { serializeFixedChargeProperties } from '~/core/serializers/serializePlanInput'
 import {
   FixedChargeCreateInput,
@@ -136,38 +137,38 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
   const handleSaveCharge = async (
     charge: LocalFixedChargeInput,
     index: number | null,
-  ): Promise<boolean | 'codeConflict'> => {
+  ): Promise<boolean | FORM_ERRORS_ENUM.existingCode> => {
     const isCreate = index === null
     let codeConflict = false
+    let hasError = false
 
     const confirmed = await openCascadeDialog({
       title: translate('text_1729604107534r3hsj7i64gp'),
       mainActionLabel: translate('text_1729604107534dfyz8j53ho5'),
       hasOverriddenPlans,
       onConfirm: async (cascadeUpdates) => {
-        try {
-          if (isCreate) {
-            await createFixedCharge({
+        // errorPolicy is 'all', so GraphQL errors resolve in `errors` instead of
+        // throwing. A duplicate code becomes a field error in the drawer; any
+        // other error keeps the drawer open (toast handled by the error link).
+        const { errors } = isCreate
+          ? await createFixedCharge({
               variables: { input: buildCreateInput(charge, cascadeUpdates) },
             })
-          } else {
-            await updateFixedCharge({
+          : await updateFixedCharge({
               variables: { input: buildUpdateInput(charge, cascadeUpdates) },
             })
-          }
-        } catch (error) {
-          // Duplicate code: swallow here so the drawer can show a field-level
-          // error; rethrow anything else to keep the default error handling.
-          if (error instanceof ApolloError && hasDefinedGQLError('ValueAlreadyExist', error)) {
-            codeConflict = true
-            return
-          }
-          throw error
+
+        if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+          codeConflict = true
+        } else if (errors?.length) {
+          hasError = true
         }
       },
     })
 
-    return codeConflict ? 'codeConflict' : confirmed
+    if (codeConflict) return FORM_ERRORS_ENUM.existingCode
+
+    return hasError ? false : confirmed
   }
 
   const handleDeleteCharge = async (chargeId: string): Promise<boolean> => {

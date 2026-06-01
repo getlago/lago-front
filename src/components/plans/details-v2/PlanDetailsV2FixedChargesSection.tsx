@@ -9,6 +9,7 @@ import {
 import { FixedChargeInfo } from '~/components/plans/FixedChargeInfo'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import {
   CurrencyEnum,
   GraduatedChargeFragmentDoc,
@@ -82,7 +83,7 @@ export type FixedChargeMutations = {
   handleSaveCharge: (
     charge: LocalFixedChargeInput,
     index: number | null,
-  ) => Promise<boolean | 'codeConflict'>
+  ) => Promise<boolean | FORM_ERRORS_ENUM.existingCode>
   handleDeleteCharge: (chargeId: string) => Promise<boolean>
 }
 

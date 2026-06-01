@@ -9,6 +9,7 @@ import {
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargeInfo } from '~/components/plans/UsageChargeInfo'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import {
   CurrencyEnum,
   CustomChargeFragmentDoc,
@@ -141,7 +142,7 @@ export type UsageChargeMutations = {
   handleSaveCharge: (
     charge: LocalUsageChargeInput,
     index: number | null,
-  ) => Promise<boolean | 'codeConflict'>
+  ) => Promise<boolean | FORM_ERRORS_ENUM.existingCode>
   handleDeleteCharge: (chargeId: string) => Promise<boolean>
 }
 
