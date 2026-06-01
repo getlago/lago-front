@@ -30,7 +30,7 @@ const EditQuote = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { quoteId } = useParams()
-  const { quote, loading } = useQuote(quoteId)
+  const { quote, loading, refetch: refetchQuote } = useQuote(quoteId)
 
   const versionId = quote?.currentVersion?.id
 
@@ -171,12 +171,13 @@ const EditQuote = () => {
         if (result.data?.updateQuoteVersion) {
           lastSavedContentRef.current = content
           failedPayloadRef.current = null
+          refetchQuote()
         }
       } catch {
         setSaveStatus('error')
       }
     },
-    [versionId],
+    [versionId, refetchQuote],
   )
 
   const handleClose = () => {
