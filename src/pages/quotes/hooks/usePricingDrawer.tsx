@@ -1,6 +1,6 @@
 import { revalidateLogic } from '@tanstack/react-form'
 import { DateTime } from 'luxon'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
@@ -12,6 +12,12 @@ import type { PricingBlockAttributes } from '~/components/designSystem/RichTextE
 import { pricingDrawerDefaultValues } from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
 import PricingDrawerContent from '~/components/designSystem/RichTextEditor/PricingBlock/PricingDrawerContent'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
+import {
+  type AddOnPayload,
+  type BillingItemsPayload,
+  fromBillingItems,
+  toBillingItems,
+} from '~/core/serializers/serializeQuoteBillingItems'
 import { CurrencyEnum, OrderTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -28,17 +34,38 @@ interface UsePricingDrawerReturn {
 
 export const usePricingDrawer = (
   quoteOrderType: OrderTypeEnum | undefined,
+  initialBillingItems?: unknown,
 ): UsePricingDrawerReturn => {
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
   const formDrawer = useFormDrawer()
   const entitiesRef = useRef<Record<string, EntityData>>({})
+  const payloadsRef = useRef<Record<string, AddOnPayload>>({})
   const onSaveRef = useRef<
-    ((attrs: PricingBlockAttributes, entityData: Record<string, EntityData>) => void) | null
+    | ((
+        attrs: PricingBlockAttributes,
+        entityData: Record<string, EntityData>,
+        billingItems?: BillingItemsPayload,
+      ) => void)
+    | null
   >(null)
   const quoteOrderTypeRef = useRef(quoteOrderType)
 
   quoteOrderTypeRef.current = quoteOrderType
+
+  // Hydrate from saved billingItems on mount / when quote data arrives
+  useEffect(() => {
+    if (!initialBillingItems) return
+
+    const parsed = initialBillingItems as BillingItemsPayload
+
+    if (!parsed.addons?.length) return
+
+    const { entities, originalPayloads } = fromBillingItems(parsed)
+
+    entitiesRef.current = { ...entitiesRef.current, ...entities }
+    payloadsRef.current = { ...payloadsRef.current, ...originalPayloads }
+  }, [initialBillingItems])
 
   const validationSchema = useMemo(
     () =>
@@ -153,9 +180,12 @@ export const usePricingDrawer = (
           }
         })
 
+        const billingItems = toBillingItems(confirmedItems, payloadsRef.current)
+
         onSaveRef.current?.(
           { pricingType: 'addOns' as const, entityIds: confirmedItems.map((item) => item.addOnId) },
           entityData,
+          billingItems,
         )
         entitiesRef.current = { ...entitiesRef.current, ...entityData }
       }
