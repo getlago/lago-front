@@ -1,6 +1,6 @@
 import { revalidateLogic } from '@tanstack/react-form'
 import { DateTime } from 'luxon'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
@@ -44,6 +44,7 @@ export const usePricingDrawer = (
   const { organization } = useOrganizationInfos()
   const formDrawer = useFormDrawer()
   const entitiesRef = useRef<Record<string, EntityData>>({})
+  const [entities, setEntities] = useState<Record<string, EntityData>>({})
   const payloadsRef = useRef<Record<string, AddOnPayload>>({})
   const onSaveRef = useRef<
     | ((
@@ -67,7 +68,10 @@ export const usePricingDrawer = (
 
     const { entities, originalPayloads } = fromBillingItems(parsed)
 
-    entitiesRef.current = { ...entitiesRef.current, ...entities }
+    const updated = { ...entitiesRef.current, ...entities }
+
+    entitiesRef.current = updated
+    setEntities(updated)
     payloadsRef.current = { ...payloadsRef.current, ...originalPayloads }
   }, [initialBillingItems])
 
@@ -179,7 +183,10 @@ export const usePricingDrawer = (
         }
 
         onSaveRef.current?.({ pricingType: 'plan' as const, entityIds: [value.planId] }, entityData)
-        entitiesRef.current = { ...entitiesRef.current, ...entityData }
+        const updatedPlan = { ...entitiesRef.current, ...entityData }
+
+        entitiesRef.current = updatedPlan
+        setEntities(updatedPlan)
       } else {
         const confirmedItems = value.addOnItems.filter((item) => item.addOnId)
 
@@ -210,7 +217,10 @@ export const usePricingDrawer = (
           entityData,
           billingItems,
         )
-        entitiesRef.current = { ...entitiesRef.current, ...entityData }
+        const updatedAddOns = { ...entitiesRef.current, ...entityData }
+
+        entitiesRef.current = updatedAddOns
+        setEntities(updatedAddOns)
       }
     },
   })
@@ -289,5 +299,5 @@ export const usePricingDrawer = (
     [formDrawer, translate, organization?.defaultCurrency, form, captureAddOnPayload],
   )
 
-  return { onPricingCommand, entities: entitiesRef.current }
+  return { onPricingCommand, entities }
 }
