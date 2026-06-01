@@ -1,6 +1,7 @@
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import NiceModal from '@ebay/nice-modal-react'
 import { act, renderHook, waitFor } from '@testing-library/react'
+import { GraphQLError } from 'graphql'
 import { ReactNode } from 'react'
 
 import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
@@ -10,6 +11,8 @@ import {
   CreateFixedChargeDocument,
   DestroyFixedChargeDocument,
   FixedChargeChargeModelEnum,
+  FixedChargeCreateInput,
+  PropertiesInput,
   UpdateFixedChargeDocument,
 } from '~/generated/graphql'
 
@@ -144,6 +147,76 @@ describe('useFixedChargeMutationsWithCascade', () => {
     })
 
     await waitFor(() => expect(called).toBe(true))
+  })
+
+  it('sends the charge code and prunes usage-only properties (standard)', async () => {
+    let capturedInput: FixedChargeCreateInput | undefined
+
+    const createMock: MockedResponse = {
+      request: { query: CreateFixedChargeDocument },
+      variableMatcher: (vars) => {
+        capturedInput = vars?.input
+
+        return true
+      },
+      result: { data: { createFixedCharge: { ...fixedChargeResult } } },
+    }
+
+    const { result } = renderHook(
+      () => useFixedChargeMutationsWithCascade({ planId: PLAN_ID, hasOverriddenPlans: false }),
+      { wrapper: wrapper([createMock]) },
+    )
+
+    // Stale usage-only fields seeded by getPropertyShape (typed as the broad
+    // PropertiesInput, mirroring the form) must not be sent to the BE.
+    const propertiesWithUsageFields: PropertiesInput = {
+      amount: '10',
+      pricingGroupKeys: ['region'],
+      packageSize: 10,
+      freeUnits: 0,
+    }
+
+    await act(async () => {
+      await result.current.handleSaveCharge(
+        buildCharge({
+          code: 'onboarding',
+          chargeModel: FixedChargeChargeModelEnum.Standard,
+          properties: propertiesWithUsageFields,
+        }),
+        null,
+      )
+    })
+
+    await waitFor(() => expect(capturedInput).toBeDefined())
+    expect(capturedInput?.code).toBe('onboarding')
+    expect(capturedInput?.properties).toStrictEqual({ amount: '10' })
+  })
+
+  it("returns 'codeConflict' when the backend reports a duplicate code", async () => {
+    const createMock: MockedResponse = {
+      request: { query: CreateFixedChargeDocument },
+      variableMatcher: () => true,
+      result: {
+        errors: [
+          new GraphQLError('Value already exists', {
+            extensions: { code: 'value_already_exist', details: { code: ['value_already_exist'] } },
+          }),
+        ],
+      },
+    }
+
+    const { result } = renderHook(
+      () => useFixedChargeMutationsWithCascade({ planId: PLAN_ID, hasOverriddenPlans: false }),
+      { wrapper: wrapper([createMock]) },
+    )
+
+    let outcome: boolean | 'codeConflict' | undefined
+
+    await act(async () => {
+      outcome = await result.current.handleSaveCharge(buildCharge({ code: 'dup_code' }), null)
+    })
+
+    expect(outcome).toBe('codeConflict')
   })
 
   it('opens cascade dialog when hasOverriddenPlans=true', async () => {

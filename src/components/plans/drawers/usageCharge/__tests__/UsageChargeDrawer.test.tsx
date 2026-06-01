@@ -357,11 +357,33 @@ describe('UsageChargeDrawer', () => {
         expect(mockOnSave).toHaveBeenCalledWith(
           expect.objectContaining({
             chargeModel: 'standard',
+            code: 'calls',
             invoiceable: true,
             payInAdvance: false,
           }),
           -1,
         )
+      })
+    })
+
+    describe('WHEN onSave reports a duplicate code', () => {
+      it('THEN surfaces the error under the Code field (and keeps the drawer open)', async () => {
+        mockOnSave.mockResolvedValueOnce('codeConflict')
+        const setFieldMeta = jest.fn()
+
+        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} showCode />)
+
+        const submit = capturedOnSubmit as unknown as (args: {
+          value: Record<string, unknown>
+          formApi: { setFieldMeta: jest.Mock }
+        }) => Promise<void>
+
+        await submit({
+          value: { ...capturedDefaultValues, code: 'dup_code' },
+          formApi: { setFieldMeta },
+        })
+
+        expect(setFieldMeta).toHaveBeenCalledWith('code', expect.any(Function))
       })
     })
 

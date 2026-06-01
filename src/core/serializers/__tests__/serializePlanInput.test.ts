@@ -3,6 +3,7 @@ import { transformFilterObjectToString } from '~/components/plans/utils'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
 import {
   serializeEntitlements,
+  serializeFixedChargeProperties,
   serializeMinimumCommitment,
   serializePlanInput,
   serializeUsageThresholds,
@@ -308,6 +309,92 @@ const fullProperty = {
     ],
   }),
 }
+
+describe('serializeFixedChargeProperties', () => {
+  // The full shape getPropertyShape seeds — most fields are usage-only and are
+  // NOT valid on FixedChargePropertiesInput.
+  const fullShape = {
+    amount: '10',
+    fixedAmount: '2',
+    freeUnits: 5,
+    freeUnitsPerEvents: 0,
+    rate: '5',
+    packageSize: 12,
+    pricingGroupKeys: ['region'],
+    graduatedRanges: [{ fromValue: 0, toValue: 1, flatAmount: '1', perUnitAmount: '2' }],
+    volumeRanges: [{ fromValue: 0, toValue: 1, flatAmount: '3', perUnitAmount: '4' }],
+  }
+
+  describe('standard', () => {
+    it('keeps only amount and prunes every usage-only field (regression)', () => {
+      expect(
+        serializeFixedChargeProperties(fullShape, FixedChargeChargeModelEnum.Standard),
+      ).toStrictEqual({ amount: '10' })
+    })
+
+    it('returns amount: undefined when no amount is set', () => {
+      expect(
+        serializeFixedChargeProperties({ amount: '' }, FixedChargeChargeModelEnum.Standard),
+      ).toStrictEqual({ amount: undefined })
+    })
+
+    it('handles null/undefined properties', () => {
+      expect(
+        serializeFixedChargeProperties(undefined, FixedChargeChargeModelEnum.Standard),
+      ).toStrictEqual({ amount: undefined })
+      expect(
+        serializeFixedChargeProperties(null, FixedChargeChargeModelEnum.Standard),
+      ).toStrictEqual({ amount: undefined })
+    })
+  })
+
+  describe('graduated', () => {
+    it('keeps only graduatedRanges (with scientific-notation + fromValue defaults)', () => {
+      expect(
+        serializeFixedChargeProperties(fullShape, FixedChargeChargeModelEnum.Graduated),
+      ).toStrictEqual({
+        graduatedRanges: [{ fromValue: 0, toValue: 1, flatAmount: '1', perUnitAmount: '2' }],
+      })
+    })
+
+    it('defaults a missing flatAmount to "0"', () => {
+      expect(
+        serializeFixedChargeProperties(
+          {
+            graduatedRanges: [
+              { fromValue: 0, toValue: 1, perUnitAmount: '1', flatAmount: undefined as never },
+            ],
+          },
+          FixedChargeChargeModelEnum.Graduated,
+        ),
+      ).toStrictEqual({
+        graduatedRanges: [{ fromValue: 0, toValue: 1, perUnitAmount: '1', flatAmount: '0' }],
+      })
+    })
+
+    it('returns graduatedRanges: undefined when none are set', () => {
+      expect(
+        serializeFixedChargeProperties({ amount: '10' }, FixedChargeChargeModelEnum.Graduated),
+      ).toStrictEqual({ graduatedRanges: undefined })
+    })
+  })
+
+  describe('volume', () => {
+    it('keeps only volumeRanges and prunes everything else', () => {
+      expect(
+        serializeFixedChargeProperties(fullShape, FixedChargeChargeModelEnum.Volume),
+      ).toStrictEqual({
+        volumeRanges: [{ fromValue: 0, toValue: 1, flatAmount: '3', perUnitAmount: '4' }],
+      })
+    })
+
+    it('returns volumeRanges: undefined when none are set', () => {
+      expect(
+        serializeFixedChargeProperties({ amount: '10' }, FixedChargeChargeModelEnum.Volume),
+      ).toStrictEqual({ volumeRanges: undefined })
+    })
+  })
+})
 
 describe('serializePlanInput()', () => {
   describe('a plan without charges', () => {
@@ -1740,21 +1827,10 @@ describe('serializePlanInput()', () => {
               addOnId: '5678',
               addon: undefined,
               taxes: undefined,
+              // Only amount is valid for a standard FixedChargePropertiesInput;
+              // usage-only fields must not leak through.
               properties: {
                 amount: '1',
-                fixedAmount: '2',
-                freeUnits: undefined,
-                freeUnitsPerEvents: 0,
-                freeUnitsPerTotalAggregation: '1',
-                graduatedRanges: undefined,
-                graduatedPercentageRanges: undefined,
-                pricingGroupKeys: undefined,
-                packageSize: undefined,
-                perTransactionMaxAmount: undefined,
-                perTransactionMinAmount: undefined,
-                rate: '5',
-                volumeRanges: undefined,
-                customProperties: undefined,
               },
               taxCodes: [],
             },
@@ -1813,19 +1889,8 @@ describe('serializePlanInput()', () => {
               addOnId: '5678',
               addon: undefined,
               taxes: undefined,
+              // Only volumeRanges is valid for a volume FixedChargePropertiesInput.
               properties: {
-                amount: '1',
-                fixedAmount: '2',
-                freeUnits: undefined,
-                freeUnitsPerEvents: 0,
-                freeUnitsPerTotalAggregation: '1',
-                graduatedRanges: undefined,
-                graduatedPercentageRanges: undefined,
-                pricingGroupKeys: undefined,
-                packageSize: undefined,
-                perTransactionMinAmount: undefined,
-                perTransactionMaxAmount: undefined,
-                rate: '5',
                 volumeRanges: [
                   {
                     flatAmount: '1',
@@ -1838,7 +1903,6 @@ describe('serializePlanInput()', () => {
                     perUnitAmount: '1',
                   },
                 ],
-                customProperties: undefined,
               },
               taxCodes: [],
             },
@@ -1903,15 +1967,6 @@ describe('serializePlanInput()', () => {
               taxes: undefined,
               properties: {
                 amount: '5',
-                customProperties: undefined,
-                freeUnits: undefined,
-                graduatedPercentageRanges: undefined,
-                graduatedRanges: undefined,
-                packageSize: undefined,
-                perTransactionMaxAmount: undefined,
-                perTransactionMinAmount: undefined,
-                pricingGroupKeys: undefined,
-                volumeRanges: undefined,
               },
               taxCodes: [],
             },
@@ -1986,9 +2041,6 @@ describe('serializePlanInput()', () => {
               addon: undefined,
               taxes: undefined,
               properties: {
-                customProperties: undefined,
-                freeUnits: undefined,
-                graduatedPercentageRanges: undefined,
                 graduatedRanges: [
                   {
                     flatAmount: '0',
@@ -2003,11 +2055,6 @@ describe('serializePlanInput()', () => {
                     toValue: null,
                   },
                 ],
-                packageSize: undefined,
-                perTransactionMaxAmount: undefined,
-                perTransactionMinAmount: undefined,
-                pricingGroupKeys: undefined,
-                volumeRanges: undefined,
               },
               taxCodes: [],
             },
@@ -2080,9 +2127,6 @@ describe('serializePlanInput()', () => {
               addon: undefined,
               taxes: undefined,
               properties: {
-                customProperties: undefined,
-                freeUnits: undefined,
-                graduatedPercentageRanges: undefined,
                 graduatedRanges: [
                   {
                     flatAmount: '10',
@@ -2097,11 +2141,6 @@ describe('serializePlanInput()', () => {
                     toValue: null,
                   },
                 ],
-                packageSize: undefined,
-                perTransactionMaxAmount: undefined,
-                perTransactionMinAmount: undefined,
-                pricingGroupKeys: undefined,
-                volumeRanges: undefined,
               },
               taxCodes: [],
             },

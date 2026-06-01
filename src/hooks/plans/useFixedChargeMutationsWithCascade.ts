@@ -1,9 +1,10 @@
-import { gql } from '@apollo/client'
+import { ApolloError, gql } from '@apollo/client'
 
 import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { cacheArrayInsert, cacheArrayRemove } from '~/core/apolloClient/cacheHelpers'
+import { serializeFixedChargeProperties } from '~/core/serializers/serializePlanInput'
 import {
   FixedChargeCreateInput,
   FixedChargeForDetailsV2FragmentDoc,
@@ -50,6 +51,7 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     update(cache, { data }) {
       const created = data?.createFixedCharge
+
       if (!created) return
       cacheArrayInsert(cache, { __typename: 'Plan', id: planId }, 'fixedCharges', created)
     },
@@ -78,6 +80,7 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
   const [destroyFixedCharge] = useDestroyFixedChargeMutation({
     update(cache, { data }) {
       const id = data?.destroyFixedCharge?.id
+
       if (!id) return
       cacheArrayRemove(cache, { __typename: 'Plan', id: planId }, 'fixedCharges', id, 'FixedCharge')
     },
@@ -101,7 +104,9 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
     code: charge.code || undefined,
     invoiceDisplayName: charge.invoiceDisplayName || undefined,
     payInAdvance: charge.payInAdvance ?? false,
-    properties: charge.properties,
+    properties: charge.properties
+      ? serializeFixedChargeProperties(charge.properties, charge.chargeModel)
+      : undefined,
     prorated: charge.prorated ?? false,
     units: charge.units ? String(charge.units) : '0',
     taxCodes: charge.taxes?.map((t) => t.code) ?? [],
@@ -118,7 +123,9 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
     code: charge.code || undefined,
     invoiceDisplayName: charge.invoiceDisplayName || undefined,
     payInAdvance: charge.payInAdvance ?? false,
-    properties: charge.properties,
+    properties: charge.properties
+      ? serializeFixedChargeProperties(charge.properties, charge.chargeModel)
+      : undefined,
     prorated: charge.prorated ?? false,
     units: charge.units ? String(charge.units) : '0',
     taxCodes: charge.taxes?.map((t) => t.code) ?? [],
@@ -151,12 +158,7 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
         } catch (error) {
           // Duplicate code: swallow here so the drawer can show a field-level
           // error; rethrow anything else to keep the default error handling.
-          if (
-            hasDefinedGQLError(
-              'ValueAlreadyExist',
-              error as Parameters<typeof hasDefinedGQLError>[1],
-            )
-          ) {
+          if (error instanceof ApolloError && hasDefinedGQLError('ValueAlreadyExist', error)) {
             codeConflict = true
             return
           }

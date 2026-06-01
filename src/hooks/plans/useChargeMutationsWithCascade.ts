@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { ApolloError, gql } from '@apollo/client'
 
 import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
 import { LocalPricingUnitType, LocalUsageChargeInput } from '~/components/plans/types'
@@ -170,12 +170,7 @@ export const useChargeMutationsWithCascade = ({ planId, hasOverriddenPlans, curr
         } catch (error) {
           // Duplicate code: swallow here so the drawer can show a field-level
           // error; rethrow anything else to keep the default error handling.
-          if (
-            hasDefinedGQLError(
-              'ValueAlreadyExist',
-              error as Parameters<typeof hasDefinedGQLError>[1],
-            )
-          ) {
+          if (error instanceof ApolloError && hasDefinedGQLError('ValueAlreadyExist', error)) {
             codeConflict = true
             return
           }
