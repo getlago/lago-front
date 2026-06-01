@@ -19,6 +19,7 @@ export interface DialogProps {
   formSubmit?: (e: React.FormEvent) => void
   onOpen?: () => void
   onClose?: () => void
+  onEntered?: () => void
 }
 
 export interface DialogRef {
@@ -35,6 +36,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
       children,
       onOpen,
       onClose,
+      onEntered,
       open = false,
       formId,
       formSubmit,
@@ -91,6 +93,7 @@ export const Dialog = forwardRef<DialogRef, DialogProps>(
               'flex flex-col md:max-w-xl mx-auto my-0 rounded-xl z-dialog p-10 max-w-full shadow-xl',
           }}
           transitionDuration={80}
+          TransitionProps={{ onEntered }}
           {...props}
         >
           <Typography
