@@ -53,7 +53,7 @@ const AddOnSelectionContent = withForm({
     const editAddOnSchema = useMemo(
       () =>
         z.object({
-          name: z.string(),
+          invoiceDisplayName: z.string(),
           description: z.string(),
           fromDatetime: z.string().min(1),
           toDatetime: z.string().min(1),
@@ -72,7 +72,7 @@ const AddOnSelectionContent = withForm({
 
         if (index === null) return
 
-        form.setFieldValue(`addOnItems[${index}].name`, value.name)
+        form.setFieldValue(`addOnItems[${index}].invoiceDisplayName`, value.invoiceDisplayName)
         form.setFieldValue(`addOnItems[${index}].description`, value.description)
         form.setFieldValue(`addOnItems[${index}].fromDatetime`, value.fromDatetime)
         form.setFieldValue(`addOnItems[${index}].toDatetime`, value.toDatetime)
@@ -88,7 +88,7 @@ const AddOnSelectionContent = withForm({
       // Using reset(values) would update options.defaultValues, which gets
       // overwritten back to empty by useForm's update() layout effect on re-render.
       editForm.reset()
-      editForm.setFieldValue('name', item.name)
+      editForm.setFieldValue('invoiceDisplayName', item.invoiceDisplayName)
       editForm.setFieldValue('description', item.description)
       editForm.setFieldValue('fromDatetime', item.fromDatetime)
       editForm.setFieldValue('toDatetime', item.toDatetime)
@@ -152,10 +152,12 @@ const AddOnSelectionContent = withForm({
                   addOnItemsField.pushValue({
                     addOnId: '',
                     name: '',
+                    invoiceDisplayName: '',
                     code: '',
                     description: '',
                     units: '1',
                     unitAmountCents: '',
+                    totalAmount: '',
                     fromDatetime: today.startOf('day').toISO(),
                     toDatetime: today.endOf('day').toISO(),
                   })
@@ -169,8 +171,13 @@ const AddOnSelectionContent = withForm({
 
                   form.setFieldValue(`addOnItems[${index}].addOnId`, addOn.id)
                   form.setFieldValue(`addOnItems[${index}].name`, addOn.name)
+                  form.setFieldValue(
+                    `addOnItems[${index}].invoiceDisplayName`,
+                    addOn.invoiceDisplayName ?? '',
+                  )
                   form.setFieldValue(`addOnItems[${index}].code`, addOn.code)
                   form.setFieldValue(`addOnItems[${index}].description`, '')
+                  form.setFieldValue(`addOnItems[${index}].totalAmount`, '')
 
                   setPendingAddOnIndices((prev) => {
                     const next = new Set(prev)
@@ -253,7 +260,7 @@ const AddOnSelectionContent = withForm({
                                 })}
                               </Typography>
                               <Typography variant="bodyHl" color="grey700">
-                                {item.name}
+                                {item.invoiceDisplayName || item.name}
                               </Typography>
                               <Typography variant="caption" color="grey600">
                                 {item.description}
@@ -331,25 +338,39 @@ const AddOnSelectionContent = withForm({
                               selector={(state) => ({
                                 units: state.values.addOnItems?.[index]?.units,
                                 unitAmountCents: state.values.addOnItems?.[index]?.unitAmountCents,
+                                totalAmount: state.values.addOnItems?.[index]?.totalAmount,
                               })}
                             >
-                              {({ units, unitAmountCents }) => (
-                                <div className="flex flex-col gap-1">
-                                  <Typography variant="captionHl" color="grey700" align="right">
-                                    {translate('text_17800586916250mj95szdi21')}
-                                  </Typography>
-                                  <Typography
-                                    variant="body"
-                                    color="grey700"
-                                    className="flex h-12 items-center justify-end"
-                                  >
-                                    {intlFormatNumber(
-                                      (parseFloat(units) || 0) * (parseFloat(unitAmountCents) || 0),
-                                      { currency },
-                                    )}
-                                  </Typography>
-                                </div>
-                              )}
+                              {({ units, unitAmountCents, totalAmount }) => {
+                                const computed =
+                                  (parseFloat(units) || 0) * (parseFloat(unitAmountCents) || 0)
+                                const computedStr = String(computed)
+
+                                if (computedStr !== totalAmount) {
+                                  // Defer the state update to avoid setting state during render
+                                  setTimeout(() => {
+                                    form.setFieldValue(
+                                      `addOnItems[${index}].totalAmount`,
+                                      computedStr,
+                                    )
+                                  }, 0)
+                                }
+
+                                return (
+                                  <div className="flex flex-col gap-1">
+                                    <Typography variant="captionHl" color="grey700" align="right">
+                                      {translate('text_17800586916250mj95szdi21')}
+                                    </Typography>
+                                    <Typography
+                                      variant="body"
+                                      color="grey700"
+                                      className="flex h-12 items-center justify-end"
+                                    >
+                                      {intlFormatNumber(computed, { currency })}
+                                    </Typography>
+                                  </div>
+                                )
+                              }}
                             </form.Subscribe>
                           </div>
                         </div>

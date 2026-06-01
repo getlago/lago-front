@@ -49,10 +49,12 @@ export const usePricingDrawer = (
             z.object({
               addOnId: z.string(),
               name: z.string(),
+              invoiceDisplayName: z.string(),
               code: z.string(),
               description: z.string(),
               units: z.string(),
               unitAmountCents: z.string(),
+              totalAmount: z.string(),
               fromDatetime: z.string(),
               toDatetime: z.string(),
             }),
@@ -140,10 +142,12 @@ export const usePricingDrawer = (
             entityId: item.addOnId,
             entityType: 'addOn',
             name: item.name,
+            invoiceDisplayName: item.invoiceDisplayName,
             code: item.code,
             description: item.description,
             units: item.units,
             unitAmountCents: item.unitAmountCents,
+            totalAmount: item.totalAmount,
             fromDatetime: item.fromDatetime,
             toDatetime: item.toDatetime,
           }
@@ -183,10 +187,12 @@ export const usePricingDrawer = (
               return {
                 addOnId: id,
                 name: existing?.name ?? id,
+                invoiceDisplayName: existing?.invoiceDisplayName ?? '',
                 code: existing?.code ?? '',
                 description: existing?.description ?? '',
                 units: existing?.units ?? '1',
                 unitAmountCents: existing?.unitAmountCents ?? '0',
+                totalAmount: existing?.totalAmount ?? '',
                 fromDatetime: existing?.fromDatetime ?? today.startOf('day').toISO(),
                 toDatetime: existing?.toDatetime ?? today.endOf('day').toISO(),
               }

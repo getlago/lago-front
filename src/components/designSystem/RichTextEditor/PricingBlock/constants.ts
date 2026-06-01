@@ -1,10 +1,12 @@
 export interface AddOnItem {
   addOnId: string
   name: string
+  invoiceDisplayName: string
   code: string
   description: string
   units: string
   unitAmountCents: string
+  totalAmount: string
   fromDatetime: string
   toDatetime: string
 }

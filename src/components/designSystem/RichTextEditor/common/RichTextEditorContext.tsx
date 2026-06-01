@@ -7,10 +7,12 @@ export type EntityData = {
   entityId: string
   entityType: 'plan' | 'addOn'
   name: string
+  invoiceDisplayName?: string
   code: string
   description?: string
   units?: string
   unitAmountCents?: string
+  totalAmount?: string
   fromDatetime?: string
   toDatetime?: string
 }

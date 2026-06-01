@@ -3,7 +3,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
 export const editAddOnDrawerDefaultValues = {
-  name: '',
+  invoiceDisplayName: '',
   description: '',
   fromDatetime: '',
   toDatetime: '',
@@ -27,7 +27,7 @@ const EditAddOnDrawer = withForm({
             <Typography variant="subhead1">{translate('text_17803025224002y9fcnkkbgr')}</Typography>
             <Typography variant="caption">{translate('text_1780302522400pnacismclbw')}</Typography>
           </div>
-          <div className="flex flex-row gap-6">
+          <div className="grid grid-cols-2 gap-6">
             <form.AppField name="fromDatetime">
               {(field) => (
                 <field.DatePickerField
@@ -52,11 +52,11 @@ const EditAddOnDrawer = withForm({
             <Typography variant="subhead1">{translate('text_1780302522400k2n947rez9j')}</Typography>
             <Typography variant="caption">{translate('text_17803025224002dj16pqxyw2')}</Typography>
           </div>
-          <form.AppField name="name">
+          <form.AppField name="invoiceDisplayName">
             {(field) => (
               <field.TextInputField
                 label={translate('text_1780302522400gadrdaf1b98')}
-                placeholder={translate('text_17799807173225rg0day57r6')}
+                placeholder={translate('text_1780315326244ealvuyps1ha')}
                 isOptional
                 description={translate('text_17803025224008vabqxzdl7e')}
               />

@@ -149,10 +149,12 @@ describe('PricingDrawerContent', () => {
               {
                 addOnId: 'addon-1',
                 name: 'Setup Fee',
+                invoiceDisplayName: '',
                 code: 'setup_fee',
                 description: '',
                 units: '1',
                 unitAmountCents: '50',
+                totalAmount: '',
                 fromDatetime: '2026-05-28T00:00:00.000+02:00',
                 toDatetime: '2026-05-28T23:59:59.999+02:00',
               },
@@ -162,7 +164,6 @@ describe('PricingDrawerContent', () => {
 
         expect(screen.getByTestId('add-on-item-0')).toBeInTheDocument()
         expect(screen.getByText('Setup Fee')).toBeInTheDocument()
-        expect(screen.getByText('setup_fee')).toBeInTheDocument()
       })
     })
 
@@ -180,10 +181,12 @@ describe('PricingDrawerContent', () => {
               {
                 addOnId: 'addon-1',
                 name: 'Setup Fee',
+                invoiceDisplayName: '',
                 code: 'setup_fee',
                 description: '',
                 units: '1',
                 unitAmountCents: '50',
+                totalAmount: '',
                 fromDatetime: '2026-05-28T00:00:00.000+02:00',
                 toDatetime: '2026-05-28T23:59:59.999+02:00',
               },

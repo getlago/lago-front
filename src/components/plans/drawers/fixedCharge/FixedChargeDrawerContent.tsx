@@ -37,6 +37,7 @@ gql`
     id
     name
     code
+    invoiceDisplayName
   }
 
   query getAddOnsForFixedChargesSection($page: Int, $limit: Int, $searchTerm: String) {

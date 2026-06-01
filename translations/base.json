@@ -4219,5 +4219,6 @@
   "text_17803025224002dj16pqxyw2": "These information will appear on the PDF invoice. Leave them empty to not display any display name and/or description.",
   "text_1780302522400gadrdaf1b98": "Invoice display name",
   "text_17803025224008vabqxzdl7e": "Specifies the name that will be displayed on an invoice.",
-  "text_1780302661071iqcpu91vg0u": "This will appear bellow the line item in the invoice PDF"
+  "text_1780302661071iqcpu91vg0u": "This will appear bellow the line item in the invoice PDF",
+  "text_1780315326244ealvuyps1ha": "Type an invoice display name"
 }
