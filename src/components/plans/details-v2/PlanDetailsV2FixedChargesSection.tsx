@@ -19,7 +19,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
-import { useFixedChargeMutationsWithCascade } from '~/hooks/plans/useFixedChargeMutationsWithCascade'
 
 import { SectionAccordion } from './shared/SectionAccordion'
 import { SectionHeader } from './shared/SectionHeader'
@@ -28,6 +27,7 @@ import { PlanDetailsV2SectionId } from './sidebarSections'
 gql`
   fragment FixedChargeForDetailsV2 on FixedCharge {
     id
+    code
     invoiceDisplayName
     chargeModel
     units
@@ -78,15 +78,22 @@ export type PlanDetailsV2FixedChargesSectionRef = {
   openCreate: () => void
 }
 
+export type FixedChargeMutations = {
+  handleSaveCharge: (charge: LocalFixedChargeInput, index: number | null) => Promise<boolean>
+  handleDeleteCharge: (chargeId: string) => Promise<boolean>
+}
+
 type Props = {
   plan: PlanDetailsV2Fragment
   isInSubscriptionForm?: boolean
+  fixedChargeMutations: FixedChargeMutations
 }
 
 type FixedCharge = NonNullable<PlanDetailsV2Fragment['fixedCharges']>[number]
 
 const toLocalInput = (fixedCharge: FixedCharge): LocalFixedChargeInput => ({
   id: fixedCharge.id,
+  code: fixedCharge.code,
   addOn: fixedCharge.addOn,
   applyUnitsImmediately: false,
   chargeModel: fixedCharge.chargeModel,
@@ -101,15 +108,12 @@ const toLocalInput = (fixedCharge: FixedCharge): LocalFixedChargeInput => ({
 export const PlanDetailsV2FixedChargesSection = forwardRef<
   PlanDetailsV2FixedChargesSectionRef,
   Props
->(({ plan, isInSubscriptionForm = false }, ref) => {
+>(({ plan, isInSubscriptionForm = false, fixedChargeMutations }, ref) => {
   const { translate } = useInternationalization()
   const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
   const drawerRef = useRef<FixedChargeDrawerRef>(null)
 
-  const { handleSaveCharge, handleDeleteCharge } = useFixedChargeMutationsWithCascade({
-    planId: plan.id,
-    hasOverriddenPlans: plan.hasOverriddenPlans ?? false,
-  })
+  const { handleSaveCharge, handleDeleteCharge } = fixedChargeMutations
 
   const openCreate = () => drawerRef.current?.openDrawer()
 

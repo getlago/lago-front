@@ -139,17 +139,25 @@ describe('MinimumCommitmentAccordion', () => {
     ).not.toBeInTheDocument()
   })
 
-  // ── 4. isInSubscriptionForm → no actions at all ────────────────────────────
-  it('hides all actions (Edit, Delete, Add) when isInSubscriptionForm is true', () => {
+  // ── 4. isInSubscriptionForm → Edit visible, Add + Delete hidden ───────────
+  it('shows Edit but hides Add + Delete when isInSubscriptionForm is true', async () => {
     const { container } = render(
       <MinimumCommitmentAccordion plan={planWithCommitment} isInSubscriptionForm />,
       { wrapper: Wrapper },
     )
 
     expect(container.querySelector('#minimum-commitment')).not.toBeNull()
-    // Actions menu should not render
-    expect(screen.queryByRole('button', { name: /actions/i })).not.toBeInTheDocument()
-    // Add button (SectionHeader action) should not render
+    // Actions menu renders because Edit is visible (canUpdate=true via subscriptionsUpdate)
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    // Edit action IS present
+    expect(
+      screen.getByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }),
+    ).toBeInTheDocument()
+    // Delete action is NOT present (canDelete=false in sub mode)
+    expect(
+      screen.queryByRole('button', { name: 'text_63ea0f84f400488553caa786' }),
+    ).not.toBeInTheDocument()
+    // Add button (SectionHeader action) is NOT present (canCreate=false in sub mode)
     expect(
       screen.queryByRole('button', { name: 'text_6661ffe746c680007e2df0e1' }),
     ).not.toBeInTheDocument()
