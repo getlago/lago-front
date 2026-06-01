@@ -1,6 +1,8 @@
 import { render } from '@testing-library/react'
 import { createRef } from 'react'
 
+import { CurrencyEnum } from '~/generated/graphql'
+
 import {
   FixedChargeDrawer,
   FixedChargeDrawerFormValues,
@@ -349,7 +351,7 @@ describe('FixedChargeDrawer', () => {
 
         const formValues: FixedChargeDrawerFormValues = {
           addOnId: 'addon-1',
-          addOn: { id: 'addon-1', name: 'Setup', code: 'setup' },
+          addOn: { id: 'addon-1', name: 'Setup', code: 'setup', amountCents: '0', amountCurrency: CurrencyEnum.Usd },
           applyUnitsImmediately: false,
           chargeModel: 'standard' as FixedChargeDrawerFormValues['chargeModel'],
           invoiceDisplayName: 'Test',

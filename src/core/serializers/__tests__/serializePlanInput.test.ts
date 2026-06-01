@@ -1713,6 +1713,8 @@ describe('serializePlanInput()', () => {
                 id: '5678',
                 name: 'simpleAddOn',
                 code: 'simple-addon',
+                amountCents: '0',
+                amountCurrency: CurrencyEnum.Usd,
               },
               properties: fullProperty,
               taxCodes: [],
@@ -1786,6 +1788,8 @@ describe('serializePlanInput()', () => {
                 id: '5678',
                 name: 'simpleAddOn',
                 code: 'simple-addon',
+                amountCents: '0',
+                amountCurrency: CurrencyEnum.Usd,
               },
               properties: fullProperty,
               taxCodes: [],
@@ -1870,6 +1874,8 @@ describe('serializePlanInput()', () => {
                 id: '5678',
                 name: 'simpleAddOn',
                 code: 'simple-addon',
+                amountCents: '0',
+                amountCurrency: CurrencyEnum.Usd,
               },
               units: '10.123456',
               properties: {
@@ -1943,6 +1949,8 @@ describe('serializePlanInput()', () => {
                 id: '5678',
                 name: 'simpleAddOn',
                 code: 'simple-addon',
+                amountCents: '0',
+                amountCurrency: CurrencyEnum.Usd,
               },
               properties: {
                 graduatedRanges: [
@@ -2037,6 +2045,8 @@ describe('serializePlanInput()', () => {
                 id: '5678',
                 name: 'simpleAddOn',
                 code: 'simple-addon',
+                amountCents: '0',
+                amountCurrency: CurrencyEnum.Usd,
               },
               properties: {
                 graduatedRanges: [
