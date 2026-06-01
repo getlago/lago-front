@@ -209,8 +209,6 @@ const PlanDetails = () => {
               }),
             ],
             content: (
-              // v2 layout: horizontal padding only — avoids DetailsPage.Container's
-              // legacy pb-20 / flex-col. Vertical spacing comes from the content's py-12.
               <div className="px-4 md:px-12">
                 <PlanDetailsV2 planId={planId as string} />
               </div>

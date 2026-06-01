@@ -28,7 +28,7 @@ export const PlanDetailsV2AdvancedSection = ({
 }: PlanDetailsV2AdvancedSectionProps) => (
   <section
     id={PlanDetailsV2SectionId.AdvancedSettings}
-    className="flex scroll-mt-12 flex-col gap-12"
+    className="flex scroll-mt-12 flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b"
   >
     <MinimumCommitmentAccordion
       plan={plan}
