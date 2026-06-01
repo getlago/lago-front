@@ -1,5 +1,7 @@
 import { createContext, useContext } from 'react'
 
+import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
+
 import type { PricingBlockAttributes, PricingType } from '../extensions/PricingBlock.schema'
 import type { RichTextEditorMode } from '../RichTextEditor'
 
@@ -18,7 +20,11 @@ export type EntityData = {
 }
 
 export interface PricingCommandParams {
-  onSave: (attrs: PricingBlockAttributes, entityData: Record<string, EntityData>) => void
+  onSave: (
+    attrs: PricingBlockAttributes,
+    entityData: Record<string, EntityData>,
+    billingItems?: BillingItemsPayload,
+  ) => void
   editData?: { pricingType: PricingType; entityIds: string[] }
 }
 
