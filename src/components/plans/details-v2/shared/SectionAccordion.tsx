@@ -4,6 +4,7 @@ import { Accordion } from '~/components/designSystem/Accordion'
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
+import { POPPER_GROUP_NAME } from '~/core/constants/popper'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 
 export type SectionAccordionAction = {
@@ -62,7 +63,7 @@ export const SectionAccordion = ({
               {badge}
               {visibleActions.length > 0 && (
                 <Popper
-                  popperGroupName="section-accordion-actions"
+                  popperGroupName={POPPER_GROUP_NAME.sectionAccordionActions}
                   PopperProps={{ placement: 'bottom-end' }}
                   opener={({ onClick: openPopper }) => (
                     <Button
