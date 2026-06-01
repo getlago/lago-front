@@ -1,11 +1,12 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { RefObject, useCallback, useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
 import { Card } from '~/components/designSystem/Card'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { DRAWER_TRANSITION_DURATION } from '~/components/drawers/const'
 import { useDrawer } from '~/components/drawers/useDrawer'
 import { ComboboxItem, JsonEditor } from '~/components/form'
@@ -26,7 +27,6 @@ import {
   LocalUsageChargeInput,
 } from '~/components/plans/types'
 import { mapChargeIntervalCopy } from '~/components/plans/utils'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { ChargeFilterDrawerProvider } from '~/contexts/ChargeFilterDrawerContext'
 import {
@@ -64,7 +64,6 @@ interface UsageChargeDrawerContentExtraProps {
   isEdition?: boolean
   disabled?: boolean
   isInSubscriptionForm?: boolean
-  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
   amountCurrency?: string
   editIndex: number
@@ -79,7 +78,6 @@ const usageChargeDrawerContentDefaultProps: UsageChargeDrawerContentExtraProps =
   isEdition: false,
   disabled: false,
   isInSubscriptionForm: false,
-  premiumWarningDialogRef: undefined,
   subscriptionFormType: undefined,
   amountCurrency: undefined,
   editIndex: -1,
@@ -98,7 +96,6 @@ export const UsageChargeDrawerContent = withForm({
     isEdition,
     disabled,
     isInSubscriptionForm,
-    premiumWarningDialogRef,
     subscriptionFormType,
     amountCurrency,
     editIndex,
@@ -108,6 +105,7 @@ export const UsageChargeDrawerContent = withForm({
     interval,
   }) {
     const { translate } = useInternationalization()
+    const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
     const { isPremium } = useCurrentUser()
     const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
 
@@ -243,7 +241,7 @@ export const UsageChargeDrawerContent = withForm({
 
           // Check premium gating for graduated percentage
           if (!isPremium && value === ChargeModelEnum.GraduatedPercentage) {
-            premiumWarningDialogRef?.current?.openDialog()
+            openPremiumWarningDialog()
             return
           }
 
@@ -269,7 +267,7 @@ export const UsageChargeDrawerContent = withForm({
           value as UsageChargeDrawerFormValues[keyof UsageChargeDrawerFormValues],
         )
       },
-      [form, isPremium, premiumWarningDialogRef],
+      [form, isPremium, openPremiumWarningDialog],
     )
 
     const handleFormSubmit = (event: React.FormEvent) => {
@@ -723,7 +721,7 @@ export const UsageChargeDrawerContent = withForm({
                   <ChargeInvoicingStrategyOption
                     localCharge={formValues as unknown as LocalUsageChargeInput}
                     disabled={isInSubscriptionForm || isExistingChargeDisabled}
-                    openPremiumDialog={() => premiumWarningDialogRef?.current?.openDialog()}
+                    openPremiumDialog={() => openPremiumWarningDialog()}
                     handleUpdate={({ regroupPaidFees, invoiceable }) => {
                       form.setFieldValue('regroupPaidFees', regroupPaidFees)
                       form.setFieldValue('invoiceable', invoiceable)
