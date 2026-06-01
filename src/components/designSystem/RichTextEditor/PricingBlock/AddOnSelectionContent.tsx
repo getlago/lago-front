@@ -395,6 +395,27 @@ const AddOnSelectionContent = withForm({
                     >
                       {translate('text_1779802343220xh5jm32or13')}
                     </Button>
+                    <form.Subscribe selector={(state) => state.values.addOnItems}>
+                      {(addOnItems) => {
+                        const grandTotal = addOnItems.reduce(
+                          (sum, item) => sum + (parseFloat(item.totalAmount) || 0),
+                          0,
+                        )
+
+                        return (
+                          <div className="mt-8 flex justify-end">
+                            <div className="flex w-1/2 justify-between">
+                              <Typography variant="bodyHl" color="grey700">
+                                {translate('text_1780058708833525bhmtn9do')}
+                              </Typography>
+                              <Typography variant="body" color="grey600">
+                                {intlFormatNumber(grandTotal, { currency })}
+                              </Typography>
+                            </div>
+                          </div>
+                        )
+                      }}
+                    </form.Subscribe>
                   </div>
                 )
               }}

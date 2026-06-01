@@ -66,9 +66,9 @@ export const usePricingDrawer = (
 
     if (!parsed.addons?.length) return
 
-    const { entities, originalPayloads } = fromBillingItems(parsed)
+    const { entities: formattedEntities, originalPayloads } = fromBillingItems(parsed)
 
-    const updated = { ...entitiesRef.current, ...entities }
+    const updated = { ...entitiesRef.current, ...formattedEntities }
 
     entitiesRef.current = updated
     setEntities(updated)
