@@ -106,6 +106,38 @@ describe('PlanDetailsV2UsageChargesSection', () => {
     expect(screen.queryByText('text_17797360854699edp5yofy8h')).not.toBeInTheDocument()
   })
 
+  it('renders presentation group keys in the usage charge details', async () => {
+    const plan = {
+      ...planDetailsV2Fixture,
+      charges: [
+        buildUsageChargeFixture({
+          id: 'ch_with_presentation_group_keys',
+          properties: {
+            __typename: 'Properties',
+            amount: '10',
+            presentationGroupKeys: [
+              {
+                __typename: 'PresentationGroupKey',
+                value: 'account_manager',
+                options: {
+                  __typename: 'PresentationGroupKeyOptions',
+                  displayInInvoice: true,
+                },
+              },
+            ],
+          } as never,
+        }),
+      ],
+    }
+
+    render(<PlanDetailsV2UsageChargesSection plan={plan} />, { wrapper: Wrapper })
+    await userEvent.click(await screen.findByText('API calls'))
+
+    expect(screen.getByText('text_17774502138912d3etwcacpe')).toBeInTheDocument()
+    expect(screen.getByText('text_1777456950225zgyccgcm3x4')).toBeInTheDocument()
+    expect(screen.getByText('account_manager')).toBeInTheDocument()
+  })
+
   it('opens drawer with no args when Add CTA is clicked', async () => {
     render(
       <PlanDetailsV2UsageChargesSection

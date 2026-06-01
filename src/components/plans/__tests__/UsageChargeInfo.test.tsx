@@ -52,6 +52,49 @@ describe('UsageChargeInfo', () => {
     expect(screen.getByText('text_65201b8216455901fe273dd5')).toBeInTheDocument()
   })
 
+  it('renders presentation group keys from charge properties', () => {
+    render(
+      <UsageChargeInfo
+        charge={buildCharge({
+          properties: {
+            __typename: 'Properties',
+            amount: '10',
+            pricingGroupKeys: ['region'],
+            presentationGroupKeys: [
+              {
+                __typename: 'PresentationGroupKey',
+                value: 'account_manager',
+                options: {
+                  __typename: 'PresentationGroupKeyOptions',
+                  displayInInvoice: true,
+                },
+              },
+              {
+                __typename: 'PresentationGroupKey',
+                value: 'product_area',
+                options: {
+                  __typename: 'PresentationGroupKeyOptions',
+                  displayInInvoice: false,
+                },
+              },
+            ],
+          } as never,
+        })}
+        currency={CurrencyEnum.Usd}
+        planInterval={PlanInterval.Monthly}
+        planTaxes={[]}
+      />,
+    )
+
+    expect(screen.getByText('text_65ba6d45e780c1ff8acb20ce')).toBeInTheDocument()
+    expect(screen.getByText('region')).toBeInTheDocument()
+    expect(screen.getByText('text_17774502138912d3etwcacpe')).toBeInTheDocument()
+    expect(screen.getByText('text_1777456950225zgyccgcm3x4')).toBeInTheDocument()
+    expect(screen.getByText('account_manager')).toBeInTheDocument()
+    expect(screen.getByText('text_1777456950225qhho55pdxm8')).toBeInTheDocument()
+    expect(screen.getByText('product_area')).toBeInTheDocument()
+  })
+
   it('does not render a filter sub-accordion when charge has no filters', () => {
     render(
       <UsageChargeInfo
@@ -85,6 +128,46 @@ describe('UsageChargeInfo', () => {
       />,
     )
     expect(screen.getByText('Region: EU')).toBeInTheDocument()
+  })
+
+  it('renders presentation group keys above price accordions when charge has filters', () => {
+    const charge = buildCharge({
+      properties: {
+        __typename: 'Properties',
+        amount: '10',
+        presentationGroupKeys: [
+          {
+            __typename: 'PresentationGroupKey',
+            value: 'account_manager',
+            options: {
+              __typename: 'PresentationGroupKeyOptions',
+              displayInInvoice: true,
+            },
+          },
+        ],
+      } as never,
+      billableMetric: {
+        __typename: 'BillableMetric',
+        id: 'bm_with_filters',
+        name: 'API calls',
+        code: 'api_calls',
+        recurring: false,
+        filters: [{ id: 'region', key: 'region', values: ['eu'] }],
+      } as never,
+    })
+
+    render(
+      <UsageChargeInfo
+        charge={charge}
+        currency={CurrencyEnum.Usd}
+        planInterval={PlanInterval.Monthly}
+        planTaxes={[]}
+      />,
+    )
+
+    expect(screen.getByText('text_17774502138912d3etwcacpe')).toBeInTheDocument()
+    expect(screen.getByText('account_manager')).toBeInTheDocument()
+    expect(screen.getByText('text_64e620bca31226337ffc62ad')).toBeInTheDocument()
   })
 
   it('renders "Pay later" when payInAdvance is false', () => {
