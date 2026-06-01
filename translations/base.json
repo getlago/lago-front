@@ -4222,5 +4222,7 @@
   "text_1780302661071iqcpu91vg0u": "This will appear bellow the line item in the invoice PDF",
   "text_1780315326244ealvuyps1ha": "Type an invoice display name",
   "text_1780327356834f5f3nndfg80": "From date is required",
-  "text_17803273568346wguor4j5u5": "To date is required"
+  "text_17803273568346wguor4j5u5": "To date is required",
+  "text_17803276502818bsd9sn8888": "One-off invoice of {{subtotal}}",
+  "text_1780329442633n0oe3prszsw": "Click to edit"
 }
