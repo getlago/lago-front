@@ -62,6 +62,7 @@ export const SectionAccordion = ({
               {badge}
               {visibleActions.length > 0 && (
                 <Popper
+                  popperGroupName="section-accordion-actions"
                   PopperProps={{ placement: 'bottom-end' }}
                   opener={({ onClick: openPopper }) => (
                     <Button

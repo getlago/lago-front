@@ -414,6 +414,40 @@ describe('Popper', () => {
       expect(screen.queryByTestId('content-2')).toBeNull()
     })
 
+    it('closes other poppers sharing the same popperGroupName when one opens', async () => {
+      await act(() =>
+        render(
+          <div>
+            <Popper
+              popperGroupName="test-group"
+              opener={<button data-test="opener-1">Opener 1</button>}
+            >
+              <div data-test="content-1">Content 1</div>
+            </Popper>
+            <Popper
+              popperGroupName="test-group"
+              opener={<button data-test="opener-2">Opener 2</button>}
+            >
+              <div data-test="content-2">Content 2</div>
+            </Popper>
+          </div>,
+        ),
+      )
+
+      // Open first popper
+      await userEvent.click(screen.getByTestId('opener-1'))
+      await waitFor(() => {
+        expect(screen.getByTestId('content-1')).toBeVisible()
+      })
+
+      // Opening the second popper closes the first (single-open per group)
+      await userEvent.click(screen.getByTestId('opener-2'))
+      await waitFor(() => {
+        expect(screen.getByTestId('content-2')).toBeVisible()
+      })
+      expect(screen.queryByTestId('content-1')).toBeNull()
+    })
+
     it('matches snapshot with nested content', async () => {
       const { container } = await act(() =>
         render(

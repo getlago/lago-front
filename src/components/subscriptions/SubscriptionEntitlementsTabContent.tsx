@@ -130,6 +130,7 @@ export const SubscriptionEntitlementsTabContent = () => {
                 </div>
                 <div className="flex items-center gap-3 p-1 pl-0">
                   <Popper
+                    popperGroupName="subscription-entitlement-actions"
                     PopperProps={{ placement: 'bottom-end' }}
                     opener={(opener) => (
                       <Tooltip

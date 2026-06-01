@@ -7,6 +7,7 @@ import {
   ReactElement,
   ReactNode,
   useCallback,
+  useEffect,
   useImperativeHandle,
   useRef,
   useState,
@@ -16,6 +17,11 @@ import { tw } from '~/styles/utils'
 
 export const POPPER_WRAPPER_CLASSES =
   'overflow-auto scroll-smooth rounded-xl border border-grey-200 bg-white shadow-md focus:outline-none not-last-child:mb-1'
+
+// Tracks the currently-open popper per group name so that opening one popper
+// closes any other open popper sharing the same `popperGroupName` (single-open
+// behavior). Poppers without a group name stay fully independent.
+const openPopperRegistry = new Map<string, () => void>()
 
 export interface PopperProps {
   className?: string
@@ -50,6 +56,7 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
       enableFlip = true,
       displayInDialog = false,
       onClickAway,
+      popperGroupName,
     }: PopperProps,
     ref,
   ) => {
@@ -78,6 +85,34 @@ export const Popper = forwardRef<PopperRef, PopperProps>(
       updateIsOpen(false)
       onClickAway && onClickAway()
     }, [updateIsOpen, onClickAway])
+
+    const close = useCallback(() => updateIsOpen(false), [updateIsOpen])
+
+    // Single-open coordination: when this popper opens, close any other open
+    // popper in the same group; keep the registry in sync as it opens/closes.
+    useEffect(() => {
+      if (!popperGroupName) return
+
+      if (isOpen) {
+        const previousClose = openPopperRegistry.get(popperGroupName)
+
+        if (previousClose && previousClose !== close) {
+          previousClose()
+        }
+        openPopperRegistry.set(popperGroupName, close)
+      } else if (openPopperRegistry.get(popperGroupName) === close) {
+        openPopperRegistry.delete(popperGroupName)
+      }
+    }, [isOpen, popperGroupName, close])
+
+    // Stop tracking this popper on unmount so a stale close fn never lingers.
+    useEffect(() => {
+      return () => {
+        if (popperGroupName && openPopperRegistry.get(popperGroupName) === close) {
+          openPopperRegistry.delete(popperGroupName)
+        }
+      }
+    }, [popperGroupName, close])
 
     useImperativeHandle(ref, () => ({
       openPopper: () => updateIsOpen(true),
