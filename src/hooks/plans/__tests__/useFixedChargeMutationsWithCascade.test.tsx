@@ -226,6 +226,29 @@ describe('useFixedChargeMutationsWithCascade', () => {
     expect(outcome).toBe(FORM_ERRORS_ENUM.existingCode)
   })
 
+  it('returns false (keeps the drawer open) when the backend reports a non-code error', async () => {
+    const createMock: MockedResponse = {
+      request: { query: CreateFixedChargeDocument },
+      variableMatcher: () => true,
+      result: {
+        errors: [new GraphQLError('Boom', { extensions: { code: 'internal_error' } })],
+      },
+    }
+
+    const { result } = renderHook(
+      () => useFixedChargeMutationsWithCascade({ planId: PLAN_ID, hasOverriddenPlans: false }),
+      { wrapper: wrapper([createMock]) },
+    )
+
+    let outcome: boolean | FORM_ERRORS_ENUM.existingCode | undefined
+
+    await act(async () => {
+      outcome = await result.current.handleSaveCharge(buildCharge({ code: 'whatever' }), null)
+    })
+
+    expect(outcome).toBe(false)
+  })
+
   it('opens cascade dialog when hasOverriddenPlans=true', async () => {
     const { result } = renderHook(
       () => useFixedChargeMutationsWithCascade({ planId: PLAN_ID, hasOverriddenPlans: true }),

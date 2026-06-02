@@ -6,6 +6,10 @@ import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
 import { useDrawer } from '~/components/drawers/useDrawer'
+import {
+  applyExistingCodeError,
+  buildChargeCodeSchema,
+} from '~/components/plans/drawers/common/chargeCode'
 import { RemoveChargeWarningDialogRef } from '~/components/plans/RemoveChargeWarningDialog'
 import {
   LocalChargeFilterInput,
@@ -43,7 +47,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import { DEFAULT_VALUES, EXISTING_CODE_ERROR_MESSAGE } from './constants'
+import { DEFAULT_VALUES } from './constants'
 import { UsageChargeDrawerContent } from './UsageChargeDrawerContent'
 
 gql`
@@ -150,9 +154,7 @@ export const buildUsageChargeDrawerSchema = (requireCode: boolean) =>
       billableMetric: z.custom<BillableMetricForPlanFragment>(),
       appliedPricingUnit: z.custom<LocalPricingUnitInput>().optional(),
       chargeModel: z.enum(ChargeModelEnum),
-      code: requireCode
-        ? z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' })
-        : z.string(),
+      code: buildChargeCodeSchema(requireCode),
       id: z.string().optional(),
       invoiceDisplayName: z.string(),
       invoiceable: z.boolean(),
@@ -307,10 +309,7 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
         // Backend rejected a duplicate code: surface it under the Code input
         // (same pattern as plan-settings code) and keep the drawer open.
         if (result === FORM_ERRORS_ENUM.existingCode) {
-          formApi.setFieldMeta('code', (meta) => ({
-            ...meta,
-            errorMap: { ...meta.errorMap, onDynamic: { message: EXISTING_CODE_ERROR_MESSAGE } },
-          }))
+          applyExistingCodeError(formApi)
           return
         }
 

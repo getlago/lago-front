@@ -6,10 +6,6 @@ import {
   TaxForTaxesSelectorSectionFragment,
 } from '~/generated/graphql'
 
-// Backend "code already exists" message, surfaced under the Code input on save
-// and cleared when the user edits the code (so submit re-enables).
-export const EXISTING_CODE_ERROR_MESSAGE = 'text_632a2d437e341dcc76817556'
-
 export interface FixedChargeDrawerFormValues {
   addOnId: string
   addOn: AddOnForFixedChargesSectionFragment

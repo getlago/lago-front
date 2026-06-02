@@ -5,6 +5,10 @@ import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
 import { useDrawer } from '~/components/drawers/useDrawer'
+import {
+  applyExistingCodeError,
+  buildChargeCodeSchema,
+} from '~/components/plans/drawers/common/chargeCode'
 import { RemoveChargeWarningDialogRef } from '~/components/plans/RemoveChargeWarningDialog'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { PlanFormProvider, usePlanFormContext } from '~/contexts/PlanFormContext'
@@ -23,7 +27,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import { DEFAULT_VALUES, EXISTING_CODE_ERROR_MESSAGE } from './constants'
+import { DEFAULT_VALUES } from './constants'
 import { FixedChargeDrawerContent } from './FixedChargeDrawerContent'
 
 export { type FixedChargeDrawerFormValues, DEFAULT_VALUES } from './constants'
@@ -38,9 +42,7 @@ const buildFixedChargeDrawerSchema = (requireCode: boolean) =>
       addOn: z.custom<AddOnForFixedChargesSectionFragment>(),
       applyUnitsImmediately: z.boolean(),
       chargeModel: z.enum(FixedChargeChargeModelEnum),
-      code: requireCode
-        ? z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' })
-        : z.string(),
+      code: buildChargeCodeSchema(requireCode),
       id: z.string().optional(),
       invoiceDisplayName: z.string(),
       payInAdvance: z.boolean(),
@@ -142,10 +144,7 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
         // Backend rejected a duplicate code: surface it under the Code input
         // (same pattern as plan-settings code) and keep the drawer open.
         if (result === FORM_ERRORS_ENUM.existingCode) {
-          formApi.setFieldMeta('code', (meta) => ({
-            ...meta,
-            errorMap: { ...meta.errorMap, onDynamic: { message: EXISTING_CODE_ERROR_MESSAGE } },
-          }))
+          applyExistingCodeError(formApi)
           return
         }
 

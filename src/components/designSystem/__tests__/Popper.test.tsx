@@ -448,6 +448,45 @@ describe('Popper', () => {
       expect(screen.queryByTestId('content-1')).toBeNull()
     })
 
+    it('cleans up the group registry when an open grouped popper unmounts', async () => {
+      const { unmount } = await act(() =>
+        render(
+          <Popper
+            popperGroupName="cleanup-group"
+            opener={<button data-test="opener-a">Opener A</button>}
+          >
+            <div data-test="content-a">Content A</div>
+          </Popper>,
+        ),
+      )
+
+      await userEvent.click(screen.getByTestId('opener-a'))
+      await waitFor(() => {
+        expect(screen.getByTestId('content-a')).toBeVisible()
+      })
+
+      // Unmount while open: the cleanup effect must drop this popper from the
+      // group registry so no stale close fn lingers.
+      unmount()
+
+      // A fresh popper in the same group still opens normally afterwards.
+      await act(() =>
+        render(
+          <Popper
+            popperGroupName="cleanup-group"
+            opener={<button data-test="opener-b">Opener B</button>}
+          >
+            <div data-test="content-b">Content B</div>
+          </Popper>,
+        ),
+      )
+
+      await userEvent.click(screen.getByTestId('opener-b'))
+      await waitFor(() => {
+        expect(screen.getByTestId('content-b')).toBeVisible()
+      })
+    })
+
     it('matches snapshot with nested content', async () => {
       const { container } = await act(() =>
         render(

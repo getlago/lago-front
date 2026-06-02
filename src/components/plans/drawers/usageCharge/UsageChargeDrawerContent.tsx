@@ -9,7 +9,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { DRAWER_TRANSITION_DURATION } from '~/components/drawers/const'
 import { useDrawer } from '~/components/drawers/useDrawer'
-import { ComboboxItem, JsonEditor } from '~/components/form'
+import { JsonEditor } from '~/components/form'
 import { ComboboxDataGrouped } from '~/components/form/ComboBox/types'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { buildChargeFilterAddFilterButtonId } from '~/components/plans/chargeAccordion/ChargeFilter'
@@ -19,6 +19,9 @@ import { CustomPricingUnitSelector } from '~/components/plans/chargeAccordion/Cu
 import { ChargeInvoicingStrategyOption } from '~/components/plans/chargeAccordion/options/ChargeInvoicingStrategyOption'
 import { ChargePayInAdvanceOption } from '~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption'
 import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
+import { seedChargeCode } from '~/components/plans/drawers/common/chargeCode'
+import ChargeCodeField from '~/components/plans/drawers/common/ChargeCodeField'
+import { buildCodeComboboxItem } from '~/components/plans/drawers/common/codeComboboxItem'
 import { PlanBillingPeriodInfoSection } from '~/components/plans/drawers/common/PlanBillingPeriodInfoSection'
 import {
   LocalChargeFilterInput,
@@ -37,7 +40,6 @@ import {
   SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
 } from '~/core/constants/form'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
-import { generateUniqueCode } from '~/core/utils/generateUniqueCode'
 import {
   AggregationTypeEnum,
   ChargeModelEnum,
@@ -56,11 +58,7 @@ import {
   chargeFilterDrawerSchema,
   ChargeFilterFormValues,
 } from './ChargeFilterDrawerContent'
-import {
-  DEFAULT_VALUES,
-  EXISTING_CODE_ERROR_MESSAGE,
-  UsageChargeDrawerFormValues,
-} from './constants'
+import { DEFAULT_VALUES, UsageChargeDrawerFormValues } from './constants'
 
 const USAGE_CHARGE_DRAWER_FORM_ID = 'usage-charge-drawer-form'
 
@@ -142,18 +140,7 @@ export const UsageChargeDrawerContent = withForm({
 
       for (const { id, name, code, recurring } of collection) {
         result.push({
-          label: `${name} (${code})`,
-          labelNode: (
-            <ComboboxItem>
-              <Typography variant="body" color="grey700" noWrap>
-                {name}
-              </Typography>
-              <Typography variant="caption" color="grey600" noWrap>
-                {code}
-              </Typography>
-            </ComboboxItem>
-          ),
-          value: id,
+          ...buildCodeComboboxItem({ id, name, code }),
           group: recurring ? 'recurring' : 'metered',
         })
       }
@@ -536,14 +523,12 @@ export const UsageChargeDrawerContent = withForm({
                       form.setFieldValue('properties', getPropertyShape({}))
                       form.setFieldValue('filters', selectedBm.filters?.length ? [] : undefined)
 
-                      // Seed a unique charge code from the billable-metric code;
-                      // backend still enforces final uniqueness.
-                      if (showCode && isCreateMode) {
-                        form.setFieldValue(
-                          'code',
-                          generateUniqueCode(selectedBm.code, existingChargeCodes ?? []),
-                        )
-                      }
+                      seedChargeCode({
+                        enabled: !!showCode && isCreateMode,
+                        sourceCode: selectedBm.code,
+                        existingChargeCodes,
+                        setCode: (nextCode) => form.setFieldValue('code', nextCode),
+                      })
 
                       if (hasAnyPricingUnitConfigured && amountCurrency) {
                         form.setFieldValue('appliedPricingUnit', {
@@ -583,33 +568,11 @@ export const UsageChargeDrawerContent = withForm({
                 />
 
                 {showCode && (
-                  <form.AppField
-                    name="code"
-                    listeners={{
-                      // Clear the server "code already exists" error once the user
-                      // edits the code so the submit button re-enables. Gated by the
-                      // message so the zod required-check isn't wiped.
-                      onChange: () => {
-                        const meta = form.getFieldMeta('code')
-
-                        if (meta?.errorMap?.onDynamic?.message === EXISTING_CODE_ERROR_MESSAGE) {
-                          form.setFieldMeta('code', (current) => ({
-                            ...current,
-                            errorMap: { ...current.errorMap, onDynamic: undefined },
-                          }))
-                        }
-                      },
-                    }}
-                  >
-                    {(field) => (
-                      <field.TextInputField
-                        label={translate('text_629728388c4d2300e2d380b7')}
-                        placeholder={translate('text_629728388c4d2300e2d380d9')}
-                        beforeChangeFormatter="code"
-                        disabled={isInSubscriptionForm}
-                      />
-                    )}
-                  </form.AppField>
+                  <ChargeCodeField
+                    form={form}
+                    fields={{ code: 'code' }}
+                    disabled={isInSubscriptionForm}
+                  />
                 )}
               </CenteredPage.PageSection>
 

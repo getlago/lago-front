@@ -4,12 +4,13 @@ import { useStore } from '@tanstack/react-form'
 import { useCallback, useMemo } from 'react'
 
 import { Selector } from '~/components/designSystem/Selector'
-import { Typography } from '~/components/designSystem/Typography'
-import { ComboboxItem } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
 import { ChargeWrapperSwitch } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { ChargePayInAdvanceOption } from '~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption'
+import { seedChargeCode } from '~/components/plans/drawers/common/chargeCode'
+import ChargeCodeField from '~/components/plans/drawers/common/ChargeCodeField'
+import { buildCodeComboboxItem } from '~/components/plans/drawers/common/codeComboboxItem'
 import { PlanBillingPeriodInfoSection } from '~/components/plans/drawers/common/PlanBillingPeriodInfoSection'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
@@ -19,7 +20,6 @@ import {
   SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME,
 } from '~/core/constants/form'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
-import { generateUniqueCode } from '~/core/utils/generateUniqueCode'
 import {
   FixedChargeChargeModelEnum,
   GraduatedChargeFragmentDoc,
@@ -31,11 +31,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { useChargeForm } from '~/hooks/plans/useChargeForm'
 
-import {
-  DEFAULT_VALUES,
-  EXISTING_CODE_ERROR_MESSAGE,
-  type FixedChargeDrawerFormValues,
-} from './constants'
+import { DEFAULT_VALUES, type FixedChargeDrawerFormValues } from './constants'
 
 gql`
   fragment AddOnForFixedChargesSection on AddOn {
@@ -115,20 +111,9 @@ export const FixedChargeDrawerContent = withForm({
     const addOnsComboboxData = useMemo(() => {
       if (!addOnsData?.addOns?.collection?.length) return []
 
-      return addOnsData.addOns.collection.map(({ id, name, code }) => ({
-        label: `${name} (${code})`,
-        labelNode: (
-          <ComboboxItem>
-            <Typography variant="body" color="grey700" noWrap>
-              {name}
-            </Typography>
-            <Typography variant="caption" color="grey600" noWrap>
-              {code}
-            </Typography>
-          </ComboboxItem>
-        ),
-        value: id,
-      }))
+      return addOnsData.addOns.collection.map(({ id, name, code }) =>
+        buildCodeComboboxItem({ id, name, code }),
+      )
     }, [addOnsData?.addOns?.collection])
 
     const {
@@ -221,14 +206,12 @@ export const FixedChargeDrawerContent = withForm({
                         code: selectedAddOn.code,
                       })
 
-                      // Seed a unique charge code from the add-on code; backend
-                      // still enforces final uniqueness.
-                      if (showCode && isCreateMode) {
-                        form.setFieldValue(
-                          'code',
-                          generateUniqueCode(selectedAddOn.code, existingChargeCodes ?? []),
-                        )
-                      }
+                      seedChargeCode({
+                        enabled: !!showCode && isCreateMode,
+                        sourceCode: selectedAddOn.code,
+                        existingChargeCodes,
+                        setCode: (nextCode) => form.setFieldValue('code', nextCode),
+                      })
                     }
                   },
                 }}
@@ -258,33 +241,11 @@ export const FixedChargeDrawerContent = withForm({
                 />
 
                 {showCode && (
-                  <form.AppField
-                    name="code"
-                    listeners={{
-                      // Clear the server "code already exists" error once the user
-                      // edits the code so the submit button re-enables. Gated by the
-                      // message so the zod required-check isn't wiped.
-                      onChange: () => {
-                        const meta = form.getFieldMeta('code')
-
-                        if (meta?.errorMap?.onDynamic?.message === EXISTING_CODE_ERROR_MESSAGE) {
-                          form.setFieldMeta('code', (current) => ({
-                            ...current,
-                            errorMap: { ...current.errorMap, onDynamic: undefined },
-                          }))
-                        }
-                      },
-                    }}
-                  >
-                    {(field) => (
-                      <field.TextInputField
-                        label={translate('text_629728388c4d2300e2d380b7')}
-                        placeholder={translate('text_629728388c4d2300e2d380d9')}
-                        beforeChangeFormatter="code"
-                        disabled={isInSubscriptionForm}
-                      />
-                    )}
-                  </form.AppField>
+                  <ChargeCodeField
+                    form={form}
+                    fields={{ code: 'code' }}
+                    disabled={isInSubscriptionForm}
+                  />
                 )}
               </CenteredPage.PageSection>
 

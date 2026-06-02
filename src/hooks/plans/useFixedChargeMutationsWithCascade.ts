@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client'
+import { GraphQLFormattedError } from 'graphql'
 
 import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
 import { LocalFixedChargeInput } from '~/components/plans/types'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast } from '~/core/apolloClient'
 import { cacheArrayInsert, cacheArrayRemove } from '~/core/apolloClient/cacheHelpers'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { serializeFixedChargeProperties } from '~/core/serializers/serializePlanInput'
@@ -16,6 +17,8 @@ import {
   useUpdateFixedChargeMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+import { buildChargeSaveResult } from './buildChargeSaveResult'
 
 gql`
   mutation createFixedCharge($input: FixedChargeCreateInput!) {
@@ -139,17 +142,13 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
     index: number | null,
   ): Promise<boolean | FORM_ERRORS_ENUM.existingCode> => {
     const isCreate = index === null
-    let codeConflict = false
-    let hasError = false
+    let mutationErrors: readonly GraphQLFormattedError[] | undefined
 
     const confirmed = await openCascadeDialog({
       title: translate('text_1729604107534r3hsj7i64gp'),
       mainActionLabel: translate('text_1729604107534dfyz8j53ho5'),
       hasOverriddenPlans,
       onConfirm: async (cascadeUpdates) => {
-        // errorPolicy is 'all', so GraphQL errors resolve in `errors` instead of
-        // throwing. A duplicate code becomes a field error in the drawer; any
-        // other error keeps the drawer open (toast handled by the error link).
         const { errors } = isCreate
           ? await createFixedCharge({
               variables: { input: buildCreateInput(charge, cascadeUpdates) },
@@ -158,17 +157,11 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
               variables: { input: buildUpdateInput(charge, cascadeUpdates) },
             })
 
-        if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-          codeConflict = true
-        } else if (errors?.length) {
-          hasError = true
-        }
+        mutationErrors = errors ?? undefined
       },
     })
 
-    if (codeConflict) return FORM_ERRORS_ENUM.existingCode
-
-    return hasError ? false : confirmed
+    return buildChargeSaveResult(mutationErrors, confirmed)
   }
 
   const handleDeleteCharge = async (chargeId: string): Promise<boolean> => {

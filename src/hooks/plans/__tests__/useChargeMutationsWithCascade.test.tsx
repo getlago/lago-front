@@ -326,4 +326,32 @@ describe('useChargeMutationsWithCascade', () => {
 
     expect(outcome).toBe(FORM_ERRORS_ENUM.existingCode)
   })
+
+  it('returns false (keeps the drawer open) when the backend reports a non-code error', async () => {
+    const createMock: MockedResponse = {
+      request: { query: CreateChargeDocument },
+      variableMatcher: () => true,
+      result: {
+        errors: [new GraphQLError('Boom', { extensions: { code: 'internal_error' } })],
+      },
+    }
+
+    const { result } = renderHook(
+      () =>
+        useChargeMutationsWithCascade({
+          planId: PLAN_ID,
+          hasOverriddenPlans: false,
+          currency: CurrencyEnum.Usd,
+        }),
+      { wrapper: wrapper([createMock]) },
+    )
+
+    let outcome: boolean | FORM_ERRORS_ENUM.existingCode | undefined
+
+    await act(async () => {
+      outcome = await result.current.handleSaveCharge(buildCharge({ code: 'whatever' }), null)
+    })
+
+    expect(outcome).toBe(false)
+  })
 })
