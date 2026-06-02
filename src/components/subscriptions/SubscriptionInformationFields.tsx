@@ -2,7 +2,6 @@ import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { generatePath } from 'react-router-dom'
 
-import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Alert } from '~/components/designSystem/Alert'
 import { Status } from '~/components/designSystem/Status'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
@@ -131,17 +130,14 @@ const getSubscriptionInformationGrid = ({
   return [
     {
       label: translate('text_65201c5a175a4b0238abf29a'),
-      value: (
-        <ConditionalWrapper
-          condition={!!customerId && !isCustomerDeleted}
-          validWrapper={(children) => (
-            <Link to={generatePath(CUSTOMER_DETAILS_ROUTE, { customerId })}>{children}</Link>
-          )}
-          invalidWrapper={(children) => <>{children}</>}
-        >
-          {customerNameForDispay}
-        </ConditionalWrapper>
-      ),
+      value:
+        !!customerId && !isCustomerDeleted ? (
+          <Link to={generatePath(CUSTOMER_DETAILS_ROUTE, { customerId })}>
+            {customerNameForDispay}
+          </Link>
+        ) : (
+          customerNameForDispay
+        ),
     },
     {
       label: translate('text_62ea7cd44cd4b14bb9ac1db7'),
@@ -159,26 +155,21 @@ const getSubscriptionInformationGrid = ({
     },
     !!parentPlanId && {
       label: translate('text_65201c5a175a4b0238abf2a2'),
-      value: (
-        <ConditionalWrapper
-          condition={!!customerId && !!subscriptionId && !!parentPlanId}
-          validWrapper={(children) => (
-            <Link
-              to={generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
-                customerId,
-                subscriptionId,
-                planId: parentPlanId,
-                tab: PlanDetailsTabsOptionsEnum.overview,
-              })}
-            >
-              {children}
-            </Link>
-          )}
-          invalidWrapper={(children) => <>{children}</>}
-        >
-          {subscription?.plan?.parent?.name}
-        </ConditionalWrapper>
-      ),
+      value:
+        !!customerId && !!subscriptionId ? (
+          <Link
+            to={generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
+              customerId,
+              subscriptionId,
+              planId: parentPlanId,
+              tab: PlanDetailsTabsOptionsEnum.overview,
+            })}
+          >
+            {subscription?.plan?.parent?.name}
+          </Link>
+        ) : (
+          subscription?.plan?.parent?.name
+        ),
     },
   ]
 }
