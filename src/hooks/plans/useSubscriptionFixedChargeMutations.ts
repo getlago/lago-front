@@ -5,7 +5,6 @@ import { addToast } from '~/core/apolloClient'
 import { serializeFixedChargeProperties } from '~/core/serializers/serializePlanInput'
 import {
   FixedChargeForDetailsV2FragmentDoc,
-  Properties,
   UpdateSubscriptionFixedChargeInput,
   useUpdateSubscriptionFixedChargeMutation,
 } from '~/generated/graphql'
@@ -38,7 +37,7 @@ export const useSubscriptionFixedChargeMutations = ({ subscriptionId }: Args) =>
     fixedChargeCode: charge.code ?? '',
     invoiceDisplayName: charge.invoiceDisplayName || undefined,
     properties: charge.properties
-      ? serializeFixedChargeProperties(charge.properties as Properties, charge.chargeModel)
+      ? serializeFixedChargeProperties(charge.properties, charge.chargeModel)
       : undefined,
     units: charge.units ? String(charge.units) : '0',
     taxCodes: charge.taxes?.map((t) => t.code) ?? [],
