@@ -56,8 +56,7 @@ export const PlanDetailsV2PlanSettingsSection = ({
           {
             label: translate('text_63e51ef4985f0ebd75c212fc'),
             onClick: () => drawerRef.current?.openDrawer(),
-            // Plan-settings override via planOverrides is a deferred fast-follow; hidden in sub mode so updatePlan never hits a shared base plan (R3).
-            hidden: !canUpdate || !!subscriptionId,
+            hidden: !canUpdate,
           },
         ]}
       >
@@ -70,7 +69,7 @@ export const PlanDetailsV2PlanSettingsSection = ({
         subscriptionId={subscriptionId}
       />
 
-      <PlanSettingsDrawer ref={drawerRef} plan={plan} />
+      <PlanSettingsDrawer ref={drawerRef} plan={plan} subscriptionId={subscriptionId} />
     </section>
   )
 }

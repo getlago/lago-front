@@ -91,10 +91,10 @@ describe('PlanDetailsV2PlanSettingsSection', () => {
     ).toBeInTheDocument()
   })
 
-  it('hides the Plan settings Edit action when subscriptionId is set', () => {
-    // Plan-settings override is a deferred fast-follow (R3); the Edit action is hidden
-    // via `!canUpdate || !!subscriptionId`. isInSubscriptionForm alone (canUpdate=true
-    // via subscriptionsUpdate) no longer hides it — only subscriptionId does.
+  it('shows the Plan settings Edit action in subscription context (routes through plan override)', async () => {
+    // Sub mode now surfaces Edit: the editable settings (description + taxes) are
+    // saved via updateSubscription(planOverrides) inside PlanSettingsDrawer, so the
+    // action is gated only by canUpdate — subscriptionId no longer hides it.
     render(
       <PlanDetailsV2PlanSettingsSection
         plan={planDetailsV2Fixture}
@@ -104,7 +104,12 @@ describe('PlanDetailsV2PlanSettingsSection', () => {
       { wrapper: Wrapper },
     )
 
-    expect(screen.queryByRole('button', { name: /actions/i })).not.toBeInTheDocument()
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }),
+    )
+
+    await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
   })
 
   it('hides the Edit action when plansUpdate permission is missing', () => {

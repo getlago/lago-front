@@ -5,7 +5,9 @@ import { ReactNode } from 'react'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import {
   FixedChargeChargeModelEnum,
+  PropertiesInput,
   UpdateSubscriptionFixedChargeDocument,
+  UpdateSubscriptionFixedChargeInput,
 } from '~/generated/graphql'
 
 import { useSubscriptionFixedChargeMutations } from '../useSubscriptionFixedChargeMutations'
@@ -68,5 +70,45 @@ describe('useSubscriptionFixedChargeMutations', () => {
     })
 
     await waitFor(() => expect(called).toBe(true))
+  })
+
+  it('prunes usage-only properties from the override input (standard)', async () => {
+    let capturedInput: UpdateSubscriptionFixedChargeInput | undefined
+
+    const updateMock: MockedResponse = {
+      request: { query: UpdateSubscriptionFixedChargeDocument },
+      variableMatcher: (vars) => {
+        capturedInput = vars?.input
+
+        return true
+      },
+      result: {
+        data: { updateSubscriptionFixedCharge: { __typename: 'FixedCharge', id: 'fc_override_1' } },
+      },
+    }
+
+    const { result } = renderHook(
+      () => useSubscriptionFixedChargeMutations({ subscriptionId: SUB_ID }),
+      { wrapper: wrapper([updateMock]) },
+    )
+
+    const propertiesWithUsageFields: PropertiesInput = {
+      amount: '10',
+      pricingGroupKeys: ['region'],
+      packageSize: 10,
+      freeUnits: 0,
+    }
+
+    await act(async () => {
+      await result.current.handleSaveCharge(
+        buildCharge({
+          chargeModel: FixedChargeChargeModelEnum.Standard,
+          properties: propertiesWithUsageFields,
+        }),
+      )
+    })
+
+    await waitFor(() => expect(capturedInput).toBeDefined())
+    expect(capturedInput?.properties).toStrictEqual({ amount: '10' })
   })
 })

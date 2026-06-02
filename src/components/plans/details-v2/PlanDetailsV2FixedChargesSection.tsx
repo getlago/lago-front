@@ -9,6 +9,7 @@ import {
 import { FixedChargeInfo } from '~/components/plans/FixedChargeInfo'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import {
   CurrencyEnum,
   GraduatedChargeFragmentDoc,
@@ -79,7 +80,10 @@ export type PlanDetailsV2FixedChargesSectionRef = {
 }
 
 export type FixedChargeMutations = {
-  handleSaveCharge: (charge: LocalFixedChargeInput, index: number | null) => Promise<boolean>
+  handleSaveCharge: (
+    charge: LocalFixedChargeInput,
+    index: number | null,
+  ) => Promise<boolean | FORM_ERRORS_ENUM.existingCode>
   handleDeleteCharge: (chargeId: string) => Promise<boolean>
 }
 
@@ -149,7 +153,7 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
         <SectionAccordion
           key={fixedCharge.id}
           title={fixedCharge.invoiceDisplayName || fixedCharge.addOn.name}
-          subtitle={fixedCharge.addOn.code}
+          subtitle={fixedCharge.code}
           actions={[
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
@@ -181,6 +185,9 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
         <FixedChargeDrawer
           ref={drawerRef}
           isEdition
+          isInSubscriptionForm={isInSubscriptionForm}
+          showCode
+          existingChargeCodes={fixedCharges.map((c) => c.code)}
           onSave={handleSaveCharge}
           onDelete={(index) => {
             const target = fixedCharges[index]

@@ -1,18 +1,24 @@
 import { gql } from '@apollo/client'
+import { GraphQLFormattedError } from 'graphql'
 
 import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { addToast } from '~/core/apolloClient'
 import { cacheArrayInsert, cacheArrayRemove } from '~/core/apolloClient/cacheHelpers'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { serializeFixedChargeProperties } from '~/core/serializers/serializePlanInput'
 import {
   FixedChargeCreateInput,
   FixedChargeForDetailsV2FragmentDoc,
   FixedChargeUpdateInput,
+  LagoApiError,
   useCreateFixedChargeMutation,
   useDestroyFixedChargeMutation,
   useUpdateFixedChargeMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+import { buildChargeSaveResult } from './buildChargeSaveResult'
 
 gql`
   mutation createFixedCharge($input: FixedChargeCreateInput!) {
@@ -46,8 +52,10 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
   const { openCascadeDialog } = useCascadeFormDialog()
 
   const [createFixedCharge] = useCreateFixedChargeMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     update(cache, { data }) {
       const created = data?.createFixedCharge
+
       if (!created) return
       cacheArrayInsert(cache, { __typename: 'Plan', id: planId }, 'fixedCharges', created)
     },
@@ -62,6 +70,7 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
   })
 
   const [updateFixedCharge] = useUpdateFixedChargeMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted(data) {
       if (data?.updateFixedCharge?.id) {
         addToast({
@@ -75,6 +84,7 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
   const [destroyFixedCharge] = useDestroyFixedChargeMutation({
     update(cache, { data }) {
       const id = data?.destroyFixedCharge?.id
+
       if (!id) return
       cacheArrayRemove(cache, { __typename: 'Plan', id: planId }, 'fixedCharges', id, 'FixedCharge')
     },
@@ -95,9 +105,12 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
     planId,
     addOnId: charge.addOn.id,
     chargeModel: charge.chargeModel,
+    code: charge.code || undefined,
     invoiceDisplayName: charge.invoiceDisplayName || undefined,
     payInAdvance: charge.payInAdvance ?? false,
-    properties: charge.properties,
+    properties: charge.properties
+      ? serializeFixedChargeProperties(charge.properties, charge.chargeModel)
+      : undefined,
     prorated: charge.prorated ?? false,
     units: charge.units ? String(charge.units) : '0',
     taxCodes: charge.taxes?.map((t) => t.code) ?? [],
@@ -111,9 +124,12 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
   ): FixedChargeUpdateInput => ({
     id: charge.id ?? '',
     chargeModel: charge.chargeModel,
+    code: charge.code || undefined,
     invoiceDisplayName: charge.invoiceDisplayName || undefined,
     payInAdvance: charge.payInAdvance ?? false,
-    properties: charge.properties,
+    properties: charge.properties
+      ? serializeFixedChargeProperties(charge.properties, charge.chargeModel)
+      : undefined,
     prorated: charge.prorated ?? false,
     units: charge.units ? String(charge.units) : '0',
     taxCodes: charge.taxes?.map((t) => t.code) ?? [],
@@ -124,24 +140,28 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
   const handleSaveCharge = async (
     charge: LocalFixedChargeInput,
     index: number | null,
-  ): Promise<boolean> => {
+  ): Promise<boolean | FORM_ERRORS_ENUM.existingCode> => {
     const isCreate = index === null
-    return openCascadeDialog({
+    let mutationErrors: readonly GraphQLFormattedError[] | undefined
+
+    const confirmed = await openCascadeDialog({
       title: translate('text_1729604107534r3hsj7i64gp'),
       mainActionLabel: translate('text_1729604107534dfyz8j53ho5'),
       hasOverriddenPlans,
       onConfirm: async (cascadeUpdates) => {
-        if (isCreate) {
-          await createFixedCharge({
-            variables: { input: buildCreateInput(charge, cascadeUpdates) },
-          })
-        } else {
-          await updateFixedCharge({
-            variables: { input: buildUpdateInput(charge, cascadeUpdates) },
-          })
-        }
+        const { errors } = isCreate
+          ? await createFixedCharge({
+              variables: { input: buildCreateInput(charge, cascadeUpdates) },
+            })
+          : await updateFixedCharge({
+              variables: { input: buildUpdateInput(charge, cascadeUpdates) },
+            })
+
+        mutationErrors = errors ?? undefined
       },
     })
+
+    return buildChargeSaveResult(mutationErrors, confirmed)
   }
 
   const handleDeleteCharge = async (chargeId: string): Promise<boolean> => {

@@ -101,7 +101,7 @@ export const PlanDetailsV2 = ({
   }
 
   return (
-    <div className="flex gap-8">
+    <div className="flex gap-12">
       <PlanDetailsV2LeftSidebar
         isInSubscriptionForm={isInSubscriptionForm}
         onItemClick={handleItemClick}
