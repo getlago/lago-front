@@ -6395,6 +6395,44 @@ export enum OrderByEnum {
   NetRevenueAmountCents = 'net_revenue_amount_cents'
 }
 
+export type OrderForm = {
+  __typename?: 'OrderForm';
+  billingSnapshot: Scalars['JSON']['output'];
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  customer: Customer;
+  expiresAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  number: Scalars['String']['output'];
+  quote: Quote;
+  signedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  status: OrderFormStatusEnum;
+  updatedAt: Scalars['ISO8601DateTime']['output'];
+  voidReason?: Maybe<OrderFormVoidReasonEnum>;
+  voidedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+};
+
+/** OrderFormCollection type */
+export type OrderFormCollection = {
+  __typename?: 'OrderFormCollection';
+  /** A collection of paginated OrderFormCollection */
+  collection: Array<OrderForm>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+export enum OrderFormStatusEnum {
+  Expired = 'expired',
+  Generated = 'generated',
+  Signed = 'signed',
+  Voided = 'voided'
+}
+
+export enum OrderFormVoidReasonEnum {
+  Expired = 'expired',
+  Invalid = 'invalid',
+  Manual = 'manual'
+}
+
 export enum OrderTypeEnum {
   OneOff = 'one_off',
   SubscriptionAmendment = 'subscription_amendment',
@@ -6649,6 +6687,7 @@ export enum PermissionEnum {
   InvoicesUpdate = 'invoices_update',
   InvoicesView = 'invoices_view',
   InvoicesVoid = 'invoices_void',
+  OrderFormsView = 'order_forms_view',
   OrganizationEmailsUpdate = 'organization_emails_update',
   OrganizationEmailsView = 'organization_emails_view',
   OrganizationIntegrationsCreate = 'organization_integrations_create',
@@ -6761,6 +6800,7 @@ export type Permissions = {
   invoicesUpdate: Scalars['Boolean']['output'];
   invoicesView: Scalars['Boolean']['output'];
   invoicesVoid: Scalars['Boolean']['output'];
+  orderFormsView: Scalars['Boolean']['output'];
   organizationEmailsUpdate: Scalars['Boolean']['output'];
   organizationEmailsView: Scalars['Boolean']['output'];
   organizationIntegrationsCreate: Scalars['Boolean']['output'];
@@ -7319,6 +7359,10 @@ export type Query = {
   memberships: MembershipCollection;
   /** Query MRR of an organization */
   mrrs: MrrCollection;
+  /** Query a single order form */
+  orderForm?: Maybe<OrderForm>;
+  /** Query order forms */
+  orderForms: OrderFormCollection;
   /** Query the current organization */
   organization?: Maybe<CurrentOrganization>;
   /** Query overdue balances of an organization */
@@ -7978,6 +8022,27 @@ export type QueryMembershipsArgs = {
 export type QueryMrrsArgs = {
   billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
+};
+
+
+export type QueryOrderFormArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryOrderFormsArgs = {
+  createdAtFrom?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  createdAtTo?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  customerId?: InputMaybe<Array<Scalars['ID']['input']>>;
+  expiresAtFrom?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  expiresAtTo?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  number?: InputMaybe<Array<Scalars['String']['input']>>;
+  ownerId?: InputMaybe<Array<Scalars['ID']['input']>>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  quoteNumber?: InputMaybe<Array<Scalars['String']['input']>>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Array<OrderFormStatusEnum>>;
 };
 
 
@@ -11085,6 +11150,17 @@ export type GetPlansForFiltersItemPlanCodeQueryVariables = Exact<{
 
 
 export type GetPlansForFiltersItemPlanCodeQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, code: string, deletedAt?: any | null }> } };
+
+export type AddOnForPricingSectionFragment = { __typename?: 'AddOn', id: string, name: string, code: string, invoiceDisplayName?: string | null, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, taxes?: Array<{ __typename?: 'Tax', id: string, code: string }> | null };
+
+export type GetAddOnsForPricingSectionQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetAddOnsForPricingSectionQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, code: string, invoiceDisplayName?: string | null, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, taxes?: Array<{ __typename?: 'Tax', id: string, code: string }> | null }> } };
 
 export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?:
     | { __typename?: 'BillableMetric', id: string }
@@ -16157,6 +16233,21 @@ export const CustomerProjectedUsageForUsageDetailsFragmentDoc = gql`
         projectedUnits
       }
     }
+  }
+}
+    `;
+export const AddOnForPricingSectionFragmentDoc = gql`
+    fragment AddOnForPricingSection on AddOn {
+  id
+  name
+  code
+  invoiceDisplayName
+  description
+  amountCents
+  amountCurrency
+  taxes {
+    id
+    code
   }
 }
     `;
@@ -24425,6 +24516,58 @@ export type GetPlansForFiltersItemPlanCodeQueryHookResult = ReturnType<typeof us
 export type GetPlansForFiltersItemPlanCodeLazyQueryHookResult = ReturnType<typeof useGetPlansForFiltersItemPlanCodeLazyQuery>;
 export type GetPlansForFiltersItemPlanCodeSuspenseQueryHookResult = ReturnType<typeof useGetPlansForFiltersItemPlanCodeSuspenseQuery>;
 export type GetPlansForFiltersItemPlanCodeQueryResult = Apollo.QueryResult<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>;
+export const GetAddOnsForPricingSectionDocument = gql`
+    query getAddOnsForPricingSection($page: Int, $limit: Int, $searchTerm: String) {
+  addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      ...AddOnForPricingSection
+    }
+  }
+}
+    ${AddOnForPricingSectionFragmentDoc}`;
+
+/**
+ * __useGetAddOnsForPricingSectionQuery__
+ *
+ * To run a query within a React component, call `useGetAddOnsForPricingSectionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAddOnsForPricingSectionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAddOnsForPricingSectionQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetAddOnsForPricingSectionQuery(baseOptions?: Apollo.QueryHookOptions<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>(GetAddOnsForPricingSectionDocument, options);
+      }
+export function useGetAddOnsForPricingSectionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>(GetAddOnsForPricingSectionDocument, options);
+        }
+// @ts-ignore
+export function useGetAddOnsForPricingSectionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>;
+export function useGetAddOnsForPricingSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnsForPricingSectionQuery | undefined, GetAddOnsForPricingSectionQueryVariables>;
+export function useGetAddOnsForPricingSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>(GetAddOnsForPricingSectionDocument, options);
+        }
+export type GetAddOnsForPricingSectionQueryHookResult = ReturnType<typeof useGetAddOnsForPricingSectionQuery>;
+export type GetAddOnsForPricingSectionLazyQueryHookResult = ReturnType<typeof useGetAddOnsForPricingSectionLazyQuery>;
+export type GetAddOnsForPricingSectionSuspenseQueryHookResult = ReturnType<typeof useGetAddOnsForPricingSectionSuspenseQuery>;
+export type GetAddOnsForPricingSectionQueryResult = Apollo.QueryResult<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>;
 export const GetSingleActivityLogDocument = gql`
     query getSingleActivityLog($id: ID!) {
   activityLog(activityId: $id) {

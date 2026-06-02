@@ -56,12 +56,12 @@ const FormDrawer = create(
           submit: handleContinue,
         }}
         actions={
-          <>
+          <div className="flex flex-row items-center gap-2">
             <Button variant="quaternary" onClick={handleCancel}>
               {closeText}
             </Button>
             {mainAction}
-          </>
+          </div>
         }
       >
         {children}
