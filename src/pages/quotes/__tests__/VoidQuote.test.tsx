@@ -112,6 +112,7 @@ describe('VoidQuote', () => {
       quote: mockQuote,
       loading: false,
       error: undefined,
+      refetch: jest.fn(),
     })
 
     mockHasPermissions.mockReturnValue(true)
@@ -283,6 +284,7 @@ describe('VoidQuote', () => {
           quote: undefined,
           loading: true,
           error: undefined,
+          refetch: jest.fn(),
         })
 
         render(<VoidQuote />)
@@ -299,6 +301,7 @@ describe('VoidQuote', () => {
           quote: undefined,
           loading: false,
           error: new Error('Something went wrong') as never,
+          refetch: jest.fn(),
         })
 
         render(<VoidQuote />)

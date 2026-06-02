@@ -102,6 +102,7 @@ describe('QuoteDetails', () => {
       quote: mockQuote,
       loading: false,
       error: undefined,
+      refetch: jest.fn(),
     })
 
     mockUseQuoteVersionActions.mockReturnValue({
@@ -179,6 +180,7 @@ describe('QuoteDetails', () => {
           quote: undefined,
           loading: true,
           error: undefined,
+          refetch: jest.fn(),
         })
 
         render(<QuoteDetails />)
@@ -258,6 +260,7 @@ describe('QuoteDetails', () => {
           quote: undefined,
           loading: true,
           error: undefined,
+          refetch: jest.fn(),
         })
 
         render(<QuoteDetails />)
@@ -275,6 +278,7 @@ describe('QuoteDetails', () => {
         quote: undefined,
         loading: false,
         error: undefined,
+        refetch: jest.fn(),
       })
 
       const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
