@@ -10,6 +10,41 @@ import { useUpdateSubscriptionInformation } from '~/hooks/customer/useUpdateSubs
 
 const SUBSCRIPTION_INFORMATION_FORM_ID = 'subscription-information-drawer-form'
 
+type SubscriptionInformationForm = ReturnType<typeof useUpdateSubscriptionInformation>['form']
+
+// Rendered as the drawer body. It owns the show/hide toggles so that clicking
+// "Add an external id" / "Add a subscription name" re-renders the fields — the
+// drawer's `children` is captured once when opened, so keeping this state in the
+// parent would never reach the displayed content.
+const SubscriptionInformationDrawerContent = ({
+  form,
+  subscription,
+}: {
+  form: SubscriptionInformationForm
+  subscription: SubscriptionInformationSectionFragment
+}) => {
+  const [shouldDisplaySubscriptionExternalId, setShouldDisplaySubscriptionExternalId] = useState(
+    !!subscription.externalId,
+  )
+  const [shouldDisplaySubscriptionName, setShouldDisplaySubscriptionName] = useState(
+    !!subscription.name,
+  )
+
+  return (
+    <SubscriptionInformationFormSection
+      form={form}
+      formType={FORM_TYPE_ENUM.edition}
+      subscription={subscription}
+      customerTimezone={subscription.customer?.applicableTimezone}
+      selectedPlanInterval={subscription.plan?.interval}
+      shouldDisplaySubscriptionExternalId={shouldDisplaySubscriptionExternalId}
+      setShouldDisplaySubscriptionExternalId={setShouldDisplaySubscriptionExternalId}
+      shouldDisplaySubscriptionName={shouldDisplaySubscriptionName}
+      setShouldDisplaySubscriptionName={setShouldDisplaySubscriptionName}
+    />
+  )
+}
+
 export interface SubscriptionInformationDrawerRef {
   openDrawer: () => void
   closeDrawer: () => void
@@ -33,31 +68,22 @@ export const SubscriptionInformationDrawer = forwardRef<
     },
   })
 
-  const [shouldDisplaySubscriptionExternalId, setShouldDisplaySubscriptionExternalId] = useState(
-    !!subscription.externalId,
-  )
-  const [shouldDisplaySubscriptionName, setShouldDisplaySubscriptionName] = useState(
-    !!subscription.name,
-  )
-
   const openDrawer = () => {
     resetForm()
-    setShouldDisplaySubscriptionExternalId(!!subscription.externalId)
-    setShouldDisplaySubscriptionName(!!subscription.name)
 
-    const submitVoid = () => {
-      void form.handleSubmit()
+    const submitForm = () => {
+      form.handleSubmit()
     }
 
     drawer.open({
       title: translate('text_62d7f6178ec94cd09370e63c'),
-      form: { id: SUBSCRIPTION_INFORMATION_FORM_ID, submit: submitVoid },
+      form: { id: SUBSCRIPTION_INFORMATION_FORM_ID, submit: submitForm },
       mainAction: (
         <form.Subscribe selector={({ canSubmit }) => canSubmit}>
           {(canSubmit) => (
             <Button
               data-test="subscription-information-drawer-save"
-              onClick={submitVoid}
+              onClick={submitForm}
               disabled={!canSubmit}
             >
               {translate('text_17295436903260tlyb1gp1i7')}
@@ -65,19 +91,7 @@ export const SubscriptionInformationDrawer = forwardRef<
           )}
         </form.Subscribe>
       ),
-      children: (
-        <SubscriptionInformationFormSection
-          form={form}
-          formType={FORM_TYPE_ENUM.edition}
-          subscription={subscription}
-          customerTimezone={subscription.customer?.applicableTimezone}
-          selectedPlanInterval={subscription.plan?.interval}
-          shouldDisplaySubscriptionExternalId={shouldDisplaySubscriptionExternalId}
-          setShouldDisplaySubscriptionExternalId={setShouldDisplaySubscriptionExternalId}
-          shouldDisplaySubscriptionName={shouldDisplaySubscriptionName}
-          setShouldDisplaySubscriptionName={setShouldDisplaySubscriptionName}
-        />
-      ),
+      children: <SubscriptionInformationDrawerContent form={form} subscription={subscription} />,
     })
   }
 
