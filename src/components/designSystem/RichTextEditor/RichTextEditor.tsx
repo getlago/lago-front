@@ -51,6 +51,7 @@ interface RichTextEditorProps {
   downloadPdfRef?: React.MutableRefObject<(() => void) | null>
   onChange?: () => void
   onPricingCommand?: OnPricingCommand
+  isPricingDisabled?: () => boolean
   onPricingBlocksChange?: (blocks: PricingBlockAttributes[]) => void
 }
 
@@ -63,6 +64,7 @@ const RichTextEditor = ({
   getMarkdownRef,
   downloadPdfRef,
   onPricingCommand,
+  isPricingDisabled,
   onPricingBlocksChange,
   onChange,
 }: RichTextEditorProps) => {
@@ -146,7 +148,7 @@ const RichTextEditor = ({
         },
       } as MentionSchemaOptions),
       PricingBlock.configure({ entities: entitiesFromProps }),
-      SlashCommands.configure({ translate, onPricingCommand }),
+      SlashCommands.configure({ translate, onPricingCommand, isPricingDisabled }),
       LinkPasteHandler,
       TemplateSelectorExtension.configure({ templates: templates ?? [] }),
       DragHandle,

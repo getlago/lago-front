@@ -63,10 +63,8 @@ const EditQuote = () => {
 
   const isUpdating = isUpdatingQuote || isUpdatingQuoteVersion
 
-  const { onPricingCommand, entities, syncEntitiesWithBlocks } = usePricingDrawer(
-    quote?.orderType,
-    quote?.currentVersion?.billingItems,
-  )
+  const { onPricingCommand, isPricingDisabled, entities, syncEntitiesWithBlocks } =
+    usePricingDrawer(quote?.orderType, quote?.currentVersion?.billingItems)
 
   const getMarkdownRef = useRef<(() => string) | null>(null)
   const lastSavedContentRef = useRef('')
@@ -285,6 +283,7 @@ const EditQuote = () => {
           onChange={handleChange}
           mode={editorMode}
           onPricingCommand={handlePricingCommand}
+          isPricingDisabled={isPricingDisabled}
           entities={entities}
           onPricingBlocksChange={handlePricingBlocksChange}
         />

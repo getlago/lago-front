@@ -33,6 +33,7 @@ const PRICING_DRAWER_FORM_ID = 'pricing-drawer-form'
 
 interface UsePricingDrawerReturn {
   onPricingCommand: OnPricingCommand
+  isPricingDisabled: () => boolean
   entities: Record<string, EntityData>
   syncEntitiesWithBlocks: (blocks: PricingBlockAttributes[]) => BillingItemsPayload | null
 }
@@ -233,6 +234,15 @@ export const usePricingDrawer = (
         orderType === OrderTypeEnum.SubscriptionCreation ||
         orderType === OrderTypeEnum.SubscriptionAmendment
 
+      // One-off quotes: only allow one pricing block (new insertion only, not edits)
+      if (
+        orderType === OrderTypeEnum.OneOff &&
+        !editData &&
+        Object.keys(entitiesRef.current).length > 0
+      ) {
+        return
+      }
+
       const currency = organization?.defaultCurrency ?? CurrencyEnum.Usd
 
       onSaveRef.current = onSave
@@ -344,5 +354,11 @@ export const usePricingDrawer = (
     [],
   )
 
-  return { onPricingCommand, entities, syncEntitiesWithBlocks }
+  const isPricingDisabled = useCallback(() => {
+    const orderType = quoteOrderTypeRef.current ?? OrderTypeEnum.SubscriptionCreation
+
+    return orderType === OrderTypeEnum.OneOff && Object.keys(entitiesRef.current).length > 0
+  }, [])
+
+  return { onPricingCommand, isPricingDisabled, entities, syncEntitiesWithBlocks }
 }
