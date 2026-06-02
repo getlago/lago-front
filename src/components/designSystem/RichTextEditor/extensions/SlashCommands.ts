@@ -1,4 +1,5 @@
 import { Extension } from '@tiptap/core'
+import { NodeSelection } from '@tiptap/pm/state'
 import { Editor, Range, ReactRenderer } from '@tiptap/react'
 import Suggestion, { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/suggestion'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
@@ -10,6 +11,7 @@ export interface SlashCommandItem {
   title: string
   description: string
   command: (editor: Editor) => void
+  disabled?: boolean
 }
 
 interface SlashCommandDefinition {
@@ -65,6 +67,7 @@ export const SlashCommands = Extension.create({
     return {
       translate: ((key: string) => key) as (key: string) => string,
       onPricingCommand: undefined as OnPricingCommand | undefined,
+      isPricingDisabled: undefined as (() => boolean) | undefined,
       suggestion: {
         char: '/',
         command: ({
@@ -126,7 +129,7 @@ export const SlashCommands = Extension.create({
   },
 
   addProseMirrorPlugins() {
-    const { translate, onPricingCommand } = this.options
+    const { translate, onPricingCommand, isPricingDisabled } = this.options
 
     const resolvedItems: SlashCommandItem[] = slashCommandDefinitions.map((def) => ({
       title: translate(def.titleKey),
@@ -134,18 +137,29 @@ export const SlashCommands = Extension.create({
       command: def.command,
     }))
 
+    let pricingItem: SlashCommandItem | undefined
+
     if (onPricingCommand) {
-      resolvedItems.push({
+      pricingItem = {
         title: translate('text_1779802343219a1cl5ckvtrn'),
         description: translate('text_1779802343219rul1jvs7170'),
         command: (editor) => {
           onPricingCommand({
             onSave: (attrs) => {
               editor.chain().focus().insertContent({ type: 'pricingBlock', attrs }).run()
+
+              // After inserting an atom node, ProseMirror may create a NodeSelection
+              // which triggers the BlockToolbar overlay. Move to a text selection.
+              const { selection } = editor.state
+
+              if (selection instanceof NodeSelection) {
+                editor.commands.setTextSelection(selection.from + selection.node.nodeSize)
+              }
             },
           })
         },
-      })
+      }
+      resolvedItems.push(pricingItem)
     }
 
     const editorRef = this.editor
@@ -186,8 +200,12 @@ export const SlashCommands = Extension.create({
 
       const renderer = new ReactRenderer(SlashMenu, {
         props: {
-          items: resolvedItems,
+          items: resolvedItems.map((item) => ({
+            ...item,
+            disabled: item === pricingItem ? (isPricingDisabled?.() ?? false) : false,
+          })),
           command: (item: SlashCommandItem) => {
+            if (item.disabled) return
             item.command(editorRef)
             destroy()
           },
@@ -214,9 +232,12 @@ export const SlashCommands = Extension.create({
         editor: this.editor,
         ...this.options.suggestion,
         items: ({ query }: { query: string }) => {
-          return resolvedItems.filter((item) =>
-            item.title.toLowerCase().includes(query.toLowerCase()),
-          )
+          return resolvedItems
+            .filter((item) => item.title.toLowerCase().includes(query.toLowerCase()))
+            .map((item) => ({
+              ...item,
+              disabled: item === pricingItem ? (isPricingDisabled?.() ?? false) : false,
+            }))
         },
       }),
     ]
