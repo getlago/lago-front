@@ -4,7 +4,7 @@ import { createRef } from 'react'
 
 import { render } from '~/test-utils'
 
-import { Popper } from '../Popper'
+import { isPopperGroupTracked, Popper } from '../Popper'
 
 async function prepare({
   children,
@@ -448,11 +448,11 @@ describe('Popper', () => {
       expect(screen.queryByTestId('content-1')).toBeNull()
     })
 
-    it('cleans up the group registry when an open grouped popper unmounts', async () => {
+    it('drops the registry entry when an open grouped popper unmounts', async () => {
       const { unmount } = await act(() =>
         render(
           <Popper
-            popperGroupName="cleanup-group"
+            popperGroupName="unmount-cleanup-group"
             opener={<button data-test="opener-a">Opener A</button>}
           >
             <div data-test="content-a">Content A</div>
@@ -465,26 +465,17 @@ describe('Popper', () => {
         expect(screen.getByTestId('content-a')).toBeVisible()
       })
 
-      // Unmount while open: the cleanup effect must drop this popper from the
-      // group registry so no stale close fn lingers.
-      unmount()
+      // Open popper is tracked in the group registry.
+      expect(isPopperGroupTracked('unmount-cleanup-group')).toBe(true)
 
-      // A fresh popper in the same group still opens normally afterwards.
-      await act(() =>
-        render(
-          <Popper
-            popperGroupName="cleanup-group"
-            opener={<button data-test="opener-b">Opener B</button>}
-          >
-            <div data-test="content-b">Content B</div>
-          </Popper>,
-        ),
-      )
-
-      await userEvent.click(screen.getByTestId('opener-b'))
-      await waitFor(() => {
-        expect(screen.getByTestId('content-b')).toBeVisible()
+      // Unmounting while open must run the cleanup effect and drop the entry —
+      // asserting the registry directly (a stale close on an unmounted popper is
+      // a DOM no-op, so this is the only way to discriminate the cleanup).
+      await act(() => {
+        unmount()
       })
+
+      expect(isPopperGroupTracked('unmount-cleanup-group')).toBe(false)
     })
 
     it('matches snapshot with nested content', async () => {

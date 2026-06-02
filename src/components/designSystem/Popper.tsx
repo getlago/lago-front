@@ -23,6 +23,12 @@ export const POPPER_WRAPPER_CLASSES =
 // behavior). Poppers without a group name stay fully independent.
 const openPopperRegistry = new Map<string, () => void>()
 
+// Read-only accessor for the group registry. Exposed so tests can assert the
+// unmount cleanup actually drops the entry (the cleanup is otherwise not
+// DOM-observable, since a stale close fn on an unmounted popper is a no-op).
+export const isPopperGroupTracked = (groupName: string): boolean =>
+  openPopperRegistry.has(groupName)
+
 export interface PopperProps {
   className?: string
   opener?:
