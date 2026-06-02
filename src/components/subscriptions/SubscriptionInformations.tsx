@@ -7,12 +7,9 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import {
-  SubscriptionDowngradeAlert,
-  SubscriptionInformationFields,
-} from './SubscriptionInformationFields'
+import { SubscriptionInformationFields } from './SubscriptionInformationFields'
 
-export { SubscriptionDowngradeAlert }
+export { SubscriptionDowngradeAlert } from './SubscriptionInformationFields'
 
 gql`
   fragment SubscriptionForSubscriptionInformations on Subscription {

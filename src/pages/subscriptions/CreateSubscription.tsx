@@ -48,9 +48,7 @@ import {
 import { getTimezoneConfig } from '~/core/timezone'
 import { subscriptionFormSchema } from '~/formValidation/subscriptionFormSchema'
 import {
-  AddSubscriptionPlanFragmentDoc,
   CurrencyEnum,
-  FeatureEntitlementForPlanFragmentDoc,
   FeatureFlagEnum,
   PlanInterval,
   StatusTypeEnum,
@@ -104,8 +102,6 @@ gql`
     }
   }
 
-  ${AddSubscriptionPlanFragmentDoc}
-  ${FeatureEntitlementForPlanFragmentDoc}
   ${SubscriptionForSubscriptionEditFormFragmentDoc}
 `
 

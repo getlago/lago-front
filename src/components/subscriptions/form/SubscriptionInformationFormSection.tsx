@@ -12,7 +12,6 @@ import { getTimezoneConfig } from '~/core/timezone'
 import {
   AddSubscriptionPlanFragmentDoc,
   BillingTimeEnum,
-  FeatureEntitlementForPlanFragmentDoc,
   PlanInterval,
   StatusTypeEnum,
   TimezoneEnum,
@@ -59,7 +58,6 @@ gql`
   }
 
   ${AddSubscriptionPlanFragmentDoc}
-  ${FeatureEntitlementForPlanFragmentDoc}
 `
 
 const getBillingTimeSelectorTranslationKey = (planInterval?: PlanInterval) => {

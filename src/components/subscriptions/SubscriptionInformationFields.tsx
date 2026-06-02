@@ -16,7 +16,7 @@ import {
   StatusTypeEnum,
   SubscriptionInformationFieldsFragment,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
@@ -109,14 +109,17 @@ export const SubscriptionDowngradeAlert = ({
   return <Alert type="info">{content}</Alert>
 }
 
-export const SubscriptionInformationFields = ({
+const getSubscriptionInformationGrid = ({
   subscription,
+  translate,
 }: {
   subscription?: SubscriptionInformationFieldsFragment | null
+  translate: TranslateFunc
 }) => {
-  const { translate } = useInternationalization()
-
   const isCustomerDeleted = !!subscription?.customer?.deletedAt
+  const customerId = subscription?.customer?.id ?? ''
+  const subscriptionId = subscription?.id ?? ''
+  const parentPlanId = subscription?.plan?.parent?.id
 
   const customerNameForDispay = [
     subscription?.customer?.displayName || subscription?.customer?.externalId,
@@ -124,6 +127,68 @@ export const SubscriptionInformationFields = ({
   ]
     .filter(Boolean)
     .join(' ')
+
+  return [
+    {
+      label: translate('text_65201c5a175a4b0238abf29a'),
+      value: (
+        <ConditionalWrapper
+          condition={!!customerId && !isCustomerDeleted}
+          validWrapper={(children) => (
+            <Link to={generatePath(CUSTOMER_DETAILS_ROUTE, { customerId })}>{children}</Link>
+          )}
+          invalidWrapper={(children) => <>{children}</>}
+        >
+          {customerNameForDispay}
+        </ConditionalWrapper>
+      ),
+    },
+    {
+      label: translate('text_62ea7cd44cd4b14bb9ac1db7'),
+      value: subscription?.billingTime
+        ? translate(getBillingTimeEnumTranslationKey[subscription.billingTime])
+        : '-',
+    },
+    {
+      label: translate('text_65201c5a175a4b0238abf29e'),
+      value: DateTime.fromISO(subscription?.subscriptionAt).toFormat('LLL. dd, yyyy'),
+    },
+    {
+      label: translate('text_65201c5a175a4b0238abf2a0'),
+      value: <SubscriptionEndOrTerminatedAt subscription={subscription} />,
+    },
+    !!parentPlanId && {
+      label: translate('text_65201c5a175a4b0238abf2a2'),
+      value: (
+        <ConditionalWrapper
+          condition={!!customerId && !!subscriptionId && !!parentPlanId}
+          validWrapper={(children) => (
+            <Link
+              to={generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
+                customerId,
+                subscriptionId,
+                planId: parentPlanId,
+                tab: PlanDetailsTabsOptionsEnum.overview,
+              })}
+            >
+              {children}
+            </Link>
+          )}
+          invalidWrapper={(children) => <>{children}</>}
+        >
+          {subscription?.plan?.parent?.name}
+        </ConditionalWrapper>
+      ),
+    },
+  ]
+}
+
+export const SubscriptionInformationFields = ({
+  subscription,
+}: {
+  subscription?: SubscriptionInformationFieldsFragment | null
+}) => {
+  const { translate } = useInternationalization()
 
   return (
     <div className="flex flex-col gap-4">
@@ -143,71 +208,7 @@ export const SubscriptionInformationFields = ({
           ) : undefined
         }
       />
-      <DetailsPage.InfoGrid
-        grid={[
-          {
-            label: translate('text_65201c5a175a4b0238abf29a'),
-            value: (
-              <ConditionalWrapper
-                condition={!!subscription?.customer?.id && !isCustomerDeleted}
-                validWrapper={(children) => (
-                  <Link
-                    to={generatePath(CUSTOMER_DETAILS_ROUTE, {
-                      customerId: subscription?.customer?.id as string,
-                    })}
-                  >
-                    {children}
-                  </Link>
-                )}
-                invalidWrapper={(children) => <>{children}</>}
-              >
-                {customerNameForDispay}
-              </ConditionalWrapper>
-            ),
-          },
-          {
-            label: translate('text_62ea7cd44cd4b14bb9ac1db7'),
-            value: subscription?.billingTime
-              ? translate(getBillingTimeEnumTranslationKey[subscription.billingTime])
-              : '-',
-          },
-          {
-            label: translate('text_65201c5a175a4b0238abf29e'),
-            value: DateTime.fromISO(subscription?.subscriptionAt).toFormat('LLL. dd, yyyy'),
-          },
-          {
-            label: translate('text_65201c5a175a4b0238abf2a0'),
-            value: <SubscriptionEndOrTerminatedAt subscription={subscription} />,
-          },
-          !!subscription?.plan?.parent?.id && {
-            label: translate('text_65201c5a175a4b0238abf2a2'),
-            value: (
-              <ConditionalWrapper
-                condition={
-                  !!subscription?.customer?.id &&
-                  !!subscription?.id &&
-                  !!subscription?.plan?.parent?.id
-                }
-                validWrapper={(children) => (
-                  <Link
-                    to={generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
-                      customerId: subscription?.customer?.id as string,
-                      subscriptionId: subscription?.id as string,
-                      planId: subscription?.plan?.parent?.id as string,
-                      tab: PlanDetailsTabsOptionsEnum.overview,
-                    })}
-                  >
-                    {children}
-                  </Link>
-                )}
-                invalidWrapper={(children) => <>{children}</>}
-              >
-                {subscription?.plan?.parent?.name}
-              </ConditionalWrapper>
-            ),
-          },
-        ]}
-      />
+      <DetailsPage.InfoGrid grid={getSubscriptionInformationGrid({ subscription, translate })} />
     </div>
   )
 }
