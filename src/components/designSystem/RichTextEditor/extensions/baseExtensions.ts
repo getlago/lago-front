@@ -211,9 +211,9 @@ interface BaseExtensionsOptions {
 /**
  * Extensions shared between the interactive editor and headless consumers.
  *
- * Does NOT include Mention or PlanBlock — those require different configurations
+ * Does NOT include Mention or PricingBlock — those require different configurations
  * (node views, suggestion) depending on the consumer. Each consumer adds them separately
- * using MentionSchema/PlanBlockSchema from their respective .schema.ts files.
+ * using MentionSchema/PricingBlockSchema from their respective .schema.ts files.
  */
 export const getBaseExtensions = (options?: BaseExtensionsOptions): Extensions => [
   StarterKit.configure({

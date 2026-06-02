@@ -4004,8 +4004,6 @@
   "text_1774434870566l5w8yp6q7zx": "Remove link",
   "text_1774435622012yosb9iv7b29": "Image URL",
   "text_17744355868512phwom4fz1i": "Type an image url",
-  "text_1774369903715y1h6gjc2bmd": "Plan",
-  "text_1774369903715o2j58u6slmw": "Insert a plan block",
   "text_1774862470018jqdazc278y0": "Undo",
   "text_1774862470019a0txge16qpr": "Redo",
   "text_1774862470019c5cxqnwghwv": "Text style",
@@ -4255,5 +4253,9 @@
   "text_1776697938480ap28ussl837": "Expired",
   "text_1776697938480e54yje9i5aa": "No order forms yet",
   "text_17766979384803pz48gknynl": "Order forms will appear here once they are created from quotes.",
-  "text_1779695273381h7tmhdzrv48": "Source quote"
+  "text_1779695273381h7tmhdzrv48": "Source quote",
+  "text_1779802343219a1cl5ckvtrn": "Pricing",
+  "text_1779802343219rul1jvs7170": "Insert a pricing block",
+  "text_17803276502818bsd9sn8888": "One-off invoice of {{subtotal}}",
+  "text_1780329442633n0oe3prszsw": "Click to edit"
 }
