@@ -42,7 +42,7 @@ export const SubscriptionDetailsV2Overview = ({ subscriptionId }: Props) => {
   }
 
   return (
-    <div className="flex flex-col gap-12">
+    <div className="flex flex-col gap-12 pt-6">
       <SubscriptionInformationSection subscription={subscription} />
     </div>
   )

@@ -277,11 +277,9 @@ const SubscriptionDetails = () => {
           getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.editOverview),
         ],
         content: (
-          // v2 layout: horizontal padding only — avoids DetailsPage.Container's
-          // legacy pb-20 / flex-col. Vertical spacing comes from the content's py-12.
-          <div className="px-4 md:px-12">
+          <DetailsPage.Container>
             <SubscriptionDetailsV2Overview subscriptionId={subscriptionId as string} />
-          </div>
+          </DetailsPage.Container>
         ),
         hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
       },
@@ -303,11 +301,9 @@ const SubscriptionDetails = () => {
           ),
         ],
         content: (
-          // v2 layout: horizontal padding only — avoids DetailsPage.Container's
-          // legacy pb-20 / flex-col. Vertical spacing comes from the content's py-12.
-          <div className="px-4 md:px-12">
+          <DetailsPage.Container>
             <SubscriptionDetailsV2Plan subscriptionId={subscriptionId as string} />
-          </div>
+          </DetailsPage.Container>
         ),
         hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
       },
