@@ -77,6 +77,7 @@ export const ProgressiveBillingAccordion = ({
           label: translate('text_1724233213996upb98e8b8xx'),
           onClick: () => drawerRef.current?.openDrawer(),
           hidden: !canCreate || hasThresholds || !hasPremiumIntegration,
+          startIcon: 'plus',
         }}
       />
 

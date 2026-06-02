@@ -138,6 +138,7 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
             ? {
                 label: translate('text_176072970726882uau5y69f1'),
                 onClick: openCreate,
+                startIcon: 'plus',
               }
             : undefined
         }

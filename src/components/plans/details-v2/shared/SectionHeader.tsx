@@ -8,9 +8,8 @@ export type SectionHeaderAction = {
   onClick: () => void
   hidden?: boolean
   disabled?: boolean
-  // Defaults to the "plus" icon (Add CTAs). Pass `null` to render no icon
-  // (e.g. an "Edit" link), or another icon name to override.
-  startIcon?: IconName | null
+  // No icon by default. Pass e.g. "plus" for an Add CTA.
+  startIcon?: IconName
 }
 
 export type SectionHeaderProps = {
@@ -39,7 +38,7 @@ export const SectionHeader = ({ title, description, action }: SectionHeaderProps
           variant="inline"
           onClick={action.onClick}
           disabled={action.disabled}
-          {...(action.startIcon === null ? {} : { startIcon: action.startIcon ?? 'plus' })}
+          startIcon={action.startIcon}
         >
           {action.label}
         </Button>

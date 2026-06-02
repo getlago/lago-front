@@ -183,6 +183,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
             ? {
                 label: translate('text_1772133285142oouequiz2t2'),
                 onClick: openCreate,
+                startIcon: 'plus',
               }
             : undefined
         }
