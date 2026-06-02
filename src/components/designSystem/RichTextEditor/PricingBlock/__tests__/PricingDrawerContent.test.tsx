@@ -8,13 +8,13 @@ import { type AddOnItem, pricingDrawerDefaultValues } from '../constants'
 import PricingDrawerContent from '../PricingDrawerContent'
 
 const mockUsePlansQuery = jest.fn()
-const mockUseGetAddOnsForFixedChargesSectionQuery = jest.fn()
+const mockUseGetAddOnsForPricingSectionQuery = jest.fn()
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   usePlansQuery: (...args: unknown[]) => mockUsePlansQuery(...args),
-  useGetAddOnsForFixedChargesSectionQuery: (...args: unknown[]) =>
-    mockUseGetAddOnsForFixedChargesSectionQuery(...args),
+  useGetAddOnsForPricingSectionQuery: (...args: unknown[]) =>
+    mockUseGetAddOnsForPricingSectionQuery(...args),
 }))
 
 // drawerStack.ts uses import.meta.hot — mock the entire useDrawer module instead
@@ -67,7 +67,7 @@ describe('PricingDrawerContent', () => {
       loading: false,
     })
 
-    mockUseGetAddOnsForFixedChargesSectionQuery.mockReturnValue({
+    mockUseGetAddOnsForPricingSectionQuery.mockReturnValue({
       data: undefined,
       loading: false,
     })
@@ -117,7 +117,7 @@ describe('PricingDrawerContent', () => {
   describe('GIVEN the quote type is OneOff', () => {
     describe('WHEN add-ons data is loaded', () => {
       it('THEN should render an add-on button', () => {
-        mockUseGetAddOnsForFixedChargesSectionQuery.mockReturnValue({
+        mockUseGetAddOnsForPricingSectionQuery.mockReturnValue({
           data: {
             addOns: {
               collection: [
@@ -137,7 +137,7 @@ describe('PricingDrawerContent', () => {
 
     describe('WHEN an add-on is provided via initial values', () => {
       it('THEN should render the add-on item card with units and unit price fields', () => {
-        mockUseGetAddOnsForFixedChargesSectionQuery.mockReturnValue({
+        mockUseGetAddOnsForPricingSectionQuery.mockReturnValue({
           data: { addOns: { collection: [] } },
           loading: false,
         })
@@ -169,7 +169,7 @@ describe('PricingDrawerContent', () => {
 
     describe('WHEN the remove button is clicked via popper menu', () => {
       it('THEN should remove the add-on item', async () => {
-        mockUseGetAddOnsForFixedChargesSectionQuery.mockReturnValue({
+        mockUseGetAddOnsForPricingSectionQuery.mockReturnValue({
           data: { addOns: { collection: [] } },
           loading: false,
         })
@@ -225,7 +225,7 @@ describe('PricingDrawerContent', () => {
     })
 
     it('THEN should not call plans query for one-off quote type', () => {
-      mockUseGetAddOnsForFixedChargesSectionQuery.mockReturnValue({
+      mockUseGetAddOnsForPricingSectionQuery.mockReturnValue({
         data: { addOns: { collection: [] } },
         loading: false,
       })
@@ -236,14 +236,14 @@ describe('PricingDrawerContent', () => {
     })
 
     it('THEN should fetch add-ons with correct options for one-off quote type', () => {
-      mockUseGetAddOnsForFixedChargesSectionQuery.mockReturnValue({
+      mockUseGetAddOnsForPricingSectionQuery.mockReturnValue({
         data: { addOns: { collection: [] } },
         loading: false,
       })
 
       renderWithForm({ quoteType: OrderTypeEnum.OneOff })
 
-      expect(mockUseGetAddOnsForFixedChargesSectionQuery).toHaveBeenCalledWith(
+      expect(mockUseGetAddOnsForPricingSectionQuery).toHaveBeenCalledWith(
         expect.objectContaining({
           variables: { limit: 100 },
           fetchPolicy: 'network-only',
@@ -260,7 +260,7 @@ describe('PricingDrawerContent', () => {
 
       renderWithForm({ quoteType: OrderTypeEnum.SubscriptionCreation })
 
-      expect(mockUseGetAddOnsForFixedChargesSectionQuery).not.toHaveBeenCalled()
+      expect(mockUseGetAddOnsForPricingSectionQuery).not.toHaveBeenCalled()
     })
   })
 })

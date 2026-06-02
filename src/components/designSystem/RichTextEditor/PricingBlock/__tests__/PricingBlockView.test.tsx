@@ -55,13 +55,8 @@ const renderPricingBlockView = ({
   mode = 'edit' as 'edit' | 'preview',
   entities = {} as Record<string, EntityData>,
   onPricingCommand = jest.fn() as OnPricingCommand,
-  selected = false,
 } = {}) => {
   const nodeProps = createNodeProps(attrs)
-
-  if (selected) {
-    ;(nodeProps as unknown as { selected: boolean }).selected = true
-  }
 
   return {
     ...render(
@@ -138,8 +133,8 @@ describe('PricingBlockView', () => {
 
         const button = screen.getByTestId(PRICING_BLOCK_VIEW_TEST_ID)
 
-        expect(button).toHaveTextContent('Storage Add-on')
-        expect(button).toHaveTextContent('Support Add-on')
+        expect(button).toHaveTextContent('One-off invoice of')
+        expect(button).toHaveTextContent('Click to edit')
       })
     })
 
@@ -233,35 +228,6 @@ describe('PricingBlockView', () => {
         onSave(newAttrs, {})
 
         expect(nodeProps.updateAttributes).toHaveBeenCalledWith(newAttrs)
-      })
-    })
-
-    describe('WHEN selected is true', () => {
-      it('THEN should add the selected class to the empty button', () => {
-        renderPricingBlockView({ selected: true })
-
-        const button = screen.getByTestId(PRICING_BLOCK_VIEW_EMPTY_TEST_ID)
-
-        expect(button.className).toContain('pricing-block--selected')
-      })
-
-      it('THEN should add the selected class to a resolved pricing block', () => {
-        renderPricingBlockView({
-          attrs: { pricingType: 'plan', entityIds: ['plan-1'] },
-          entities: {
-            'plan-1': {
-              entityId: 'plan-1',
-              entityType: 'plan',
-              name: 'Basic Plan',
-              code: 'basic',
-            },
-          },
-          selected: true,
-        })
-
-        const button = screen.getByTestId(PRICING_BLOCK_VIEW_TEST_ID)
-
-        expect(button.className).toContain('pricing-block--selected')
       })
     })
 

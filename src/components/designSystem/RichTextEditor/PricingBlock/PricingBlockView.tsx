@@ -40,7 +40,7 @@ export const PricingBlockView = ({ node, updateAttributes, selected }: NodeViewP
       <NodeViewWrapper className="spacer" data-type="pricingBlock">
         <div className="block-wrapper">
           <button
-            className={`pricing-block pricing-block--empty ${selected ? 'pricing-block--selected' : ''}`}
+            className="pricing-block pricing-block--empty"
             onClick={handleClick}
             tabIndex={0}
             data-test={PRICING_BLOCK_VIEW_EMPTY_TEST_ID}
@@ -103,7 +103,7 @@ export const PricingBlockView = ({ node, updateAttributes, selected }: NodeViewP
     <NodeViewWrapper className="spacer" data-type="pricingBlock">
       <div className="block-wrapper">
         <div
-          className={`pricing-block ${selected ? 'pricing-block--selected' : ''}`}
+          className="pricing-block"
           data-test={PRICING_BLOCK_VIEW_UNRESOLVED_TEST_ID}
         >
           <div className="pricing-block__unresolved">
