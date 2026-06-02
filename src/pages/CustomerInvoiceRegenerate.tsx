@@ -39,7 +39,6 @@ import {
   LagoApiError,
   useFetchDraftInvoiceTaxesMutation,
   useGetCustomerQuery,
-  useGetInvoiceBuildRegenerationPreviewQuery,
   usePreviewAdjustedFeeMutation,
   useRegenerateInvoiceMutation,
   useVoidInvoiceMutation,
@@ -47,19 +46,12 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useInvoiceBuildRegenerationPreview } from '~/pages/invoiceDetails/common/useInvoiceBuildRegenerationPreview'
 import { InvoiceQuickInfo } from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 gql`
-  fragment FeeForCustomerInvoiceRegenerate on Fee {
-    id
-    appliedTaxes {
-      id
-      taxCode
-    }
-  }
-
   mutation regenerateInvoice($input: RegenerateInvoiceInput!) {
     regenerateFromVoided(input: $input) {
       id
@@ -77,19 +69,6 @@ gql`
           interval
           name
         }
-      }
-    }
-  }
-
-  query getInvoiceBuildRegenerationPreview($id: ID!) {
-    invoiceBuildRegenerationPreview(id: $id) {
-      id
-      ...AllInvoiceDetailsForCustomerInvoiceDetails
-
-      fees {
-        ...FeeDetailsForInvoiceOverview
-        ...FeeForInvoiceDetailsTable
-        ...FeeForInvoiceDetailsTableFooter
       }
     }
   }
@@ -130,21 +109,21 @@ const CustomerInvoiceRegenerate = () => {
   const deleteAdjustedFeeDialogRef = useRef<DeleteAdjustedFeeDialogRef>(null)
   const editFeeDrawerRef = useRef<EditFeeDrawerRef>(null)
 
-  const { data, loading, error } = useGetInvoiceBuildRegenerationPreviewQuery({
-    variables: { id: invoiceId as string },
-    skip: !invoiceId,
-  })
+  const {
+    invoiceBuildRegenerationPreview: invoice,
+    loading,
+    error,
+  } = useInvoiceBuildRegenerationPreview(invoiceId)
 
   const { data: fullCustomer } = useGetCustomerQuery({
     variables: {
-      id: data?.invoiceBuildRegenerationPreview?.customer?.id as string,
+      id: invoice?.customer?.id as string,
     },
-    skip: !data?.invoiceBuildRegenerationPreview?.customer?.id,
+    skip: !invoice?.customer?.id,
   })
 
-  const fullFees = data?.invoiceBuildRegenerationPreview?.fees
+  const fullFees = invoice?.fees
 
-  const invoice = data?.invoiceBuildRegenerationPreview
   const customer = invoice?.customer
   const billingEntity = invoice?.billingEntity
   const hasTaxProvider =

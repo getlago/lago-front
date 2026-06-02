@@ -70,7 +70,6 @@ import {
   useGetBillingEntityQuery,
   useGetBillingEntityTaxesForCreateInvoiceQuery,
   useGetInfosForCreateInvoiceQuery,
-  useGetInvoiceBuildRegenerationPreviewQuery,
   useVoidInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -78,6 +77,7 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
+import { useInvoiceBuildRegenerationPreview } from '~/pages/invoiceDetails/common/useInvoiceBuildRegenerationPreview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
@@ -254,20 +254,18 @@ const CreateInvoice = () => {
   })
   const { customer, taxes } = data || {}
 
-  const { data: prefillData } = useGetInvoiceBuildRegenerationPreviewQuery({
-    variables: { id: voidedInvoiceId as string },
-    skip: !voidedInvoiceId,
-  })
+  const { invoiceBuildRegenerationPreview: prefillInvoice } =
+    useInvoiceBuildRegenerationPreview(voidedInvoiceId)
 
   const prefillFees = useMemo(() => {
-    const fees = prefillData?.invoiceBuildRegenerationPreview?.fees
+    const fees = prefillInvoice?.fees
 
     if (!fees) {
       return
     }
 
-    return invoiceFeesToFeeInput(prefillData?.invoiceBuildRegenerationPreview as Invoice)
-  }, [prefillData?.invoiceBuildRegenerationPreview])
+    return invoiceFeesToFeeInput(prefillInvoice as Invoice)
+  }, [prefillInvoice])
 
   const { data: billingEntityData } = useGetBillingEntityQuery({
     variables: {
@@ -392,11 +390,7 @@ const CreateInvoice = () => {
     enableReinitialize: true,
     validateOnMount: true,
     onSubmit: async ({ fees, paymentMethod, invoiceCustomSection, ...values }) => {
-      if (
-        voidedInvoiceId &&
-        prefillData?.invoiceBuildRegenerationPreview?.id &&
-        actions.canVoid(prefillData?.invoiceBuildRegenerationPreview)
-      ) {
+      if (voidedInvoiceId && prefillInvoice?.id && actions.canVoid(prefillInvoice)) {
         const res = await voidInvoice({
           variables: {
             input: {
@@ -415,9 +409,7 @@ const CreateInvoice = () => {
         variables: {
           input: {
             ...values,
-            ...(prefillData?.invoiceBuildRegenerationPreview?.id
-              ? { voidedInvoiceId: prefillData?.invoiceBuildRegenerationPreview?.id }
-              : {}),
+            ...(prefillInvoice?.id ? { voidedInvoiceId: prefillInvoice.id } : {}),
             paymentMethod,
             invoiceCustomSection: toInvoiceCustomSectionReference(
               invoiceCustomSection as InvoiceCustomSectionInput,
