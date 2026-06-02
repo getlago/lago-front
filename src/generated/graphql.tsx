@@ -11151,6 +11151,17 @@ export type GetPlansForFiltersItemPlanCodeQueryVariables = Exact<{
 
 export type GetPlansForFiltersItemPlanCodeQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, code: string, deletedAt?: any | null }> } };
 
+export type AddOnForPricingSectionFragment = { __typename?: 'AddOn', id: string, name: string, code: string, invoiceDisplayName?: string | null, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, taxes?: Array<{ __typename?: 'Tax', id: string, code: string }> | null };
+
+export type GetAddOnsForPricingSectionQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetAddOnsForPricingSectionQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, code: string, invoiceDisplayName?: string | null, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, taxes?: Array<{ __typename?: 'Tax', id: string, code: string }> | null }> } };
+
 export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?:
     | { __typename?: 'BillableMetric', id: string }
     | { __typename?: 'BillingEntity', id: string, code: string }
@@ -16222,6 +16233,21 @@ export const CustomerProjectedUsageForUsageDetailsFragmentDoc = gql`
         projectedUnits
       }
     }
+  }
+}
+    `;
+export const AddOnForPricingSectionFragmentDoc = gql`
+    fragment AddOnForPricingSection on AddOn {
+  id
+  name
+  code
+  invoiceDisplayName
+  description
+  amountCents
+  amountCurrency
+  taxes {
+    id
+    code
   }
 }
     `;
@@ -24490,6 +24516,58 @@ export type GetPlansForFiltersItemPlanCodeQueryHookResult = ReturnType<typeof us
 export type GetPlansForFiltersItemPlanCodeLazyQueryHookResult = ReturnType<typeof useGetPlansForFiltersItemPlanCodeLazyQuery>;
 export type GetPlansForFiltersItemPlanCodeSuspenseQueryHookResult = ReturnType<typeof useGetPlansForFiltersItemPlanCodeSuspenseQuery>;
 export type GetPlansForFiltersItemPlanCodeQueryResult = Apollo.QueryResult<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>;
+export const GetAddOnsForPricingSectionDocument = gql`
+    query getAddOnsForPricingSection($page: Int, $limit: Int, $searchTerm: String) {
+  addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      ...AddOnForPricingSection
+    }
+  }
+}
+    ${AddOnForPricingSectionFragmentDoc}`;
+
+/**
+ * __useGetAddOnsForPricingSectionQuery__
+ *
+ * To run a query within a React component, call `useGetAddOnsForPricingSectionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAddOnsForPricingSectionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAddOnsForPricingSectionQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetAddOnsForPricingSectionQuery(baseOptions?: Apollo.QueryHookOptions<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>(GetAddOnsForPricingSectionDocument, options);
+      }
+export function useGetAddOnsForPricingSectionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>(GetAddOnsForPricingSectionDocument, options);
+        }
+// @ts-ignore
+export function useGetAddOnsForPricingSectionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>;
+export function useGetAddOnsForPricingSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnsForPricingSectionQuery | undefined, GetAddOnsForPricingSectionQueryVariables>;
+export function useGetAddOnsForPricingSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>(GetAddOnsForPricingSectionDocument, options);
+        }
+export type GetAddOnsForPricingSectionQueryHookResult = ReturnType<typeof useGetAddOnsForPricingSectionQuery>;
+export type GetAddOnsForPricingSectionLazyQueryHookResult = ReturnType<typeof useGetAddOnsForPricingSectionLazyQuery>;
+export type GetAddOnsForPricingSectionSuspenseQueryHookResult = ReturnType<typeof useGetAddOnsForPricingSectionSuspenseQuery>;
+export type GetAddOnsForPricingSectionQueryResult = Apollo.QueryResult<GetAddOnsForPricingSectionQuery, GetAddOnsForPricingSectionQueryVariables>;
 export const GetSingleActivityLogDocument = gql`
     query getSingleActivityLog($id: ID!) {
   activityLog(activityId: $id) {
