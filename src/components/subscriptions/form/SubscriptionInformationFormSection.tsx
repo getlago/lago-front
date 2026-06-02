@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
 import { Dispatch, SetStateAction, useMemo } from 'react'
 
@@ -9,8 +10,9 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
+  AddSubscriptionPlanFragmentDoc,
   BillingTimeEnum,
-  GetSubscriptionForCreateSubscriptionQuery,
+  FeatureEntitlementForPlanFragmentDoc,
   PlanInterval,
   StatusTypeEnum,
   TimezoneEnum,
@@ -20,9 +22,45 @@ import { withForm } from '~/hooks/forms/useAppform'
 
 import {
   buildSubscriptionDefaultValues,
+  SubscriptionDefaultsSource,
   SubscriptionFormType,
 } from './buildSubscriptionDefaultValues'
 import { getBillingTimeHelperKey } from './getBillingTimeHelperKey'
+
+gql`
+  fragment SubscriptionForSubscriptionEditForm on Subscription {
+    id
+    name
+    externalId
+    subscriptionAt
+    endingAt
+    billingTime
+    periodEndDate
+    status
+    startedAt
+    paymentMethodType
+    paymentMethod {
+      id
+    }
+    consolidateInvoice
+    skipInvoiceCustomSections
+    selectedInvoiceCustomSections {
+      id
+      name
+      code
+    }
+    plan {
+      id
+      parent {
+        id
+      }
+      ...AddSubscriptionPlan
+    }
+  }
+
+  ${AddSubscriptionPlanFragmentDoc}
+  ${FeatureEntitlementForPlanFragmentDoc}
+`
 
 const getBillingTimeSelectorTranslationKey = (planInterval?: PlanInterval) => {
   switch (planInterval) {
@@ -39,7 +77,7 @@ const getBillingTimeSelectorTranslationKey = (planInterval?: PlanInterval) => {
 
 interface SubscriptionInformationFormSectionExtraProps {
   formType: SubscriptionFormType
-  subscription: GetSubscriptionForCreateSubscriptionQuery['subscription'] | undefined
+  subscription: SubscriptionDefaultsSource | undefined
   customerTimezone?: TimezoneEnum | null
   shouldDisplaySubscriptionExternalId: boolean
   setShouldDisplaySubscriptionExternalId: Dispatch<SetStateAction<boolean>>

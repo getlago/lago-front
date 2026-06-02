@@ -54,6 +54,7 @@ import {
   FeatureFlagEnum,
   PlanInterval,
   StatusTypeEnum,
+  SubscriptionForSubscriptionEditFormFragmentDoc,
   TimezoneEnum,
   useGetCustomerForCreateSubscriptionQuery,
   useGetPlansLazyQuery,
@@ -99,38 +100,13 @@ gql`
 
   query getSubscriptionForCreateSubscription($id: ID!) {
     subscription(id: $id) {
-      id
-      name
-      externalId
-      subscriptionAt
-      endingAt
-      billingTime
-      periodEndDate
-      status
-      startedAt
-      paymentMethodType
-      paymentMethod {
-        id
-      }
-      consolidateInvoice
-      skipInvoiceCustomSections
-      selectedInvoiceCustomSections {
-        id
-        name
-        code
-      }
-      plan {
-        id
-        parent {
-          id
-        }
-        ...AddSubscriptionPlan
-      }
+      ...SubscriptionForSubscriptionEditForm
     }
   }
 
   ${AddSubscriptionPlanFragmentDoc}
   ${FeatureEntitlementForPlanFragmentDoc}
+  ${SubscriptionForSubscriptionEditFormFragmentDoc}
 `
 
 const CreateSubscription = () => {

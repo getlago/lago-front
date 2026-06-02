@@ -12547,6 +12547,8 @@ export type GetEntitlementsForSubscriptionDetailsQueryVariables = Exact<{
 
 export type GetEntitlementsForSubscriptionDetailsQuery = { __typename?: 'Query', subscriptionEntitlements: { __typename?: 'SubscriptionEntitlementCollection', collection: Array<{ __typename?: 'SubscriptionEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'SubscriptionEntitlementPrivilegeObject', code: string, name?: string | null, value?: string | null, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> } };
 
+export type SubscriptionInformationFieldsFragment = { __typename?: 'Subscription', id: string, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingTime?: BillingTimeEnum | null, downgradePlanDate?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousSubscription?: { __typename?: 'Subscription', id: string, downgradePlanDate?: any | null } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string, deletedAt?: any | null }, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null } };
+
 export type SubscriptionForSubscriptionInformationsFragment = { __typename?: 'Subscription', id: string, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingTime?: BillingTimeEnum | null, downgradePlanDate?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousSubscription?: { __typename?: 'Subscription', id: string, downgradePlanDate?: any | null } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string, deletedAt?: any | null }, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null } };
 
 export type ThresholdForRecurringThresholdsTableFragment = { __typename?: 'UsageThreshold', id: string, amountCents: any, thresholdDisplayName?: string | null };
@@ -12597,6 +12599,8 @@ export type GetSubscriptionForDetailsV2PlanQueryVariables = Exact<{
 
 
 export type GetSubscriptionForDetailsV2PlanQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, hasOverriddenPlans?: boolean | null, interval: PlanInterval, amountCurrency: CurrencyEnum, billFixedChargesMonthly?: boolean | null, billChargesMonthly?: boolean | null, name: string, code: string, description?: string | null, trialPeriod?: number | null, payInAdvance: boolean, amountCents: any, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, code?: string | null, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, units: string, payInAdvance: boolean, prorated: boolean, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null }> | null, charges?: Array<{ __typename?: 'Charge', id: string, code?: string | null, chargeModel: ChargeModelEnum, invoiceable: boolean, invoiceDisplayName?: string | null, minAmountCents: any, payInAdvance: boolean, prorated: boolean, regroupPaidFees?: RegroupPaidFeesEnum | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any, properties: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', conversionRate: number, pricingUnit: { __typename?: 'PricingUnit', id: string, name: string, code: string, shortName: string } } | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> | null, minimumCommitment?: { __typename?: 'Commitment', amountCents: any, commitmentType: CommitmentTypeEnum, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null } | null, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } } | null };
+
+export type SubscriptionForSubscriptionEditFormFragment = { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, billingTime?: BillingTimeEnum | null, periodEndDate?: any | null, status?: StatusTypeEnum | null, startedAt?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } };
 
 export type DeleteTaxFragment = { __typename?: 'Tax', id: string, name: string, customersCount: number };
 
@@ -17791,8 +17795,8 @@ export const SubscriptionCurrentUsageTableComponentCustomerProjectedUsageFragmen
   }
 }
     `;
-export const SubscriptionForSubscriptionInformationsFragmentDoc = gql`
-    fragment SubscriptionForSubscriptionInformations on Subscription {
+export const SubscriptionInformationFieldsFragmentDoc = gql`
+    fragment SubscriptionInformationFields on Subscription {
   id
   externalId
   status
@@ -17832,6 +17836,12 @@ export const SubscriptionForSubscriptionInformationsFragmentDoc = gql`
   }
 }
     `;
+export const SubscriptionForSubscriptionInformationsFragmentDoc = gql`
+    fragment SubscriptionForSubscriptionInformations on Subscription {
+  id
+  ...SubscriptionInformationFields
+}
+    ${SubscriptionInformationFieldsFragmentDoc}`;
 export const ThresholdForThresholdsTableFragmentDoc = gql`
     fragment ThresholdForThresholdsTable on UsageThreshold {
   id
@@ -17929,6 +17939,57 @@ export const SubscriptionUsageLifetimeGraphForLifetimeGraphFragmentDoc = gql`
   }
 }
     `;
+export const FeatureEntitlementForPlanFragmentDoc = gql`
+    fragment FeatureEntitlementForPlan on Plan {
+  entitlements {
+    code
+    name
+    privileges {
+      ...FeatureEntitlementPrivilegeForPlan
+    }
+  }
+}
+    ${FeatureEntitlementPrivilegeForPlanFragmentDoc}`;
+export const AddSubscriptionPlanFragmentDoc = gql`
+    fragment AddSubscriptionPlan on Plan {
+  id
+  name
+  code
+  interval
+  ...FeatureEntitlementForPlan
+}
+    ${FeatureEntitlementForPlanFragmentDoc}`;
+export const SubscriptionForSubscriptionEditFormFragmentDoc = gql`
+    fragment SubscriptionForSubscriptionEditForm on Subscription {
+  id
+  name
+  externalId
+  subscriptionAt
+  endingAt
+  billingTime
+  periodEndDate
+  status
+  startedAt
+  paymentMethodType
+  paymentMethod {
+    id
+  }
+  consolidateInvoice
+  skipInvoiceCustomSections
+  selectedInvoiceCustomSections {
+    id
+    name
+    code
+  }
+  plan {
+    id
+    parent {
+      id
+    }
+    ...AddSubscriptionPlan
+  }
+}
+    ${AddSubscriptionPlanFragmentDoc}`;
 export const BillableMetricForWalletScopeSectionFragmentDoc = gql`
     fragment BillableMetricForWalletScopeSection on BillableMetric {
   id
@@ -18640,17 +18701,6 @@ export const PlanForSubscriptionFeeSectionFragmentDoc = gql`
   invoiceDisplayName
 }
     `;
-export const FeatureEntitlementForPlanFragmentDoc = gql`
-    fragment FeatureEntitlementForPlan on Plan {
-  entitlements {
-    code
-    name
-    privileges {
-      ...FeatureEntitlementPrivilegeForPlan
-    }
-  }
-}
-    ${FeatureEntitlementPrivilegeForPlanFragmentDoc}`;
 export const AddOnForFixedChargesSectionFragmentDoc = gql`
     fragment AddOnForFixedChargesSection on AddOn {
   id
@@ -20255,15 +20305,6 @@ export const SecurityLogItemFragmentDoc = gql`
   userEmail
 }
     `;
-export const AddSubscriptionPlanFragmentDoc = gql`
-    fragment AddSubscriptionPlan on Plan {
-  id
-  name
-  code
-  interval
-  ...FeatureEntitlementForPlan
-}
-    ${FeatureEntitlementForPlanFragmentDoc}`;
 export const ThresholdForProgressiveBillingFormFragmentDoc = gql`
     fragment ThresholdForProgressiveBillingForm on UsageThreshold {
   id
@@ -42566,36 +42607,10 @@ export type GetCustomerForCreateSubscriptionQueryResult = Apollo.QueryResult<Get
 export const GetSubscriptionForCreateSubscriptionDocument = gql`
     query getSubscriptionForCreateSubscription($id: ID!) {
   subscription(id: $id) {
-    id
-    name
-    externalId
-    subscriptionAt
-    endingAt
-    billingTime
-    periodEndDate
-    status
-    startedAt
-    paymentMethodType
-    paymentMethod {
-      id
-    }
-    consolidateInvoice
-    skipInvoiceCustomSections
-    selectedInvoiceCustomSections {
-      id
-      name
-      code
-    }
-    plan {
-      id
-      parent {
-        id
-      }
-      ...AddSubscriptionPlan
-    }
+    ...SubscriptionForSubscriptionEditForm
   }
 }
-    ${AddSubscriptionPlanFragmentDoc}`;
+    ${SubscriptionForSubscriptionEditFormFragmentDoc}`;
 
 /**
  * __useGetSubscriptionForCreateSubscriptionQuery__
