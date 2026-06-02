@@ -214,32 +214,52 @@
     @apply bg-grey-200;
   }
 
-  /* Plan block */
-  .plan-block {
-    @apply my-2 rounded-lg border border-grey-300 p-3;
+  .block-type-wrapper {
+    @apply flex w-full flex-col;
   }
 
-  .plan-block--empty {
+  .block-type-tag {
+    @apply self-start rounded-tl-xl rounded-tr-xl bg-grey-300 px-2 py-0.5 text-sm font-medium text-grey-700;
+  }
+
+  .icon-wrapper {
+    @apply flex size-10 items-center justify-center rounded-xl bg-grey-100 text-grey-600;
+  }
+
+  .click-icon-wrapper {
+    @apply flex size-10 items-center justify-center text-grey-600;
+  }
+
+  /* Pricing block */
+  .pricing-block {
+    @apply my-2 mt-0 flex items-center justify-between gap-3 rounded-xl rounded-tl-none border border-grey-300 p-3;
+  }
+
+  .pricing-block--empty {
     @apply flex cursor-pointer items-center justify-center border-dashed py-6 transition-colors hover:bg-grey-100;
   }
 
-  .plan-block--clickable {
+  .pricing-block--clickable {
     @apply cursor-pointer transition-colors hover:bg-grey-100;
   }
 
-  .plan-block--selected {
-    @apply border-blue-600;
+  .pricing-block-content {
+    @apply flex items-center gap-3;
   }
 
-  .plan-block__placeholder {
+  .pricing-block-text {
+    @apply flex flex-col items-start;
+  }
+
+  .pricing-block__placeholder {
     @apply text-sm text-grey-400;
   }
 
-  .plan-block__unresolved {
+  .pricing-block__unresolved {
     @apply text-sm text-grey-500;
   }
 
-  .plan-block__table {
+  .pricing-block__table {
     @apply m-0 w-full;
   }
 

@@ -23,9 +23,9 @@ jest.mock('../common/downloadMarkdownPdf', () => ({
   downloadMarkdownPdf: (...args: unknown[]) => mockDownloadMarkdownPdf(...args),
 }))
 
-jest.mock('../extensions/PlanBlock', () => ({
-  PlanBlock: {
-    configure: jest.fn(() => 'plan-block-extension'),
+jest.mock('../extensions/PricingBlock', () => ({
+  PricingBlock: {
+    configure: jest.fn(() => 'pricing-block-extension'),
   },
 }))
 
@@ -419,7 +419,7 @@ describe('RichTextEditor', () => {
         expect(mockDownloadMarkdownPdf).toHaveBeenCalledWith({
           markdown: '# Hello World',
           mentionValues,
-          plans: expect.any(Object),
+          entities: expect.any(Object),
         })
       })
     })
