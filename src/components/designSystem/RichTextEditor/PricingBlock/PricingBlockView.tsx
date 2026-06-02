@@ -13,7 +13,7 @@ export const PRICING_BLOCK_VIEW_TEST_ID = 'pricing-block-view'
 export const PRICING_BLOCK_VIEW_EMPTY_TEST_ID = 'pricing-block-view-empty'
 export const PRICING_BLOCK_VIEW_UNRESOLVED_TEST_ID = 'pricing-block-view-unresolved'
 
-export const PricingBlockView = ({ node, updateAttributes, selected }: NodeViewProps) => {
+export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
   const { entities, onPricingCommand } = useRichTextEditorContext()
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
@@ -102,10 +102,7 @@ export const PricingBlockView = ({ node, updateAttributes, selected }: NodeViewP
   return (
     <NodeViewWrapper className="spacer" data-type="pricingBlock">
       <div className="block-wrapper">
-        <div
-          className="pricing-block"
-          data-test={PRICING_BLOCK_VIEW_UNRESOLVED_TEST_ID}
-        >
+        <div className="pricing-block" data-test={PRICING_BLOCK_VIEW_UNRESOLVED_TEST_ID}>
           <div className="pricing-block__unresolved">
             <span>{fallbackText}</span>
           </div>
