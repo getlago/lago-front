@@ -12,7 +12,7 @@ import {
   PlanForUpdateWithCascadeFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { usePermissions } from '~/hooks/usePermissions'
+import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
 
 import { SectionAccordion } from './shared/SectionAccordion'
 import { SectionHeader } from './shared/SectionHeader'
@@ -32,17 +32,17 @@ gql`
 type PlanDetailsV2PlanSettingsSectionProps = {
   plan: PlanDetailsV2Fragment
   isInSubscriptionForm?: boolean
+  subscriptionId?: string
 }
 
 export const PlanDetailsV2PlanSettingsSection = ({
   plan,
   isInSubscriptionForm = false,
+  subscriptionId,
 }: PlanDetailsV2PlanSettingsSectionProps) => {
   const { translate } = useInternationalization()
-  const { hasPermissions } = usePermissions()
+  const { canUpdate } = useAccordionPermissions(isInSubscriptionForm)
   const drawerRef = useRef<PlanSettingsDrawerRef>(null)
-
-  const canUpdate = hasPermissions(['plansUpdate']) && !isInSubscriptionForm
 
   return (
     <section id={PlanDetailsV2SectionId.PlanSettings} className="flex scroll-mt-12 flex-col gap-6">
@@ -63,9 +63,13 @@ export const PlanDetailsV2PlanSettingsSection = ({
         <PlanSettingsInfo plan={plan} />
       </SectionAccordion>
 
-      <SubscriptionFeeAccordion plan={plan} isInSubscriptionForm={isInSubscriptionForm} />
+      <SubscriptionFeeAccordion
+        plan={plan}
+        isInSubscriptionForm={isInSubscriptionForm}
+        subscriptionId={subscriptionId}
+      />
 
-      <PlanSettingsDrawer ref={drawerRef} plan={plan} />
+      <PlanSettingsDrawer ref={drawerRef} plan={plan} subscriptionId={subscriptionId} />
     </section>
   )
 }

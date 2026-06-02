@@ -1,14 +1,15 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { RefObject, useCallback, useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
 import { Card } from '~/components/designSystem/Card'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { DRAWER_TRANSITION_DURATION } from '~/components/drawers/const'
 import { useDrawer } from '~/components/drawers/useDrawer'
-import { ComboboxItem, JsonEditor } from '~/components/form'
+import { JsonEditor } from '~/components/form'
 import { ComboboxDataGrouped } from '~/components/form/ComboBox/types'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { buildChargeFilterAddFilterButtonId } from '~/components/plans/chargeAccordion/ChargeFilter'
@@ -18,6 +19,9 @@ import { CustomPricingUnitSelector } from '~/components/plans/chargeAccordion/Cu
 import { ChargeInvoicingStrategyOption } from '~/components/plans/chargeAccordion/options/ChargeInvoicingStrategyOption'
 import { ChargePayInAdvanceOption } from '~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption'
 import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
+import { seedChargeCode } from '~/components/plans/drawers/common/chargeCode'
+import ChargeCodeField from '~/components/plans/drawers/common/ChargeCodeField'
+import { buildCodeComboboxItem } from '~/components/plans/drawers/common/codeComboboxItem'
 import { PlanBillingPeriodInfoSection } from '~/components/plans/drawers/common/PlanBillingPeriodInfoSection'
 import {
   LocalChargeFilterInput,
@@ -26,7 +30,6 @@ import {
   LocalUsageChargeInput,
 } from '~/components/plans/types'
 import { mapChargeIntervalCopy } from '~/components/plans/utils'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { ChargeFilterDrawerProvider } from '~/contexts/ChargeFilterDrawerContext'
 import {
@@ -64,7 +67,9 @@ interface UsageChargeDrawerContentExtraProps {
   isEdition?: boolean
   disabled?: boolean
   isInSubscriptionForm?: boolean
-  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
+  // TEMP (LAGO-1498): Code is shown only via the v2 details/edition UI.
+  showCode?: boolean
+  existingChargeCodes?: (string | null | undefined)[]
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
   amountCurrency?: string
   editIndex: number
@@ -79,7 +84,8 @@ const usageChargeDrawerContentDefaultProps: UsageChargeDrawerContentExtraProps =
   isEdition: false,
   disabled: false,
   isInSubscriptionForm: false,
-  premiumWarningDialogRef: undefined,
+  showCode: false,
+  existingChargeCodes: undefined,
   subscriptionFormType: undefined,
   amountCurrency: undefined,
   editIndex: -1,
@@ -98,7 +104,8 @@ export const UsageChargeDrawerContent = withForm({
     isEdition,
     disabled,
     isInSubscriptionForm,
-    premiumWarningDialogRef,
+    showCode,
+    existingChargeCodes,
     subscriptionFormType,
     amountCurrency,
     editIndex,
@@ -108,6 +115,7 @@ export const UsageChargeDrawerContent = withForm({
     interval,
   }) {
     const { translate } = useInternationalization()
+    const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
     const { isPremium } = useCurrentUser()
     const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
 
@@ -132,18 +140,7 @@ export const UsageChargeDrawerContent = withForm({
 
       for (const { id, name, code, recurring } of collection) {
         result.push({
-          label: `${name} (${code})`,
-          labelNode: (
-            <ComboboxItem>
-              <Typography variant="body" color="grey700" noWrap>
-                {name}
-              </Typography>
-              <Typography variant="caption" color="grey600" noWrap>
-                {code}
-              </Typography>
-            </ComboboxItem>
-          ),
-          value: id,
+          ...buildCodeComboboxItem({ id, name, code }),
           group: recurring ? 'recurring' : 'metered',
         })
       }
@@ -243,7 +240,7 @@ export const UsageChargeDrawerContent = withForm({
 
           // Check premium gating for graduated percentage
           if (!isPremium && value === ChargeModelEnum.GraduatedPercentage) {
-            premiumWarningDialogRef?.current?.openDialog()
+            openPremiumWarningDialog()
             return
           }
 
@@ -269,7 +266,7 @@ export const UsageChargeDrawerContent = withForm({
           value as UsageChargeDrawerFormValues[keyof UsageChargeDrawerFormValues],
         )
       },
-      [form, isPremium, premiumWarningDialogRef],
+      [form, isPremium, openPremiumWarningDialog],
     )
 
     const handleFormSubmit = (event: React.FormEvent) => {
@@ -526,6 +523,13 @@ export const UsageChargeDrawerContent = withForm({
                       form.setFieldValue('properties', getPropertyShape({}))
                       form.setFieldValue('filters', selectedBm.filters?.length ? [] : undefined)
 
+                      seedChargeCode({
+                        enabled: !!showCode && isCreateMode,
+                        sourceCode: selectedBm.code,
+                        existingChargeCodes,
+                        setCode: (nextCode) => form.setFieldValue('code', nextCode),
+                      })
+
                       if (hasAnyPricingUnitConfigured && amountCurrency) {
                         form.setFieldValue('appliedPricingUnit', {
                           code: amountCurrency,
@@ -562,6 +566,14 @@ export const UsageChargeDrawerContent = withForm({
                   title={formValues.billableMetric.name}
                   subtitle={formValues.billableMetric.code}
                 />
+
+                {showCode && (
+                  <ChargeCodeField
+                    form={form}
+                    fields={{ code: 'code' }}
+                    disabled={isInSubscriptionForm}
+                  />
+                )}
               </CenteredPage.PageSection>
 
               {/* Pricing unit settings */}
@@ -723,7 +735,7 @@ export const UsageChargeDrawerContent = withForm({
                   <ChargeInvoicingStrategyOption
                     localCharge={formValues as unknown as LocalUsageChargeInput}
                     disabled={isInSubscriptionForm || isExistingChargeDisabled}
-                    openPremiumDialog={() => premiumWarningDialogRef?.current?.openDialog()}
+                    openPremiumDialog={() => openPremiumWarningDialog()}
                     handleUpdate={({ regroupPaidFees, invoiceable }) => {
                       form.setFieldValue('regroupPaidFees', regroupPaidFees)
                       form.setFieldValue('invoiceable', invoiceable)

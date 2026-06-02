@@ -41,7 +41,7 @@ export interface FeatureEntitlementDrawerRef {
 }
 
 interface FeatureEntitlementDrawerProps {
-  onSave: (values: FeatureEntitlementFormValues) => void
+  onSave: (values: FeatureEntitlementFormValues) => void | boolean | Promise<void | boolean>
   onDelete?: (featureCode: string) => void
   existingFeatureCodes: string[]
 }
@@ -61,12 +61,15 @@ export const FeatureEntitlementDrawer = forwardRef<
     validators: {
       onDynamic: featureEntitlementSchema,
     },
-    onSubmit: ({ value }) => {
-      onSave({
+    onSubmit: async ({ value }) => {
+      const result = await onSave({
         ...value,
         privileges: value.privileges || [],
       })
-      entitlementDrawer.close()
+
+      if (result !== false) {
+        entitlementDrawer.close()
+      }
     },
   })
 

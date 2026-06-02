@@ -22,6 +22,7 @@ type CapturedDrawerArgs = {
 
 let lastDrawerArgs: CapturedDrawerArgs | null = null
 const mockClose = jest.fn()
+const mockUpdatePlanOverride = jest.fn()
 
 jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({
@@ -29,6 +30,12 @@ jest.mock('~/components/drawers/useDrawer', () => ({
       lastDrawerArgs = args
     }),
     close: mockClose,
+  }),
+}))
+
+jest.mock('~/hooks/plans/useUpdateSubscriptionPlanOverride', () => ({
+  useUpdateSubscriptionPlanOverride: () => ({
+    updatePlanOverride: (...args: unknown[]) => mockUpdatePlanOverride(...args),
   }),
 }))
 
@@ -42,6 +49,7 @@ const updateMockFactory = (cascadeUpdates: boolean | undefined): MockedResponse 
   request: { query: UpdatePlanDocument },
   variableMatcher: (vars) => {
     const input = vars?.input
+
     if (!input || input.id !== planDetailsV2Fixture.id || input.name !== 'Pro Renamed') {
       return false
     }
@@ -84,6 +92,8 @@ describe('PlanSettingsDrawer', () => {
   beforeEach(() => {
     lastDrawerArgs = null
     mockClose.mockClear()
+    mockUpdatePlanOverride.mockReset()
+    mockUpdatePlanOverride.mockResolvedValue(true)
   })
 
   afterEach(() => {
@@ -125,6 +135,107 @@ describe('PlanSettingsDrawer', () => {
 
     await waitFor(() => {
       expect(screen.queryByText('text_1729604107534r3hsj7i64gp')).not.toBeInTheDocument()
+    })
+  })
+
+  it('renders the save action and closes the drawer imperatively', async () => {
+    const { ref } = renderHarness()
+
+    act(() => ref.current?.openDrawer())
+
+    // The mainAction render-prop renders the save button.
+    render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        <NiceModal.Provider>{lastDrawerArgs?.mainAction}</NiceModal.Provider>
+      </MockedProvider>,
+    )
+
+    // testIdAttribute defaults to data-testid here, so assert on the label text.
+    expect(screen.getByText('text_17295436903260tlyb1gp1i7')).toBeInTheDocument()
+
+    act(() => ref.current?.closeDrawer())
+
+    expect(mockClose).toHaveBeenCalled()
+  })
+
+  describe('GIVEN a subscriptionId (sub plan-override mode)', () => {
+    // A plan carrying a description + tax so the override payload exercises both
+    // the description normalization and the taxCodes mapper.
+    const subPlan = {
+      ...planDetailsV2Fixture,
+      description: 'Pro description',
+      taxes: [{ __typename: 'Tax' as const, id: 'tax-1', code: 'vat', name: 'VAT', rate: 20 }],
+    }
+
+    const renderSubHarness = () => {
+      const ref = createRef<PlanSettingsDrawerRef>()
+
+      render(
+        <MockedProvider mocks={[]} addTypename={false}>
+          <NiceModal.Provider>
+            <PlanSettingsDrawer ref={ref} plan={subPlan} subscriptionId="sub-1" />
+          </NiceModal.Provider>
+        </MockedProvider>,
+      )
+
+      return ref
+    }
+
+    it('routes the edit through updateSubscription(planOverrides) instead of updatePlan', async () => {
+      const ref = renderSubHarness()
+
+      act(() => ref.current?.openDrawer())
+
+      renderDrawerBody()
+
+      await waitFor(() => screen.getByDisplayValue('Pro'))
+
+      await act(async () => {
+        lastDrawerArgs?.form?.submit()
+      })
+
+      await waitFor(() => {
+        expect(mockUpdatePlanOverride).toHaveBeenCalledWith({
+          description: 'Pro description',
+          taxCodes: ['vat'],
+        })
+      })
+      // Drawer closes once the override resolves successfully.
+      expect(mockClose).toHaveBeenCalled()
+    })
+
+    it('keeps the drawer open when the override does not succeed', async () => {
+      mockUpdatePlanOverride.mockResolvedValueOnce(false)
+
+      // Bare fixture (no description, no taxes) so the override payload also
+      // exercises the empty-value normalization branches.
+      const ref = createRef<PlanSettingsDrawerRef>()
+
+      render(
+        <MockedProvider mocks={[]} addTypename={false}>
+          <NiceModal.Provider>
+            <PlanSettingsDrawer ref={ref} plan={planDetailsV2Fixture} subscriptionId="sub-1" />
+          </NiceModal.Provider>
+        </MockedProvider>,
+      )
+
+      act(() => ref.current?.openDrawer())
+
+      renderDrawerBody()
+
+      await waitFor(() => screen.getByDisplayValue('Pro'))
+
+      await act(async () => {
+        lastDrawerArgs?.form?.submit()
+      })
+
+      await waitFor(() => {
+        expect(mockUpdatePlanOverride).toHaveBeenCalledWith({
+          description: undefined,
+          taxCodes: [],
+        })
+      })
+      expect(mockClose).not.toHaveBeenCalled()
     })
   })
 

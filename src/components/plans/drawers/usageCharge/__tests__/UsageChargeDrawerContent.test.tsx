@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { act, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { ChargeModelEnum } from '~/generated/graphql'
@@ -12,6 +12,8 @@ const UsageChargeDrawerContent = OriginalUsageChargeDrawerContent as unknown as 
   isEdition?: boolean
   disabled?: boolean
   isInSubscriptionForm?: boolean
+  showCode?: boolean
+  existingChargeCodes?: (string | null | undefined)[]
   amountCurrency?: string
   editIndex: number
   initialCharge?: unknown
@@ -19,6 +21,14 @@ const UsageChargeDrawerContent = OriginalUsageChargeDrawerContent as unknown as 
   currency: string
   interval: string
 }>
+
+// Mutable billable-metric query payload, swapped per-test (the `mock` prefix
+// lets the jest.mock factory below close over it).
+let mockBillableMetricsData: unknown = null
+
+// Captures the `listeners` passed to each AppField by field name so tests can
+// drive the billable-metric combobox onChange without a real form.
+let capturedAppFieldListeners: Record<string, { onChange?: (arg: { value: unknown }) => void }> = {}
 
 // --- Test ID constants ---
 
@@ -120,10 +130,14 @@ const mockForm = {
   AppField: ({
     children,
     name,
+    listeners,
   }: {
     children: (field: unknown) => React.ReactNode
     name: string
+    listeners?: { onChange?: (arg: { value: unknown }) => void }
   }) => {
+    capturedAppFieldListeners[name] = listeners ?? {}
+
     const mockFieldApi = {
       state: { meta: { errors: [] } },
       TextInputField: (props: Record<string, unknown>) => (
@@ -157,10 +171,8 @@ jest.mock('@tanstack/react-form', () => ({
 jest.mock('~/hooks/forms/useAppform', () => ({
   useAppForm: jest.fn(() => mockForm),
   withForm: jest.fn((mockOpts: Record<string, unknown>) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mockRenderFn = mockOpts.render as (mockArgs: Record<string, unknown>) => any
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (mockProps: Record<string, unknown>) => mockRenderFn({ ...mockProps, form: mockForm })
   }),
   withFieldGroup: jest.fn(),
@@ -212,10 +224,20 @@ jest.mock('~/generated/graphql', () => {
 
   return {
     ...actual,
+    useGetBillableMetricsLazyQuery: jest.fn(() => [jest.fn(), { data: mockBillableMetricsData }]),
     useGetMeteredBillableMetricsLazyQuery: jest.fn(() => [jest.fn(), { data: null }]),
     useGetRecurringBillableMetricsLazyQuery: jest.fn(() => [jest.fn(), { data: null }]),
   }
 })
+
+// withFieldGroup is mocked away (see useAppform mock), so the real ChargeCodeField
+// renders nothing — stub it to assert mounting + the disabled wiring instead.
+jest.mock('~/components/plans/drawers/common/ChargeCodeField', () => ({
+  __esModule: true,
+  default: (props: { disabled?: boolean }) => (
+    <div data-test="charge-code-field" data-disabled={String(!!props.disabled)} />
+  ),
+}))
 
 const mockDrawerOpen = jest.fn()
 const mockDrawerClose = jest.fn()
@@ -311,6 +333,8 @@ describe('UsageChargeDrawerContent', () => {
     mockCurrentFormValues = mockDefaultFormValues
     mockForm.store = mockCreateStore(mockDefaultFormValues)
     mockForm.state = { values: mockDefaultFormValues }
+    mockBillableMetricsData = null
+    capturedAppFieldListeners = {}
     lastChargeModelSelectorProps = {}
     lastChargePayInAdvanceOptionProps = {}
     mockSelectorActions.mockClear()
@@ -636,6 +660,105 @@ describe('UsageChargeDrawerContent', () => {
       const lastCall = mockSpendingMinimumOptionSection.mock.calls.at(-1)?.[0]
 
       expect(lastCall?.disabled).toBeFalsy()
+    })
+  })
+
+  describe('GIVEN showCode (v2 edition/details UI)', () => {
+    describe('WHEN a billable metric is already selected', () => {
+      it('THEN renders the editable charge code field', () => {
+        mockCurrentFormValues = mockEditFormValues
+
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode={false}
+            editIndex={0}
+            currency="USD"
+            interval="monthly"
+            showCode
+          />,
+        )
+
+        expect(screen.getByTestId('charge-code-field')).toBeInTheDocument()
+      })
+
+      it('THEN disables the code field in subscription-form mode', () => {
+        mockCurrentFormValues = mockEditFormValues
+
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode={false}
+            editIndex={0}
+            currency="USD"
+            interval="monthly"
+            isInSubscriptionForm
+            showCode
+          />,
+        )
+
+        expect(screen.getByTestId('charge-code-field')).toHaveAttribute('data-disabled', 'true')
+      })
+    })
+
+    describe('WHEN selecting a billable metric on the create picker screen', () => {
+      beforeEach(() => {
+        mockCurrentFormValues = mockDefaultFormValues
+        mockBillableMetricsData = {
+          billableMetrics: {
+            collection: [
+              {
+                id: 'bm-9',
+                name: 'API Calls',
+                code: 'api_calls',
+                aggregationType: 'count_agg',
+                recurring: false,
+                filters: [],
+              },
+            ],
+          },
+        }
+      })
+
+      it('THEN stores the metric and seeds a unique charge code from its code', () => {
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode
+            editIndex={-1}
+            currency="USD"
+            interval="monthly"
+            showCode
+            existingChargeCodes={['api_calls']}
+          />,
+        )
+
+        act(() => {
+          capturedAppFieldListeners.billableMetricId?.onChange?.({ value: 'bm-9' })
+        })
+
+        expect(mockSetFieldValue).toHaveBeenCalledWith(
+          'billableMetric',
+          expect.objectContaining({ id: 'bm-9', code: 'api_calls' }),
+        )
+        // `api_calls` is already taken, so the seeded code gets a numeric suffix.
+        expect(mockSetFieldValue).toHaveBeenCalledWith('code', 'api_calls_2')
+      })
+
+      it('THEN does NOT seed a code when showCode is false', () => {
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode
+            editIndex={-1}
+            currency="USD"
+            interval="monthly"
+            existingChargeCodes={['api_calls']}
+          />,
+        )
+
+        act(() => {
+          capturedAppFieldListeners.billableMetricId?.onChange?.({ value: 'bm-9' })
+        })
+
+        expect(mockSetFieldValue).not.toHaveBeenCalledWith('code', expect.anything())
+      })
     })
   })
 })

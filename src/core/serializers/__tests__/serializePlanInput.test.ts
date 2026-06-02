@@ -1,7 +1,13 @@
-import { LocalPricingUnitType } from '~/components/plans/types'
+import { LocalPricingUnitType, PlanFormInput } from '~/components/plans/types'
 import { transformFilterObjectToString } from '~/components/plans/utils'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
-import { serializePlanInput } from '~/core/serializers/serializePlanInput'
+import {
+  serializeEntitlements,
+  serializeFixedChargeProperties,
+  serializeMinimumCommitment,
+  serializePlanInput,
+  serializeUsageThresholds,
+} from '~/core/serializers/serializePlanInput'
 import {
   AggregationTypeEnum,
   ChargeModelEnum,
@@ -10,6 +16,242 @@ import {
   PlanInterval,
   PrivilegeValueTypeEnum,
 } from '~/generated/graphql'
+
+describe('serializeMinimumCommitment', () => {
+  it('serializes amount to cents and maps tax codes', () => {
+    expect(
+      serializeMinimumCommitment(
+        { amountCents: '50', taxes: [{ code: 'vat' }] } as PlanFormInput['minimumCommitment'],
+        CurrencyEnum.Usd,
+      ),
+    ).toEqual(expect.objectContaining({ amountCents: 5000, taxCodes: ['vat'], taxes: undefined }))
+  })
+  it('returns {} when empty', () => {
+    expect(
+      serializeMinimumCommitment({} as PlanFormInput['minimumCommitment'], CurrencyEnum.Usd),
+    ).toEqual({})
+  })
+  it('preserves invoiceDisplayName when provided', () => {
+    expect(
+      serializeMinimumCommitment(
+        {
+          amountCents: '50',
+          invoiceDisplayName: 'Annual commitment',
+          taxes: [],
+        } as PlanFormInput['minimumCommitment'],
+        CurrencyEnum.Usd,
+      ),
+    ).toEqual(
+      expect.objectContaining({
+        invoiceDisplayName: 'Annual commitment',
+        amountCents: 5000,
+        taxCodes: [],
+      }),
+    )
+  })
+  it('maps multiple tax codes in declared order', () => {
+    expect(
+      serializeMinimumCommitment(
+        {
+          amountCents: '10',
+          taxes: [{ code: 'vat' }, { code: 'gst' }],
+        } as PlanFormInput['minimumCommitment'],
+        CurrencyEnum.Usd,
+      ),
+    ).toEqual(expect.objectContaining({ taxCodes: ['vat', 'gst'] }))
+  })
+  it('strips the source taxes array from the payload', () => {
+    const result = serializeMinimumCommitment(
+      { amountCents: '50', taxes: [{ code: 'vat' }] } as PlanFormInput['minimumCommitment'],
+      CurrencyEnum.Usd,
+    )
+
+    expect(result).toHaveProperty('taxes', undefined)
+  })
+  it('returns {} when commitment is undefined', () => {
+    expect(
+      serializeMinimumCommitment(
+        undefined as unknown as PlanFormInput['minimumCommitment'],
+        CurrencyEnum.Usd,
+      ),
+    ).toEqual({})
+  })
+})
+
+describe('serializeUsageThresholds', () => {
+  it('combines non-recurring + recurring and serializes amounts', () => {
+    expect(
+      serializeUsageThresholds(
+        [{ amountCents: '100', recurring: false }] as PlanFormInput['nonRecurringUsageThresholds'],
+        { amountCents: '200', recurring: true } as PlanFormInput['recurringUsageThreshold'],
+        CurrencyEnum.Usd,
+      ),
+    ).toEqual([
+      { recurring: false, thresholdDisplayName: null, amountCents: 10000 },
+      { recurring: true, thresholdDisplayName: null, amountCents: 20000 },
+    ])
+  })
+  it('returns undefined when nothing set', () => {
+    expect(serializeUsageThresholds(undefined, undefined, CurrencyEnum.Usd)).toBeUndefined()
+  })
+  it('serializes only non-recurring thresholds when recurring is undefined', () => {
+    expect(
+      serializeUsageThresholds(
+        [
+          { amountCents: '5', recurring: false },
+          { amountCents: '15', recurring: false },
+        ] as PlanFormInput['nonRecurringUsageThresholds'],
+        undefined,
+        CurrencyEnum.Usd,
+      ),
+    ).toEqual([
+      { recurring: false, thresholdDisplayName: null, amountCents: 500 },
+      { recurring: false, thresholdDisplayName: null, amountCents: 1500 },
+    ])
+  })
+  it('serializes only the recurring threshold when non-recurring list is empty', () => {
+    expect(
+      serializeUsageThresholds(
+        [] as unknown as PlanFormInput['nonRecurringUsageThresholds'],
+        { amountCents: '7', recurring: true } as PlanFormInput['recurringUsageThreshold'],
+        CurrencyEnum.Usd,
+      ),
+    ).toEqual([{ recurring: true, thresholdDisplayName: null, amountCents: 700 }])
+  })
+  it('preserves thresholdDisplayName when set and converts undefined to null', () => {
+    expect(
+      serializeUsageThresholds(
+        [
+          { amountCents: '1', recurring: false, thresholdDisplayName: 'First' },
+          { amountCents: '2', recurring: false },
+        ] as PlanFormInput['nonRecurringUsageThresholds'],
+        {
+          amountCents: '3',
+          recurring: true,
+          thresholdDisplayName: 'Repeating',
+        } as PlanFormInput['recurringUsageThreshold'],
+        CurrencyEnum.Usd,
+      ),
+    ).toEqual([
+      { recurring: false, thresholdDisplayName: 'First', amountCents: 100 },
+      { recurring: false, thresholdDisplayName: null, amountCents: 200 },
+      { recurring: true, thresholdDisplayName: 'Repeating', amountCents: 300 },
+    ])
+  })
+  it('coerces missing recurring flag to false', () => {
+    expect(
+      serializeUsageThresholds(
+        [{ amountCents: '1' }] as unknown as PlanFormInput['nonRecurringUsageThresholds'],
+        undefined,
+        CurrencyEnum.Usd,
+      ),
+    ).toEqual([{ recurring: false, thresholdDisplayName: null, amountCents: 100 }])
+  })
+})
+
+describe('serializeEntitlements', () => {
+  it('strips display-only fields', () => {
+    expect(
+      serializeEntitlements([
+        {
+          featureId: 'f1',
+          featureName: 'Seats',
+          featureCode: 'seats',
+          privileges: [
+            {
+              privilegeCode: 'max',
+              privilegeName: 'Max',
+              value: '10',
+              valueType: 'integer',
+              config: {},
+              id: 'p1',
+            },
+          ],
+        },
+      ] as PlanFormInput['entitlements']),
+    ).toEqual([
+      {
+        featureCode: 'seats',
+        featureId: undefined,
+        featureName: undefined,
+        privileges: [
+          {
+            privilegeCode: 'max',
+            value: '10',
+            privilegeName: undefined,
+            valueType: undefined,
+            config: undefined,
+            id: undefined,
+          },
+        ],
+      },
+    ])
+  })
+  it('returns an empty array when input is empty', () => {
+    expect(serializeEntitlements([] as PlanFormInput['entitlements'])).toEqual([])
+  })
+  it('serializes multiple entitlements in declared order', () => {
+    const result = serializeEntitlements([
+      { featureId: 'f1', featureName: 'Seats', featureCode: 'seats', privileges: [] },
+      { featureId: 'f2', featureName: 'API', featureCode: 'api_calls', privileges: [] },
+    ] as PlanFormInput['entitlements'])
+
+    expect(result.map((e) => e.featureCode)).toEqual(['seats', 'api_calls'])
+  })
+  it('preserves privileges array when entitlement has no privileges', () => {
+    expect(
+      serializeEntitlements([
+        { featureId: 'f1', featureName: 'Seats', featureCode: 'seats', privileges: [] },
+      ] as PlanFormInput['entitlements']),
+    ).toEqual([expect.objectContaining({ featureCode: 'seats', privileges: [] })])
+  })
+  it('strips display-only privilege fields for every privilege in the list', () => {
+    const result = serializeEntitlements([
+      {
+        featureId: 'f1',
+        featureName: 'Seats',
+        featureCode: 'seats',
+        privileges: [
+          {
+            privilegeCode: 'max',
+            privilegeName: 'Max',
+            value: '10',
+            valueType: 'integer',
+            config: {},
+            id: 'p1',
+          },
+          {
+            privilegeCode: 'min',
+            privilegeName: 'Min',
+            value: '1',
+            valueType: 'integer',
+            config: {},
+            id: 'p2',
+          },
+        ],
+      },
+    ] as PlanFormInput['entitlements'])
+
+    expect(result[0].privileges).toEqual([
+      expect.objectContaining({
+        privilegeCode: 'max',
+        value: '10',
+        privilegeName: undefined,
+        valueType: undefined,
+        config: undefined,
+        id: undefined,
+      }),
+      expect.objectContaining({
+        privilegeCode: 'min',
+        value: '1',
+        privilegeName: undefined,
+        valueType: undefined,
+        config: undefined,
+        id: undefined,
+      }),
+    ])
+  })
+})
 
 const fullProperty = {
   amount: '1',
@@ -67,6 +309,92 @@ const fullProperty = {
     ],
   }),
 }
+
+describe('serializeFixedChargeProperties', () => {
+  // The full shape getPropertyShape seeds — most fields are usage-only and are
+  // NOT valid on FixedChargePropertiesInput.
+  const fullShape = {
+    amount: '10',
+    fixedAmount: '2',
+    freeUnits: 5,
+    freeUnitsPerEvents: 0,
+    rate: '5',
+    packageSize: 12,
+    pricingGroupKeys: ['region'],
+    graduatedRanges: [{ fromValue: 0, toValue: 1, flatAmount: '1', perUnitAmount: '2' }],
+    volumeRanges: [{ fromValue: 0, toValue: 1, flatAmount: '3', perUnitAmount: '4' }],
+  }
+
+  describe('standard', () => {
+    it('keeps only amount and prunes every usage-only field (regression)', () => {
+      expect(
+        serializeFixedChargeProperties(fullShape, FixedChargeChargeModelEnum.Standard),
+      ).toStrictEqual({ amount: '10' })
+    })
+
+    it('returns amount: undefined when no amount is set', () => {
+      expect(
+        serializeFixedChargeProperties({ amount: '' }, FixedChargeChargeModelEnum.Standard),
+      ).toStrictEqual({ amount: undefined })
+    })
+
+    it('handles null/undefined properties', () => {
+      expect(
+        serializeFixedChargeProperties(undefined, FixedChargeChargeModelEnum.Standard),
+      ).toStrictEqual({ amount: undefined })
+      expect(
+        serializeFixedChargeProperties(null, FixedChargeChargeModelEnum.Standard),
+      ).toStrictEqual({ amount: undefined })
+    })
+  })
+
+  describe('graduated', () => {
+    it('keeps only graduatedRanges (with scientific-notation + fromValue defaults)', () => {
+      expect(
+        serializeFixedChargeProperties(fullShape, FixedChargeChargeModelEnum.Graduated),
+      ).toStrictEqual({
+        graduatedRanges: [{ fromValue: 0, toValue: 1, flatAmount: '1', perUnitAmount: '2' }],
+      })
+    })
+
+    it('defaults a missing flatAmount to "0"', () => {
+      expect(
+        serializeFixedChargeProperties(
+          {
+            graduatedRanges: [
+              { fromValue: 0, toValue: 1, perUnitAmount: '1', flatAmount: undefined as never },
+            ],
+          },
+          FixedChargeChargeModelEnum.Graduated,
+        ),
+      ).toStrictEqual({
+        graduatedRanges: [{ fromValue: 0, toValue: 1, perUnitAmount: '1', flatAmount: '0' }],
+      })
+    })
+
+    it('returns graduatedRanges: undefined when none are set', () => {
+      expect(
+        serializeFixedChargeProperties({ amount: '10' }, FixedChargeChargeModelEnum.Graduated),
+      ).toStrictEqual({ graduatedRanges: undefined })
+    })
+  })
+
+  describe('volume', () => {
+    it('keeps only volumeRanges and prunes everything else', () => {
+      expect(
+        serializeFixedChargeProperties(fullShape, FixedChargeChargeModelEnum.Volume),
+      ).toStrictEqual({
+        volumeRanges: [{ fromValue: 0, toValue: 1, flatAmount: '3', perUnitAmount: '4' }],
+      })
+    })
+
+    it('returns volumeRanges: undefined when none are set', () => {
+      expect(
+        serializeFixedChargeProperties({ amount: '10' }, FixedChargeChargeModelEnum.Volume),
+      ).toStrictEqual({ volumeRanges: undefined })
+    })
+  })
+})
 
 describe('serializePlanInput()', () => {
   describe('a plan without charges', () => {
@@ -1499,21 +1827,10 @@ describe('serializePlanInput()', () => {
               addOnId: '5678',
               addon: undefined,
               taxes: undefined,
+              // Only amount is valid for a standard FixedChargePropertiesInput;
+              // usage-only fields must not leak through.
               properties: {
                 amount: '1',
-                fixedAmount: '2',
-                freeUnits: undefined,
-                freeUnitsPerEvents: 0,
-                freeUnitsPerTotalAggregation: '1',
-                graduatedRanges: undefined,
-                graduatedPercentageRanges: undefined,
-                pricingGroupKeys: undefined,
-                packageSize: undefined,
-                perTransactionMaxAmount: undefined,
-                perTransactionMinAmount: undefined,
-                rate: '5',
-                volumeRanges: undefined,
-                customProperties: undefined,
               },
               taxCodes: [],
             },
@@ -1572,19 +1889,8 @@ describe('serializePlanInput()', () => {
               addOnId: '5678',
               addon: undefined,
               taxes: undefined,
+              // Only volumeRanges is valid for a volume FixedChargePropertiesInput.
               properties: {
-                amount: '1',
-                fixedAmount: '2',
-                freeUnits: undefined,
-                freeUnitsPerEvents: 0,
-                freeUnitsPerTotalAggregation: '1',
-                graduatedRanges: undefined,
-                graduatedPercentageRanges: undefined,
-                pricingGroupKeys: undefined,
-                packageSize: undefined,
-                perTransactionMinAmount: undefined,
-                perTransactionMaxAmount: undefined,
-                rate: '5',
                 volumeRanges: [
                   {
                     flatAmount: '1',
@@ -1597,7 +1903,6 @@ describe('serializePlanInput()', () => {
                     perUnitAmount: '1',
                   },
                 ],
-                customProperties: undefined,
               },
               taxCodes: [],
             },
@@ -1662,15 +1967,6 @@ describe('serializePlanInput()', () => {
               taxes: undefined,
               properties: {
                 amount: '5',
-                customProperties: undefined,
-                freeUnits: undefined,
-                graduatedPercentageRanges: undefined,
-                graduatedRanges: undefined,
-                packageSize: undefined,
-                perTransactionMaxAmount: undefined,
-                perTransactionMinAmount: undefined,
-                pricingGroupKeys: undefined,
-                volumeRanges: undefined,
               },
               taxCodes: [],
             },
@@ -1745,9 +2041,6 @@ describe('serializePlanInput()', () => {
               addon: undefined,
               taxes: undefined,
               properties: {
-                customProperties: undefined,
-                freeUnits: undefined,
-                graduatedPercentageRanges: undefined,
                 graduatedRanges: [
                   {
                     flatAmount: '0',
@@ -1762,11 +2055,6 @@ describe('serializePlanInput()', () => {
                     toValue: null,
                   },
                 ],
-                packageSize: undefined,
-                perTransactionMaxAmount: undefined,
-                perTransactionMinAmount: undefined,
-                pricingGroupKeys: undefined,
-                volumeRanges: undefined,
               },
               taxCodes: [],
             },
@@ -1839,9 +2127,6 @@ describe('serializePlanInput()', () => {
               addon: undefined,
               taxes: undefined,
               properties: {
-                customProperties: undefined,
-                freeUnits: undefined,
-                graduatedPercentageRanges: undefined,
                 graduatedRanges: [
                   {
                     flatAmount: '10',
@@ -1856,11 +2141,6 @@ describe('serializePlanInput()', () => {
                     toValue: null,
                   },
                 ],
-                packageSize: undefined,
-                perTransactionMaxAmount: undefined,
-                perTransactionMinAmount: undefined,
-                pricingGroupKeys: undefined,
-                volumeRanges: undefined,
               },
               taxCodes: [],
             },
