@@ -58,8 +58,6 @@ describe('cleanPlanValues', () => {
           id: 'add-on-1',
           name: 'Add On 1',
           code: 'ADD_ON_1',
-          amountCents: '0',
-          amountCurrency: CurrencyEnum.Usd,
         },
       },
       {
@@ -72,8 +70,6 @@ describe('cleanPlanValues', () => {
           id: 'add-on-2',
           name: 'Add On 2',
           code: 'ADD_ON_2',
-          amountCents: '0',
-          amountCurrency: CurrencyEnum.Usd,
         },
       },
     ],

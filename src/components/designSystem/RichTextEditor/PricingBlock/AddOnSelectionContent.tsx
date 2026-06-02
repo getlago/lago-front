@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
 import { revalidateLogic } from '@tanstack/react-form'
 import { DateTime } from 'luxon'
@@ -13,9 +14,9 @@ import { ComboboxItem } from '~/components/form'
 import { ComboBox } from '~/components/form/ComboBox/ComboBox'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
-  type AddOnForFixedChargesSectionFragment,
+  type AddOnForPricingSectionFragment,
   CurrencyEnum,
-  useGetAddOnsForFixedChargesSectionQuery,
+  useGetAddOnsForPricingSectionQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
@@ -25,9 +26,38 @@ import { MenuPopper } from '~/styles/designSystem'
 import { type AddOnItem, pricingDrawerDefaultValues } from './constants'
 import EditAddOnDrawer, { editAddOnDrawerDefaultValues } from './EditAddOnDrawer'
 
+gql`
+  fragment AddOnForPricingSection on AddOn {
+    id
+    name
+    code
+    invoiceDisplayName
+    description
+    amountCents
+    amountCurrency
+    taxes {
+      id
+      code
+    }
+  }
+
+  query getAddOnsForPricingSection($page: Int, $limit: Int, $searchTerm: String) {
+    addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
+      metadata {
+        currentPage
+        totalPages
+      }
+      collection {
+        id
+        ...AddOnForPricingSection
+      }
+    }
+  }
+`
+
 interface AddOnSelectionContentExtraProps {
   currency: CurrencyEnum
-  onAddOnPayloadCapture?: (addOnId: string, addOn: AddOnForFixedChargesSectionFragment) => void
+  onAddOnPayloadCapture?: (addOnId: string, addOn: AddOnForPricingSectionFragment) => void
 }
 
 const addOnSelectionContentDefaultProps: AddOnSelectionContentExtraProps = {
@@ -42,7 +72,7 @@ const AddOnSelectionContent = withForm({
     const { translate } = useInternationalization()
     const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
-    const { data: addOnsData, loading: addOnsLoading } = useGetAddOnsForFixedChargesSectionQuery({
+    const { data: addOnsData, loading: addOnsLoading } = useGetAddOnsForPricingSectionQuery({
       variables: { limit: 100 },
       fetchPolicy: 'network-only',
       nextFetchPolicy: 'network-only',

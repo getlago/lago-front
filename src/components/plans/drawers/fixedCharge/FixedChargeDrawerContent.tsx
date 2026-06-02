@@ -37,14 +37,6 @@ gql`
     id
     name
     code
-    invoiceDisplayName
-    description
-    amountCents
-    amountCurrency
-    taxes {
-      id
-      code
-    }
   }
 
   query getAddOnsForFixedChargesSection($page: Int, $limit: Int, $searchTerm: String) {
@@ -215,8 +207,6 @@ export const FixedChargeDrawerContent = withForm({
                         id: selectedAddOn.id,
                         name: selectedAddOn.name,
                         code: selectedAddOn.code,
-                        amountCents: selectedAddOn.amountCents,
-                        amountCurrency: selectedAddOn.amountCurrency,
                       })
                     }
                   },

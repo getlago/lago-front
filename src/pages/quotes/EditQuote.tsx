@@ -62,7 +62,7 @@ const EditQuote = () => {
 
   const isUpdating = isUpdatingQuote || isUpdatingQuoteVersion
 
-  const { onPricingCommand, entities } = usePricingDrawer(
+  const { onPricingCommand, entities, syncEntitiesWithBlocks } = usePricingDrawer(
     quote?.orderType,
     quote?.currentVersion?.billingItems,
   )
@@ -97,7 +97,7 @@ const EditQuote = () => {
       debounce(async () => {
         const markdown = getMarkdownRef.current?.()
 
-        if (!markdown || !versionId) return
+        if (markdown === null || markdown === undefined || !versionId) return
 
         const payload: UpdateQuoteVersionInput = { id: versionId, content: markdown }
 
@@ -157,7 +157,7 @@ const EditQuote = () => {
 
       const content = getMarkdownRef.current?.()
 
-      if (!content) return
+      if (content === null || content === undefined) return
 
       setSaveStatus('saving')
 
@@ -272,6 +272,16 @@ const EditQuote = () => {
             [onPricingCommand, savePricingBlock],
           )}
           entities={entities}
+          onPricingBlocksChange={useCallback(
+            (blocks) => {
+              const updatedBillingItems = syncEntitiesWithBlocks(blocks)
+
+              if (updatedBillingItems) {
+                savePricingBlock(updatedBillingItems)
+              }
+            },
+            [syncEntitiesWithBlocks, savePricingBlock],
+          )}
         />
       </RightAsidePage.Content>
     </RightAsidePage.Wrapper>

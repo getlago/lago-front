@@ -1,5 +1,5 @@
 import {
-  type AddOnForFixedChargesSectionFragment,
+  type AddOnForPricingSectionFragment,
   CurrencyEnum,
   OrderTypeEnum,
 } from '~/generated/graphql'
@@ -12,7 +12,7 @@ import PlanSelectionContent from './PlanSelectionContent'
 interface PricingDrawerContentExtraProps {
   quoteType: OrderTypeEnum
   currency: CurrencyEnum
-  onAddOnPayloadCapture?: (addOnId: string, addOn: AddOnForFixedChargesSectionFragment) => void
+  onAddOnPayloadCapture?: (addOnId: string, addOn: AddOnForPricingSectionFragment) => void
 }
 
 const pricingDrawerContentDefaultProps: PricingDrawerContentExtraProps = {

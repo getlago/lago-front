@@ -1,7 +1,6 @@
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import {
   AddOnForFixedChargesSectionFragment,
-  CurrencyEnum,
   FixedChargeChargeModelEnum,
   PropertiesInput,
   TaxForTaxesSelectorSectionFragment,
@@ -23,7 +22,7 @@ export interface FixedChargeDrawerFormValues {
 
 export const DEFAULT_VALUES: FixedChargeDrawerFormValues = {
   addOnId: '',
-  addOn: { id: '', name: '', code: '', amountCents: '0', amountCurrency: CurrencyEnum.Usd },
+  addOn: { id: '', name: '', code: '' },
   applyUnitsImmediately: false,
   chargeModel: FixedChargeChargeModelEnum.Standard,
   id: undefined,

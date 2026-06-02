@@ -10,8 +10,6 @@ import { FixedChargeInfo } from '~/components/plans/FixedChargeInfo'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import {
-  AddOnForFixedChargesSectionFragment,
-  AddOnForFixedChargesSectionFragmentDoc,
   CurrencyEnum,
   GraduatedChargeFragmentDoc,
   PlanDetailsV2Fragment,
@@ -45,7 +43,9 @@ gql`
       }
     }
     addOn {
-      ...AddOnForFixedChargesSection
+      id
+      name
+      code
     }
     taxes {
       id
@@ -72,7 +72,6 @@ gql`
   ${GraduatedChargeFragmentDoc}
   ${VolumeRangesFragmentDoc}
   ${TaxForPlanSettingsSectionFragmentDoc}
-  ${AddOnForFixedChargesSectionFragmentDoc}
 `
 
 export type PlanDetailsV2FixedChargesSectionRef = {
@@ -95,7 +94,7 @@ type FixedCharge = NonNullable<PlanDetailsV2Fragment['fixedCharges']>[number]
 const toLocalInput = (fixedCharge: FixedCharge): LocalFixedChargeInput => ({
   id: fixedCharge.id,
   code: fixedCharge.code,
-  addOn: fixedCharge.addOn as AddOnForFixedChargesSectionFragment,
+  addOn: fixedCharge.addOn,
   applyUnitsImmediately: false,
   chargeModel: fixedCharge.chargeModel,
   invoiceDisplayName: fixedCharge.invoiceDisplayName ?? '',

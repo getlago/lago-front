@@ -19,7 +19,7 @@ import {
   toBillingItems,
 } from '~/core/serializers/serializeQuoteBillingItems'
 import {
-  type AddOnForFixedChargesSectionFragment,
+  type AddOnForPricingSectionFragment,
   CurrencyEnum,
   OrderTypeEnum,
 } from '~/generated/graphql'
@@ -34,6 +34,7 @@ const PRICING_DRAWER_FORM_ID = 'pricing-drawer-form'
 interface UsePricingDrawerReturn {
   onPricingCommand: OnPricingCommand
   entities: Record<string, EntityData>
+  syncEntitiesWithBlocks: (blocks: PricingBlockAttributes[]) => BillingItemsPayload | null
 }
 
 export const usePricingDrawer = (
@@ -76,7 +77,7 @@ export const usePricingDrawer = (
   }, [initialBillingItems])
 
   const captureAddOnPayload = useCallback(
-    (addOnId: string, addOn: AddOnForFixedChargesSectionFragment) => {
+    (addOnId: string, addOn: AddOnForPricingSectionFragment) => {
       payloadsRef.current[addOnId] = {
         position: 0, // will be set correctly by toBillingItems
         add_on_code: addOn.code,
@@ -307,5 +308,41 @@ export const usePricingDrawer = (
     [formDrawer, translate, organization?.defaultCurrency, form, captureAddOnPayload],
   )
 
-  return { onPricingCommand, entities }
+  const syncEntitiesWithBlocks = useCallback(
+    (blocks: PricingBlockAttributes[]): BillingItemsPayload | null => {
+      const activeEntityIds = new Set(blocks.flatMap((b) => b.entityIds))
+
+      const currentKeys = Object.keys(entitiesRef.current)
+      const orphanedKeys = currentKeys.filter((id) => !activeEntityIds.has(id))
+
+      if (orphanedKeys.length === 0) return null
+
+      const updatedEntities = { ...entitiesRef.current }
+      const updatedPayloads = { ...payloadsRef.current }
+
+      for (const key of orphanedKeys) {
+        delete updatedEntities[key]
+        delete updatedPayloads[key]
+      }
+
+      entitiesRef.current = updatedEntities
+      payloadsRef.current = updatedPayloads
+      setEntities(updatedEntities)
+
+      // Rebuild billing items from remaining payloads
+      const remainingIds = Object.keys(updatedPayloads)
+
+      return {
+        addons: remainingIds.map((id, i) => ({
+          type: 'addon' as const,
+          id,
+          payload: { ...updatedPayloads[id], position: i + 1 },
+          overrides: {},
+        })),
+      }
+    },
+    [],
+  )
+
+  return { onPricingCommand, entities, syncEntitiesWithBlocks }
 }
