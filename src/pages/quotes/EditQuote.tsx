@@ -4,6 +4,7 @@ import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import type { OnPricingCommand } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
+import { PricingBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/PricingBlock.schema'
 import RichTextEditor, {
   type RichTextEditorMode,
 } from '~/components/designSystem/RichTextEditor/RichTextEditor'
@@ -180,6 +181,32 @@ const EditQuote = () => {
     [versionId, refetchQuote],
   )
 
+  const handlePricingCommand = useCallback<OnPricingCommand>(
+    ({ onSave, editData }) => {
+      onPricingCommand({
+        onSave: (attrs, entityData, billingItems) => {
+          // 1. Insert/update the TipTap node (existing behavior)
+          onSave(attrs, entityData, billingItems)
+          // 2. Unified save: content + billingItems together
+          savePricingBlock(billingItems)
+        },
+        editData,
+      })
+    },
+    [onPricingCommand, savePricingBlock],
+  )
+
+  const handlePricingBlocksChange = useCallback(
+    (blocks: PricingBlockAttributes[]) => {
+      const updatedBillingItems = syncEntitiesWithBlocks(blocks)
+
+      if (updatedBillingItems) {
+        savePricingBlock(updatedBillingItems)
+      }
+    },
+    [syncEntitiesWithBlocks, savePricingBlock],
+  )
+
   const handleClose = () => {
     debouncedSave.cancel()
     onClose()
@@ -257,31 +284,9 @@ const EditQuote = () => {
           getMarkdownRef={getMarkdownRef}
           onChange={handleChange}
           mode={editorMode}
-          onPricingCommand={useCallback<OnPricingCommand>(
-            ({ onSave, editData }) => {
-              onPricingCommand({
-                onSave: (attrs, entityData, billingItems) => {
-                  // 1. Insert/update the TipTap node (existing behavior)
-                  onSave(attrs, entityData, billingItems)
-                  // 2. Unified save: content + billingItems together
-                  savePricingBlock(billingItems)
-                },
-                editData,
-              })
-            },
-            [onPricingCommand, savePricingBlock],
-          )}
+          onPricingCommand={handlePricingCommand}
           entities={entities}
-          onPricingBlocksChange={useCallback(
-            (blocks) => {
-              const updatedBillingItems = syncEntitiesWithBlocks(blocks)
-
-              if (updatedBillingItems) {
-                savePricingBlock(updatedBillingItems)
-              }
-            },
-            [syncEntitiesWithBlocks, savePricingBlock],
-          )}
+          onPricingBlocksChange={handlePricingBlocksChange}
         />
       </RightAsidePage.Content>
     </RightAsidePage.Wrapper>
