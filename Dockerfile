@@ -58,7 +58,7 @@ RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
 
 
 # --- runtime stage: nginx serving the built dist ---------------------------
-FROM nginx:1.30-alpine AS runtime
+FROM nginx:1.31-alpine AS runtime
 
 WORKDIR /usr/share/nginx/html
 
