@@ -5,13 +5,14 @@ import { FormikProps, getIn } from 'formik'
 import { Icon } from 'lago-design-system'
 import { get } from 'lodash'
 import { DateTime } from 'luxon'
-import { FC, RefObject, useMemo, useState } from 'react'
+import { FC, useMemo, useState } from 'react'
 
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   AmountInputField,
   ComboBox,
@@ -22,7 +23,6 @@ import {
 } from '~/components/form'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
 import {
   ADD_METADATA_DATA_TEST,
@@ -110,7 +110,6 @@ interface TopUpSectionProps {
   customerData?: GetCustomerInfosForWalletFormQuery
   isRecurringTopUpEnabled: boolean
   setIsRecurringTopUpEnabled: (value: boolean) => void
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
 }
 
 export const TopUpSection: FC<TopUpSectionProps> = ({
@@ -118,10 +117,10 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
   customerData,
   isRecurringTopUpEnabled,
   setIsRecurringTopUpEnabled,
-  premiumWarningDialogRef,
 }) => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
+  const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const [accordionIsOpen, setAccordionIsOpen] = useState(false)
 
   const recurringTransactionRules = formikProps.values?.recurringTransactionRules?.[0]
@@ -191,7 +190,7 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                   setIsRecurringTopUpEnabled(true)
                   setAccordionIsOpen(true)
                 } else {
-                  premiumWarningDialogRef.current?.openDialog()
+                  openPremiumWarningDialog()
                 }
               }}
             >
