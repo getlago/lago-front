@@ -251,7 +251,6 @@
     @apply flex flex-col items-start;
   }
 
-
   .pricing-block__placeholder {
     @apply text-sm text-grey-400;
   }
