@@ -1,3 +1,5 @@
+import { IconName } from 'lago-design-system'
+
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 
@@ -6,6 +8,9 @@ export type SectionHeaderAction = {
   onClick: () => void
   hidden?: boolean
   disabled?: boolean
+  // Defaults to the "plus" icon (Add CTAs). Pass `null` to render no icon
+  // (e.g. an "Edit" link), or another icon name to override.
+  startIcon?: IconName | null
 }
 
 export type SectionHeaderProps = {
@@ -34,7 +39,7 @@ export const SectionHeader = ({ title, description, action }: SectionHeaderProps
           variant="inline"
           onClick={action.onClick}
           disabled={action.disabled}
-          startIcon="plus"
+          {...(action.startIcon === null ? {} : { startIcon: action.startIcon ?? 'plus' })}
         >
           {action.label}
         </Button>

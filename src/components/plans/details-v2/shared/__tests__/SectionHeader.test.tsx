@@ -50,4 +50,25 @@ describe('SectionHeader', () => {
 
     expect(screen.getByRole('button', { name: /add charge/i })).toBeDisabled()
   })
+
+  it('renders the plus icon by default', () => {
+    render(<SectionHeader title="Charges" action={{ label: 'Add charge', onClick: jest.fn() }} />)
+
+    expect(
+      screen.getByRole('button', { name: /add charge/i }).querySelector('svg'),
+    ).toBeInTheDocument()
+  })
+
+  it('renders no icon when startIcon is null (e.g. an Edit link)', () => {
+    render(
+      <SectionHeader
+        title="Subscription information"
+        action={{ label: 'Edit', onClick: jest.fn(), startIcon: null }}
+      />,
+    )
+
+    expect(
+      screen.getByRole('button', { name: /edit/i }).querySelector('svg'),
+    ).not.toBeInTheDocument()
+  })
 })
