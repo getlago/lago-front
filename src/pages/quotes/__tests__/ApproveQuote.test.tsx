@@ -102,6 +102,7 @@ describe('ApproveQuote', () => {
       quote: mockQuote,
       loading: false,
       error: undefined,
+      refetch: jest.fn(),
     })
 
     mockUseApproveQuote.mockReturnValue({
@@ -150,6 +151,7 @@ describe('ApproveQuote', () => {
           },
           loading: false,
           error: undefined,
+          refetch: jest.fn(),
         })
 
         render(<ApproveQuote />)
@@ -215,6 +217,7 @@ describe('ApproveQuote', () => {
         quote: undefined,
         loading: true,
         error: undefined,
+        refetch: jest.fn(),
       })
     })
 
@@ -242,6 +245,7 @@ describe('ApproveQuote', () => {
         quote: undefined,
         loading: false,
         error: new Error('Something went wrong') as never,
+        refetch: jest.fn(),
       })
     })
 
@@ -268,6 +272,7 @@ describe('ApproveQuote', () => {
           quote: undefined,
           loading: false,
           error: undefined,
+          refetch: jest.fn(),
         })
 
         render(<ApproveQuote />)
