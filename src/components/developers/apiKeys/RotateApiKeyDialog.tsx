@@ -86,7 +86,7 @@ export const RotateApiKeyDialog = forwardRef<
     enableReinitialize: true,
     onSubmit: async ({ expiresAt }) => {
       const ExpirationValuesAsTime = {
-        Now: DateTime.now().toUTC().toISO(),
+        Now: null,
         OneHour: DateTime.now().toUTC().plus({ hours: 1 }).toISO(),
         OneDay: DateTime.now().toUTC().plus({ days: 1 }).toISO(),
         TwoDays: DateTime.now().toUTC().plus({ days: 2 }).toISO(),
