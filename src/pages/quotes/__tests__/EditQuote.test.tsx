@@ -20,6 +20,14 @@ type AsideCallbacks = {
 
 let capturedAsideCallbacks: AsideCallbacks = {}
 
+type PricingCommandParams = {
+  onSave: (...args: unknown[]) => void
+  editData?: unknown
+}
+
+let capturedOnPricingCommand: ((params: PricingCommandParams) => void) | undefined
+let capturedOnPricingBlocksChange: ((blocks: unknown[]) => void) | undefined
+
 // --- Mocks ---
 
 // drawerStack.ts uses import.meta.hot — mock the entire useDrawer module instead
@@ -41,22 +49,28 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
   const MockRichTextEditor = ({
     getMarkdownRef,
     onChange,
+    onPricingCommand,
+    onPricingBlocksChange,
   }: {
     getMarkdownRef?: React.MutableRefObject<(() => string) | null>
     onChange?: () => void
+    onPricingCommand?: (params: PricingCommandParams) => void
+    onPricingBlocksChange?: (blocks: unknown[]) => void
   }) => {
     React.useEffect(() => {
       if (getMarkdownRef) {
         getMarkdownRef.current = () => mockMarkdownContent
       }
       capturedOnChange = onChange
+      capturedOnPricingCommand = onPricingCommand
+      capturedOnPricingBlocksChange = onPricingBlocksChange
 
       return () => {
         if (getMarkdownRef) {
           getMarkdownRef.current = null
         }
       }
-    }, [getMarkdownRef, onChange])
+    }, [getMarkdownRef, onChange, onPricingCommand, onPricingBlocksChange])
 
     return <div data-test="mock-rich-text-editor" />
   }
@@ -145,10 +159,23 @@ const mockQuote = {
   },
 }
 
+const mockRefetchQuote = jest.fn()
+
 const mockUseQuote = jest.fn()
 
 jest.mock('../hooks/useQuote', () => ({
   useQuote: (...args: unknown[]) => mockUseQuote(...args),
+}))
+
+const mockDrawerOnPricingCommand = jest.fn()
+const mockSyncEntitiesWithBlocks = jest.fn().mockReturnValue(null)
+
+jest.mock('../hooks/usePricingDrawer', () => ({
+  usePricingDrawer: () => ({
+    onPricingCommand: mockDrawerOnPricingCommand,
+    entities: {},
+    syncEntitiesWithBlocks: mockSyncEntitiesWithBlocks,
+  }),
 }))
 
 jest.mock('../common/getQuoteStatusMapping', () => ({
@@ -175,11 +202,14 @@ describe('EditQuote', () => {
     mockMarkdownContent = '# Mock markdown content'
     capturedOnChange = undefined
     capturedAsideCallbacks = {}
+    capturedOnPricingCommand = undefined
+    capturedOnPricingBlocksChange = undefined
+    mockSyncEntitiesWithBlocks.mockReturnValue(null)
 
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ quoteId: 'quote-123' })
-    mockUseQuote.mockReturnValue({ quote: mockQuote, loading: false, refetch: jest.fn() })
+    mockUseQuote.mockReturnValue({ quote: mockQuote, loading: false, refetch: mockRefetchQuote })
   })
 
   describe('GIVEN the quote is loading', () => {
@@ -493,6 +523,166 @@ describe('EditQuote', () => {
         render(<EditQuote />)
 
         expect(getCloseButton()).toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN the pricing block integration', () => {
+    describe('WHEN handlePricingCommand is invoked from the editor', () => {
+      it('THEN should delegate to usePricingDrawer onPricingCommand with editData', () => {
+        render(<EditQuote />)
+
+        const mockEditData = { pricingType: 'plan' as const, entityIds: ['plan-1'] }
+
+        act(() => {
+          capturedOnPricingCommand?.({ onSave: jest.fn(), editData: mockEditData })
+        })
+
+        expect(mockDrawerOnPricingCommand).toHaveBeenCalledWith(
+          expect.objectContaining({ editData: mockEditData }),
+        )
+      })
+    })
+
+    describe('WHEN the pricing drawer onSave fires successfully', () => {
+      it('THEN should call the original onSave and save content with billingItems', async () => {
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: { updateQuoteVersion: { id: 'version-1' } },
+        })
+
+        render(<EditQuote />)
+
+        const mockOriginalOnSave = jest.fn()
+
+        act(() => {
+          capturedOnPricingCommand?.({ onSave: mockOriginalOnSave })
+        })
+
+        // Extract the wrapped onSave that was passed to the drawer hook
+        const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+        const mockAttrs = { pricingType: 'addOns', entityIds: ['addon-1'] }
+        const mockEntityData = { 'addon-1': { name: 'Test Add-on' } }
+        const mockBillingItems = [{ addOnId: 'addon-1' }]
+
+        await act(async () => {
+          wrappedOnSave(mockAttrs, mockEntityData, mockBillingItems)
+        })
+
+        // Original onSave should be called with all arguments
+        expect(mockOriginalOnSave).toHaveBeenCalledWith(mockAttrs, mockEntityData, mockBillingItems)
+
+        // savePricingBlock should trigger updateQuoteVersion with content + billingItems
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            expect.objectContaining({
+              id: 'version-1',
+              content: mockMarkdownContent,
+              billingItems: mockBillingItems,
+            }),
+            false,
+          )
+        })
+
+        // On success, refetchQuote should be called
+        await waitFor(() => {
+          expect(mockRefetchQuote).toHaveBeenCalled()
+        })
+      })
+    })
+
+    describe('WHEN savePricingBlock fails', () => {
+      it('THEN should set save status to error', async () => {
+        mockUpdateQuoteVersion.mockRejectedValue(new Error('Network error'))
+
+        render(<EditQuote />)
+
+        act(() => {
+          capturedOnPricingCommand?.({ onSave: jest.fn() })
+        })
+
+        const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+
+        await act(async () => {
+          wrappedOnSave({}, {}, [{ addOnId: 'addon-1' }])
+        })
+
+        await waitFor(() => {
+          expect(screen.getByText('text_1779437694622y666yr137gm')).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN pricing blocks change and syncEntitiesWithBlocks returns billing items', () => {
+      it('THEN should save the updated billing items', async () => {
+        const mockBillingItems = [{ addOnId: 'addon-1', units: '2' }]
+
+        mockSyncEntitiesWithBlocks.mockReturnValue(mockBillingItems)
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: { updateQuoteVersion: { id: 'version-1' } },
+        })
+
+        render(<EditQuote />)
+
+        const mockBlocks = [{ pricingType: 'addOns', entityIds: ['addon-1'] }]
+
+        await act(async () => {
+          capturedOnPricingBlocksChange?.(mockBlocks)
+        })
+
+        expect(mockSyncEntitiesWithBlocks).toHaveBeenCalledWith(mockBlocks)
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            expect.objectContaining({ billingItems: mockBillingItems }),
+            false,
+          )
+        })
+      })
+    })
+
+    describe('WHEN pricing blocks change but syncEntitiesWithBlocks returns null', () => {
+      it('THEN should not trigger a save', async () => {
+        mockSyncEntitiesWithBlocks.mockReturnValue(null)
+
+        render(<EditQuote />)
+
+        const mockBlocks = [{ pricingType: 'plan', entityIds: ['plan-1'] }]
+
+        await act(async () => {
+          capturedOnPricingBlocksChange?.(mockBlocks)
+        })
+
+        expect(mockSyncEntitiesWithBlocks).toHaveBeenCalledWith(mockBlocks)
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN savePricingBlock is called without a versionId', () => {
+      it('THEN should not call updateQuoteVersion', async () => {
+        const quoteWithoutVersion = {
+          ...mockQuote,
+          currentVersion: { ...mockQuote.currentVersion, id: undefined },
+        }
+
+        mockUseQuote.mockReturnValue({
+          quote: quoteWithoutVersion,
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        act(() => {
+          capturedOnPricingCommand?.({ onSave: jest.fn() })
+        })
+
+        const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+
+        await act(async () => {
+          wrappedOnSave({}, {}, [{ addOnId: 'addon-1' }])
+        })
+
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
       })
     })
   })
