@@ -22,6 +22,12 @@ let capturedAsideCallbacks: AsideCallbacks = {}
 
 // --- Mocks ---
 
+// drawerStack.ts uses import.meta.hot — mock the entire useDrawer module instead
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
@@ -173,13 +179,13 @@ describe('EditQuote', () => {
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ quoteId: 'quote-123' })
-    mockUseQuote.mockReturnValue({ quote: mockQuote, loading: false })
+    mockUseQuote.mockReturnValue({ quote: mockQuote, loading: false, refetch: jest.fn() })
   })
 
   describe('GIVEN the quote is loading', () => {
     describe('WHEN rendered', () => {
       it('THEN should not display quote number', () => {
-        mockUseQuote.mockReturnValue({ quote: null, loading: true })
+        mockUseQuote.mockReturnValue({ quote: null, loading: true, refetch: jest.fn() })
 
         render(<EditQuote />)
 
