@@ -22,6 +22,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
+export const ROTATE_API_KEY_DIALOG_SUBMIT_BUTTON_TEST_ID = 'rotate-api-key-submit-button'
+
 const ExpirationValuesEnum = {
   Now: 'Now',
   OneHour: 'OneHour',
@@ -157,6 +159,7 @@ export const RotateApiKeyDialog = forwardRef<
           <Button
             danger
             variant="primary"
+            data-test={ROTATE_API_KEY_DIALOG_SUBMIT_BUTTON_TEST_ID}
             onClick={async () => {
               await formikProps.submitForm()
             }}
