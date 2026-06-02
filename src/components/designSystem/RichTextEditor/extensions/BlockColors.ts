@@ -20,7 +20,7 @@ const BLOCK_TYPES = [
   'codeBlock',
   'table',
   'image',
-  'planBlock',
+  'pricingBlock',
   'linkCard',
   'blockquote',
 ]
