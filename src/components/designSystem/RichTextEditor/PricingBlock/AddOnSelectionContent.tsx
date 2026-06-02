@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
-import { revalidateLogic } from '@tanstack/react-form'
+import { type AnyFormApi, revalidateLogic, useStore } from '@tanstack/react-form'
 import { DateTime } from 'luxon'
-import { useMemo, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
@@ -60,6 +60,224 @@ interface AddOnSelectionContentExtraProps {
   onAddOnPayloadCapture?: (addOnId: string, addOn: AddOnForPricingSectionFragment) => void
 }
 
+function TotalAmountCell({
+  form,
+  index,
+  currency,
+  translate,
+}: {
+  form: AnyFormApi
+  index: number
+  currency: CurrencyEnum
+  translate: ReturnType<typeof useInternationalization>['translate']
+}) {
+  const units = useStore(form.store, (state) => state.values.addOnItems?.[index]?.units)
+  const unitAmountCents = useStore(
+    form.store,
+    (state) => state.values.addOnItems?.[index]?.unitAmountCents,
+  )
+
+  const computed =
+    Math.round((parseFloat(units) || 0) * (parseFloat(unitAmountCents) || 0) * 100) / 100
+
+  useEffect(() => {
+    const computedStr = String(computed)
+
+    form.setFieldValue(`addOnItems[${index}].totalAmount`, computedStr)
+  }, [computed, form, index])
+
+  return (
+    <div className="flex flex-col gap-1">
+      <Typography variant="captionHl" color="grey700" align="right">
+        {translate('text_17800586916250mj95szdi21')}
+      </Typography>
+      <Typography variant="body" color="grey700" className="flex h-12 items-center justify-end">
+        {intlFormatNumber(computed, { currency })}
+      </Typography>
+    </div>
+  )
+}
+
+type TranslateFn = ReturnType<typeof useInternationalization>['translate']
+
+function PendingAddOnRow({
+  index,
+  comboBoxData,
+  addOnsLoading,
+  translate,
+  onSelect,
+  onRemove,
+}: {
+  index: number
+  comboBoxData: { value: string; label: string; labelNode: ReactNode }[]
+  addOnsLoading: boolean
+  translate: TranslateFn
+  onSelect: (index: number, addOnId: string) => void
+  onRemove: (index: number) => void
+}) {
+  return (
+    <div
+      className="mt-8 grid grid-cols-[1fr_auto] items-center gap-3"
+      data-test={`add-on-pending-${index}`}
+    >
+      <ComboBox
+        className="flex-1"
+        data={comboBoxData}
+        loading={addOnsLoading}
+        value=""
+        placeholder={translate('text_17798023432203q6hytdp7om')}
+        onChange={(value) => {
+          if (value) {
+            onSelect(index, value)
+          }
+        }}
+      />
+      <Tooltip title={translate('text_628b8c693e464200e00e4a10')} placement="top-end">
+        <Button
+          variant="quaternary"
+          size="small"
+          icon="trash"
+          onClick={() => onRemove(index)}
+          data-test={`remove-add-on-${index}`}
+        />
+      </Tooltip>
+    </div>
+  )
+}
+
+interface ConfirmedAddOnRowProps {
+  item: AddOnItem
+  index: number
+  currency: CurrencyEnum
+  intlFormatDateTimeOrgaTZ: ReturnType<typeof useOrganizationInfos>['intlFormatDateTimeOrgaTZ']
+  onEdit: (index: number) => void
+  onRemove: (index: number) => void
+}
+
+const confirmedAddOnRowDefaultProps: ConfirmedAddOnRowProps = {
+  item: {
+    addOnId: '',
+    name: '',
+    invoiceDisplayName: '',
+    code: '',
+    description: '',
+    units: '',
+    unitAmountCents: '',
+    totalAmount: '',
+    fromDatetime: '',
+    toDatetime: '',
+  },
+  index: 0,
+  currency: CurrencyEnum.Usd,
+  intlFormatDateTimeOrgaTZ: () => ({ date: '', time: '', timezone: '' }),
+  onEdit: () => {},
+  onRemove: () => {},
+}
+
+const ConfirmedAddOnRow = withForm({
+  defaultValues: pricingDrawerDefaultValues,
+  props: confirmedAddOnRowDefaultProps,
+  render: function ConfirmedAddOnRow({
+    form,
+    item,
+    index,
+    currency,
+    intlFormatDateTimeOrgaTZ,
+    onEdit,
+    onRemove,
+  }) {
+    const { translate } = useInternationalization()
+
+    return (
+      <div className="flex flex-col gap-3 pb-6 pt-3 shadow-b" data-test={`add-on-item-${index}`}>
+        <div className="grid grid-cols-[1fr_auto] items-center gap-3">
+          <div className="flex flex-col">
+            <Typography variant="captionHl" color="grey600">
+              {translate('text_633dae57ca9a923dd53c2097', {
+                fromDate: intlFormatDateTimeOrgaTZ(item.fromDatetime).date,
+                toDate: intlFormatDateTimeOrgaTZ(item.toDatetime).date,
+              })}
+            </Typography>
+            <Typography variant="bodyHl" color="grey700">
+              {item.invoiceDisplayName || item.name}
+            </Typography>
+            <Typography variant="caption" color="grey600">
+              {item.description}
+            </Typography>
+          </div>
+          <Popper
+            PopperProps={{ placement: 'bottom-end' }}
+            opener={
+              <Button
+                variant="quaternary"
+                size="small"
+                icon="dots-horizontal"
+                data-test={`add-on-actions-${index}`}
+              />
+            }
+          >
+            {({ closePopper }) => (
+              <MenuPopper>
+                <Button
+                  startIcon="pen"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    onEdit(index)
+                    closePopper()
+                  }}
+                >
+                  {translate('text_63aa15caab5b16980b21b0b8')}
+                </Button>
+                <Button
+                  startIcon="trash"
+                  variant="quaternary"
+                  align="left"
+                  onClick={() => {
+                    onRemove(index)
+                    closePopper()
+                  }}
+                >
+                  {translate('text_63aa085d28b8510cd46443ff')}
+                </Button>
+              </MenuPopper>
+            )}
+          </Popper>
+        </div>
+
+        <div className="grid grid-cols-[1fr_1fr_2fr] gap-3">
+          <form.AppField name={`addOnItems[${index}].units`}>
+            {(subField) => (
+              <subField.TextInputField
+                label={translate('text_65771fa3f4ab9a00720726ce')}
+                placeholder="0"
+                type="number"
+                className="flex-1"
+              />
+            )}
+          </form.AppField>
+
+          <form.AppField name={`addOnItems[${index}].unitAmountCents`}>
+            {(subField) => (
+              <subField.AmountInputField
+                label={translate('text_6453819268763979024ad089')}
+                currency={currency}
+                className="flex-1"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">{getCurrencySymbol(currency)}</InputAdornment>
+                  ),
+                }}
+              />
+            )}
+          </form.AppField>
+          <TotalAmountCell form={form} index={index} currency={currency} translate={translate} />
+        </div>
+      </div>
+    )
+  },
+})
+
 const addOnSelectionContentDefaultProps: AddOnSelectionContentExtraProps = {
   currency: CurrencyEnum.Usd,
   onAddOnPayloadCapture: undefined,
@@ -80,8 +298,8 @@ const AddOnSelectionContent = withForm({
 
     const addOns = useMemo(() => addOnsData?.addOns?.collection ?? [], [addOnsData])
 
-    // Tracks pending (unselected) add-on rows — UI-only state
-    const [pendingAddOnIndices, setPendingAddOnIndices] = useState<Set<number>>(new Set())
+    // Tracks pending (unselected) add-on rows — maps array index to a stable React key
+    const [pendingAddOnIndices, setPendingAddOnIndices] = useState<Map<number, string>>(new Map())
 
     const editDrawer = useFormDrawer()
     const editingIndexRef = useRef<number | null>(null)
@@ -204,7 +422,7 @@ const AddOnSelectionContent = withForm({
                     fromDatetime: today.startOf('day').toISO(),
                     toDatetime: today.endOf('day').toISO(),
                   })
-                  setPendingAddOnIndices((prev) => new Set(prev).add(newIndex))
+                  setPendingAddOnIndices((prev) => new Map(prev).set(newIndex, crypto.randomUUID()))
                 }
 
                 const handleAddOnSelect = (index: number, addOnId: string) => {
@@ -225,7 +443,7 @@ const AddOnSelectionContent = withForm({
                   onAddOnPayloadCapture?.(addOn.id, addOn)
 
                   setPendingAddOnIndices((prev) => {
-                    const next = new Set(prev)
+                    const next = new Map(prev)
 
                     next.delete(index)
                     return next
@@ -236,11 +454,11 @@ const AddOnSelectionContent = withForm({
                   addOnItemsField.removeValue(index)
                   // Recompute pending indices after removal
                   setPendingAddOnIndices((prev) => {
-                    const next = new Set<number>()
+                    const next = new Map<number, string>()
 
-                    prev.forEach((i) => {
-                      if (i < index) next.add(i)
-                      else if (i > index) next.add(i - 1)
+                    prev.forEach((key, i) => {
+                      if (i < index) next.set(i, key)
+                      else if (i > index) next.set(i - 1, key)
                     })
                     return next
                   })
@@ -253,172 +471,33 @@ const AddOnSelectionContent = withForm({
                 return (
                   <div className="flex flex-col">
                     {items.map((item, index) => {
-                      const isPending = pendingAddOnIndices.has(index)
+                      const pendingKey = pendingAddOnIndices.get(index)
 
-                      if (isPending) {
+                      if (pendingKey) {
                         return (
-                          <div
-                            key={`pending-${index}`}
-                            className="mt-8 grid grid-cols-[1fr_auto] items-center gap-3"
-                            data-test={`add-on-pending-${index}`}
-                          >
-                            <ComboBox
-                              className="flex-1"
-                              data={comboBoxData}
-                              loading={addOnsLoading}
-                              value=""
-                              placeholder={translate('text_17798023432203q6hytdp7om')}
-                              onChange={(value) => {
-                                if (value) {
-                                  handleAddOnSelect(index, value)
-                                }
-                              }}
-                            />
-                            <Tooltip
-                              title={translate('text_628b8c693e464200e00e4a10')}
-                              placement="top-end"
-                            >
-                              <Button
-                                variant="quaternary"
-                                size="small"
-                                icon="trash"
-                                onClick={() => handleRemoveAddOn(index)}
-                                data-test={`remove-add-on-${index}`}
-                              />
-                            </Tooltip>
-                          </div>
+                          <PendingAddOnRow
+                            key={pendingKey}
+                            index={index}
+                            comboBoxData={comboBoxData}
+                            addOnsLoading={addOnsLoading}
+                            translate={translate}
+                            onSelect={handleAddOnSelect}
+                            onRemove={handleRemoveAddOn}
+                          />
                         )
                       }
 
                       return (
-                        <div
+                        <ConfirmedAddOnRow
                           key={item.addOnId}
-                          className="flex flex-col gap-3 pb-6 pt-3 shadow-b"
-                          data-test={`add-on-item-${index}`}
-                        >
-                          <div className="grid grid-cols-[1fr_auto] items-center gap-3">
-                            <div className="flex flex-col">
-                              <Typography variant="captionHl" color="grey600">
-                                {translate('text_633dae57ca9a923dd53c2097', {
-                                  fromDate: intlFormatDateTimeOrgaTZ(item.fromDatetime).date,
-                                  toDate: intlFormatDateTimeOrgaTZ(item.toDatetime).date,
-                                })}
-                              </Typography>
-                              <Typography variant="bodyHl" color="grey700">
-                                {item.invoiceDisplayName || item.name}
-                              </Typography>
-                              <Typography variant="caption" color="grey600">
-                                {item.description}
-                              </Typography>
-                            </div>
-                            <Popper
-                              PopperProps={{ placement: 'bottom-end' }}
-                              opener={
-                                <Button
-                                  variant="quaternary"
-                                  size="small"
-                                  icon="dots-horizontal"
-                                  data-test={`add-on-actions-${index}`}
-                                />
-                              }
-                            >
-                              {({ closePopper }) => (
-                                <MenuPopper>
-                                  <Button
-                                    startIcon="pen"
-                                    variant="quaternary"
-                                    align="left"
-                                    onClick={() => {
-                                      handleEditAddOn(index)
-                                      closePopper()
-                                    }}
-                                  >
-                                    {translate('text_63aa15caab5b16980b21b0b8')}
-                                  </Button>
-                                  <Button
-                                    startIcon="trash"
-                                    variant="quaternary"
-                                    align="left"
-                                    onClick={() => {
-                                      handleRemoveAddOn(index)
-                                      closePopper()
-                                    }}
-                                  >
-                                    {translate('text_63aa085d28b8510cd46443ff')}
-                                  </Button>
-                                </MenuPopper>
-                              )}
-                            </Popper>
-                          </div>
-
-                          <div className="grid grid-cols-[1fr_1fr_2fr] gap-3">
-                            <form.AppField name={`addOnItems[${index}].units`}>
-                              {(subField) => (
-                                <subField.TextInputField
-                                  label={translate('text_65771fa3f4ab9a00720726ce')}
-                                  placeholder="0"
-                                  type="number"
-                                  className="flex-1"
-                                />
-                              )}
-                            </form.AppField>
-
-                            <form.AppField name={`addOnItems[${index}].unitAmountCents`}>
-                              {(subField) => (
-                                <subField.AmountInputField
-                                  label={translate('text_6453819268763979024ad089')}
-                                  currency={currency}
-                                  className="flex-1"
-                                  InputProps={{
-                                    startAdornment: (
-                                      <InputAdornment position="start">
-                                        {getCurrencySymbol(currency)}
-                                      </InputAdornment>
-                                    ),
-                                  }}
-                                />
-                              )}
-                            </form.AppField>
-                            <form.Subscribe
-                              selector={(state) => ({
-                                units: state.values.addOnItems?.[index]?.units,
-                                unitAmountCents: state.values.addOnItems?.[index]?.unitAmountCents,
-                                totalAmount: state.values.addOnItems?.[index]?.totalAmount,
-                              })}
-                            >
-                              {({ units, unitAmountCents, totalAmount }) => {
-                                const computed =
-                                  (parseFloat(units) || 0) * (parseFloat(unitAmountCents) || 0)
-                                const computedStr = String(computed)
-
-                                if (computedStr !== totalAmount) {
-                                  // Defer the state update to avoid setting state during render
-                                  setTimeout(() => {
-                                    form.setFieldValue(
-                                      `addOnItems[${index}].totalAmount`,
-                                      computedStr,
-                                    )
-                                  }, 0)
-                                }
-
-                                return (
-                                  <div className="flex flex-col gap-1">
-                                    <Typography variant="captionHl" color="grey700" align="right">
-                                      {translate('text_17800586916250mj95szdi21')}
-                                    </Typography>
-                                    <Typography
-                                      variant="body"
-                                      color="grey700"
-                                      className="flex h-12 items-center justify-end"
-                                    >
-                                      {intlFormatNumber(computed, { currency })}
-                                    </Typography>
-                                  </div>
-                                )
-                              }}
-                            </form.Subscribe>
-                          </div>
-                        </div>
+                          form={form}
+                          item={item}
+                          index={index}
+                          currency={currency}
+                          intlFormatDateTimeOrgaTZ={intlFormatDateTimeOrgaTZ}
+                          onEdit={handleEditAddOn}
+                          onRemove={handleRemoveAddOn}
+                        />
                       )
                     })}
 

@@ -18,7 +18,7 @@ const EditAddOnDrawer = withForm({
 
     return (
       <div className="flex flex-col gap-12">
-        <div className="flex-flex-col gap-1">
+        <div className="flex flex-col gap-1">
           <Typography variant="headline">{translate('text_1780302522400cvm8js8nfg2')}</Typography>
           <Typography>{translate('text_17800447462496abqig1cu57')}</Typography>
         </div>
