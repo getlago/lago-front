@@ -26,7 +26,7 @@ export const usePlanSettingsDrawer = (plan: PlanDetailsV2Fragment, subscriptionI
     subscriptionId: subscriptionId ?? '',
   })
 
-  // Sub mode: route the editable settings (description + taxes — the only
+  // Sub mode: route the editable settings (name + description + taxes — the
   // PlanOverridesInput-backed fields not already disabled) through
   // updateSubscription(planOverrides); never call updatePlan, which would
   // mutate the shared base plan (R3). Plan mode keeps the cascade submit.
@@ -34,7 +34,8 @@ export const usePlanSettingsDrawer = (plan: PlanDetailsV2Fragment, subscriptionI
     if (subscriptionId) {
       const values = form.state.values
       const success = await updatePlanOverride({
-        description: values.description || undefined,
+        name: values.name,
+        description: values.description || null,
         taxCodes: values.taxes?.map((tax) => tax.code) ?? [],
       })
 

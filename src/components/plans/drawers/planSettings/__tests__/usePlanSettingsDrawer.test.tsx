@@ -173,12 +173,60 @@ describe('usePlanSettingsDrawer', () => {
 
       await waitFor(() => {
         expect(mockUpdatePlanOverride).toHaveBeenCalledWith({
+          name: 'Pro',
           description: 'Pro description',
           taxCodes: ['vat'],
         })
       })
       // Drawer closes once the override resolves successfully.
       expect(mockClose).toHaveBeenCalled()
+    })
+
+    it('persists a renamed plan through the override payload', async () => {
+      openDrawer(subPlan, { subscriptionId: 'sub-1' })
+
+      renderDrawerBody()
+
+      await waitFor(() => screen.getByDisplayValue('Pro'))
+
+      const nameInput = screen.getByDisplayValue('Pro') as HTMLInputElement
+
+      await userEvent.clear(nameInput)
+      await userEvent.type(nameInput, 'Pro Renamed')
+
+      await act(async () => {
+        lastDrawerArgs?.form?.submit()
+      })
+
+      await waitFor(() => {
+        expect(mockUpdatePlanOverride).toHaveBeenCalledWith({
+          name: 'Pro Renamed',
+          description: 'Pro description',
+          taxCodes: ['vat'],
+        })
+      })
+    })
+
+    it('clears the description through the override payload (sends null, not undefined)', async () => {
+      openDrawer(subPlan, { subscriptionId: 'sub-1' })
+
+      renderDrawerBody()
+
+      const descriptionInput = await screen.findByDisplayValue('Pro description')
+
+      await userEvent.clear(descriptionInput)
+
+      await act(async () => {
+        lastDrawerArgs?.form?.submit()
+      })
+
+      await waitFor(() => {
+        expect(mockUpdatePlanOverride).toHaveBeenCalledWith({
+          name: 'Pro',
+          description: null,
+          taxCodes: ['vat'],
+        })
+      })
     })
 
     it('keeps the drawer open when the override does not succeed', async () => {
@@ -198,7 +246,8 @@ describe('usePlanSettingsDrawer', () => {
 
       await waitFor(() => {
         expect(mockUpdatePlanOverride).toHaveBeenCalledWith({
-          description: undefined,
+          name: 'Pro',
+          description: null,
           taxCodes: [],
         })
       })

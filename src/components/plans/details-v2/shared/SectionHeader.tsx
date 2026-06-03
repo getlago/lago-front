@@ -8,7 +8,6 @@ export type SectionHeaderAction = {
   onClick: () => void
   hidden?: boolean
   disabled?: boolean
-  // No icon by default. Pass e.g. "plus" for an Add CTA.
   startIcon?: IconName
 }
 

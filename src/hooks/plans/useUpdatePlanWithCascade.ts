@@ -162,7 +162,7 @@ export const useUpdatePlanWithCascade = ({
         id: plan.id,
         name: value.name,
         code: value.code,
-        description: value.description || undefined,
+        description: value.description || null,
         interval: value.interval,
         amountCurrency: value.amountCurrency,
         amountCents: Number(serializeAmount(value.amountCents, value.amountCurrency)),

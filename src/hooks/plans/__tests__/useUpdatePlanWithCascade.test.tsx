@@ -20,6 +20,7 @@ NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 
 jest.mock('~/core/apolloClient', () => {
   const actual = jest.requireActual('~/core/apolloClient')
+
   return { ...actual, addToast: jest.fn() }
 })
 
@@ -264,6 +265,28 @@ describe('useUpdatePlanWithCascade', () => {
       expect(capturedUpdateInput).not.toHaveProperty('minimumCommitment')
       expect(capturedUpdateInput).not.toHaveProperty('usageThresholds')
       expect(capturedUpdateInput).not.toHaveProperty('entitlements')
+      expect(capturedUpdateInput).toHaveProperty('description', null)
+    })
+
+    it('clears an emptied description by sending null in the payload', async () => {
+      const { result } = renderHook(
+        () => useUpdatePlanWithCascade({ plan: { ...basePlan, description: 'Some description' } }),
+        { wrapper: wrapper([capturingUpdateMock]) },
+      )
+
+      act(() => {
+        result.current.form.setFieldValue('description', '')
+      })
+
+      await act(async () => {
+        await result.current.submit()
+      })
+
+      await waitFor(() => {
+        expect(capturedUpdateInput).toBeDefined()
+      })
+
+      expect(capturedUpdateInput).toHaveProperty('description', null)
     })
 
     it('includes minimumCommitment, usageThresholds and entitlements in payload when true', async () => {
