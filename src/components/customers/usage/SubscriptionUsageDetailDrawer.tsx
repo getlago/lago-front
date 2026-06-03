@@ -134,47 +134,50 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
     return (
       <Drawer
         ref={drawerRef}
-        title={translate('text_1778836980285mhlwwvofsqm', {
-          billableMetricName: displayName,
-        })}
+        title={
+          <div className="flex flex-1 items-center justify-between gap-4 pr-3">
+            <Typography variant="bodyHl" color="textSecondary" noWrap>
+              {translate('text_1778836980285mhlwwvofsqm', {
+                billableMetricName: displayName,
+              })}
+            </Typography>
+            <Tooltip placement="bottom-end" title={translate('text_62d7f6178ec94cd09370e4b3')}>
+              <Button
+                variant="quaternary"
+                icon="reload"
+                onClick={async () => {
+                  const updatedUsage = await refreshFunction?.()
+
+                  setUsage(updatedUsage)
+                }}
+              />
+            </Tooltip>
+          </div>
+        }
         stickyBottomBar={({ closeDrawer }) => (
           <Button size="medium" onClick={closeDrawer}>
             {translate('text_1726044816685r61awuydvji')}
           </Button>
         )}
       >
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <Typography variant="headline">
-              {translate('text_1778836980285mhlwwvofsqm', {
-                billableMetricName: displayName,
-              })}
-            </Typography>
-            <Typography>
-              {translate('text_633dae57ca9a923dd53c2097', {
-                fromDate: intlFormatDateTime(fromDatetime, {
-                  locale,
-                  timezone: customerTimezone,
-                }).date,
-                toDate: intlFormatDateTime(toDatetime, {
-                  locale,
-                  timezone: customerTimezone,
-                }).date,
-              })}
-            </Typography>
-          </div>
-          <Tooltip placement="top-start" title={translate('text_62d7f6178ec94cd09370e4b3')}>
-            <Button
-              variant="quaternary"
-              icon="reload"
-              size="small"
-              onClick={async () => {
-                const updatedUsage = await refreshFunction?.()
-
-                setUsage(updatedUsage)
-              }}
-            />
-          </Tooltip>
+        <div className="mb-6">
+          <Typography variant="headline">
+            {translate('text_1778836980285mhlwwvofsqm', {
+              billableMetricName: displayName,
+            })}
+          </Typography>
+          <Typography>
+            {translate('text_633dae57ca9a923dd53c2097', {
+              fromDate: intlFormatDateTime(fromDatetime, {
+                locale,
+                timezone: customerTimezone,
+              }).date,
+              toDate: intlFormatDateTime(toDatetime, {
+                locale,
+                timezone: customerTimezone,
+              }).date,
+            })}
+          </Typography>
         </div>
 
         <NavigationTab

@@ -4239,7 +4239,7 @@
   "text_1778593706862951t256keim": "Copy fee ID",
   "text_1778680248317x4cg78xappu": "Usage linked to the charge",
   "text_17786802483174e1d300blik": "Usage linked to charge filters and pricing groups",
-  "text_17786802483175q57751skt9": "This charge has no filters, pricing group key or presentation group key.",
+  "text_17786802483175q57751skt9": "This charge has no filters or pricing group key.",
   "text_177883198759933bb02ulslv": "priced per",
   "text_1778831987599grvoqfl2yd2": "split by",
   "text_1778836980285mhlwwvofsqm": "Usage of {{billableMetricName}}",

@@ -604,20 +604,10 @@ export const SubscriptionCurrentUsageTableComponent = ({
                           </Typography>
 
                           {filterLabels.length > 0 && (
-                            <>
-                              <Typography variant="caption" color="grey600" component="span">
-                                {' • '}
-                                {translate('text_1779790016087nsol47cwuwg')}
-                              </Typography>
-                              {filterLabels.map((label, i) => (
-                                <Chip
-                                  key={`filter-${i}`}
-                                  label={label}
-                                  size="small"
-                                  variant="captionCode"
-                                />
-                              ))}
-                            </>
+                            <Typography variant="caption" color="grey600" component="span">
+                              {' • '}
+                              {translate('text_1779790016087nsol47cwuwg')}
+                            </Typography>
                           )}
 
                           {pricingGroupKeys.length > 0 && (
