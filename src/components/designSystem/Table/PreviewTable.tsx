@@ -43,9 +43,12 @@ export const PreviewTable = <T,>({
   return (
     <div className={tw('w-0 min-w-full overflow-auto', containerClassName)}>
       <MUITable
-        className="border-collapse"
         data-test={TABLE_ID}
         sx={{
+          // Remove all default MUI cell borders
+          '& td, & th': {
+            border: 'none',
+          },
           '& .lago-table-cell:first-of-type .lago-table-inner-cell': {
             paddingLeft: 0,
           },
@@ -55,7 +58,11 @@ export const PreviewTable = <T,>({
         }}
       >
         <MUITableHead>
-          <tr>
+          <MUITableRow
+            sx={{
+              borderBottom: `1px solid ${theme.palette.grey[300]}`,
+            }}
+          >
             {columns.map((column, i) => (
               <MUITableCell
                 className={tw('lago-table-cell', 'w-auto whitespace-nowrap p-0')}
@@ -64,7 +71,6 @@ export const PreviewTable = <T,>({
                 style={{
                   width:
                     column.maxSpace && maxSpaceColumns > 0 ? `${100 / maxSpaceColumns}%` : 'auto',
-                  borderBottom: `1px solid ${theme.palette.grey[300]}`,
                 }}
                 sx={{
                   '& > div': { paddingRight: '32px' },
@@ -85,21 +91,29 @@ export const PreviewTable = <T,>({
                 </TableInnerCell>
               </MUITableCell>
             ))}
-          </tr>
+          </MUITableRow>
         </MUITableHead>
 
         <MUITableBody>
           {data.map((item, i) => (
-            <MUITableRow key={`${TABLE_ID}-row-${i}`} data-test={`${TABLE_ID}-row-${i}`}>
+            <MUITableRow
+              key={`${TABLE_ID}-row-${i}`}
+              data-test={`${TABLE_ID}-row-${i}`}
+              sx={{
+                borderBottom:
+                  i < data.length - 1
+                    ? `1px solid ${theme.palette.grey[200]}`
+                    : 'none',
+              }}
+            >
               {columns.map((column, j) => (
                 <MUITableCell
-                  className={tw('lago-table-cell', 'w-auto whitespace-nowrap p-0')}
+                  className={tw('lago-table-cell', 'w-auto p-0')}
                   key={`${TABLE_ID}-cell-${i}-${j}`}
                   align={column.textAlign || 'left'}
                   style={{
                     width:
                       column.maxSpace && maxSpaceColumns > 0 ? `${100 / maxSpaceColumns}%` : 'auto',
-                    borderBottom: 'none',
                   }}
                   sx={{
                     '& > div': { paddingRight: '32px' },
