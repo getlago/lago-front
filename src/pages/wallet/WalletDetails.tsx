@@ -65,6 +65,13 @@ gql`
         last4
       }
     }
+    customer {
+      id
+      name
+      displayName
+      externalId
+      deletedAt
+    }
     selectedInvoiceCustomSections {
       id
       name

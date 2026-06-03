@@ -1,3 +1,6 @@
+import { generatePath } from 'react-router-dom'
+
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
@@ -6,6 +9,7 @@ import PremiumFeature from '~/components/premium/PremiumFeature'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { formatPaymentMethodDetails } from '~/core/formats/formatPaymentMethodDetails'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { CUSTOMER_DETAILS_ROUTE, Link } from '~/core/router'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
@@ -76,6 +80,15 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
 
   const recurring = wallet?.recurringTransactionRules?.[0]
 
+  const isCustomerDeleted = !!wallet?.customer?.deletedAt
+
+  const customerNameForDisplay = [
+    wallet?.customer?.displayName || wallet?.customer?.externalId,
+    isCustomerDeleted ? translate('text_1764874328964clrgkmh7i9h') : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   const currency = wallet?.currency || defaultCurrency || CurrencyEnum.Usd
 
   const paidTopUpMinAmountCents = formatAmount(wallet?.paidTopUpMinAmountCents)
@@ -95,6 +108,26 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
 
         <DetailsPage.InfoGrid
           grid={[
+            {
+              label: translate('text_65201c5a175a4b0238abf29a'),
+              value: (
+                <ConditionalWrapper
+                  condition={!!wallet?.customer?.id && !isCustomerDeleted}
+                  validWrapper={(children) => (
+                    <Link
+                      to={generatePath(CUSTOMER_DETAILS_ROUTE, {
+                        customerId: wallet?.customer?.id as string,
+                      })}
+                    >
+                      {children}
+                    </Link>
+                  )}
+                  invalidWrapper={(children) => <>{children}</>}
+                >
+                  {customerNameForDisplay}
+                </ConditionalWrapper>
+              ),
+            },
             { label: translate('text_1772536695408sddzumtfq2t'), value: wallet?.name },
             {
               label: translate('text_1772536695408yflknt6y6q4'),
