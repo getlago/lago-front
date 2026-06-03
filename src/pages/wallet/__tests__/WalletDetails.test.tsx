@@ -36,6 +36,17 @@ jest.mock('~/components/MainHeader/useMainHeaderTabContent', () => ({
   useMainHeaderTabContent: () => <div data-test="active-tab-content">Tab Content</div>,
 }))
 
+let capturedBreadcrumb: Array<{ label: string; path?: string }> | undefined
+
+jest.mock('~/components/MainHeader/MainHeader', () => ({
+  MainHeader: {
+    Configure: (props: { breadcrumb?: Array<{ label: string; path?: string }> }) => {
+      capturedBreadcrumb = props.breadcrumb
+      return null
+    },
+  },
+}))
+
 // Mock child components that have their own queries
 jest.mock('~/components/wallets/WalletAlerts', () => ({
   __esModule: true,
@@ -142,6 +153,84 @@ describe('WalletDetails', () => {
         render(<WalletDetails />)
 
         expect(screen.getByTestId('active-tab-content')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the customer breadcrumb label', () => {
+    const renderWithCustomer = (customer: Record<string, unknown> | undefined) => {
+      mockUseGetWalletDetailsQuery.mockReturnValue({
+        data: { wallet: { ...mockWallet, customer } },
+        error: undefined,
+        loading: false,
+      })
+
+      render(<WalletDetails />)
+
+      return capturedBreadcrumb?.[1]?.label
+    }
+
+    describe('WHEN the customer has a name', () => {
+      it('THEN should use the name', () => {
+        const label = renderWithCustomer({
+          id: 'customer-1',
+          name: 'Acme Inc',
+          firstname: 'John',
+          lastname: 'Doe',
+          externalId: 'ext-1',
+        })
+
+        expect(label).toBe('Acme Inc')
+      })
+    })
+
+    describe('WHEN the customer has no name but first and last name', () => {
+      it('THEN should join first and last name', () => {
+        const label = renderWithCustomer({
+          id: 'customer-1',
+          name: null,
+          firstname: 'John',
+          lastname: 'Doe',
+          externalId: 'ext-1',
+        })
+
+        expect(label).toBe('John Doe')
+      })
+    })
+
+    describe('WHEN the customer has only a first name', () => {
+      it('THEN should use the first name alone', () => {
+        const label = renderWithCustomer({
+          id: 'customer-1',
+          name: null,
+          firstname: 'John',
+          lastname: null,
+          externalId: 'ext-1',
+        })
+
+        expect(label).toBe('John')
+      })
+    })
+
+    describe('WHEN the customer has neither name nor first/last name', () => {
+      it('THEN should fall back to the external id', () => {
+        const label = renderWithCustomer({
+          id: 'customer-1',
+          name: null,
+          firstname: null,
+          lastname: null,
+          externalId: 'ext-1',
+        })
+
+        expect(label).toBe('ext-1')
+      })
+    })
+
+    describe('WHEN there is no customer yet (loading)', () => {
+      it('THEN should fall back to the "Wallets" label', () => {
+        const label = renderWithCustomer(undefined)
+
+        expect(label).toBe('text_62d175066d2dbf1d50bc937c')
       })
     })
   })

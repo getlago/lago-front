@@ -68,9 +68,9 @@ gql`
     customer {
       id
       name
-      displayName
+      firstname
+      lastname
       externalId
-      deletedAt
     }
     selectedInvoiceCustomSections {
       id
@@ -145,6 +145,11 @@ const WalletDetails = () => {
   })
 
   const wallet = data?.wallet
+
+  const customerName =
+    wallet?.customer?.name ||
+    [wallet?.customer?.firstname, wallet?.customer?.lastname].filter(Boolean).join(' ') ||
+    wallet?.customer?.externalId
 
   const {
     actions: walletActionItems,
@@ -301,7 +306,7 @@ const WalletDetails = () => {
             path: CUSTOMERS_LIST_ROUTE,
           },
           {
-            label: translate('text_62d175066d2dbf1d50bc937c'),
+            label: customerName || translate('text_62d175066d2dbf1d50bc937c'),
             path: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
               customerId: customerId as string,
               tab: CustomerDetailsTabsOptions.wallet,
