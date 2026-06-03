@@ -8,16 +8,12 @@ import { PLAN_DETAILS_V2_FIXTURE_ID, planDetailsV2Fixture } from './fixtures'
 
 import { PlanDetailsV2 } from '../PlanDetailsV2'
 
-jest.mock('~/components/plans/drawers/planSettings/PlanSettingsDrawer', () => {
-  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
-
-  const PlanSettingsDrawer = forwardRef((_props: unknown, ref: unknown) => {
-    useImperativeHandle(ref, () => ({ openDrawer: jest.fn(), closeDrawer: jest.fn() }))
-    return null
-  })
-
-  return { __esModule: true, PlanSettingsDrawer }
-})
+// Mock the drawer hook (not a component): the section calls usePlanSettingsDrawer
+// which pulls in the NiceModal drawer stack (drawerStack.ts uses import.meta and
+// crashes Jest), so stub it to a no-op openDrawer.
+jest.mock('~/components/plans/drawers/planSettings/usePlanSettingsDrawer', () => ({
+  usePlanSettingsDrawer: () => ({ openDrawer: jest.fn() }),
+}))
 
 jest.mock('~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer', () => {
   const { forwardRef, useImperativeHandle } = jest.requireActual('react')
