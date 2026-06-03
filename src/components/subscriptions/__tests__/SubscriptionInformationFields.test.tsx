@@ -59,7 +59,7 @@ describe('SubscriptionInformationFields', () => {
 
     expect(screen.getByText('ext-1')).toBeInTheDocument()
     expect(screen.getByText('Acme')).toBeInTheDocument()
-    expect(screen.getByText('Jan. 01, 2026')).toBeInTheDocument()
+    expect(screen.getByText('formatted-2026-01-01')).toBeInTheDocument()
     // status label
     expect(screen.getByText('text_62d7f6178ec94cd09370e5fb')).toBeInTheDocument()
   })
@@ -75,7 +75,7 @@ describe('SubscriptionInformationFields', () => {
       <SubscriptionInformationFields subscription={baseSubscription({ endingAt: '2026-03-15' })} />,
     )
 
-    expect(screen.getByText('Mar. 15, 2026')).toBeInTheDocument()
+    expect(screen.getByText('formatted-2026-03-15')).toBeInTheDocument()
   })
 
   it('renders the terminated date when the subscription is terminated', () => {
@@ -88,7 +88,7 @@ describe('SubscriptionInformationFields', () => {
       />,
     )
 
-    expect(screen.getByText('Feb. 20, 2026')).toBeInTheDocument()
+    expect(screen.getByText('formatted-2026-02-20')).toBeInTheDocument()
   })
 
   it('renders the parent-plan field only when the plan has a parent', () => {

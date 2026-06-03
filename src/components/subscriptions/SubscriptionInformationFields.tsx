@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { DateTime } from 'luxon'
 import { generatePath } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -65,12 +64,14 @@ const SubscriptionEndOrTerminatedAt = ({
 }: {
   subscription?: SubscriptionInformationFieldsFragment | null
 }) => {
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+
   if (subscription?.status === StatusTypeEnum.Terminated) {
-    return DateTime.fromISO(subscription?.terminatedAt).toFormat('LLL. dd, yyyy')
+    return intlFormatDateTimeOrgaTZ(subscription?.terminatedAt ?? '').date
   }
 
   if (subscription?.endingAt) {
-    return DateTime.fromISO(subscription?.endingAt).toFormat('LLL. dd, yyyy')
+    return intlFormatDateTimeOrgaTZ(subscription.endingAt).date
   }
 
   return '-'
@@ -111,16 +112,18 @@ export const SubscriptionDowngradeAlert = ({
 const getSubscriptionInformationGrid = ({
   subscription,
   translate,
+  intlFormatDateTimeOrgaTZ,
 }: {
   subscription?: SubscriptionInformationFieldsFragment | null
   translate: TranslateFunc
+  intlFormatDateTimeOrgaTZ: ReturnType<typeof useOrganizationInfos>['intlFormatDateTimeOrgaTZ']
 }) => {
   const isCustomerDeleted = !!subscription?.customer?.deletedAt
   const customerId = subscription?.customer?.id ?? ''
   const subscriptionId = subscription?.id ?? ''
   const parentPlanId = subscription?.plan?.parent?.id
 
-  const customerNameForDispay = [
+  const customerNameForDisplay = [
     subscription?.customer?.displayName || subscription?.customer?.externalId,
     isCustomerDeleted ? translate('text_1764874328964clrgkmh7i9h') : '',
   ]
@@ -133,10 +136,10 @@ const getSubscriptionInformationGrid = ({
       value:
         !!customerId && !isCustomerDeleted ? (
           <Link to={generatePath(CUSTOMER_DETAILS_ROUTE, { customerId })}>
-            {customerNameForDispay}
+            {customerNameForDisplay}
           </Link>
         ) : (
-          customerNameForDispay
+          customerNameForDisplay
         ),
     },
     {
@@ -147,7 +150,7 @@ const getSubscriptionInformationGrid = ({
     },
     {
       label: translate('text_65201c5a175a4b0238abf29e'),
-      value: DateTime.fromISO(subscription?.subscriptionAt).toFormat('LLL. dd, yyyy'),
+      value: intlFormatDateTimeOrgaTZ(subscription?.subscriptionAt ?? '').date,
     },
     {
       label: translate('text_65201c5a175a4b0238abf2a0'),
@@ -180,6 +183,7 @@ export const SubscriptionInformationFields = ({
   subscription?: SubscriptionInformationFieldsFragment | null
 }) => {
   const { translate } = useInternationalization()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   return (
     <div className="flex flex-col gap-4">
@@ -199,7 +203,9 @@ export const SubscriptionInformationFields = ({
           ) : undefined
         }
       />
-      <DetailsPage.InfoGrid grid={getSubscriptionInformationGrid({ subscription, translate })} />
+      <DetailsPage.InfoGrid
+        grid={getSubscriptionInformationGrid({ subscription, translate, intlFormatDateTimeOrgaTZ })}
+      />
     </div>
   )
 }

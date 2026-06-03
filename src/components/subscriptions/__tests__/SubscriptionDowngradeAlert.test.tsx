@@ -3,11 +3,11 @@ import { screen } from '@testing-library/react'
 import {
   NextSubscriptionTypeEnum,
   StatusTypeEnum,
-  SubscriptionForSubscriptionInformationsFragment,
+  SubscriptionInformationFieldsFragment,
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { SubscriptionDowngradeAlert } from '../SubscriptionInformations'
+import { SubscriptionDowngradeAlert } from '../SubscriptionInformationFields'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -26,8 +26,8 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
 }))
 
 const baseSubscription = (
-  overrides: Partial<SubscriptionForSubscriptionInformationsFragment> = {},
-): SubscriptionForSubscriptionInformationsFragment =>
+  overrides: Partial<SubscriptionInformationFieldsFragment> = {},
+): SubscriptionInformationFieldsFragment =>
   ({
     id: 'sub-1',
     externalId: 'ext-1',
@@ -51,7 +51,7 @@ const baseSubscription = (
     },
     plan: { id: 'plan-1', name: 'Current', parent: null },
     ...overrides,
-  }) as SubscriptionForSubscriptionInformationsFragment
+  }) as SubscriptionInformationFieldsFragment
 
 describe('SubscriptionDowngradeAlert', () => {
   it('renders nothing when subscription is null', () => {
@@ -101,7 +101,7 @@ describe('SubscriptionDowngradeAlert', () => {
         previousSubscription: {
           id: 'sub-0',
           downgradePlanDate: '2026-05-22',
-        } as SubscriptionForSubscriptionInformationsFragment['previousSubscription'],
+        } as SubscriptionInformationFieldsFragment['previousSubscription'],
       })
 
       render(<SubscriptionDowngradeAlert subscription={subscription} />)
@@ -116,7 +116,7 @@ describe('SubscriptionDowngradeAlert', () => {
         previousSubscription: {
           id: 'sub-0',
           downgradePlanDate: '2026-05-22',
-        } as SubscriptionForSubscriptionInformationsFragment['previousSubscription'],
+        } as SubscriptionInformationFieldsFragment['previousSubscription'],
       })
 
       const { container } = render(<SubscriptionDowngradeAlert subscription={subscription} />)
@@ -136,7 +136,7 @@ describe('SubscriptionDowngradeAlert', () => {
         previousSubscription: {
           id: 'sub-0',
           downgradePlanDate: '2026-04-22',
-        } as SubscriptionForSubscriptionInformationsFragment['previousSubscription'],
+        } as SubscriptionInformationFieldsFragment['previousSubscription'],
       })
 
       render(<SubscriptionDowngradeAlert subscription={subscription} />)
