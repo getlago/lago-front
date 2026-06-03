@@ -269,11 +269,10 @@ describe('RichTextEditor', () => {
         expect(screen.queryByTestId('toolbar-container')).not.toBeInTheDocument()
       })
 
-      it('THEN should render the editor content via getHTML()', async () => {
+      it('THEN should render the editor content via EditorContent', async () => {
         await act(() => render(<RichTextEditor mode="preview" />))
 
-        expect(mockGetMarkdown).toHaveBeenCalled()
-        expect(screen.getByTestId(RICH_TEXT_EDITOR_CONTENT_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId('editor-content')).toBeInTheDocument()
       })
 
       it('THEN should render the editor container', async () => {

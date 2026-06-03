@@ -63,9 +63,7 @@ export const PreviewTable = <T,>({
                 align={column.textAlign || 'left'}
                 style={{
                   width:
-                    column.maxSpace && maxSpaceColumns > 0
-                      ? `${100 / maxSpaceColumns}%`
-                      : 'auto',
+                    column.maxSpace && maxSpaceColumns > 0 ? `${100 / maxSpaceColumns}%` : 'auto',
                   borderBottom: `1px solid ${theme.palette.grey[300]}`,
                 }}
                 sx={{
@@ -100,9 +98,7 @@ export const PreviewTable = <T,>({
                   align={column.textAlign || 'left'}
                   style={{
                     width:
-                      column.maxSpace && maxSpaceColumns > 0
-                        ? `${100 / maxSpaceColumns}%`
-                        : 'auto',
+                      column.maxSpace && maxSpaceColumns > 0 ? `${100 / maxSpaceColumns}%` : 'auto',
                     borderBottom: `1px solid ${theme.palette.grey[300]}`,
                   }}
                   sx={{

@@ -8,9 +8,10 @@ import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
+import { OneOffAddOnsPreviewTable } from './OneOffAddOnsPreviewTable'
+
 import { useRichTextEditorContext } from '../common/RichTextEditorContext'
 import { PricingType } from '../extensions/PricingBlock.schema'
-import { OneOffAddOnsPreviewTable } from './OneOffAddOnsPreviewTable'
 
 export const PRICING_BLOCK_VIEW_TEST_ID = 'pricing-block-view'
 export const PRICING_BLOCK_VIEW_EMPTY_TEST_ID = 'pricing-block-view-empty'
