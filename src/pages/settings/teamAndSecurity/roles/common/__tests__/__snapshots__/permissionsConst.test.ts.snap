@@ -286,6 +286,7 @@ exports[`permissionsConst snapshot tests permissionGroupMapping structure matche
     "QuotesUpdate",
     "QuotesView",
     "QuotesVoid",
+    "OrderFormsView",
   ],
   "roles": [
     "RolesCreate",
