@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { SubscriptionInformationFields } from '~/components/subscriptions/SubscriptionInformationFields'
@@ -11,10 +10,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 
-import {
-  SubscriptionInformationDrawer,
-  SubscriptionInformationDrawerRef,
-} from './drawers/SubscriptionInformationDrawer'
+import { useSubscriptionInformationDrawer } from './drawers/useSubscriptionInformationDrawer'
 
 gql`
   fragment SubscriptionInformationSection on Subscription {
@@ -40,7 +36,7 @@ export const SubscriptionInformationSection = ({
 }: SubscriptionInformationSectionProps) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const drawerRef = useRef<SubscriptionInformationDrawerRef>(null)
+  const { openDrawer } = useSubscriptionInformationDrawer(subscription)
 
   return (
     <section className="flex flex-col gap-6">
@@ -49,12 +45,11 @@ export const SubscriptionInformationSection = ({
         description={translate('text_66630368f4333b00795b0e1c')}
         action={{
           label: translate('text_63e51ef4985f0ebd75c212fc'),
-          onClick: () => drawerRef.current?.openDrawer(),
+          onClick: openDrawer,
           hidden: !hasPermissions(['subscriptionsUpdate']),
         }}
       />
       <SubscriptionInformationFields subscription={subscription} />
-      <SubscriptionInformationDrawer ref={drawerRef} subscription={subscription} />
     </section>
   )
 }

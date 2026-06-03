@@ -1,19 +1,25 @@
-import { act, fireEvent, screen } from '@testing-library/react'
-import { createRef, ReactNode } from 'react'
+import { act, fireEvent, render, renderHook, screen } from '@testing-library/react'
+import { ReactNode } from 'react'
 
 import { SubscriptionInformationSectionFragment } from '~/generated/graphql'
-import { render } from '~/test-utils'
 
-import {
-  SubscriptionInformationDrawer,
-  SubscriptionInformationDrawerRef,
-} from '../SubscriptionInformationDrawer'
+import { useSubscriptionInformationDrawer } from '../useSubscriptionInformationDrawer'
 
-const mockOpen = jest.fn()
+type CapturedDrawerArgs = {
+  title?: ReactNode
+  children?: ReactNode
+  mainAction?: ReactNode
+  form?: { id: string; submit: () => void }
+}
+
+const mockOpen = jest.fn<void, [CapturedDrawerArgs]>()
 const mockClose = jest.fn()
 const mockHandleSubmit = jest.fn()
 const mockResetForm = jest.fn()
 
+// Mock the NiceModal-backed drawer hook so Jest never loads the drawer stack
+// (drawerStack.ts uses import.meta and crashes Jest) and we can capture the
+// args the hook passes to `open`.
 jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
 }))
@@ -32,10 +38,6 @@ jest.mock('~/hooks/customer/useUpdateSubscriptionInformation', () => ({
     },
     resetForm: mockResetForm,
   }),
-}))
-
-jest.mock('~/hooks/core/useInternationalization', () => ({
-  useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
 // Stub the form section: surface the name toggle so we can assert the drawer
@@ -64,6 +66,10 @@ jest.mock('~/components/subscriptions/form/SubscriptionInformationFormSection', 
   },
 }))
 
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({ translate: (key: string) => key }),
+}))
+
 const subscription = {
   id: 'sub-1',
   externalId: '',
@@ -72,15 +78,7 @@ const subscription = {
   plan: { id: 'plan-1', interval: null },
 } as unknown as SubscriptionInformationSectionFragment
 
-const renderDrawer = () => {
-  const ref = createRef<SubscriptionInformationDrawerRef>()
-
-  render(<SubscriptionInformationDrawer ref={ref} subscription={subscription} />)
-
-  return ref
-}
-
-describe('SubscriptionInformationDrawer', () => {
+describe('useSubscriptionInformationDrawer', () => {
   beforeEach(() => {
     mockOpen.mockClear()
     mockClose.mockClear()
@@ -89,9 +87,9 @@ describe('SubscriptionInformationDrawer', () => {
   })
 
   it('opens the drawer with the edit title, form id and content', () => {
-    const ref = renderDrawer()
+    const { result } = renderHook(() => useSubscriptionInformationDrawer(subscription))
 
-    act(() => ref.current?.openDrawer())
+    act(() => result.current.openDrawer())
 
     expect(mockResetForm).toHaveBeenCalledTimes(1)
     expect(mockOpen).toHaveBeenCalledTimes(1)
@@ -99,45 +97,37 @@ describe('SubscriptionInformationDrawer', () => {
     const openArgs = mockOpen.mock.calls[0][0]
 
     expect(openArgs.title).toBe('text_62d7f6178ec94cd09370e63c')
-    expect(openArgs.form.id).toBe('subscription-information-drawer-form')
-    expect(typeof openArgs.form.submit).toBe('function')
+    expect(openArgs.form?.id).toBe('subscription-information-drawer-form')
+    expect(typeof openArgs.form?.submit).toBe('function')
     expect(openArgs.children).toBeDefined()
   })
 
   it('submits the form from the save action and the form submit handler', () => {
-    const ref = renderDrawer()
+    const { result } = renderHook(() => useSubscriptionInformationDrawer(subscription))
 
-    act(() => ref.current?.openDrawer())
+    act(() => result.current.openDrawer())
     const openArgs = mockOpen.mock.calls[0][0]
 
-    render(openArgs.mainAction)
+    render(<>{openArgs.mainAction}</>)
     fireEvent.click(screen.getByRole('button', { name: 'text_17295436903260tlyb1gp1i7' }))
     expect(mockHandleSubmit).toHaveBeenCalledTimes(1)
 
-    openArgs.form.submit()
+    openArgs.form?.submit()
     expect(mockHandleSubmit).toHaveBeenCalledTimes(2)
   })
 
-  it('reveals the subscription name field when its add button is clicked', () => {
-    const ref = renderDrawer()
+  it('reveals the subscription name field when its add button is clicked (state lives in the body)', () => {
+    const { result } = renderHook(() => useSubscriptionInformationDrawer(subscription))
 
-    act(() => ref.current?.openDrawer())
+    act(() => result.current.openDrawer())
     const openArgs = mockOpen.mock.calls[0][0]
 
-    render(openArgs.children)
+    render(<>{openArgs.children}</>)
 
     expect(screen.getByText('name-hidden')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'add name' }))
 
     expect(screen.getByText('name-shown')).toBeInTheDocument()
-  })
-
-  it('closes the drawer via the imperative handle', () => {
-    const ref = renderDrawer()
-
-    act(() => ref.current?.closeDrawer())
-
-    expect(mockClose).toHaveBeenCalledTimes(1)
   })
 })

@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useState } from 'react'
+import { useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
@@ -15,7 +15,7 @@ type SubscriptionInformationForm = ReturnType<typeof useUpdateSubscriptionInform
 // Rendered as the drawer body. It owns the show/hide toggles so that clicking
 // "Add an external id" / "Add a subscription name" re-renders the fields — the
 // drawer's `children` is captured once when opened, so keeping this state in the
-// parent would never reach the displayed content.
+// caller would never reach the displayed content.
 const SubscriptionInformationDrawerContent = ({
   form,
   subscription,
@@ -45,19 +45,9 @@ const SubscriptionInformationDrawerContent = ({
   )
 }
 
-export interface SubscriptionInformationDrawerRef {
-  openDrawer: () => void
-  closeDrawer: () => void
-}
-
-type SubscriptionInformationDrawerProps = {
-  subscription: SubscriptionInformationSectionFragment
-}
-
-export const SubscriptionInformationDrawer = forwardRef<
-  SubscriptionInformationDrawerRef,
-  SubscriptionInformationDrawerProps
->(({ subscription }, ref) => {
+export const useSubscriptionInformationDrawer = (
+  subscription: SubscriptionInformationSectionFragment,
+) => {
   const { translate } = useInternationalization()
   const drawer = useFormDrawer()
 
@@ -95,12 +85,5 @@ export const SubscriptionInformationDrawer = forwardRef<
     })
   }
 
-  useImperativeHandle(ref, () => ({
-    openDrawer,
-    closeDrawer: () => drawer.close(),
-  }))
-
-  return null
-})
-
-SubscriptionInformationDrawer.displayName = 'SubscriptionInformationDrawer'
+  return { openDrawer }
+}

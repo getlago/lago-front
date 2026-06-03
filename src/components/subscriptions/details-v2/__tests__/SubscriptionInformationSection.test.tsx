@@ -11,21 +11,11 @@ import { SubscriptionInformationSection } from '../SubscriptionInformationSectio
 
 const mockOpenDrawer = jest.fn()
 
-// Drawer-mock rule: the drawer pulls in the NiceModal drawer stack; mock it so
-// Jest never loads that module, and capture the imperative mockOpenDrawer handle.
-jest.mock('../drawers/SubscriptionInformationDrawer', () => {
-  const React = jest.requireActual('react')
-
-  const SubscriptionInformationDrawer = React.forwardRef((_props: unknown, ref: unknown) => {
-    React.useImperativeHandle(ref, () => ({ openDrawer: mockOpenDrawer, closeDrawer: jest.fn() }))
-
-    return null
-  })
-
-  SubscriptionInformationDrawer.displayName = 'SubscriptionInformationDrawer'
-
-  return { __esModule: true, SubscriptionInformationDrawer }
-})
+// Mock the drawer hook: the section's only job is to wire the Edit action to it.
+// The drawer's own behaviour is covered in useSubscriptionInformationDrawer.test.
+jest.mock('../drawers/useSubscriptionInformationDrawer', () => ({
+  useSubscriptionInformationDrawer: () => ({ openDrawer: mockOpenDrawer }),
+}))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
@@ -85,7 +75,7 @@ describe('SubscriptionInformationSection', () => {
     expect(screen.getByText('text_6335e8900c69f8ebdfef5312')).toBeInTheDocument() // title
     expect(screen.getByText('ext-1')).toBeInTheDocument()
     expect(screen.getByText('Acme')).toBeInTheDocument()
-    expect(screen.getByText('Jan. 01, 2026')).toBeInTheDocument()
+    expect(screen.getByText('formatted-2026-01-01')).toBeInTheDocument()
   })
 
   it('opens the edit drawer when the Edit action is clicked', () => {
