@@ -102,6 +102,7 @@ export const permissionGroupMapping: PermissionGroupMapping = {
     'QuotesUpdate',
     'QuotesView',
     'QuotesVoid',
+    'OrderFormsView',
   ],
   roles: ['RolesCreate', 'RolesDelete', 'RolesUpdate', 'RolesView'],
   securityLogs: ['SecurityLogsView'],
@@ -250,6 +251,9 @@ export const permissionDescriptionMapping: Partial<Record<PermissionName, string
   OrganizationMembersView: 'text_1766047581850v1tbj62gphc',
   OrganizationTaxesView: 'text_1766047581850wufdxn8tnfc',
   OrganizationTaxesUpdate: 'text_17660475818502nin2bywo4x',
+
+  // Order Forms
+  OrderFormsView: 'text_178047301390626q8o2l7ob4',
 
   // Payment Methods
   PaymentMethodsCreate: 'text_1766047581850xfo6ml8ll9w',
