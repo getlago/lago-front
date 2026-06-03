@@ -2,22 +2,28 @@ import { NodeViewProps, NodeViewWrapper } from '@tiptap/react'
 import { Icon } from 'lago-design-system'
 
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { Locale, LocaleEnum } from '~/core/translations'
 import { CurrencyEnum } from '~/generated/graphql'
+import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { useRichTextEditorContext } from '../common/RichTextEditorContext'
 import { PricingType } from '../extensions/PricingBlock.schema'
+import { OneOffAddOnsPreviewTable } from './OneOffAddOnsPreviewTable'
 
 export const PRICING_BLOCK_VIEW_TEST_ID = 'pricing-block-view'
 export const PRICING_BLOCK_VIEW_EMPTY_TEST_ID = 'pricing-block-view-empty'
 export const PRICING_BLOCK_VIEW_UNRESOLVED_TEST_ID = 'pricing-block-view-unresolved'
 
 export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
-  const { entities, onPricingCommand } = useRichTextEditorContext()
+  const { entities, onPricingCommand, mode, customerLocale } = useRichTextEditorContext()
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
   const currency = organization?.defaultCurrency ?? CurrencyEnum.Usd
+
+  const effectiveLocale: Locale = (customerLocale ?? 'en') as Locale
+  const { translateWithContextualLocal } = useContextualLocale(effectiveLocale)
 
   const pricingType = (node.attrs.pricingType ?? 'plan') as PricingType
   const entityIds = (node.attrs.entityIds ?? []) as string[]
@@ -25,6 +31,24 @@ export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
 
   const resolvedEntities = entityIds.map((id) => entities[id]).filter(Boolean)
   const hasResolved = resolvedEntities.length > 0
+
+  // Preview mode: dispatch by pricing type
+  if (mode === 'preview' && hasResolved) {
+    if (pricingType === 'addOns') {
+      return (
+        <NodeViewWrapper className="spacer" data-type="pricingBlock">
+          <OneOffAddOnsPreviewTable
+            entities={resolvedEntities}
+            translate={translateWithContextualLocal}
+            currency={currency}
+            locale={LocaleEnum[effectiveLocale]}
+          />
+        </NodeViewWrapper>
+      )
+    }
+
+    // Plan preview — fall through to existing resolved rendering for now
+  }
 
   const handleClick = () => {
     onPricingCommand?.({
