@@ -255,31 +255,20 @@ const RichTextEditor = ({
 
   if (!editor) return null
 
-  if (isPreview) {
-    return (
-      <RichTextEditorProvider value={contextValue}>
-        <div
-          className="rich-text-editor relative h-full max-h-screen overflow-auto"
-          data-test={RICH_TEXT_EDITOR_TEST_ID}
-        >
-          <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
-        </div>
-      </RichTextEditorProvider>
-    )
-  }
-
   return (
     <RichTextEditorProvider value={contextValue}>
       <div
-        className="rich-text-editor group/editor relative size-full max-h-screen overflow-auto"
+        className={`rich-text-editor relative size-full max-h-screen overflow-auto${!isPreview ? ' group/editor' : ''}`}
         data-test={RICH_TEXT_EDITOR_TEST_ID}
       >
-        <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />
+        {!isPreview && (
+          <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />
+        )}
         <div className="relative">
           <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
-          <TableControls editor={editor} />
+          {!isPreview && <TableControls editor={editor} />}
         </div>
-        <BlockToolbar editor={editor} />
+        {!isPreview && <BlockToolbar editor={editor} />}
       </div>
     </RichTextEditorProvider>
   )
