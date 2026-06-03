@@ -19,6 +19,8 @@ interface PaymentInvoiceDetailsProps {
   customerId?: string
   selectedInvoiceCustomSections?: Pick<InvoiceCustomSection, 'id' | 'name'>[] | null
   skipInvoiceCustomSections?: boolean | null
+  /** Hide the internal section title (v2 sections provide their own SectionHeader). */
+  hideSectionTitle?: boolean
 }
 
 export const SECTION_TITLE = 'payment-invoice-details-section-title'
@@ -32,6 +34,7 @@ export const PaymentInvoiceDetails = ({
   customerId,
   selectedInvoiceCustomSections,
   skipInvoiceCustomSections,
+  hideSectionTitle,
 }: PaymentInvoiceDetailsProps): JSX.Element | null => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
@@ -88,9 +91,11 @@ export const PaymentInvoiceDetails = ({
 
   return (
     <div className="flex flex-col">
-      <DetailsPage.SectionTitle variant="subhead1" noWrap data-test={SECTION_TITLE}>
-        {translate('text_17634566456760qoj7hs7jrh')}
-      </DetailsPage.SectionTitle>
+      {!hideSectionTitle && (
+        <DetailsPage.SectionTitle variant="subhead1" noWrap data-test={SECTION_TITLE}>
+          {translate('text_17634566456760qoj7hs7jrh')}
+        </DetailsPage.SectionTitle>
+      )}
 
       {hasPaymentMethod && (
         <div>

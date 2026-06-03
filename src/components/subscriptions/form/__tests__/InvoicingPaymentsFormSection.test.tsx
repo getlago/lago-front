@@ -19,6 +19,8 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 jest.mock('@tanstack/react-form', () => ({
   revalidateLogic: jest.fn(() => ({})),
+  useStore: (store: { state: unknown }, selector: (state: unknown) => unknown) =>
+    selector(store.state),
 }))
 
 jest.mock('~/hooks/forms/useAppform', () => ({
@@ -45,7 +47,12 @@ jest.mock('~/hooks/forms/useAppform', () => ({
 
 const createMockForm = () => ({
   setFieldValue: jest.fn(),
-  state: { values: { planId: 'plan-1' } },
+  // `state` and `store` hold deliberately different values: the section must
+  // read reactively from `form.store` (spec §4.9) so edits re-render in the
+  // drawer. If it reverts to the bare `form.state.values` read, the forwarded
+  // value would be the stale one and the assertion below fails.
+  state: { values: { planId: 'stale-plan' } },
+  store: { state: { values: { planId: 'reactive-plan' } } },
 })
 
 describe('InvoicingPaymentsFormSection', () => {
@@ -69,7 +76,7 @@ describe('InvoicingPaymentsFormSection', () => {
           customer: { id: 'cust-1' },
           viewType: 'subscription',
           formikProps: expect.objectContaining({
-            values: expect.any(Object),
+            values: { planId: 'reactive-plan' },
             setFieldValue: expect.any(Function),
           }),
         }),

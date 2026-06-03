@@ -1,3 +1,5 @@
+import { useStore } from '@tanstack/react-form'
+
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import {
@@ -33,6 +35,11 @@ export const InvoicingPaymentsFormSection = withForm({
   render: function InvoicingPaymentsFormSection({ form, customer }) {
     const { translate } = useInternationalization()
 
+    // Reactive read so edits re-render when hosted in InvoicingPaymentsDrawer
+    // (the drawer captures `children` once; a bare `form.state.values` read
+    // would stay stale). See spec §4.9.
+    const values = useStore(form.store, (state) => state.values)
+
     if (!customer?.externalId && !customer?.id) return null
 
     return (
@@ -45,7 +52,7 @@ export const InvoicingPaymentsFormSection = withForm({
           customer={customer}
           formikProps={
             {
-              values: form.state.values,
+              values,
               setFieldValue: form.setFieldValue,
             } as PaymentMethodsInvoiceSettingsProps<ViewTypeEnum.Subscription>['formikProps']
           }
