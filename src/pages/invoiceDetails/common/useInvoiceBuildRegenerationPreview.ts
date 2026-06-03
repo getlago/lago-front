@@ -34,6 +34,7 @@ export const useInvoiceBuildRegenerationPreview = (invoiceId?: string) => {
   const { data, loading, error } = useGetInvoiceBuildRegenerationPreviewQuery({
     variables: { id: invoiceId as string },
     skip: !invoiceId,
+    fetchPolicy: 'cache-and-network',
   })
 
   return {

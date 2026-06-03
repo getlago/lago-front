@@ -55,6 +55,7 @@ describe('useInvoiceBuildRegenerationPreview', () => {
       expect(mockUseGetInvoiceBuildRegenerationPreviewQuery).toHaveBeenCalledWith({
         variables: { id: 'invoice-id' },
         skip: false,
+        fetchPolicy: 'network-only',
       })
     })
 
@@ -64,6 +65,7 @@ describe('useInvoiceBuildRegenerationPreview', () => {
       expect(mockUseGetInvoiceBuildRegenerationPreviewQuery).toHaveBeenCalledWith({
         variables: { id: undefined },
         skip: true,
+        fetchPolicy: 'network-only',
       })
     })
   })
