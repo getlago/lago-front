@@ -7,6 +7,7 @@ import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/u
 import { Alert } from '~/components/designSystem/Alert'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
 import {
@@ -28,7 +29,6 @@ import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/V
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import {
@@ -302,7 +302,7 @@ const CustomerInvoiceDetails = () => {
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
@@ -832,7 +832,7 @@ const CustomerInvoiceDetails = () => {
                 }),
               )
             } else {
-              premiumWarningDialogRef.current?.openDialog()
+              openPremiumWarningDialog()
             }
             closePopper()
           },
@@ -849,7 +849,7 @@ const CustomerInvoiceDetails = () => {
                 }),
               )
             } else {
-              premiumWarningDialogRef.current?.openDialog()
+              openPremiumWarningDialog()
             }
             closePopper()
           },
@@ -1017,7 +1017,6 @@ const CustomerInvoiceDetails = () => {
       )}
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
       <DisputeInvoiceDialog ref={disputeInvoiceDialogRef} />
