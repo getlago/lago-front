@@ -300,6 +300,69 @@ const validators: Partial<Record<ChargeModelEnum, (context: ValidationContext) =
   [ChargeModelEnum.Custom]: validateCustom,
 }
 
+// Returns the set of indices that are part of a duplicate (case-sensitive,
+// trimmed) value group. Empty rows are skipped — they get the "value is
+// required" error instead of a misleading duplicate error.
+function findDuplicatePresentationGroupKeyIndices(
+  presentationGroupKeys: NonNullable<PropertiesZodInput['presentationGroupKeys']>,
+): Set<number> {
+  const seen = new Map<string, number>()
+  const duplicateIndices = new Set<number>()
+
+  presentationGroupKeys.forEach((group, i) => {
+    const v = (group.value ?? '').trim()
+
+    if (!v) return
+
+    const firstIndex = seen.get(v)
+
+    if (firstIndex !== undefined) {
+      // Mark BOTH the first occurrence and the current one — the user should
+      // be able to fix either side, so highlighting both rows reads better
+      // than silently blaming the second.
+      duplicateIndices.add(firstIndex)
+      duplicateIndices.add(i)
+    } else {
+      seen.set(v, i)
+    }
+  })
+
+  return duplicateIndices
+}
+
+// Validate presentationGroupKeys for all charge models.
+function validatePresentationGroupKeys(
+  presentationGroupKeys: NonNullable<PropertiesZodInput['presentationGroupKeys']>,
+  ctx: z.RefinementCtx,
+  pathPrefix: string[],
+) {
+  const duplicateIndices = findDuplicatePresentationGroupKeyIndices(presentationGroupKeys)
+
+  presentationGroupKeys.forEach((group, i) => {
+    if (!group.value) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_1777466316764zx64sbfshro',
+        path: [...pathPrefix, 'presentationGroupKeys', String(i), 'value'],
+      })
+    } else if (duplicateIndices.has(i)) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_17791906642738j2tip131uw',
+        path: [...pathPrefix, 'presentationGroupKeys', String(i), 'value'],
+      })
+    }
+
+    if (group.options?.displayInInvoice !== 'true' && group.options?.displayInInvoice !== 'false') {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_1777466316764ao0o7elsjut',
+        path: [...pathPrefix, 'presentationGroupKeys', String(i), 'options', 'displayInInvoice'],
+      })
+    }
+  })
+}
+
 export function validateChargeProperties(
   chargeModel: AnyChargeModel,
   props: PropertiesZodInput | undefined,
@@ -310,60 +373,7 @@ export function validateChargeProperties(
 
   validators[chargeModel as ChargeModelEnum]?.({ props, ctx, pathPrefix })
 
-  // Validate presentationGroupKeys for all charge models
   if (props.presentationGroupKeys) {
-    // Pre-compute trimmed values so we can flag duplicates with a single pass
-    // below. Empty rows fall through and get the "value is required" error
-    // they'd already get, rather than a misleading duplicate error.
-    const trimmedValues = props.presentationGroupKeys.map((g) => (g.value ?? '').trim())
-    const seen = new Map<string, number>()
-    const duplicateIndices = new Set<number>()
-
-    for (let i = 0; i < trimmedValues.length; i++) {
-      const v = trimmedValues[i]
-
-      if (!v) continue
-
-      const firstIndex = seen.get(v)
-
-      if (firstIndex !== undefined) {
-        // Mark BOTH the first occurrence and the current one — the user
-        // should be able to fix either side, so highlighting both rows
-        // reads better than silently blaming the second.
-        duplicateIndices.add(firstIndex)
-        duplicateIndices.add(i)
-      } else {
-        seen.set(v, i)
-      }
-    }
-
-    for (let i = 0; i < props.presentationGroupKeys.length; i++) {
-      const group = props.presentationGroupKeys[i]
-
-      if (!group.value) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'text_1777466316764zx64sbfshro',
-          path: [...pathPrefix, 'presentationGroupKeys', String(i), 'value'],
-        })
-      } else if (duplicateIndices.has(i)) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'text_17791906642738j2tip131uw',
-          path: [...pathPrefix, 'presentationGroupKeys', String(i), 'value'],
-        })
-      }
-
-      if (
-        group.options?.displayInInvoice !== 'true' &&
-        group.options?.displayInInvoice !== 'false'
-      ) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'text_1777466316764ao0o7elsjut',
-          path: [...pathPrefix, 'presentationGroupKeys', String(i), 'options', 'displayInInvoice'],
-        })
-      }
-    }
+    validatePresentationGroupKeys(props.presentationGroupKeys, ctx, pathPrefix)
   }
 }

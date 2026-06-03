@@ -21,8 +21,11 @@ export const sumBreakdownUnits = (
 // A "meaningful" presentation value is one that's actually present — we
 // suppress null/undefined/empty-string entries so the UI never renders
 // blank chips (or worse, the literal string "undefined").
-export const isMeaningfulPresentationValue = (value: unknown): boolean =>
-  value !== null && value !== undefined && String(value).length > 0
+export const isMeaningfulPresentationValue = (value: unknown): boolean => {
+  if (value === null || value === undefined) return false
+  if (typeof value === 'string') return value.length > 0
+  return true
+}
 
 // Build a stable key from a `presentationBy` object — sorted by key so
 // `{a:1,b:2}` and `{b:2,a:1}` collapse to the same string. Same shape as the
@@ -33,7 +36,7 @@ const stableKeyForPresentationBy = (presentationBy: unknown): string => {
 
   return JSON.stringify(
     Object.keys(pby)
-      .sort()
+      .sort((a, b) => a.localeCompare(b))
       .map((k) => [k, pby[k]]),
   )
 }
@@ -80,7 +83,7 @@ export const makeBreakdownRows = (
     // stay clean while the row remains visible.
     const stableKey = JSON.stringify(
       Object.keys(presentationBy)
-        .sort()
+        .sort((keyA, keyB) => keyA.localeCompare(keyB))
         .map((k) => [k, presentationBy[k]]),
     )
     const units = Number(b.units) || 0

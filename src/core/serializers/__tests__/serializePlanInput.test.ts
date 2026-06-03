@@ -6,6 +6,7 @@ import {
   serializeFixedChargeProperties,
   serializeMinimumCommitment,
   serializePlanInput,
+  serializeProperties,
   serializeUsageThresholds,
 } from '~/core/serializers/serializePlanInput'
 import {
@@ -2252,5 +2253,59 @@ describe('serializePlanInput()', () => {
         })
       })
     })
+  })
+})
+
+describe('serializeProperties — presentationGroupKeys', () => {
+  it('converts displayInInvoice "true"/"false" strings to booleans', () => {
+    const result = serializeProperties(
+      {
+        amount: '1',
+        presentationGroupKeys: [
+          { value: 'region', options: { displayInInvoice: 'true' } },
+          { value: 'agent', options: { displayInInvoice: 'false' } },
+        ],
+      } as unknown as Parameters<typeof serializeProperties>[0],
+      ChargeModelEnum.Standard,
+    )
+
+    expect(result.presentationGroupKeys).toEqual([
+      { value: 'region', options: { displayInInvoice: true } },
+      { value: 'agent', options: { displayInInvoice: false } },
+    ])
+  })
+
+  it('maps an unknown displayInInvoice value to undefined', () => {
+    const result = serializeProperties(
+      {
+        amount: '1',
+        presentationGroupKeys: [{ value: 'region', options: { displayInInvoice: 'maybe' } }],
+      } as unknown as Parameters<typeof serializeProperties>[0],
+      ChargeModelEnum.Standard,
+    )
+
+    expect(result.presentationGroupKeys?.[0].options.displayInInvoice).toBeUndefined()
+  })
+
+  it('returns undefined when there are no presentationGroupKeys', () => {
+    const result = serializeProperties(
+      { amount: '1', presentationGroupKeys: [] } as unknown as Parameters<
+        typeof serializeProperties
+      >[0],
+      ChargeModelEnum.Standard,
+    )
+
+    expect(result.presentationGroupKeys).toBeUndefined()
+  })
+
+  it('strips presentationGroupKeys for the Custom charge model', () => {
+    const result = serializeProperties(
+      {
+        presentationGroupKeys: [{ value: 'region', options: { displayInInvoice: 'true' } }],
+      } as unknown as Parameters<typeof serializeProperties>[0],
+      ChargeModelEnum.Custom,
+    )
+
+    expect(result.presentationGroupKeys).toBeUndefined()
   })
 })

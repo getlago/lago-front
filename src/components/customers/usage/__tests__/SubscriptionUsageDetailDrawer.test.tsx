@@ -3,7 +3,10 @@ import {
   makeBreakdownRows,
   sumBreakdownUnits,
 } from '~/components/customers/usage/SubscriptionUsageDetailDrawer'
-import { dedupeTailBreakdowns } from '~/components/customers/usage/usageDetailsHelpers'
+import {
+  dedupeTailBreakdowns,
+  isMeaningfulPresentationValue,
+} from '~/components/customers/usage/usageDetailsHelpers'
 
 describe('SubscriptionUsageDetailDrawer helpers', () => {
   describe('sumBreakdownUnits', () => {
@@ -227,6 +230,30 @@ describe('SubscriptionUsageDetailDrawer helpers', () => {
         const tail = [{ presentationBy: { department: 'eng' }, units: '3.0' }]
 
         expect(dedupeTailBreakdowns([null, undefined, []], tail)).toEqual(tail)
+      })
+    })
+  })
+
+  describe('isMeaningfulPresentationValue', () => {
+    describe.each([
+      ['null', null],
+      ['undefined', undefined],
+      ['empty string', ''],
+    ])('GIVEN %s', (_, value) => {
+      it('THEN returns false', () => {
+        expect(isMeaningfulPresentationValue(value)).toBe(false)
+      })
+    })
+
+    describe.each([
+      ['non-empty string', 'us'],
+      ['zero', 0],
+      ['a number', 42],
+      ['false', false],
+      ['an object', {}],
+    ])('GIVEN %s', (_, value) => {
+      it('THEN returns true', () => {
+        expect(isMeaningfulPresentationValue(value)).toBe(true)
       })
     })
   })
