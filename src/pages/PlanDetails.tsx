@@ -208,7 +208,11 @@ const PlanDetails = () => {
                 tab: PlanDetailsTabsOptionsEnum.editOverview,
               }),
             ],
-            content: <PlanDetailsV2 planId={planId as string} />,
+            content: (
+              <div className="px-4 md:px-12">
+                <PlanDetailsV2 planId={planId as string} />
+              </div>
+            ),
             hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
           },
         ]}

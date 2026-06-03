@@ -20,7 +20,6 @@ import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBilling
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
@@ -150,7 +149,6 @@ const CreatePlan = () => {
   const { translate } = useInternationalization()
   const { type: actionType } = useDuplicatePlanVar()
   const [searchParams] = useSearchParams()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { form, isEdition, loading, plan, type } = usePlanForm({})
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const { openCascadeDialog } = useCascadeFormDialog()
@@ -294,7 +292,6 @@ const CreatePlan = () => {
                       form={form}
                       canBeEdited={canBeEdited}
                       isEdition={isEdition}
-                      premiumWarningDialogRef={premiumWarningDialogRef}
                       alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
                     />
                   </CenteredPage.SubsectionWrapper>
@@ -358,7 +355,6 @@ const CreatePlan = () => {
         onContinue={() => planCloseRedirection()}
       />
       <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </PlanFormProvider>
   )
 }

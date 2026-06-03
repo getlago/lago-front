@@ -3,7 +3,14 @@ import {
   LocalPricingUnitType,
   PlanFormInput,
 } from '~/components/plans/types'
-import { ChargeFilterInput, ChargeModelEnum, CurrencyEnum, Properties } from '~/generated/graphql'
+import {
+  ChargeFilterInput,
+  ChargeModelEnum,
+  CurrencyEnum,
+  FixedChargeChargeModelEnum,
+  FixedChargePropertiesInput,
+  Properties,
+} from '~/generated/graphql'
 
 import { serializeAmount } from './serializeAmount'
 
@@ -125,6 +132,42 @@ export const serializeProperties = (properties: Properties, chargeModel: ChargeM
   }
 }
 
+// Fixed charges seed the full property shape (getPropertyShape) but their input
+// type only supports amount / graduatedRanges / volumeRanges. Emit just the
+// fields valid for the selected model so usage-only fields never leak through.
+export const serializeFixedChargeProperties = (
+  properties: FixedChargePropertiesInput | null | undefined,
+  chargeModel: FixedChargeChargeModelEnum,
+): FixedChargePropertiesInput => {
+  switch (chargeModel) {
+    case FixedChargeChargeModelEnum.Graduated:
+      return {
+        graduatedRanges: properties?.graduatedRanges?.map(
+          ({ flatAmount, fromValue, perUnitAmount, ...range }) => ({
+            ...range,
+            flatAmount: serializeScientificNotation(flatAmount),
+            fromValue: fromValue || 0,
+            perUnitAmount: serializeScientificNotation(perUnitAmount),
+          }),
+        ),
+      }
+    case FixedChargeChargeModelEnum.Volume:
+      return {
+        volumeRanges: properties?.volumeRanges?.map(
+          ({ flatAmount, fromValue, perUnitAmount, ...range }) => ({
+            ...range,
+            flatAmount: serializeScientificNotation(flatAmount),
+            fromValue: fromValue || 0,
+            perUnitAmount: serializeScientificNotation(perUnitAmount),
+          }),
+        ),
+      }
+    case FixedChargeChargeModelEnum.Standard:
+    default:
+      return { amount: properties?.amount ? String(properties.amount) : undefined }
+  }
+}
+
 export const serializeMinimumCommitment = (
   minimumCommitment: PlanFormInput['minimumCommitment'],
   currency: CurrencyEnum,
@@ -207,17 +250,7 @@ export const serializePlanInput = (values: PlanFormInput) => {
       // Cleaning display only attributes, see plans/types.ts for details
       addon: undefined,
       taxes: undefined,
-      properties: {
-        ...serializeProperties(
-          fixedCharge.properties as Properties,
-          fixedCharge.chargeModel as unknown as ChargeModelEnum,
-        ),
-        // Cleaning properties that are not supported by FixedChargePropertiesInput
-        // They are initialized by getPropertyShape method
-        pricingGroupKeys: undefined,
-        packageSize: undefined,
-        freeUnits: undefined,
-      },
+      properties: serializeFixedChargeProperties(fixedCharge.properties, fixedCharge.chargeModel),
     })),
     minimumCommitment: serializeMinimumCommitment(minimumCommitment, values.amountCurrency),
     usageThresholds: serializeUsageThresholds(

@@ -32,11 +32,13 @@ gql`
 type PlanDetailsV2PlanSettingsSectionProps = {
   plan: PlanDetailsV2Fragment
   isInSubscriptionForm?: boolean
+  subscriptionId?: string
 }
 
 export const PlanDetailsV2PlanSettingsSection = ({
   plan,
   isInSubscriptionForm = false,
+  subscriptionId,
 }: PlanDetailsV2PlanSettingsSectionProps) => {
   const { translate } = useInternationalization()
   const { canUpdate } = useAccordionPermissions(isInSubscriptionForm)
@@ -61,9 +63,13 @@ export const PlanDetailsV2PlanSettingsSection = ({
         <PlanSettingsInfo plan={plan} />
       </SectionAccordion>
 
-      <SubscriptionFeeAccordion plan={plan} isInSubscriptionForm={isInSubscriptionForm} />
+      <SubscriptionFeeAccordion
+        plan={plan}
+        isInSubscriptionForm={isInSubscriptionForm}
+        subscriptionId={subscriptionId}
+      />
 
-      <PlanSettingsDrawer ref={drawerRef} plan={plan} />
+      <PlanSettingsDrawer ref={drawerRef} plan={plan} subscriptionId={subscriptionId} />
     </section>
   )
 }

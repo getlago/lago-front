@@ -9,6 +9,7 @@ import {
 import { FixedChargeInfo } from '~/components/plans/FixedChargeInfo'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import {
   CurrencyEnum,
   GraduatedChargeFragmentDoc,
@@ -19,7 +20,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
-import { useFixedChargeMutationsWithCascade } from '~/hooks/plans/useFixedChargeMutationsWithCascade'
 
 import { SectionAccordion } from './shared/SectionAccordion'
 import { SectionHeader } from './shared/SectionHeader'
@@ -28,6 +28,7 @@ import { PlanDetailsV2SectionId } from './sidebarSections'
 gql`
   fragment FixedChargeForDetailsV2 on FixedCharge {
     id
+    code
     invoiceDisplayName
     chargeModel
     units
@@ -78,15 +79,25 @@ export type PlanDetailsV2FixedChargesSectionRef = {
   openCreate: () => void
 }
 
+export type FixedChargeMutations = {
+  handleSaveCharge: (
+    charge: LocalFixedChargeInput,
+    index: number | null,
+  ) => Promise<boolean | FORM_ERRORS_ENUM.existingCode>
+  handleDeleteCharge: (chargeId: string) => Promise<boolean>
+}
+
 type Props = {
   plan: PlanDetailsV2Fragment
   isInSubscriptionForm?: boolean
+  fixedChargeMutations: FixedChargeMutations
 }
 
 type FixedCharge = NonNullable<PlanDetailsV2Fragment['fixedCharges']>[number]
 
 const toLocalInput = (fixedCharge: FixedCharge): LocalFixedChargeInput => ({
   id: fixedCharge.id,
+  code: fixedCharge.code,
   addOn: fixedCharge.addOn,
   applyUnitsImmediately: false,
   chargeModel: fixedCharge.chargeModel,
@@ -101,15 +112,12 @@ const toLocalInput = (fixedCharge: FixedCharge): LocalFixedChargeInput => ({
 export const PlanDetailsV2FixedChargesSection = forwardRef<
   PlanDetailsV2FixedChargesSectionRef,
   Props
->(({ plan, isInSubscriptionForm = false }, ref) => {
+>(({ plan, isInSubscriptionForm = false, fixedChargeMutations }, ref) => {
   const { translate } = useInternationalization()
   const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
   const drawerRef = useRef<FixedChargeDrawerRef>(null)
 
-  const { handleSaveCharge, handleDeleteCharge } = useFixedChargeMutationsWithCascade({
-    planId: plan.id,
-    hasOverriddenPlans: plan.hasOverriddenPlans ?? false,
-  })
+  const { handleSaveCharge, handleDeleteCharge } = fixedChargeMutations
 
   const openCreate = () => drawerRef.current?.openDrawer()
 
@@ -145,7 +153,7 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
         <SectionAccordion
           key={fixedCharge.id}
           title={fixedCharge.invoiceDisplayName || fixedCharge.addOn.name}
-          subtitle={fixedCharge.addOn.code}
+          subtitle={fixedCharge.code}
           actions={[
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
@@ -177,6 +185,9 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
         <FixedChargeDrawer
           ref={drawerRef}
           isEdition
+          isInSubscriptionForm={isInSubscriptionForm}
+          showCode
+          existingChargeCodes={fixedCharges.map((c) => c.code)}
           onSave={handleSaveCharge}
           onDelete={(index) => {
             const target = fixedCharges[index]

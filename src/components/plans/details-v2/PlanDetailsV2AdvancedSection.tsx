@@ -18,17 +18,23 @@ gql`
 type PlanDetailsV2AdvancedSectionProps = {
   plan: PlanDetailsV2Fragment
   isInSubscriptionForm?: boolean
+  subscriptionId?: string
 }
 
 export const PlanDetailsV2AdvancedSection = ({
   plan,
   isInSubscriptionForm = false,
+  subscriptionId,
 }: PlanDetailsV2AdvancedSectionProps) => (
   <section
     id={PlanDetailsV2SectionId.AdvancedSettings}
-    className="flex scroll-mt-12 flex-col gap-12"
+    className="flex scroll-mt-12 flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b"
   >
-    <MinimumCommitmentAccordion plan={plan} isInSubscriptionForm={isInSubscriptionForm} />
+    <MinimumCommitmentAccordion
+      plan={plan}
+      isInSubscriptionForm={isInSubscriptionForm}
+      subscriptionId={subscriptionId}
+    />
     {!isInSubscriptionForm && (
       <ProgressiveBillingAccordion plan={plan} isInSubscriptionForm={isInSubscriptionForm} />
     )}

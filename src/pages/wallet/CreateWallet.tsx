@@ -10,7 +10,6 @@ import { WarningDialog, WarningDialogRef } from '~/components/designSystem/Warni
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import {
   CLOSE_CREATE_WALLET_BUTTON_DATA_TEST,
   SUBMIT_WALLET_DATA_TEST,
@@ -165,7 +164,6 @@ const CreateWallet = () => {
   const { organization } = useOrganizationInfos()
 
   const warningDialogRef = useRef<WarningDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const formType = useMemo(() => {
     if (!!walletId) return FORM_TYPE_ENUM.edition
 
@@ -518,7 +516,6 @@ const CreateWallet = () => {
               customerData={customerData}
               isRecurringTopUpEnabled={isRecurringTopUpEnabled}
               setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
-              premiumWarningDialogRef={premiumWarningDialogRef}
             />
           </CenteredPage.Container>
         )}
@@ -549,8 +546,6 @@ const CreateWallet = () => {
         continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={() => navigateToCustomerWalletTab(wallet?.id)}
       />
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }

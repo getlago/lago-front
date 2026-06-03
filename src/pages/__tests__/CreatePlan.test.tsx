@@ -174,20 +174,6 @@ jest.mock('~/components/invoices/EditInvoiceDisplayNameDialog', () => {
   return { EditInvoiceDisplayNameDialog: MockDialog }
 })
 
-jest.mock('~/components/PremiumWarningDialog', () => {
-  const React = jest.requireActual('react')
-
-  const MockDialog = React.forwardRef((_props: unknown, ref: unknown) => {
-    React.useImperativeHandle(ref, () => ({ openDialog: jest.fn() }))
-
-    return React.createElement('div', { 'data-test': 'premium-warning-dialog-mock' })
-  })
-
-  MockDialog.displayName = 'PremiumWarningDialog'
-
-  return { PremiumWarningDialog: MockDialog }
-})
-
 jest.mock('~/styles/mainObjectsForm', () => {
   const React = jest.requireActual('react')
 

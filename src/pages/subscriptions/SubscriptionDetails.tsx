@@ -8,6 +8,7 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
+import { SubscriptionDetailsV2Plan } from '~/components/subscriptions/details-v2/SubscriptionDetailsV2Plan'
 import { SubscriptionActivityLogs } from '~/components/subscriptions/SubscriptionActivityLogs'
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
 import { SubscriptionDetailsOverview } from '~/components/subscriptions/SubscriptionDetailsOverview'
@@ -300,9 +301,11 @@ const SubscriptionDetails = () => {
           ),
         ],
         content: (
-          <DetailsPage.Container>
-            <Typography variant="body">{translate('text_17792001643316pbexygvpu2')}</Typography>
-          </DetailsPage.Container>
+          // v2 layout: horizontal padding only — avoids DetailsPage.Container's
+          // legacy pb-20 / flex-col. Vertical spacing comes from the content's py-12.
+          <div className="px-4 md:px-12">
+            <SubscriptionDetailsV2Plan subscriptionId={subscriptionId as string} />
+          </div>
         ),
         hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
       },
