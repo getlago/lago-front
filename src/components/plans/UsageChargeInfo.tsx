@@ -3,6 +3,7 @@ import { Accordion } from '~/components/designSystem/Accordion'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PlanDetailsChargeWrapperSwitch } from '~/components/plans/details/PlanDetailsChargeWrapperSwitch'
+import PlanDetailsPresentationGroupKeys from '~/components/plans/details/PlanDetailsPresentationGroupKeys'
 import { isPlanIntervalAnnual, mapChargeIntervalCopy } from '~/components/plans/utils'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { composeChargeFilterDisplayName } from '~/core/formats/formatInvoiceItemsMap'
@@ -67,6 +68,7 @@ export const UsageChargeInfo = ({
   const chargeTaxes = charge.taxes?.length ? charge.taxes : null
   const fallbackTaxes = planTaxes?.length ? planTaxes : null
   const taxesApplied = chargeTaxes ?? fallbackTaxes
+  const hasFilters = !!charge.billableMetric?.filters?.length
 
   const invoicingStrategy = (() => {
     if (!charge.payInAdvance) return translate('text_66968fba80f8f89a8aefdec0')
@@ -134,8 +136,14 @@ export const UsageChargeInfo = ({
       </div>
 
       <section className="flex flex-col gap-4 px-4 pb-4 shadow-b">
+        {hasFilters && (
+          <PlanDetailsPresentationGroupKeys
+            presentationGroupKeys={charge.properties?.presentationGroupKeys}
+          />
+        )}
+
         <ConditionalWrapper
-          condition={!!charge.billableMetric?.filters?.length}
+          condition={hasFilters}
           invalidWrapper={(children) => <div>{children}</div>}
           validWrapper={(children) => (
             <Accordion
@@ -154,6 +162,7 @@ export const UsageChargeInfo = ({
             chargeModel={charge.chargeModel}
             values={charge.properties}
             chargeAppliedPricingUnit={charge.appliedPricingUnit}
+            showPresentationGroupKeys={!hasFilters}
           />
         </ConditionalWrapper>
 

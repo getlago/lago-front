@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 import { ALL_FILTER_VALUES } from '~/core/constants/form'
 import {
   FeeForDeleteAdjustmentFeeDialogFragmentDoc,
+  FeeForViewFeeDetailsDrawerFragmentDoc,
   FeeTypesEnum,
   InvoiceForFormatInvoiceItemMapFragment,
 } from '~/generated/graphql'
@@ -72,10 +73,12 @@ gql`
       }
 
       ...FeeForDeleteAdjustmentFeeDialog
+      ...FeeForViewFeeDetailsDrawer
     }
   }
 
   ${FeeForDeleteAdjustmentFeeDialogFragmentDoc}
+  ${FeeForViewFeeDetailsDrawerFragmentDoc}
 `
 // Extract the Fee type from the fragment to ensure type safety
 // This ensures TypeScript will error if we try to access fields not included in the fragment

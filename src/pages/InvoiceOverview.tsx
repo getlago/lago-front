@@ -17,6 +17,7 @@ import {
   InvoiceDetailsTable,
   InvoiceTableSection,
 } from '~/components/invoices/details/InvoiceDetailsTable'
+import { ViewFeeDetailsDrawerProvider } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
@@ -46,6 +47,7 @@ import {
   FeeDetailsForInvoiceOverviewFragment,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
   FeeForInvoiceDetailsTableFooterFragmentDoc,
+  FeeForViewFeeDetailsDrawerFragmentDoc,
   HubspotIntegrationInfosForInvoiceOverviewFragment,
   InvoiceStatusTypeEnum,
   LagoApiError,
@@ -145,6 +147,7 @@ gql`
 
     ...FeeForInvoiceDetailsTableBodyLine
     ...FeeForInvoiceDetailsTableFooter
+    ...FeeForViewFeeDetailsDrawer
   }
 
   fragment CustomerForInvoiceOverview on Customer {
@@ -196,6 +199,7 @@ gql`
 
   ${FeeForInvoiceDetailsTableBodyLineFragmentDoc}
   ${FeeForInvoiceDetailsTableFooterFragmentDoc}
+  ${FeeForViewFeeDetailsDrawerFragmentDoc}
 `
 
 interface InvoiceOverviewProps {
@@ -449,7 +453,7 @@ const InvoiceOverview = memo(
     const isDraft = invoice?.status === InvoiceStatusTypeEnum.Draft
 
     return (
-      <>
+      <ViewFeeDetailsDrawerProvider>
         <SectionHeader variant="subhead1">
           {translate('text_634687079be251fdb43833bf')}
           <div className="flex gap-3">
@@ -820,7 +824,7 @@ const InvoiceOverview = memo(
         <DeleteAdjustedFeeDialog ref={deleteAdjustedFeeDialogRef} />
         <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
         <EditFeeDrawer ref={editFeeDrawerRef} />
-      </>
+      </ViewFeeDetailsDrawerProvider>
     )
   },
 )
