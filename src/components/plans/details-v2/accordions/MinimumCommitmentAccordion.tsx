@@ -105,6 +105,7 @@ export const MinimumCommitmentAccordion = ({
           label: translate('text_6661ffe746c680007e2df0e1'),
           onClick: () => drawerRef.current?.openDrawer(),
           hidden: !canCreate || hasCommitment || !isPremium,
+          startIcon: 'plus',
         }}
       />
 

@@ -12593,12 +12593,21 @@ export type DestroySubscriptionAlertMutationVariables = Exact<{
 
 export type DestroySubscriptionAlertMutation = { __typename?: 'Mutation', destroySubscriptionAlert?: { __typename?: 'Alert', id: string } | null };
 
+export type GetSubscriptionForDetailsV2OverviewQueryVariables = Exact<{
+  subscriptionId: Scalars['ID']['input'];
+}>;
+
+
+export type GetSubscriptionForDetailsV2OverviewQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingTime?: BillingTimeEnum | null, downgradePlanDate?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, periodEndDate?: any | null, startedAt?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, name?: string | null, displayName: string, externalId: string, deletedAt?: any | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousSubscription?: { __typename?: 'Subscription', id: string, downgradePlanDate?: any | null } | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string, name: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null }, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null } | null };
+
 export type GetSubscriptionForDetailsV2PlanQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
 }>;
 
 
 export type GetSubscriptionForDetailsV2PlanQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, hasOverriddenPlans?: boolean | null, interval: PlanInterval, amountCurrency: CurrencyEnum, billFixedChargesMonthly?: boolean | null, billChargesMonthly?: boolean | null, name: string, code: string, description?: string | null, trialPeriod?: number | null, payInAdvance: boolean, amountCents: any, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, code?: string | null, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, units: string, payInAdvance: boolean, prorated: boolean, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null }> | null, charges?: Array<{ __typename?: 'Charge', id: string, code?: string | null, chargeModel: ChargeModelEnum, invoiceable: boolean, invoiceDisplayName?: string | null, minAmountCents: any, payInAdvance: boolean, prorated: boolean, regroupPaidFees?: RegroupPaidFeesEnum | null, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any, properties: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', conversionRate: number, pricingUnit: { __typename?: 'PricingUnit', id: string, name: string, code: string, shortName: string } } | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null }, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> | null, minimumCommitment?: { __typename?: 'Commitment', amountCents: any, commitmentType: CommitmentTypeEnum, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null } | null, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } } | null };
+
+export type SubscriptionInformationSectionFragment = { __typename?: 'Subscription', id: string, externalId: string, status?: StatusTypeEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingTime?: BillingTimeEnum | null, downgradePlanDate?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, periodEndDate?: any | null, startedAt?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, name?: string | null, displayName: string, externalId: string, deletedAt?: any | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousSubscription?: { __typename?: 'Subscription', id: string, downgradePlanDate?: any | null } | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string, name: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null }, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null };
 
 export type SubscriptionForSubscriptionEditFormFragment = { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, billingTime?: BillingTimeEnum | null, periodEndDate?: any | null, status?: StatusTypeEnum | null, startedAt?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } };
 
@@ -17990,6 +17999,18 @@ export const SubscriptionForSubscriptionEditFormFragmentDoc = gql`
   }
 }
     ${AddSubscriptionPlanFragmentDoc}`;
+export const SubscriptionInformationSectionFragmentDoc = gql`
+    fragment SubscriptionInformationSection on Subscription {
+  id
+  customer {
+    id
+    applicableTimezone
+  }
+  ...SubscriptionInformationFields
+  ...SubscriptionForSubscriptionEditForm
+}
+    ${SubscriptionInformationFieldsFragmentDoc}
+${SubscriptionForSubscriptionEditFormFragmentDoc}`;
 export const BillableMetricForWalletScopeSectionFragmentDoc = gql`
     fragment BillableMetricForWalletScopeSection on BillableMetric {
   id
@@ -30564,6 +30585,50 @@ export function useDestroySubscriptionAlertMutation(baseOptions?: Apollo.Mutatio
 export type DestroySubscriptionAlertMutationHookResult = ReturnType<typeof useDestroySubscriptionAlertMutation>;
 export type DestroySubscriptionAlertMutationResult = Apollo.MutationResult<DestroySubscriptionAlertMutation>;
 export type DestroySubscriptionAlertMutationOptions = Apollo.BaseMutationOptions<DestroySubscriptionAlertMutation, DestroySubscriptionAlertMutationVariables>;
+export const GetSubscriptionForDetailsV2OverviewDocument = gql`
+    query getSubscriptionForDetailsV2Overview($subscriptionId: ID!) {
+  subscription(id: $subscriptionId) {
+    id
+    ...SubscriptionInformationSection
+  }
+}
+    ${SubscriptionInformationSectionFragmentDoc}`;
+
+/**
+ * __useGetSubscriptionForDetailsV2OverviewQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionForDetailsV2OverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionForDetailsV2OverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionForDetailsV2OverviewQuery({
+ *   variables: {
+ *      subscriptionId: // value for 'subscriptionId'
+ *   },
+ * });
+ */
+export function useGetSubscriptionForDetailsV2OverviewQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionForDetailsV2OverviewQuery, GetSubscriptionForDetailsV2OverviewQueryVariables> & ({ variables: GetSubscriptionForDetailsV2OverviewQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSubscriptionForDetailsV2OverviewQuery, GetSubscriptionForDetailsV2OverviewQueryVariables>(GetSubscriptionForDetailsV2OverviewDocument, options);
+      }
+export function useGetSubscriptionForDetailsV2OverviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionForDetailsV2OverviewQuery, GetSubscriptionForDetailsV2OverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSubscriptionForDetailsV2OverviewQuery, GetSubscriptionForDetailsV2OverviewQueryVariables>(GetSubscriptionForDetailsV2OverviewDocument, options);
+        }
+// @ts-ignore
+export function useGetSubscriptionForDetailsV2OverviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsV2OverviewQuery, GetSubscriptionForDetailsV2OverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForDetailsV2OverviewQuery, GetSubscriptionForDetailsV2OverviewQueryVariables>;
+export function useGetSubscriptionForDetailsV2OverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsV2OverviewQuery, GetSubscriptionForDetailsV2OverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForDetailsV2OverviewQuery | undefined, GetSubscriptionForDetailsV2OverviewQueryVariables>;
+export function useGetSubscriptionForDetailsV2OverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsV2OverviewQuery, GetSubscriptionForDetailsV2OverviewQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSubscriptionForDetailsV2OverviewQuery, GetSubscriptionForDetailsV2OverviewQueryVariables>(GetSubscriptionForDetailsV2OverviewDocument, options);
+        }
+export type GetSubscriptionForDetailsV2OverviewQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsV2OverviewQuery>;
+export type GetSubscriptionForDetailsV2OverviewLazyQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsV2OverviewLazyQuery>;
+export type GetSubscriptionForDetailsV2OverviewSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsV2OverviewSuspenseQuery>;
+export type GetSubscriptionForDetailsV2OverviewQueryResult = Apollo.QueryResult<GetSubscriptionForDetailsV2OverviewQuery, GetSubscriptionForDetailsV2OverviewQueryVariables>;
 export const GetSubscriptionForDetailsV2PlanDocument = gql`
     query getSubscriptionForDetailsV2Plan($subscriptionId: ID!) {
   subscription(id: $subscriptionId) {

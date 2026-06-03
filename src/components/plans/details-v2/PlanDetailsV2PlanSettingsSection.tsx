@@ -1,10 +1,6 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 
-import {
-  PlanSettingsDrawer,
-  PlanSettingsDrawerRef,
-} from '~/components/plans/drawers/planSettings/PlanSettingsDrawer'
+import { usePlanSettingsDrawer } from '~/components/plans/drawers/planSettings/usePlanSettingsDrawer'
 import { PlanSettingsInfo } from '~/components/plans/PlanSettingsInfo'
 import {
   PlanDetailsV2Fragment,
@@ -42,7 +38,7 @@ export const PlanDetailsV2PlanSettingsSection = ({
 }: PlanDetailsV2PlanSettingsSectionProps) => {
   const { translate } = useInternationalization()
   const { canUpdate } = useAccordionPermissions(isInSubscriptionForm)
-  const drawerRef = useRef<PlanSettingsDrawerRef>(null)
+  const { openDrawer } = usePlanSettingsDrawer(plan, subscriptionId)
 
   return (
     <section id={PlanDetailsV2SectionId.PlanSettings} className="flex scroll-mt-12 flex-col gap-6">
@@ -55,7 +51,7 @@ export const PlanDetailsV2PlanSettingsSection = ({
         actions={[
           {
             label: translate('text_63e51ef4985f0ebd75c212fc'),
-            onClick: () => drawerRef.current?.openDrawer(),
+            onClick: openDrawer,
             hidden: !canUpdate,
           },
         ]}
@@ -68,8 +64,6 @@ export const PlanDetailsV2PlanSettingsSection = ({
         isInSubscriptionForm={isInSubscriptionForm}
         subscriptionId={subscriptionId}
       />
-
-      <PlanSettingsDrawer ref={drawerRef} plan={plan} subscriptionId={subscriptionId} />
     </section>
   )
 }
