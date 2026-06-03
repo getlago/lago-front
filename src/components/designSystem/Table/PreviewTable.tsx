@@ -43,7 +43,7 @@ export const PreviewTable = <T,>({
   return (
     <div className={tw('w-0 min-w-full overflow-auto', containerClassName)}>
       <MUITable
-        className="border-separate"
+        className="border-collapse"
         data-test={TABLE_ID}
         sx={{
           '& .lago-table-cell:first-of-type .lago-table-inner-cell': {
@@ -76,9 +76,9 @@ export const PreviewTable = <T,>({
                   className="min-h-10 text-grey-600"
                   align={column.textAlign}
                   style={{
-                    fontSize: theme.typography.captionHl.fontSize,
-                    fontWeight: theme.typography.captionHl.fontWeight,
-                    lineHeight: theme.typography.captionHl.lineHeight,
+                    fontSize: theme.typography.caption.fontSize,
+                    fontWeight: theme.typography.caption.fontWeight,
+                    lineHeight: theme.typography.caption.lineHeight,
                   }}
                 >
                   {column.title}
