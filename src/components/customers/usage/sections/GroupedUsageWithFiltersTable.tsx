@@ -28,8 +28,12 @@ const sortGroupedUsage = (
   groupedUsage: NonNullable<SubscriptionUsageDetailDrawerUsage['groupedUsage']>,
 ) =>
   [...groupedUsage].sort((a, b) => {
-    if (a?.filters?.some((f) => !f?.id)) return -1
-    if (b?.filters?.some((f) => !!f?.id)) return 1
+    const aHasNoId = a?.filters?.some((f) => !f?.id)
+    const bHasNoId = b?.filters?.some((f) => !f?.id)
+
+    if (aHasNoId && !bHasNoId) return -1
+    if (!aHasNoId && bHasNoId) return 1
+
     return 0
   })
 

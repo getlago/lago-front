@@ -42,7 +42,7 @@ export const AmountCentsCell = ({
       <Typography variant="caption" color="grey600">
         {intlFormatNumber(
           deserializeAmount(
-            showProjected ? row.amountCents : (row as ProjectedChargeUsage).projectedAmountCents,
+            showProjected ? (row as ProjectedChargeUsage).projectedAmountCents : row.amountCents,
             currency,
           ),
           {
