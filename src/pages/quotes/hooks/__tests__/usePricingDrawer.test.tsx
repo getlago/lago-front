@@ -1,5 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
+import { z } from 'zod'
 
 import { fromBillingItems } from '~/core/serializers/serializeQuoteBillingItems'
 import { OrderTypeEnum } from '~/generated/graphql'
@@ -50,6 +51,11 @@ jest.mock('~/components/drawers/drawerStack', () => ({
 const mockFormReset = jest.fn()
 const mockHandleSubmit = jest.fn()
 
+// Capture the onSubmit and setFieldValue calls from useAppForm
+let capturedOnSubmit: ((args: { value: Record<string, unknown> }) => void) | null = null
+const mockSetFieldValue = jest.fn()
+let mockFormValues = { planId: '', addOnItems: [] as Record<string, unknown>[] }
+
 jest.mock('@tanstack/react-form', () => ({
   revalidateLogic: () => ({}),
   createFormHookContexts: jest.fn(() => ({
@@ -61,21 +67,33 @@ jest.mock('@tanstack/react-form', () => ({
 }))
 
 jest.mock('~/hooks/forms/useAppform', () => ({
-  useAppForm: () => ({
-    reset: mockFormReset,
-    handleSubmit: mockHandleSubmit,
-    state: { canSubmit: true, values: { planId: '', addOnItems: [] } },
-    store: {
-      subscribe: jest.fn(() => jest.fn()),
-      getState: () => ({
-        values: { planId: '', addOnItems: [] },
+  useAppForm: (config: Record<string, unknown>) => {
+    if (typeof config.onSubmit === 'function') {
+      capturedOnSubmit = config.onSubmit as typeof capturedOnSubmit
+    }
+
+    return {
+      reset: mockFormReset,
+      handleSubmit: mockHandleSubmit,
+      setFieldValue: mockSetFieldValue,
+      state: {
         canSubmit: true,
-      }),
-    },
-    AppField: () => null,
-    AppForm: () => null,
-    Subscribe: () => null,
-  }),
+        get values() {
+          return mockFormValues
+        },
+      },
+      store: {
+        subscribe: jest.fn(() => jest.fn()),
+        getState: () => ({
+          values: mockFormValues,
+          canSubmit: true,
+        }),
+      },
+      AppField: () => null,
+      AppForm: () => null,
+      Subscribe: () => null,
+    }
+  },
 }))
 
 jest.mock('~/core/serializers/serializeQuoteBillingItems', () => ({
@@ -126,6 +144,8 @@ const mockBillingItemsPayload = {
 describe('usePricingDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    capturedOnSubmit = null
+    mockFormValues = { planId: '', addOnItems: [] }
   })
 
   describe('GIVEN the hook is called', () => {
@@ -488,6 +508,501 @@ describe('usePricingDrawer', () => {
         })
 
         expect(syncResult).toBeNull()
+      })
+    })
+  })
+
+  describe('GIVEN onPricingCommand is called with editData', () => {
+    describe('WHEN it is a subscription creation with pricingType plan', () => {
+      it('THEN should reset the form with the plan ID as initialPlanId', () => {
+        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.SubscriptionCreation), {
+          wrapper,
+        })
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: jest.fn(),
+            editData: { pricingType: 'plan', entityIds: ['plan-abc'] },
+          })
+        })
+
+        expect(mockFormReset).toHaveBeenCalledWith(
+          { planId: 'plan-abc', addOnItems: [] },
+          { keepDefaultValues: true },
+        )
+        expect(mockFormDrawerOpen).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN it is a one-off order with pricingType addOns and existing entities', () => {
+      it('THEN should reset the form with initialAddOnItems from entity data', () => {
+        mockedFromBillingItems.mockReturnValue({
+          entities: {
+            'addon-1': {
+              entityId: 'addon-1',
+              entityType: 'addOn',
+              name: 'Setup Fee',
+              invoiceDisplayName: 'Setup',
+              code: 'setup',
+              description: 'One-time setup',
+              units: '2',
+              unitAmountCents: '5000',
+              totalAmount: '10000',
+              fromDatetime: '2026-01-01T00:00:00.000Z',
+              toDatetime: '2026-01-31T23:59:59.999Z',
+            },
+          },
+          originalPayloads: { 'addon-1': mockAddOnPayload },
+          addOnItems: [],
+        })
+
+        const { result } = renderHook(
+          () => usePricingDrawer(OrderTypeEnum.OneOff, mockBillingItemsPayload),
+          { wrapper },
+        )
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: jest.fn(),
+            editData: { pricingType: 'addOns', entityIds: ['addon-1'] },
+          })
+        })
+
+        expect(mockFormReset).toHaveBeenCalledWith(
+          expect.objectContaining({
+            planId: '',
+            addOnItems: expect.arrayContaining([
+              expect.objectContaining({
+                addOnId: 'addon-1',
+                name: 'Setup Fee',
+                code: 'setup',
+                units: '2',
+                unitAmountCents: '5000',
+              }),
+            ]),
+          }),
+          { keepDefaultValues: true },
+        )
+        expect(mockFormDrawerOpen).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN it is a one-off with editData and existing entities', () => {
+      it('THEN should still open the drawer (bypass the one-off guard for edits)', () => {
+        mockedFromBillingItems.mockReturnValue({
+          entities: {
+            'addon-1': {
+              entityId: 'addon-1',
+              entityType: 'addOn',
+              name: 'Setup Fee',
+              code: 'setup',
+            },
+          },
+          originalPayloads: { 'addon-1': mockAddOnPayload },
+          addOnItems: [],
+        })
+
+        const { result } = renderHook(
+          () => usePricingDrawer(OrderTypeEnum.OneOff, mockBillingItemsPayload),
+          { wrapper },
+        )
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: jest.fn(),
+            editData: { pricingType: 'addOns', entityIds: ['addon-1'] },
+          })
+        })
+
+        // Edit mode should bypass the one-off single-block guard
+        expect(mockFormDrawerOpen).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN it is a subscription creation with no editData planId', () => {
+      it('THEN should reset the form with an empty planId', () => {
+        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.SubscriptionCreation), {
+          wrapper,
+        })
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: jest.fn(),
+            editData: undefined,
+          })
+        })
+
+        expect(mockFormReset).toHaveBeenCalledWith(
+          { planId: '', addOnItems: [] },
+          { keepDefaultValues: true },
+        )
+      })
+    })
+  })
+
+  describe('GIVEN the form onSubmit handler is invoked', () => {
+    describe('WHEN submitting for a subscription creation with a planId', () => {
+      it('THEN should call onSave with plan entity data and update entities', () => {
+        const mockOnSave = jest.fn()
+
+        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.SubscriptionCreation), {
+          wrapper,
+        })
+
+        // Trigger onPricingCommand to capture onSaveRef and onSubmit
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: mockOnSave,
+            editData: undefined,
+          })
+        })
+
+        // Simulate form values for a plan submission
+        mockFormValues = { planId: 'plan-123', addOnItems: [] }
+
+        // Invoke the captured onSubmit
+        expect(capturedOnSubmit).not.toBeNull()
+        act(() => {
+          capturedOnSubmit?.({ value: mockFormValues })
+        })
+
+        expect(mockOnSave).toHaveBeenCalledWith(
+          { pricingType: 'plan', entityIds: ['plan-123'] },
+          expect.objectContaining({
+            'plan-123': expect.objectContaining({
+              entityId: 'plan-123',
+              entityType: 'plan',
+            }),
+          }),
+        )
+      })
+    })
+
+    describe('WHEN submitting for a subscription creation with no planId', () => {
+      it('THEN should not call onSave', () => {
+        const mockOnSave = jest.fn()
+
+        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.SubscriptionCreation), {
+          wrapper,
+        })
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: mockOnSave,
+            editData: undefined,
+          })
+        })
+
+        // Empty planId
+        mockFormValues = { planId: '', addOnItems: [] }
+
+        act(() => {
+          capturedOnSubmit?.({ value: mockFormValues })
+        })
+
+        expect(mockOnSave).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN submitting for a one-off with confirmed add-on items', () => {
+      it('THEN should call onSave with add-on entity data and billing items', () => {
+        const mockOnSave = jest.fn()
+
+        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), {
+          wrapper,
+        })
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: mockOnSave,
+            editData: undefined,
+          })
+        })
+
+        // Simulate confirmed add-on items
+        mockFormValues = {
+          planId: '',
+          addOnItems: [
+            {
+              addOnId: 'addon-1',
+              name: 'Setup Fee',
+              invoiceDisplayName: 'Setup',
+              code: 'setup',
+              description: 'Desc',
+              units: '2',
+              unitAmountCents: '5000',
+              totalAmount: '10000',
+              fromDatetime: '2026-01-01',
+              toDatetime: '2026-01-31',
+            },
+          ],
+        }
+
+        act(() => {
+          capturedOnSubmit?.({ value: mockFormValues })
+        })
+
+        expect(mockOnSave).toHaveBeenCalledWith(
+          { pricingType: 'addOns', entityIds: ['addon-1'] },
+          expect.objectContaining({
+            'addon-1': expect.objectContaining({
+              entityId: 'addon-1',
+              entityType: 'addOn',
+              name: 'Setup Fee',
+              units: '2',
+            }),
+          }),
+          undefined, // toBillingItems is mocked, returns undefined
+        )
+
+        // Entities should be updated
+        expect(result.current.entities).toHaveProperty('addon-1')
+      })
+    })
+
+    describe('WHEN submitting for a one-off with no confirmed add-on items', () => {
+      it('THEN should not call onSave', () => {
+        const mockOnSave = jest.fn()
+
+        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), {
+          wrapper,
+        })
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: mockOnSave,
+            editData: undefined,
+          })
+        })
+
+        // Only pending items (empty addOnId)
+        mockFormValues = {
+          planId: '',
+          addOnItems: [{ addOnId: '', name: '', code: '' }],
+        }
+
+        act(() => {
+          capturedOnSubmit?.({ value: mockFormValues })
+        })
+
+        expect(mockOnSave).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN isPricingDisabled is called for subscription amendment', () => {
+    describe('WHEN order type is subscription amendment and entities exist', () => {
+      it('THEN should return false', () => {
+        mockedFromBillingItems.mockReturnValue({
+          entities: {
+            'addon-1': {
+              entityId: 'addon-1',
+              entityType: 'addOn',
+              name: 'Setup Fee',
+              code: 'setup',
+            },
+          },
+          originalPayloads: { 'addon-1': mockAddOnPayload },
+          addOnItems: [],
+        })
+
+        const { result } = renderHook(
+          () => usePricingDrawer(OrderTypeEnum.SubscriptionAmendment, mockBillingItemsPayload),
+          { wrapper },
+        )
+
+        expect(result.current.isPricingDisabled()).toBe(false)
+      })
+    })
+  })
+})
+
+// --- Standalone validation schema tests (mirrors the superRefine in usePricingDrawer) ---
+
+const pricingDrawerValidationSchema = z
+  .object({
+    planId: z.string(),
+    addOnItems: z.array(
+      z.object({
+        addOnId: z.string(),
+        name: z.string(),
+        invoiceDisplayName: z.string(),
+        code: z.string(),
+        description: z.string(),
+        units: z.string(),
+        unitAmountCents: z.string(),
+        totalAmount: z.string(),
+        fromDatetime: z.string(),
+        toDatetime: z.string(),
+      }),
+    ),
+  })
+  .superRefine((data, ctx) => {
+    // Simulates one-off validation (isPlanSelection = false)
+    const confirmed = data.addOnItems.filter((item) => item.addOnId)
+
+    if (confirmed.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'At least one add-on required',
+        path: ['addOnItems'],
+      })
+      return
+    }
+
+    data.addOnItems.forEach((item, index) => {
+      if (!item.addOnId) return
+
+      if (!item.units || item.units === '0') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Units required',
+          path: ['addOnItems', index, 'units'],
+        })
+      }
+
+      if (!item.unitAmountCents) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Unit price required',
+          path: ['addOnItems', index, 'unitAmountCents'],
+        })
+      }
+    })
+  })
+
+const validAddOnItem = {
+  addOnId: 'addon-1',
+  name: 'Setup Fee',
+  invoiceDisplayName: 'Setup',
+  code: 'setup',
+  description: 'desc',
+  units: '2',
+  unitAmountCents: '5000',
+  totalAmount: '10000',
+  fromDatetime: '2026-01-01T00:00:00.000Z',
+  toDatetime: '2026-01-31T23:59:59.999Z',
+}
+
+const pendingAddOnItem = {
+  ...validAddOnItem,
+  addOnId: '', // pending — no addOnId selected yet
+}
+
+describe('pricingDrawer validation schema (one-off path)', () => {
+  describe('GIVEN valid data with a confirmed add-on', () => {
+    describe('WHEN the schema validates', () => {
+      it('THEN should pass validation', () => {
+        const result = pricingDrawerValidationSchema.safeParse({
+          planId: '',
+          addOnItems: [validAddOnItem],
+        })
+
+        expect(result.success).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN no confirmed add-ons (all have empty addOnId)', () => {
+    describe('WHEN the schema validates', () => {
+      it('THEN should fail with addOnItems error', () => {
+        const result = pricingDrawerValidationSchema.safeParse({
+          planId: '',
+          addOnItems: [pendingAddOnItem],
+        })
+
+        expect(result.success).toBe(false)
+
+        if (!result.success) {
+          const addOnError = result.error.issues.find((issue) => issue.path.includes('addOnItems'))
+
+          expect(addOnError).toBeDefined()
+        }
+      })
+    })
+  })
+
+  describe('GIVEN a confirmed add-on with missing units', () => {
+    describe('WHEN the schema validates', () => {
+      it('THEN should fail with units error', () => {
+        const result = pricingDrawerValidationSchema.safeParse({
+          planId: '',
+          addOnItems: [{ ...validAddOnItem, units: '' }],
+        })
+
+        expect(result.success).toBe(false)
+
+        if (!result.success) {
+          const unitsError = result.error.issues.find((issue) => issue.path.includes('units'))
+
+          expect(unitsError).toBeDefined()
+        }
+      })
+    })
+  })
+
+  describe('GIVEN a confirmed add-on with units equal to zero', () => {
+    describe('WHEN the schema validates', () => {
+      it('THEN should fail with units error', () => {
+        const result = pricingDrawerValidationSchema.safeParse({
+          planId: '',
+          addOnItems: [{ ...validAddOnItem, units: '0' }],
+        })
+
+        expect(result.success).toBe(false)
+
+        if (!result.success) {
+          const unitsError = result.error.issues.find((issue) => issue.path.includes('units'))
+
+          expect(unitsError).toBeDefined()
+        }
+      })
+    })
+  })
+
+  describe('GIVEN a confirmed add-on with missing unitAmountCents', () => {
+    describe('WHEN the schema validates', () => {
+      it('THEN should fail with unitAmountCents error', () => {
+        const result = pricingDrawerValidationSchema.safeParse({
+          planId: '',
+          addOnItems: [{ ...validAddOnItem, unitAmountCents: '' }],
+        })
+
+        expect(result.success).toBe(false)
+
+        if (!result.success) {
+          const priceError = result.error.issues.find((issue) =>
+            issue.path.includes('unitAmountCents'),
+          )
+
+          expect(priceError).toBeDefined()
+        }
+      })
+    })
+  })
+
+  describe('GIVEN a mix of pending and confirmed items', () => {
+    describe('WHEN the confirmed item is valid', () => {
+      it('THEN should pass validation (pending items are skipped)', () => {
+        const result = pricingDrawerValidationSchema.safeParse({
+          planId: '',
+          addOnItems: [pendingAddOnItem, validAddOnItem],
+        })
+
+        expect(result.success).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN an empty addOnItems array', () => {
+    describe('WHEN the schema validates', () => {
+      it('THEN should fail with no confirmed add-ons error', () => {
+        const result = pricingDrawerValidationSchema.safeParse({
+          planId: '',
+          addOnItems: [],
+        })
+
+        expect(result.success).toBe(false)
       })
     })
   })

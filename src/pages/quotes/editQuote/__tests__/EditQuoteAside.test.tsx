@@ -1,6 +1,11 @@
 import { screen } from '@testing-library/react'
 
-import { OrderTypeEnum, QuoteDetailItemFragment, StatusEnum } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  OrderTypeEnum,
+  QuoteDetailItemFragment,
+  StatusEnum,
+} from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import EditQuoteAside, {
@@ -300,6 +305,104 @@ describe('EditQuoteAside', () => {
         render(<EditQuoteAside quote={quoteWithNoTerm} />)
 
         expect(screen.getByDisplayValue('-')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a quote with netPaymentTerm of 1', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should display "1 day" (singular)', () => {
+        const quoteWithOneDayTerm = {
+          ...mockQuote,
+          customer: { ...mockQuote.customer, netPaymentTerm: 1 },
+        }
+
+        render(<EditQuoteAside quote={quoteWithOneDayTerm} />)
+
+        expect(screen.getByDisplayValue('1 day')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a quote where customer has no currency but currentVersion does', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should render the currency field using currentVersion currency', () => {
+        const quoteWithVersionCurrency = {
+          ...mockQuote,
+          customer: { ...mockQuote.customer, currency: null },
+          currentVersion: { ...mockQuote.currentVersion, currency: CurrencyEnum.Eur },
+        }
+
+        render(<EditQuoteAside quote={quoteWithVersionCurrency} />)
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a quote where customer has a currency set', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should render the currency field using customer currency', () => {
+        const quoteWithCustomerCurrency = {
+          ...mockQuote,
+          customer: { ...mockQuote.customer, currency: CurrencyEnum.Eur },
+        }
+
+        render(<EditQuoteAside quote={quoteWithCustomerCurrency} />)
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a quote with a subscription that has a plan', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should display the subscription label as "planName - externalId"', () => {
+        const quoteWithSubscription = {
+          ...mockQuote,
+          subscription: {
+            __typename: 'Subscription' as const,
+            id: 'sub-1',
+            name: 'My Subscription',
+            externalId: 'ext-sub-1',
+            subscriptionAt: '2026-03-15T00:00:00Z',
+            plan: {
+              __typename: 'Plan' as const,
+              id: 'plan-1',
+              name: 'Premium Plan',
+            },
+          },
+        }
+
+        render(<EditQuoteAside quote={quoteWithSubscription} />)
+
+        expect(screen.getByDisplayValue('Premium Plan - ext-sub-1')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a subscription amendment quote', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should render the start date field', () => {
+        const amendmentQuote = {
+          ...mockQuote,
+          orderType: OrderTypeEnum.SubscriptionAmendment,
+        }
+
+        render(<EditQuoteAside quote={amendmentQuote} />)
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_START_DATE_TEST_ID)).toBeInTheDocument()
+      })
+
+      it('THEN should render the end date field', () => {
+        const amendmentQuote = {
+          ...mockQuote,
+          orderType: OrderTypeEnum.SubscriptionAmendment,
+        }
+
+        render(<EditQuoteAside quote={amendmentQuote} />)
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_END_DATE_TEST_ID)).toBeInTheDocument()
       })
     })
   })

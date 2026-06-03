@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DateTime } from 'luxon'
 import { z } from 'zod'
@@ -38,6 +38,21 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
 jest.mock('@tanstack/react-form', () => ({
   ...jest.requireActual('@tanstack/react-form'),
   revalidateLogic: () => () => {},
+}))
+
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getTotalSize: () => count * 56,
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, i) => ({
+        index: i,
+        key: String(i),
+        start: i * 56,
+        size: 56,
+      })),
+    scrollToIndex: jest.fn(),
+    measureElement: jest.fn(),
+  }),
 }))
 
 const defaultAddOnItem: AddOnItem = {
@@ -396,6 +411,261 @@ describe('AddOnSelectionContent', () => {
         expect(screen.getByTestId('add-on-pending-0')).toBeInTheDocument()
 
         expect(onAddOnPayloadCapture).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a confirmed add-on item already selected', () => {
+    beforeEach(() => {
+      mockUseGetAddOnsForPricingSectionQuery.mockReturnValue({
+        data: { addOns: { collection: addOnsCollection } },
+        loading: false,
+      })
+    })
+
+    describe('WHEN a new pending row is added', () => {
+      it('THEN the ComboBox should not include the already-selected add-on in its options', async () => {
+        renderWithForm({
+          initialValues: { addOnItems: [defaultAddOnItem] },
+        })
+
+        // addon-1 (Setup Fee) is confirmed — add a pending row
+        await userEvent.click(screen.getByTestId('add-add-on-button'))
+
+        const pendingRow = screen.getByTestId('add-on-pending-1')
+        const comboBoxInput = within(pendingRow).getByRole('combobox') as HTMLInputElement
+
+        // Type to trigger the dropdown to open with filter
+        await userEvent.type(comboBoxInput, 'S')
+
+        // The already-selected addon-1 should NOT appear; addon-2 should appear
+        // Use the aria-controls on the input to find the correct listbox
+        await waitFor(() => {
+          const listboxId = comboBoxInput.getAttribute('aria-controls')
+
+          expect(listboxId).toBeTruthy()
+
+          const listbox = document.getElementById(listboxId as string)
+
+          expect(listbox).toBeInTheDocument()
+        })
+
+        const listboxId = comboBoxInput.getAttribute('aria-controls') as string
+        const listbox = document.getElementById(listboxId) as HTMLElement
+
+        // addon-2 (Support) should be visible, addon-1 (Setup Fee) should be filtered out
+        expect(within(listbox).getByText('Support')).toBeInTheDocument()
+        expect(within(listbox).queryByText('Setup Fee')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN an add-on is selected from the ComboBox in a pending row', () => {
+      it('THEN should call onAddOnPayloadCapture and convert the row to confirmed', async () => {
+        const onAddOnPayloadCapture = jest.fn()
+
+        renderWithForm({
+          onAddOnPayloadCapture,
+          initialValues: { addOnItems: [] },
+        })
+
+        // Add a pending row
+        await userEvent.click(screen.getByTestId('add-add-on-button'))
+
+        const pendingRow = screen.getByTestId('add-on-pending-0')
+        const comboBoxInput = within(pendingRow).getByRole('combobox') as HTMLInputElement
+
+        // Type to filter and open the dropdown
+        await userEvent.type(comboBoxInput, 'Setup')
+
+        // Use aria-controls to find the correct listbox for this combobox
+        await waitFor(() => {
+          const listboxId = comboBoxInput.getAttribute('aria-controls')
+
+          expect(listboxId).toBeTruthy()
+
+          const listbox = document.getElementById(listboxId as string)
+
+          expect(listbox).toBeInTheDocument()
+        })
+
+        const listboxId = comboBoxInput.getAttribute('aria-controls') as string
+        const listbox = document.getElementById(listboxId) as HTMLElement
+        const setupFeeOption = within(listbox).getByText('Setup Fee')
+
+        await userEvent.click(setupFeeOption)
+
+        // The pending row should be gone and replaced with a confirmed row
+        await waitFor(() => {
+          expect(screen.queryByTestId('add-on-pending-0')).not.toBeInTheDocument()
+          expect(screen.getByTestId('add-on-item-0')).toBeInTheDocument()
+        })
+
+        // onAddOnPayloadCapture should have been called with the add-on id and full add-on object
+        expect(onAddOnPayloadCapture).toHaveBeenCalledWith(
+          'addon-1',
+          expect.objectContaining({
+            id: 'addon-1',
+            name: 'Setup Fee',
+            code: 'setup_fee',
+          }),
+        )
+      })
+    })
+  })
+
+  describe('GIVEN two confirmed add-on items exist', () => {
+    beforeEach(() => {
+      mockUseGetAddOnsForPricingSectionQuery.mockReturnValue({
+        data: { addOns: { collection: addOnsCollection } },
+        loading: false,
+      })
+    })
+
+    describe('WHEN the first item is removed', () => {
+      it('THEN the second item should shift to index 0', async () => {
+        renderWithForm({
+          initialValues: { addOnItems: [defaultAddOnItem, secondAddOnItem] },
+        })
+
+        expect(screen.getByTestId('add-on-item-0')).toBeInTheDocument()
+        expect(screen.getByTestId('add-on-item-1')).toBeInTheDocument()
+
+        // Open popper for item 0 and click delete
+        await userEvent.click(screen.getByTestId('add-on-actions-0'))
+        await userEvent.click(screen.getByText('text_63aa085d28b8510cd46443ff'))
+
+        // After removal, item-1 should be gone and the second add-on should now be at index 0
+        await waitFor(() => {
+          expect(screen.queryByTestId('add-on-item-1')).not.toBeInTheDocument()
+        })
+
+        expect(screen.getByTestId('add-on-item-0')).toBeInTheDocument()
+        // The remaining item should show the second add-on's name
+        expect(screen.getByText('Premium Support')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a confirmed add-on item with units and unit price', () => {
+    beforeEach(() => {
+      mockUseGetAddOnsForPricingSectionQuery.mockReturnValue({
+        data: { addOns: { collection: [] } },
+        loading: false,
+      })
+    })
+
+    describe('WHEN viewing the item', () => {
+      it('THEN should display units and unit price input fields', () => {
+        renderWithForm({
+          initialValues: { addOnItems: [defaultAddOnItem] },
+        })
+
+        const itemRow = screen.getByTestId('add-on-item-0')
+
+        // The confirmed row should contain input fields for units and unit price
+        const inputs = within(itemRow).getAllByRole('textbox')
+
+        expect(inputs.length).toBeGreaterThanOrEqual(2)
+      })
+
+      it('THEN should display the total amount cell with computed value', () => {
+        renderWithForm({
+          initialValues: { addOnItems: [defaultAddOnItem] },
+        })
+
+        const itemRow = screen.getByTestId('add-on-item-0')
+
+        // TotalAmountCell renders the total header translation key and a formatted amount
+        // units=1, unitAmountCents=50 => total = 50 => "$50.00"
+        expect(within(itemRow).getByText('text_17800586916250mj95szdi21')).toBeInTheDocument()
+        expect(within(itemRow).getByText('$50.00')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN multiple confirmed add-on items with different totals', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN the grand total should be the sum of all item totals', () => {
+        mockUseGetAddOnsForPricingSectionQuery.mockReturnValue({
+          data: { addOns: { collection: [] } },
+          loading: false,
+        })
+
+        // defaultAddOnItem: units=1, unitAmountCents=50 => total=50
+        // secondAddOnItem: units=2, unitAmountCents=100 => total=200
+        renderWithForm({
+          initialValues: { addOnItems: [defaultAddOnItem, secondAddOnItem] },
+        })
+
+        // Grand total = 50 + 200 = 250 => "$250.00"
+        expect(screen.getByText('$250.00')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the add-ons query returns no data', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should still render the add button', () => {
+        mockUseGetAddOnsForPricingSectionQuery.mockReturnValue({
+          data: undefined,
+          loading: false,
+        })
+
+        renderWithForm()
+
+        expect(screen.getByTestId('add-add-on-button')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a pending row is created', () => {
+      it('THEN the ComboBox should have no options in the dropdown', async () => {
+        mockUseGetAddOnsForPricingSectionQuery.mockReturnValue({
+          data: undefined,
+          loading: false,
+        })
+
+        renderWithForm()
+
+        await userEvent.click(screen.getByTestId('add-add-on-button'))
+
+        const pendingRow = screen.getByTestId('add-on-pending-0')
+        const comboBoxInput = within(pendingRow).getByRole('combobox') as HTMLInputElement
+
+        await userEvent.click(comboBoxInput)
+
+        // With no data, there should be no listbox or it should show no options
+        await waitFor(() => {
+          expect(screen.queryByRole('option')).not.toBeInTheDocument()
+        })
+      })
+    })
+  })
+
+  describe('GIVEN a confirmed item exists and a pending row is added after it', () => {
+    describe('WHEN the confirmed item is removed', () => {
+      it('THEN the pending row index should be recomputed correctly', async () => {
+        mockUseGetAddOnsForPricingSectionQuery.mockReturnValue({
+          data: { addOns: { collection: addOnsCollection } },
+          loading: false,
+        })
+
+        renderWithForm({
+          initialValues: { addOnItems: [defaultAddOnItem] },
+        })
+
+        // Add a pending row (will be at index 1)
+        await userEvent.click(screen.getByTestId('add-add-on-button'))
+        expect(screen.getByTestId('add-on-pending-1')).toBeInTheDocument()
+
+        // Remove the confirmed item at index 0
+        await userEvent.click(screen.getByTestId('add-on-actions-0'))
+        await userEvent.click(screen.getByText('text_63aa085d28b8510cd46443ff'))
+
+        // The pending row should now be at index 0 (reindexed after removal)
+        await waitFor(() => {
+          expect(screen.queryByTestId('add-on-item-0')).not.toBeInTheDocument()
+          expect(screen.getByTestId('add-on-pending-0')).toBeInTheDocument()
+        })
       })
     })
   })
