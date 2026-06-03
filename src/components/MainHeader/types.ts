@@ -105,6 +105,8 @@ export interface BreadcrumbItem {
   label: string
   /** Route path — the item is rendered as a clickable link */
   path: string
+  /** Show a skeleton instead of the label (e.g. while an async label loads) */
+  loading?: boolean
 }
 
 // ─── Main config ────────────────────────────────────────────────

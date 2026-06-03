@@ -158,21 +158,21 @@ describe('WalletDetails', () => {
   })
 
   describe('GIVEN the customer breadcrumb label', () => {
-    const renderWithCustomer = (customer: Record<string, unknown> | undefined) => {
+    const renderWithCustomer = (customer: Record<string, unknown> | undefined, loading = false) => {
       mockUseGetWalletDetailsQuery.mockReturnValue({
-        data: { wallet: { ...mockWallet, customer } },
+        data: loading ? undefined : { wallet: { ...mockWallet, customer } },
         error: undefined,
-        loading: false,
+        loading,
       })
 
       render(<WalletDetails />)
 
-      return capturedBreadcrumb?.[1]?.label
+      return capturedBreadcrumb?.[1]
     }
 
     describe('WHEN the customer has a name', () => {
       it('THEN should use the name', () => {
-        const label = renderWithCustomer({
+        const item = renderWithCustomer({
           id: 'customer-1',
           name: 'Acme Inc',
           firstname: 'John',
@@ -180,13 +180,14 @@ describe('WalletDetails', () => {
           externalId: 'ext-1',
         })
 
-        expect(label).toBe('Acme Inc')
+        expect(item?.label).toBe('Acme Inc')
+        expect(item?.loading).toBe(false)
       })
     })
 
     describe('WHEN the customer has no name but first and last name', () => {
       it('THEN should join first and last name', () => {
-        const label = renderWithCustomer({
+        const item = renderWithCustomer({
           id: 'customer-1',
           name: null,
           firstname: 'John',
@@ -194,13 +195,13 @@ describe('WalletDetails', () => {
           externalId: 'ext-1',
         })
 
-        expect(label).toBe('John Doe')
+        expect(item?.label).toBe('John Doe')
       })
     })
 
     describe('WHEN the customer has only a first name', () => {
       it('THEN should use the first name alone', () => {
-        const label = renderWithCustomer({
+        const item = renderWithCustomer({
           id: 'customer-1',
           name: null,
           firstname: 'John',
@@ -208,13 +209,13 @@ describe('WalletDetails', () => {
           externalId: 'ext-1',
         })
 
-        expect(label).toBe('John')
+        expect(item?.label).toBe('John')
       })
     })
 
     describe('WHEN the customer has neither name nor first/last name', () => {
       it('THEN should fall back to the external id', () => {
-        const label = renderWithCustomer({
+        const item = renderWithCustomer({
           id: 'customer-1',
           name: null,
           firstname: null,
@@ -222,15 +223,16 @@ describe('WalletDetails', () => {
           externalId: 'ext-1',
         })
 
-        expect(label).toBe('ext-1')
+        expect(item?.label).toBe('ext-1')
       })
     })
 
-    describe('WHEN there is no customer yet (loading)', () => {
-      it('THEN should fall back to the "Wallets" label', () => {
-        const label = renderWithCustomer(undefined)
+    describe('WHEN the wallet is still loading', () => {
+      it('THEN should mark the breadcrumb item as loading with no label', () => {
+        const item = renderWithCustomer(undefined, true)
 
-        expect(label).toBe('text_62d175066d2dbf1d50bc937c')
+        expect(item?.loading).toBe(true)
+        expect(item?.label).toBe('')
       })
     })
   })

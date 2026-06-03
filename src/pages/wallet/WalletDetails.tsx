@@ -306,11 +306,12 @@ const WalletDetails = () => {
             path: CUSTOMERS_LIST_ROUTE,
           },
           {
-            label: customerName || translate('text_62d175066d2dbf1d50bc937c'),
+            label: customerName ?? '',
             path: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
               customerId: customerId as string,
               tab: CustomerDetailsTabsOptions.wallet,
             }),
+            loading,
           },
         ]}
         entity={{
