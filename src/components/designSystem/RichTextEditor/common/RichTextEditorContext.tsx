@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react'
 
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
+import type { Locale } from '~/core/translations'
 
 import type { PricingBlockAttributes, PricingType } from '../extensions/PricingBlock.schema'
 import type { RichTextEditorMode } from '../RichTextEditor'
@@ -35,6 +36,7 @@ interface RichTextEditorContextValue {
   mentionValues: Record<string, string>
   entities: Record<string, EntityData>
   onPricingCommand?: OnPricingCommand
+  customerLocale?: Locale
 }
 
 const RichTextEditorContext = createContext<RichTextEditorContextValue>({

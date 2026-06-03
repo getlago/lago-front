@@ -1,9 +1,9 @@
-import { Editor } from '@tiptap/core'
 import Placeholder from '@tiptap/extension-placeholder'
 import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '@tiptap/react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
+import type { Locale } from '~/core/translations'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import BlockToolbar from './BlockControls/BlockToolbar'
@@ -17,13 +17,12 @@ import { getBaseExtensions } from './extensions/baseExtensions'
 import { DragHandle } from './extensions/DragHandle'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
 import {
-  configureMention,
   mentionBaseConfig,
   MentionSchema,
   type MentionSchemaOptions,
 } from './extensions/Mention.schema'
 import { PricingBlock } from './extensions/PricingBlock'
-import { type PricingBlockAttributes, PricingBlockSchema } from './extensions/PricingBlock.schema'
+import { type PricingBlockAttributes } from './extensions/PricingBlock.schema'
 import { SlashCommands } from './extensions/SlashCommands'
 import { TableCommands } from './extensions/TableCommands'
 import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
@@ -53,6 +52,7 @@ interface RichTextEditorProps {
   onPricingCommand?: OnPricingCommand
   isPricingDisabled?: () => boolean
   onPricingBlocksChange?: (blocks: PricingBlockAttributes[]) => void
+  customerLocale?: Locale
 }
 
 const RichTextEditor = ({
@@ -67,6 +67,7 @@ const RichTextEditor = ({
   isPricingDisabled,
   onPricingBlocksChange,
   onChange,
+  customerLocale,
 }: RichTextEditorProps) => {
   const { translate } = useInternationalization()
   const onChangeRef = useRef(onChange)
@@ -217,34 +218,9 @@ const RichTextEditor = ({
     return typeof result === 'string' ? result : undefined
   }, [editor])
 
-  // Generate preview HTML with a fresh headless editor so renderHTML() has current data.
-  // TipTap binds extension options at schema creation time, so mutating them later has no effect.
-  const previewHtml = useMemo(() => {
-    if (!isPreview || !editor) return ''
-
-    const markdown = getMarkdown()
-
-    if (!markdown) return editor.getHTML()
-
-    const previewEditor = new Editor({
-      extensions: [
-        ...getBaseExtensions(),
-        configureMention({ ...mentionBaseConfig, mentionValues }),
-        PricingBlockSchema.configure({ entities: entitiesFromProps }),
-      ],
-      content: markdown,
-    })
-
-    const html = previewEditor.getHTML()
-
-    previewEditor.destroy()
-
-    return html
-  }, [isPreview, editor, getMarkdown, mentionValues, entitiesFromProps])
-
   const contextValue = useMemo(
-    () => ({ mode, mentionValues, entities: entitiesFromProps, onPricingCommand }),
-    [mode, mentionValues, entitiesFromProps, onPricingCommand],
+    () => ({ mode, mentionValues, entities: entitiesFromProps, onPricingCommand, customerLocale }),
+    [mode, mentionValues, entitiesFromProps, onPricingCommand, customerLocale],
   )
 
   useEffect(() => {
@@ -281,17 +257,14 @@ const RichTextEditor = ({
 
   if (isPreview) {
     return (
-      <div
-        className="rich-text-editor relative h-full max-h-screen overflow-auto"
-        data-test={RICH_TEXT_EDITOR_TEST_ID}
-      >
+      <RichTextEditorProvider value={contextValue}>
         <div
-          className="ProseMirror"
-          contentEditable={false}
-          data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID}
-          dangerouslySetInnerHTML={{ __html: previewHtml }}
-        />
-      </div>
+          className="rich-text-editor relative h-full max-h-screen overflow-auto"
+          data-test={RICH_TEXT_EDITOR_TEST_ID}
+        >
+          <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
+        </div>
+      </RichTextEditorProvider>
     )
   }
 
