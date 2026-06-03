@@ -23,6 +23,7 @@ import {
   EDIT_WALLET_ROUTE,
   WALLET_DETAILS_ROUTE,
 } from '~/core/router'
+import { getCustomerDisplayName } from '~/core/utils/getCustomerDisplayName'
 import {
   useGetWalletDetailsQuery,
   WalletInfosForTransactionsFragmentDoc,
@@ -146,10 +147,10 @@ const WalletDetails = () => {
 
   const wallet = data?.wallet
 
-  const customerName =
-    wallet?.customer?.name ||
-    [wallet?.customer?.firstname, wallet?.customer?.lastname].filter(Boolean).join(' ') ||
-    wallet?.customer?.externalId
+  const customerName = getCustomerDisplayName({
+    customer: wallet?.customer,
+    fallback: wallet?.customer?.externalId,
+  })
 
   const {
     actions: walletActionItems,
