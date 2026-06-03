@@ -266,6 +266,7 @@ describe('useUpdatePlanWithCascade', () => {
       expect(capturedUpdateInput).not.toHaveProperty('usageThresholds')
       expect(capturedUpdateInput).not.toHaveProperty('entitlements')
       expect(capturedUpdateInput).toHaveProperty('description', null)
+      expect(capturedUpdateInput).toHaveProperty('invoiceDisplayName', null)
     })
 
     it('clears an emptied description by sending null in the payload', async () => {
@@ -287,6 +288,28 @@ describe('useUpdatePlanWithCascade', () => {
       })
 
       expect(capturedUpdateInput).toHaveProperty('description', null)
+    })
+
+    it('clears an emptied invoiceDisplayName by sending null in the payload', async () => {
+      const { result } = renderHook(
+        () =>
+          useUpdatePlanWithCascade({ plan: { ...basePlan, invoiceDisplayName: 'Custom name' } }),
+        { wrapper: wrapper([capturingUpdateMock]) },
+      )
+
+      act(() => {
+        result.current.form.setFieldValue('invoiceDisplayName', '')
+      })
+
+      await act(async () => {
+        await result.current.submit()
+      })
+
+      await waitFor(() => {
+        expect(capturedUpdateInput).toBeDefined()
+      })
+
+      expect(capturedUpdateInput).toHaveProperty('invoiceDisplayName', null)
     })
 
     it('includes minimumCommitment, usageThresholds and entitlements in payload when true', async () => {

@@ -168,7 +168,7 @@ export const useUpdatePlanWithCascade = ({
         amountCents: Number(serializeAmount(value.amountCents, value.amountCurrency)),
         payInAdvance: value.payInAdvance,
         trialPeriod: Number(value.trialPeriod || 0),
-        invoiceDisplayName: value.invoiceDisplayName || undefined,
+        invoiceDisplayName: value.invoiceDisplayName || null,
         billChargesMonthly: value.billChargesMonthly,
         billFixedChargesMonthly: value.billFixedChargesMonthly,
         taxCodes: value.taxes?.map((tax) => tax.code) ?? [],
