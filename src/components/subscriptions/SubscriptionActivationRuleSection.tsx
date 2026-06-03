@@ -98,6 +98,7 @@ export const SubscriptionActivationRuleSection = withForm({
             {(field) => (
               <field.RadioGroupField
                 optionsGapSpacing={3}
+                optionLabelVariant="body"
                 disabled={!isEditable}
                 options={[
                   {
@@ -131,7 +132,7 @@ export const SubscriptionActivationRuleSection = withForm({
                 label={translate('text_1779882021465u30p886nhn9')}
                 description={translate('text_1779882021466w4zlmq76sk3')}
                 beforeChangeFormatter={['positiveNumber', 'int']}
-                placeholder="24"
+                placeholder="0"
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
