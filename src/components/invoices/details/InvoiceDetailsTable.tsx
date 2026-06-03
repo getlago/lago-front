@@ -21,7 +21,6 @@ import {
   ErrorCodesEnum,
   FeeDetailsForInvoiceOverviewFragment,
   FeeForCreateFeeDrawerFragment,
-  FeeForCustomerInvoiceRegenerateFragmentDoc,
   FeeForInvoiceDetailsTableBodyLineFragment,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
   InvoiceForDetailsTableFooterFragmentDoc,
@@ -38,6 +37,14 @@ export const INVOICE_DETAILS_TABLE_SUBSCRIPTION_TEST_ID = 'invoice-details-subsc
 export const INVOICE_DETAILS_TABLE_ADD_FEE_BUTTON_TEST_ID = 'invoice-details-add-fee-button'
 
 gql`
+  fragment FeeForCustomerInvoiceRegenerate on Fee {
+    id
+    appliedTaxes {
+      id
+      taxCode
+    }
+  }
+
   fragment FeeForInvoiceDetailsTable on Fee {
     id
     amountCents
@@ -136,7 +143,6 @@ gql`
   ${InvoiceForDetailsTableFooterFragmentDoc}
   ${InvoiceForFormatInvoiceItemMapFragmentDoc}
   ${FeeForInvoiceDetailsTableBodyLineFragmentDoc}
-  ${FeeForCustomerInvoiceRegenerateFragmentDoc}
 `
 
 const getOneTimeFeeDisplayName = ({
