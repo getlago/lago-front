@@ -301,7 +301,7 @@ const SubscriptionDetails = () => {
           ),
         ],
         content: (
-          <DetailsPage.Container>
+          <DetailsPage.Container className="pb-0">
             <SubscriptionDetailsV2Plan subscriptionId={subscriptionId as string} />
           </DetailsPage.Container>
         ),
