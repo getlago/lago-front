@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { FC, useEffect } from 'react'
+import { FC, useEffect, useState } from 'react'
 
 import { PageSectionTitle } from '~/components/layouts/Section'
 import {
@@ -95,6 +95,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
     variables: {
       externalCustomerId: externalCustomerId || '',
     },
+    notifyOnNetworkStatusChange: true,
   })
   const [
     getCustomerGrossRevenues,
@@ -103,6 +104,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
     variables: {
       externalCustomerId: externalCustomerId || '',
     },
+    notifyOnNetworkStatusChange: true,
   })
 
   const refreshOverdueBalances = () =>
@@ -112,6 +114,37 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
         externalCustomerId: externalCustomerId || '',
       },
     })
+
+  // Apollo's `loading` flag is unreliable when previous data sits in the
+  // cache: even with `notifyOnNetworkStatusChange + network-only`, the hook
+  // returns `loading: false` synchronously because there is already a payload
+  // to render. A dedicated state explicitly mirrors the refresh round-trip
+  // so the Table skeleton renders for the full duration of the click.
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const refreshBreakdown = async () => {
+    setIsRefreshing(true)
+    try {
+      await Promise.all([
+        getCustomerOverdueBalances({
+          fetchPolicy: 'network-only',
+          variables: {
+            expireCache: true,
+            externalCustomerId: externalCustomerId || '',
+          },
+        }),
+        getCustomerGrossRevenues({
+          fetchPolicy: 'network-only',
+          variables: {
+            expireCache: true,
+            externalCustomerId: externalCustomerId || '',
+          },
+        }),
+      ])
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
 
   useEffect(() => {
     if (!externalCustomerId) return
@@ -130,7 +163,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
 
   if (overdueBalancesError && grossRevenuesError) return null
 
-  const isLoadingAnalytics = grossRevenuesLoading || overdueBalancesLoading
+  const isLoadingAnalytics = grossRevenuesLoading || overdueBalancesLoading || isRefreshing
   const hideEmptyBreakdown =
     showBreakdown &&
     !isLoadingAnalytics &&
@@ -145,6 +178,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
         data-test={showBreakdown ? CUSTOMER_OVERVIEW_BREAKDOWN : CUSTOMER_OVERVIEW_LEGACY_CARDS}
       >
         <PageSectionTitle
+          className="items-center"
           title={
             showBreakdown
               ? translate('text_1746526888530pbjcvaaox2c')
@@ -155,6 +189,14 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
               ? translate('text_17797160260210wwib2sy0sb')
               : translate('text_1737649151689ldyvwtq9ov1')
           }
+          action={
+            showBreakdown && hasPermissions(['analyticsView'])
+              ? {
+                  title: translate('text_1738748043939zqoqzz350yj'),
+                  onClick: refreshBreakdown,
+                }
+              : undefined
+          }
         />
 
         {showBreakdown ? (
@@ -162,7 +204,7 @@ export const CustomerOverview: FC<CustomerOverviewProps> = ({
             grossRevenues={grossRevenues}
             overdueBalances={overdueBalances}
             customerBillingEntity={customerBillingEntity}
-            isLoading={grossRevenuesLoading || overdueBalancesLoading}
+            isLoading={isLoadingAnalytics}
           />
         ) : (
           <CustomerInvoiceBalancesLegacyCards
