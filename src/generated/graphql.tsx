@@ -6397,6 +6397,44 @@ export enum OrderByEnum {
   NetRevenueAmountCents = 'net_revenue_amount_cents'
 }
 
+export type OrderForm = {
+  __typename?: 'OrderForm';
+  billingSnapshot: Scalars['JSON']['output'];
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  customer: Customer;
+  expiresAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  number: Scalars['String']['output'];
+  quote: Quote;
+  signedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  status: OrderFormStatusEnum;
+  updatedAt: Scalars['ISO8601DateTime']['output'];
+  voidReason?: Maybe<OrderFormVoidReasonEnum>;
+  voidedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+};
+
+/** OrderFormCollection type */
+export type OrderFormCollection = {
+  __typename?: 'OrderFormCollection';
+  /** A collection of paginated OrderFormCollection */
+  collection: Array<OrderForm>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+export enum OrderFormStatusEnum {
+  Expired = 'expired',
+  Generated = 'generated',
+  Signed = 'signed',
+  Voided = 'voided'
+}
+
+export enum OrderFormVoidReasonEnum {
+  Expired = 'expired',
+  Invalid = 'invalid',
+  Manual = 'manual'
+}
+
 export enum OrderTypeEnum {
   OneOff = 'one_off',
   SubscriptionAmendment = 'subscription_amendment',
@@ -6651,6 +6689,7 @@ export enum PermissionEnum {
   InvoicesUpdate = 'invoices_update',
   InvoicesView = 'invoices_view',
   InvoicesVoid = 'invoices_void',
+  OrderFormsView = 'order_forms_view',
   OrganizationEmailsUpdate = 'organization_emails_update',
   OrganizationEmailsView = 'organization_emails_view',
   OrganizationIntegrationsCreate = 'organization_integrations_create',
@@ -6763,6 +6802,7 @@ export type Permissions = {
   invoicesUpdate: Scalars['Boolean']['output'];
   invoicesView: Scalars['Boolean']['output'];
   invoicesVoid: Scalars['Boolean']['output'];
+  orderFormsView: Scalars['Boolean']['output'];
   organizationEmailsUpdate: Scalars['Boolean']['output'];
   organizationEmailsView: Scalars['Boolean']['output'];
   organizationIntegrationsCreate: Scalars['Boolean']['output'];
@@ -7321,6 +7361,10 @@ export type Query = {
   memberships: MembershipCollection;
   /** Query MRR of an organization */
   mrrs: MrrCollection;
+  /** Query a single order form */
+  orderForm?: Maybe<OrderForm>;
+  /** Query order forms */
+  orderForms: OrderFormCollection;
   /** Query the current organization */
   organization?: Maybe<CurrentOrganization>;
   /** Query overdue balances of an organization */
@@ -7980,6 +8024,27 @@ export type QueryMembershipsArgs = {
 export type QueryMrrsArgs = {
   billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
+};
+
+
+export type QueryOrderFormArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryOrderFormsArgs = {
+  createdAtFrom?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  createdAtTo?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  customerId?: InputMaybe<Array<Scalars['ID']['input']>>;
+  expiresAtFrom?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  expiresAtTo?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  number?: InputMaybe<Array<Scalars['String']['input']>>;
+  ownerId?: InputMaybe<Array<Scalars['ID']['input']>>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  quoteNumber?: InputMaybe<Array<Scalars['String']['input']>>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Array<OrderFormStatusEnum>>;
 };
 
 
