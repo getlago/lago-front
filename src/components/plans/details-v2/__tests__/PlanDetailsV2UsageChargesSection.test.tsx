@@ -130,7 +130,9 @@ describe('PlanDetailsV2UsageChargesSection', () => {
       ],
     }
 
-    render(<PlanDetailsV2UsageChargesSection plan={plan} />, { wrapper: Wrapper })
+    render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
+      wrapper: Wrapper,
+    })
     await userEvent.click(await screen.findByText('API calls'))
 
     expect(screen.getByText('text_17774502138912d3etwcacpe')).toBeInTheDocument()
