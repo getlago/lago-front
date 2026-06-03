@@ -606,4 +606,136 @@ describe('SlashCommands', () => {
       })
     })
   })
+
+  describe('GIVEN isPricingDisabled is configured', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    describe('WHEN isPricingDisabled returns true', () => {
+      it('THEN should mark the pricing item as disabled in triggerMenu', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnPricingCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onPricingCommand: mockOnPricingCommand,
+              isPricingDisabled: () => true,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; disabled: boolean }>
+        }
+        const pricingItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1779802343219a1cl5ckvtrn'),
+        )
+
+        expect(pricingItem?.disabled).toBe(true)
+
+        // Non-pricing items should not be disabled
+        const nonPricingItems = rendererProps.items.filter(
+          (item) => item.title !== mockTranslate('text_1779802343219a1cl5ckvtrn'),
+        )
+
+        nonPricingItems.forEach((item) => {
+          expect(item.disabled).toBe(false)
+        })
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN isPricingDisabled returns false', () => {
+      it('THEN should not mark the pricing item as disabled', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnPricingCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onPricingCommand: mockOnPricingCommand,
+              isPricingDisabled: () => false,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; disabled: boolean }>
+        }
+        const pricingItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1779802343219a1cl5ckvtrn'),
+        )
+
+        expect(pricingItem?.disabled).toBe(false)
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN a disabled item command is invoked in triggerMenu', () => {
+      it('THEN should not execute the command and not destroy the popup', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnPricingCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onPricingCommand: mockOnPricingCommand,
+              isPricingDisabled: () => true,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; disabled: boolean; command: jest.Mock }>
+          command: (item: { title: string; disabled: boolean; command: jest.Mock }) => void
+        }
+        const pricingItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1779802343219a1cl5ckvtrn'),
+        ) as { title: string; disabled: boolean; command: jest.Mock }
+
+        // Invoking the command callback with a disabled item should be a no-op
+        rendererProps.command(pricingItem)
+
+        expect(mockOnPricingCommand).not.toHaveBeenCalled()
+        // Popup should not be destroyed (still open)
+        expect(mockDestroyPopup).not.toHaveBeenCalled()
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+  })
 })

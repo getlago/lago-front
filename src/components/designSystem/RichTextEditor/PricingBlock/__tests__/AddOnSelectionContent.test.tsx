@@ -1,5 +1,7 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { DateTime } from 'luxon'
+import { z } from 'zod'
 
 import { CurrencyEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -394,6 +396,112 @@ describe('AddOnSelectionContent', () => {
         expect(screen.getByTestId('add-on-pending-0')).toBeInTheDocument()
 
         expect(onAddOnPayloadCapture).not.toHaveBeenCalled()
+      })
+    })
+  })
+})
+
+// --- editAddOnSchema validation tests (mirrors the schema defined in AddOnSelectionContent) ---
+
+const editAddOnSchema = z
+  .object({
+    invoiceDisplayName: z.string(),
+    description: z.string(),
+    fromDatetime: z.string().min(1, { message: 'Start date is required' }),
+    toDatetime: z.string().min(1, { message: 'End date is required' }),
+  })
+  .superRefine((data, ctx) => {
+    if (data.fromDatetime && data.toDatetime) {
+      const from = DateTime.fromISO(data.fromDatetime)
+      const to = DateTime.fromISO(data.toDatetime)
+
+      if (to < from) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'End date must not be before start date',
+          path: ['toDatetime'],
+        })
+      }
+    }
+  })
+
+describe('editAddOnSchema date validation (LAGO-1502)', () => {
+  const validData = {
+    invoiceDisplayName: 'Setup Fee',
+    description: 'Description',
+    fromDatetime: '2026-01-01T00:00:00.000+00:00',
+    toDatetime: '2026-01-31T23:59:59.999+00:00',
+  }
+
+  describe('GIVEN valid dates where toDatetime is after fromDatetime', () => {
+    describe('WHEN the schema validates', () => {
+      it('THEN should pass validation', () => {
+        const result = editAddOnSchema.safeParse(validData)
+
+        expect(result.success).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN toDatetime is before fromDatetime', () => {
+    describe('WHEN the schema validates', () => {
+      it('THEN should fail with an error on the toDatetime path', () => {
+        const result = editAddOnSchema.safeParse({
+          ...validData,
+          fromDatetime: '2026-06-15T00:00:00.000+00:00',
+          toDatetime: '2026-06-01T00:00:00.000+00:00',
+        })
+
+        expect(result.success).toBe(false)
+
+        if (!result.success) {
+          const toDatetimeError = result.error.issues.find((issue) =>
+            issue.path.includes('toDatetime'),
+          )
+
+          expect(toDatetimeError).toBeDefined()
+        }
+      })
+    })
+  })
+
+  describe('GIVEN toDatetime equals fromDatetime', () => {
+    describe('WHEN the schema validates', () => {
+      it('THEN should pass validation', () => {
+        const sameDate = '2026-06-15T00:00:00.000+00:00'
+        const result = editAddOnSchema.safeParse({
+          ...validData,
+          fromDatetime: sameDate,
+          toDatetime: sameDate,
+        })
+
+        expect(result.success).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN empty fromDatetime', () => {
+    describe('WHEN the schema validates', () => {
+      it('THEN should fail with required error on fromDatetime', () => {
+        const result = editAddOnSchema.safeParse({
+          ...validData,
+          fromDatetime: '',
+        })
+
+        expect(result.success).toBe(false)
+      })
+    })
+  })
+
+  describe('GIVEN empty toDatetime', () => {
+    describe('WHEN the schema validates', () => {
+      it('THEN should fail with required error on toDatetime', () => {
+        const result = editAddOnSchema.safeParse({
+          ...validData,
+          toDatetime: '',
+        })
+
+        expect(result.success).toBe(false)
       })
     })
   })

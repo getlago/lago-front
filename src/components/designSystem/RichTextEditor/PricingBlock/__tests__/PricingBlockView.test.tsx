@@ -243,5 +243,43 @@ describe('PricingBlockView', () => {
         expect(unresolvedElement.tagName).not.toBe('BUTTON')
       })
     })
+
+    describe('WHEN mouseDown occurs on the empty pricing block button', () => {
+      it('THEN should stop propagation to prevent BlockToolbar overlay', () => {
+        renderPricingBlockView()
+
+        const button = screen.getByTestId(PRICING_BLOCK_VIEW_EMPTY_TEST_ID)
+        const mouseDownEvent = new MouseEvent('mousedown', { bubbles: true, cancelable: true })
+        const stopPropagationSpy = jest.spyOn(mouseDownEvent, 'stopPropagation')
+
+        button.dispatchEvent(mouseDownEvent)
+
+        expect(stopPropagationSpy).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN mouseDown occurs on the resolved pricing block button', () => {
+      it('THEN should stop propagation to prevent BlockToolbar overlay', () => {
+        renderPricingBlockView({
+          attrs: { pricingType: 'plan', entityIds: ['plan-1'] },
+          entities: {
+            'plan-1': {
+              entityId: 'plan-1',
+              entityType: 'plan',
+              name: 'Basic Plan',
+              code: 'basic',
+            },
+          },
+        })
+
+        const button = screen.getByTestId(PRICING_BLOCK_VIEW_TEST_ID)
+        const mouseDownEvent = new MouseEvent('mousedown', { bubbles: true, cancelable: true })
+        const stopPropagationSpy = jest.spyOn(mouseDownEvent, 'stopPropagation')
+
+        button.dispatchEvent(mouseDownEvent)
+
+        expect(stopPropagationSpy).toHaveBeenCalled()
+      })
+    })
   })
 })

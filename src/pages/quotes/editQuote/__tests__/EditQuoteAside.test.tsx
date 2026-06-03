@@ -205,7 +205,7 @@ describe('EditQuoteAside', () => {
     })
   })
 
-  describe('GIVEN a quote with dates and payment term', () => {
+  describe('GIVEN a subscription quote with dates and payment term', () => {
     describe('WHEN the component renders', () => {
       it('THEN should render the start date field', () => {
         render(<EditQuoteAside quote={mockQuote} />)
@@ -221,6 +221,33 @@ describe('EditQuoteAside', () => {
 
       it('THEN should render the payment term field', () => {
         render(<EditQuoteAside quote={mockQuote} />)
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_PAYMENT_TERM_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a one-off quote', () => {
+    const oneOffQuote = {
+      ...mockQuote,
+      orderType: OrderTypeEnum.OneOff,
+    }
+
+    describe('WHEN the component renders', () => {
+      it('THEN should NOT render the start date field', () => {
+        render(<EditQuoteAside quote={oneOffQuote} />)
+
+        expect(screen.queryByTestId(EDIT_QUOTE_ASIDE_START_DATE_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should NOT render the end date field', () => {
+        render(<EditQuoteAside quote={oneOffQuote} />)
+
+        expect(screen.queryByTestId(EDIT_QUOTE_ASIDE_END_DATE_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should still render the payment term field', () => {
+        render(<EditQuoteAside quote={oneOffQuote} />)
 
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_PAYMENT_TERM_TEST_ID)).toBeInTheDocument()
       })

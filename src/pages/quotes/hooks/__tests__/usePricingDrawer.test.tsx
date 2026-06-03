@@ -267,6 +267,103 @@ describe('usePricingDrawer', () => {
     })
   })
 
+  describe('GIVEN isPricingDisabled is called', () => {
+    describe('WHEN order type is one-off and entities exist', () => {
+      it('THEN should return true', () => {
+        mockedFromBillingItems.mockReturnValue({
+          entities: {
+            'addon-1': {
+              entityId: 'addon-1',
+              entityType: 'addOn',
+              name: 'Setup Fee',
+              code: 'setup',
+            },
+          },
+          originalPayloads: {
+            'addon-1': mockAddOnPayload,
+          },
+          addOnItems: [],
+        })
+
+        const { result } = renderHook(
+          () => usePricingDrawer(OrderTypeEnum.OneOff, mockBillingItemsPayload),
+          { wrapper },
+        )
+
+        expect(result.current.isPricingDisabled()).toBe(true)
+      })
+    })
+
+    describe('WHEN order type is one-off and no entities exist', () => {
+      it('THEN should return false', () => {
+        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), { wrapper })
+
+        expect(result.current.isPricingDisabled()).toBe(false)
+      })
+    })
+
+    describe('WHEN order type is subscription creation and entities exist', () => {
+      it('THEN should return false', () => {
+        mockedFromBillingItems.mockReturnValue({
+          entities: {
+            'addon-1': {
+              entityId: 'addon-1',
+              entityType: 'addOn',
+              name: 'Setup Fee',
+              code: 'setup',
+            },
+          },
+          originalPayloads: {
+            'addon-1': mockAddOnPayload,
+          },
+          addOnItems: [],
+        })
+
+        const { result } = renderHook(
+          () => usePricingDrawer(OrderTypeEnum.SubscriptionCreation, mockBillingItemsPayload),
+          { wrapper },
+        )
+
+        expect(result.current.isPricingDisabled()).toBe(false)
+      })
+    })
+  })
+
+  describe('GIVEN onPricingCommand is called for a one-off quote with existing entities', () => {
+    describe('WHEN it is a new insertion (no editData)', () => {
+      it('THEN should not open the form drawer', () => {
+        mockedFromBillingItems.mockReturnValue({
+          entities: {
+            'addon-1': {
+              entityId: 'addon-1',
+              entityType: 'addOn',
+              name: 'Setup Fee',
+              code: 'setup',
+            },
+          },
+          originalPayloads: {
+            'addon-1': mockAddOnPayload,
+          },
+          addOnItems: [],
+        })
+
+        const { result } = renderHook(
+          () => usePricingDrawer(OrderTypeEnum.OneOff, mockBillingItemsPayload),
+          { wrapper },
+        )
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: jest.fn(),
+            editData: undefined,
+          })
+        })
+
+        expect(mockFormDrawerOpen).not.toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('GIVEN syncEntitiesWithBlocks is called', () => {
     describe('WHEN all entities are referenced in blocks', () => {
       it('THEN should return null indicating no orphans', () => {
