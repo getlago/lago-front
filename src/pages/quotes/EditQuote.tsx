@@ -15,6 +15,7 @@ import { RightAsidePage } from '~/components/layouts/RightAsidePage'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
+import type { Locale } from '~/core/translations'
 import { type UpdateQuoteVersionInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -65,6 +66,8 @@ const EditQuote = () => {
 
   const { onPricingCommand, isPricingDisabled, entities, syncEntitiesWithBlocks } =
     usePricingDrawer(quote?.orderType, quote?.currentVersion?.billingItems)
+
+  const customerLocale = (quote?.customer?.billingConfiguration?.documentLocale ?? 'en') as Locale
 
   const getMarkdownRef = useRef<(() => string) | null>(null)
   const lastSavedContentRef = useRef('')
@@ -286,6 +289,7 @@ const EditQuote = () => {
           isPricingDisabled={isPricingDisabled}
           entities={entities}
           onPricingBlocksChange={handlePricingBlocksChange}
+          customerLocale={customerLocale}
         />
       </RightAsidePage.Content>
     </RightAsidePage.Wrapper>
