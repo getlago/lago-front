@@ -99,7 +99,7 @@ export const PreviewTable = <T,>({
                   style={{
                     width:
                       column.maxSpace && maxSpaceColumns > 0 ? `${100 / maxSpaceColumns}%` : 'auto',
-                    borderBottom: `1px solid ${theme.palette.grey[300]}`,
+                    borderBottom: 'none',
                   }}
                   sx={{
                     '& > div': { paddingRight: '32px' },
