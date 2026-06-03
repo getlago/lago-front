@@ -1,7 +1,6 @@
 import { PreviewTable, type PreviewTableColumn } from '~/components/designSystem/Table/PreviewTable'
 import { Typography } from '~/components/designSystem/Typography'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone/utils'
 import type { LocaleEnum } from '~/core/translations'
 import type { CurrencyEnum } from '~/generated/graphql'
@@ -84,7 +83,7 @@ export const OneOffAddOnsPreviewTable = ({
       textAlign: 'right',
       content: (entity) => (
         <Typography variant="body" color="grey700">
-          {intlFormatNumber(deserializeAmount(entity.totalAmount ?? '0', currency), {
+          {intlFormatNumber(Number.parseFloat(entity.totalAmount ?? '0'), {
             currency,
             locale,
           })}
