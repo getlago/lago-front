@@ -36,11 +36,13 @@ jest.mock('~/components/MainHeader/useMainHeaderTabContent', () => ({
   useMainHeaderTabContent: () => <div data-test="active-tab-content">Tab Content</div>,
 }))
 
-let capturedBreadcrumb: Array<{ label: string; path?: string }> | undefined
+let capturedBreadcrumb: Array<{ label: string; path?: string; loading?: boolean }> | undefined
 
 jest.mock('~/components/MainHeader/MainHeader', () => ({
   MainHeader: {
-    Configure: (props: { breadcrumb?: Array<{ label: string; path?: string }> }) => {
+    Configure: (props: {
+      breadcrumb?: Array<{ label: string; path?: string; loading?: boolean }>
+    }) => {
       capturedBreadcrumb = props.breadcrumb
       return null
     },
