@@ -307,7 +307,7 @@ const WalletDetails = () => {
             path: CUSTOMERS_LIST_ROUTE,
           },
           {
-            label: customerName ?? '',
+            label: customerName,
             path: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
               customerId: customerId as string,
               tab: CustomerDetailsTabsOptions.wallet,
