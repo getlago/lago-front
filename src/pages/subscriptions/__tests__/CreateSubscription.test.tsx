@@ -281,10 +281,6 @@ jest.mock('~/components/subscriptions/FeatureEntitlementSection', () => ({
   FeatureEntitlementSection: () => <div data-test="feature-entitlement-section" />,
 }))
 
-jest.mock('~/components/PremiumWarningDialog', () => ({
-  PremiumWarningDialog: () => <div data-test="premium-warning-dialog" />,
-}))
-
 jest.mock('~/components/invoices/EditInvoiceDisplayNameDialog', () => ({
   EditInvoiceDisplayNameDialog: () => <div data-test="edit-invoice-display-name-dialog" />,
 }))

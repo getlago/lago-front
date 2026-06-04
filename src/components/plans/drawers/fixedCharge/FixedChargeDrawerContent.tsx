@@ -4,12 +4,13 @@ import { useStore } from '@tanstack/react-form'
 import { useCallback, useMemo } from 'react'
 
 import { Selector } from '~/components/designSystem/Selector'
-import { Typography } from '~/components/designSystem/Typography'
-import { ComboboxItem } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
 import { ChargeWrapperSwitch } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { ChargePayInAdvanceOption } from '~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption'
+import { seedChargeCode } from '~/components/plans/drawers/common/chargeCode'
+import ChargeCodeField from '~/components/plans/drawers/common/ChargeCodeField'
+import { buildCodeComboboxItem } from '~/components/plans/drawers/common/codeComboboxItem'
 import { PlanBillingPeriodInfoSection } from '~/components/plans/drawers/common/PlanBillingPeriodInfoSection'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
@@ -63,6 +64,9 @@ interface FixedChargeDrawerContentExtraProps {
   isInSubscriptionForm: boolean
   disabled: boolean
   alertMessage?: string
+  // TEMP (LAGO-1498): Code is shown only via the v2 details/edition UI.
+  showCode?: boolean
+  existingChargeCodes?: (string | null | undefined)[]
 }
 
 const fixedChargeDrawerContentDefaultProps: FixedChargeDrawerContentExtraProps = {
@@ -71,6 +75,8 @@ const fixedChargeDrawerContentDefaultProps: FixedChargeDrawerContentExtraProps =
   isInSubscriptionForm: false,
   disabled: false,
   alertMessage: undefined,
+  showCode: false,
+  existingChargeCodes: undefined,
 }
 
 export const FixedChargeDrawerContent = withForm({
@@ -83,6 +89,8 @@ export const FixedChargeDrawerContent = withForm({
     isInSubscriptionForm,
     disabled,
     alertMessage,
+    showCode,
+    existingChargeCodes,
   }) {
     const { translate } = useInternationalization()
     const { currency } = usePlanFormContext()
@@ -103,20 +111,9 @@ export const FixedChargeDrawerContent = withForm({
     const addOnsComboboxData = useMemo(() => {
       if (!addOnsData?.addOns?.collection?.length) return []
 
-      return addOnsData.addOns.collection.map(({ id, name, code }) => ({
-        label: `${name} (${code})`,
-        labelNode: (
-          <ComboboxItem>
-            <Typography variant="body" color="grey700" noWrap>
-              {name}
-            </Typography>
-            <Typography variant="caption" color="grey600" noWrap>
-              {code}
-            </Typography>
-          </ComboboxItem>
-        ),
-        value: id,
-      }))
+      return addOnsData.addOns.collection.map(({ id, name, code }) =>
+        buildCodeComboboxItem({ id, name, code }),
+      )
     }, [addOnsData?.addOns?.collection])
 
     const {
@@ -208,6 +205,13 @@ export const FixedChargeDrawerContent = withForm({
                         name: selectedAddOn.name,
                         code: selectedAddOn.code,
                       })
+
+                      seedChargeCode({
+                        enabled: !!showCode && isCreateMode,
+                        sourceCode: selectedAddOn.code,
+                        existingChargeCodes,
+                        setCode: (nextCode) => form.setFieldValue('code', nextCode),
+                      })
                     }
                   },
                 }}
@@ -235,6 +239,14 @@ export const FixedChargeDrawerContent = withForm({
                   title={formValues.addOn.name}
                   subtitle={formValues.addOn.code}
                 />
+
+                {showCode && (
+                  <ChargeCodeField
+                    form={form}
+                    fields={{ code: 'code' }}
+                    disabled={isInSubscriptionForm}
+                  />
+                )}
               </CenteredPage.PageSection>
 
               {/* Pricing settings */}

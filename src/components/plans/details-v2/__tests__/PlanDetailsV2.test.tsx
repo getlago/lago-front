@@ -8,16 +8,12 @@ import { PLAN_DETAILS_V2_FIXTURE_ID, planDetailsV2Fixture } from './fixtures'
 
 import { PlanDetailsV2 } from '../PlanDetailsV2'
 
-jest.mock('~/components/plans/drawers/planSettings/PlanSettingsDrawer', () => {
-  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
-
-  const PlanSettingsDrawer = forwardRef((_props: unknown, ref: unknown) => {
-    useImperativeHandle(ref, () => ({ openDrawer: jest.fn(), closeDrawer: jest.fn() }))
-    return null
-  })
-
-  return { __esModule: true, PlanSettingsDrawer }
-})
+// Mock the drawer hook (not a component): the section calls usePlanSettingsDrawer
+// which pulls in the NiceModal drawer stack (drawerStack.ts uses import.meta and
+// crashes Jest), so stub it to a no-op openDrawer.
+jest.mock('~/components/plans/drawers/planSettings/usePlanSettingsDrawer', () => ({
+  usePlanSettingsDrawer: () => ({ openDrawer: jest.fn() }),
+}))
 
 jest.mock('~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer', () => {
   const { forwardRef, useImperativeHandle } = jest.requireActual('react')
@@ -50,6 +46,34 @@ jest.mock('~/components/plans/drawers/usageCharge/UsageChargeDrawer', () => {
   })
 
   return { __esModule: true, UsageChargeDrawer }
+})
+
+jest.mock('~/components/plans/details-v2/accordions/MinimumCommitmentAccordion', () => {
+  const React = jest.requireActual('react')
+
+  return {
+    __esModule: true,
+    MinimumCommitmentAccordion: () => React.createElement('section', { id: 'minimum-commitment' }),
+  }
+})
+
+jest.mock('~/components/plans/details-v2/accordions/ProgressiveBillingAccordion', () => {
+  const React = jest.requireActual('react')
+
+  return {
+    __esModule: true,
+    ProgressiveBillingAccordion: () =>
+      React.createElement('section', { id: 'progressive-billing' }),
+  }
+})
+
+jest.mock('~/components/plans/details-v2/accordions/EntitlementAccordion', () => {
+  const React = jest.requireActual('react')
+
+  return {
+    __esModule: true,
+    EntitlementAccordion: () => React.createElement('section', { id: 'entitlements' }),
+  }
 })
 
 jest.mock('~/hooks/core/useInternationalization', () => ({

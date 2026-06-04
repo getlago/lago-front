@@ -5,11 +5,16 @@ import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
 import { useDrawer } from '~/components/drawers/useDrawer'
+import {
+  applyExistingCodeError,
+  buildChargeCodeSchema,
+} from '~/components/plans/drawers/common/chargeCode'
 import { RemoveChargeWarningDialogRef } from '~/components/plans/RemoveChargeWarningDialog'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { PlanFormProvider, usePlanFormContext } from '~/contexts/PlanFormContext'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
 import {
+  FORM_ERRORS_ENUM,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_ADD_ON_IN_FIXED_CHARGE_DRAWER_INPUT_CLASSNAME,
 } from '~/core/constants/form'
@@ -27,30 +32,35 @@ import { FixedChargeDrawerContent } from './FixedChargeDrawerContent'
 
 export { type FixedChargeDrawerFormValues, DEFAULT_VALUES } from './constants'
 
-const fixedChargeDrawerSchema = z
-  .object({
-    addOnId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
-    addOn: z.custom<AddOnForFixedChargesSectionFragment>(),
-    applyUnitsImmediately: z.boolean(),
-    chargeModel: z.enum(FixedChargeChargeModelEnum),
-    id: z.string().optional(),
-    invoiceDisplayName: z.string(),
-    payInAdvance: z.boolean(),
-    properties: z.record(z.string(), z.unknown()),
-    prorated: z.boolean(),
-    taxes: z.array(
-      z.object({ id: z.string(), code: z.string(), name: z.string(), rate: z.number() }),
-    ),
-    units: z
-      .string()
-      .min(1, { message: 'text_624ea7c29103fd010732ab7d' })
-      .refine((val) => !Number.isNaN(Number(val)), {
-        message: 'text_624ea7c29103fd010732ab7d',
-      }),
-  })
-  .superRefine((data, ctx) => {
-    validateChargeProperties(data.chargeModel, data.properties, ctx, ['properties'])
-  })
+// `code` is only required when the field is shown (v2 details/edition via
+// `showCode`); the legacy plan form keeps it optional so its hidden, empty code
+// never blocks submit.
+const buildFixedChargeDrawerSchema = (requireCode: boolean) =>
+  z
+    .object({
+      addOnId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+      addOn: z.custom<AddOnForFixedChargesSectionFragment>(),
+      applyUnitsImmediately: z.boolean(),
+      chargeModel: z.enum(FixedChargeChargeModelEnum),
+      code: buildChargeCodeSchema(requireCode),
+      id: z.string().optional(),
+      invoiceDisplayName: z.string(),
+      payInAdvance: z.boolean(),
+      properties: z.record(z.string(), z.unknown()),
+      prorated: z.boolean(),
+      taxes: z.array(
+        z.object({ id: z.string(), code: z.string(), name: z.string(), rate: z.number() }),
+      ),
+      units: z
+        .string()
+        .min(1, { message: 'text_624ea7c29103fd010732ab7d' })
+        .refine((val) => !Number.isNaN(Number(val)), {
+          message: 'text_624ea7c29103fd010732ab7d',
+        }),
+    })
+    .superRefine((data, ctx) => {
+      validateChargeProperties(data.chargeModel, data.properties, ctx, ['properties'])
+    })
 
 export interface FixedChargeDrawerRef {
   openDrawer: (
@@ -65,17 +75,34 @@ interface FixedChargeDrawerProps {
   disabled?: boolean
   isEdition?: boolean
   isInSubscriptionForm?: boolean
+  // TEMP (LAGO-1498): drop showCode + existingChargeCodes once the old
+  // plan/subscription forms are retired and the Code field becomes unconditional.
+  showCode?: boolean
+  existingChargeCodes?: (string | null | undefined)[]
   onSave: (
     charge: LocalFixedChargeInput,
     index: number | null,
-  ) => void | boolean | Promise<void | boolean>
+  ) =>
+    | void
+    | boolean
+    | FORM_ERRORS_ENUM.existingCode
+    | Promise<void | boolean | FORM_ERRORS_ENUM.existingCode>
   onDelete?: (index: number) => void
   removeChargeWarningDialogRef?: React.RefObject<RemoveChargeWarningDialogRef>
 }
 
 export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDrawerProps>(
   (
-    { disabled, isEdition, isInSubscriptionForm, onSave, onDelete, removeChargeWarningDialogRef },
+    {
+      disabled,
+      isEdition,
+      isInSubscriptionForm,
+      showCode = false,
+      existingChargeCodes,
+      onSave,
+      onDelete,
+      removeChargeWarningDialogRef,
+    },
     ref,
   ) => {
     const { translate } = useInternationalization()
@@ -92,13 +119,14 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
       defaultValues: DEFAULT_VALUES,
       validationLogic: revalidateLogic(),
       validators: {
-        onDynamic: fixedChargeDrawerSchema,
+        onDynamic: buildFixedChargeDrawerSchema(showCode),
       },
-      onSubmit: async ({ value }) => {
+      onSubmit: async ({ value, formApi }) => {
         const localFixedCharge: LocalFixedChargeInput = {
           addOn: value.addOn,
           applyUnitsImmediately: value.applyUnitsImmediately,
           chargeModel: value.chargeModel,
+          code: value.code || undefined,
           id: value.id,
           invoiceDisplayName: value.invoiceDisplayName || undefined,
           payInAdvance: value.payInAdvance,
@@ -112,6 +140,14 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
           localFixedCharge,
           isCreateModeRef.current ? null : editIndexRef.current,
         )
+
+        // Backend rejected a duplicate code: surface it under the Code input
+        // (same pattern as plan-settings code) and keep the drawer open.
+        if (result === FORM_ERRORS_ENUM.existingCode) {
+          applyExistingCodeError(formApi)
+          return
+        }
+
         if (result !== false) {
           fixedChargeDrawer.close()
         }
@@ -161,6 +197,8 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
               isInSubscriptionForm={isInSubscriptionForm || false}
               disabled={disabled || false}
               alertMessage={alertMessageRef.current}
+              showCode={showCode}
+              existingChargeCodes={existingChargeCodes}
             />
           </PlanFormProvider>
         ),
@@ -215,6 +253,7 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
               addOn: charge.addOn,
               applyUnitsImmediately: charge.applyUnitsImmediately || false,
               chargeModel: charge.chargeModel,
+              code: charge.code || '',
               id: charge.id,
               invoiceDisplayName: charge.invoiceDisplayName || '',
               payInAdvance: charge.payInAdvance || false,

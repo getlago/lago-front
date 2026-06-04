@@ -6,6 +6,7 @@ import { Charge, CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { PlanDetailsChargeWrapperSwitch } from './PlanDetailsChargeWrapperSwitch'
+import PlanDetailsPresentationGroupKeys from './PlanDetailsPresentationGroupKeys'
 
 interface ChargeWithIndex extends Charge {
   [index: number]: unknown
@@ -21,12 +22,19 @@ export const PlanDetailsUsageChargesSectionAccordion = ({
   currency,
 }: PlanDetailsUsageChargesSectionAccordionProps) => {
   const { translate } = useInternationalization()
+  const hasFilters = !!charge?.billableMetric?.filters?.length
 
   return (
     <section className="flex flex-col gap-4 px-4 pb-4 shadow-b">
+      {hasFilters && (
+        <PlanDetailsPresentationGroupKeys
+          presentationGroupKeys={charge.properties?.presentationGroupKeys}
+        />
+      )}
+
       {/* Default properties */}
       <ConditionalWrapper
-        condition={!!charge?.billableMetric?.filters?.length}
+        condition={hasFilters}
         invalidWrapper={(children) => <div>{children}</div>}
         validWrapper={(children) => (
           <Accordion
@@ -45,6 +53,7 @@ export const PlanDetailsUsageChargesSectionAccordion = ({
           chargeModel={charge.chargeModel}
           values={charge.properties}
           chargeAppliedPricingUnit={charge.appliedPricingUnit}
+          showPresentationGroupKeys={!hasFilters}
         />
       </ConditionalWrapper>
 

@@ -11,12 +11,14 @@ export const InvoiceDetailsTablePeriodLine = ({
   isDraftInvoice,
   period,
 }: InvoiceDetailsTablePeriodLineProps): JSX.Element => {
-  let colSpan = 4
+  // Column counts match `InvoiceTableSection`'s table-structure classes:
+  // - draft (canHaveUnitPrice): 6 columns (incl. action)
+  // - non-draft, canHaveUnitPrice: 6 columns (incl. action)
+  // - non-draft, no canHaveUnitPrice: 5 columns (incl. action)
+  let colSpan = 5
 
-  if (isDraftInvoice) {
+  if (isDraftInvoice || canHaveUnitPrice) {
     colSpan = 6
-  } else if (canHaveUnitPrice) {
-    colSpan = 5
   }
 
   return (

@@ -1,8 +1,6 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createRef } from 'react'
 
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { AggregationTypeEnum, ChargeModelEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 import { createMockPlanForm } from '~/test-utils/createMockPlanForm'
@@ -89,8 +87,6 @@ const createMockCharge = (overrides: Partial<LocalUsageChargeInput> = {}): Local
 
 const createForm = (overrides: Partial<PlanFormInput> = {}) => createMockPlanForm(overrides)
 
-const premiumWarningDialogRef = createRef<PremiumWarningDialogRef>()
-
 // --- Tests ---
 
 describe('UsageChargesSection', () => {
@@ -103,13 +99,7 @@ describe('UsageChargesSection', () => {
       it('THEN should render the add usage charge button', () => {
         const form = createForm()
 
-        render(
-          <UsageChargesSection
-            form={form}
-            isEdition={false}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />,
-        )
+        render(<UsageChargesSection form={form} isEdition={false} />)
 
         expect(screen.getByTestId(USAGE_CHARGES_ADD_BUTTON_TEST_ID)).toBeInTheDocument()
       })
@@ -117,13 +107,7 @@ describe('UsageChargesSection', () => {
       it('THEN should render the mocked drawer', () => {
         const form = createForm()
 
-        render(
-          <UsageChargesSection
-            form={form}
-            isEdition={false}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />,
-        )
+        render(<UsageChargesSection form={form} isEdition={false} />)
 
         expect(screen.getByTestId('usage-charge-drawer-mock')).toBeInTheDocument()
       })
@@ -134,12 +118,7 @@ describe('UsageChargesSection', () => {
         const form = createForm()
 
         const { container } = render(
-          <UsageChargesSection
-            form={form}
-            isEdition={false}
-            isInSubscriptionForm
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />,
+          <UsageChargesSection form={form} isEdition={false} isInSubscriptionForm />,
         )
 
         expect(screen.queryByTestId(USAGE_CHARGES_ADD_BUTTON_TEST_ID)).not.toBeInTheDocument()
@@ -156,13 +135,7 @@ describe('UsageChargesSection', () => {
       it('THEN should render charge selectors', () => {
         const form = createForm({ charges: [charge] })
 
-        render(
-          <UsageChargesSection
-            form={form}
-            isEdition={false}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />,
-        )
+        render(<UsageChargesSection form={form} isEdition={false} />)
 
         expect(screen.getByTestId('usage-charge-selector-0')).toBeInTheDocument()
       })
@@ -182,13 +155,7 @@ describe('UsageChargesSection', () => {
         })
         const form = createForm({ charges: [meteredCharge, recurringCharge] })
 
-        render(
-          <UsageChargesSection
-            form={form}
-            isEdition={false}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />,
-        )
+        render(<UsageChargesSection form={form} isEdition={false} />)
 
         expect(screen.getByTestId('usage-charge-selector-0')).toBeInTheDocument()
         expect(screen.getByTestId('usage-charge-selector-1')).toBeInTheDocument()
@@ -202,13 +169,7 @@ describe('UsageChargesSection', () => {
         const user = userEvent.setup()
         const form = createForm()
 
-        render(
-          <UsageChargesSection
-            form={form}
-            isEdition={false}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />,
-        )
+        render(<UsageChargesSection form={form} isEdition={false} />)
 
         await user.click(screen.getByTestId(USAGE_CHARGES_ADD_BUTTON_TEST_ID))
 
@@ -225,13 +186,7 @@ describe('UsageChargesSection', () => {
         const charge = createMockCharge()
         const form = createForm({ charges: [charge] })
 
-        render(
-          <UsageChargesSection
-            form={form}
-            isEdition={false}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />,
-        )
+        render(<UsageChargesSection form={form} isEdition={false} />)
 
         await user.click(screen.getByTestId('usage-charge-selector-0'))
 

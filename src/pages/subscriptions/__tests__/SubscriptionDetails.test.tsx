@@ -76,6 +76,14 @@ jest.mock('~/components/customers/subscriptions/TerminateCustomerSubscriptionDia
   }),
 }))
 
+jest.mock('~/components/subscriptions/details-v2/SubscriptionDetailsV2Plan', () => ({
+  SubscriptionDetailsV2Plan: () => null,
+}))
+
+jest.mock('~/components/subscriptions/details-v2/SubscriptionDetailsV2Overview', () => ({
+  SubscriptionDetailsV2Overview: () => null,
+}))
+
 const mockSubscription = {
   id: 'subscription-1',
   name: 'Test Subscription',

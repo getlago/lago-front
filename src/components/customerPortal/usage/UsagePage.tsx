@@ -200,7 +200,6 @@ const UsagePage = () => {
             isUsedinCustomerPortal
             activeTab={activeTab}
             setActiveTab={setActiveTab}
-            showExcludingTaxLabel
             usageData={
               (usageDataProjected?.customerPortalCustomerProjectedUsage ||
                 usageData?.customerPortalCustomerUsage) as UsageData

@@ -23,6 +23,7 @@ import {
   EDIT_WALLET_ROUTE,
   WALLET_DETAILS_ROUTE,
 } from '~/core/router'
+import { getCustomerDisplayName } from '~/core/utils/getCustomerDisplayName'
 import {
   useGetWalletDetailsQuery,
   WalletInfosForTransactionsFragmentDoc,
@@ -64,6 +65,13 @@ gql`
         brand
         last4
       }
+    }
+    customer {
+      id
+      name
+      firstname
+      lastname
+      externalId
     }
     selectedInvoiceCustomSections {
       id
@@ -140,6 +148,11 @@ const WalletDetails = () => {
 
   const wallet = data?.wallet
 
+  const customerName = getCustomerDisplayName({
+    customer: wallet?.customer,
+    fallback: wallet?.customer?.externalId,
+  })
+
   const {
     actions: walletActionItems,
     terminateDialogRef,
@@ -156,6 +169,18 @@ const WalletDetails = () => {
   const createdAtTitle = translate('text_62da6ec24a8e24e44f8128b2', {
     createdAt: intlFormatDateTimeOrgaTZ(wallet?.createdAt).date,
   })
+
+  // The MainHeader config snapshot strips the tabs' `content` ReactNode, so a balance
+  // change alone would not re-push the config and the header would keep stale values.
+  // Bumping this key on balance changes forces the fresh content through (credits fields
+  // are derived from their *Cents counterparts, so the cents alone are enough).
+  const walletSnapshotKey = [
+    wallet?.balanceCents,
+    wallet?.ongoingBalanceCents,
+    wallet?.ongoingUsageBalanceCents,
+    wallet?.consumedAmountCents,
+    wallet?.status,
+  ].join('|')
 
   const tabs = useMemo(() => {
     return [
@@ -295,11 +320,12 @@ const WalletDetails = () => {
             path: CUSTOMERS_LIST_ROUTE,
           },
           {
-            label: translate('text_62d175066d2dbf1d50bc937c'),
+            label: customerName,
             path: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
               customerId: customerId as string,
               tab: CustomerDetailsTabsOptions.wallet,
             }),
+            loading,
           },
         ]}
         entity={{
@@ -310,6 +336,7 @@ const WalletDetails = () => {
         }}
         actions={{ items: headerActions, loading }}
         tabs={tabs}
+        snapshotKey={walletSnapshotKey}
       />
 
       <>{activeTabContent}</>

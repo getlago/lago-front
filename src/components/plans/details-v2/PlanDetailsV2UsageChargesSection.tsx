@@ -9,6 +9,7 @@ import {
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargeInfo } from '~/components/plans/UsageChargeInfo'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import {
   CurrencyEnum,
   CustomChargeFragmentDoc,
@@ -18,6 +19,7 @@ import {
   PercentageChargeFragmentDoc,
   PlanForDetailsV2UsageChargesSectionFragment,
   PlanInterval,
+  PresentationGroupKeysFragmentDoc,
   PricingGroupKeysFragmentDoc,
   StandardChargeFragmentDoc,
   TaxForPlanSettingsSectionFragmentDoc,
@@ -25,10 +27,9 @@ import {
   VolumeRangesFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useChargeMutationsWithCascade } from '~/hooks/plans/useChargeMutationsWithCascade'
+import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { toLocalUsageChargeInput } from '~/hooks/plans/utils'
-import { usePermissions } from '~/hooks/usePermissions'
 
 import { SectionAccordion } from './shared/SectionAccordion'
 import { SectionHeader } from './shared/SectionHeader'
@@ -37,6 +38,7 @@ import { PlanDetailsV2SectionId } from './sidebarSections'
 gql`
   fragment UsageChargeForDetailsV2 on Charge {
     id
+    code
     chargeModel
     invoiceable
     invoiceDisplayName
@@ -59,6 +61,7 @@ gql`
       ...PercentageCharge
       ...CustomCharge
       ...PricingGroupKeys
+      ...PresentationGroupKeys
     }
     filters {
       id
@@ -129,6 +132,7 @@ gql`
   ${PercentageChargeFragmentDoc}
   ${CustomChargeFragmentDoc}
   ${PricingGroupKeysFragmentDoc}
+  ${PresentationGroupKeysFragmentDoc}
   ${TaxForTaxesSelectorSectionFragmentDoc}
   ${TaxForPlanSettingsSectionFragmentDoc}
 `
@@ -137,29 +141,30 @@ export type PlanDetailsV2UsageChargesSectionRef = {
   openCreate: () => void
 }
 
+export type UsageChargeMutations = {
+  handleSaveCharge: (
+    charge: LocalUsageChargeInput,
+    index: number | null,
+  ) => Promise<boolean | FORM_ERRORS_ENUM.existingCode>
+  handleDeleteCharge: (chargeId: string) => Promise<boolean>
+}
+
 type Props = {
   plan: PlanForDetailsV2UsageChargesSectionFragment
   isInSubscriptionForm?: boolean
+  chargeMutations: UsageChargeMutations
 }
 
 export const PlanDetailsV2UsageChargesSection = forwardRef<
   PlanDetailsV2UsageChargesSectionRef,
   Props
->(({ plan, isInSubscriptionForm = false }, ref) => {
+>(({ plan, isInSubscriptionForm = false, chargeMutations }, ref) => {
   const { translate } = useInternationalization()
-  const { hasPermissions } = usePermissions()
+  const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
   const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
   const drawerRef = useRef<UsageChargeDrawerRef>(null)
 
-  const canCreate = hasPermissions(['plansCreate']) && !isInSubscriptionForm
-  const canUpdate = hasPermissions(['plansUpdate']) && !isInSubscriptionForm
-  const canDelete = hasPermissions(['plansDelete']) && !isInSubscriptionForm
-
-  const { handleSaveCharge, handleDeleteCharge } = useChargeMutationsWithCascade({
-    planId: plan.id,
-    hasOverriddenPlans: plan.hasOverriddenPlans ?? false,
-    currency: plan.amountCurrency as CurrencyEnum,
-  })
+  const { handleSaveCharge, handleDeleteCharge } = chargeMutations
 
   const openCreate = () => drawerRef.current?.openDrawer()
 
@@ -181,6 +186,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
             ? {
                 label: translate('text_1772133285142oouequiz2t2'),
                 onClick: openCreate,
+                startIcon: 'plus',
               }
             : undefined
         }
@@ -196,7 +202,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
         <SectionAccordion
           key={charge.id}
           title={charge.invoiceDisplayName || charge.billableMetric.name}
-          subtitle={charge.billableMetric.code}
+          subtitle={charge.code}
           actions={[
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
@@ -233,6 +239,8 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
           ref={drawerRef}
           isEdition
           isInSubscriptionForm={isInSubscriptionForm}
+          showCode
+          existingChargeCodes={charges.map((c) => c.code)}
           amountCurrency={plan.amountCurrency}
           onSave={handleSaveCharge}
           onDelete={(index) => {

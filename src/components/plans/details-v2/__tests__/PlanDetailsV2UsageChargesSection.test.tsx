@@ -33,12 +33,10 @@ jest.mock('~/components/plans/drawers/usageCharge/UsageChargeDrawer', () => {
 const mockHandleSaveCharge = jest.fn()
 const mockHandleDeleteCharge = jest.fn()
 
-jest.mock('~/hooks/plans/useChargeMutationsWithCascade', () => ({
-  useChargeMutationsWithCascade: () => ({
-    handleSaveCharge: mockHandleSaveCharge,
-    handleDeleteCharge: mockHandleDeleteCharge,
-  }),
-}))
+const chargeMutations = {
+  handleSaveCharge: mockHandleSaveCharge,
+  handleDeleteCharge: mockHandleDeleteCharge,
+}
 
 const mockHasPermissions = jest.fn((perms?: string[]) => {
   if (!perms) return true
@@ -68,7 +66,13 @@ describe('PlanDetailsV2UsageChargesSection', () => {
   })
 
   it('renders the empty-state helper when plan has no usage charges', () => {
-    render(<PlanDetailsV2UsageChargesSection plan={planDetailsV2Fixture} />, { wrapper: Wrapper })
+    render(
+      <PlanDetailsV2UsageChargesSection
+        plan={planDetailsV2Fixture}
+        chargeMutations={chargeMutations}
+      />,
+      { wrapper: Wrapper },
+    )
     expect(screen.getByText('text_1779289915866ngi8sv5t9lg')).toBeInTheDocument()
     expect(screen.getByText('text_17797360854699edp5yofy8h')).toBeInTheDocument()
   })
@@ -93,15 +97,57 @@ describe('PlanDetailsV2UsageChargesSection', () => {
       ],
     }
 
-    render(<PlanDetailsV2UsageChargesSection plan={plan} />, { wrapper: Wrapper })
+    render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
+      wrapper: Wrapper,
+    })
 
     expect(screen.getByText('API calls')).toBeInTheDocument()
     expect(screen.getByText('Storage')).toBeInTheDocument()
     expect(screen.queryByText('text_17797360854699edp5yofy8h')).not.toBeInTheDocument()
   })
 
+  it('renders presentation group keys in the usage charge details', async () => {
+    const plan = {
+      ...planDetailsV2Fixture,
+      charges: [
+        buildUsageChargeFixture({
+          id: 'ch_with_presentation_group_keys',
+          properties: {
+            __typename: 'Properties',
+            amount: '10',
+            presentationGroupKeys: [
+              {
+                __typename: 'PresentationGroupKey',
+                value: 'account_manager',
+                options: {
+                  __typename: 'PresentationGroupKeyOptions',
+                  displayInInvoice: true,
+                },
+              },
+            ],
+          } as never,
+        }),
+      ],
+    }
+
+    render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
+      wrapper: Wrapper,
+    })
+    await userEvent.click(await screen.findByText('API calls'))
+
+    expect(screen.getByText('text_17774502138912d3etwcacpe')).toBeInTheDocument()
+    expect(screen.getByText('text_1777456950225zgyccgcm3x4')).toBeInTheDocument()
+    expect(screen.getByText('account_manager')).toBeInTheDocument()
+  })
+
   it('opens drawer with no args when Add CTA is clicked', async () => {
-    render(<PlanDetailsV2UsageChargesSection plan={planDetailsV2Fixture} />, { wrapper: Wrapper })
+    render(
+      <PlanDetailsV2UsageChargesSection
+        plan={planDetailsV2Fixture}
+        chargeMutations={chargeMutations}
+      />,
+      { wrapper: Wrapper },
+    )
     await userEvent.click(await screen.findByText('text_1772133285142oouequiz2t2'))
     await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledWith())
   })
@@ -111,7 +157,9 @@ describe('PlanDetailsV2UsageChargesSection', () => {
       ...planDetailsV2Fixture,
       charges: [buildUsageChargeFixture({ id: 'ch_1' })],
     }
-    render(<PlanDetailsV2UsageChargesSection plan={plan} />, { wrapper: Wrapper })
+    render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
+      wrapper: Wrapper,
+    })
     await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
     await userEvent.click(
       await screen.findByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }),
@@ -127,7 +175,9 @@ describe('PlanDetailsV2UsageChargesSection', () => {
       ...planDetailsV2Fixture,
       charges: [buildUsageChargeFixture({ id: 'ch_to_delete' })],
     }
-    render(<PlanDetailsV2UsageChargesSection plan={plan} />, { wrapper: Wrapper })
+    render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
+      wrapper: Wrapper,
+    })
     await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
     await userEvent.click(
       await screen.findByRole('button', { name: 'text_63ea0f84f400488553caa786' }),
@@ -137,28 +187,53 @@ describe('PlanDetailsV2UsageChargesSection', () => {
 
   // Drift test: lock in the Add CTA in plan mode so a future refactor can't drop it.
   it('keeps Add CTA visible when isInSubscriptionForm is false', () => {
-    render(<PlanDetailsV2UsageChargesSection plan={planDetailsV2Fixture} />, { wrapper: Wrapper })
+    render(
+      <PlanDetailsV2UsageChargesSection
+        plan={planDetailsV2Fixture}
+        chargeMutations={chargeMutations}
+      />,
+      { wrapper: Wrapper },
+    )
     expect(screen.getByText('text_1772133285142oouequiz2t2')).toBeInTheDocument()
   })
 
   // Drift test: lock in that sub mode hides the Add CTA.
   it('hides the Add CTA when isInSubscriptionForm is true', () => {
-    render(<PlanDetailsV2UsageChargesSection plan={planDetailsV2Fixture} isInSubscriptionForm />, {
-      wrapper: Wrapper,
-    })
+    render(
+      <PlanDetailsV2UsageChargesSection
+        plan={planDetailsV2Fixture}
+        isInSubscriptionForm
+        chargeMutations={chargeMutations}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    )
     expect(screen.queryByText('text_1772133285142oouequiz2t2')).not.toBeInTheDocument()
   })
 
-  // Drift test: lock in that sub mode hides per-accordion Edit + Delete.
-  it('hides Edit + Delete actions when isInSubscriptionForm is true', () => {
+  // Drift test: lock in that sub mode shows Edit but hides Delete (canUpdate=true, canDelete=false).
+  it('shows Edit but hides Add + Delete when isInSubscriptionForm is true', async () => {
     const plan = {
       ...planDetailsV2Fixture,
       charges: [buildUsageChargeFixture({ id: 'ch_sub' })],
     }
-    render(<PlanDetailsV2UsageChargesSection plan={plan} isInSubscriptionForm />, {
-      wrapper: Wrapper,
-    })
-    expect(screen.queryByRole('button', { name: /actions/i })).not.toBeInTheDocument()
+    render(
+      <PlanDetailsV2UsageChargesSection
+        plan={plan}
+        isInSubscriptionForm
+        chargeMutations={chargeMutations}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    )
+    // Actions menu renders because Edit is visible (canUpdate=true via subscriptionsUpdate)
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    // Edit IS present
+    expect(screen.getByText('text_63e51ef4985f0ebd75c212fc')).toBeInTheDocument()
+    // Delete is NOT present (canDelete=false in sub mode)
+    expect(screen.queryByText('text_63ea0f84f400488553caa786')).not.toBeInTheDocument()
   })
 
   it('hides Delete when plansDelete permission is missing', async () => {
@@ -169,7 +244,9 @@ describe('PlanDetailsV2UsageChargesSection', () => {
       ...planDetailsV2Fixture,
       charges: [buildUsageChargeFixture({ id: 'ch_no_perm' })],
     }
-    render(<PlanDetailsV2UsageChargesSection plan={plan} />, { wrapper: Wrapper })
+    render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
+      wrapper: Wrapper,
+    })
     await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
     expect(screen.queryByText('text_63ea0f84f400488553caa786')).not.toBeInTheDocument()
   })
@@ -182,7 +259,9 @@ describe('PlanDetailsV2UsageChargesSection', () => {
       ...planDetailsV2Fixture,
       charges: [buildUsageChargeFixture({ id: 'ch_no_update' })],
     }
-    render(<PlanDetailsV2UsageChargesSection plan={plan} />, { wrapper: Wrapper })
+    render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
+      wrapper: Wrapper,
+    })
     await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
     expect(screen.queryByText('text_63e51ef4985f0ebd75c212fc')).not.toBeInTheDocument()
   })
@@ -206,16 +285,25 @@ describe('PlanDetailsV2UsageChargesSection', () => {
         }),
       ],
     }
-    render(<PlanDetailsV2UsageChargesSection plan={plan} />, { wrapper: Wrapper })
+    render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
+      wrapper: Wrapper,
+    })
     await userEvent.click(await screen.findByText('API calls'))
     expect(screen.getAllByRole('button', { name: /actions/i })).toHaveLength(1)
   })
 
   it('exposes openCreate via ref', async () => {
     const ref = createRef<PlanDetailsV2UsageChargesSectionRef>()
-    render(<PlanDetailsV2UsageChargesSection ref={ref} plan={planDetailsV2Fixture} />, {
-      wrapper: Wrapper,
-    })
+    render(
+      <PlanDetailsV2UsageChargesSection
+        ref={ref}
+        plan={planDetailsV2Fixture}
+        chargeMutations={chargeMutations}
+      />,
+      {
+        wrapper: Wrapper,
+      },
+    )
     ref.current?.openCreate()
     await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
   })

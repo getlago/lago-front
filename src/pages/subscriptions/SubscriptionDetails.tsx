@@ -3,11 +3,12 @@ import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
-import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
+import { SubscriptionDetailsV2Overview } from '~/components/subscriptions/details-v2/SubscriptionDetailsV2Overview'
+import { SubscriptionDetailsV2Plan } from '~/components/subscriptions/details-v2/SubscriptionDetailsV2Plan'
 import { SubscriptionActivityLogs } from '~/components/subscriptions/SubscriptionActivityLogs'
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
 import { SubscriptionDetailsOverview } from '~/components/subscriptions/SubscriptionDetailsOverview'
@@ -277,7 +278,7 @@ const SubscriptionDetails = () => {
         ],
         content: (
           <DetailsPage.Container>
-            <Typography variant="body">{translate('text_17792001643312864fz7j4gq')}</Typography>
+            <SubscriptionDetailsV2Overview subscriptionId={subscriptionId as string} />
           </DetailsPage.Container>
         ),
         hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
@@ -301,7 +302,7 @@ const SubscriptionDetails = () => {
         ],
         content: (
           <DetailsPage.Container>
-            <Typography variant="body">{translate('text_17792001643316pbexygvpu2')}</Typography>
+            <SubscriptionDetailsV2Plan subscriptionId={subscriptionId as string} />
           </DetailsPage.Container>
         ),
         hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),

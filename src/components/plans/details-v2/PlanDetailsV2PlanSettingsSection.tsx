@@ -1,10 +1,6 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 
-import {
-  PlanSettingsDrawer,
-  PlanSettingsDrawerRef,
-} from '~/components/plans/drawers/planSettings/PlanSettingsDrawer'
+import { usePlanSettingsDrawer } from '~/components/plans/drawers/planSettings/usePlanSettingsDrawer'
 import { PlanSettingsInfo } from '~/components/plans/PlanSettingsInfo'
 import {
   PlanDetailsV2Fragment,
@@ -12,7 +8,7 @@ import {
   PlanForUpdateWithCascadeFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { usePermissions } from '~/hooks/usePermissions'
+import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
 
 import { SectionAccordion } from './shared/SectionAccordion'
 import { SectionHeader } from './shared/SectionHeader'
@@ -32,17 +28,17 @@ gql`
 type PlanDetailsV2PlanSettingsSectionProps = {
   plan: PlanDetailsV2Fragment
   isInSubscriptionForm?: boolean
+  subscriptionId?: string
 }
 
 export const PlanDetailsV2PlanSettingsSection = ({
   plan,
   isInSubscriptionForm = false,
+  subscriptionId,
 }: PlanDetailsV2PlanSettingsSectionProps) => {
   const { translate } = useInternationalization()
-  const { hasPermissions } = usePermissions()
-  const drawerRef = useRef<PlanSettingsDrawerRef>(null)
-
-  const canUpdate = hasPermissions(['plansUpdate']) && !isInSubscriptionForm
+  const { canUpdate } = useAccordionPermissions(isInSubscriptionForm)
+  const { openDrawer } = usePlanSettingsDrawer(plan, subscriptionId)
 
   return (
     <section id={PlanDetailsV2SectionId.PlanSettings} className="flex scroll-mt-12 flex-col gap-6">
@@ -55,7 +51,7 @@ export const PlanDetailsV2PlanSettingsSection = ({
         actions={[
           {
             label: translate('text_63e51ef4985f0ebd75c212fc'),
-            onClick: () => drawerRef.current?.openDrawer(),
+            onClick: openDrawer,
             hidden: !canUpdate,
           },
         ]}
@@ -63,9 +59,11 @@ export const PlanDetailsV2PlanSettingsSection = ({
         <PlanSettingsInfo plan={plan} />
       </SectionAccordion>
 
-      <SubscriptionFeeAccordion plan={plan} isInSubscriptionForm={isInSubscriptionForm} />
-
-      <PlanSettingsDrawer ref={drawerRef} plan={plan} />
+      <SubscriptionFeeAccordion
+        plan={plan}
+        isInSubscriptionForm={isInSubscriptionForm}
+        subscriptionId={subscriptionId}
+      />
     </section>
   )
 }

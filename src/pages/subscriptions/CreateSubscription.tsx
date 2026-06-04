@@ -29,7 +29,6 @@ import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSectio
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import PremiumFeature from '~/components/premium/PremiumFeature'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { FeatureEntitlementSection } from '~/components/subscriptions/FeatureEntitlementSection'
 import { buildSubscriptionDefaultValues } from '~/components/subscriptions/form/buildSubscriptionDefaultValues'
 import { SubscriptionInformationFormSection } from '~/components/subscriptions/form/SubscriptionInformationFormSection'
@@ -49,12 +48,11 @@ import {
 import { getTimezoneConfig } from '~/core/timezone'
 import { subscriptionFormSchema } from '~/formValidation/subscriptionFormSchema'
 import {
-  AddSubscriptionPlanFragmentDoc,
   CurrencyEnum,
-  FeatureEntitlementForPlanFragmentDoc,
   FeatureFlagEnum,
   PlanInterval,
   StatusTypeEnum,
+  SubscriptionForSubscriptionEditFormFragmentDoc,
   TimezoneEnum,
   useGetCustomerForCreateSubscriptionQuery,
   useGetPlansLazyQuery,
@@ -100,38 +98,11 @@ gql`
 
   query getSubscriptionForCreateSubscription($id: ID!) {
     subscription(id: $id) {
-      id
-      name
-      externalId
-      subscriptionAt
-      endingAt
-      billingTime
-      periodEndDate
-      status
-      startedAt
-      paymentMethodType
-      paymentMethod {
-        id
-      }
-      consolidateInvoice
-      skipInvoiceCustomSections
-      selectedInvoiceCustomSections {
-        id
-        name
-        code
-      }
-      plan {
-        id
-        parent {
-          id
-        }
-        ...AddSubscriptionPlan
-      }
+      ...SubscriptionForSubscriptionEditForm
     }
   }
 
-  ${AddSubscriptionPlanFragmentDoc}
-  ${FeatureEntitlementForPlanFragmentDoc}
+  ${SubscriptionForSubscriptionEditFormFragmentDoc}
 `
 
 const CreateSubscription = () => {
@@ -146,7 +117,6 @@ const CreateSubscription = () => {
 
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
   const warningDialogRef = useRef<WarningDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
   const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
@@ -607,7 +577,6 @@ const CreateSubscription = () => {
                                   form={planForm}
                                   isEdition={formType === FORM_TYPE_ENUM.edition}
                                   isInSubscriptionForm={isInSubscriptionForm}
-                                  premiumWarningDialogRef={premiumWarningDialogRef}
                                   subscriptionFormType={formType}
                                 />
                               </CenteredPage.SubsectionWrapper>
@@ -658,7 +627,6 @@ const CreateSubscription = () => {
       />
 
       <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }
