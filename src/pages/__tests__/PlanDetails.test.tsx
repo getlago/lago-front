@@ -266,7 +266,7 @@ describe('PlanDetails', () => {
         render(<PlanDetails />)
 
         const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTabConfig[]
-        const editOverviewTab = tabs.find((t) => t.title === 'text_17792001643312864fz7j4gq')
+        const editOverviewTab = tabs.find((t) => t.title === 'text_628cf761cbe6820138b8f2e4')
 
         expect(editOverviewTab?.hidden).toBe(true)
       })
@@ -280,7 +280,7 @@ describe('PlanDetails', () => {
         render(<PlanDetails />)
 
         const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTabConfig[]
-        const editOverviewTab = tabs.find((t) => t.title === 'text_17792001643312864fz7j4gq')
+        const editOverviewTab = tabs.find((t) => t.title === 'text_628cf761cbe6820138b8f2e4')
 
         expect(editOverviewTab).toBeDefined()
         expect(editOverviewTab?.hidden).toBe(false)

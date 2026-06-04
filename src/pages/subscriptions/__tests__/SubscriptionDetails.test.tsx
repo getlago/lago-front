@@ -519,7 +519,7 @@ describe('SubscriptionDetails', () => {
         render(<SubscriptionDetails />)
 
         const editOverviewTab = capturedConfig?.tabs?.find(
-          (t) => t.title === 'text_17792001643312864fz7j4gq',
+          (t) => t.title === 'text_628cf761cbe6820138b8f2e4',
         )
 
         expect(editOverviewTab?.hidden).toBe(true)
@@ -545,7 +545,7 @@ describe('SubscriptionDetails', () => {
         render(<SubscriptionDetails />)
 
         const editOverviewTab = capturedConfig?.tabs?.find(
-          (t) => t.title === 'text_17792001643312864fz7j4gq',
+          (t) => t.title === 'text_628cf761cbe6820138b8f2e4',
         )
 
         expect(editOverviewTab).toBeDefined()
