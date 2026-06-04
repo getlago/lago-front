@@ -618,7 +618,6 @@ const CreateSubscription = () => {
                           <SubscriptionActivationRuleSection
                             form={subscriptionForm}
                             customerExternalId={customer?.externalId}
-                            customerHasPaymentProvider={!!customer?.paymentProvider}
                             formType={formType}
                             subscriptionStatus={subscription?.status}
                           />

@@ -41,19 +41,21 @@ export const subscriptionFormSchema = z
     }
 
     if (data.activationRuleType === ActivationRuleFormTypeEnum.OnPayment) {
-      const timeoutHours = Number(data.activationRuleTimeoutHours)
+      // An empty timeout is valid and means "no timeout" (sent as null to the BE).
+      // Only validate the format when the user actually provided a value.
+      const hasTimeoutValue =
+        data.activationRuleTimeoutHours !== undefined && data.activationRuleTimeoutHours !== ''
 
-      if (
-        data.activationRuleTimeoutHours === undefined ||
-        data.activationRuleTimeoutHours === '' ||
-        !Number.isInteger(timeoutHours) ||
-        timeoutHours < 0
-      ) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'text_1779882021466eoq8jjhfteu',
-          path: ['activationRuleTimeoutHours'],
-        })
+      if (hasTimeoutValue) {
+        const timeoutHours = Number(data.activationRuleTimeoutHours)
+
+        if (!Number.isInteger(timeoutHours) || timeoutHours < 0) {
+          ctx.addIssue({
+            code: 'custom',
+            message: 'text_1779882021466eoq8jjhfteu',
+            path: ['activationRuleTimeoutHours'],
+          })
+        }
       }
     }
 

@@ -196,12 +196,59 @@ describe('subscriptionFormSchema', () => {
       })
     })
 
-    describe('WHEN payment activation has no timeout value', () => {
-      it('THEN should fail with an error on activationRuleTimeoutHours', () => {
+    describe('WHEN payment activation has an empty timeout value', () => {
+      it('THEN should pass validation (empty means no timeout, sent as null to the BE)', () => {
         const result = subscriptionFormSchema.safeParse(
           buildValidValues({
             activationRuleType: ActivationRuleFormTypeEnum.OnPayment,
             activationRuleTimeoutHours: '',
+          }),
+        )
+
+        expect(result.success).toBe(true)
+      })
+    })
+
+    describe('WHEN payment activation has an undefined timeout value', () => {
+      it('THEN should pass validation (no timeout)', () => {
+        const result = subscriptionFormSchema.safeParse(
+          buildValidValues({
+            activationRuleType: ActivationRuleFormTypeEnum.OnPayment,
+            activationRuleTimeoutHours: undefined,
+          }),
+        )
+
+        expect(result.success).toBe(true)
+      })
+    })
+
+    describe('WHEN payment activation has a negative timeout value', () => {
+      it('THEN should fail with an error on activationRuleTimeoutHours', () => {
+        const result = subscriptionFormSchema.safeParse(
+          buildValidValues({
+            activationRuleType: ActivationRuleFormTypeEnum.OnPayment,
+            activationRuleTimeoutHours: '-5',
+          }),
+        )
+
+        expect(result.success).toBe(false)
+
+        if (!result.success) {
+          const error = result.error.issues.find((i) =>
+            i.path.includes('activationRuleTimeoutHours'),
+          )
+
+          expect(error).toBeDefined()
+        }
+      })
+    })
+
+    describe('WHEN payment activation has a non-integer timeout value', () => {
+      it('THEN should fail with an error on activationRuleTimeoutHours', () => {
+        const result = subscriptionFormSchema.safeParse(
+          buildValidValues({
+            activationRuleType: ActivationRuleFormTypeEnum.OnPayment,
+            activationRuleTimeoutHours: '1.5',
           }),
         )
 

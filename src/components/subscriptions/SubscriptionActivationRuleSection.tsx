@@ -7,7 +7,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { useDisplayedPaymentMethod } from '~/components/paymentMethodSelection/useDisplayedPaymentMethod'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { ActivationRuleFormTypeEnum } from '~/core/constants/subscriptionActivationRules'
-import { PaymentMethodTypeEnum, StatusTypeEnum } from '~/generated/graphql'
+import { StatusTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 import { withForm } from '~/hooks/forms/useAppform'
@@ -19,7 +19,6 @@ import {
 
 interface SubscriptionActivationRuleSectionExtraProps {
   customerExternalId?: string | null
-  customerHasPaymentProvider?: boolean
   formType: SubscriptionFormType
   subscriptionStatus?: StatusTypeEnum | null
 }
@@ -28,7 +27,6 @@ const TYPING_PLACEHOLDER_DATE = '2026-01-01'
 
 const subscriptionActivationRuleDefaultProps: SubscriptionActivationRuleSectionExtraProps = {
   customerExternalId: undefined,
-  customerHasPaymentProvider: false,
   formType: FORM_TYPE_ENUM.creation,
   subscriptionStatus: undefined,
 }
@@ -43,7 +41,6 @@ export const SubscriptionActivationRuleSection = withForm({
   render: function SubscriptionActivationRuleSection({
     form,
     customerExternalId,
-    customerHasPaymentProvider,
     formType,
     subscriptionStatus,
   }) {
@@ -65,13 +62,11 @@ export const SubscriptionActivationRuleSection = withForm({
     const displayedPaymentMethod = useDisplayedPaymentMethod(paymentMethod, paymentMethodsList)
     const hasResolvedPaymentMethods = !paymentMethodsLoading || paymentMethodsError
 
-    const isExplicitManualPaymentMethod =
-      paymentMethod?.paymentMethodType === PaymentMethodTypeEnum.Manual
-
+    // Payment-gated activation only makes sense when the effective payment method can be
+    // charged automatically. Whenever it resolves to manual — explicitly selected, or
+    // inherited from a customer with no chargeable method — there is no payment to gate on.
     const isPaymentActivationUnavailable =
-      isExplicitManualPaymentMethod ||
-      (!customerHasPaymentProvider &&
-        (!customerExternalId || (hasResolvedPaymentMethods && displayedPaymentMethod.isManual)))
+      !customerExternalId || (hasResolvedPaymentMethods && displayedPaymentMethod.isManual)
 
     const isEditable = useMemo(() => {
       return (
@@ -99,7 +94,7 @@ export const SubscriptionActivationRuleSection = withForm({
               <field.RadioGroupField
                 optionsGapSpacing={3}
                 optionLabelVariant="body"
-                disabled={!isEditable}
+                disabled={!isEditable || isPaymentActivationUnavailable}
                 options={[
                   {
                     value: ActivationRuleFormTypeEnum.Immediately,
@@ -110,19 +105,12 @@ export const SubscriptionActivationRuleSection = withForm({
                     value: ActivationRuleFormTypeEnum.OnPayment,
                     label: translate('text_17798820214653lthtne1wrc'),
                     sublabel: translate('text_17798820214653qiqu79w4hp'),
-                    disabled: isPaymentActivationUnavailable,
                   },
                 ]}
               />
             )}
           </form.AppField>
         </div>
-
-        {isPaymentActivationUnavailable && isEditable && (
-          <Typography variant="caption" color="grey600">
-            {translate('text_177988202146608wxqmm26tb')}
-          </Typography>
-        )}
 
         {activationRuleType === ActivationRuleFormTypeEnum.OnPayment && (
           <form.AppField name="activationRuleTimeoutHours">
