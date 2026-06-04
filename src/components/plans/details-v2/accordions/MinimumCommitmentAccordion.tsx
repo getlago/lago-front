@@ -37,7 +37,7 @@ export const MinimumCommitmentAccordion = ({
 }: MinimumCommitmentAccordionProps) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
-  const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
+  const { canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
   const drawerRef = useRef<MinimumCommitmentDrawerRef>(null)
 
   const currency = plan.amountCurrency || CurrencyEnum.Usd
@@ -104,7 +104,7 @@ export const MinimumCommitmentAccordion = ({
         action={{
           label: translate('text_6661ffe746c680007e2df0e1'),
           onClick: () => drawerRef.current?.openDrawer(),
-          hidden: !canCreate || hasCommitment || !isPremium,
+          hidden: hasCommitment || !isPremium,
           startIcon: 'plus',
         }}
       />
