@@ -126,4 +126,12 @@ export interface MainHeaderConfig {
 
   /** Filter — pages include their own providers */
   filtersSection?: ReactNode
+
+  /**
+   * Serializable value included in the config snapshot. The snapshot strips the tabs'
+   * `content` ReactNode (to avoid re-render loops), so pages whose content reflects
+   * mutable data must bump this key when that data changes, otherwise the header keeps
+   * showing stale content (e.g. a wallet balance after a top-up/void).
+   */
+  snapshotKey?: string | number | boolean
 }

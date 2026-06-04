@@ -169,6 +169,18 @@ const WalletDetails = () => {
     createdAt: intlFormatDateTimeOrgaTZ(wallet?.createdAt).date,
   })
 
+  // The MainHeader config snapshot strips the tabs' `content` ReactNode, so a balance
+  // change alone would not re-push the config and the header would keep stale values.
+  // Bumping this key on balance changes forces the fresh content through (credits fields
+  // are derived from their *Cents counterparts, so the cents alone are enough).
+  const walletSnapshotKey = [
+    wallet?.balanceCents,
+    wallet?.ongoingBalanceCents,
+    wallet?.ongoingUsageBalanceCents,
+    wallet?.consumedAmountCents,
+    wallet?.status,
+  ].join('|')
+
   const tabs = useMemo(() => {
     return [
       {
@@ -323,6 +335,7 @@ const WalletDetails = () => {
         }}
         actions={{ items: headerActions, loading }}
         tabs={tabs}
+        snapshotKey={walletSnapshotKey}
       />
 
       <>{activeTabContent}</>
