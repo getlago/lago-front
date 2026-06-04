@@ -16,6 +16,7 @@ import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 import { useSubscriptionProgressiveBillingTabThresholdsHeader } from './hooks/useSubscriptionProgressiveBillingTabThresholdsHeader'
 
 // Test ID constants
+export const PROGRESSIVE_BILLING_LIFETIME_CHIP_TEST_ID = 'progressive-billing-lifetime-chip'
 export const PROGRESSIVE_BILLING_OVERRIDDEN_CHIP_TEST_ID = 'progressive-billing-overridden-chip'
 export const PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID = 'progressive-billing-menu-button'
 export const PROGRESSIVE_BILLING_EDIT_BUTTON_TEST_ID = 'progressive-billing-edit-button'
@@ -66,6 +67,12 @@ export const SubscriptionProgressiveBillingTabThresholdsHeader: FC<
               label={translate('text_65281f686a80b400c8e2f6dd')}
             />
           )}
+
+          <Chip
+            data-test={PROGRESSIVE_BILLING_LIFETIME_CHIP_TEST_ID}
+            color="grey700"
+            label={translate('text_1780512470285ql6s1rc7wjr')}
+          />
 
           {canEditSubscription && (
             <Popper

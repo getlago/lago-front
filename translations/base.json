@@ -930,7 +930,7 @@
   "text_6661ffe746c680007e2df0d6": "Fees that vary based on your customers usage.",
   "text_6661ffe746c680007e2df0e1": "Add a minimum commitment",
   "text_6661ffe746c680007e2df0e2": "Create plan",
-  "text_66630368f4333b00795b0e1c": "Define how the subscription will function.",
+  "text_66630368f4333b00795b0e1c": "Define how the subscription functions.",
   "text_66630368f4333b00795b0e2d": "Override plan’s pricing definition.",
   "text_66676ed0d8c3d481637e99b7": "Override the optional advanced settings",
   "text_6669b493fae79a0095e63986": "Charge can’t be invoiced in advance due to their aggregation type being defined as max.",
@@ -4247,5 +4247,7 @@
   "text_17788413630335ar3zl10prt": "Usage so far",
   "text_17788413630339w2go4tbxga": "Projected end of period",
   "text_17791906642738j2tip131uw": "This value is already used",
-  "text_1779790016087nsol47cwuwg": "Filters"
+  "text_1779790016087nsol47cwuwg": "Filters",
+  "text_1780503765268ttscgcx6yo7": "Edit invoicing & payments",
+  "text_1780512470285ql6s1rc7wjr": "Lifetime"
 }

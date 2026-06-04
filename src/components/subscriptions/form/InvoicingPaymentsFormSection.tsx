@@ -32,7 +32,7 @@ export const InvoicingPaymentsFormSection = withForm({
   render: function InvoicingPaymentsFormSection({ form, customer }) {
     const { translate } = useInternationalization()
 
-    // Reactive store slices — never the non-reactive `form.state.values`
+    // Reactive store slices - never the non-reactive `form.state.values`
     // snapshot, or dialog edits won't re-render the displayed selection.
     const paymentMethod = useStore(form.store, (s) => s.values.paymentMethod)
     const invoiceCustomSection = useStore(form.store, (s) => s.values.invoiceCustomSection)

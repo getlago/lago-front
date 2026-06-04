@@ -2,11 +2,13 @@ import { gql } from '@apollo/client'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
+  InvoicingPaymentsSectionFragmentDoc,
   LagoApiError,
   SubscriptionInformationSectionFragmentDoc,
   useGetSubscriptionForDetailsV2OverviewQuery,
 } from '~/generated/graphql'
 
+import { InvoicingPaymentsSection } from './InvoicingPaymentsSection'
 import { SubscriptionInformationSection } from './SubscriptionInformationSection'
 
 gql`
@@ -14,10 +16,12 @@ gql`
     subscription(id: $subscriptionId) {
       id
       ...SubscriptionInformationSection
+      ...InvoicingPaymentsSection
     }
   }
 
   ${SubscriptionInformationSectionFragmentDoc}
+  ${InvoicingPaymentsSectionFragmentDoc}
 `
 
 type Props = {
@@ -44,6 +48,7 @@ export const SubscriptionDetailsV2Overview = ({ subscriptionId }: Props) => {
   return (
     <div className="flex flex-col gap-12 pt-6">
       <SubscriptionInformationSection subscription={subscription} />
+      <InvoicingPaymentsSection subscription={subscription} />
     </div>
   )
 }
