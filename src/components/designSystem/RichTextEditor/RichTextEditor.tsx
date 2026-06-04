@@ -14,6 +14,12 @@ import {
   type OnPricingCommand,
   RichTextEditorProvider,
 } from './common/RichTextEditorContext'
+import {
+  RICH_TEXT_EDITOR_CONTENT_TEST_ID,
+  RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID,
+  RICH_TEXT_EDITOR_TEST_ID,
+  RICH_TEXT_EDITOR_TOOLBAR_TEST_ID,
+} from './constants'
 import { getBaseExtensions } from './extensions/baseExtensions'
 import { DragHandle } from './extensions/DragHandle'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
@@ -34,10 +40,12 @@ import TableControls from './Table/TableControls'
 import type { EditorTemplate } from './TemplateSelector/types'
 import Toolbar from './Toolbar/Toolbar'
 
-export const RICH_TEXT_EDITOR_TEST_ID = 'rich-text-editor'
-export const RICH_TEXT_EDITOR_TOOLBAR_TEST_ID = 'rich-text-editor-toolbar'
-export const RICH_TEXT_EDITOR_CONTENT_TEST_ID = 'rich-text-editor-content'
-export const RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID = 'rich-text-editor-save-button'
+export {
+  RICH_TEXT_EDITOR_CONTENT_TEST_ID,
+  RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID,
+  RICH_TEXT_EDITOR_TEST_ID,
+  RICH_TEXT_EDITOR_TOOLBAR_TEST_ID,
+}
 
 export type RichTextEditorMode = 'edit' | 'preview'
 
@@ -222,7 +230,14 @@ const RichTextEditor = ({
   }, [editor])
 
   const contextValue = useMemo(
-    () => ({ mode, mentionValues, entities: entitiesFromProps, onPricingCommand, customerLocale, customerCurrency }),
+    () => ({
+      mode,
+      mentionValues,
+      entities: entitiesFromProps,
+      onPricingCommand,
+      customerLocale,
+      customerCurrency,
+    }),
     [mode, mentionValues, entitiesFromProps, onPricingCommand, customerLocale, customerCurrency],
   )
 

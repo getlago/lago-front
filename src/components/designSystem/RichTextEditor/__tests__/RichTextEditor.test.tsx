@@ -3,10 +3,8 @@ import { Markdown } from 'tiptap-markdown'
 
 import { render } from '~/test-utils'
 
-import RichTextEditor, {
-  RICH_TEXT_EDITOR_CONTENT_TEST_ID,
-  RICH_TEXT_EDITOR_TEST_ID,
-} from '../RichTextEditor'
+import { RICH_TEXT_EDITOR_CONTENT_TEST_ID, RICH_TEXT_EDITOR_TEST_ID } from '../constants'
+import RichTextEditor from '../RichTextEditor'
 
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
@@ -137,8 +135,9 @@ jest.mock('@tiptap/react', () => ({
 
     return {}
   }),
-  EditorContent: ({ editor }: { editor: unknown }) =>
-    editor ? <div data-test="editor-content">Editor content</div> : null,
+  EditorContent: ({ editor }: { editor: unknown }) => {
+    return editor ? <div data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID}>Editor content</div> : null
+  },
 }))
 
 describe('RichTextEditor', () => {
@@ -155,7 +154,7 @@ describe('RichTextEditor', () => {
       it('THEN should render the editor content', async () => {
         await act(() => render(<RichTextEditor />))
 
-        expect(screen.getByTestId('editor-content')).toBeInTheDocument()
+        expect(screen.getByTestId(RICH_TEXT_EDITOR_CONTENT_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should render the toolbar', async () => {
@@ -272,7 +271,7 @@ describe('RichTextEditor', () => {
       it('THEN should render the editor content via EditorContent', async () => {
         await act(() => render(<RichTextEditor mode="preview" />))
 
-        expect(screen.getByTestId('editor-content')).toBeInTheDocument()
+        expect(screen.getByTestId(RICH_TEXT_EDITOR_CONTENT_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should render the editor container', async () => {
