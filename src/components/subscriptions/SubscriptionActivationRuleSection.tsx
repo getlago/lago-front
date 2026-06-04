@@ -23,6 +23,9 @@ interface SubscriptionActivationRuleSectionExtraProps {
   subscriptionStatus?: StatusTypeEnum | null
 }
 
+export const SUBSCRIPTION_ACTIVATION_RULE_SECTION_TEST_ID = 'subscription-activation-rule-section'
+export const SUBSCRIPTION_ACTIVATION_TIMEOUT_INPUT_TEST_ID = 'subscription-activation-timeout-input'
+
 const TYPING_PLACEHOLDER_DATE = '2026-01-01'
 
 const subscriptionActivationRuleDefaultProps: SubscriptionActivationRuleSectionExtraProps = {
@@ -86,7 +89,7 @@ export const SubscriptionActivationRuleSection = withForm({
     }, [activationRuleType, form, isPaymentActivationUnavailable])
 
     return (
-      <div className="flex flex-col gap-6" data-test="subscription-activation-rule-section">
+      <div className="flex flex-col gap-6" data-test={SUBSCRIPTION_ACTIVATION_RULE_SECTION_TEST_ID}>
         <div className="flex flex-col gap-2">
           <CenteredPage.SubsectionTitle title={translate('text_17798820214653y71jn6hh2s')} />
           <form.AppField name="activationRuleType">
@@ -116,6 +119,7 @@ export const SubscriptionActivationRuleSection = withForm({
           <form.AppField name="activationRuleTimeoutHours">
             {(field) => (
               <field.TextInputField
+                data-test={SUBSCRIPTION_ACTIVATION_TIMEOUT_INPUT_TEST_ID}
                 disabled={!isEditable || isPaymentActivationUnavailable}
                 label={translate('text_1779882021465u30p886nhn9')}
                 description={translate('text_1779882021466w4zlmq76sk3')}
