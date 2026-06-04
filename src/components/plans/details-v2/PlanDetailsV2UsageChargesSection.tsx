@@ -181,6 +181,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
     <section id={PlanDetailsV2SectionId.UsageCharges} className="flex scroll-mt-12 flex-col gap-6">
       <SectionHeader
         title={translate('text_1779289915866ngi8sv5t9lg')}
+        description={translate('text_6661ffe746c680007e2df0d6')}
         action={
           canCreate
             ? {
@@ -201,6 +202,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
       {charges.map((charge, index) => (
         <SectionAccordion
           key={charge.id}
+          id={charge.id}
           title={charge.invoiceDisplayName || charge.billableMetric.name}
           subtitle={charge.code}
           actions={[

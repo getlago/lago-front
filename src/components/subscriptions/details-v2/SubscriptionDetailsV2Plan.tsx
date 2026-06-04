@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 
+import { Alert } from '~/components/designSystem/Alert'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PlanDetailsV2 } from '~/components/plans/details-v2/PlanDetailsV2'
 import PremiumFeature from '~/components/premium/PremiumFeature'
@@ -18,6 +19,9 @@ gql`
       id
       plan {
         id
+        parent {
+          id
+        }
         ...PlanDetailsV2
       }
     }
@@ -71,7 +75,18 @@ export const SubscriptionDetailsV2Plan = ({ subscriptionId }: Props) => {
         )}
         {...(!isPremium && { inert: '' })}
       >
-        <PlanDetailsV2 planId={plan.id} isInSubscriptionForm subscriptionId={subscriptionId} />
+        <PlanDetailsV2
+          planId={plan.id}
+          isInSubscriptionForm
+          subscriptionId={subscriptionId}
+          banner={
+            !plan.parent ? (
+              <Alert className="pl-[-4px]" type="info" fullWidth>
+                {translate('text_652525609f420d00b83dd602')}
+              </Alert>
+            ) : undefined
+          }
+        />
       </div>
     </>
   )

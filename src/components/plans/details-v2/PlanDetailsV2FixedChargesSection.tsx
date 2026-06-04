@@ -133,6 +133,7 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
     <section id={PlanDetailsV2SectionId.FixedCharges} className="flex scroll-mt-12 flex-col gap-6">
       <SectionHeader
         title={translate('text_1779289915866aj39dyv1wps')}
+        description={translate('text_1760729707268c05r06ip8vg')}
         action={
           canCreate
             ? {
@@ -153,6 +154,7 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
       {fixedCharges.map((fixedCharge, index) => (
         <SectionAccordion
           key={fixedCharge.id}
+          id={fixedCharge.id}
           title={fixedCharge.invoiceDisplayName || fixedCharge.addOn.name}
           subtitle={fixedCharge.code}
           actions={[

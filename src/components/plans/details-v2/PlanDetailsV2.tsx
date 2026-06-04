@@ -1,13 +1,15 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
+import { ReactNode, useRef } from 'react'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
+  FixedChargeForPlanDetailsSidebarFragmentDoc,
   LagoApiError,
   PlanForDetailsV2AdvancedSectionFragmentDoc,
   PlanForDetailsV2FixedChargesSectionFragmentDoc,
   PlanForDetailsV2PlanSettingsSectionFragmentDoc,
   PlanForDetailsV2UsageChargesSectionFragmentDoc,
+  UsageChargeForPlanDetailsSidebarFragmentDoc,
   useGetPlanForDetailsV2Query,
 } from '~/generated/graphql'
 import { useDetailsV2ChargeMutations } from '~/hooks/plans/useDetailsV2ChargeMutations'
@@ -28,6 +30,12 @@ import { PlanDetailsV2SectionId } from './sidebarSections'
 gql`
   fragment PlanDetailsV2 on Plan {
     id
+    fixedCharges {
+      ...FixedChargeForPlanDetailsSidebar
+    }
+    charges {
+      ...UsageChargeForPlanDetailsSidebar
+    }
     ...PlanForDetailsV2PlanSettingsSection
     ...PlanForDetailsV2FixedChargesSection
     ...PlanForDetailsV2UsageChargesSection
@@ -40,6 +48,8 @@ gql`
     }
   }
 
+  ${FixedChargeForPlanDetailsSidebarFragmentDoc}
+  ${UsageChargeForPlanDetailsSidebarFragmentDoc}
   ${PlanForDetailsV2PlanSettingsSectionFragmentDoc}
   ${PlanForDetailsV2FixedChargesSectionFragmentDoc}
   ${PlanForDetailsV2UsageChargesSectionFragmentDoc}
@@ -56,12 +66,14 @@ type PlanDetailsV2Props = {
   planId: string
   isInSubscriptionForm?: boolean
   subscriptionId?: string
+  banner?: ReactNode
 }
 
 export const PlanDetailsV2 = ({
   planId,
   isInSubscriptionForm = false,
   subscriptionId,
+  banner,
 }: PlanDetailsV2Props) => {
   const { data, loading } = useGetPlanForDetailsV2Query({
     variables: { planId },
@@ -81,7 +93,7 @@ export const PlanDetailsV2 = ({
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-  const handleAddClick = (id: PlanDetailsV2SectionId) => {
+  const handleAddClick = (id: string) => {
     if (id === PlanDetailsV2SectionId.FixedCharges) {
       fixedChargesRef.current?.openCreate()
     }
@@ -104,52 +116,57 @@ export const PlanDetailsV2 = ({
     <div className="flex gap-12">
       <PlanDetailsV2LeftSidebar
         isInSubscriptionForm={isInSubscriptionForm}
+        fixedCharges={plan.fixedCharges ?? []}
+        usageCharges={plan.charges ?? []}
         onItemClick={handleItemClick}
         onAddClick={handleAddClick}
       />
-      <div className="flex flex-1 flex-col gap-12 py-12 not-last-child:pb-12 not-last-child:shadow-b">
-        {TOP_LEVEL_SECTION_IDS.map((id) => {
-          if (id === PlanDetailsV2SectionId.PlanSettings) {
+      <div className="flex flex-1 flex-col">
+        {!!banner && <div className="-ml-12">{banner}</div>}
+        <div className="flex flex-col gap-12 py-12 not-last-child:pb-12 not-last-child:shadow-b">
+          {TOP_LEVEL_SECTION_IDS.map((id) => {
+            if (id === PlanDetailsV2SectionId.PlanSettings) {
+              return (
+                <PlanDetailsV2PlanSettingsSection
+                  key={id}
+                  plan={plan}
+                  isInSubscriptionForm={isInSubscriptionForm}
+                  subscriptionId={subscriptionId}
+                />
+              )
+            }
+            if (id === PlanDetailsV2SectionId.FixedCharges) {
+              return (
+                <PlanDetailsV2FixedChargesSection
+                  key={id}
+                  ref={fixedChargesRef}
+                  plan={plan}
+                  isInSubscriptionForm={isInSubscriptionForm}
+                  fixedChargeMutations={fixedChargeMutations}
+                />
+              )
+            }
+            if (id === PlanDetailsV2SectionId.UsageCharges) {
+              return (
+                <PlanDetailsV2UsageChargesSection
+                  key={id}
+                  ref={usageChargesRef}
+                  plan={plan}
+                  isInSubscriptionForm={isInSubscriptionForm}
+                  chargeMutations={usageChargeMutations}
+                />
+              )
+            }
             return (
-              <PlanDetailsV2PlanSettingsSection
-                key={id}
-                plan={plan}
-                isInSubscriptionForm={isInSubscriptionForm}
-                subscriptionId={subscriptionId}
-              />
+              <section key={id} id={id} className="min-h-48 scroll-mt-12 rounded-xl bg-grey-100" />
             )
-          }
-          if (id === PlanDetailsV2SectionId.FixedCharges) {
-            return (
-              <PlanDetailsV2FixedChargesSection
-                key={id}
-                ref={fixedChargesRef}
-                plan={plan}
-                isInSubscriptionForm={isInSubscriptionForm}
-                fixedChargeMutations={fixedChargeMutations}
-              />
-            )
-          }
-          if (id === PlanDetailsV2SectionId.UsageCharges) {
-            return (
-              <PlanDetailsV2UsageChargesSection
-                key={id}
-                ref={usageChargesRef}
-                plan={plan}
-                isInSubscriptionForm={isInSubscriptionForm}
-                chargeMutations={usageChargeMutations}
-              />
-            )
-          }
-          return (
-            <section key={id} id={id} className="min-h-48 scroll-mt-12 rounded-xl bg-grey-100" />
-          )
-        })}
-        <PlanDetailsV2AdvancedSection
-          plan={plan}
-          isInSubscriptionForm={isInSubscriptionForm}
-          subscriptionId={subscriptionId}
-        />
+          })}
+          <PlanDetailsV2AdvancedSection
+            plan={plan}
+            isInSubscriptionForm={isInSubscriptionForm}
+            subscriptionId={subscriptionId}
+          />
+        </div>
       </div>
     </div>
   )
