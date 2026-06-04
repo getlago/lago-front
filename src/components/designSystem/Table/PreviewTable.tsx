@@ -11,6 +11,8 @@ import { tw } from '~/styles/utils'
 import TableInnerCell from './TableInnerCell'
 import type { Align } from './types'
 
+import { Typography } from '../Typography'
+
 export type PreviewTableColumn<T> = {
   key: string
   title: string | ReactNode
@@ -80,16 +82,10 @@ export const PreviewTable = <T,>({
                   '&:last-of-type > div': { paddingRight: 0 },
                 }}
               >
-                <TableInnerCell
-                  className="min-h-10 text-grey-600"
-                  align={column.textAlign}
-                  style={{
-                    fontSize: theme.typography.caption.fontSize,
-                    fontWeight: theme.typography.caption.fontWeight,
-                    lineHeight: theme.typography.caption.lineHeight,
-                  }}
-                >
-                  {column.title}
+                <TableInnerCell className="min-h-10" align={column.textAlign}>
+                  <Typography variant="caption" color="grey600">
+                    {column.title}
+                  </Typography>
                 </TableInnerCell>
               </MUITableCell>
             ))}

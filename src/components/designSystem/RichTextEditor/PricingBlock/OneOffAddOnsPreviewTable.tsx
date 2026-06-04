@@ -44,6 +44,8 @@ export const OneOffAddOnsPreviewTable = ({
     {
       key: 'billed',
       title: translate('text_178049850424144tpzoeoge3'),
+      minWidth: 200,
+      textAlign: 'right',
       content: (entity) => {
         if (!entity.fromDatetime && !entity.toDatetime) return null
 
@@ -99,7 +101,7 @@ export const OneOffAddOnsPreviewTable = ({
         data={entities}
         columns={columns}
         footer={
-          <Typography variant="caption" color="grey600" className="mt-3 text-right">
+          <Typography variant="body" color="grey700" className="mt-3 text-right">
             {translate('text_17804985042422iw5hwj0u2v')}
           </Typography>
         }
