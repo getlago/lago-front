@@ -234,9 +234,6 @@ export const permissionDescriptionMapping: Partial<Record<PermissionName, string
   InvoicesView: 'text_17660475818496eb8mnaygrc',
   InvoicesVoid: 'text_1766047581850xfdxud1g9ic',
 
-  // Order Forms
-  OrderFormsView: 'text_1779698186588yty6aq2wonz',
-
   // Organization
   OrganizationView: 'text_1766047581850c4xikdtb4v6',
   OrganizationUpdate: 'text_1766047581850ru00srfppl3',
