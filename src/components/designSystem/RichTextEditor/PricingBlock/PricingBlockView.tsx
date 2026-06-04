@@ -41,6 +41,7 @@ export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
         <div className="block-wrapper">
           <button
             className="pricing-block pricing-block--empty"
+            onMouseDown={(e) => e.stopPropagation()}
             onClick={handleClick}
             tabIndex={0}
             data-test={PRICING_BLOCK_VIEW_EMPTY_TEST_ID}
@@ -73,6 +74,7 @@ export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
             <div className="block-type-tag">{translate('text_1779802343219a1cl5ckvtrn')}</div>
             <button
               className="pricing-block pricing-block--clickable"
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={handleClick}
               data-test={PRICING_BLOCK_VIEW_TEST_ID}
             >

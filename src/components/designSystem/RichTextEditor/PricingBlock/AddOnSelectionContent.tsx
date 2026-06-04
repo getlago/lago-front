@@ -306,12 +306,29 @@ const AddOnSelectionContent = withForm({
 
     const editAddOnSchema = useMemo(
       () =>
-        z.object({
-          invoiceDisplayName: z.string(),
-          description: z.string(),
-          fromDatetime: z.string().min(1, { message: translate('text_1780327356834f5f3nndfg80') }),
-          toDatetime: z.string().min(1, { message: translate('text_17803273568346wguor4j5u5') }),
-        }),
+        z
+          .object({
+            invoiceDisplayName: z.string(),
+            description: z.string(),
+            fromDatetime: z
+              .string()
+              .min(1, { message: translate('text_1780327356834f5f3nndfg80') }),
+            toDatetime: z.string().min(1, { message: translate('text_17803273568346wguor4j5u5') }),
+          })
+          .superRefine((data, ctx) => {
+            if (data.fromDatetime && data.toDatetime) {
+              const from = DateTime.fromISO(data.fromDatetime)
+              const to = DateTime.fromISO(data.toDatetime)
+
+              if (to < from) {
+                ctx.addIssue({
+                  code: 'custom',
+                  message: translate('text_64ef55a730b88e3d2117b3d4'),
+                  path: ['toDatetime'],
+                })
+              }
+            }
+          }),
       [translate],
     )
 
