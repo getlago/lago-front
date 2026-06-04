@@ -27,7 +27,7 @@ describe('serializeActivationRules', () => {
     ])
   })
 
-  it('serializes payment activation with a null timeout when the value is empty', () => {
+  it('omits timeoutHours when the value is empty', () => {
     expect(
       serializeActivationRules({
         activationRuleType: ActivationRuleFormTypeEnum.OnPayment,
@@ -36,12 +36,11 @@ describe('serializeActivationRules', () => {
     ).toEqual([
       {
         type: ActivationRuleTypeEnum.Payment,
-        timeoutHours: null,
       },
     ])
   })
 
-  it('serializes payment activation with a null timeout when the value is null', () => {
+  it('omits timeoutHours when the value is null', () => {
     expect(
       serializeActivationRules({
         activationRuleType: ActivationRuleFormTypeEnum.OnPayment,
@@ -50,7 +49,6 @@ describe('serializeActivationRules', () => {
     ).toEqual([
       {
         type: ActivationRuleTypeEnum.Payment,
-        timeoutHours: null,
       },
     ])
   })

@@ -22,7 +22,8 @@ export const serializeActivationRules = ({
 }: ActivationRuleFormValues): SubscriptionActivationRuleInput[] => {
   if (activationRuleType !== ActivationRuleFormTypeEnum.OnPayment) return []
 
-  // An empty timeout means "no timeout": the BE accepts null, so align the FE with it.
+  // An empty timeout means "no timeout": omit `timeoutHours` entirely (the BE expects
+  // the field to be absent, not null).
   const hasTimeoutValue =
     activationRuleTimeoutHours !== undefined &&
     activationRuleTimeoutHours !== null &&
@@ -33,8 +34,8 @@ export const serializeActivationRules = ({
   return [
     {
       type: ActivationRuleTypeEnum.Payment,
-      timeoutHours:
-        hasTimeoutValue && Number.isFinite(parsedTimeoutHours) ? parsedTimeoutHours : null,
+      ...(hasTimeoutValue &&
+        Number.isFinite(parsedTimeoutHours) && { timeoutHours: parsedTimeoutHours }),
     },
   ]
 }
