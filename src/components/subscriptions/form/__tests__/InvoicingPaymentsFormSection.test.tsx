@@ -19,6 +19,8 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 jest.mock('@tanstack/react-form', () => ({
   revalidateLogic: jest.fn(() => ({})),
+  useStore: (store: { state: unknown }, selector: (state: unknown) => unknown) =>
+    selector(store.state),
 }))
 
 jest.mock('~/hooks/forms/useAppform', () => ({
@@ -43,10 +45,15 @@ jest.mock('~/hooks/forms/useAppform', () => ({
   ),
 }))
 
-const createMockForm = () => ({
-  setFieldValue: jest.fn(),
-  state: { values: { planId: 'plan-1' } },
-})
+const createMockForm = () => {
+  const state = { values: { planId: 'plan-1' } }
+
+  return {
+    setFieldValue: jest.fn(),
+    state,
+    store: { state },
+  }
+}
 
 describe('InvoicingPaymentsFormSection', () => {
   beforeEach(() => {
@@ -68,7 +75,7 @@ describe('InvoicingPaymentsFormSection', () => {
         expect.objectContaining({
           customer: { id: 'cust-1' },
           viewType: 'subscription',
-          formikProps: expect.objectContaining({
+          form: expect.objectContaining({
             values: expect.any(Object),
             setFieldValue: expect.any(Function),
           }),

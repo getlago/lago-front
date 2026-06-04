@@ -1,9 +1,8 @@
+import { useStore } from '@tanstack/react-form'
+
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
-import {
-  PaymentMethodsInvoiceSettingsProps,
-  ViewTypeEnum,
-} from '~/components/paymentMethodsInvoiceSettings/types'
+import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { Customer, Maybe } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -33,6 +32,11 @@ export const InvoicingPaymentsFormSection = withForm({
   render: function InvoicingPaymentsFormSection({ form, customer }) {
     const { translate } = useInternationalization()
 
+    // Reactive store slices — never the non-reactive `form.state.values`
+    // snapshot, or dialog edits won't re-render the displayed selection.
+    const paymentMethod = useStore(form.store, (s) => s.values.paymentMethod)
+    const invoiceCustomSection = useStore(form.store, (s) => s.values.invoiceCustomSection)
+
     if (!customer?.externalId && !customer?.id) return null
 
     return (
@@ -43,12 +47,10 @@ export const InvoicingPaymentsFormSection = withForm({
         />
         <PaymentMethodsInvoiceSettings
           customer={customer}
-          formikProps={
-            {
-              values: form.state.values,
-              setFieldValue: form.setFieldValue,
-            } as PaymentMethodsInvoiceSettingsProps<ViewTypeEnum.Subscription>['formikProps']
-          }
+          form={{
+            values: { paymentMethod, invoiceCustomSection },
+            setFieldValue: form.setFieldValue,
+          }}
           viewType={ViewTypeEnum.Subscription}
         />
       </CenteredPage.PageSection>
