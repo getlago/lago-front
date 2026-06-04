@@ -17,6 +17,7 @@ export type PreviewTableColumn<T> = {
   content: (item: T, index: number) => ReactNode
   textAlign?: Align
   maxSpace?: boolean
+  minWidth?: number
 }
 
 export interface PreviewTableProps<T> {
@@ -71,6 +72,7 @@ export const PreviewTable = <T,>({
                 style={{
                   width:
                     column.maxSpace && maxSpaceColumns > 0 ? `${100 / maxSpaceColumns}%` : 'auto',
+                  minWidth: column.minWidth ? `${column.minWidth}px` : undefined,
                 }}
                 sx={{
                   '& > div': { paddingRight: '32px' },
@@ -100,10 +102,7 @@ export const PreviewTable = <T,>({
               key={`${TABLE_ID}-row-${i}`}
               data-test={`${TABLE_ID}-row-${i}`}
               sx={{
-                borderBottom:
-                  i < data.length - 1
-                    ? `1px solid ${theme.palette.grey[200]}`
-                    : 'none',
+                borderBottom: `1px solid ${theme.palette.grey[200]}`,
               }}
             >
               {columns.map((column, j) => (
@@ -114,6 +113,7 @@ export const PreviewTable = <T,>({
                   style={{
                     width:
                       column.maxSpace && maxSpaceColumns > 0 ? `${100 / maxSpaceColumns}%` : 'auto',
+                    minWidth: column.minWidth ? `${column.minWidth}px` : undefined,
                   }}
                   sx={{
                     '& > div': { paddingRight: '32px' },
