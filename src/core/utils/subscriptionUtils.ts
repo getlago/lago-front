@@ -15,24 +15,12 @@ type SubscriptionWithActivationRules = {
     Array<Pick<SubscriptionActivationRule, 'type' | 'timeoutHours' | 'status' | 'expiresAt'>>
   >
   cancelationReason?: Maybe<CancelationReasonEnum>
-  endingAt?: Maybe<string>
   status?: Maybe<StatusTypeEnum>
-  terminatedAt?: Maybe<string>
 }
 
 export const getPaymentActivationRule = (subscription?: Maybe<SubscriptionWithActivationRules>) => {
   return subscription?.activationRules?.find(
     (activationRule) => activationRule.type === ActivationRuleTypeEnum.Payment,
-  )
-}
-
-export const isCanceledWithPaymentReason = (
-  subscription?: Maybe<SubscriptionWithActivationRules>,
-) => {
-  return (
-    subscription?.status === StatusTypeEnum.Canceled &&
-    (subscription.cancelationReason === CancelationReasonEnum.PaymentFailed ||
-      subscription.cancelationReason === CancelationReasonEnum.Timeout)
   )
 }
 
@@ -43,22 +31,6 @@ export const isPaymentActivationExpired = (
     subscription?.cancelationReason === CancelationReasonEnum.Timeout ||
     getPaymentActivationRule(subscription)?.status === ActivationRuleStatusEnum.Expired
   )
-}
-
-export const formatSubscriptionEndDate = (
-  subscription?: Maybe<
-    Pick<SubscriptionWithActivationRules, 'endingAt' | 'status' | 'terminatedAt'>
-  >,
-) => {
-  if (subscription?.status === StatusTypeEnum.Terminated && subscription.terminatedAt) {
-    return DateTime.fromISO(subscription.terminatedAt).toFormat('LLL. dd, yyyy')
-  }
-
-  if (subscription?.endingAt) {
-    return DateTime.fromISO(subscription.endingAt).toFormat('LLL. dd, yyyy')
-  }
-
-  return '-'
 }
 
 export const shouldShowTimeoutField = (subscription?: Maybe<SubscriptionWithActivationRules>) => {

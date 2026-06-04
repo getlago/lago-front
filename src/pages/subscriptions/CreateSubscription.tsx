@@ -162,7 +162,6 @@ const CreateSubscription = () => {
       } = value
 
       const localValues = {
-        id: formType === FORM_TYPE_ENUM.edition ? subscription?.id : undefined,
         ...restValues,
         activationRules: serializeActivationRules({
           activationRuleTimeoutHours,
