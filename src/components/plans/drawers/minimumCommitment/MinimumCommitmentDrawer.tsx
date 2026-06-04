@@ -186,12 +186,15 @@ export const MinimumCommitmentDrawer = forwardRef<
             <Button variant="quaternary" onClick={() => minimumCommitmentDrawer.close()}>
               {translate('text_6411e6b530cb47007488b027')}
             </Button>
-            <form.Subscribe selector={({ canSubmit }) => canSubmit}>
-              {(canSubmit) => (
+            <form.Subscribe
+              selector={({ canSubmit, isSubmitting }) => ({ canSubmit, isSubmitting })}
+            >
+              {({ canSubmit, isSubmitting }) => (
                 <Button
                   data-test={MINIMUM_COMMITMENT_DRAWER_SAVE_TEST_ID}
                   onClick={handleFormSubmit}
-                  disabled={!canSubmit}
+                  disabled={!canSubmit && !isSubmitting}
+                  loading={isSubmitting}
                 >
                   {translate(
                     isAddModeRef.current

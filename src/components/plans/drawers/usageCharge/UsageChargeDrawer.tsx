@@ -392,12 +392,15 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
               <Button variant="quaternary" onClick={() => chargeDrawer.close()}>
                 {translate('text_6411e6b530cb47007488b027')}
               </Button>
-              <form.Subscribe selector={({ canSubmit }) => canSubmit}>
-                {(canSubmit) => (
+              <form.Subscribe
+                selector={({ canSubmit, isSubmitting }) => ({ canSubmit, isSubmitting })}
+              >
+                {({ canSubmit, isSubmitting }) => (
                   <Button
                     data-test="usage-charge-drawer-save"
                     onClick={handleFormSubmit}
-                    disabled={!canSubmit}
+                    disabled={!canSubmit && !isSubmitting}
+                    loading={isSubmitting}
                   >
                     {translate(
                       isCreateModeRef.current

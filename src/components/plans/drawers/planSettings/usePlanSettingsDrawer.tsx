@@ -16,12 +16,6 @@ export const usePlanSettingsDrawer = (plan: PlanDetailsV2Fragment, subscriptionI
   const { translate } = useInternationalization()
   const drawer = useFormDrawer()
 
-  const { form, submit } = useUpdatePlanWithCascade({
-    plan,
-    onSuccess() {
-      drawer.close()
-    },
-  })
   const { updatePlanOverride } = useUpdateSubscriptionPlanOverride({
     subscriptionId: subscriptionId ?? '',
   })
@@ -29,40 +23,48 @@ export const usePlanSettingsDrawer = (plan: PlanDetailsV2Fragment, subscriptionI
   // Sub mode: route the editable settings (name + description + taxes — the
   // PlanOverridesInput-backed fields not already disabled) through
   // updateSubscription(planOverrides); never call updatePlan, which would
-  // mutate the shared base plan (R3). Plan mode keeps the cascade submit.
-  const handleSubmit = async () => {
-    if (subscriptionId) {
-      const values = form.state.values
-      const success = await updatePlanOverride({
-        name: values.name,
-        description: values.description || null,
-        taxCodes: values.taxes?.map((tax) => tax.code) ?? [],
-      })
-
-      if (success) drawer.close()
-      return
-    }
-
-    await submit()
-  }
+  // mutate the shared base plan (R3). Running it via the form's onSubmit
+  // (submitOverride) keeps `isSubmitting` accurate so the save button spins.
+  // Plan mode keeps the cascade submit.
+  const { form, submit } = useUpdatePlanWithCascade({
+    plan,
+    onSuccess() {
+      drawer.close()
+    },
+    submitOverride: subscriptionId
+      ? (value) =>
+          updatePlanOverride({
+            name: value.name,
+            description: value.description || null,
+            taxCodes: value.taxes?.map((tax) => tax.code) ?? [],
+          })
+      : undefined,
+  })
 
   const openDrawer = () => {
     form.reset(buildUpdatePlanFormDefaults(plan), { keepDefaultValues: true })
 
-    const submitVoid = () => {
-      void handleSubmit()
+    // Sub mode submits through the form (submitOverride); plan mode keeps the
+    // cascade-aware submit(). Both flip `isSubmitting`, driving the spinner.
+    const submitForm = () => {
+      if (subscriptionId) {
+        form.handleSubmit()
+      } else {
+        submit()
+      }
     }
 
     drawer.open({
       title: translate('text_642d5eb2783a2ad10d67031a'),
-      form: { id: PLAN_SETTINGS_FORM_ID, submit: submitVoid },
+      form: { id: PLAN_SETTINGS_FORM_ID, submit: submitForm },
       mainAction: (
-        <form.Subscribe selector={({ canSubmit }) => canSubmit}>
-          {(canSubmit) => (
+        <form.Subscribe selector={({ canSubmit, isSubmitting }) => ({ canSubmit, isSubmitting })}>
+          {({ canSubmit, isSubmitting }) => (
             <Button
               data-test="plan-settings-drawer-save"
-              onClick={submitVoid}
-              disabled={!canSubmit}
+              onClick={submitForm}
+              disabled={!canSubmit && !isSubmitting}
+              loading={isSubmitting}
             >
               {translate('text_17295436903260tlyb1gp1i7')}
             </Button>
@@ -70,13 +72,16 @@ export const usePlanSettingsDrawer = (plan: PlanDetailsV2Fragment, subscriptionI
         </form.Subscribe>
       ),
       children: (
-        <PlanSettingsSection
-          form={form}
-          canBeEdited
-          isEdition
-          isInSubscriptionForm={!!subscriptionId}
-          subscriptionFormType={subscriptionId ? FORM_TYPE_ENUM.edition : undefined}
-        />
+        <>
+          <button type="submit" hidden aria-hidden="true" />
+          <PlanSettingsSection
+            form={form}
+            canBeEdited
+            isEdition
+            isInSubscriptionForm={!!subscriptionId}
+            subscriptionFormType={subscriptionId ? FORM_TYPE_ENUM.edition : undefined}
+          />
+        </>
       ),
     })
   }

@@ -68,6 +68,7 @@ export const SubscriptionFeeDrawer = forwardRef<
         trialPeriod: Number(value.trialPeriod) || 0,
         invoiceDisplayName: value.invoiceDisplayName || undefined,
       })
+
       if (result !== false) {
         subscriptionFeeDrawer.close()
       }
@@ -205,12 +206,13 @@ export const SubscriptionFeeDrawer = forwardRef<
           <Button variant="quaternary" onClick={() => subscriptionFeeDrawer.close()}>
             {translate('text_6411e6b530cb47007488b027')}
           </Button>
-          <form.Subscribe selector={({ canSubmit }) => canSubmit}>
-            {(canSubmit) => (
+          <form.Subscribe selector={({ canSubmit, isSubmitting }) => ({ canSubmit, isSubmitting })}>
+            {({ canSubmit, isSubmitting }) => (
               <Button
                 data-test="subscription-fee-drawer-save"
                 onClick={handleFormSubmit}
-                disabled={!canSubmit}
+                disabled={!canSubmit && !isSubmitting}
+                loading={isSubmitting}
               >
                 {translate('text_17295436903260tlyb1gp1i7')}
               </Button>

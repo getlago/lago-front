@@ -218,12 +218,15 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
               <Button variant="quaternary" onClick={() => fixedChargeDrawer.close()}>
                 {translate('text_6411e6b530cb47007488b027')}
               </Button>
-              <form.Subscribe selector={({ canSubmit }) => canSubmit}>
-                {(canSubmit) => (
+              <form.Subscribe
+                selector={({ canSubmit, isSubmitting }) => ({ canSubmit, isSubmitting })}
+              >
+                {({ canSubmit, isSubmitting }) => (
                   <Button
                     data-test="fixed-charge-drawer-save"
                     onClick={handleFormSubmit}
-                    disabled={!canSubmit}
+                    disabled={!canSubmit && !isSubmitting}
+                    loading={isSubmitting}
                   >
                     {translate(
                       isCreateModeRef.current
