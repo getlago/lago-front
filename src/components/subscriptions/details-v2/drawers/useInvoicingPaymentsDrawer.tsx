@@ -29,12 +29,13 @@ export const useInvoicingPaymentsDrawer = (subscription: InvoicingPaymentsSectio
       title: translate('text_1780503765268ttscgcx6yo7'),
       form: { id: INVOICING_PAYMENTS_FORM_ID, submit: submitForm },
       mainAction: (
-        <form.Subscribe selector={({ canSubmit }) => canSubmit}>
-          {(canSubmit) => (
+        <form.Subscribe selector={({ canSubmit, isSubmitting }) => ({ canSubmit, isSubmitting })}>
+          {({ canSubmit, isSubmitting }) => (
             <Button
               data-test="invoicing-payments-drawer-save"
               onClick={submitForm}
-              disabled={!canSubmit}
+              disabled={!canSubmit || isSubmitting}
+              loading={isSubmitting}
             >
               {translate('text_17295436903260tlyb1gp1i7')}
             </Button>

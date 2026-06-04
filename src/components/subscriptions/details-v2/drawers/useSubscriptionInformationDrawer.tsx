@@ -69,12 +69,13 @@ export const useSubscriptionInformationDrawer = (
       title: translate('text_62d7f6178ec94cd09370e63c'),
       form: { id: SUBSCRIPTION_INFORMATION_FORM_ID, submit: submitForm },
       mainAction: (
-        <form.Subscribe selector={({ canSubmit }) => canSubmit}>
-          {(canSubmit) => (
+        <form.Subscribe selector={({ canSubmit, isSubmitting }) => ({ canSubmit, isSubmitting })}>
+          {({ canSubmit, isSubmitting }) => (
             <Button
               data-test="subscription-information-drawer-save"
               onClick={submitForm}
-              disabled={!canSubmit}
+              disabled={!canSubmit || isSubmitting}
+              loading={isSubmitting}
             >
               {translate('text_17295436903260tlyb1gp1i7')}
             </Button>
