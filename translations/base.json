@@ -4311,6 +4311,5 @@
   "text_1779715648585ih339cvcfjx": "Are you sure you want to void this order form? This action cannot be undone.",
   "text_1779715648585yngcc34h4kq": "Void order form {{orderFormNumber}}",
   "text_17797156485853s6nzac3mll": "This order form will be voided and can no longer be signed.",
-  "text_1779715648585ivakmu9pgk2": "Order form details",
-  "text_1779715648585ei1dagsldxy": "Order form successfully voided"
+  "text_1779715648585ivakmu9pgk2": "Order form details"
 }
