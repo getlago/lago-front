@@ -18,10 +18,11 @@ export const PRICING_BLOCK_VIEW_EMPTY_TEST_ID = 'pricing-block-view-empty'
 export const PRICING_BLOCK_VIEW_UNRESOLVED_TEST_ID = 'pricing-block-view-unresolved'
 
 export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
-  const { entities, onPricingCommand, mode, customerLocale } = useRichTextEditorContext()
+  const { entities, onPricingCommand, mode, customerLocale, customerCurrency } =
+    useRichTextEditorContext()
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
-  const currency = organization?.defaultCurrency ?? CurrencyEnum.Usd
+  const currency = customerCurrency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
 
   const effectiveLocale: Locale = (customerLocale ?? 'en') as Locale
   const { translateWithContextualLocal } = useContextualLocale(effectiveLocale)

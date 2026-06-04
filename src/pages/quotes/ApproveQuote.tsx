@@ -173,6 +173,7 @@ const ApproveQuote = () => {
                 content={quote.currentVersion.content}
                 entities={previewEntities}
                 customerLocale={customerLocale}
+                customerCurrency={quote?.customer?.currency ?? undefined}
               />
             ) : (
               <Typography color="grey500">{translate('text_17768523811635qaasto1ziv')}</Typography>

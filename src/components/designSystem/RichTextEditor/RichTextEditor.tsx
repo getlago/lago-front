@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
 import type { Locale } from '~/core/translations'
+import type { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import BlockToolbar from './BlockControls/BlockToolbar'
@@ -53,6 +54,7 @@ interface RichTextEditorProps {
   isPricingDisabled?: () => boolean
   onPricingBlocksChange?: (blocks: PricingBlockAttributes[]) => void
   customerLocale?: Locale
+  customerCurrency?: CurrencyEnum
 }
 
 const RichTextEditor = ({
@@ -68,6 +70,7 @@ const RichTextEditor = ({
   onPricingBlocksChange,
   onChange,
   customerLocale,
+  customerCurrency,
 }: RichTextEditorProps) => {
   const { translate } = useInternationalization()
   const onChangeRef = useRef(onChange)
@@ -219,8 +222,8 @@ const RichTextEditor = ({
   }, [editor])
 
   const contextValue = useMemo(
-    () => ({ mode, mentionValues, entities: entitiesFromProps, onPricingCommand, customerLocale }),
-    [mode, mentionValues, entitiesFromProps, onPricingCommand, customerLocale],
+    () => ({ mode, mentionValues, entities: entitiesFromProps, onPricingCommand, customerLocale, customerCurrency }),
+    [mode, mentionValues, entitiesFromProps, onPricingCommand, customerLocale, customerCurrency],
   )
 
   useEffect(() => {

@@ -290,6 +290,7 @@ const EditQuote = () => {
           entities={entities}
           onPricingBlocksChange={handlePricingBlocksChange}
           customerLocale={customerLocale}
+          customerCurrency={quote?.customer?.currency ?? undefined}
         />
       </RightAsidePage.Content>
     </RightAsidePage.Wrapper>
