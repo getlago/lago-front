@@ -10,8 +10,13 @@ import {
 import { SubscriptionFeeInfo } from '~/components/plans/SubscriptionFeeInfo'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { getIntervalTranslationKey } from '~/core/constants/form'
-import { serializeAmount } from '~/core/serializers/serializeAmount'
-import { PlanDetailsV2Fragment, PlanForUpdateWithCascadeFragmentDoc } from '~/generated/graphql'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
+import {
+  CurrencyEnum,
+  PlanDetailsV2Fragment,
+  PlanForUpdateWithCascadeFragmentDoc,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
 import { useUpdatePlanWithCascade } from '~/hooks/plans/useUpdatePlanWithCascade'
@@ -54,10 +59,20 @@ export const SubscriptionFeeAccordion = ({
     subscriptionId: subscriptionId ?? '',
   })
 
+  const currency = plan.amountCurrency ?? CurrencyEnum.Usd
+  const formattedAmount = intlFormatNumber(deserializeAmount(plan.amountCents || 0, currency), {
+    currency,
+  })
+
   const openDrawer = () => {
     drawerRef.current?.openDrawer({
+      // plan.amountCents is serialized (cents) from the API; the drawer input
+      // edits display units, so deserialize first (the plan-form path already
+      // holds display units in its form store, hence the difference).
       amountCents:
-        plan.amountCents !== null && plan.amountCents !== undefined ? String(plan.amountCents) : '',
+        plan.amountCents !== null && plan.amountCents !== undefined
+          ? String(deserializeAmount(plan.amountCents, currency))
+          : '',
       payInAdvance: plan.payInAdvance ?? false,
       trialPeriod: plan.trialPeriod ?? 0,
       invoiceDisplayName: plan.invoiceDisplayName ?? undefined,
@@ -91,6 +106,7 @@ export const SubscriptionFeeAccordion = ({
       <SectionAccordion
         id={PlanDetailsV2SectionId.SubscriptionFee}
         title={plan.invoiceDisplayName || translate('text_642d5eb2783a2ad10d670336')}
+        subtitle={formattedAmount}
         badge={intervalBadge}
         actions={[
           {
