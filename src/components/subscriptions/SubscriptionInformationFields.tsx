@@ -224,7 +224,12 @@ export const SubscriptionInformationFields = ({
         }
       />
       <DetailsPage.InfoGrid
-        grid={getSubscriptionInformationGrid({ subscription, translate, intlFormatDateTimeOrgaTZ, showBillingEntityRow })}
+        grid={getSubscriptionInformationGrid({
+          subscription,
+          translate,
+          intlFormatDateTimeOrgaTZ,
+          showBillingEntityRow,
+        })}
       />
     </div>
   )
