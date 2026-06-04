@@ -23,6 +23,7 @@ import {
   EDIT_WALLET_ROUTE,
   WALLET_DETAILS_ROUTE,
 } from '~/core/router'
+import { getCustomerDisplayName } from '~/core/utils/getCustomerDisplayName'
 import {
   useGetWalletDetailsQuery,
   WalletInfosForTransactionsFragmentDoc,
@@ -68,6 +69,10 @@ gql`
     billingEntityId
     customer {
       id
+      name
+      firstname
+      lastname
+      externalId
       billingEntity {
         id
         code
@@ -147,6 +152,11 @@ const WalletDetails = () => {
   })
 
   const wallet = data?.wallet
+
+  const customerName = getCustomerDisplayName({
+    customer: wallet?.customer,
+    fallback: wallet?.customer?.externalId,
+  })
 
   const {
     actions: walletActionItems,
@@ -303,11 +313,12 @@ const WalletDetails = () => {
             path: CUSTOMERS_LIST_ROUTE,
           },
           {
-            label: translate('text_62d175066d2dbf1d50bc937c'),
+            label: customerName,
             path: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
               customerId: customerId as string,
               tab: CustomerDetailsTabsOptions.wallet,
             }),
+            loading,
           },
         ]}
         entity={{

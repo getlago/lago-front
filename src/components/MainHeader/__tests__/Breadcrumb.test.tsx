@@ -79,4 +79,21 @@ describe('Breadcrumb', () => {
       })
     })
   })
+
+  describe('GIVEN a loading breadcrumb item', () => {
+    const items: BreadcrumbItem[] = [
+      { label: 'Customers', path: '/customers' },
+      { label: '', path: '/customers/1', loading: true },
+    ]
+
+    describe('WHEN the component renders', () => {
+      it('THEN should render a skeleton instead of the link for the loading item', () => {
+        render(<Breadcrumb items={items} />)
+
+        // Only the non-loading item is rendered as a link
+        expect(screen.getAllByRole('link')).toHaveLength(1)
+        expect(screen.queryByRole('link', { name: '/customers/1' })).not.toBeInTheDocument()
+      })
+    })
+  })
 })

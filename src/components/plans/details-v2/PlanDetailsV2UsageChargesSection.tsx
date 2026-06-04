@@ -19,6 +19,7 @@ import {
   PercentageChargeFragmentDoc,
   PlanForDetailsV2UsageChargesSectionFragment,
   PlanInterval,
+  PresentationGroupKeysFragmentDoc,
   PricingGroupKeysFragmentDoc,
   StandardChargeFragmentDoc,
   TaxForPlanSettingsSectionFragmentDoc,
@@ -60,6 +61,7 @@ gql`
       ...PercentageCharge
       ...CustomCharge
       ...PricingGroupKeys
+      ...PresentationGroupKeys
     }
     filters {
       id
@@ -130,6 +132,7 @@ gql`
   ${PercentageChargeFragmentDoc}
   ${CustomChargeFragmentDoc}
   ${PricingGroupKeysFragmentDoc}
+  ${PresentationGroupKeysFragmentDoc}
   ${TaxForTaxesSelectorSectionFragmentDoc}
   ${TaxForPlanSettingsSectionFragmentDoc}
 `
@@ -183,6 +186,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
             ? {
                 label: translate('text_1772133285142oouequiz2t2'),
                 onClick: openCreate,
+                startIcon: 'plus',
               }
             : undefined
         }

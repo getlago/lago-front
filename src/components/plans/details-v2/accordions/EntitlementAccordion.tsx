@@ -69,6 +69,7 @@ export const EntitlementAccordion = ({
           label: translate('text_1753864223060devvklm7vk0'),
           onClick: () => drawerRef.current?.openDrawer(),
           hidden: !canCreate,
+          startIcon: 'plus',
         }}
       />
 

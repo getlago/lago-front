@@ -1,6 +1,7 @@
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { getIntervalTranslationKey } from '~/core/constants/form'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -11,6 +12,7 @@ type PlanSettingsInfoProps = {
     description?: string | null
     interval?: PlanInterval | null
     amountCurrency?: string | null
+    taxes?: ReadonlyArray<{ id: string; name: string; rate: number }> | null
   }
 }
 
@@ -48,6 +50,17 @@ export const PlanSettingsInfo = ({ plan }: PlanSettingsInfoProps) => {
         <DetailsPage.InfoGridItem
           label={translate('text_6388b923e514213fed58331c')}
           value={plan.description}
+        />
+      )}
+
+      {!!plan.taxes?.length && (
+        <DetailsPage.InfoGridItem
+          label={translate('text_645bb193927b375079d28a8f')}
+          value={plan.taxes.map((tax) => (
+            <div key={`plan-settings-tax-${tax.id}`}>
+              {tax.name} ({intlFormatNumber(Number(tax.rate) / 100 || 0, { style: 'percent' })})
+            </div>
+          ))}
         />
       )}
     </div>

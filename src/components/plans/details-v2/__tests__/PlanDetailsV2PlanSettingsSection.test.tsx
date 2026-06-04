@@ -14,21 +14,12 @@ import { PlanDetailsV2PlanSettingsSection } from '../PlanDetailsV2PlanSettingsSe
 NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 
 const mockOpenDrawer = jest.fn()
-const mockCloseDrawer = jest.fn()
 
-jest.mock('~/components/plans/drawers/planSettings/PlanSettingsDrawer', () => {
-  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
-
-  const PlanSettingsDrawer = forwardRef((_props: unknown, ref: unknown) => {
-    useImperativeHandle(ref, () => ({
-      openDrawer: mockOpenDrawer,
-      closeDrawer: mockCloseDrawer,
-    }))
-    return null
-  })
-
-  return { __esModule: true, PlanSettingsDrawer }
-})
+// Mock the drawer hook: the section's only job is to wire the Edit action to it.
+// The drawer's own behaviour is covered in usePlanSettingsDrawer.test.
+jest.mock('~/components/plans/drawers/planSettings/usePlanSettingsDrawer', () => ({
+  usePlanSettingsDrawer: () => ({ openDrawer: mockOpenDrawer }),
+}))
 
 jest.mock('../SubscriptionFeeAccordion', () => ({
   __esModule: true,
@@ -39,6 +30,7 @@ const mockHasPermissions = jest.fn((perms?: string[]) => {
   if (!perms) return true
   return !perms.includes('none')
 })
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
@@ -58,7 +50,6 @@ const Wrapper = ({ children }: { children: ReactNode }) => (
 describe('PlanDetailsV2PlanSettingsSection', () => {
   beforeEach(() => {
     mockOpenDrawer.mockClear()
-    mockCloseDrawer.mockClear()
     mockHasPermissions.mockReset().mockReturnValue(true)
   })
 

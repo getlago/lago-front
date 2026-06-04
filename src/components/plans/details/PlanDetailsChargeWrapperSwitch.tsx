@@ -16,6 +16,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import PlanDetailsPresentationGroupKeys from './PlanDetailsPresentationGroupKeys'
+
 const isUsageChargeProperties = (
   values?: Maybe<Properties> | Maybe<FixedChargeProperties>,
 ): values is Properties => {
@@ -30,17 +32,31 @@ export const PlanDetailsChargeWrapperSwitch = memo(
     chargeModel,
     values,
     chargeAppliedPricingUnit,
+    showPresentationGroupKeys = true,
   }: {
     currency: CurrencyEnum
     chargeModel: ChargeModelEnum | FixedChargeChargeModelEnum
     values?: Maybe<Properties> | Maybe<FixedChargeProperties>
     chargeAppliedPricingUnit?: Maybe<{ pricingUnit?: Maybe<{ shortName?: string }> }>
+    showPresentationGroupKeys?: boolean
   }) => {
     const componentId = useId()
     const { translate } = useInternationalization()
 
     const isUsageCharge = isUsageChargeProperties(values)
     const pricingGroupKeys = isUsageCharge ? values?.pricingGroupKeys : undefined
+    const presentationGroupKeys = isUsageCharge ? values?.presentationGroupKeys : undefined
+
+    const renderGroupKeyChips = useCallback(
+      (groupKeys: string[], keyPrefix: string) => (
+        <div className="mt-1 flex flex-wrap gap-2">
+          {groupKeys.map((group, groupIndex) => (
+            <Chip key={`${componentId}-${keyPrefix}-${groupIndex}`} label={group} />
+          ))}
+        </div>
+      ),
+      [componentId],
+    )
 
     // Memoize the formatter function to avoid recreation on every render
     const formatAmountWithCurrency = useCallback(
@@ -261,14 +277,12 @@ export const PlanDetailsChargeWrapperSwitch = memo(
         {!!pricingGroupKeys?.length && (
           <DetailsPage.InfoGridItem
             label={translate('text_65ba6d45e780c1ff8acb20ce')}
-            value={
-              <div className="mt-1 flex flex-wrap gap-2">
-                {pricingGroupKeys?.map((group: string, groupIndex: number) => (
-                  <Chip key={`${componentId}-${groupIndex}`} label={group} />
-                ))}
-              </div>
-            }
+            value={renderGroupKeyChips(pricingGroupKeys, 'pricing-group-key')}
           />
+        )}
+
+        {showPresentationGroupKeys && !!presentationGroupKeys?.length && (
+          <PlanDetailsPresentationGroupKeys presentationGroupKeys={presentationGroupKeys} />
         )}
       </div>
     )

@@ -52,25 +52,38 @@ const createMockWallet = (overrides = {}) =>
     ongoingUsageBalanceCents: '0',
     creditsOngoingUsageBalance: 0,
     traceable: true,
+    customer: null,
     ...overrides,
   }) as unknown as WalletDetailsFragment
 
 describe('WalletInformations', () => {
-  it('GIVEN no wallet WHEN rendered THEN should render nothing', () => {
-    const { container } = render(<WalletInformations />)
+  describe('GIVEN no wallet', () => {
+    describe('WHEN rendered', () => {
+      it('THEN should render nothing', () => {
+        const { container } = render(<WalletInformations />)
 
-    expect(container.innerHTML).toBe('')
+        expect(container.innerHTML).toBe('')
+      })
+    })
   })
 
-  it('GIVEN wallet data WHEN rendered THEN should show wallet informations container', () => {
-    render(<WalletInformations wallet={createMockWallet()} />)
+  describe('GIVEN wallet data', () => {
+    describe('WHEN rendered', () => {
+      it('THEN should show wallet informations container', () => {
+        render(<WalletInformations wallet={createMockWallet()} />)
 
-    expect(screen.getByTestId(WALLET_INFORMATIONS_CONTAINER_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(WALLET_INFORMATIONS_CONTAINER_TEST_ID)).toBeInTheDocument()
+      })
+    })
   })
 
-  it('GIVEN wallet with no recurring rules WHEN isPremium THEN should show no recurring message', () => {
-    render(<WalletInformations wallet={createMockWallet()} />)
+  describe('GIVEN wallet with no recurring rules', () => {
+    describe('WHEN isPremium', () => {
+      it('THEN should show no recurring message', () => {
+        render(<WalletInformations wallet={createMockWallet()} />)
 
-    expect(screen.getByTestId(WALLET_INFORMATIONS_NO_RECURRING_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(WALLET_INFORMATIONS_NO_RECURRING_TEST_ID)).toBeInTheDocument()
+      })
+    })
   })
 })

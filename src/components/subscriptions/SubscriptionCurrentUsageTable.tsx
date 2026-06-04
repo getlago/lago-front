@@ -1,6 +1,6 @@
 import { ApolloError, ApolloQueryResult, gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import {
@@ -10,12 +10,13 @@ import {
 } from '~/components/customers/usage/SubscriptionUsageDetailDrawer'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
-import { Typography } from '~/components/designSystem/Typography'
+import { Typography, TypographyColor } from '~/components/designSystem/Typography'
 import { findChargeUsageByBillableMetricId } from '~/components/subscriptions/utils'
 import { addToast, hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
@@ -52,7 +53,6 @@ import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternat
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { tw } from '~/styles/utils'
 
 import { usePremiumWarningDialog } from '../dialogs/PremiumWarningDialog'
 
@@ -101,6 +101,12 @@ gql`
             shortName
           }
         }
+        properties {
+          pricingGroupKeys
+          presentationGroupKeys {
+            value
+          }
+        }
       }
       billableMetric {
         id
@@ -109,6 +115,7 @@ gql`
       }
       filters {
         id
+        invoiceDisplayName
       }
       groupedUsage {
         amountCents
@@ -146,6 +153,12 @@ gql`
             shortName
           }
         }
+        properties {
+          pricingGroupKeys
+          presentationGroupKeys {
+            value
+          }
+        }
       }
       billableMetric {
         id
@@ -154,6 +167,7 @@ gql`
       }
       filters {
         id
+        invoiceDisplayName
       }
       groupedUsage {
         amountCents
@@ -213,7 +227,6 @@ type SubscriptionCurrentUsageTableComponentProps = {
   customerData?: CustomerForSubscriptionUsageQuery['customer']
   customerLoading: boolean
   customerError?: ApolloError
-  showExcludingTaxLabel?: boolean
 
   refetchUsage: (
     forceProjected?: boolean,
@@ -259,6 +272,80 @@ export type MixedCharge = {
   units?: string | number
 }
 
+type UsageSummaryPanelProps = {
+  usageData?: UsageData
+  currency: CurrencyEnum
+  isLoading: boolean
+  hasError: boolean
+  translate: TranslateFunc
+  locale?: LocaleEnum
+  getFormattedDate: (date: string) => string
+  showProjectedColumn: boolean
+}
+
+const UsageSummaryPanel = ({
+  usageData,
+  currency,
+  isLoading,
+  hasError,
+  translate,
+  locale,
+  getFormattedDate,
+  showProjectedColumn,
+}: UsageSummaryPanelProps) => {
+  const currencyDisplay = locale ? 'narrowSymbol' : 'symbol'
+
+  const formatAmount = (cents: string | number | null | undefined): string =>
+    intlFormatNumber(deserializeAmount(cents || 0, currency) || 0, {
+      currencyDisplay,
+      currency,
+      locale,
+    })
+
+  const renderValue = (value: string, textColor: TypographyColor = 'grey700') =>
+    isLoading ? (
+      <Skeleton variant="text" className="mt-1 w-36" />
+    ) : (
+      <Typography variant="bodyHl" color={textColor} noWrap>
+        {value}
+      </Typography>
+    )
+
+  const dateRange =
+    !hasError && !!usageData?.fromDatetime && !!usageData?.toDatetime
+      ? `${getFormattedDate(usageData.fromDatetime)} - ${getFormattedDate(usageData.toDatetime)}`
+      : '-'
+
+  return (
+    <div className="w-full shadow-b">
+      <div className="flex w-fit items-stretch divide-x divide-grey-300 py-4">
+        <div className="flex flex-col gap-1 px-8 first:pl-0">
+          <Typography variant="captionHl" color="grey600" noWrap>
+            {translate('text_1778841363033djjc5c8dsvx')}
+          </Typography>
+          {renderValue(dateRange)}
+        </div>
+
+        <div className="flex flex-col gap-1 px-8">
+          <Typography variant="captionHl" color="grey600" noWrap>
+            {translate('text_17788413630335ar3zl10prt')}
+          </Typography>
+          {renderValue(formatAmount(usageData?.amountCents))}
+        </div>
+
+        {showProjectedColumn && (
+          <div className="flex flex-col gap-1 px-8">
+            <Typography variant="captionHl" color="grey600" noWrap>
+              {translate('text_17788413630339w2go4tbxga')}
+            </Typography>
+            {renderValue(formatAmount(usageData?.projectedAmountCents), 'grey600')}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export const SubscriptionCurrentUsageTableComponent = ({
   usageData,
   usageLoading,
@@ -269,7 +356,6 @@ export const SubscriptionCurrentUsageTableComponent = ({
   customerData,
   customerLoading,
   customerError,
-  showExcludingTaxLabel = false,
   refetchUsage,
   noUsageOverride,
   translate,
@@ -307,7 +393,6 @@ export const SubscriptionCurrentUsageTableComponent = ({
 
   const TRANSLATION_MAP = showProjected
     ? {
-        title: translate('text_1753095692838zn4t5a0wrg1'),
         unitsHeader: translate('text_17531019276915hby502cvzy'),
         amountHeader: translate('text_1753101927691j5chrkhmoma'),
         emptyUsage:
@@ -316,7 +401,6 @@ export const SubscriptionCurrentUsageTableComponent = ({
             : translate('text_1754662542899l1ms7k49n67'),
       }
     : {
-        title: translate('text_17530956928381jy5n59318d'),
         unitsHeader: translate('text_1753095789277t9kbe8y5pmh'),
         amountHeader: translate('text_1753101927691fbbwyk7p39q'),
         emptyUsage:
@@ -338,36 +422,39 @@ export const SubscriptionCurrentUsageTableComponent = ({
 
   return (
     <section>
-      <div className="flex h-10 flex-row items-start justify-between shadow-b">
-        <div className="flex flex-row gap-2">
+      <div className="flex flex-row items-center justify-between">
+        <div className="flex flex-col gap-1">
           <Typography variant="subhead1" color="grey700" noWrap>
             {translate('text_1725983967306cf8dwr2r4u2')}
           </Typography>
-          <Tooltip placement="top-start" title={translate('text_62d7f6178ec94cd09370e4b3')}>
-            <Button
-              variant="quaternary"
-              icon="reload"
-              size="small"
-              className={tw(usageLoading && '[&>svg]:animate-spin')}
-              disabled={usageLoading}
-              onClick={async () => {
-                refetchUsage()
-              }}
-            />
-          </Tooltip>
-        </div>
-
-        {isLoading && <Skeleton variant="text" className="mt-1 w-36" />}
-
-        {!isLoading && !hasError && !!usageData?.fromDatetime && !!usageData?.toDatetime && (
-          <Typography variant="caption" color="grey600" noWrap>
-            {translate('text_633dae57ca9a923dd53c2097', {
-              fromDate: usageData?.fromDatetime ? getFormattedDate(usageData?.fromDatetime) : '-',
-              toDate: usageData?.toDatetime ? getFormattedDate(usageData?.toDatetime) : '-',
-            })}
+          <Typography variant="caption" color="grey600">
+            {translate('text_1778496527600gzfmf3x6r2q')}
           </Typography>
-        )}
+        </div>
+        <Tooltip placement="top-end" title={translate('text_62d7f6178ec94cd09370e4b3')}>
+          <Button
+            variant="inline"
+            size="small"
+            disabled={usageLoading}
+            onClick={async () => {
+              refetchUsage()
+            }}
+          >
+            {translate('text_1738748043939zqoqzz350yj')}
+          </Button>
+        </Tooltip>
       </div>
+
+      <UsageSummaryPanel
+        usageData={usageData}
+        currency={currency}
+        isLoading={isLoading}
+        hasError={hasError}
+        translate={translate}
+        locale={locale}
+        getFormattedDate={getFormattedDate}
+        showProjectedColumn={!!hasAccessToProjectedUsage}
+      />
 
       <NavigationTab
         managedBy={TabManagedBy.INDEX}
@@ -461,144 +548,170 @@ export const SubscriptionCurrentUsageTableComponent = ({
         </div>
       )}
 
-      {!hasError && !!usageData?.chargesUsage.length && !showPremiumError && (
-        <>
-          <div className="flex h-12 flex-row items-center justify-between shadow-b">
-            <Typography variant="bodyHl" color="grey700" noWrap>
-              {TRANSLATION_MAP.title}{' '}
-              {showExcludingTaxLabel ? translate('text_1753095789277h17a2varizl') : ''}
-            </Typography>
+      {!hasError &&
+        !showPremiumError &&
+        // Render the Table during loading too so its `isLoading` skeleton
+        // shows on the Current/Projected tabs. Previously the cell was gated
+        // on `chargesUsage.length`, which skipped the loading state entirely.
+        (isLoading || !!usageData?.chargesUsage.length) && (
+          <>
+            <Table
+              name="subscription-current-usage-table"
+              containerSize={0}
+              rowSize={72}
+              // Add a small px-1 horizontal padding to every body cell so the
+              // hover/active states on the now-clickable rows don't sit flush
+              // against the table edges.
+              containerClassName="[&_tbody>tr>td]:px-1"
+              isLoading={isLoading}
+              hasError={hasError}
+              // While loading (initial fetch OR refresh via the reload
+              // button) we pass an empty data array so the Table's `isLoading`
+              // path renders ONLY the skeleton rows. The design-system Table
+              // otherwise appends skeletons after the existing rows, leaving
+              // stale data visible during refresh — QA flagged this.
+              data={isLoading ? [] : usageData?.chargesUsage || []}
+              onRowActionClick={(row) =>
+                handleOpenUsageDetailDrawer(row as SubscriptionUsageDetailDrawerUsage)
+              }
+              columns={[
+                {
+                  key: 'charge.invoiceDisplayName',
+                  title: translate('text_1725983967306dtwnapp4mw9'),
+                  maxSpace: true,
+                  content: (row) => {
+                    const filterLabels = (row.filters ?? [])
+                      .map((f) => f?.invoiceDisplayName)
+                      .filter((label): label is string => !!label)
 
-            {isLoading ? (
-              <Skeleton variant="text" className="w-36" />
-            ) : (
-              <Typography variant="bodyHl" color="grey700" noWrap>
-                {intlFormatNumber(
-                  deserializeAmount((usageData as MixedCharge)?.[amountCentsKey] || 0, currency) ||
-                    0,
-                  {
-                    currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-                    currency,
-                    locale,
-                  },
-                )}
-              </Typography>
-            )}
-          </div>
+                    // Pricing group keys ("priced per") and presentation group
+                    // keys ("split by") come from the charge config, not from
+                    // runtime usage data — so they surface even before the first
+                    // fee is recorded.
+                    const pricingGroupKeys = row.charge.properties?.pricingGroupKeys ?? []
+                    const presentationGroupKeys = (
+                      row.charge.properties?.presentationGroupKeys ?? []
+                    ).map((k) => k.value)
 
-          <Table
-            name="subscription-current-usage-table"
-            containerSize={0}
-            rowSize={72}
-            isLoading={isLoading}
-            hasError={hasError}
-            data={usageData?.chargesUsage || []}
-            columns={[
-              {
-                key: 'charge.invoiceDisplayName',
-                title: translate('text_1725983967306dtwnapp4mw9'),
-                maxSpace: true,
-                content: (row) => {
-                  const hasAnyGroupedUsageFilters = row.groupedUsage.some(
-                    (groupedUsage) => !!groupedUsage?.filters?.length,
-                  )
-                  const hasAnyGroupedUsageUnits = row.groupedUsage.some(
-                    (groupedUsage) => Number((groupedUsage as MixedCharge)?.[unitsKey] || 0) > 0,
-                  )
+                    return (
+                      <div className="flex flex-col gap-1 py-3">
+                        <Typography variant="body" color="grey700">
+                          {row.charge.invoiceDisplayName || row.billableMetric?.name}
+                        </Typography>
+                        <div className="flex flex-wrap items-center gap-1">
+                          <Typography variant="caption" color="grey600" component="span">
+                            {row.billableMetric?.code}
+                          </Typography>
 
-                  return (
-                    <div className="py-3">
-                      <Typography variant="body" color="grey700">
-                        {row.charge.invoiceDisplayName || row.billableMetric?.name}
-                      </Typography>
-                      <div className="flex w-full flex-row gap-1">
-                        <Typography variant="caption" color="grey600" component={'span'}>
-                          {row.billableMetric?.code}
-                          {(!!row.filters?.length ||
-                            hasAnyGroupedUsageFilters ||
-                            hasAnyGroupedUsageUnits) && (
+                          {filterLabels.length > 0 && (
+                            <Typography variant="caption" color="grey600" component="span">
+                              {' • '}
+                              {translate('text_1779790016087nsol47cwuwg')}
+                            </Typography>
+                          )}
+
+                          {pricingGroupKeys.length > 0 && (
                             <>
-                              <Typography variant="caption" color="grey600" component={'span'}>
+                              <Typography variant="caption" color="grey600" component="span">
                                 {' • '}
+                                {translate('text_177883198759933bb02ulslv')}
                               </Typography>
-                              <button
-                                className="h-auto whitespace-nowrap rounded-none p-0 text-purple-600 hover:underline focus:underline"
-                                onClick={() =>
-                                  handleOpenUsageDetailDrawer(
-                                    row as SubscriptionUsageDetailDrawerUsage,
-                                  )
-                                }
-                              >
-                                {translate('text_1725983967306c736sdyjohn')}
-                              </button>
+                              {pricingGroupKeys.map((key, i) => (
+                                <Fragment key={`pgk-${key}`}>
+                                  {i > 0 && (
+                                    <Typography variant="caption" color="grey600" component="span">
+                                      +
+                                    </Typography>
+                                  )}
+                                  <Chip label={key} size="small" variant="captionCode" />
+                                </Fragment>
+                              ))}
                             </>
                           )}
-                        </Typography>
+
+                          {presentationGroupKeys.length > 0 && (
+                            <>
+                              <Typography variant="caption" color="grey600" component="span">
+                                {' • '}
+                                {translate('text_1778831987599grvoqfl2yd2')}
+                              </Typography>
+                              {presentationGroupKeys.map((key, i) => (
+                                <Fragment key={`presgk-${key}`}>
+                                  {i > 0 && (
+                                    <Typography variant="caption" color="grey600" component="span">
+                                      +
+                                    </Typography>
+                                  )}
+                                  <Chip label={key} size="small" variant="captionCode" />
+                                </Fragment>
+                              ))}
+                            </>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )
+                    )
+                  },
                 },
-              },
-              {
-                key: 'units',
-                title: TRANSLATION_MAP.unitsHeader,
-                textAlign: 'right',
-                minWidth: 70,
-                content: (row) => (
-                  <Typography variant="body" color="grey700">
-                    {(row as MixedCharge)?.[unitsKey]}
-                  </Typography>
-                ),
-              },
-              {
-                key: 'amountCents',
-                title: TRANSLATION_MAP.amountHeader,
-                textAlign: 'right',
-                minWidth: 100,
-                content: (row) => {
-                  const currencyDisplay = locale ? 'narrowSymbol' : 'symbol'
+                {
+                  key: 'units',
+                  title: TRANSLATION_MAP.unitsHeader,
+                  textAlign: 'right',
+                  minWidth: 70,
+                  content: (row) => (
+                    <Typography variant="body" color="grey700">
+                      {(row as MixedCharge)?.[unitsKey]}
+                    </Typography>
+                  ),
+                },
+                {
+                  key: 'amountCents',
+                  title: TRANSLATION_MAP.amountHeader,
+                  textAlign: 'right',
+                  minWidth: 100,
+                  content: (row) => {
+                    const currencyDisplay = locale ? 'narrowSymbol' : 'symbol'
 
-                  return (
-                    <div className="flex flex-col">
-                      <Typography variant="bodyHl" color="grey700">
-                        {intlFormatNumber(
-                          deserializeAmount(
-                            getPricingUnitAmountCents(row, showProjected) || 0,
-                            currency,
-                          ),
-                          {
-                            currency,
-                            locale,
-                            currencyDisplay,
-                            pricingUnitShortName:
-                              row.charge.appliedPricingUnit?.pricingUnit?.shortName,
-                          },
-                        )}
-                      </Typography>
-
-                      {!!row.charge.appliedPricingUnit && (
-                        <Typography variant="caption" color="grey600">
+                    return (
+                      <div className="flex flex-col">
+                        <Typography variant="bodyHl" color="grey700">
                           {intlFormatNumber(
                             deserializeAmount(
-                              (row as MixedCharge)?.[amountCentsKey] || 0,
+                              getPricingUnitAmountCents(row, showProjected) || 0,
                               currency,
                             ),
                             {
                               currency,
                               locale,
                               currencyDisplay,
+                              pricingUnitShortName:
+                                row.charge.appliedPricingUnit?.pricingUnit?.shortName,
                             },
                           )}
                         </Typography>
-                      )}
-                    </div>
-                  )
+
+                        {!!row.charge.appliedPricingUnit && (
+                          <Typography variant="caption" color="grey600">
+                            {intlFormatNumber(
+                              deserializeAmount(
+                                (row as MixedCharge)?.[amountCentsKey] || 0,
+                                currency,
+                              ),
+                              {
+                                currency,
+                                locale,
+                                currencyDisplay,
+                              },
+                            )}
+                          </Typography>
+                        )}
+                      </div>
+                    )
+                  },
                 },
-              },
-            ]}
-          />
-        </>
-      )}
+              ]}
+            />
+          </>
+        )}
 
       <SubscriptionUsageDetailDrawer
         ref={subscriptionUsageDetailDrawerRef}
@@ -623,8 +736,6 @@ export const SubscriptionCurrentUsageTable = ({
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const [activeTab, setActiveTab] = useState<number>(0)
 
-  const showProjected = activeTab === 1
-
   const hasAccessToProjectedUsage = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.ProjectedUsage,
   )
@@ -648,7 +759,12 @@ export const SubscriptionCurrentUsageTable = ({
 
   const subscription = subscriptionData?.subscription
 
-  const fetchProjected = hasAccessToProjectedUsage && showProjected
+  // When the user has premium access, always fetch the projected query so the
+  // summary panel can show the projected end-of-period value on the Current
+  // tab too. The projected query is a superset of the current one (it returns
+  // both `amountCents` and `projectedAmountCents`), so non-premium users
+  // continue to use the lighter current-only query.
+  const fetchProjected = hasAccessToProjectedUsage
 
   const queryParams = {
     context: {

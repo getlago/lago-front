@@ -17,6 +17,12 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+// Stub the drawer hook so the transitive `drawerStack.ts` (Vite-only `import.meta.hot`)
+// is never loaded when this integration test mounts BodyLine through the table.
+jest.mock('~/components/invoices/details/ViewFeeDetailsDrawer', () => ({
+  useViewFeeDetailsDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 describe('InvoiceDetailsTable - Integration Tests', () => {
   const mockCustomer = {
     id: 'customer-1',

@@ -6,6 +6,7 @@ import {
   serializeFixedChargeProperties,
   serializeMinimumCommitment,
   serializePlanInput,
+  serializeProperties,
   serializeUsageThresholds,
 } from '~/core/serializers/serializePlanInput'
 import {
@@ -501,6 +502,7 @@ describe('serializePlanInput()', () => {
               ],
               graduatedPercentageRanges: undefined,
               pricingGroupKeys: undefined,
+              presentationGroupKeys: undefined,
               packageSize: undefined,
               perTransactionMinAmount: undefined,
               perTransactionMaxAmount: undefined,
@@ -592,6 +594,7 @@ describe('serializePlanInput()', () => {
               ],
               graduatedRanges: undefined,
               pricingGroupKeys: undefined,
+              presentationGroupKeys: undefined,
               packageSize: undefined,
               perTransactionMinAmount: undefined,
               perTransactionMaxAmount: undefined,
@@ -668,6 +671,7 @@ describe('serializePlanInput()', () => {
               graduatedRanges: undefined,
               graduatedPercentageRanges: undefined,
               pricingGroupKeys: undefined,
+              presentationGroupKeys: undefined,
               packageSize: 12,
               perTransactionMinAmount: undefined,
               perTransactionMaxAmount: undefined,
@@ -744,6 +748,7 @@ describe('serializePlanInput()', () => {
               freeUnitsPerTotalAggregation: '1',
               graduatedRanges: undefined,
               pricingGroupKeys: undefined,
+              presentationGroupKeys: undefined,
               graduatedPercentageRanges: undefined,
               packageSize: undefined,
               perTransactionMinAmount: '1',
@@ -821,6 +826,7 @@ describe('serializePlanInput()', () => {
               freeUnitsPerTotalAggregation: '1',
               graduatedRanges: undefined,
               pricingGroupKeys: undefined,
+              presentationGroupKeys: undefined,
               graduatedPercentageRanges: undefined,
               packageSize: undefined,
               perTransactionMinAmount: undefined,
@@ -893,6 +899,87 @@ describe('serializePlanInput()', () => {
               freeUnits: undefined,
               graduatedRanges: undefined,
               pricingGroupKeys: ['one', 'two'],
+              presentationGroupKeys: undefined,
+              graduatedPercentageRanges: undefined,
+              packageSize: undefined,
+              perTransactionMinAmount: undefined,
+              perTransactionMaxAmount: undefined,
+              volumeRanges: undefined,
+              customProperties: undefined,
+            },
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: 'monthly',
+        minimumCommitment: {},
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        usageThresholds: undefined,
+        entitlements: [],
+      })
+    })
+
+    it('formats correctly the presentationGroupKeys', () => {
+      const plan = serializePlanInput({
+        amountCents: '1',
+        amountCurrency: CurrencyEnum.Eur,
+        billChargesMonthly: true,
+        fixedCharges: [],
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Standard,
+            billableMetric: {
+              id: '1234',
+              name: 'simpleBM',
+              code: 'simple-bm',
+              recurring: false,
+              aggregationType: AggregationTypeEnum.CountAgg,
+            },
+            properties: {
+              presentationGroupKeys: [
+                { value: 'region', options: { displayInInvoice: 'true' as unknown as boolean } },
+                { value: 'country', options: { displayInInvoice: 'false' as unknown as boolean } },
+              ],
+            },
+            taxCodes: [],
+          },
+        ],
+        code: 'my-plan',
+        interval: PlanInterval.Monthly,
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
+        entitlements: [],
+      })
+
+      expect(plan).toStrictEqual({
+        amountCents: 100,
+        amountCurrency: 'EUR',
+        billChargesMonthly: true,
+        fixedCharges: [],
+        charges: [
+          {
+            billableMetricId: '1234',
+            chargeModel: 'standard',
+            appliedPricingUnit: undefined,
+            minAmountCents: undefined,
+            payInAdvance: false,
+            filters: [],
+            properties: {
+              amount: undefined,
+              freeUnits: undefined,
+              graduatedRanges: undefined,
+              pricingGroupKeys: undefined,
+              presentationGroupKeys: [
+                { value: 'region', options: { displayInInvoice: true } },
+                { value: 'country', options: { displayInInvoice: false } },
+              ],
               graduatedPercentageRanges: undefined,
               packageSize: undefined,
               perTransactionMinAmount: undefined,
@@ -991,6 +1078,7 @@ describe('serializePlanInput()', () => {
               freeUnits: undefined,
               graduatedRanges: undefined,
               pricingGroupKeys: undefined,
+              presentationGroupKeys: undefined,
               graduatedPercentageRanges: undefined,
               packageSize: undefined,
               perTransactionMinAmount: undefined,
@@ -1007,6 +1095,7 @@ describe('serializePlanInput()', () => {
                   graduatedPercentageRanges: undefined,
                   graduatedRanges: undefined,
                   pricingGroupKeys: undefined,
+                  presentationGroupKeys: undefined,
                   packageSize: undefined,
                   perTransactionMaxAmount: undefined,
                   perTransactionMinAmount: undefined,
@@ -1026,6 +1115,7 @@ describe('serializePlanInput()', () => {
                   graduatedPercentageRanges: undefined,
                   graduatedRanges: undefined,
                   pricingGroupKeys: undefined,
+                  presentationGroupKeys: undefined,
                   packageSize: undefined,
                   perTransactionMaxAmount: undefined,
                   perTransactionMinAmount: undefined,
@@ -1108,6 +1198,7 @@ describe('serializePlanInput()', () => {
               graduatedRanges: undefined,
               graduatedPercentageRanges: undefined,
               pricingGroupKeys: undefined,
+              presentationGroupKeys: undefined,
               packageSize: undefined,
               perTransactionMinAmount: undefined,
               perTransactionMaxAmount: undefined,
@@ -1196,6 +1287,7 @@ describe('serializePlanInput()', () => {
               graduatedRanges: undefined,
               graduatedPercentageRanges: undefined,
               pricingGroupKeys: undefined,
+              presentationGroupKeys: undefined,
               packageSize: undefined,
               perTransactionMinAmount: undefined,
               perTransactionMaxAmount: undefined,
@@ -1465,6 +1557,7 @@ describe('serializePlanInput()', () => {
               freeUnits: undefined,
               graduatedRanges: undefined,
               pricingGroupKeys: undefined,
+              presentationGroupKeys: undefined,
               graduatedPercentageRanges: undefined,
               packageSize: undefined,
               perTransactionMinAmount: undefined,
@@ -1546,6 +1639,7 @@ describe('serializePlanInput()', () => {
               freeUnits: undefined,
               graduatedRanges: undefined,
               pricingGroupKeys: undefined,
+              presentationGroupKeys: undefined,
               graduatedPercentageRanges: undefined,
               packageSize: undefined,
               perTransactionMinAmount: undefined,
@@ -1689,6 +1783,7 @@ describe('serializePlanInput()', () => {
               freeUnits: undefined,
               graduatedRanges: undefined,
               pricingGroupKeys: undefined,
+              presentationGroupKeys: undefined,
               graduatedPercentageRanges: undefined,
               packageSize: undefined,
               perTransactionMinAmount: undefined,
@@ -1762,6 +1857,7 @@ describe('serializePlanInput()', () => {
               freeUnits: undefined,
               graduatedRanges: undefined,
               pricingGroupKeys: undefined,
+              presentationGroupKeys: undefined,
               graduatedPercentageRanges: undefined,
               packageSize: undefined,
               perTransactionMinAmount: undefined,
@@ -2157,5 +2253,59 @@ describe('serializePlanInput()', () => {
         })
       })
     })
+  })
+})
+
+describe('serializeProperties — presentationGroupKeys', () => {
+  it('converts displayInInvoice "true"/"false" strings to booleans', () => {
+    const result = serializeProperties(
+      {
+        amount: '1',
+        presentationGroupKeys: [
+          { value: 'region', options: { displayInInvoice: 'true' } },
+          { value: 'agent', options: { displayInInvoice: 'false' } },
+        ],
+      } as unknown as Parameters<typeof serializeProperties>[0],
+      ChargeModelEnum.Standard,
+    )
+
+    expect(result.presentationGroupKeys).toEqual([
+      { value: 'region', options: { displayInInvoice: true } },
+      { value: 'agent', options: { displayInInvoice: false } },
+    ])
+  })
+
+  it('maps an unknown displayInInvoice value to undefined', () => {
+    const result = serializeProperties(
+      {
+        amount: '1',
+        presentationGroupKeys: [{ value: 'region', options: { displayInInvoice: 'maybe' } }],
+      } as unknown as Parameters<typeof serializeProperties>[0],
+      ChargeModelEnum.Standard,
+    )
+
+    expect(result.presentationGroupKeys?.[0].options.displayInInvoice).toBeUndefined()
+  })
+
+  it('returns undefined when there are no presentationGroupKeys', () => {
+    const result = serializeProperties(
+      { amount: '1', presentationGroupKeys: [] } as unknown as Parameters<
+        typeof serializeProperties
+      >[0],
+      ChargeModelEnum.Standard,
+    )
+
+    expect(result.presentationGroupKeys).toBeUndefined()
+  })
+
+  it('strips presentationGroupKeys for the Custom charge model', () => {
+    const result = serializeProperties(
+      {
+        presentationGroupKeys: [{ value: 'region', options: { displayInInvoice: 'true' } }],
+      } as unknown as Parameters<typeof serializeProperties>[0],
+      ChargeModelEnum.Custom,
+    )
+
+    expect(result.presentationGroupKeys).toBeUndefined()
   })
 })

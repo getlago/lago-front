@@ -1,3 +1,5 @@
+import { IconName } from 'lago-design-system'
+
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 
@@ -6,6 +8,7 @@ export type SectionHeaderAction = {
   onClick: () => void
   hidden?: boolean
   disabled?: boolean
+  startIcon?: IconName
 }
 
 export type SectionHeaderProps = {
@@ -34,7 +37,7 @@ export const SectionHeader = ({ title, description, action }: SectionHeaderProps
           variant="inline"
           onClick={action.onClick}
           disabled={action.disabled}
-          startIcon="plus"
+          startIcon={action.startIcon}
         >
           {action.label}
         </Button>
