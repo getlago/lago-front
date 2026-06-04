@@ -41,6 +41,7 @@ interface UsePricingDrawerReturn {
 export const usePricingDrawer = (
   quoteOrderType: OrderTypeEnum | undefined,
   initialBillingItems?: unknown,
+  customerCurrency?: CurrencyEnum | null,
 ): UsePricingDrawerReturn => {
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
@@ -243,7 +244,7 @@ export const usePricingDrawer = (
         return
       }
 
-      const currency = organization?.defaultCurrency ?? CurrencyEnum.Usd
+      const currency = customerCurrency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
 
       onSaveRef.current = onSave
 

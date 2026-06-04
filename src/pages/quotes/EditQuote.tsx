@@ -65,7 +65,7 @@ const EditQuote = () => {
   const isUpdating = isUpdatingQuote || isUpdatingQuoteVersion
 
   const { onPricingCommand, isPricingDisabled, entities, syncEntitiesWithBlocks } =
-    usePricingDrawer(quote?.orderType, quote?.currentVersion?.billingItems)
+    usePricingDrawer(quote?.orderType, quote?.currentVersion?.billingItems, quote?.customer?.currency)
 
   const customerLocale = (quote?.customer?.billingConfiguration?.documentLocale ?? 'en') as Locale
 
