@@ -22,6 +22,7 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
       time: '',
       timezone: '',
     }),
+    hasFeatureFlag: () => false,
   }),
 }))
 
