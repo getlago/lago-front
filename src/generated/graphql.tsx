@@ -12736,13 +12736,6 @@ export type TerminateCustomerWalletMutationVariables = Exact<{
 
 export type TerminateCustomerWalletMutation = { __typename?: 'Mutation', terminateCustomerWallet?: { __typename?: 'Wallet', id: string, status: WalletStatusEnum, balanceCents: any, code?: string | null, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, customer?: { __typename?: 'Customer', id: string, hasActiveWallet: boolean } | null } | null };
 
-export type CreateCustomerWalletTransactionMutationVariables = Exact<{
-  input: CreateCustomerWalletTransactionInput;
-}>;
-
-
-export type CreateCustomerWalletTransactionMutation = { __typename?: 'Mutation', createCustomerWalletTransaction?: { __typename?: 'WalletTransactionCollection', collection: Array<{ __typename?: 'WalletTransaction', id: string }> } | null };
-
 export type WalletForVoidTransactionFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, creditsBalance: number };
 
 export type WalletAccordionFragment = { __typename?: 'Wallet', id: string, balanceCents: any, code?: string | null, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean };
@@ -15487,6 +15480,13 @@ export type GetWalletForTopUpQueryVariables = Exact<{
 
 
 export type GetWalletForTopUpQuery = { __typename?: 'Query', wallet?: { __typename?: 'Wallet', id: string, name?: string | null, currency: CurrencyEnum, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number } | null };
+
+export type CreateCustomerWalletTransactionMutationVariables = Exact<{
+  input: CreateCustomerWalletTransactionInput;
+}>;
+
+
+export type CreateCustomerWalletTransactionMutation = { __typename?: 'Mutation', createCustomerWalletTransaction?: { __typename?: 'WalletTransactionCollection', collection: Array<{ __typename?: 'WalletTransaction', id: string, wallet?: { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, paidTopUpMinAmountCents?: any | null, paidTopUpMinCredits?: any | null, paidTopUpMaxAmountCents?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', details?: { __typename?: 'PaymentMethodDetails', type?: string | null, brand?: string | null, last4?: string | null } | null } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', method: RecurringTransactionMethodEnum, transactionName?: string | null, paidCredits: string, grantedCredits: string, trigger: RecurringTransactionTriggerEnum, thresholdCredits?: string | null, expirationAt?: any | null, interval?: RecurringTransactionIntervalEnum | null }> | null } | null }> } | null };
 
 export type WalletForTopUpFragment = { __typename?: 'Wallet', id: string, name?: string | null, currency: CurrencyEnum, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number };
 
@@ -31155,41 +31155,6 @@ export function useTerminateCustomerWalletMutation(baseOptions?: Apollo.Mutation
 export type TerminateCustomerWalletMutationHookResult = ReturnType<typeof useTerminateCustomerWalletMutation>;
 export type TerminateCustomerWalletMutationResult = Apollo.MutationResult<TerminateCustomerWalletMutation>;
 export type TerminateCustomerWalletMutationOptions = Apollo.BaseMutationOptions<TerminateCustomerWalletMutation, TerminateCustomerWalletMutationVariables>;
-export const CreateCustomerWalletTransactionDocument = gql`
-    mutation createCustomerWalletTransaction($input: CreateCustomerWalletTransactionInput!) {
-  createCustomerWalletTransaction(input: $input) {
-    collection {
-      id
-    }
-  }
-}
-    `;
-export type CreateCustomerWalletTransactionMutationFn = Apollo.MutationFunction<CreateCustomerWalletTransactionMutation, CreateCustomerWalletTransactionMutationVariables>;
-
-/**
- * __useCreateCustomerWalletTransactionMutation__
- *
- * To run a mutation, you first call `useCreateCustomerWalletTransactionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateCustomerWalletTransactionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [createCustomerWalletTransactionMutation, { data, loading, error }] = useCreateCustomerWalletTransactionMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCreateCustomerWalletTransactionMutation(baseOptions?: Apollo.MutationHookOptions<CreateCustomerWalletTransactionMutation, CreateCustomerWalletTransactionMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateCustomerWalletTransactionMutation, CreateCustomerWalletTransactionMutationVariables>(CreateCustomerWalletTransactionDocument, options);
-      }
-export type CreateCustomerWalletTransactionMutationHookResult = ReturnType<typeof useCreateCustomerWalletTransactionMutation>;
-export type CreateCustomerWalletTransactionMutationResult = Apollo.MutationResult<CreateCustomerWalletTransactionMutation>;
-export type CreateCustomerWalletTransactionMutationOptions = Apollo.BaseMutationOptions<CreateCustomerWalletTransactionMutation, CreateCustomerWalletTransactionMutationVariables>;
 export const GetWalletAlertsDocument = gql`
     query getWalletAlerts($walletId: String!) {
   walletAlerts(walletId: $walletId) {
@@ -43511,6 +43476,45 @@ export type GetWalletForTopUpQueryHookResult = ReturnType<typeof useGetWalletFor
 export type GetWalletForTopUpLazyQueryHookResult = ReturnType<typeof useGetWalletForTopUpLazyQuery>;
 export type GetWalletForTopUpSuspenseQueryHookResult = ReturnType<typeof useGetWalletForTopUpSuspenseQuery>;
 export type GetWalletForTopUpQueryResult = Apollo.QueryResult<GetWalletForTopUpQuery, GetWalletForTopUpQueryVariables>;
+export const CreateCustomerWalletTransactionDocument = gql`
+    mutation createCustomerWalletTransaction($input: CreateCustomerWalletTransactionInput!) {
+  createCustomerWalletTransaction(input: $input) {
+    collection {
+      id
+      wallet {
+        id
+        ...WalletDetails
+      }
+    }
+  }
+}
+    ${WalletDetailsFragmentDoc}`;
+export type CreateCustomerWalletTransactionMutationFn = Apollo.MutationFunction<CreateCustomerWalletTransactionMutation, CreateCustomerWalletTransactionMutationVariables>;
+
+/**
+ * __useCreateCustomerWalletTransactionMutation__
+ *
+ * To run a mutation, you first call `useCreateCustomerWalletTransactionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCustomerWalletTransactionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCustomerWalletTransactionMutation, { data, loading, error }] = useCreateCustomerWalletTransactionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCustomerWalletTransactionMutation(baseOptions?: Apollo.MutationHookOptions<CreateCustomerWalletTransactionMutation, CreateCustomerWalletTransactionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCustomerWalletTransactionMutation, CreateCustomerWalletTransactionMutationVariables>(CreateCustomerWalletTransactionDocument, options);
+      }
+export type CreateCustomerWalletTransactionMutationHookResult = ReturnType<typeof useCreateCustomerWalletTransactionMutation>;
+export type CreateCustomerWalletTransactionMutationResult = Apollo.MutationResult<CreateCustomerWalletTransactionMutation>;
+export type CreateCustomerWalletTransactionMutationOptions = Apollo.BaseMutationOptions<CreateCustomerWalletTransactionMutation, CreateCustomerWalletTransactionMutationVariables>;
 export const GetWalletAlertToEditDocument = gql`
     query getWalletAlertToEdit($id: ID!) {
   walletAlert(id: $id) {

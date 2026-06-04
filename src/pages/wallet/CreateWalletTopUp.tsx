@@ -45,6 +45,7 @@ import {
   useGetInvoiceStatusQuery,
   useGetWalletForTopUpQuery,
   useVoidInvoiceMutation,
+  WalletDetailsFragmentDoc,
   WalletStatusEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -70,6 +71,10 @@ gql`
     createCustomerWalletTransaction(input: $input) {
       collection {
         id
+        wallet {
+          id
+          ...WalletDetails
+        }
       }
     }
   }
@@ -84,6 +89,8 @@ gql`
     paidTopUpMaxAmountCents
     priority
   }
+
+  ${WalletDetailsFragmentDoc}
 `
 
 export const CREATE_ACTIVE_WALLET_TOP_UP_ID = 'active-wallet'

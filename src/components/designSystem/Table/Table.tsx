@@ -368,6 +368,13 @@ export const Table = <T extends DataItem>({
   const handleRowClick = (e: MouseEvent<HTMLTableRowElement>, item: T) => {
     if (!onRowActionLink && !onRowActionClick) return
 
+    // Ignore clicks bubbling up from portaled content (dialogs, poppers) rendered
+    // inside a cell: they are React descendants of the row but live outside its DOM
+    // subtree, so they would otherwise trigger the row navigation.
+    if (e.target instanceof Node && !e.currentTarget.contains(e.target)) {
+      return
+    }
+
     // Prevent row action when clicking on button or link in cell
     if (e.target instanceof HTMLAnchorElement || e.target instanceof HTMLButtonElement) {
       return
