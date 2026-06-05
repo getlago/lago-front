@@ -10,6 +10,7 @@ import {
   INVOICE_CUSTOM_FOOTER_SECTION,
   MANUAL_PAYMENT_METHOD_TEST_ID,
   PaymentInvoiceDetails,
+  SECTION_TITLE,
 } from '../PaymentInvoiceDetails'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -151,6 +152,27 @@ describe('PaymentInvoiceDetails', () => {
 
       render(<PaymentInvoiceDetails selectedPaymentMethod={selectedPaymentMethod} />)
 
+      expect(screen.getByTestId(MANUAL_PAYMENT_METHOD_TEST_ID)).toBeInTheDocument()
+    })
+  })
+
+  describe('section title visibility', () => {
+    const manualPaymentMethod: SelectedPaymentMethod = {
+      paymentMethodId: null,
+      paymentMethodType: PaymentMethodTypeEnum.Manual,
+    }
+
+    it('renders the internal section title by default', () => {
+      render(<PaymentInvoiceDetails selectedPaymentMethod={manualPaymentMethod} />)
+
+      expect(screen.getByTestId(SECTION_TITLE)).toBeInTheDocument()
+    })
+
+    it('hides the internal section title when hideSectionTitle is set', () => {
+      render(<PaymentInvoiceDetails selectedPaymentMethod={manualPaymentMethod} hideSectionTitle />)
+
+      expect(screen.queryByTestId(SECTION_TITLE)).not.toBeInTheDocument()
+      // The payment method content still renders.
       expect(screen.getByTestId(MANUAL_PAYMENT_METHOD_TEST_ID)).toBeInTheDocument()
     })
   })

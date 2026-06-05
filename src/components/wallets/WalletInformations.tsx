@@ -1,7 +1,10 @@
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
+import { InvoiceCustomSectionDisplay } from '~/components/invoceCustomFooter/InvoiceCustomSectionDisplay'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { useDisplayedPaymentMethod } from '~/components/paymentMethodSelection/useDisplayedPaymentMethod'
+import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import PremiumFeature from '~/components/premium/PremiumFeature'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { formatPaymentMethodDetails } from '~/core/formats/formatPaymentMethodDetails'
@@ -9,12 +12,15 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
+  FeatureFlagEnum,
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
   WalletDetailsFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { tw } from '~/styles/utils'
 
@@ -40,9 +46,35 @@ const SectionTitle = ({ title, subtitle }: { title: string; subtitle: string }) 
 
 const WalletInformations = ({ wallet }: WalletInformationsProps) => {
   const { translate } = useInternationalization()
-  const { intlFormatDateTimeOrgaTZ, organization: { defaultCurrency } = {} } =
-    useOrganizationInfos()
+  const {
+    intlFormatDateTimeOrgaTZ,
+    hasFeatureFlag,
+    organization: { defaultCurrency } = {},
+  } = useOrganizationInfos()
   const { isPremium } = useCurrentUser()
+
+  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
+
+  // Resolve the payment method the same way the subscription overview does
+  // (manual / specific / inherited-default), so an empty `paymentMethod.details`
+  // ({}) is no longer rendered as a bare "-".
+  const { data: paymentMethodsList } = usePaymentMethodsList({
+    externalCustomerId: wallet?.customer?.externalId || '',
+    withDeleted: false,
+    skip: !hasAccessToMultiPaymentFlow,
+  })
+
+  const displayedPaymentMethod = useDisplayedPaymentMethod(
+    {
+      paymentMethodType: wallet?.paymentMethodType,
+      paymentMethodId: wallet?.paymentMethod?.id,
+    },
+    paymentMethodsList,
+  )
+
+  // Customer-level ICS data, used to decide whether to show the invoice custom
+  // sections row even when the wallet has no explicit selection (fallback).
+  const { data: customerIcsData } = useCustomerInvoiceCustomSections(wallet?.customer?.id || '')
 
   const formatAmount = (cents?: string | null) =>
     cents
@@ -93,6 +125,53 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
 
   const sectionClassName = 'flex flex-col gap-6 pb-12 shadow-b'
   const chipContainerClassName = 'flex gap-3 mt-1'
+
+  // Resolve the displayed payment method exactly like the subscription overview
+  // (PaymentInvoiceDetails): the `paymentMethodId` lets a specific provider card
+  // resolve from the customer's list (isInherited=false), so the inherited badge
+  // only shows for an actual customer-default fallback.
+  const inheritedSuffix = displayedPaymentMethod.isInherited
+    ? ` (${translate('text_1764327933607jgtpungo2pp')})`
+    : ''
+
+  const paymentMethodValue = (() => {
+    if (!hasAccessToMultiPaymentFlow) {
+      return formatPaymentMethodDetails(wallet?.paymentMethod?.details) || '-'
+    }
+
+    if (displayedPaymentMethod.isManual) {
+      return `${translate('text_173799550683709p2rqkoqd5')}${inheritedSuffix}`
+    }
+
+    if (displayedPaymentMethod.paymentMethod) {
+      const formatted =
+        formatPaymentMethodDetails(displayedPaymentMethod.paymentMethod.details) ||
+        translate('text_1771854080250kv3j6oa9nxj', {
+          date: intlFormatDateTimeOrgaTZ(displayedPaymentMethod.paymentMethod.createdAt).date,
+        })
+
+      return `${formatted}${inheritedSuffix}`
+    }
+
+    return '-'
+  })()
+
+  // Show the invoice custom sections row whenever there is content to display —
+  // explicit selection, an explicit skip, or an inherited customer/billing-entity
+  // fallback — mirroring the subscription overview (instead of only when selected).
+  const hasInvoiceCustomSectionsContent = (() => {
+    if (wallet?.skipInvoiceCustomSections === true) return true
+    if (wallet?.selectedInvoiceCustomSections?.length) return true
+    if (!customerIcsData) return false
+
+    const {
+      configurableInvoiceCustomSections: sections,
+      hasOverwrittenInvoiceCustomSectionsSelection: hasOverwritten,
+      skipInvoiceCustomSections: customerSkip,
+    } = customerIcsData
+
+    return (!hasOverwritten && !!customerSkip) || (!customerSkip && sections.length > 0)
+  })()
 
   return (
     <div data-test={WALLET_INFORMATIONS_CONTAINER_TEST_ID} className="flex flex-col gap-12">
@@ -194,41 +273,40 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
         </section>
       )}
 
-      {(wallet?.paymentMethod?.details || !!wallet?.selectedInvoiceCustomSections?.length) && (
-        <section className={sectionClassName}>
-          <SectionTitle
-            title={translate('text_1772536695408rpehpvkgn9s')}
-            subtitle={translate('text_1772536695408eev9wm37z9t')}
-          />
+      {hasAccessToMultiPaymentFlow &&
+        (paymentMethodValue !== '-' || hasInvoiceCustomSectionsContent) && (
+          <section className={sectionClassName}>
+            <SectionTitle
+              title={translate('text_1772536695408rpehpvkgn9s')}
+              subtitle={translate('text_1772536695408eev9wm37z9t')}
+            />
 
-          <DetailsPage.InfoGrid
-            grid={[
-              {
-                label: translate('text_1773043324341qj7t72i7qnk'),
-                value: formatPaymentMethodDetails(wallet?.paymentMethod?.details) || '-',
-              },
-              { label: '', value: '' },
-              ...(!!wallet?.selectedInvoiceCustomSections?.length
-                ? [
-                    {
-                      label: translate('text_1773043324342n1x2iltnxvw'),
-                      value: (
-                        <div className={chipContainerClassName}>
-                          {wallet?.selectedInvoiceCustomSections?.map((section) => (
-                            <Chip
-                              key={`wallet-invoice-section-${section.id}`}
-                              label={section.name}
-                            />
-                          ))}
-                        </div>
-                      ),
-                    },
-                  ]
-                : []),
-            ]}
-          />
-        </section>
-      )}
+            <DetailsPage.InfoGrid
+              grid={[
+                {
+                  label: translate('text_1773043324341qj7t72i7qnk'),
+                  value: paymentMethodValue,
+                },
+                { label: '', value: '' },
+                ...(hasInvoiceCustomSectionsContent
+                  ? [
+                      {
+                        label: translate('text_1773043324342n1x2iltnxvw'),
+                        value: (
+                          <InvoiceCustomSectionDisplay
+                            selectedSections={wallet?.selectedInvoiceCustomSections}
+                            skipSections={wallet?.skipInvoiceCustomSections}
+                            customerId={wallet?.customer?.id}
+                            viewType={ViewTypeEnum.WalletTopUp}
+                          />
+                        ),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          </section>
+        )}
 
       <section className={tw(sectionClassName, 'shadow-b-none')}>
         <SectionTitle

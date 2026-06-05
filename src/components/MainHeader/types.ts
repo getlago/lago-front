@@ -15,6 +15,13 @@ import { NavigationTabBarItem } from './NavigationTabBar'
  */
 export type MainHeaderTab = NavigationTabBarItem & {
   content: ReactNode
+  /**
+   * Serializable value included in the config snapshot. `content` (ReactNode) is
+   * stripped from the snapshot, so a tab whose content reflects reactive state
+   * (e.g. a toggle the user flips while staying on the page) must encode that
+   * state here, otherwise the stale content stays in context until a full reload.
+   */
+  snapshotKey?: string | number | boolean
 }
 
 // ─── Action types ───────────────────────────────────────────────

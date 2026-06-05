@@ -537,7 +537,7 @@ const CreateWalletTopUp = () => {
                   </div>
                   <PaymentMethodsInvoiceSettings
                     customer={customerData?.customer}
-                    formikProps={formikProps}
+                    form={formikProps}
                     viewType={ViewTypeEnum.WalletTransactionTopUp}
                   />
                 </section>

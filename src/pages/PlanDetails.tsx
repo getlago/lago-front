@@ -209,9 +209,9 @@ const PlanDetails = () => {
               }),
             ],
             content: (
-              <div className="px-4 md:px-12">
+              <DetailsPage.Container className="pb-0">
                 <PlanDetailsV2 planId={planId as string} />
-              </div>
+              </DetailsPage.Container>
             ),
             hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
           },

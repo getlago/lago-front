@@ -1,13 +1,17 @@
 import { screen } from '@testing-library/react'
 
-import { WalletDetailsFragment } from '~/generated/graphql'
+import { PaymentMethodTypeEnum, WalletDetailsFragment } from '~/generated/graphql'
+import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
+import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
 import { render } from '~/test-utils'
 
 import WalletInformations, {
   WALLET_INFORMATIONS_CONTAINER_TEST_ID,
   WALLET_INFORMATIONS_NO_RECURRING_TEST_ID,
-  WALLET_INFORMATIONS_TOPUP_TYPE_TEST_ID,
 } from '../WalletInformations'
+
+let mockHasMultiPaymentFlow = false
+let mockPaymentMethodsList: PaymentMethodItem[] = []
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
@@ -16,11 +20,39 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: { defaultCurrency: 'USD' },
     intlFormatDateTimeOrgaTZ: () => ({ date: '2024-01-01' }),
+    hasFeatureFlag: () => mockHasMultiPaymentFlow,
   }),
 }))
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({ isPremium: true }),
 }))
+jest.mock('~/hooks/customer/usePaymentMethodsList', () => ({
+  usePaymentMethodsList: () => ({
+    data: mockPaymentMethodsList,
+    loading: false,
+    error: false,
+    refetch: jest.fn(),
+  }),
+}))
+
+let mockCustomerIcsData: {
+  configurableInvoiceCustomSections: { id: string; name: string }[]
+  hasOverwrittenInvoiceCustomSectionsSelection: boolean
+  skipInvoiceCustomSections: boolean
+} | null = null
+
+jest.mock('~/hooks/useCustomerInvoiceCustomSections', () => ({
+  useCustomerInvoiceCustomSections: () => ({
+    data: mockCustomerIcsData,
+    loading: false,
+    error: false,
+    customer: null,
+  }),
+}))
+
+// Shared translation keys (same ones the form dropdown / subscription overview use)
+const MANUAL_PAYMENT_TRANSLATION_KEY = 'text_173799550683709p2rqkoqd5'
+const INHERITED_BADGE_TRANSLATION_KEY = 'text_1764327933607jgtpungo2pp'
 
 const createMockWallet = (overrides = {}) =>
   ({
@@ -57,6 +89,12 @@ const createMockWallet = (overrides = {}) =>
   }) as unknown as WalletDetailsFragment
 
 describe('WalletInformations', () => {
+  beforeEach(() => {
+    mockHasMultiPaymentFlow = false
+    mockPaymentMethodsList = []
+    mockCustomerIcsData = null
+  })
+
   describe('GIVEN no wallet', () => {
     describe('WHEN rendered', () => {
       it('THEN should render nothing', () => {
@@ -87,73 +125,126 @@ describe('WalletInformations', () => {
     })
   })
 
-  describe('GIVEN a target recurring rule', () => {
-    describe('WHEN grantsTargetTopUp is false', () => {
-      it('THEN should display the paid top-up type', () => {
+  describe('GIVEN the multiple-payment flow is enabled and details are empty ({})', () => {
+    beforeEach(() => {
+      mockHasMultiPaymentFlow = true
+    })
+
+    describe('WHEN the payment method is manual', () => {
+      it('THEN resolves "Manual payment" without an inherited badge', () => {
         render(
           <WalletInformations
             wallet={createMockWallet({
-              recurringTransactionRules: [
-                {
-                  method: 'target',
-                  trigger: 'threshold',
-                  grantsTargetTopUp: false,
-                },
-              ],
+              customer: { id: 'cust-1', externalId: 'ext-1' },
+              paymentMethodType: PaymentMethodTypeEnum.Manual,
+              paymentMethod: { details: {} },
             })}
           />,
         )
 
-        const topUpType = screen.getByTestId(WALLET_INFORMATIONS_TOPUP_TYPE_TEST_ID)
-
-        expect(topUpType).toBeInTheDocument()
-        expect(topUpType).toHaveTextContent('text_178004748320594nw5fau04a')
+        expect(screen.getByText(MANUAL_PAYMENT_TRANSLATION_KEY)).toBeInTheDocument()
+        expect(screen.queryByText(INHERITED_BADGE_TRANSLATION_KEY)).not.toBeInTheDocument()
       })
     })
 
-    describe('WHEN grantsTargetTopUp is true', () => {
-      it('THEN should display the free top-up type', () => {
+    describe('WHEN a specific provider card is selected (resolved from the list)', () => {
+      it('THEN shows the card and NOT the inherited badge', () => {
+        mockPaymentMethodsList = [
+          createMockPaymentMethod({ id: 'pm_default', isDefault: true }),
+          createMockPaymentMethod({ id: 'pm_specific', isDefault: false }),
+        ]
+
         render(
           <WalletInformations
             wallet={createMockWallet({
-              recurringTransactionRules: [
-                {
-                  method: 'target',
-                  trigger: 'threshold',
-                  grantsTargetTopUp: true,
-                },
-              ],
+              customer: { id: 'cust-1', externalId: 'ext-1' },
+              paymentMethodType: PaymentMethodTypeEnum.Provider,
+              paymentMethod: { id: 'pm_specific', details: {} },
             })}
           />,
         )
 
-        const topUpType = screen.getByTestId(WALLET_INFORMATIONS_TOPUP_TYPE_TEST_ID)
+        expect(
+          screen.queryByText(INHERITED_BADGE_TRANSLATION_KEY, { exact: false }),
+        ).not.toBeInTheDocument()
+        expect(
+          screen.queryByText(MANUAL_PAYMENT_TRANSLATION_KEY, { exact: false }),
+        ).not.toBeInTheDocument()
+      })
+    })
 
-        expect(topUpType).toBeInTheDocument()
-        expect(topUpType).toHaveTextContent('text_17800474832056s97uz7bjy7')
+    describe('WHEN it falls back to the customer default (no specific method)', () => {
+      it('THEN shows the inherited badge', () => {
+        mockPaymentMethodsList = [createMockPaymentMethod({ id: 'pm_default', isDefault: true })]
+
+        render(
+          <WalletInformations
+            wallet={createMockWallet({
+              customer: { id: 'cust-1', externalId: 'ext-1' },
+              paymentMethodType: PaymentMethodTypeEnum.Provider,
+              paymentMethod: null,
+            })}
+          />,
+        )
+
+        expect(
+          screen.getByText(INHERITED_BADGE_TRANSLATION_KEY, { exact: false }),
+        ).toBeInTheDocument()
       })
     })
   })
 
-  describe('GIVEN a fixed recurring rule', () => {
-    describe('WHEN grantsTargetTopUp is null', () => {
-      it('THEN should not display the top-up type row', () => {
+  describe('GIVEN no explicitly selected invoice custom sections', () => {
+    describe('WHEN the customer inherits sections from the billing entity', () => {
+      it('THEN still shows the invoice custom sections (fallback), like the subscription overview', () => {
+        mockHasMultiPaymentFlow = true
+        mockCustomerIcsData = {
+          configurableInvoiceCustomSections: [{ id: 'ics-1', name: 'Footer A' }],
+          hasOverwrittenInvoiceCustomSectionsSelection: false,
+          skipInvoiceCustomSections: false,
+        }
+
         render(
           <WalletInformations
             wallet={createMockWallet({
-              recurringTransactionRules: [
-                {
-                  method: 'fixed',
-                  trigger: 'threshold',
-                  grantsTargetTopUp: null,
-                },
-              ],
+              customer: { id: 'cust-1', externalId: 'ext-1' },
+              selectedInvoiceCustomSections: [],
+              skipInvoiceCustomSections: false,
             })}
           />,
         )
 
-        expect(screen.queryByTestId(WALLET_INFORMATIONS_TOPUP_TYPE_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByText('Footer A')).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('GIVEN the multiple-payment flow is disabled', () => {
+    // Section title for the "Payment & invoicing" block
+    const PAYMENT_INVOICING_SECTION_TITLE = 'text_1772536695408rpehpvkgn9s'
+
+    it('THEN does not render the payment & invoicing block at all', () => {
+      mockCustomerIcsData = {
+        configurableInvoiceCustomSections: [{ id: 'ics-1', name: 'Footer A' }],
+        hasOverwrittenInvoiceCustomSectionsSelection: false,
+        skipInvoiceCustomSections: false,
+      }
+
+      render(
+        <WalletInformations
+          wallet={createMockWallet({
+            customer: { id: 'cust-1', externalId: 'ext-1' },
+            paymentMethodType: PaymentMethodTypeEnum.Manual,
+            paymentMethod: { details: {} },
+            selectedInvoiceCustomSections: [{ id: 'sel-1', name: 'Selected Footer' }],
+          })}
+        />,
+      )
+
+      expect(screen.queryByText(PAYMENT_INVOICING_SECTION_TITLE)).not.toBeInTheDocument()
+      expect(screen.queryByText(MANUAL_PAYMENT_TRANSLATION_KEY)).not.toBeInTheDocument()
+      expect(screen.queryByText('Footer A')).not.toBeInTheDocument()
+      expect(screen.queryByText('Selected Footer')).not.toBeInTheDocument()
     })
   })
 })
