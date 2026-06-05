@@ -62,6 +62,7 @@ import { buildDefaultValues, usePlanForm } from '~/hooks/plans/usePlanForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useRedirectIncompleteSubscription } from '~/hooks/useRedirectIncompleteSubscription'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 import { tw } from '~/styles/utils'
 
@@ -307,20 +308,11 @@ const CreateSubscription = () => {
     )
   }, [subscription?.name, formType])
 
-  useEffect(() => {
-    if (!customerId || !subscription?.id || subscription.status !== StatusTypeEnum.Incomplete) {
-      return
-    }
-
-    navigate(
-      generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-        customerId,
-        subscriptionId: subscription.id,
-        tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-      }),
-      { replace: true },
-    )
-  }, [customerId, navigate, subscription?.id, subscription?.status])
+  useRedirectIncompleteSubscription({
+    customerId,
+    subscriptionId: subscription?.id,
+    subscriptionStatus: subscription?.status,
+  })
 
   // Remove currency error is value changes
   useEffect(() => {

@@ -25,16 +25,9 @@ type StatusLabelSuccess =
   | 'refunded'
   | 'delivered'
   | number
-type StatusLabelWarning = 'failed'
+type StatusLabelWarning = 'failed' | 'incomplete'
 type StatusLabelOutline = 'draft'
-type StatusLabelDefault =
-  | 'downgrade'
-  | 'scheduled'
-  | 'pending'
-  | 'incomplete'
-  | 'toPay'
-  | 'processing'
-  | 'n/a'
+type StatusLabelDefault = 'downgrade' | 'scheduled' | 'pending' | 'toPay' | 'processing' | 'n/a'
 type StatusLabelDanger =
   | 'disputed'
   | 'disputeLost'
