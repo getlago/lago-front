@@ -25,6 +25,18 @@ describe('PricingBlock', () => {
     })
   })
 
+  describe('GIVEN the addNodeView method', () => {
+    it('THEN should return a node view renderer', () => {
+      const addNodeView = PricingBlock.config.addNodeView as (() => unknown) | undefined
+
+      expect(addNodeView).toBeDefined()
+
+      const result = addNodeView?.call({})
+
+      expect(result).toBeDefined()
+    })
+  })
+
   describe('GIVEN the addAttributes config', () => {
     const getAttributes = () => {
       const addAttributes = PricingBlock.config.addAttributes as unknown as () => {

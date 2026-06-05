@@ -1,4 +1,5 @@
-import { screen } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { render } from '~/test-utils'
 
@@ -10,6 +11,21 @@ const mockUsePlansQuery = jest.fn()
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   usePlansQuery: (...args: unknown[]) => mockUsePlansQuery(...args),
+}))
+
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getTotalSize: () => count * 56,
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, i) => ({
+        index: i,
+        key: String(i),
+        start: i * 56,
+        size: 56,
+      })),
+    scrollToIndex: jest.fn(),
+    measureElement: jest.fn(),
+  }),
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -168,6 +184,47 @@ describe('PlanSelectionContent', () => {
         const combobox = screen.getByRole('combobox') as HTMLInputElement
 
         expect(combobox.value).toBe('')
+      })
+    })
+
+    describe('WHEN a plan is selected from the dropdown', () => {
+      it('THEN should update the form value to the selected plan', async () => {
+        mockUsePlansQuery.mockReturnValue({
+          data: {
+            plans: {
+              collection: [
+                { id: 'plan-1', name: 'Basic', code: 'basic' },
+                { id: 'plan-2', name: 'Pro', code: 'pro' },
+              ],
+            },
+          },
+          loading: false,
+        })
+
+        renderWithForm()
+
+        const combobox = screen.getByRole('combobox') as HTMLInputElement
+
+        await userEvent.type(combobox, 'Pro')
+
+        await waitFor(() => {
+          const listboxId = combobox.getAttribute('aria-controls')
+
+          expect(listboxId).toBeTruthy()
+
+          const listbox = document.getElementById(listboxId as string)
+
+          expect(listbox).toBeInTheDocument()
+        })
+
+        const listboxId = combobox.getAttribute('aria-controls') as string
+        const listbox = document.getElementById(listboxId) as HTMLElement
+
+        await userEvent.click(within(listbox).getByText('Pro'))
+
+        await waitFor(() => {
+          expect(combobox.value).toBe('Pro (pro)')
+        })
       })
     })
   })

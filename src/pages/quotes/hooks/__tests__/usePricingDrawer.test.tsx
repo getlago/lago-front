@@ -790,6 +790,105 @@ describe('usePricingDrawer', () => {
     })
   })
 
+  describe('GIVEN the captureAddOnPayload callback', () => {
+    describe('WHEN an add-on is selected in the drawer', () => {
+      it('THEN should store the add-on payload for later serialization', () => {
+        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), { wrapper })
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: jest.fn(),
+            editData: undefined,
+          })
+        })
+
+        // Extract onAddOnPayloadCapture from the rendered PricingDrawerContent children
+        const callArgs = mockFormDrawerOpen.mock.calls[0][0]
+        const captureCallback = callArgs.children.props.onAddOnPayloadCapture
+
+        expect(captureCallback).toBeDefined()
+
+        // Invoke it to exercise captureAddOnPayload (lines 82-93)
+        act(() => {
+          captureCallback('addon-new', {
+            id: 'addon-new',
+            code: 'onboarding',
+            name: 'Onboarding Fee',
+            description: 'One-time onboarding',
+            amountCents: '7500',
+            amountCurrency: 'USD',
+            invoiceDisplayName: 'Onboarding',
+            taxes: [{ id: 'tax-1', code: 'vat_20' }],
+          })
+        })
+
+        // The payload should now be stored — verify by submitting with this add-on
+        mockFormValues = {
+          planId: '',
+          addOnItems: [
+            {
+              addOnId: 'addon-new',
+              name: 'Onboarding Fee',
+              invoiceDisplayName: 'Onboarding',
+              code: 'onboarding',
+              description: 'One-time onboarding',
+              units: '1',
+              unitAmountCents: '7500',
+              totalAmount: '7500',
+              fromDatetime: '2026-01-01',
+              toDatetime: '2026-01-31',
+            },
+          ],
+        }
+
+        const mockOnSave = jest.fn()
+
+        // Re-trigger onPricingCommand to set up the onSave ref
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: mockOnSave,
+            editData: { pricingType: 'addOns', entityIds: ['addon-new'] },
+          })
+        })
+
+        act(() => {
+          capturedOnSubmit?.({ value: mockFormValues })
+        })
+
+        expect(mockOnSave).toHaveBeenCalledWith(
+          expect.objectContaining({ pricingType: 'addOns', entityIds: ['addon-new'] }),
+          expect.objectContaining({
+            'addon-new': expect.objectContaining({ entityId: 'addon-new' }),
+          }),
+          undefined, // toBillingItems is mocked, returns undefined
+        )
+      })
+    })
+  })
+
+  describe('GIVEN the handleSubmit function inside onPricingCommand', () => {
+    describe('WHEN form.submit is invoked from the drawer', () => {
+      it('THEN should call form.handleSubmit', async () => {
+        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), { wrapper })
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: jest.fn(),
+            editData: undefined,
+          })
+        })
+
+        const callArgs = mockFormDrawerOpen.mock.calls[0][0]
+
+        await act(async () => {
+          await callArgs.form.submit()
+        })
+
+        expect(mockHandleSubmit).toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('GIVEN isPricingDisabled is called for subscription amendment', () => {
     describe('WHEN order type is subscription amendment and entities exist', () => {
       it('THEN should return false', () => {
