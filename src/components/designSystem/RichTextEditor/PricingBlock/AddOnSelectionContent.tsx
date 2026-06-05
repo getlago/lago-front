@@ -65,12 +65,12 @@ function TotalAmountCell({
   index,
   currency,
   translate,
-}: {
+}: Readonly<{
   form: AnyFormApi
   index: number
   currency: CurrencyEnum
   translate: ReturnType<typeof useInternationalization>['translate']
-}) {
+}>) {
   const units = useStore(form.store, (state) => state.values.addOnItems?.[index]?.units)
   const unitAmountCents = useStore(
     form.store,
@@ -78,7 +78,8 @@ function TotalAmountCell({
   )
 
   const computed =
-    Math.round((parseFloat(units) || 0) * (parseFloat(unitAmountCents) || 0) * 100) / 100
+    Math.round((Number.parseFloat(units) || 0) * (Number.parseFloat(unitAmountCents) || 0) * 100) /
+    100
 
   useEffect(() => {
     const computedStr = String(computed)
@@ -107,14 +108,14 @@ function PendingAddOnRow({
   translate,
   onSelect,
   onRemove,
-}: {
+}: Readonly<{
   index: number
   comboBoxData: { value: string; label: string; labelNode: ReactNode }[]
   addOnsLoading: boolean
   translate: TranslateFn
   onSelect: (index: number, addOnId: string) => void
   onRemove: (index: number) => void
-}) {
+}>) {
   return (
     <div
       className="mt-8 grid grid-cols-[1fr_auto] items-center gap-3"
@@ -465,18 +466,22 @@ const AddOnSelectionContent = withForm({
                   })
                 }
 
+                const recomputePendingIndicesAfterRemoval = (
+                  prev: Map<number, string>,
+                  removedIndex: number,
+                ) => {
+                  const next = new Map<number, string>()
+
+                  prev.forEach((key, i) => {
+                    if (i < removedIndex) next.set(i, key)
+                    else if (i > removedIndex) next.set(i - 1, key)
+                  })
+                  return next
+                }
+
                 const handleRemoveAddOn = (index: number) => {
                   addOnItemsField.removeValue(index)
-                  // Recompute pending indices after removal
-                  setPendingAddOnIndices((prev) => {
-                    const next = new Map<number, string>()
-
-                    prev.forEach((key, i) => {
-                      if (i < index) next.set(i, key)
-                      else if (i > index) next.set(i - 1, key)
-                    })
-                    return next
-                  })
+                  setPendingAddOnIndices((prev) => recomputePendingIndicesAfterRemoval(prev, index))
                 }
 
                 const handleEditAddOn = (index: number) => {
@@ -529,7 +534,7 @@ const AddOnSelectionContent = withForm({
                     <form.Subscribe selector={(state) => state.values.addOnItems}>
                       {(addOnItems) => {
                         const grandTotal = addOnItems.reduce(
-                          (sum, item) => sum + (parseFloat(item.totalAmount) || 0),
+                          (sum, item) => sum + (Number.parseFloat(item.totalAmount) || 0),
                           0,
                         )
 
