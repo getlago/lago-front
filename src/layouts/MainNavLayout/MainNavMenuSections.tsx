@@ -31,10 +31,11 @@ import {
   QUOTE_DETAILS_ROUTE,
   QUOTES_LIST_ROUTE,
   QUOTES_TAB_ROUTE,
+  REVENUE_RECOGNITION_ROUTE,
   SUBSCRIPTIONS_ROUTE,
   WALLET_DETAILS_ROUTE,
 } from '~/core/router'
-import { FeatureFlagEnum } from '~/generated/graphql'
+import { FeatureFlagEnum, PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -58,7 +59,7 @@ interface MainNavMenuSectionsProps {
 export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSectionsProps) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { hasFeatureFlag } = useOrganizationInfos()
+  const { hasFeatureFlag, hasOrganizationPremiumAddon } = useOrganizationInfos()
   const { isPremium } = useCurrentUser()
 
   const getReportsTabs = (): NavTab[] => [
@@ -76,6 +77,15 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       match: [FORECASTS_ROUTE],
       hidden: !hasPermissions(['analyticsView']),
       extraComponent: <BadgeAI />,
+    },
+    {
+      title: translate('text_1780667013874s6wl9cmxe7q'),
+      icon: 'table-horizontale',
+      link: REVENUE_RECOGNITION_ROUTE,
+      match: [REVENUE_RECOGNITION_ROUTE],
+      hidden:
+        !hasPermissions(['analyticsView']) ||
+        !hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.RevenueRecognition),
     },
   ]
 
