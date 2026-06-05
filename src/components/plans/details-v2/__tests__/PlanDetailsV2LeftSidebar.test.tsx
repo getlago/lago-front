@@ -127,12 +127,27 @@ describe('PlanDetailsV2LeftSidebar', () => {
 
   describe('charge folder children', () => {
     const fixedCharges = [
-      { id: 'fc-1', invoiceDisplayName: 'Premium seats', code: 'seats', addOn: { id: 'ao-1', name: 'Seats' } },
+      {
+        id: 'fc-1',
+        invoiceDisplayName: 'Premium seats',
+        code: 'seats',
+        addOn: { id: 'ao-1', name: 'Seats' },
+      },
       { id: 'fc-2', invoiceDisplayName: null, code: 'cards', addOn: { id: 'ao-2', name: 'Cards' } },
-      { id: 'fc-3', invoiceDisplayName: null, code: 'fallback-code', addOn: { id: 'ao-3', name: '' } },
+      {
+        id: 'fc-3',
+        invoiceDisplayName: null,
+        code: 'fallback-code',
+        addOn: { id: 'ao-3', name: '' },
+      },
     ]
     const usageCharges = [
-      { id: 'uc-1', invoiceDisplayName: null, code: 'api', billableMetric: { id: 'bm-1', name: 'API calls' } },
+      {
+        id: 'uc-1',
+        invoiceDisplayName: null,
+        code: 'api',
+        billableMetric: { id: 'bm-1', name: 'API calls' },
+      },
     ]
 
     it('lists charges with invoiceDisplayName || addOn/metric name || code once the folder is expanded', async () => {
