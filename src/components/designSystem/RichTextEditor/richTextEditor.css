@@ -204,6 +204,10 @@
     p.is-editor-empty:first-child::before {
       content: none;
     }
+
+    .block-handle-group {
+      @apply hidden;
+    }
   }
 
   .variable-mention {
