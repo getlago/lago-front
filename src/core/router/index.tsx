@@ -1,5 +1,6 @@
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
+import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 
 import { authRoutes } from './AuthRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
@@ -26,6 +27,7 @@ const Analytic = lazyLoad(() => import('~/pages/Analytics'))
 const AnalyticsV2 = lazyLoad(() => import('~/pages/AnalyticsV2'))
 const Forecasts = lazyLoad(() => import('~/pages/forecasts/Forecasts'))
 const UsageBillableMetric = lazyLoad(() => import('~/pages/analytics/UsageBillableMetric'))
+const RevenueRecognitionDashboard = lazyLoad(() => import('~/pages/dashboards/RevenueRecognition'))
 
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
@@ -38,6 +40,7 @@ export const ANALYTIC_TABS_ROUTE = '/analytics/:tab'
 export const ANALYTICS_V2_TABS_ROUTE = '/analytics-v2/:tab'
 export const ANALYTIC_USAGE_BILLABLE_METRIC_ROUTE = '/analytics/usage/:billableMetricCode'
 export const FORECASTS_ROUTE = '/forecasts'
+export const REVENUE_RECOGNITION_ROUTE = '/revenue-recognition'
 export const ERROR_404_ROUTE = '/404'
 
 // Route Available only on dev mode
@@ -76,6 +79,13 @@ const analyticsInlineRoutes: CustomRouteObject[] = [
     private: true,
     element: <Forecasts />,
     permissions: ['analyticsView', 'dataApiView'],
+  },
+  {
+    path: REVENUE_RECOGNITION_ROUTE,
+    private: true,
+    element: <RevenueRecognitionDashboard />,
+    permissions: ['analyticsView', 'dataApiView'],
+    premiumIntegrations: [PremiumIntegrationTypeEnum.RevenueRecognition],
   },
 ]
 

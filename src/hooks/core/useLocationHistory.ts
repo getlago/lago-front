@@ -102,7 +102,7 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
   const organizationSlug = params?.organizationSlug
   const { loading: isCurrentUserLoading } = useCurrentUser()
   const { hasPermissions, hasPermissionsOr } = usePermissions()
-  const { hasFeatureFlag } = useOrganizationInfos()
+  const { hasFeatureFlag, hasOrganizationPremiumAddon } = useOrganizationInfos()
   const goBack: GoBack = (fallback, options) => {
     const { previous, remainingHistory } = getPreviousLocation({
       ...(options || {}),
@@ -169,6 +169,17 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
           /**
            * In case of navigation to a route gated by a feature flag that is not active
            * Redirect to home page
+           */
+          navigate(HOME_ROUTE, { replace: true })
+        } else if (
+          routeConfig.premiumIntegrations &&
+          !routeConfig.premiumIntegrations.some((integration) =>
+            hasOrganizationPremiumAddon(integration),
+          )
+        ) {
+          /**
+           * In case of navigation to a route gated by a premium integration the
+           * organization does not have, redirect to home page
            */
           navigate(HOME_ROUTE, { replace: true })
         } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
