@@ -1,5 +1,4 @@
 import { NodeViewProps, NodeViewWrapper } from '@tiptap/react'
-import { Icon } from 'lago-design-system'
 
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { Locale, LocaleEnum } from '~/core/translations'
@@ -12,8 +11,8 @@ import { OneOffAddOnsPreviewTable } from './OneOffAddOnsPreviewTable'
 
 import { useRichTextEditorContext } from '../common/RichTextEditorContext'
 import { PricingType } from '../extensions/PricingBlock.schema'
+import SlashCommandBlockWrapper from '../SlashCommandBlockWrapper/SlashCommandBlockWrapper'
 
-export const PRICING_BLOCK_VIEW_TEST_ID = 'pricing-block-view'
 export const PRICING_BLOCK_VIEW_EMPTY_TEST_ID = 'pricing-block-view-empty'
 export const PRICING_BLOCK_VIEW_UNRESOLVED_TEST_ID = 'pricing-block-view-unresolved'
 
@@ -93,31 +92,17 @@ export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
             ),
           })
 
+    const typeText = translate('text_1779802343219a1cl5ckvtrn')
+
     return (
       <NodeViewWrapper className="spacer" data-type="pricingBlock">
         <div className="block-wrapper">
-          <div className="block-type-wrapper">
-            <div className="block-type-tag">{translate('text_1779802343219a1cl5ckvtrn')}</div>
-            <button
-              className="pricing-block pricing-block--clickable"
-              onMouseDown={(e) => e.stopPropagation()}
-              onClick={handleClick}
-              data-test={PRICING_BLOCK_VIEW_TEST_ID}
-            >
-              <div className="pricing-block-content">
-                <div className="icon-wrapper">
-                  <Icon name="document" />
-                </div>
-                <div className="pricing-block-text">
-                  <span>{displayText}</span>
-                  <span>{translate('text_1780329442633n0oe3prszsw')}</span>
-                </div>
-              </div>
-              <div className="click-icon-wrapper">
-                <Icon name="chevron-right-filled" />
-              </div>
-            </button>
-          </div>
+          <SlashCommandBlockWrapper
+            typeText={typeText}
+            handleClick={handleClick}
+            icon="document"
+            displayText={displayText}
+          />
         </div>
       </NodeViewWrapper>
     )
