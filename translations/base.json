@@ -4084,7 +4084,6 @@
   "text_17757391860814p20fr87x9g": "Quotes",
   "text_177573918608169w9wthupaz": "Quotes will appear here once created.",
   "text_17757461968258p4ij8g74zp": "Order forms",
-  "text_1775746196826qogq3id888u": "Order forms will appear here once created.",
   "text_1775746196826pyjlfqx3anr": "Quote number",
   "text_1775747115932pql5mtb30dc": "Version",
   "text_1775747115932x8ryaymh8ej": "Type",
@@ -4249,5 +4248,12 @@
   "text_17791906642738j2tip131uw": "This value is already used",
   "text_1779790016087nsol47cwuwg": "Filters",
   "text_1780503765268ttscgcx6yo7": "Edit invoicing & payments",
-  "text_1780512470285ql6s1rc7wjr": "Lifetime"
+  "text_1780512470285ql6s1rc7wjr": "Lifetime",
+  "text_17766979384805q6wx9it6wa": "Generated",
+  "text_1776697938480b1fi7wqtzyi": "Signed",
+  "text_1776697938480hzc1xsmmpez": "Voided",
+  "text_1776697938480ap28ussl837": "Expired",
+  "text_1776697938480e54yje9i5aa": "No order forms yet",
+  "text_17766979384803pz48gknynl": "Order forms will appear here once they are created from quotes.",
+  "text_1779695273381h7tmhdzrv48": "Source quote"
 }
