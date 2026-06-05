@@ -60,6 +60,7 @@ gql`
     paidTopUpMaxAmountCents
     paymentMethodType
     paymentMethod {
+      id
       details {
         type
         brand
@@ -79,6 +80,7 @@ gql`
         name
       }
     }
+    skipInvoiceCustomSections
     selectedInvoiceCustomSections {
       id
       name

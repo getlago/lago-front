@@ -19,6 +19,7 @@ import {
   RotateApiKeyDialog,
   RotateApiKeyDialogRef,
 } from '~/components/developers/apiKeys/RotateApiKeyDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   SettingsListItem,
   SettingsListItemHeader,
@@ -26,7 +27,6 @@ import {
   SettingsListWrapper,
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { CREATE_API_KEYS_ROUTE, UPDATE_API_KEYS_ROUTE, useLocation } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -100,7 +100,7 @@ export const ApiKeys = () => {
 
   const rotateApiKeyDialogRef = useRef<RotateApiKeyDialogRef>(null)
   const deleteApiKeyDialogRef = useRef<DeleteApiKeyDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const [showOrganizationId, setShowOrganizationId] = useState(false)
   const [shownApiKeysMap, setShownApiKeysMap] = useState<Map<string, string>>(new Map())
 
@@ -263,7 +263,7 @@ export const ApiKeys = () => {
                         endIcon={showPremiumAddApiKeyState ? 'sparkles' : undefined}
                         onClick={() => {
                           if (showPremiumAddApiKeyState) {
-                            premiumWarningDialogRef.current?.openDialog()
+                            premiumWarningDialog.open()
                           } else {
                             // Navigate to BrowserRouter route from MemoryRouter without page reload
                             setMainRouterUrl(CREATE_API_KEYS_ROUTE)
@@ -523,10 +523,9 @@ export const ApiKeys = () => {
         </SettingsListWrapper>
       </div>
 
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <RotateApiKeyDialog
         ref={rotateApiKeyDialogRef}
-        openPremiumDialog={() => premiumWarningDialogRef.current?.openDialog()}
+        openPremiumDialog={() => premiumWarningDialog.open()}
       />
       <DeleteApiKeyDialog ref={deleteApiKeyDialogRef} />
     </div>

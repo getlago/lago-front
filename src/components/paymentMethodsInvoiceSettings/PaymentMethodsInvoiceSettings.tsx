@@ -8,7 +8,7 @@ import { PaymentMethodsInvoiceSettingsProps, ViewTypeEnum } from './types'
 
 export const PaymentMethodsInvoiceSettings = <T extends ViewTypeEnum>({
   customer,
-  formikProps,
+  form,
   viewType,
   formFieldBasePath,
 }: PaymentMethodsInvoiceSettingsProps<T>) => {
@@ -26,11 +26,11 @@ export const PaymentMethodsInvoiceSettings = <T extends ViewTypeEnum>({
           externalCustomerId={externalId}
           selectedPaymentMethod={getFieldValue<SelectedPaymentMethod>(
             'paymentMethod',
-            formikProps.values,
+            form.values,
             formFieldBasePath,
           )}
           setSelectedPaymentMethod={(item) => {
-            formikProps.setFieldValue(getFieldPath('paymentMethod', formFieldBasePath), item)
+            form.setFieldValue(getFieldPath('paymentMethod', formFieldBasePath), item)
           }}
         />
       )}
@@ -41,12 +41,12 @@ export const PaymentMethodsInvoiceSettings = <T extends ViewTypeEnum>({
           invoiceCustomSection={
             getFieldValue<InvoiceCustomSectionInput>(
               'invoiceCustomSection',
-              formikProps.values,
+              form.values,
               formFieldBasePath,
             ) ?? undefined
           }
           setInvoiceCustomSection={(item) => {
-            formikProps.setFieldValue(getFieldPath('invoiceCustomSection', formFieldBasePath), item)
+            form.setFieldValue(getFieldPath('invoiceCustomSection', formFieldBasePath), item)
           }}
         />
       )}

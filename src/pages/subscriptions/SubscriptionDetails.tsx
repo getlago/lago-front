@@ -178,6 +178,11 @@ const SubscriptionDetails = () => {
             CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling,
           ),
         ],
+        // The MainHeader config snapshot strips `content` (ReactNode), so content-only
+        // changes don't re-push to context. This tab's content reflects reactive
+        // subscription state (progressive billing toggle, threshold reset), so encode
+        // those bits in snapshotKey to force a refresh when they change.
+        snapshotKey: `${isSubscriptionLoading}-${!!subscription?.progressiveBillingDisabled}-${subscription?.usageThresholds?.length ?? 0}`,
         content: (
           <DetailsPage.Container>
             <SubscriptionProgressiveBillingTab
@@ -301,7 +306,7 @@ const SubscriptionDetails = () => {
           ),
         ],
         content: (
-          <DetailsPage.Container>
+          <DetailsPage.Container className="pb-0">
             <SubscriptionDetailsV2Plan subscriptionId={subscriptionId as string} />
           </DetailsPage.Container>
         ),

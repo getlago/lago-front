@@ -19,10 +19,7 @@ import {
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
-import {
-  PaymentMethodsInvoiceSettingsProps,
-  ViewTypeEnum,
-} from '~/components/paymentMethodsInvoiceSettings/types'
+import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
@@ -197,6 +194,11 @@ const CreateSubscription = () => {
   const subscriptionBillingEntityId = useStore(
     subscriptionForm.store,
     (s) => s.values.billingEntityId,
+  )
+  const subscriptionPaymentMethod = useStore(subscriptionForm.store, (s) => s.values.paymentMethod)
+  const subscriptionInvoiceCustomSection = useStore(
+    subscriptionForm.store,
+    (s) => s.values.invoiceCustomSection,
   )
   const isEditingSubscription = formType === FORM_TYPE_ENUM.edition
 
@@ -554,12 +556,16 @@ const CreateSubscription = () => {
                         {hasAccessToMultiPaymentFlow && (customer?.externalId || customer?.id) && (
                           <PaymentMethodsInvoiceSettings
                             customer={customer}
-                            formikProps={
-                              {
-                                values: subscriptionForm.state.values,
-                                setFieldValue: subscriptionForm.setFieldValue,
-                              } as PaymentMethodsInvoiceSettingsProps<ViewTypeEnum.Subscription>['formikProps']
-                            }
+                            // `values` MUST come from reactive store slices (useStore above),
+                            // never from `subscriptionForm.state.values` — a non-reactive
+                            // snapshot would not re-render the displayed selection on edit.
+                            form={{
+                              values: {
+                                paymentMethod: subscriptionPaymentMethod,
+                                invoiceCustomSection: subscriptionInvoiceCustomSection,
+                              },
+                              setFieldValue: subscriptionForm.setFieldValue,
+                            }}
                             viewType={ViewTypeEnum.Subscription}
                           />
                         )}
