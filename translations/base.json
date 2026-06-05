@@ -4286,5 +4286,6 @@
   "text_1780604419477ujb85w6pk81": "Subscription name",
   "text_178060441947738s33pstvzp": "Subscription external ID",
   "text_17810792697743rdztc0hzsn": "A webhook endpoint signature algorithm was changed from {{algoFrom}} to {{algoTo}}",
-  "text_1781079269774kur4mhrgipy": "A webhook endpoint {{urlFrom}} was updated to {{urlTo}} and signature algorithm was changed from {{algoFrom}} to {{algoTo}}"
+  "text_1781079269774kur4mhrgipy": "A webhook endpoint {{urlFrom}} was updated to {{urlTo}} and signature algorithm was changed from {{algoFrom}} to {{algoTo}}",
+  "text_1780667013874s6wl9cmxe7q": "Revenue recognition"
 }
