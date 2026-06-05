@@ -406,22 +406,20 @@ const AddOnSelectionContent = withForm({
               {(addOnItemsField) => {
                 const items = addOnItemsField.state.value
 
-                const comboBoxData = addOns
-                  .filter((addOn) => !items.some((item) => item.addOnId === addOn.id))
-                  .map((addOn) => ({
-                    value: addOn.id,
-                    label: `${addOn.name} (${addOn.code})`,
-                    labelNode: (
-                      <ComboboxItem>
-                        <Typography variant="body" color="grey700" noWrap>
-                          {addOn.name}
-                        </Typography>
-                        <Typography variant="caption" color="grey600" noWrap>
-                          {addOn.code}
-                        </Typography>
-                      </ComboboxItem>
-                    ),
-                  }))
+                const comboBoxData = addOns.map((addOn) => ({
+                  value: addOn.id,
+                  label: `${addOn.name} (${addOn.code})`,
+                  labelNode: (
+                    <ComboboxItem>
+                      <Typography variant="body" color="grey700" noWrap>
+                        {addOn.name}
+                      </Typography>
+                      <Typography variant="caption" color="grey600" noWrap>
+                        {addOn.code}
+                      </Typography>
+                    </ComboboxItem>
+                  ),
+                }))
 
                 const handleAddPendingRow = () => {
                   const newIndex = items.length
