@@ -66,8 +66,12 @@ export const useSubscriptionChargeMutations = ({ subscriptionId, currency }: Arg
   // Sub tab edits only (no create/delete), so the shared handler's index arg is
   // unused here — a narrower-arity fn stays assignable to UsageChargeMutations.
   const handleSaveCharge = async (charge: LocalUsageChargeInput): Promise<boolean> => {
-    await updateSubscriptionCharge({ variables: { input: buildInput(charge) } })
-    return true
+    // Report success only when the mutation actually returned a charge. On error
+    // (e.g. a 500, surfaced as a resolved result with `data: null` by the error
+    // link) return false so the drawer stays open and the user can re-submit.
+    const { data } = await updateSubscriptionCharge({ variables: { input: buildInput(charge) } })
+
+    return !!data?.updateSubscriptionCharge?.id
   }
 
   // Delete is hidden on the sub tab; no-op to satisfy the shared handler shape.
