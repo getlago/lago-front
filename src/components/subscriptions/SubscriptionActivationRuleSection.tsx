@@ -65,11 +65,8 @@ export const SubscriptionActivationRuleSection = withForm({
     const displayedPaymentMethod = useDisplayedPaymentMethod(paymentMethod, paymentMethodsList)
     const hasResolvedPaymentMethods = !paymentMethodsLoading || paymentMethodsError
 
-    // Payment-gated activation only makes sense when the effective payment method can be
-    // charged automatically. Whenever it resolves to manual — explicitly selected, or
-    // inherited from a customer with no chargeable method — there is no payment to gate on.
     const isPaymentActivationUnavailable =
-      !customerExternalId || (hasResolvedPaymentMethods && displayedPaymentMethod.isManual)
+      !customerExternalId || !hasResolvedPaymentMethods || displayedPaymentMethod.isManual
 
     const isEditable = useMemo(() => {
       return (

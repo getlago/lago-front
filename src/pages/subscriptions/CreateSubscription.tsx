@@ -119,6 +119,9 @@ const CreateSubscription = () => {
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
   const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
+  const hasAccessToPaymentGatedSubscriptions = hasFeatureFlag(
+    FeatureFlagEnum.PaymentGatedSubscriptions,
+  )
 
   const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
@@ -412,8 +415,7 @@ const CreateSubscription = () => {
 
   const customerName = customer?.displayName
   const shouldDisplayActivationRuleSection =
-    !!(customer?.externalId || customer?.id) &&
-    (hasAccessToMultiPaymentFlow || !!customer?.paymentProvider)
+    hasAccessToPaymentGatedSubscriptions && !!customer?.externalId
 
   const navigateBack = useCallback(() => {
     const origin = searchParams.get('origin')
