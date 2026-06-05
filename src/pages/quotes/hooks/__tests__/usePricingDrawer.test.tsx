@@ -3,7 +3,7 @@ import { ReactNode } from 'react'
 import { z } from 'zod'
 
 import { fromBillingItems } from '~/core/serializers/serializeQuoteBillingItems'
-import { OrderTypeEnum } from '~/generated/graphql'
+import { CurrencyEnum, OrderTypeEnum } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
 import { usePricingDrawer } from '../usePricingDrawer'
@@ -636,6 +636,68 @@ describe('usePricingDrawer', () => {
           { planId: '', addOnItems: [] },
           { keepDefaultValues: true },
         )
+      })
+    })
+  })
+
+  describe('GIVEN customerCurrency is provided', () => {
+    describe('WHEN onPricingCommand is called', () => {
+      it('THEN should pass the customerCurrency to the drawer content instead of organization default', () => {
+        const { result } = renderHook(
+          () => usePricingDrawer(OrderTypeEnum.OneOff, undefined, CurrencyEnum.Eur),
+          { wrapper },
+        )
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: jest.fn(),
+            editData: undefined,
+          })
+        })
+
+        const callArgs = mockFormDrawerOpen.mock.calls[0][0]
+        const childProps = callArgs.children.props
+
+        expect(childProps.currency).toBe(CurrencyEnum.Eur)
+      })
+    })
+
+    describe('WHEN customerCurrency is null', () => {
+      it('THEN should fall back to organization defaultCurrency', () => {
+        const { result } = renderHook(
+          () => usePricingDrawer(OrderTypeEnum.OneOff, undefined, null),
+          { wrapper },
+        )
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: jest.fn(),
+            editData: undefined,
+          })
+        })
+
+        const callArgs = mockFormDrawerOpen.mock.calls[0][0]
+        const childProps = callArgs.children.props
+
+        expect(childProps.currency).toBe('USD')
+      })
+    })
+
+    describe('WHEN customerCurrency is not provided', () => {
+      it('THEN should use organization defaultCurrency', () => {
+        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), { wrapper })
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: jest.fn(),
+            editData: undefined,
+          })
+        })
+
+        const callArgs = mockFormDrawerOpen.mock.calls[0][0]
+        const childProps = callArgs.children.props
+
+        expect(childProps.currency).toBe('USD')
       })
     })
   })
