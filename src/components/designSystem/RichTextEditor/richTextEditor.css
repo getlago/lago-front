@@ -356,9 +356,9 @@
   @apply mt-2 h-6;
 }
 
-/* Block selection highlight */
-.ProseMirror .ProseMirror-selectednode,
-.ProseMirror .is-block-selected {
+/* Block selection highlight (edit mode only) */
+.ProseMirror:not([contenteditable='false']) .ProseMirror-selectednode,
+.ProseMirror:not([contenteditable='false']) .is-block-selected {
   @apply rounded-md bg-blue-100;
 }
 

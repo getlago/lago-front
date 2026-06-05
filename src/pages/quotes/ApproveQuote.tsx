@@ -170,6 +170,7 @@ const ApproveQuote = () => {
             {quote?.currentVersion?.content ? (
               <RichTextEditor
                 mode="preview"
+                isCompact
                 content={quote.currentVersion.content}
                 entities={previewEntities}
                 customerLocale={customerLocale}

@@ -63,6 +63,7 @@ interface RichTextEditorProps {
   onPricingBlocksChange?: (blocks: PricingBlockAttributes[]) => void
   customerLocale?: Locale
   customerCurrency?: CurrencyEnum
+  isCompact?: boolean
 }
 
 const RichTextEditor = ({
@@ -79,6 +80,7 @@ const RichTextEditor = ({
   onChange,
   customerLocale,
   customerCurrency,
+  isCompact,
 }: RichTextEditorProps) => {
   const { translate } = useInternationalization()
   const onChangeRef = useRef(onChange)
@@ -168,7 +170,9 @@ const RichTextEditor = ({
     ],
     editorProps: {
       attributes: {
-        class: 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10',
+        class: isCompact
+          ? 'max-w-4xl mx-auto focus:outline-none min-h-[300px] mb-4 px-0'
+          : 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10',
       },
     },
     content:
