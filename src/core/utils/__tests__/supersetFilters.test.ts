@@ -1,4 +1,5 @@
-import { extractNativeFilters } from '~/core/utils/supersetFilters'
+import { SUPERSET_FILTERS_LS_KEY_PREFIX } from '~/core/constants/localStorageKeys'
+import { extractNativeFilters, getSupersetFiltersLsKey } from '~/core/utils/supersetFilters'
 
 describe('extractNativeFilters', () => {
   describe('GIVEN an empty dataMask', () => {
@@ -163,6 +164,43 @@ describe('extractNativeFilters', () => {
             },
           },
         })
+      })
+    })
+  })
+})
+
+describe('getSupersetFiltersLsKey', () => {
+  describe('GIVEN an org id and a dashboard title', () => {
+    describe('WHEN the title contains spaces and uppercase letters', () => {
+      it('THEN should slugify the title (lowercase, spaces joined with "-")', () => {
+        expect(getSupersetFiltersLsKey('org-1', 'Lago Dashboard')).toBe(
+          `${SUPERSET_FILTERS_LS_KEY_PREFIX}org-1-lago-dashboard`,
+        )
+        expect(getSupersetFiltersLsKey('org-1', 'Revenue Recognition')).toBe(
+          `${SUPERSET_FILTERS_LS_KEY_PREFIX}org-1-revenue-recognition`,
+        )
+      })
+    })
+  })
+
+  describe('GIVEN the same org but different dashboard titles', () => {
+    describe('WHEN building keys for both dashboards', () => {
+      it('THEN should produce distinct keys so filters do not leak between dashboards', () => {
+        const analyticsKey = getSupersetFiltersLsKey('org-1', 'Lago Dashboard')
+        const revenueKey = getSupersetFiltersLsKey('org-1', 'Revenue Recognition')
+
+        expect(analyticsKey).not.toBe(revenueKey)
+      })
+    })
+  })
+
+  describe('GIVEN the same dashboard title but different orgs', () => {
+    describe('WHEN building keys for both orgs', () => {
+      it('THEN should produce distinct keys so filters stay scoped per org', () => {
+        const orgAKey = getSupersetFiltersLsKey('org-a', 'Lago Dashboard')
+        const orgBKey = getSupersetFiltersLsKey('org-b', 'Lago Dashboard')
+
+        expect(orgAKey).not.toBe(orgBKey)
       })
     })
   })
