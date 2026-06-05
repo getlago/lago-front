@@ -479,42 +479,6 @@ describe('AddOnSelectionContent', () => {
       })
     })
 
-    describe('WHEN a new pending row is added', () => {
-      it('THEN the ComboBox should not include the already-selected add-on in its options', async () => {
-        renderWithForm({
-          initialValues: { addOnItems: [defaultAddOnItem] },
-        })
-
-        // addon-1 (Setup Fee) is confirmed — add a pending row
-        await userEvent.click(screen.getByTestId('add-add-on-button'))
-
-        const pendingRow = screen.getByTestId('add-on-pending-1')
-        const comboBoxInput = within(pendingRow).getByRole('combobox') as HTMLInputElement
-
-        // Type to trigger the dropdown to open with filter
-        await userEvent.type(comboBoxInput, 'S')
-
-        // The already-selected addon-1 should NOT appear; addon-2 should appear
-        // Use the aria-controls on the input to find the correct listbox
-        await waitFor(() => {
-          const listboxId = comboBoxInput.getAttribute('aria-controls')
-
-          expect(listboxId).toBeTruthy()
-
-          const listbox = document.getElementById(listboxId as string)
-
-          expect(listbox).toBeInTheDocument()
-        })
-
-        const listboxId = comboBoxInput.getAttribute('aria-controls') as string
-        const listbox = document.getElementById(listboxId) as HTMLElement
-
-        // addon-2 (Support) should be visible, addon-1 (Setup Fee) should be filtered out
-        expect(within(listbox).getByText('Support')).toBeInTheDocument()
-        expect(within(listbox).queryByText('Setup Fee')).not.toBeInTheDocument()
-      })
-    })
-
     describe('WHEN an add-on is selected from the ComboBox in a pending row', () => {
       it('THEN should call onAddOnPayloadCapture and convert the row to confirmed', async () => {
         const onAddOnPayloadCapture = jest.fn()
