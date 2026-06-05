@@ -45,12 +45,14 @@ export const getTimeoutDisplayValue = (
 
   if (!paymentActivationRule) return '-'
 
-  if (paymentActivationRule.timeoutHours === 0) {
-    return translate('text_17798820214660s59bjuztra')
-  }
-
+  // An expired rule always shows "Expired" — even with a 0 ("no timeout") value,
+  // since the subscription has already timed out.
   if (isPaymentActivationExpired(subscription)) {
     return translate('text_1779882021466x423uayjorq')
+  }
+
+  if (paymentActivationRule.timeoutHours === 0) {
+    return translate('text_17798820214660s59bjuztra')
   }
 
   if (!paymentActivationRule.expiresAt) {

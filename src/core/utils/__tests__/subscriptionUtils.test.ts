@@ -78,6 +78,26 @@ describe('subscriptionUtils', () => {
     ).toBe('No timeout defined')
   })
 
+  it('formats an expired rule as expired even when the timeout is 0', () => {
+    expect(
+      getTimeoutDisplayValue(
+        {
+          status: StatusTypeEnum.Canceled,
+          cancelationReason: CancelationReasonEnum.Timeout,
+          activationRules: [
+            {
+              type: ActivationRuleTypeEnum.Payment,
+              timeoutHours: 0,
+              status: ActivationRuleStatusEnum.Expired,
+              expiresAt: null,
+            },
+          ],
+        },
+        translate,
+      ),
+    ).toBe('Expired')
+  })
+
   it('formats future expiration as a rounded-up hour count', () => {
     expect(
       getTimeoutDisplayValue(
