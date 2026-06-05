@@ -4483,7 +4483,6 @@ export enum IntegrationTypeEnum {
   ProjectedUsage = 'projected_usage',
   RemoveBrandingWatermark = 'remove_branding_watermark',
   RevenueAnalytics = 'revenue_analytics',
-  RevenueRecognition = 'revenue_recognition',
   RevenueShare = 'revenue_share',
   Salesforce = 'salesforce',
   SecurityLogs = 'security_logs',
@@ -6972,7 +6971,6 @@ export enum PremiumIntegrationTypeEnum {
   ProjectedUsage = 'projected_usage',
   RemoveBrandingWatermark = 'remove_branding_watermark',
   RevenueAnalytics = 'revenue_analytics',
-  RevenueRecognition = 'revenue_recognition',
   RevenueShare = 'revenue_share',
   Salesforce = 'salesforce',
   SecurityLogs = 'security_logs',
@@ -10029,7 +10027,6 @@ export type VoidQuoteVersionInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
-  reason: VoidReasonEnum;
 };
 
 export enum VoidReasonEnum {
