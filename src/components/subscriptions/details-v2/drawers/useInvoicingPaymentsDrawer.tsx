@@ -1,4 +1,5 @@
 import { useFormDrawer } from '~/components/drawers/useDrawer'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { InvoicingPaymentsFormSection } from '~/components/subscriptions/form/InvoicingPaymentsFormSection'
 import { InvoicingPaymentsSectionFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -28,6 +29,7 @@ export const useInvoicingPaymentsDrawer = (subscription: InvoicingPaymentsSectio
       title: translate('text_1780503765268ttscgcx6yo7'),
       form: { id: INVOICING_PAYMENTS_FORM_ID, submit: submitForm },
       closeOnSubmitSuccess: false,
+      onEntered: (container) => focusFirstInput(container),
       mainAction: (
         <form.AppForm>
           <form.SubmitButton dataTest="invoicing-payments-drawer-save">

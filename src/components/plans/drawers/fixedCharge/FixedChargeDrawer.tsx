@@ -182,14 +182,14 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
         closeOnSubmitSuccess: false,
         shouldPromptOnClose: () => form.state.isDirty,
         onClose: () => form.reset(),
-        onEntered: () => {
+        onEntered: (container) => {
           if (!shouldFocusComboBoxRef.current) return
           shouldFocusComboBoxRef.current = false
-          ;(
-            document.querySelector(
+          container
+            .querySelector<HTMLElement>(
               `.${SEARCH_ADD_ON_IN_FIXED_CHARGE_DRAWER_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-            ) as HTMLElement
-          )?.click()
+            )
+            ?.click()
         },
         children: (
           <PlanFormProvider currency={currency} interval={interval}>

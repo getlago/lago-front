@@ -1,4 +1,5 @@
 import { useFormDrawer } from '~/components/drawers/useDrawer'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { PlanDetailsV2Fragment } from '~/generated/graphql'
@@ -57,6 +58,7 @@ export const usePlanSettingsDrawer = (plan: PlanDetailsV2Fragment, subscriptionI
       title: translate('text_642d5eb2783a2ad10d67031a'),
       form: { id: PLAN_SETTINGS_FORM_ID, submit: submitForm },
       closeOnSubmitSuccess: false,
+      onEntered: (container) => focusFirstInput(container),
       mainAction: (
         <form.AppForm>
           <form.SubmitButton dataTest="plan-settings-drawer-save">

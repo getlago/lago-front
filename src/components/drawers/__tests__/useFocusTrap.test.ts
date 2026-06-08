@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 
-import { FOCUSABLE_SELECTOR, useFocusTrap } from '../useFocusTrap'
+import { FOCUSABLE_SELECTOR, focusFirstInput, useFocusTrap } from '../useFocusTrap'
 
 let container: HTMLDivElement
 let closeButton: HTMLButtonElement
@@ -147,6 +147,17 @@ describe('useFocusTrap', () => {
       expect(onEntered).toHaveBeenCalledTimes(1)
     })
 
+    it('should pass the drawer container to onEntered for scoped lookups', () => {
+      const onEntered = jest.fn()
+      const { result } = renderHook(() => useFocusTrap(createDefaultParams({ onEntered })))
+
+      act(() => {
+        result.current.handleEntered()
+      })
+
+      expect(onEntered).toHaveBeenCalledWith(container)
+    })
+
     it('should focus the close button when onEntered does not move focus inside', async () => {
       const onEntered = jest.fn()
       const { result } = renderHook(() => useFocusTrap(createDefaultParams({ onEntered })))
@@ -199,6 +210,51 @@ describe('useFocusTrap', () => {
       })
 
       expect(document.activeElement).toBe(input)
+    })
+  })
+
+  describe('focusFirstInput', () => {
+    it('should focus the first editable input within the container', () => {
+      const input = document.createElement('input')
+
+      container.appendChild(input)
+
+      expect(focusFirstInput(container)).toBe(true)
+      expect(document.activeElement).toBe(input)
+    })
+
+    it('should skip hidden inputs and focus the first visible one', () => {
+      const hidden = document.createElement('input')
+
+      hidden.type = 'hidden'
+
+      const text = document.createElement('input')
+
+      container.append(hidden, text)
+
+      focusFirstInput(container)
+
+      expect(document.activeElement).toBe(text)
+    })
+
+    it('should honor a custom selector', () => {
+      const first = document.createElement('input')
+      const target = document.createElement('input')
+
+      target.className = 'target'
+      container.append(first, target)
+
+      focusFirstInput(container, '.target')
+
+      expect(document.activeElement).toBe(target)
+    })
+
+    it('should return false and stay a no-op when nothing matches', () => {
+      expect(focusFirstInput(container, '.no-match')).toBe(false)
+    })
+
+    it('should return false for a null container', () => {
+      expect(focusFirstInput(null)).toBe(false)
     })
   })
 

@@ -23,7 +23,7 @@ export type BaseDrawerProps = {
   children: ReactNode
   onClose: () => void
   onExited?: () => void
-  onEntered?: () => void
+  onEntered?: (container: HTMLElement) => void
   className?: string
   actions?: ReactNode
   actionsClassName?: string

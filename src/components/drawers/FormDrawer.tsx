@@ -30,7 +30,7 @@ export type FormDrawerProps = {
   withPadding?: boolean
   fullContentHeight?: boolean
   onClose?: () => void
-  onEntered?: () => void
+  onEntered?: (container: HTMLElement) => void
   shouldPromptOnClose?: () => boolean
 }
 

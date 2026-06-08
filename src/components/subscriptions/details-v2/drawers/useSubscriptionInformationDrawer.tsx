@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import { useFormDrawer } from '~/components/drawers/useDrawer'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { SubscriptionInformationFormSection } from '~/components/subscriptions/form/SubscriptionInformationFormSection'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { SubscriptionInformationSectionFragment } from '~/generated/graphql'
@@ -68,6 +69,7 @@ export const useSubscriptionInformationDrawer = (
       title: translate('text_62d7f6178ec94cd09370e63c'),
       form: { id: SUBSCRIPTION_INFORMATION_FORM_ID, submit: submitForm },
       closeOnSubmitSuccess: false,
+      onEntered: (container) => focusFirstInput(container),
       mainAction: (
         <form.AppForm>
           <form.SubmitButton dataTest="subscription-information-drawer-save">

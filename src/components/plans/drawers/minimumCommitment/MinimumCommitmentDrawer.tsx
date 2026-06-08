@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PlanBillingPeriodInfoSection } from '~/components/plans/drawers/common/PlanBillingPeriodInfoSection'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
@@ -95,13 +96,7 @@ export const MinimumCommitmentDrawer = forwardRef<
       closeOnSubmitSuccess: false,
       shouldPromptOnClose: () => form.state.isDirty,
       onClose: () => form.reset(),
-      onEntered: () => {
-        const firstInput = document.querySelector(
-          '[data-test="base-drawer-paper"]:last-child input',
-        ) as HTMLInputElement
-
-        firstInput?.focus()
-      },
+      onEntered: (container) => focusFirstInput(container),
       children: (
         <PlanFormProvider currency={currency} interval={interval}>
           <CenteredPage.SectionWrapper>

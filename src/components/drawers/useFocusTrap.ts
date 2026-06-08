@@ -9,11 +9,34 @@ export const FOCUSABLE_SELECTOR = [
   '[tabindex]:not([tabindex="-1"]):not(:disabled)',
 ].join(', ')
 
+/** Editable inputs a user would naturally start typing in (skips hidden ones). */
+const FIRST_INPUT_SELECTOR = [
+  'input:not([type="hidden"]):not(:disabled)',
+  'textarea:not(:disabled)',
+].join(', ')
+
+/**
+ * Focuses the first editable input inside `container`. Meant to be called from a
+ * drawer's `onEntered`, which receives the drawer container so the lookup is
+ * scoped (no global `document` query, no reliance on stack position). Pass a
+ * custom `selector` to target a specific field. Returns whether a node matched.
+ */
+export const focusFirstInput = (
+  container: HTMLElement | null,
+  selector: string = FIRST_INPUT_SELECTOR,
+): boolean => {
+  const target = container?.querySelector<HTMLElement>(selector) ?? null
+
+  target?.focus()
+
+  return !!target
+}
+
 type UseFocusTrapParams = {
   containerRef: RefObject<HTMLDivElement | null>
   /** Whether focus trapping is active (typically: state === 'open' && isTopmost) */
   isActive: boolean
-  onEntered?: () => void
+  onEntered?: (container: HTMLElement) => void
   closeButtonRef: RefObject<HTMLButtonElement | null>
 }
 
@@ -67,11 +90,13 @@ export const useFocusTrap = ({
 
   /** Call after the drawer enter transition completes. Runs onEntered, then falls back to focusing the close button. */
   const handleEntered = useCallback(() => {
-    onEnteredRef.current?.()
+    const container = containerRef.current
+
+    if (container) {
+      onEnteredRef.current?.(container)
+    }
 
     queueMicrotask(() => {
-      const container = containerRef.current
-
       if (!container) return
       if (container.contains(document.activeElement)) return
 
