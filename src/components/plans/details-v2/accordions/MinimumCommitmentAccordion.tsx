@@ -118,11 +118,13 @@ export const MinimumCommitmentAccordion = ({
           actions={[
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
+              startIcon: 'pen',
               onClick: openEditDrawer,
               hidden: !canUpdate,
             },
             {
               label: translate('text_63ea0f84f400488553caa786'),
+              startIcon: 'trash',
               onClick: () => void handleDelete(),
               hidden: !canDelete,
             },

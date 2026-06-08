@@ -160,11 +160,13 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
           actions={[
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
+              startIcon: 'pen',
               onClick: () => openEdit(toLocalInput(fixedCharge), index),
               hidden: !canUpdate,
             },
             {
               label: translate('text_63ea0f84f400488553caa786'),
+              startIcon: 'trash',
               onClick: () => handleDeleteCharge(fixedCharge.id),
               hidden: !canDelete,
             },

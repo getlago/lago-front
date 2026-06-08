@@ -1,3 +1,4 @@
+import { IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
 
 import { Accordion } from '~/components/designSystem/Accordion'
@@ -11,6 +12,7 @@ export type SectionAccordionAction = {
   label: string
   onClick: () => void
   hidden?: boolean
+  startIcon?: IconName
 }
 
 export type SectionAccordionProps = {
@@ -85,6 +87,7 @@ export const SectionAccordion = ({
                           variant="quaternary"
                           align="left"
                           fullWidth
+                          startIcon={action.startIcon}
                           onClick={(e) => {
                             e.stopPropagation()
                             e.preventDefault()

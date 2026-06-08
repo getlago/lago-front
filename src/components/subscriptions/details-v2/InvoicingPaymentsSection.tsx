@@ -57,6 +57,7 @@ export const InvoicingPaymentsSection = ({ subscription }: InvoicingPaymentsSect
         description={translate('text_1779198780030g64up7d4imi')}
         action={{
           label: translate('text_63e51ef4985f0ebd75c212fc'),
+          startIcon: 'pen',
           onClick: openDrawer,
           hidden: !hasPermissions(['subscriptionsUpdate']),
         }}

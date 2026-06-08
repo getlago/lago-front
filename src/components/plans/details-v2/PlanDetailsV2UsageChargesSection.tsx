@@ -208,6 +208,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
           actions={[
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
+              startIcon: 'pen',
               onClick: () =>
                 openEdit(
                   toLocalUsageChargeInput(charge, planCurrency, hasAnyPricingUnitConfigured),
@@ -217,6 +218,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
             },
             {
               label: translate('text_63ea0f84f400488553caa786'),
+              startIcon: 'trash',
               onClick: () => handleDeleteCharge(charge.id),
               hidden: !canDelete,
             },

@@ -81,6 +81,7 @@ export const EntitlementAccordion = ({
           actions={[
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
+              startIcon: 'pen',
               onClick: () =>
                 drawerRef.current?.openDrawer({
                   featureId: '',
@@ -98,6 +99,7 @@ export const EntitlementAccordion = ({
             },
             {
               label: translate('text_63ea0f84f400488553caa786'),
+              startIcon: 'trash',
               onClick: () => void handleDelete(entitlement.code),
               hidden: !canDelete,
             },

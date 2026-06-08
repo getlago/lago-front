@@ -51,6 +51,7 @@ export const PlanDetailsV2PlanSettingsSection = ({
         actions={[
           {
             label: translate('text_63e51ef4985f0ebd75c212fc'),
+            startIcon: 'pen',
             onClick: openDrawer,
             hidden: !canUpdate,
           },
