@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { ReactNode, useRef } from 'react'
 
-import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
   FixedChargeForPlanDetailsSidebarFragmentDoc,
   LagoApiError,
@@ -21,6 +20,7 @@ import {
 } from './PlanDetailsV2FixedChargesSection'
 import { PlanDetailsV2LeftSidebar } from './PlanDetailsV2LeftSidebar'
 import { PlanDetailsV2PlanSettingsSection } from './PlanDetailsV2PlanSettingsSection'
+import { PlanDetailsV2Skeleton } from './PlanDetailsV2Skeleton'
 import {
   PlanDetailsV2UsageChargesSection,
   PlanDetailsV2UsageChargesSectionRef,
@@ -103,7 +103,7 @@ export const PlanDetailsV2 = ({
   }
 
   if (loading && !data?.plan) {
-    return <DetailsPage.Skeleton />
+    return <PlanDetailsV2Skeleton />
   }
 
   const plan = data?.plan

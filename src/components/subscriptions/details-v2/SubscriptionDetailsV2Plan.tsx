@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
 
 import { Alert } from '~/components/designSystem/Alert'
-import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PlanDetailsV2 } from '~/components/plans/details-v2/PlanDetailsV2'
+import { PlanDetailsV2Skeleton } from '~/components/plans/details-v2/PlanDetailsV2Skeleton'
 import PremiumFeature from '~/components/premium/PremiumFeature'
 import {
   LagoApiError,
@@ -46,7 +46,7 @@ export const SubscriptionDetailsV2Plan = ({ subscriptionId }: Props) => {
   const plan = data?.subscription?.plan
 
   if (loading && !plan) {
-    return <DetailsPage.Skeleton />
+    return <PlanDetailsV2Skeleton />
   }
 
   if (!plan) {
