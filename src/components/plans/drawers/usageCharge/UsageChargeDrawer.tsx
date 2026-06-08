@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import {
   applyExistingCodeError,
   buildChargeCodeSchema,
@@ -347,13 +348,18 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
         shouldPromptOnClose: () => form.state.isDirty,
         onClose: () => form.reset(),
         onEntered: (container) => {
-          if (!shouldFocusComboBoxRef.current) return
-          shouldFocusComboBoxRef.current = false
-          container
-            .querySelector<HTMLElement>(
-              `.${SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-            )
-            ?.click()
+          if (shouldFocusComboBoxRef.current) {
+            shouldFocusComboBoxRef.current = false
+            container
+              .querySelector<HTMLElement>(
+                `.${SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+              )
+              ?.click()
+
+            return
+          }
+
+          focusFirstInput(container)
         },
         children: (
           <PlanFormProvider currency={currency} interval={interval}>
