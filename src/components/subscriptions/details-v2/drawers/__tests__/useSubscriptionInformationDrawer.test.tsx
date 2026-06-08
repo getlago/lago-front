@@ -10,6 +10,7 @@ type CapturedDrawerArgs = {
   children?: ReactNode
   mainAction?: ReactNode
   form?: { id: string; submit: () => void }
+  closeOnSubmitSuccess?: boolean
 }
 
 const mockOpen = jest.fn<void, [CapturedDrawerArgs]>()
@@ -28,13 +29,12 @@ jest.mock('~/hooks/customer/useUpdateSubscriptionInformation', () => ({
   useUpdateSubscriptionInformation: () => ({
     form: {
       handleSubmit: mockHandleSubmit,
-      Subscribe: ({
-        selector,
-        children,
-      }: {
-        selector: (state: { canSubmit: boolean }) => boolean
-        children: (value: boolean) => ReactNode
-      }) => children(selector({ canSubmit: true })),
+      AppForm: ({ children }: { children: ReactNode }) => <>{children}</>,
+      SubmitButton: ({ children, dataTest }: { children: ReactNode; dataTest?: string }) => (
+        <button type="submit" data-test={dataTest}>
+          {children}
+        </button>
+      ),
     },
     resetForm: mockResetForm,
   }),
@@ -102,18 +102,32 @@ describe('useSubscriptionInformationDrawer', () => {
     expect(openArgs.children).toBeDefined()
   })
 
-  it('submits the form from the save action and the form submit handler', () => {
+  it('renders a submit button and submits through the drawer form handler', () => {
     const { result } = renderHook(() => useSubscriptionInformationDrawer(subscription))
 
     act(() => result.current.openDrawer())
     const openArgs = mockOpen.mock.calls[0][0]
 
+    // The save action is a type="submit" button; it triggers the drawer form,
+    // it does not wire its own onClick handler.
     render(<>{openArgs.mainAction}</>)
-    fireEvent.click(screen.getByRole('button', { name: 'text_17295436903260tlyb1gp1i7' }))
-    expect(mockHandleSubmit).toHaveBeenCalledTimes(1)
+    expect(screen.getByRole('button', { name: 'text_17295436903260tlyb1gp1i7' })).toHaveAttribute(
+      'type',
+      'submit',
+    )
 
+    // The drawer form's submit handler drives the tanstack submission.
     openArgs.form?.submit()
-    expect(mockHandleSubmit).toHaveBeenCalledTimes(2)
+    expect(mockHandleSubmit).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps close ownership in the drawer so a failed save leaves it open', () => {
+    const { result } = renderHook(() => useSubscriptionInformationDrawer(subscription))
+
+    act(() => result.current.openDrawer())
+    const openArgs = mockOpen.mock.calls[0][0]
+
+    expect(openArgs.closeOnSubmitSuccess).toBe(false)
   })
 
   it('reveals the subscription name field when its add button is clicked (state lives in the body)', () => {

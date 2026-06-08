@@ -1,4 +1,3 @@
-import { Button } from '~/components/designSystem/Button'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { InvoicingPaymentsFormSection } from '~/components/subscriptions/form/InvoicingPaymentsFormSection'
 import { InvoicingPaymentsSectionFragment } from '~/generated/graphql'
@@ -28,19 +27,13 @@ export const useInvoicingPaymentsDrawer = (subscription: InvoicingPaymentsSectio
     drawer.open({
       title: translate('text_1780503765268ttscgcx6yo7'),
       form: { id: INVOICING_PAYMENTS_FORM_ID, submit: submitForm },
+      closeOnSubmitSuccess: false,
       mainAction: (
-        <form.Subscribe selector={({ canSubmit, isSubmitting }) => ({ canSubmit, isSubmitting })}>
-          {({ canSubmit, isSubmitting }) => (
-            <Button
-              data-test="invoicing-payments-drawer-save"
-              onClick={submitForm}
-              disabled={!canSubmit || isSubmitting}
-              loading={isSubmitting}
-            >
-              {translate('text_17295436903260tlyb1gp1i7')}
-            </Button>
-          )}
-        </form.Subscribe>
+        <form.AppForm>
+          <form.SubmitButton dataTest="invoicing-payments-drawer-save">
+            {translate('text_17295436903260tlyb1gp1i7')}
+          </form.SubmitButton>
+        </form.AppForm>
       ),
       children: (
         <InvoicingPaymentsFormSection

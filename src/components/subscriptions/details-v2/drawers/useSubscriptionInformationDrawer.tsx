@@ -1,6 +1,5 @@
 import { useState } from 'react'
 
-import { Button } from '~/components/designSystem/Button'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { SubscriptionInformationFormSection } from '~/components/subscriptions/form/SubscriptionInformationFormSection'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -68,19 +67,13 @@ export const useSubscriptionInformationDrawer = (
     drawer.open({
       title: translate('text_62d7f6178ec94cd09370e63c'),
       form: { id: SUBSCRIPTION_INFORMATION_FORM_ID, submit: submitForm },
+      closeOnSubmitSuccess: false,
       mainAction: (
-        <form.Subscribe selector={({ canSubmit, isSubmitting }) => ({ canSubmit, isSubmitting })}>
-          {({ canSubmit, isSubmitting }) => (
-            <Button
-              data-test="subscription-information-drawer-save"
-              onClick={submitForm}
-              disabled={!canSubmit || isSubmitting}
-              loading={isSubmitting}
-            >
-              {translate('text_17295436903260tlyb1gp1i7')}
-            </Button>
-          )}
-        </form.Subscribe>
+        <form.AppForm>
+          <form.SubmitButton dataTest="subscription-information-drawer-save">
+            {translate('text_17295436903260tlyb1gp1i7')}
+          </form.SubmitButton>
+        </form.AppForm>
       ),
       children: <SubscriptionInformationDrawerContent form={form} subscription={subscription} />,
     })

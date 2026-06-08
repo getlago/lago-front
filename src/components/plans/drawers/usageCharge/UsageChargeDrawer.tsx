@@ -1,11 +1,10 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
-import { tw } from 'lago-design-system'
 import { forwardRef, useImperativeHandle, useRef } from 'react'
 import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
-import { useDrawer } from '~/components/drawers/useDrawer'
+import { useFormDrawer } from '~/components/drawers/useDrawer'
 import {
   applyExistingCodeError,
   buildChargeCodeSchema,
@@ -214,6 +213,8 @@ export const buildUsageChargeDrawerSchema = (requireCode: boolean) =>
 // Backward-compatible export (code optional) — kept for existing safeParse tests.
 export const usageChargeDrawerSchema = buildUsageChargeDrawerSchema(false)
 
+const USAGE_CHARGE_FORM_ID = 'usage-charge-drawer-form'
+
 export interface UsageChargeDrawerRef {
   openDrawer: (
     charge?: LocalUsageChargeInput,
@@ -272,7 +273,7 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
     const { translate } = useInternationalization()
     const { currency, interval } = usePlanFormContext()
     const { type: actionType } = useDuplicatePlanVar()
-    const chargeDrawer = useDrawer()
+    const chargeDrawer = useFormDrawer()
     const editIndexRef = useRef<number>(-1)
     const alertMessageRef = useRef<string | undefined>(undefined)
     const initialChargeRef = useRef<LocalUsageChargeInput | undefined>(undefined)
@@ -345,6 +346,8 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
 
       chargeDrawer.open({
         title: translate('text_177213328514118gjrdaqs8s'),
+        form: { id: USAGE_CHARGE_FORM_ID, submit: handleFormSubmit },
+        closeOnSubmitSuccess: false,
         shouldPromptOnClose: () => form.state.isDirty,
         onClose: () => form.reset(),
         onEntered: () => {
@@ -376,42 +379,21 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
             />
           </PlanFormProvider>
         ),
-        actions: (
-          <div
-            className={tw(
-              'flex items-center gap-3',
-              showDelete ? 'w-full justify-between' : 'justify-end',
-            )}
-          >
-            {showDelete && (
-              <Button danger variant="quaternary" onClick={handleDelete}>
-                {translate('text_63ea0f84f400488553caa786')}
-              </Button>
-            )}
-            <div className="flex items-center gap-3">
-              <Button variant="quaternary" onClick={() => chargeDrawer.close()}>
-                {translate('text_6411e6b530cb47007488b027')}
-              </Button>
-              <form.Subscribe
-                selector={({ canSubmit, isSubmitting }) => ({ canSubmit, isSubmitting })}
-              >
-                {({ canSubmit, isSubmitting }) => (
-                  <Button
-                    data-test="usage-charge-drawer-save"
-                    onClick={handleFormSubmit}
-                    disabled={!canSubmit && !isSubmitting}
-                    loading={isSubmitting}
-                  >
-                    {translate(
-                      isCreateModeRef.current
-                        ? 'text_1775225915209vpdyh1dvrm5'
-                        : 'text_17295436903260tlyb1gp1i7',
-                    )}
-                  </Button>
-                )}
-              </form.Subscribe>
-            </div>
-          </div>
+        secondaryAction: showDelete ? (
+          <Button danger variant="quaternary" onClick={handleDelete}>
+            {translate('text_63ea0f84f400488553caa786')}
+          </Button>
+        ) : undefined,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton dataTest="usage-charge-drawer-save">
+              {translate(
+                isCreateModeRef.current
+                  ? 'text_1775225915209vpdyh1dvrm5'
+                  : 'text_17295436903260tlyb1gp1i7',
+              )}
+            </form.SubmitButton>
+          </form.AppForm>
         ),
       })
     }

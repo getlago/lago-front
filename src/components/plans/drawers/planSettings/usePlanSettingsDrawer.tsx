@@ -1,4 +1,3 @@
-import { Button } from '~/components/designSystem/Button'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -57,31 +56,22 @@ export const usePlanSettingsDrawer = (plan: PlanDetailsV2Fragment, subscriptionI
     drawer.open({
       title: translate('text_642d5eb2783a2ad10d67031a'),
       form: { id: PLAN_SETTINGS_FORM_ID, submit: submitForm },
+      closeOnSubmitSuccess: false,
       mainAction: (
-        <form.Subscribe selector={({ canSubmit, isSubmitting }) => ({ canSubmit, isSubmitting })}>
-          {({ canSubmit, isSubmitting }) => (
-            <Button
-              data-test="plan-settings-drawer-save"
-              onClick={submitForm}
-              disabled={!canSubmit && !isSubmitting}
-              loading={isSubmitting}
-            >
-              {translate('text_17295436903260tlyb1gp1i7')}
-            </Button>
-          )}
-        </form.Subscribe>
+        <form.AppForm>
+          <form.SubmitButton dataTest="plan-settings-drawer-save">
+            {translate('text_17295436903260tlyb1gp1i7')}
+          </form.SubmitButton>
+        </form.AppForm>
       ),
       children: (
-        <>
-          <button type="submit" hidden aria-hidden="true" />
-          <PlanSettingsSection
-            form={form}
-            canBeEdited
-            isEdition
-            isInSubscriptionForm={!!subscriptionId}
-            subscriptionFormType={subscriptionId ? FORM_TYPE_ENUM.edition : undefined}
-          />
-        </>
+        <PlanSettingsSection
+          form={form}
+          canBeEdited
+          isEdition
+          isInSubscriptionForm={!!subscriptionId}
+          subscriptionFormType={subscriptionId ? FORM_TYPE_ENUM.edition : undefined}
+        />
       ),
     })
   }
