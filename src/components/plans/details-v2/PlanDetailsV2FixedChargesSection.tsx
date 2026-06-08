@@ -155,6 +155,7 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
         <SectionAccordion
           key={fixedCharge.id}
           id={fixedCharge.id}
+          icon="puzzle"
           title={fixedCharge.invoiceDisplayName || fixedCharge.addOn.name}
           subtitle={fixedCharge.code}
           actions={[

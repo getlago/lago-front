@@ -76,6 +76,7 @@ export const EntitlementAccordion = ({
       {entitlements.map((entitlement) => (
         <SectionAccordion
           key={`entitlement-${entitlement.code}`}
+          icon="switch"
           title={entitlement.name || entitlement.code}
           subtitle={entitlement.code}
           actions={[

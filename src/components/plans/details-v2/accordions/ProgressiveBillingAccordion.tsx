@@ -85,6 +85,7 @@ export const ProgressiveBillingAccordion = ({
 
       {hasThresholds && (
         <SectionAccordion
+          icon="table-horizontale"
           title={translate('text_1724179887722baucvj7bvc1')}
           subtitle={translate('text_1773950414511euzjefq877r', { thresholdCount }, thresholdCount)}
           actions={[

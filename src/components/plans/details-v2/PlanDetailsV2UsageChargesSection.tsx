@@ -203,6 +203,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
         <SectionAccordion
           key={charge.id}
           id={charge.id}
+          icon="pulse"
           title={charge.invoiceDisplayName || charge.billableMetric.name}
           subtitle={charge.code}
           actions={[
@@ -249,6 +250,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
           onSave={handleSaveCharge}
           onDelete={(index) => {
             const target = charges[index]
+
             if (target) handleDeleteCharge(target.id)
           }}
         />

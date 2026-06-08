@@ -113,6 +113,7 @@ export const MinimumCommitmentAccordion = ({
 
       {hasCommitment && (
         <SectionAccordion
+          icon="minus-circle"
           title={commitment?.invoiceDisplayName || translate('text_65d601bffb11e0f9d1d9f569')}
           badge={intervalBadge}
           actions={[
