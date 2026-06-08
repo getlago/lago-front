@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { Typography } from '~/components/designSystem/Typography'
 import {
   type CurrencyEnum,
+  OrderTypeEnum,
   type QuoteDetailItemFragment,
   type UpdateQuoteVersionInput,
 } from '~/generated/graphql'
@@ -77,6 +78,7 @@ const EditQuoteAsideForm = ({
   const { updateQuoteVersion } = useUpdateQuote({ onUpdateFinished: onSaveFinished })
 
   const hasSubscription = !!quote.subscription
+  const isOneOff = quote.orderType === OrderTypeEnum.OneOff
   const versionId = quote.currentVersion.id
 
   const getDefaultValues = (): EditQuoteAsideFormValues => {
@@ -264,27 +266,31 @@ const EditQuoteAsideForm = ({
             </>
           )}
 
-          <Typography
-            variant="caption"
-            color="grey600"
-            data-test={EDIT_QUOTE_ASIDE_START_DATE_TEST_ID}
-          >
-            {translate('text_65201c5a175a4b0238abf29e')}
-          </Typography>
-          <form.AppField name="startDate">
-            {(field) => <field.DatePickerField disabled={hasSubscription} placement="auto" />}
-          </form.AppField>
+          {!isOneOff && (
+            <>
+              <Typography
+                variant="caption"
+                color="grey600"
+                data-test={EDIT_QUOTE_ASIDE_START_DATE_TEST_ID}
+              >
+                {translate('text_65201c5a175a4b0238abf29e')}
+              </Typography>
+              <form.AppField name="startDate">
+                {(field) => <field.DatePickerField disabled={hasSubscription} placement="auto" />}
+              </form.AppField>
 
-          <Typography
-            variant="caption"
-            color="grey600"
-            data-test={EDIT_QUOTE_ASIDE_END_DATE_TEST_ID}
-          >
-            {translate('text_65201c5a175a4b0238abf2a0')}
-          </Typography>
-          <form.AppField name="endDate">
-            {(field) => <field.DatePickerField placement="auto" />}
-          </form.AppField>
+              <Typography
+                variant="caption"
+                color="grey600"
+                data-test={EDIT_QUOTE_ASIDE_END_DATE_TEST_ID}
+              >
+                {translate('text_65201c5a175a4b0238abf2a0')}
+              </Typography>
+              <form.AppField name="endDate">
+                {(field) => <field.DatePickerField placement="auto" />}
+              </form.AppField>
+            </>
+          )}
 
           <Typography
             variant="caption"
