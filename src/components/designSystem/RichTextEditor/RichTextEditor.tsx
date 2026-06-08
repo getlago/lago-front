@@ -16,7 +16,6 @@ import {
 } from './common/RichTextEditorContext'
 import {
   RICH_TEXT_EDITOR_CONTENT_TEST_ID,
-  RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID,
   RICH_TEXT_EDITOR_TEST_ID,
   RICH_TEXT_EDITOR_TOOLBAR_TEST_ID,
 } from './constants'
@@ -39,13 +38,6 @@ import './richTextEditor.css'
 import TableControls from './Table/TableControls'
 import type { EditorTemplate } from './TemplateSelector/types'
 import Toolbar from './Toolbar/Toolbar'
-
-export {
-  RICH_TEXT_EDITOR_CONTENT_TEST_ID,
-  RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID,
-  RICH_TEXT_EDITOR_TEST_ID,
-  RICH_TEXT_EDITOR_TOOLBAR_TEST_ID,
-}
 
 export type RichTextEditorMode = 'edit' | 'preview'
 
@@ -280,7 +272,7 @@ const RichTextEditor = ({
   return (
     <RichTextEditorProvider value={contextValue}>
       <div
-        className={`rich-text-editor relative size-full max-h-screen overflow-auto${!isPreview ? 'group/editor' : ''}`}
+        className={`rich-text-editor relative size-full max-h-screen overflow-auto ${isPreview ? '' : 'group/editor'}`}
         data-test={RICH_TEXT_EDITOR_TEST_ID}
       >
         {!isPreview && <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />}
