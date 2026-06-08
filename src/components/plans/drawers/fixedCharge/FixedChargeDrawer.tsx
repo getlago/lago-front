@@ -155,10 +155,6 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
       },
     })
 
-    const handleFormSubmit = () => {
-      form.handleSubmit()
-    }
-
     const openFixedChargeDrawer = () => {
       const showDelete = !isCreateModeRef.current && !isInSubscriptionForm && !!onDelete
 
@@ -178,7 +174,7 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
 
       fixedChargeDrawer.open({
         title: translate('text_1772133285141kidk35mbh3o'),
-        form: { id: FIXED_CHARGE_FORM_ID, submit: handleFormSubmit },
+        form: { id: FIXED_CHARGE_FORM_ID, submit: form.handleSubmit },
         closeOnSubmitSuccess: false,
         shouldPromptOnClose: () => form.state.isDirty,
         onClose: () => form.reset(),

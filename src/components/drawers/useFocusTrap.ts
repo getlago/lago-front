@@ -51,7 +51,7 @@ export const useFocusTrap = ({
 
   onEnteredRef.current = onEntered
 
-  // Tab trapping — only reactive effect, attaches/detaches keydown listener
+  // Tab trapping - only reactive effect, attaches/detaches keydown listener
   useEffect(() => {
     if (!isActive) return
 

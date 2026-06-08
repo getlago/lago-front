@@ -78,10 +78,6 @@ export const MinimumCommitmentDrawer = forwardRef<
     },
   })
 
-  const handleFormSubmit = () => {
-    form.handleSubmit()
-  }
-
   const openMinimumCommitmentDrawer = () => {
     const showDelete = !isAddModeRef.current && !!onDelete
 
@@ -92,11 +88,11 @@ export const MinimumCommitmentDrawer = forwardRef<
 
     minimumCommitmentDrawer.open({
       title: translate('text_65d601bffb11e0f9d1d9f569'),
-      form: { id: MINIMUM_COMMITMENT_FORM_ID, submit: handleFormSubmit },
+      form: { id: MINIMUM_COMMITMENT_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
       shouldPromptOnClose: () => form.state.isDirty,
       onClose: () => form.reset(),
-      onEntered: (container) => focusFirstInput(container),
+      onEntered: focusFirstInput,
       children: (
         <PlanFormProvider currency={currency} interval={interval}>
           <CenteredPage.SectionWrapper>

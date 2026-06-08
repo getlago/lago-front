@@ -93,7 +93,7 @@ export const buildUpdatePlanFormDefaults = (plan: PlanDetailsV2Fragment): PlanFo
     ...settingsDefaults,
     // PlanSettingsSection only reads fixedCharges.length / charges.length to
     // gate the bill*Monthly switches. We seed length-only stubs and cast to
-    // satisfy PlanFormInput — neither the form nor the mutation touches the
+    // satisfy PlanFormInput - neither the form nor the mutation touches the
     // contents.
     fixedCharges: settingsDefaults.fixedCharges as unknown as PlanFormInput['fixedCharges'],
     charges: settingsDefaults.charges as unknown as PlanFormInput['charges'],

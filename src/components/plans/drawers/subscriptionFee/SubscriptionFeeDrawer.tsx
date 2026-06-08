@@ -77,18 +77,14 @@ export const SubscriptionFeeDrawer = forwardRef<
     },
   })
 
-  const handleFormSubmit = () => {
-    form.handleSubmit()
-  }
-
   const openSubscriptionFeeDrawer = () => {
     subscriptionFeeDrawer.open({
       title: translate('text_642d5eb2783a2ad10d670336'),
-      form: { id: SUBSCRIPTION_FEE_FORM_ID, submit: handleFormSubmit },
+      form: { id: SUBSCRIPTION_FEE_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
       shouldPromptOnClose: () => form.state.isDirty,
       onClose: () => form.reset(),
-      onEntered: (container) => focusFirstInput(container),
+      onEntered: focusFirstInput,
       children: (
         <PlanFormProvider currency={currency} interval={interval}>
           <CenteredPage.SectionWrapper>

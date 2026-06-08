@@ -21,7 +21,7 @@ export const useUpdateSubscriptionPlanOverride = ({ subscriptionId }: Args) => {
     },
   })
 
-  // Plan-level-only overrides. Charges are NEVER sent here — they go through
+  // Plan-level-only overrides. Charges are NEVER sent here - they go through
   // updateSubscriptionCharge. Omitting `charges` preserves existing overrides.
   const updatePlanOverride = async (planOverrides: PlanOverridesInput): Promise<boolean> => {
     // Report success only when the mutation returned the subscription. On error

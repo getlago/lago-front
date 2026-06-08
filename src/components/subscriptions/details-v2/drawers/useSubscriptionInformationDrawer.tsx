@@ -13,7 +13,7 @@ const SUBSCRIPTION_INFORMATION_FORM_ID = 'subscription-information-drawer-form'
 type SubscriptionInformationForm = ReturnType<typeof useUpdateSubscriptionInformation>['form']
 
 // Rendered as the drawer body. It owns the show/hide toggles so that clicking
-// "Add an external id" / "Add a subscription name" re-renders the fields — the
+// "Add an external id" / "Add a subscription name" re-renders the fields - the
 // drawer's `children` is captured once when opened, so keeping this state in the
 // caller would never reach the displayed content.
 const SubscriptionInformationDrawerContent = ({
@@ -61,15 +61,11 @@ export const useSubscriptionInformationDrawer = (
   const openDrawer = () => {
     resetForm()
 
-    const submitForm = () => {
-      form.handleSubmit()
-    }
-
     drawer.open({
       title: translate('text_62d7f6178ec94cd09370e63c'),
-      form: { id: SUBSCRIPTION_INFORMATION_FORM_ID, submit: submitForm },
+      form: { id: SUBSCRIPTION_INFORMATION_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
-      onEntered: (container) => focusFirstInput(container),
+      onEntered: focusFirstInput,
       mainAction: (
         <form.AppForm>
           <form.SubmitButton dataTest="subscription-information-drawer-save">

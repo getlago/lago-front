@@ -59,7 +59,7 @@ export const SubscriptionFeeAccordion = ({
     subscriptionId: subscriptionId ?? '',
   })
 
-  const currency = plan.amountCurrency ?? CurrencyEnum.Usd
+  const currency = plan.amountCurrency || CurrencyEnum.Usd
   const formattedAmount = intlFormatNumber(deserializeAmount(plan.amountCents || 0, currency), {
     currency,
   })

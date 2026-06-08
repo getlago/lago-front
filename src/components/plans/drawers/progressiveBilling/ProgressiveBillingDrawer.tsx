@@ -65,7 +65,7 @@ export const ProgressiveBillingDrawer = forwardRef<
       title: translate('text_1724179887722baucvj7bvc1'),
       shouldPromptOnClose: () => form.state.isDirty,
       onClose: () => form.reset(),
-      onEntered: (container) => focusFirstInput(container),
+      onEntered: focusFirstInput,
       children: (
         <PlanFormProvider currency={currency} interval={interval}>
           <ProgressiveBillingDrawerContent

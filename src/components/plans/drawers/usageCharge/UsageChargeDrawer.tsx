@@ -210,7 +210,7 @@ export const buildUsageChargeDrawerSchema = (requireCode: boolean) =>
       }
     })
 
-// Backward-compatible export (code optional) — kept for existing safeParse tests.
+// Backward-compatible export (code optional) - kept for existing safeParse tests.
 export const usageChargeDrawerSchema = buildUsageChargeDrawerSchema(false)
 
 const USAGE_CHARGE_FORM_ID = 'usage-charge-drawer-form'
@@ -251,7 +251,7 @@ interface UsageChargeDrawerProps {
 }
 
 // ---------------------------------------------------------------------------
-// Drawer wrapper — thin shell that manages form + drawer lifecycle
+// Drawer wrapper - thin shell that manages form + drawer lifecycle
 // ---------------------------------------------------------------------------
 
 export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDrawerProps>(
@@ -323,10 +323,6 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
       },
     })
 
-    const handleFormSubmit = () => {
-      form.handleSubmit()
-    }
-
     const openChargeDrawer = () => {
       const showDelete = !isCreateModeRef.current && !isInSubscriptionForm && !!onDelete
 
@@ -346,7 +342,7 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
 
       chargeDrawer.open({
         title: translate('text_177213328514118gjrdaqs8s'),
-        form: { id: USAGE_CHARGE_FORM_ID, submit: handleFormSubmit },
+        form: { id: USAGE_CHARGE_FORM_ID, submit: form.handleSubmit },
         closeOnSubmitSuccess: false,
         shouldPromptOnClose: () => form.state.isDirty,
         onClose: () => form.reset(),

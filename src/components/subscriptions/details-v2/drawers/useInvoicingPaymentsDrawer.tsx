@@ -21,15 +21,11 @@ export const useInvoicingPaymentsDrawer = (subscription: InvoicingPaymentsSectio
   const openDrawer = () => {
     resetForm()
 
-    const submitForm = () => {
-      form.handleSubmit()
-    }
-
     drawer.open({
       title: translate('text_1780503765268ttscgcx6yo7'),
-      form: { id: INVOICING_PAYMENTS_FORM_ID, submit: submitForm },
+      form: { id: INVOICING_PAYMENTS_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
-      onEntered: (container) => focusFirstInput(container),
+      onEntered: focusFirstInput,
       mainAction: (
         <form.AppForm>
           <form.SubmitButton dataTest="invoicing-payments-drawer-save">

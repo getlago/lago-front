@@ -20,7 +20,7 @@ export const usePlanSettingsDrawer = (plan: PlanDetailsV2Fragment, subscriptionI
     subscriptionId: subscriptionId ?? '',
   })
 
-  // Sub mode: route the editable settings (name + description + taxes — the
+  // Sub mode: route the editable settings (name + description + taxes - the
   // PlanOverridesInput-backed fields not already disabled) through
   // updateSubscription(planOverrides); never call updatePlan, which would
   // mutate the shared base plan (R3). Running it via the form's onSubmit
@@ -58,7 +58,7 @@ export const usePlanSettingsDrawer = (plan: PlanDetailsV2Fragment, subscriptionI
       title: translate('text_642d5eb2783a2ad10d67031a'),
       form: { id: PLAN_SETTINGS_FORM_ID, submit: submitForm },
       closeOnSubmitSuccess: false,
-      onEntered: (container) => focusFirstInput(container),
+      onEntered: focusFirstInput,
       mainAction: (
         <form.AppForm>
           <form.SubmitButton dataTest="plan-settings-drawer-save">
