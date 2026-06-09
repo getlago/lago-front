@@ -47,11 +47,6 @@ export const InvoicingPaymentsSection = ({ subscription }: InvoicingPaymentsSect
   const { hasFeatureFlag } = useOrganizationInfos()
   const { openDrawer } = useInvoicingPaymentsDrawer(subscription)
 
-  // Gated to match today's SubscriptionDetailsOverview PaymentInvoiceDetails block.
-  if (!hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)) {
-    return null
-  }
-
   return (
     <section className="flex flex-col gap-6">
       <SectionHeader
@@ -72,17 +67,19 @@ export const InvoicingPaymentsSection = ({ subscription }: InvoicingPaymentsSect
             : 'text_1778745351091fxaqr5dwok8',
         )}
       />
-      <PaymentInvoiceDetails
-        hideSectionTitle
-        selectedPaymentMethod={{
-          paymentMethodType: subscription.paymentMethodType,
-          paymentMethodId: subscription.paymentMethod?.id,
-        }}
-        externalCustomerId={subscription.customer?.externalId}
-        customerId={subscription.customer?.id}
-        selectedInvoiceCustomSections={subscription.selectedInvoiceCustomSections}
-        skipInvoiceCustomSections={subscription.skipInvoiceCustomSections}
-      />
+      {hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods) && (
+        <PaymentInvoiceDetails
+          hideSectionTitle
+          selectedPaymentMethod={{
+            paymentMethodType: subscription.paymentMethodType,
+            paymentMethodId: subscription.paymentMethod?.id,
+          }}
+          externalCustomerId={subscription.customer?.externalId}
+          customerId={subscription.customer?.id}
+          selectedInvoiceCustomSections={subscription.selectedInvoiceCustomSections}
+          skipInvoiceCustomSections={subscription.skipInvoiceCustomSections}
+        />
+      )}
     </section>
   )
 }

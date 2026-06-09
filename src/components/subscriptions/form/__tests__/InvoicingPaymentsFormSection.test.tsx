@@ -25,6 +25,12 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
+let mockHasFeatureFlag = true
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({ hasFeatureFlag: () => mockHasFeatureFlag }),
+}))
+
 jest.mock('@tanstack/react-form', () => ({
   revalidateLogic: jest.fn(() => ({})),
   useStore: (store: { state: unknown }, selector: (state: unknown) => unknown) =>
@@ -66,6 +72,7 @@ const createMockForm = () => {
 describe('InvoicingPaymentsFormSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasFeatureFlag = true
   })
 
   describe('GIVEN a customer with id', () => {
@@ -104,6 +111,21 @@ describe('InvoicingPaymentsFormSection', () => {
         expect.objectContaining({ fields: { consolidateInvoice: 'consolidateInvoice' } }),
       )
     })
+
+    it('hides PaymentMethodsInvoiceSettings without the MultiplePaymentMethods flag but keeps consolidation', () => {
+      mockHasFeatureFlag = false
+
+      render(
+        <InvoicingPaymentsFormSection
+          // @ts-expect-error — mock form shape
+          form={createMockForm()}
+          customer={{ id: 'cus-1' }}
+        />,
+      )
+
+      expect(mockConsolidationSection).toHaveBeenCalled()
+      expect(mockPaymentMethodsInvoiceSettings).not.toHaveBeenCalled()
+    })
   })
 
   describe('GIVEN a customer with externalId only', () => {
@@ -121,7 +143,7 @@ describe('InvoicingPaymentsFormSection', () => {
   })
 
   describe('GIVEN a customer without id or externalId', () => {
-    it('THEN should not render', () => {
+    it('THEN should render consolidation but not the payment settings', () => {
       render(
         <InvoicingPaymentsFormSection
           // @ts-expect-error — mock form shape
@@ -130,7 +152,8 @@ describe('InvoicingPaymentsFormSection', () => {
         />,
       )
 
-      expect(screen.queryByText('text_1762862388271au34vz50g8i')).not.toBeInTheDocument()
+      expect(screen.getByText('text_1762862388271au34vz50g8i')).toBeInTheDocument()
+      expect(mockConsolidationSection).toHaveBeenCalled()
       expect(mockPaymentMethodsInvoiceSettings).not.toHaveBeenCalled()
     })
   })

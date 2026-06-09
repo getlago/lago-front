@@ -64,12 +64,13 @@ describe('InvoicingPaymentsSection', () => {
     mockHasPermission = true
   })
 
-  it('renders nothing when the MultiplePaymentMethods feature flag is off', () => {
+  it('renders consolidation but hides payment details without the MultiplePaymentMethods flag', () => {
     mockHasFeatureFlag = false
 
     render(<InvoicingPaymentsSection subscription={subscription} />)
 
-    expect(screen.queryByText('text_1762862388271au34vz50g8i')).not.toBeInTheDocument()
+    expect(screen.getByText('text_1762862388271au34vz50g8i')).toBeInTheDocument()
+    expect(screen.getByText('text_177874535109128tmqdq682k')).toBeInTheDocument()
     expect(mockPaymentInvoiceDetails).not.toHaveBeenCalled()
   })
 

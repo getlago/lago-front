@@ -5,9 +5,10 @@ import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoic
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { SubscriptionInvoiceConsolidationSection } from '~/components/subscriptions/SubscriptionInvoiceConsolidationSection'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
-import { Customer, Maybe } from '~/generated/graphql'
+import { Customer, FeatureFlagEnum, Maybe } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { buildSubscriptionDefaultValues } from './buildSubscriptionDefaultValues'
 
@@ -32,13 +33,18 @@ export const InvoicingPaymentsFormSection = withForm({
   props: invoicingPaymentsDefaultProps,
   render: function InvoicingPaymentsFormSection({ form, customer }) {
     const { translate } = useInternationalization()
+    const { hasFeatureFlag } = useOrganizationInfos()
 
     // Reactive store slices - never the non-reactive `form.state.values`
     // snapshot, or dialog edits won't re-render the displayed selection.
     const paymentMethod = useStore(form.store, (s) => s.values.paymentMethod)
     const invoiceCustomSection = useStore(form.store, (s) => s.values.invoiceCustomSection)
 
-    if (!customer?.externalId && !customer?.id) return null
+    // Consolidation is available to every org; only the payment settings need
+    // the flag and a resolved customer (mirrors v1 CreateSubscription).
+    const showPaymentSettings =
+      hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods) &&
+      Boolean(customer?.externalId || customer?.id)
 
     return (
       <CenteredPage.PageSection>
@@ -50,14 +56,16 @@ export const InvoicingPaymentsFormSection = withForm({
           form={form}
           fields={{ consolidateInvoice: 'consolidateInvoice' }}
         />
-        <PaymentMethodsInvoiceSettings
-          customer={customer}
-          form={{
-            values: { paymentMethod, invoiceCustomSection },
-            setFieldValue: form.setFieldValue,
-          }}
-          viewType={ViewTypeEnum.Subscription}
-        />
+        {showPaymentSettings && (
+          <PaymentMethodsInvoiceSettings
+            customer={customer}
+            form={{
+              values: { paymentMethod, invoiceCustomSection },
+              setFieldValue: form.setFieldValue,
+            }}
+            viewType={ViewTypeEnum.Subscription}
+          />
+        )}
       </CenteredPage.PageSection>
     )
   },
