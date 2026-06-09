@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
 
+import { Typography } from '~/components/designSystem/Typography'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { PaymentInvoiceDetails } from '~/components/subscriptions/PaymentInvoiceDetails'
-import { Typography } from '~/components/designSystem/Typography'
 import {
   FeatureFlagEnum,
   InvoicingPaymentsSectionFragment,
