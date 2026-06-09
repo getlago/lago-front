@@ -66,7 +66,6 @@ const createMockForm = () => {
 describe('InvoicingPaymentsFormSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockConsolidationSection.mockClear()
   })
 
   describe('GIVEN a customer with id', () => {
@@ -96,7 +95,7 @@ describe('InvoicingPaymentsFormSection', () => {
       render(
         <InvoicingPaymentsFormSection
           // @ts-expect-error — mock form shape
-          form={createMockForm() as never}
+          form={createMockForm()}
           customer={{ id: 'cus-1' }}
         />,
       )
