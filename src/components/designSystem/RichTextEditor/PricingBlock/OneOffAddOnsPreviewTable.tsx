@@ -29,7 +29,7 @@ export const OneOffAddOnsPreviewTable = ({
       title: translate('text_17804985042415hh3kbs8ksh'),
       maxSpace: true,
       content: (entity) => (
-        <div className="flex flex-col gap-1 py-4">
+        <div className="flex flex-col gap-1">
           <Typography variant="bodyHl" color="grey700">
             {entity.invoiceDisplayName || entity.name}
           </Typography>
@@ -101,7 +101,7 @@ export const OneOffAddOnsPreviewTable = ({
         data={entities}
         columns={columns}
         footer={
-          <Typography variant="body" color="grey700" className="mt-3 text-right">
+          <Typography variant="caption" className="mt-3 text-right">
             {translate('text_17804985042422iw5hwj0u2v')}
           </Typography>
         }

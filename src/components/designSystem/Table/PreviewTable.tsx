@@ -8,6 +8,7 @@ import { ReactNode } from 'react'
 import { theme } from '~/styles'
 import { tw } from '~/styles/utils'
 
+import TableCell from './TableCell'
 import TableInnerCell from './TableInnerCell'
 import type { Align } from './types'
 
@@ -83,7 +84,7 @@ export const PreviewTable = <T,>({
                 }}
               >
                 <TableInnerCell className="min-h-10" align={column.textAlign}>
-                  <Typography variant="caption" color="grey600">
+                  <Typography variant="captionHl" color="grey600">
                     {column.title}
                   </Typography>
                 </TableInnerCell>
@@ -102,25 +103,16 @@ export const PreviewTable = <T,>({
               }}
             >
               {columns.map((column, j) => (
-                <MUITableCell
-                  className={tw('lago-table-cell', 'w-auto p-0')}
+                <TableCell
                   key={`${TABLE_ID}-cell-${i}-${j}`}
                   align={column.textAlign || 'left'}
-                  style={{
-                    width:
-                      column.maxSpace && maxSpaceColumns > 0 ? `${100 / maxSpaceColumns}%` : 'auto',
-                    minWidth: column.minWidth ? `${column.minWidth}px` : undefined,
-                  }}
-                  sx={{
-                    '& > div': { paddingRight: '32px' },
-                    '&:first-of-type > div': { paddingLeft: 0 },
-                    '&:last-of-type > div': { paddingRight: 0 },
-                  }}
+                  maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
+                  className="align-top"
                 >
                   <TableInnerCell align={column.textAlign}>
                     {column.content(item, i)}
                   </TableInnerCell>
-                </MUITableCell>
+                </TableCell>
               ))}
             </MUITableRow>
           ))}
