@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 
-import { Typography } from '~/components/designSystem/Typography'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { PaymentInvoiceDetails } from '~/components/subscriptions/PaymentInvoiceDetails'
 import {
@@ -64,18 +64,14 @@ export const InvoicingPaymentsSection = ({ subscription }: InvoicingPaymentsSect
           hidden: !hasPermissions(['subscriptionsUpdate']),
         }}
       />
-      <div className="flex flex-col gap-1">
-        <Typography variant="captionHl" color="grey600">
-          {translate('text_177874535109128tmqdq682k')}
-        </Typography>
-        <Typography variant="body" color="grey700">
-          {translate(
-            subscription.consolidateInvoice
-              ? 'text_1778745351091h7z5baw0ta6'
-              : 'text_1778745351091fxaqr5dwok8',
-          )}
-        </Typography>
-      </div>
+      <DetailsPage.InfoGridItem
+        label={translate('text_177874535109128tmqdq682k')}
+        value={translate(
+          subscription.consolidateInvoice
+            ? 'text_1778745351091h7z5baw0ta6'
+            : 'text_1778745351091fxaqr5dwok8',
+        )}
+      />
       <PaymentInvoiceDetails
         hideSectionTitle
         selectedPaymentMethod={{

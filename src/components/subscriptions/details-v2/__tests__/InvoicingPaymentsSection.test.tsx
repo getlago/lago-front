@@ -122,5 +122,6 @@ describe('InvoicingPaymentsSection', () => {
     render(<InvoicingPaymentsSection subscription={subscriptionConsolidationOff} />)
 
     expect(screen.getByText('text_1778745351091fxaqr5dwok8')).toBeInTheDocument()
+    expect(screen.queryByText('text_1778745351091h7z5baw0ta6')).not.toBeInTheDocument()
   })
 })
