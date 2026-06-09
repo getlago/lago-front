@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { PaymentInvoiceDetails } from '~/components/subscriptions/PaymentInvoiceDetails'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   FeatureFlagEnum,
   InvoicingPaymentsSectionFragment,
@@ -16,6 +17,7 @@ import { useInvoicingPaymentsDrawer } from './drawers/useInvoicingPaymentsDrawer
 gql`
   fragment InvoicingPaymentsSection on Subscription {
     id
+    consolidateInvoice
     paymentMethodType
     paymentMethod {
       id
@@ -62,6 +64,18 @@ export const InvoicingPaymentsSection = ({ subscription }: InvoicingPaymentsSect
           hidden: !hasPermissions(['subscriptionsUpdate']),
         }}
       />
+      <div className="flex flex-col gap-1">
+        <Typography variant="captionHl" color="grey600">
+          {translate('text_177874535109128tmqdq682k')}
+        </Typography>
+        <Typography variant="body" color="grey700">
+          {translate(
+            subscription.consolidateInvoice
+              ? 'text_1778745351091h7z5baw0ta6'
+              : 'text_1778745351091fxaqr5dwok8',
+          )}
+        </Typography>
+      </div>
       <PaymentInvoiceDetails
         hideSectionTitle
         selectedPaymentMethod={{
