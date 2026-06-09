@@ -238,6 +238,37 @@ describe('InvoiceDetailsTableFooter', () => {
         expect(screen.queryByTestId(REGENERATE_ALERT_TEST_ID)).not.toBeInTheDocument()
       })
     })
+
+    describe('WHEN there is a progressive billing credit and fees are recomputed', () => {
+      it('THEN the total should subtract the progressive billing credit', () => {
+        const invoice = createMockInvoice({
+          status: InvoiceStatusTypeEnum.Voided,
+          progressiveBillingCreditAmountCents: '50000',
+          appliedTaxes: [],
+        })
+
+        const invoiceFees: FeeForInvoiceDetailsTableFooterFragment[] = [
+          { id: 'fee-1', amountCents: '80000' },
+        ]
+
+        render(
+          <table>
+            <InvoiceDetailsTableFooter
+              canHaveUnitPrice={false}
+              invoice={invoice}
+              invoiceFees={invoiceFees}
+              isRegenerateFlow={true}
+            />
+          </table>,
+        )
+
+        // Subtotal incl. tax is $800.00, progressive billing credit is -$500.00,
+        // so the total must reflect the deduction: $300.00 (not $800.00).
+        expect(screen.getByTestId('invoice-details-table-footer-total-value').textContent).toBe(
+          '$300.00',
+        )
+      })
+    })
   })
 
   describe('GIVEN the invoice has applied taxes', () => {
