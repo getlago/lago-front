@@ -85,16 +85,19 @@ export const ProgressiveBillingAccordion = ({
 
       {hasThresholds && (
         <SectionAccordion
+          icon="table-horizontale"
           title={translate('text_1724179887722baucvj7bvc1')}
           subtitle={translate('text_1773950414511euzjefq877r', { thresholdCount }, thresholdCount)}
           actions={[
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
+              startIcon: 'pen',
               onClick: openEditDrawer,
               hidden: !canUpdate,
             },
             {
               label: translate('text_63ea0f84f400488553caa786'),
+              startIcon: 'trash',
               onClick: () => void handleDelete(),
               hidden: !canDelete,
             },

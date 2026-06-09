@@ -564,6 +564,22 @@ describe('UsageChargeDrawerContent', () => {
 
         expect(lastChargePayInAdvanceOptionProps.disabled).toBe(true)
       })
+
+      it('THEN the charge code field should be disabled', () => {
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode={false}
+            isEdition
+            disabled
+            editIndex={0}
+            currency="USD"
+            interval="monthly"
+            showCode
+          />,
+        )
+
+        expect(screen.getByTestId('charge-code-field')).toHaveAttribute('data-disabled', 'true')
+      })
     })
   })
 
@@ -602,6 +618,22 @@ describe('UsageChargeDrawerContent', () => {
         renderNewChargeOnSubscribedPlan()
 
         expect(lastChargePayInAdvanceOptionProps.disabled).toBe(false)
+      })
+
+      it('THEN the charge code field should NOT be disabled (new charge)', () => {
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode={false}
+            isEdition
+            disabled
+            editIndex={0}
+            currency="USD"
+            interval="monthly"
+            showCode
+          />,
+        )
+
+        expect(screen.getByTestId('charge-code-field')).toHaveAttribute('data-disabled', 'false')
       })
     })
   })

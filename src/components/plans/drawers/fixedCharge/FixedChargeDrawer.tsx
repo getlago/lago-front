@@ -1,10 +1,10 @@
 import { revalidateLogic } from '@tanstack/react-form'
-import { tw } from 'lago-design-system'
 import { forwardRef, useImperativeHandle, useRef } from 'react'
 import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
-import { useDrawer } from '~/components/drawers/useDrawer'
+import { useFormDrawer } from '~/components/drawers/useDrawer'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import {
   applyExistingCodeError,
   buildChargeCodeSchema,
@@ -31,6 +31,8 @@ import { DEFAULT_VALUES } from './constants'
 import { FixedChargeDrawerContent } from './FixedChargeDrawerContent'
 
 export { type FixedChargeDrawerFormValues, DEFAULT_VALUES } from './constants'
+
+const FIXED_CHARGE_FORM_ID = 'fixed-charge-drawer-form'
 
 // `code` is only required when the field is shown (v2 details/edition via
 // `showCode`); the legacy plan form keeps it optional so its hidden, empty code
@@ -108,7 +110,7 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
     const { translate } = useInternationalization()
     const { currency, interval } = usePlanFormContext()
     const { type: actionType } = useDuplicatePlanVar()
-    const fixedChargeDrawer = useDrawer()
+    const fixedChargeDrawer = useFormDrawer()
     const editIndexRef = useRef<number>(-1)
     const alertMessageRef = useRef<string | undefined>(undefined)
     const isCreateModeRef = useRef(false)
@@ -154,10 +156,6 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
       },
     })
 
-    const handleFormSubmit = () => {
-      form.handleSubmit()
-    }
-
     const openFixedChargeDrawer = () => {
       const showDelete = !isCreateModeRef.current && !isInSubscriptionForm && !!onDelete
 
@@ -177,16 +175,23 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
 
       fixedChargeDrawer.open({
         title: translate('text_1772133285141kidk35mbh3o'),
+        form: { id: FIXED_CHARGE_FORM_ID, submit: form.handleSubmit },
+        closeOnSubmitSuccess: false,
         shouldPromptOnClose: () => form.state.isDirty,
         onClose: () => form.reset(),
-        onEntered: () => {
-          if (!shouldFocusComboBoxRef.current) return
-          shouldFocusComboBoxRef.current = false
-          ;(
-            document.querySelector(
-              `.${SEARCH_ADD_ON_IN_FIXED_CHARGE_DRAWER_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-            ) as HTMLElement
-          )?.click()
+        onEntered: (container) => {
+          if (shouldFocusComboBoxRef.current) {
+            shouldFocusComboBoxRef.current = false
+            container
+              .querySelector<HTMLElement>(
+                `.${SEARCH_ADD_ON_IN_FIXED_CHARGE_DRAWER_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+              )
+              ?.click()
+
+            return
+          }
+
+          focusFirstInput(container)
         },
         children: (
           <PlanFormProvider currency={currency} interval={interval}>
@@ -202,39 +207,21 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
             />
           </PlanFormProvider>
         ),
-        actions: (
-          <div
-            className={tw(
-              'flex items-center gap-3',
-              showDelete ? 'w-full justify-between' : 'justify-end',
-            )}
-          >
-            {showDelete && (
-              <Button danger variant="quaternary" onClick={handleDelete}>
-                {translate('text_63ea0f84f400488553caa786')}
-              </Button>
-            )}
-            <div className="flex items-center gap-3">
-              <Button variant="quaternary" onClick={() => fixedChargeDrawer.close()}>
-                {translate('text_6411e6b530cb47007488b027')}
-              </Button>
-              <form.Subscribe selector={({ canSubmit }) => canSubmit}>
-                {(canSubmit) => (
-                  <Button
-                    data-test="fixed-charge-drawer-save"
-                    onClick={handleFormSubmit}
-                    disabled={!canSubmit}
-                  >
-                    {translate(
-                      isCreateModeRef.current
-                        ? 'text_1775225915209vpdyh1dvrm5'
-                        : 'text_17295436903260tlyb1gp1i7',
-                    )}
-                  </Button>
-                )}
-              </form.Subscribe>
-            </div>
-          </div>
+        secondaryAction: showDelete ? (
+          <Button danger variant="quaternary" onClick={handleDelete}>
+            {translate('text_63ea0f84f400488553caa786')}
+          </Button>
+        ) : undefined,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton dataTest="fixed-charge-drawer-save">
+              {translate(
+                isCreateModeRef.current
+                  ? 'text_1775225915209vpdyh1dvrm5'
+                  : 'text_17295436903260tlyb1gp1i7',
+              )}
+            </form.SubmitButton>
+          </form.AppForm>
         ),
       })
     }

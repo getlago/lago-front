@@ -22,9 +22,15 @@ jest.mock('../UsageChargeDrawerContent', () => ({
   UsageChargeDrawerContent: () => <div data-test="usage-charge-drawer-content" />,
 }))
 
+const mockFormDrawerOpen = jest.fn()
+
 jest.mock('~/components/drawers/useDrawer', () => ({
   useDrawer: () => ({
     open: jest.fn(),
+    close: jest.fn(),
+  }),
+  useFormDrawer: () => ({
+    open: mockFormDrawerOpen,
     close: jest.fn(),
   }),
 }))
@@ -321,6 +327,28 @@ describe('UsageChargeDrawer', () => {
           }),
           { keepDefaultValues: true },
         )
+      })
+    })
+  })
+
+  // Guards the migration to the shared form drawer + form.SubmitButton: the
+  // drawer must keep owning its own close (close on success, stay open on a
+  // failed mutation) by opting out of the form drawer's auto-close.
+  describe('GIVEN the drawer is opened', () => {
+    describe('WHEN the form drawer is wired', () => {
+      it('THEN passes a form id, a submit handler and keeps its own close ownership', () => {
+        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        drawerRef.current?.openDrawer()
+
+        expect(mockFormDrawerOpen).toHaveBeenCalledTimes(1)
+
+        const openArgs = mockFormDrawerOpen.mock.calls[0][0]
+
+        expect(openArgs.form?.id).toBe('usage-charge-drawer-form')
+        expect(typeof openArgs.form?.submit).toBe('function')
+        expect(openArgs.closeOnSubmitSuccess).toBe(false)
+        expect(openArgs.mainAction).toBeDefined()
       })
     })
   })

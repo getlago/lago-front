@@ -45,6 +45,7 @@ export const SubscriptionInformationSection = ({
         description={translate('text_66630368f4333b00795b0e1c')}
         action={{
           label: translate('text_63e51ef4985f0ebd75c212fc'),
+          startIcon: 'pen',
           onClick: openDrawer,
           hidden: !hasPermissions(['subscriptionsUpdate']),
         }}

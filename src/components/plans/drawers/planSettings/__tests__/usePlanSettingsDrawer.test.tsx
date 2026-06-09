@@ -255,6 +255,28 @@ describe('usePlanSettingsDrawer', () => {
     })
   })
 
+  describe('GIVEN a plan with subscriptions (plan-edit mode, no subscriptionId)', () => {
+    it('locks the code field (ISO with the plan form)', async () => {
+      openDrawer({ ...planDetailsV2Fixture, subscriptionsCount: 5 })
+
+      renderDrawerBody()
+
+      await waitFor(() => screen.getByDisplayValue('pro'))
+
+      expect(screen.getByDisplayValue('pro')).toBeDisabled()
+    })
+
+    it('keeps the code field editable when the plan has no subscriptions', async () => {
+      openDrawer({ ...planDetailsV2Fixture, subscriptionsCount: 0 })
+
+      renderDrawerBody()
+
+      await waitFor(() => screen.getByDisplayValue('pro'))
+
+      expect(screen.getByDisplayValue('pro')).not.toBeDisabled()
+    })
+  })
+
   it('opens the cascade dialog when plan has overridden subs', async () => {
     openDrawer(
       { ...planDetailsV2Fixture, hasOverriddenPlans: true },

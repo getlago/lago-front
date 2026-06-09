@@ -3,7 +3,6 @@ import { useStore } from '@tanstack/react-form'
 import { Dispatch, SetStateAction, useMemo } from 'react'
 
 import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
-import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
@@ -132,10 +131,6 @@ export const SubscriptionInformationFormSection = withForm({
 
     return (
       <CenteredPage.PageSection>
-        {!subscription?.plan.parent && formType === FORM_TYPE_ENUM.edition && (
-          <Alert type="info">{translate('text_652525609f420d00b83dd602')}</Alert>
-        )}
-
         <CenteredPage.PageSectionTitle
           title={translate('text_17791987800304a3fihrighy')}
           description={translate('text_66630368f4333b00795b0e1c')}
@@ -148,7 +143,11 @@ export const SubscriptionInformationFormSection = withForm({
                 {(field) => (
                   <field.TextInputField
                     disabled={formType !== FORM_TYPE_ENUM.creation}
-                    label={translate('text_642a94e522316cd9e1875224')}
+                    label={
+                      formType === FORM_TYPE_ENUM.creation
+                        ? translate('text_642a94e522316cd9e1875224')
+                        : translate('text_178060441947738s33pstvzp')
+                    }
                     placeholder={translate('text_642ac1d1407baafb9e4390ee')}
                     helperText={translate('text_642ac28c65c2180085afe31a')}
                   />

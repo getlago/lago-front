@@ -48,6 +48,12 @@ const subscription = {
   skipInvoiceCustomSections: false,
   selectedInvoiceCustomSections: [{ id: 'ics-1', name: 'Bank details' }],
   customer: { id: 'cust-1', externalId: 'cust-ext-1' },
+  consolidateInvoice: true,
+} as unknown as InvoicingPaymentsSectionFragment
+
+const subscriptionConsolidationOff = {
+  ...subscription,
+  consolidateInvoice: false,
 } as unknown as InvoicingPaymentsSectionFragment
 
 describe('InvoicingPaymentsSection', () => {
@@ -58,12 +64,13 @@ describe('InvoicingPaymentsSection', () => {
     mockHasPermission = true
   })
 
-  it('renders nothing when the MultiplePaymentMethods feature flag is off', () => {
+  it('renders consolidation but hides payment details without the MultiplePaymentMethods flag', () => {
     mockHasFeatureFlag = false
 
     render(<InvoicingPaymentsSection subscription={subscription} />)
 
-    expect(screen.queryByText('text_1762862388271au34vz50g8i')).not.toBeInTheDocument()
+    expect(screen.getByText('text_1762862388271au34vz50g8i')).toBeInTheDocument()
+    expect(screen.getByText('text_177874535109128tmqdq682k')).toBeInTheDocument()
     expect(mockPaymentInvoiceDetails).not.toHaveBeenCalled()
   })
 
@@ -103,5 +110,19 @@ describe('InvoicingPaymentsSection', () => {
     expect(
       screen.queryByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('renders the consolidation choice read-only', () => {
+    render(<InvoicingPaymentsSection subscription={subscription} />)
+
+    expect(screen.getByText('text_177874535109128tmqdq682k')).toBeInTheDocument()
+    expect(screen.getByText('text_1778745351091h7z5baw0ta6')).toBeInTheDocument()
+  })
+
+  it('renders the separated-invoices label when consolidation is off', () => {
+    render(<InvoicingPaymentsSection subscription={subscriptionConsolidationOff} />)
+
+    expect(screen.getByText('text_1778745351091fxaqr5dwok8')).toBeInTheDocument()
+    expect(screen.queryByText('text_1778745351091h7z5baw0ta6')).not.toBeInTheDocument()
   })
 })

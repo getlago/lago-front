@@ -43,6 +43,7 @@ const basePlan = {
   trialPeriod: 0,
   invoiceDisplayName: null,
   hasOverriddenPlans: false,
+  subscriptionsCount: 0,
   billFixedChargesMonthly: false,
   billChargesMonthly: false,
   taxes: [],
@@ -86,6 +87,7 @@ describe('buildUpdatePlanFormDefaults', () => {
       amountCurrency: CurrencyEnum.Usd,
       amountCents: '0',
       payInAdvance: false,
+      subscriptionsCount: 0,
       minimumCommitment: {
         amountCents: 5000,
         commitmentType: CommitmentTypeEnum.MinimumCommitment,
@@ -407,6 +409,34 @@ describe('useUpdatePlanWithCascade', () => {
           thresholdDisplayName: null,
         }),
       ])
+    })
+
+    it('sends usageThresholds: [] when all thresholds are deleted so the API clears them', async () => {
+      const planWithThresholds = {
+        ...basePlan,
+        usageThresholds: [
+          { id: 'u1', amountCents: 10000, recurring: false, thresholdDisplayName: null },
+          { id: 'u2', amountCents: 20000, recurring: true, thresholdDisplayName: null },
+        ],
+      } as PlanDetailsV2Fragment
+
+      const { result } = renderHook(
+        () => useUpdatePlanWithCascade({ plan: planWithThresholds, includeAdvancedFields: true }),
+        { wrapper: wrapper([capturingUpdateMock]) },
+      )
+
+      await act(async () => {
+        await result.current.applyAndSubmit(() => {
+          result.current.form.setFieldValue('nonRecurringUsageThresholds', undefined)
+          result.current.form.setFieldValue('recurringUsageThreshold', undefined)
+        })
+      })
+
+      await waitFor(() => {
+        expect(capturedUpdateInput).toBeDefined()
+      })
+
+      expect(capturedUpdateInput?.usageThresholds).toEqual([])
     })
 
     it('strips display-only entitlement fields from the payload when included', async () => {

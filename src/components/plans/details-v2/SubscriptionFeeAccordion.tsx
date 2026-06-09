@@ -9,9 +9,14 @@ import {
 } from '~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer'
 import { SubscriptionFeeInfo } from '~/components/plans/SubscriptionFeeInfo'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
-import { getIntervalTranslationKey } from '~/core/constants/form'
-import { serializeAmount } from '~/core/serializers/serializeAmount'
-import { PlanDetailsV2Fragment, PlanForUpdateWithCascadeFragmentDoc } from '~/generated/graphql'
+import { FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
+import {
+  CurrencyEnum,
+  PlanDetailsV2Fragment,
+  PlanForUpdateWithCascadeFragmentDoc,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
 import { useUpdatePlanWithCascade } from '~/hooks/plans/useUpdatePlanWithCascade'
@@ -22,6 +27,7 @@ import { PlanDetailsV2SectionId } from './sidebarSections'
 
 gql`
   fragment PlanForDetailsV2SubscriptionFeeAccordion on Plan {
+    subscriptionsCount
     amountCents
     payInAdvance
     trialPeriod
@@ -49,15 +55,31 @@ export const SubscriptionFeeAccordion = ({
   const { canUpdate } = useAccordionPermissions(isInSubscriptionForm)
   const drawerRef = useRef<SubscriptionFeeDrawerRef>(null)
 
+  // ISO with the plan form: payInAdvance + trialPeriod lock once the plan has
+  // subscriptions. Sub mode keeps its own gating (isInSubscriptionForm +
+  // subscriptionFormType), so the subscription-count lock does not apply there.
+  const canBeEdited = subscriptionId ? true : !plan.subscriptionsCount
+  const subscriptionFormType = subscriptionId ? FORM_TYPE_ENUM.edition : undefined
+
   const { form, submit } = useUpdatePlanWithCascade({ plan })
   const { updatePlanOverride } = useUpdateSubscriptionPlanOverride({
     subscriptionId: subscriptionId ?? '',
   })
 
+  const currency = plan.amountCurrency || CurrencyEnum.Usd
+  const formattedAmount = intlFormatNumber(deserializeAmount(plan.amountCents || 0, currency), {
+    currency,
+  })
+
   const openDrawer = () => {
     drawerRef.current?.openDrawer({
+      // plan.amountCents is serialized (cents) from the API; the drawer input
+      // edits display units, so deserialize first (the plan-form path already
+      // holds display units in its form store, hence the difference).
       amountCents:
-        plan.amountCents !== null && plan.amountCents !== undefined ? String(plan.amountCents) : '',
+        plan.amountCents !== null && plan.amountCents !== undefined
+          ? String(deserializeAmount(plan.amountCents, currency))
+          : '',
       payInAdvance: plan.payInAdvance ?? false,
       trialPeriod: plan.trialPeriod ?? 0,
       invoiceDisplayName: plan.invoiceDisplayName ?? undefined,
@@ -91,10 +113,12 @@ export const SubscriptionFeeAccordion = ({
       <SectionAccordion
         id={PlanDetailsV2SectionId.SubscriptionFee}
         title={plan.invoiceDisplayName || translate('text_642d5eb2783a2ad10d670336')}
+        subtitle={formattedAmount}
         badge={intervalBadge}
         actions={[
           {
             label: translate('text_63e51ef4985f0ebd75c212fc'),
+            startIcon: 'pen',
             onClick: openDrawer,
             hidden: !canUpdate,
           },
@@ -104,7 +128,14 @@ export const SubscriptionFeeAccordion = ({
       </SectionAccordion>
 
       <PlanFormProvider currency={plan.amountCurrency} interval={plan.interval}>
-        <SubscriptionFeeDrawer ref={drawerRef} onSave={handleDrawerSave} isEdition />
+        <SubscriptionFeeDrawer
+          ref={drawerRef}
+          onSave={handleDrawerSave}
+          isEdition
+          canBeEdited={canBeEdited}
+          isInSubscriptionForm={isInSubscriptionForm}
+          subscriptionFormType={subscriptionFormType}
+        />
       </PlanFormProvider>
     </>
   )

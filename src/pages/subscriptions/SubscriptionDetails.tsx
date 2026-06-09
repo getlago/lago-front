@@ -146,20 +146,76 @@ const SubscriptionDetails = () => {
     }
 
     return [
+      isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE)
+        ? {
+            title: translate('text_628cf761cbe6820138b8f2e4'),
+            link: !!customerId
+              ? getCustomerSubscriptionDetailsRoute(
+                  CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
+                )
+              : getPlanSubscriptionDetailsRoute(
+                  CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
+                ),
+            match: [
+              getCustomerSubscriptionDetailsRoute(
+                CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
+              ),
+              getPlanSubscriptionDetailsRoute(
+                CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
+              ),
+            ],
+            content: (
+              <DetailsPage.Container>
+                <SubscriptionDetailsV2Overview subscriptionId={subscriptionId as string} />
+              </DetailsPage.Container>
+            ),
+            hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
+          }
+        : {
+            title: translate('text_628cf761cbe6820138b8f2e4'),
+            link: !!customerId
+              ? getCustomerSubscriptionDetailsRoute(
+                  CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+                )
+              : getPlanSubscriptionDetailsRoute(
+                  CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+                ),
+            match: [
+              getCustomerSubscriptionDetailsRoute(
+                CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+              ),
+              getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
+            ],
+            content: (
+              <DetailsPage.Container>
+                <SubscriptionDetailsOverview />
+              </DetailsPage.Container>
+            ),
+          },
+
       {
-        title: translate('text_628cf761cbe6820138b8f2e4'),
+        title: translate('text_17792001643316pbexygvpu2'),
         link: !!customerId
-          ? getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview)
-          : getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
+          ? getCustomerSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+            )
+          : getPlanSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+            ),
         match: [
-          getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
-          getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
+          getCustomerSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+          ),
+          getPlanSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+          ),
         ],
         content: (
-          <DetailsPage.Container>
-            <SubscriptionDetailsOverview />
+          <DetailsPage.Container className="pb-0">
+            <SubscriptionDetailsV2Plan subscriptionId={subscriptionId as string} />
           </DetailsPage.Container>
         ),
+        hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
       },
       {
         title: translate('text_1724179887722baucvj7bvc1'),
@@ -265,52 +321,6 @@ const SubscriptionDetails = () => {
           </DetailsPage.Container>
         ),
         hidden: !subscription?.externalId || !isPremium || !hasPermissions(['auditLogsView']),
-      },
-      {
-        title: translate('text_17792001643312864fz7j4gq'),
-        link: !!customerId
-          ? getCustomerSubscriptionDetailsRoute(
-              CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-            )
-          : getPlanSubscriptionDetailsRoute(
-              CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-            ),
-        match: [
-          getCustomerSubscriptionDetailsRoute(
-            CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-          ),
-          getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.editOverview),
-        ],
-        content: (
-          <DetailsPage.Container>
-            <SubscriptionDetailsV2Overview subscriptionId={subscriptionId as string} />
-          </DetailsPage.Container>
-        ),
-        hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
-      },
-      {
-        title: translate('text_17792001643316pbexygvpu2'),
-        link: !!customerId
-          ? getCustomerSubscriptionDetailsRoute(
-              CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
-            )
-          : getPlanSubscriptionDetailsRoute(
-              CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
-            ),
-        match: [
-          getCustomerSubscriptionDetailsRoute(
-            CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
-          ),
-          getPlanSubscriptionDetailsRoute(
-            CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
-          ),
-        ],
-        content: (
-          <DetailsPage.Container className="pb-0">
-            <SubscriptionDetailsV2Plan subscriptionId={subscriptionId as string} />
-          </DetailsPage.Container>
-        ),
-        hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
       },
     ]
   }, [
