@@ -3,6 +3,7 @@ import { useStore } from '@tanstack/react-form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { SubscriptionInvoiceConsolidationSection } from '~/components/subscriptions/SubscriptionInvoiceConsolidationSection'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { Customer, Maybe } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -44,6 +45,10 @@ export const InvoicingPaymentsFormSection = withForm({
         <CenteredPage.PageSectionTitle
           title={translate('text_1762862388271au34vz50g8i')}
           description={translate('text_1779198780030g64up7d4imi')}
+        />
+        <SubscriptionInvoiceConsolidationSection
+          form={form}
+          fields={{ consolidateInvoice: 'consolidateInvoice' }}
         />
         <PaymentMethodsInvoiceSettings
           customer={customer}

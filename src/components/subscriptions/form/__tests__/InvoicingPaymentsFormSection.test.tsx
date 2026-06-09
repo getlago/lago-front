@@ -5,10 +5,18 @@ import { render } from '~/test-utils'
 import { InvoicingPaymentsFormSection } from '../InvoicingPaymentsFormSection'
 
 const mockPaymentMethodsInvoiceSettings: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
+const mockConsolidationSection: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 
 jest.mock('~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings', () => ({
   PaymentMethodsInvoiceSettings: (props: Record<string, unknown>) => {
     mockPaymentMethodsInvoiceSettings(props)
+    return null
+  },
+}))
+
+jest.mock('~/components/subscriptions/SubscriptionInvoiceConsolidationSection', () => ({
+  SubscriptionInvoiceConsolidationSection: (props: Record<string, unknown>) => {
+    mockConsolidationSection(props)
     return null
   },
 }))
@@ -58,6 +66,7 @@ const createMockForm = () => {
 describe('InvoicingPaymentsFormSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockConsolidationSection.mockClear()
   })
 
   describe('GIVEN a customer with id', () => {
@@ -80,6 +89,20 @@ describe('InvoicingPaymentsFormSection', () => {
             setFieldValue: expect.any(Function),
           }),
         }),
+      )
+    })
+
+    it('THEN should render the consolidation field group wired to consolidateInvoice', () => {
+      render(
+        <InvoicingPaymentsFormSection
+          // @ts-expect-error — mock form shape
+          form={createMockForm() as never}
+          customer={{ id: 'cus-1' }}
+        />,
+      )
+
+      expect(mockConsolidationSection).toHaveBeenCalledWith(
+        expect.objectContaining({ fields: { consolidateInvoice: 'consolidateInvoice' } }),
       )
     })
   })
