@@ -17,6 +17,7 @@ import { SubscriptionFeeAccordion } from './SubscriptionFeeAccordion'
 
 gql`
   fragment PlanForDetailsV2PlanSettingsSection on Plan {
+    subscriptionsCount
     ...PlanForUpdateWithCascade
     ...PlanForDetailsV2SubscriptionFeeAccordion
   }

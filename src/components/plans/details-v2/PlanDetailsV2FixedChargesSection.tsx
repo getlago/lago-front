@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef } from 'react'
+import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
 import {
@@ -7,6 +7,10 @@ import {
   FixedChargeDrawerRef,
 } from '~/components/plans/drawers/fixedCharge/FixedChargeDrawer'
 import { FixedChargeInfo } from '~/components/plans/FixedChargeInfo'
+import {
+  RemoveChargeWarningDialog,
+  RemoveChargeWarningDialogRef,
+} from '~/components/plans/RemoveChargeWarningDialog'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
@@ -59,6 +63,7 @@ gql`
   fragment PlanForDetailsV2FixedChargesSection on Plan {
     id
     hasOverriddenPlans
+    subscriptionsCount
     interval
     amountCurrency
     billFixedChargesMonthly
@@ -116,18 +121,60 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
   const { translate } = useInternationalization()
   const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
   const drawerRef = useRef<FixedChargeDrawerRef>(null)
+  const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
 
   const { handleSaveCharge, handleDeleteCharge } = fixedChargeMutations
+
+  const fixedCharges = plan.fixedCharges ?? []
+  const isEmpty = fixedCharges.length === 0
+  // ISO with the plan form: existing charges lock once the plan has subscriptions.
+  // Sub mode keeps its own gating (driven by isInSubscriptionForm), so the
+  // subscription-count lock does not apply there.
+  const canBeEdited = isInSubscriptionForm ? true : !plan.subscriptionsCount
+  // ISO with the plan form: deleting a charge that is live on subscriptions
+  // prompts a confirmation. Every listed charge is persisted, so this reduces
+  // to "the plan has subscriptions" (canBeEdited === false).
+  const isUsedInSubscription = !canBeEdited
+
+  // ISO with the plan form: warn when the same add-on backs more than one fixed
+  // charge (count per add-on id, alert when > 1).
+  const fixedChargeCountByAddOnId = useMemo(() => {
+    const counts = new Map<string, number>()
+
+    for (const fixedCharge of fixedCharges) {
+      counts.set(fixedCharge.addOn.id, (counts.get(fixedCharge.addOn.id) || 0) + 1)
+    }
+
+    return counts
+  }, [fixedCharges])
 
   const openCreate = () => drawerRef.current?.openDrawer()
 
   useImperativeHandle(ref, () => ({ openCreate }))
 
-  const openEdit = (charge: LocalFixedChargeInput, index: number) =>
-    drawerRef.current?.openDrawer(charge, index)
+  const openEdit = (charge: LocalFixedChargeInput, index: number) => {
+    const alreadyUsedChargeAlertMessage =
+      (fixedChargeCountByAddOnId.get(charge.addOn.id) || 0) > 1
+        ? translate('text_1760729707268h378x60alri')
+        : undefined
 
-  const fixedCharges = plan.fixedCharges ?? []
-  const isEmpty = fixedCharges.length === 0
+    drawerRef.current?.openDrawer(charge, index, {
+      alreadyUsedChargeAlertMessage,
+      isUsedInSubscription,
+    })
+  }
+
+  // ISO with the plan form: confirm before deleting a charge that is live on
+  // subscriptions; delete directly otherwise.
+  const handleDelete = (chargeId: string) => {
+    if (isUsedInSubscription) {
+      removeChargeWarningDialogRef.current?.openDialog({
+        callback: () => handleDeleteCharge(chargeId),
+      })
+    } else {
+      handleDeleteCharge(chargeId)
+    }
+  }
 
   return (
     <section id={PlanDetailsV2SectionId.FixedCharges} className="flex scroll-mt-12 flex-col gap-6">
@@ -168,7 +215,7 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
             {
               label: translate('text_63ea0f84f400488553caa786'),
               startIcon: 'trash',
-              onClick: () => handleDeleteCharge(fixedCharge.id),
+              onClick: () => handleDelete(fixedCharge.id),
               hidden: !canDelete,
             },
           ]}
@@ -191,6 +238,7 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
         <FixedChargeDrawer
           ref={drawerRef}
           isEdition
+          disabled={!canBeEdited}
           isInSubscriptionForm={isInSubscriptionForm}
           showCode
           existingChargeCodes={fixedCharges.map((c) => c.code)}
@@ -200,8 +248,11 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
 
             if (target) handleDeleteCharge(target.id)
           }}
+          removeChargeWarningDialogRef={removeChargeWarningDialogRef}
         />
       </PlanFormProvider>
+
+      <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} />
     </section>
   )
 })

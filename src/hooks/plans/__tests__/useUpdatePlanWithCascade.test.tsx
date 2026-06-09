@@ -43,6 +43,7 @@ const basePlan = {
   trialPeriod: 0,
   invoiceDisplayName: null,
   hasOverriddenPlans: false,
+  subscriptionsCount: 0,
   billFixedChargesMonthly: false,
   billChargesMonthly: false,
   taxes: [],
@@ -86,6 +87,7 @@ describe('buildUpdatePlanFormDefaults', () => {
       amountCurrency: CurrencyEnum.Usd,
       amountCents: '0',
       payInAdvance: false,
+      subscriptionsCount: 0,
       minimumCommitment: {
         amountCents: 5000,
         commitmentType: CommitmentTypeEnum.MinimumCommitment,

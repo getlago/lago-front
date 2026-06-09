@@ -9,7 +9,7 @@ import {
 } from '~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer'
 import { SubscriptionFeeInfo } from '~/components/plans/SubscriptionFeeInfo'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
-import { getIntervalTranslationKey } from '~/core/constants/form'
+import { FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import {
@@ -27,6 +27,7 @@ import { PlanDetailsV2SectionId } from './sidebarSections'
 
 gql`
   fragment PlanForDetailsV2SubscriptionFeeAccordion on Plan {
+    subscriptionsCount
     amountCents
     payInAdvance
     trialPeriod
@@ -53,6 +54,12 @@ export const SubscriptionFeeAccordion = ({
   const { translate } = useInternationalization()
   const { canUpdate } = useAccordionPermissions(isInSubscriptionForm)
   const drawerRef = useRef<SubscriptionFeeDrawerRef>(null)
+
+  // ISO with the plan form: payInAdvance + trialPeriod lock once the plan has
+  // subscriptions. Sub mode keeps its own gating (isInSubscriptionForm +
+  // subscriptionFormType), so the subscription-count lock does not apply there.
+  const canBeEdited = subscriptionId ? true : !plan.subscriptionsCount
+  const subscriptionFormType = subscriptionId ? FORM_TYPE_ENUM.edition : undefined
 
   const { form, submit } = useUpdatePlanWithCascade({ plan })
   const { updatePlanOverride } = useUpdateSubscriptionPlanOverride({
@@ -121,7 +128,14 @@ export const SubscriptionFeeAccordion = ({
       </SectionAccordion>
 
       <PlanFormProvider currency={plan.amountCurrency} interval={plan.interval}>
-        <SubscriptionFeeDrawer ref={drawerRef} onSave={handleDrawerSave} isEdition />
+        <SubscriptionFeeDrawer
+          ref={drawerRef}
+          onSave={handleDrawerSave}
+          isEdition
+          canBeEdited={canBeEdited}
+          isInSubscriptionForm={isInSubscriptionForm}
+          subscriptionFormType={subscriptionFormType}
+        />
       </PlanFormProvider>
     </>
   )

@@ -16,6 +16,11 @@ export const usePlanSettingsDrawer = (plan: PlanDetailsV2Fragment, subscriptionI
   const { translate } = useInternationalization()
   const drawer = useFormDrawer()
 
+  // ISO with the plan form: plan-level settings lock once the plan has
+  // subscriptions. Sub mode keeps its own gating (isInSubscriptionForm +
+  // subscriptionFormType), so the subscription-count lock does not apply there.
+  const canBeEdited = subscriptionId ? true : !plan.subscriptionsCount
+
   const { updatePlanOverride } = useUpdateSubscriptionPlanOverride({
     subscriptionId: subscriptionId ?? '',
   })
@@ -69,7 +74,7 @@ export const usePlanSettingsDrawer = (plan: PlanDetailsV2Fragment, subscriptionI
       children: (
         <PlanSettingsSection
           form={form}
-          canBeEdited
+          canBeEdited={canBeEdited}
           isEdition
           isInSubscriptionForm={!!subscriptionId}
           subscriptionFormType={subscriptionId ? FORM_TYPE_ENUM.edition : undefined}

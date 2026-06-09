@@ -237,7 +237,7 @@ export const FixedChargeDrawerContent = withForm({
                 <ChargeCodeField
                   form={form}
                   fields={{ code: 'code' }}
-                  disabled={isInSubscriptionForm}
+                  disabled={isInSubscriptionForm || isExistingChargeDisabled}
                 />
               )}
             </CenteredPage.PageSection>
