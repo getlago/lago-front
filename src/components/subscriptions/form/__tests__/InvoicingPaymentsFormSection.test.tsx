@@ -79,7 +79,7 @@ describe('InvoicingPaymentsFormSection', () => {
     it('THEN should render the section title and forward props to PaymentMethodsInvoiceSettings', () => {
       render(
         <InvoicingPaymentsFormSection
-          // @ts-expect-error — mock form shape
+          // @ts-expect-error - mock form shape
           form={createMockForm()}
           customer={{ id: 'cust-1' }}
         />,
@@ -101,7 +101,7 @@ describe('InvoicingPaymentsFormSection', () => {
     it('THEN should render the consolidation field group wired to consolidateInvoice', () => {
       render(
         <InvoicingPaymentsFormSection
-          // @ts-expect-error — mock form shape
+          // @ts-expect-error - mock form shape
           form={createMockForm()}
           customer={{ id: 'cus-1' }}
         />,
@@ -117,7 +117,7 @@ describe('InvoicingPaymentsFormSection', () => {
 
       render(
         <InvoicingPaymentsFormSection
-          // @ts-expect-error — mock form shape
+          // @ts-expect-error - mock form shape
           form={createMockForm()}
           customer={{ id: 'cus-1' }}
         />,
@@ -132,13 +132,16 @@ describe('InvoicingPaymentsFormSection', () => {
     it('THEN should render the section', () => {
       render(
         <InvoicingPaymentsFormSection
-          // @ts-expect-error — mock form shape
+          // @ts-expect-error - mock form shape
           form={createMockForm()}
           customer={{ externalId: 'ext-1' }}
         />,
       )
 
       expect(screen.getByText('text_1762862388271au34vz50g8i')).toBeInTheDocument()
+      expect(mockPaymentMethodsInvoiceSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ customer: { externalId: 'ext-1' } }),
+      )
     })
   })
 
@@ -146,7 +149,7 @@ describe('InvoicingPaymentsFormSection', () => {
     it('THEN should render consolidation but not the payment settings', () => {
       render(
         <InvoicingPaymentsFormSection
-          // @ts-expect-error — mock form shape
+          // @ts-expect-error - mock form shape
           form={createMockForm()}
           customer={null}
         />,
