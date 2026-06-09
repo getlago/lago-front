@@ -87,10 +87,12 @@ const PlanDetails = () => {
     {
       type: 'dropdown',
       label: translate('text_626162c62f790600f850b6fe'),
+      dataTest: 'plan-details-actions',
       items: [
         {
           label: translate('text_65281f686a80b400c8e2f6b3'),
           hidden: !hasPermissions(['plansUpdate']),
+          dataTest: 'plan-details-edit',
           onClick: (closePopper) => {
             navigate(generatePath(UPDATE_PLAN_ROUTE, { planId: plan?.id as string }))
             closePopper()

@@ -14,7 +14,11 @@ describe('Edit plan', () => {
     cy.get(`[data-test="${planWithChargesName}"] [data-test="open-action-button"]`).click({
       force: true,
     })
+    // The list action now lands on the plan details page; the edit form is
+    // reached through the details header actions dropdown.
     cy.get('[data-test="tab-internal-button-link-update-plan"]').click({ force: true })
+    cy.get('[data-test="plan-details-actions"]').click()
+    cy.get('[data-test="plan-details-edit"]').click()
     cy.get('input[name="name"]').should('exist')
     cy.get('[data-test="close-create-plan-button"]').click({ force: true })
     cy.get('[data-test="close-create-plan-button"]').should('not.exist')
@@ -27,6 +31,8 @@ describe('Edit plan', () => {
       force: true,
     })
     cy.get('[data-test="tab-internal-button-link-update-plan"]').click({ force: true })
+    cy.get('[data-test="plan-details-actions"]').click()
+    cy.get('[data-test="plan-details-edit"]').click()
     cy.get('input[name="name"]').should('not.be.disabled')
     cy.get('input[name="code"]').should('not.be.disabled')
 
@@ -56,6 +62,8 @@ describe('Edit plan', () => {
       force: true,
     })
     cy.get('[data-test="tab-internal-button-link-update-plan"]').click({ force: true })
+    cy.get('[data-test="plan-details-actions"]').click()
+    cy.get('[data-test="plan-details-edit"]').click()
 
     // Name should still be editable
     cy.get('input[name="name"]').should('not.be.disabled')
