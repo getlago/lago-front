@@ -145,7 +145,7 @@ export const PlanDetailsV2LeftSidebar = ({
     return (
       <div key={item.id} className="flex flex-col gap-1">
         <div
-          className="group/bar flex w-full items-stretch rounded-lg hover:bg-grey-100"
+          className="group/bar flex w-full items-stretch rounded-lg hover:bg-grey-200"
           style={{ contentVisibility: 'auto', containIntrinsicSize: '0 36px' }}
         >
           {isGroup && (
@@ -158,7 +158,7 @@ export const PlanDetailsV2LeftSidebar = ({
               <button
                 type="button"
                 data-test={`sidebar-toggle-${item.id}`}
-                className="flex items-center justify-center rounded-l-lg px-1 py-2.5 hover:bg-grey-200"
+                className="flex items-center justify-center rounded-l-lg px-1 py-2.5 hover:bg-grey-300"
                 onClick={() => toggleExpanded(item.id)}
               >
                 <Icon
@@ -185,7 +185,7 @@ export const PlanDetailsV2LeftSidebar = ({
               <button
                 type="button"
                 data-test={`sidebar-add-${item.id}`}
-                className="flex items-center justify-center rounded-r-lg px-1 py-2.5 hover:bg-grey-200"
+                className="flex items-center justify-center rounded-r-lg px-1 py-2.5 hover:bg-grey-300"
                 onClick={() => onAddClick?.(item.id)}
               >
                 <Icon name="plus" size="small" color="dark" />
