@@ -163,8 +163,8 @@ importers:
         specifier: 16.14.0
         version: 16.14.0
       graphql-ruby-client:
-        specifier: 1.14.9
-        version: 1.14.9(@apollo/client@3.14.1(@types/react@18.3.29)(graphql-ws@6.0.6(graphql@16.14.0)(ws@8.19.0))(graphql@16.14.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(graphql@16.14.0)
+        specifier: 1.15.0
+        version: 1.15.0(@apollo/client@3.14.1(@types/react@18.3.29)(graphql-ws@6.0.6(graphql@16.14.0)(ws@8.19.0))(graphql@16.14.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(graphql@16.14.0)
       html-react-parser:
         specifier: 5.2.17
         version: 5.2.17(@types/react@18.3.29)(react@18.3.1)
@@ -5715,8 +5715,8 @@ packages:
       cosmiconfig-toml-loader:
         optional: true
 
-  graphql-ruby-client@1.14.9:
-    resolution: {integrity: sha512-3UjCB+FsaXDWCDgHLP61tSy0d9YSKwJhGXRYv8+xbeWSrBYH2eYMw94+T3qfoCjLCwjspHKXNoYTSbHxNSL4Dg==}
+  graphql-ruby-client@1.15.0:
+    resolution: {integrity: sha512-+O8nWlFfwcXmMIwyY64wIK+zoDtWLiwyhsxYN1TI5EqzjhVPDKgNM50PcaVn6ZIlCZ4m1vs++QUlZeTF2FW0iw==}
     engines: {node: '>=10'}
     hasBin: true
     peerDependencies:
@@ -14783,10 +14783,10 @@ snapshots:
       - uWebSockets.js
       - utf-8-validate
 
-  graphql-ruby-client@1.14.9(@apollo/client@3.14.1(@types/react@18.3.29)(graphql-ws@6.0.6(graphql@16.14.0)(ws@8.19.0))(graphql@16.14.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(graphql@16.14.0):
+  graphql-ruby-client@1.15.0(@apollo/client@3.14.1(@types/react@18.3.29)(graphql-ws@6.0.6(graphql@16.14.0)(ws@8.19.0))(graphql@16.14.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(graphql@16.14.0):
     dependencies:
       '@apollo/client': 3.14.1(@types/react@18.3.29)(graphql-ws@6.0.6(graphql@16.14.0)(ws@8.19.0))(graphql@16.14.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      glob: 10.5.0
+      glob: 13.0.6
       graphql: 16.14.0
       minimist: 1.2.8
 
