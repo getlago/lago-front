@@ -3,6 +3,7 @@ import { embedDashboard, EmbeddedDashboard } from '@superset-ui/embedded-sdk'
 import { debounce } from 'lodash'
 import { useEffect, useMemo, useRef } from 'react'
 
+import { FinanceAssistantAnalyticsCta } from '~/components/aiAgent/FinanceAssistantAnalyticsCta'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
 import { envGlobalVar } from '~/core/apolloClient'
@@ -146,6 +147,10 @@ const Dashboards = () => {
         )}
 
         <div id="superset" className="absolute inset-0 size-full"></div>
+
+        <div className="absolute inset-x-0 bottom-6 z-10 px-4">
+          <FinanceAssistantAnalyticsCta />
+        </div>
       </div>
     </>
   )
