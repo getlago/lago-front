@@ -1,6 +1,6 @@
 import type { RouteObject } from 'react-router-dom'
 
-import { FeatureFlagEnum, PremiumIntegrationTypeEnum } from '~/generated/graphql'
+import { FeatureFlagEnum } from '~/generated/graphql'
 import { TMembershipPermissions } from '~/hooks/usePermissions'
 
 export interface CustomRouteObject extends Omit<RouteObject, 'children' | 'path'> {
@@ -13,5 +13,4 @@ export interface CustomRouteObject extends Omit<RouteObject, 'children' | 'path'
   permissions?: Array<keyof TMembershipPermissions> // AND logic (all must be true)
   permissionsOr?: Array<keyof TMembershipPermissions> // OR logic (at least one must be true)
   featureFlag?: FeatureFlagEnum
-  premiumIntegrations?: PremiumIntegrationTypeEnum[] // OR logic (at least one required)
 }
