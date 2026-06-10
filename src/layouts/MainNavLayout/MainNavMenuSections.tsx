@@ -35,7 +35,7 @@ import {
   SUBSCRIPTIONS_ROUTE,
   WALLET_DETAILS_ROUTE,
 } from '~/core/router'
-import { FeatureFlagEnum, PremiumIntegrationTypeEnum } from '~/generated/graphql'
+import { FeatureFlagEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -59,7 +59,7 @@ interface MainNavMenuSectionsProps {
 export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSectionsProps) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { hasFeatureFlag, hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const { hasFeatureFlag } = useOrganizationInfos()
   const { isPremium } = useCurrentUser()
 
   const getReportsTabs = (): NavTab[] => [
@@ -83,9 +83,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       icon: 'table-horizontale',
       link: REVENUE_RECOGNITION_ROUTE,
       match: [REVENUE_RECOGNITION_ROUTE],
-      hidden:
-        !hasPermissions(['analyticsView']) ||
-        !hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.RevenueRecognition),
+      hidden: !hasPermissions(['analyticsView']),
     },
   ]
 
