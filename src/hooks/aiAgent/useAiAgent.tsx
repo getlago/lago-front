@@ -6,6 +6,7 @@ import {
   chatReducer,
   ChatRole,
   ChatState,
+  FinanceAssistantResult,
 } from '~/hooks/aiAgent/aiAgentReducer'
 import { usePanel, UsePanelReturn } from '~/hooks/ui/usePanel'
 
@@ -13,10 +14,23 @@ export enum AIPanelEnum {
   ai = 'ai',
 }
 
+export enum AiAgentTypeEnum {
+  billing = 'billing',
+  finance = 'finance',
+}
+
+export const AGENT_TYPE_LABELS: Record<AiAgentTypeEnum, string> = {
+  [AiAgentTypeEnum.billing]: 'text_1780562979519nd49yg82e20',
+  [AiAgentTypeEnum.finance]: 'text_17805629795197990fik8a0f',
+}
+
 interface AiAgentContextType extends UsePanelReturn<AIPanelEnum> {
   state: ChatState
   conversationId?: string
+  agentType: AiAgentTypeEnum
   lastAssistantMessage?: ChatMessage
+  setAgentType: (agentType: AiAgentTypeEnum) => void
+  openPanelWithAgent: (agentType: AiAgentTypeEnum) => void
   startNewConversation: ({ convId, message }: { convId: string; message: string }) => void
   setPreviousChatMessages: ({
     convId,
@@ -27,7 +41,19 @@ interface AiAgentContextType extends UsePanelReturn<AIPanelEnum> {
   }) => void
   streamChunk: ({ messageId, chunk }: { messageId: string; chunk: string }) => void
   setChatDone: (messageId: string) => void
-  addNewMessage: (message: string) => void
+  addNewMessage: (message: string, exchangeId?: string) => void
+  completeExchange: ({
+    exchangeId,
+    response,
+    sessionId,
+    financeAssistantResult,
+  }: {
+    exchangeId: string
+    response: string
+    sessionId?: string
+    financeAssistantResult?: FinanceAssistantResult
+  }) => void
+  failExchange: (exchangeId: string) => void
   resetConversation: () => void
 }
 
@@ -45,11 +71,14 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
   })
 
   const [conversationId, setConversationId] = useState('')
+  const [agentType, setAgentTypeState] = useState<AiAgentTypeEnum>(AiAgentTypeEnum.billing)
 
   const [state, dispatch] = useReducer(chatReducer, {
     messages: [],
     isLoading: false,
     isStreaming: false,
+    hasError: false,
+    financeSessionId: undefined,
   })
 
   const lastAssistantMessage = useMemo(() => {
@@ -63,8 +92,23 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     convId: string
     messages: ChatMessage[]
   }) => {
+    // History only stores billing conversations; replies must route to the billing flow
+    setAgentTypeState(AiAgentTypeEnum.billing)
     setConversationId(convId)
     dispatch({ type: ChatActionType.SET_PREVIOUS_CHAT_MESSAGES, messages })
+  }
+
+  const setAgentType = (newAgentType: AiAgentTypeEnum) => {
+    if (agentType === newAgentType) return
+
+    setConversationId('')
+    setAgentTypeState(newAgentType)
+    dispatch({ type: ChatActionType.RESET_CONVERSATION })
+  }
+
+  const openPanelWithAgent = (newAgentType: AiAgentTypeEnum) => {
+    setAgentType(newAgentType)
+    panel.openPanel(AIPanelEnum.ai)
   }
 
   const startNewConversation = ({ convId, message }: { convId: string; message: string }) => {
@@ -93,10 +137,8 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     dispatch({ type: ChatActionType.DONE, messageId })
   }
 
-  const addNewMessage = (message: string) => {
-    dispatch({ type: ChatActionType.ADD_INPUT, message })
-
-    // Scroll to the bottom of the conversation container
+  // Scroll to the bottom of the conversation container
+  const scrollConversationToBottom = () => {
     setTimeout(() => {
       const containerElement = document.querySelector(
         '[data-id="conversation-container"]',
@@ -108,19 +150,54 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
     }, 0)
   }
 
+  const addNewMessage = (message: string, exchangeId?: string) => {
+    dispatch({ type: ChatActionType.ADD_INPUT, message, exchangeId })
+    scrollConversationToBottom()
+  }
+
+  const completeExchange = ({
+    exchangeId,
+    response,
+    sessionId,
+    financeAssistantResult,
+  }: {
+    exchangeId: string
+    response: string
+    sessionId?: string
+    financeAssistantResult?: FinanceAssistantResult
+  }) => {
+    dispatch({
+      type: ChatActionType.COMPLETE_EXCHANGE,
+      exchangeId,
+      response,
+      sessionId,
+      financeAssistantResult,
+    })
+    scrollConversationToBottom()
+  }
+
+  const failExchange = (exchangeId: string) => {
+    dispatch({ type: ChatActionType.FAIL_EXCHANGE, exchangeId })
+  }
+
   return (
     <AiAgentContext.Provider
       value={{
         ...panel,
         state,
         conversationId,
+        agentType,
         lastAssistantMessage,
+        setAgentType,
+        openPanelWithAgent,
         startNewConversation,
         setPreviousChatMessages,
         resetConversation,
         streamChunk,
         setChatDone,
         addNewMessage,
+        completeExchange,
+        failExchange,
       }}
     >
       {children}
