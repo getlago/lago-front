@@ -151,6 +151,63 @@ describe('PlanDetailsV2FixedChargesSection', () => {
     expect(indexArg).toBe(0)
   })
 
+  it('passes the already-used alert when the same add-on backs >1 fixed charge', async () => {
+    const plan = {
+      ...planDetailsV2Fixture,
+      fixedCharges: [
+        buildFixedChargeFixture({ id: 'fc_1' }),
+        buildFixedChargeFixture({ id: 'fc_2' }),
+      ],
+    }
+
+    render(
+      <PlanDetailsV2FixedChargesSection
+        plan={plan}
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
+
+    await userEvent.click((await screen.findAllByRole('button', { name: /actions/i }))[0])
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }),
+    )
+
+    await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
+    const [, , options] = mockOpenDrawer.mock.calls[0]
+    expect(options?.alreadyUsedChargeAlertMessage).toBe('text_1760729707268h378x60alri')
+  })
+
+  it('does NOT pass the already-used alert when the add-on is unique', async () => {
+    const plan = {
+      ...planDetailsV2Fixture,
+      fixedCharges: [buildFixedChargeFixture({ id: 'fc_1' })],
+    }
+
+    render(
+      <PlanDetailsV2FixedChargesSection
+        plan={plan}
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
+
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }),
+    )
+
+    await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
+    const [, , options] = mockOpenDrawer.mock.calls[0]
+    expect(options?.alreadyUsedChargeAlertMessage).toBeUndefined()
+  })
+
   it('calls handleDeleteCharge when Delete is clicked', async () => {
     const plan = {
       ...planDetailsV2Fixture,
@@ -174,6 +231,38 @@ describe('PlanDetailsV2FixedChargesSection', () => {
     )
 
     expect(mockHandleDeleteCharge).toHaveBeenCalledWith('fc_to_delete')
+  })
+
+  it('warns before deleting a fixed charge when the plan has subscriptions', async () => {
+    const plan = {
+      ...planDetailsV2Fixture,
+      subscriptionsCount: 3,
+      fixedCharges: [buildFixedChargeFixture({ id: 'fc_used' })],
+    }
+
+    render(
+      <PlanDetailsV2FixedChargesSection
+        plan={plan}
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
+
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'text_63ea0f84f400488553caa786' }),
+    )
+
+    // The warning dialog defers the delete until the user confirms.
+    expect(mockHandleDeleteCharge).not.toHaveBeenCalled()
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'text_63cfe20ad6c1a53c5352a474' }),
+    )
+    await waitFor(() => expect(mockHandleDeleteCharge).toHaveBeenCalledWith('fc_used'))
   })
 
   // Drift test: lock in the Add CTA in plan mode so a future refactor can't drop it.

@@ -66,12 +66,12 @@ describe('downloadMarkdownPdf', () => {
     })
   })
 
-  describe('GIVEN markdown with a plan block and plans data provided', () => {
+  describe('GIVEN markdown with a pricing block and entities data provided', () => {
     describe('WHEN downloadMarkdownPdf is called', () => {
-      it('THEN should resolve plan blocks to tables', () => {
+      it('THEN should resolve pricing blocks to tables', () => {
         downloadMarkdownPdf({
-          markdown: '<!-- entity:plan:plan123 -->',
-          plans: {
+          markdown: '<!-- entity:pricing:plan:plan123 -->',
+          entities: {
             plan123: {
               entityId: 'plan123',
               entityType: 'plan',
@@ -85,27 +85,25 @@ describe('downloadMarkdownPdf', () => {
 
         const html = mockPrintHtmlContent.mock.calls[0][0]
 
-        expect(html).toContain('Plan name')
-        expect(html).toContain('Plan code')
         expect(html).toContain('Pro Plan')
         expect(html).toContain('pro_plan')
       })
     })
   })
 
-  describe('GIVEN markdown with a plan block but no plans data', () => {
+  describe('GIVEN markdown with a pricing block but no entities data', () => {
     describe('WHEN downloadMarkdownPdf is called', () => {
-      it('THEN should keep the fallback plan block label', () => {
+      it('THEN should keep the fallback pricing block label', () => {
         downloadMarkdownPdf({
-          markdown: '<!-- entity:plan:plan123 -->',
+          markdown: '<!-- entity:pricing:plan:plan123 -->',
         })
 
         expect(mockPrintHtmlContent).toHaveBeenCalledTimes(1)
 
         const html = mockPrintHtmlContent.mock.calls[0][0]
 
-        expect(html).toContain('data-plan-id="plan123"')
-        expect(html).toContain('Plan: plan123')
+        expect(html).toContain('data-pricing-type="plan"')
+        expect(html).toContain('plan123')
       })
     })
   })

@@ -23,6 +23,7 @@ gql`
   fragment SubscriptionInformationFields on Subscription {
     id
     externalId
+    name
     status
     subscriptionAt
     endingAt
@@ -210,7 +211,7 @@ export const SubscriptionInformationFields = ({
       <SubscriptionDowngradeAlert subscription={subscription} />
 
       <DetailsPage.InfoGridItem
-        label={translate('text_62d7f6178ec94cd09370e5fb')}
+        label={translate('text_1780604419477p7xvwx52oad')}
         value={<Status {...subscriptionStatusMapping(subscription?.status ?? undefined)} />}
       />
       <DetailsPage.InfoGridItem
@@ -220,9 +221,21 @@ export const SubscriptionInformationFields = ({
             <TypographyWithCopy variant="body" color="grey700">
               {subscription.externalId}
             </TypographyWithCopy>
-          ) : undefined
+          ) : (
+            '-'
+          )
         }
       />
+      {subscription?.name && (
+        <DetailsPage.InfoGridItem
+          label={translate('text_1780604419477ujb85w6pk81')}
+          value={
+            <TypographyWithCopy variant="body" color="grey700">
+              {subscription.name}
+            </TypographyWithCopy>
+          }
+        />
+      )}
       <DetailsPage.InfoGrid
         grid={getSubscriptionInformationGrid({
           subscription,

@@ -125,7 +125,9 @@ describe('SubscriptionFeeAccordion', () => {
 
     await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
     expect(mockOpenDrawer).toHaveBeenCalledWith({
-      amountCents: '2500',
+      // Deserialized for the input: 2500 cents → 25 (USD). The drawer edits
+      // display units and re-serializes on save.
+      amountCents: '25',
       payInAdvance: true,
       trialPeriod: 7,
       invoiceDisplayName: 'Pro plan fee',

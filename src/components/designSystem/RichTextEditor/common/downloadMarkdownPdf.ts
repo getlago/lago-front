@@ -5,24 +5,24 @@ import type { EntityData } from './RichTextEditorContext'
 
 import { getBaseExtensions } from '../extensions/baseExtensions'
 import { configureMention, mentionBaseConfig } from '../extensions/Mention.schema'
-import { PlanBlockSchema } from '../extensions/PlanBlock.schema'
+import { PricingBlockSchema } from '../extensions/PricingBlock.schema'
 
 export interface DownloadMarkdownPdfOptions {
   markdown: string
   mentionValues?: Record<string, string>
-  plans?: Record<string, EntityData>
+  entities?: Record<string, EntityData>
 }
 
 export const downloadMarkdownPdf = ({
   markdown,
   mentionValues,
-  plans,
+  entities,
 }: DownloadMarkdownPdfOptions): void => {
   const editor = new Editor({
     extensions: [
       ...getBaseExtensions(),
       configureMention({ ...mentionBaseConfig, mentionValues }),
-      PlanBlockSchema.configure({ plans }),
+      PricingBlockSchema.configure({ entities }),
     ],
     content: markdown,
   })

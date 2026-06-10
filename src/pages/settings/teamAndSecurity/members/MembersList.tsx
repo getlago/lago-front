@@ -157,7 +157,9 @@ const MemberList = () => {
       title: translate('text_6321a076b94bd1b32494e9ee'),
       subtitle: translate('text_6321a076b94bd1b32494e9f0'),
       buttonTitle: translate('text_6321a076b94bd1b32494e9f2'),
-      buttonAction: membersRefetch,
+      buttonAction: () => {
+        membersRefetch()
+      },
     },
   }
 

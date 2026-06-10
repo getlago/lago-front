@@ -82,7 +82,6 @@ describe('SlashCommands', () => {
           'text_1774281559657cbz20fzcjka',
           'text_1774281559657yc3z031hm6x',
           'text_1774281559657l4kkx9ws4mz',
-          'text_1774369903715y1h6gjc2bmd',
         ])
       })
 
@@ -104,7 +103,7 @@ describe('SlashCommands', () => {
         }
 
         it('THEN should return all items for empty query', () => {
-          expect(filterItems('')).toHaveLength(7)
+          expect(filterItems('')).toHaveLength(6)
         })
 
         it('THEN should filter items by title case-insensitively', () => {
@@ -156,7 +155,6 @@ describe('SlashCommands', () => {
         ['Bullet List', 3],
         ['Table', 4],
         ['Code Block', 5],
-        ['Plan Block', 6],
       ])('WHEN "%s" command is called THEN should invoke editor chain', (_, index) => {
         const mockEditor = createMockEditor()
 
@@ -603,6 +601,509 @@ describe('SlashCommands', () => {
         expect(preventDefaultSpy).not.toHaveBeenCalled()
 
         // Clean up
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+  })
+
+  describe('GIVEN onPricingCommand is configured', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    describe('WHEN the pricing command is executed via triggerMenu', () => {
+      it('THEN should call onPricingCommand with an onSave callback', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnPricingCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onPricingCommand: mockOnPricingCommand,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; command: (editor: Editor) => void }>
+          command: (item: { title: string; command: (editor: Editor) => void }) => void
+        }
+        const pricingItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1779802343219a1cl5ckvtrn'),
+        )
+
+        expect(pricingItem).toBeDefined()
+
+        // Execute the pricing command through the menu's command callback
+        rendererProps.command(
+          pricingItem as { title: string; disabled: boolean; command: jest.Mock },
+        )
+
+        expect(mockOnPricingCommand).toHaveBeenCalledWith({ onSave: expect.any(Function) })
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN onSave is invoked from the pricing command callback', () => {
+      it('THEN should call editor.chain().focus().insertContent() with the pricingBlock node', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnPricingCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onPricingCommand: mockOnPricingCommand,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; command: (editor: Editor) => void }>
+          command: (item: { title: string; command: (editor: Editor) => void }) => void
+        }
+        const pricingItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1779802343219a1cl5ckvtrn'),
+        )
+
+        // Spy on the editor's chain to track calls
+        const runMock = jest.fn()
+        const chainMethods: Record<string, jest.Mock> = {}
+        const handler: ProxyHandler<Record<string, jest.Mock>> = {
+          get: (_target, prop: string) => {
+            if (prop === 'run') return runMock
+            if (!chainMethods[prop]) {
+              chainMethods[prop] = jest.fn().mockReturnValue(new Proxy({}, handler))
+            }
+
+            return chainMethods[prop]
+          },
+        }
+
+        const mockEditorForCommand = {
+          chain: jest.fn().mockReturnValue(new Proxy({}, handler)),
+          commands: { setTextSelection: jest.fn() },
+          state: { selection: {} },
+        } as unknown as Editor
+
+        // Execute the pricing item's command directly with our mock editor
+        ;(pricingItem as { command: (e: Editor) => void }).command(mockEditorForCommand)
+
+        // Capture onSave from the mock
+        const capturedParams = mockOnPricingCommand.mock.calls[0][0] as {
+          onSave: (...args: unknown[]) => void
+        }
+
+        const attrs = { pricingType: 'plan', entityIds: ['plan-1'] }
+
+        capturedParams.onSave(attrs, {})
+
+        expect(mockEditorForCommand.chain).toHaveBeenCalled()
+        expect(chainMethods['focus']).toHaveBeenCalled()
+        expect(chainMethods['insertContent']).toHaveBeenCalledWith({
+          type: 'pricingBlock',
+          attrs,
+        })
+        expect(runMock).toHaveBeenCalled()
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN onSave is invoked and the selection is a NodeSelection', () => {
+      it('THEN should move cursor past the inserted node with setTextSelection', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnPricingCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onPricingCommand: mockOnPricingCommand,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; command: (editor: Editor) => void }>
+          command: (item: { title: string; command: (editor: Editor) => void }) => void
+        }
+        const pricingItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1779802343219a1cl5ckvtrn'),
+        )
+
+        const runMock = jest.fn()
+        const chainMethods: Record<string, jest.Mock> = {}
+        const handler: ProxyHandler<Record<string, jest.Mock>> = {
+          get: (_target, prop: string) => {
+            if (prop === 'run') return runMock
+            if (!chainMethods[prop]) {
+              chainMethods[prop] = jest.fn().mockReturnValue(new Proxy({}, handler))
+            }
+
+            return chainMethods[prop]
+          },
+        }
+
+        // Create a fake NodeSelection-like object using the actual NodeSelection class
+        const { NodeSelection } = jest.requireActual('@tiptap/pm/state') as {
+          NodeSelection: { prototype: object }
+        }
+        const fakeNodeSelection = Object.create(NodeSelection.prototype, {
+          from: { value: 5 },
+          node: { value: { nodeSize: 3 } },
+        })
+
+        const setTextSelectionMock = jest.fn()
+        const mockEditorForCommand = {
+          chain: jest.fn().mockReturnValue(new Proxy({}, handler)),
+          commands: { setTextSelection: setTextSelectionMock },
+          state: { selection: fakeNodeSelection },
+        } as unknown as Editor
+
+        // Execute the pricing item's command directly with our mock editor
+        ;(pricingItem as { command: (e: Editor) => void }).command(mockEditorForCommand)
+
+        const capturedParams = mockOnPricingCommand.mock.calls[0][0] as {
+          onSave: (...args: unknown[]) => void
+        }
+
+        capturedParams.onSave({ pricingType: 'addOns', entityIds: ['addon-1'] }, {})
+
+        // Should move cursor past the node: from(5) + nodeSize(3) = 8
+        expect(setTextSelectionMock).toHaveBeenCalledWith(8)
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+  })
+
+  describe('GIVEN the suggestion command callback', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    describe('WHEN a slash command item is selected from the suggestion dropdown', () => {
+      it('THEN should delete the range and execute the item command', () => {
+        const options = (
+          SlashCommands.config.addOptions as unknown as () => {
+            suggestion: {
+              command: (params: {
+                editor: Editor
+                range: { from: number; to: number }
+                props: { command: (editor: Editor) => void }
+              }) => void
+            }
+          }
+        )()
+
+        const runMock = jest.fn()
+        const chainMethods: Record<string, jest.Mock> = {}
+        const handler: ProxyHandler<Record<string, jest.Mock>> = {
+          get: (_target, prop: string) => {
+            if (prop === 'run') return runMock
+            if (!chainMethods[prop]) {
+              chainMethods[prop] = jest.fn().mockReturnValue(new Proxy({}, handler))
+            }
+
+            return chainMethods[prop]
+          },
+        }
+
+        const mockEditor = {
+          chain: jest.fn().mockReturnValue(new Proxy({}, handler)),
+        } as unknown as Editor
+
+        const mockItemCommand = jest.fn()
+        const range = { from: 0, to: 5 }
+
+        options.suggestion.command({
+          editor: mockEditor,
+          range,
+          props: { command: mockItemCommand } as unknown as { command: (editor: Editor) => void },
+        })
+
+        // Should delete the slash command range first
+        expect(mockEditor.chain).toHaveBeenCalled()
+        expect(chainMethods['focus']).toHaveBeenCalled()
+        expect(chainMethods['deleteRange']).toHaveBeenCalledWith(range)
+        expect(runMock).toHaveBeenCalled()
+
+        // Then execute the item's command
+        expect(mockItemCommand).toHaveBeenCalledWith(mockEditor)
+      })
+    })
+  })
+
+  describe('GIVEN isPricingDisabled is configured for the Suggestion plugin items filter', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    describe('WHEN isPricingDisabled returns true', () => {
+      it('THEN should mark the pricing item as disabled in the Suggestion items', () => {
+        const SuggestionMock = jest.requireMock('@tiptap/suggestion').default as jest.Mock
+        const mockOnPricingCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onPricingCommand: mockOnPricingCommand,
+              isPricingDisabled: () => true,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        // Get the items callback passed to Suggestion
+        const lastCallIndex = SuggestionMock.mock.calls.length - 1
+        const suggestionConfig = SuggestionMock.mock.calls[lastCallIndex][0] as {
+          items: (params: { query: string }) => Array<{ title: string; disabled: boolean }>
+        }
+        const items = suggestionConfig.items({ query: '' })
+
+        const pricingItem = items.find(
+          (item) => item.title === mockTranslate('text_1779802343219a1cl5ckvtrn'),
+        )
+
+        expect(pricingItem?.disabled).toBe(true)
+
+        // Non-pricing items should not be disabled
+        const nonPricingItems = items.filter(
+          (item) => item.title !== mockTranslate('text_1779802343219a1cl5ckvtrn'),
+        )
+
+        nonPricingItems.forEach((item) => {
+          expect(item.disabled).toBe(false)
+        })
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN isPricingDisabled returns false', () => {
+      it('THEN should not mark the pricing item as disabled in the Suggestion items', () => {
+        const SuggestionMock = jest.requireMock('@tiptap/suggestion').default as jest.Mock
+        const mockOnPricingCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onPricingCommand: mockOnPricingCommand,
+              isPricingDisabled: () => false,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const lastCallIndex = SuggestionMock.mock.calls.length - 1
+        const suggestionConfig = SuggestionMock.mock.calls[lastCallIndex][0] as {
+          items: (params: { query: string }) => Array<{ title: string; disabled: boolean }>
+        }
+        const items = suggestionConfig.items({ query: '' })
+
+        const pricingItem = items.find(
+          (item) => item.title === mockTranslate('text_1779802343219a1cl5ckvtrn'),
+        )
+
+        expect(pricingItem?.disabled).toBe(false)
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN filtering Suggestion items by query with pricing enabled', () => {
+      it('THEN should filter items and apply isPricingDisabled to the pricing item', () => {
+        const SuggestionMock = jest.requireMock('@tiptap/suggestion').default as jest.Mock
+        const mockOnPricingCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onPricingCommand: mockOnPricingCommand,
+              isPricingDisabled: () => true,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const lastCallIndex = SuggestionMock.mock.calls.length - 1
+        const suggestionConfig = SuggestionMock.mock.calls[lastCallIndex][0] as {
+          items: (params: { query: string }) => Array<{ title: string; disabled: boolean }>
+        }
+
+        // Filter by a query that matches only pricing
+        const pricingTitle = mockTranslate('text_1779802343219a1cl5ckvtrn')
+        const items = suggestionConfig.items({ query: pricingTitle })
+
+        expect(items).toHaveLength(1)
+        expect(items[0].title).toBe(pricingTitle)
+        expect(items[0].disabled).toBe(true)
+
+        editor.destroy()
+      })
+    })
+  })
+
+  describe('GIVEN isPricingDisabled is configured', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    describe('WHEN isPricingDisabled returns true', () => {
+      it('THEN should mark the pricing item as disabled in triggerMenu', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnPricingCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onPricingCommand: mockOnPricingCommand,
+              isPricingDisabled: () => true,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; disabled: boolean }>
+        }
+        const pricingItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1779802343219a1cl5ckvtrn'),
+        )
+
+        expect(pricingItem?.disabled).toBe(true)
+
+        // Non-pricing items should not be disabled
+        const nonPricingItems = rendererProps.items.filter(
+          (item) => item.title !== mockTranslate('text_1779802343219a1cl5ckvtrn'),
+        )
+
+        nonPricingItems.forEach((item) => {
+          expect(item.disabled).toBe(false)
+        })
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN isPricingDisabled returns false', () => {
+      it('THEN should not mark the pricing item as disabled', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnPricingCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onPricingCommand: mockOnPricingCommand,
+              isPricingDisabled: () => false,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; disabled: boolean }>
+        }
+        const pricingItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1779802343219a1cl5ckvtrn'),
+        )
+
+        expect(pricingItem?.disabled).toBe(false)
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN a disabled item command is invoked in triggerMenu', () => {
+      it('THEN should not execute the command and not destroy the popup', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnPricingCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onPricingCommand: mockOnPricingCommand,
+              isPricingDisabled: () => true,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; disabled: boolean; command: jest.Mock }>
+          command: (item: { title: string; disabled: boolean; command: jest.Mock }) => void
+        }
+        const pricingItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1779802343219a1cl5ckvtrn'),
+        ) as { title: string; disabled: boolean; command: jest.Mock }
+
+        // Invoking the command callback with a disabled item should be a no-op
+        rendererProps.command(pricingItem)
+
+        expect(mockOnPricingCommand).not.toHaveBeenCalled()
+        // Popup should not be destroyed (still open)
+        expect(mockDestroyPopup).not.toHaveBeenCalled()
+
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
         editor.destroy()
       })

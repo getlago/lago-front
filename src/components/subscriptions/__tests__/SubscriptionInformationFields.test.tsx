@@ -62,7 +62,7 @@ describe('SubscriptionInformationFields', () => {
     expect(screen.getByText('Acme')).toBeInTheDocument()
     expect(screen.getByText('formatted-2026-01-01')).toBeInTheDocument()
     // status label
-    expect(screen.getByText('text_62d7f6178ec94cd09370e5fb')).toBeInTheDocument()
+    expect(screen.getByText('text_1780604419477p7xvwx52oad')).toBeInTheDocument()
   })
 
   it('shows "-" for the end date when the subscription is active without an ending date', () => {

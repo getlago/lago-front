@@ -139,30 +139,55 @@ const PlanDetails = () => {
         }}
         actions={{ items: actions, loading: isPlanLoading }}
         tabs={[
-          {
-            title: translate('text_628cf761cbe6820138b8f2e4'),
-            link: generatePath(PLAN_DETAILS_ROUTE, {
-              planId: planId as string,
-              tab: PlanDetailsTabsOptionsEnum.overview,
-            }),
-            match: [
-              generatePath(PLAN_DETAILS_ROUTE, {
-                planId: planId as string,
-                tab: PlanDetailsTabsOptionsEnum.overview,
-              }),
-              generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
-                customerId: customerId || '',
-                subscriptionId: subscriptionId || '',
-                planId: planId as string,
-                tab: PlanDetailsTabsOptionsEnum.overview,
-              }),
-            ],
-            content: (
-              <DetailsPage.Container>
-                <PlanDetailsOverview planId={planId} />
-              </DetailsPage.Container>
-            ),
-          },
+          isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE)
+            ? {
+                title: translate('text_628cf761cbe6820138b8f2e4'),
+                link: generatePath(PLAN_DETAILS_ROUTE, {
+                  planId: planId as string,
+                  tab: PlanDetailsTabsOptionsEnum.editOverview,
+                }),
+                match: [
+                  generatePath(PLAN_DETAILS_ROUTE, {
+                    planId: planId as string,
+                    tab: PlanDetailsTabsOptionsEnum.editOverview,
+                  }),
+                  generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
+                    customerId: customerId || '',
+                    subscriptionId: subscriptionId || '',
+                    planId: planId as string,
+                    tab: PlanDetailsTabsOptionsEnum.editOverview,
+                  }),
+                ],
+                content: (
+                  <DetailsPage.Container className="pb-0">
+                    <PlanDetailsV2 planId={planId as string} />
+                  </DetailsPage.Container>
+                ),
+              }
+            : {
+                title: translate('text_628cf761cbe6820138b8f2e4'),
+                link: generatePath(PLAN_DETAILS_ROUTE, {
+                  planId: planId as string,
+                  tab: PlanDetailsTabsOptionsEnum.overview,
+                }),
+                match: [
+                  generatePath(PLAN_DETAILS_ROUTE, {
+                    planId: planId as string,
+                    tab: PlanDetailsTabsOptionsEnum.overview,
+                  }),
+                  generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
+                    customerId: customerId || '',
+                    subscriptionId: subscriptionId || '',
+                    planId: planId as string,
+                    tab: PlanDetailsTabsOptionsEnum.overview,
+                  }),
+                ],
+                content: (
+                  <DetailsPage.Container>
+                    <PlanDetailsOverview planId={planId} />
+                  </DetailsPage.Container>
+                ),
+              },
           {
             title: translate('text_6250304370f0f700a8fdc28d'),
             link: generatePath(PLAN_DETAILS_ROUTE, {
@@ -189,31 +214,6 @@ const PlanDetails = () => {
             }),
             content: <PlanDetailsActivityLogs planId={planId as string} />,
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
-          },
-          {
-            title: translate('text_17792001643312864fz7j4gq'),
-            link: generatePath(PLAN_DETAILS_ROUTE, {
-              planId: planId as string,
-              tab: PlanDetailsTabsOptionsEnum.editOverview,
-            }),
-            match: [
-              generatePath(PLAN_DETAILS_ROUTE, {
-                planId: planId as string,
-                tab: PlanDetailsTabsOptionsEnum.editOverview,
-              }),
-              generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
-                customerId: customerId || '',
-                subscriptionId: subscriptionId || '',
-                planId: planId as string,
-                tab: PlanDetailsTabsOptionsEnum.editOverview,
-              }),
-            ],
-            content: (
-              <DetailsPage.Container className="pb-0">
-                <PlanDetailsV2 planId={planId as string} />
-              </DetailsPage.Container>
-            ),
-            hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
           },
         ]}
       />

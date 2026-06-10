@@ -67,6 +67,7 @@ export const planDetailsV2Fixture: PlanDetailsV2Fragment & { __typename: 'Plan' 
   trialPeriod: 0,
   invoiceDisplayName: null,
   hasOverriddenPlans: false,
+  subscriptionsCount: 0,
   billFixedChargesMonthly: false,
   billChargesMonthly: false,
   taxes: [],

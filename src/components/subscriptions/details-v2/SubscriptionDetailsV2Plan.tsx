@@ -1,7 +1,8 @@
 import { gql } from '@apollo/client'
 
-import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { Alert } from '~/components/designSystem/Alert'
 import { PlanDetailsV2 } from '~/components/plans/details-v2/PlanDetailsV2'
+import { PlanDetailsV2Skeleton } from '~/components/plans/details-v2/PlanDetailsV2Skeleton'
 import PremiumFeature from '~/components/premium/PremiumFeature'
 import {
   LagoApiError,
@@ -18,6 +19,9 @@ gql`
       id
       plan {
         id
+        parent {
+          id
+        }
         ...PlanDetailsV2
       }
     }
@@ -42,7 +46,7 @@ export const SubscriptionDetailsV2Plan = ({ subscriptionId }: Props) => {
   const plan = data?.subscription?.plan
 
   if (loading && !plan) {
-    return <DetailsPage.Skeleton />
+    return <PlanDetailsV2Skeleton />
   }
 
   if (!plan) {
@@ -71,7 +75,18 @@ export const SubscriptionDetailsV2Plan = ({ subscriptionId }: Props) => {
         )}
         {...(!isPremium && { inert: '' })}
       >
-        <PlanDetailsV2 planId={plan.id} isInSubscriptionForm subscriptionId={subscriptionId} />
+        <PlanDetailsV2
+          planId={plan.id}
+          isInSubscriptionForm
+          subscriptionId={subscriptionId}
+          banner={
+            !plan.parent ? (
+              <Alert className="pl-[-4px]" type="info" fullWidth>
+                {translate('text_652525609f420d00b83dd602')}
+              </Alert>
+            ) : undefined
+          }
+        />
       </div>
     </>
   )

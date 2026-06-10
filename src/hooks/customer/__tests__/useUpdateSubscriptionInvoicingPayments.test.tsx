@@ -48,6 +48,7 @@ const subscription = {
 // the mutation's reference inputs (ids only).
 const expectedInput = {
   id: 'sub-1',
+  consolidateInvoice: true,
   paymentMethod: {
     paymentMethodId: 'pm-1',
     paymentMethodType: PaymentMethodTypeEnum.Provider,
@@ -131,6 +132,58 @@ describe('useUpdateSubscriptionInvoicingPayments', () => {
     expect(onSuccess).toHaveBeenCalledTimes(1)
   })
 
+  it('sends the consolidation choice edited in the form', async () => {
+    let capturedVariables: Record<string, unknown> | undefined
+    const onSuccess = jest.fn()
+
+    const mocks = [
+      {
+        request: { query: UpdateSubscriptionDocument },
+        variableMatcher: (variables: Record<string, unknown>) => {
+          capturedVariables = variables
+
+          return true
+        },
+        result: {
+          data: {
+            updateSubscription: {
+              id: 'sub-1',
+              status: StatusTypeEnum.Active,
+              startedAt: '2026-01-01',
+              subscriptionAt: '2026-01-01',
+              endingAt: null,
+              name: 'My subscription',
+              externalId: 'ext-1',
+              paymentMethodType: PaymentMethodTypeEnum.Provider,
+              paymentMethod: { id: 'pm-1' },
+              consolidateInvoice: false,
+              skipInvoiceCustomSections: false,
+              selectedInvoiceCustomSections: [{ id: 'ics-1', name: 'Bank details' }],
+              customer: { id: 'cust-1', activeSubscriptionsCount: 1 },
+              plan: { id: 'plan-1', name: 'P', code: 'p', interval: PlanInterval.Monthly },
+            },
+          },
+        },
+      },
+    ]
+
+    const { result } = renderUpdateHook(mocks, onSuccess)
+
+    act(() => {
+      result.current.form.setFieldValue('consolidateInvoice', false)
+    })
+
+    await act(async () => {
+      await result.current.form.handleSubmit()
+    })
+
+    await waitFor(() => expect(mockAddToast).toHaveBeenCalledTimes(1))
+
+    expect(capturedVariables).toEqual({
+      input: { ...expectedInput, consolidateInvoice: false },
+    })
+  })
+
   it('serializes a cleared payment method and skipped invoice custom sections', async () => {
     let capturedVariables: Record<string, unknown> | undefined
     const onSuccess = jest.fn()
@@ -183,10 +236,11 @@ describe('useUpdateSubscriptionInvoicingPayments', () => {
     await waitFor(() => expect(mockAddToast).toHaveBeenCalledTimes(1))
 
     // paymentMethodId is absent (cleared); only the type carries over. ICS is
-    // skipped with an empty id list — never undefined, so the clear persists.
+    // skipped with an empty id list - never undefined, so the clear persists.
     expect(capturedVariables).toEqual({
       input: {
         id: 'sub-1',
+        consolidateInvoice: true,
         paymentMethod: { paymentMethodType: PaymentMethodTypeEnum.Manual },
         invoiceCustomSection: { invoiceCustomSectionIds: [], skipInvoiceCustomSections: true },
       },
