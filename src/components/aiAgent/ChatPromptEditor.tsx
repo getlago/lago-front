@@ -38,7 +38,8 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({
     }
   }
 
-  const canSubmit = !!formikProps.values.message && !state.isLoading && !state.isStreaming
+  const canSubmit =
+    !!formikProps.values.message && !state.isLoading && !state.isStreaming && !disabled
 
   return (
     <form

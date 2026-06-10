@@ -1,15 +1,16 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { ChatConversation } from '~/components/aiAgent/ChatConversation'
 import { ChatMessages } from '~/components/aiAgent/ChatMessages'
 import { ChatPromptEditor } from '~/components/aiAgent/ChatPromptEditor'
 import { ChatShortcuts } from '~/components/aiAgent/ChatShortcuts'
+import { useAskFinanceAssistant } from '~/components/aiAgent/hooks/useAskFinanceAssistant'
 import { useCreateAiConversation } from '~/components/aiAgent/hooks/useCreateAiConversation'
 import { useOnConversation } from '~/components/aiAgent/hooks/useOnConversation'
 import { Typography } from '~/components/designSystem/Typography'
 import PremiumFeature from '~/components/premium/PremiumFeature'
 import { CreateAiConversationInput } from '~/generated/graphql'
-import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
+import { AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type PanelAiAgentProps = {
@@ -17,16 +18,72 @@ type PanelAiAgentProps = {
 }
 
 export const PanelAiAgent = ({ hasAccessToAiAgent }: PanelAiAgentProps) => {
-  const { conversationId, state, startNewConversation, addNewMessage } = useAiAgent()
+  const {
+    addNewMessage,
+    agentType,
+    completeExchange,
+    conversationId,
+    failExchange,
+    startNewConversation,
+    state,
+  } = useAiAgent()
   const { createAiConversation, loading, error } = useCreateAiConversation()
+  const { askFinanceAssistant } = useAskFinanceAssistant()
   const [initialPrompt, setInitialPrompt] = useState<string>('')
   const { translate } = useInternationalization()
+  const isFinanceAssistant = agentType === AiAgentTypeEnum.finance
+
+  // Late async completions must check the agent selected *now*, not the one
+  // captured when the request started
+  const agentTypeRef = useRef(agentType)
+
+  agentTypeRef.current = agentType
 
   const subscription = useOnConversation({
-    conversationId,
+    conversationId: isFinanceAssistant ? undefined : conversationId,
   })
 
+  useEffect(() => {
+    setInitialPrompt('')
+  }, [agentType])
+
   const handleSubmit = async (values: CreateAiConversationInput) => {
+    if (isFinanceAssistant) {
+      const exchangeId = crypto.randomUUID()
+
+      addNewMessage(values.message, exchangeId)
+
+      try {
+        const { data } = await askFinanceAssistant({
+          variables: {
+            input: {
+              question: values.message,
+              sessionId: state.financeSessionId,
+            },
+          },
+        })
+
+        const answer = data?.askFinanceAssistant
+
+        if (!answer) {
+          return failExchange(exchangeId)
+        }
+
+        return completeExchange({
+          exchangeId,
+          response: answer.explanation,
+          sessionId: answer.sessionId,
+          financeAssistantResult: {
+            results: answer.results,
+            sessionExpired: answer.sessionExpired,
+            sqlQuery: answer.sqlQuery || undefined,
+          },
+        })
+      } catch {
+        return failExchange(exchangeId)
+      }
+    }
+
     setInitialPrompt(values.message)
 
     await createAiConversation({
@@ -38,6 +95,11 @@ export const PanelAiAgent = ({ hasAccessToAiAgent }: PanelAiAgentProps) => {
       },
 
       onCompleted: (data) => {
+        // The user switched agents while the request was in flight
+        if (agentTypeRef.current !== AiAgentTypeEnum.billing) {
+          return
+        }
+
         if (conversationId) {
           addNewMessage(values.message)
 
@@ -64,14 +126,16 @@ export const PanelAiAgent = ({ hasAccessToAiAgent }: PanelAiAgentProps) => {
         <div className="mb-6 mt-auto flex flex-col gap-6 px-6">
           <div className="flex flex-col gap-1">
             <Typography variant="headline" color="grey700">
-              {translate('text_1757417225851l83ffyzwk4g')}
+              {isFinanceAssistant
+                ? translate('text_1780562979519a6i8bacevvs')
+                : translate('text_1757417225851l83ffyzwk4g')}
             </Typography>
             <Typography variant="body" color="grey600">
               {translate('text_1757417225851ylz6l7fwrg9')}
             </Typography>
           </div>
 
-          {hasAccessToAiAgent && <ChatShortcuts onSubmit={handleSubmit} />}
+          {hasAccessToAiAgent && <ChatShortcuts agentType={agentType} onSubmit={handleSubmit} />}
         </div>
       )}
 
@@ -92,6 +156,14 @@ export const PanelAiAgent = ({ hasAccessToAiAgent }: PanelAiAgentProps) => {
           <ChatMessages.Sent>{initialPrompt}</ChatMessages.Sent>
 
           <ChatMessages.Loading />
+        </div>
+      )}
+
+      {!state.messages.length && error && (
+        <div className="mt-auto flex h-full flex-col gap-6 p-6">
+          {!!initialPrompt && <ChatMessages.Sent>{initialPrompt}</ChatMessages.Sent>}
+
+          <ChatMessages.Error>{translate('text_1757417225851jw88w0yfa0n')}</ChatMessages.Error>
         </div>
       )}
 

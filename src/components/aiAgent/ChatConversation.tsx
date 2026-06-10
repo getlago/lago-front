@@ -57,7 +57,7 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
 
       {state.isLoading && <ChatMessages.Loading />}
 
-      {subscription.error && (
+      {(subscription.error || state.hasError) && (
         <ChatMessages.Error>{translate('text_1757417225851jw88w0yfa0n')}</ChatMessages.Error>
       )}
     </div>
