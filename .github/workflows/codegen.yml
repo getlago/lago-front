@@ -17,10 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.3
 
       - name: Checkout API Git repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.3
         with:
           repository: getlago/lago-api
           ref: ${{ github.event.inputs.api_branch }}
@@ -38,10 +38,10 @@ jobs:
         run: docker compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d api
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@v6.0.8
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v6.4.0
         with:
           node-version-file: package.json
           cache: "pnpm"
