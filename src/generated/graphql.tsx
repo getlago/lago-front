@@ -12933,7 +12933,14 @@ export type UpdateSubscriptionFixedChargeMutationVariables = Exact<{
 }>;
 
 
-export type UpdateSubscriptionFixedChargeMutation = { __typename?: 'Mutation', updateSubscriptionFixedCharge?: { __typename?: 'FixedCharge', id: string, code?: string | null, invoiceDisplayName?: string | null, chargeModel: FixedChargeChargeModelEnum, units: string, payInAdvance: boolean, prorated: boolean, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, rate: number, code: string }> | null } | null };
+export type UpdateSubscriptionFixedChargeMutation = { __typename?: 'Mutation', updateSubscriptionFixedCharge?: { __typename?: 'FixedCharge', id: string } | null };
+
+export type GetSubscriptionFixedChargeUnitsOverridesQueryVariables = Exact<{
+  subscriptionId: Scalars['ID']['input'];
+}>;
+
+
+export type GetSubscriptionFixedChargeUnitsOverridesQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, units: string }> | null } | null };
 
 export type PlanForUpdateWithCascadeFragment = { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, amountCurrency: CurrencyEnum, billChargesMonthly?: boolean | null, billFixedChargesMonthly?: boolean | null, hasOverriddenPlans?: boolean | null, trialPeriod?: number | null, payInAdvance: boolean, amountCents: any, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string }> | null, charges?: Array<{ __typename?: 'Charge', id: string }> | null, minimumCommitment?: { __typename?: 'Commitment', amountCents: any, commitmentType: CommitmentTypeEnum, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null } | null, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null };
 
@@ -32418,10 +32425,50 @@ export type UpdateSubscriptionChargeMutationOptions = Apollo.BaseMutationOptions
 export const UpdateSubscriptionFixedChargeDocument = gql`
     mutation updateSubscriptionFixedCharge($input: UpdateSubscriptionFixedChargeInput!) {
   updateSubscriptionFixedCharge(input: $input) {
-    ...FixedChargeForDetailsV2
+    id
   }
 }
-    ${FixedChargeForDetailsV2FragmentDoc}`;
+    `;
+export const GetSubscriptionFixedChargeUnitsOverridesDocument = gql`
+    query getSubscriptionFixedChargeUnitsOverrides($subscriptionId: ID!) {
+  subscription(id: $subscriptionId) {
+    id
+    fixedCharges {
+      id
+      units
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetSubscriptionFixedChargeUnitsOverridesQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionFixedChargeUnitsOverridesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionFixedChargeUnitsOverridesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionFixedChargeUnitsOverridesQuery({
+ *   variables: {
+ *      subscriptionId: // value for 'subscriptionId'
+ *   },
+ * });
+ */
+export function useGetSubscriptionFixedChargeUnitsOverridesQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionFixedChargeUnitsOverridesQuery, GetSubscriptionFixedChargeUnitsOverridesQueryVariables> & ({ variables: GetSubscriptionFixedChargeUnitsOverridesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSubscriptionFixedChargeUnitsOverridesQuery, GetSubscriptionFixedChargeUnitsOverridesQueryVariables>(GetSubscriptionFixedChargeUnitsOverridesDocument, options);
+      }
+export function useGetSubscriptionFixedChargeUnitsOverridesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionFixedChargeUnitsOverridesQuery, GetSubscriptionFixedChargeUnitsOverridesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSubscriptionFixedChargeUnitsOverridesQuery, GetSubscriptionFixedChargeUnitsOverridesQueryVariables>(GetSubscriptionFixedChargeUnitsOverridesDocument, options);
+        }
+export type GetSubscriptionFixedChargeUnitsOverridesQueryHookResult = ReturnType<typeof useGetSubscriptionFixedChargeUnitsOverridesQuery>;
+export type GetSubscriptionFixedChargeUnitsOverridesLazyQueryHookResult = ReturnType<typeof useGetSubscriptionFixedChargeUnitsOverridesLazyQuery>;
+export type GetSubscriptionFixedChargeUnitsOverridesQueryResult = Apollo.QueryResult<GetSubscriptionFixedChargeUnitsOverridesQuery, GetSubscriptionFixedChargeUnitsOverridesQueryVariables>;
+
 export type UpdateSubscriptionFixedChargeMutationFn = Apollo.MutationFunction<UpdateSubscriptionFixedChargeMutation, UpdateSubscriptionFixedChargeMutationVariables>;
 
 /**

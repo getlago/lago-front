@@ -373,6 +373,69 @@ describe('PlanDetailsV2FixedChargesSection', () => {
     expect(screen.queryByText('text_63e51ef4985f0ebd75c212fc')).not.toBeInTheDocument()
   })
 
+  // Drift test: the subscription override map should take precedence over the
+  // plan-level units when displaying a row and when pre-filling the edit drawer.
+  it('uses subscriptionFixedChargeUnitsById to override displayed units', async () => {
+    const plan = {
+      ...planDetailsV2Fixture,
+      fixedCharges: [buildFixedChargeFixture({ id: 'fc_override', units: '5' })],
+    }
+
+    render(
+      <PlanDetailsV2FixedChargesSection
+        plan={plan}
+        isInSubscriptionForm
+        subscriptionFixedChargeUnitsById={{ fc_override: '42' }}
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
+
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }),
+    )
+
+    await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
+    const [chargeArg] = mockOpenDrawer.mock.calls[0]
+    // Drawer pre-fills with the override, not the plan default.
+    expect(chargeArg.units).toBe('42')
+  })
+
+  // Drift test: when no override is present for a charge, the plan-level value
+  // remains visible. Guards against accidental nullish display in sub mode.
+  it('falls back to plan units when no override is present', async () => {
+    const plan = {
+      ...planDetailsV2Fixture,
+      fixedCharges: [buildFixedChargeFixture({ id: 'fc_plain', units: '7' })],
+    }
+
+    render(
+      <PlanDetailsV2FixedChargesSection
+        plan={plan}
+        isInSubscriptionForm
+        subscriptionFixedChargeUnitsById={{}}
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
+
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }),
+    )
+
+    await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
+    const [chargeArg] = mockOpenDrawer.mock.calls[0]
+    expect(chargeArg.units).toBe('7')
+  })
+
   it('exposes openCreate via ref', async () => {
     const ref = createRef<PlanDetailsV2FixedChargesSectionRef>()
 

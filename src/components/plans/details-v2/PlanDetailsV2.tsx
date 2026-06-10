@@ -66,6 +66,10 @@ type PlanDetailsV2Props = {
   planId: string
   isInSubscriptionForm?: boolean
   subscriptionId?: string
+  // Override units keyed by FixedCharge id. Populated only in subscription
+  // mode by SubscriptionDetailsV2Plan, which fetches Subscription.fixedCharges
+  // with fetchPolicy: 'no-cache' so plan-scope cache entries keep plan defaults.
+  subscriptionFixedChargeUnitsById?: Record<string, string>
   banner?: ReactNode
 }
 
@@ -73,6 +77,7 @@ export const PlanDetailsV2 = ({
   planId,
   isInSubscriptionForm = false,
   subscriptionId,
+  subscriptionFixedChargeUnitsById,
   banner,
 }: PlanDetailsV2Props) => {
   const { data, loading } = useGetPlanForDetailsV2Query({
@@ -143,6 +148,7 @@ export const PlanDetailsV2 = ({
                   plan={plan}
                   isInSubscriptionForm={isInSubscriptionForm}
                   fixedChargeMutations={fixedChargeMutations}
+                  subscriptionFixedChargeUnitsById={subscriptionFixedChargeUnitsById}
                 />
               )
             }
