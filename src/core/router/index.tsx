@@ -1,6 +1,5 @@
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
-import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 
 import { authRoutes } from './AuthRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
@@ -91,7 +90,6 @@ const analyticsInlineRoutes: CustomRouteObject[] = [
     private: true,
     element: <RevenueRecognitionDashboard />,
     permissions: ['analyticsView', 'dataApiView'],
-    premiumIntegrations: [PremiumIntegrationTypeEnum.RevenueRecognition],
   },
 ]
 
