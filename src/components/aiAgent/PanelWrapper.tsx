@@ -1,13 +1,16 @@
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
+import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
-import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
+import { AGENT_TYPE_LABELS, AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { MenuPopper } from '~/styles'
 
 type PanelWrapperProps = {
   children: React.ReactNode
   title: string
   isBeta: boolean
+  showAgentSelector?: boolean
   showBackButton?: boolean
   onBackButton?: () => void
   showHistoryButton?: boolean
@@ -18,13 +21,63 @@ export const PanelWrapper = ({
   children,
   title,
   isBeta,
+  showAgentSelector,
   showBackButton,
   onBackButton,
   showHistoryButton,
   onShowHistory,
 }: PanelWrapperProps) => {
-  const { closePanel } = useAiAgent()
+  const { agentType, closePanel, setAgentType } = useAiAgent()
   const { translate } = useInternationalization()
+  const agentOptions = Object.values(AiAgentTypeEnum).map((value) => ({
+    value,
+    label: translate(AGENT_TYPE_LABELS[value]),
+  }))
+  const selectedAgentLabel = agentOptions.find((option) => option.value === agentType)?.label
+
+  const titleElement = showAgentSelector ? (
+    <Popper
+      PopperProps={{
+        placement: 'bottom-start',
+        modifiers: [
+          {
+            name: 'offset',
+            enabled: true,
+            options: {
+              offset: [-1, 8],
+            },
+          },
+        ],
+      }}
+      opener={
+        <Button className="px-0" variant="inline" endIcon="chevron-down">
+          {selectedAgentLabel}
+        </Button>
+      }
+    >
+      {({ closePopper }) => (
+        <MenuPopper className="-ml-1 w-50">
+          {agentOptions.map((option) => (
+            <Button
+              align="left"
+              key={option.value}
+              variant={agentType === option.value ? 'secondary' : 'quaternary'}
+              onClick={() => {
+                setAgentType(option.value)
+                closePopper()
+              }}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </MenuPopper>
+      )}
+    </Popper>
+  ) : (
+    <Typography variant="bodyHl" className="!truncate" color="grey700">
+      {title}
+    </Typography>
+  )
 
   return (
     <div>
@@ -33,9 +86,7 @@ export const PanelWrapper = ({
           <Button size="medium" variant="quaternary" icon="arrow-left" onClick={onBackButton} />
         )}
         <div className="flex h-8 flex-1 items-center gap-2 truncate">
-          <Typography variant="bodyHl" className="!truncate" color="grey700">
-            {title}
-          </Typography>
+          {titleElement}
           {isBeta && (
             <Chip
               className="min-h-6 border-purple-200 bg-purple-100"
