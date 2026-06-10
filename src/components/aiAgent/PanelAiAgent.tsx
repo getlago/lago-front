@@ -18,17 +18,9 @@ type PanelAiAgentProps = {
 }
 
 export const PanelAiAgent = ({ hasAccessToAiAgent }: PanelAiAgentProps) => {
-  const {
-    addNewMessage,
-    agentType,
-    completeExchange,
-    conversationId,
-    failExchange,
-    startNewConversation,
-    state,
-  } = useAiAgent()
+  const { addNewMessage, agentType, conversationId, startNewConversation, state } = useAiAgent()
   const { createAiConversation, loading, error } = useCreateAiConversation()
-  const { askFinanceAssistant } = useAskFinanceAssistant()
+  const { submitFinanceQuestion } = useAskFinanceAssistant()
   const [initialPrompt, setInitialPrompt] = useState<string>('')
   const { translate } = useInternationalization()
   const isFinanceAssistant = agentType === AiAgentTypeEnum.finance
@@ -49,39 +41,7 @@ export const PanelAiAgent = ({ hasAccessToAiAgent }: PanelAiAgentProps) => {
 
   const handleSubmit = async (values: CreateAiConversationInput) => {
     if (isFinanceAssistant) {
-      const exchangeId = crypto.randomUUID()
-
-      addNewMessage(values.message, exchangeId)
-
-      try {
-        const { data } = await askFinanceAssistant({
-          variables: {
-            input: {
-              question: values.message,
-              sessionId: state.financeSessionId,
-            },
-          },
-        })
-
-        const answer = data?.askFinanceAssistant
-
-        if (!answer) {
-          return failExchange(exchangeId)
-        }
-
-        return completeExchange({
-          exchangeId,
-          response: answer.explanation,
-          sessionId: answer.sessionId,
-          financeAssistantResult: {
-            results: answer.results,
-            sessionExpired: answer.sessionExpired,
-            sqlQuery: answer.sqlQuery || undefined,
-          },
-        })
-      } catch {
-        return failExchange(exchangeId)
-      }
+      return submitFinanceQuestion(values.message)
     }
 
     setInitialPrompt(values.message)
