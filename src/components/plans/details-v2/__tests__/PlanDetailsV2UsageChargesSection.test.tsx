@@ -106,6 +106,40 @@ describe('PlanDetailsV2UsageChargesSection', () => {
     expect(screen.queryByText('text_17797360854699edp5yofy8h')).not.toBeInTheDocument()
   })
 
+  it('renders presentation group keys in the usage charge details', async () => {
+    const plan = {
+      ...planDetailsV2Fixture,
+      charges: [
+        buildUsageChargeFixture({
+          id: 'ch_with_presentation_group_keys',
+          properties: {
+            __typename: 'Properties',
+            amount: '10',
+            presentationGroupKeys: [
+              {
+                __typename: 'PresentationGroupKey',
+                value: 'account_manager',
+                options: {
+                  __typename: 'PresentationGroupKeyOptions',
+                  displayInInvoice: true,
+                },
+              },
+            ],
+          } as never,
+        }),
+      ],
+    }
+
+    render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
+      wrapper: Wrapper,
+    })
+    await userEvent.click(await screen.findByText('API calls'))
+
+    expect(screen.getByText('text_17774502138912d3etwcacpe')).toBeInTheDocument()
+    expect(screen.getByText('text_1777456950225zgyccgcm3x4')).toBeInTheDocument()
+    expect(screen.getByText('account_manager')).toBeInTheDocument()
+  })
+
   it('opens drawer with no args when Add CTA is clicked', async () => {
     render(
       <PlanDetailsV2UsageChargesSection
@@ -136,6 +170,40 @@ describe('PlanDetailsV2UsageChargesSection', () => {
     expect(indexArg).toBe(0)
   })
 
+  it('passes the already-used alert when the same billable metric backs >1 charge', async () => {
+    const plan = {
+      ...planDetailsV2Fixture,
+      charges: [buildUsageChargeFixture({ id: 'ch_1' }), buildUsageChargeFixture({ id: 'ch_2' })],
+    }
+    render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
+      wrapper: Wrapper,
+    })
+    await userEvent.click((await screen.findAllByRole('button', { name: /actions/i }))[0])
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }),
+    )
+    await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
+    const [, , options] = mockOpenDrawer.mock.calls[0]
+    expect(options?.alreadyUsedChargeAlertMessage).toBe('text_6435895831d323008a47911f')
+  })
+
+  it('does NOT pass the already-used alert when the billable metric is unique', async () => {
+    const plan = {
+      ...planDetailsV2Fixture,
+      charges: [buildUsageChargeFixture({ id: 'ch_1' })],
+    }
+    render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
+      wrapper: Wrapper,
+    })
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }),
+    )
+    await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
+    const [, , options] = mockOpenDrawer.mock.calls[0]
+    expect(options?.alreadyUsedChargeAlertMessage).toBeUndefined()
+  })
+
   it('calls handleDeleteCharge when Delete is clicked', async () => {
     const plan = {
       ...planDetailsV2Fixture,
@@ -149,6 +217,29 @@ describe('PlanDetailsV2UsageChargesSection', () => {
       await screen.findByRole('button', { name: 'text_63ea0f84f400488553caa786' }),
     )
     expect(mockHandleDeleteCharge).toHaveBeenCalledWith('ch_to_delete')
+  })
+
+  it('warns before deleting a charge when the plan has subscriptions', async () => {
+    const plan = {
+      ...planDetailsV2Fixture,
+      subscriptionsCount: 3,
+      charges: [buildUsageChargeFixture({ id: 'ch_used' })],
+    }
+    render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
+      wrapper: Wrapper,
+    })
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'text_63ea0f84f400488553caa786' }),
+    )
+
+    // The warning dialog defers the delete until the user confirms.
+    expect(mockHandleDeleteCharge).not.toHaveBeenCalled()
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'text_63cfe20ad6c1a53c5352a474' }),
+    )
+    await waitFor(() => expect(mockHandleDeleteCharge).toHaveBeenCalledWith('ch_used'))
   })
 
   // Drift test: lock in the Add CTA in plan mode so a future refactor can't drop it.

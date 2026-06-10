@@ -5,6 +5,7 @@ import { render } from '~/test-utils'
 import { InvoicingPaymentsFormSection } from '../InvoicingPaymentsFormSection'
 
 const mockPaymentMethodsInvoiceSettings: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
+const mockConsolidationSection: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 
 jest.mock('~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings', () => ({
   PaymentMethodsInvoiceSettings: (props: Record<string, unknown>) => {
@@ -13,12 +14,27 @@ jest.mock('~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSetti
   },
 }))
 
+jest.mock('~/components/subscriptions/SubscriptionInvoiceConsolidationSection', () => ({
+  SubscriptionInvoiceConsolidationSection: (props: Record<string, unknown>) => {
+    mockConsolidationSection(props)
+    return null
+  },
+}))
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
+let mockHasFeatureFlag = true
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({ hasFeatureFlag: () => mockHasFeatureFlag }),
+}))
+
 jest.mock('@tanstack/react-form', () => ({
   revalidateLogic: jest.fn(() => ({})),
+  useStore: (store: { state: unknown }, selector: (state: unknown) => unknown) =>
+    selector(store.state),
 }))
 
 jest.mock('~/hooks/forms/useAppform', () => ({
@@ -43,21 +59,27 @@ jest.mock('~/hooks/forms/useAppform', () => ({
   ),
 }))
 
-const createMockForm = () => ({
-  setFieldValue: jest.fn(),
-  state: { values: { planId: 'plan-1' } },
-})
+const createMockForm = () => {
+  const state = { values: { planId: 'plan-1' } }
+
+  return {
+    setFieldValue: jest.fn(),
+    state,
+    store: { state },
+  }
+}
 
 describe('InvoicingPaymentsFormSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasFeatureFlag = true
   })
 
   describe('GIVEN a customer with id', () => {
     it('THEN should render the section title and forward props to PaymentMethodsInvoiceSettings', () => {
       render(
         <InvoicingPaymentsFormSection
-          // @ts-expect-error — mock form shape
+          // @ts-expect-error - mock form shape
           form={createMockForm()}
           customer={{ id: 'cust-1' }}
         />,
@@ -68,12 +90,41 @@ describe('InvoicingPaymentsFormSection', () => {
         expect.objectContaining({
           customer: { id: 'cust-1' },
           viewType: 'subscription',
-          formikProps: expect.objectContaining({
+          form: expect.objectContaining({
             values: expect.any(Object),
             setFieldValue: expect.any(Function),
           }),
         }),
       )
+    })
+
+    it('THEN should render the consolidation field group wired to consolidateInvoice', () => {
+      render(
+        <InvoicingPaymentsFormSection
+          // @ts-expect-error - mock form shape
+          form={createMockForm()}
+          customer={{ id: 'cus-1' }}
+        />,
+      )
+
+      expect(mockConsolidationSection).toHaveBeenCalledWith(
+        expect.objectContaining({ fields: { consolidateInvoice: 'consolidateInvoice' } }),
+      )
+    })
+
+    it('hides PaymentMethodsInvoiceSettings without the MultiplePaymentMethods flag but keeps consolidation', () => {
+      mockHasFeatureFlag = false
+
+      render(
+        <InvoicingPaymentsFormSection
+          // @ts-expect-error - mock form shape
+          form={createMockForm()}
+          customer={{ id: 'cus-1' }}
+        />,
+      )
+
+      expect(mockConsolidationSection).toHaveBeenCalled()
+      expect(mockPaymentMethodsInvoiceSettings).not.toHaveBeenCalled()
     })
   })
 
@@ -81,27 +132,31 @@ describe('InvoicingPaymentsFormSection', () => {
     it('THEN should render the section', () => {
       render(
         <InvoicingPaymentsFormSection
-          // @ts-expect-error — mock form shape
+          // @ts-expect-error - mock form shape
           form={createMockForm()}
           customer={{ externalId: 'ext-1' }}
         />,
       )
 
       expect(screen.getByText('text_1762862388271au34vz50g8i')).toBeInTheDocument()
+      expect(mockPaymentMethodsInvoiceSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ customer: { externalId: 'ext-1' } }),
+      )
     })
   })
 
   describe('GIVEN a customer without id or externalId', () => {
-    it('THEN should not render', () => {
+    it('THEN should render consolidation but not the payment settings', () => {
       render(
         <InvoicingPaymentsFormSection
-          // @ts-expect-error — mock form shape
+          // @ts-expect-error - mock form shape
           form={createMockForm()}
           customer={null}
         />,
       )
 
-      expect(screen.queryByText('text_1762862388271au34vz50g8i')).not.toBeInTheDocument()
+      expect(screen.getByText('text_1762862388271au34vz50g8i')).toBeInTheDocument()
+      expect(mockConsolidationSection).toHaveBeenCalled()
       expect(mockPaymentMethodsInvoiceSettings).not.toHaveBeenCalled()
     })
   })

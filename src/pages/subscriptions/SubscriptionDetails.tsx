@@ -3,11 +3,11 @@ import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
-import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
+import { SubscriptionDetailsV2Overview } from '~/components/subscriptions/details-v2/SubscriptionDetailsV2Overview'
 import { SubscriptionDetailsV2Plan } from '~/components/subscriptions/details-v2/SubscriptionDetailsV2Plan'
 import { SubscriptionActivityLogs } from '~/components/subscriptions/SubscriptionActivityLogs'
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
@@ -146,20 +146,76 @@ const SubscriptionDetails = () => {
     }
 
     return [
+      isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE)
+        ? {
+            title: translate('text_628cf761cbe6820138b8f2e4'),
+            link: !!customerId
+              ? getCustomerSubscriptionDetailsRoute(
+                  CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
+                )
+              : getPlanSubscriptionDetailsRoute(
+                  CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
+                ),
+            match: [
+              getCustomerSubscriptionDetailsRoute(
+                CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
+              ),
+              getPlanSubscriptionDetailsRoute(
+                CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
+              ),
+            ],
+            content: (
+              <DetailsPage.Container>
+                <SubscriptionDetailsV2Overview subscriptionId={subscriptionId as string} />
+              </DetailsPage.Container>
+            ),
+            hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
+          }
+        : {
+            title: translate('text_628cf761cbe6820138b8f2e4'),
+            link: !!customerId
+              ? getCustomerSubscriptionDetailsRoute(
+                  CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+                )
+              : getPlanSubscriptionDetailsRoute(
+                  CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+                ),
+            match: [
+              getCustomerSubscriptionDetailsRoute(
+                CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+              ),
+              getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
+            ],
+            content: (
+              <DetailsPage.Container>
+                <SubscriptionDetailsOverview />
+              </DetailsPage.Container>
+            ),
+          },
+
       {
-        title: translate('text_628cf761cbe6820138b8f2e4'),
+        title: translate('text_17792001643316pbexygvpu2'),
         link: !!customerId
-          ? getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview)
-          : getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
+          ? getCustomerSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+            )
+          : getPlanSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+            ),
         match: [
-          getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
-          getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
+          getCustomerSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+          ),
+          getPlanSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+          ),
         ],
         content: (
-          <DetailsPage.Container>
-            <SubscriptionDetailsOverview />
+          <DetailsPage.Container className="pb-0">
+            <SubscriptionDetailsV2Plan subscriptionId={subscriptionId as string} />
           </DetailsPage.Container>
         ),
+        hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
       },
       {
         title: translate('text_1724179887722baucvj7bvc1'),
@@ -178,6 +234,11 @@ const SubscriptionDetails = () => {
             CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling,
           ),
         ],
+        // The MainHeader config snapshot strips `content` (ReactNode), so content-only
+        // changes don't re-push to context. This tab's content reflects reactive
+        // subscription state (progressive billing toggle, threshold reset), so encode
+        // those bits in snapshotKey to force a refresh when they change.
+        snapshotKey: `${isSubscriptionLoading}-${!!subscription?.progressiveBillingDisabled}-${subscription?.usageThresholds?.length ?? 0}`,
         content: (
           <DetailsPage.Container>
             <SubscriptionProgressiveBillingTab
@@ -260,54 +321,6 @@ const SubscriptionDetails = () => {
           </DetailsPage.Container>
         ),
         hidden: !subscription?.externalId || !isPremium || !hasPermissions(['auditLogsView']),
-      },
-      {
-        title: translate('text_17792001643312864fz7j4gq'),
-        link: !!customerId
-          ? getCustomerSubscriptionDetailsRoute(
-              CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-            )
-          : getPlanSubscriptionDetailsRoute(
-              CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-            ),
-        match: [
-          getCustomerSubscriptionDetailsRoute(
-            CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-          ),
-          getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.editOverview),
-        ],
-        content: (
-          <DetailsPage.Container>
-            <Typography variant="body">{translate('text_17792001643312864fz7j4gq')}</Typography>
-          </DetailsPage.Container>
-        ),
-        hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
-      },
-      {
-        title: translate('text_17792001643316pbexygvpu2'),
-        link: !!customerId
-          ? getCustomerSubscriptionDetailsRoute(
-              CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
-            )
-          : getPlanSubscriptionDetailsRoute(
-              CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
-            ),
-        match: [
-          getCustomerSubscriptionDetailsRoute(
-            CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
-          ),
-          getPlanSubscriptionDetailsRoute(
-            CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
-          ),
-        ],
-        content: (
-          // v2 layout: horizontal padding only — avoids DetailsPage.Container's
-          // legacy pb-20 / flex-col. Vertical spacing comes from the content's py-12.
-          <div className="px-4 md:px-12">
-            <SubscriptionDetailsV2Plan subscriptionId={subscriptionId as string} />
-          </div>
-        ),
-        hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
       },
     ]
   }, [

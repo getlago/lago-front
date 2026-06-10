@@ -125,6 +125,60 @@ describe('PlanDetailsV2LeftSidebar', () => {
     })
   })
 
+  describe('charge folder children', () => {
+    const fixedCharges = [
+      {
+        id: 'fc-1',
+        invoiceDisplayName: 'Premium seats',
+        code: 'seats',
+        addOn: { id: 'ao-1', name: 'Seats' },
+      },
+      { id: 'fc-2', invoiceDisplayName: null, code: 'cards', addOn: { id: 'ao-2', name: 'Cards' } },
+      {
+        id: 'fc-3',
+        invoiceDisplayName: null,
+        code: 'fallback-code',
+        addOn: { id: 'ao-3', name: '' },
+      },
+    ]
+    const usageCharges = [
+      {
+        id: 'uc-1',
+        invoiceDisplayName: null,
+        code: 'api',
+        billableMetric: { id: 'bm-1', name: 'API calls' },
+      },
+    ]
+
+    it('lists charges with invoiceDisplayName || addOn/metric name || code once the folder is expanded', async () => {
+      renderSidebar({ fixedCharges, usageCharges })
+
+      // Folders are collapsed by default — children hidden until toggled.
+      expect(screen.queryByText('Premium seats')).not.toBeInTheDocument()
+
+      await userEvent.click(screen.getByTestId('sidebar-toggle-fixed-charges'))
+
+      expect(screen.getByText('Premium seats')).toBeInTheDocument() // invoiceDisplayName
+      expect(screen.getByText('Cards')).toBeInTheDocument() // addOn.name fallback
+      expect(screen.getByText('fallback-code')).toBeInTheDocument() // code fallback
+
+      await userEvent.click(screen.getByTestId('sidebar-toggle-usage-charges'))
+
+      expect(screen.getByText('API calls')).toBeInTheDocument() // billableMetric.name fallback
+    })
+
+    it('fires onItemClick with the charge id when a charge child is clicked', async () => {
+      const onItemClick = jest.fn()
+
+      renderSidebar({ fixedCharges, onItemClick })
+
+      await userEvent.click(screen.getByTestId('sidebar-toggle-fixed-charges'))
+      await userEvent.click(screen.getByRole('button', { name: 'Premium seats' }))
+
+      expect(onItemClick).toHaveBeenCalledWith('fc-1')
+    })
+  })
+
   describe('chevron toggle', () => {
     it('toggles expanded state without firing onItemClick', async () => {
       const onItemClick = jest.fn()

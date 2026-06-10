@@ -250,8 +250,8 @@ jest.mock('~/components/invoices/AddMetadataDrawer', () => ({
   AddMetadataDrawer: () => null,
 }))
 
-jest.mock('~/components/PremiumWarningDialog', () => ({
-  PremiumWarningDialog: () => null,
+jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
+  usePremiumWarningDialog: () => ({ open: jest.fn(), close: jest.fn() }),
 }))
 
 jest.mock('~/components/invoices/InvoiceCreditNoteList', () => ({

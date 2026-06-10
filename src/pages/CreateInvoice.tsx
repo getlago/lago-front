@@ -1202,7 +1202,7 @@ const CreateInvoice = () => {
               </div>
               <PaymentMethodsInvoiceSettings
                 customer={customer}
-                formikProps={formikProps}
+                form={formikProps}
                 viewType={ViewTypeEnum.OneOffInvoice}
               />
             </Card>

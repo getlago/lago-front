@@ -47,6 +47,7 @@
 - ESLint rules from `lago-configs` package
 - Consistent naming: camelCase for variables, PascalCase for components
 - Use existing design system components before creating new ones
+- In tests, import and reuse the real exported types/interfaces (e.g. `MainHeaderTab`) instead of redeclaring a partial copy of a production type just for assertions — a local stub drifts from the source and hides type errors
 - Always use direct MUI imports, never barrel imports:
   ```typescript
   // Correct

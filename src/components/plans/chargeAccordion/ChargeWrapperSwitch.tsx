@@ -7,6 +7,7 @@ import { DynamicCharge } from '~/components/plans/DynamicCharge'
 import { GraduatedChargeTable } from '~/components/plans/GraduatedChargeTable'
 import { GraduatedPercentageChargeTable } from '~/components/plans/GraduatedPercentageChargeTable'
 import { PackageCharge } from '~/components/plans/PackageCharge'
+import PresentationGroupKeys from '~/components/plans/PresentationGroupKeys'
 import PricingGroupKeys from '~/components/plans/PricingGroupKeys'
 import { StandardCharge } from '~/components/plans/StandardCharge'
 import { LocalFixedChargeInput, LocalUsageChargeInput } from '~/components/plans/types'
@@ -25,6 +26,9 @@ interface ChargeWrapperSwitchProps {
   localCharge: LocalFixedChargeInput | LocalUsageChargeInput
   propertyCursor: string
   onExpandCustomCharge?: (currentValue: string | undefined) => void
+  // When rendered for a charge filter sub-form, we hide PresentationGroupKeys —
+  // filters inherit them from the parent charge automatically.
+  isFilterForm?: boolean
 }
 
 export const ChargeWrapperSwitch = memo(
@@ -37,6 +41,7 @@ export const ChargeWrapperSwitch = memo(
     localCharge,
     propertyCursor,
     onExpandCustomCharge,
+    isFilterForm,
   }: ChargeWrapperSwitchProps) => {
     const isUsageCharge = chargeType === 'usage'
 
@@ -62,7 +67,12 @@ export const ChargeWrapperSwitch = memo(
           )}
           {localCharge?.chargeModel === ALL_CHARGE_MODELS.Dynamic && <DynamicCharge />}
 
-          {isUsageCharge && <PricingGroupKeys />}
+          {isUsageCharge && (
+            <>
+              <PricingGroupKeys />
+              {!isFilterForm && <PresentationGroupKeys />}
+            </>
+          )}
         </div>
       </ChargeFormProvider>
     )

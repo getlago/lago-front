@@ -1,15 +1,15 @@
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import NiceModal from '@ebay/nice-modal-react'
-import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, render, renderHook, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createRef, ReactNode } from 'react'
+import { ReactNode } from 'react'
 
 import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
-import { UpdatePlanDocument } from '~/generated/graphql'
+import { PlanDetailsV2Fragment, UpdatePlanDocument } from '~/generated/graphql'
 
 import { planDetailsV2Fixture } from '../../../details-v2/__tests__/fixtures'
-import { PlanSettingsDrawer, PlanSettingsDrawerRef } from '../PlanSettingsDrawer'
+import { usePlanSettingsDrawer } from '../usePlanSettingsDrawer'
 
 NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 
@@ -63,18 +63,21 @@ const updateMockFactory = (cascadeUpdates: boolean | undefined): MockedResponse 
   },
 })
 
-const renderHarness = (plan = planDetailsV2Fixture, mocks: MockedResponse[] = []) => {
-  const ref = createRef<PlanSettingsDrawerRef>()
+// Renders the hook inside the Apollo + NiceModal context the real form needs,
+// opens the drawer, and exposes the captured open() args via lastDrawerArgs.
+const openDrawer = (
+  plan: PlanDetailsV2Fragment = planDetailsV2Fixture,
+  { subscriptionId, mocks = [] }: { subscriptionId?: string; mocks?: MockedResponse[] } = {},
+) => {
+  const { result } = renderHook(() => usePlanSettingsDrawer(plan, subscriptionId), {
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <NiceModal.Provider>{children}</NiceModal.Provider>
+      </MockedProvider>
+    ),
+  })
 
-  const utils = render(
-    <MockedProvider mocks={mocks} addTypename={false}>
-      <NiceModal.Provider>
-        <PlanSettingsDrawer ref={ref} plan={plan} />
-      </NiceModal.Provider>
-    </MockedProvider>,
-  )
-
-  return { ref, ...utils }
+  act(() => result.current.openDrawer())
 }
 
 const renderDrawerBody = () => {
@@ -88,7 +91,7 @@ const renderDrawerBody = () => {
   )
 }
 
-describe('PlanSettingsDrawer', () => {
+describe('usePlanSettingsDrawer', () => {
   beforeEach(() => {
     lastDrawerArgs = null
     mockClose.mockClear()
@@ -101,9 +104,7 @@ describe('PlanSettingsDrawer', () => {
   })
 
   it('opens with current plan values pre-filled', async () => {
-    const { ref } = renderHarness()
-
-    act(() => ref.current?.openDrawer())
+    openDrawer()
 
     expect(lastDrawerArgs?.title).toBe('text_642d5eb2783a2ad10d67031a')
 
@@ -116,9 +117,7 @@ describe('PlanSettingsDrawer', () => {
   })
 
   it('submits updatePlan without opening the cascade dialog when no overrides exist', async () => {
-    const { ref } = renderHarness(planDetailsV2Fixture, [updateMockFactory(undefined)])
-
-    act(() => ref.current?.openDrawer())
+    openDrawer(planDetailsV2Fixture, { mocks: [updateMockFactory(undefined)] })
 
     renderDrawerBody()
 
@@ -138,10 +137,8 @@ describe('PlanSettingsDrawer', () => {
     })
   })
 
-  it('renders the save action and closes the drawer imperatively', async () => {
-    const { ref } = renderHarness()
-
-    act(() => ref.current?.openDrawer())
+  it('renders the save action', () => {
+    openDrawer()
 
     // The mainAction render-prop renders the save button.
     render(
@@ -152,10 +149,6 @@ describe('PlanSettingsDrawer', () => {
 
     // testIdAttribute defaults to data-testid here, so assert on the label text.
     expect(screen.getByText('text_17295436903260tlyb1gp1i7')).toBeInTheDocument()
-
-    act(() => ref.current?.closeDrawer())
-
-    expect(mockClose).toHaveBeenCalled()
   })
 
   describe('GIVEN a subscriptionId (sub plan-override mode)', () => {
@@ -167,24 +160,8 @@ describe('PlanSettingsDrawer', () => {
       taxes: [{ __typename: 'Tax' as const, id: 'tax-1', code: 'vat', name: 'VAT', rate: 20 }],
     }
 
-    const renderSubHarness = () => {
-      const ref = createRef<PlanSettingsDrawerRef>()
-
-      render(
-        <MockedProvider mocks={[]} addTypename={false}>
-          <NiceModal.Provider>
-            <PlanSettingsDrawer ref={ref} plan={subPlan} subscriptionId="sub-1" />
-          </NiceModal.Provider>
-        </MockedProvider>,
-      )
-
-      return ref
-    }
-
     it('routes the edit through updateSubscription(planOverrides) instead of updatePlan', async () => {
-      const ref = renderSubHarness()
-
-      act(() => ref.current?.openDrawer())
+      openDrawer(subPlan, { subscriptionId: 'sub-1' })
 
       renderDrawerBody()
 
@@ -196,6 +173,7 @@ describe('PlanSettingsDrawer', () => {
 
       await waitFor(() => {
         expect(mockUpdatePlanOverride).toHaveBeenCalledWith({
+          name: 'Pro',
           description: 'Pro description',
           taxCodes: ['vat'],
         })
@@ -204,22 +182,59 @@ describe('PlanSettingsDrawer', () => {
       expect(mockClose).toHaveBeenCalled()
     })
 
+    it('persists a renamed plan through the override payload', async () => {
+      openDrawer(subPlan, { subscriptionId: 'sub-1' })
+
+      renderDrawerBody()
+
+      await waitFor(() => screen.getByDisplayValue('Pro'))
+
+      const nameInput = screen.getByDisplayValue('Pro') as HTMLInputElement
+
+      await userEvent.clear(nameInput)
+      await userEvent.type(nameInput, 'Pro Renamed')
+
+      await act(async () => {
+        lastDrawerArgs?.form?.submit()
+      })
+
+      await waitFor(() => {
+        expect(mockUpdatePlanOverride).toHaveBeenCalledWith({
+          name: 'Pro Renamed',
+          description: 'Pro description',
+          taxCodes: ['vat'],
+        })
+      })
+    })
+
+    it('clears the description through the override payload (sends null, not undefined)', async () => {
+      openDrawer(subPlan, { subscriptionId: 'sub-1' })
+
+      renderDrawerBody()
+
+      const descriptionInput = await screen.findByDisplayValue('Pro description')
+
+      await userEvent.clear(descriptionInput)
+
+      await act(async () => {
+        lastDrawerArgs?.form?.submit()
+      })
+
+      await waitFor(() => {
+        expect(mockUpdatePlanOverride).toHaveBeenCalledWith({
+          name: 'Pro',
+          description: null,
+          taxCodes: ['vat'],
+        })
+      })
+    })
+
     it('keeps the drawer open when the override does not succeed', async () => {
       mockUpdatePlanOverride.mockResolvedValueOnce(false)
 
       // Bare fixture (no description, no taxes) so the override payload also
       // exercises the empty-value normalization branches.
-      const ref = createRef<PlanSettingsDrawerRef>()
-
-      render(
-        <MockedProvider mocks={[]} addTypename={false}>
-          <NiceModal.Provider>
-            <PlanSettingsDrawer ref={ref} plan={planDetailsV2Fixture} subscriptionId="sub-1" />
-          </NiceModal.Provider>
-        </MockedProvider>,
-      )
-
-      act(() => ref.current?.openDrawer())
+      openDrawer(planDetailsV2Fixture, { subscriptionId: 'sub-1' })
 
       renderDrawerBody()
 
@@ -231,7 +246,8 @@ describe('PlanSettingsDrawer', () => {
 
       await waitFor(() => {
         expect(mockUpdatePlanOverride).toHaveBeenCalledWith({
-          description: undefined,
+          name: 'Pro',
+          description: null,
           taxCodes: [],
         })
       })
@@ -239,12 +255,35 @@ describe('PlanSettingsDrawer', () => {
     })
   })
 
-  it('opens the cascade dialog when plan has overridden subs', async () => {
-    const { ref } = renderHarness({ ...planDetailsV2Fixture, hasOverriddenPlans: true }, [
-      updateMockFactory(true),
-    ])
+  describe('GIVEN a plan with subscriptions (plan-edit mode, no subscriptionId)', () => {
+    it('locks the code field (ISO with the plan form)', async () => {
+      openDrawer({ ...planDetailsV2Fixture, subscriptionsCount: 5 })
 
-    act(() => ref.current?.openDrawer())
+      renderDrawerBody()
+
+      await waitFor(() => screen.getByDisplayValue('pro'))
+
+      expect(screen.getByDisplayValue('pro')).toBeDisabled()
+    })
+
+    it('keeps the code field editable when the plan has no subscriptions', async () => {
+      openDrawer({ ...planDetailsV2Fixture, subscriptionsCount: 0 })
+
+      renderDrawerBody()
+
+      await waitFor(() => screen.getByDisplayValue('pro'))
+
+      expect(screen.getByDisplayValue('pro')).not.toBeDisabled()
+    })
+  })
+
+  it('opens the cascade dialog when plan has overridden subs', async () => {
+    openDrawer(
+      { ...planDetailsV2Fixture, hasOverriddenPlans: true },
+      {
+        mocks: [updateMockFactory(true)],
+      },
+    )
 
     renderDrawerBody()
 

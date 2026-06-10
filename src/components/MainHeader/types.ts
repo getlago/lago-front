@@ -15,6 +15,13 @@ import { NavigationTabBarItem } from './NavigationTabBar'
  */
 export type MainHeaderTab = NavigationTabBarItem & {
   content: ReactNode
+  /**
+   * Serializable value included in the config snapshot. `content` (ReactNode) is
+   * stripped from the snapshot, so a tab whose content reflects reactive state
+   * (e.g. a toggle the user flips while staying on the page) must encode that
+   * state here, otherwise the stale content stays in context until a full reload.
+   */
+  snapshotKey?: string | number | boolean
 }
 
 // ─── Action types ───────────────────────────────────────────────
@@ -105,6 +112,8 @@ export interface BreadcrumbItem {
   label: string
   /** Route path — the item is rendered as a clickable link */
   path: string
+  /** Show a skeleton instead of the label (e.g. while an async label loads) */
+  loading?: boolean
 }
 
 // ─── Main config ────────────────────────────────────────────────
@@ -124,4 +133,12 @@ export interface MainHeaderConfig {
 
   /** Filter — pages include their own providers */
   filtersSection?: ReactNode
+
+  /**
+   * Serializable value included in the config snapshot. The snapshot strips the tabs'
+   * `content` ReactNode (to avoid re-render loops), so pages whose content reflects
+   * mutable data must bump this key when that data changes, otherwise the header keeps
+   * showing stale content (e.g. a wallet balance after a top-up/void).
+   */
+  snapshotKey?: string | number | boolean
 }

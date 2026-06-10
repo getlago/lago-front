@@ -63,6 +63,7 @@ gql`
     }
     customer {
       id
+      accountType
       addressLine1
       addressLine2
       applicableTimezone

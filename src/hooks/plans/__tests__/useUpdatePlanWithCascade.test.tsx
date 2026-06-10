@@ -20,6 +20,7 @@ NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 
 jest.mock('~/core/apolloClient', () => {
   const actual = jest.requireActual('~/core/apolloClient')
+
   return { ...actual, addToast: jest.fn() }
 })
 
@@ -42,6 +43,7 @@ const basePlan = {
   trialPeriod: 0,
   invoiceDisplayName: null,
   hasOverriddenPlans: false,
+  subscriptionsCount: 0,
   billFixedChargesMonthly: false,
   billChargesMonthly: false,
   taxes: [],
@@ -85,6 +87,7 @@ describe('buildUpdatePlanFormDefaults', () => {
       amountCurrency: CurrencyEnum.Usd,
       amountCents: '0',
       payInAdvance: false,
+      subscriptionsCount: 0,
       minimumCommitment: {
         amountCents: 5000,
         commitmentType: CommitmentTypeEnum.MinimumCommitment,
@@ -264,6 +267,51 @@ describe('useUpdatePlanWithCascade', () => {
       expect(capturedUpdateInput).not.toHaveProperty('minimumCommitment')
       expect(capturedUpdateInput).not.toHaveProperty('usageThresholds')
       expect(capturedUpdateInput).not.toHaveProperty('entitlements')
+      expect(capturedUpdateInput).toHaveProperty('description', null)
+      expect(capturedUpdateInput).toHaveProperty('invoiceDisplayName', null)
+    })
+
+    it('clears an emptied description by sending null in the payload', async () => {
+      const { result } = renderHook(
+        () => useUpdatePlanWithCascade({ plan: { ...basePlan, description: 'Some description' } }),
+        { wrapper: wrapper([capturingUpdateMock]) },
+      )
+
+      act(() => {
+        result.current.form.setFieldValue('description', '')
+      })
+
+      await act(async () => {
+        await result.current.submit()
+      })
+
+      await waitFor(() => {
+        expect(capturedUpdateInput).toBeDefined()
+      })
+
+      expect(capturedUpdateInput).toHaveProperty('description', null)
+    })
+
+    it('clears an emptied invoiceDisplayName by sending null in the payload', async () => {
+      const { result } = renderHook(
+        () =>
+          useUpdatePlanWithCascade({ plan: { ...basePlan, invoiceDisplayName: 'Custom name' } }),
+        { wrapper: wrapper([capturingUpdateMock]) },
+      )
+
+      act(() => {
+        result.current.form.setFieldValue('invoiceDisplayName', '')
+      })
+
+      await act(async () => {
+        await result.current.submit()
+      })
+
+      await waitFor(() => {
+        expect(capturedUpdateInput).toBeDefined()
+      })
+
+      expect(capturedUpdateInput).toHaveProperty('invoiceDisplayName', null)
     })
 
     it('includes minimumCommitment, usageThresholds and entitlements in payload when true', async () => {
@@ -361,6 +409,34 @@ describe('useUpdatePlanWithCascade', () => {
           thresholdDisplayName: null,
         }),
       ])
+    })
+
+    it('sends usageThresholds: [] when all thresholds are deleted so the API clears them', async () => {
+      const planWithThresholds = {
+        ...basePlan,
+        usageThresholds: [
+          { id: 'u1', amountCents: 10000, recurring: false, thresholdDisplayName: null },
+          { id: 'u2', amountCents: 20000, recurring: true, thresholdDisplayName: null },
+        ],
+      } as PlanDetailsV2Fragment
+
+      const { result } = renderHook(
+        () => useUpdatePlanWithCascade({ plan: planWithThresholds, includeAdvancedFields: true }),
+        { wrapper: wrapper([capturingUpdateMock]) },
+      )
+
+      await act(async () => {
+        await result.current.applyAndSubmit(() => {
+          result.current.form.setFieldValue('nonRecurringUsageThresholds', undefined)
+          result.current.form.setFieldValue('recurringUsageThreshold', undefined)
+        })
+      })
+
+      await waitFor(() => {
+        expect(capturedUpdateInput).toBeDefined()
+      })
+
+      expect(capturedUpdateInput?.usageThresholds).toEqual([])
     })
 
     it('strips display-only entitlement fields from the payload when included', async () => {

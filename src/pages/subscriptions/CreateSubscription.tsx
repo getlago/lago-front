@@ -18,10 +18,7 @@ import {
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
-import {
-  PaymentMethodsInvoiceSettingsProps,
-  ViewTypeEnum,
-} from '~/components/paymentMethodsInvoiceSettings/types'
+import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
@@ -48,12 +45,11 @@ import {
 import { getTimezoneConfig } from '~/core/timezone'
 import { subscriptionFormSchema } from '~/formValidation/subscriptionFormSchema'
 import {
-  AddSubscriptionPlanFragmentDoc,
   CurrencyEnum,
-  FeatureEntitlementForPlanFragmentDoc,
   FeatureFlagEnum,
   PlanInterval,
   StatusTypeEnum,
+  SubscriptionForSubscriptionEditFormFragmentDoc,
   TimezoneEnum,
   useGetCustomerForCreateSubscriptionQuery,
   useGetPlansLazyQuery,
@@ -99,38 +95,11 @@ gql`
 
   query getSubscriptionForCreateSubscription($id: ID!) {
     subscription(id: $id) {
-      id
-      name
-      externalId
-      subscriptionAt
-      endingAt
-      billingTime
-      periodEndDate
-      status
-      startedAt
-      paymentMethodType
-      paymentMethod {
-        id
-      }
-      consolidateInvoice
-      skipInvoiceCustomSections
-      selectedInvoiceCustomSections {
-        id
-        name
-        code
-      }
-      plan {
-        id
-        parent {
-          id
-        }
-        ...AddSubscriptionPlan
-      }
+      ...SubscriptionForSubscriptionEditForm
     }
   }
 
-  ${AddSubscriptionPlanFragmentDoc}
-  ${FeatureEntitlementForPlanFragmentDoc}
+  ${SubscriptionForSubscriptionEditFormFragmentDoc}
 `
 
 const CreateSubscription = () => {
@@ -216,6 +185,11 @@ const CreateSubscription = () => {
   const subscriptionIsDirty = useStore(subscriptionForm.store, (s) => s.isDirty)
   const subscriptionCanSubmit = useStore(subscriptionForm.store, (s) => s.canSubmit)
   const subscriptionIsSubmitting = useStore(subscriptionForm.store, (s) => s.isSubmitting)
+  const subscriptionPaymentMethod = useStore(subscriptionForm.store, (s) => s.values.paymentMethod)
+  const subscriptionInvoiceCustomSection = useStore(
+    subscriptionForm.store,
+    (s) => s.values.invoiceCustomSection,
+  )
 
   const { form: planForm, plan } = usePlanForm({
     planIdToFetch: subscriptionPlanId,
@@ -521,12 +495,16 @@ const CreateSubscription = () => {
                         {hasAccessToMultiPaymentFlow && (customer?.externalId || customer?.id) && (
                           <PaymentMethodsInvoiceSettings
                             customer={customer}
-                            formikProps={
-                              {
-                                values: subscriptionForm.state.values,
-                                setFieldValue: subscriptionForm.setFieldValue,
-                              } as PaymentMethodsInvoiceSettingsProps<ViewTypeEnum.Subscription>['formikProps']
-                            }
+                            // `values` MUST come from reactive store slices (useStore above),
+                            // never from `subscriptionForm.state.values` — a non-reactive
+                            // snapshot would not re-render the displayed selection on edit.
+                            form={{
+                              values: {
+                                paymentMethod: subscriptionPaymentMethod,
+                                invoiceCustomSection: subscriptionInvoiceCustomSection,
+                              },
+                              setFieldValue: subscriptionForm.setFieldValue,
+                            }}
                             viewType={ViewTypeEnum.Subscription}
                           />
                         )}

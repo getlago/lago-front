@@ -22,7 +22,6 @@ import InvoicesList from '~/components/invoices/InvoicesList'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
@@ -150,7 +149,6 @@ const InvoicesPage = () => {
     PremiumIntegrationTypeEnum.RevenueShare,
   )
 
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
@@ -308,7 +306,6 @@ const InvoicesPage = () => {
         variables={variables}
       />
 
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />

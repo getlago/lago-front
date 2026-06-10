@@ -212,21 +212,27 @@ export const InvoiceTableSection: FC<{
 
   let tableStructureClasses: string
 
+  const actionColumnClasses = tw(
+    '[&_table>tbody>tr>td:last-child]:size-6 [&_table>tbody>tr>td:last-child]:overflow-visible [&_table>tbody>tr>td:last-child]:pr-0 [&_table>tbody>tr>td:last-child]:pt-[10px] [&_table>tbody>tr>td:nth-last-child(2)]:!pr-3',
+  )
+
   if (isDraftInvoice) {
     tableStructureClasses = tw(
       '[&_table>thead>tr>th:nth-child(1)]:w-[45%] [&_table>thead>tr>th:nth-child(2)]:w-[15%] [&_table>thead>tr>th:nth-child(3)]:w-[15%] [&_table>thead>tr>th:nth-child(4)]:w-[10%] [&_table>thead>tr>th:nth-child(5)]:w-[15%] [&_table>thead>tr>th:nth-child(6)]:w-6 [&_table>thead>tr>th:nth-child(6)]:overflow-visible',
       '[&_table>tbody>tr>td:nth-child(1)]:w-[45%] [&_table>tbody>tr>td:nth-child(2)]:w-[15%] [&_table>tbody>tr>td:nth-child(3)]:w-[15%] [&_table>tbody>tr>td:nth-child(4)]:w-[10%] [&_table>tbody>tr>td:nth-child(5)]:w-[15%] [&_table>tbody>tr>td:nth-child(6)]:w-6 [&_table>tbody>tr>td:nth-child(6)]:overflow-visible',
-      '[&_table>tbody>tr>td:last-child]:size-6 [&_table>tbody>tr>td:last-child]:overflow-visible [&_table>tbody>tr>td:last-child]:pr-0 [&_table>tbody>tr>td:last-child]:pt-[10px] [&_table>tbody>tr>td:nth-last-child(2)]:!pr-3',
+      actionColumnClasses,
     )
   } else if (canHaveUnitPrice) {
     tableStructureClasses = tw(
-      '[&_table>thead>tr>th:nth-child(1)]:w-[45%] [&_table>thead>tr>th:nth-child(2)]:w-[15%] [&_table>thead>tr>th:nth-child(3)]:w-[15%] [&_table>thead>tr>th:nth-child(4)]:w-[10%] [&_table>thead>tr>th:nth-child(5)]:w-[15%]',
-      '[&_table>tbody>tr>td:nth-child(1)]:w-[45%] [&_table>tbody>tr>td:nth-child(2)]:w-[15%] [&_table>tbody>tr>td:nth-child(3)]:w-[15%] [&_table>tbody>tr>td:nth-child(4)]:w-[10%] [&_table>tbody>tr>td:nth-child(5)]:w-[15%]',
+      '[&_table>thead>tr>th:nth-child(1)]:w-[45%] [&_table>thead>tr>th:nth-child(2)]:w-[15%] [&_table>thead>tr>th:nth-child(3)]:w-[15%] [&_table>thead>tr>th:nth-child(4)]:w-[10%] [&_table>thead>tr>th:nth-child(5)]:w-[15%] [&_table>thead>tr>th:nth-child(6)]:w-6 [&_table>thead>tr>th:nth-child(6)]:overflow-visible',
+      '[&_table>tbody>tr>td:nth-child(1)]:w-[45%] [&_table>tbody>tr>td:nth-child(2)]:w-[15%] [&_table>tbody>tr>td:nth-child(3)]:w-[15%] [&_table>tbody>tr>td:nth-child(4)]:w-[10%] [&_table>tbody>tr>td:nth-child(5)]:w-[15%] [&_table>tbody>tr>td:nth-child(6)]:w-6 [&_table>tbody>tr>td:nth-child(6)]:overflow-visible',
+      actionColumnClasses,
     )
   } else {
     tableStructureClasses = tw(
-      '[&_table>thead>tr>th:nth-child(1)]:w-[50%] [&_table>thead>tr>th:nth-child(2)]:w-[20%] [&_table>thead>tr>th:nth-child(3)]:w-[10%] [&_table>thead>tr>th:nth-child(4)]:w-[20%]',
-      '[&_table>tbody>tr>td:nth-child(1)]:w-[50%] [&_table>tbody>tr>td:nth-child(2)]:w-[20%] [&_table>tbody>tr>td:nth-child(3)]:w-[10%] [&_table>tbody>tr>td:nth-child(4)]:w-[20%]',
+      '[&_table>thead>tr>th:nth-child(1)]:w-[50%] [&_table>thead>tr>th:nth-child(2)]:w-[20%] [&_table>thead>tr>th:nth-child(3)]:w-[10%] [&_table>thead>tr>th:nth-child(4)]:w-[20%] [&_table>thead>tr>th:nth-child(5)]:w-6 [&_table>thead>tr>th:nth-child(5)]:overflow-visible',
+      '[&_table>tbody>tr>td:nth-child(1)]:w-[50%] [&_table>tbody>tr>td:nth-child(2)]:w-[20%] [&_table>tbody>tr>td:nth-child(3)]:w-[10%] [&_table>tbody>tr>td:nth-child(4)]:w-[20%] [&_table>tbody>tr>td:nth-child(5)]:w-6 [&_table>tbody>tr>td:nth-child(5)]:overflow-visible',
+      actionColumnClasses,
     )
   }
 
@@ -287,7 +293,6 @@ export const InvoiceDetailsTable = memo(
             <InvoiceDetailsTableHeader
               canHaveUnitPrice={canHaveUnitPrice}
               displayName={translate('text_6388b923e514213fed58331c')}
-              isDraftInvoice={isDraftInvoice}
             />
             <tbody>
               {fees?.map((fee, i) => {
@@ -352,12 +357,7 @@ export const InvoiceDetailsTable = memo(
      * No fee placeholder (by subscription)
      **************************************/
 
-    if (
-      (invoice.status === InvoiceStatusTypeEnum.Draft &&
-        !newFormattedInvoiceItemsMap?.metadata?.hasAnyFeeParsed) ||
-      (invoice.status !== InvoiceStatusTypeEnum.Draft &&
-        !newFormattedInvoiceItemsMap?.metadata?.hasAnyPositiveFeeParsed)
-    ) {
+    if (!newFormattedInvoiceItemsMap?.metadata?.hasAnyFeeParsed) {
       return (
         <>
           {invoice.subscriptions?.map((subscription) => {
@@ -371,7 +371,6 @@ export const InvoiceDetailsTable = memo(
                   <InvoiceDetailsTableHeader
                     canHaveUnitPrice={canHaveUnitPrice}
                     displayName={subscription.name || subscription.plan.name}
-                    isDraftInvoice={false}
                   />
                   <tbody>
                     <InvoiceDetailsTablePeriodLine
@@ -453,7 +452,6 @@ export const InvoiceDetailsTable = memo(
                   <InvoiceDetailsTableHeader
                     canHaveUnitPrice={canHaveUnitPrice}
                     displayName={subscriptionData.subscriptionDisplayName}
-                    isDraftInvoice={isDraftInvoice}
                   />
                   <tbody>
                     {Object.entries(subscriptionData.boundaries).map(([boundaryKey, boundary]) => {

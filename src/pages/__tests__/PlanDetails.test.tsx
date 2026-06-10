@@ -1,3 +1,4 @@
+import { MainHeaderTab } from '~/components/MainHeader/types'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import PlanDetails from '../PlanDetails'
@@ -82,11 +83,6 @@ interface MainHeaderDropdownAction {
   items: { hidden?: boolean; label: string }[]
 }
 
-interface MainHeaderTabConfig {
-  title: string
-  hidden?: boolean
-}
-
 describe('PlanDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -159,7 +155,7 @@ describe('PlanDetails', () => {
 
         render(<PlanDetails />)
 
-        const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTabConfig[]
+        const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTab[]
 
         expect(tabs.length).toBeGreaterThanOrEqual(2)
       })
@@ -259,31 +255,37 @@ describe('PlanDetails', () => {
 
   describe('GIVEN the EDIT_DETAILS_PAGE feature flag', () => {
     describe('WHEN the flag is off', () => {
-      it('THEN should hide the edit overview tab', () => {
+      it('THEN should render the legacy overview tab', () => {
         mockHasPermissions.mockReturnValue(true)
         mockIsFeatureFlagActive.mockReturnValue(false)
 
         render(<PlanDetails />)
 
-        const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTabConfig[]
-        const editOverviewTab = tabs.find((t) => t.title === 'text_17792001643312864fz7j4gq')
+        const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTab[]
+        const overviewTab = tabs.find((t) => t.title === 'text_628cf761cbe6820138b8f2e4')
 
-        expect(editOverviewTab?.hidden).toBe(true)
+        // The overview tab is always visible; the flag only swaps its content
+        // (legacy overview) and route (`/overview`).
+        expect(overviewTab).toBeDefined()
+        expect(overviewTab?.hidden).toBeFalsy()
+        expect(overviewTab?.link).toContain('/overview')
       })
     })
 
     describe('WHEN the flag is on', () => {
-      it('THEN should render the edit overview tab as visible', () => {
+      it('THEN should render the v2 edit overview tab', () => {
         mockHasPermissions.mockReturnValue(true)
         mockIsFeatureFlagActive.mockReturnValue(true)
 
         render(<PlanDetails />)
 
-        const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTabConfig[]
-        const editOverviewTab = tabs.find((t) => t.title === 'text_17792001643312864fz7j4gq')
+        const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTab[]
+        const overviewTab = tabs.find((t) => t.title === 'text_628cf761cbe6820138b8f2e4')
 
-        expect(editOverviewTab).toBeDefined()
-        expect(editOverviewTab?.hidden).toBe(false)
+        // Flag on routes the overview tab to the v2 edit page (`/edit-overview`).
+        expect(overviewTab).toBeDefined()
+        expect(overviewTab?.hidden).toBeFalsy()
+        expect(overviewTab?.link).toContain('edit-overview')
       })
     })
   })

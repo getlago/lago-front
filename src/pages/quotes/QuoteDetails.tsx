@@ -90,7 +90,7 @@ const QuoteDetails = (): JSX.Element => {
               quoteId: quoteId as string,
               tab: QuoteDetailsTabsOptionsEnum.orderForms,
             }),
-            content: <OrderFormsList />,
+            content: <OrderFormsList quoteNumber={quote?.number} />,
           },
           {
             title: translate('text_1747314141347qq6rasuxisl'),

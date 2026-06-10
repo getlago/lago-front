@@ -75,10 +75,8 @@ jest.mock('@tanstack/react-form', () => ({
 jest.mock('~/hooks/forms/useAppform', () => ({
   useAppForm: jest.fn(),
   withForm: jest.fn((mockOpts: Record<string, unknown>) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mockRenderFn = mockOpts.render as (mockArgs: Record<string, unknown>) => any
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (mockProps: Record<string, unknown>) => mockRenderFn({ ...mockProps, form: mockForm })
   }),
   withFieldGroup: jest.fn(),

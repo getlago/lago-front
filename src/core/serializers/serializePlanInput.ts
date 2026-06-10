@@ -50,6 +50,15 @@ export const serializeFilters = (
   })
 }
 
+// Transform the string we get from UI to the boolean for API
+const serializeDisplayInInvoiceValue = (
+  value: 'true' | 'false' | undefined,
+): boolean | undefined => {
+  if (value === 'true') return true
+  if (value === 'false') return false
+  return undefined
+}
+
 export const serializeProperties = (properties: Properties, chargeModel: ChargeModelEnum) => {
   return {
     ...properties,
@@ -58,8 +67,20 @@ export const serializeProperties = (properties: Properties, chargeModel: ChargeM
           pricingGroupKeys: !!properties?.pricingGroupKeys?.length
             ? properties?.pricingGroupKeys
             : undefined,
+          presentationGroupKeys: !!properties?.presentationGroupKeys?.length
+            ? properties.presentationGroupKeys.map((key) => ({
+                ...key,
+                options: {
+                  ...key.options,
+                  // ComboBoxField stores strings; convert back to boolean for the API
+                  displayInInvoice: serializeDisplayInInvoiceValue(
+                    key.options?.displayInInvoice as 'true' | 'false' | undefined,
+                  ),
+                },
+              }))
+            : undefined,
         }
-      : { pricingGroupKeys: undefined }),
+      : { pricingGroupKeys: undefined, presentationGroupKeys: undefined }),
     ...([ChargeModelEnum.Package, ChargeModelEnum.Standard].includes(chargeModel)
       ? { amount: !!properties?.amount ? String(properties?.amount) : undefined }
       : {}),
@@ -181,31 +202,31 @@ export const serializeMinimumCommitment = (
       }
     : {}
 
+// Always returns an array: the API only clears existing thresholds when it
+// receives an explicit empty array, while an absent key means "leave untouched"
+// (Plans::UpdateService gates on params.key?(:usage_thresholds)).
 export const serializeUsageThresholds = (
   nonRecurringUsageThresholds: PlanFormInput['nonRecurringUsageThresholds'],
   recurringUsageThreshold: PlanFormInput['recurringUsageThreshold'],
   currency: CurrencyEnum,
-) =>
-  !!nonRecurringUsageThresholds?.length || !!recurringUsageThreshold
+) => [
+  ...(nonRecurringUsageThresholds ?? []).map(
+    ({ amountCents, recurring, thresholdDisplayName }) => ({
+      recurring: !!recurring,
+      thresholdDisplayName: thresholdDisplayName ?? null,
+      amountCents: Number(serializeAmount(amountCents, currency)),
+    }),
+  ),
+  ...(recurringUsageThreshold
     ? [
-        ...(nonRecurringUsageThresholds ?? []).map(
-          ({ amountCents, recurring, thresholdDisplayName }) => ({
-            recurring: !!recurring,
-            thresholdDisplayName: thresholdDisplayName ?? null,
-            amountCents: Number(serializeAmount(amountCents, currency)),
-          }),
-        ),
-        ...(recurringUsageThreshold
-          ? [
-              {
-                recurring: !!recurringUsageThreshold.recurring,
-                thresholdDisplayName: recurringUsageThreshold.thresholdDisplayName ?? null,
-                amountCents: Number(serializeAmount(recurringUsageThreshold.amountCents, currency)),
-              },
-            ]
-          : []),
+        {
+          recurring: !!recurringUsageThreshold.recurring,
+          thresholdDisplayName: recurringUsageThreshold.thresholdDisplayName ?? null,
+          amountCents: Number(serializeAmount(recurringUsageThreshold.amountCents, currency)),
+        },
       ]
-    : undefined
+    : []),
+]
 
 export const serializeEntitlements = (entitlements: PlanFormInput['entitlements']) =>
   entitlements.map(({ privileges, ...entitlement }) => ({
