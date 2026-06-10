@@ -11,6 +11,7 @@ import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import {
   UpdateInvoicePaymentStatusDialog,
@@ -27,7 +28,6 @@ import {
 import { getEmptyStateConfig } from '~/components/invoices/utils/emptyStateMapping'
 import { getMostRecentPaymentMethodId } from '~/components/invoices/utils/getMostRecentPaymentMethodId'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   invoiceStatusMapping,
@@ -94,6 +94,8 @@ const InvoicesList = ({
   const { hasFeatureFlag } = useOrganizationInfos()
   const { showResendEmailDialog } = useResendEmailDialog()
 
+  const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
+
   const { handleDownloadFile } = useDownloadFile()
 
   const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
@@ -101,7 +103,6 @@ const InvoicesList = ({
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const resendInvoiceForCollectionDialogRef = useRef<ResendInvoiceForCollectionDialogRef>(null)
 
   const [downloadInvoice] = useDownloadInvoiceItemMutation({
@@ -158,7 +159,7 @@ const InvoicesList = ({
         if (isPremium) {
           navigate(generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }))
         } else {
-          premiumWarningDialogRef.current?.openDialog()
+          openPremiumWarningDialog()
         }
       },
     }
@@ -178,7 +179,7 @@ const InvoicesList = ({
         endIcon: 'sparkles',
         title: translate('text_636bdef6565341dcb9cfb127'),
         onAction: () => {
-          premiumWarningDialogRef.current?.openDialog()
+          openPremiumWarningDialog()
         },
       }
     }
@@ -597,7 +598,6 @@ const InvoicesList = ({
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
     </div>
   )

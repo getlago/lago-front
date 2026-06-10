@@ -69,10 +69,13 @@ export const webhookResourceSchema = z.object({
 })
 export type WebhookResource = z.infer<typeof webhookResourceSchema>
 
+const stringDiffSchema = z.object({
+  deleted: z.string(),
+  added: z.string(),
+})
+
 export const webhookEditedResourceSchema = z.object({
-  webhook_url: z.object({
-    deleted: z.string(),
-    added: z.string(),
-  }),
+  webhook_url: z.union([z.string(), stringDiffSchema]),
+  signature_algo: stringDiffSchema.optional(),
 })
 export type WebhookEditedResource = z.infer<typeof webhookEditedResourceSchema>

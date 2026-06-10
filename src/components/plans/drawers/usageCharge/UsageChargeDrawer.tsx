@@ -1,11 +1,15 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
-import { tw } from 'lago-design-system'
 import { forwardRef, useImperativeHandle, useRef } from 'react'
 import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
-import { useDrawer } from '~/components/drawers/useDrawer'
+import { useFormDrawer } from '~/components/drawers/useDrawer'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+import {
+  applyExistingCodeError,
+  buildChargeCodeSchema,
+} from '~/components/plans/drawers/common/chargeCode'
 import { RemoveChargeWarningDialogRef } from '~/components/plans/RemoveChargeWarningDialog'
 import {
   LocalChargeFilterInput,
@@ -13,10 +17,10 @@ import {
   LocalPricingUnitType,
   LocalUsageChargeInput,
 } from '~/components/plans/types'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { PlanFormProvider, usePlanFormContext } from '~/contexts/PlanFormContext'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
 import {
+  FORM_ERRORS_ENUM,
   FORM_TYPE_ENUM,
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME,
@@ -34,6 +38,7 @@ import {
   GraduatedPercentageChargeFragmentDoc,
   PackageChargeFragmentDoc,
   PercentageChargeFragmentDoc,
+  PresentationGroupKeysFragmentDoc,
   PricingGroupKeysFragmentDoc,
   RegroupPaidFeesEnum,
   StandardChargeFragmentDoc,
@@ -93,6 +98,7 @@ gql`
       ...PercentageCharge
       ...CustomCharge
       ...PricingGroupKeys
+      ...PresentationGroupKeys
     }
     filters {
       invoiceDisplayName
@@ -137,67 +143,78 @@ gql`
   ${PercentageChargeFragmentDoc}
   ${CustomChargeFragmentDoc}
   ${PricingGroupKeysFragmentDoc}
+  ${PresentationGroupKeysFragmentDoc}
   ${TaxForTaxesSelectorSectionFragmentDoc}
 `
 
-export const usageChargeDrawerSchema = z
-  .object({
-    billableMetricId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
-    billableMetric: z.custom<BillableMetricForPlanFragment>(),
-    appliedPricingUnit: z.custom<LocalPricingUnitInput>().optional(),
-    chargeModel: z.enum(ChargeModelEnum),
-    id: z.string().optional(),
-    invoiceDisplayName: z.string(),
-    invoiceable: z.boolean(),
-    minAmountCents: z.string(),
-    payInAdvance: z.boolean(),
-    prorated: z.boolean(),
-    properties: z.record(z.string(), z.unknown()).optional(),
-    filters: z.custom<LocalChargeFilterInput[]>().optional(),
-    regroupPaidFees: z.string().nullable(),
-    taxes: z.array(
-      z.object({ id: z.string(), code: z.string(), name: z.string(), rate: z.number() }),
-    ),
-  })
-  .superRefine((data, ctx) => {
-    // Validate default properties (always required, even when filters are present)
-    if (data.properties) {
-      validateChargeProperties(data.chargeModel, data.properties, ctx, ['properties'])
-    }
+// `code` is only required when the field is shown (v2 details/edition via
+// `showCode`); the legacy plan form keeps it optional so its hidden, empty code
+// never blocks submit.
+export const buildUsageChargeDrawerSchema = (requireCode: boolean) =>
+  z
+    .object({
+      billableMetricId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+      billableMetric: z.custom<BillableMetricForPlanFragment>(),
+      appliedPricingUnit: z.custom<LocalPricingUnitInput>().optional(),
+      chargeModel: z.enum(ChargeModelEnum),
+      code: buildChargeCodeSchema(requireCode),
+      id: z.string().optional(),
+      invoiceDisplayName: z.string(),
+      invoiceable: z.boolean(),
+      minAmountCents: z.string(),
+      payInAdvance: z.boolean(),
+      prorated: z.boolean(),
+      properties: z.record(z.string(), z.unknown()).optional(),
+      filters: z.custom<LocalChargeFilterInput[]>().optional(),
+      regroupPaidFees: z.string().nullable(),
+      taxes: z.array(
+        z.object({ id: z.string(), code: z.string(), name: z.string(), rate: z.number() }),
+      ),
+    })
+    .superRefine((data, ctx) => {
+      // Validate default properties (always required, even when filters are present)
+      if (data.properties) {
+        validateChargeProperties(data.chargeModel, data.properties, ctx, ['properties'])
+      }
 
-    // Validate filter properties and filter values
-    if (data.filters?.length) {
-      for (let fi = 0; fi < data.filters.length; fi++) {
-        validateChargeProperties(
-          data.chargeModel,
-          data.filters[fi].properties as PropertiesZodInput,
-          ctx,
-          ['filters', String(fi), 'properties'],
-        )
+      // Validate filter properties and filter values
+      if (data.filters?.length) {
+        for (let fi = 0; fi < data.filters.length; fi++) {
+          validateChargeProperties(
+            data.chargeModel,
+            data.filters[fi].properties as PropertiesZodInput,
+            ctx,
+            ['filters', String(fi), 'properties'],
+          )
 
-        if (!data.filters[fi].values?.length) {
-          ctx.addIssue({
-            code: 'custom',
-            message: '',
-            path: ['filters', String(fi), 'values'],
-          })
+          if (!data.filters[fi].values?.length) {
+            ctx.addIssue({
+              code: 'custom',
+              message: '',
+              path: ['filters', String(fi), 'values'],
+            })
+          }
         }
       }
-    }
 
-    // Validate appliedPricingUnit conversion rate when custom
-    if (
-      data.appliedPricingUnit?.type === LocalPricingUnitType.Custom &&
-      (!data.appliedPricingUnit.conversionRate ||
-        Number(data.appliedPricingUnit.conversionRate || 0) <= 0)
-    ) {
-      ctx.addIssue({
-        code: 'custom',
-        message: '',
-        path: ['appliedPricingUnit', 'conversionRate'],
-      })
-    }
-  })
+      // Validate appliedPricingUnit conversion rate when custom
+      if (
+        data.appliedPricingUnit?.type === LocalPricingUnitType.Custom &&
+        (!data.appliedPricingUnit.conversionRate ||
+          Number(data.appliedPricingUnit.conversionRate || 0) <= 0)
+      ) {
+        ctx.addIssue({
+          code: 'custom',
+          message: '',
+          path: ['appliedPricingUnit', 'conversionRate'],
+        })
+      }
+    })
+
+// Backward-compatible export (code optional) - kept for existing safeParse tests.
+export const usageChargeDrawerSchema = buildUsageChargeDrawerSchema(false)
+
+const USAGE_CHARGE_FORM_ID = 'usage-charge-drawer-form'
 
 export interface UsageChargeDrawerRef {
   openDrawer: (
@@ -216,16 +233,26 @@ interface UsageChargeDrawerProps {
   disabled?: boolean
   isEdition?: boolean
   isInSubscriptionForm?: boolean
-  premiumWarningDialogRef?: React.RefObject<PremiumWarningDialogRef>
+  // TEMP (LAGO-1498): drop showCode + existingChargeCodes once the old
+  // plan/subscription forms are retired and the Code field becomes unconditional.
+  showCode?: boolean
+  existingChargeCodes?: (string | null | undefined)[]
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
-  onSave: (charge: LocalUsageChargeInput, index: number | null) => void
+  onSave: (
+    charge: LocalUsageChargeInput,
+    index: number | null,
+  ) =>
+    | void
+    | boolean
+    | FORM_ERRORS_ENUM.existingCode
+    | Promise<void | boolean | FORM_ERRORS_ENUM.existingCode>
   onDelete?: (index: number) => void
   removeChargeWarningDialogRef?: React.RefObject<RemoveChargeWarningDialogRef>
   amountCurrency?: string
 }
 
 // ---------------------------------------------------------------------------
-// Drawer wrapper — thin shell that manages form + drawer lifecycle
+// Drawer wrapper - thin shell that manages form + drawer lifecycle
 // ---------------------------------------------------------------------------
 
 export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDrawerProps>(
@@ -234,7 +261,8 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
       disabled,
       isEdition,
       isInSubscriptionForm,
-      premiumWarningDialogRef,
+      showCode = false,
+      existingChargeCodes,
       subscriptionFormType,
       onSave,
       onDelete,
@@ -246,7 +274,7 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
     const { translate } = useInternationalization()
     const { currency, interval } = usePlanFormContext()
     const { type: actionType } = useDuplicatePlanVar()
-    const chargeDrawer = useDrawer()
+    const chargeDrawer = useFormDrawer()
     const editIndexRef = useRef<number>(-1)
     const alertMessageRef = useRef<string | undefined>(undefined)
     const initialChargeRef = useRef<LocalUsageChargeInput | undefined>(undefined)
@@ -258,13 +286,14 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
       defaultValues: DEFAULT_VALUES,
       validationLogic: revalidateLogic(),
       validators: {
-        onDynamic: usageChargeDrawerSchema,
+        onDynamic: buildUsageChargeDrawerSchema(showCode),
       },
-      onSubmit: async ({ value }) => {
+      onSubmit: async ({ value, formApi }) => {
         const localCharge: LocalUsageChargeInput = {
           billableMetric: value.billableMetric,
           appliedPricingUnit: value.appliedPricingUnit,
           chargeModel: value.chargeModel,
+          code: value.code || undefined,
           id: value.id,
           invoiceDisplayName: value.invoiceDisplayName || undefined,
           invoiceable: value.invoiceable,
@@ -277,15 +306,23 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
           taxes: value.taxes,
         }
 
-        onSave(localCharge, isCreateModeRef.current ? null : editIndexRef.current)
+        const result = await onSave(
+          localCharge,
+          isCreateModeRef.current ? null : editIndexRef.current,
+        )
 
-        chargeDrawer.close()
+        // Backend rejected a duplicate code: surface it under the Code input
+        // (same pattern as plan-settings code) and keep the drawer open.
+        if (result === FORM_ERRORS_ENUM.existingCode) {
+          applyExistingCodeError(formApi)
+          return
+        }
+
+        if (result !== false) {
+          chargeDrawer.close()
+        }
       },
     })
-
-    const handleFormSubmit = () => {
-      form.handleSubmit()
-    }
 
     const openChargeDrawer = () => {
       const showDelete = !isCreateModeRef.current && !isInSubscriptionForm && !!onDelete
@@ -306,16 +343,23 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
 
       chargeDrawer.open({
         title: translate('text_177213328514118gjrdaqs8s'),
+        form: { id: USAGE_CHARGE_FORM_ID, submit: form.handleSubmit },
+        closeOnSubmitSuccess: false,
         shouldPromptOnClose: () => form.state.isDirty,
         onClose: () => form.reset(),
-        onEntered: () => {
-          if (!shouldFocusComboBoxRef.current) return
-          shouldFocusComboBoxRef.current = false
-          ;(
-            document.querySelector(
-              `.${SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-            ) as HTMLElement
-          )?.click()
+        onEntered: (container) => {
+          if (shouldFocusComboBoxRef.current) {
+            shouldFocusComboBoxRef.current = false
+            container
+              .querySelector<HTMLElement>(
+                `.${SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+              )
+              ?.click()
+
+            return
+          }
+
+          focusFirstInput(container)
         },
         children: (
           <PlanFormProvider currency={currency} interval={interval}>
@@ -325,7 +369,8 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
               isEdition={isEdition}
               disabled={disabled}
               isInSubscriptionForm={isInSubscriptionForm}
-              premiumWarningDialogRef={premiumWarningDialogRef}
+              showCode={showCode}
+              existingChargeCodes={existingChargeCodes}
               subscriptionFormType={subscriptionFormType}
               amountCurrency={amountCurrency}
               editIndex={editIndexRef.current}
@@ -336,39 +381,21 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
             />
           </PlanFormProvider>
         ),
-        actions: (
-          <div
-            className={tw(
-              'flex items-center gap-3',
-              showDelete ? 'w-full justify-between' : 'justify-end',
-            )}
-          >
-            {showDelete && (
-              <Button danger variant="quaternary" onClick={handleDelete}>
-                {translate('text_63ea0f84f400488553caa786')}
-              </Button>
-            )}
-            <div className="flex items-center gap-3">
-              <Button variant="quaternary" onClick={() => chargeDrawer.close()}>
-                {translate('text_6411e6b530cb47007488b027')}
-              </Button>
-              <form.Subscribe selector={({ canSubmit }) => canSubmit}>
-                {(canSubmit) => (
-                  <Button
-                    data-test="usage-charge-drawer-save"
-                    onClick={handleFormSubmit}
-                    disabled={!canSubmit}
-                  >
-                    {translate(
-                      isCreateModeRef.current
-                        ? 'text_1775225915209vpdyh1dvrm5'
-                        : 'text_17295436903260tlyb1gp1i7',
-                    )}
-                  </Button>
-                )}
-              </form.Subscribe>
-            </div>
-          </div>
+        secondaryAction: showDelete ? (
+          <Button danger variant="quaternary" onClick={handleDelete}>
+            {translate('text_63ea0f84f400488553caa786')}
+          </Button>
+        ) : undefined,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton dataTest="usage-charge-drawer-save">
+              {translate(
+                isCreateModeRef.current
+                  ? 'text_1775225915209vpdyh1dvrm5'
+                  : 'text_17295436903260tlyb1gp1i7',
+              )}
+            </form.SubmitButton>
+          </form.AppForm>
         ),
       })
     }
@@ -388,6 +415,7 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
               billableMetric: charge.billableMetric,
               appliedPricingUnit: charge.appliedPricingUnit,
               chargeModel: charge.chargeModel,
+              code: charge.code || '',
               id: charge.id,
               invoiceDisplayName: charge.invoiceDisplayName || '',
               invoiceable: charge.invoiceable ?? true,

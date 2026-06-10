@@ -1,5 +1,6 @@
 import { FC, Fragment } from 'react'
 
+import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { Link } from '~/core/router'
 
@@ -31,11 +32,15 @@ export const Breadcrumb: FC<{ items: BreadcrumbItem[] }> = ({ items }) => {
               /
             </Typography>
           )}
-          <Link to={item.path} className="shrink-0 no-underline hover:no-underline">
-            <Typography variant="captionHl" color="primary600">
-              {item.label}
-            </Typography>
-          </Link>
+          {item.loading ? (
+            <Skeleton variant="text" className="w-20" />
+          ) : (
+            <Link to={item.path} className="shrink-0 no-underline hover:no-underline">
+              <Typography variant="captionHl" color="primary600">
+                {item.label}
+              </Typography>
+            </Link>
+          )}
         </Fragment>
       ))}
     </nav>

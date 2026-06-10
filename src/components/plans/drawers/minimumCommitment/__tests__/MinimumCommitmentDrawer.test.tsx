@@ -9,15 +9,24 @@ import {
 
 // --- Capture callbacks ---
 
-let capturedOnSubmit: ((args: { value: Record<string, unknown> }) => void) | undefined
+let capturedOnSubmit:
+  | ((args: { value: Record<string, unknown> }) => void | Promise<void>)
+  | undefined
 let capturedDefaultValues: Record<string, unknown> | undefined
 
 // --- Mocks ---
 
+const mockDrawerClose = jest.fn()
+const mockFormDrawerOpen = jest.fn()
+
 jest.mock('~/components/drawers/useDrawer', () => ({
   useDrawer: () => ({
     open: jest.fn(),
-    close: jest.fn(),
+    close: mockDrawerClose,
+  }),
+  useFormDrawer: () => ({
+    open: mockFormDrawerOpen,
+    close: mockDrawerClose,
   }),
 }))
 
@@ -115,7 +124,7 @@ jest.mock('~/hooks/forms/useAppform', () => ({
       onSubmit,
       defaultValues,
     }: {
-      onSubmit?: (args: { value: Record<string, unknown> }) => void
+      onSubmit?: (args: { value: Record<string, unknown> }) => void | Promise<void>
       defaultValues: Record<string, unknown>
     }) => {
       capturedOnSubmit = onSubmit
@@ -205,6 +214,26 @@ describe('MinimumCommitmentDrawer', () => {
         )
       })
     })
+
+    // Guards the migration to the shared form drawer + form.SubmitButton: the
+    // drawer must keep owning its own close (close on success, stay open on a
+    // failed mutation) by opting out of the form drawer's auto-close.
+    describe('WHEN the form drawer is wired', () => {
+      it('THEN passes a form id, a submit handler and keeps its own close ownership', () => {
+        render(<MinimumCommitmentDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        drawerRef.current?.openDrawer(defaultFormValues)
+
+        expect(mockFormDrawerOpen).toHaveBeenCalledTimes(1)
+
+        const openArgs = mockFormDrawerOpen.mock.calls[0][0]
+
+        expect(openArgs.form?.id).toBe('minimum-commitment-drawer-form')
+        expect(typeof openArgs.form?.submit).toBe('function')
+        expect(openArgs.closeOnSubmitSuccess).toBe(false)
+        expect(openArgs.mainAction).toBeDefined()
+      })
+    })
   })
 
   describe('GIVEN the form default values', () => {
@@ -250,6 +279,43 @@ describe('MinimumCommitmentDrawer', () => {
         expect(mockOnSave).toHaveBeenCalledWith(
           expect.objectContaining({ invoiceDisplayName: undefined }),
         )
+      })
+    })
+
+    describe('WHEN onSave resolves to false (cascade cancelled)', () => {
+      it('THEN should NOT close the drawer', async () => {
+        const abortingOnSave = jest.fn().mockResolvedValue(false)
+
+        render(<MinimumCommitmentDrawer ref={drawerRef} onSave={abortingOnSave} />)
+
+        await capturedOnSubmit?.({ value: { ...defaultFormValues } })
+
+        expect(abortingOnSave).toHaveBeenCalled()
+        expect(mockDrawerClose).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN onSave resolves to true', () => {
+      it('THEN should close the drawer', async () => {
+        const confirmingOnSave = jest.fn().mockResolvedValue(true)
+
+        render(<MinimumCommitmentDrawer ref={drawerRef} onSave={confirmingOnSave} />)
+
+        await capturedOnSubmit?.({ value: { ...defaultFormValues } })
+
+        expect(mockDrawerClose).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN onSave returns void (sync)', () => {
+      it('THEN should close the drawer', async () => {
+        const voidOnSave = jest.fn().mockReturnValue(undefined)
+
+        render(<MinimumCommitmentDrawer ref={drawerRef} onSave={voidOnSave} />)
+
+        await capturedOnSubmit?.({ value: { ...defaultFormValues } })
+
+        expect(mockDrawerClose).toHaveBeenCalled()
       })
     })
   })

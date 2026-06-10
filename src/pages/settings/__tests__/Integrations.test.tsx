@@ -63,8 +63,11 @@ jest.mock('~/components/settings/integrations/AddFlutterwaveDialog', () => ({
 jest.mock('~/components/settings/integrations/AddPaystackDialog', () => ({
   AddPaystackDialog: () => null,
 }))
-jest.mock('~/components/PremiumWarningDialog', () => ({
-  PremiumWarningDialog: () => null,
+jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
+  usePremiumWarningDialog: () => ({
+    open: jest.fn(),
+    close: jest.fn(),
+  }),
 }))
 
 const mockRefetch = jest.fn()

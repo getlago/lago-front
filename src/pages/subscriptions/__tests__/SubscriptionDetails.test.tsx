@@ -76,6 +76,14 @@ jest.mock('~/components/customers/subscriptions/TerminateCustomerSubscriptionDia
   }),
 }))
 
+jest.mock('~/components/subscriptions/details-v2/SubscriptionDetailsV2Plan', () => ({
+  SubscriptionDetailsV2Plan: () => null,
+}))
+
+jest.mock('~/components/subscriptions/details-v2/SubscriptionDetailsV2Overview', () => ({
+  SubscriptionDetailsV2Overview: () => null,
+}))
+
 const mockSubscription = {
   id: 'subscription-1',
   name: 'Test Subscription',
@@ -110,6 +118,13 @@ jest.mock('~/hooks/useSubscriptionPermissionsActions', () => ({
   }),
 }))
 
+const mockIsFeatureFlagActive = jest.fn().mockReturnValue(false)
+
+jest.mock('~/core/utils/featureFlags', () => ({
+  ...jest.requireActual('~/core/utils/featureFlags'),
+  isFeatureFlagActive: (flag: string) => mockIsFeatureFlagActive(flag),
+}))
+
 describe('SubscriptionDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -118,6 +133,7 @@ describe('SubscriptionDetails', () => {
     mockCanEditSubscription.mockReturnValue(true)
     mockIsStatusEditable.mockReturnValue(true)
     mockUseCurrentUser.mockReturnValue({ isPremium: true })
+    mockIsFeatureFlagActive.mockReturnValue(false)
 
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
@@ -325,10 +341,10 @@ describe('SubscriptionDetails', () => {
 
   describe('GIVEN tab configuration', () => {
     describe('WHEN all conditions are met (premium, permissions, active status)', () => {
-      it('THEN should configure 6 tabs', () => {
+      it('THEN should configure 7 tabs', () => {
         render(<SubscriptionDetails />)
 
-        expect(capturedConfig?.tabs).toHaveLength(6)
+        expect(capturedConfig?.tabs).toHaveLength(7)
       })
     })
 
@@ -340,8 +356,8 @@ describe('SubscriptionDetails', () => {
       it('THEN should hide the usage tab', () => {
         render(<SubscriptionDetails />)
 
-        // Usage tab is at index 3
-        const usageTab = capturedConfig?.tabs?.[3]
+        // Usage tab is at index 4
+        const usageTab = capturedConfig?.tabs?.[4]
 
         expect(usageTab?.hidden).toBe(true)
       })
@@ -355,8 +371,8 @@ describe('SubscriptionDetails', () => {
       it('THEN should hide the activity logs tab', () => {
         render(<SubscriptionDetails />)
 
-        // Activity logs tab is at index 5
-        const activityLogsTab = capturedConfig?.tabs?.[5]
+        // Activity logs tab is at index 6
+        const activityLogsTab = capturedConfig?.tabs?.[6]
 
         expect(activityLogsTab?.hidden).toBe(true)
       })
@@ -370,7 +386,7 @@ describe('SubscriptionDetails', () => {
       it('THEN should hide the activity logs tab', () => {
         render(<SubscriptionDetails />)
 
-        const activityLogsTab = capturedConfig?.tabs?.[5]
+        const activityLogsTab = capturedConfig?.tabs?.[6]
 
         expect(activityLogsTab?.hidden).toBe(true)
       })
@@ -390,7 +406,7 @@ describe('SubscriptionDetails', () => {
       it('THEN should hide the activity logs tab', () => {
         render(<SubscriptionDetails />)
 
-        const activityLogsTab = capturedConfig?.tabs?.[5]
+        const activityLogsTab = capturedConfig?.tabs?.[6]
 
         expect(activityLogsTab?.hidden).toBe(true)
       })
@@ -484,13 +500,72 @@ describe('SubscriptionDetails', () => {
       it('THEN should still configure tabs', () => {
         render(<SubscriptionDetails />)
 
-        expect(capturedConfig?.tabs).toHaveLength(6)
+        expect(capturedConfig?.tabs).toHaveLength(7)
       })
 
       it('THEN should still display the active tab content', () => {
         render(<SubscriptionDetails />)
 
         expect(screen.getByTestId('active-tab-content')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the EDIT_DETAILS_PAGE feature flag', () => {
+    describe('WHEN the flag is off', () => {
+      it('THEN should keep the overview tab visible (legacy overview)', () => {
+        mockIsFeatureFlagActive.mockReturnValue(false)
+
+        render(<SubscriptionDetails />)
+
+        // When the flag is off the overview tab renders the legacy overview and
+        // stays visible; only the subscription plan tab is gated (next test).
+        const overviewTab = capturedConfig?.tabs?.find(
+          (t) => t.title === 'text_628cf761cbe6820138b8f2e4',
+        )
+
+        expect(overviewTab).toBeDefined()
+        expect(overviewTab?.hidden).toBeFalsy()
+      })
+
+      it('THEN should hide the subscription plan tab', () => {
+        mockIsFeatureFlagActive.mockReturnValue(false)
+
+        render(<SubscriptionDetails />)
+
+        const subPlanTab = capturedConfig?.tabs?.find(
+          (t) => t.title === 'text_17792001643316pbexygvpu2',
+        )
+
+        expect(subPlanTab?.hidden).toBe(true)
+      })
+    })
+
+    describe('WHEN the flag is on', () => {
+      it('THEN should render the edit overview tab as visible', () => {
+        mockIsFeatureFlagActive.mockReturnValue(true)
+
+        render(<SubscriptionDetails />)
+
+        const editOverviewTab = capturedConfig?.tabs?.find(
+          (t) => t.title === 'text_628cf761cbe6820138b8f2e4',
+        )
+
+        expect(editOverviewTab).toBeDefined()
+        expect(editOverviewTab?.hidden).toBe(false)
+      })
+
+      it('THEN should render the subscription plan tab as visible', () => {
+        mockIsFeatureFlagActive.mockReturnValue(true)
+
+        render(<SubscriptionDetails />)
+
+        const subPlanTab = capturedConfig?.tabs?.find(
+          (t) => t.title === 'text_17792001643316pbexygvpu2',
+        )
+
+        expect(subPlanTab).toBeDefined()
+        expect(subPlanTab?.hidden).toBe(false)
       })
     })
   })

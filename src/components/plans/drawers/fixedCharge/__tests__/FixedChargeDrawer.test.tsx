@@ -1,6 +1,8 @@
 import { render } from '@testing-library/react'
 import { createRef } from 'react'
 
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+
 import {
   FixedChargeDrawer,
   FixedChargeDrawerFormValues,
@@ -18,9 +20,15 @@ jest.mock('../FixedChargeDrawerContent', () => ({
   FixedChargeDrawerContent: () => <div data-test="fixed-charge-drawer-content" />,
 }))
 
+const mockFormDrawerOpen = jest.fn()
+
 jest.mock('~/components/drawers/useDrawer', () => ({
   useDrawer: () => ({
     open: jest.fn(),
+    close: jest.fn(),
+  }),
+  useFormDrawer: () => ({
+    open: mockFormDrawerOpen,
     close: jest.fn(),
   }),
 }))
@@ -342,6 +350,28 @@ describe('FixedChargeDrawer', () => {
     })
   })
 
+  // Guards the migration to the shared form drawer + form.SubmitButton: the
+  // drawer must keep owning its own close (close on success, stay open on a
+  // failed mutation) by opting out of the form drawer's auto-close.
+  describe('GIVEN the drawer is opened', () => {
+    describe('WHEN the form drawer is wired', () => {
+      it('THEN passes a form id, a submit handler and keeps its own close ownership', () => {
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        drawerRef.current?.openDrawer()
+
+        expect(mockFormDrawerOpen).toHaveBeenCalledTimes(1)
+
+        const openArgs = mockFormDrawerOpen.mock.calls[0][0]
+
+        expect(openArgs.form?.id).toBe('fixed-charge-drawer-form')
+        expect(typeof openArgs.form?.submit).toBe('function')
+        expect(openArgs.closeOnSubmitSuccess).toBe(false)
+        expect(openArgs.mainAction).toBeDefined()
+      })
+    })
+  })
+
   describe('GIVEN the onSubmit handler', () => {
     describe('WHEN the form is submitted with valid data', () => {
       it('THEN should call onSave with the form values', () => {
@@ -352,6 +382,7 @@ describe('FixedChargeDrawer', () => {
           addOn: { id: 'addon-1', name: 'Setup', code: 'setup' },
           applyUnitsImmediately: false,
           chargeModel: 'standard' as FixedChargeDrawerFormValues['chargeModel'],
+          code: 'setup',
           invoiceDisplayName: 'Test',
           payInAdvance: false,
           properties: { amount: '100' },
@@ -365,11 +396,33 @@ describe('FixedChargeDrawer', () => {
         expect(mockOnSave).toHaveBeenCalledWith(
           expect.objectContaining({
             chargeModel: 'standard',
+            code: 'setup',
             payInAdvance: false,
             units: '5',
           }),
           -1,
         )
+      })
+    })
+
+    describe('WHEN onSave reports a duplicate code', () => {
+      it('THEN surfaces the error under the Code field (and keeps the drawer open)', async () => {
+        mockOnSave.mockResolvedValueOnce(FORM_ERRORS_ENUM.existingCode)
+        const setFieldMeta = jest.fn()
+
+        render(<FixedChargeDrawer ref={drawerRef} onSave={mockOnSave} showCode />)
+
+        const submit = capturedOnSubmit as unknown as (args: {
+          value: Record<string, unknown>
+          formApi: { setFieldMeta: jest.Mock }
+        }) => Promise<void>
+
+        await submit({
+          value: { ...capturedDefaultValues, code: 'dup_code' },
+          formApi: { setFieldMeta },
+        })
+
+        expect(setFieldMeta).toHaveBeenCalledWith('code', expect.any(Function))
       })
     })
 

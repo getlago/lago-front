@@ -1,14 +1,15 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { RefObject, useCallback, useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
 import { Card } from '~/components/designSystem/Card'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { DRAWER_TRANSITION_DURATION } from '~/components/drawers/const'
 import { useDrawer } from '~/components/drawers/useDrawer'
-import { ComboboxItem, JsonEditor } from '~/components/form'
+import { JsonEditor } from '~/components/form'
 import { ComboboxDataGrouped } from '~/components/form/ComboBox/types'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { buildChargeFilterAddFilterButtonId } from '~/components/plans/chargeAccordion/ChargeFilter'
@@ -18,6 +19,9 @@ import { CustomPricingUnitSelector } from '~/components/plans/chargeAccordion/Cu
 import { ChargeInvoicingStrategyOption } from '~/components/plans/chargeAccordion/options/ChargeInvoicingStrategyOption'
 import { ChargePayInAdvanceOption } from '~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption'
 import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
+import { seedChargeCode } from '~/components/plans/drawers/common/chargeCode'
+import ChargeCodeField from '~/components/plans/drawers/common/ChargeCodeField'
+import { buildCodeComboboxItem } from '~/components/plans/drawers/common/codeComboboxItem'
 import { PlanBillingPeriodInfoSection } from '~/components/plans/drawers/common/PlanBillingPeriodInfoSection'
 import {
   LocalChargeFilterInput,
@@ -26,7 +30,6 @@ import {
   LocalUsageChargeInput,
 } from '~/components/plans/types'
 import { mapChargeIntervalCopy } from '~/components/plans/utils'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { ChargeFilterDrawerProvider } from '~/contexts/ChargeFilterDrawerContext'
 import {
@@ -57,14 +60,14 @@ import {
 } from './ChargeFilterDrawerContent'
 import { DEFAULT_VALUES, UsageChargeDrawerFormValues } from './constants'
 
-const USAGE_CHARGE_DRAWER_FORM_ID = 'usage-charge-drawer-form'
-
 interface UsageChargeDrawerContentExtraProps {
   isCreateMode: boolean
   isEdition?: boolean
   disabled?: boolean
   isInSubscriptionForm?: boolean
-  premiumWarningDialogRef?: RefObject<PremiumWarningDialogRef>
+  // TEMP (LAGO-1498): Code is shown only via the v2 details/edition UI.
+  showCode?: boolean
+  existingChargeCodes?: (string | null | undefined)[]
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
   amountCurrency?: string
   editIndex: number
@@ -79,7 +82,8 @@ const usageChargeDrawerContentDefaultProps: UsageChargeDrawerContentExtraProps =
   isEdition: false,
   disabled: false,
   isInSubscriptionForm: false,
-  premiumWarningDialogRef: undefined,
+  showCode: false,
+  existingChargeCodes: undefined,
   subscriptionFormType: undefined,
   amountCurrency: undefined,
   editIndex: -1,
@@ -98,7 +102,8 @@ export const UsageChargeDrawerContent = withForm({
     isEdition,
     disabled,
     isInSubscriptionForm,
-    premiumWarningDialogRef,
+    showCode,
+    existingChargeCodes,
     subscriptionFormType,
     amountCurrency,
     editIndex,
@@ -108,6 +113,7 @@ export const UsageChargeDrawerContent = withForm({
     interval,
   }) {
     const { translate } = useInternationalization()
+    const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
     const { isPremium } = useCurrentUser()
     const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
 
@@ -132,18 +138,7 @@ export const UsageChargeDrawerContent = withForm({
 
       for (const { id, name, code, recurring } of collection) {
         result.push({
-          label: `${name} (${code})`,
-          labelNode: (
-            <ComboboxItem>
-              <Typography variant="body" color="grey700" noWrap>
-                {name}
-              </Typography>
-              <Typography variant="caption" color="grey600" noWrap>
-                {code}
-              </Typography>
-            </ComboboxItem>
-          ),
-          value: id,
+          ...buildCodeComboboxItem({ id, name, code }),
           group: recurring ? 'recurring' : 'metered',
         })
       }
@@ -243,7 +238,7 @@ export const UsageChargeDrawerContent = withForm({
 
           // Check premium gating for graduated percentage
           if (!isPremium && value === ChargeModelEnum.GraduatedPercentage) {
-            premiumWarningDialogRef?.current?.openDialog()
+            openPremiumWarningDialog()
             return
           }
 
@@ -269,13 +264,8 @@ export const UsageChargeDrawerContent = withForm({
           value as UsageChargeDrawerFormValues[keyof UsageChargeDrawerFormValues],
         )
       },
-      [form, isPremium, premiumWarningDialogRef],
+      [form, isPremium, openPremiumWarningDialog],
     )
-
-    const handleFormSubmit = (event: React.FormEvent) => {
-      event.preventDefault()
-      form.handleSubmit()
-    }
 
     // Filter drawer
     const filterDrawer = useDrawer()
@@ -499,326 +489,332 @@ export const UsageChargeDrawerContent = withForm({
     }
 
     return (
-      <form id={USAGE_CHARGE_DRAWER_FORM_ID} onSubmit={handleFormSubmit}>
-        <button type="submit" hidden aria-hidden="true" />
-        <CenteredPage.SectionWrapper>
-          <CenteredPage.PageTitle
-            title={translate('text_177213328514118gjrdaqs8s')}
-            description={translate('text_1772133285142lsyz4j6nrai')}
-          />
+      <CenteredPage.SectionWrapper>
+        <CenteredPage.PageTitle
+          title={translate('text_177213328514118gjrdaqs8s')}
+          description={translate('text_1772133285142lsyz4j6nrai')}
+        />
 
-          {isCreatePickerScreen ? (
+        {isCreatePickerScreen ? (
+          <CenteredPage.PageSection>
+            <CenteredPage.PageSectionTitle
+              title={translate('text_1772133285142iljykq4wpq5')}
+              description={translate('text_1772738921836y4nmj2wms6b')}
+            />
+
+            <form.AppField
+              name="billableMetricId"
+              listeners={{
+                onChange: ({ value }: { value: string }) => {
+                  const allBms = [...(billableMetricsData?.billableMetrics?.collection || [])]
+                  const selectedBm = allBms.find((bm) => bm.id === value)
+
+                  if (selectedBm) {
+                    form.setFieldValue('billableMetric', selectedBm)
+                    form.setFieldValue('properties', getPropertyShape({}))
+                    form.setFieldValue('filters', selectedBm.filters?.length ? [] : undefined)
+
+                    seedChargeCode({
+                      enabled: !!showCode && isCreateMode,
+                      sourceCode: selectedBm.code,
+                      existingChargeCodes,
+                      setCode: (nextCode) => form.setFieldValue('code', nextCode),
+                    })
+
+                    if (hasAnyPricingUnitConfigured && amountCurrency) {
+                      form.setFieldValue('appliedPricingUnit', {
+                        code: amountCurrency,
+                        conversionRate: undefined,
+                        shortName: amountCurrency,
+                        type: LocalPricingUnitType.Fiat,
+                      } as LocalPricingUnitInput)
+                    }
+                  }
+                },
+              }}
+            >
+              {(field) => (
+                <field.ComboBoxField
+                  className={SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME}
+                  data={billableMetricsComboboxData}
+                  searchQuery={getBillableMetrics}
+                  loading={false}
+                  placeholder={translate('text_6435888d7cc86500646d8981')}
+                  emptyText={translate('text_6246b6bc6b25f500b779aa7a')}
+                  renderGroupHeader={renderGroupHeader}
+                />
+              )}
+            </form.AppField>
+          </CenteredPage.PageSection>
+        ) : (
+          <CenteredPage.SubsectionWrapper>
+            {/* Selected billable metric (read-only) */}
             <CenteredPage.PageSection>
-              <CenteredPage.PageSectionTitle
-                title={translate('text_1772133285142iljykq4wpq5')}
-                description={translate('text_1772738921836y4nmj2wms6b')}
+              <CenteredPage.PageSectionTitle title={translate('text_1772133285142iljykq4wpq5')} />
+
+              <Selector
+                icon="pulse"
+                title={formValues.billableMetric.name}
+                subtitle={formValues.billableMetric.code}
               />
 
-              <form.AppField
-                name="billableMetricId"
-                listeners={{
-                  onChange: ({ value }: { value: string }) => {
-                    const allBms = [...(billableMetricsData?.billableMetrics?.collection || [])]
-                    const selectedBm = allBms.find((bm) => bm.id === value)
-
-                    if (selectedBm) {
-                      form.setFieldValue('billableMetric', selectedBm)
-                      form.setFieldValue('properties', getPropertyShape({}))
-                      form.setFieldValue('filters', selectedBm.filters?.length ? [] : undefined)
-
-                      if (hasAnyPricingUnitConfigured && amountCurrency) {
-                        form.setFieldValue('appliedPricingUnit', {
-                          code: amountCurrency,
-                          conversionRate: undefined,
-                          shortName: amountCurrency,
-                          type: LocalPricingUnitType.Fiat,
-                        } as LocalPricingUnitInput)
-                      }
-                    }
-                  },
-                }}
-              >
-                {(field) => (
-                  <field.ComboBoxField
-                    className={SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME}
-                    data={billableMetricsComboboxData}
-                    searchQuery={getBillableMetrics}
-                    loading={false}
-                    placeholder={translate('text_6435888d7cc86500646d8981')}
-                    emptyText={translate('text_6246b6bc6b25f500b779aa7a')}
-                    renderGroupHeader={renderGroupHeader}
-                  />
-                )}
-              </form.AppField>
-            </CenteredPage.PageSection>
-          ) : (
-            <CenteredPage.SubsectionWrapper>
-              {/* Selected billable metric (read-only) */}
-              <CenteredPage.PageSection>
-                <CenteredPage.PageSectionTitle title={translate('text_1772133285142iljykq4wpq5')} />
-
-                <Selector
-                  icon="pulse"
-                  title={formValues.billableMetric.name}
-                  subtitle={formValues.billableMetric.code}
+              {showCode && (
+                <ChargeCodeField
+                  form={form}
+                  fields={{ code: 'code' }}
+                  disabled={isInSubscriptionForm || isExistingChargeDisabled}
                 />
-              </CenteredPage.PageSection>
-
-              {/* Pricing unit settings */}
-              {!!hasAnyPricingUnitConfigured && (
-                <CenteredPage.PageSection>
-                  <CenteredPage.PageSectionTitle
-                    title={translate('text_17502574817266uy9bvk3i8u')}
-                  />
-
-                  <CustomPricingUnitSelector
-                    currency={currency}
-                    isInSubscriptionForm={isInSubscriptionForm}
-                    disabled={isExistingChargeDisabled}
-                    localCharge={formValues as unknown as LocalUsageChargeInput}
-                    handleUpdate={handleChargeModelUpdate}
-                  />
-                </CenteredPage.PageSection>
               )}
+            </CenteredPage.PageSection>
 
-              {/* Pricing settings */}
+            {/* Pricing unit settings */}
+            {!!hasAnyPricingUnitConfigured && (
               <CenteredPage.PageSection>
-                <CenteredPage.PageSectionTitle title={translate('text_1772133285141xbpuxbd4vrk')} />
+                <CenteredPage.PageSectionTitle title={translate('text_17502574817266uy9bvk3i8u')} />
 
-                <ChargeModelSelector
-                  alreadyUsedChargeAlertMessage={alreadyUsedChargeAlertMessage}
+                <CustomPricingUnitSelector
+                  currency={currency}
                   isInSubscriptionForm={isInSubscriptionForm}
                   disabled={isExistingChargeDisabled}
                   localCharge={formValues as unknown as LocalUsageChargeInput}
-                  chargeModelComboboxData={chargeModelComboboxData}
                   handleUpdate={handleChargeModelUpdate}
                 />
+              </CenteredPage.PageSection>
+            )}
 
-                <ChargeWrapperSwitch
-                  chargeType="usage"
-                  chargePricingUnitShortName={chargePricingUnitShortName}
-                  currency={currency}
-                  form={form}
-                  isEdition={isEdition || false}
-                  localCharge={formValues as unknown as LocalUsageChargeInput}
-                  propertyCursor="properties"
-                  onExpandCustomCharge={openCustomChargeDrawer}
+            {/* Pricing settings */}
+            <CenteredPage.PageSection>
+              <CenteredPage.PageSectionTitle title={translate('text_1772133285141xbpuxbd4vrk')} />
+
+              <ChargeModelSelector
+                alreadyUsedChargeAlertMessage={alreadyUsedChargeAlertMessage}
+                isInSubscriptionForm={isInSubscriptionForm}
+                disabled={isExistingChargeDisabled}
+                localCharge={formValues as unknown as LocalUsageChargeInput}
+                chargeModelComboboxData={chargeModelComboboxData}
+                handleUpdate={handleChargeModelUpdate}
+              />
+
+              <ChargeWrapperSwitch
+                chargeType="usage"
+                chargePricingUnitShortName={chargePricingUnitShortName}
+                currency={currency}
+                form={form}
+                isEdition={isEdition || false}
+                localCharge={formValues as unknown as LocalUsageChargeInput}
+                propertyCursor="properties"
+                onExpandCustomCharge={openCustomChargeDrawer}
+              />
+
+              {!!formValues.billableMetric?.filters?.length && (
+                <CenteredPage.SubsectionTitle
+                  title={translate('text_66ab42d4ece7e6b7078993ad')}
+                  description={translate('text_17732575346321t54t9g8ok5')}
                 />
+              )}
 
-                {!!formValues.billableMetric?.filters?.length && (
-                  <CenteredPage.SubsectionTitle
-                    title={translate('text_66ab42d4ece7e6b7078993ad')}
-                    description={translate('text_17732575346321t54t9g8ok5')}
+              {/* Filter selectors */}
+              {!!formValues.filters?.length && (
+                <div className="flex flex-col gap-4">
+                  {formValues.filters.map((filter, filterIndex) => {
+                    const displayValues = filter.values
+                      .map((value: string) => {
+                        try {
+                          const [k, v] = Object.entries(JSON.parse(value))[0]
+
+                          return v === ALL_FILTER_VALUES ? `${k}` : `${v}`
+                        } catch {
+                          return value
+                        }
+                      })
+                      .join(' \u2022 ')
+
+                    return (
+                      <Selector
+                        key={`filter-selector-${filterIndex}`}
+                        data-test={`filter-charge-selector-${filterIndex}`}
+                        icon="filter"
+                        title={
+                          filter.invoiceDisplayName ||
+                          displayValues ||
+                          translate('text_65f847a944603a01034f5831')
+                        }
+                        subtitle={filter.invoiceDisplayName ? displayValues : undefined}
+                        endContent={
+                          <Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />
+                        }
+                        hoverActions={
+                          <SelectorActions
+                            actions={[
+                              {
+                                icon: 'trash',
+                                tooltipCopy: translate('text_63aa085d28b8510cd46443ff'),
+                                onClick: (e) => {
+                                  e.stopPropagation()
+                                  deleteFilter(filterIndex)
+                                },
+                              },
+                              {
+                                icon: 'pen',
+                                tooltipCopy: translate('text_1773687275957yugpyzdyfk1'),
+                                onClick: () => openFilterDrawer(filter, filterIndex),
+                              },
+                            ]}
+                          />
+                        }
+                        onClick={() => openFilterDrawer(filter, filterIndex)}
+                      />
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* Add filter */}
+              {!!formValues.billableMetric?.filters?.length && (
+                <Button
+                  data-test="add-charge-filter"
+                  fitContent
+                  align="left"
+                  variant="inline"
+                  startIcon="plus"
+                  onClick={() => openFilterDrawer()}
+                >
+                  {translate('text_65f8472df7593301061e27e2')}
+                </Button>
+              )}
+            </CenteredPage.PageSection>
+
+            {/* Invoicing settings */}
+            <CenteredPage.PageSection>
+              <CenteredPage.PageSectionTitle title={translate('text_17423672025282dl7iozy1ru')} />
+
+              <form.AppField name="invoiceDisplayName">
+                {(field) => (
+                  <field.TextInputField
+                    label={translate('text_65a6b4e2cb38d9b70ec53d39')}
+                    description={translate('text_1771963033467yduu33x3qw9')}
+                    placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
                   />
                 )}
+              </form.AppField>
 
-                {/* Filter selectors */}
-                {!!formValues.filters?.length && (
-                  <div className="flex flex-col gap-4">
-                    {formValues.filters.map((filter, filterIndex) => {
-                      const displayValues = filter.values
-                        .map((value: string) => {
-                          try {
-                            const [k, v] = Object.entries(JSON.parse(value))[0]
+              <PlanBillingPeriodInfoSection />
 
-                            return v === ALL_FILTER_VALUES ? `${k}` : `${v}`
-                          } catch {
-                            return value
-                          }
-                        })
-                        .join(' \u2022 ')
+              <ChargePayInAdvanceOption
+                chargePayInAdvanceDescription={chargePayInAdvanceDescription}
+                disabled={isInSubscriptionForm || isExistingChargeDisabled}
+                isPayInAdvanceOptionDisabled={isPayInAdvanceOptionDisabled}
+                payInAdvance={formValues.payInAdvance}
+                handleUpdate={({ invoiceable, payInAdvance, regroupPaidFees }) => {
+                  form.setFieldValue('payInAdvance', payInAdvance)
+                  if (invoiceable !== undefined) {
+                    form.setFieldValue('invoiceable', invoiceable)
+                  }
+                  if (regroupPaidFees === null) {
+                    form.setFieldValue('regroupPaidFees', null)
+                  }
+                }}
+              />
 
-                      return (
-                        <Selector
-                          key={`filter-selector-${filterIndex}`}
-                          data-test={`filter-charge-selector-${filterIndex}`}
-                          icon="filter"
-                          title={
-                            filter.invoiceDisplayName ||
-                            displayValues ||
-                            translate('text_65f847a944603a01034f5831')
-                          }
-                          subtitle={filter.invoiceDisplayName ? displayValues : undefined}
-                          endContent={
-                            <Button
-                              icon="chevron-right-filled"
-                              variant="quaternary"
-                              tabIndex={-1}
-                            />
-                          }
-                          hoverActions={
-                            <SelectorActions
-                              actions={[
-                                {
-                                  icon: 'trash',
-                                  tooltipCopy: translate('text_63aa085d28b8510cd46443ff'),
-                                  onClick: (e) => {
-                                    e.stopPropagation()
-                                    deleteFilter(filterIndex)
-                                  },
-                                },
-                                {
-                                  icon: 'pen',
-                                  tooltipCopy: translate('text_1773687275957yugpyzdyfk1'),
-                                  onClick: () => openFilterDrawer(filter, filterIndex),
-                                },
-                              ]}
-                            />
-                          }
-                          onClick={() => openFilterDrawer(filter, filterIndex)}
-                        />
-                      )
-                    })}
-                  </div>
-                )}
-
-                {/* Add filter */}
-                {!!formValues.billableMetric?.filters?.length && (
-                  <Button
-                    data-test="add-charge-filter"
-                    fitContent
-                    align="left"
-                    variant="inline"
-                    startIcon="plus"
-                    onClick={() => openFilterDrawer()}
-                  >
-                    {translate('text_65f8472df7593301061e27e2')}
-                  </Button>
-                )}
-              </CenteredPage.PageSection>
-
-              {/* Invoicing settings */}
-              <CenteredPage.PageSection>
-                <CenteredPage.PageSectionTitle title={translate('text_17423672025282dl7iozy1ru')} />
-
-                <form.AppField name="invoiceDisplayName">
-                  {(field) => (
-                    <field.TextInputField
-                      label={translate('text_65a6b4e2cb38d9b70ec53d39')}
-                      description={translate('text_1771963033467yduu33x3qw9')}
-                      placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
-                    />
-                  )}
-                </form.AppField>
-
-                <PlanBillingPeriodInfoSection />
-
-                <ChargePayInAdvanceOption
-                  chargePayInAdvanceDescription={chargePayInAdvanceDescription}
+              {formValues.payInAdvance && (
+                <ChargeInvoicingStrategyOption
+                  localCharge={formValues as unknown as LocalUsageChargeInput}
                   disabled={isInSubscriptionForm || isExistingChargeDisabled}
-                  isPayInAdvanceOptionDisabled={isPayInAdvanceOptionDisabled}
-                  payInAdvance={formValues.payInAdvance}
-                  handleUpdate={({ invoiceable, payInAdvance, regroupPaidFees }) => {
-                    form.setFieldValue('payInAdvance', payInAdvance)
-                    if (invoiceable !== undefined) {
-                      form.setFieldValue('invoiceable', invoiceable)
-                    }
-                    if (regroupPaidFees === null) {
-                      form.setFieldValue('regroupPaidFees', null)
-                    }
+                  openPremiumDialog={() => openPremiumWarningDialog()}
+                  handleUpdate={({ regroupPaidFees, invoiceable }) => {
+                    form.setFieldValue('regroupPaidFees', regroupPaidFees)
+                    form.setFieldValue('invoiceable', invoiceable)
                   }}
                 />
+              )}
 
-                {formValues.payInAdvance && (
-                  <ChargeInvoicingStrategyOption
+              {!!formValues.billableMetric.recurring && (
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <Typography variant="captionHl" color="grey700">
+                      {translate('text_177488074309762bkd4znl3p')}
+                    </Typography>
+                    <Typography variant="caption" color="grey600">
+                      {translate('text_1774880743098ioxd3oxanxo')}
+                    </Typography>
+                  </div>
+
+                  <form.AppField name="prorated">
+                    {(field) => (
+                      <field.SwitchField
+                        label={translate('text_177488074309762bkd4znl3p')}
+                        disabled={
+                          isInSubscriptionForm ||
+                          isExistingChargeDisabled ||
+                          isProratedOptionDisabled
+                        }
+                        subLabel={
+                          isProratedOptionDisabled
+                            ? translate('text_649c54823c9089006247625a', {
+                                chargeModel: translate(
+                                  chargeModelLookupTranslation[formValues.chargeModel],
+                                ),
+                              })
+                            : ''
+                        }
+                      />
+                    )}
+                  </form.AppField>
+                </div>
+              )}
+
+              {!formValues.payInAdvance && (
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1">
+                    <Typography variant="captionHl" color="textSecondary">
+                      {translate('text_643e592657fc1ba5ce110c30')}
+                    </Typography>
+                    <Typography variant="caption">
+                      {translate('text_6661fc17337de3591e29e451', {
+                        interval: translate(
+                          mapChargeIntervalCopy(interval, false),
+                        ).toLocaleLowerCase(),
+                      })}
+                    </Typography>
+                  </div>
+
+                  <SpendingMinimumOptionSection
+                    initialLocalCharge={
+                      (initialCharge || formValues) as unknown as LocalUsageChargeInput
+                    }
+                    subscriptionFormType={subscriptionFormType}
+                    disabled={isExistingChargeDisabled}
                     localCharge={formValues as unknown as LocalUsageChargeInput}
-                    disabled={isInSubscriptionForm || isExistingChargeDisabled}
-                    openPremiumDialog={() => premiumWarningDialogRef?.current?.openDialog()}
-                    handleUpdate={({ regroupPaidFees, invoiceable }) => {
-                      form.setFieldValue('regroupPaidFees', regroupPaidFees)
-                      form.setFieldValue('invoiceable', invoiceable)
+                    chargePricingUnitShortName={chargePricingUnitShortName}
+                    currency={currency}
+                    isPremium={isPremium}
+                    chargeIndex={editIndex}
+                    handleUpdate={(name, value) => {
+                      form.setFieldValue(
+                        name as keyof UsageChargeDrawerFormValues,
+                        value as UsageChargeDrawerFormValues[keyof UsageChargeDrawerFormValues],
+                      )
+                    }}
+                    handleRemoveSpendingMinimum={() => {
+                      form.setFieldValue('minAmountCents', '')
                     }}
                   />
-                )}
+                </div>
+              )}
 
-                {!!formValues.billableMetric.recurring && (
-                  <div className="flex flex-col gap-4">
-                    <div>
-                      <Typography variant="captionHl" color="grey700">
-                        {translate('text_177488074309762bkd4znl3p')}
-                      </Typography>
-                      <Typography variant="caption" color="grey600">
-                        {translate('text_1774880743098ioxd3oxanxo')}
-                      </Typography>
-                    </div>
-
-                    <form.AppField name="prorated">
-                      {(field) => (
-                        <field.SwitchField
-                          label={translate('text_177488074309762bkd4znl3p')}
-                          disabled={
-                            isInSubscriptionForm ||
-                            isExistingChargeDisabled ||
-                            isProratedOptionDisabled
-                          }
-                          subLabel={
-                            isProratedOptionDisabled
-                              ? translate('text_649c54823c9089006247625a', {
-                                  chargeModel: translate(
-                                    chargeModelLookupTranslation[formValues.chargeModel],
-                                  ),
-                                })
-                              : ''
-                          }
-                        />
-                      )}
-                    </form.AppField>
-                  </div>
-                )}
-
-                {!formValues.payInAdvance && (
-                  <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-1">
-                      <Typography variant="captionHl" color="textSecondary">
-                        {translate('text_643e592657fc1ba5ce110c30')}
-                      </Typography>
-                      <Typography variant="caption">
-                        {translate('text_6661fc17337de3591e29e451', {
-                          interval: translate(
-                            mapChargeIntervalCopy(interval, false),
-                          ).toLocaleLowerCase(),
-                        })}
-                      </Typography>
-                    </div>
-
-                    <SpendingMinimumOptionSection
-                      initialLocalCharge={
-                        (initialCharge || formValues) as unknown as LocalUsageChargeInput
-                      }
-                      subscriptionFormType={subscriptionFormType}
-                      disabled={isExistingChargeDisabled}
-                      localCharge={formValues as unknown as LocalUsageChargeInput}
-                      chargePricingUnitShortName={chargePricingUnitShortName}
-                      currency={currency}
-                      isPremium={isPremium}
-                      chargeIndex={editIndex}
-                      handleUpdate={(name, value) => {
-                        form.setFieldValue(
-                          name as keyof UsageChargeDrawerFormValues,
-                          value as UsageChargeDrawerFormValues[keyof UsageChargeDrawerFormValues],
-                        )
-                      }}
-                      handleRemoveSpendingMinimum={() => {
-                        form.setFieldValue('minAmountCents', '')
-                      }}
-                    />
-                  </div>
-                )}
-
-                <TaxesSelectorSection
-                  title={translate('text_1760729707267seik64l67k8')}
-                  description={translate('text_17607297072672w5hid8gl1i')}
-                  taxes={formValues.taxes}
-                  comboboxSelector={SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME}
-                  onUpdate={(newTaxArray) => {
-                    form.setFieldValue('taxes', newTaxArray)
-                  }}
-                />
-              </CenteredPage.PageSection>
-            </CenteredPage.SubsectionWrapper>
-          )}
-        </CenteredPage.SectionWrapper>
-      </form>
+              <TaxesSelectorSection
+                title={translate('text_1760729707267seik64l67k8')}
+                description={translate('text_17607297072672w5hid8gl1i')}
+                taxes={formValues.taxes}
+                comboboxSelector={SEARCH_TAX_INPUT_FOR_CHARGE_CLASSNAME}
+                onUpdate={(newTaxArray) => {
+                  form.setFieldValue('taxes', newTaxArray)
+                }}
+              />
+            </CenteredPage.PageSection>
+          </CenteredPage.SubsectionWrapper>
+        )}
+      </CenteredPage.SectionWrapper>
     )
   },
 })

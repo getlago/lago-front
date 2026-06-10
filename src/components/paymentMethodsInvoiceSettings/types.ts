@@ -1,5 +1,3 @@
-import { FormikProps } from 'formik'
-
 import { InvoiceFormInput } from '~/components/invoices/types'
 import { CreateCustomerWalletTransactionInput, Customer, Maybe } from '~/generated/graphql'
 import { SubscriptionFormInput } from '~/pages/subscriptions/types'
@@ -31,9 +29,14 @@ type FormTypeMap = {
 
 type CustomerForPaymentMethods = Maybe<Partial<Pick<Customer, 'id' | 'externalId'>>>
 
+export interface PaymentMethodsForm<T extends ViewTypeEnum = ViewTypeEnum> {
+  values: Partial<FormTypeMap[T]>
+  setFieldValue(field: string, value: unknown): unknown
+}
+
 export interface PaymentMethodsInvoiceSettingsProps<T extends ViewTypeEnum = ViewTypeEnum> {
   customer: CustomerForPaymentMethods
-  formikProps: FormikProps<FormTypeMap[T]>
+  form: PaymentMethodsForm<T>
   viewType: T
   formFieldBasePath?: string
 }

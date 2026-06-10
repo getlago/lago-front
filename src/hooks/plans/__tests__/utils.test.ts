@@ -1,4 +1,6 @@
-import { formatAnyToValueForChargeFormArrays } from '../utils'
+import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
+
+import { buildPlanSettingsValues, formatAnyToValueForChargeFormArrays } from '../utils'
 
 describe('formattedToValue', () => {
   describe('GIVEN toValue is null', () => {
@@ -73,5 +75,56 @@ describe('formattedToValue', () => {
     it('THEN handles string fromValue', () => {
       expect(formatAnyToValueForChargeFormArrays(5, '10')).toBe(11)
     })
+  })
+})
+
+describe('buildPlanSettingsValues', () => {
+  const plan = {
+    name: 'Pro',
+    code: 'pro',
+    description: 'A pro plan',
+    interval: PlanInterval.Yearly,
+    amountCurrency: CurrencyEnum.Eur,
+    billChargesMonthly: true,
+    billFixedChargesMonthly: false,
+    taxes: [{ id: 't1', code: 'vat', name: 'VAT', rate: 20 }],
+    fixedCharges: [{ id: 'fc1' }, { id: 'fc2' }],
+    charges: [{ id: 'c1' }],
+  }
+
+  it('maps each plan-settings field 1:1 from the plan', () => {
+    const values = buildPlanSettingsValues(plan)
+
+    expect(values.name).toBe('Pro')
+    expect(values.code).toBe('pro')
+    expect(values.description).toBe('A pro plan')
+    expect(values.interval).toBe(PlanInterval.Yearly)
+    expect(values.amountCurrency).toBe(CurrencyEnum.Eur)
+    expect(values.billChargesMonthly).toBe(true)
+    expect(values.billFixedChargesMonthly).toBe(false)
+    expect(values.taxes).toEqual(plan.taxes)
+  })
+
+  it('preserves fixedCharges/charges presence (length-only)', () => {
+    const values = buildPlanSettingsValues(plan)
+
+    expect(values.fixedCharges).toHaveLength(2)
+    expect(values.charges).toHaveLength(1)
+  })
+
+  it('defaults to empty values when fields are missing', () => {
+    const values = buildPlanSettingsValues({
+      name: 'Free',
+      code: 'free',
+      interval: PlanInterval.Monthly,
+      amountCurrency: CurrencyEnum.Usd,
+    })
+
+    expect(values.description).toBe('')
+    expect(values.billChargesMonthly).toBe(false)
+    expect(values.billFixedChargesMonthly).toBe(false)
+    expect(values.taxes).toEqual([])
+    expect(values.fixedCharges).toEqual([])
+    expect(values.charges).toEqual([])
   })
 })

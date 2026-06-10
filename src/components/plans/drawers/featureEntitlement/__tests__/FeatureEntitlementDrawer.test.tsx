@@ -11,7 +11,9 @@ import {
 
 // --- Capture callbacks ---
 
-let capturedOnSubmit: ((args: { value: Record<string, unknown> }) => void) | undefined
+let capturedOnSubmit:
+  | ((args: { value: Record<string, unknown> }) => void | Promise<void>)
+  | undefined
 let capturedDefaultValues: Record<string, unknown> | undefined
 
 // --- Mocks ---
@@ -20,10 +22,12 @@ jest.mock('../FeatureEntitlementDrawerContent', () => ({
   FeatureEntitlementDrawerContent: () => <div data-test="feature-entitlement-drawer-content" />,
 }))
 
+const mockDrawerClose = jest.fn()
+
 jest.mock('~/components/drawers/useDrawer', () => ({
   useDrawer: () => ({
     open: jest.fn(),
-    close: jest.fn(),
+    close: mockDrawerClose,
   }),
 }))
 
@@ -115,7 +119,7 @@ jest.mock('~/hooks/forms/useAppform', () => ({
       onSubmit,
       defaultValues,
     }: {
-      onSubmit?: (args: { value: Record<string, unknown> }) => void
+      onSubmit?: (args: { value: Record<string, unknown> }) => void | Promise<void>
       defaultValues: Record<string, unknown>
     }) => {
       capturedOnSubmit = onSubmit
@@ -398,6 +402,61 @@ describe('FeatureEntitlementDrawer', () => {
         expect(mockOnSave).toHaveBeenCalledWith(
           expect.objectContaining({ privileges: [privilegeRow] }),
         )
+      })
+    })
+
+    describe('WHEN onSave resolves to false (cascade cancelled)', () => {
+      it('THEN should NOT close the drawer', async () => {
+        const abortingOnSave = jest.fn().mockResolvedValue(false)
+
+        render(
+          <FeatureEntitlementDrawer
+            ref={drawerRef}
+            onSave={abortingOnSave}
+            existingFeatureCodes={[]}
+          />,
+        )
+
+        await capturedOnSubmit?.({ value: { ...defaultFormValues } })
+
+        expect(abortingOnSave).toHaveBeenCalled()
+        expect(mockDrawerClose).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN onSave resolves to true', () => {
+      it('THEN should close the drawer', async () => {
+        const confirmingOnSave = jest.fn().mockResolvedValue(true)
+
+        render(
+          <FeatureEntitlementDrawer
+            ref={drawerRef}
+            onSave={confirmingOnSave}
+            existingFeatureCodes={[]}
+          />,
+        )
+
+        await capturedOnSubmit?.({ value: { ...defaultFormValues } })
+
+        expect(mockDrawerClose).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN onSave returns void (sync)', () => {
+      it('THEN should close the drawer', async () => {
+        const voidOnSave = jest.fn().mockReturnValue(undefined)
+
+        render(
+          <FeatureEntitlementDrawer
+            ref={drawerRef}
+            onSave={voidOnSave}
+            existingFeatureCodes={[]}
+          />,
+        )
+
+        await capturedOnSubmit?.({ value: { ...defaultFormValues } })
+
+        expect(mockDrawerClose).toHaveBeenCalled()
       })
     })
   })

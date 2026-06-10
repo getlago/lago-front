@@ -70,7 +70,6 @@ import {
   useGetBillingEntityQuery,
   useGetBillingEntityTaxesForCreateInvoiceQuery,
   useGetInfosForCreateInvoiceQuery,
-  useGetInvoiceFeesForCreateInvoiceQuery,
   useVoidInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -78,6 +77,7 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
+import { useInvoiceBuildRegenerationPreview } from '~/pages/invoiceDetails/common/useInvoiceBuildRegenerationPreview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
@@ -116,66 +116,6 @@ gql`
     name
     code
     rate
-  }
-
-  query getInvoiceFeesForCreateInvoice($id: ID!) {
-    invoice(id: $id) {
-      id
-      status
-      fees {
-        id
-        amountCents
-        invoiceName
-        invoiceDisplayName
-        itemName
-        description
-        groupedBy
-        units
-        preciseUnitAmount
-        appliedTaxes {
-          id
-          taxCode
-          tax {
-            id
-            name
-            rate
-            code
-          }
-        }
-        addOn {
-          id
-          taxes {
-            id
-            name
-            rate
-            code
-          }
-        }
-        charge {
-          id
-          payInAdvance
-          minAmountCents
-          billableMetric {
-            id
-            name
-          }
-        }
-        chargeFilter {
-          invoiceDisplayName
-          values
-        }
-        subscription {
-          id
-          plan {
-            id
-            interval
-            name
-          }
-        }
-
-        ...FeeForInvoiceFeesToFeeInput
-      }
-    }
   }
 
   query getInfosForCreateInvoice($id: ID!) {
@@ -314,20 +254,18 @@ const CreateInvoice = () => {
   })
   const { customer, taxes } = data || {}
 
-  const { data: prefillData } = useGetInvoiceFeesForCreateInvoiceQuery({
-    variables: { id: voidedInvoiceId as string },
-    skip: !voidedInvoiceId,
-  })
+  const { invoiceBuildRegenerationPreview: prefillInvoice } =
+    useInvoiceBuildRegenerationPreview(voidedInvoiceId)
 
   const prefillFees = useMemo(() => {
-    const fees = prefillData?.invoice?.fees
+    const fees = prefillInvoice?.fees
 
     if (!fees) {
       return
     }
 
-    return invoiceFeesToFeeInput(prefillData?.invoice as Invoice)
-  }, [prefillData?.invoice])
+    return invoiceFeesToFeeInput(prefillInvoice as Invoice)
+  }, [prefillInvoice])
 
   const { data: billingEntityData } = useGetBillingEntityQuery({
     variables: {
@@ -452,7 +390,7 @@ const CreateInvoice = () => {
     enableReinitialize: true,
     validateOnMount: true,
     onSubmit: async ({ fees, paymentMethod, invoiceCustomSection, ...values }) => {
-      if (voidedInvoiceId && prefillData?.invoice?.id && actions.canVoid(prefillData?.invoice)) {
+      if (voidedInvoiceId && prefillInvoice?.id && actions.canVoid(prefillInvoice)) {
         const res = await voidInvoice({
           variables: {
             input: {
@@ -471,7 +409,7 @@ const CreateInvoice = () => {
         variables: {
           input: {
             ...values,
-            ...(prefillData?.invoice?.id ? { voidedInvoiceId: prefillData?.invoice?.id } : {}),
+            ...(prefillInvoice?.id ? { voidedInvoiceId: prefillInvoice.id } : {}),
             paymentMethod,
             invoiceCustomSection: toInvoiceCustomSectionReference(
               invoiceCustomSection as InvoiceCustomSectionInput,
@@ -1264,7 +1202,7 @@ const CreateInvoice = () => {
               </div>
               <PaymentMethodsInvoiceSettings
                 customer={customer}
-                formikProps={formikProps}
+                form={formikProps}
                 viewType={ViewTypeEnum.OneOffInvoice}
               />
             </Card>

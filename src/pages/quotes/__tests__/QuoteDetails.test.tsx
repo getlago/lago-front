@@ -57,12 +57,24 @@ const mockQuote = {
     status: StatusEnum.Draft,
     version: 1,
     content: null,
+    currency: null,
+    startDate: null,
+    endDate: null,
+    billingItems: null,
     createdAt: '2026-04-09T10:00:00Z',
   },
   customer: {
     id: 'customer-001',
     name: 'Acme Corp',
     externalId: 'ext-acme-001',
+    currency: null,
+    netPaymentTerm: null,
+    billingEntity: {
+      id: 'be-1',
+      code: 'default',
+      name: 'Default Entity',
+      netPaymentTerm: 0,
+    },
   },
 }
 
@@ -90,6 +102,7 @@ describe('QuoteDetails', () => {
       quote: mockQuote,
       loading: false,
       error: undefined,
+      refetch: jest.fn(),
     })
 
     mockUseQuoteVersionActions.mockReturnValue({
@@ -167,6 +180,7 @@ describe('QuoteDetails', () => {
           quote: undefined,
           loading: true,
           error: undefined,
+          refetch: jest.fn(),
         })
 
         render(<QuoteDetails />)
@@ -246,6 +260,7 @@ describe('QuoteDetails', () => {
           quote: undefined,
           loading: true,
           error: undefined,
+          refetch: jest.fn(),
         })
 
         render(<QuoteDetails />)
@@ -263,6 +278,7 @@ describe('QuoteDetails', () => {
         quote: undefined,
         loading: false,
         error: undefined,
+        refetch: jest.fn(),
       })
 
       const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock

@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { act, screen } from '@testing-library/react'
 
 import { FixedChargeChargeModelEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -12,7 +12,17 @@ const FixedChargeDrawerContent = OriginalFixedChargeDrawerContent as unknown as 
   disabled?: boolean
   isInSubscriptionForm?: boolean
   alertMessage?: string
+  showCode?: boolean
+  existingChargeCodes?: (string | null | undefined)[]
 }>
+
+// Mutable add-on query payload, swapped per-test (the `mock` prefix lets the
+// jest.mock factory below close over it).
+let mockAddOnsData: unknown = null
+
+// Captures the `listeners` passed to each AppField by field name so tests can
+// drive combobox onChange (add-on selection) without a real form.
+let capturedAppFieldListeners: Record<string, { onChange?: (arg: { value: unknown }) => void }> = {}
 
 // --- Test ID constants ---
 
@@ -80,10 +90,14 @@ const mockForm = {
   AppField: ({
     children,
     name,
+    listeners,
   }: {
     children: (field: unknown) => React.ReactNode
     name: string
+    listeners?: { onChange?: (arg: { value: unknown }) => void }
   }) => {
+    capturedAppFieldListeners[name] = listeners ?? {}
+
     const mockFieldApi = {
       state: { meta: { errors: [] } },
       TextInputField: (props: Record<string, unknown>) => (
@@ -130,10 +144,8 @@ jest.mock('@tanstack/react-form', () => ({
 jest.mock('~/hooks/forms/useAppform', () => ({
   useAppForm: jest.fn(() => mockForm),
   withForm: jest.fn((mockOpts: Record<string, unknown>) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mockRenderFn = mockOpts.render as (mockArgs: Record<string, unknown>) => any
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (mockProps: Record<string, unknown>) => mockRenderFn({ ...mockProps, form: mockForm })
   }),
   withFieldGroup: jest.fn(),
@@ -179,10 +191,19 @@ jest.mock('~/generated/graphql', () => {
     ...actual,
     useGetAddOnsForFixedChargesSectionLazyQuery: jest.fn(() => [
       jest.fn(),
-      { loading: false, data: null },
+      { loading: false, data: mockAddOnsData },
     ]),
   }
 })
+
+// withFieldGroup is mocked away (see useAppform mock), so the real ChargeCodeField
+// renders nothing — stub it to assert mounting + the disabled wiring instead.
+jest.mock('~/components/plans/drawers/common/ChargeCodeField', () => ({
+  __esModule: true,
+  default: (props: { disabled?: boolean }) => (
+    <div data-test="charge-code-field" data-disabled={String(!!props.disabled)} />
+  ),
+}))
 
 // Prop-capturing mocks for child components
 let lastChargeModelSelectorProps: Record<string, unknown> = {}
@@ -247,6 +268,8 @@ describe('FixedChargeDrawerContent', () => {
     mockCurrentFormValues = mockDefaultFormValues
     mockForm.store = mockCreateStore(mockDefaultFormValues)
     mockForm.state = { values: mockDefaultFormValues }
+    mockAddOnsData = null
+    capturedAppFieldListeners = {}
     lastChargeModelSelectorProps = {}
     lastChargeWrapperSwitchProps = {}
     lastChargePayInAdvanceOptionProps = {}
@@ -304,6 +327,12 @@ describe('FixedChargeDrawerContent', () => {
 
         expect(proratedField).toBeDisabled()
       })
+
+      it('THEN the charge code field should be disabled', () => {
+        render(<FixedChargeDrawerContent isCreateMode={false} isEdition disabled showCode />)
+
+        expect(screen.getByTestId('charge-code-field')).toHaveAttribute('data-disabled', 'true')
+      })
     })
   })
 
@@ -351,6 +380,12 @@ describe('FixedChargeDrawerContent', () => {
 
         expect(proratedField).not.toBeDisabled()
       })
+
+      it('THEN the charge code field should NOT be disabled (new charge)', () => {
+        render(<FixedChargeDrawerContent isCreateMode={false} isEdition disabled showCode />)
+
+        expect(screen.getByTestId('charge-code-field')).toHaveAttribute('data-disabled', 'false')
+      })
     })
   })
 
@@ -397,6 +432,135 @@ describe('FixedChargeDrawerContent', () => {
         const proratedField = screen.getByTestId('field-prorated')
 
         expect(proratedField).not.toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN isInSubscriptionForm={true} (sub plan override mode)', () => {
+    beforeEach(() => {
+      mockCurrentFormValues = mockExistingChargeFormValues
+      mockForm.store = mockCreateStore(mockExistingChargeFormValues)
+      mockForm.state = { values: mockExistingChargeFormValues }
+    })
+
+    const renderInSubscriptionForm = () =>
+      render(
+        <FixedChargeDrawerContent
+          isCreateMode={false}
+          isEdition
+          isInSubscriptionForm
+          disabled={false}
+        />,
+      )
+
+    it('THEN ChargeModelSelector should receive isInSubscriptionForm prop', () => {
+      renderInSubscriptionForm()
+
+      expect(lastChargeModelSelectorProps.isInSubscriptionForm).toBe(true)
+    })
+
+    it('THEN ChargePayInAdvanceOption should be disabled', () => {
+      renderInSubscriptionForm()
+
+      expect(lastChargePayInAdvanceOptionProps.disabled).toBe(true)
+    })
+
+    it('THEN prorated switch should be disabled', () => {
+      renderInSubscriptionForm()
+
+      const proratedField = screen.getByTestId('field-prorated')
+
+      expect(proratedField).toBeDisabled()
+    })
+
+    it('THEN units field should remain editable (sub override value)', () => {
+      renderInSubscriptionForm()
+
+      const unitsField = screen.getByTestId('field-units')
+
+      expect(unitsField).not.toBeDisabled()
+    })
+
+    it('THEN invoiceDisplayName should remain editable', () => {
+      renderInSubscriptionForm()
+
+      const displayNameField = screen.getByTestId('field-invoiceDisplayName')
+
+      expect(displayNameField).not.toBeDisabled()
+    })
+
+    it('THEN ChargeWrapperSwitch (pricing fields) should remain editable', () => {
+      renderInSubscriptionForm()
+
+      expect(lastChargeWrapperSwitchProps.disabled).toBeFalsy()
+    })
+  })
+
+  describe('GIVEN showCode (v2 edition/details UI)', () => {
+    describe('WHEN an add-on is already selected', () => {
+      beforeEach(() => {
+        mockCurrentFormValues = mockExistingChargeFormValues
+        mockForm.store = mockCreateStore(mockExistingChargeFormValues)
+        mockForm.state = { values: mockExistingChargeFormValues }
+      })
+
+      it('THEN renders the editable charge code field', () => {
+        render(
+          <FixedChargeDrawerContent isCreateMode={false} isEdition disabled={false} showCode />,
+        )
+
+        expect(screen.getByTestId('charge-code-field')).toBeInTheDocument()
+      })
+
+      it('THEN disables the code field in subscription-form mode', () => {
+        render(
+          <FixedChargeDrawerContent
+            isCreateMode={false}
+            isEdition
+            isInSubscriptionForm
+            disabled={false}
+            showCode
+          />,
+        )
+
+        expect(screen.getByTestId('charge-code-field')).toHaveAttribute('data-disabled', 'true')
+      })
+    })
+
+    describe('WHEN selecting an add-on on the create picker screen', () => {
+      beforeEach(() => {
+        mockCurrentFormValues = mockDefaultFormValues
+        mockForm.store = mockCreateStore(mockDefaultFormValues)
+        mockForm.state = { values: mockDefaultFormValues }
+        mockAddOnsData = {
+          addOns: { collection: [{ id: 'addon-9', name: 'Setup', code: 'setup' }] },
+        }
+      })
+
+      it('THEN stores the add-on and seeds a unique charge code from its code', () => {
+        render(<FixedChargeDrawerContent isCreateMode showCode existingChargeCodes={['setup']} />)
+
+        act(() => {
+          capturedAppFieldListeners.addOnId?.onChange?.({ value: 'addon-9' })
+        })
+
+        expect(mockSetFieldValue).toHaveBeenCalledWith('addOn', {
+          id: 'addon-9',
+          name: 'Setup',
+          code: 'setup',
+        })
+        // `setup` is already taken, so the seeded code gets a numeric suffix.
+        expect(mockSetFieldValue).toHaveBeenCalledWith('code', 'setup_2')
+      })
+
+      it('THEN does NOT seed a code when showCode is false', () => {
+        render(<FixedChargeDrawerContent isCreateMode existingChargeCodes={['setup']} />)
+
+        act(() => {
+          capturedAppFieldListeners.addOnId?.onChange?.({ value: 'addon-9' })
+        })
+
+        expect(mockSetFieldValue).not.toHaveBeenCalledWith('code', expect.anything())
       })
     })
   })

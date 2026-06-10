@@ -45,7 +45,7 @@ export const TOOLBAR_ALIGN_RIGHT_BUTTON_TEST_ID = 'toolbar-align-right-button'
 export const TOOLBAR_ALIGN_JUSTIFY_BUTTON_TEST_ID = 'toolbar-align-justify-button'
 
 type ToolbarProps = {
-  editor: Editor
+  editor: Editor | null
 }
 
 const Separator = () => <div className="w-px shrink-0 bg-grey-300" />
@@ -86,32 +86,34 @@ const Toolbar = ({ editor }: ToolbarProps) => {
   const editorState = useEditorState({
     editor,
     selector: ({ editor: e }) => ({
-      isBold: e.isActive('bold'),
-      isItalic: e.isActive('italic'),
-      isUnderline: e.isActive('underline'),
-      isStrike: e.isActive('strike'),
-      isParagraph: e.isActive('paragraph'),
-      isBulletList: e.isActive('bulletList'),
-      isOrderedList: e.isActive('orderedList'),
-      isCode: e.isActive('code'),
-      isCodeBlock: e.isActive('codeBlock'),
-      isH1: e.isActive('heading', { level: 1 }),
-      isH2: e.isActive('heading', { level: 2 }),
-      isH3: e.isActive('heading', { level: 3 }),
-      isH4: e.isActive('heading', { level: 4 }),
-      isLink: e.isActive('link'),
-      isSuperscript: e.isActive('superscript'),
-      isSubscript: e.isActive('subscript'),
-      highlightColor: (e.getAttributes('highlight').color as string) || null,
-      textColor: (e.getAttributes('textStyle').color as string) || null,
-      isAlignLeft: e.isActive({ textAlign: 'left' }),
-      isAlignCenter: e.isActive({ textAlign: 'center' }),
-      isAlignRight: e.isActive({ textAlign: 'right' }),
-      isAlignJustify: e.isActive({ textAlign: 'justify' }),
-      canUndo: e.can().undo(),
-      canRedo: e.can().redo(),
+      isBold: e?.isActive('bold') ?? false,
+      isItalic: e?.isActive('italic') ?? false,
+      isUnderline: e?.isActive('underline') ?? false,
+      isStrike: e?.isActive('strike') ?? false,
+      isParagraph: e?.isActive('paragraph') ?? true,
+      isBulletList: e?.isActive('bulletList') ?? false,
+      isOrderedList: e?.isActive('orderedList') ?? false,
+      isCode: e?.isActive('code') ?? false,
+      isCodeBlock: e?.isActive('codeBlock') ?? false,
+      isH1: e?.isActive('heading', { level: 1 }) ?? false,
+      isH2: e?.isActive('heading', { level: 2 }) ?? false,
+      isH3: e?.isActive('heading', { level: 3 }) ?? false,
+      isH4: e?.isActive('heading', { level: 4 }) ?? false,
+      isLink: e?.isActive('link') ?? false,
+      isSuperscript: e?.isActive('superscript') ?? false,
+      isSubscript: e?.isActive('subscript') ?? false,
+      highlightColor: (e?.getAttributes('highlight').color as string) || null,
+      textColor: (e?.getAttributes('textStyle').color as string) || null,
+      isAlignLeft: e?.isActive({ textAlign: 'left' }) ?? true,
+      isAlignCenter: e?.isActive({ textAlign: 'center' }) ?? false,
+      isAlignRight: e?.isActive({ textAlign: 'right' }) ?? false,
+      isAlignJustify: e?.isActive({ textAlign: 'justify' }) ?? false,
+      canUndo: e && !e.isDestroyed ? e.can().undo() : false,
+      canRedo: e && !e.isDestroyed ? e.can().redo() : false,
     }),
   })
+
+  if (!editor || !editorState) return null
 
   const textStylings: DropdownItem[] = [
     {
@@ -448,7 +450,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
     <div
       ref={containerRef}
       data-test={TOOLBAR_CONTAINER_TEST_ID}
-      className="sticky top-0 z-10 flex w-full min-w-0 gap-2 overflow-hidden bg-white py-3 shadow-b"
+      className="sticky top-0 z-10 flex w-full min-w-0 gap-2 overflow-hidden bg-white py-3 pl-12 shadow-b"
     >
       {/* Visible groups */}
       {GROUP_NAMES.filter((name) => visibleGroups.has(name)).map((name, index) => (

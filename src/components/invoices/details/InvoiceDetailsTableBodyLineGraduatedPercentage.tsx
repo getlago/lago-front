@@ -1,11 +1,14 @@
 import { gql } from '@apollo/client'
+import { tw } from 'lago-design-system'
 import { memo } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
+import { useViewFeeDetailsDrawer } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import { FeeMetadata } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, FeeForInvoiceDetailsTableBodyLineFragment } from '~/generated/graphql'
 
+import { FeeActionsCell } from './FeeActionsCell'
 import { useGetRangeLabel } from './useGetRangeLabel'
 
 gql`
@@ -35,25 +38,26 @@ gql`
 type InvoiceDetailsTableBodyLineGraduatedPercentageProps = {
   currency: CurrencyEnum
   fee: (FeeForInvoiceDetailsTableBodyLineFragment & { metadata: FeeMetadata }) | undefined
-  isDraftInvoice: boolean
   hideVat?: boolean
 }
 
 export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
-  ({
-    currency,
-    fee,
-    isDraftInvoice,
-    hideVat,
-  }: InvoiceDetailsTableBodyLineGraduatedPercentageProps) => {
+  ({ currency, fee, hideVat }: InvoiceDetailsTableBodyLineGraduatedPercentageProps) => {
     const { getRangeLabel } = useGetRangeLabel()
+
+    const viewFeeDetails = useViewFeeDetailsDrawer()
+    const handleRowClick = () => {
+      if (fee) viewFeeDetails.open(fee)
+    }
+    const rowClickableClass = fee ? 'cursor-pointer hover:bg-grey-100' : undefined
 
     return (
       <>
         {fee?.amountDetails?.graduatedPercentageRanges?.map((graduatedPercentageRange, i) => (
           <tr
             key={`fee-${fee.id}-graduated-percentage-range-fee-per-unit-${i}`}
-            className="details-line"
+            className={tw('details-line', rowClickableClass)}
+            onClick={fee ? handleRowClick : undefined}
           >
             <td>
               <Typography variant="body" color="grey600">
@@ -104,7 +108,7 @@ export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
                 })}
               </Typography>
             </td>
-            {isDraftInvoice && <td>{/* Action column */}</td>}
+            <FeeActionsCell fee={fee} />
           </tr>
         ))}
 
@@ -115,7 +119,8 @@ export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
             return (
               <tr
                 key={`fee-${fee.id}-graduated-percentage-range-flat-fee-${i}`}
-                className="details-line"
+                className={tw('details-line', rowClickableClass)}
+                onClick={fee ? handleRowClick : undefined}
               >
                 <td>
                   <Typography variant="body" color="grey600">
@@ -170,7 +175,7 @@ export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
                     })}
                   </Typography>
                 </td>
-                {isDraftInvoice && <td>{/* Action column */}</td>}
+                <FeeActionsCell fee={fee} />
               </tr>
             )
           })}

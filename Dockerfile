@@ -1,7 +1,7 @@
-# syntax=docker/dockerfile:1.23
+# syntax=docker/dockerfile:1.24
 
 # --- deps stage: install node_modules only ---------------------------------
-FROM node:24.15.0-alpine AS deps
+FROM node:24.16.0-alpine AS deps
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store,sharing=locked \
 
 
 # --- build stage: compile the app ------------------------------------------
-FROM node:24.15.0-alpine AS build
+FROM node:24.16.0-alpine AS build
 
 WORKDIR /app
 ENV NODE_OPTIONS="--max-old-space-size=4096"
@@ -58,7 +58,7 @@ RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
 
 
 # --- runtime stage: nginx serving the built dist ---------------------------
-FROM nginx:1.30-alpine AS runtime
+FROM nginx:1.31-alpine AS runtime
 
 WORKDIR /usr/share/nginx/html
 

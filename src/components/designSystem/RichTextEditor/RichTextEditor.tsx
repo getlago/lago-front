@@ -1,14 +1,18 @@
 import { Editor } from '@tiptap/core'
 import Placeholder from '@tiptap/extension-placeholder'
 import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '@tiptap/react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import BlockToolbar from './BlockControls/BlockToolbar'
 import { downloadMarkdownPdf } from './common/downloadMarkdownPdf'
-import { EntityData, RichTextEditorProvider } from './common/RichTextEditorContext'
+import {
+  type EntityData,
+  type OnPricingCommand,
+  RichTextEditorProvider,
+} from './common/RichTextEditorContext'
 import { getBaseExtensions } from './extensions/baseExtensions'
 import { DragHandle } from './extensions/DragHandle'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
@@ -18,8 +22,8 @@ import {
   MentionSchema,
   type MentionSchemaOptions,
 } from './extensions/Mention.schema'
-import { PlanBlock } from './extensions/PlanBlock'
-import { PlanBlockSchema } from './extensions/PlanBlock.schema'
+import { PricingBlock } from './extensions/PricingBlock'
+import { type PricingBlockAttributes, PricingBlockSchema } from './extensions/PricingBlock.schema'
 import { SlashCommands } from './extensions/SlashCommands'
 import { TableCommands } from './extensions/TableCommands'
 import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
@@ -40,33 +44,36 @@ export type RichTextEditorMode = 'edit' | 'preview'
 interface RichTextEditorProps {
   mode?: RichTextEditorMode
   mentionValues?: Record<string, string>
-  plans?: Record<string, EntityData>
+  entities?: Record<string, EntityData>
   content?: string
   templates?: EditorTemplate[]
   getMarkdownRef?: React.MutableRefObject<(() => string) | null>
   downloadPdfRef?: React.MutableRefObject<(() => void) | null>
-  onPlanBlocksChange?: (planIds: string[]) => void
+  onChange?: () => void
+  onPricingCommand?: OnPricingCommand
+  isPricingDisabled?: () => boolean
+  onPricingBlocksChange?: (blocks: PricingBlockAttributes[]) => void
 }
 
 const RichTextEditor = ({
   mode = 'edit',
   mentionValues = {},
-  plans: plansFromProps = {},
+  entities: entitiesFromProps = {},
   content,
   templates,
   getMarkdownRef,
   downloadPdfRef,
-  onPlanBlocksChange,
+  onPricingCommand,
+  isPricingDisabled,
+  onPricingBlocksChange,
+  onChange,
 }: RichTextEditorProps) => {
   const { translate } = useInternationalization()
-  const onPlanBlocksChangeRef = useRef(onPlanBlocksChange)
-  const [plans, setPlans] = useState<Record<string, EntityData>>(plansFromProps)
+  const onChangeRef = useRef(onChange)
+  const onPricingBlocksChangeRef = useRef(onPricingBlocksChange)
 
-  onPlanBlocksChangeRef.current = onPlanBlocksChange
-
-  const setPlan = useCallback((id: string, data: EntityData) => {
-    setPlans((prev) => ({ ...prev, [id]: data }))
-  }, [])
+  onChangeRef.current = onChange
+  onPricingBlocksChangeRef.current = onPricingBlocksChange
 
   const variableItems = [
     { id: 'customerName', label: 'Customer Name' },
@@ -140,8 +147,8 @@ const RichTextEditor = ({
           },
         },
       } as MentionSchemaOptions),
-      PlanBlock.configure({ plans: plansFromProps }),
-      SlashCommands.configure({ translate }),
+      PricingBlock.configure({ entities: entitiesFromProps }),
+      SlashCommands.configure({ translate, onPricingCommand, isPricingDisabled }),
       LinkPasteHandler,
       TemplateSelectorExtension.configure({ templates: templates ?? [] }),
       DragHandle,
@@ -149,7 +156,7 @@ const RichTextEditor = ({
     ],
     editorProps: {
       attributes: {
-        class: 'max-w-none focus:outline-none min-h-[300px] my-4 px-10',
+        class: 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10',
       },
     },
     content:
@@ -167,16 +174,20 @@ const RichTextEditor = ({
           }
         : ''),
     onUpdate: ({ editor: editorInstance }) => {
-      if (!onPlanBlocksChangeRef.current) return
+      onChangeRef.current?.()
+      if (!onPricingBlocksChangeRef.current) return
 
-      const planIds: string[] = []
+      const blocks: PricingBlockAttributes[] = []
 
       editorInstance.state.doc.descendants((node) => {
-        if (node.type.name === 'planBlock' && node.attrs.planId) {
-          planIds.push(String(node.attrs.planId))
+        if (node.type.name === 'pricingBlock' && node.attrs.entityIds?.length) {
+          blocks.push({
+            pricingType: node.attrs.pricingType,
+            entityIds: node.attrs.entityIds,
+          })
         }
       })
-      onPlanBlocksChangeRef.current(planIds)
+      onPricingBlocksChangeRef.current(blocks)
     },
   })
 
@@ -219,7 +230,7 @@ const RichTextEditor = ({
       extensions: [
         ...getBaseExtensions(),
         configureMention({ ...mentionBaseConfig, mentionValues }),
-        PlanBlockSchema.configure({ plans: { ...plansFromProps, ...plans } }),
+        PricingBlockSchema.configure({ entities: entitiesFromProps }),
       ],
       content: markdown,
     })
@@ -229,11 +240,11 @@ const RichTextEditor = ({
     previewEditor.destroy()
 
     return html
-  }, [isPreview, editor, getMarkdown, mentionValues, plansFromProps, plans])
+  }, [isPreview, editor, getMarkdown, mentionValues, entitiesFromProps])
 
   const contextValue = useMemo(
-    () => ({ mode, mentionValues, plans, setPlan }),
-    [mode, mentionValues, plans, setPlan],
+    () => ({ mode, mentionValues, entities: entitiesFromProps, onPricingCommand }),
+    [mode, mentionValues, entitiesFromProps, onPricingCommand],
   )
 
   useEffect(() => {
@@ -255,7 +266,7 @@ const RichTextEditor = ({
       const markdown = getMarkdown()
 
       if (markdown) {
-        downloadMarkdownPdf({ markdown, mentionValues, plans })
+        downloadMarkdownPdf({ markdown, mentionValues, entities: entitiesFromProps })
       }
     }
 
@@ -264,7 +275,7 @@ const RichTextEditor = ({
         downloadPdfRef.current = null
       }
     }
-  }, [downloadPdfRef, getMarkdown, mentionValues, plans])
+  }, [downloadPdfRef, getMarkdown, mentionValues, entitiesFromProps])
 
   if (!editor) return null
 
@@ -287,7 +298,7 @@ const RichTextEditor = ({
   return (
     <RichTextEditorProvider value={contextValue}>
       <div
-        className="rich-text-editor group/editor relative h-full max-h-screen w-full overflow-auto"
+        className="rich-text-editor group/editor relative size-full max-h-screen overflow-auto"
         data-test={RICH_TEXT_EDITOR_TEST_ID}
       >
         <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />

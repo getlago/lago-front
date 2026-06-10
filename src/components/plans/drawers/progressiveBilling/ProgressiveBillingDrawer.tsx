@@ -4,6 +4,7 @@ import { forwardRef, useImperativeHandle, useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { useDrawer } from '~/components/drawers/useDrawer'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { PlanFormProvider, usePlanFormContext } from '~/contexts/PlanFormContext'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -19,7 +20,7 @@ export interface ProgressiveBillingDrawerRef {
 }
 
 interface ProgressiveBillingDrawerProps {
-  onSave: (values: ProgressiveBillingFormValues) => void
+  onSave: (values: ProgressiveBillingFormValues) => void | boolean | Promise<void | boolean>
   onDelete?: () => void
 }
 
@@ -39,9 +40,12 @@ export const ProgressiveBillingDrawer = forwardRef<
     validators: {
       onDynamic: progressiveBillingSchema,
     },
-    onSubmit: ({ value }) => {
-      onSave(value)
-      progressiveBillingDrawer.close()
+    onSubmit: async ({ value }) => {
+      const result = await onSave(value)
+
+      if (result !== false) {
+        progressiveBillingDrawer.close()
+      }
     },
   })
 
@@ -61,13 +65,7 @@ export const ProgressiveBillingDrawer = forwardRef<
       title: translate('text_1724179887722baucvj7bvc1'),
       shouldPromptOnClose: () => form.state.isDirty,
       onClose: () => form.reset(),
-      onEntered: () => {
-        const firstInput = document.querySelector(
-          '[data-test="base-drawer-paper"]:last-child input',
-        ) as HTMLInputElement
-
-        firstInput?.focus()
-      },
+      onEntered: focusFirstInput,
       children: (
         <PlanFormProvider currency={currency} interval={interval}>
           <ProgressiveBillingDrawerContent

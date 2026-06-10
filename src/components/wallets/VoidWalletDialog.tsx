@@ -16,14 +16,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { WalletDetailsTabsOptionsEnum } from '~/pages/wallet/WalletDetails'
 
 gql`
-  mutation createCustomerWalletTransaction($input: CreateCustomerWalletTransactionInput!) {
-    createCustomerWalletTransaction(input: $input) {
-      collection {
-        id
-      }
-    }
-  }
-
   fragment WalletForVoidTransaction on Wallet {
     id
     currency

@@ -1,11 +1,10 @@
 import { Accordion } from '~/components/designSystem/Accordion'
-import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { getEntitlementFormattedValue, mapChargeIntervalCopy } from '~/components/plans/utils'
-import { getIntervalTranslationKey } from '~/core/constants/form'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { EntitlementInfo } from '~/components/plans/EntitlementInfo'
+import { MinimumCommitmentInfo } from '~/components/plans/MinimumCommitmentInfo'
+import { ProgressiveBillingInfo } from '~/components/plans/ProgressiveBillingInfo'
+import { mapChargeIntervalCopy } from '~/components/plans/utils'
 import { CurrencyEnum, EditPlanFragment, PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -27,6 +26,7 @@ export const PlanDetailsAdvancedSettingsSection = ({
   const hasEntitlements = showEntitlementSection && !!plan?.entitlements?.length
 
   if (!hasMinimumCommitment && !hasProgressiveBilling && !hasEntitlements) return null
+  if (!plan) return null
 
   return (
     <section>
@@ -53,70 +53,7 @@ export const PlanDetailsAdvancedSettingsSection = ({
                 </Typography>
               }
             >
-              <div className="flex flex-col gap-4">
-                <DetailsPage.TableDisplay
-                  name="progressive-billing"
-                  className="[&_tr>td:last-child>div]:inline [&_tr>td:last-child>div]:whitespace-pre [&_tr>td:last-child]:max-w-[100px] [&_tr>td:last-child]:truncate"
-                  header={[
-                    '',
-                    translate('text_1724179887723eh12a0kqbdw'),
-                    translate('text_17241798877234jhvoho4ci9'),
-                  ]}
-                  body={[
-                    ...(plan?.usageThresholds
-                      ?.filter((t) => !t.recurring)
-                      .map((threshold, i) => [
-                        i === 0
-                          ? translate('text_1724179887723hi673zmbvdj')
-                          : translate('text_1724179887723917j8ezkd9v'),
-                        intlFormatNumber(
-                          deserializeAmount(
-                            threshold.amountCents,
-                            plan?.amountCurrency || CurrencyEnum.Usd,
-                          ),
-                          {
-                            currency: currency,
-                          },
-                        ),
-                        threshold.thresholdDisplayName || '',
-                      ]) || []),
-                  ]}
-                />
-
-                <DetailsPage.InfoGrid
-                  grid={[
-                    {
-                      label: translate('text_17241798877230y851fdxzqt'),
-                      value: plan?.usageThresholds?.some((threshold) => threshold.recurring)
-                        ? translate('text_65251f46339c650084ce0d57')
-                        : translate('text_65251f4cd55aeb004e5aa5ef'),
-                    },
-                  ]}
-                />
-
-                {plan?.usageThresholds?.some((threshold) => threshold.recurring) && (
-                  <DetailsPage.TableDisplay
-                    name="progressive-billing-recurring"
-                    className="[&_tr>td:last-child>div]:inline [&_tr>td:last-child>div]:whitespace-pre [&_tr>td:last-child]:max-w-[100px] [&_tr>td:last-child]:truncate"
-                    // Only take the first recurring threshold
-                    body={[
-                      ...([plan?.usageThresholds?.find((t) => t.recurring)]?.map((threshold) => [
-                        translate('text_17241798877230y851fdxzqu'),
-                        intlFormatNumber(
-                          deserializeAmount(
-                            threshold?.amountCents,
-                            plan?.amountCurrency || CurrencyEnum.Usd,
-                          ),
-                          {
-                            currency: currency,
-                          },
-                        ),
-                        threshold?.thresholdDisplayName || '',
-                      ]) || []),
-                    ]}
-                  />
-                )}
-              </div>
+              <ProgressiveBillingInfo plan={plan} currency={currency} />
             </Accordion>
           </div>
         )}
@@ -144,52 +81,7 @@ export const PlanDetailsAdvancedSettingsSection = ({
                 </Typography>
               }
             >
-              <div className="flex flex-col gap-4">
-                <DetailsPage.TableDisplay
-                  name="minimum-commitment"
-                  header={[translate('text_65d601bffb11e0f9d1d9f571')]}
-                  body={[
-                    [
-                      intlFormatNumber(
-                        deserializeAmount(
-                          plan?.minimumCommitment?.amountCents || 0,
-                          plan?.amountCurrency || CurrencyEnum.Usd,
-                        ),
-                        {
-                          currency: currency,
-                        },
-                      ),
-                    ],
-                  ]}
-                />
-
-                <DetailsPage.InfoGrid
-                  grid={[
-                    {
-                      label: translate('text_65201b8216455901fe273dc1'),
-                      value: translate(getIntervalTranslationKey[plan?.interval as PlanInterval]),
-                    },
-                    {
-                      label: translate('text_645bb193927b375079d28a8f'),
-                      value: !!plan?.minimumCommitment?.taxes?.length
-                        ? plan?.minimumCommitment?.taxes?.map((tax, i) => (
-                            <Typography
-                              key={`plan-details-advanced-settings-fee-taxe-${i}`}
-                              variant="body"
-                              color="grey700"
-                            >
-                              {tax.name} (
-                              {intlFormatNumber(Number(tax.rate) / 100 || 0, {
-                                style: 'percent',
-                              })}
-                              )
-                            </Typography>
-                          ))
-                        : '-',
-                    },
-                  ]}
-                />
-              </div>
+              <MinimumCommitmentInfo plan={plan} currency={currency} />
             </Accordion>
           </div>
         )}
@@ -221,53 +113,7 @@ export const PlanDetailsAdvancedSettingsSection = ({
                   </div>
                 }
               >
-                <div className="flex flex-col gap-4 overflow-x-auto">
-                  <Typography variant="captionHl" color="grey700">
-                    {translate('text_1754570508183nhpg3qqdpt8')}
-                  </Typography>
-
-                  {!entitlement.privileges.length && (
-                    <Typography variant="body" color="grey700">
-                      {translate('text_1754570508183hxl33n573yk')}
-                    </Typography>
-                  )}
-
-                  {!!entitlement.privileges.length && (
-                    <ChargeTable
-                      className="w-full"
-                      name={`feature-entitlement-${entitlement.code}-privilege-table`}
-                      data={entitlement.privileges || []}
-                      columns={[
-                        {
-                          size: 190,
-                          title: (
-                            <Typography variant="captionHl" className="px-4">
-                              {translate('text_175386422306019wldpp8h5q')}
-                            </Typography>
-                          ),
-                          content: (row) => (
-                            <Typography variant="body" color="grey700" className="px-4">
-                              {row.name || row.code}
-                            </Typography>
-                          ),
-                        },
-                        {
-                          size: 190,
-                          title: (
-                            <Typography variant="captionHl" className="px-4">
-                              {translate('text_63fcc3218d35b9377840f5ab')}
-                            </Typography>
-                          ),
-                          content: (row) => (
-                            <Typography variant="body" color="grey700" className="px-4">
-                              {getEntitlementFormattedValue(row.value, row.valueType, translate)}
-                            </Typography>
-                          ),
-                        },
-                      ]}
-                    />
-                  )}
-                </div>
+                <EntitlementInfo entitlement={entitlement} />
               </Accordion>
             ))}
           </div>

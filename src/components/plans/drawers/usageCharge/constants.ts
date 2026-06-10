@@ -13,6 +13,7 @@ export interface UsageChargeDrawerFormValues {
   billableMetric: BillableMetricForPlanFragment
   appliedPricingUnit?: LocalPricingUnitInput
   chargeModel: ChargeModelEnum
+  code: string
   id?: string
   invoiceDisplayName: string
   invoiceable: boolean
@@ -36,6 +37,7 @@ export const DEFAULT_VALUES: UsageChargeDrawerFormValues = {
   },
   appliedPricingUnit: undefined,
   chargeModel: ChargeModelEnum.Standard,
+  code: '',
   id: undefined,
   invoiceDisplayName: '',
   invoiceable: true,

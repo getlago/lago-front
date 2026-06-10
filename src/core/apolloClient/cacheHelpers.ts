@@ -1,6 +1,8 @@
-import { FieldPolicy } from '@apollo/client'
+import { ApolloCache, FieldPolicy, Reference } from '@apollo/client'
 
 import { CollectionMetadata } from '~/generated/graphql'
+
+type ParentEntity = { __typename: string; id: string }
 
 type PaginatedCollection = {
   metadata: CollectionMetadata
@@ -62,3 +64,74 @@ export const createPaginatedFieldPolicy = (additionalExclusions: string[] = []):
   },
   merge: mergePaginatedCollection,
 })
+
+/**
+ * Appends an item to a plain-array field on a normalized parent entity.
+ *
+ * Use for non-paginated array fields (e.g. `Plan.charges`, `Plan.fixedCharges`) when a
+ * granular mutation returns the newly-created child and you need to surface it in the
+ * cached parent without refetching. For paginated `{ metadata, collection }` shapes,
+ * use the field policy from `createPaginatedFieldPolicy` instead.
+ */
+export const cacheArrayInsert = (
+  cache: ApolloCache<unknown>,
+  parent: ParentEntity,
+  field: string,
+  newItem: Reference | object,
+) => {
+  cache.modify({
+    id: cache.identify(parent),
+    fields: {
+      [field]: (
+        existing: unknown,
+        {
+          toReference,
+        }: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          toReference: (o: any) => Reference | undefined
+        },
+      ) => {
+        const list = (existing as readonly unknown[] | undefined) ?? []
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const ref = toReference(newItem as any)
+
+        return [...list, ref ?? newItem]
+      },
+    },
+  })
+}
+
+/**
+ * Removes an item from a plain-array field on a normalized parent entity and evicts the
+ * orphaned entity. Use for non-paginated array fields when a delete mutation returns the
+ * id of the destroyed child. For paginated `{ metadata, collection }` shapes use
+ * `evictFromCache` instead.
+ */
+export const cacheArrayRemove = (
+  cache: ApolloCache<unknown>,
+  parent: ParentEntity,
+  field: string,
+  itemId: string,
+  itemTypename: string,
+) => {
+  cache.modify({
+    id: cache.identify(parent),
+    fields: {
+      [field]: (
+        existing: unknown,
+        {
+          readField,
+        }: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          readField: (k: string, ref: any) => unknown
+        },
+      ) => {
+        const list = (existing as readonly Reference[] | undefined) ?? []
+
+        return list.filter((ref) => readField('id', ref) !== itemId)
+      },
+    },
+  })
+  cache.evict({ id: cache.identify({ __typename: itemTypename, id: itemId }) })
+  cache.gc()
+}

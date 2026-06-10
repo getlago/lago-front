@@ -15,6 +15,13 @@
     "enabled": true,
     "schedule": "at any time"
   },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 5am on monday"],
+    "commitMessagePrefix": "chore(deps)",
+    "automerge": true,
+    "automergeType": "branch"
+  },
   "packageRules": [
     {
       "matchDepTypes": ["overrides"],

@@ -10,6 +10,7 @@ import { ActionItem } from '~/components/designSystem/Table'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import {
   UpdateInvoicePaymentStatusDialog,
@@ -25,7 +26,6 @@ import {
 } from '~/components/invoices/ResendInvoiceForCollectionDialog'
 import { getMostRecentPaymentMethodId } from '~/components/invoices/utils/getMostRecentPaymentMethodId'
 import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   invoiceStatusMapping,
@@ -190,7 +190,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const actions = usePermissionsInvoiceActions()
   const { hasFeatureFlag } = useOrganizationInfos()
   const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const resendInvoiceForCollectionDialogRef = useRef<ResendInvoiceForCollectionDialogRef>(null)
   const { handleDownloadFile } = useDownloadFile()
   const { showResendEmailDialog } = useResendEmailDialog()
@@ -518,7 +518,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                       if (isPremium) {
                         navigate(generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }))
                       } else {
-                        premiumWarningDialogRef.current?.openDialog()
+                        openPremiumWarningDialog()
                       }
                     },
                   }
@@ -584,7 +584,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     endIcon: 'sparkles',
                     title: translate('text_636bdef6565341dcb9cfb127'),
                     onAction: () => {
-                      premiumWarningDialogRef.current?.openDialog()
+                      openPremiumWarningDialog()
                     },
                   }
                 : null,
@@ -628,7 +628,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
     </>
   )

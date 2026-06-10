@@ -4,12 +4,10 @@ import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
-import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
-import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { BasicComboBoxData, ComboboxItem } from '~/components/form'
@@ -20,10 +18,7 @@ import {
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
-import {
-  PaymentMethodsInvoiceSettingsProps,
-  ViewTypeEnum,
-} from '~/components/paymentMethodsInvoiceSettings/types'
+import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
@@ -31,9 +26,11 @@ import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSectio
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import PremiumFeature from '~/components/premium/PremiumFeature'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { FeatureEntitlementSection } from '~/components/subscriptions/FeatureEntitlementSection'
+import { buildSubscriptionDefaultValues } from '~/components/subscriptions/form/buildSubscriptionDefaultValues'
+import { SubscriptionInformationFormSection } from '~/components/subscriptions/form/SubscriptionInformationFormSection'
 import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
+import { SubscriptionInvoiceConsolidationSection } from '~/components/subscriptions/SubscriptionInvoiceConsolidationSection'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -45,20 +42,14 @@ import {
   useLocation,
   useNavigate,
 } from '~/core/router'
-import { DateFormat, getTimezoneConfig, intlFormatDateTime } from '~/core/timezone'
+import { getTimezoneConfig } from '~/core/timezone'
+import { subscriptionFormSchema } from '~/formValidation/subscriptionFormSchema'
 import {
-  subscriptionFormSchema,
-  SubscriptionFormValues,
-} from '~/formValidation/subscriptionFormSchema'
-import {
-  AddSubscriptionPlanFragmentDoc,
-  BillingTimeEnum,
   CurrencyEnum,
-  FeatureEntitlementForPlanFragmentDoc,
   FeatureFlagEnum,
-  GetSubscriptionForCreateSubscriptionQuery,
   PlanInterval,
   StatusTypeEnum,
+  SubscriptionForSubscriptionEditFormFragmentDoc,
   TimezoneEnum,
   useGetCustomerForCreateSubscriptionQuery,
   useGetPlansLazyQuery,
@@ -73,19 +64,6 @@ import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 import { tw } from '~/styles/utils'
-
-const getBillingTimeSelectorTranslationKey = (planInterval?: PlanInterval) => {
-  switch (planInterval) {
-    case PlanInterval.Yearly:
-      return 'text_62ebd597d5d5130a03ced107'
-    case PlanInterval.Weekly:
-      return 'text_62ebd597d5d5130a03ced101'
-    case PlanInterval.Quarterly:
-      return 'text_64d6357b00dea100ad1cba27'
-    default:
-      return 'text_62ea7cd44cd4b14bb9ac1db9'
-  }
-}
 
 gql`
   fragment AddSubscriptionPlan on Plan {
@@ -117,61 +95,12 @@ gql`
 
   query getSubscriptionForCreateSubscription($id: ID!) {
     subscription(id: $id) {
-      id
-      name
-      externalId
-      subscriptionAt
-      endingAt
-      billingTime
-      periodEndDate
-      status
-      startedAt
-      paymentMethodType
-      paymentMethod {
-        id
-      }
-      skipInvoiceCustomSections
-      selectedInvoiceCustomSections {
-        id
-        name
-        code
-      }
-      plan {
-        id
-        parent {
-          id
-        }
-        ...AddSubscriptionPlan
-      }
+      ...SubscriptionForSubscriptionEditForm
     }
   }
 
-  ${AddSubscriptionPlanFragmentDoc}
-  ${FeatureEntitlementForPlanFragmentDoc}
+  ${SubscriptionForSubscriptionEditFormFragmentDoc}
 `
-
-type SubscriptionData = GetSubscriptionForCreateSubscriptionQuery['subscription']
-
-const buildSubscriptionDefaultValues = (
-  sub: SubscriptionData,
-  ft: string,
-  currentDate: string,
-): SubscriptionFormValues => ({
-  planId: ft !== FORM_TYPE_ENUM.upgradeDowngrade ? sub?.plan?.id || '' : '',
-  name: ft !== FORM_TYPE_ENUM.upgradeDowngrade ? sub?.name || '' : '',
-  externalId: sub?.externalId || '',
-  subscriptionAt: sub?.subscriptionAt || currentDate,
-  endingAt: sub?.endingAt || undefined,
-  billingTime: sub?.billingTime || BillingTimeEnum.Calendar,
-  paymentMethod: {
-    paymentMethodType: sub?.paymentMethodType,
-    paymentMethodId: sub?.paymentMethod?.id,
-  },
-  invoiceCustomSection: {
-    invoiceCustomSections: sub?.selectedInvoiceCustomSections || [],
-    skipInvoiceCustomSections: sub?.skipInvoiceCustomSections || false,
-  },
-})
 
 const CreateSubscription = () => {
   const location = useLocation()
@@ -185,7 +114,6 @@ const CreateSubscription = () => {
 
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
   const warningDialogRef = useRef<WarningDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
   const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
@@ -257,6 +185,11 @@ const CreateSubscription = () => {
   const subscriptionIsDirty = useStore(subscriptionForm.store, (s) => s.isDirty)
   const subscriptionCanSubmit = useStore(subscriptionForm.store, (s) => s.canSubmit)
   const subscriptionIsSubmitting = useStore(subscriptionForm.store, (s) => s.isSubmitting)
+  const subscriptionPaymentMethod = useStore(subscriptionForm.store, (s) => s.values.paymentMethod)
+  const subscriptionInvoiceCustomSection = useStore(
+    subscriptionForm.store,
+    (s) => s.values.invoiceCustomSection,
+  )
 
   const { form: planForm, plan } = usePlanForm({
     planIdToFetch: subscriptionPlanId,
@@ -348,76 +281,6 @@ const CreateSubscription = () => {
       ]
     }, [])
   }, [formType, planData?.plans?.collection, subscription?.plan])
-
-  const subscriptionBillingTime = useStore(subscriptionForm.store, (s) => s.values.billingTime)
-  const subscriptionAt = useStore(subscriptionForm.store, (s) => s.values.subscriptionAt)
-
-  const billingTimeHelper = useMemo(() => {
-    const billingTime = subscriptionBillingTime
-    const currentDate = subscriptionAt
-      ? DateTime.fromISO(subscriptionAt)
-      : DateTime.now().setLocale('en-gb')
-    const formattedCurrentDate = currentDate.toFormat('LL/dd/yyyy')
-    const february29 = `02/29/${DateTime.now().year}`
-    const currentDay = currentDate.get('day')
-
-    if (!selectedPlan) return undefined
-
-    switch (selectedPlan?.interval) {
-      case PlanInterval.Monthly:
-        if (billingTime === BillingTimeEnum.Calendar)
-          return translate('text_62ea7cd44cd4b14bb9ac1d7e')
-
-        if (currentDay <= 28) {
-          return translate('text_62ea7cd44cd4b14bb9ac1d82', { day: currentDay })
-        } else if (currentDay === 29) {
-          return translate('text_62ea7cd44cd4b14bb9ac1d86')
-        } else if (currentDay === 30) {
-          return translate('text_62ea7cd44cd4b14bb9ac1d8a')
-        }
-        return translate('text_62ea7cd44cd4b14bb9ac1d8e')
-
-      case PlanInterval.Yearly:
-        if (billingTime === BillingTimeEnum.Calendar)
-          return translate('text_62ea7cd44cd4b14bb9ac1d92')
-
-        if (formattedCurrentDate === february29) return translate('text_62ea7cd44cd4b14bb9ac1d9a')
-
-        return translate('text_62ea7cd44cd4b14bb9ac1d96', {
-          date: intlFormatDateTime(currentDate.toISO() || '', {
-            formatDate: DateFormat.DATE_MED_SHORT,
-          }).date,
-        })
-
-      case PlanInterval.Semiannual:
-        return billingTime === BillingTimeEnum.Calendar
-          ? translate('text_1757502242292q05inkc09vq')
-          : translate('text_1757504174992y39ailqcch0', {
-              date: intlFormatDateTime(currentDate.toISO() || '', {
-                formatDate: DateFormat.DATE_MED_SHORT,
-              }).date,
-            })
-
-      case PlanInterval.Quarterly:
-        if (billingTime === BillingTimeEnum.Calendar)
-          return translate('text_64d6357b00dea100ad1cba34')
-
-        if (currentDay <= 28) {
-          return translate('text_64d6357b00dea100ad1cba36', { day: currentDay })
-        } else if (currentDay === 29) {
-          return translate('text_64d63ec2f6bd3f41a6e353ac')
-        } else if (currentDay === 30) {
-          return translate('text_64d63ec2f6bd3f41a6e353b0')
-        }
-        return translate('text_64d63ec2f6bd3f41a6e353b4')
-
-      case PlanInterval.Weekly:
-      default:
-        return billingTime === BillingTimeEnum.Calendar
-          ? translate('text_62ea7cd44cd4b14bb9ac1d9e')
-          : translate('text_62ea7cd44cd4b14bb9ac1da2', { day: currentDate.weekdayLong })
-    }
-  }, [subscriptionBillingTime, subscriptionAt, selectedPlan, translate])
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -603,209 +466,49 @@ const CreateSubscription = () => {
                   {!!subscriptionPlanId && (
                     <>
                       {/* Section: Subscription settings */}
-                      <CenteredPage.PageSection>
-                        {!subscription?.plan.parent && formType === FORM_TYPE_ENUM.edition && (
-                          <Alert type="info">{translate('text_652525609f420d00b83dd602')}</Alert>
-                        )}
-
-                        <CenteredPage.PageSectionTitle
-                          title={translate('text_6335e8900c69f8ebdfef5312')}
-                          description={translate('text_66630368f4333b00795b0e1c')}
-                        />
-
-                        <div
-                          className="flex flex-col gap-6"
-                          data-test="create-subscription-form-wrapper"
-                        >
-                          {!!shouldDisplaySubscriptionExternalId && (
-                            <div className="flex flex-row gap-3 [&>*:first-child]:flex-1">
-                              <subscriptionForm.AppField name="externalId">
-                                {(field) => (
-                                  <field.TextInputField
-                                    disabled={formType !== FORM_TYPE_ENUM.creation}
-                                    label={translate('text_642a94e522316cd9e1875224')}
-                                    placeholder={translate('text_642ac1d1407baafb9e4390ee')}
-                                    helperText={translate('text_642ac28c65c2180085afe31a')}
-                                  />
-                                )}
-                              </subscriptionForm.AppField>
-                              <Tooltip
-                                className="mt-7 h-fit"
-                                disableHoverListener={formType !== FORM_TYPE_ENUM.creation}
-                                placement="top-end"
-                                title={translate('text_63aa085d28b8510cd46443ff')}
-                              >
-                                <Button
-                                  icon="trash"
-                                  disabled={formType !== FORM_TYPE_ENUM.creation}
-                                  variant="quaternary"
-                                  onClick={() => {
-                                    subscriptionForm.setFieldValue('externalId', '')
-                                    setShouldDisplaySubscriptionExternalId(false)
-                                  }}
-                                />
-                              </Tooltip>
-                            </div>
-                          )}
-
-                          {!!shouldDisplaySubscriptionName && (
-                            <div className="flex flex-row gap-3 [&>*:first-child]:flex-1">
-                              <subscriptionForm.AppField name="name">
-                                {(field) => (
-                                  <field.TextInputField
-                                    label={translate('text_62d7f6178ec94cd09370e2b9')}
-                                    placeholder={translate('text_62d7f6178ec94cd09370e2cb')}
-                                    helperText={translate('text_62d7f6178ec94cd09370e2d9')}
-                                  />
-                                )}
-                              </subscriptionForm.AppField>
-                              <Tooltip
-                                className="mt-7 h-fit"
-                                disableHoverListener={formType !== FORM_TYPE_ENUM.creation}
-                                placement="top-end"
-                                title={translate('text_63aa085d28b8510cd46443ff')}
-                              >
-                                <Button
-                                  icon="trash"
-                                  variant="quaternary"
-                                  onClick={() => {
-                                    subscriptionForm.setFieldValue('name', '')
-                                    setShouldDisplaySubscriptionName(false)
-                                  }}
-                                />
-                              </Tooltip>
-                            </div>
-                          )}
-
-                          {(!shouldDisplaySubscriptionExternalId ||
-                            !shouldDisplaySubscriptionName) && (
-                            <div className="flex items-center gap-4">
-                              {!shouldDisplaySubscriptionExternalId && (
-                                <Button
-                                  startIcon="plus"
-                                  disabled={formType !== FORM_TYPE_ENUM.creation}
-                                  variant="inline"
-                                  onClick={() => setShouldDisplaySubscriptionExternalId(true)}
-                                  data-test="show-external-id"
-                                >
-                                  {translate('text_65118a52df984447c1869472')}
-                                </Button>
-                              )}
-                              {!shouldDisplaySubscriptionName && (
-                                <Button
-                                  startIcon="plus"
-                                  variant="inline"
-                                  onClick={() => setShouldDisplaySubscriptionName(true)}
-                                  data-test="show-name"
-                                >
-                                  {translate('text_65118a52df984447c186947c')}
-                                </Button>
-                              )}
-                            </div>
-                          )}
-
-                          {formType !== FORM_TYPE_ENUM.upgradeDowngrade && (
-                            <>
-                              <subscriptionForm.AppField name="billingTime">
-                                {(field) => (
-                                  <field.ButtonSelectorField
-                                    disabled={formType !== FORM_TYPE_ENUM.creation}
-                                    label={translate('text_62ea7cd44cd4b14bb9ac1db7')}
-                                    helperText={billingTimeHelper}
-                                    options={[
-                                      {
-                                        label: translate(
-                                          getBillingTimeSelectorTranslationKey(
-                                            selectedPlan?.interval,
-                                          ),
-                                        ),
-                                        value: BillingTimeEnum.Calendar,
-                                      },
-                                      {
-                                        label: translate('text_62ea7cd44cd4b14bb9ac1dbb'),
-                                        value: BillingTimeEnum.Anniversary,
-                                      },
-                                    ]}
-                                  />
-                                )}
-                              </subscriptionForm.AppField>
-
-                              <div>
-                                <div className="flex items-start gap-6 [&>*]:flex-1">
-                                  <subscriptionForm.AppField name="subscriptionAt">
-                                    {(field) => (
-                                      <field.DatePickerField
-                                        disabled={
-                                          formType !== FORM_TYPE_ENUM.creation &&
-                                          subscription?.status !== StatusTypeEnum.Pending
-                                        }
-                                        placement="auto"
-                                        label={translate('text_64ef55a730b88e3d2117b3c4')}
-                                        defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
-                                      />
-                                    )}
-                                  </subscriptionForm.AppField>
-                                  <subscriptionForm.AppField name="endingAt">
-                                    {(field) => (
-                                      <field.DatePickerField
-                                        disablePast
-                                        placement="auto"
-                                        label={translate('text_64ef55a730b88e3d2117b3cc')}
-                                        defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
-                                        inputProps={{ cleanable: true }}
-                                      />
-                                    )}
-                                  </subscriptionForm.AppField>
-                                </div>
-                                <subscriptionForm.Subscribe
-                                  selector={(s) => ({
-                                    endingAtErrors: s.fieldMeta.endingAt?.errors,
-                                    subscriptionAtErrors: s.fieldMeta.subscriptionAt?.errors,
-                                    endingAtValue: s.values.endingAt,
-                                    subscriptionAtValue: s.values.subscriptionAt,
-                                  })}
-                                >
-                                  {({
-                                    endingAtErrors,
-                                    subscriptionAtErrors,
-                                    endingAtValue,
-                                    subscriptionAtValue,
-                                  }) =>
-                                    !endingAtErrors?.length &&
-                                    !subscriptionAtErrors?.length && (
-                                      <SubscriptionDatesOffsetHelperComponent
-                                        className="mt-1"
-                                        customerTimezone={customer?.applicableTimezone}
-                                        subscriptionAt={subscriptionAtValue}
-                                        endingAt={endingAtValue}
-                                      />
-                                    )
-                                  }
-                                </subscriptionForm.Subscribe>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </CenteredPage.PageSection>
+                      <SubscriptionInformationFormSection
+                        form={subscriptionForm}
+                        formType={formType}
+                        subscription={subscription}
+                        customerTimezone={customer?.applicableTimezone}
+                        shouldDisplaySubscriptionExternalId={shouldDisplaySubscriptionExternalId}
+                        setShouldDisplaySubscriptionExternalId={
+                          setShouldDisplaySubscriptionExternalId
+                        }
+                        shouldDisplaySubscriptionName={shouldDisplaySubscriptionName}
+                        setShouldDisplaySubscriptionName={setShouldDisplaySubscriptionName}
+                        selectedPlanInterval={selectedPlan?.interval}
+                      />
 
                       {/* Section: Invoicing & payments */}
-                      {hasAccessToMultiPaymentFlow && (customer?.externalId || customer?.id) && (
-                        <CenteredPage.PageSection>
-                          <CenteredPage.PageSectionTitle
-                            title={translate('text_1762862388271au34vz50g8i')}
-                          />
+                      <CenteredPage.PageSection>
+                        <CenteredPage.PageSectionTitle
+                          title={translate('text_17787453510917ul9ghihdtv')}
+                          description={translate('text_17787453510910bn5dsjxtqz')}
+                        />
+
+                        <SubscriptionInvoiceConsolidationSection
+                          form={subscriptionForm}
+                          fields={{ consolidateInvoice: 'consolidateInvoice' }}
+                        />
+
+                        {hasAccessToMultiPaymentFlow && (customer?.externalId || customer?.id) && (
                           <PaymentMethodsInvoiceSettings
                             customer={customer}
-                            formikProps={
-                              {
-                                values: subscriptionForm.state.values,
-                                setFieldValue: subscriptionForm.setFieldValue,
-                              } as PaymentMethodsInvoiceSettingsProps<ViewTypeEnum.Subscription>['formikProps']
-                            }
+                            // `values` MUST come from reactive store slices (useStore above),
+                            // never from `subscriptionForm.state.values` — a non-reactive
+                            // snapshot would not re-render the displayed selection on edit.
+                            form={{
+                              values: {
+                                paymentMethod: subscriptionPaymentMethod,
+                                invoiceCustomSection: subscriptionInvoiceCustomSection,
+                              },
+                              setFieldValue: subscriptionForm.setFieldValue,
+                            }}
                             viewType={ViewTypeEnum.Subscription}
                           />
-                        </CenteredPage.PageSection>
-                      )}
+                        )}
+                      </CenteredPage.PageSection>
                     </>
                   )}
                 </CenteredPage.SubsectionWrapper>
@@ -880,7 +583,6 @@ const CreateSubscription = () => {
                                   form={planForm}
                                   isEdition={formType === FORM_TYPE_ENUM.edition}
                                   isInSubscriptionForm={isInSubscriptionForm}
-                                  premiumWarningDialogRef={premiumWarningDialogRef}
                                   subscriptionFormType={formType}
                                 />
                               </CenteredPage.SubsectionWrapper>
@@ -931,7 +633,6 @@ const CreateSubscription = () => {
       />
 
       <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }

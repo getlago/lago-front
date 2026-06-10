@@ -70,12 +70,24 @@ const mockQuote = {
     status: StatusEnum.Draft,
     version: 2,
     content: null,
+    currency: null,
+    startDate: null,
+    endDate: null,
+    billingItems: null,
     createdAt: '2026-04-09T10:00:00Z',
   },
   customer: {
     id: 'customer-001',
     name: 'Acme Corp',
     externalId: 'ext-acme-001',
+    netPaymentTerm: null,
+    billingEntity: {
+      __typename: 'BillingEntity' as const,
+      id: 'be-1',
+      code: 'default',
+      name: 'Default Entity',
+      netPaymentTerm: 0,
+    },
   },
 }
 
@@ -90,6 +102,7 @@ describe('ApproveQuote', () => {
       quote: mockQuote,
       loading: false,
       error: undefined,
+      refetch: jest.fn(),
     })
 
     mockUseApproveQuote.mockReturnValue({
@@ -138,6 +151,7 @@ describe('ApproveQuote', () => {
           },
           loading: false,
           error: undefined,
+          refetch: jest.fn(),
         })
 
         render(<ApproveQuote />)
@@ -203,6 +217,7 @@ describe('ApproveQuote', () => {
         quote: undefined,
         loading: true,
         error: undefined,
+        refetch: jest.fn(),
       })
     })
 
@@ -230,6 +245,7 @@ describe('ApproveQuote', () => {
         quote: undefined,
         loading: false,
         error: new Error('Something went wrong') as never,
+        refetch: jest.fn(),
       })
     })
 
@@ -256,6 +272,7 @@ describe('ApproveQuote', () => {
           quote: undefined,
           loading: false,
           error: undefined,
+          refetch: jest.fn(),
         })
 
         render(<ApproveQuote />)

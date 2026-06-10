@@ -12,7 +12,7 @@
 - **Frontend**: React 18 + TypeScript + Vite
 - **UI**: Material UI + TailwindCSS + Custom Design System (MUI-based)
 - **State**: Apollo Client (GraphQL) with reactive variables
-- **Forms**: Formik + Yup validation
+- **Forms**: Tanstack form + zod validation
 - **Routing**: React Router DOM + TanStack Router (newer routes)
 - **Testing**: Jest + Cypress + Testing Library
 - **Code Generation**: GraphQL Code Generator for type-safe queries
@@ -47,6 +47,7 @@
 - ESLint rules from `lago-configs` package
 - Consistent naming: camelCase for variables, PascalCase for components
 - Use existing design system components before creating new ones
+- In tests, import and reuse the real exported types/interfaces (e.g. `MainHeaderTab`) instead of redeclaring a partial copy of a production type just for assertions — a local stub drifts from the source and hides type errors
 - Always use direct MUI imports, never barrel imports:
   ```typescript
   // Correct
@@ -107,12 +108,12 @@ caller.
 
 ### Consistency rule — which API to use, by caller
 
-| Caller | Source to read | API |
-|---|---|---|
-| React component **inside** `/:organizationSlug/...` routes | URL + memberships | `useParams().organizationSlug` then `currentUser.memberships.find(m => m.organization.slug === slug)` (or `useCurrentUser().currentMembership` shortcut) |
-| React component **outside** Routes (`AiAgent`, `UserIdentifier`, anything sibling to `RouteWrapper` in `App.tsx`) | URL + memberships | `window.location.pathname.split('/')[1]` then `currentUser.memberships.find(...)` — `useParams` returns `{}` here because there's no matched-route context |
-| Non-React code that needs synchronous access (Apollo auth link only) | Var | `getCurrentOrganizationId()` |
-| `OrganizationLayout` itself, for org-switch detection | Var (compared against derived `org.id`) | `useReactiveVar(currentOrganizationVar)` — this is the single sync point that bridges URL → var |
+| Caller                                                                                                            | Source to read                          | API                                                                                                                                                        |
+| ----------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| React component **inside** `/:organizationSlug/...` routes                                                        | URL + memberships                       | `useParams().organizationSlug` then `currentUser.memberships.find(m => m.organization.slug === slug)` (or `useCurrentUser().currentMembership` shortcut)   |
+| React component **outside** Routes (`AiAgent`, `UserIdentifier`, anything sibling to `RouteWrapper` in `App.tsx`) | URL + memberships                       | `window.location.pathname.split('/')[1]` then `currentUser.memberships.find(...)` — `useParams` returns `{}` here because there's no matched-route context |
+| Non-React code that needs synchronous access (Apollo auth link only)                                              | Var                                     | `getCurrentOrganizationId()`                                                                                                                               |
+| `OrganizationLayout` itself, for org-switch detection                                                             | Var (compared against derived `org.id`) | `useReactiveVar(currentOrganizationVar)` — this is the single sync point that bridges URL → var                                                            |
 
 **Do not** read `currentOrganizationVar` from feature components for UI or identifier construction. That is a known bug pattern (logo flashing wrong org cross-tab, webhook URLs baking the wrong UUID, slug page showing the other tab's value, etc.). The fix in every case is migrating off the var and onto `useParams` + memberships.
 
@@ -127,12 +128,12 @@ Anything else reading the var in a feature component is a regression — fix it.
 
 ### Source-of-truth hierarchy
 
-| Concern | Source | Notes |
-|---|---|---|
-| Which org is the user viewing in this tab | URL slug (`useParams().organizationSlug`) | Resolves to a `Membership` via `currentUser.memberships` |
-| Auth | `LAGO_USER_AUTH_TOKEN_KEY` in LS | Unchanged |
-| Apollo `x-lago-organization` header | `currentOrganizationVar` (in-memory, per-tab) | Centralized synchronous cache of the slug-derived org id. `OrganizationLayout` keeps it in sync with the URL slug. Never read directly to drive UI. |
-| Browser-survival of OAuth round-trip | `REDIRECT_AFTER_LOGIN_LS_KEY` | Read & cleared exclusively by `Home.tsx` |
+| Concern                                   | Source                                        | Notes                                                                                                                                               |
+| ----------------------------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Which org is the user viewing in this tab | URL slug (`useParams().organizationSlug`)     | Resolves to a `Membership` via `currentUser.memberships`                                                                                            |
+| Auth                                      | `LAGO_USER_AUTH_TOKEN_KEY` in LS              | Unchanged                                                                                                                                           |
+| Apollo `x-lago-organization` header       | `currentOrganizationVar` (in-memory, per-tab) | Centralized synchronous cache of the slug-derived org id. `OrganizationLayout` keeps it in sync with the URL slug. Never read directly to drive UI. |
+| Browser-survival of OAuth round-trip      | `REDIRECT_AFTER_LOGIN_LS_KEY`                 | Read & cleared exclusively by `Home.tsx`                                                                                                            |
 
 ### `useCurrentUser` vs `useOrganizationInfos`
 

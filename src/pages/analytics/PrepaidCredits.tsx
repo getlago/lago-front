@@ -1,16 +1,13 @@
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
 
 import { PrepaidCreditsOverviewSection } from '~/components/analytics/prepaidCredits/PrepaidCreditsOverviewSection'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 const PrepaidCredits = () => {
   const { translate } = useInternationalization()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
 
   return (
     <FullscreenPage.Wrapper>
@@ -26,9 +23,7 @@ const PrepaidCredits = () => {
         </Tooltip>
       </Typography>
 
-      <PrepaidCreditsOverviewSection premiumWarningDialogRef={premiumWarningDialogRef} />
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
+      <PrepaidCreditsOverviewSection />
     </FullscreenPage.Wrapper>
   )
 }

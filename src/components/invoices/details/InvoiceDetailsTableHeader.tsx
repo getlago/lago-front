@@ -7,19 +7,12 @@ import { tw } from '~/styles/utils'
 type InvoiceDetailsTableHeaderProps = {
   canHaveUnitPrice: boolean
   displayName: string
-  isDraftInvoice: boolean
   className?: string
   hideVat?: boolean
 }
 
 export const InvoiceDetailsTableHeader = memo(
-  ({
-    canHaveUnitPrice,
-    className,
-    displayName,
-    isDraftInvoice,
-    hideVat,
-  }: InvoiceDetailsTableHeaderProps) => {
+  ({ canHaveUnitPrice, className, displayName, hideVat }: InvoiceDetailsTableHeaderProps) => {
     const { translate } = useInternationalization()
 
     return (
@@ -54,7 +47,7 @@ export const InvoiceDetailsTableHeader = memo(
               {translate('text_634d631acf4dce7b0127a3a6')}
             </Typography>
           </th>
-          {isDraftInvoice && <th>{/* Action column */}</th>}
+          <th>{/* Action column */}</th>
         </tr>
       </thead>
     )

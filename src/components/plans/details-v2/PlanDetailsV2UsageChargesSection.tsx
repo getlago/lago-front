@@ -1,0 +1,313 @@
+import { gql } from '@apollo/client'
+import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react'
+
+import { Typography } from '~/components/designSystem/Typography'
+import {
+  UsageChargeDrawer,
+  UsageChargeDrawerRef,
+} from '~/components/plans/drawers/usageCharge/UsageChargeDrawer'
+import {
+  RemoveChargeWarningDialog,
+  RemoveChargeWarningDialogRef,
+} from '~/components/plans/RemoveChargeWarningDialog'
+import { LocalUsageChargeInput } from '~/components/plans/types'
+import { UsageChargeInfo } from '~/components/plans/UsageChargeInfo'
+import { PlanFormProvider } from '~/contexts/PlanFormContext'
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import {
+  CurrencyEnum,
+  CustomChargeFragmentDoc,
+  GraduatedChargeFragmentDoc,
+  GraduatedPercentageChargeFragmentDoc,
+  PackageChargeFragmentDoc,
+  PercentageChargeFragmentDoc,
+  PlanForDetailsV2UsageChargesSectionFragment,
+  PlanInterval,
+  PresentationGroupKeysFragmentDoc,
+  PricingGroupKeysFragmentDoc,
+  StandardChargeFragmentDoc,
+  TaxForPlanSettingsSectionFragmentDoc,
+  TaxForTaxesSelectorSectionFragmentDoc,
+  VolumeRangesFragmentDoc,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
+import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
+import { toLocalUsageChargeInput } from '~/hooks/plans/utils'
+
+import { SectionAccordion } from './shared/SectionAccordion'
+import { SectionHeader } from './shared/SectionHeader'
+import { PlanDetailsV2SectionId } from './sidebarSections'
+
+gql`
+  fragment UsageChargeForDetailsV2 on Charge {
+    id
+    code
+    chargeModel
+    invoiceable
+    invoiceDisplayName
+    minAmountCents
+    payInAdvance
+    prorated
+    regroupPaidFees
+    properties {
+      graduatedRanges {
+        ...GraduatedCharge
+      }
+      graduatedPercentageRanges {
+        ...GraduatedPercentageCharge
+      }
+      volumeRanges {
+        ...VolumeRanges
+      }
+      ...PackageCharge
+      ...StandardCharge
+      ...PercentageCharge
+      ...CustomCharge
+      ...PricingGroupKeys
+      ...PresentationGroupKeys
+    }
+    filters {
+      id
+      invoiceDisplayName
+      values
+      properties {
+        graduatedRanges {
+          ...GraduatedCharge
+        }
+        graduatedPercentageRanges {
+          ...GraduatedPercentageCharge
+        }
+        volumeRanges {
+          ...VolumeRanges
+        }
+        ...PackageCharge
+        ...StandardCharge
+        ...PercentageCharge
+        ...CustomCharge
+        ...PricingGroupKeys
+      }
+    }
+    appliedPricingUnit {
+      conversionRate
+      pricingUnit {
+        id
+        name
+        code
+        shortName
+      }
+    }
+    billableMetric {
+      id
+      name
+      code
+      aggregationType
+      recurring
+      filters {
+        id
+        key
+        values
+      }
+    }
+    taxes {
+      ...TaxForTaxesSelectorSection
+    }
+  }
+
+  fragment PlanForDetailsV2UsageChargesSection on Plan {
+    id
+    hasOverriddenPlans
+    subscriptionsCount
+    interval
+    amountCurrency
+    billChargesMonthly
+    taxes {
+      ...TaxForPlanSettingsSection
+    }
+    charges {
+      ...UsageChargeForDetailsV2
+    }
+  }
+
+  ${GraduatedChargeFragmentDoc}
+  ${GraduatedPercentageChargeFragmentDoc}
+  ${VolumeRangesFragmentDoc}
+  ${PackageChargeFragmentDoc}
+  ${StandardChargeFragmentDoc}
+  ${PercentageChargeFragmentDoc}
+  ${CustomChargeFragmentDoc}
+  ${PricingGroupKeysFragmentDoc}
+  ${PresentationGroupKeysFragmentDoc}
+  ${TaxForTaxesSelectorSectionFragmentDoc}
+  ${TaxForPlanSettingsSectionFragmentDoc}
+`
+
+export type PlanDetailsV2UsageChargesSectionRef = {
+  openCreate: () => void
+}
+
+export type UsageChargeMutations = {
+  handleSaveCharge: (
+    charge: LocalUsageChargeInput,
+    index: number | null,
+  ) => Promise<boolean | FORM_ERRORS_ENUM.existingCode>
+  handleDeleteCharge: (chargeId: string) => Promise<boolean>
+}
+
+type Props = {
+  plan: PlanForDetailsV2UsageChargesSectionFragment
+  isInSubscriptionForm?: boolean
+  chargeMutations: UsageChargeMutations
+}
+
+export const PlanDetailsV2UsageChargesSection = forwardRef<
+  PlanDetailsV2UsageChargesSectionRef,
+  Props
+>(({ plan, isInSubscriptionForm = false, chargeMutations }, ref) => {
+  const { translate } = useInternationalization()
+  const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
+  const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
+  const drawerRef = useRef<UsageChargeDrawerRef>(null)
+  const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
+
+  const { handleSaveCharge, handleDeleteCharge } = chargeMutations
+
+  const planCurrency = plan.amountCurrency
+  const charges = plan.charges ?? []
+  const isEmpty = charges.length === 0
+  // ISO with the plan form: existing charges lock once the plan has subscriptions.
+  // Sub mode keeps its own gating (driven by isInSubscriptionForm), so the
+  // subscription-count lock does not apply there.
+  const canBeEdited = isInSubscriptionForm ? true : !plan.subscriptionsCount
+  // ISO with the plan form: deleting a charge that is live on subscriptions
+  // prompts a confirmation. Every listed charge is persisted, so this reduces
+  // to "the plan has subscriptions" (canBeEdited === false).
+  const isUsedInSubscription = !canBeEdited
+
+  // ISO with the plan form: warn when the same billable metric backs more than
+  // one charge (count per BM id, alert when > 1).
+  const chargeCountByBillableMetricId = useMemo(() => {
+    const counts = new Map<string, number>()
+
+    for (const charge of charges) {
+      counts.set(charge.billableMetric.id, (counts.get(charge.billableMetric.id) || 0) + 1)
+    }
+
+    return counts
+  }, [charges])
+
+  const openCreate = () => drawerRef.current?.openDrawer()
+
+  useImperativeHandle(ref, () => ({ openCreate }))
+
+  const openEdit = (charge: LocalUsageChargeInput, index: number) => {
+    const alreadyUsedChargeAlertMessage =
+      (chargeCountByBillableMetricId.get(charge.billableMetric.id) || 0) > 1
+        ? translate('text_6435895831d323008a47911f')
+        : undefined
+
+    drawerRef.current?.openDrawer(charge, index, {
+      alreadyUsedChargeAlertMessage,
+      isUsedInSubscription,
+    })
+  }
+
+  // ISO with the plan form: confirm before deleting a charge that is live on
+  // subscriptions; delete directly otherwise.
+  const handleDelete = (chargeId: string) => {
+    if (isUsedInSubscription) {
+      removeChargeWarningDialogRef.current?.openDialog({
+        callback: () => handleDeleteCharge(chargeId),
+      })
+    } else {
+      handleDeleteCharge(chargeId)
+    }
+  }
+
+  return (
+    <section id={PlanDetailsV2SectionId.UsageCharges} className="flex scroll-mt-12 flex-col gap-6">
+      <SectionHeader
+        title={translate('text_1779289915866ngi8sv5t9lg')}
+        description={translate('text_6661ffe746c680007e2df0d6')}
+        action={
+          canCreate
+            ? {
+                label: translate('text_1772133285142oouequiz2t2'),
+                onClick: openCreate,
+                startIcon: 'plus',
+              }
+            : undefined
+        }
+      />
+
+      {isEmpty && (
+        <Typography variant="body" color="grey600">
+          {translate('text_17797360854699edp5yofy8h')}
+        </Typography>
+      )}
+
+      {charges.map((charge, index) => (
+        <SectionAccordion
+          key={charge.id}
+          id={charge.id}
+          icon="pulse"
+          title={charge.invoiceDisplayName || charge.billableMetric.name}
+          subtitle={charge.code}
+          actions={[
+            {
+              label: translate('text_63e51ef4985f0ebd75c212fc'),
+              startIcon: 'pen',
+              onClick: () =>
+                openEdit(
+                  toLocalUsageChargeInput(charge, planCurrency, hasAnyPricingUnitConfigured),
+                  index,
+                ),
+              hidden: !canUpdate,
+            },
+            {
+              label: translate('text_63ea0f84f400488553caa786'),
+              startIcon: 'trash',
+              onClick: () => handleDelete(charge.id),
+              hidden: !canDelete,
+            },
+          ]}
+          noContentMargin
+        >
+          <UsageChargeInfo
+            charge={charge}
+            currency={plan.amountCurrency as CurrencyEnum}
+            planInterval={plan.interval as PlanInterval}
+            billChargesMonthly={plan.billChargesMonthly}
+            planTaxes={plan.taxes}
+          />
+        </SectionAccordion>
+      ))}
+
+      <PlanFormProvider
+        currency={plan.amountCurrency as CurrencyEnum}
+        interval={(plan.interval as PlanInterval) ?? PlanInterval.Monthly}
+      >
+        <UsageChargeDrawer
+          ref={drawerRef}
+          isEdition
+          disabled={!canBeEdited}
+          isInSubscriptionForm={isInSubscriptionForm}
+          showCode
+          existingChargeCodes={charges.map((c) => c.code)}
+          amountCurrency={plan.amountCurrency}
+          onSave={handleSaveCharge}
+          onDelete={(index) => {
+            const target = charges[index]
+
+            if (target) handleDeleteCharge(target.id)
+          }}
+          removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+        />
+      </PlanFormProvider>
+
+      <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} />
+    </section>
+  )
+})
+
+PlanDetailsV2UsageChargesSection.displayName = 'PlanDetailsV2UsageChargesSection'

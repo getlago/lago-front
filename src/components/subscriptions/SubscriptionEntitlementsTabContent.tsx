@@ -14,6 +14,7 @@ import {
   DeleteSubscriptionEntitlementDialog,
   DeleteSubscriptionEntitlementDialogRef,
 } from '~/components/subscriptions/DeleteSubscriptionEntitlementDialog'
+import { POPPER_GROUP_NAME } from '~/core/constants/popper'
 import {
   CREATE_ENTITLEMENT_CUSTOMER_SUBSCRIPTION_ROUTE,
   CREATE_ENTITLEMENT_PLAN_SUBSCRIPTION_ROUTE,
@@ -130,6 +131,7 @@ export const SubscriptionEntitlementsTabContent = () => {
                 </div>
                 <div className="flex items-center gap-3 p-1 pl-0">
                   <Popper
+                    popperGroupName={POPPER_GROUP_NAME.subscriptionEntitlementActions}
                     PopperProps={{ placement: 'bottom-end' }}
                     opener={(opener) => (
                       <Tooltip

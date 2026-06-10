@@ -214,32 +214,52 @@
     @apply bg-grey-200;
   }
 
-  /* Plan block */
-  .plan-block {
-    @apply my-2 rounded-lg border border-grey-300 p-3;
+  .block-type-wrapper {
+    @apply flex w-full flex-col;
   }
 
-  .plan-block--empty {
+  .block-type-tag {
+    @apply self-start rounded-tl-xl rounded-tr-xl bg-grey-300 px-2 py-0.5 text-sm font-medium text-grey-700;
+  }
+
+  .icon-wrapper {
+    @apply flex size-10 items-center justify-center rounded-xl bg-grey-100 text-grey-600;
+  }
+
+  .click-icon-wrapper {
+    @apply flex size-10 items-center justify-center text-grey-600;
+  }
+
+  /* Pricing block */
+  .pricing-block {
+    @apply my-2 mt-0 flex items-center justify-between gap-3 rounded-xl rounded-tl-none border border-grey-300 p-3;
+  }
+
+  .pricing-block--empty {
     @apply flex cursor-pointer items-center justify-center border-dashed py-6 transition-colors hover:bg-grey-100;
   }
 
-  .plan-block--clickable {
+  .pricing-block--clickable {
     @apply cursor-pointer transition-colors hover:bg-grey-100;
   }
 
-  .plan-block--selected {
-    @apply border-blue-600;
+  .pricing-block-content {
+    @apply flex items-center gap-3;
   }
 
-  .plan-block__placeholder {
+  .pricing-block-text {
+    @apply flex flex-col items-start;
+  }
+
+  .pricing-block__placeholder {
     @apply text-sm text-grey-400;
   }
 
-  .plan-block__unresolved {
+  .pricing-block__unresolved {
     @apply text-sm text-grey-500;
   }
 
-  .plan-block__table {
+  .pricing-block__table {
     @apply m-0 w-full;
   }
 
@@ -361,23 +381,28 @@
   color: inherit;
 }
 
-/* Drag handle decoration — floated left into the padding gutter.
-   margin-top aligns the handle with the first line of the following block,
+/* Block handle group — floated left into the padding gutter.
+   Contains the plus button (slash commands) and grip button (drag handle).
+   margin-top aligns the group with the first line of the following block,
    accounting for spacer padding-top (6px default) + block-wrapper padding (2px). */
-.block-drag-handle {
-  @apply float-left mt-2 flex h-6 w-6 cursor-grab items-center justify-center rounded-lg text-grey-600 opacity-0 transition-all duration-200 ease-in-out;
-  margin-left: -28px;
+.block-handle-group {
+  @apply float-left mt-2 flex items-center gap-0.5 opacity-0 transition-all duration-200 ease-in-out;
+  margin-left: -56px;
 }
 
-.block-drag-handle:has(+ .spacer[data-type='heading-1']) {
+.block-handle-button {
+  @apply flex h-6 w-6 cursor-pointer items-center justify-center rounded-lg text-grey-600 transition-colors duration-200 ease-in-out;
+}
+
+.block-handle-group:has(+ .spacer[data-type='heading-1']) {
   margin-top: 36px;
 }
 
-.block-drag-handle:has(+ .spacer[data-type='heading-2']) {
+.block-handle-group:has(+ .spacer[data-type='heading-2']) {
   margin-top: 24px;
 }
 
-.block-drag-handle:has(+ .spacer[data-type='heading-3']) {
+.block-handle-group:has(+ .spacer[data-type='heading-3']) {
   margin-top: 20px;
 }
 
@@ -385,15 +410,15 @@
   @apply relative rounded-md p-2 pb-8;
 }
 
-/* Show handle when hovering the spacer/table next to it, or the handle itself */
-.block-drag-handle:has(+ .spacer:hover),
-.block-drag-handle:has(+ .tableWrapper:hover),
-.block-drag-handle:hover {
+/* Show handle group when hovering the spacer/table next to it, or the group itself */
+.block-handle-group:has(+ .spacer:hover),
+.block-handle-group:has(+ .tableWrapper:hover),
+.block-handle-group:hover {
   @apply opacity-100;
 }
 
-/* Highlight the handle being directly hovered */
-.ProseMirror:hover > .block-drag-handle:hover {
+/* Highlight individual buttons on hover */
+.ProseMirror:hover > .block-handle-group .block-handle-button:hover {
   @apply bg-grey-200;
 }
 

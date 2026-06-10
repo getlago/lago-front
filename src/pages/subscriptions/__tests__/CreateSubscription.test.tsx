@@ -147,6 +147,42 @@ const mockSubscriptionForm = {
 
 jest.mock('~/hooks/forms/useAppform', () => ({
   useAppForm: jest.fn(() => mockSubscriptionForm),
+  withForm: jest.fn(
+    ({
+      render: RenderComponent,
+      props: defaultProps,
+    }: {
+      render: React.FC<Record<string, unknown>>
+      defaultValues: Record<string, unknown>
+      props: Record<string, unknown>
+    }) => {
+      const WithFormWrapper = (receivedProps: Record<string, unknown>) => {
+        return <RenderComponent {...defaultProps} {...receivedProps} />
+      }
+
+      WithFormWrapper.displayName = 'WithFormWrapper'
+
+      return WithFormWrapper
+    },
+  ),
+  withFieldGroup: jest.fn(
+    ({
+      render: RenderComponent,
+      props: defaultProps,
+    }: {
+      render: React.FC<Record<string, unknown>>
+      defaultValues: Record<string, unknown>
+      props?: Record<string, unknown>
+    }) => {
+      const WithFieldGroupWrapper = (receivedProps: Record<string, unknown>) => {
+        return <RenderComponent {...(defaultProps ?? {})} {...receivedProps} />
+      }
+
+      WithFieldGroupWrapper.displayName = 'WithFieldGroupWrapper'
+
+      return WithFieldGroupWrapper
+    },
+  ),
 }))
 
 jest.mock('@tanstack/react-form', () => ({
@@ -243,10 +279,6 @@ jest.mock('~/components/subscriptions/ProgressiveBillingSection', () => ({
 
 jest.mock('~/components/subscriptions/FeatureEntitlementSection', () => ({
   FeatureEntitlementSection: () => <div data-test="feature-entitlement-section" />,
-}))
-
-jest.mock('~/components/PremiumWarningDialog', () => ({
-  PremiumWarningDialog: () => <div data-test="premium-warning-dialog" />,
 }))
 
 jest.mock('~/components/invoices/EditInvoiceDisplayNameDialog', () => ({

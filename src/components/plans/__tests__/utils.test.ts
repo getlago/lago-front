@@ -1,4 +1,8 @@
+import { RefObject } from 'react'
+
+import { RemoveChargeWarningDialogRef } from '~/components/plans/RemoveChargeWarningDialog'
 import {
+  buildChargeHoverActions,
   getFormattedChargeSelectorSubtitle,
   returnFirstDefinedArrayRatesSumAsString,
   transformFilterObjectToString,
@@ -137,6 +141,122 @@ describe('utils', () => {
       })
 
       expect(result).toBe('my_code')
+    })
+  })
+
+  describe('buildChargeHoverActions', () => {
+    const translate = (key: string) => key
+    const buildDialogRef = (): {
+      ref: RefObject<RemoveChargeWarningDialogRef>
+      openDialog: jest.Mock
+    } => {
+      const openDialog = jest.fn()
+      const ref = {
+        current: { openDialog },
+      } as unknown as RefObject<RemoveChargeWarningDialogRef>
+
+      return { ref, openDialog }
+    }
+    const buildEvent = () =>
+      ({
+        stopPropagation: jest.fn(),
+        preventDefault: jest.fn(),
+      }) as unknown as React.MouseEvent
+
+    it('returns only the edit action when showDelete is false', () => {
+      const onEdit = jest.fn()
+      const onDelete = jest.fn()
+      const { ref } = buildDialogRef()
+
+      const actions = buildChargeHoverActions({
+        showDelete: false,
+        showWarningOnDelete: false,
+        onDelete,
+        onEdit,
+        removeChargeWarningDialogRef: ref,
+        translate,
+      })
+
+      expect(actions).toHaveLength(1)
+      expect(actions[0].icon).toBe('pen')
+      actions[0].onClick(buildEvent())
+      expect(onEdit).toHaveBeenCalledTimes(1)
+      expect(onDelete).not.toHaveBeenCalled()
+    })
+
+    it('returns trash and edit actions when showDelete is true', () => {
+      const { ref } = buildDialogRef()
+
+      const actions = buildChargeHoverActions({
+        showDelete: true,
+        showWarningOnDelete: false,
+        onDelete: jest.fn(),
+        onEdit: jest.fn(),
+        removeChargeWarningDialogRef: ref,
+        translate,
+      })
+
+      expect(actions).toHaveLength(2)
+      expect(actions[0].icon).toBe('trash')
+      expect(actions[1].icon).toBe('pen')
+    })
+
+    it('calls onDelete directly when showWarningOnDelete is false', () => {
+      const onDelete = jest.fn()
+      const { ref, openDialog } = buildDialogRef()
+
+      const actions = buildChargeHoverActions({
+        showDelete: true,
+        showWarningOnDelete: false,
+        onDelete,
+        onEdit: jest.fn(),
+        removeChargeWarningDialogRef: ref,
+        translate,
+      })
+
+      const event = buildEvent()
+
+      actions[0].onClick(event)
+
+      expect(event.stopPropagation).toHaveBeenCalledTimes(1)
+      expect(event.preventDefault).toHaveBeenCalledTimes(1)
+      expect(onDelete).toHaveBeenCalledTimes(1)
+      expect(openDialog).not.toHaveBeenCalled()
+    })
+
+    it('opens the warning dialog when showWarningOnDelete is true', () => {
+      const onDelete = jest.fn()
+      const { ref, openDialog } = buildDialogRef()
+
+      const actions = buildChargeHoverActions({
+        showDelete: true,
+        showWarningOnDelete: true,
+        onDelete,
+        onEdit: jest.fn(),
+        removeChargeWarningDialogRef: ref,
+        translate,
+      })
+
+      actions[0].onClick(buildEvent())
+
+      expect(openDialog).toHaveBeenCalledTimes(1)
+      expect(openDialog).toHaveBeenCalledWith({ callback: onDelete })
+      expect(onDelete).not.toHaveBeenCalled()
+    })
+
+    it('does not throw when the dialog ref is not yet attached', () => {
+      const ref = { current: null } as RefObject<RemoveChargeWarningDialogRef>
+
+      const actions = buildChargeHoverActions({
+        showDelete: true,
+        showWarningOnDelete: true,
+        onDelete: jest.fn(),
+        onEdit: jest.fn(),
+        removeChargeWarningDialogRef: ref,
+        translate,
+      })
+
+      expect(() => actions[0].onClick(buildEvent())).not.toThrow()
     })
   })
 })

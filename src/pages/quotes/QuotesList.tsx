@@ -74,7 +74,7 @@ const QuotesList = (): JSX.Element => {
   ]
 
   return (
-    <DetailsPage.Container>
+    <DetailsPage.Container className="max-w-full">
       <InfiniteScroll onBottom={createQuotesPaginationHandler(metadata, loading, fetchMore)}>
         <Table
           containerClassName="border-t border-grey-300"

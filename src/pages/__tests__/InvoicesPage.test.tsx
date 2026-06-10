@@ -79,10 +79,6 @@ jest.mock('~/components/invoices/InvoicesList', () => ({
   default: () => <div data-test="invoices-list-mock">InvoicesList</div>,
 }))
 
-jest.mock('~/components/PremiumWarningDialog', () => ({
-  PremiumWarningDialog: () => null,
-}))
-
 jest.mock('~/components/invoices/FinalizeInvoiceDialog', () => ({
   FinalizeInvoiceDialog: () => null,
 }))
