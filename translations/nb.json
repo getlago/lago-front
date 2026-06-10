@@ -202,5 +202,12 @@
   "text_1741604005109aspaz4chd7y": "Betalt beløp",
   "text_1741604005109w5ns73xmam9": "730,00 $",
   "text_17413343926225ug14ak60xv": "Last ned faktura",
-  "text_1741334392622fl3ozwejrul": "Last ned faktura"
+  "text_1741334392622fl3ozwejrul": "Last ned faktura",
+  "text_17804985042415hh3kbs8ksh": "Navn",
+  "text_178049850424144tpzoeoge3": "Fakturering",
+  "text_1780498504241avgm5sugii4": "Enheter",
+  "text_1780498504241di3s12o655k": "Pris",
+  "text_1780498504241eo24fnc6s9u": "Fra {{fromDate}} til {{toDate}}",
+  "text_17804985042422iw5hwj0u2v": "Alle priser er eksklusive eventuelle gjeldende avgifter",
+  "text_1779289915866etwoweh1syv": "Abonnementsavgift"
 }
