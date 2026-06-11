@@ -14,6 +14,7 @@ export type SectionAccordionAction = {
   onClick: () => void
   hidden?: boolean
   startIcon?: IconName
+  dataTest?: string
 }
 
 export type SectionAccordionProps = {
@@ -25,6 +26,7 @@ export type SectionAccordionProps = {
   actions?: SectionAccordionAction[]
   initiallyOpen?: boolean
   noContentMargin?: boolean
+  dataTest?: string
   children: ReactNode
 }
 
@@ -37,12 +39,13 @@ export const SectionAccordion = ({
   actions,
   initiallyOpen,
   noContentMargin,
+  dataTest,
   children,
 }: SectionAccordionProps) => {
   const visibleActions = (actions ?? []).filter((a) => !a.hidden)
 
   return (
-    <div id={id} className="scroll-mt-12">
+    <div id={id} data-test={dataTest} className="scroll-mt-12">
       {/* content-visibility lives on the card itself, not this wrapper: a contain:paint
           element clips its descendants' overflow but not its OWN box-shadow, so the focus
           ring on the card is no longer cropped.
@@ -82,6 +85,7 @@ export const SectionAccordion = ({
                   opener={({ onClick: openPopper }) => (
                     <Button
                       aria-label="actions"
+                      data-test={dataTest ? `${dataTest}-actions` : undefined}
                       variant="quaternary"
                       icon="dots-horizontal"
                       onClick={(e) => {
@@ -96,6 +100,7 @@ export const SectionAccordion = ({
                       {visibleActions.map((action) => (
                         <Button
                           key={action.label}
+                          data-test={action.dataTest}
                           variant="quaternary"
                           align="left"
                           fullWidth

@@ -9,7 +9,6 @@ import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTa
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import { PlanDetailsV2 } from '~/components/plans/details-v2/PlanDetailsV2'
 import { PlanDetailsActivityLogs } from '~/components/plans/details/PlanDetailsActivityLogs'
-import { PlanDetailsOverview } from '~/components/plans/details/PlanDetailsOverview'
 import PlanSubscriptionList from '~/components/plans/details/PlanSubscriptionList'
 import { updateDuplicatePlanVar } from '~/core/apolloClient'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -21,7 +20,6 @@ import {
   UPDATE_PLAN_ROUTE,
   useNavigate,
 } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   DeletePlanDialogFragment,
   DeletePlanDialogFragmentDoc,
@@ -141,55 +139,30 @@ const PlanDetails = () => {
         }}
         actions={{ items: actions, loading: isPlanLoading }}
         tabs={[
-          isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE)
-            ? {
-                title: translate('text_628cf761cbe6820138b8f2e4'),
-                link: generatePath(PLAN_DETAILS_ROUTE, {
-                  planId: planId as string,
-                  tab: PlanDetailsTabsOptionsEnum.editOverview,
-                }),
-                match: [
-                  generatePath(PLAN_DETAILS_ROUTE, {
-                    planId: planId as string,
-                    tab: PlanDetailsTabsOptionsEnum.editOverview,
-                  }),
-                  generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
-                    customerId: customerId || '',
-                    subscriptionId: subscriptionId || '',
-                    planId: planId as string,
-                    tab: PlanDetailsTabsOptionsEnum.editOverview,
-                  }),
-                ],
-                content: (
-                  <DetailsPage.Container className="pb-0">
-                    <PlanDetailsV2 planId={planId as string} />
-                  </DetailsPage.Container>
-                ),
-              }
-            : {
-                title: translate('text_628cf761cbe6820138b8f2e4'),
-                link: generatePath(PLAN_DETAILS_ROUTE, {
-                  planId: planId as string,
-                  tab: PlanDetailsTabsOptionsEnum.overview,
-                }),
-                match: [
-                  generatePath(PLAN_DETAILS_ROUTE, {
-                    planId: planId as string,
-                    tab: PlanDetailsTabsOptionsEnum.overview,
-                  }),
-                  generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
-                    customerId: customerId || '',
-                    subscriptionId: subscriptionId || '',
-                    planId: planId as string,
-                    tab: PlanDetailsTabsOptionsEnum.overview,
-                  }),
-                ],
-                content: (
-                  <DetailsPage.Container>
-                    <PlanDetailsOverview planId={planId} />
-                  </DetailsPage.Container>
-                ),
-              },
+          {
+            title: translate('text_628cf761cbe6820138b8f2e4'),
+            link: generatePath(PLAN_DETAILS_ROUTE, {
+              planId: planId as string,
+              tab: PlanDetailsTabsOptionsEnum.overview,
+            }),
+            match: [
+              generatePath(PLAN_DETAILS_ROUTE, {
+                planId: planId as string,
+                tab: PlanDetailsTabsOptionsEnum.overview,
+              }),
+              generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
+                customerId: customerId || '',
+                subscriptionId: subscriptionId || '',
+                planId: planId as string,
+                tab: PlanDetailsTabsOptionsEnum.overview,
+              }),
+            ],
+            content: (
+              <DetailsPage.Container className="pb-0">
+                <PlanDetailsV2 planId={planId as string} />
+              </DetailsPage.Container>
+            ),
+          },
           {
             title: translate('text_6250304370f0f700a8fdc28d'),
             link: generatePath(PLAN_DETAILS_ROUTE, {

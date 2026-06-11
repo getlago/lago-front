@@ -10,6 +10,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
 
+import { PLAN_SETTINGS_ACCORDION_TEST_ID, PLAN_SETTINGS_EDIT_TEST_ID } from './detailsV2TestIds'
 import { SectionAccordion } from './shared/SectionAccordion'
 import { SectionHeader } from './shared/SectionHeader'
 import { PlanDetailsV2SectionId } from './sidebarSections'
@@ -49,12 +50,14 @@ export const PlanDetailsV2PlanSettingsSection = ({
       />
       <SectionAccordion
         title={translate('text_642d5eb2783a2ad10d67031a')}
+        dataTest={PLAN_SETTINGS_ACCORDION_TEST_ID}
         actions={[
           {
             label: translate('text_63e51ef4985f0ebd75c212fc'),
             startIcon: 'pen',
             onClick: openDrawer,
             hidden: !canUpdate,
+            dataTest: PLAN_SETTINGS_EDIT_TEST_ID,
           },
         ]}
       >

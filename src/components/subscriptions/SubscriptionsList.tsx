@@ -178,7 +178,7 @@ const generateActionColumn = ({
             generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
               customerId: subscription.customer.id,
               subscriptionId: subscription.id,
-              tab: CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
+              tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
             }),
           ),
       },

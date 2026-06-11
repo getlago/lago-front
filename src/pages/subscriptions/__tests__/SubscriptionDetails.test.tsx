@@ -118,13 +118,6 @@ jest.mock('~/hooks/useSubscriptionPermissionsActions', () => ({
   }),
 }))
 
-const mockIsFeatureFlagActive = jest.fn().mockReturnValue(false)
-
-jest.mock('~/core/utils/featureFlags', () => ({
-  ...jest.requireActual('~/core/utils/featureFlags'),
-  isFeatureFlagActive: (flag: string) => mockIsFeatureFlagActive(flag),
-}))
-
 describe('SubscriptionDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -133,7 +126,6 @@ describe('SubscriptionDetails', () => {
     mockCanEditSubscription.mockReturnValue(true)
     mockIsStatusEditable.mockReturnValue(true)
     mockUseCurrentUser.mockReturnValue({ isPremium: true })
-    mockIsFeatureFlagActive.mockReturnValue(false)
 
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
@@ -511,15 +503,11 @@ describe('SubscriptionDetails', () => {
     })
   })
 
-  describe('GIVEN the EDIT_DETAILS_PAGE feature flag', () => {
-    describe('WHEN the flag is off', () => {
-      it('THEN should keep the overview tab visible (legacy overview)', () => {
-        mockIsFeatureFlagActive.mockReturnValue(false)
-
+  describe('GIVEN the v2 tabs', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should render the v2 overview tab as visible', () => {
         render(<SubscriptionDetails />)
 
-        // When the flag is off the overview tab renders the legacy overview and
-        // stays visible; only the subscription plan tab is gated (next test).
         const overviewTab = capturedConfig?.tabs?.find(
           (t) => t.title === 'text_628cf761cbe6820138b8f2e4',
         )
@@ -528,36 +516,7 @@ describe('SubscriptionDetails', () => {
         expect(overviewTab?.hidden).toBeFalsy()
       })
 
-      it('THEN should hide the subscription plan tab', () => {
-        mockIsFeatureFlagActive.mockReturnValue(false)
-
-        render(<SubscriptionDetails />)
-
-        const subPlanTab = capturedConfig?.tabs?.find(
-          (t) => t.title === 'text_17792001643316pbexygvpu2',
-        )
-
-        expect(subPlanTab?.hidden).toBe(true)
-      })
-    })
-
-    describe('WHEN the flag is on', () => {
-      it('THEN should render the edit overview tab as visible', () => {
-        mockIsFeatureFlagActive.mockReturnValue(true)
-
-        render(<SubscriptionDetails />)
-
-        const editOverviewTab = capturedConfig?.tabs?.find(
-          (t) => t.title === 'text_628cf761cbe6820138b8f2e4',
-        )
-
-        expect(editOverviewTab).toBeDefined()
-        expect(editOverviewTab?.hidden).toBe(false)
-      })
-
       it('THEN should render the subscription plan tab as visible', () => {
-        mockIsFeatureFlagActive.mockReturnValue(true)
-
         render(<SubscriptionDetails />)
 
         const subPlanTab = capturedConfig?.tabs?.find(
@@ -565,7 +524,7 @@ describe('SubscriptionDetails', () => {
         )
 
         expect(subPlanTab).toBeDefined()
-        expect(subPlanTab?.hidden).toBe(false)
+        expect(subPlanTab?.hidden).toBeFalsy()
       })
     })
   })

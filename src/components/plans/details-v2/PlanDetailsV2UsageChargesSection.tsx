@@ -35,6 +35,11 @@ import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { toLocalUsageChargeInput } from '~/hooks/plans/utils'
 
+import {
+  DETAILS_ADD_USAGE_CHARGE_TEST_ID,
+  USAGE_CHARGE_ACCORDION_TEST_ID_PREFIX,
+  USAGE_CHARGE_EDIT_TEST_ID_PREFIX,
+} from './detailsV2TestIds'
 import { SectionAccordion } from './shared/SectionAccordion'
 import { SectionHeader } from './shared/SectionHeader'
 import { PlanDetailsV2SectionId } from './sidebarSections'
@@ -235,6 +240,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
                 label: translate('text_1772133285142oouequiz2t2'),
                 onClick: openCreate,
                 startIcon: 'plus',
+                dataTest: DETAILS_ADD_USAGE_CHARGE_TEST_ID,
               }
             : undefined
         }
@@ -253,6 +259,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
           icon="pulse"
           title={charge.invoiceDisplayName || charge.billableMetric.name}
           subtitle={charge.code}
+          dataTest={`${USAGE_CHARGE_ACCORDION_TEST_ID_PREFIX}${index}`}
           actions={[
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
@@ -263,6 +270,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
                   index,
                 ),
               hidden: !canUpdate,
+              dataTest: `${USAGE_CHARGE_EDIT_TEST_ID_PREFIX}${index}`,
             },
             {
               label: translate('text_63ea0f84f400488553caa786'),
