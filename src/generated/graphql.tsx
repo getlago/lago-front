@@ -3895,7 +3895,6 @@ export enum FeatureFlagEnum {
   MultiCurrency = 'multi_currency',
   MultiEntityBilling = 'multi_entity_billing',
   MultiplePaymentMethods = 'multiple_payment_methods',
-  NonPersistableChargeCacheOptimization = 'non_persistable_charge_cache_optimization',
   OrderForms = 'order_forms',
   PaymentGatedSubscriptions = 'payment_gated_subscriptions',
   PostgresEnrichedEvents = 'postgres_enriched_events',
@@ -10029,7 +10028,6 @@ export type VoidQuoteVersionInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
-  reason: VoidReasonEnum;
 };
 
 export enum VoidReasonEnum {

@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { addToast } from '~/core/apolloClient'
-import { OrderTypeEnum, StatusEnum, VoidReasonEnum } from '~/generated/graphql'
+import { OrderTypeEnum, StatusEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useQuote } from '../hooks/useQuote'
@@ -184,7 +184,6 @@ describe('VoidQuote', () => {
             variables: {
               input: {
                 id: 'version-123',
-                reason: VoidReasonEnum.Manual,
               },
             },
           })
@@ -232,7 +231,6 @@ describe('VoidQuote', () => {
             variables: {
               input: {
                 id: 'version-123',
-                reason: VoidReasonEnum.Manual,
               },
             },
           })
