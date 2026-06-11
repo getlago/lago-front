@@ -4,26 +4,29 @@ import { LocalFixedChargeInput } from '~/components/plans/types'
 import { addToast } from '~/core/apolloClient'
 import { serializeFixedChargeProperties } from '~/core/serializers/serializePlanInput'
 import {
-  FixedChargeForDetailsV2FragmentDoc,
   UpdateSubscriptionFixedChargeInput,
   useUpdateSubscriptionFixedChargeMutation,
 } from '~/generated/graphql'
 
+// Intentionally select only `id` on the mutation result. FixedCharge is
+// normalised by id in the Apollo cache, and the mutation returns the
+// subscription-scoped (override-aware) units. Writing that back would
+// overwrite the plan-default units that plan-scope pages read from the same
+// cache entry. Override-aware reads use the dedicated
+// getSubscriptionFixedChargeUnitsOverrides query (fetchPolicy: 'no-cache').
 gql`
   mutation updateSubscriptionFixedCharge($input: UpdateSubscriptionFixedChargeInput!) {
     updateSubscriptionFixedCharge(input: $input) {
-      ...FixedChargeForDetailsV2
+      id
     }
   }
-
-  ${FixedChargeForDetailsV2FragmentDoc}
 `
 
 type Args = { subscriptionId: string }
 
 export const useSubscriptionFixedChargeMutations = ({ subscriptionId }: Args) => {
   const [updateSubscriptionFixedCharge] = useUpdateSubscriptionFixedChargeMutation({
-    refetchQueries: ['getSubscriptionForDetailsV2Plan'],
+    refetchQueries: ['getSubscriptionForDetailsV2Plan', 'getSubscriptionFixedChargeUnitsOverrides'],
     awaitRefetchQueries: true,
     onCompleted(data) {
       if (data?.updateSubscriptionFixedCharge?.id) {

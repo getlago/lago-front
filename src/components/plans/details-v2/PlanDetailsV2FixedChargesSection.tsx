@@ -97,11 +97,18 @@ type Props = {
   plan: PlanDetailsV2Fragment
   isInSubscriptionForm?: boolean
   fixedChargeMutations: FixedChargeMutations
+  // FixedCharge id → units to display when the row is rendered inside a
+  // subscription. Set by SubscriptionDetailsV2Plan from
+  // Subscription.fixedCharges. Absent in plan-scope rendering.
+  subscriptionFixedChargeUnitsById?: Record<string, string>
 }
 
 type FixedCharge = NonNullable<PlanDetailsV2Fragment['fixedCharges']>[number]
 
-const toLocalInput = (fixedCharge: FixedCharge): LocalFixedChargeInput => ({
+const toLocalInput = (
+  fixedCharge: FixedCharge,
+  effectiveUnits: string | null | undefined,
+): LocalFixedChargeInput => ({
   id: fixedCharge.id,
   code: fixedCharge.code,
   addOn: fixedCharge.addOn,
@@ -112,13 +119,19 @@ const toLocalInput = (fixedCharge: FixedCharge): LocalFixedChargeInput => ({
   properties: fixedCharge.properties ?? {},
   prorated: fixedCharge.prorated ?? false,
   taxes: fixedCharge.taxes ?? [],
-  units: fixedCharge.units ? String(fixedCharge.units) : '',
+  units: effectiveUnits ? String(effectiveUnits) : '',
 })
 
 export const PlanDetailsV2FixedChargesSection = forwardRef<
   PlanDetailsV2FixedChargesSectionRef,
   Props
->(({ plan, isInSubscriptionForm = false, fixedChargeMutations }, ref) => {
+>((props, ref) => {
+  const {
+    plan,
+    isInSubscriptionForm = false,
+    fixedChargeMutations,
+    subscriptionFixedChargeUnitsById,
+  } = props
   const { translate } = useInternationalization()
   const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
   const { gateOnClick, premiumIcon } = useSubscriptionPremiumGate(isInSubscriptionForm)
@@ -200,39 +213,46 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
         </Typography>
       )}
 
-      {fixedCharges.map((fixedCharge, index) => (
-        <SectionAccordion
-          key={fixedCharge.id}
-          id={fixedCharge.id}
-          icon="puzzle"
-          title={fixedCharge.invoiceDisplayName || fixedCharge.addOn.name}
-          subtitle={fixedCharge.code}
-          actions={[
-            {
-              label: translate('text_63e51ef4985f0ebd75c212fc'),
-              startIcon: 'pen',
-              endIcon: premiumIcon,
-              onClick: gateOnClick(() => openEdit(toLocalInput(fixedCharge), index)),
-              hidden: !canUpdate,
-            },
-            {
-              label: translate('text_63ea0f84f400488553caa786'),
-              startIcon: 'trash',
-              onClick: () => handleDelete(fixedCharge.id),
-              hidden: !canDelete,
-            },
-          ]}
-          noContentMargin
-        >
-          <FixedChargeInfo
-            fixedCharge={fixedCharge}
-            currency={plan.amountCurrency as CurrencyEnum}
-            planInterval={plan.interval as PlanInterval}
-            billFixedChargesMonthly={plan.billFixedChargesMonthly}
-            planTaxes={plan.taxes}
-          />
-        </SectionAccordion>
-      ))}
+      {fixedCharges.map((fixedCharge, index) => {
+        // In subscription mode, prefer the per-subscription override; otherwise
+        // fall back to the plan default carried on FixedCharge.units.
+        const effectiveUnits =
+          subscriptionFixedChargeUnitsById?.[fixedCharge.id] ?? fixedCharge.units
+
+        return (
+          <SectionAccordion
+            key={fixedCharge.id}
+            id={fixedCharge.id}
+            icon="puzzle"
+            title={fixedCharge.invoiceDisplayName || fixedCharge.addOn.name}
+            subtitle={fixedCharge.code}
+            actions={[
+              {
+                label: translate('text_63e51ef4985f0ebd75c212fc'),
+                startIcon: 'pen',
+                endIcon: premiumIcon,
+                onClick: gateOnClick(() => openEdit(toLocalInput(fixedCharge, effectiveUnits), index)),
+                hidden: !canUpdate,
+              },
+              {
+                label: translate('text_63ea0f84f400488553caa786'),
+                startIcon: 'trash',
+                onClick: () => handleDelete(fixedCharge.id),
+                hidden: !canDelete,
+              },
+            ]}
+            noContentMargin
+          >
+            <FixedChargeInfo
+              fixedCharge={{ ...fixedCharge, units: effectiveUnits }}
+              currency={plan.amountCurrency as CurrencyEnum}
+              planInterval={plan.interval as PlanInterval}
+              billFixedChargesMonthly={plan.billFixedChargesMonthly}
+              planTaxes={plan.taxes}
+            />
+          </SectionAccordion>
+        )
+      })}
 
       <PlanFormProvider
         currency={plan.amountCurrency as CurrencyEnum}
