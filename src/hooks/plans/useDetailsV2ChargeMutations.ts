@@ -8,7 +8,7 @@ import { useSubscriptionFixedChargeMutations } from '~/hooks/plans/useSubscripti
 
 type Args = {
   plan:
-    | Pick<PlanDetailsV2Fragment, 'id' | 'amountCurrency' | 'hasOverriddenPlans'>
+    | Pick<PlanDetailsV2Fragment, 'id' | 'amountCurrency' | 'hasOverriddenPlans' | 'fixedCharges'>
     | null
     | undefined
   subscriptionId?: string
@@ -37,7 +37,10 @@ export const useDetailsV2ChargeMutations = ({ plan, subscriptionId }: Args): Res
     subscriptionId: subscriptionId ?? '',
     currency,
   })
-  const subFixed = useSubscriptionFixedChargeMutations({ subscriptionId: subscriptionId ?? '' })
+  const subFixed = useSubscriptionFixedChargeMutations({
+    subscriptionId: subscriptionId ?? '',
+    fixedCharges: plan?.fixedCharges,
+  })
 
   return subscriptionId
     ? { usageChargeMutations: subUsage, fixedChargeMutations: subFixed }
