@@ -15,10 +15,8 @@ import { matchPath } from 'react-router-dom'
 import {
   addToast,
   AUTH_TOKEN_LS_KEY,
-  CUSTOMER_PORTAL_TOKEN_LS_KEY,
   envGlobalVar,
   getCurrentOrganizationId,
-  TMP_AUTH_TOKEN_LS_KEY,
   updateAuthTokenVar,
 } from '~/core/apolloClient/reactiveVars'
 import { buildWebSocketUrl } from '~/core/apolloClient/websocketUrl'
@@ -26,6 +24,7 @@ import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
 import { generateRandomHexId } from '~/core/utils/generateRandomHexId'
 import { LagoApiError } from '~/generated/graphql'
 
+import { buildAuthHeaders } from './authHeaders'
 import { cache } from './cache'
 import { getItemFromLS, omitDeep } from './cacheUtils'
 import { resolvers, typeDefs } from './graphqlResolvers'
@@ -67,16 +66,11 @@ export const setAuthErrorHandler = (handler: () => void) => {
 export const initializeApolloClient = async () => {
   const authLink = new ApolloLink((operation, forward) => {
     const { headers } = operation.getContext()
-    const token = getItemFromLS(AUTH_TOKEN_LS_KEY) || getItemFromLS(TMP_AUTH_TOKEN_LS_KEY)
-    const customerPortalToken = getItemFromLS(CUSTOMER_PORTAL_TOKEN_LS_KEY)
-    const currentOrganizationId = getCurrentOrganizationId()
 
     operation.setContext({
       headers: {
         ...headers,
-        ...(!token ? {} : { authorization: `Bearer ${token}` }),
-        ...(!customerPortalToken ? {} : { 'customer-portal-token': customerPortalToken }),
-        'x-lago-organization': currentOrganizationId,
+        ...buildAuthHeaders(window.location.pathname),
       },
     })
 
