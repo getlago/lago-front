@@ -1,7 +1,9 @@
 import { gql } from '@apollo/client'
 import { ReactNode, useRef } from 'react'
 
+import { openAccordionThenScrollTo } from '~/core/utils/domUtils'
 import {
+  EntitlementForPlanDetailsSidebarFragmentDoc,
   FixedChargeForPlanDetailsSidebarFragmentDoc,
   LagoApiError,
   PlanForDetailsV2AdvancedSectionFragmentDoc,
@@ -13,6 +15,7 @@ import {
 } from '~/generated/graphql'
 import { useDetailsV2ChargeMutations } from '~/hooks/plans/useDetailsV2ChargeMutations'
 
+import { EntitlementAccordionRef } from './accordions/EntitlementAccordion'
 import { PlanDetailsV2AdvancedSection } from './PlanDetailsV2AdvancedSection'
 import {
   PlanDetailsV2FixedChargesSection,
@@ -36,6 +39,9 @@ gql`
     charges {
       ...UsageChargeForPlanDetailsSidebar
     }
+    entitlements {
+      ...EntitlementForPlanDetailsSidebar
+    }
     ...PlanForDetailsV2PlanSettingsSection
     ...PlanForDetailsV2FixedChargesSection
     ...PlanForDetailsV2UsageChargesSection
@@ -50,6 +56,7 @@ gql`
 
   ${FixedChargeForPlanDetailsSidebarFragmentDoc}
   ${UsageChargeForPlanDetailsSidebarFragmentDoc}
+  ${EntitlementForPlanDetailsSidebarFragmentDoc}
   ${PlanForDetailsV2PlanSettingsSectionFragmentDoc}
   ${PlanForDetailsV2FixedChargesSectionFragmentDoc}
   ${PlanForDetailsV2UsageChargesSectionFragmentDoc}
@@ -83,14 +90,16 @@ export const PlanDetailsV2 = ({
 
   const fixedChargesRef = useRef<PlanDetailsV2FixedChargesSectionRef>(null)
   const usageChargesRef = useRef<PlanDetailsV2UsageChargesSectionRef>(null)
+  const entitlementRef = useRef<EntitlementAccordionRef>(null)
 
   const { usageChargeMutations, fixedChargeMutations } = useDetailsV2ChargeMutations({
     plan: data?.plan,
     subscriptionId,
   })
 
+  // BIL-160: open the target accordion first, then scroll to + focus it.
   const handleItemClick = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    openAccordionThenScrollTo(id)
   }
 
   const handleAddClick = (id: string) => {
@@ -99,6 +108,9 @@ export const PlanDetailsV2 = ({
     }
     if (id === PlanDetailsV2SectionId.UsageCharges) {
       usageChargesRef.current?.openCreate()
+    }
+    if (id === PlanDetailsV2SectionId.Entitlements) {
+      entitlementRef.current?.openCreate()
     }
   }
 
@@ -118,6 +130,7 @@ export const PlanDetailsV2 = ({
         isInSubscriptionForm={isInSubscriptionForm}
         fixedCharges={plan.fixedCharges ?? []}
         usageCharges={plan.charges ?? []}
+        entitlements={plan.entitlements ?? []}
         onItemClick={handleItemClick}
         onAddClick={handleAddClick}
       />
@@ -165,6 +178,7 @@ export const PlanDetailsV2 = ({
             plan={plan}
             isInSubscriptionForm={isInSubscriptionForm}
             subscriptionId={subscriptionId}
+            entitlementRef={entitlementRef}
           />
         </div>
       </div>
