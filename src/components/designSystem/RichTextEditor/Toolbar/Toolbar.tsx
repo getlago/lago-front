@@ -253,6 +253,10 @@ const Toolbar = ({ editor }: ToolbarProps) => {
     },
   ]
 
+  const activeTextStyle = textStylings.find((s) => s.isActive)
+  const hasNoActiveStyle = !activeTextStyle // selection spans mixed styles
+  const isTextStyleActive = !editorState.isParagraph && !!activeTextStyle
+
   const renderGroup = (name: GroupName) => {
     switch (name) {
       case 'undoRedo':
@@ -289,7 +293,8 @@ const Toolbar = ({ editor }: ToolbarProps) => {
                 <ToolbarButton
                   testId={TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}
                   tooltip={translate('text_1774862470019c5cxqnwghwv')}
-                  isActive={false}
+                  isActive={isTextStyleActive}
+                  isDisabled={hasNoActiveStyle}
                 >
                   <Icon name="h1" />
                 </ToolbarButton>
