@@ -26,9 +26,9 @@ const TableCell = ({
     <MUITableCell
       className={tw('lago-table-cell', 'w-auto whitespace-nowrap p-0', className, tdCellClassName)}
       style={{
-        width: !!maxSpace ? `${maxSpace}%` : 'auto',
-        borderBottom: !!hasPlaceholderDisplayed ? 'none' : `1px solid ${theme.palette.grey[300]}`,
-        boxShadow: !!isBlurred ? theme.shadows[7] : 'none',
+        width: maxSpace ? `${maxSpace}%` : 'auto',
+        borderBottom: hasPlaceholderDisplayed ? 'none' : `1px solid ${theme.palette.grey[300]}`,
+        boxShadow: isBlurred ? theme.shadows[7] : 'none',
       }}
       sx={{
         '& > div': {
