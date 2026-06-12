@@ -123,6 +123,10 @@
     @apply relative min-w-[100px] border border-grey-300 px-3 py-2 text-base leading-6;
   }
 
+  .lago-table-cell {
+    @apply px-0;
+  }
+
   --cell-highlight-size: 2px;
   --cell-highlight-color: theme('colors.blue.600');
 

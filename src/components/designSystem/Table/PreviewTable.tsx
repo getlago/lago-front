@@ -62,11 +62,7 @@ export const PreviewTable = <T,>({
         }}
       >
         <MUITableHead>
-          <MUITableRow
-            sx={{
-              borderBottom: `1px solid ${theme.palette.grey[300]}`,
-            }}
-          >
+          <MUITableRow className="border-b border-grey-300">
             {columns.map((column, i) => (
               <MUITableCell
                 className={tw('lago-table-cell', 'w-auto whitespace-nowrap p-0')}
