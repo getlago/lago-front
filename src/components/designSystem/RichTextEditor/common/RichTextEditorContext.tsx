@@ -27,7 +27,7 @@ export interface PricingCommandParams {
     entityData: Record<string, EntityData>,
     billingItems?: BillingItemsPayload,
   ) => void
-  editData?: { pricingType: PricingType; entityIds: string[] }
+  editData?: { pricingType: PricingType; entityIds: string[]; localEntityIds?: string[] }
 }
 
 export type OnPricingCommand = (params: PricingCommandParams) => void

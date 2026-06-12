@@ -192,6 +192,7 @@ const RichTextEditor = ({
           blocks.push({
             pricingType: node.attrs.pricingType,
             entityIds: node.attrs.entityIds,
+            localEntityIds: node.attrs.localEntityIds,
           })
         }
       })

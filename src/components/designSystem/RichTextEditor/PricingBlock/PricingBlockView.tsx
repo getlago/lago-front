@@ -28,9 +28,11 @@ export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
 
   const pricingType = (node.attrs.pricingType ?? 'plan') as PricingType
   const entityIds = (node.attrs.entityIds ?? []) as string[]
+  const localEntityIds = (node.attrs.localEntityIds ?? []) as string[]
   const isEmpty = entityIds.length === 0
 
-  const resolvedEntities = entityIds.map((id) => entities[id]).filter(Boolean)
+  const lookupIds = localEntityIds.length > 0 ? localEntityIds : entityIds
+  const resolvedEntities = lookupIds.map((id) => entities[id]).filter(Boolean)
   const hasResolved = resolvedEntities.length > 0
 
   // Preview mode: dispatch by pricing type
@@ -56,7 +58,7 @@ export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
       onSave: (attrs) => {
         updateAttributes(attrs)
       },
-      editData: isEmpty ? undefined : { pricingType, entityIds },
+      editData: isEmpty ? undefined : { pricingType, entityIds, localEntityIds },
     })
   }
 

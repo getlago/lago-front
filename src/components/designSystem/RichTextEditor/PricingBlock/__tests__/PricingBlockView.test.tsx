@@ -225,7 +225,7 @@ describe('PricingBlockView', () => {
         expect(onPricingCommand).toHaveBeenCalledWith(
           expect.objectContaining({
             onSave: expect.any(Function),
-            editData: { pricingType: 'plan', entityIds: ['plan-1'] },
+            editData: { pricingType: 'plan', entityIds: ['plan-1'], localEntityIds: [] },
           }),
         )
       })

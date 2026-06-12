@@ -10,6 +10,16 @@ import { usePricingDrawer } from '../usePricingDrawer'
 
 // --- Mocks ---
 
+const mockCryptoRandomUUID = jest.fn(() => 'mock-uuid-1')
+
+Object.defineProperty(globalThis, 'crypto', {
+  value: {
+    ...globalThis.crypto,
+    randomUUID: mockCryptoRandomUUID,
+  },
+  writable: true,
+})
+
 const mockFormDrawerOpen = jest.fn()
 const mockFormDrawerClose = jest.fn()
 
@@ -146,6 +156,7 @@ describe('usePricingDrawer', () => {
     jest.clearAllMocks()
     capturedOnSubmit = null
     mockFormValues = { planId: '', addOnItems: [] }
+    mockCryptoRandomUUID.mockReturnValue('mock-uuid-1')
   })
 
   describe('GIVEN the hook is called', () => {
@@ -173,8 +184,8 @@ describe('usePricingDrawer', () => {
       it('THEN should call fromBillingItems and populate entities', () => {
         mockedFromBillingItems.mockReturnValue({
           entities: {
-            'addon-1': {
-              entityId: 'addon-1',
+            'local-uuid-1': {
+              entityId: 'local-uuid-1',
               entityType: 'addOn',
               name: 'Setup Fee',
               invoiceDisplayName: 'Setup',
@@ -188,9 +199,23 @@ describe('usePricingDrawer', () => {
             },
           },
           originalPayloads: {
-            'addon-1': mockAddOnPayload,
+            'local-uuid-1': mockAddOnPayload,
           },
-          addOnItems: [],
+          addOnItems: [
+            {
+              localId: 'local-uuid-1',
+              addOnId: 'addon-1',
+              name: 'Setup Fee',
+              invoiceDisplayName: 'Setup',
+              code: 'setup',
+              description: 'One-time setup fee',
+              units: '1',
+              unitAmountCents: '10000',
+              totalAmount: '10000',
+              fromDatetime: '',
+              toDatetime: '',
+            },
+          ],
         })
 
         const { result } = renderHook(
@@ -199,9 +224,16 @@ describe('usePricingDrawer', () => {
         )
 
         expect(mockedFromBillingItems).toHaveBeenCalledWith(mockBillingItemsPayload)
+        // Entities should include both localId-keyed and backward-compat catalog-keyed entries
         expect(result.current.entities).toEqual({
+          'local-uuid-1': expect.objectContaining({
+            entityId: 'local-uuid-1',
+            entityType: 'addOn',
+            name: 'Setup Fee',
+            code: 'setup',
+          }),
           'addon-1': expect.objectContaining({
-            entityId: 'addon-1',
+            entityId: 'local-uuid-1',
             entityType: 'addOn',
             name: 'Setup Fee',
             code: 'setup',
@@ -292,17 +324,19 @@ describe('usePricingDrawer', () => {
       it('THEN should return true', () => {
         mockedFromBillingItems.mockReturnValue({
           entities: {
-            'addon-1': {
-              entityId: 'addon-1',
+            'local-uuid-1': {
+              entityId: 'local-uuid-1',
               entityType: 'addOn',
               name: 'Setup Fee',
               code: 'setup',
             },
           },
           originalPayloads: {
-            'addon-1': mockAddOnPayload,
+            'local-uuid-1': mockAddOnPayload,
           },
-          addOnItems: [],
+          addOnItems: [
+            { localId: 'local-uuid-1', addOnId: 'addon-1', name: 'Setup Fee', code: 'setup' },
+          ],
         })
 
         const { result } = renderHook(
@@ -326,17 +360,19 @@ describe('usePricingDrawer', () => {
       it('THEN should return false', () => {
         mockedFromBillingItems.mockReturnValue({
           entities: {
-            'addon-1': {
-              entityId: 'addon-1',
+            'local-uuid-1': {
+              entityId: 'local-uuid-1',
               entityType: 'addOn',
               name: 'Setup Fee',
               code: 'setup',
             },
           },
           originalPayloads: {
-            'addon-1': mockAddOnPayload,
+            'local-uuid-1': mockAddOnPayload,
           },
-          addOnItems: [],
+          addOnItems: [
+            { localId: 'local-uuid-1', addOnId: 'addon-1', name: 'Setup Fee', code: 'setup' },
+          ],
         })
 
         const { result } = renderHook(
@@ -354,17 +390,19 @@ describe('usePricingDrawer', () => {
       it('THEN should not open the form drawer', () => {
         mockedFromBillingItems.mockReturnValue({
           entities: {
-            'addon-1': {
-              entityId: 'addon-1',
+            'local-uuid-1': {
+              entityId: 'local-uuid-1',
               entityType: 'addOn',
               name: 'Setup Fee',
               code: 'setup',
             },
           },
           originalPayloads: {
-            'addon-1': mockAddOnPayload,
+            'local-uuid-1': mockAddOnPayload,
           },
-          addOnItems: [],
+          addOnItems: [
+            { localId: 'local-uuid-1', addOnId: 'addon-1', name: 'Setup Fee', code: 'setup' },
+          ],
         })
 
         const { result } = renderHook(
@@ -385,19 +423,20 @@ describe('usePricingDrawer', () => {
   })
 
   describe('GIVEN syncEntitiesWithBlocks is called', () => {
-    describe('WHEN all entities are referenced in blocks', () => {
+    describe('WHEN all entities are referenced in blocks (no backward-compat entries)', () => {
       it('THEN should return null indicating no orphans', () => {
+        // Return entities keyed only by localId — no addOnItems means no backward-compat entries
         mockedFromBillingItems.mockReturnValue({
           entities: {
-            'addon-1': {
-              entityId: 'addon-1',
+            'local-uuid-1': {
+              entityId: 'local-uuid-1',
               entityType: 'addOn',
               name: 'Setup Fee',
               code: 'setup',
             },
           },
           originalPayloads: {
-            'addon-1': mockAddOnPayload,
+            'local-uuid-1': mockAddOnPayload,
           },
           addOnItems: [],
         })
@@ -407,7 +446,13 @@ describe('usePricingDrawer', () => {
           { wrapper },
         )
 
-        const blocks = [{ pricingType: 'addOns' as const, entityIds: ['addon-1'] }]
+        const blocks = [
+          {
+            pricingType: 'addOns' as const,
+            entityIds: ['addon-1'],
+            localEntityIds: ['local-uuid-1'],
+          },
+        ]
 
         let syncResult: unknown
 
@@ -416,6 +461,56 @@ describe('usePricingDrawer', () => {
         })
 
         expect(syncResult).toBeNull()
+      })
+    })
+
+    describe('WHEN all entities are referenced in blocks (with backward-compat entries)', () => {
+      it('THEN should clean up backward-compat keys and return updated billing items', () => {
+        // Hydration creates both localId-keyed and backward-compat catalog-keyed entries
+        mockedFromBillingItems.mockReturnValue({
+          entities: {
+            'local-uuid-1': {
+              entityId: 'local-uuid-1',
+              entityType: 'addOn',
+              name: 'Setup Fee',
+              code: 'setup',
+            },
+          },
+          originalPayloads: {
+            'local-uuid-1': mockAddOnPayload,
+          },
+          addOnItems: [
+            { localId: 'local-uuid-1', addOnId: 'addon-1', name: 'Setup Fee', code: 'setup' },
+          ],
+        })
+
+        const { result } = renderHook(
+          () => usePricingDrawer(OrderTypeEnum.OneOff, mockBillingItemsPayload),
+          { wrapper },
+        )
+
+        // After hydration, entities has both 'local-uuid-1' and 'addon-1' (backward-compat)
+        expect(result.current.entities).toHaveProperty('local-uuid-1')
+        expect(result.current.entities).toHaveProperty('addon-1')
+
+        const blocks = [
+          {
+            pricingType: 'addOns' as const,
+            entityIds: ['addon-1'],
+            localEntityIds: ['local-uuid-1'],
+          },
+        ]
+
+        let syncResult: unknown
+
+        act(() => {
+          syncResult = result.current.syncEntitiesWithBlocks(blocks)
+        })
+
+        // Backward-compat key 'addon-1' was orphaned and cleaned up
+        expect(syncResult).not.toBeNull()
+        expect(result.current.entities).toHaveProperty('local-uuid-1')
+        expect(result.current.entities).not.toHaveProperty('addon-1')
       })
     })
 
@@ -430,24 +525,32 @@ describe('usePricingDrawer', () => {
 
         mockedFromBillingItems.mockReturnValue({
           entities: {
-            'addon-1': {
-              entityId: 'addon-1',
+            'local-uuid-1': {
+              entityId: 'local-uuid-1',
               entityType: 'addOn',
               name: 'Setup Fee',
               code: 'setup',
             },
-            'addon-2': {
-              entityId: 'addon-2',
+            'local-uuid-2': {
+              entityId: 'local-uuid-2',
               entityType: 'addOn',
               name: 'Onboarding Fee',
               code: 'onboarding',
             },
           },
           originalPayloads: {
-            'addon-1': mockAddOnPayload,
-            'addon-2': secondPayload,
+            'local-uuid-1': mockAddOnPayload,
+            'local-uuid-2': secondPayload,
           },
-          addOnItems: [],
+          addOnItems: [
+            { localId: 'local-uuid-1', addOnId: 'addon-1', name: 'Setup Fee', code: 'setup' },
+            {
+              localId: 'local-uuid-2',
+              addOnId: 'addon-2',
+              name: 'Onboarding Fee',
+              code: 'onboarding',
+            },
+          ],
         })
 
         const billingItemsWithTwo = {
@@ -472,8 +575,14 @@ describe('usePricingDrawer', () => {
           { wrapper },
         )
 
-        // Blocks only reference addon-1, so addon-2 becomes orphaned
-        const blocks = [{ pricingType: 'addOns' as const, entityIds: ['addon-1'] }]
+        // Blocks only reference local-uuid-1, so local-uuid-2 becomes orphaned
+        const blocks = [
+          {
+            pricingType: 'addOns' as const,
+            entityIds: ['addon-1'],
+            localEntityIds: ['local-uuid-1'],
+          },
+        ]
 
         let syncResult: unknown
 
@@ -485,13 +594,13 @@ describe('usePricingDrawer', () => {
 
         const payload = syncResult as { addons: Array<{ id: string }> }
 
-        // Only addon-1 should remain
+        // Only local-uuid-1 should remain
         expect(payload.addons).toHaveLength(1)
-        expect(payload.addons[0].id).toBe('addon-1')
+        expect(payload.addons[0].id).toBe('local-uuid-1')
 
-        // Entities should no longer include addon-2
-        expect(result.current.entities).toHaveProperty('addon-1')
-        expect(result.current.entities).not.toHaveProperty('addon-2')
+        // Entities should no longer include local-uuid-2
+        expect(result.current.entities).toHaveProperty('local-uuid-1')
+        expect(result.current.entities).not.toHaveProperty('local-uuid-2')
       })
     })
 
@@ -499,7 +608,7 @@ describe('usePricingDrawer', () => {
       it('THEN should return null', () => {
         const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), { wrapper })
 
-        const blocks = [{ pricingType: 'addOns' as const, entityIds: [] }]
+        const blocks = [{ pricingType: 'addOns' as const, entityIds: [], localEntityIds: [] }]
 
         let syncResult: unknown
 
@@ -538,8 +647,8 @@ describe('usePricingDrawer', () => {
       it('THEN should reset the form with initialAddOnItems from entity data', () => {
         mockedFromBillingItems.mockReturnValue({
           entities: {
-            'addon-1': {
-              entityId: 'addon-1',
+            'local-uuid-1': {
+              entityId: 'local-uuid-1',
               entityType: 'addOn',
               name: 'Setup Fee',
               invoiceDisplayName: 'Setup',
@@ -552,8 +661,22 @@ describe('usePricingDrawer', () => {
               toDatetime: '2026-01-31T23:59:59.999Z',
             },
           },
-          originalPayloads: { 'addon-1': mockAddOnPayload },
-          addOnItems: [],
+          originalPayloads: { 'local-uuid-1': mockAddOnPayload },
+          addOnItems: [
+            {
+              localId: 'local-uuid-1',
+              addOnId: 'addon-1',
+              name: 'Setup Fee',
+              invoiceDisplayName: 'Setup',
+              code: 'setup',
+              description: 'One-time setup',
+              units: '2',
+              unitAmountCents: '5000',
+              totalAmount: '10000',
+              fromDatetime: '2026-01-01T00:00:00.000Z',
+              toDatetime: '2026-01-31T23:59:59.999Z',
+            },
+          ],
         })
 
         const { result } = renderHook(
@@ -564,7 +687,11 @@ describe('usePricingDrawer', () => {
         act(() => {
           result.current.onPricingCommand({
             onSave: jest.fn(),
-            editData: { pricingType: 'addOns', entityIds: ['addon-1'] },
+            editData: {
+              pricingType: 'addOns',
+              entityIds: ['addon-1'],
+              localEntityIds: ['local-uuid-1'],
+            },
           })
         })
 
@@ -573,6 +700,7 @@ describe('usePricingDrawer', () => {
             planId: '',
             addOnItems: expect.arrayContaining([
               expect.objectContaining({
+                localId: 'local-uuid-1',
                 addOnId: 'addon-1',
                 name: 'Setup Fee',
                 code: 'setup',
@@ -591,15 +719,17 @@ describe('usePricingDrawer', () => {
       it('THEN should still open the drawer (bypass the one-off guard for edits)', () => {
         mockedFromBillingItems.mockReturnValue({
           entities: {
-            'addon-1': {
-              entityId: 'addon-1',
+            'local-uuid-1': {
+              entityId: 'local-uuid-1',
               entityType: 'addOn',
               name: 'Setup Fee',
               code: 'setup',
             },
           },
-          originalPayloads: { 'addon-1': mockAddOnPayload },
-          addOnItems: [],
+          originalPayloads: { 'local-uuid-1': mockAddOnPayload },
+          addOnItems: [
+            { localId: 'local-uuid-1', addOnId: 'addon-1', name: 'Setup Fee', code: 'setup' },
+          ],
         })
 
         const { result } = renderHook(
@@ -610,7 +740,11 @@ describe('usePricingDrawer', () => {
         act(() => {
           result.current.onPricingCommand({
             onSave: jest.fn(),
-            editData: { pricingType: 'addOns', entityIds: ['addon-1'] },
+            editData: {
+              pricingType: 'addOns',
+              entityIds: ['addon-1'],
+              localEntityIds: ['local-uuid-1'],
+            },
           })
         })
 
@@ -781,11 +915,12 @@ describe('usePricingDrawer', () => {
           })
         })
 
-        // Simulate confirmed add-on items
+        // Simulate confirmed add-on items (now includes localId)
         mockFormValues = {
           planId: '',
           addOnItems: [
             {
+              localId: 'local-uuid-1',
               addOnId: 'addon-1',
               name: 'Setup Fee',
               invoiceDisplayName: 'Setup',
@@ -805,10 +940,14 @@ describe('usePricingDrawer', () => {
         })
 
         expect(mockOnSave).toHaveBeenCalledWith(
-          { pricingType: 'addOns', entityIds: ['addon-1'] },
+          {
+            pricingType: 'addOns',
+            entityIds: ['addon-1'],
+            localEntityIds: ['local-uuid-1'],
+          },
           expect.objectContaining({
-            'addon-1': expect.objectContaining({
-              entityId: 'addon-1',
+            'local-uuid-1': expect.objectContaining({
+              entityId: 'local-uuid-1',
               entityType: 'addOn',
               name: 'Setup Fee',
               units: '2',
@@ -817,8 +956,8 @@ describe('usePricingDrawer', () => {
           undefined, // toBillingItems is mocked, returns undefined
         )
 
-        // Entities should be updated
-        expect(result.current.entities).toHaveProperty('addon-1')
+        // Entities should be updated (keyed by localId)
+        expect(result.current.entities).toHaveProperty('local-uuid-1')
       })
     })
 
@@ -840,7 +979,7 @@ describe('usePricingDrawer', () => {
         // Only pending items (empty addOnId)
         mockFormValues = {
           planId: '',
-          addOnItems: [{ addOnId: '', name: '', code: '' }],
+          addOnItems: [{ localId: 'local-uuid-pending', addOnId: '', name: '', code: '' }],
         }
 
         act(() => {
@@ -870,9 +1009,9 @@ describe('usePricingDrawer', () => {
 
         expect(captureCallback).toBeDefined()
 
-        // Invoke it to exercise captureAddOnPayload (lines 82-93)
+        // Invoke it to exercise captureAddOnPayload — first param is localId
         act(() => {
-          captureCallback('addon-new', {
+          captureCallback('local-uuid-new', {
             id: 'addon-new',
             code: 'onboarding',
             name: 'Onboarding Fee',
@@ -889,6 +1028,7 @@ describe('usePricingDrawer', () => {
           planId: '',
           addOnItems: [
             {
+              localId: 'local-uuid-new',
               addOnId: 'addon-new',
               name: 'Onboarding Fee',
               invoiceDisplayName: 'Onboarding',
@@ -909,7 +1049,11 @@ describe('usePricingDrawer', () => {
         act(() => {
           result.current.onPricingCommand({
             onSave: mockOnSave,
-            editData: { pricingType: 'addOns', entityIds: ['addon-new'] },
+            editData: {
+              pricingType: 'addOns',
+              entityIds: ['addon-new'],
+              localEntityIds: ['local-uuid-new'],
+            },
           })
         })
 
@@ -918,9 +1062,13 @@ describe('usePricingDrawer', () => {
         })
 
         expect(mockOnSave).toHaveBeenCalledWith(
-          expect.objectContaining({ pricingType: 'addOns', entityIds: ['addon-new'] }),
           expect.objectContaining({
-            'addon-new': expect.objectContaining({ entityId: 'addon-new' }),
+            pricingType: 'addOns',
+            entityIds: ['addon-new'],
+            localEntityIds: ['local-uuid-new'],
+          }),
+          expect.objectContaining({
+            'local-uuid-new': expect.objectContaining({ entityId: 'local-uuid-new' }),
           }),
           undefined, // toBillingItems is mocked, returns undefined
         )
@@ -956,15 +1104,17 @@ describe('usePricingDrawer', () => {
       it('THEN should return false', () => {
         mockedFromBillingItems.mockReturnValue({
           entities: {
-            'addon-1': {
-              entityId: 'addon-1',
+            'local-uuid-1': {
+              entityId: 'local-uuid-1',
               entityType: 'addOn',
               name: 'Setup Fee',
               code: 'setup',
             },
           },
-          originalPayloads: { 'addon-1': mockAddOnPayload },
-          addOnItems: [],
+          originalPayloads: { 'local-uuid-1': mockAddOnPayload },
+          addOnItems: [
+            { localId: 'local-uuid-1', addOnId: 'addon-1', name: 'Setup Fee', code: 'setup' },
+          ],
         })
 
         const { result } = renderHook(
@@ -985,6 +1135,7 @@ const pricingDrawerValidationSchema = z
     planId: z.string(),
     addOnItems: z.array(
       z.object({
+        localId: z.string(),
         addOnId: z.string(),
         name: z.string(),
         invoiceDisplayName: z.string(),
@@ -1033,6 +1184,7 @@ const pricingDrawerValidationSchema = z
   })
 
 const validAddOnItem = {
+  localId: 'local-uuid-valid',
   addOnId: 'addon-1',
   name: 'Setup Fee',
   invoiceDisplayName: 'Setup',
@@ -1047,6 +1199,7 @@ const validAddOnItem = {
 
 const pendingAddOnItem = {
   ...validAddOnItem,
+  localId: 'local-uuid-pending',
   addOnId: '', // pending — no addOnId selected yet
 }
 
