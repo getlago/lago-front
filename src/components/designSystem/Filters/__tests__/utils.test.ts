@@ -6,12 +6,14 @@ import {
   FILTER_VALUE_MAP,
   formatActiveFilterValueDisplay,
   formatFiltersForCreditNotesQuery,
+  formatFiltersForCustomerQuery,
   formatFiltersForInvoiceQuery,
   formatFiltersForMrrQuery,
   formatFiltersForQuery,
   formatFiltersForQuotesQuery,
   formatFiltersForRevenueStreamsQuery,
   formatFiltersForSecurityLogsQuery,
+  formatFiltersForSubscriptionQuery,
   formatFiltersForWebhookLogsQuery,
   formatMetadataFilter,
   getFilterValue,
@@ -161,6 +163,103 @@ describe('Filters utils', () => {
     })
   })
 
+  describe('formatFiltersForCustomerQuery', () => {
+    it('should format filters for customer query', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('cu_externalId', 'customer_external_id_123')
+      searchParams.set('cu_customerType', 'company')
+      searchParams.set('cu_countries', 'US,FR')
+      searchParams.set('cu_currencies', 'USD,EUR')
+      searchParams.set('cu_zipcodes', '12345,67890')
+
+      const result = formatFiltersForCustomerQuery(searchParams)
+
+      expect(result).toEqual({
+        externalId: 'customer_external_id_123',
+        customerType: 'company',
+        countries: ['US', 'FR'],
+        currencies: ['USD', 'EUR'],
+        zipcodes: ['12345', '67890'],
+      })
+    })
+
+    it('should rename activeSubscriptions keys for customer query', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('cu_activeSubscriptions', 'isBetween,2,5')
+
+      const result = formatFiltersForCustomerQuery(searchParams)
+
+      expect(result).toEqual({
+        activeSubscriptionsCountFrom: 2,
+        activeSubscriptionsCountTo: 5,
+      })
+    })
+
+    it('should map isCustomerTinEmpty ("Customer has Tax ID") onto hasTaxIdentificationNumber', () => {
+      const searchParams = new URLSearchParams()
+
+      // The URL value reflects the "Customer has Tax ID" label: 'true' means the customer has one
+      searchParams.set('cu_isCustomerTinEmpty', 'true')
+
+      expect(formatFiltersForCustomerQuery(searchParams)).toEqual({
+        hasTaxIdentificationNumber: true,
+      })
+
+      searchParams.set('cu_isCustomerTinEmpty', 'false')
+
+      expect(formatFiltersForCustomerQuery(searchParams)).toEqual({
+        hasTaxIdentificationNumber: false,
+      })
+    })
+
+    it('should return empty object when filters are not valid', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('invalidFilter', 'value')
+
+      const result = formatFiltersForCustomerQuery(searchParams)
+
+      expect(result).toEqual({})
+    })
+  })
+
+  describe('formatFiltersForSubscriptionQuery', () => {
+    it('should format filters for subscription query', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('sub_externalId', 'subscription_external_id_123')
+      searchParams.set('sub_planCode', 'planCodeValue')
+      searchParams.set('sub_overriden', 'true')
+      searchParams.set('sub_subscriptionStatus', 'active,pending')
+      searchParams.set(
+        'sub_customerExternalId',
+        `externalCustomerIdValue${filterDataInlineSeparator}my name to be displayed`,
+      )
+
+      const result = formatFiltersForSubscriptionQuery(searchParams)
+
+      expect(result).toEqual({
+        externalId: 'subscription_external_id_123',
+        planCode: 'planCodeValue',
+        overriden: true,
+        status: ['active', 'pending'],
+        externalCustomerId: 'externalCustomerIdValue',
+      })
+    })
+
+    it('should return empty object when filters are not valid', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('invalidFilter', 'value')
+
+      const result = formatFiltersForSubscriptionQuery(searchParams)
+
+      expect(result).toEqual({})
+    })
+  })
+
   describe('formatFiltersForMrrQuery', () => {
     it('should format filters for MRR query', () => {
       const searchParams = new URLSearchParams()
@@ -273,6 +372,14 @@ describe('Filters utils', () => {
       )
 
       expect(result).toBe('1234')
+    })
+    it('should format active filter externalId value display keeping the raw value', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.externalId,
+        'external_id_123',
+      )
+
+      expect(result).toBe('external_id_123')
     })
     it('should format active filter timeGranularity value display', () => {
       const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.timeGranularity, 'daily')

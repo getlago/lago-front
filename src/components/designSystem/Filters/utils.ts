@@ -165,6 +165,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.customerAccountType]: (value: string) => value,
   [AvailableFiltersEnum.customerExternalId]: (value: string) =>
     (value as string).split(filterDataInlineSeparator)[0],
+  [AvailableFiltersEnum.externalId]: (value: string) => value,
   [AvailableFiltersEnum.isCustomerTinEmpty]: (value: string) =>
     value !== IsCustomerTinEmptyEnum.True,
   [AvailableFiltersEnum.date]: (value: string) => {
@@ -682,6 +683,8 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.billableMetricCode:
       return value
     case AvailableFiltersEnum.billingEntityCode:
+      return value
+    case AvailableFiltersEnum.externalId:
       return value
     default:
       return value
