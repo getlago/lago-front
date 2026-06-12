@@ -227,7 +227,7 @@
   }
 
   .block-type-tag {
-    @apply self-start rounded-tl-xl rounded-tr-xl bg-grey-300 px-2 py-0.5;
+    @apply self-start rounded-tl-xl rounded-tr-xl border border-b-0 border-grey-400 bg-grey-100 px-2 py-0.5;
   }
 
   .icon-wrapper {
