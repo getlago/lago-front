@@ -416,7 +416,9 @@ const AddOnSelectionContent = withForm({
                         {addOn.name}
                       </Typography>
                       <Typography variant="caption" color="grey600" noWrap>
-                        {addOn.code}
+                        {intlFormatNumber(addOn.amountCents / 100, {
+                          currency: addOn.amountCurrency,
+                        })}
                       </Typography>
                     </ComboboxItem>
                   ),
