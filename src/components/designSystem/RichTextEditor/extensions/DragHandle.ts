@@ -199,6 +199,38 @@ export const DragHandle = Extension.create({
     return [
       new Plugin({
         key: dragHandlePluginKey,
+        view(editorView) {
+          const handleOutsideClick = (event: MouseEvent) => {
+            const target = event.target as HTMLElement
+            const editorContainer = editorView.dom.closest('.rich-text-editor')
+
+            if (!editorContainer || editorContainer.contains(target)) return
+
+            const { selection } = editorView.state
+            const isNodeSelected = selection instanceof NodeSelection
+            const isTableSelected = storage.selectedBlock !== null
+
+            if (!isNodeSelected && !isTableSelected) return
+
+            storage.selectedBlock = null
+            storage.hideMenu = false
+
+            const $pos = editorView.state.doc.resolve(
+              Math.min(selection.from, editorView.state.doc.content.size),
+            )
+            const textSel = TextSelection.near($pos)
+
+            editorView.dispatch(editorView.state.tr.setSelection(textSel))
+          }
+
+          document.addEventListener('mousedown', handleOutsideClick)
+
+          return {
+            destroy() {
+              document.removeEventListener('mousedown', handleOutsideClick)
+            },
+          }
+        },
         state: {
           init(_, state) {
             return buildDecorations(state.doc)
