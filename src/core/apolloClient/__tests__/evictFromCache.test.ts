@@ -206,6 +206,69 @@ describe('evictFromCache', () => {
     })
   })
 
+  describe('GIVEN a detail query field referencing the entity', () => {
+    describe('WHEN evicting that entity', () => {
+      it('THEN should null out the root field (present, not missing) so the diff stays complete', () => {
+        const client = createTestClient()
+
+        seedCache(client)
+
+        // Seed the detail query field: ROOT_QUERY.item({"id":"item-2"}) -> Item:item-2
+        client.cache.writeQuery({
+          query: DETAIL_QUERY,
+          variables: { id: 'item-2' },
+          data: { item: { __typename: 'Item', id: 'item-2', name: 'Second' } },
+        })
+
+        evictFromCache(client, {
+          id: 'item-2',
+          __typename: 'Item',
+          listFieldName: 'items',
+          listQueryDocument: LIST_QUERY,
+        })
+
+        const rootQuery = client.cache.extract().ROOT_QUERY as Record<string, unknown>
+        const detailFieldKey = Object.keys(rootQuery).find(
+          (key) => key.startsWith('item(') && key.includes('item-2'),
+        )
+
+        // Field is present and explicitly null - not removed, not a dangling reference.
+        expect(detailFieldKey).toBeDefined()
+        expect(rootQuery[detailFieldKey as string]).toBeNull()
+      })
+
+      it('THEN the detail query should read back complete (item: null), preventing a cache-first refetch', () => {
+        const client = createTestClient()
+
+        seedCache(client)
+
+        client.cache.writeQuery({
+          query: DETAIL_QUERY,
+          variables: { id: 'item-2' },
+          data: { item: { __typename: 'Item', id: 'item-2', name: 'Second' } },
+        })
+
+        evictFromCache(client, {
+          id: 'item-2',
+          __typename: 'Item',
+          listFieldName: 'items',
+          listQueryDocument: LIST_QUERY,
+        })
+
+        // A complete diff is what stops Apollo's reobserveCacheFirst from going to network.
+        const diff = client.cache.diff({
+          query: DETAIL_QUERY,
+          variables: { id: 'item-2' },
+          optimistic: false,
+          returnPartialData: true,
+        })
+
+        expect(diff.complete).toBe(true)
+        expect((diff.result as { item: unknown }).item).toBeNull()
+      })
+    })
+  })
+
   describe('GIVEN active query watchers', () => {
     describe('WHEN a detail query watcher exists', () => {
       it('THEN should suppress the detail watcher notification', () => {
