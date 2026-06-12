@@ -454,8 +454,12 @@ const AddOnSelectionContent = withForm({
                     `addOnItems[${index}].invoiceDisplayName`,
                     addOn.invoiceDisplayName ?? '',
                   )
+                  form.setFieldValue(
+                    `addOnItems[${index}].unitAmountCents`,
+                    addOn.amountCents ? String(Number.parseFloat(addOn.amountCents) / 100) : '',
+                  )
                   form.setFieldValue(`addOnItems[${index}].code`, addOn.code)
-                  form.setFieldValue(`addOnItems[${index}].description`, '')
+                  form.setFieldValue(`addOnItems[${index}].description`, addOn.description ?? '')
                   form.setFieldValue(`addOnItems[${index}].totalAmount`, '')
 
                   onAddOnPayloadCapture?.(addOn.id, addOn)
