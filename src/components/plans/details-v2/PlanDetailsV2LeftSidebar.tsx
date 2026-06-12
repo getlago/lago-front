@@ -57,12 +57,14 @@ type SidebarItem = {
 // GitHub's PR file tree), never a container that insets the row.
 const SIDEBAR_INDENT_STEP = 20
 const SIDEBAR_LEAF_BASE_PADDING = 24
+const SIDEBAR_GUIDE_LINE_BASE_LEFT = 10
 
 const getLeafPaddingLeft = (depth: number): number =>
   SIDEBAR_LEAF_BASE_PADDING + depth * SIDEBAR_INDENT_STEP
 
 // x of the vertical guide line for a children block whose items sit at `childDepth`.
-const getGuideLineLeft = (childDepth: number): number => 10 + (childDepth - 1) * SIDEBAR_INDENT_STEP
+const getGuideLineLeft = (childDepth: number): number =>
+  SIDEBAR_GUIDE_LINE_BASE_LEFT + (childDepth - 1) * SIDEBAR_INDENT_STEP
 
 const getIconName = (isGroup: boolean, isExpanded: boolean): IconName => {
   if (!isGroup) return 'file'
