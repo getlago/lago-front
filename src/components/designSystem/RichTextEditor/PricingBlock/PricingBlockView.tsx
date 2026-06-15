@@ -1,4 +1,5 @@
 import { NodeViewProps, NodeViewWrapper } from '@tiptap/react'
+import { IconName } from 'lago-design-system'
 
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { Locale, LocaleEnum } from '~/core/translations'
@@ -83,7 +84,7 @@ export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
   if (hasResolved) {
     const displayText =
       pricingType === 'plan'
-        ? `${resolvedEntities[0].name} (${resolvedEntities[0].code})`
+        ? `${resolvedEntities[0].name}`
         : translate('text_17803276502818bsd9sn8888', {
             subtotal: intlFormatNumber(
               resolvedEntities.reduce(
@@ -94,7 +95,11 @@ export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
             ),
           })
 
+    const captionTextPrefix = pricingType === 'plan' ? `${resolvedEntities[0].code}` : undefined
+
     const typeText = translate('text_1779802343219a1cl5ckvtrn')
+
+    const icon: IconName = pricingType === 'plan' ? 'board' : 'document'
 
     return (
       <NodeViewWrapper className="spacer" data-type="pricingBlock">
@@ -102,8 +107,9 @@ export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
           <SlashCommandBlockWrapper
             typeText={typeText}
             handleClick={handleClick}
-            icon="document"
+            icon={icon}
             displayText={displayText}
+            captionTextPrefix={captionTextPrefix}
           />
         </div>
       </NodeViewWrapper>
