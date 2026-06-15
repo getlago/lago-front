@@ -79,6 +79,76 @@ describe('useDebouncedSearch', () => {
     expect(result.current.isLoading).toBe(false)
   })
 
+  describe('minimum search characters', () => {
+    it('does not trigger the search query when typing less than 3 characters', async () => {
+      const { result, callback } = await prepare({ initialLoadingState: false })
+
+      // Initial query on mount
+      expect(callback).toHaveBeenCalledTimes(1)
+
+      result?.current?.debouncedSearch?.('a')
+      await act(() => jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS))
+      result?.current?.debouncedSearch?.('ab')
+      await act(() => jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('triggers the search query with 3 characters or more', async () => {
+      const { result, callback } = await prepare({ initialLoadingState: false })
+
+      result?.current?.debouncedSearch?.('abc')
+      await act(() => jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS))
+
+      expect(callback).toHaveBeenCalledTimes(2)
+      expect(callback).toHaveBeenLastCalledWith({ variables: { searchTerm: 'abc' } })
+    })
+
+    it('restores the unfiltered list when going back under 3 characters after a search', async () => {
+      const { result, callback } = await prepare({ initialLoadingState: false })
+
+      result?.current?.debouncedSearch?.('abc')
+      await act(() => jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS))
+      result?.current?.debouncedSearch?.('ab')
+      await act(() => jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS))
+
+      expect(callback).toHaveBeenCalledTimes(3)
+      expect(callback).toHaveBeenLastCalledWith({ variables: { searchTerm: undefined } })
+    })
+
+    it('restores the unfiltered list when the search is cleared after a search', async () => {
+      const { result, callback } = await prepare({ initialLoadingState: false })
+
+      result?.current?.debouncedSearch?.('abc')
+      await act(() => jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS))
+      result?.current?.debouncedSearch?.('')
+      await act(() => jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS))
+
+      expect(callback).toHaveBeenCalledTimes(3)
+      expect(callback).toHaveBeenLastCalledWith({ variables: { searchTerm: undefined } })
+    })
+
+    it('ignores surrounding whitespace when counting characters', async () => {
+      const { result, callback } = await prepare({ initialLoadingState: false })
+
+      result?.current?.debouncedSearch?.('  ab  ')
+      await act(() => jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not re-trigger the search query for the same term', async () => {
+      const { result, callback } = await prepare({ initialLoadingState: false })
+
+      result?.current?.debouncedSearch?.('abc')
+      await act(() => jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS))
+      result?.current?.debouncedSearch?.('abc')
+      await act(() => jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS))
+
+      expect(callback).toHaveBeenCalledTimes(2)
+    })
+  })
+
   describe('anti-regression', () => {
     // Fixes https://github.com/getlago/lago-front/pull/1272
     it('should fallback loading to initial if debounce timer is passed', async () => {
