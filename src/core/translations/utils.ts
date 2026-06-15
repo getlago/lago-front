@@ -47,11 +47,16 @@ export const translateKey: (
   data?: TranslateData,
   plural?: number,
 ) => string = ({ translations, locale, appEnv }, key, data, plural = 0) => {
-  if (!translations || Object.keys(translations).length === 0) {
+  // `translations` is `undefined` until the locale file finishes loading. Use that as
+  // the "not ready" sentinel instead of an emptiness check: the object holds thousands
+  // of keys and is in dictionary mode, so `Object.keys(translations)` would allocate the
+  // full key array on every single translate() call (hot path, called thousands of times
+  // per render) just to test for emptiness.
+  if (!translations) {
     return ''
   }
 
-  if (!translations || !translations[key]) {
+  if (!translations[key]) {
     const translationErrorMessage = `Translation '${key}' for locale '${locale}' not found.`
 
     // We decide to capture the error in production only for non english locale

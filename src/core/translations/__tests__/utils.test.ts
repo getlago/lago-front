@@ -1,6 +1,62 @@
-import { getPluralTranslation, replaceDynamicVarInString } from '~/core/translations/utils'
+import { AppEnvEnum } from '~/core/constants/globalTypes'
+import { LocaleEnum } from '~/core/translations/types'
+import {
+  getPluralTranslation,
+  replaceDynamicVarInString,
+  translateKey,
+} from '~/core/translations/utils'
 
 describe('utils', () => {
+  describe('translateKey', () => {
+    const baseContext = {
+      locale: LocaleEnum.en,
+      appEnv: AppEnvEnum.development,
+    }
+
+    describe('when translations are not loaded yet', () => {
+      it('returns an empty string for undefined translations', () => {
+        expect(translateKey({ ...baseContext, translations: undefined }, 'any_key')).toEqual('')
+      })
+    })
+
+    describe('when the key exists', () => {
+      it('returns the matching translation', () => {
+        expect(
+          translateKey({ ...baseContext, translations: { greeting: 'Hello' } }, 'greeting'),
+        ).toEqual('Hello')
+      })
+
+      it('interpolates dynamic variables', () => {
+        expect(
+          translateKey(
+            { ...baseContext, translations: { greeting: 'Hello {{name}}' } },
+            'greeting',
+            { name: 'World' },
+          ),
+        ).toEqual('Hello World')
+      })
+
+      it('resolves the plural form', () => {
+        expect(
+          translateKey(
+            { ...baseContext, translations: { items: 'one|many' } },
+            'items',
+            undefined,
+            2,
+          ),
+        ).toEqual('many')
+      })
+    })
+
+    describe('when the key is missing', () => {
+      it('returns the key itself', () => {
+        expect(
+          translateKey({ ...baseContext, translations: { greeting: 'Hello' } }, 'missing_key'),
+        ).toEqual('missing_key')
+      })
+    })
+  })
+
   describe('getPluralTranslation', () => {
     describe('when the template has no none', () => {
       it('returns singular for 0', () => {
