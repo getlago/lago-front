@@ -1,6 +1,5 @@
 import { screen } from '@testing-library/react'
 import { Settings } from 'luxon'
-import { createRef } from 'react'
 
 import { CurrencyEnum, WalletStatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -54,8 +53,6 @@ const createMockWallet = (overrides = {}) =>
     ...overrides,
   }) as any
 
-const premiumWarningDialogRef = createRef<any>()
-
 describe('WalletTransactions', () => {
   beforeAll(() => {
     Settings.defaultZone = 'UTC'
@@ -68,7 +65,7 @@ describe('WalletTransactions', () => {
   it('GIVEN active wallet WHEN rendered THEN should show transactions container', () => {
     const wallet = createMockWallet({ status: WalletStatusEnum.Active })
 
-    render(<WalletTransactions wallet={wallet} premiumWarningDialogRef={premiumWarningDialogRef} />)
+    render(<WalletTransactions wallet={wallet} />)
 
     const container = screen.getByTestId(WALLET_TRANSACTIONS_CONTAINER_TEST_ID)
 
@@ -87,7 +84,7 @@ describe('WalletTransactions', () => {
       terminatedAt: '2024-06-01T00:00:00Z',
     })
 
-    render(<WalletTransactions wallet={wallet} premiumWarningDialogRef={premiumWarningDialogRef} />)
+    render(<WalletTransactions wallet={wallet} />)
 
     const container = screen.getByTestId(WALLET_TRANSACTIONS_CONTAINER_TEST_ID)
 

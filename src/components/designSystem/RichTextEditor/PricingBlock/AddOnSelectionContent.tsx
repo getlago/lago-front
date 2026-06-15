@@ -12,6 +12,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { ComboboxItem } from '~/components/form'
 import { ComboBox } from '~/components/form/ComboBox/ComboBox'
+import { MUI_INPUT_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   type AddOnForPricingSectionFragment,
@@ -57,7 +58,7 @@ gql`
 
 interface AddOnSelectionContentExtraProps {
   currency: CurrencyEnum
-  onAddOnPayloadCapture?: (addOnId: string, addOn: AddOnForPricingSectionFragment) => void
+  onAddOnPayloadCapture?: (localId: string, addOn: AddOnForPricingSectionFragment) => void
 }
 
 function TotalAmountCell({
@@ -157,6 +158,7 @@ interface ConfirmedAddOnRowProps {
 
 const confirmedAddOnRowDefaultProps: ConfirmedAddOnRowProps = {
   item: {
+    localId: '',
     addOnId: '',
     name: '',
     invoiceDisplayName: '',
@@ -416,7 +418,9 @@ const AddOnSelectionContent = withForm({
                         {addOn.name}
                       </Typography>
                       <Typography variant="caption" color="grey600" noWrap>
-                        {addOn.code}
+                        {intlFormatNumber(addOn.amountCents / 100, {
+                          currency: addOn.amountCurrency,
+                        })}
                       </Typography>
                     </ComboboxItem>
                   ),
@@ -427,6 +431,7 @@ const AddOnSelectionContent = withForm({
                   const today = DateTime.now()
 
                   addOnItemsField.pushValue({
+                    localId: crypto.randomUUID(),
                     addOnId: '',
                     name: '',
                     invoiceDisplayName: '',
@@ -439,6 +444,14 @@ const AddOnSelectionContent = withForm({
                     toDatetime: today.endOf('day').toISO(),
                   })
                   setPendingAddOnIndices((prev) => new Map(prev).set(newIndex, crypto.randomUUID()))
+
+                  setTimeout(() => {
+                    ;(
+                      document.querySelector(
+                        `[data-test="add-on-pending-${newIndex}"] .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+                      ) as HTMLElement
+                    )?.click()
+                  }, 0)
                 }
 
                 const handleAddOnSelect = (index: number, addOnId: string) => {
@@ -452,11 +465,15 @@ const AddOnSelectionContent = withForm({
                     `addOnItems[${index}].invoiceDisplayName`,
                     addOn.invoiceDisplayName ?? '',
                   )
+                  form.setFieldValue(
+                    `addOnItems[${index}].unitAmountCents`,
+                    addOn.amountCents ? String(Number.parseFloat(addOn.amountCents) / 100) : '',
+                  )
                   form.setFieldValue(`addOnItems[${index}].code`, addOn.code)
-                  form.setFieldValue(`addOnItems[${index}].description`, '')
+                  form.setFieldValue(`addOnItems[${index}].description`, addOn.description ?? '')
                   form.setFieldValue(`addOnItems[${index}].totalAmount`, '')
 
-                  onAddOnPayloadCapture?.(addOn.id, addOn)
+                  onAddOnPayloadCapture?.(items[index].localId, addOn)
 
                   setPendingAddOnIndices((prev) => {
                     const next = new Map(prev)
@@ -509,7 +526,7 @@ const AddOnSelectionContent = withForm({
 
                       return (
                         <ConfirmedAddOnRow
-                          key={item.addOnId}
+                          key={item.localId}
                           form={form}
                           item={item}
                           index={index}

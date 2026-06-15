@@ -41,6 +41,7 @@ interface UsePricingDrawerReturn {
 export const usePricingDrawer = (
   quoteOrderType: OrderTypeEnum | undefined,
   initialBillingItems?: unknown,
+  customerCurrency?: CurrencyEnum | null,
 ): UsePricingDrawerReturn => {
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
@@ -48,6 +49,7 @@ export const usePricingDrawer = (
   const entitiesRef = useRef<Record<string, EntityData>>({})
   const [entities, setEntities] = useState<Record<string, EntityData>>({})
   const payloadsRef = useRef<Record<string, AddOnPayload>>({})
+  const catalogIdMapRef = useRef<Record<string, string>>({})
   const onSaveRef = useRef<
     | ((
         attrs: PricingBlockAttributes,
@@ -68,18 +70,33 @@ export const usePricingDrawer = (
 
     if (!parsed.addons?.length) return
 
-    const { entities: formattedEntities, originalPayloads } = fromBillingItems(parsed)
+    const { entities: formattedEntities, originalPayloads, addOnItems } = fromBillingItems(parsed)
 
-    const updated = { ...entitiesRef.current, ...formattedEntities }
+    // Populate catalogIdMap and add backward-compat entries keyed by catalog addOnId
+    // so old TipTap entityIds (catalog IDs) can still resolve
+    const backwardCompatEntities: Record<string, EntityData> = {}
+    const backwardCompatPayloads: Record<string, AddOnPayload> = {}
+
+    for (const item of addOnItems) {
+      catalogIdMapRef.current[item.localId] = item.addOnId
+      backwardCompatEntities[item.addOnId] = formattedEntities[item.localId]
+
+      if (originalPayloads[item.localId]) {
+        backwardCompatPayloads[item.addOnId] = originalPayloads[item.localId]
+      }
+    }
+
+    const updated = { ...entitiesRef.current, ...formattedEntities, ...backwardCompatEntities }
 
     entitiesRef.current = updated
     setEntities(updated)
-    payloadsRef.current = { ...payloadsRef.current, ...originalPayloads }
+    payloadsRef.current = { ...payloadsRef.current, ...originalPayloads, ...backwardCompatPayloads }
   }, [initialBillingItems])
 
   const captureAddOnPayload = useCallback(
-    (addOnId: string, addOn: AddOnForPricingSectionFragment) => {
-      payloadsRef.current[addOnId] = {
+    (localId: string, addOn: AddOnForPricingSectionFragment) => {
+      catalogIdMapRef.current[localId] = addOn.id
+      payloadsRef.current[localId] = {
         position: 0, // will be set correctly by toBillingItems
         add_on_code: addOn.code,
         name: addOn.name,
@@ -103,6 +120,7 @@ export const usePricingDrawer = (
           planId: z.string(),
           addOnItems: z.array(
             z.object({
+              localId: z.string(),
               addOnId: z.string(),
               name: z.string(),
               invoiceDisplayName: z.string(),
@@ -197,8 +215,8 @@ export const usePricingDrawer = (
         const entityData: Record<string, EntityData> = {}
 
         confirmedItems.forEach((item) => {
-          entityData[item.addOnId] = {
-            entityId: item.addOnId,
+          entityData[item.localId] = {
+            entityId: item.localId,
             entityType: 'addOn',
             name: item.name,
             invoiceDisplayName: item.invoiceDisplayName,
@@ -215,7 +233,11 @@ export const usePricingDrawer = (
         const billingItems = toBillingItems(confirmedItems, payloadsRef.current)
 
         onSaveRef.current?.(
-          { pricingType: 'addOns' as const, entityIds: confirmedItems.map((item) => item.addOnId) },
+          {
+            pricingType: 'addOns' as const,
+            entityIds: confirmedItems.map((item) => item.addOnId),
+            localEntityIds: confirmedItems.map((item) => item.localId),
+          },
           entityData,
           billingItems,
         )
@@ -243,7 +265,7 @@ export const usePricingDrawer = (
         return
       }
 
-      const currency = organization?.defaultCurrency ?? CurrencyEnum.Usd
+      const currency = customerCurrency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
 
       onSaveRef.current = onSave
 
@@ -253,14 +275,17 @@ export const usePricingDrawer = (
 
       const initialAddOnItems =
         !isPlanSelection && editData?.pricingType === 'addOns'
-          ? editData.entityIds.map((id) => {
-              const existing = entitiesRef.current[id]
+          ? editData.entityIds.map((catalogId, i) => {
+              const localId = editData.localEntityIds?.[i]
+              const lookupId = localId ?? catalogId
+              const existing = entitiesRef.current[lookupId]
 
               const today = DateTime.now()
 
               return {
-                addOnId: id,
-                name: existing?.name ?? id,
+                localId: localId ?? crypto.randomUUID(),
+                addOnId: catalogIdMapRef.current[lookupId] ?? catalogId,
+                name: existing?.name ?? catalogId,
                 invoiceDisplayName: existing?.invoiceDisplayName ?? '',
                 code: existing?.code ?? '',
                 description: existing?.description ?? '',
@@ -320,7 +345,9 @@ export const usePricingDrawer = (
 
   const syncEntitiesWithBlocks = useCallback(
     (blocks: PricingBlockAttributes[]): BillingItemsPayload | null => {
-      const activeEntityIds = new Set(blocks.flatMap((b) => b.entityIds))
+      const activeEntityIds = new Set(
+        blocks.flatMap((b) => (b.localEntityIds?.length ? b.localEntityIds : b.entityIds)),
+      )
 
       const currentKeys = Object.keys(entitiesRef.current)
       const orphanedKeys = currentKeys.filter((id) => !activeEntityIds.has(id))

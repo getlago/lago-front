@@ -1,16 +1,16 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
+import { revalidateLogic } from '@tanstack/react-form'
 import { Settings } from 'luxon'
-import { forwardRef } from 'react'
-import { object, string } from 'yup'
+import { useRef } from 'react'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { ComboBoxField } from '~/components/form'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
 import { addToast } from '~/core/apolloClient'
 import { getTimezoneConfig } from '~/core/timezone'
 import { TimezoneEnum, useUpdateBillingEntityTimezoneMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   mutation updateBillingEntityTimezone($input: UpdateBillingEntityInput!) {
@@ -21,18 +21,32 @@ gql`
   }
 `
 
-export type EditBillingEntityTimezoneDialogRef = DialogRef
+const editBillingEntityTimezoneValidationSchema = z.object({
+  timezone: z.enum(TimezoneEnum).optional(),
+})
 
-interface EditBillingEntityTimezoneProps {
+type EditBillingEntityTimezoneFormValues = z.infer<typeof editBillingEntityTimezoneValidationSchema>
+
+export const EDIT_BILLING_ENTITY_TIMEZONE_FORM_ID = 'edit-billing-entity-timezone-form'
+export const EDIT_BILLING_ENTITY_TIMEZONE_COMBOBOX_TEST_ID = 'edit-billing-entity-timezone-combobox'
+export const EDIT_BILLING_ENTITY_TIMEZONE_SUBMIT_BUTTON_TEST_ID =
+  'edit-billing-entity-timezone-submit-button'
+
+const initialValues: EditBillingEntityTimezoneFormValues = {
+  timezone: undefined,
+}
+
+type EditBillingEntityTimezoneData = {
   id?: string
   timezone?: TimezoneEnum | null
 }
 
-export const EditBillingEntityTimezoneDialog = forwardRef<
-  EditBillingEntityTimezoneDialogRef,
-  EditBillingEntityTimezoneProps
->(({ id, timezone }: EditBillingEntityTimezoneProps, ref) => {
+export const useEditBillingEntityTimezoneDialog = () => {
+  const formDialog = useFormDialog()
   const { translate } = useInternationalization()
+  const dataRef = useRef<EditBillingEntityTimezoneData | null>(null)
+  const successRef = useRef(false)
+
   const [update] = useUpdateBillingEntityTimezoneMutation({
     onCompleted(res) {
       if (res?.updateBillingEntity) {
@@ -44,75 +58,93 @@ export const EditBillingEntityTimezoneDialog = forwardRef<
       }
     },
   })
-  const formikProps = useFormik({
-    initialValues: {
-      timezone,
-    },
-    validationSchema: object().shape({
-      timezone: string().nullable(),
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: async ({ timezone: tzFromFormik, ...values }) => {
-      const selectedTimezone = tzFromFormik || TimezoneEnum.TzUtc
 
-      await update({
+  const form = useAppForm({
+    defaultValues: initialValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: editBillingEntityTimezoneValidationSchema,
+    },
+    onSubmit: async ({ value }) => {
+      const selectedTimezone = value.timezone || TimezoneEnum.TzUtc
+
+      const result = await update({
         variables: {
           input: {
-            id: id as string,
+            id: dataRef.current?.id as string,
             timezone: selectedTimezone,
-            ...values,
           },
         },
       })
+
+      if (result.data?.updateBillingEntity) {
+        successRef.current = true
+      }
     },
   })
 
-  return (
-    <Dialog
-      ref={ref}
-      title={translate('text_63890710eb171a76814a0c0d')}
-      description={translate('text_63890710eb171a76814a0c0f')}
-      onClose={() => {
-        formikProps.resetForm()
-        formikProps.validateForm()
-      }}
-      actions={({ closeDialog }) => (
-        <>
-          <Button variant="quaternary" onClick={closeDialog}>
-            {translate('text_63890710eb171a76814a0c15')}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={async () => {
-              await formikProps.submitForm()
-              closeDialog()
-            }}
-          >
-            {translate('text_63890710eb171a76814a0c17')}
-          </Button>
-        </>
-      )}
-    >
-      <div className="mb-8">
-        <ComboBoxField
-          name="timezone"
-          label={translate('text_63890710eb171a76814a0c11')}
-          formikProps={formikProps}
-          PopperProps={{ displayInDialog: true }}
-          placeholder={translate('text_6390a4ffef9227ba45daca92')}
-          data={Object.values(TimezoneEnum).map((timezoneValue) => ({
-            value: timezoneValue,
-            label: translate('text_638f743fa9a2a9545ee6409a', {
-              zone: translate(timezoneValue),
-              offset: getTimezoneConfig(timezoneValue).offset,
-            }),
-          }))}
-        />
-      </div>
-    </Dialog>
-  )
-})
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-EditBillingEntityTimezoneDialog.displayName = 'EditBillingEntityTimezoneDialog'
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openEditBillingEntityTimezoneDialog = (data: EditBillingEntityTimezoneData) => {
+    dataRef.current = data
+    form.reset()
+    form.setFieldValue('timezone', data.timezone ?? undefined)
+
+    formDialog
+      .open({
+        title: translate('text_63890710eb171a76814a0c0d'),
+        description: translate('text_63890710eb171a76814a0c0f'),
+        cancelOrCloseText: 'cancel',
+        closeOnError: false,
+        children: (
+          <div className="p-8">
+            <form.AppField name="timezone">
+              {(field) => (
+                <field.ComboBoxField
+                  dataTest={EDIT_BILLING_ENTITY_TIMEZONE_COMBOBOX_TEST_ID}
+                  label={translate('text_63890710eb171a76814a0c11')}
+                  PopperProps={{ displayInDialog: true }}
+                  placeholder={translate('text_6390a4ffef9227ba45daca92')}
+                  data={Object.values(TimezoneEnum).map((timezoneValue) => ({
+                    value: timezoneValue,
+                    label: translate('text_638f743fa9a2a9545ee6409a', {
+                      zone: translate(timezoneValue),
+                      offset: getTimezoneConfig(timezoneValue).offset,
+                    }),
+                  }))}
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton dataTest={EDIT_BILLING_ENTITY_TIMEZONE_SUBMIT_BUTTON_TEST_ID}>
+              {translate('text_63890710eb171a76814a0c17')}
+            </form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: EDIT_BILLING_ENTITY_TIMEZONE_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+          dataRef.current = null
+        }
+      })
+  }
+
+  return { openEditBillingEntityTimezoneDialog }
+}

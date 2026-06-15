@@ -13,12 +13,12 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
         text_1779289915866etwoweh1syv: 'Subscription fee',
         text_1779289915866aj39dyv1wps: 'Fixed charges',
         text_1779289915866ngi8sv5t9lg: 'Usage-based charges',
-        text_1779289915866m899iy5nykb: 'Advanced settings',
         text_17792899158664ii2pmrd2le: 'Minimum commitment',
         text_1779289915866vguw0lfmz06: 'Progressive billing',
         text_1779289915866mr56w61hhi5: 'Entitlements',
-        text_17793007079352nuwx5wx9uj: 'Add fixed charge',
-        text_1779300707935ah1fv0kiyz6: 'Add usage charge',
+        text_176072970726882uau5y69f1: 'Add fixed charge',
+        text_1772133285142oouequiz2t2: 'Add usage charge',
+        text_1753864223060devvklm7vk0: 'Add entitlement',
       }
 
       return map[key] ?? key
@@ -31,7 +31,7 @@ const renderSidebar = (
 ) => render(<PlanDetailsV2LeftSidebar onItemClick={jest.fn()} {...props} />)
 
 describe('PlanDetailsV2LeftSidebar', () => {
-  it('renders every plan-level section', () => {
+  it('renders every root-level section (no "Advanced settings" folder)', () => {
     renderSidebar()
 
     for (const label of [
@@ -39,25 +39,25 @@ describe('PlanDetailsV2LeftSidebar', () => {
       'Subscription fee',
       'Fixed charges',
       'Usage-based charges',
-      'Advanced settings',
       'Minimum commitment',
       'Progressive billing',
       'Entitlements',
     ]) {
       expect(screen.getByText(label)).toBeInTheDocument()
     }
+
+    // Advanced settings folder has been removed entirely.
+    expect(screen.queryByText('Advanced settings')).not.toBeInTheDocument()
   })
 
-  // Drift test — locks in the sub-flow gating contract per spec §5.
-  // User-confirmed: Advanced group + Min commitment always visible; only Progressive billing
-  // and Entitlements hide in sub mode.
+  // Drift test — locks in the sub-flow gating contract: Min commitment stays at the root,
+  // only Progressive billing and Entitlements hide in sub mode.
   it('drops Progressive billing + Entitlements when isInSubscriptionForm=true (Min commitment stays)', () => {
     renderSidebar({ isInSubscriptionForm: true })
 
     expect(screen.queryByText('Progressive billing')).not.toBeInTheDocument()
     expect(screen.queryByText('Entitlements')).not.toBeInTheDocument()
     expect(screen.getByText('Minimum commitment')).toBeInTheDocument()
-    expect(screen.getByText('Advanced settings')).toBeInTheDocument()
   })
 
   it('fires onItemClick with the section id when a leaf item is clicked', async () => {
@@ -70,36 +70,62 @@ describe('PlanDetailsV2LeftSidebar', () => {
     expect(handleClick).toHaveBeenCalledWith('subscription-fee')
   })
 
-  it('fires onItemClick with the section id when a group label is clicked', async () => {
+  it('fires onItemClick for the root-level Minimum commitment + Progressive billing items', async () => {
     const handleClick = jest.fn()
 
     renderSidebar({ onItemClick: handleClick })
 
+    await userEvent.click(screen.getByRole('button', { name: 'Minimum commitment' }))
+    expect(handleClick).toHaveBeenCalledWith('minimum-commitment')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Progressive billing' }))
+    expect(handleClick).toHaveBeenCalledWith('progressive-billing')
+  })
+
+  // BIL-159: a folder row expands/collapses; it must NOT navigate.
+  it('toggles a folder (and does NOT fire onItemClick) when its label is clicked', async () => {
+    const handleClick = jest.fn()
+    const fixedCharges = [
+      {
+        id: 'fc-1',
+        invoiceDisplayName: 'Premium seats',
+        code: 'seats',
+        addOn: { id: 'ao-1', name: 'Seats' },
+      },
+    ]
+
+    renderSidebar({ onItemClick: handleClick, fixedCharges })
+
+    // Collapsed by default — child hidden.
+    expect(screen.queryByText('Premium seats')).not.toBeInTheDocument()
+
     await userEvent.click(screen.getByRole('button', { name: 'Fixed charges' }))
 
-    expect(handleClick).toHaveBeenCalledWith('fixed-charges')
+    // Expanded by the label click, with no navigation.
+    expect(screen.getByText('Premium seats')).toBeInTheDocument()
+    expect(handleClick).not.toHaveBeenCalled()
+
+    // Clicking the label again collapses it.
+    await userEvent.click(screen.getByRole('button', { name: 'Fixed charges' }))
+    expect(screen.queryByText('Premium seats')).not.toBeInTheDocument()
   })
 
   describe('plus add button', () => {
-    it('always renders the plus button on Fixed charges and Usage-based charges (even without onAddClick)', () => {
+    it('renders the plus button on Fixed charges, Usage-based charges and Entitlements', () => {
       renderSidebar()
 
       expect(screen.getByTestId('sidebar-add-fixed-charges')).toBeInTheDocument()
       expect(screen.getByTestId('sidebar-add-usage-charges')).toBeInTheDocument()
+      expect(screen.getByTestId('sidebar-add-entitlements')).toBeInTheDocument()
     })
 
-    // Drift test — locks in spec §5 "Add CTAs hidden when isInSubscriptionForm"
-    it('hides the plus button when isInSubscriptionForm=true (no Add CTAs in sub mode)', () => {
+    // Drift test — no Add CTAs in sub mode.
+    it('hides every plus button when isInSubscriptionForm=true', () => {
       renderSidebar({ isInSubscriptionForm: true })
 
       expect(screen.queryByTestId('sidebar-add-fixed-charges')).not.toBeInTheDocument()
       expect(screen.queryByTestId('sidebar-add-usage-charges')).not.toBeInTheDocument()
-    })
-
-    it('never renders a plus button on the Advanced settings group', () => {
-      renderSidebar()
-
-      expect(screen.queryByTestId('sidebar-add-advanced-settings')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('sidebar-add-entitlements')).not.toBeInTheDocument()
     })
 
     it('fires onAddClick with the section id and does NOT fire onItemClick', async () => {
@@ -108,9 +134,9 @@ describe('PlanDetailsV2LeftSidebar', () => {
 
       renderSidebar({ onItemClick, onAddClick })
 
-      await userEvent.click(screen.getByTestId('sidebar-add-fixed-charges'))
+      await userEvent.click(screen.getByTestId('sidebar-add-entitlements'))
 
-      expect(onAddClick).toHaveBeenCalledWith('fixed-charges')
+      expect(onAddClick).toHaveBeenCalledWith('entitlements')
       expect(onItemClick).not.toHaveBeenCalled()
     })
 
@@ -125,7 +151,7 @@ describe('PlanDetailsV2LeftSidebar', () => {
     })
   })
 
-  describe('charge folder children', () => {
+  describe('folder children', () => {
     const fixedCharges = [
       {
         id: 'fc-1',
@@ -148,6 +174,10 @@ describe('PlanDetailsV2LeftSidebar', () => {
         code: 'api',
         billableMetric: { id: 'bm-1', name: 'API calls' },
       },
+    ]
+    const entitlements = [
+      { code: 'seats', name: 'Seats feature' },
+      { code: 'storage', name: '' },
     ]
 
     it('lists charges with invoiceDisplayName || addOn/metric name || code once the folder is expanded', async () => {
@@ -177,21 +207,22 @@ describe('PlanDetailsV2LeftSidebar', () => {
 
       expect(onItemClick).toHaveBeenCalledWith('fc-1')
     })
-  })
 
-  describe('chevron toggle', () => {
-    it('toggles expanded state without firing onItemClick', async () => {
+    it('lists entitlements (name || code) and navigates to entitlement-<code> on click', async () => {
       const onItemClick = jest.fn()
 
-      renderSidebar({ onItemClick })
+      renderSidebar({ entitlements, onItemClick })
 
-      // Advanced settings is expanded by default — children visible
-      expect(screen.getByText('Minimum commitment')).toBeInTheDocument()
+      expect(screen.queryByText('Seats feature')).not.toBeInTheDocument()
 
-      await userEvent.click(screen.getByTestId('sidebar-toggle-advanced-settings'))
+      await userEvent.click(screen.getByTestId('sidebar-toggle-entitlements'))
 
-      expect(screen.queryByText('Minimum commitment')).not.toBeInTheDocument()
-      expect(onItemClick).not.toHaveBeenCalled()
+      expect(screen.getByText('Seats feature')).toBeInTheDocument() // name
+      expect(screen.getByText('storage')).toBeInTheDocument() // code fallback (empty name)
+
+      await userEvent.click(screen.getByRole('button', { name: 'Seats feature' }))
+
+      expect(onItemClick).toHaveBeenCalledWith('entitlement-seats')
     })
   })
 })

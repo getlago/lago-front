@@ -138,6 +138,20 @@ gql`
     ...InvoiceForUpdateInvoicePaymentStatus
   }
 
+  fragment FeeAppliedTaxesForInvoiceDetails on Fee {
+    appliedTaxes {
+      id
+      taxCode
+      taxRate
+      tax {
+        id
+        code
+        name
+        rate
+      }
+    }
+  }
+
   fragment CustomerForInvoiceDetails on Customer {
     id
     name
@@ -170,6 +184,10 @@ gql`
     invoice(id: $id) {
       id
       ...AllInvoiceDetailsForCustomerInvoiceDetails
+      fees {
+        id
+        ...FeeAppliedTaxesForInvoiceDetails
+      }
     }
   }
 
@@ -183,6 +201,7 @@ gql`
         ...FeeDetailsForInvoiceOverview
         ...FeeForInvoiceDetailsTable
         ...FeeForInvoiceDetailsTableFooter
+        ...FeeAppliedTaxesForInvoiceDetails
       }
     }
   }
@@ -313,6 +332,8 @@ const CustomerInvoiceDetails = () => {
     variables: { id: invoiceId as string },
     skip: !invoiceId,
     context: { silentErrorCodes: [LagoApiError.NotFound] },
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
   })
 
   useNotFoundRedirect({
@@ -329,6 +350,8 @@ const CustomerInvoiceDetails = () => {
     variables: { id: invoiceId as string },
     skip: !invoiceId,
     context: { silentErrorCodes: [LagoApiError.NotFound] },
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
   })
   const invoice = data?.invoice
   const invoiceFees = feesData?.invoice?.fees

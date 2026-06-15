@@ -202,5 +202,12 @@
   "text_1741604005109aspaz4chd7y": "付款金額",
   "text_1741604005109w5ns73xmam9": "$730,00",
   "text_17413343926225ug14ak60xv": "下載發票",
-  "text_1741334392622fl3ozwejrul": "下載收據"
+  "text_1741334392622fl3ozwejrul": "下載收據",
+  "text_17804985042415hh3kbs8ksh": "名稱",
+  "text_178049850424144tpzoeoge3": "計費",
+  "text_1780498504241avgm5sugii4": "單位",
+  "text_1780498504241di3s12o655k": "價格",
+  "text_1780498504241eo24fnc6s9u": "從 {{fromDate}} 到 {{toDate}}",
+  "text_17804985042422iw5hwj0u2v": "所有價格不含適用稅款",
+  "text_1779289915866etwoweh1syv": "訂閱費用"
 }

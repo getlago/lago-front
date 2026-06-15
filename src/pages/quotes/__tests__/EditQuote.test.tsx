@@ -27,6 +27,8 @@ type PricingCommandParams = {
 
 let capturedOnPricingCommand: ((params: PricingCommandParams) => void) | undefined
 let capturedOnPricingBlocksChange: ((blocks: unknown[]) => void) | undefined
+let capturedEditorCustomerLocale: string | undefined
+let capturedEditorCustomerCurrency: string | undefined
 
 // --- Mocks ---
 
@@ -51,11 +53,15 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
     onChange,
     onPricingCommand,
     onPricingBlocksChange,
+    customerLocale,
+    customerCurrency,
   }: {
     getMarkdownRef?: React.MutableRefObject<(() => string) | null>
     onChange?: () => void
     onPricingCommand?: (params: PricingCommandParams) => void
     onPricingBlocksChange?: (blocks: unknown[]) => void
+    customerLocale?: string
+    customerCurrency?: string
   }) => {
     React.useEffect(() => {
       if (getMarkdownRef) {
@@ -64,13 +70,22 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
       capturedOnChange = onChange
       capturedOnPricingCommand = onPricingCommand
       capturedOnPricingBlocksChange = onPricingBlocksChange
+      capturedEditorCustomerLocale = customerLocale
+      capturedEditorCustomerCurrency = customerCurrency
 
       return () => {
         if (getMarkdownRef) {
           getMarkdownRef.current = null
         }
       }
-    }, [getMarkdownRef, onChange, onPricingCommand, onPricingBlocksChange])
+    }, [
+      getMarkdownRef,
+      onChange,
+      onPricingCommand,
+      onPricingBlocksChange,
+      customerLocale,
+      customerCurrency,
+    ])
 
     return <div data-test="mock-rich-text-editor" />
   }
@@ -143,6 +158,10 @@ const mockQuote = {
     id: 'customer-1',
     name: 'Acme Corp',
     externalId: 'ext-cust-1',
+    currency: null,
+    billingConfiguration: {
+      documentLocale: null,
+    },
   },
   owners: [{ __typename: 'User' as const, id: 'user-1', email: 'alice@example.com' }],
   subscription: null,
@@ -169,13 +188,18 @@ jest.mock('../hooks/useQuote', () => ({
 
 const mockDrawerOnPricingCommand = jest.fn()
 const mockSyncEntitiesWithBlocks = jest.fn().mockReturnValue(null)
+let capturedPricingDrawerArgs: unknown[] = []
 
 jest.mock('../hooks/usePricingDrawer', () => ({
-  usePricingDrawer: () => ({
-    onPricingCommand: mockDrawerOnPricingCommand,
-    entities: {},
-    syncEntitiesWithBlocks: mockSyncEntitiesWithBlocks,
-  }),
+  usePricingDrawer: (...args: unknown[]) => {
+    capturedPricingDrawerArgs = args
+
+    return {
+      onPricingCommand: mockDrawerOnPricingCommand,
+      entities: {},
+      syncEntitiesWithBlocks: mockSyncEntitiesWithBlocks,
+    }
+  },
 }))
 
 jest.mock('../common/getQuoteStatusMapping', () => ({
@@ -204,6 +228,9 @@ describe('EditQuote', () => {
     capturedAsideCallbacks = {}
     capturedOnPricingCommand = undefined
     capturedOnPricingBlocksChange = undefined
+    capturedEditorCustomerLocale = undefined
+    capturedEditorCustomerCurrency = undefined
+    capturedPricingDrawerArgs = []
     mockSyncEntitiesWithBlocks.mockReturnValue(null)
 
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
@@ -683,6 +710,84 @@ describe('EditQuote', () => {
         })
 
         expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN customer locale and currency props', () => {
+    describe('WHEN the customer has a document locale', () => {
+      it('THEN should pass customerLocale to RichTextEditor', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            customer: {
+              ...mockQuote.customer,
+              billingConfiguration: { documentLocale: 'fr' },
+            },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        expect(capturedEditorCustomerLocale).toBe('fr')
+      })
+    })
+
+    describe('WHEN the customer has no document locale', () => {
+      it('THEN should default customerLocale to en', () => {
+        render(<EditQuote />)
+
+        expect(capturedEditorCustomerLocale).toBe('en')
+      })
+    })
+
+    describe('WHEN the customer has a currency', () => {
+      it('THEN should pass customerCurrency to RichTextEditor', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            customer: {
+              ...mockQuote.customer,
+              currency: 'EUR',
+            },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        expect(capturedEditorCustomerCurrency).toBe('EUR')
+      })
+    })
+
+    describe('WHEN the customer has no currency', () => {
+      it('THEN should pass undefined customerCurrency to RichTextEditor', () => {
+        render(<EditQuote />)
+
+        expect(capturedEditorCustomerCurrency).toBeUndefined()
+      })
+    })
+
+    describe('WHEN the customer has a currency', () => {
+      it('THEN should pass it as the third argument to usePricingDrawer', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            customer: {
+              ...mockQuote.customer,
+              currency: 'EUR',
+            },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        expect(capturedPricingDrawerArgs[2]).toBe('EUR')
       })
     })
   })
