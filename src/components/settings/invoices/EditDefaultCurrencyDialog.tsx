@@ -30,6 +30,11 @@ gql`
 
 const EDIT_DEFAULT_CURRENCY_FORM_ID = 'edit-default-currency-form'
 
+export const EDIT_DEFAULT_CURRENCY_DIALOG_SUBMIT_BUTTON_TEST_ID =
+  'edit-default-currency-dialog-submit-button'
+export const EDIT_DEFAULT_CURRENCY_DIALOG_CURRENCY_FIELD_TEST_ID =
+  'edit-default-currency-dialog-currency-field'
+
 const editDefaultCurrencyValidationSchema = z.object({
   defaultCurrency: z.enum(CurrencyEnum),
 })
@@ -107,7 +112,12 @@ export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef
       <Button variant="quaternary" onClick={closeDialog}>
         {translate('text_62bb10ad2a10bd182d002031')}
       </Button>
-      <Button variant="primary" type="submit" disabled={!canSubmit || !isDirty}>
+      <Button
+        variant="primary"
+        type="submit"
+        disabled={!canSubmit || !isDirty}
+        data-test={EDIT_DEFAULT_CURRENCY_DIALOG_SUBMIT_BUTTON_TEST_ID}
+      >
         {translate('text_17432414198706rdwf76ek3u')}
       </Button>
     </>
@@ -133,6 +143,7 @@ export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef
                 value: currencyType,
               }))}
               PopperProps={{ displayInDialog: true }}
+              dataTest={EDIT_DEFAULT_CURRENCY_DIALOG_CURRENCY_FIELD_TEST_ID}
             />
           )}
         </form.AppField>
