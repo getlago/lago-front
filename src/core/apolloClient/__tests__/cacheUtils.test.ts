@@ -1,11 +1,18 @@
 import { ApolloClient } from '@apollo/client'
 
-import { onLogIn, switchCurrentOrganization } from '../cacheUtils'
+import { logOut, onLogIn, switchCurrentOrganization } from '../cacheUtils'
 
 const mockGetCurrentOrganizationId = jest.fn()
 const mockSetCurrentOrganizationId = jest.fn()
 const mockUpdateAuthTokenVar = jest.fn()
 const mockAddToast = jest.fn()
+const mockResetPersistedCache = jest.fn().mockResolvedValue(undefined)
+const mockPurgePersistedCache = jest.fn().mockResolvedValue(undefined)
+
+jest.mock('../cachePersistor', () => ({
+  resetPersistedCache: (...args: unknown[]) => mockResetPersistedCache(...args),
+  purgePersistedCache: (...args: unknown[]) => mockPurgePersistedCache(...args),
+}))
 
 jest.mock('../reactiveVars', () => ({
   addToast: (...args: unknown[]) => mockAddToast(...args),
@@ -88,6 +95,14 @@ describe('switchCurrentOrganization', () => {
           'setCurrentOrganizationId',
           'reFetchObservableQueries',
         ])
+      })
+
+      it('THEN should purge the persisted blob without awaiting it (fire-and-forget keeps switch timing flash-free)', async () => {
+        const client = createMockClient()
+
+        await switchCurrentOrganization(client, 'org-456')
+
+        expect(mockPurgePersistedCache).toHaveBeenCalledTimes(1)
       })
     })
   })
@@ -187,6 +202,40 @@ describe('onLogIn', () => {
         expect(mockSetCurrentOrganizationId).toHaveBeenCalledWith(null)
         expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
       })
+    })
+  })
+})
+
+describe('logOut', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    localStorage.clear()
+  })
+
+  describe('WHEN logging out', () => {
+    it('THEN should reset both the in-memory and the persisted cache, then clear the auth token', async () => {
+      const client = createMockClient()
+
+      await logOut(client)
+
+      expect(mockResetPersistedCache).toHaveBeenCalledWith(client)
+      expect(mockUpdateAuthTokenVar).toHaveBeenCalled()
+    })
+
+    it('THEN should stop the client BEFORE resetting the cache', async () => {
+      const client = createMockClient()
+      const callOrder: string[] = []
+
+      ;(client.stop as jest.Mock).mockImplementation(() => {
+        callOrder.push('stop')
+      })
+      mockResetPersistedCache.mockImplementation(async () => {
+        callOrder.push('resetPersistedCache')
+      })
+
+      await logOut(client)
+
+      expect(callOrder).toEqual(['stop', 'resetPersistedCache'])
     })
   })
 })
