@@ -3,7 +3,7 @@ import { DateTime, Settings } from 'luxon'
 import {
   ActivationRuleStatusEnum,
   ActivationRuleTypeEnum,
-  CancelationReasonEnum,
+  CancellationReasonEnum,
   StatusTypeEnum,
 } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
@@ -83,7 +83,7 @@ describe('subscriptionUtils', () => {
       getTimeoutDisplayValue(
         {
           status: StatusTypeEnum.Canceled,
-          cancelationReason: CancelationReasonEnum.Timeout,
+          cancellationReason: CancellationReasonEnum.Timeout,
           activationRules: [
             {
               type: ActivationRuleTypeEnum.Payment,
@@ -122,7 +122,7 @@ describe('subscriptionUtils', () => {
       getTimeoutDisplayValue(
         {
           status: StatusTypeEnum.Canceled,
-          cancelationReason: CancelationReasonEnum.Timeout,
+          cancellationReason: CancellationReasonEnum.Timeout,
           activationRules: [
             {
               type: ActivationRuleTypeEnum.Payment,

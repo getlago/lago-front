@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import {
   ActivationRuleStatusEnum,
   ActivationRuleTypeEnum,
-  CancelationReasonEnum,
+  CancellationReasonEnum,
   Maybe,
   StatusTypeEnum,
   SubscriptionActivationRule,
@@ -14,7 +14,7 @@ type SubscriptionWithActivationRules = {
   activationRules?: Maybe<
     Array<Pick<SubscriptionActivationRule, 'type' | 'timeoutHours' | 'status' | 'expiresAt'>>
   >
-  cancelationReason?: Maybe<CancelationReasonEnum>
+  cancellationReason?: Maybe<CancellationReasonEnum>
   status?: Maybe<StatusTypeEnum>
 }
 
@@ -28,7 +28,7 @@ export const isPaymentActivationExpired = (
   subscription?: Maybe<SubscriptionWithActivationRules>,
 ) => {
   return (
-    subscription?.cancelationReason === CancelationReasonEnum.Timeout ||
+    subscription?.cancellationReason === CancellationReasonEnum.Timeout ||
     getPaymentActivationRule(subscription)?.status === ActivationRuleStatusEnum.Expired
   )
 }

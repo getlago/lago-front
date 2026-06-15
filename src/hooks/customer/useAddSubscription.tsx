@@ -34,7 +34,7 @@ gql`
     createSubscription(input: $input) {
       id
       status
-      cancelationReason
+      cancellationReason
       startedAt
       subscriptionAt
       endingAt
@@ -75,7 +75,7 @@ gql`
     updateSubscription(input: $input) {
       id
       status
-      cancelationReason
+      cancellationReason
       startedAt
       subscriptionAt
       endingAt

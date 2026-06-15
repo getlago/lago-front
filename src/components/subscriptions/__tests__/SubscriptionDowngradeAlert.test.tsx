@@ -3,7 +3,7 @@ import { screen } from '@testing-library/react'
 import {
   ActivationRuleStatusEnum,
   ActivationRuleTypeEnum,
-  CancelationReasonEnum,
+  CancellationReasonEnum,
   NextSubscriptionTypeEnum,
   StatusTypeEnum,
   SubscriptionInformationFieldsFragment,
@@ -39,7 +39,7 @@ const baseSubscription = (
     id: 'sub-1',
     externalId: 'ext-1',
     status: StatusTypeEnum.Active,
-    cancelationReason: null,
+    cancellationReason: null,
     subscriptionAt: '2026-01-01',
     endingAt: null,
     terminatedAt: null,
@@ -172,7 +172,7 @@ describe('SubscriptionDetailAlerts', () => {
       <SubscriptionDetailAlerts
         subscription={baseSubscription({
           status: StatusTypeEnum.Canceled,
-          cancelationReason: CancelationReasonEnum.Timeout,
+          cancellationReason: CancellationReasonEnum.Timeout,
         })}
       />,
     )

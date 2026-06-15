@@ -18,7 +18,7 @@ import {
 } from '~/core/utils/subscriptionUtils'
 import {
   ActivationRuleStatusEnum,
-  CancelationReasonEnum,
+  CancellationReasonEnum,
   FeatureFlagEnum,
   NextSubscriptionTypeEnum,
   StatusTypeEnum,
@@ -34,7 +34,7 @@ gql`
     name
     status
     startedAt
-    cancelationReason
+    cancellationReason
     subscriptionAt
     endingAt
     terminatedAt
@@ -155,7 +155,7 @@ export const SubscriptionDetailAlerts = ({
     }
   } else if (
     subscription?.status === StatusTypeEnum.Canceled &&
-    subscription.cancelationReason === CancelationReasonEnum.PaymentFailed
+    subscription.cancellationReason === CancellationReasonEnum.PaymentFailed
   ) {
     paymentGatedAlert = {
       type: 'info',
