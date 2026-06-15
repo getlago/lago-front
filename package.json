@@ -189,11 +189,8 @@
   },
   "pnpm": {
     "overrides": {
-      "axios": "1.17.0",
-      "flatted": "3.4.2",
-      "svgo": "4.0.1",
-      "follow-redirects": "1.16.0",
-      "uuid": "14.0.0"
+      "uuid": ">=14.0.0",
+      "tmp": ">=0.2.6"
     }
   },
   "engines": {
