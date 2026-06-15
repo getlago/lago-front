@@ -7,16 +7,23 @@ import { Button } from '~/components/designSystem/Button'
 import { ComboBox } from '~/components/form'
 import { MUI_BUTTON_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 
-import { scrollToAndClickElement, scrollToAndExpandAccordion, scrollToTop } from '../domUtils'
+import {
+  openAccordionThenScrollTo,
+  scrollToAndClickElement,
+  scrollToAndExpandAccordion,
+  scrollToTop,
+} from '../domUtils'
 
 // Mock scrollIntoView and scrollTo since they're not available in jsdom
 const mockScrollIntoView = jest.fn()
 const mockScrollTo = jest.fn()
 const mockClick = jest.fn()
+const mockFocus = jest.fn()
 
 Element.prototype.scrollIntoView = mockScrollIntoView
 Element.prototype.scrollTo = mockScrollTo
 HTMLElement.prototype.click = mockClick
+HTMLElement.prototype.focus = mockFocus
 
 const TestAccordionComponent = ({
   accordionId,
@@ -241,6 +248,78 @@ describe('DomUtils', () => {
         behavior: 'smooth',
         block: 'start',
       })
+    })
+  })
+
+  describe('openAccordionThenScrollTo', () => {
+    it('opens a collapsed accordion instantly (no anim), then scrolls + focuses once', () => {
+      const accordionId = 'open-then-scroll-collapsed'
+
+      render(<TestAccordionComponent accordionId={accordionId} />)
+
+      openAccordionThenScrollTo(accordionId)
+
+      // Open happens synchronously.
+      expect(mockClick).toHaveBeenCalledTimes(1)
+      // Scroll + focus are deferred to the settle loop.
+      expect(mockFocus).not.toHaveBeenCalled()
+
+      act(() => {
+        jest.advanceTimersByTime(100)
+      })
+
+      expect(mockScrollIntoView).toHaveBeenCalledTimes(1)
+      expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' })
+      expect(mockFocus).toHaveBeenCalledTimes(1)
+      expect(mockFocus).toHaveBeenCalledWith({ preventScroll: true, focusVisible: true })
+    })
+
+    it('does not click an already-open accordion but still focuses it', () => {
+      const accordionId = 'open-then-scroll-open'
+
+      render(<TestAccordionComponent accordionId={accordionId} initiallyOpen={true} />)
+
+      openAccordionThenScrollTo(accordionId)
+
+      expect(mockClick).not.toHaveBeenCalled()
+
+      act(() => {
+        jest.advanceTimersByTime(100)
+      })
+
+      expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' })
+      expect(mockFocus).toHaveBeenCalledWith({ preventScroll: true, focusVisible: true })
+    })
+
+    it('degrades to a plain scroll for a non-accordion target (no summary to focus)', () => {
+      const sectionId = 'open-then-scroll-plain-section'
+
+      render(<section id={sectionId}>Plain section</section>)
+
+      openAccordionThenScrollTo(sectionId)
+
+      expect(mockClick).not.toHaveBeenCalled()
+
+      act(() => {
+        jest.advanceTimersByTime(100)
+      })
+
+      expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' })
+      expect(mockFocus).not.toHaveBeenCalled()
+    })
+
+    it('is a no-op when the target element does not exist', () => {
+      render(<div>No target here</div>)
+
+      expect(() => openAccordionThenScrollTo('does-not-exist')).not.toThrow()
+
+      act(() => {
+        jest.advanceTimersByTime(100)
+      })
+
+      expect(mockClick).not.toHaveBeenCalled()
+      expect(mockScrollIntoView).not.toHaveBeenCalled()
+      expect(mockFocus).not.toHaveBeenCalled()
     })
   })
 

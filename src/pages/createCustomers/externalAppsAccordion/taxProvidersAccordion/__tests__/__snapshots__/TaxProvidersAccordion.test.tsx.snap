@@ -10,11 +10,11 @@ exports[`TaxProvidersAccordion Integration Tests WHEN rendering the component TH
       Tax provider
     </div>
     <div
-      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded MuiAccordion-gutters border border-solid border-grey-400 addCustomerTaxProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
+      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded MuiAccordion-gutters border border-solid border-grey-400 has-[:focus-visible]:ring addCustomerTaxProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
     >
       <div
         aria-expanded="false"
-        class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+        class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
@@ -124,11 +124,11 @@ exports[`TaxProvidersAccordion Integration Tests WHEN rendering the component TH
       Tax provider
     </div>
     <div
-      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 addCustomerTaxProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
+      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 has-[:focus-visible]:ring addCustomerTaxProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
     >
       <div
         aria-expanded="true"
-        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
@@ -374,11 +374,11 @@ exports[`TaxProvidersAccordion Integration Tests WHEN rendering the component TH
       Tax provider
     </div>
     <div
-      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 addCustomerTaxProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
+      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 has-[:focus-visible]:ring addCustomerTaxProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
     >
       <div
         aria-expanded="true"
-        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
@@ -624,11 +624,11 @@ exports[`TaxProvidersAccordion Integration Tests WHEN rendering the component TH
       Tax provider
     </div>
     <div
-      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 addCustomerTaxProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
+      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 has-[:focus-visible]:ring addCustomerTaxProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
     >
       <div
         aria-expanded="true"
-        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
@@ -874,11 +874,11 @@ exports[`TaxProvidersAccordion Integration Tests WHEN selecting tax providers TH
       Tax provider
     </div>
     <div
-      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded MuiAccordion-gutters border border-solid border-grey-400 addCustomerTaxProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
+      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded MuiAccordion-gutters border border-solid border-grey-400 has-[:focus-visible]:ring addCustomerTaxProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
     >
       <div
         aria-expanded="false"
-        class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+        class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
@@ -983,11 +983,11 @@ exports[`TaxProvidersAccordion Integration Tests WHEN user interacts with the ac
       Tax provider
     </div>
     <div
-      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 addCustomerTaxProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
+      class=MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters border border-solid border-grey-400 has-[:focus-visible]:ring addCustomerTaxProviderAccordion css-hash-MuiPaper-root-MuiAccordion-root
     >
       <div
         aria-expanded="true"
-        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
