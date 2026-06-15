@@ -1,19 +1,18 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import { object, string } from 'yup'
+import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
 import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { ComboBoxField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import {
   CurrencyEnum,
   EditBillingEntityDefaultCurrencyForDialogFragment,
-  UpdateBillingEntityInput,
   useUpdateBillingEntityDefaultCurrencyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   fragment EditBillingEntityDefaultCurrencyForDialog on BillingEntity {
@@ -29,6 +28,12 @@ gql`
   }
 `
 
+const EDIT_DEFAULT_CURRENCY_FORM_ID = 'edit-default-currency-form'
+
+const editDefaultCurrencyValidationSchema = z.object({
+  defaultCurrency: z.enum(CurrencyEnum),
+})
+
 export interface EditDefaultCurrencyDialogRef {
   openDialog: (localData: EditDefaultCurrencyDialogImperativeProps) => unknown
   closeDialog: () => unknown
@@ -42,6 +47,7 @@ export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef
   const { translate } = useInternationalization()
   const dialogRef = useRef<DialogRef>(null)
   const [localData, setLocalData] = useState<EditDefaultCurrencyDialogImperativeProps | null>(null)
+
   const [updateBillingEntity] = useUpdateBillingEntityDefaultCurrencyMutation({
     onCompleted(res) {
       if (res?.updateBillingEntity) {
@@ -54,36 +60,36 @@ export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef
     refetchQueries: ['getBillingEntitySettings'],
   })
 
-  const formikProps = useFormik<Pick<UpdateBillingEntityInput, 'defaultCurrency'>>({
-    initialValues: {
-      defaultCurrency: localData?.billingEntity?.defaultCurrency || CurrencyEnum.Usd,
+  const form = useAppForm({
+    defaultValues: {
+      defaultCurrency: CurrencyEnum.Usd,
     },
-    validationSchema: object().shape({
-      defaultCurrency: string()
-        .test({
-          test: function (defaultCurrency) {
-            return Object.values(CurrencyEnum).includes(defaultCurrency as CurrencyEnum)
-          },
-        })
-        .required(''),
-    }),
-    validateOnMount: true,
-    enableReinitialize: true,
-    onSubmit: async (values) => {
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: editDefaultCurrencyValidationSchema,
+    },
+    onSubmit: async ({ value }) => {
       await updateBillingEntity({
         variables: {
           input: {
             id: localData?.billingEntity?.id as string,
-            ...values,
+            ...value,
           },
         },
       })
+      dialogRef.current?.closeDialog()
     },
   })
+
+  const isDirty = useStore(form.store, (state) => state.isDirty)
+  const canSubmit = useStore(form.store, (state) => state.canSubmit)
 
   useImperativeHandle(ref, () => ({
     openDialog: (data) => {
       setLocalData(data)
+      form.reset({
+        defaultCurrency: data?.billingEntity?.defaultCurrency || CurrencyEnum.Usd,
+      })
       dialogRef.current?.openDialog()
     },
     closeDialog: () => {
@@ -91,45 +97,45 @@ export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef
     },
   }))
 
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    form.handleSubmit()
+  }
+
+  const actions = ({ closeDialog }: { closeDialog: () => void }) => (
+    <>
+      <Button variant="quaternary" onClick={closeDialog}>
+        {translate('text_62bb10ad2a10bd182d002031')}
+      </Button>
+      <Button variant="primary" type="submit" disabled={!canSubmit || !isDirty}>
+        {translate('text_17432414198706rdwf76ek3u')}
+      </Button>
+    </>
+  )
+
   return (
     <Dialog
       ref={dialogRef}
       title={translate('text_6543ca0fdebf76a18e159294')}
       description={translate('text_6543ca0fdebf76a18e159298')}
-      onClose={() => {
-        formikProps.resetForm()
-      }}
-      actions={({ closeDialog }) => (
-        <>
-          <Button variant="quaternary" onClick={closeDialog}>
-            {translate('text_62bb10ad2a10bd182d002031')}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={async () => {
-              await formikProps.submitForm()
-              closeDialog()
-              formikProps.resetForm()
-              setLocalData(null)
-            }}
-          >
-            {translate('text_17432414198706rdwf76ek3u')}
-          </Button>
-        </>
-      )}
+      onClose={() => form.reset()}
+      formId={EDIT_DEFAULT_CURRENCY_FORM_ID}
+      formSubmit={handleFormSubmit}
+      actions={actions}
     >
       <div className="mb-8 flex flex-col gap-3">
-        <ComboBoxField
-          disableClearable
-          name="defaultCurrency"
-          label={translate('text_6543ca0fdebf76a18e15929c')}
-          data={Object.values(CurrencyEnum).map((currencyType) => ({
-            value: currencyType,
-          }))}
-          PopperProps={{ displayInDialog: true }}
-          formikProps={formikProps}
-        />
+        <form.AppField name="defaultCurrency">
+          {(field) => (
+            <field.ComboBoxField
+              disableClearable
+              label={translate('text_6543ca0fdebf76a18e15929c')}
+              data={Object.values(CurrencyEnum).map((currencyType) => ({
+                value: currencyType,
+              }))}
+              PopperProps={{ displayInDialog: true }}
+            />
+          )}
+        </form.AppField>
       </div>
     </Dialog>
   )
