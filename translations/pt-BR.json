@@ -1547,7 +1547,6 @@
   "text_63890710eb171a76814a0c0d": "Editar fuso horário da entidade de faturamento",
   "text_63890710eb171a76814a0c0f": "Defina o fuso horário para sua entidade. Este fuso horário será usado para faturamento e cálculos de limites, a menos que seja substituído no nível do cliente.",
   "text_63890710eb171a76814a0c11": "Fuso horário",
-  "text_63890710eb171a76814a0c15": "Cancelar",
   "text_63890710eb171a76814a0c17": "Salvar fuso horário",
   "text_63891ad3dd238c657ea00954": "Fuso horário da entidade de faturamento editado com sucesso",
   "text_638f743fa9a2a9545ee6409a": "{{zone}}, UTC {{offset}}",
