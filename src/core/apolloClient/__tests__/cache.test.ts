@@ -14,9 +14,6 @@ const IGNORED_DIRECTORIES = new Set(['generated', '__tests__', '__mocks__', 'nod
 // these starts using fetchMore/InfiniteScroll, remove it from here and add a field
 // policy in cache.ts instead.
 const FIELDS_WITHOUT_FETCH_MORE = new Set([
-  // ApiKeys.tsx renders the whole collection, no InfiniteScroll - missing pagination
-  // tracked in LAGO-1524; remove from here when fixing it
-  'apiKeys',
   // XeroIntegrationMapItemDrawer combobox searchQuery, always a fresh page-1 lazy query
   'integrationItems',
 ])
