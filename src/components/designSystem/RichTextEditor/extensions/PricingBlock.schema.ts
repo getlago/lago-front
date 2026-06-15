@@ -8,6 +8,7 @@ export type PricingType = 'plan' | 'addOns'
 export interface PricingBlockAttributes {
   pricingType: PricingType
   entityIds: string[]
+  localEntityIds?: string[]
 }
 
 export interface PricingBlockPreviewRow {
@@ -35,6 +36,7 @@ export const getPricingBlockPreviewData = (
   pricingType: PricingType,
   entityIds: string[],
   entities?: Record<string, { name?: string; code?: string }>,
+  localEntityIds?: string[],
 ): PricingBlockPreviewData => {
   const labels = LABELS[pricingType]
 
@@ -46,17 +48,20 @@ export const getPricingBlockPreviewData = (
     }
   }
 
-  const hasAnyResolved = entityIds.some((id) => entities?.[id]?.name || entities?.[id]?.code)
+  const lookupIds = localEntityIds?.length ? localEntityIds : entityIds
+
+  const hasAnyResolved = lookupIds.some((id) => entities?.[id]?.name || entities?.[id]?.code)
 
   return {
     nameHeader: hasAnyResolved ? labels.name : labels.id,
     codeHeader: hasAnyResolved ? labels.code : labels.id,
-    rows: entityIds.map((id) => {
+    rows: lookupIds.map((id, i) => {
       const entity = entities?.[id]
+      const catalogId = entityIds[i] ?? id
 
       return {
-        nameValue: entity?.name ?? id,
-        codeValue: entity?.code ?? id,
+        nameValue: entity?.name ?? catalogId,
+        codeValue: entity?.code ?? catalogId,
       }
     }),
   }
@@ -89,6 +94,16 @@ export const PricingBlockSchema = Node.create({
           return raw.split(',').filter(Boolean)
         },
       },
+      localEntityIds: {
+        default: [] as string[],
+        parseHTML: (element: HTMLElement) => {
+          const raw = element.dataset.localEntityIds
+
+          if (!raw) return []
+
+          return raw.split(',').filter(Boolean)
+        },
+      },
     }
   },
 
@@ -99,18 +114,23 @@ export const PricingBlockSchema = Node.create({
           state: { write: (text: string) => void; closeBlock: (node: unknown) => void },
           node: { attrs: PricingBlockAttributes },
         ) {
-          const { pricingType, entityIds } = node.attrs
+          const { pricingType, entityIds, localEntityIds } = node.attrs
           const idsStr = entityIds.join(',')
+          const localIdsStr = localEntityIds?.length ? `|${localEntityIds.join(',')}` : ''
 
-          state.write(`<!-- entity:pricing:${pricingType}:${idsStr} -->`)
+          state.write(`<!-- entity:pricing:${pricingType}:${idsStr}${localIdsStr} -->`)
           state.closeBlock(node)
         },
         parse: {
           updateDOM(element: HTMLElement) {
             element.innerHTML = element.innerHTML.replaceAll(
               /<!--\s*entity:pricing:(plan|addOns):([\s\S]*?)-->/g,
-              (_match: string, pricingType: string, entityIds: string) =>
-                `<div data-type="pricing-block" data-pricing-type="${pricingType}" data-entity-ids="${entityIds.trim()}"></div>`,
+              (_match: string, pricingType: string, idsRaw: string) => {
+                const [entityIds, localEntityIds] = idsRaw.trim().split('|')
+                const localAttr = localEntityIds ? ` data-local-entity-ids="${localEntityIds}"` : ''
+
+                return `<div data-type="pricing-block" data-pricing-type="${pricingType}" data-entity-ids="${entityIds}"${localAttr}></div>`
+              },
             )
           },
         },
@@ -125,21 +145,31 @@ export const PricingBlockSchema = Node.create({
   renderHTML({ HTMLAttributes }) {
     const pricingType = (HTMLAttributes.pricingType ?? 'plan') as PricingType
     const entityIds: string[] = HTMLAttributes.entityIds ?? []
+    const localEntityIds: string[] = HTMLAttributes.localEntityIds ?? []
     const labels = LABELS[pricingType]
 
     const wrapperAttrs = mergeAttributes(HTMLAttributes, {
       'data-type': 'pricing-block',
       'data-pricing-type': pricingType,
       'data-entity-ids': entityIds.join(','),
+      ...(localEntityIds.length > 0 && {
+        'data-local-entity-ids': localEntityIds.join(','),
+      }),
       class: 'pricing-block',
     })
 
-    // Resolve entities from options
+    // Resolve entities from options — prefer localEntityIds for unique lookups
     const resolvedEntities: Record<string, EntityData> = this.options.entities ?? {}
-    const hasEntities = entityIds.some((id) => resolvedEntities[id])
+    const lookupIds = localEntityIds.length > 0 ? localEntityIds : entityIds
+    const hasEntities = lookupIds.some((id) => resolvedEntities[id])
 
     if (hasEntities && entityIds.length > 0) {
-      const preview = getPricingBlockPreviewData(pricingType, entityIds, resolvedEntities)
+      const preview = getPricingBlockPreviewData(
+        pricingType,
+        entityIds,
+        resolvedEntities,
+        localEntityIds,
+      )
       const bodyRows = preview.rows.map(
         (row) => ['tr', {}, ['td', {}, row.nameValue], ['td', {}, row.codeValue]] as const,
       )

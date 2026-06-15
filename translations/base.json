@@ -1518,7 +1518,6 @@
   "text_63890710eb171a76814a0c0d": "Edit billing entity's timezone",
   "text_63890710eb171a76814a0c0f": "Set the timezone for your entity. This timezone will be used for invoicing and boundary calculations unless overridden at the customer level.",
   "text_63890710eb171a76814a0c11": "Timezone",
-  "text_63890710eb171a76814a0c15": "Cancel",
   "text_63890710eb171a76814a0c17": "Save timezone",
   "text_63891ad3dd238c657ea00954": "Billing entity’s timezone successfully edited",
   "text_638f743fa9a2a9545ee6409a": "{{zone}}, UTC {{offset}}",
@@ -4161,7 +4160,6 @@
   "text_1779289915866etwoweh1syv": "Subscription fee",
   "text_1779289915866aj39dyv1wps": "Fixed charges",
   "text_1779289915866ngi8sv5t9lg": "Usage-based charges",
-  "text_1779289915866m899iy5nykb": "Advanced settings",
   "text_17792899158664ii2pmrd2le": "Minimum commitment",
   "text_1779289915866vguw0lfmz06": "Progressive billing",
   "text_1779289915866mr56w61hhi5": "Entitlements",
@@ -4286,5 +4284,11 @@
   "text_1780604419477ujb85w6pk81": "Subscription name",
   "text_178060441947738s33pstvzp": "Subscription external ID",
   "text_17810792697743rdztc0hzsn": "A webhook endpoint signature algorithm was changed from {{algoFrom}} to {{algoTo}}",
-  "text_1781079269774kur4mhrgipy": "A webhook endpoint {{urlFrom}} was updated to {{urlTo}} and signature algorithm was changed from {{algoFrom}} to {{algoTo}}"
+  "text_1781079269774kur4mhrgipy": "A webhook endpoint {{urlFrom}} was updated to {{urlTo}} and signature algorithm was changed from {{algoFrom}} to {{algoTo}}",
+  "text_17804985042415hh3kbs8ksh": "Name",
+  "text_178049850424144tpzoeoge3": "Billed",
+  "text_1780498504241avgm5sugii4": "Units",
+  "text_1780498504241di3s12o655k": "Price",
+  "text_1780498504241eo24fnc6s9u": "From {{fromDate}} to {{toDate}}",
+  "text_17804985042422iw5hwj0u2v": "All prices exclude any applicable taxes"
 }

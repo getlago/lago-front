@@ -123,6 +123,10 @@
     @apply relative min-w-[100px] border border-grey-300 px-3 py-2 text-base leading-6;
   }
 
+  .lago-table-cell {
+    @apply px-0;
+  }
+
   --cell-highlight-size: 2px;
   --cell-highlight-color: theme('colors.blue.600');
 
@@ -204,6 +208,10 @@
     p.is-editor-empty:first-child::before {
       content: none;
     }
+
+    .block-handle-group {
+      @apply hidden;
+    }
   }
 
   .variable-mention {
@@ -219,7 +227,7 @@
   }
 
   .block-type-tag {
-    @apply self-start rounded-tl-xl rounded-tr-xl bg-grey-300 px-2 py-0.5 text-sm font-medium text-grey-700;
+    @apply self-start rounded-tl-xl rounded-tr-xl border border-b-0 border-grey-400 bg-grey-100 px-2 py-0.5;
   }
 
   .icon-wrapper {
@@ -352,9 +360,9 @@
   @apply mt-2 h-6;
 }
 
-/* Block selection highlight */
-.ProseMirror .ProseMirror-selectednode,
-.ProseMirror .is-block-selected {
+/* Block selection highlight (edit mode only) */
+.ProseMirror:not([contenteditable='false']) .ProseMirror-selectednode,
+.ProseMirror:not([contenteditable='false']) .is-block-selected {
   @apply rounded-md bg-blue-100;
 }
 

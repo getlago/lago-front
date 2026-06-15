@@ -1,37 +1,64 @@
 import { NodeViewProps, NodeViewWrapper } from '@tiptap/react'
-import { Icon } from 'lago-design-system'
 
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { Locale, LocaleEnum } from '~/core/translations'
 import { CurrencyEnum } from '~/generated/graphql'
+import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
+import { OneOffAddOnsPreviewTable } from './OneOffAddOnsPreviewTable'
+
 import { useRichTextEditorContext } from '../common/RichTextEditorContext'
 import { PricingType } from '../extensions/PricingBlock.schema'
+import SlashCommandBlockWrapper from '../SlashCommandBlockWrapper/SlashCommandBlockWrapper'
 
-export const PRICING_BLOCK_VIEW_TEST_ID = 'pricing-block-view'
 export const PRICING_BLOCK_VIEW_EMPTY_TEST_ID = 'pricing-block-view-empty'
 export const PRICING_BLOCK_VIEW_UNRESOLVED_TEST_ID = 'pricing-block-view-unresolved'
 
 export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
-  const { entities, onPricingCommand } = useRichTextEditorContext()
+  const { entities, onPricingCommand, mode, customerLocale, customerCurrency } =
+    useRichTextEditorContext()
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
-  const currency = organization?.defaultCurrency ?? CurrencyEnum.Usd
+  const currency = customerCurrency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
+
+  const effectiveLocale: Locale = (customerLocale ?? 'en') as Locale
+  const { translateWithContextualLocal } = useContextualLocale(effectiveLocale)
 
   const pricingType = (node.attrs.pricingType ?? 'plan') as PricingType
   const entityIds = (node.attrs.entityIds ?? []) as string[]
+  const localEntityIds = (node.attrs.localEntityIds ?? []) as string[]
   const isEmpty = entityIds.length === 0
 
-  const resolvedEntities = entityIds.map((id) => entities[id]).filter(Boolean)
+  const lookupIds = localEntityIds.length > 0 ? localEntityIds : entityIds
+  const resolvedEntities = lookupIds.map((id) => entities[id]).filter(Boolean)
   const hasResolved = resolvedEntities.length > 0
+
+  // Preview mode: dispatch by pricing type
+  if (mode === 'preview' && hasResolved) {
+    if (pricingType === 'addOns') {
+      return (
+        <NodeViewWrapper className="spacer" data-type="pricingBlock">
+          <OneOffAddOnsPreviewTable
+            entities={resolvedEntities}
+            translate={translateWithContextualLocal}
+            currency={currency}
+            locale={LocaleEnum[effectiveLocale]}
+          />
+        </NodeViewWrapper>
+      )
+    }
+
+    // Plan preview — fall through to existing resolved rendering for now
+  }
 
   const handleClick = () => {
     onPricingCommand?.({
       onSave: (attrs) => {
         updateAttributes(attrs)
       },
-      editData: isEmpty ? undefined : { pricingType, entityIds },
+      editData: isEmpty ? undefined : { pricingType, entityIds, localEntityIds },
     })
   }
 
@@ -67,31 +94,17 @@ export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
             ),
           })
 
+    const typeText = translate('text_1779802343219a1cl5ckvtrn')
+
     return (
       <NodeViewWrapper className="spacer" data-type="pricingBlock">
         <div className="block-wrapper">
-          <div className="block-type-wrapper">
-            <div className="block-type-tag">{translate('text_1779802343219a1cl5ckvtrn')}</div>
-            <button
-              className="pricing-block pricing-block--clickable"
-              onMouseDown={(e) => e.stopPropagation()}
-              onClick={handleClick}
-              data-test={PRICING_BLOCK_VIEW_TEST_ID}
-            >
-              <div className="pricing-block-content">
-                <div className="icon-wrapper">
-                  <Icon name="document" />
-                </div>
-                <div className="pricing-block-text">
-                  <span>{displayText}</span>
-                  <span>{translate('text_1780329442633n0oe3prszsw')}</span>
-                </div>
-              </div>
-              <div className="click-icon-wrapper">
-                <Icon name="chevron-right-filled" />
-              </div>
-            </button>
-          </div>
+          <SlashCommandBlockWrapper
+            typeText={typeText}
+            handleClick={handleClick}
+            icon="document"
+            displayText={displayText}
+          />
         </div>
       </NodeViewWrapper>
     )

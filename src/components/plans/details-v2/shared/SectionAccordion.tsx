@@ -42,12 +42,16 @@ export const SectionAccordion = ({
   const visibleActions = (actions ?? []).filter((a) => !a.hidden)
 
   return (
-    <div
-      id={id}
-      className="scroll-mt-12"
-      style={{ contentVisibility: 'auto', containIntrinsicSize: '0 80px' }}
-    >
+    <div id={id} className="scroll-mt-12">
+      {/* content-visibility lives on the card itself, not this wrapper: a contain:paint
+          element clips its descendants' overflow but not its OWN box-shadow, so the focus
+          ring on the card is no longer cropped.
+          `contain-intrinsic-size: auto 80px`: the `auto` keyword makes the browser remember
+          each card's last RENDERED height and reuse it while off-screen (80px is only the
+          before-first-render fallback). Without `auto`, an opened card scrolled off-screen
+          would collapse to the 80px placeholder, throwing off jump-to scroll math. */}
       <Accordion
+        className="[contain-intrinsic-size:auto_80px] [content-visibility:auto]"
         initiallyOpen={initiallyOpen}
         noContentMargin={noContentMargin}
         summary={

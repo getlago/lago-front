@@ -1,9 +1,10 @@
-import { Editor } from '@tiptap/core'
 import Placeholder from '@tiptap/extension-placeholder'
 import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '@tiptap/react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
+import type { Locale } from '~/core/translations'
+import type { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import BlockToolbar from './BlockControls/BlockToolbar'
@@ -13,17 +14,21 @@ import {
   type OnPricingCommand,
   RichTextEditorProvider,
 } from './common/RichTextEditorContext'
+import {
+  RICH_TEXT_EDITOR_CONTENT_TEST_ID,
+  RICH_TEXT_EDITOR_TEST_ID,
+  RICH_TEXT_EDITOR_TOOLBAR_TEST_ID,
+} from './constants'
 import { getBaseExtensions } from './extensions/baseExtensions'
 import { DragHandle } from './extensions/DragHandle'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
 import {
-  configureMention,
   mentionBaseConfig,
   MentionSchema,
   type MentionSchemaOptions,
 } from './extensions/Mention.schema'
 import { PricingBlock } from './extensions/PricingBlock'
-import { type PricingBlockAttributes, PricingBlockSchema } from './extensions/PricingBlock.schema'
+import { type PricingBlockAttributes } from './extensions/PricingBlock.schema'
 import { SlashCommands } from './extensions/SlashCommands'
 import { TableCommands } from './extensions/TableCommands'
 import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
@@ -33,11 +38,6 @@ import './richTextEditor.css'
 import TableControls from './Table/TableControls'
 import type { EditorTemplate } from './TemplateSelector/types'
 import Toolbar from './Toolbar/Toolbar'
-
-export const RICH_TEXT_EDITOR_TEST_ID = 'rich-text-editor'
-export const RICH_TEXT_EDITOR_TOOLBAR_TEST_ID = 'rich-text-editor-toolbar'
-export const RICH_TEXT_EDITOR_CONTENT_TEST_ID = 'rich-text-editor-content'
-export const RICH_TEXT_EDITOR_SAVE_BUTTON_TEST_ID = 'rich-text-editor-save-button'
 
 export type RichTextEditorMode = 'edit' | 'preview'
 
@@ -53,6 +53,9 @@ interface RichTextEditorProps {
   onPricingCommand?: OnPricingCommand
   isPricingDisabled?: () => boolean
   onPricingBlocksChange?: (blocks: PricingBlockAttributes[]) => void
+  customerLocale?: Locale
+  customerCurrency?: CurrencyEnum
+  isCompact?: boolean
 }
 
 const RichTextEditor = ({
@@ -67,6 +70,9 @@ const RichTextEditor = ({
   isPricingDisabled,
   onPricingBlocksChange,
   onChange,
+  customerLocale,
+  customerCurrency,
+  isCompact,
 }: RichTextEditorProps) => {
   const { translate } = useInternationalization()
   const onChangeRef = useRef(onChange)
@@ -156,7 +162,9 @@ const RichTextEditor = ({
     ],
     editorProps: {
       attributes: {
-        class: 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10',
+        class: isCompact
+          ? 'max-w-4xl mx-auto focus:outline-none min-h-[300px] mb-4 px-0'
+          : 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10',
       },
     },
     content:
@@ -184,6 +192,7 @@ const RichTextEditor = ({
           blocks.push({
             pricingType: node.attrs.pricingType,
             entityIds: node.attrs.entityIds,
+            localEntityIds: node.attrs.localEntityIds,
           })
         }
       })
@@ -217,34 +226,16 @@ const RichTextEditor = ({
     return typeof result === 'string' ? result : undefined
   }, [editor])
 
-  // Generate preview HTML with a fresh headless editor so renderHTML() has current data.
-  // TipTap binds extension options at schema creation time, so mutating them later has no effect.
-  const previewHtml = useMemo(() => {
-    if (!isPreview || !editor) return ''
-
-    const markdown = getMarkdown()
-
-    if (!markdown) return editor.getHTML()
-
-    const previewEditor = new Editor({
-      extensions: [
-        ...getBaseExtensions(),
-        configureMention({ ...mentionBaseConfig, mentionValues }),
-        PricingBlockSchema.configure({ entities: entitiesFromProps }),
-      ],
-      content: markdown,
-    })
-
-    const html = previewEditor.getHTML()
-
-    previewEditor.destroy()
-
-    return html
-  }, [isPreview, editor, getMarkdown, mentionValues, entitiesFromProps])
-
   const contextValue = useMemo(
-    () => ({ mode, mentionValues, entities: entitiesFromProps, onPricingCommand }),
-    [mode, mentionValues, entitiesFromProps, onPricingCommand],
+    () => ({
+      mode,
+      mentionValues,
+      entities: entitiesFromProps,
+      onPricingCommand,
+      customerLocale,
+      customerCurrency,
+    }),
+    [mode, mentionValues, entitiesFromProps, onPricingCommand, customerLocale, customerCurrency],
   )
 
   useEffect(() => {
@@ -279,34 +270,18 @@ const RichTextEditor = ({
 
   if (!editor) return null
 
-  if (isPreview) {
-    return (
-      <div
-        className="rich-text-editor relative h-full max-h-screen overflow-auto"
-        data-test={RICH_TEXT_EDITOR_TEST_ID}
-      >
-        <div
-          className="ProseMirror"
-          contentEditable={false}
-          data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID}
-          dangerouslySetInnerHTML={{ __html: previewHtml }}
-        />
-      </div>
-    )
-  }
-
   return (
     <RichTextEditorProvider value={contextValue}>
       <div
-        className="rich-text-editor group/editor relative size-full max-h-screen overflow-auto"
+        className={`rich-text-editor relative size-full max-h-screen overflow-auto ${isPreview ? '' : 'group/editor'}`}
         data-test={RICH_TEXT_EDITOR_TEST_ID}
       >
-        <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />
+        {!isPreview && <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />}
         <div className="relative">
           <EditorContent editor={editor} data-test={RICH_TEXT_EDITOR_CONTENT_TEST_ID} />
-          <TableControls editor={editor} />
+          {!isPreview && <TableControls editor={editor} />}
         </div>
-        <BlockToolbar editor={editor} />
+        {!isPreview && <BlockToolbar editor={editor} />}
       </div>
     </RichTextEditorProvider>
   )

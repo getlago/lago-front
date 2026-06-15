@@ -537,6 +537,36 @@ describe('BlockToolbar', () => {
         expect(result).toBeNull()
       })
     })
+
+    describe('WHEN hideMenu is true in DragHandle storage', () => {
+      it('THEN should return null even with a node selected', () => {
+        captureSelectorAndRender()
+
+        const { NodeSelection } = jest.requireActual('@tiptap/pm/state')
+        const mockNode = { attrs: { backgroundColor: '#dbeafe', textColor: '#1d4ed8' } }
+        const mockSelection = Object.create(NodeSelection.prototype, {
+          from: { value: 5 },
+          node: { value: mockNode },
+        })
+
+        const result = capturedSelector?.({
+          editor: {
+            isDestroyed: false,
+            state: {
+              selection: mockSelection,
+              doc: {
+                resolve: () => ({ index: () => 0 }),
+                childCount: 3,
+              },
+            },
+            view: { dragging: null },
+            storage: { dragHandle: { selectedBlock: null, hideMenu: true } },
+          },
+        })
+
+        expect(result).toBeNull()
+      })
+    })
   })
 
   describe('GIVEN the color picker interactions', () => {

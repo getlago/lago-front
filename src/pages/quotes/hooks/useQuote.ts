@@ -20,6 +20,9 @@ gql`
       externalId
       currency
       netPaymentTerm
+      billingConfiguration {
+        documentLocale
+      }
       billingEntity {
         id
         code

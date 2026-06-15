@@ -760,7 +760,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
           >
             <div
               aria-expanded="true"
-              class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -2051,7 +2051,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
           >
             <div
               aria-expanded="false"
-              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -2112,7 +2112,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
           >
             <div
               aria-expanded="false"
-              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -2959,7 +2959,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
           >
             <div
               aria-expanded="false"
-              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -3020,7 +3020,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
           >
             <div
               aria-expanded="false"
-              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -3081,7 +3081,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
           >
             <div
               aria-expanded="true"
-              class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -3982,7 +3982,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
           >
             <div
               aria-expanded="false"
-              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -4043,7 +4043,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
           >
             <div
               aria-expanded="false"
-              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -4104,7 +4104,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
           >
             <div
               aria-expanded="true"
-              class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -5005,7 +5005,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
           >
             <div
               aria-expanded="false"
-              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -5066,7 +5066,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
           >
             <div
               aria-expanded="true"
-              class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -5178,7 +5178,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
           >
             <div
               aria-expanded="false"
-              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -6025,7 +6025,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
           >
             <div
               aria-expanded="false"
-              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -6086,7 +6086,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
           >
             <div
               aria-expanded="false"
-              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -6147,7 +6147,7 @@ exports[`CreateCustomer Integration Tests WHEN checking on expanded features THE
           >
             <div
               aria-expanded="false"
-              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -6994,7 +6994,7 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
           >
             <div
               aria-expanded="false"
-              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -7055,7 +7055,7 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
           >
             <div
               aria-expanded="false"
-              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >
@@ -7116,7 +7116,7 @@ exports[`CreateCustomer Integration Tests WHEN rendering the component THEN shou
           >
             <div
               aria-expanded="false"
-              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus-visible:ring focus-visible:hover:bg-grey-100 h-auto focus:rounded-lg css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+              class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
               role="button"
               tabindex="0"
             >

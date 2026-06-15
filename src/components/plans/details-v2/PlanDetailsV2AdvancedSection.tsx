@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client'
+import { Ref } from 'react'
 
 import { PlanDetailsV2Fragment, PlanForUpdateWithCascadeFragmentDoc } from '~/generated/graphql'
 
-import { EntitlementAccordion } from './accordions/EntitlementAccordion'
+import { EntitlementAccordion, EntitlementAccordionRef } from './accordions/EntitlementAccordion'
 import { MinimumCommitmentAccordion } from './accordions/MinimumCommitmentAccordion'
 import { ProgressiveBillingAccordion } from './accordions/ProgressiveBillingAccordion'
 import { PlanDetailsV2SectionId } from './sidebarSections'
@@ -19,12 +20,14 @@ type PlanDetailsV2AdvancedSectionProps = {
   plan: PlanDetailsV2Fragment
   isInSubscriptionForm?: boolean
   subscriptionId?: string
+  entitlementRef?: Ref<EntitlementAccordionRef>
 }
 
 export const PlanDetailsV2AdvancedSection = ({
   plan,
   isInSubscriptionForm = false,
   subscriptionId,
+  entitlementRef,
 }: PlanDetailsV2AdvancedSectionProps) => (
   <section
     id={PlanDetailsV2SectionId.AdvancedSettings}
@@ -39,7 +42,11 @@ export const PlanDetailsV2AdvancedSection = ({
       <ProgressiveBillingAccordion plan={plan} isInSubscriptionForm={isInSubscriptionForm} />
     )}
     {!isInSubscriptionForm && (
-      <EntitlementAccordion plan={plan} isInSubscriptionForm={isInSubscriptionForm} />
+      <EntitlementAccordion
+        ref={entitlementRef}
+        plan={plan}
+        isInSubscriptionForm={isInSubscriptionForm}
+      />
     )}
   </section>
 )

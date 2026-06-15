@@ -20,6 +20,7 @@ const renderIcon = (container: HTMLElement, icon: keyof typeof ALL_ICONS): void 
 
 export type DragHandleStorage = {
   selectedBlock: { pos: number } | null
+  hideMenu: boolean
 }
 
 const isDragHandleStorage = (value: unknown): value is DragHandleStorage =>
@@ -30,7 +31,7 @@ export const getDragHandleStorage = (editor: Editor): DragHandleStorage => {
     return editor.storage.dragHandle
   }
 
-  return { selectedBlock: null }
+  return { selectedBlock: null, hideMenu: false }
 }
 
 export const DragHandle = Extension.create({
@@ -42,6 +43,7 @@ export const DragHandle = Extension.create({
        *  to CellSelection, so BlockToolbar can't detect it. We store the selected block
        *  info here so BlockToolbar can fall back to it. */
       selectedBlock: null as { pos: number } | null,
+      hideMenu: false,
     }
   },
 
@@ -74,6 +76,7 @@ export const DragHandle = Extension.create({
     const storage = getDragHandleStorage(editor)
 
     function selectBlock(pos: number) {
+      storage.hideMenu = false
       const node = editor.view.state.doc.nodeAt(pos)
 
       // For tables, avoid NodeSelection entirely — prosemirror-tables converts it
@@ -196,6 +199,38 @@ export const DragHandle = Extension.create({
     return [
       new Plugin({
         key: dragHandlePluginKey,
+        view(editorView) {
+          const handleOutsideClick = (event: MouseEvent) => {
+            const target = event.target as HTMLElement
+            const editorContainer = editorView.dom.closest('.rich-text-editor')
+
+            if (!editorContainer || editorContainer.contains(target)) return
+
+            const { selection } = editorView.state
+            const isNodeSelected = selection instanceof NodeSelection
+            const isTableSelected = storage.selectedBlock !== null
+
+            if (!isNodeSelected && !isTableSelected) return
+
+            storage.selectedBlock = null
+            storage.hideMenu = false
+
+            const $pos = editorView.state.doc.resolve(
+              Math.min(selection.from, editorView.state.doc.content.size),
+            )
+            const textSel = TextSelection.near($pos)
+
+            editorView.dispatch(editorView.state.tr.setSelection(textSel))
+          }
+
+          document.addEventListener('mousedown', handleOutsideClick)
+
+          return {
+            destroy() {
+              document.removeEventListener('mousedown', handleOutsideClick)
+            },
+          }
+        },
         state: {
           init(_, state) {
             return buildDecorations(state.doc)
@@ -265,6 +300,38 @@ export const DragHandle = Extension.create({
             storage.selectedBlock = null
 
             return false // don't consume the event
+          },
+          handleKeyDown(view, event) {
+            if (event.key !== 'Escape') return false
+
+            const { selection } = view.state
+            const isNodeSelected = selection instanceof NodeSelection
+            const isTableSelected = storage.selectedBlock !== null
+
+            if (!isNodeSelected && !isTableSelected) return false
+
+            // First ESC: hide the block menu (BlockToolbar)
+            if (!storage.hideMenu) {
+              storage.hideMenu = true
+              view.dispatch(view.state.tr.setMeta('hideBlockMenu', true))
+
+              return true
+            }
+
+            // Second ESC: deselect the block
+            storage.hideMenu = false
+
+            if (isNodeSelected) {
+              const $pos = view.state.doc.resolve(selection.to)
+              const textSel = TextSelection.near($pos)
+
+              view.dispatch(view.state.tr.setSelection(textSel))
+            } else if (isTableSelected) {
+              storage.selectedBlock = null
+              view.dispatch(view.state.tr.setMeta('clearBlockSelection', true))
+            }
+
+            return true
           },
         },
       }),

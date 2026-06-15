@@ -57,6 +57,7 @@ jest.mock('@tanstack/react-virtual', () => ({
 }))
 
 const defaultAddOnItem: AddOnItem = {
+  localId: 'local-1',
   addOnId: 'addon-1',
   name: 'Setup Fee',
   invoiceDisplayName: '',
@@ -70,6 +71,7 @@ const defaultAddOnItem: AddOnItem = {
 }
 
 const secondAddOnItem: AddOnItem = {
+  localId: 'local-2',
   addOnId: 'addon-2',
   name: 'Support',
   invoiceDisplayName: 'Premium Support',
@@ -520,9 +522,9 @@ describe('AddOnSelectionContent', () => {
           expect(screen.getByTestId('add-on-item-0')).toBeInTheDocument()
         })
 
-        // onAddOnPayloadCapture should have been called with the add-on id and full add-on object
+        // onAddOnPayloadCapture should have been called with the localId (UUID) and full add-on object
         expect(onAddOnPayloadCapture).toHaveBeenCalledWith(
-          'addon-1',
+          expect.any(String),
           expect.objectContaining({
             id: 'addon-1',
             name: 'Setup Fee',
