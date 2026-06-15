@@ -77,13 +77,18 @@ export const SubscriptionActivationRuleSection = withForm({
     }, [formType, subscriptionStatus])
 
     useEffect(() => {
+      // Only auto-correct once payment methods have resolved. While they are still
+      // loading, `isPaymentActivationUnavailable` is transiently true (no list yet →
+      // manual fallback), which would otherwise clobber a loaded "on payment" selection
+      // back to "immediately" before the data finishes loading.
       if (
+        hasResolvedPaymentMethods &&
         isPaymentActivationUnavailable &&
         activationRuleType === ActivationRuleFormTypeEnum.OnPayment
       ) {
         form.setFieldValue('activationRuleType', ActivationRuleFormTypeEnum.Immediately)
       }
-    }, [activationRuleType, form, isPaymentActivationUnavailable])
+    }, [activationRuleType, form, hasResolvedPaymentMethods, isPaymentActivationUnavailable])
 
     return (
       <div className="flex flex-col gap-6" data-test={SUBSCRIPTION_ACTIVATION_RULE_SECTION_TEST_ID}>

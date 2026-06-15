@@ -7,6 +7,7 @@ import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { ActivationRuleFormTypeEnum } from '~/core/constants/subscriptionActivationRules'
 import { SubscriptionFormValues } from '~/formValidation/subscriptionFormSchema'
 import { StatusTypeEnum } from '~/generated/graphql'
+import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
 
@@ -40,6 +41,7 @@ jest.mock('~/components/paymentMethodSelection/useDisplayedPaymentMethod', () =>
 }))
 
 const mockUseDisplayedPaymentMethod = jest.mocked(useDisplayedPaymentMethod)
+const mockUsePaymentMethodsList = jest.mocked(usePaymentMethodsList)
 
 type WrapperProps = {
   activationRuleType?: ActivationRuleFormTypeEnum
@@ -93,6 +95,12 @@ const getRadioInput = (value: string): HTMLInputElement =>
 describe('SubscriptionActivationRuleSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockUsePaymentMethodsList.mockReturnValue({
+      data: [],
+      loading: false,
+      error: undefined,
+      refetch: jest.fn(),
+    } as unknown as ReturnType<typeof usePaymentMethodsList>)
     mockUseDisplayedPaymentMethod.mockReturnValue({
       paymentMethod: null,
       isManual: false,
@@ -203,6 +211,53 @@ describe('SubscriptionActivationRuleSection', () => {
             screen.queryByTestId(SUBSCRIPTION_ACTIVATION_TIMEOUT_INPUT_TEST_ID),
           ).not.toBeInTheDocument()
         })
+      })
+    })
+  })
+
+  describe('GIVEN the loaded selection is "activate on payment" but payment methods are still loading', () => {
+    beforeEach(() => {
+      mockUsePaymentMethodsList.mockReturnValue({
+        data: undefined,
+        loading: true,
+        error: undefined,
+        refetch: jest.fn(),
+      } as unknown as ReturnType<typeof usePaymentMethodsList>)
+      // While the list is unresolved, useDisplayedPaymentMethod falls back to manual
+      mockUseDisplayedPaymentMethod.mockReturnValue({
+        paymentMethod: null,
+        isManual: true,
+        isInherited: true,
+      })
+    })
+
+    describe('WHEN the section renders during the loading window', () => {
+      it('THEN should keep "activate on payment" selected and not reset it to "immediately"', async () => {
+        const onActivationRuleTypeChange = jest.fn()
+
+        render(
+          <Wrapper
+            activationRuleType={ActivationRuleFormTypeEnum.OnPayment}
+            onActivationRuleTypeChange={onActivationRuleTypeChange}
+          />,
+        )
+
+        // The timeout field only renders while "on payment" is the active selection,
+        // so its presence proves the loaded selection was not clobbered.
+        expect(
+          screen.getByTestId(SUBSCRIPTION_ACTIVATION_TIMEOUT_INPUT_TEST_ID),
+        ).toBeInTheDocument()
+
+        // Give the auto-correction effect a chance to (wrongly) fire before asserting.
+        await waitFor(() => {
+          expect(
+            screen.getByTestId(SUBSCRIPTION_ACTIVATION_TIMEOUT_INPUT_TEST_ID),
+          ).toBeInTheDocument()
+        })
+
+        expect(onActivationRuleTypeChange).not.toHaveBeenCalledWith(
+          ActivationRuleFormTypeEnum.Immediately,
+        )
       })
     })
   })
