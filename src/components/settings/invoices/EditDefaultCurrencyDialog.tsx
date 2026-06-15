@@ -1,19 +1,18 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import { object, string } from 'yup'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useRef } from 'react'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { ComboBoxField } from '~/components/form'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
 import { addToast } from '~/core/apolloClient'
 import {
   CurrencyEnum,
   EditBillingEntityDefaultCurrencyForDialogFragment,
-  UpdateBillingEntityInput,
   useUpdateBillingEntityDefaultCurrencyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   fragment EditBillingEntityDefaultCurrencyForDialog on BillingEntity {
@@ -29,19 +28,31 @@ gql`
   }
 `
 
-export interface EditDefaultCurrencyDialogRef {
-  openDialog: (localData: EditDefaultCurrencyDialogImperativeProps) => unknown
-  closeDialog: () => unknown
+export const EDIT_DEFAULT_CURRENCY_FORM_ID = 'edit-default-currency-form'
+
+export const EDIT_DEFAULT_CURRENCY_DIALOG_SUBMIT_BUTTON_TEST_ID =
+  'edit-default-currency-dialog-submit-button'
+export const EDIT_DEFAULT_CURRENCY_DIALOG_CURRENCY_FIELD_TEST_ID =
+  'edit-default-currency-dialog-currency-field'
+
+const editDefaultCurrencyValidationSchema = z.object({
+  defaultCurrency: z.enum(CurrencyEnum),
+})
+
+const initialValues = {
+  defaultCurrency: CurrencyEnum.Usd,
 }
 
-type EditDefaultCurrencyDialogImperativeProps = {
+type EditDefaultCurrencyDialogData = {
   billingEntity?: EditBillingEntityDefaultCurrencyForDialogFragment | null
 }
 
-export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef>((_, ref) => {
+export const useEditDefaultCurrencyDialog = () => {
+  const formDialog = useFormDialog()
   const { translate } = useInternationalization()
-  const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<EditDefaultCurrencyDialogImperativeProps | null>(null)
+  const dataRef = useRef<EditDefaultCurrencyDialogData | null>(null)
+  const successRef = useRef(false)
+
   const [updateBillingEntity] = useUpdateBillingEntityDefaultCurrencyMutation({
     onCompleted(res) {
       if (res?.updateBillingEntity) {
@@ -54,85 +65,86 @@ export const EditDefaultCurrencyDialog = forwardRef<EditDefaultCurrencyDialogRef
     refetchQueries: ['getBillingEntitySettings'],
   })
 
-  const formikProps = useFormik<Pick<UpdateBillingEntityInput, 'defaultCurrency'>>({
-    initialValues: {
-      defaultCurrency: localData?.billingEntity?.defaultCurrency || CurrencyEnum.Usd,
+  const form = useAppForm({
+    defaultValues: initialValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: editDefaultCurrencyValidationSchema,
     },
-    validationSchema: object().shape({
-      defaultCurrency: string()
-        .test({
-          test: function (defaultCurrency) {
-            return Object.values(CurrencyEnum).includes(defaultCurrency as CurrencyEnum)
-          },
-        })
-        .required(''),
-    }),
-    validateOnMount: true,
-    enableReinitialize: true,
-    onSubmit: async (values) => {
-      await updateBillingEntity({
+    onSubmit: async ({ value }) => {
+      const result = await updateBillingEntity({
         variables: {
           input: {
-            id: localData?.billingEntity?.id as string,
-            ...values,
+            id: dataRef.current?.billingEntity?.id as string,
+            ...value,
           },
         },
       })
+
+      if (result.data?.updateBillingEntity) {
+        successRef.current = true
+      }
     },
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setLocalData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => {
-      dialogRef.current?.closeDialog()
-    },
-  }))
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate('text_6543ca0fdebf76a18e159294')}
-      description={translate('text_6543ca0fdebf76a18e159298')}
-      onClose={() => {
-        formikProps.resetForm()
-      }}
-      actions={({ closeDialog }) => (
-        <>
-          <Button variant="quaternary" onClick={closeDialog}>
-            {translate('text_62bb10ad2a10bd182d002031')}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={async () => {
-              await formikProps.submitForm()
-              closeDialog()
-              formikProps.resetForm()
-              setLocalData(null)
-            }}
-          >
-            {translate('text_17432414198706rdwf76ek3u')}
-          </Button>
-        </>
-      )}
-    >
-      <div className="mb-8 flex flex-col gap-3">
-        <ComboBoxField
-          disableClearable
-          name="defaultCurrency"
-          label={translate('text_6543ca0fdebf76a18e15929c')}
-          data={Object.values(CurrencyEnum).map((currencyType) => ({
-            value: currencyType,
-          }))}
-          PopperProps={{ displayInDialog: true }}
-          formikProps={formikProps}
-        />
-      </div>
-    </Dialog>
-  )
-})
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
 
-EditDefaultCurrencyDialog.displayName = 'forwardRef'
+    return { reason: 'success' }
+  }
+
+  const openEditDefaultCurrencyDialog = (data: EditDefaultCurrencyDialogData) => {
+    dataRef.current = data
+    form.reset()
+    form.setFieldValue('defaultCurrency', data.billingEntity?.defaultCurrency || CurrencyEnum.Usd)
+
+    formDialog
+      .open({
+        title: translate('text_6543ca0fdebf76a18e159294'),
+        description: translate('text_6543ca0fdebf76a18e159298'),
+        cancelOrCloseText: 'cancel',
+        children: (
+          <div className="flex flex-col gap-3 p-8">
+            <form.AppField name="defaultCurrency">
+              {(field) => (
+                <field.ComboBoxField
+                  disableClearable
+                  label={translate('text_6543ca0fdebf76a18e15929c')}
+                  data={Object.values(CurrencyEnum).map((currencyType) => ({
+                    value: currencyType,
+                  }))}
+                  PopperProps={{ displayInDialog: true }}
+                  dataTest={EDIT_DEFAULT_CURRENCY_DIALOG_CURRENCY_FIELD_TEST_ID}
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        closeOnError: false,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton dataTest={EDIT_DEFAULT_CURRENCY_DIALOG_SUBMIT_BUTTON_TEST_ID}>
+              {translate('text_17432414198706rdwf76ek3u')}
+            </form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: EDIT_DEFAULT_CURRENCY_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+          dataRef.current = null
+        }
+      })
+  }
+
+  return { openEditDefaultCurrencyDialog }
+}
