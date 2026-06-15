@@ -77,9 +77,13 @@ const RichTextEditor = ({
   const { translate } = useInternationalization()
   const onChangeRef = useRef(onChange)
   const onPricingBlocksChangeRef = useRef(onPricingBlocksChange)
+  const onPricingCommandRef = useRef(onPricingCommand)
+  const isPricingDisabledRef = useRef(isPricingDisabled)
 
   onChangeRef.current = onChange
   onPricingBlocksChangeRef.current = onPricingBlocksChange
+  onPricingCommandRef.current = onPricingCommand
+  isPricingDisabledRef.current = isPricingDisabled
 
   const variableItems = [
     { id: 'customerName', label: 'Customer Name' },
@@ -154,7 +158,15 @@ const RichTextEditor = ({
         },
       } as MentionSchemaOptions),
       PricingBlock.configure({ entities: entitiesFromProps }),
-      SlashCommands.configure({ translate, onPricingCommand, isPricingDisabled }),
+      SlashCommands.configure({
+        translate,
+        onPricingCommand: onPricingCommand
+          ? (params) => onPricingCommandRef.current?.(params)
+          : undefined,
+        isPricingDisabled: isPricingDisabled
+          ? () => isPricingDisabledRef.current?.() ?? false
+          : undefined,
+      }),
       LinkPasteHandler,
       TemplateSelectorExtension.configure({ templates: templates ?? [] }),
       DragHandle,

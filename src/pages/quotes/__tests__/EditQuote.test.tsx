@@ -190,16 +190,22 @@ const mockDrawerOnPricingCommand = jest.fn()
 const mockSyncEntitiesWithBlocks = jest.fn().mockReturnValue(null)
 let capturedPricingDrawerArgs: unknown[] = []
 
-jest.mock('../hooks/usePricingDrawer', () => ({
-  usePricingDrawer: (...args: unknown[]) => {
-    capturedPricingDrawerArgs = args
+jest.mock('../hooks/useSubscriptionPricingDrawer', () => ({
+  useSubscriptionPricingDrawer: () => ({
+    onPricingCommand: mockDrawerOnPricingCommand,
+    isPricingDisabled: () => false,
+    entities: {},
+    syncEntitiesWithBlocks: mockSyncEntitiesWithBlocks,
+  }),
+}))
 
-    return {
-      onPricingCommand: mockDrawerOnPricingCommand,
-      entities: {},
-      syncEntitiesWithBlocks: mockSyncEntitiesWithBlocks,
-    }
-  },
+jest.mock('../hooks/useOneOffPricingDrawer', () => ({
+  useOneOffPricingDrawer: () => ({
+    onPricingCommand: jest.fn(),
+    isPricingDisabled: () => false,
+    entities: {},
+    syncEntitiesWithBlocks: jest.fn().mockReturnValue(null),
+  }),
 }))
 
 jest.mock('../common/getQuoteStatusMapping', () => ({
