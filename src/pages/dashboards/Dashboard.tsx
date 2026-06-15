@@ -6,19 +6,15 @@ import { useEffect, useMemo, useRef } from 'react'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
 import { envGlobalVar, getItemFromLS, removeItemFromLS, setItemFromLS } from '~/core/apolloClient'
-import { SUPERSET_FILTERS_LS_KEY_PREFIX } from '~/core/constants/localStorageKeys'
 import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { encodeRison } from '~/core/utils/risonEncoder'
-import { extractNativeFilters } from '~/core/utils/supersetFilters'
+import { extractNativeFilters, getSupersetFiltersLsKey } from '~/core/utils/supersetFilters'
 import { useSupersetDashboardsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import '~/main.css'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { PageHeader } from '~/styles'
-
-const SUPERSET_TEST_DASHBOARD_TITLE_LS_KEY = 'superset-dashboard-test-name'
-const SUPERSET_DEFAULT_DASHBOARD_TITLE = 'Lago Dashboard'
 
 const { lagoSupersetUrl } = envGlobalVar()
 
@@ -33,7 +29,15 @@ gql`
   }
 `
 
-const Dashboards = () => {
+export const DASHBOARD_MOUNT_TEST_ID = 'superset-dashboard-mount'
+
+type DashboardProps = {
+  contentTitle: string
+  dashboardTitle: string
+  dashboardTitleTestKey: string
+}
+
+const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: DashboardProps) => {
   const { translate } = useInternationalization()
   const { currentMembership } = useCurrentUser()
 
@@ -41,12 +45,15 @@ const Dashboards = () => {
 
   const { data, error, loading } = useSupersetDashboardsQuery({})
 
-  const dashboardTitle =
-    getItemFromLS(SUPERSET_TEST_DASHBOARD_TITLE_LS_KEY) || SUPERSET_DEFAULT_DASHBOARD_TITLE
+  const currentDashboardTitle = getItemFromLS(dashboardTitleTestKey) || dashboardTitle
+
+  // Mount id is derived from the dashboard title so each dashboard instance
+  // targets its own DOM node instead of a shared global id.
+  const mountId = `superset-${dashboardTitle.toLowerCase().split(' ').join('-')}`
 
   const dashboard = useMemo(() => {
-    return data?.supersetDashboards?.find((d) => d.dashboardTitle === dashboardTitle)
-  }, [data?.supersetDashboards, dashboardTitle])
+    return data?.supersetDashboards?.find((d) => d.dashboardTitle === currentDashboardTitle)
+  }, [data?.supersetDashboards, currentDashboardTitle])
 
   useEffect(() => {
     if (!dashboard || dashboard?.id === dashboardRef?.current) {
@@ -62,7 +69,9 @@ const Dashboards = () => {
     // browser-wide, causing cross-org filter leak when multiple tabs are open
     // on different orgs.
     const orgId = currentMembership?.organization.id || ''
-    const filtersLsKey = `${SUPERSET_FILTERS_LS_KEY_PREFIX}${orgId}`
+    // Scoped by org AND dashboard title so the two dashboards don't share
+    // (and overwrite) each other's persisted filters.
+    const filtersLsKey = getSupersetFiltersLsKey(orgId, dashboardTitle)
 
     const debouncedSaveFilters = persistFilters
       ? debounce((dataMask: Record<string, unknown>) => {
@@ -77,7 +86,7 @@ const Dashboards = () => {
       : null
 
     const mount = async () => {
-      const mountPoint = document.getElementById('superset')
+      const mountPoint = document.getElementById(mountId)
 
       if (!mountPoint) {
         return
@@ -122,13 +131,13 @@ const Dashboards = () => {
       embedded?.unmount()
       dashboardRef.current = ''
     }
-  }, [dashboard, currentMembership?.organization.id])
+  }, [dashboard, currentMembership?.organization.id, dashboardTitle, mountId])
 
   return (
     <>
       <PageHeader.Wrapper withSide>
         <Typography variant="bodyHl" color="grey700" noWrap>
-          {translate('text_6553885df387fd0097fd7384')}
+          {contentTitle}
         </Typography>
       </PageHeader.Wrapper>
 
@@ -144,10 +153,14 @@ const Dashboards = () => {
           />
         )}
 
-        <div id="superset" className="absolute inset-0 size-full"></div>
+        <div
+          id={mountId}
+          data-test={DASHBOARD_MOUNT_TEST_ID}
+          className="superset-dashboard absolute inset-0 size-full"
+        />
       </div>
     </>
   )
 }
 
-export default Dashboards
+export default Dashboard

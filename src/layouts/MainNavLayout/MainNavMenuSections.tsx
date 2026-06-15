@@ -31,6 +31,7 @@ import {
   QUOTE_DETAILS_ROUTE,
   QUOTES_LIST_ROUTE,
   QUOTES_TAB_ROUTE,
+  REVENUE_RECOGNITION_ROUTE,
   SUBSCRIPTIONS_ROUTE,
   WALLET_DETAILS_ROUTE,
 } from '~/core/router'
@@ -76,6 +77,13 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       match: [FORECASTS_ROUTE],
       hidden: !hasPermissions(['analyticsView']),
       extraComponent: <BadgeAI />,
+    },
+    {
+      title: translate('text_1780667013874s6wl9cmxe7q'),
+      icon: 'table-horizontale',
+      link: REVENUE_RECOGNITION_ROUTE,
+      match: [REVENUE_RECOGNITION_ROUTE],
+      hidden: !hasPermissions(['analyticsView']),
     },
   ]
 
