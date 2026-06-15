@@ -1,6 +1,7 @@
 import { screen, waitFor } from '@testing-library/react'
 
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
+import { getItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import { SupersetDashboardsDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
@@ -18,6 +19,11 @@ jest.mock('@superset-ui/embedded-sdk', () => ({
 // `~/main.css` resolves to the real stylesheet (the `~/` alias wins over the
 // css→styleMock mapper), which Jest can't parse — stub it out.
 jest.mock('~/main.css', () => ({}))
+
+// FinanceAssistantAnalyticsCta needs AiAgentProvider (mounted at App level, not in this tree)
+jest.mock('~/components/aiAgent/FinanceAssistantAnalyticsCta', () => ({
+  FinanceAssistantAnalyticsCta: () => null,
+}))
 
 // --- Feature flags ----------------------------------------------------------
 const mockIsFeatureFlagActive = jest.fn()
@@ -37,17 +43,19 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key, locale: 'en' }),
 }))
 
-// --- localStorage helpers (keep the rest of the apolloClient barrel real) ----
-const mockGetItemFromLS = jest.fn()
-const mockSetItemFromLS = jest.fn()
-const mockRemoveItemFromLS = jest.fn()
-
-jest.mock('~/core/apolloClient', () => ({
-  ...jest.requireActual('~/core/apolloClient'),
-  getItemFromLS: (...args: unknown[]) => mockGetItemFromLS(...args),
-  setItemFromLS: (...args: unknown[]) => mockSetItemFromLS(...args),
-  removeItemFromLS: (...args: unknown[]) => mockRemoveItemFromLS(...args),
+// --- localStorage helpers -----------------------------------------------------
+// The mock fns live inside the factory (not in module-scope consts): the module
+// is loaded during other imports' init (e.g. authTokenVar reads the LS token at
+// module scope), which runs before this file's const initializers.
+jest.mock('~/core/utils/localStorage', () => ({
+  ...jest.requireActual('~/core/utils/localStorage'),
+  getItemFromLS: jest.fn(),
+  setItemFromLS: jest.fn(),
+  removeItemFromLS: jest.fn(),
 }))
+
+const mockGetItemFromLS = jest.mocked(getItemFromLS)
+const mockSetItemFromLS = jest.mocked(setItemFromLS)
 
 const ANALYTICS_FILTERS_KEY = 'superset-filters-org-1-lago-dashboard'
 const REVENUE_FILTERS_KEY = 'superset-filters-org-1-revenue-recognition'

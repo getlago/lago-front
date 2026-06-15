@@ -10,7 +10,7 @@ a {
   @apply text-blue no-underline visited:text-purple hover:underline focus:rounded focus:ring;
 }
 
-#superset iframe {
+.superset-dashboard iframe {
   width: 100%;
   height: 100%;
 }

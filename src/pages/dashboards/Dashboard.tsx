@@ -158,7 +158,7 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
         <div
           id={mountId}
           data-test={DASHBOARD_MOUNT_TEST_ID}
-          className="absolute inset-0 size-full"
+          className="superset-dashboard absolute inset-0 size-full"
         />
 
         <div className="pointer-events-none absolute inset-x-0 bottom-6 z-10 px-4">
