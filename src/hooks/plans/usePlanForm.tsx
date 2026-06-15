@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
-import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { useEffect, useMemo, useRef } from 'react'
+import { useStore } from '@tanstack/react-form'
+import { useEffect, useMemo } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
 import {
@@ -8,7 +8,7 @@ import {
   LocalUsageChargeInput,
   PlanFormInput,
 } from '~/components/plans/types'
-import { isPlanIntervalAnnual, transformFilterObjectToString } from '~/components/plans/utils'
+import { transformFilterObjectToString } from '~/components/plans/utils'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
@@ -32,7 +32,6 @@ import { serializePlanInput } from '~/core/serializers'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { scrollToTop } from '~/core/utils/domUtils'
-import { planFormSchema } from '~/formValidation/planFormSchema'
 import {
   CurrencyEnum,
   DeletePlanDialogFragmentDoc,
@@ -42,10 +41,9 @@ import {
   PlanDetailsV2FragmentDoc,
   PlanItemFragmentDoc,
   useCreatePlanMutation,
-  useGetSinglePlanQuery,
 } from '~/generated/graphql'
-import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
+import { usePlanFormSetup } from '~/hooks/plans/usePlanFormSetup'
 import { usePlanUpdate } from '~/hooks/plans/usePlanUpdate'
 import { buildPlanSettingsValues } from '~/hooks/plans/utils'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -80,7 +78,7 @@ gql`
 
 export type PlanFormType = ReturnType<typeof usePlanForm>['form']
 
-const buildDefaultValues = (
+export const buildDefaultValues = (
   plan: EditPlanFragment | undefined | null,
   type: PLAN_FORM_TYPE,
   initialCurrency: CurrencyEnum,
@@ -216,11 +214,7 @@ export const usePlanForm = ({
   const { planId: id = '' } = useParams()
   const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
   const { parentId, type: actionType } = useDuplicatePlanVar()
-  const { data, loading, error } = useGetSinglePlanQuery({
-    context: { silentError: LagoApiError.NotFound },
-    variables: { id: id || (parentId as string) || (planIdToFetch as string) },
-    skip: !id && !parentId && !planIdToFetch,
-  })
+
   const isDuplicate = actionType === 'duplicate' && !!parentId
   const type = useMemo(() => {
     if (!!id) return FORM_TYPE_ENUM.edition
@@ -229,11 +223,13 @@ export const usePlanForm = ({
   }, [id, isDuplicate])
 
   const isEdition = type === FORM_TYPE_ENUM.edition
-  const plan = data?.plan
+
   const initialCurrency =
     type === FORM_TYPE_ENUM.creation && !isUsedInSubscriptionForm
       ? organization?.defaultCurrency || CurrencyEnum.Usd
-      : plan?.amountCurrency || CurrencyEnum.Usd
+      : undefined // let usePlanFormSetup derive from plan data
+
+  // --- Mutations (CRUD layer) ---
 
   const [create, { error: createError }] = useCreatePlanMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
@@ -301,13 +297,14 @@ export const usePlanForm = ({
     },
   })
 
-  const form = useAppForm({
-    defaultValues: buildDefaultValues(plan, type, initialCurrency, hasAnyPricingUnitConfigured),
-    validationLogic: revalidateLogic(),
-    validators: {
-      onDynamic: planFormSchema,
-    },
-    onSubmit: ({ value }) => {
+  // --- Delegate form setup to usePlanFormSetup ---
+
+  const { form, plan, loading, error } = usePlanFormSetup({
+    planIdToFetch: id || (parentId as string) || planIdToFetch,
+    initialCurrency,
+    formType: type,
+    hasAnyPricingUnitConfigured,
+    onSubmit: (value) => {
       const serializedInput = serializePlanInput(value)
 
       if (type === FORM_TYPE_ENUM.edition) {
@@ -326,6 +323,8 @@ export const usePlanForm = ({
     },
   })
 
+  // --- CRUD-specific effects (Router-dependent) ---
+
   const errorCode = useMemo(() => {
     if (hasDefinedGQLError('ValueAlreadyExist', createError || updateError)) {
       return FORM_ERRORS_ENUM.existingCode
@@ -333,18 +332,6 @@ export const usePlanForm = ({
 
     return undefined
   }, [createError, updateError])
-
-  // Re-initialize form when plan data loads (replaces enableReinitialize)
-  const prevPlanRef = useRef(plan)
-
-  useEffect(() => {
-    if (plan && plan !== prevPlanRef.current) {
-      form.reset(buildDefaultValues(plan, type, initialCurrency, hasAnyPricingUnitConfigured), {
-        keepDefaultValues: false,
-      })
-      prevPlanRef.current = plan
-    }
-  }, [plan, type, initialCurrency, hasAnyPricingUnitConfigured, form])
 
   // Clear duplicate plan var when leaving the page
   useEffect(() => {
@@ -363,7 +350,7 @@ export const usePlanForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error])
 
-  // Propagate server-side code error to TanStack form (same pattern as CreateCoupon)
+  // Propagate server-side code error to TanStack form
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
       form.setFieldMeta('code', (meta) => ({
@@ -389,19 +376,6 @@ export const usePlanForm = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [codeValue])
-
-  // Auto-reset billChargesMonthly when conditions aren't met
-  const charges = useStore(form.store, (s) => s.values.charges)
-  const billChargesMonthly = useStore(form.store, (s) => s.values.billChargesMonthly)
-  const interval = useStore(form.store, (s) => s.values.interval)
-  const isAnnual = isPlanIntervalAnnual(interval)
-
-  useEffect(() => {
-    if ((!charges || !charges.length || !isAnnual) && !!billChargesMonthly) {
-      form.setFieldValue('billChargesMonthly', false)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [charges, billChargesMonthly, interval])
 
   return useMemo(
     () => ({
