@@ -35,10 +35,7 @@ import {
   EditBillingEntityInvoiceTemplateDialog,
   EditBillingEntityInvoiceTemplateDialogRef,
 } from '~/components/settings/invoices/EditBillingEntityInvoiceTemplateDialog'
-import {
-  EditDefaultCurrencyDialog,
-  EditDefaultCurrencyDialogRef,
-} from '~/components/settings/invoices/EditDefaultCurrencyDialog'
+import { useEditDefaultCurrencyDialog } from '~/components/settings/invoices/EditDefaultCurrencyDialog'
 import {
   EditFinalizeZeroAmountInvoiceDialog,
   EditFinalizeZeroAmountInvoiceDialogRef,
@@ -143,12 +140,12 @@ const BillingEntityInvoiceSettings = () => {
   const editBillingEntityInvoiceIssuingDatePolicyDialogRef =
     useRef<EditBillingEntityInvoiceIssuingDatePolicyDialogRef>(null)
   const editGracePeriodDialogRef = useRef<EditBillingEntityGracePeriodDialogRef>(null)
-  const editDefaultCurrencyDialogRef = useRef<EditDefaultCurrencyDialogRef>(null)
   const editDocumentLanguageDialogRef = useRef<EditBillingEntityDocumentLocaleDialogRef>(null)
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
   const editFinalizeZeroAmountInvoiceDialogRef =
     useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
   const premiumWarningDialog = usePremiumWarningDialog()
+  const { openEditDefaultCurrencyDialog } = useEditDefaultCurrencyDialog()
 
   const { data, error, loading } = useGetBillingEntitySettingsQuery({
     variables: {
@@ -186,13 +183,12 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={() => editDefaultCurrencyDialogRef?.current?.openDialog({ billingEntity })}
+          onClick={() => openEditDefaultCurrencyDialog({ billingEntity })}
         >
           {translate('text_637f819eff19cd55a56d55e4')}
         </Button>
       ),
       content: billingEntity?.defaultCurrency,
-      dialog: <EditDefaultCurrencyDialog ref={editDefaultCurrencyDialogRef} />,
     },
     {
       id: 'invoice-document-locale',

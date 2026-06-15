@@ -1,27 +1,27 @@
-import { act, cleanup, screen, waitFor } from '@testing-library/react'
-import { createRef } from 'react'
+import { act, renderHook } from '@testing-library/react'
+
+import { addToast } from '~/core/apolloClient'
+import { CurrencyEnum } from '~/generated/graphql'
+import { AllTheProviders } from '~/test-utils'
 
 import {
-  EDIT_DEFAULT_CURRENCY_DIALOG_CURRENCY_FIELD_TEST_ID,
-  EDIT_DEFAULT_CURRENCY_DIALOG_SUBMIT_BUTTON_TEST_ID,
-  EditDefaultCurrencyDialog,
-  EditDefaultCurrencyDialogRef,
-} from '~/components/settings/invoices/EditDefaultCurrencyDialog'
-import { addToast } from '~/core/apolloClient'
-import { CurrencyEnum, EditBillingEntityDefaultCurrencyForDialogFragment } from '~/generated/graphql'
-import { render } from '~/test-utils'
+  EDIT_DEFAULT_CURRENCY_FORM_ID,
+  useEditDefaultCurrencyDialog,
+} from '../EditDefaultCurrencyDialog'
 
-// Capture the onSubmit callback from useAppForm
-let capturedOnSubmit:
-  | ((args: { value: { defaultCurrency: CurrencyEnum } }) => void | Promise<void>)
-  | undefined
-
+const mockFormDialogOpen = jest.fn()
 const mockUpdateBillingEntity = jest.fn()
 
-jest.mock('~/hooks/core/useInternationalization', () => ({
-  useInternationalization: () => ({
-    translate: (key: string) => key,
+jest.mock('~/components/dialogs/FormDialog', () => ({
+  ...jest.requireActual('~/components/dialogs/FormDialog'),
+  useFormDialog: () => ({
+    open: mockFormDialogOpen,
+    close: jest.fn(),
   }),
+}))
+
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
 jest.mock('~/core/apolloClient', () => ({
@@ -50,216 +50,234 @@ jest.mock('~/generated/graphql', () => {
   }
 })
 
-// Mock ComboBoxField used via field.ComboBoxField inside AppField children
-const MockComboBoxField = ({ dataTest }: { dataTest?: string }) => (
-  <div data-test={dataTest} />
-)
-
-jest.mock('~/hooks/forms/useAppform', () => {
-  const actual = jest.requireActual('~/hooks/forms/useAppform')
-
-  return {
-    ...actual,
-    useAppForm: jest.fn(
-      ({
-        onSubmit,
-        defaultValues,
-      }: {
-        onSubmit?: (args: { value: { defaultCurrency: CurrencyEnum } }) => void | Promise<void>
-        defaultValues: { defaultCurrency: CurrencyEnum }
-      }) => {
-        capturedOnSubmit = onSubmit
-
-        const mockStore = {
-          subscribe: jest.fn(() => jest.fn()),
-          getState: jest.fn(() => ({
-            isDirty: false,
-            canSubmit: true,
-            values: defaultValues,
-          })),
-        }
-
-        const mockField = {
-          name: 'defaultCurrency',
-          state: { value: defaultValues.defaultCurrency, meta: { errors: [], errorMap: {} } },
-          handleChange: jest.fn(),
-          store: {
-            subscribe: jest.fn(() => jest.fn()),
-            getState: jest.fn(() => ({
-              meta: { errors: [], errorMap: {} },
-            })),
-          },
-          ComboBoxField: MockComboBoxField,
-        }
-
-        return {
-          store: mockStore,
-          state: { values: defaultValues, isDirty: false, canSubmit: true },
-          reset: jest.fn(),
-          handleSubmit: jest.fn(() => onSubmit?.({ value: defaultValues })),
-          setFieldValue: jest.fn(),
-          AppField: ({
-            children,
-            name,
-          }: {
-            children: (field: unknown) => React.ReactNode
-            name: string
-          }) => (
-            <div data-field-name={name}>
-              {children({ ...mockField, name })}
-            </div>
-          ),
-          AppForm: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-          SubmitButton: ({ children }: { children: React.ReactNode }) => (
-            <button type="submit">{children}</button>
-          ),
-          Subscribe: ({
-            children,
-            selector,
-          }: {
-            children: (value: unknown) => React.ReactNode
-            selector: (state: { isDirty: boolean; canSubmit: boolean }) => unknown
-          }) => {
-            const value = selector({ isDirty: false, canSubmit: true })
-
-            return <>{children(value)}</>
-          },
-        }
-      },
-    ),
-  }
-})
-
-// Mock useStore to return reactive values
-jest.mock('@tanstack/react-form', () => ({
-  ...jest.requireActual('@tanstack/react-form'),
-  useStore: jest.fn((store, selector) => {
-    const state = store.getState()
-
-    return selector(state)
-  }),
-  revalidateLogic: jest.fn(() => ({})),
-}))
-
-const mockBillingEntity: EditBillingEntityDefaultCurrencyForDialogFragment = {
-  __typename: 'BillingEntity',
+const mockBillingEntity = {
+  __typename: 'BillingEntity' as const,
   id: 'billing-entity-1',
   defaultCurrency: CurrencyEnum.Eur,
 }
 
-async function openDialog(billingEntity = mockBillingEntity) {
-  const ref = createRef<EditDefaultCurrencyDialogRef>()
+describe('useEditDefaultCurrencyDialog', () => {
+  const customWrapper = ({ children }: { children: React.ReactNode }) =>
+    AllTheProviders({ children })
 
-  await act(() => render(<EditDefaultCurrencyDialog ref={ref} />))
-
-  await act(() => {
-    ref.current?.openDialog({ billingEntity })
-  })
-
-  await waitFor(() => {
-    expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
-  })
-
-  return { ref }
-}
-
-describe('EditDefaultCurrencyDialog', () => {
-  afterEach(() => {
-    cleanup()
+  beforeEach(() => {
     jest.clearAllMocks()
-    capturedOnSubmit = undefined
+    mockFormDialogOpen.mockResolvedValue({ reason: 'close' })
   })
 
-  describe('GIVEN the dialog is opened', () => {
+  describe('GIVEN the hook is initialized', () => {
     describe('WHEN rendered', () => {
-      it('THEN should display the currency combobox field', async () => {
-        await openDialog()
+      it('THEN should return openEditDefaultCurrencyDialog function', () => {
+        const { result } = renderHook(() => useEditDefaultCurrencyDialog(), {
+          wrapper: customWrapper,
+        })
 
-        expect(
-          screen.getByTestId(EDIT_DEFAULT_CURRENCY_DIALOG_CURRENCY_FIELD_TEST_ID),
-        ).toBeInTheDocument()
-      })
-
-      it('THEN should display the save button', async () => {
-        await openDialog()
-
-        expect(
-          screen.getByTestId(EDIT_DEFAULT_CURRENCY_DIALOG_SUBMIT_BUTTON_TEST_ID),
-        ).toBeInTheDocument()
+        expect(typeof result.current.openEditDefaultCurrencyDialog).toBe('function')
       })
     })
+  })
 
-    describe('WHEN user submits with a different currency', () => {
-      it('THEN should call the mutation with the correct billing entity id and currency', async () => {
-        await openDialog()
-
-        await act(async () => {
-          await capturedOnSubmit?.({ value: { defaultCurrency: CurrencyEnum.Usd } })
+  describe('GIVEN openEditDefaultCurrencyDialog is called', () => {
+    describe('WHEN opening the dialog', () => {
+      it('THEN should call formDialog.open once', () => {
+        const { result } = renderHook(() => useEditDefaultCurrencyDialog(), {
+          wrapper: customWrapper,
         })
 
-        await waitFor(() => {
-          expect(mockUpdateBillingEntity).toHaveBeenCalledWith({
-            variables: {
-              input: {
-                id: 'billing-entity-1',
-                defaultCurrency: CurrencyEnum.Usd,
-              },
-            },
-          })
+        act(() => {
+          result.current.openEditDefaultCurrencyDialog({ billingEntity: mockBillingEntity })
         })
+
+        expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
       })
 
-      it('THEN should show a success toast when the mutation succeeds', async () => {
+      it('THEN should include closeOnError false', () => {
+        const { result } = renderHook(() => useEditDefaultCurrencyDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.openEditDefaultCurrencyDialog({ billingEntity: mockBillingEntity })
+        })
+
+        const callArgs = mockFormDialogOpen.mock.calls[0][0]
+
+        expect(callArgs.closeOnError).toBe(false)
+      })
+
+      it('THEN should pass cancelOrCloseText as cancel', () => {
+        const { result } = renderHook(() => useEditDefaultCurrencyDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.openEditDefaultCurrencyDialog({ billingEntity: mockBillingEntity })
+        })
+
+        const callArgs = mockFormDialogOpen.mock.calls[0][0]
+
+        expect(callArgs.cancelOrCloseText).toBe('cancel')
+      })
+
+      it.each([
+        ['title', 'string'],
+        ['description', 'string'],
+        ['children', 'object'],
+        ['mainAction', 'object'],
+      ])('THEN should include %s', (prop, expectedType) => {
+        const { result } = renderHook(() => useEditDefaultCurrencyDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.openEditDefaultCurrencyDialog({ billingEntity: mockBillingEntity })
+        })
+
+        const callArgs = mockFormDialogOpen.mock.calls[0][0]
+
+        expect(callArgs[prop]).toBeDefined()
+        expect(typeof callArgs[prop]).toBe(expectedType)
+      })
+
+      it('THEN should include form with id and submit function', () => {
+        const { result } = renderHook(() => useEditDefaultCurrencyDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.openEditDefaultCurrencyDialog({ billingEntity: mockBillingEntity })
+        })
+
+        const callArgs = mockFormDialogOpen.mock.calls[0][0]
+
+        expect(callArgs.form).toBeDefined()
+        expect(callArgs.form.id).toBe(EDIT_DEFAULT_CURRENCY_FORM_ID)
+        expect(typeof callArgs.form.submit).toBe('function')
+      })
+    })
+  })
+
+  describe('GIVEN the form is submitted', () => {
+    describe('WHEN a currency is provided', () => {
+      it('THEN should call the mutation with that currency and billing entity id', async () => {
         mockUpdateBillingEntity.mockResolvedValue({
           data: {
             updateBillingEntity: {
               id: 'billing-entity-1',
-              defaultCurrency: CurrencyEnum.Usd,
+              defaultCurrency: CurrencyEnum.Eur,
               __typename: 'BillingEntity',
             },
           },
+          errors: undefined,
+        })
+        mockFormDialogOpen.mockImplementation(async (config) => {
+          await config.form.submit()
+          return { reason: 'success' }
         })
 
-        await openDialog()
+        const { result } = renderHook(() => useEditDefaultCurrencyDialog(), {
+          wrapper: customWrapper,
+        })
 
         await act(async () => {
-          await capturedOnSubmit?.({ value: { defaultCurrency: CurrencyEnum.Usd } })
+          result.current.openEditDefaultCurrencyDialog({ billingEntity: mockBillingEntity })
         })
 
-        await waitFor(() => {
-          expect(addToast).toHaveBeenCalledWith(
-            expect.objectContaining({ severity: 'success' }),
-          )
+        expect(mockUpdateBillingEntity).toHaveBeenCalledWith({
+          variables: {
+            input: { id: 'billing-entity-1', defaultCurrency: CurrencyEnum.Eur },
+          },
         })
+      })
+    })
+
+    describe('WHEN the mutation succeeds', () => {
+      it('THEN should show success toast', async () => {
+        mockUpdateBillingEntity.mockResolvedValue({
+          data: {
+            updateBillingEntity: {
+              id: 'billing-entity-1',
+              defaultCurrency: CurrencyEnum.Eur,
+              __typename: 'BillingEntity',
+            },
+          },
+          errors: undefined,
+        })
+        mockFormDialogOpen.mockImplementation(async (config) => {
+          await config.form.submit()
+          return { reason: 'success' }
+        })
+
+        const { result } = renderHook(() => useEditDefaultCurrencyDialog(), {
+          wrapper: customWrapper,
+        })
+
+        await act(async () => {
+          result.current.openEditDefaultCurrencyDialog({ billingEntity: mockBillingEntity })
+        })
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
+    })
+
+    describe('WHEN the mutation returns no data', () => {
+      it('THEN handleSubmit should throw Submit failed', async () => {
+        mockUpdateBillingEntity.mockResolvedValue({ data: null, errors: undefined })
+
+        let submitError: unknown = null
+
+        mockFormDialogOpen.mockImplementation(async (config) => {
+          try {
+            await config.form.submit()
+          } catch (err) {
+            submitError = err
+          }
+
+          return { reason: 'close' }
+        })
+
+        const { result } = renderHook(() => useEditDefaultCurrencyDialog(), {
+          wrapper: customWrapper,
+        })
+
+        await act(async () => {
+          result.current.openEditDefaultCurrencyDialog({ billingEntity: mockBillingEntity })
+        })
+
+        expect(submitError).toBeInstanceOf(Error)
+        expect((submitError as Error).message).toBe('Submit failed')
       })
     })
   })
 
-  describe('GIVEN the dialog is opened with a specific billing entity', () => {
-    describe('WHEN the onSubmit is triggered', () => {
-      it('THEN should use the billing entity id from localData', async () => {
-        const customBillingEntity = {
-          ...mockBillingEntity,
-          id: 'custom-billing-entity-id',
-          defaultCurrency: CurrencyEnum.Gbp,
-        }
+  describe('GIVEN the dialog resolves with close', () => {
+    describe('WHEN dialog is cancelled before submit', () => {
+      it('THEN should not call the mutation', async () => {
+        mockFormDialogOpen.mockResolvedValue({ reason: 'close' })
 
-        await openDialog(customBillingEntity)
+        const { result } = renderHook(() => useEditDefaultCurrencyDialog(), {
+          wrapper: customWrapper,
+        })
 
         await act(async () => {
-          await capturedOnSubmit?.({ value: { defaultCurrency: CurrencyEnum.Usd } })
+          result.current.openEditDefaultCurrencyDialog({ billingEntity: mockBillingEntity })
         })
 
-        await waitFor(() => {
-          expect(mockUpdateBillingEntity).toHaveBeenCalledWith({
-            variables: {
-              input: {
-                id: 'custom-billing-entity-id',
-                defaultCurrency: CurrencyEnum.Usd,
-              },
-            },
-          })
+        expect(mockUpdateBillingEntity).not.toHaveBeenCalled()
+      })
+
+      it('THEN should not show a toast', async () => {
+        mockFormDialogOpen.mockResolvedValue({ reason: 'close' })
+
+        const { result } = renderHook(() => useEditDefaultCurrencyDialog(), {
+          wrapper: customWrapper,
         })
+
+        await act(async () => {
+          result.current.openEditDefaultCurrencyDialog({ billingEntity: mockBillingEntity })
+        })
+
+        expect(addToast).not.toHaveBeenCalled()
       })
     })
   })
