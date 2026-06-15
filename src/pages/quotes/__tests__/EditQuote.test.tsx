@@ -191,12 +191,16 @@ const mockSyncEntitiesWithBlocks = jest.fn().mockReturnValue(null)
 let capturedPricingDrawerArgs: unknown[] = []
 
 jest.mock('../hooks/useSubscriptionPricingDrawer', () => ({
-  useSubscriptionPricingDrawer: () => ({
-    onPricingCommand: mockDrawerOnPricingCommand,
-    isPricingDisabled: () => false,
-    entities: {},
-    syncEntitiesWithBlocks: mockSyncEntitiesWithBlocks,
-  }),
+  useSubscriptionPricingDrawer: (...args: unknown[]) => {
+    capturedPricingDrawerArgs = args
+
+    return {
+      onPricingCommand: mockDrawerOnPricingCommand,
+      isPricingDisabled: () => false,
+      entities: {},
+      syncEntitiesWithBlocks: mockSyncEntitiesWithBlocks,
+    }
+  },
 }))
 
 jest.mock('../hooks/useOneOffPricingDrawer', () => ({
@@ -778,7 +782,7 @@ describe('EditQuote', () => {
     })
 
     describe('WHEN the customer has a currency', () => {
-      it('THEN should pass it as the third argument to usePricingDrawer', () => {
+      it('THEN should pass the customer to useSubscriptionPricingDrawer options', () => {
         mockUseQuote.mockReturnValue({
           quote: {
             ...mockQuote,
@@ -793,7 +797,9 @@ describe('EditQuote', () => {
 
         render(<EditQuote />)
 
-        expect(capturedPricingDrawerArgs[2]).toBe('EUR')
+        const options = capturedPricingDrawerArgs[1] as { customer?: { currency?: string } }
+
+        expect(options.customer?.currency).toBe('EUR')
       })
     })
   })
