@@ -1547,7 +1547,6 @@
   "text_63890710eb171a76814a0c0d": "Editar fuso horário da entidade de faturamento",
   "text_63890710eb171a76814a0c0f": "Defina o fuso horário para sua entidade. Este fuso horário será usado para faturamento e cálculos de limites, a menos que seja substituído no nível do cliente.",
   "text_63890710eb171a76814a0c11": "Fuso horário",
-  "text_63890710eb171a76814a0c15": "Cancelar",
   "text_63890710eb171a76814a0c17": "Salvar fuso horário",
   "text_63891ad3dd238c657ea00954": "Fuso horário da entidade de faturamento editado com sucesso",
   "text_638f743fa9a2a9545ee6409a": "{{zone}}, UTC {{offset}}",
@@ -3126,5 +3125,12 @@
   "text_1755599398258mj61iwjhhfk": "Solicitar acesso ao uso projetado",
   "text_1755599398258w59pin31rfe": "Olá, gostaria de acessar seu complemento de uso projetado. \n\nEntre em contato se precisar de mais informações!",
   "text_1756372772688ov7fcui4x30": "por semestre",
-  "text_1737477631498hwm4np3kbnd": "Este alerta não existe mais"
+  "text_1737477631498hwm4np3kbnd": "Este alerta não existe mais",
+  "text_17804985042415hh3kbs8ksh": "Nome",
+  "text_178049850424144tpzoeoge3": "Cobrança",
+  "text_1780498504241avgm5sugii4": "Unidades",
+  "text_1780498504241di3s12o655k": "Preço",
+  "text_1780498504241eo24fnc6s9u": "De {{fromDate}} a {{toDate}}",
+  "text_17804985042422iw5hwj0u2v": "Todos os preços não incluem os impostos aplicáveis",
+  "text_1779289915866etwoweh1syv": "Taxa de assinatura"
 }

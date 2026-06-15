@@ -3,10 +3,10 @@ import { Markdown } from 'tiptap-markdown'
 
 import { render } from '~/test-utils'
 
-import RichTextEditor, {
-  RICH_TEXT_EDITOR_CONTENT_TEST_ID,
-  RICH_TEXT_EDITOR_TEST_ID,
-} from '../RichTextEditor'
+import { RICH_TEXT_EDITOR_CONTENT_TEST_ID, RICH_TEXT_EDITOR_TEST_ID } from '../constants'
+import RichTextEditor from '../RichTextEditor'
+
+const mockContentTestId = RICH_TEXT_EDITOR_CONTENT_TEST_ID
 
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
@@ -23,9 +23,9 @@ jest.mock('../common/downloadMarkdownPdf', () => ({
   downloadMarkdownPdf: (...args: unknown[]) => mockDownloadMarkdownPdf(...args),
 }))
 
-jest.mock('../extensions/PlanBlock', () => ({
-  PlanBlock: {
-    configure: jest.fn(() => 'plan-block-extension'),
+jest.mock('../extensions/PricingBlock', () => ({
+  PricingBlock: {
+    configure: jest.fn(() => 'pricing-block-extension'),
   },
 }))
 
@@ -127,9 +127,15 @@ jest.mock('../extensions/Mention.schema', () => ({
   },
 }))
 
+let capturedEditorConfig: Record<string, unknown> = {}
+
 jest.mock('@tiptap/react', () => ({
   ...jest.requireActual('@tiptap/react'),
-  useEditor: jest.fn().mockImplementation(() => mockEditor),
+  useEditor: jest.fn().mockImplementation((config: Record<string, unknown>) => {
+    capturedEditorConfig = config
+
+    return mockEditor
+  }),
   useEditorState: jest.fn().mockImplementation(({ selector }) => {
     if (selector) {
       return selector({ editor: mockEditor })
@@ -137,8 +143,9 @@ jest.mock('@tiptap/react', () => ({
 
     return {}
   }),
-  EditorContent: ({ editor }: { editor: unknown }) =>
-    editor ? <div data-test="editor-content">Editor content</div> : null,
+  EditorContent: ({ editor }: { editor: unknown }) => {
+    return editor ? <div data-test={mockContentTestId}>Editor content</div> : null
+  },
 }))
 
 describe('RichTextEditor', () => {
@@ -155,7 +162,7 @@ describe('RichTextEditor', () => {
       it('THEN should render the editor content', async () => {
         await act(() => render(<RichTextEditor />))
 
-        expect(screen.getByTestId('editor-content')).toBeInTheDocument()
+        expect(screen.getByTestId(RICH_TEXT_EDITOR_CONTENT_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should render the toolbar', async () => {
@@ -171,13 +178,17 @@ describe('RichTextEditor', () => {
       it('THEN should render nothing', async () => {
         const tiptap = jest.requireMock('@tiptap/react')
 
-        tiptap.useEditor.mockReturnValue(null)
+        tiptap.useEditor.mockImplementation(() => null)
 
         const { container } = await act(() => render(<RichTextEditor />))
 
         expect(container.innerHTML).toBe('')
 
-        tiptap.useEditor.mockReturnValue(mockEditor)
+        tiptap.useEditor.mockImplementation((config: Record<string, unknown>) => {
+          capturedEditorConfig = config
+
+          return mockEditor
+        })
       })
     })
   })
@@ -269,10 +280,9 @@ describe('RichTextEditor', () => {
         expect(screen.queryByTestId('toolbar-container')).not.toBeInTheDocument()
       })
 
-      it('THEN should render the editor content via getHTML()', async () => {
+      it('THEN should render the editor content via EditorContent', async () => {
         await act(() => render(<RichTextEditor mode="preview" />))
 
-        expect(mockGetMarkdown).toHaveBeenCalled()
         expect(screen.getByTestId(RICH_TEXT_EDITOR_CONTENT_TEST_ID)).toBeInTheDocument()
       })
 
@@ -419,7 +429,7 @@ describe('RichTextEditor', () => {
         expect(mockDownloadMarkdownPdf).toHaveBeenCalledWith({
           markdown: '# Hello World',
           mentionValues,
-          plans: expect.any(Object),
+          entities: expect.any(Object),
         })
       })
     })
@@ -440,6 +450,63 @@ describe('RichTextEditor', () => {
         expect(mockDownloadMarkdownPdf).not.toHaveBeenCalled()
 
         mockEditor.storage = originalStorage
+      })
+    })
+  })
+
+  describe('GIVEN the isCompact prop', () => {
+    describe('WHEN isCompact is true', () => {
+      it('THEN should configure the editor with compact class', async () => {
+        await act(() => render(<RichTextEditor isCompact />))
+
+        const editorProps = capturedEditorConfig.editorProps as {
+          attributes: { class: string }
+        }
+
+        expect(editorProps.attributes.class).toContain('px-0')
+        expect(editorProps.attributes.class).toContain('mb-4')
+        expect(editorProps.attributes.class).not.toContain('px-10')
+      })
+    })
+
+    describe('WHEN isCompact is false or not provided', () => {
+      it('THEN should configure the editor with default class', async () => {
+        await act(() => render(<RichTextEditor />))
+
+        const editorProps = capturedEditorConfig.editorProps as {
+          attributes: { class: string }
+        }
+
+        expect(editorProps.attributes.class).toContain('px-10')
+        expect(editorProps.attributes.class).toContain('my-4')
+      })
+    })
+  })
+
+  describe('GIVEN customer locale and currency props', () => {
+    describe('WHEN customerLocale is provided', () => {
+      it('THEN should render without errors', async () => {
+        await act(() => render(<RichTextEditor customerLocale="fr" />))
+
+        expect(screen.getByTestId(RICH_TEXT_EDITOR_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN customerCurrency is provided', () => {
+      it('THEN should render without errors', async () => {
+        await act(() => render(<RichTextEditor customerCurrency={'EUR' as never} />))
+
+        expect(screen.getByTestId(RICH_TEXT_EDITOR_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN both customerLocale and customerCurrency are provided', () => {
+      it('THEN should render without errors', async () => {
+        await act(() =>
+          render(<RichTextEditor customerLocale="fr" customerCurrency={'EUR' as never} />),
+        )
+
+        expect(screen.getByTestId(RICH_TEXT_EDITOR_TEST_ID)).toBeInTheDocument()
       })
     })
   })

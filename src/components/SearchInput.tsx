@@ -37,6 +37,7 @@ export const SearchInput = ({
       InputProps={{
         startAdornment: <Icon className="ml-4" name="magnifying-glass" />,
       }}
+      inputProps={{ maxLength: 255 }}
       {...props}
     />
   )

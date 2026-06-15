@@ -341,10 +341,10 @@ describe('SubscriptionDetails', () => {
 
   describe('GIVEN tab configuration', () => {
     describe('WHEN all conditions are met (premium, permissions, active status)', () => {
-      it('THEN should configure 8 tabs', () => {
+      it('THEN should configure 7 tabs', () => {
         render(<SubscriptionDetails />)
 
-        expect(capturedConfig?.tabs).toHaveLength(8)
+        expect(capturedConfig?.tabs).toHaveLength(7)
       })
     })
 
@@ -356,8 +356,8 @@ describe('SubscriptionDetails', () => {
       it('THEN should hide the usage tab', () => {
         render(<SubscriptionDetails />)
 
-        // Usage tab is at index 3
-        const usageTab = capturedConfig?.tabs?.[3]
+        // Usage tab is at index 4
+        const usageTab = capturedConfig?.tabs?.[4]
 
         expect(usageTab?.hidden).toBe(true)
       })
@@ -371,8 +371,8 @@ describe('SubscriptionDetails', () => {
       it('THEN should hide the activity logs tab', () => {
         render(<SubscriptionDetails />)
 
-        // Activity logs tab is at index 5
-        const activityLogsTab = capturedConfig?.tabs?.[5]
+        // Activity logs tab is at index 6
+        const activityLogsTab = capturedConfig?.tabs?.[6]
 
         expect(activityLogsTab?.hidden).toBe(true)
       })
@@ -386,7 +386,7 @@ describe('SubscriptionDetails', () => {
       it('THEN should hide the activity logs tab', () => {
         render(<SubscriptionDetails />)
 
-        const activityLogsTab = capturedConfig?.tabs?.[5]
+        const activityLogsTab = capturedConfig?.tabs?.[6]
 
         expect(activityLogsTab?.hidden).toBe(true)
       })
@@ -406,7 +406,7 @@ describe('SubscriptionDetails', () => {
       it('THEN should hide the activity logs tab', () => {
         render(<SubscriptionDetails />)
 
-        const activityLogsTab = capturedConfig?.tabs?.[5]
+        const activityLogsTab = capturedConfig?.tabs?.[6]
 
         expect(activityLogsTab?.hidden).toBe(true)
       })
@@ -500,7 +500,7 @@ describe('SubscriptionDetails', () => {
       it('THEN should still configure tabs', () => {
         render(<SubscriptionDetails />)
 
-        expect(capturedConfig?.tabs).toHaveLength(8)
+        expect(capturedConfig?.tabs).toHaveLength(7)
       })
 
       it('THEN should still display the active tab content', () => {
@@ -513,16 +513,19 @@ describe('SubscriptionDetails', () => {
 
   describe('GIVEN the EDIT_DETAILS_PAGE feature flag', () => {
     describe('WHEN the flag is off', () => {
-      it('THEN should hide the edit overview tab', () => {
+      it('THEN should keep the overview tab visible (legacy overview)', () => {
         mockIsFeatureFlagActive.mockReturnValue(false)
 
         render(<SubscriptionDetails />)
 
-        const editOverviewTab = capturedConfig?.tabs?.find(
-          (t) => t.title === 'text_17792001643312864fz7j4gq',
+        // When the flag is off the overview tab renders the legacy overview and
+        // stays visible; only the subscription plan tab is gated (next test).
+        const overviewTab = capturedConfig?.tabs?.find(
+          (t) => t.title === 'text_628cf761cbe6820138b8f2e4',
         )
 
-        expect(editOverviewTab?.hidden).toBe(true)
+        expect(overviewTab).toBeDefined()
+        expect(overviewTab?.hidden).toBeFalsy()
       })
 
       it('THEN should hide the subscription plan tab', () => {
@@ -545,7 +548,7 @@ describe('SubscriptionDetails', () => {
         render(<SubscriptionDetails />)
 
         const editOverviewTab = capturedConfig?.tabs?.find(
-          (t) => t.title === 'text_17792001643312864fz7j4gq',
+          (t) => t.title === 'text_628cf761cbe6820138b8f2e4',
         )
 
         expect(editOverviewTab).toBeDefined()

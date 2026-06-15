@@ -2,7 +2,8 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { addToast } from '~/core/apolloClient'
-import { OrderTypeEnum, StatusEnum } from '~/generated/graphql'
+import { fromBillingItems } from '~/core/serializers/serializeQuoteBillingItems'
+import { CurrencyEnum, OrderTypeEnum, StatusEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import ApproveQuote, {
@@ -32,11 +33,15 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+let capturedRichTextEditorProps: Record<string, unknown> = {}
+
 jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => ({
   __esModule: true,
-  default: ({ content }: { content?: string }) => (
-    <div data-test="rich-text-editor-preview">{content}</div>
-  ),
+  default: (props: Record<string, unknown>) => {
+    capturedRichTextEditorProps = props
+
+    return <div data-test="rich-text-editor-preview">{props.content as string}</div>
+  },
 }))
 
 jest.mock('../hooks/useQuote', () => ({
@@ -54,8 +59,13 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: jest.fn(),
 }))
 
+jest.mock('~/core/serializers/serializeQuoteBillingItems', () => ({
+  fromBillingItems: jest.fn(),
+}))
+
 const mockUseQuote = useQuote as jest.MockedFunction<typeof useQuote>
 const mockUseApproveQuote = useApproveQuote as jest.MockedFunction<typeof useApproveQuote>
+const mockedFromBillingItems = fromBillingItems as jest.MockedFunction<typeof fromBillingItems>
 
 const mockQuote = {
   id: 'quote-123',
@@ -80,7 +90,11 @@ const mockQuote = {
     id: 'customer-001',
     name: 'Acme Corp',
     externalId: 'ext-acme-001',
+    currency: null,
     netPaymentTerm: null,
+    billingConfiguration: {
+      documentLocale: null,
+    },
     billingEntity: {
       __typename: 'BillingEntity' as const,
       id: 'be-1',
@@ -94,6 +108,7 @@ const mockQuote = {
 describe('ApproveQuote', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    capturedRichTextEditorProps = {}
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ quoteId: 'quote-123', versionId: 'version-123' })
@@ -102,6 +117,7 @@ describe('ApproveQuote', () => {
       quote: mockQuote,
       loading: false,
       error: undefined,
+      refetch: jest.fn(),
     })
 
     mockUseApproveQuote.mockReturnValue({
@@ -150,6 +166,7 @@ describe('ApproveQuote', () => {
           },
           loading: false,
           error: undefined,
+          refetch: jest.fn(),
         })
 
         render(<ApproveQuote />)
@@ -215,6 +232,7 @@ describe('ApproveQuote', () => {
         quote: undefined,
         loading: true,
         error: undefined,
+        refetch: jest.fn(),
       })
     })
 
@@ -242,6 +260,7 @@ describe('ApproveQuote', () => {
         quote: undefined,
         loading: false,
         error: new Error('Something went wrong') as never,
+        refetch: jest.fn(),
       })
     })
 
@@ -268,6 +287,7 @@ describe('ApproveQuote', () => {
           quote: undefined,
           loading: false,
           error: undefined,
+          refetch: jest.fn(),
         })
 
         render(<ApproveQuote />)
@@ -336,6 +356,188 @@ describe('ApproveQuote', () => {
 
         expect(addToast).not.toHaveBeenCalled()
         expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the quote has billing items for preview', () => {
+    describe('WHEN billingItems and content are present', () => {
+      it('THEN should pass deserialized entities to RichTextEditor', () => {
+        const mockEntities = {
+          'addon-1': {
+            entityId: 'addon-1',
+            entityType: 'addOn' as const,
+            name: 'Setup Fee',
+            code: 'setup',
+          },
+        }
+
+        mockedFromBillingItems.mockReturnValue({
+          entities: mockEntities,
+          originalPayloads: {},
+          addOnItems: [],
+        })
+
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            currentVersion: {
+              ...mockQuote.currentVersion,
+              content: '<p>Test content</p>',
+              billingItems: { addons: [{ type: 'addon', id: 'addon-1' }] },
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn(),
+        })
+
+        render(<ApproveQuote />)
+
+        expect(mockedFromBillingItems).toHaveBeenCalled()
+        expect(capturedRichTextEditorProps.entities).toEqual(mockEntities)
+      })
+    })
+
+    describe('WHEN billingItems is null', () => {
+      it('THEN should pass empty entities to RichTextEditor', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            currentVersion: {
+              ...mockQuote.currentVersion,
+              content: '<p>Content</p>',
+              billingItems: null,
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn(),
+        })
+
+        render(<ApproveQuote />)
+
+        expect(mockedFromBillingItems).not.toHaveBeenCalled()
+        expect(capturedRichTextEditorProps.entities).toEqual({})
+      })
+    })
+  })
+
+  describe('GIVEN the customer has a document locale', () => {
+    describe('WHEN documentLocale is set to fr', () => {
+      it('THEN should pass customerLocale to RichTextEditor', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            currentVersion: {
+              ...mockQuote.currentVersion,
+              content: '<p>Content</p>',
+            },
+            customer: {
+              ...mockQuote.customer,
+              billingConfiguration: { documentLocale: 'fr' },
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn(),
+        })
+
+        render(<ApproveQuote />)
+
+        expect(capturedRichTextEditorProps.customerLocale).toBe('fr')
+      })
+    })
+
+    describe('WHEN documentLocale is null', () => {
+      it('THEN should default customerLocale to en', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            currentVersion: {
+              ...mockQuote.currentVersion,
+              content: '<p>Content</p>',
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn(),
+        })
+
+        render(<ApproveQuote />)
+
+        expect(capturedRichTextEditorProps.customerLocale).toBe('en')
+      })
+    })
+  })
+
+  describe('GIVEN the customer has a currency', () => {
+    describe('WHEN currency is set', () => {
+      it('THEN should pass customerCurrency to RichTextEditor', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            currentVersion: {
+              ...mockQuote.currentVersion,
+              content: '<p>Content</p>',
+            },
+            customer: {
+              ...mockQuote.customer,
+              currency: CurrencyEnum.Eur,
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn(),
+        })
+
+        render(<ApproveQuote />)
+
+        expect(capturedRichTextEditorProps.customerCurrency).toBe(CurrencyEnum.Eur)
+      })
+    })
+
+    describe('WHEN currency is null', () => {
+      it('THEN should pass undefined customerCurrency to RichTextEditor', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            currentVersion: {
+              ...mockQuote.currentVersion,
+              content: '<p>Content</p>',
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn(),
+        })
+
+        render(<ApproveQuote />)
+
+        expect(capturedRichTextEditorProps.customerCurrency).toBeUndefined()
+      })
+    })
+  })
+
+  describe('GIVEN the RichTextEditor isCompact prop', () => {
+    describe('WHEN content is present', () => {
+      it('THEN should pass isCompact as true', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            currentVersion: {
+              ...mockQuote.currentVersion,
+              content: '<p>Content</p>',
+            },
+          },
+          loading: false,
+          error: undefined,
+          refetch: jest.fn(),
+        })
+
+        render(<ApproveQuote />)
+
+        expect(capturedRichTextEditorProps.isCompact).toBe(true)
       })
     })
   })

@@ -3,6 +3,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
+import type { OnPricingCommand } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
+import { PricingBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/PricingBlock.schema'
 import RichTextEditor, {
   type RichTextEditorMode,
 } from '~/components/designSystem/RichTextEditor/RichTextEditor'
@@ -12,10 +14,13 @@ import { Typography } from '~/components/designSystem/Typography'
 import { RightAsidePage } from '~/components/layouts/RightAsidePage'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
+import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
+import type { Locale } from '~/core/translations'
 import { type UpdateQuoteVersionInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import EditQuoteAside from './editQuote/EditQuoteAside'
+import { usePricingDrawer } from './hooks/usePricingDrawer'
 import { useQuote } from './hooks/useQuote'
 import { useUpdateQuote } from './hooks/useUpdateQuote'
 
@@ -27,7 +32,7 @@ const EditQuote = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { quoteId } = useParams()
-  const { quote, loading } = useQuote(quoteId)
+  const { quote, loading, refetch: refetchQuote } = useQuote(quoteId)
 
   const versionId = quote?.currentVersion?.id
 
@@ -59,6 +64,15 @@ const EditQuote = () => {
 
   const isUpdating = isUpdatingQuote || isUpdatingQuoteVersion
 
+  const { onPricingCommand, isPricingDisabled, entities, syncEntitiesWithBlocks } =
+    usePricingDrawer(
+      quote?.orderType,
+      quote?.currentVersion?.billingItems,
+      quote?.customer?.currency,
+    )
+
+  const customerLocale = (quote?.customer?.billingConfiguration?.documentLocale ?? 'en') as Locale
+
   const getMarkdownRef = useRef<(() => string) | null>(null)
   const lastSavedContentRef = useRef('')
   const isReadyForChangesRef = useRef(false)
@@ -89,7 +103,7 @@ const EditQuote = () => {
       debounce(async () => {
         const markdown = getMarkdownRef.current?.()
 
-        if (!markdown || !versionId) return
+        if (markdown === null || markdown === undefined || !versionId) return
 
         const payload: UpdateQuoteVersionInput = { id: versionId, content: markdown }
 
@@ -142,6 +156,61 @@ const EditQuote = () => {
       setSaveStatus('error')
     }
   }, [])
+
+  const savePricingBlock = useCallback(
+    async (billingItems?: BillingItemsPayload) => {
+      if (!versionId) return
+
+      const content = getMarkdownRef.current?.()
+
+      if (content === null || content === undefined) return
+
+      setSaveStatus('saving')
+
+      const payload: UpdateQuoteVersionInput = { id: versionId, content, billingItems }
+
+      failedPayloadRef.current = payload
+
+      try {
+        const result = await updateQuoteVersionRef.current(payload, false)
+
+        if (result.data?.updateQuoteVersion) {
+          lastSavedContentRef.current = content
+          failedPayloadRef.current = null
+          refetchQuote()
+        }
+      } catch {
+        setSaveStatus('error')
+      }
+    },
+    [versionId, refetchQuote],
+  )
+
+  const handlePricingCommand = useCallback<OnPricingCommand>(
+    ({ onSave, editData }) => {
+      onPricingCommand({
+        onSave: (attrs, entityData, billingItems) => {
+          // 1. Insert/update the TipTap node (existing behavior)
+          onSave(attrs, entityData, billingItems)
+          // 2. Unified save: content + billingItems together
+          savePricingBlock(billingItems)
+        },
+        editData,
+      })
+    },
+    [onPricingCommand, savePricingBlock],
+  )
+
+  const handlePricingBlocksChange = useCallback(
+    (blocks: PricingBlockAttributes[]) => {
+      const updatedBillingItems = syncEntitiesWithBlocks(blocks)
+
+      if (updatedBillingItems) {
+        savePricingBlock(updatedBillingItems)
+      }
+    },
+    [syncEntitiesWithBlocks, savePricingBlock],
+  )
 
   const handleClose = () => {
     debouncedSave.cancel()
@@ -220,6 +289,12 @@ const EditQuote = () => {
           getMarkdownRef={getMarkdownRef}
           onChange={handleChange}
           mode={editorMode}
+          onPricingCommand={handlePricingCommand}
+          isPricingDisabled={isPricingDisabled}
+          entities={entities}
+          onPricingBlocksChange={handlePricingBlocksChange}
+          customerLocale={customerLocale}
+          customerCurrency={quote?.customer?.currency ?? undefined}
         />
       </RightAsidePage.Content>
     </RightAsidePage.Wrapper>

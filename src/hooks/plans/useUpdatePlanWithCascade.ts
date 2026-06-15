@@ -78,6 +78,11 @@ type UseUpdatePlanWithCascadeOptions = {
   plan: PlanDetailsV2Fragment
   onSuccess?: () => void
   includeAdvancedFields?: boolean
+  // When set, the form submits through this instead of `updatePlan` (sub-tab
+  // plan-settings edits route to `updateSubscription(planOverrides)`). Running
+  // it inside the form's `onSubmit` keeps `form.state.isSubmitting` accurate so
+  // the save button can show its loading state. Returns success.
+  submitOverride?: (value: PlanFormInput) => Promise<boolean>
 }
 
 export const buildUpdatePlanFormDefaults = (plan: PlanDetailsV2Fragment): PlanFormInput => {
@@ -88,7 +93,7 @@ export const buildUpdatePlanFormDefaults = (plan: PlanDetailsV2Fragment): PlanFo
     ...settingsDefaults,
     // PlanSettingsSection only reads fixedCharges.length / charges.length to
     // gate the bill*Monthly switches. We seed length-only stubs and cast to
-    // satisfy PlanFormInput — neither the form nor the mutation touches the
+    // satisfy PlanFormInput - neither the form nor the mutation touches the
     // contents.
     fixedCharges: settingsDefaults.fixedCharges as unknown as PlanFormInput['fixedCharges'],
     charges: settingsDefaults.charges as unknown as PlanFormInput['charges'],
@@ -140,6 +145,7 @@ export const useUpdatePlanWithCascade = ({
   plan,
   onSuccess,
   includeAdvancedFields = false,
+  submitOverride,
 }: UseUpdatePlanWithCascadeOptions) => {
   const { translate } = useInternationalization()
   const { openCascadeDialog } = useCascadeFormDialog()
@@ -155,6 +161,13 @@ export const useUpdatePlanWithCascade = ({
     validationLogic: revalidateLogic(),
     validators: { onDynamic: planSettingsOnlyFormSchema },
     onSubmit: async ({ value }) => {
+      if (submitOverride) {
+        const success = await submitOverride(value)
+
+        if (success) onSuccess?.()
+        return
+      }
+
       // Settings-only flow: charges + fixedCharges are now optional on
       // UpdatePlanInput, so omit them from the payload entirely. BE preserves
       // existing entries via partial-update semantics.

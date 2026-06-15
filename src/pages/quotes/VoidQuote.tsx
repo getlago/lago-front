@@ -11,7 +11,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { EDIT_QUOTE_ROUTE, QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
-import { useVoidQuoteVersionMutation, VoidReasonEnum } from '~/generated/graphql'
+import { useVoidQuoteVersionMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -65,7 +65,6 @@ const VoidQuote = () => {
       variables: {
         input: {
           id: versionId,
-          reason: VoidReasonEnum.Manual,
         },
       },
     })

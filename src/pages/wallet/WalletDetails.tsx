@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
@@ -9,7 +9,6 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TerminateCustomerWalletDialog } from '~/components/wallets/TerminateCustomerWalletDialog'
 import { VoidWalletDialog } from '~/components/wallets/VoidWalletDialog'
 import WalletAlerts from '~/components/wallets/WalletAlerts'
@@ -139,7 +138,6 @@ const WalletDetails = () => {
   const { translate } = useInternationalization()
   const { walletId, customerId } = useParams()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { hasPermissions } = usePermissions()
   const activeTabContent = useMainHeaderTabContent()
 
@@ -237,13 +235,7 @@ const WalletDetails = () => {
               description={translate('text_1773043324342ka1zcxto0pg')}
             />
 
-            {!!wallet && (
-              <WalletTransactions
-                wallet={wallet}
-                premiumWarningDialogRef={premiumWarningDialogRef}
-                loading={loading}
-              />
-            )}
+            {!!wallet && <WalletTransactions wallet={wallet} loading={loading} />}
           </DetailsPage.Container>
         ),
       },
@@ -285,7 +277,7 @@ const WalletDetails = () => {
         ),
       },
     ]
-  }, [translate, walletId, customerId, wallet, loading, hasPermissions, premiumWarningDialogRef])
+  }, [translate, walletId, customerId, wallet, loading, hasPermissions])
 
   const headerActions: MainHeaderAction[] = [
     {
@@ -343,7 +335,6 @@ const WalletDetails = () => {
 
       <>{activeTabContent}</>
 
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
       <TerminateCustomerWalletDialog ref={terminateDialogRef} />
       <VoidWalletDialog ref={voidDialogRef} />
     </>

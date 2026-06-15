@@ -1,6 +1,98 @@
 import { TaxInfosForCreateInvoiceFragment } from '~/generated/graphql'
+import { useInvoiceBuildRegenerationPreview } from '~/pages/invoiceDetails/common/useInvoiceBuildRegenerationPreview'
+import { render } from '~/test-utils'
 
-import { computeHasTaxProvider, resolveCustomerApplicableTax } from '../CreateInvoice'
+import CreateInvoice, {
+  computeHasTaxProvider,
+  resolveCustomerApplicableTax,
+} from '../CreateInvoice'
+
+jest.mock('~/pages/invoiceDetails/common/useInvoiceBuildRegenerationPreview', () => ({
+  useInvoiceBuildRegenerationPreview: jest.fn(),
+}))
+
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({ translate: (key: string) => key }),
+}))
+
+jest.mock('~/hooks/core/useLocationHistory', () => ({
+  useLocationHistory: () => ({ goBack: jest.fn() }),
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    hasFeatureFlag: jest.fn(() => false),
+    organization: undefined,
+    loading: false,
+    timezone: 'UTC',
+  }),
+}))
+
+jest.mock('~/hooks/usePermissionsInvoiceActions', () => ({
+  usePermissionsInvoiceActions: () => ({
+    canVoid: jest.fn(() => false),
+    canCreate: jest.fn(() => true),
+  }),
+}))
+
+jest.mock('~/hooks/useIframeConfig', () => ({
+  useIframeConfig: () => ({
+    isRunningInIframeContext: false,
+    isRunningInSalesForceIframe: false,
+    emitIframeMessage: jest.fn(),
+    emitSalesForceEvent: jest.fn(),
+  }),
+}))
+
+jest.mock('~/generated/graphql', () => {
+  const actual = jest.requireActual('~/generated/graphql')
+
+  return {
+    ...actual,
+    useGetInfosForCreateInvoiceQuery: jest.fn(() => ({
+      data: undefined,
+      loading: true,
+      error: undefined,
+    })),
+    useGetBillingEntityQuery: jest.fn(() => ({
+      data: undefined,
+      loading: false,
+    })),
+    useGetBillingEntityTaxesForCreateInvoiceQuery: jest.fn(() => ({
+      data: undefined,
+      loading: false,
+    })),
+    useGetAddonListForInfoiceLazyQuery: jest.fn(() => [
+      jest.fn(),
+      { data: undefined, loading: false },
+    ]),
+    useFetchDraftInvoiceTaxesMutation: jest.fn(() => [jest.fn(), {}]),
+    useCreateInvoiceMutation: jest.fn(() => [jest.fn(), {}]),
+    useVoidInvoiceMutation: jest.fn(() => [jest.fn(), {}]),
+  }
+})
+
+jest.mock('~/components/designSystem/WarningDialog', () => ({
+  WarningDialog: jest.fn(() => null),
+}))
+
+jest.mock('~/components/invoices/EditFeeBillingPeriod', () => ({
+  EditFeeBillingPeriod: jest.fn(() => null),
+}))
+
+jest.mock('~/components/invoices/EditInvoiceDisplayNameDialog', () => ({
+  EditInvoiceDisplayNameDialog: jest.fn(() => null),
+}))
+
+jest.mock('~/components/invoices/EditInvoiceItemDescriptionDialog', () => ({
+  EditInvoiceItemDescriptionDialog: jest.fn(() => null),
+}))
+
+jest.mock('~/components/invoices/EditInvoiceItemTaxDialog', () => ({
+  EditInvoiceItemTaxDialog: jest.fn(() => null),
+}))
+
+const mockUseInvoiceBuildRegenerationPreview = useInvoiceBuildRegenerationPreview as jest.Mock
 
 // -- Test data --
 
@@ -209,6 +301,40 @@ describe('CreateInvoice tax resolution logic', () => {
           expect(result).toEqual([billingEntityTax])
           expect(result).not.toEqual([orgTax])
         })
+      })
+    })
+  })
+})
+
+describe('CreateInvoice - hook integration', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockUseInvoiceBuildRegenerationPreview.mockReturnValue({
+      invoiceBuildRegenerationPreview: undefined,
+      loading: false,
+      error: undefined,
+      data: undefined,
+    })
+  })
+
+  describe('GIVEN the page is rendered with URL params', () => {
+    describe('WHEN a voidedInvoiceId is present in the URL', () => {
+      it('THEN should call useInvoiceBuildRegenerationPreview with the voidedInvoiceId', () => {
+        render(<CreateInvoice />, {
+          useParams: { customerId: 'test-customer-id', voidedInvoiceId: 'voided-invoice-123' },
+        })
+
+        expect(mockUseInvoiceBuildRegenerationPreview).toHaveBeenCalledWith('voided-invoice-123')
+      })
+    })
+
+    describe('WHEN no voidedInvoiceId is in the URL', () => {
+      it('THEN should call useInvoiceBuildRegenerationPreview with an empty string', () => {
+        render(<CreateInvoice />, {
+          useParams: { customerId: 'test-customer-id' },
+        })
+
+        expect(mockUseInvoiceBuildRegenerationPreview).toHaveBeenCalledWith('')
       })
     })
   })

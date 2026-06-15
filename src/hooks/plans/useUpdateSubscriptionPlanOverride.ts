@@ -21,17 +21,18 @@ export const useUpdateSubscriptionPlanOverride = ({ subscriptionId }: Args) => {
     },
   })
 
-  // Plan-level-only overrides. Charges are NEVER sent here — they go through
+  // Plan-level-only overrides. Charges are NEVER sent here - they go through
   // updateSubscriptionCharge. Omitting `charges` preserves existing overrides.
   const updatePlanOverride = async (planOverrides: PlanOverridesInput): Promise<boolean> => {
-    // errorPolicy is 'all', so GraphQL errors resolve in `errors` instead of
-    // throwing. Report failure so the caller keeps the drawer open (the toast is
-    // handled by the error link / onCompleted only fires on success).
-    const { errors } = await updateSubscription({
+    // Report success only when the mutation returned the subscription. On error
+    // (the error link resolves the result with `data: null`) return false so the
+    // caller keeps the drawer open. Same success check across all sub-mode
+    // mutation handlers.
+    const { data } = await updateSubscription({
       variables: { input: { id: subscriptionId, planOverrides } },
     })
 
-    return !errors?.length
+    return !!data?.updateSubscription?.id
   }
 
   return { updatePlanOverride }

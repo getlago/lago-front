@@ -13,6 +13,7 @@ export const useUpdateSubscriptionInvoicingPayments = ({
     onSuccess,
     buildInput: (value) => ({
       id: subscription?.id ?? '',
+      consolidateInvoice: value.consolidateInvoice,
       paymentMethod: value.paymentMethod
         ? {
             paymentMethodId: value.paymentMethod.paymentMethodId,

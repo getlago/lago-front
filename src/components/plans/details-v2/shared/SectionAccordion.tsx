@@ -1,6 +1,8 @@
+import { Icon, IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
 
 import { Accordion } from '~/components/designSystem/Accordion'
+import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
@@ -11,10 +13,12 @@ export type SectionAccordionAction = {
   label: string
   onClick: () => void
   hidden?: boolean
+  startIcon?: IconName
 }
 
 export type SectionAccordionProps = {
   id?: string
+  icon?: IconName
   title: ReactNode
   subtitle?: ReactNode
   badge?: ReactNode
@@ -26,6 +30,7 @@ export type SectionAccordionProps = {
 
 export const SectionAccordion = ({
   id,
+  icon,
   title,
   subtitle,
   badge,
@@ -37,17 +42,26 @@ export const SectionAccordion = ({
   const visibleActions = (actions ?? []).filter((a) => !a.hidden)
 
   return (
-    <div
-      id={id}
-      className="scroll-mt-12"
-      style={{ contentVisibility: 'auto', containIntrinsicSize: '0 80px' }}
-    >
+    <div id={id} className="scroll-mt-12">
+      {/* content-visibility lives on the card itself, not this wrapper: a contain:paint
+          element clips its descendants' overflow but not its OWN box-shadow, so the focus
+          ring on the card is no longer cropped.
+          `contain-intrinsic-size: auto 80px`: the `auto` keyword makes the browser remember
+          each card's last RENDERED height and reuse it while off-screen (80px is only the
+          before-first-render fallback). Without `auto`, an opened card scrolled off-screen
+          would collapse to the 80px placeholder, throwing off jump-to scroll math. */}
       <Accordion
+        className="[contain-intrinsic-size:auto_80px] [content-visibility:auto]"
         initiallyOpen={initiallyOpen}
         noContentMargin={noContentMargin}
         summary={
           <div className="flex flex-1 items-center justify-between gap-3">
             <div className="flex items-center gap-3">
+              {icon && (
+                <Avatar size="big" variant="connector">
+                  <Icon name={icon} color="dark" />
+                </Avatar>
+              )}
               <div className="flex flex-col">
                 <Typography variant="bodyHl" color="grey700">
                   {title}
@@ -85,6 +99,7 @@ export const SectionAccordion = ({
                           variant="quaternary"
                           align="left"
                           fullWidth
+                          startIcon={action.startIcon}
                           onClick={(e) => {
                             e.stopPropagation()
                             e.preventDefault()

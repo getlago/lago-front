@@ -1,6 +1,6 @@
 import MUITable from '@mui/material/Table'
 import MUITableBody from '@mui/material/TableBody'
-import MUITableCell, { type TableCellProps } from '@mui/material/TableCell'
+import { type TableCellProps } from '@mui/material/TableCell'
 import MUITableHead from '@mui/material/TableHead'
 import MUITableRow, { type TableRowProps } from '@mui/material/TableRow'
 import { MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
@@ -25,10 +25,10 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PopperOpener, theme } from '~/styles'
 import { tw } from '~/styles/utils'
 
+import { PADDING_SPACING_RIGHT_PX } from './const'
+import TableCell from './TableCell'
 import TableInnerCell from './TableInnerCell'
 import type { ActionColumn, ActionItem, Align } from './types'
-
-const PADDING_SPACING_RIGHT_PX = 32
 
 type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`
 
@@ -136,48 +136,6 @@ const TableRow = ({
     >
       {children}
     </MUITableRow>
-  )
-}
-
-const TableCell = ({
-  children,
-  className,
-  hasPlaceholderDisplayed,
-  isBlurred,
-  maxSpace,
-  tdCellClassName,
-  ...props
-}: PropsWithChildren &
-  TableCellProps & {
-    className?: string
-    isBlurred?: boolean
-    hasPlaceholderDisplayed?: boolean
-    maxSpace?: number
-    tdCellClassName?: string
-  }) => {
-  return (
-    <MUITableCell
-      className={tw('lago-table-cell', 'w-auto whitespace-nowrap p-0', className, tdCellClassName)}
-      style={{
-        width: !!maxSpace ? `${maxSpace}%` : 'auto',
-        borderBottom: !!hasPlaceholderDisplayed ? 'none' : `1px solid ${theme.palette.grey[300]}`,
-        boxShadow: !!isBlurred ? theme.shadows[7] : 'none',
-      }}
-      sx={{
-        '& > div': {
-          paddingRight: `${PADDING_SPACING_RIGHT_PX}px`,
-        },
-        '&:first-of-type > div': {
-          paddingLeft: 0,
-        },
-        '&:last-of-type > div': {
-          paddingRight: 0,
-        },
-      }}
-      {...props}
-    >
-      {children}
-    </MUITableCell>
   )
 }
 

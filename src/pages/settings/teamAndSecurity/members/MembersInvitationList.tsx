@@ -166,7 +166,9 @@ const MembersInvitationList = () => {
         title: translate('text_6321a076b94bd1b32494e9ee'),
         subtitle: translate('text_6321a076b94bd1b32494e9e8'),
         buttonTitle: translate('text_6321a076b94bd1b32494e9f2'),
-        buttonAction: invitesRefetch,
+        buttonAction: () => {
+          invitesRefetch()
+        },
       },
     }
 

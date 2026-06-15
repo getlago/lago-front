@@ -17,6 +17,7 @@ import { SubscriptionFeeAccordion } from './SubscriptionFeeAccordion'
 
 gql`
   fragment PlanForDetailsV2PlanSettingsSection on Plan {
+    subscriptionsCount
     ...PlanForUpdateWithCascade
     ...PlanForDetailsV2SubscriptionFeeAccordion
   }
@@ -51,6 +52,7 @@ export const PlanDetailsV2PlanSettingsSection = ({
         actions={[
           {
             label: translate('text_63e51ef4985f0ebd75c212fc'),
+            startIcon: 'pen',
             onClick: openDrawer,
             hidden: !canUpdate,
           },

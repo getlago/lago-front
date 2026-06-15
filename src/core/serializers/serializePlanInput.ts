@@ -202,31 +202,31 @@ export const serializeMinimumCommitment = (
       }
     : {}
 
+// Always returns an array: the API only clears existing thresholds when it
+// receives an explicit empty array, while an absent key means "leave untouched"
+// (Plans::UpdateService gates on params.key?(:usage_thresholds)).
 export const serializeUsageThresholds = (
   nonRecurringUsageThresholds: PlanFormInput['nonRecurringUsageThresholds'],
   recurringUsageThreshold: PlanFormInput['recurringUsageThreshold'],
   currency: CurrencyEnum,
-) =>
-  !!nonRecurringUsageThresholds?.length || !!recurringUsageThreshold
+) => [
+  ...(nonRecurringUsageThresholds ?? []).map(
+    ({ amountCents, recurring, thresholdDisplayName }) => ({
+      recurring: !!recurring,
+      thresholdDisplayName: thresholdDisplayName ?? null,
+      amountCents: Number(serializeAmount(amountCents, currency)),
+    }),
+  ),
+  ...(recurringUsageThreshold
     ? [
-        ...(nonRecurringUsageThresholds ?? []).map(
-          ({ amountCents, recurring, thresholdDisplayName }) => ({
-            recurring: !!recurring,
-            thresholdDisplayName: thresholdDisplayName ?? null,
-            amountCents: Number(serializeAmount(amountCents, currency)),
-          }),
-        ),
-        ...(recurringUsageThreshold
-          ? [
-              {
-                recurring: !!recurringUsageThreshold.recurring,
-                thresholdDisplayName: recurringUsageThreshold.thresholdDisplayName ?? null,
-                amountCents: Number(serializeAmount(recurringUsageThreshold.amountCents, currency)),
-              },
-            ]
-          : []),
+        {
+          recurring: !!recurringUsageThreshold.recurring,
+          thresholdDisplayName: recurringUsageThreshold.thresholdDisplayName ?? null,
+          amountCents: Number(serializeAmount(recurringUsageThreshold.amountCents, currency)),
+        },
       ]
-    : undefined
+    : []),
+]
 
 export const serializeEntitlements = (entitlements: PlanFormInput['entitlements']) =>
   entitlements.map(({ privileges, ...entitlement }) => ({

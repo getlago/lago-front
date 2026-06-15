@@ -1,12 +1,11 @@
 import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
-import { FC, PropsWithChildren, RefObject, useMemo } from 'react'
+import { FC, PropsWithChildren, useMemo } from 'react'
 
 import { Card } from '~/components/designSystem/Card'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import { WalletTransactionList } from '~/components/wallets/WalletTransactionList'
 import { WalletTransactionListItem } from '~/components/wallets/WalletTransactionListItem'
@@ -32,7 +31,6 @@ const TODAY = DateTime.now().toISODate()
 
 interface WalletTransactionsProps {
   wallet: WalletDetailsFragment
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
   customerTimezone?: TimezoneEnum
   initiallyOpen?: boolean
   selectedTransaction?: string | null

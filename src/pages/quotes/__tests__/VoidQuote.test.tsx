@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { addToast } from '~/core/apolloClient'
-import { OrderTypeEnum, StatusEnum, VoidReasonEnum } from '~/generated/graphql'
+import { OrderTypeEnum, StatusEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useQuote } from '../hooks/useQuote'
@@ -112,6 +112,7 @@ describe('VoidQuote', () => {
       quote: mockQuote,
       loading: false,
       error: undefined,
+      refetch: jest.fn(),
     })
 
     mockHasPermissions.mockReturnValue(true)
@@ -183,7 +184,6 @@ describe('VoidQuote', () => {
             variables: {
               input: {
                 id: 'version-123',
-                reason: VoidReasonEnum.Manual,
               },
             },
           })
@@ -231,7 +231,6 @@ describe('VoidQuote', () => {
             variables: {
               input: {
                 id: 'version-123',
-                reason: VoidReasonEnum.Manual,
               },
             },
           })
@@ -283,6 +282,7 @@ describe('VoidQuote', () => {
           quote: undefined,
           loading: true,
           error: undefined,
+          refetch: jest.fn(),
         })
 
         render(<VoidQuote />)
@@ -299,6 +299,7 @@ describe('VoidQuote', () => {
           quote: undefined,
           loading: false,
           error: new Error('Something went wrong') as never,
+          refetch: jest.fn(),
         })
 
         render(<VoidQuote />)

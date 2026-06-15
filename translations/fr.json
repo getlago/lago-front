@@ -202,5 +202,12 @@
   "text_1741604005109aspaz4chd7y": "Montant payé",
   "text_1741604005109w5ns73xmam9": "$730,00",
   "text_17413343926225ug14ak60xv": "Télécharger la facture",
-  "text_1741334392622fl3ozwejrul": "Télécharger le reçu"
+  "text_1741334392622fl3ozwejrul": "Télécharger le reçu",
+  "text_17804985042415hh3kbs8ksh": "Nom",
+  "text_178049850424144tpzoeoge3": "Facturation",
+  "text_1780498504241avgm5sugii4": "Unités",
+  "text_1780498504241di3s12o655k": "Prix",
+  "text_1780498504241eo24fnc6s9u": "Du {{fromDate}} au {{toDate}}",
+  "text_17804985042422iw5hwj0u2v": "Tous les prix sont hors taxes applicables",
+  "text_1779289915866etwoweh1syv": "Frais d'abonnement"
 }

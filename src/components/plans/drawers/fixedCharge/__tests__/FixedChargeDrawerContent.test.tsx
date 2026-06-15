@@ -327,6 +327,12 @@ describe('FixedChargeDrawerContent', () => {
 
         expect(proratedField).toBeDisabled()
       })
+
+      it('THEN the charge code field should be disabled', () => {
+        render(<FixedChargeDrawerContent isCreateMode={false} isEdition disabled showCode />)
+
+        expect(screen.getByTestId('charge-code-field')).toHaveAttribute('data-disabled', 'true')
+      })
     })
   })
 
@@ -373,6 +379,12 @@ describe('FixedChargeDrawerContent', () => {
         const proratedField = screen.getByTestId('field-prorated')
 
         expect(proratedField).not.toBeDisabled()
+      })
+
+      it('THEN the charge code field should NOT be disabled (new charge)', () => {
+        render(<FixedChargeDrawerContent isCreateMode={false} isEdition disabled showCode />)
+
+        expect(screen.getByTestId('charge-code-field')).toHaveAttribute('data-disabled', 'false')
       })
     })
   })
