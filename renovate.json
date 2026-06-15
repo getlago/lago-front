@@ -24,7 +24,7 @@
   },
   "packageRules": [
     {
-      "matchDepTypes": ["overrides"],
+      "matchDepTypes": ["overrides", "pnpm.overrides"],
       "enabled": false,
       "description": "Disable updates for pnpm overrides used to pin transitive security patches"
     },
