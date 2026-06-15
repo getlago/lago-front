@@ -14,7 +14,7 @@ jest.mock('~/components/settings/integrations/AddAdyenDialog', () => ({
   AddAdyenDialog: () => null,
 }))
 jest.mock('~/components/settings/integrations/DeleteAdyenIntegrationDialog', () => ({
-  DeleteAdyenIntegrationDialog: () => null,
+  useDeleteAdyenIntegrationDialog: () => ({ openDeleteAdyenIntegrationDialog: () => null }),
 }))
 jest.mock('~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog', () => ({
   AddEditDeleteSuccessRedirectUrlDialog: () => null,

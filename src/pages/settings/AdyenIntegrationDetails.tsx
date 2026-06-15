@@ -16,10 +16,7 @@ import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  DeleteAdyenIntegrationDialog,
-  DeleteAdyenIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteAdyenIntegrationDialog'
+import { useDeleteAdyenIntegrationDialog } from '~/components/settings/integrations/DeleteAdyenIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ADYEN_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -78,7 +75,7 @@ const AdyenIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId } = useParams()
   const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteAdyenIntegrationDialogRef>(null)
+  const { openDeleteAdyenIntegrationDialog } = useDeleteAdyenIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
@@ -144,8 +141,11 @@ const AdyenIntegrationDetails = () => {
                   onClick: (closePopper) => {
                     addAdyenDialogRef.current?.openDialog({
                       provider: adyenPaymentProvider,
-                      deleteModalRef: deleteDialogRef,
-                      deleteDialogCallback,
+                      onDelete: (provider) =>
+                        openDeleteAdyenIntegrationDialog({
+                          provider,
+                          callback: deleteDialogCallback,
+                        }),
                     })
                     closePopper()
                   },
@@ -154,7 +154,7 @@ const AdyenIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dad'),
                   hidden: !canDeleteIntegration,
                   onClick: (closePopper) => {
-                    deleteDialogRef.current?.openDialog({
+                    openDeleteAdyenIntegrationDialog({
                       provider: adyenPaymentProvider,
                       callback: deleteDialogCallback,
                     })
@@ -178,8 +178,11 @@ const AdyenIntegrationDetails = () => {
                 onClick={() => {
                   addAdyenDialogRef.current?.openDialog({
                     provider: adyenPaymentProvider,
-                    deleteModalRef: deleteDialogRef,
-                    deleteDialogCallback,
+                    onDelete: (provider) =>
+                      openDeleteAdyenIntegrationDialog({
+                        provider,
+                        callback: deleteDialogCallback,
+                      }),
                   })
                 }}
               >
@@ -329,7 +332,6 @@ const AdyenIntegrationDetails = () => {
       </IntegrationsPage.Container>
 
       <AddAdyenDialog ref={addAdyenDialogRef} />
-      <DeleteAdyenIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
