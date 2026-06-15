@@ -80,6 +80,7 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
     editor,
     selector: ({ editor: e }) => {
       if (!e || e.isDestroyed) return null
+      if (getDragHandleStorage(e).hideMenu) return null
 
       return getNodeSelectionBlock(e) ?? getDragHandleTableBlock(e)
     },

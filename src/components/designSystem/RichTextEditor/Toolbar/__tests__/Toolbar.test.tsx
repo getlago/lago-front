@@ -308,6 +308,44 @@ describe('Toolbar', () => {
       expect(editor.chain).toHaveBeenCalled()
       expect(runMock).toHaveBeenCalled()
     })
+
+    describe('WHEN a heading is active', () => {
+      it('THEN should show the text style button with secondary variant (active)', async () => {
+        const { editor } = createMockEditor({ 'heading-1': true, paragraph: false })
+
+        await act(() => render(<Toolbar editor={editor} />))
+
+        const button = screen.getByTestId(TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID)
+
+        // secondary variant maps to MUI contained
+        expect(button.classList.contains('MuiButton-contained')).toBe(true)
+      })
+    })
+
+    describe('WHEN paragraph is active (default text)', () => {
+      it('THEN should show the text style button with quaternary variant (inactive)', async () => {
+        const { editor } = createMockEditor({ paragraph: true })
+
+        await act(() => render(<Toolbar editor={editor} />))
+
+        const button = screen.getByTestId(TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID)
+
+        // quaternary variant maps to MUI text
+        expect(button.classList.contains('MuiButton-text')).toBe(true)
+      })
+    })
+
+    describe('WHEN no text style is active (mixed selection)', () => {
+      it('THEN should disable the text style button', async () => {
+        const { editor } = createMockEditor({ paragraph: false })
+
+        await act(() => render(<Toolbar editor={editor} />))
+
+        const button = screen.getByTestId(TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID)
+
+        expect(button).toBeDisabled()
+      })
+    })
   })
 
   describe('GIVEN tooltips on toolbar buttons', () => {

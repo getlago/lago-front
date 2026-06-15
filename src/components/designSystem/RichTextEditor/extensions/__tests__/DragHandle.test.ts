@@ -3,6 +3,7 @@ import { Table } from '@tiptap/extension-table'
 import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
+import { NodeSelection } from '@tiptap/pm/state'
 import StarterKit from '@tiptap/starter-kit'
 import { act } from 'react'
 
@@ -307,6 +308,15 @@ describe('DragHandle', () => {
 
         editor.destroy()
       })
+
+      it('THEN should have hideMenu as false', () => {
+        const editor = createEditor()
+        const storage = getDragHandleStorage(editor)
+
+        expect(storage.hideMenu).toBe(false)
+
+        editor.destroy()
+      })
     })
   })
 
@@ -542,6 +552,356 @@ describe('DragHandle', () => {
         expect(() => plusButton.click()).not.toThrow()
 
         editor.destroy()
+      })
+    })
+  })
+
+  describe('GIVEN the selectBlock function resets hideMenu', () => {
+    describe('WHEN a block is selected via grip click after hideMenu was true', () => {
+      it('THEN should reset hideMenu to false', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+        const storage = getDragHandleStorage(editor)
+
+        // Manually set hideMenu to true (simulating a prior ESC press)
+        storage.hideMenu = true
+
+        // Click a grip to select a block
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const firstGrip = grips[0] as HTMLElement
+
+        firstGrip.click()
+
+        expect(storage.hideMenu).toBe(false)
+
+        editor.destroy()
+      })
+    })
+  })
+
+  describe('GIVEN the ESC key handler', () => {
+    describe('WHEN ESC is pressed with no block selected', () => {
+      it('THEN should not consume the event', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+
+        // Place a normal text cursor
+        editor.commands.setTextSelection(1)
+
+        const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })
+        const prevented = !editor.view.dom.dispatchEvent(event)
+
+        editor.destroy()
+
+        // The handler returns false so the event is not consumed
+        expect(prevented).toBe(false)
+      })
+    })
+
+    describe('WHEN a non-Escape key is pressed with a block selected', () => {
+      it('THEN should not consume the event', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+
+        // Select the first block
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        ;(grips[0] as HTMLElement).click()
+
+        const event = new KeyboardEvent('keydown', {
+          key: 'a',
+          bubbles: true,
+          cancelable: true,
+        })
+
+        // handleKeyDown returns false for non-Escape keys
+        let result: boolean | void = undefined
+
+        editor.view.someProp('handleKeyDown', (f) => {
+          result = f(editor.view, event)
+        })
+
+        editor.destroy()
+
+        expect(result).toBe(false)
+      })
+    })
+
+    describe('WHEN ESC is pressed once with a node selected', () => {
+      it('THEN should set hideMenu to true and keep the selection', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+        const storage = getDragHandleStorage(editor)
+
+        // Select first block via grip
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        ;(grips[0] as HTMLElement).click()
+
+        expect(storage.hideMenu).toBe(false)
+
+        // Simulate ESC keydown through ProseMirror's handleKeyDown
+        const escEvent = new KeyboardEvent('keydown', {
+          key: 'Escape',
+          bubbles: true,
+          cancelable: true,
+        })
+
+        editor.view.someProp('handleKeyDown', (f) => f(editor.view, escEvent))
+
+        expect(storage.hideMenu).toBe(true)
+
+        // Block should still be selected (NodeSelection)
+
+        const isStillNodeSelected = editor.state.selection instanceof NodeSelection
+
+        editor.destroy()
+
+        expect(isStillNodeSelected).toBe(true)
+      })
+    })
+
+    describe('WHEN ESC is pressed twice with a node selected', () => {
+      it('THEN should deselect the block and reset hideMenu', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+        const storage = getDragHandleStorage(editor)
+
+        // Select first block
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        ;(grips[0] as HTMLElement).click()
+
+        // First ESC — hides menu
+        const esc1 = new KeyboardEvent('keydown', {
+          key: 'Escape',
+          bubbles: true,
+          cancelable: true,
+        })
+
+        editor.view.someProp('handleKeyDown', (f) => f(editor.view, esc1))
+
+        expect(storage.hideMenu).toBe(true)
+
+        // Second ESC — deselects block
+        const esc2 = new KeyboardEvent('keydown', {
+          key: 'Escape',
+          bubbles: true,
+          cancelable: true,
+        })
+
+        editor.view.someProp('handleKeyDown', (f) => f(editor.view, esc2))
+
+        expect(storage.hideMenu).toBe(false)
+
+        const isNodeSelected = editor.state.selection instanceof NodeSelection
+
+        editor.destroy()
+
+        expect(isNodeSelected).toBe(false)
+      })
+    })
+
+    describe('WHEN ESC is pressed once with a table selected', () => {
+      it('THEN should set hideMenu to true and keep the table selection', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const storage = getDragHandleStorage(editor)
+
+        // Select table via grip
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        ;(grips[1] as HTMLElement).click()
+
+        expect(storage.selectedBlock).not.toBeNull()
+        expect(storage.hideMenu).toBe(false)
+
+        const escEvent = new KeyboardEvent('keydown', {
+          key: 'Escape',
+          bubbles: true,
+          cancelable: true,
+        })
+
+        editor.view.someProp('handleKeyDown', (f) => f(editor.view, escEvent))
+
+        expect(storage.hideMenu).toBe(true)
+        expect(storage.selectedBlock).not.toBeNull()
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN ESC is pressed twice with a table selected', () => {
+      it('THEN should clear the table selection and reset hideMenu', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const storage = getDragHandleStorage(editor)
+
+        // Select table via grip
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        ;(grips[1] as HTMLElement).click()
+
+        // First ESC
+        const esc1 = new KeyboardEvent('keydown', {
+          key: 'Escape',
+          bubbles: true,
+          cancelable: true,
+        })
+
+        editor.view.someProp('handleKeyDown', (f) => f(editor.view, esc1))
+
+        expect(storage.hideMenu).toBe(true)
+
+        // Second ESC
+        const esc2 = new KeyboardEvent('keydown', {
+          key: 'Escape',
+          bubbles: true,
+          cancelable: true,
+        })
+
+        editor.view.someProp('handleKeyDown', (f) => f(editor.view, esc2))
+
+        expect(storage.hideMenu).toBe(false)
+        expect(storage.selectedBlock).toBeNull()
+
+        editor.destroy()
+      })
+    })
+  })
+
+  describe('GIVEN the outside-click handler', () => {
+    const wrapEditorInContainer = (editor: Editor) => {
+      const container = document.createElement('div')
+
+      container.className = 'rich-text-editor'
+      document.body.appendChild(container)
+      container.appendChild(editor.view.dom)
+
+      return container
+    }
+
+    describe('WHEN clicking outside the editor with a node selected', () => {
+      it('THEN should deselect the block', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+        const container = wrapEditorInContainer(editor)
+
+        // Select first block
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        ;(grips[0] as HTMLElement).click()
+
+        expect(editor.state.selection instanceof NodeSelection).toBe(true)
+
+        // Simulate outside click on an element outside .rich-text-editor
+        const outsideEl = document.createElement('div')
+
+        document.body.appendChild(outsideEl)
+
+        const mousedown = new MouseEvent('mousedown', { bubbles: true })
+
+        outsideEl.dispatchEvent(mousedown)
+
+        const isStillNodeSelected = editor.state.selection instanceof NodeSelection
+
+        document.body.removeChild(outsideEl)
+        document.body.removeChild(container)
+        editor.destroy()
+
+        expect(isStillNodeSelected).toBe(false)
+      })
+    })
+
+    describe('WHEN clicking outside the editor with a table selected', () => {
+      it('THEN should clear the table selection', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const container = wrapEditorInContainer(editor)
+        const storage = getDragHandleStorage(editor)
+
+        // Select table via grip
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        ;(grips[1] as HTMLElement).click()
+
+        expect(storage.selectedBlock).not.toBeNull()
+
+        // Simulate outside click
+        const outsideEl = document.createElement('div')
+
+        document.body.appendChild(outsideEl)
+
+        const mousedown = new MouseEvent('mousedown', { bubbles: true })
+
+        outsideEl.dispatchEvent(mousedown)
+
+        const selectedBlockAfter = storage.selectedBlock
+
+        document.body.removeChild(outsideEl)
+        document.body.removeChild(container)
+        editor.destroy()
+
+        expect(selectedBlockAfter).toBeNull()
+      })
+    })
+
+    describe('WHEN clicking inside the editor with a node selected', () => {
+      it('THEN should not trigger outside-click deselection', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+        const container = wrapEditorInContainer(editor)
+
+        // Select first block
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        ;(grips[0] as HTMLElement).click()
+
+        expect(editor.state.selection instanceof NodeSelection).toBe(true)
+
+        // Create a child element inside the container and click it
+        // (avoid dispatching mousedown on editor.view.dom directly — ProseMirror
+        //  needs elementFromPoint which jsdom doesn't support)
+        const insideEl = document.createElement('span')
+
+        container.appendChild(insideEl)
+
+        const mousedown = new MouseEvent('mousedown', { bubbles: true })
+
+        insideEl.dispatchEvent(mousedown)
+
+        // The outside-click handler should see the target is inside .rich-text-editor
+        // and return early — the NodeSelection should remain intact
+        const isStillNodeSelected = editor.state.selection instanceof NodeSelection
+
+        document.body.removeChild(container)
+        editor.destroy()
+
+        expect(isStillNodeSelected).toBe(true)
+      })
+    })
+
+    describe('WHEN clicking outside with no block selected', () => {
+      it('THEN should not change the selection', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+
+        wrapEditorInContainer(editor)
+
+        // Place a normal text cursor
+        editor.commands.setTextSelection(1)
+
+        const selBefore = editor.state.selection.from
+
+        // Simulate outside click
+        const outsideEl = document.createElement('div')
+
+        document.body.appendChild(outsideEl)
+
+        const mousedown = new MouseEvent('mousedown', { bubbles: true })
+
+        outsideEl.dispatchEvent(mousedown)
+
+        const selAfter = editor.state.selection.from
+
+        document.body.removeChild(outsideEl)
+        editor.destroy()
+
+        expect(selAfter).toBe(selBefore)
+      })
+    })
+
+    describe('WHEN the editor is destroyed', () => {
+      it('THEN should remove the mousedown listener', () => {
+        const removeSpy = jest.spyOn(document, 'removeEventListener')
+        const editor = createEditor('<p>Hello</p>')
+
+        editor.destroy()
+
+        expect(removeSpy).toHaveBeenCalledWith('mousedown', expect.any(Function))
+
+        removeSpy.mockRestore()
       })
     })
   })
