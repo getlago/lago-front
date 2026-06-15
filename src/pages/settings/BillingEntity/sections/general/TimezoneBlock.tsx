@@ -1,5 +1,3 @@
-import { useRef } from 'react'
-
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
@@ -9,10 +7,7 @@ import { BillingEntity, TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
-import {
-  EditBillingEntityTimezoneDialog,
-  EditBillingEntityTimezoneDialogRef,
-} from '~/pages/settings/BillingEntity/sections/general/EditBillingEntityTimezoneDialog'
+import { useEditBillingEntityTimezoneDialog } from '~/pages/settings/BillingEntity/sections/general/EditBillingEntityTimezoneDialog'
 
 type TimezoneBlockProps = {
   billingEntity: BillingEntity
@@ -26,7 +21,7 @@ const TimezoneBlock = ({ billingEntity }: TimezoneBlockProps) => {
   const { id, timezone } = billingEntity
   const timezoneConfig = getTimezoneConfig(timezone)
 
-  const editTimezoneDialogRef = useRef<EditBillingEntityTimezoneDialogRef>(null)
+  const { openEditBillingEntityTimezoneDialog } = useEditBillingEntityTimezoneDialog()
   const premiumWarningDialog = usePremiumWarningDialog()
 
   return (
@@ -42,7 +37,7 @@ const TimezoneBlock = ({ billingEntity }: TimezoneBlockProps) => {
                 endIcon={isPremium ? undefined : 'sparkles'}
                 onClick={() => {
                   isPremium
-                    ? editTimezoneDialogRef?.current?.openDialog()
+                    ? openEditBillingEntityTimezoneDialog({ id, timezone })
                     : premiumWarningDialog.open()
                 }}
               >
@@ -59,8 +54,6 @@ const TimezoneBlock = ({ billingEntity }: TimezoneBlockProps) => {
           offset: timezoneConfig.offset,
         })}
       </Typography>
-
-      <EditBillingEntityTimezoneDialog ref={editTimezoneDialogRef} id={id} timezone={timezone} />
     </SettingsListItem>
   )
 }
