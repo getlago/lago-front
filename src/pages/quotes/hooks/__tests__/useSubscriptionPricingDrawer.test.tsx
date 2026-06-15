@@ -1,11 +1,17 @@
 import { act, renderHook } from '@testing-library/react'
 
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
+import type { SubscriptionPricingState } from '~/core/serializers/serializeQuotePlanBillingItems'
+import { render } from '~/test-utils'
 
 import { useSubscriptionPricingDrawer } from '../useSubscriptionPricingDrawer'
 
 const mockDrawerOpen = jest.fn()
 const mockDrawerClose = jest.fn()
+
+// State the mocked content component hydrates into the hook's stateRef on render.
+// `null` keeps the ref empty (exercises the early-return branch in handleSave).
+let mockInjectedState: SubscriptionPricingState | null = null
 
 jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: mockDrawerOpen, close: mockDrawerClose }),
@@ -17,17 +23,29 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-// Mock SubscriptionPricingContent
+// Mock SubscriptionPricingContent — on render it hydrates the shared stateRef
+// so the drawer's submit handler has a subscription state to serialize.
 jest.mock(
   '~/components/designSystem/RichTextEditor/PricingBlock/SubscriptionPricingContent',
   () => ({
-    SubscriptionPricingContent: () => null,
+    SubscriptionPricingContent: ({
+      stateRef,
+    }: {
+      stateRef?: { current: SubscriptionPricingState | null }
+    }) => {
+      if (stateRef) {
+        stateRef.current = mockInjectedState
+      }
+
+      return null
+    },
   }),
 )
 
 describe('useSubscriptionPricingDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockInjectedState = null
   })
 
   it('returns the expected interface', () => {
@@ -127,5 +145,75 @@ describe('useSubscriptionPricingDrawer', () => {
 
     expect(billingItems).not.toBeNull()
     expect(result.current.entities).not.toHaveProperty('plan_123')
+  })
+
+  it('saves the subscription and closes the drawer when the form is submitted', () => {
+    mockInjectedState = {
+      planId: 'plan_123',
+      planCode: 'enterprise',
+      planName: 'Enterprise Plan',
+      planDescription: '',
+      subscriptionSettings: {
+        externalId: '',
+        subscriptionName: '',
+        billingTime: 'anniversary',
+        startDate: '2023-07-26',
+        endDate: '2024-07-26',
+      },
+      invoicingSettings: { paymentMethodId: '', invoiceCustomFooter: '' },
+      overrides: {},
+    }
+
+    const onSave = jest.fn()
+    const onDatesChange = jest.fn()
+
+    const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined, { onDatesChange }))
+
+    act(() => {
+      result.current.onPricingCommand({ onSave })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    // Render the drawer children so the mocked content hydrates the state ref
+    render(openArgs.children)
+
+    act(() => {
+      openArgs.form.submit()
+    })
+
+    expect(onSave).toHaveBeenCalledWith(
+      { pricingType: 'plan', entityIds: ['plan_123'] },
+      expect.objectContaining({
+        plan_123: expect.objectContaining({ entityId: 'plan_123', entityType: 'plan' }),
+      }),
+      expect.objectContaining({ addons: [], plans: expect.any(Array) }),
+    )
+    expect(onDatesChange).toHaveBeenCalledWith('2023-07-26', '2024-07-26')
+    expect(result.current.entities).toHaveProperty('plan_123')
+    expect(mockDrawerClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not save or close the drawer when no subscription state is set', () => {
+    mockInjectedState = null
+
+    const onSave = jest.fn()
+
+    const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined))
+
+    act(() => {
+      result.current.onPricingCommand({ onSave })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(openArgs.children)
+
+    act(() => {
+      openArgs.form.submit()
+    })
+
+    expect(onSave).not.toHaveBeenCalled()
+    expect(mockDrawerClose).not.toHaveBeenCalled()
   })
 })
