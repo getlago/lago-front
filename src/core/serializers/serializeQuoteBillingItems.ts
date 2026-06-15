@@ -23,6 +23,7 @@ type OverridableFields = Omit<AddOnPayload, 'position' | 'add_on_code' | 'tax_co
 export interface BillingItemAddon {
   type: 'addon'
   id: string
+  localId?: string
   payload: AddOnPayload
   overrides: Partial<OverridableFields>
 }
@@ -46,7 +47,7 @@ export const toBillingItems = (
   originalPayloads: Record<string, AddOnPayload>,
 ): BillingItemsPayload => {
   const addons: BillingItemAddon[] = addOnItems.map((item, index) => {
-    const original = originalPayloads[item.addOnId]
+    const original = originalPayloads[item.localId] ?? originalPayloads[item.addOnId]
     const payload: AddOnPayload = { ...original, position: index + 1 }
 
     const overrides: Partial<OverridableFields> = {}
@@ -83,7 +84,7 @@ export const toBillingItems = (
       overrides.to_datetime = formToDatetime
     }
 
-    return { type: 'addon' as const, id: item.addOnId, payload, overrides }
+    return { type: 'addon' as const, id: item.addOnId, localId: item.localId, payload, overrides }
   })
 
   return { addons }
@@ -105,7 +106,8 @@ export const fromBillingItems = (billingItems: BillingItemsPayload): FromBilling
   const sorted = [...billingItems.addons].sort((a, b) => a.payload.position - b.payload.position)
 
   for (const addon of sorted) {
-    const { payload, overrides, id } = addon
+    const { payload, overrides, id, localId: savedLocalId } = addon
+    const localId = savedLocalId ?? crypto.randomUUID()
 
     // Merge: overrides win over payload
     const effective = {
@@ -119,8 +121,8 @@ export const fromBillingItems = (billingItems: BillingItemsPayload): FromBilling
       to_datetime: overrides.to_datetime ?? payload.to_datetime,
     }
 
-    entities[id] = {
-      entityId: id,
+    entities[localId] = {
+      entityId: localId,
       entityType: 'addOn',
       name: effective.name,
       invoiceDisplayName: effective.invoice_display_name,
@@ -134,6 +136,7 @@ export const fromBillingItems = (billingItems: BillingItemsPayload): FromBilling
     }
 
     addOnItems.push({
+      localId,
       addOnId: id,
       name: effective.name,
       invoiceDisplayName: effective.invoice_display_name,
@@ -146,7 +149,7 @@ export const fromBillingItems = (billingItems: BillingItemsPayload): FromBilling
       toDatetime: effective.to_datetime ?? '',
     })
 
-    originalPayloads[id] = payload
+    originalPayloads[localId] = payload
   }
 
   return { entities, addOnItems, originalPayloads }

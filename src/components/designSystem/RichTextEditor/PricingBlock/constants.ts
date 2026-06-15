@@ -1,4 +1,5 @@
 export interface AddOnItem {
+  localId: string
   addOnId: string
   name: string
   invoiceDisplayName: string

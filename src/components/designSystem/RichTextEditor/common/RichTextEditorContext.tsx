@@ -1,6 +1,8 @@
 import { createContext, useContext } from 'react'
 
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
+import type { Locale } from '~/core/translations'
+import type { CurrencyEnum } from '~/generated/graphql'
 
 import type { PricingBlockAttributes, PricingType } from '../extensions/PricingBlock.schema'
 import type { RichTextEditorMode } from '../RichTextEditor'
@@ -25,7 +27,7 @@ export interface PricingCommandParams {
     entityData: Record<string, EntityData>,
     billingItems?: BillingItemsPayload,
   ) => void
-  editData?: { pricingType: PricingType; entityIds: string[] }
+  editData?: { pricingType: PricingType; entityIds: string[]; localEntityIds?: string[] }
 }
 
 export type OnPricingCommand = (params: PricingCommandParams) => void
@@ -35,6 +37,8 @@ interface RichTextEditorContextValue {
   mentionValues: Record<string, string>
   entities: Record<string, EntityData>
   onPricingCommand?: OnPricingCommand
+  customerLocale?: Locale
+  customerCurrency?: CurrencyEnum
 }
 
 const RichTextEditorContext = createContext<RichTextEditorContextValue>({

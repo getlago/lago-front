@@ -147,6 +147,7 @@ describe('PricingDrawerContent', () => {
           initialValues: {
             addOnItems: [
               {
+                localId: 'local-1',
                 addOnId: 'addon-1',
                 name: 'Setup Fee',
                 invoiceDisplayName: '',
@@ -179,6 +180,7 @@ describe('PricingDrawerContent', () => {
           initialValues: {
             addOnItems: [
               {
+                localId: 'local-1',
                 addOnId: 'addon-1',
                 name: 'Setup Fee',
                 invoiceDisplayName: '',

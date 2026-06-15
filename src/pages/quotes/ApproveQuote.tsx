@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -10,6 +11,8 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { addToast } from '~/core/apolloClient'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
+import { fromBillingItems } from '~/core/serializers/serializeQuoteBillingItems'
+import type { Locale } from '~/core/translations'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -33,6 +36,15 @@ const ApproveQuote = () => {
 
   const { quote, loading, error } = useQuote(quoteId)
   const { approveQuote } = useApproveQuote()
+
+  // Deserialize billing items for pricing block preview
+  const previewEntities = useMemo(() => {
+    if (!quote?.currentVersion?.billingItems) return {}
+
+    return fromBillingItems(quote.currentVersion.billingItems).entities
+  }, [quote?.currentVersion?.billingItems])
+
+  const customerLocale = (quote?.customer?.billingConfiguration?.documentLocale ?? 'en') as Locale
 
   const onSubmit = async () => {
     if (!quoteId || !versionId) return
@@ -156,7 +168,14 @@ const ApproveQuote = () => {
           </div>
           <div data-test={APPROVE_QUOTE_PREVIEW_TEST_ID}>
             {quote?.currentVersion?.content ? (
-              <RichTextEditor mode="preview" content={quote.currentVersion.content} />
+              <RichTextEditor
+                mode="preview"
+                isCompact
+                content={quote.currentVersion.content}
+                entities={previewEntities}
+                customerLocale={customerLocale}
+                customerCurrency={quote?.customer?.currency ?? undefined}
+              />
             ) : (
               <Typography color="grey500">{translate('text_17768523811635qaasto1ziv')}</Typography>
             )}

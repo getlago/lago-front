@@ -2,6 +2,8 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { NodeViewProps } from '@tiptap/react'
 
+import type { Locale } from '~/core/translations'
+import { CurrencyEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
@@ -9,9 +11,10 @@ import {
   OnPricingCommand,
   RichTextEditorProvider,
 } from '../../common/RichTextEditorContext'
+import { SLASH_COMMAND_BLOCK_VIEW_TEST_ID } from '../../SlashCommandBlockWrapper/SlashCommandBlockWrapper'
+import { ONE_OFF_ADDONS_PREVIEW_TABLE_TEST_ID } from '../OneOffAddOnsPreviewTable'
 import {
   PRICING_BLOCK_VIEW_EMPTY_TEST_ID,
-  PRICING_BLOCK_VIEW_TEST_ID,
   PRICING_BLOCK_VIEW_UNRESOLVED_TEST_ID,
   PricingBlockView,
 } from '../PricingBlockView'
@@ -55,12 +58,30 @@ const renderPricingBlockView = ({
   mode = 'edit' as 'edit' | 'preview',
   entities = {} as Record<string, EntityData>,
   onPricingCommand = jest.fn() as OnPricingCommand,
+  customerLocale,
+  customerCurrency,
+}: {
+  attrs?: Record<string, unknown>
+  mode?: 'edit' | 'preview'
+  entities?: Record<string, EntityData>
+  onPricingCommand?: OnPricingCommand
+  customerLocale?: Locale
+  customerCurrency?: CurrencyEnum
 } = {}) => {
   const nodeProps = createNodeProps(attrs)
 
   return {
     ...render(
-      <RichTextEditorProvider value={{ mode, mentionValues: {}, entities, onPricingCommand }}>
+      <RichTextEditorProvider
+        value={{
+          mode,
+          mentionValues: {},
+          entities,
+          onPricingCommand,
+          customerLocale,
+          customerCurrency,
+        }}
+      >
         <PricingBlockView {...nodeProps} />
       </RichTextEditorProvider>,
     ),
@@ -105,7 +126,7 @@ describe('PricingBlockView', () => {
           },
         })
 
-        const button = screen.getByTestId(PRICING_BLOCK_VIEW_TEST_ID)
+        const button = screen.getByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)
 
         expect(button).toHaveTextContent('Basic Plan (basic)')
       })
@@ -131,7 +152,7 @@ describe('PricingBlockView', () => {
           },
         })
 
-        const button = screen.getByTestId(PRICING_BLOCK_VIEW_TEST_ID)
+        const button = screen.getByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)
 
         expect(button).toHaveTextContent('One-off invoice of')
         expect(button).toHaveTextContent('Click to edit')
@@ -197,14 +218,14 @@ describe('PricingBlockView', () => {
           },
         })
 
-        const button = screen.getByTestId(PRICING_BLOCK_VIEW_TEST_ID)
+        const button = screen.getByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)
 
         await user.click(button)
 
         expect(onPricingCommand).toHaveBeenCalledWith(
           expect.objectContaining({
             onSave: expect.any(Function),
-            editData: { pricingType: 'plan', entityIds: ['plan-1'] },
+            editData: { pricingType: 'plan', entityIds: ['plan-1'], localEntityIds: [] },
           }),
         )
       })
@@ -272,13 +293,119 @@ describe('PricingBlockView', () => {
           },
         })
 
-        const button = screen.getByTestId(PRICING_BLOCK_VIEW_TEST_ID)
+        const button = screen.getByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)
         const mouseDownEvent = new MouseEvent('mousedown', { bubbles: true, cancelable: true })
         const stopPropagationSpy = jest.spyOn(mouseDownEvent, 'stopPropagation')
 
         button.dispatchEvent(mouseDownEvent)
 
         expect(stopPropagationSpy).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the component is in preview mode', () => {
+    describe('WHEN rendered with addOns pricing type and resolved entities', () => {
+      it('THEN should render the OneOffAddOnsPreviewTable', () => {
+        renderPricingBlockView({
+          mode: 'preview',
+          attrs: { pricingType: 'addOns', entityIds: ['addon-1'] },
+          entities: {
+            'addon-1': {
+              entityId: 'addon-1',
+              entityType: 'addOn',
+              name: 'Setup Fee',
+              code: 'setup',
+              units: '2',
+              totalAmount: '10000',
+            },
+          },
+        })
+
+        expect(screen.getByTestId(ONE_OFF_ADDONS_PREVIEW_TABLE_TEST_ID)).toBeInTheDocument()
+      })
+
+      it('THEN should not render the edit mode click-to-edit block', () => {
+        renderPricingBlockView({
+          mode: 'preview',
+          attrs: { pricingType: 'addOns', entityIds: ['addon-1'] },
+          entities: {
+            'addon-1': {
+              entityId: 'addon-1',
+              entityType: 'addOn',
+              name: 'Setup Fee',
+              code: 'setup',
+            },
+          },
+        })
+
+        expect(screen.queryByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN rendered with plan pricing type and resolved entities', () => {
+      it('THEN should fall through to the edit-mode resolved view', () => {
+        renderPricingBlockView({
+          mode: 'preview',
+          attrs: { pricingType: 'plan', entityIds: ['plan-1'] },
+          entities: {
+            'plan-1': {
+              entityId: 'plan-1',
+              entityType: 'plan',
+              name: 'Basic Plan',
+              code: 'basic',
+            },
+          },
+        })
+
+        // Plan preview falls through to existing resolved rendering
+        expect(screen.getByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(ONE_OFF_ADDONS_PREVIEW_TABLE_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN rendered with addOns pricing type but no resolved entities', () => {
+      it('THEN should render the unresolved view instead of the preview table', () => {
+        renderPricingBlockView({
+          mode: 'preview',
+          attrs: { pricingType: 'addOns', entityIds: ['addon-missing'] },
+          entities: {},
+        })
+
+        expect(screen.getByTestId(PRICING_BLOCK_VIEW_UNRESOLVED_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(ONE_OFF_ADDONS_PREVIEW_TABLE_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN rendered with empty entityIds', () => {
+      it('THEN should show the empty state', () => {
+        renderPricingBlockView({
+          mode: 'preview',
+          attrs: { pricingType: 'addOns', entityIds: [] },
+        })
+
+        expect(screen.getByTestId(PRICING_BLOCK_VIEW_EMPTY_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN customerCurrency is provided', () => {
+      it('THEN should render the preview table using that currency', () => {
+        renderPricingBlockView({
+          mode: 'preview',
+          attrs: { pricingType: 'addOns', entityIds: ['addon-1'] },
+          entities: {
+            'addon-1': {
+              entityId: 'addon-1',
+              entityType: 'addOn',
+              name: 'Setup Fee',
+              code: 'setup',
+              totalAmount: '100',
+            },
+          },
+          customerCurrency: CurrencyEnum.Eur,
+        })
+
+        expect(screen.getByTestId(ONE_OFF_ADDONS_PREVIEW_TABLE_TEST_ID)).toBeInTheDocument()
       })
     })
   })
