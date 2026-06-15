@@ -21,7 +21,6 @@ import {
 } from '~/core/apolloClient/reactiveVars'
 import { buildWebSocketUrl } from '~/core/apolloClient/websocketUrl'
 import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
-import { generateRandomHexId } from '~/core/utils/generateRandomHexId'
 import { LagoApiError } from '~/generated/graphql'
 
 import { buildAuthHeaders } from './authHeaders'
@@ -45,9 +44,6 @@ const subscriptionLink = new ActionCableLink({
   cable: ActionCable.createConsumer(cableUrl),
   channelName: 'GraphqlChannel',
   actionName: 'execute',
-  // The default crypto.randomUUID is unavailable on plain-HTTP origins
-  // and would crash the app: https://github.com/getlago/lago/issues/752
-  createChannelId: () => generateRandomHexId(),
 })
 
 const hasSubscriptionOperation = ({ query }: Operation) => {
