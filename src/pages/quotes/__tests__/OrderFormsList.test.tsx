@@ -42,8 +42,8 @@ jest.mock('~/hooks/usePermissions', () => ({
   }),
 }))
 
-jest.mock('~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf', () => ({
-  downloadMarkdownPdf: jest.fn(),
+jest.mock('~/pages/quotes/common/QuotePdfProvider', () => ({
+  useDownloadQuotePdf: () => ({ download: jest.fn() }),
 }))
 
 const mockUseOrderForms = useOrderForms as jest.MockedFunction<typeof useOrderForms>

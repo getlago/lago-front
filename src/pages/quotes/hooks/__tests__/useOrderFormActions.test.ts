@@ -1,12 +1,13 @@
 import { renderHook } from '@testing-library/react'
 
-import { buildPreviewEntities } from '~/core/serializers/serializeQuoteBillingItems'
 import { OrderFormListItemFragment, OrderFormStatusEnum } from '~/generated/graphql'
+import { buildQuotePreviewProps } from '~/pages/quotes/common/buildQuotePreviewProps'
 import { testMockNavigateFn } from '~/test-utils'
 
 import { useOrderFormActions } from '../useOrderFormActions'
 
 const mockHasPermissions = jest.fn()
+const mockDownload = jest.fn()
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -20,16 +21,16 @@ jest.mock('~/hooks/usePermissions', () => ({
   }),
 }))
 
-jest.mock('~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf', () => ({
-  downloadMarkdownPdf: jest.fn(),
+jest.mock('~/pages/quotes/common/QuotePdfProvider', () => ({
+  useDownloadQuotePdf: () => ({ download: mockDownload }),
 }))
 
-jest.mock('~/core/serializers/serializeQuoteBillingItems', () => ({
-  buildPreviewEntities: jest.fn(),
+jest.mock('~/pages/quotes/common/buildQuotePreviewProps', () => ({
+  buildQuotePreviewProps: jest.fn(() => ({ content: '# Hello World' })),
 }))
 
-const mockedBuildPreviewEntities = buildPreviewEntities as jest.MockedFunction<
-  typeof buildPreviewEntities
+const mockedBuildQuotePreviewProps = buildQuotePreviewProps as jest.MockedFunction<
+  typeof buildQuotePreviewProps
 >
 
 const createMockOrderForm = (
@@ -52,6 +53,7 @@ describe('useOrderFormActions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+    mockDownload.mockResolvedValue(undefined)
   })
 
   describe('GIVEN a generated order form with all permissions', () => {
@@ -156,64 +158,20 @@ describe('useOrderFormActions', () => {
   })
 
   describe('GIVEN the download action', () => {
-    describe('WHEN triggered without billing items', () => {
-      it('THEN should call downloadMarkdownPdf with the content and no entities', () => {
-        const { downloadMarkdownPdf } = jest.requireMock(
-          '~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf',
-        )
-
+    describe('WHEN triggered', () => {
+      it('THEN should download with the props from buildQuotePreviewProps', () => {
         const { result } = renderHook(() => useOrderFormActions())
-        const actions = result.current.getActions(createMockOrderForm())
+        const orderForm = createMockOrderForm()
+        const actions = result.current.getActions(orderForm)
         const downloadAction = actions.find((a) => a.icon === 'download')
 
         downloadAction?.onAction()
 
-        expect(mockedBuildPreviewEntities).not.toHaveBeenCalled()
-        expect(downloadMarkdownPdf).toHaveBeenCalledWith({
-          markdown: '# Hello World',
-          entities: undefined,
-        })
-      })
-    })
-
-    describe('WHEN triggered with billing items', () => {
-      it('THEN should build preview entities and pass them to downloadMarkdownPdf', () => {
-        const { downloadMarkdownPdf } = jest.requireMock(
-          '~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf',
+        expect(mockedBuildQuotePreviewProps).toHaveBeenCalledWith(
+          orderForm.quote.currentVersion,
+          orderForm.customer,
         )
-
-        const mockEntities = {
-          'addon-1': {
-            entityId: 'addon-1',
-            entityType: 'addOn' as const,
-            name: 'Setup Fee',
-            code: 'setup',
-          },
-        }
-
-        mockedBuildPreviewEntities.mockReturnValue(mockEntities)
-
-        const billingItems = { addons: [{ type: 'addon', id: 'addon-1' }] }
-
-        const { result } = renderHook(() => useOrderFormActions())
-        const actions = result.current.getActions(
-          createMockOrderForm({
-            quote: {
-              id: 'q-1',
-              number: 'QUO-001',
-              currentVersion: { id: 'qv-1', version: 1, content: '# Hello World', billingItems },
-            },
-          }),
-        )
-        const downloadAction = actions.find((a) => a.icon === 'download')
-
-        downloadAction?.onAction()
-
-        expect(mockedBuildPreviewEntities).toHaveBeenCalledWith(billingItems)
-        expect(downloadMarkdownPdf).toHaveBeenCalledWith({
-          markdown: '# Hello World',
-          entities: mockEntities,
-        })
+        expect(mockDownload).toHaveBeenCalledWith({ content: '# Hello World' })
       })
     })
   })
