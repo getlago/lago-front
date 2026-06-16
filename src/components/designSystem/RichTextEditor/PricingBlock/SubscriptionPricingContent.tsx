@@ -15,9 +15,9 @@ import {
   type SubscriptionFeeFormValues,
 } from '~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
+import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import type { LocalUsageChargeInput, PlanFormInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
-import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -128,7 +128,7 @@ export function SubscriptionPricingContent({
     [planForm],
   )
 
-  // Watch form values for override computation and display
+  // Watch form values for display and the subscription fee drawer
   const formAmountCents = useStore(planForm.store, (s) => s.values.amountCents)
   const formInvoiceDisplayName = useStore(planForm.store, (s) => s.values.invoiceDisplayName)
   const formPayInAdvance = useStore(planForm.store, (s) => s.values.payInAdvance)
