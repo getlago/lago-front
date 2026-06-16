@@ -12,7 +12,9 @@ interface InternationalizationVar {
 
 const internationalizationVar = makeVar<InternationalizationVar>({
   locale: getItemFromLS(LOCALE_LS_KEY) ?? LocaleEnum.en,
-  translations: {},
+  // `undefined` (not `{}`) is the "translations not loaded yet" sentinel so `translateKey`
+  // can detect it in O(1) without enumerating the multi-thousand-key translations object.
+  translations: undefined,
 })
 
 export const initializeTranslations = async () => {
