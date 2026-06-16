@@ -8,9 +8,10 @@ import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { QUOTES_TAB_ROUTE } from '~/core/router'
-import { useGetOrderFormForVoidQuery } from '~/generated/graphql'
+import { addToast } from '~/core/apolloClient'
+import { QuoteDetailsTabsOptionsEnum, QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { QUOTE_DETAILS_ROUTE, QUOTES_TAB_ROUTE, useNavigate } from '~/core/router'
+import { useGetOrderFormForVoidQuery, useVoidOrderFormMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -58,6 +59,7 @@ const VoidOrderForm = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
   const { orderFormId } = useParams()
+  const navigate = useNavigate()
 
   const { data, loading, error } = useGetOrderFormForVoidQuery({
     variables: { id: orderFormId || '' },
@@ -66,9 +68,36 @@ const VoidOrderForm = () => {
 
   const orderForm = data?.orderForm
 
-  const onSubmit = () => {
-    // TODO: Wire up voidOrderForm mutation once the backend supports it
-    // For now, this is a structural placeholder
+  const [voidOrderFormMutation] = useVoidOrderFormMutation({
+    refetchQueries: ['getOrderForms'],
+  })
+
+  const onSubmit = async () => {
+    const quoteId = orderForm?.quote?.id
+
+    if (!orderFormId || !quoteId) return
+
+    const result = await voidOrderFormMutation({
+      variables: {
+        input: {
+          id: orderFormId,
+        },
+      },
+    })
+
+    if (result.data?.voidOrderForm) {
+      addToast({
+        severity: 'success',
+        translateKey: 'text_1781625672232ia473jidiy8',
+      })
+
+      navigate(
+        generatePath(QUOTE_DETAILS_ROUTE, {
+          quoteId,
+          tab: QuoteDetailsTabsOptionsEnum.orderForms,
+        }),
+      )
+    }
   }
 
   const onClose = () => {

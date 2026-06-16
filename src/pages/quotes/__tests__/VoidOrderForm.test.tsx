@@ -1,8 +1,9 @@
-import { screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { addToast } from '~/core/apolloClient'
 import { OrderFormStatusEnum } from '~/generated/graphql'
-import { render } from '~/test-utils'
+import { render, testMockNavigateFn } from '~/test-utils'
 
 import VoidOrderForm, {
   VOID_ORDER_FORM_ALERT_TEST_ID,
@@ -36,11 +37,18 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   }),
 }))
 
+const mockVoidOrderForm = jest.fn()
 const mockUseGetOrderFormForVoidQuery = jest.fn()
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useGetOrderFormForVoidQuery: (...args: unknown[]) => mockUseGetOrderFormForVoidQuery(...args),
+  useVoidOrderFormMutation: () => [mockVoidOrderForm],
+}))
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
 }))
 
 const mockOrderForm = {
@@ -51,6 +59,13 @@ const mockOrderForm = {
   customer: {
     id: 'customer-001',
     name: 'Acme Corp',
+  },
+  quote: {
+    id: 'quote-456',
+    number: 'QT-2026-0042',
+    currentVersion: {
+      version: 2,
+    },
   },
 }
 
@@ -150,6 +165,50 @@ describe('VoidOrderForm', () => {
         render(<VoidOrderForm />)
 
         expect(screen.queryByTestId(VOID_ORDER_FORM_VOID_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the void action', () => {
+    describe('WHEN the void button is clicked', () => {
+      it('THEN should call the void mutation with the order form id', async () => {
+        mockVoidOrderForm.mockResolvedValueOnce({
+          data: { voidOrderForm: { id: 'order-form-123', status: OrderFormStatusEnum.Voided } },
+        })
+
+        const user = userEvent.setup()
+
+        render(<VoidOrderForm />)
+
+        await user.click(screen.getByTestId(VOID_ORDER_FORM_VOID_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockVoidOrderForm).toHaveBeenCalledWith({
+            variables: {
+              input: {
+                id: 'order-form-123',
+              },
+            },
+          })
+        })
+      })
+
+      it('THEN should show a success toast and navigate to the quote order forms tab', async () => {
+        mockVoidOrderForm.mockResolvedValueOnce({
+          data: { voidOrderForm: { id: 'order-form-123', status: OrderFormStatusEnum.Voided } },
+        })
+
+        const user = userEvent.setup()
+
+        render(<VoidOrderForm />)
+
+        await user.click(screen.getByTestId(VOID_ORDER_FORM_VOID_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        })
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-456/order-forms')
       })
     })
   })
