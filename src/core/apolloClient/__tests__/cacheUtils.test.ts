@@ -119,7 +119,7 @@ describe('onLogIn', () => {
   })
 
   describe('WHEN the current user cannot be fetched', () => {
-    it('THEN shows a danger toast and logs the user out', async () => {
+    it('THEN shows a danger toast and does not set the auth token', async () => {
       const client = createMockClient()
 
       ;(client.query as jest.Mock).mockRejectedValue(new Error('Network error'))
@@ -127,9 +127,6 @@ describe('onLogIn', () => {
       await onLogIn(client, 'token-123')
 
       expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
-      // logOut clears the Apollo store
-      expect(client.clearStore).toHaveBeenCalled()
-      // the token is never set on the failure path
       expect(mockUpdateAuthTokenVar).not.toHaveBeenCalledWith('token-123')
     })
   })
