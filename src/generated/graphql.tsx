@@ -14297,7 +14297,7 @@ export type GetOrderFormForVoidQueryVariables = Exact<{
 }>;
 
 
-export type GetOrderFormForVoidQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null } } | null };
+export type GetOrderFormForVoidQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null }, quote: { __typename?: 'Quote', number: string, currentVersion: { __typename?: 'QuoteVersion', version: number } } } | null };
 
 export type VoidQuoteVersionMutationVariables = Exact<{
   input: VoidQuoteVersionInput;
@@ -38878,6 +38878,12 @@ export const GetOrderFormForVoidDocument = gql`
     customer {
       id
       name
+    }
+    quote {
+      number
+      currentVersion {
+        version
+      }
     }
   }
 }

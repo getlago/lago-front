@@ -4308,10 +4308,11 @@
   "text_1779698186588yty6aq2wonz": "View order forms",
   "text_1779715648584xw9xgemkv9y": "Void order form",
   "text_17797156485850t8yms6hf7z": "Download PDF",
-  "text_1779715648585ih339cvcfjx": "Are you sure you want to void this order form? This action cannot be undone.",
+  "text_1779715648585ih339cvcfjx": "Voiding an order form is irreversible. Please verify all details before proceeding.",
   "text_1779715648585yngcc34h4kq": "Void order form {{orderFormNumber}}",
-  "text_17797156485853s6nzac3mll": "This order form will be voided and can no longer be signed.",
+  "text_17797156485853s6nzac3mll": "Voiding an order form prevents it from being converted into an order. Once voided, it becomes inactive, can’t be executed, and the related quote version is automatically voided.",
   "text_1779715648585ivakmu9pgk2": "Order form details",
   "text_1781623709531xo64x5511bd": "Sign order forms",
-  "text_1781623709531nm1ezxdq0gb": "Void order forms"
+  "text_1781623709531nm1ezxdq0gb": "Void order forms",
+  "text_1781624189693d7zcv2vog4c": "Order form number"
 }

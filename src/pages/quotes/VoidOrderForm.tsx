@@ -13,7 +13,6 @@ import { QUOTES_TAB_ROUTE } from '~/core/router'
 import { useGetOrderFormForVoidQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
@@ -35,6 +34,12 @@ gql`
         id
         name
       }
+      quote {
+        number
+        currentVersion {
+          version
+        }
+      }
     }
   }
 `
@@ -43,7 +48,6 @@ const VoidOrderForm = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
   const { orderFormId } = useParams()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   const { data, loading, error } = useGetOrderFormForVoidQuery({
     variables: { id: orderFormId || '' },
@@ -140,7 +144,7 @@ const VoidOrderForm = () => {
                   },
                   {
                     key: 'number',
-                    title: translate('text_1775746196826pyjlfqx3anr'),
+                    title: translate('text_1781624189693d7zcv2vog4c'),
                     maxSpace: true,
                     content: ({ number }) => number,
                   },
@@ -151,10 +155,11 @@ const VoidOrderForm = () => {
                     content: ({ customer }) => customer.name,
                   },
                   {
-                    key: 'createdAt',
-                    title: translate('text_624efab67eb2570101d117e3'),
+                    key: 'quote.number',
+                    title: translate('text_1779695273381h7tmhdzrv48'),
                     minWidth: 140,
-                    content: ({ createdAt }) => intlFormatDateTimeOrgaTZ(createdAt).date,
+                    textAlign: 'right',
+                    content: ({ quote }) => `${quote.number} - v${quote.currentVersion.version}`,
                   },
                 ]}
               />
