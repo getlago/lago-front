@@ -11,13 +11,12 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { addToast } from '~/core/apolloClient'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
-import { buildPreviewEntities } from '~/core/serializers/serializeQuoteBillingItems'
-import type { Locale } from '~/core/translations'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
+import { buildQuotePreviewProps } from './common/buildQuotePreviewProps'
 import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
 import { useApproveQuote } from './hooks/useApproveQuote'
 import { useQuote } from './hooks/useQuote'
@@ -37,16 +36,11 @@ const ApproveQuote = () => {
   const { quote, loading, error } = useQuote(quoteId)
   const { approveQuote } = useApproveQuote()
 
-  // Deserialize billing items for pricing block preview. Entities are keyed by
-  // both localId and catalog addOnId so saved content blocks resolve whether
-  // they reference add-ons by localEntityIds or by catalog entityIds.
-  const previewEntities = useMemo(() => {
-    if (!quote?.currentVersion?.billingItems) return {}
-
-    return buildPreviewEntities(quote.currentVersion.billingItems)
-  }, [quote?.currentVersion?.billingItems])
-
-  const customerLocale = (quote?.customer?.billingConfiguration?.documentLocale ?? 'en') as Locale
+  // Single source of truth for preview inputs (shared with the PDF renderer).
+  const previewProps = useMemo(
+    () => buildQuotePreviewProps(quote?.currentVersion, quote?.customer),
+    [quote?.currentVersion, quote?.customer],
+  )
 
   const onSubmit = async () => {
     if (!quoteId || !versionId) return
@@ -170,14 +164,7 @@ const ApproveQuote = () => {
           </div>
           <div data-test={APPROVE_QUOTE_PREVIEW_TEST_ID}>
             {quote?.currentVersion?.content ? (
-              <RichTextEditor
-                mode="preview"
-                isCompact
-                content={quote.currentVersion.content}
-                entities={previewEntities}
-                customerLocale={customerLocale}
-                customerCurrency={quote?.customer?.currency ?? undefined}
-              />
+              <RichTextEditor mode="preview" isCompact {...previewProps} />
             ) : (
               <Typography color="grey500">{translate('text_17768523811635qaasto1ziv')}</Typography>
             )}
