@@ -1,16 +1,16 @@
 import { gql } from '@apollo/client'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import { PlanDetailsV2 } from '~/components/plans/details-v2/PlanDetailsV2'
 import { PlanDetailsActivityLogs } from '~/components/plans/details/PlanDetailsActivityLogs'
 import { PlanDetailsOverview } from '~/components/plans/details/PlanDetailsOverview'
 import PlanSubscriptionList from '~/components/plans/details/PlanSubscriptionList'
+import { useDeletePlanDialog } from '~/components/plans/useDeletePlan'
 import { updateDuplicatePlanVar } from '~/core/apolloClient'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -56,7 +56,7 @@ const PlanDetails = () => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
 
-  const deletePlanDialogRef = useRef<DeletePlanDialogRef>(null)
+  const { openDeletePlanDialog } = useDeletePlanDialog()
   const {
     data: planResult,
     loading: isPlanLoading,
@@ -112,7 +112,7 @@ const PlanDetails = () => {
           label: translate('text_625fd165963a7b00c8f597b5'),
           hidden: !hasPermissions(['plansDelete']),
           onClick: (closePopper) => {
-            deletePlanDialogRef.current?.openDialog({
+            openDeletePlanDialog({
               plan: plan as DeletePlanDialogFragment,
               callback: () => {
                 navigate(PLANS_ROUTE)
@@ -219,8 +219,6 @@ const PlanDetails = () => {
       />
 
       <>{activeTabContent}</>
-
-      <DeletePlanDialog ref={deletePlanDialogRef} />
     </>
   )
 }

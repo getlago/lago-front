@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -11,7 +10,7 @@ import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
+import { useDeletePlanDialog } from '~/components/plans/useDeletePlan'
 import { SearchInput } from '~/components/SearchInput'
 import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -59,7 +58,7 @@ const PlansList = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const deleteDialogRef = useRef<DeletePlanDialogRef>(null)
+  const { openDeletePlanDialog } = useDeletePlanDialog()
   const [getPlans, { data, error, loading, fetchMore, variables }] = usePlansLazyQuery({
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
@@ -247,7 +246,7 @@ const PlansList = () => {
                 startIcon: 'trash',
                 title: translate('text_625fd39a15394c0117e7d794'),
                 onAction: () => {
-                  deleteDialogRef.current?.openDialog({ plan })
+                  openDeletePlanDialog({ plan })
                 },
               })
             }
@@ -272,8 +271,6 @@ const PlansList = () => {
           }}
         />
       </InfiniteScroll>
-
-      <DeletePlanDialog ref={deleteDialogRef} />
     </>
   )
 }

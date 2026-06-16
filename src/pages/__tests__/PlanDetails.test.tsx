@@ -44,8 +44,8 @@ jest.mock('~/components/plans/details/PlanSubscriptionList', () => ({
   default: () => null,
 }))
 
-jest.mock('~/components/plans/DeletePlanDialog', () => ({
-  DeletePlanDialog: () => null,
+jest.mock('~/components/plans/useDeletePlan', () => ({
+  useDeletePlanDialog: () => ({ openDeletePlanDialog: jest.fn() }),
 }))
 
 jest.mock('~/hooks/usePermissions', () => ({
