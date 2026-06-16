@@ -19,6 +19,7 @@ const OrganizationLayout = lazyLoad(() => import('~/layouts/OrganizationLayout')
 
 // ----------- Pages -----------
 const Home = lazyLoad(() => import('~/pages/home/Home'))
+const RootRedirect = lazyLoad(() => import('~/pages/home/RootRedirect'))
 const Error404 = lazyLoad(() => import('~/pages/Error404'))
 const Error404InApp = lazyLoad(() => import('~/pages/Error404InApp'))
 const Forbidden = lazyLoad(() => import('~/pages/Forbidden'))
@@ -104,12 +105,14 @@ export const routes: CustomRouteObject[] = [
     element: <Forbidden />,
   },
   {
-    // Root redirect hub — lives OUTSIDE :organizationSlug.
-    // Home.tsx resolves the slug from currentUser.memberships and
-    // navigates to /${slug}/... based on SSO saved path, router saved
-    // path, or permission-based default.
+    // Root redirect hub — lives OUTSIDE :organizationSlug, where there is no
+    // org context yet. `RootRedirect` only resolves WHICH org to enter
+    // (saved `from` slug → SSO redirect slug → persisted last-used slug →
+    // first accessible membership) and navigates to `/${slug}/`. The
+    // permission-based landing-PAGE decision happens afterwards in `Home`, at
+    // the `/:organizationSlug` index, where the org context is available.
     path: HOME_ROUTE,
-    element: <Home />,
+    element: <RootRedirect />,
     private: true,
   },
   {

@@ -10,7 +10,6 @@ import { DEVTOOL_AUTO_SAVE_KEY, resetDevtoolsNavigation } from '~/hooks/useDevel
 import {
   addToast,
   AUTH_TOKEN_LS_KEY,
-  getCurrentOrganizationId,
   resetLocationHistoryVar,
   setCurrentOrganizationId,
   TMP_AUTH_TOKEN_LS_KEY,
@@ -102,9 +101,6 @@ const getCurrentUserOrganization = async (client: ApolloClient<object>, token: s
 }
 
 export const onLogIn = async (client: ApolloClient<object>, token: string) => {
-  let organization
-  const previousOrganizationId = getCurrentOrganizationId()
-
   try {
     const response = await getCurrentUserOrganization(client, token)
 
@@ -113,33 +109,10 @@ export const onLogIn = async (client: ApolloClient<object>, token: string) => {
       throw new Error(LagoApiError.InternalError)
     }
 
-    const { data } = response
-
-    // Set the auth token in local storage
+    // Set the auth token. The landing organization is resolved from the URL by
+    // `RootRedirect` (saved/SSO path → last-used slug → first accessible
+    // membership), so login no longer selects or sets a current org id.
     updateAuthTokenVar(token)
-
-    // Check if user has already logged in an organization and find it in the list
-    if (previousOrganizationId) {
-      const previousOrganization = (data?.currentUser?.organizations || []).find(
-        (org) => org.id === previousOrganizationId,
-      )
-
-      // If the previous organization is still accessible by the current session, set it as the current organization
-      if (previousOrganization && previousOrganization.accessibleByCurrentSession) {
-        organization = previousOrganization
-      } else {
-        setCurrentOrganizationId(null)
-      }
-    }
-
-    // If still no organization, take the first one that is accessible by the current session
-    if (!organization)
-      organization = (data?.currentUser?.organizations || [])
-        .filter((org) => org.accessibleByCurrentSession)
-        .sort((a, b) => a.name.toLowerCase()?.localeCompare(b.name.toLowerCase() ?? '') ?? 0)[0]
-
-    // Set the organization id via reactive var (syncs to localStorage)
-    setCurrentOrganizationId(organization?.id ?? null)
   } catch {
     // If an error occurs, display a toast to inform the user that the login failed
     addToast({
@@ -149,7 +122,6 @@ export const onLogIn = async (client: ApolloClient<object>, token: string) => {
 
     // Remove all local storage items related to the auth
     removeItemFromLS(AUTH_TOKEN_LS_KEY)
-    setCurrentOrganizationId(null)
 
     // In case of error, we want to log out the user
     await logOut(client, true)

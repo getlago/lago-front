@@ -3,9 +3,11 @@ import { CurrentUserInfosFragment } from '~/generated/graphql'
 import { ensureSlugPrefix, pathHasValidSlug, resolveOrgSlug } from '../orgSlug'
 
 const mockGetCurrentOrganizationId = jest.fn()
+const mockGetPersistedOrganizationSlug = jest.fn()
 
 jest.mock('~/core/apolloClient/reactiveVars', () => ({
   getCurrentOrganizationId: () => mockGetCurrentOrganizationId(),
+  getPersistedOrganizationSlug: () => mockGetPersistedOrganizationSlug(),
 }))
 
 type CurrentUser = CurrentUserInfosFragment | undefined
@@ -25,6 +27,8 @@ const defaultMemberships = [
 describe('resolveOrgSlug', () => {
   beforeEach(() => {
     mockGetCurrentOrganizationId.mockClear()
+    mockGetPersistedOrganizationSlug.mockClear()
+    mockGetPersistedOrganizationSlug.mockReturnValue(null)
   })
 
   describe('GIVEN a user with memberships and a matching current org ID', () => {
@@ -34,6 +38,28 @@ describe('resolveOrgSlug', () => {
       const result = resolveOrgSlug(buildCurrentUser(defaultMemberships))
 
       expect(result).toBe('org-b')
+    })
+  })
+
+  describe('GIVEN no current org ID (e.g. hard reload) but a persisted last-used slug', () => {
+    it('THEN should recover to the persisted org slug, not memberships[0]', () => {
+      mockGetCurrentOrganizationId.mockReturnValue(undefined)
+      mockGetPersistedOrganizationSlug.mockReturnValue('org-b')
+
+      const result = resolveOrgSlug(buildCurrentUser(defaultMemberships))
+
+      expect(result).toBe('org-b')
+    })
+  })
+
+  describe('GIVEN the in-memory current org and the persisted slug differ', () => {
+    it('THEN should prefer the in-memory current org (per-tab, multi-tab safe)', () => {
+      mockGetCurrentOrganizationId.mockReturnValue('org-a')
+      mockGetPersistedOrganizationSlug.mockReturnValue('org-b')
+
+      const result = resolveOrgSlug(buildCurrentUser(defaultMemberships))
+
+      expect(result).toBe('org-a')
     })
   })
 
@@ -47,7 +73,7 @@ describe('resolveOrgSlug', () => {
     })
   })
 
-  describe('GIVEN a user with memberships and no current org ID', () => {
+  describe('GIVEN a user with memberships and no current org ID nor persisted slug', () => {
     it('THEN should fallback to the first membership slug', () => {
       mockGetCurrentOrganizationId.mockReturnValue(undefined)
 
