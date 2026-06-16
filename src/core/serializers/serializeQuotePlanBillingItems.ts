@@ -4,6 +4,7 @@ import type {
   LocalUsageChargeInput,
   PlanFormInput,
 } from '~/components/plans/types'
+import { CommitmentTypeEnum } from '~/generated/graphql'
 
 // --- Plan billing item types (snake_case, matches backend contract) ---
 export interface PlanChargeOverride {
@@ -194,7 +195,9 @@ export interface SubscriptionPricingState {
   planDescription: string
   subscriptionSettings: SubscriptionSettings
   invoicingSettings: InvoicingSettings
-  overrides: PlanOverrides
+  // Optional: overrides are derived from form state by `toPlanBillingItems`.
+  // Kept as a fallback for callers that serialize without form values.
+  overrides?: PlanOverrides
 }
 
 // --- Serializer / Deserializer ---
@@ -267,19 +270,91 @@ const serializeFixedCharge = (charge: LocalFixedChargeInput): SerializedFixedCha
   }
 }
 
+/**
+ * Builds the snake_case `overrides` payload from the plan form state.
+ *
+ * This is the single source of truth for the form → override mapping: it is
+ * derived from the same `PlanFormInput` that feeds the plan `payload`, so the
+ * two can't silently drift when a charge field is added.
+ */
+export const buildPlanOverrides = (formValues: PlanFormInput): PlanOverrides => {
+  const overrides: PlanOverrides = {}
+
+  // Subscription fee
+  overrides.amount_cents = Number(formValues.amountCents) || undefined
+  if (formValues.invoiceDisplayName) {
+    overrides.invoice_display_name = formValues.invoiceDisplayName || undefined
+  }
+
+  // Fixed charges
+  if (formValues.fixedCharges?.length) {
+    overrides.charges = [
+      ...formValues.fixedCharges.map((c) => ({
+        billable_metric_code: c.addOn?.code ?? '',
+        charge_model: c.chargeModel,
+        properties: (c.properties ?? {}) as Record<string, unknown>,
+      })),
+    ]
+  }
+
+  // Usage charges
+  if (formValues.charges?.length) {
+    overrides.charges = [
+      ...(overrides.charges ?? []),
+      ...formValues.charges.map((c) => ({
+        billable_metric_code: c.billableMetric?.code ?? '',
+        charge_model: c.chargeModel,
+        properties: (c.properties ?? {}) as Record<string, unknown>,
+      })),
+    ]
+  }
+
+  // Minimum commitment
+  const mcAmount = formValues.minimumCommitment?.amountCents
+
+  if (mcAmount && !isNaN(Number(mcAmount)) && Number(mcAmount) > 0) {
+    overrides.minimum_commitment = {
+      amount_cents: Number(mcAmount),
+      invoice_display_name: formValues.minimumCommitment?.invoiceDisplayName || undefined,
+    }
+  }
+
+  // Progressive billing (usage thresholds)
+  const thresholds = [
+    ...(formValues.nonRecurringUsageThresholds ?? []).map((t) => ({
+      amount_cents: Number(t.amountCents),
+      recurring: false as const,
+      threshold_display_name: t.thresholdDisplayName ?? undefined,
+    })),
+    ...(formValues.recurringUsageThreshold
+      ? [
+          {
+            amount_cents: Number(formValues.recurringUsageThreshold.amountCents),
+            recurring: true as const,
+            threshold_display_name:
+              formValues.recurringUsageThreshold.thresholdDisplayName ?? undefined,
+          },
+        ]
+      : []),
+  ]
+
+  if (thresholds.length) {
+    overrides.usage_thresholds = thresholds
+  }
+
+  return overrides
+}
+
 export const toPlanBillingItems = (
   state: SubscriptionPricingState,
   formValues?: PlanFormInput,
 ): { plans: BillingItemPlan[] } => {
-  const {
-    planId,
-    planCode,
-    planName,
-    planDescription,
-    subscriptionSettings,
-    invoicingSettings,
-    overrides,
-  } = state
+  const { planId, planCode, planName, planDescription, subscriptionSettings, invoicingSettings } =
+    state
+
+  // Derive overrides from the form values (single source of truth). Fall back to
+  // any pre-built overrides on the state for callers that serialize without form values.
+  const overrides = formValues ? buildPlanOverrides(formValues) : (state.overrides ?? {})
 
   const payload: PlanPayload = {
     position: 1,
@@ -474,11 +549,9 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
       minimumCommitment: payload.minimum_commitment
         ? ({
             id: payload.minimum_commitment.id ?? undefined,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            amountCents: payload.minimum_commitment.amount_cents as any,
+            amountCents: payload.minimum_commitment.amount_cents,
             invoiceDisplayName: payload.minimum_commitment.invoice_display_name ?? undefined,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            commitmentType: payload.minimum_commitment.commitment_type as any,
+            commitmentType: payload.minimum_commitment.commitment_type as CommitmentTypeEnum,
             taxCodes: payload.minimum_commitment.tax_codes ?? [],
             taxes: deserializeTaxes(
               payload.minimum_commitment.taxes ?? [],
@@ -486,15 +559,13 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
           } as PlanFormInput['minimumCommitment'])
         : undefined,
       nonRecurringUsageThresholds: (payload.non_recurring_usage_thresholds ?? []).map((t) => ({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        amountCents: t.amount_cents as any,
+        amountCents: t.amount_cents,
         thresholdDisplayName: t.threshold_display_name ?? undefined,
         recurring: t.recurring,
       })) as PlanFormInput['nonRecurringUsageThresholds'],
       recurringUsageThreshold: payload.recurring_usage_threshold
         ? ({
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            amountCents: payload.recurring_usage_threshold.amount_cents as any,
+            amountCents: payload.recurring_usage_threshold.amount_cents,
             thresholdDisplayName:
               payload.recurring_usage_threshold.threshold_display_name ?? undefined,
             recurring: payload.recurring_usage_threshold.recurring,

@@ -14,6 +14,7 @@ import {
 
 import {
   type BillingItemPlan,
+  buildPlanOverrides,
   DEFAULT_INVOICING_SETTINGS,
   DEFAULT_SUBSCRIPTION_SETTINGS,
   fromPlanBillingItems,
@@ -100,7 +101,9 @@ describe('toPlanBillingItems', () => {
     expect(result.plans[0].payload.amount_cents).toBe('850.00')
     expect(result.plans[0].payload.amount_currency).toBe(CurrencyEnum.Usd)
     expect(result.plans[0].payload.charges).toEqual([])
-    expect(result.plans[0].overrides).toEqual({})
+    // Overrides are derived from the form values: the subscription fee amount is
+    // always carried over (no charges/commitment/thresholds in baseFormValues).
+    expect(result.plans[0].overrides).toEqual({ amount_cents: 850 })
   })
 
   it('includes subscription settings in the payload', () => {
@@ -136,34 +139,31 @@ describe('toPlanBillingItems', () => {
     expect(result.plans[0].payload.invoice_custom_footer).toBe('Custom footer text')
   })
 
-  it('includes overrides when provided', () => {
-    const state: SubscriptionPricingState = {
-      ...basePricingState,
-      overrides: {
-        amount_cents: 85000,
-        minimum_commitment: { amount_cents: 80000 },
-        charges: [
-          {
-            billable_metric_code: 'cpu',
-            charge_model: 'graduated',
-            properties: { graduated_ranges: [] },
-          },
-        ],
+  it('derives overrides from the form values (single source of truth)', () => {
+    const formValues: PlanFormInput = {
+      ...baseFormValues,
+      amountCents: '850.00',
+      minimumCommitment: {
+        amountCents: '80000',
+        commitmentType: CommitmentTypeEnum.MinimumCommitment,
       },
     }
-    const result = toPlanBillingItems(state, baseFormValues)
+    const result = toPlanBillingItems(basePricingState, formValues)
 
     expect(result.plans[0].overrides).toEqual({
-      amount_cents: 85000,
-      minimum_commitment: { amount_cents: 80000 },
-      charges: [
-        {
-          billable_metric_code: 'cpu',
-          charge_model: 'graduated',
-          properties: { graduated_ranges: [] },
-        },
-      ],
+      amount_cents: 850,
+      minimum_commitment: { amount_cents: 80000, invoice_display_name: undefined },
     })
+  })
+
+  it('falls back to state.overrides when no form values are provided', () => {
+    const state: SubscriptionPricingState = {
+      ...basePricingState,
+      overrides: { amount_cents: 85000 },
+    }
+    const result = toPlanBillingItems(state)
+
+    expect(result.plans[0].overrides).toEqual({ amount_cents: 85000 })
   })
 
   it('converts empty strings to null for optional payload fields', () => {
@@ -182,6 +182,105 @@ describe('toPlanBillingItems', () => {
     expect(result.plans[0].payload.interval).toBeUndefined()
     expect(result.plans[0].payload.charges).toBeUndefined()
     expect(result.plans[0].payload.fixed_charges).toBeUndefined()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// buildPlanOverrides — form state → overrides mapping (single source of truth)
+// ---------------------------------------------------------------------------
+
+describe('buildPlanOverrides', () => {
+  it('carries over the subscription fee amount', () => {
+    const result = buildPlanOverrides({ ...baseFormValues, amountCents: '850.00' })
+
+    expect(result.amount_cents).toBe(850)
+  })
+
+  it('omits amount_cents when the fee is zero or empty', () => {
+    expect(buildPlanOverrides({ ...baseFormValues, amountCents: '0' })).toEqual({})
+    expect(buildPlanOverrides({ ...baseFormValues, amountCents: '' })).toEqual({})
+  })
+
+  it('includes the invoice display name when present', () => {
+    const result = buildPlanOverrides({
+      ...baseFormValues,
+      amountCents: '0',
+      invoiceDisplayName: 'Platform fee',
+    })
+
+    expect(result.invoice_display_name).toBe('Platform fee')
+  })
+
+  it('merges fixed charges and usage charges into overrides.charges', () => {
+    const fixedCharge = {
+      addOn: { code: 'setup_fee' },
+      chargeModel: FixedChargeChargeModelEnum.Standard,
+      properties: { amount: '100' },
+    } as unknown as PlanFormInput['fixedCharges'][number]
+    const usageCharge = {
+      billableMetric: { code: 'api_calls' },
+      chargeModel: ChargeModelEnum.Standard,
+      properties: { amount: '0.01' },
+    } as unknown as PlanFormInput['charges'][number]
+
+    const result = buildPlanOverrides({
+      ...baseFormValues,
+      amountCents: '0',
+      fixedCharges: [fixedCharge],
+      charges: [usageCharge],
+    })
+
+    expect(result.charges).toHaveLength(2)
+    expect(result.charges?.[0].billable_metric_code).toBe('setup_fee')
+    expect(result.charges?.[1].billable_metric_code).toBe('api_calls')
+  })
+
+  it('includes a positive minimum commitment and ignores non-positive ones', () => {
+    const positive = buildPlanOverrides({
+      ...baseFormValues,
+      amountCents: '0',
+      minimumCommitment: {
+        amountCents: '5000',
+        invoiceDisplayName: 'Annual minimum',
+        commitmentType: CommitmentTypeEnum.MinimumCommitment,
+      },
+    })
+
+    expect(positive.minimum_commitment).toEqual({
+      amount_cents: 5000,
+      invoice_display_name: 'Annual minimum',
+    })
+
+    const zero = buildPlanOverrides({
+      ...baseFormValues,
+      amountCents: '0',
+      minimumCommitment: {
+        amountCents: '0',
+        commitmentType: CommitmentTypeEnum.MinimumCommitment,
+      },
+    })
+
+    expect(zero.minimum_commitment).toBeUndefined()
+  })
+
+  it('builds usage thresholds from recurring and non-recurring thresholds', () => {
+    const result = buildPlanOverrides({
+      ...baseFormValues,
+      amountCents: '0',
+      nonRecurringUsageThresholds: [
+        { amountCents: 10000, thresholdDisplayName: 'Tier 1', recurring: false },
+      ],
+      recurringUsageThreshold: {
+        amountCents: 50000,
+        thresholdDisplayName: 'Monthly cap',
+        recurring: true,
+      },
+    })
+
+    expect(result.usage_thresholds).toEqual([
+      { amount_cents: 10000, recurring: false, threshold_display_name: 'Tier 1' },
+      { amount_cents: 50000, recurring: true, threshold_display_name: 'Monthly cap' },
+    ])
   })
 })
 

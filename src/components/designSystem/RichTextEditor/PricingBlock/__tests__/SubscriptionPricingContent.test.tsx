@@ -42,14 +42,17 @@ const mockPlan = {
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  usePlansQuery: jest.fn(() => ({
-    data: {
-      plans: {
-        collection: [{ id: 'plan_1', name: 'Starter', code: 'starter' }],
+  usePlansLazyQuery: jest.fn(() => [
+    jest.fn(),
+    {
+      data: {
+        plans: {
+          collection: [{ id: 'plan_1', name: 'Starter', code: 'starter' }],
+        },
       },
+      loading: false,
     },
-    loading: false,
-  })),
+  ]),
 }))
 
 // Mock usePlanFormSetup — returns a mock form + plan when planIdToFetch is set
@@ -212,8 +215,11 @@ describe('SubscriptionPricingContent', () => {
     })
   })
 
-  describe('GIVEN a plan with overrides', () => {
-    it('WHEN form has fixed charges and usage charges THEN stateRef includes charge overrides', async () => {
+  describe('GIVEN a plan with custom form values', () => {
+    // Overrides are no longer computed here — the component snapshots the live
+    // form values into formValuesRef and toPlanBillingItems derives the overrides
+    // from them (see buildPlanOverrides tests in the serializer suite).
+    it('WHEN form has fixed charges and usage charges THEN formValuesRef captures them', async () => {
       mockFormOverrides = {
         fixedCharges: [
           {
@@ -248,7 +254,6 @@ describe('SubscriptionPricingContent', () => {
         planDescription: '',
         subscriptionSettings: DEFAULT_SUBSCRIPTION_SETTINGS,
         invoicingSettings: DEFAULT_INVOICING_SETTINGS,
-        overrides: {},
       }
 
       await act(() =>
@@ -261,13 +266,13 @@ describe('SubscriptionPricingContent', () => {
         ),
       )
 
-      // Should have merged fixed + usage charges into overrides.charges (lines 168-188)
-      expect(stateRef.current?.overrides.charges).toHaveLength(2)
-      expect(stateRef.current?.overrides.charges?.[0].billable_metric_code).toBe('setup_fee')
-      expect(stateRef.current?.overrides.charges?.[1].billable_metric_code).toBe('api_calls')
+      expect(formValuesRef.current?.fixedCharges).toHaveLength(1)
+      expect(formValuesRef.current?.fixedCharges?.[0].addOn.code).toBe('setup_fee')
+      expect(formValuesRef.current?.charges).toHaveLength(1)
+      expect(formValuesRef.current?.charges?.[0].billableMetric.code).toBe('api_calls')
     })
 
-    it('WHEN form has a positive minimum commitment THEN stateRef includes minimum_commitment override', async () => {
+    it('WHEN form has a minimum commitment THEN formValuesRef captures it', async () => {
       mockFormOverrides = {
         minimumCommitment: {
           amountCents: '5000',
@@ -285,7 +290,6 @@ describe('SubscriptionPricingContent', () => {
         planDescription: '',
         subscriptionSettings: DEFAULT_SUBSCRIPTION_SETTINGS,
         invoicingSettings: DEFAULT_INVOICING_SETTINGS,
-        overrides: {},
       }
 
       await act(() =>
@@ -298,14 +302,11 @@ describe('SubscriptionPricingContent', () => {
         ),
       )
 
-      // Lines 191-198: minimum_commitment set when positive non-NaN number
-      expect(stateRef.current?.overrides.minimum_commitment).toEqual({
-        amount_cents: 5000,
-        invoice_display_name: 'Min spend',
-      })
+      expect(formValuesRef.current?.minimumCommitment?.amountCents).toBe('5000')
+      expect(formValuesRef.current?.minimumCommitment?.invoiceDisplayName).toBe('Min spend')
     })
 
-    it('WHEN form has subscription fee amount THEN stateRef includes amount_cents override', async () => {
+    it('WHEN form has a subscription fee amount THEN formValuesRef captures it', async () => {
       mockFormOverrides = {
         amountCents: '7500',
         invoiceDisplayName: 'Premium fee',
@@ -321,7 +322,6 @@ describe('SubscriptionPricingContent', () => {
         planDescription: '',
         subscriptionSettings: DEFAULT_SUBSCRIPTION_SETTINGS,
         invoicingSettings: DEFAULT_INVOICING_SETTINGS,
-        overrides: {},
       }
 
       await act(() =>
@@ -334,9 +334,8 @@ describe('SubscriptionPricingContent', () => {
         ),
       )
 
-      // Lines 162-165: subscription fee override serialization
-      expect(stateRef.current?.overrides.amount_cents).toBe(7500)
-      expect(stateRef.current?.overrides.invoice_display_name).toBe('Premium fee')
+      expect(formValuesRef.current?.amountCents).toBe('7500')
+      expect(formValuesRef.current?.invoiceDisplayName).toBe('Premium fee')
     })
   })
 

@@ -25,10 +25,9 @@ import {
   type BillingItemPlan,
   DEFAULT_INVOICING_SETTINGS,
   DEFAULT_SUBSCRIPTION_SETTINGS,
-  type PlanOverrides,
   type SubscriptionPricingState,
 } from '~/core/serializers/serializeQuotePlanBillingItems'
-import { CurrencyEnum, PlanInterval, usePlansQuery } from '~/generated/graphql'
+import { CurrencyEnum, PlanInterval, usePlansLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanFormSetup } from '~/hooks/plans/usePlanFormSetup'
 import type { QuoteCustomer } from '~/pages/quotes/hooks/useSubscriptionPricingDrawer'
@@ -61,7 +60,10 @@ export function SubscriptionPricingContent({
   // Plan selection
   const [selectedPlanId, setSelectedPlanId] = useState(initialState?.planId || '')
 
-  const { data: plansData, loading: plansLoading } = usePlansQuery({
+  // Lazy + searchable: the ComboBox's debounced searchQuery triggers the initial
+  // load on mount and re-queries with a searchTerm as the user types, so plans
+  // beyond the first page stay reachable.
+  const [getPlans, { data: plansData, loading: plansLoading }] = usePlansLazyQuery({
     variables: { limit: 100 },
   })
 
@@ -136,87 +138,19 @@ export function SubscriptionPricingContent({
   const formCode = useStore(planForm.store, (s) => s.values.code)
   const formCurrency = useStore(planForm.store, (s) => s.values.amountCurrency)
   const formInterval = useStore(planForm.store, (s) => s.values.interval)
-  const formFixedCharges = useStore(planForm.store, (s) => s.values.fixedCharges)
-  const formCharges = useStore(planForm.store, (s) => s.values.charges)
-  const formMinimumCommitment = useStore(planForm.store, (s) => s.values.minimumCommitment)
-  const formNonRecurringThresholds = useStore(
-    planForm.store,
-    (s) => s.values.nonRecurringUsageThresholds,
-  )
-  const formRecurringThreshold = useStore(planForm.store, (s) => s.values.recurringUsageThreshold)
+  // Full form values — snapshot into formValuesRef so the serializer can derive
+  // both the plan payload and the overrides from a single source of truth.
+  const formValues = useStore(planForm.store, (s) => s.values)
 
   const displayCurrency = (formCurrency as CurrencyEnum) || CurrencyEnum.Usd
   const displayInterval = formInterval || PlanInterval.Monthly
 
-  // Sync to stateRef — compute overrides from form state vs original plan
+  // Sync to stateRef + formValuesRef. Overrides are no longer computed here:
+  // toPlanBillingItems() derives them from formValuesRef (see buildPlanOverrides).
   useEffect(() => {
     if (!formReady || !selectedPlanId) {
       stateRef.current = null
       return
-    }
-
-    // Always serialize the full form state as overrides — the backend applies them on top of the plan
-    const overrides: PlanOverrides = {}
-
-    // Subscription fee
-    overrides.amount_cents = Number(formAmountCents) || undefined
-    if (formInvoiceDisplayName) {
-      overrides.invoice_display_name = formInvoiceDisplayName || undefined
-    }
-
-    // Fixed charges
-    if (formFixedCharges?.length) {
-      overrides.charges = [
-        ...formFixedCharges.map((c) => ({
-          billable_metric_code: c.addOn?.code ?? '',
-          charge_model: c.chargeModel,
-          properties: (c.properties ?? {}) as Record<string, unknown>,
-        })),
-      ]
-    }
-
-    // Usage charges
-    if (formCharges?.length) {
-      overrides.charges = [
-        ...(overrides.charges ?? []),
-        ...formCharges.map((c) => ({
-          billable_metric_code: c.billableMetric?.code ?? '',
-          charge_model: c.chargeModel,
-          properties: (c.properties ?? {}) as Record<string, unknown>,
-        })),
-      ]
-    }
-
-    // Minimum commitment
-    const mcAmount = formMinimumCommitment?.amountCents
-
-    if (mcAmount && !isNaN(Number(mcAmount)) && Number(mcAmount) > 0) {
-      overrides.minimum_commitment = {
-        amount_cents: Number(mcAmount),
-        invoice_display_name: formMinimumCommitment?.invoiceDisplayName || undefined,
-      }
-    }
-
-    // Progressive billing (usage thresholds)
-    const thresholds = [
-      ...(formNonRecurringThresholds ?? []).map((t) => ({
-        amount_cents: Number(t.amountCents),
-        recurring: false as const,
-        threshold_display_name: t.thresholdDisplayName ?? undefined,
-      })),
-      ...(formRecurringThreshold
-        ? [
-            {
-              amount_cents: Number(formRecurringThreshold.amountCents),
-              recurring: true as const,
-              threshold_display_name: formRecurringThreshold.thresholdDisplayName ?? undefined,
-            },
-          ]
-        : []),
-    ]
-
-    if (thresholds.length) {
-      overrides.usage_thresholds = thresholds
     }
 
     stateRef.current = {
@@ -226,40 +160,38 @@ export function SubscriptionPricingContent({
       planDescription: formDescription ?? '',
       subscriptionSettings,
       invoicingSettings,
-      overrides,
     }
 
-    formValuesRef.current = planForm.state.values
+    formValuesRef.current = formValues
   }, [
     formReady,
     planData,
     selectedPlanId,
     subscriptionSettings,
     invoicingSettings,
-    formAmountCents,
-    formInvoiceDisplayName,
     formName,
     formDescription,
     formCode,
-    formFixedCharges,
-    formCharges,
-    formMinimumCommitment,
-    formNonRecurringThresholds,
-    formRecurringThreshold,
+    formValues,
     stateRef,
     formValuesRef,
-    planForm,
   ])
 
   // ComboBox data
   const comboBoxData = useMemo(() => {
-    const plans = plansData?.plans?.collection ?? []
-
-    return plans.map((p) => ({
+    const data = (plansData?.plans?.collection ?? []).map((p) => ({
       value: p.id,
       label: `${p.name} (${p.code})`,
     }))
-  }, [plansData])
+
+    // Ensure the pre-selected plan is always present, even when it falls outside
+    // the current (searchable) result page, so its label still renders.
+    if (planData && !data.some((d) => d.value === planData.id)) {
+      data.unshift({ value: planData.id, label: `${planData.name} (${planData.code})` })
+    }
+
+    return data
+  }, [plansData, planData])
 
   // Shared selector helpers for custom sections
   const buildEndContent = (showInterval = false) => (
@@ -326,6 +258,7 @@ export function SubscriptionPricingContent({
           <ComboBox
             data={comboBoxData}
             loading={plansLoading}
+            searchQuery={getPlans}
             disabled={!!subscriptionId}
             label={translate('text_17810991003371jgudmuzk6a')}
             placeholder={translate('text_1781099100337xeyy7omuzp8')}

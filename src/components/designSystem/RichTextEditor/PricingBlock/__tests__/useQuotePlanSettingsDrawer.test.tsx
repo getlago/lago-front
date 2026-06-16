@@ -2,8 +2,12 @@ import { act, renderHook, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { render } from '~/test-utils'
+import { createMockPlanForm } from '~/test-utils/createMockPlanForm'
 
-import { useQuotePlanSettingsDrawer } from '../useQuotePlanSettingsDrawer'
+import {
+  PLAN_SETTINGS_DRAWER_SAVE_TEST_ID,
+  useQuotePlanSettingsDrawer,
+} from '../useQuotePlanSettingsDrawer'
 
 const mockDrawerOpen = jest.fn()
 const mockDrawerClose = jest.fn()
@@ -18,11 +22,12 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-const mockPlanForm = {} as Parameters<typeof useQuotePlanSettingsDrawer>[0]
+let mockPlanForm: Parameters<typeof useQuotePlanSettingsDrawer>[0]
 
 describe('useQuotePlanSettingsDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockPlanForm = createMockPlanForm()
   })
 
   describe('GIVEN the hook is rendered', () => {
@@ -59,8 +64,11 @@ describe('useQuotePlanSettingsDrawer', () => {
 
   describe('GIVEN the drawer actions are rendered', () => {
     describe('WHEN the cancel button is clicked', () => {
-      it('THEN should close the drawer', async () => {
+      it('THEN should restore the form to its values on open and close the drawer', async () => {
         const user = userEvent.setup()
+
+        mockPlanForm = createMockPlanForm({ name: 'Original name' })
+
         const { result } = renderHook(() => useQuotePlanSettingsDrawer(mockPlanForm))
 
         act(() => {
@@ -75,12 +83,17 @@ describe('useQuotePlanSettingsDrawer', () => {
 
         await user.click(cancelButton)
 
+        // Cancel discards the drawer's edits by resetting to the snapshot taken on open
+        expect(mockPlanForm.reset).toHaveBeenCalledWith(
+          expect.objectContaining({ name: 'Original name' }),
+          { keepDefaultValues: true },
+        )
         expect(mockDrawerClose).toHaveBeenCalledTimes(1)
       })
     })
 
     describe('WHEN the save button is clicked', () => {
-      it('THEN should close the drawer', async () => {
+      it('THEN should keep the live form changes and close the drawer', async () => {
         const user = userEvent.setup()
         const { result } = renderHook(() => useQuotePlanSettingsDrawer(mockPlanForm))
 
@@ -92,10 +105,12 @@ describe('useQuotePlanSettingsDrawer', () => {
 
         render(actions)
 
-        const saveButton = screen.getByTestId('plan-settings-drawer-save')
+        const saveButton = screen.getByTestId(PLAN_SETTINGS_DRAWER_SAVE_TEST_ID)
 
         await user.click(saveButton)
 
+        // Save keeps the live edits (no reset) and just closes
+        expect(mockPlanForm.reset).not.toHaveBeenCalled()
         expect(mockDrawerClose).toHaveBeenCalledTimes(1)
       })
     })
