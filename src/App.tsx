@@ -28,6 +28,7 @@ import '~/core/overlays/registeredDialogs'
 import { initializeYup } from '~/formValidation/initializeYup'
 import { AiAgentProvider } from '~/hooks/aiAgent/useAiAgent'
 import { DeveloperToolProvider, DEVTOOL_AUTO_SAVE_ID } from '~/hooks/useDeveloperTool'
+import { QuotePdfProvider } from '~/pages/quotes/common/QuotePdfProvider'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 import { theme } from '~/styles'
 
@@ -116,25 +117,27 @@ const App = () => {
             <DeveloperToolProvider>
               <AiAgentProvider>
                 <NiceModalProvider>
-                  <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
-                    <BrowserRouter basename="/">
-                      <Panel id="app-panel-group">
-                        <PanelGroup direction="horizontal">
-                          <Panel id="app-panel">
-                            <div className="h-full overflow-auto" data-app-wrapper>
-                              <RouteWrapper />
-                            </div>
-                          </Panel>
-                          <AiAgent />
-                        </PanelGroup>
-                      </Panel>
-                    </BrowserRouter>
-                    <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
-                      <DevtoolsErrorBoundary>
-                        <DevtoolsView />
-                      </DevtoolsErrorBoundary>
-                    </MemoryRouter>
-                  </PanelGroup>
+                  <QuotePdfProvider>
+                    <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
+                      <BrowserRouter basename="/">
+                        <Panel id="app-panel-group">
+                          <PanelGroup direction="horizontal">
+                            <Panel id="app-panel">
+                              <div className="h-full overflow-auto" data-app-wrapper>
+                                <RouteWrapper />
+                              </div>
+                            </Panel>
+                            <AiAgent />
+                          </PanelGroup>
+                        </Panel>
+                      </BrowserRouter>
+                      <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
+                        <DevtoolsErrorBoundary>
+                          <DevtoolsView />
+                        </DevtoolsErrorBoundary>
+                      </MemoryRouter>
+                    </PanelGroup>
+                  </QuotePdfProvider>
                 </NiceModalProvider>
               </AiAgentProvider>
             </DeveloperToolProvider>
