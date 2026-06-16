@@ -60,6 +60,7 @@ gql`
     $states: [String!]
     $currencies: [CurrencyEnum!]
     $customerType: CustomerTypeEnum
+    $externalId: String
     $hasTaxIdentificationNumber: Boolean
     $hasCustomerType: Boolean
     $metadata: [CustomerMetadataFilter!]
@@ -77,6 +78,7 @@ gql`
       states: $states
       currencies: $currencies
       customerType: $customerType
+      externalId: $externalId
       hasTaxIdentificationNumber: $hasTaxIdentificationNumber
       hasCustomerType: $hasCustomerType
       metadata: $metadata
@@ -129,6 +131,14 @@ const CustomersList = () => {
   const headerFilters = useCustomersListHeaderFilters({ debouncedSearch })
 
   const customersTotalCount = data?.customers?.metadata?.totalCount
+
+  const hasSearchOrFilters = useMemo(() => {
+    const hasPopperFilters = Object.keys(filtersForCustomerQuery).some(
+      (key) => key !== 'accountType',
+    )
+
+    return !!variables?.searchTerm || hasPopperFilters
+  }, [filtersForCustomerQuery, variables?.searchTerm])
 
   return (
     <>
@@ -251,7 +261,7 @@ const CustomersList = () => {
               ]
             }}
             placeholder={{
-              errorState: variables?.searchTerm
+              errorState: hasSearchOrFilters
                 ? {
                     title: translate('text_623b53fea66c76017eaebb6e'),
                     subtitle: translate('text_63bab307a61c62af497e0599'),
@@ -264,16 +274,16 @@ const CustomersList = () => {
                     buttonVariant: 'primary',
                   },
               emptyState: {
-                ...(variables?.searchTerm && {
+                ...(hasSearchOrFilters && {
                   title: translate('text_63befc65efcd9374da45b813'),
-                  subtitle: translate('text_63befc65efcd9374da45b817'),
+                  subtitle: translate('text_66ab48ea4ed9cd01084c60b8'),
                 }),
-                ...(!variables?.searchTerm &&
+                ...(!hasSearchOrFilters &&
                   !hasPermissions(['customersCreate']) && {
                     title: translate('text_664deb061ac6860101f40d1d'),
                     subtitle: translate('text_1734452833961ix7z38723pg'),
                   }),
-                ...(!variables?.searchTerm &&
+                ...(!hasSearchOrFilters &&
                   hasPermissions(['customersCreate']) && {
                     title: translate('text_17344528339611v83lf47q5m'),
                     subtitle: translate('text_1734452833961ix7z38723pg'),
@@ -281,7 +291,7 @@ const CustomersList = () => {
                     buttonAction: () => navigate(CREATE_CUSTOMER_ROUTE),
                     buttonVariant: 'primary',
                   }),
-                ...(!variables?.searchTerm &&
+                ...(!hasSearchOrFilters &&
                   hasPermissions(['customersCreate']) &&
                   filtersForCustomerQuery.accountType === CustomerAccountTypeEnum.Partner && {
                     title: translate('text_1739870196554qh3i1j3twdo'),
