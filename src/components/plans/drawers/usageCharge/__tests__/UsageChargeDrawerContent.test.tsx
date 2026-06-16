@@ -205,6 +205,12 @@ jest.mock('~/core/apolloClient', () => ({
   initializeTranslations: jest.fn(),
 }))
 
+jest.mock('~/core/apolloClient/reactiveVars/currentOrganizationVar', () => {
+  const { makeVar } = jest.requireActual('@apollo/client')
+
+  return { currentOrganizationVar: makeVar(null) }
+})
+
 jest.mock('~/core/serializers/getPropertyShape', () => ({
   __esModule: true,
   default: () => ({ amount: '', packageSize: '' }),

@@ -6,6 +6,12 @@ import {
   setPersistedOrganizationSlug,
 } from '../currentOrganizationVar'
 
+jest.mock('~/core/apolloClient/cacheUtils', () => ({
+  getItemFromLS: (key: string) => globalThis.localStorage.getItem(key),
+  setItemFromLS: (key: string, value: string) => globalThis.localStorage.setItem(key, value),
+  removeItemFromLS: (key: string) => globalThis.localStorage.removeItem(key),
+}))
+
 const LAST_USED_KEY = 'lastUsedOrganizationSlug'
 
 describe('currentOrganizationVar', () => {

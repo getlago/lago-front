@@ -1,5 +1,6 @@
 import { makeVar } from '@apollo/client'
 
+import { getItemFromLS, removeItemFromLS, setItemFromLS } from '~/core/apolloClient/cacheUtils'
 import { LAST_USED_ORGANIZATION_LS_KEY } from '~/core/constants/localStorageKeys'
 
 /**
@@ -28,24 +29,14 @@ export const setCurrentOrganizationId = (id: string | null): void => {
  * when the URL has none, and written by `OrganizationLayout` whenever an org
  * route is entered. Always re-validated against the user's memberships before
  * use, so a stale/foreign value is harmless.
- *
- * Uses `localStorage` directly (not the `cacheUtils` helpers) on purpose: the
- * value is a plain slug string, and importing `cacheUtils` here would pull a
- * heavy module graph (cacheUtils → … → apolloClient init) and create an import
- * cycle for the many feature hooks that read this var.
  */
-export const getPersistedOrganizationSlug = (): string | null => {
-  if (typeof window === 'undefined') return null
-
-  return localStorage.getItem(LAST_USED_ORGANIZATION_LS_KEY) || null
-}
+export const getPersistedOrganizationSlug = (): string | null =>
+  getItemFromLS(LAST_USED_ORGANIZATION_LS_KEY) || null
 
 export const setPersistedOrganizationSlug = (slug: string | null): void => {
-  if (typeof window === 'undefined') return
-
   if (slug) {
-    localStorage.setItem(LAST_USED_ORGANIZATION_LS_KEY, slug)
+    setItemFromLS(LAST_USED_ORGANIZATION_LS_KEY, slug)
   } else {
-    localStorage.removeItem(LAST_USED_ORGANIZATION_LS_KEY)
+    removeItemFromLS(LAST_USED_ORGANIZATION_LS_KEY)
   }
 }
