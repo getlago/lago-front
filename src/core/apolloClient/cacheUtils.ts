@@ -7,6 +7,7 @@ import {
 } from '~/generated/graphql'
 import { DEVTOOL_AUTO_SAVE_KEY, resetDevtoolsNavigation } from '~/hooks/useDeveloperTool'
 
+import { purgePersistedCache, resetPersistedCache } from './cachePersistor'
 import {
   addToast,
   AUTH_TOKEN_LS_KEY,
@@ -60,8 +61,9 @@ export const logOut = async (client: ApolloClient<object>, resetLocationHistory?
   resetDevtoolsNavigation()
   // Cancels active operations
   client.stop()
-  // Removes cached data and prevents active queries re-fetch
-  await client.clearStore()
+  // Removes cached data (in-memory + IndexedDB-persisted blob) and prevents
+  // active queries re-fetch
+  await resetPersistedCache(client)
   updateAuthTokenVar()
 
   resetLocationHistory && resetLocationHistoryVar()
@@ -135,15 +137,27 @@ export const switchCurrentOrganization = async (
   // 1. Reset devtools navigation to prevent stale queries with old transactionIds
   resetDevtoolsNavigation()
 
-  // 2. Cancel in-flight queries scoped to the previous org. If we let them
+  // 2. Purge the previous org's IndexedDB-persisted blob so its data isn't left
+  //    at rest. Fire-and-forget on purpose: `OrganizationLayout`'s effect
+  //    re-enters this function during the slug↔var mismatch window around the
+  //    post-switch `navigate`, so the switch path is timing-sensitive. Awaiting
+  //    an IndexedDB op here adds latency that stretches that mismatch window and
+  //    lets React paint a blank Error404 frame. Backgrounding it keeps the
+  //    teardown→resync timing identical to the pre-persistence behaviour (only
+  //    `clearStore` awaited). The new org's refetch (step 5) repersists a fresh
+  //    blob; `removeItem` resolves long before the network round-trip, so it
+  //    won't delete that fresh blob.
+  purgePersistedCache().catch(() => {})
+
+  // 3. Cancel in-flight queries scoped to the previous org. If we let them
   //    return after the var change, they'd write old-org data into a cache
   //    that we're about to repopulate for the new org → race.
   client.stop()
 
-  // 3. Clear the cache before updating the org context.
+  // 4. Clear the cache before updating the org context.
   await client.clearStore()
 
-  // 4. Update the org id (and LS). The auth link reads from the var, so any
+  // 4b. Update the org id (and LS). The auth link reads from the var, so any
   //    request fired AFTER this line carries the new `x-lago-organization`
   //    header.
   setCurrentOrganizationId(organizationId)
@@ -153,7 +167,7 @@ export const switchCurrentOrganization = async (
   //    `OrganizationLayout`'s gate keeps `Outlet` unmounted, so children
   //    never get a fresh mount that would create new observers — the
   //    observers in `OrganizationLayout` itself (e.g. `useCurrentUser`)
-  //    were stopped at step 2 and would otherwise sit dead, leaving the
+  //    were stopped at step 3 and would otherwise sit dead, leaving the
   //    UI stuck on `loading: true` until a second hard refresh.
   //
   //    Fire-and-forget on purpose: callers (e.g. `OrganizationSwitcher`)
@@ -163,7 +177,7 @@ export const switchCurrentOrganization = async (
   //    the brief window where the cache is empty / refetch in flight.
   client.reFetchObservableQueries()
 
-  // 6. Clear other org-specific state
+  // 7. Clear other org-specific state
   removeItemFromLS(DEVTOOL_AUTO_SAVE_KEY)
 }
 
