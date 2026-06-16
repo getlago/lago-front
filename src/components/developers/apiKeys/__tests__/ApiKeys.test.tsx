@@ -6,6 +6,17 @@ import { AllTheProviders } from '~/test-utils'
 
 import { ApiKeys } from '../ApiKeys'
 
+// Mock IntersectionObserver (used by InfiniteScroll, undefined in jsdom)
+const mockIntersectionObserver = jest.fn()
+
+mockIntersectionObserver.mockReturnValue({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+})
+
+globalThis.IntersectionObserver = mockIntersectionObserver
+
 const MOCK_ORG_ID = 'org-12345-abcde-67890'
 const MOCK_API_KEY_ID = 'api-key-12345'
 const MOCK_API_KEY_VALUE = '••••••••xyz'
