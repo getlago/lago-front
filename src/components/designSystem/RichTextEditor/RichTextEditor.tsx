@@ -8,7 +8,6 @@ import type { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import BlockToolbar from './BlockControls/BlockToolbar'
-import { downloadMarkdownPdf } from './common/downloadMarkdownPdf'
 import {
   type EntityData,
   type OnPricingCommand,
@@ -48,7 +47,6 @@ interface RichTextEditorProps {
   content?: string
   templates?: EditorTemplate[]
   getMarkdownRef?: React.MutableRefObject<(() => string) | null>
-  downloadPdfRef?: React.MutableRefObject<(() => void) | null>
   onChange?: () => void
   onPricingCommand?: OnPricingCommand
   isPricingDisabled?: () => boolean
@@ -144,7 +142,6 @@ const RichTextEditor = ({
   content,
   templates,
   getMarkdownRef,
-  downloadPdfRef,
   onPricingCommand,
   isPricingDisabled,
   onPricingBlocksChange,
@@ -290,24 +287,6 @@ const RichTextEditor = ({
       }
     }
   }, [getMarkdownRef, getMarkdown])
-
-  useEffect(() => {
-    if (!downloadPdfRef) return
-
-    downloadPdfRef.current = () => {
-      const markdown = getMarkdown()
-
-      if (markdown) {
-        downloadMarkdownPdf({ markdown, mentionValues, entities: entitiesFromProps })
-      }
-    }
-
-    return () => {
-      if (downloadPdfRef) {
-        downloadPdfRef.current = null
-      }
-    }
-  }, [downloadPdfRef, getMarkdown, mentionValues, entitiesFromProps])
 
   if (!editor) return null
 

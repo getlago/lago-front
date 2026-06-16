@@ -17,12 +17,6 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
 // Capture the config passed to SlashCommands.configure()
 let capturedSlashCommandsConfig: Record<string, unknown> = {}
 
-const mockDownloadMarkdownPdf = jest.fn()
-
-jest.mock('../common/downloadMarkdownPdf', () => ({
-  downloadMarkdownPdf: (...args: unknown[]) => mockDownloadMarkdownPdf(...args),
-}))
-
 jest.mock('../extensions/PricingBlock', () => ({
   PricingBlock: {
     configure: jest.fn(() => 'pricing-block-extension'),
@@ -394,63 +388,6 @@ describe('RichTextEditor', () => {
     it('THEN should provide an addNodeView function', () => {
       expect(capturedMentionExtendConfig.addNodeView).toBeDefined()
       expect(typeof capturedMentionExtendConfig.addNodeView).toBe('function')
-    })
-  })
-
-  describe('GIVEN the downloadPdfRef prop is provided', () => {
-    beforeEach(() => {
-      mockDownloadMarkdownPdf.mockClear()
-    })
-
-    describe('WHEN the editor is initialized', () => {
-      it('THEN should assign a function to downloadPdfRef.current', async () => {
-        const downloadPdfRef = { current: null } as React.MutableRefObject<(() => void) | null>
-
-        await act(() => render(<RichTextEditor downloadPdfRef={downloadPdfRef} />))
-
-        expect(typeof downloadPdfRef.current).toBe('function')
-      })
-    })
-
-    describe('WHEN the download function is called', () => {
-      it('THEN should call downloadMarkdownPdf with the editor markdown and context', async () => {
-        const downloadPdfRef = { current: null } as React.MutableRefObject<(() => void) | null>
-        const mentionValues = { customerName: 'Acme Corp' }
-
-        await act(() =>
-          render(<RichTextEditor downloadPdfRef={downloadPdfRef} mentionValues={mentionValues} />),
-        )
-
-        await act(() => {
-          downloadPdfRef.current?.()
-        })
-
-        expect(mockDownloadMarkdownPdf).toHaveBeenCalledTimes(1)
-        expect(mockDownloadMarkdownPdf).toHaveBeenCalledWith({
-          markdown: '# Hello World',
-          mentionValues,
-          entities: expect.any(Object),
-        })
-      })
-    })
-
-    describe('WHEN the markdown extension is not available', () => {
-      it('THEN should not call downloadMarkdownPdf', async () => {
-        const downloadPdfRef = { current: null } as React.MutableRefObject<(() => void) | null>
-        const originalStorage = mockEditor.storage
-
-        mockEditor.storage = {}
-
-        await act(() => render(<RichTextEditor downloadPdfRef={downloadPdfRef} />))
-
-        await act(() => {
-          downloadPdfRef.current?.()
-        })
-
-        expect(mockDownloadMarkdownPdf).not.toHaveBeenCalled()
-
-        mockEditor.storage = originalStorage
-      })
     })
   })
 

@@ -19,7 +19,6 @@ RichTextEditor/
 ├── MentionNodeView.tsx            # Mention NodeView (edit mode only)
 ├── RichTextEditor.tsx             # Main editor component
 ├── RichTextEditorContext.tsx       # React context for edit mode
-├── downloadMarkdownPdf.ts         # Standalone PDF download
 ├── printHtmlContent.ts            # iframe + window.print() engine
 └── richTextEditor.css             # Styles (scoped to .ProseMirror)
 ```
@@ -246,19 +245,6 @@ extensions: [
 ]
 ```
 
-**In `downloadMarkdownPdf.ts`** (headless, for PDF):
-
-```ts
-import { CustomerBlockSchema } from './extensions/CustomerBlock.schema'
-
-// Inside the Editor extensions array:
-extensions: [
-  ...getBaseExtensions(),
-  // ...other extensions...
-  CustomerBlockSchema.configure({ customers }),
-]
-```
-
 If your node does **not** need resolution data (like `LinkCard`), add it to `baseExtensions.ts` instead and it works everywhere automatically.
 
 ### Step 6: Add tests
@@ -294,7 +280,6 @@ const getHtml = (customerId: string, customers?: Record<string, unknown>) => {
 | **Markdown** serialization format       | `addStorage()` in the `.schema.ts` file    |
 | Shared styles (editor + PDF)            | `richTextEditor.css` inside `.ProseMirror` |
 | Which extensions are always included    | `baseExtensions.ts`                        |
-| PDF download logic                      | `downloadMarkdownPdf.ts`                   |
 
 ## Key rules
 
