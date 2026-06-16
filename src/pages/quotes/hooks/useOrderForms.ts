@@ -24,6 +24,7 @@ gql`
         id
         version
         content
+        billingItems
       }
     }
   }

@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react'
 
+import { buildPreviewEntities } from '~/core/serializers/serializeQuoteBillingItems'
 import { OrderFormListItemFragment, OrderFormStatusEnum } from '~/generated/graphql'
 import { testMockNavigateFn } from '~/test-utils'
 
@@ -22,6 +23,14 @@ jest.mock('~/hooks/usePermissions', () => ({
 jest.mock('~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf', () => ({
   downloadMarkdownPdf: jest.fn(),
 }))
+
+jest.mock('~/core/serializers/serializeQuoteBillingItems', () => ({
+  buildPreviewEntities: jest.fn(),
+}))
+
+const mockedBuildPreviewEntities = buildPreviewEntities as jest.MockedFunction<
+  typeof buildPreviewEntities
+>
 
 const createMockOrderForm = (
   overrides: Partial<OrderFormListItemFragment> = {},
@@ -147,8 +156,8 @@ describe('useOrderFormActions', () => {
   })
 
   describe('GIVEN the download action', () => {
-    describe('WHEN triggered', () => {
-      it('THEN should call downloadMarkdownPdf with the content from the fragment', () => {
+    describe('WHEN triggered without billing items', () => {
+      it('THEN should call downloadMarkdownPdf with the content and no entities', () => {
         const { downloadMarkdownPdf } = jest.requireMock(
           '~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf',
         )
@@ -159,7 +168,52 @@ describe('useOrderFormActions', () => {
 
         downloadAction?.onAction()
 
-        expect(downloadMarkdownPdf).toHaveBeenCalledWith({ markdown: '# Hello World' })
+        expect(mockedBuildPreviewEntities).not.toHaveBeenCalled()
+        expect(downloadMarkdownPdf).toHaveBeenCalledWith({
+          markdown: '# Hello World',
+          entities: undefined,
+        })
+      })
+    })
+
+    describe('WHEN triggered with billing items', () => {
+      it('THEN should build preview entities and pass them to downloadMarkdownPdf', () => {
+        const { downloadMarkdownPdf } = jest.requireMock(
+          '~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf',
+        )
+
+        const mockEntities = {
+          'addon-1': {
+            entityId: 'addon-1',
+            entityType: 'addOn' as const,
+            name: 'Setup Fee',
+            code: 'setup',
+          },
+        }
+
+        mockedBuildPreviewEntities.mockReturnValue(mockEntities)
+
+        const billingItems = { addons: [{ type: 'addon', id: 'addon-1' }] }
+
+        const { result } = renderHook(() => useOrderFormActions())
+        const actions = result.current.getActions(
+          createMockOrderForm({
+            quote: {
+              id: 'q-1',
+              number: 'QUO-001',
+              currentVersion: { id: 'qv-1', version: 1, content: '# Hello World', billingItems },
+            },
+          }),
+        )
+        const downloadAction = actions.find((a) => a.icon === 'download')
+
+        downloadAction?.onAction()
+
+        expect(mockedBuildPreviewEntities).toHaveBeenCalledWith(billingItems)
+        expect(downloadMarkdownPdf).toHaveBeenCalledWith({
+          markdown: '# Hello World',
+          entities: mockEntities,
+        })
       })
     })
   })
