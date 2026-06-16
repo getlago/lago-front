@@ -1,10 +1,10 @@
 import { act, configure, render, screen } from '@testing-library/react'
-
-configure({ testIdAttribute: 'data-test' })
 import userEvent from '@testing-library/user-event'
 
 import type { QuotePreviewProps } from '../buildQuotePreviewProps'
 import { QuotePdfProvider, useDownloadQuotePdf } from '../QuotePdfProvider'
+
+configure({ testIdAttribute: 'data-test' })
 
 let capturedEditorProps: Record<string, unknown> = {}
 const mockMountedContents: string[] = []
@@ -138,7 +138,9 @@ describe('QuotePdfProvider', () => {
       return null
     }
 
-    expect(() => render(<Outside />)).toThrow('useDownloadQuotePdf must be used within a QuotePdfProvider')
+    expect(() => render(<Outside />)).toThrow(
+      'useDownloadQuotePdf must be used within a QuotePdfProvider',
+    )
   })
 
   it('queues a second download and renders it after the first completes', async () => {

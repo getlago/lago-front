@@ -1,4 +1,13 @@
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 
 import { printHtmlContent } from '~/components/designSystem/RichTextEditor/common/printHtmlContent'
 import RichTextEditor from '~/components/designSystem/RichTextEditor/RichTextEditor'
@@ -36,12 +45,17 @@ export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
 
   // Single-flight: one off-screen render at a time. A request that arrives
   // while another is in flight is queued and runs when the current one settles.
-  const download = useCallback((props: QuotePreviewProps): Promise<void> => {
-    if (!props.content) return Promise.resolve()
+  const download = useCallback((previewProps: QuotePreviewProps): Promise<void> => {
+    if (!previewProps.content) return Promise.resolve()
 
     const promise = new Promise<void>((resolve, reject) => {
       requestIdRef.current += 1
-      const request: PendingRequest = { id: requestIdRef.current, props, resolve, reject }
+      const request: PendingRequest = {
+        id: requestIdRef.current,
+        props: previewProps,
+        resolve,
+        reject,
+      }
 
       if (currentRef.current) {
         queueRef.current.push(request)
@@ -89,7 +103,7 @@ export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
     <QuotePdfContext.Provider value={contextValue}>
       {children}
       {current && (
-        <div key={current.id} className="fixed -left-[9999px] top-0" aria-hidden>
+        <div key={current.id} className="fixed left-[-9999px] top-0" aria-hidden>
           <RichTextEditor
             mode="preview"
             isCompact
