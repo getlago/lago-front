@@ -6,6 +6,7 @@ import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars'
 import {
   CurrentUserInfosFragment,
   MembershipPermissionsFragmentDoc,
+  OrgSlugResolverDataFragmentDoc,
   useGetCurrentUserInfosQuery,
 } from '~/generated/graphql'
 
@@ -16,14 +17,12 @@ gql`
     id
     email
     premium
+    ...OrgSlugResolverData
     memberships {
-      id
       roles
       ...MembershipPermissions
       organization {
-        id
         name
-        slug
         logoUrl
         accessibleByCurrentSession
       }
@@ -37,6 +36,7 @@ gql`
   }
 
   ${MembershipPermissionsFragmentDoc}
+  ${OrgSlugResolverDataFragmentDoc}
 `
 
 type UseCurrentUser = () => {

@@ -1,10 +1,24 @@
+import { gql } from '@apollo/client'
+
 import {
   getCurrentOrganizationId,
   getPersistedOrganizationSlug,
 } from '~/core/apolloClient/reactiveVars'
-import { CurrentUserInfosFragment } from '~/generated/graphql'
+import { OrgSlugResolverDataFragment } from '~/generated/graphql'
 
-type CurrentUser = CurrentUserInfosFragment | undefined
+gql`
+  fragment OrgSlugResolverData on User {
+    memberships {
+      id
+      organization {
+        id
+        slug
+      }
+    }
+  }
+`
+
+type CurrentUser = OrgSlugResolverDataFragment | undefined
 
 /**
  * Resolves the org slug to land on when the URL has no (valid) slug — e.g. a

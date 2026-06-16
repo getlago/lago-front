@@ -1,4 +1,4 @@
-import { CurrentUserInfosFragment } from '~/generated/graphql'
+import { OrgSlugResolverDataFragment } from '~/generated/graphql'
 
 import { ensureSlugPrefix, pathHasValidSlug, resolveOrgSlug } from '../orgSlug'
 
@@ -10,7 +10,7 @@ jest.mock('~/core/apolloClient/reactiveVars', () => ({
   getPersistedOrganizationSlug: () => mockGetPersistedOrganizationSlug(),
 }))
 
-type CurrentUser = CurrentUserInfosFragment | undefined
+type CurrentUser = OrgSlugResolverDataFragment | undefined
 
 const buildCurrentUser = (
   memberships: Array<{ id: string; organization: { id: string; name: string; slug: string } }>,
