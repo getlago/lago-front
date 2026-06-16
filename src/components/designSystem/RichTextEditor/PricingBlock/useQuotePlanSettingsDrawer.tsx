@@ -21,7 +21,7 @@ export const useQuotePlanSettingsDrawer = (planForm: PlanFormType) => {
 
     drawer.open({
       title: translate('text_642d5eb2783a2ad10d67031a'),
-      children: <PlanSettingsSection form={planForm} />,
+      children: <PlanSettingsSection form={planForm} isInSubscriptionForm />,
       actions: (
         <div className="flex items-center justify-end gap-3">
           <Button

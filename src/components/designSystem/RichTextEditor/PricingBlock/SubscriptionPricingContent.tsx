@@ -350,6 +350,7 @@ export function SubscriptionPricingContent({
             <SubscriptionFeeDrawer
               ref={subscriptionFeeDrawerRef}
               onSave={handleSubscriptionFeeSave}
+              isInSubscriptionForm
             />
           </PlanFormProvider>
         </>
