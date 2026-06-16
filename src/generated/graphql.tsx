@@ -14297,7 +14297,14 @@ export type GetOrderFormForVoidQueryVariables = Exact<{
 }>;
 
 
-export type GetOrderFormForVoidQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null }, quote: { __typename?: 'Quote', number: string, currentVersion: { __typename?: 'QuoteVersion', version: number } } } | null };
+export type GetOrderFormForVoidQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null }, quote: { __typename?: 'Quote', id: string, number: string, currentVersion: { __typename?: 'QuoteVersion', version: number } } } | null };
+
+export type VoidOrderFormMutationVariables = Exact<{
+  input: VoidOrderFormInput;
+}>;
+
+
+export type VoidOrderFormMutation = { __typename?: 'Mutation', voidOrderForm?: { __typename?: 'OrderForm', id: string, status: OrderFormStatusEnum } | null };
 
 export type VoidQuoteVersionMutationVariables = Exact<{
   input: VoidQuoteVersionInput;
@@ -38880,6 +38887,7 @@ export const GetOrderFormForVoidDocument = gql`
       name
     }
     quote {
+      id
       number
       currentVersion {
         version
@@ -38924,6 +38932,40 @@ export type GetOrderFormForVoidQueryHookResult = ReturnType<typeof useGetOrderFo
 export type GetOrderFormForVoidLazyQueryHookResult = ReturnType<typeof useGetOrderFormForVoidLazyQuery>;
 export type GetOrderFormForVoidSuspenseQueryHookResult = ReturnType<typeof useGetOrderFormForVoidSuspenseQuery>;
 export type GetOrderFormForVoidQueryResult = Apollo.QueryResult<GetOrderFormForVoidQuery, GetOrderFormForVoidQueryVariables>;
+export const VoidOrderFormDocument = gql`
+    mutation voidOrderForm($input: VoidOrderFormInput!) {
+  voidOrderForm(input: $input) {
+    id
+    status
+  }
+}
+    `;
+export type VoidOrderFormMutationFn = Apollo.MutationFunction<VoidOrderFormMutation, VoidOrderFormMutationVariables>;
+
+/**
+ * __useVoidOrderFormMutation__
+ *
+ * To run a mutation, you first call `useVoidOrderFormMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVoidOrderFormMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [voidOrderFormMutation, { data, loading, error }] = useVoidOrderFormMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useVoidOrderFormMutation(baseOptions?: Apollo.MutationHookOptions<VoidOrderFormMutation, VoidOrderFormMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<VoidOrderFormMutation, VoidOrderFormMutationVariables>(VoidOrderFormDocument, options);
+      }
+export type VoidOrderFormMutationHookResult = ReturnType<typeof useVoidOrderFormMutation>;
+export type VoidOrderFormMutationResult = Apollo.MutationResult<VoidOrderFormMutation>;
+export type VoidOrderFormMutationOptions = Apollo.BaseMutationOptions<VoidOrderFormMutation, VoidOrderFormMutationVariables>;
 export const VoidQuoteVersionDocument = gql`
     mutation voidQuoteVersion($input: VoidQuoteVersionInput!) {
   voidQuoteVersion(input: $input) {

@@ -35,11 +35,21 @@ gql`
         name
       }
       quote {
+        id
         number
         currentVersion {
           version
         }
       }
+    }
+  }
+`
+
+gql`
+  mutation voidOrderForm($input: VoidOrderFormInput!) {
+    voidOrderForm(input: $input) {
+      id
+      status
     }
   }
 `
