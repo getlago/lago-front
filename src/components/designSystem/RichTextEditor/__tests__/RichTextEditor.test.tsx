@@ -556,4 +556,27 @@ describe('RichTextEditor', () => {
       callbacks.onExit()
     })
   })
+
+  describe('GIVEN onPreviewReady in preview mode', () => {
+    it('THEN calls onPreviewReady with the rendered DOM html after rAF', async () => {
+      const rafSpy = jest
+        .spyOn(window, 'requestAnimationFrame')
+        .mockImplementation((cb: FrameRequestCallback) => {
+          cb(0)
+          return 0
+        })
+      const dom = document.createElement('div')
+
+      dom.innerHTML = '<p>Preview content</p>'
+      ;(mockEditor.view as Record<string, unknown>).dom = dom
+
+      const onPreviewReady = jest.fn()
+
+      await act(() => render(<RichTextEditor mode="preview" onPreviewReady={onPreviewReady} />))
+
+      expect(onPreviewReady).toHaveBeenCalledWith('<p>Preview content</p>')
+
+      rafSpy.mockRestore()
+    })
+  })
 })

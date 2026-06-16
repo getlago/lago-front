@@ -56,6 +56,7 @@ interface RichTextEditorProps {
   customerLocale?: Locale
   customerCurrency?: CurrencyEnum
   isCompact?: boolean
+  onPreviewReady?: (html: string) => void
 }
 
 const variableItems = [
@@ -151,6 +152,7 @@ const RichTextEditor = ({
   customerLocale,
   customerCurrency,
   isCompact,
+  onPreviewReady,
 }: RichTextEditorProps) => {
   const { translate } = useInternationalization()
   const onChangeRef = useRef(onChange)
@@ -229,6 +231,23 @@ const RichTextEditor = ({
       editor.setEditable(!isPreview)
     }
   }, [editor, isPreview])
+
+  useEffect(() => {
+    if (!editor || !isPreview || !onPreviewReady) return
+
+    let raf2 = 0
+
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        onPreviewReady(editor.view.dom.innerHTML)
+      })
+    })
+
+    return () => {
+      cancelAnimationFrame(raf1)
+      cancelAnimationFrame(raf2)
+    }
+  }, [editor, isPreview, onPreviewReady])
 
   const getMarkdown = useCallback((): string | undefined => {
     if (!editor || !editor.storage || !('markdown' in editor.storage)) return undefined
