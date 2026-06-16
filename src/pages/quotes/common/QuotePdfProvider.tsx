@@ -1,4 +1,4 @@
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
 import { printHtmlContent } from '~/components/designSystem/RichTextEditor/common/printHtmlContent'
 import RichTextEditor from '~/components/designSystem/RichTextEditor/RichTextEditor'
@@ -22,36 +22,38 @@ const QuotePdfContext = createContext<QuotePdfContextValue | undefined>(undefine
 
 export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
   const [current, setCurrent] = useState<PendingRequest | null>(null)
+  const currentRef = useRef<PendingRequest | null>(null)
   const queueRef = useRef<PendingRequest[]>([])
 
   const advance = useCallback(() => {
-    setCurrent(queueRef.current.shift() ?? null)
+    const next = queueRef.current.shift() ?? null
+
+    currentRef.current = next
+    setCurrent(next)
   }, [])
 
   // Single-flight: one off-screen render at a time. A request that arrives
   // while another is in flight is queued and runs when the current one settles.
-  const download = useCallback(
-    (props: QuotePreviewProps): Promise<void> => {
-      if (!props.content) return Promise.resolve()
+  const download = useCallback((props: QuotePreviewProps): Promise<void> => {
+    if (!props.content) return Promise.resolve()
 
-      const promise = new Promise<void>((resolve, reject) => {
-        const request: PendingRequest = { props, resolve, reject }
+    const promise = new Promise<void>((resolve, reject) => {
+      const request: PendingRequest = { props, resolve, reject }
 
-        if (current) {
-          queueRef.current.push(request)
-        } else {
-          setCurrent(request)
-        }
-      })
+      if (currentRef.current) {
+        queueRef.current.push(request)
+      } else {
+        currentRef.current = request
+        setCurrent(request)
+      }
+    })
 
-      // Suppress unhandled rejection warnings for fire-and-forget callers.
-      // Callers that await the promise still receive the rejection.
-      promise.catch(() => {})
+    // Mark the rejection handled so fire-and-forget callers don't trigger an
+    // unhandled-rejection warning; callers that await still receive it.
+    promise.catch(() => {})
 
-      return promise
-    },
-    [current],
-  )
+    return promise
+  }, [])
 
   const handleReady = useCallback(
     (html: string) => {
@@ -78,11 +80,13 @@ export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
     return () => clearTimeout(timer)
   }, [current, advance])
 
+  const contextValue = useMemo(() => ({ download }), [download])
+
   return (
-    <QuotePdfContext.Provider value={{ download }}>
+    <QuotePdfContext.Provider value={contextValue}>
       {children}
       {current && (
-        <div style={{ position: 'fixed', left: -9999, top: 0 }} aria-hidden>
+        <div className="fixed -left-[9999px] top-0" aria-hidden>
           <RichTextEditor
             mode="preview"
             isCompact

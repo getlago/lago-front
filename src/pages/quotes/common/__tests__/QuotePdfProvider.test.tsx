@@ -131,4 +131,54 @@ describe('QuotePdfProvider', () => {
 
     expect(() => render(<Outside />)).toThrow('useDownloadQuotePdf must be used within a QuotePdfProvider')
   })
+
+  it('queues a second download and renders it after the first completes', async () => {
+    const Multi = () => {
+      const { download } = useDownloadQuotePdf()
+
+      return (
+        <>
+          <button data-test="dl-a" onClick={() => download({ ...PROPS, content: '<p>A</p>' })}>
+            A
+          </button>
+          <button data-test="dl-b" onClick={() => download({ ...PROPS, content: '<p>B</p>' })}>
+            B
+          </button>
+        </>
+      )
+    }
+
+    render(
+      <QuotePdfProvider>
+        <Multi />
+      </QuotePdfProvider>,
+    )
+
+    await userEvent.click(screen.getByTestId('dl-a'))
+    await userEvent.click(screen.getByTestId('dl-b'))
+
+    // A is in flight, B is queued
+    expect(capturedEditorProps.content).toBe('<p>A</p>')
+
+    act(() => {
+      ;(capturedEditorProps.onPreviewReady as (html: string) => void)('<p>A-rendered</p>')
+    })
+
+    expect(printHtmlContent).toHaveBeenNthCalledWith(
+      1,
+      '<div class="rich-text-editor"><div class="ProseMirror" contenteditable="false"><p>A-rendered</p></div></div>',
+    )
+
+    // B is now in flight
+    expect(capturedEditorProps.content).toBe('<p>B</p>')
+
+    act(() => {
+      ;(capturedEditorProps.onPreviewReady as (html: string) => void)('<p>B-rendered</p>')
+    })
+
+    expect(printHtmlContent).toHaveBeenNthCalledWith(
+      2,
+      '<div class="rich-text-editor"><div class="ProseMirror" contenteditable="false"><p>B-rendered</p></div></div>',
+    )
+  })
 })
