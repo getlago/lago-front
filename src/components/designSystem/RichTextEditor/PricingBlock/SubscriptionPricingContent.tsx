@@ -15,9 +15,9 @@ import {
   type SubscriptionFeeFormValues,
 } from '~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
-import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import type { LocalUsageChargeInput, PlanFormInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
+import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -399,12 +399,14 @@ export function SubscriptionPricingContent({
             <FixedChargesSection
               form={planForm}
               alreadyExistingFixedChargesIds={planData?.fixedCharges?.map((c) => c.id) || []}
+              isInSubscriptionForm
               isEdition={false}
             />
 
             <UsageChargesSection
               form={planForm}
               alreadyExistingCharges={(planData?.charges ?? []) as LocalUsageChargeInput[]}
+              isInSubscriptionForm
               isEdition={false}
             />
 
