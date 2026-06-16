@@ -16,6 +16,7 @@ gql`
     customer {
       id
       name
+      ...QuotePreviewCustomer
     }
     quote {
       id
@@ -23,8 +24,7 @@ gql`
       currentVersion {
         id
         version
-        content
-        billingItems
+        ...QuotePreviewVersion
       }
     }
   }
