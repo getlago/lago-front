@@ -90,7 +90,6 @@ export const EditBillingEntityDocumentLocaleDialog = forwardRef<
   })
 
   const isDirty = useStore(form.store, (state) => state.isDirty)
-  const canSubmit = useStore(form.store, (state) => state.canSubmit)
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -102,9 +101,11 @@ export const EditBillingEntityDocumentLocaleDialog = forwardRef<
       <Button variant="quaternary" onClick={closeDialog}>
         {translate('text_63e51ef4985f0ebd75c21313')}
       </Button>
-      <Button variant="primary" type="submit" disabled={!canSubmit || !isDirty}>
-        {translate('text_17432414198706rdwf76ek3u')}
-      </Button>
+      <form.AppForm>
+        <form.SubmitButton variant="primary" disabled={!isDirty}>
+          {translate('text_17432414198706rdwf76ek3u')}
+        </form.SubmitButton>
+      </form.AppForm>
     </>
   )
 
