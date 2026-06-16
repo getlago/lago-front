@@ -13,6 +13,7 @@ interface QuotePdfContextValue {
 }
 
 interface PendingRequest {
+  id: number
   props: QuotePreviewProps
   resolve: () => void
   reject: (error: Error) => void
@@ -24,6 +25,7 @@ export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
   const [current, setCurrent] = useState<PendingRequest | null>(null)
   const currentRef = useRef<PendingRequest | null>(null)
   const queueRef = useRef<PendingRequest[]>([])
+  const requestIdRef = useRef(0)
 
   const advance = useCallback(() => {
     const next = queueRef.current.shift() ?? null
@@ -38,7 +40,8 @@ export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
     if (!props.content) return Promise.resolve()
 
     const promise = new Promise<void>((resolve, reject) => {
-      const request: PendingRequest = { props, resolve, reject }
+      requestIdRef.current += 1
+      const request: PendingRequest = { id: requestIdRef.current, props, resolve, reject }
 
       if (currentRef.current) {
         queueRef.current.push(request)
@@ -86,7 +89,7 @@ export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
     <QuotePdfContext.Provider value={contextValue}>
       {children}
       {current && (
-        <div className="fixed -left-[9999px] top-0" aria-hidden>
+        <div key={current.id} className="fixed -left-[9999px] top-0" aria-hidden>
           <RichTextEditor
             mode="preview"
             isCompact

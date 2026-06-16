@@ -7,15 +7,23 @@ import type { QuotePreviewProps } from '../buildQuotePreviewProps'
 import { QuotePdfProvider, useDownloadQuotePdf } from '../QuotePdfProvider'
 
 let capturedEditorProps: Record<string, unknown> = {}
+const mockMountedContents: string[] = []
 
-jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => ({
-  __esModule: true,
-  default: (props: Record<string, unknown>) => {
-    capturedEditorProps = props
+jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
+  const ReactLib = jest.requireActual<typeof import('react')>('react')
 
-    return <div data-test="hidden-preview" />
-  },
-}))
+  return {
+    __esModule: true,
+    default: function MockRichTextEditor(props: Record<string, unknown>) {
+      capturedEditorProps = props
+      ReactLib.useEffect(() => {
+        mockMountedContents.push(props.content as string)
+      }, [])
+
+      return ReactLib.createElement('div', { 'data-test': 'hidden-preview' })
+    },
+  }
+})
 
 jest.mock('~/components/designSystem/RichTextEditor/common/printHtmlContent', () => ({
   printHtmlContent: jest.fn(),
@@ -53,6 +61,7 @@ describe('QuotePdfProvider', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     capturedEditorProps = {}
+    mockMountedContents.length = 0
   })
 
   it('renders the preview off-screen and prints the serialized HTML on ready', async () => {
@@ -180,5 +189,7 @@ describe('QuotePdfProvider', () => {
       2,
       '<div class="rich-text-editor"><div class="ProseMirror" contenteditable="false"><p>B-rendered</p></div></div>',
     )
+
+    expect(mockMountedContents).toEqual(['<p>A</p>', '<p>B</p>'])
   })
 })

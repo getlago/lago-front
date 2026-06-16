@@ -25,30 +25,34 @@ RichTextEditor/
 
 ## How preview and PDF rendering works
 
-Both on-screen preview and PDF download use the **same rendering path**: `editor.getHTML()`, which calls each extension's `renderHTML()`. This is the single source of truth.
+Both on-screen preview and PDF download mount the **same `<RichTextEditor mode="preview" />`** component. React NodeViews (e.g. `PricingBlockView` rendering `OneOffAddOnsPreviewTable`) run in both paths.
 
 ```
-renderHTML() in the .schema.ts file
+<RichTextEditor mode="preview" .../>
     |
-    +-- On-screen preview:  editor.getHTML() --> dangerouslySetInnerHTML
-    +-- PDF download:       editor.getHTML() --> printHtmlContent (hidden iframe)
+    +-- On-screen preview:  mounted directly in the page (visible)
+    +-- PDF download:       mounted off-screen by QuotePdfProvider
+                            --> onPreviewReady(editor.view.dom.innerHTML)
+                            --> printHtmlContent (hidden iframe + window.print())
 ```
 
-NodeViews (`MentionNodeView`, `PlanBlockView`) only handle **edit mode** -- interactive UI like mention suggestions, plan block selection drawers, etc. They have no preview logic.
+The PDF path is driven by `QuotePdfProvider` (`src/pages/quotes/common/QuotePdfProvider.tsx`). It renders the preview editor in a hidden off-screen container (`fixed -left-[9999px]`). When TipTap signals readiness via `onPreviewReady`, the provider captures `editor.view.dom.innerHTML` — the fully rendered React NodeView DOM — and passes it to `printHtmlContent`.
+
+This means a node's **preview and PDF appearance is determined by its React NodeView** (if it has one). `renderHTML()` is used for the editable/in-document representation and for markdown serialization — it is NOT used to produce preview or PDF output for nodes that have a NodeView.
 
 ## Creating a custom node
 
 This guide walks through creating a new custom TipTap node that works in:
 
 - The interactive editor (edit mode)
-- On-screen preview (via `renderHTML`)
-- PDF download (via headless editor + `renderHTML`)
+- On-screen preview (via the React NodeView)
+- PDF download (via the same React NodeView, rendered off-screen by `QuotePdfProvider`)
 
 We'll use a fictional `CustomerBlock` as an example.
 
 ### Step 1: Create the schema
 
-The schema defines the node's data model, markdown serialization, and HTML rendering. It has **zero React imports** so it can be used headlessly.
+The schema defines the node's data model, markdown serialization, and in-document HTML representation. It has **zero React imports** — keeping the `.schema.ts` file React-free is still good practice for testability and separation of concerns.
 
 Create `extensions/CustomerBlock.schema.ts`:
 
@@ -119,8 +123,10 @@ export const CustomerBlockSchema = Node.create({
     return [{ tag: 'div[data-type="customer-block"]' }]
   },
 
-  // How to render this node to HTML.
-  // This is the SINGLE SOURCE OF TRUTH for preview and PDF.
+  // How to render this node to in-document HTML (editable mode) and markdown serialization.
+  // NOTE: for nodes with a React NodeView, this does NOT control preview or PDF appearance —
+  // those use the NodeView's rendered output. Keep renderHTML consistent with the NodeView's
+  // structure for HTML round-trip fidelity.
   // When `customers` data is available (via options), render the resolved view.
   renderHTML({ HTMLAttributes }) {
     const customerId = String(HTMLAttributes.customerId ?? '')
@@ -173,9 +179,9 @@ export const CustomerBlock = CustomerBlockSchema.extend({
 })
 ```
 
-### Step 3: Create the NodeView component (edit mode only)
+### Step 3: Create the NodeView component
 
-The NodeView handles user interaction in edit mode. It does **not** need a preview branch -- that's handled by `renderHTML`.
+The NodeView controls both **edit mode** interaction AND **preview/PDF appearance**. Because `QuotePdfProvider` renders the full React tree off-screen, the NodeView is what appears in PDFs — not `renderHTML`. If your node needs rich visual output in previews or PDFs, implement it in the NodeView.
 
 Create `CustomerBlock/CustomerBlockView.tsx`:
 
@@ -275,7 +281,7 @@ const getHtml = (customerId: string, customers?: Record<string, unknown>) => {
 
 | What you want to change                 | Where to edit                              |
 | --------------------------------------- | ------------------------------------------ |
-| How a node looks in **preview and PDF** | `renderHTML()` in the `.schema.ts` file    |
+| How a node looks in **preview and PDF** | The React NodeView (if present); `renderHTML()` for nodes without a NodeView |
 | How a node behaves in **edit mode**     | The `NodeView` component (`*View.tsx`)     |
 | **Markdown** serialization format       | `addStorage()` in the `.schema.ts` file    |
 | Shared styles (editor + PDF)            | `richTextEditor.css` inside `.ProseMirror` |
@@ -283,8 +289,8 @@ const getHtml = (customerId: string, customers?: Record<string, unknown>) => {
 
 ## Key rules
 
-1. **`renderHTML` is the single source of truth** for preview/PDF appearance. Never duplicate rendering logic in NodeViews.
-2. **NodeViews are for edit mode only.** No `if (isPreview)` branches.
+1. **The React NodeView is the source of truth for preview/PDF appearance** when a node has one. `renderHTML` controls the in-document (editable) HTML and markdown serialization, not the preview/PDF output. Never assume `renderHTML` drives what users see in previews.
+2. **NodeViews render in both edit mode AND preview/PDF** (via `QuotePdfProvider`'s off-screen render). They may have interactive branches for edit mode, but the base visual output must look correct in read-only/preview mode too.
 3. **Split schema from view:** `.schema.ts` has zero React imports (headless-safe). `.ts` extends it with `addNodeView()`.
 4. **Resolution data flows via `addOptions` + `.configure()`**. The schema declares options, consumers pass data at configuration time.
 5. **Styles go in `richTextEditor.css`** scoped to `.ProseMirror`. They apply to both the editor and PDF automatically.
