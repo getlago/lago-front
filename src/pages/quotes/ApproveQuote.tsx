@@ -11,7 +11,7 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { addToast } from '~/core/apolloClient'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
-import { fromBillingItems } from '~/core/serializers/serializeQuoteBillingItems'
+import { buildPreviewEntities } from '~/core/serializers/serializeQuoteBillingItems'
 import type { Locale } from '~/core/translations'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -37,11 +37,13 @@ const ApproveQuote = () => {
   const { quote, loading, error } = useQuote(quoteId)
   const { approveQuote } = useApproveQuote()
 
-  // Deserialize billing items for pricing block preview
+  // Deserialize billing items for pricing block preview. Entities are keyed by
+  // both localId and catalog addOnId so saved content blocks resolve whether
+  // they reference add-ons by localEntityIds or by catalog entityIds.
   const previewEntities = useMemo(() => {
     if (!quote?.currentVersion?.billingItems) return {}
 
-    return fromBillingItems(quote.currentVersion.billingItems).entities
+    return buildPreviewEntities(quote.currentVersion.billingItems)
   }, [quote?.currentVersion?.billingItems])
 
   const customerLocale = (quote?.customer?.billingConfiguration?.documentLocale ?? 'en') as Locale
