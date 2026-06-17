@@ -1,5 +1,5 @@
 import { Icon } from 'lago-design-system'
-import { FC, ReactNode, useRef, useState } from 'react'
+import { FC, ReactNode, useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
@@ -25,7 +25,7 @@ export interface DocumentUploaderProps {
 }
 
 export const DocumentUploader: FC<DocumentUploaderProps> = ({
-  value: _value,
+  value,
   onChange,
   accept = DEFAULT_ACCEPT,
   acceptedMimeTypes = DEFAULT_MIME_TYPES,
@@ -40,6 +40,13 @@ export const DocumentUploader: FC<DocumentUploaderProps> = ({
   const [fileName, setFileName] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+
+  useEffect(() => {
+    if (!value) {
+      setFileName(null)
+      setError(null)
+    }
+  }, [value])
 
   const handleFile = (file: File | undefined) => {
     if (!file) return
@@ -111,14 +118,14 @@ export const DocumentUploader: FC<DocumentUploaderProps> = ({
 
       <input
         ref={inputRef}
-        data-testid={DOCUMENT_UPLOADER_INPUT_TEST_ID}
+        data-test={DOCUMENT_UPLOADER_INPUT_TEST_ID}
         type="file"
         accept={accept}
         className="hidden"
         onChange={(e) => handleFile(e.target.files?.[0])}
       />
 
-      {fileName && !error && (
+      {value && fileName && !error && (
         <div className="flex items-center justify-between rounded-xl border border-grey-300 px-4 py-2">
           <Typography variant="body" color="grey700">
             {fileName}

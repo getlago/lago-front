@@ -1,4 +1,7 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { useState } from 'react'
+
+import { render } from '~/test-utils'
 
 import { DOCUMENT_UPLOADER_INPUT_TEST_ID, DocumentUploader } from '../DocumentUploader'
 
@@ -63,5 +66,37 @@ describe('DocumentUploader', () => {
       expect(screen.getByText('Invalid type')).toBeInTheDocument()
     })
     expect(onChange).not.toHaveBeenCalled()
+  })
+
+  it('clears the confirmation row when value is set to null externally', async () => {
+    // Use a controlled wrapper so value updates when onChange is called
+    const ControlledWrapper = () => {
+      const [value, setValue] = useState<string | null>(null)
+
+      return (
+        <>
+          <DocumentUploader value={value} onChange={setValue} {...baseProps} />
+          <button onClick={() => setValue(null)}>reset</button>
+        </>
+      )
+    }
+
+    render(<ControlledWrapper />)
+
+    // Select a valid file — confirmation row should appear
+    fireEvent.change(screen.getByTestId(DOCUMENT_UPLOADER_INPUT_TEST_ID), {
+      target: { files: [makeFile('doc.pdf', 'application/pdf', 1000)] },
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('doc.pdf')).toBeInTheDocument()
+    })
+
+    // Simulate parent clearing value (e.g. form reset)
+    fireEvent.click(screen.getByText('reset'))
+
+    await waitFor(() => {
+      expect(screen.queryByText('doc.pdf')).not.toBeInTheDocument()
+    })
   })
 })
