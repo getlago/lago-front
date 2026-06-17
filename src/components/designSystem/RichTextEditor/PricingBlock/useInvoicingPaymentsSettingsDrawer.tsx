@@ -34,7 +34,7 @@ function InvoicingPaymentsDrawerContent({
   initialValues,
   initialInvoiceCustomSection,
   valuesRef,
-}: {
+}: Readonly<{
   customer: QuoteCustomer
   initialValues: InvoicingPaymentsSettingsFormValues
   initialInvoiceCustomSection?: InvoiceCustomSectionInput
@@ -42,7 +42,7 @@ function InvoicingPaymentsDrawerContent({
     paymentMethod: SelectedPaymentMethod
     invoiceCustomSection: InvoiceCustomSectionInput | undefined
   }>
-}) {
+}>) {
   const [paymentMethod, setPaymentMethod] = useState<SelectedPaymentMethod>(
     initialValues.paymentMethodId ? { paymentMethodId: initialValues.paymentMethodId } : null,
   )

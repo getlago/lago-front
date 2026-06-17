@@ -156,7 +156,7 @@ export const usePlanFormSetup = ({
   const isAnnual = isPlanIntervalAnnual(interval)
 
   useEffect(() => {
-    if ((!charges || !charges.length || !isAnnual) && !!billChargesMonthly) {
+    if ((!charges?.length || !isAnnual) && !!billChargesMonthly) {
       form.setFieldValue('billChargesMonthly', false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

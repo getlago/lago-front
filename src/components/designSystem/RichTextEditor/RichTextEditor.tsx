@@ -58,6 +58,63 @@ interface RichTextEditorProps {
   isCompact?: boolean
 }
 
+const variableItems = [
+  { id: 'customerName', label: 'Customer Name' },
+  { id: 'planName', label: 'Plan Name' },
+  { id: 'amountDue', label: 'Amount Due' },
+  { id: 'invoiceNumber', label: 'Invoice Number' },
+  { id: 'dueDate', label: 'Due Date' },
+  { id: 'companyName', label: 'Company Name' },
+]
+
+const mentionSuggestion: NonNullable<MentionSchemaOptions['suggestion']> = {
+  char: '@',
+  items: ({ query }) =>
+    variableItems.filter((v) => v.label.toLowerCase().includes(query.toLowerCase())),
+  render: () => {
+    let renderer: ReactRenderer<MentionListRef>
+    let popup: TippyInstance[]
+
+    return {
+      onStart: (suggestionProps) => {
+        renderer = new ReactRenderer(MentionList, {
+          props: suggestionProps,
+          editor: suggestionProps.editor,
+        })
+
+        popup = tippy('body', {
+          getReferenceClientRect: () => suggestionProps.clientRect?.() ?? new DOMRect(),
+          appendTo: () => document.body,
+          content: renderer.element,
+          showOnCreate: true,
+          interactive: true,
+          trigger: 'manual',
+          placement: 'bottom-start',
+        })
+      },
+      onUpdate: (suggestionProps) => {
+        renderer.updateProps(suggestionProps)
+
+        popup[0].setProps({
+          getReferenceClientRect: () => suggestionProps.clientRect?.() ?? new DOMRect(),
+        })
+      },
+      onKeyDown: (keyDownProps) => {
+        if (keyDownProps.event.key === 'Escape') {
+          popup[0].hide()
+          return true
+        }
+
+        return renderer.ref?.onKeyDown(keyDownProps) ?? false
+      },
+      onExit: () => {
+        popup[0].destroy()
+        renderer.destroy()
+      },
+    }
+  },
+}
+
 const RichTextEditor = ({
   mode = 'edit',
   mentionValues = {},
@@ -85,15 +142,6 @@ const RichTextEditor = ({
   onPricingCommandRef.current = onPricingCommand
   isPricingDisabledRef.current = isPricingDisabled
 
-  const variableItems = [
-    { id: 'customerName', label: 'Customer Name' },
-    { id: 'planName', label: 'Plan Name' },
-    { id: 'amountDue', label: 'Amount Due' },
-    { id: 'invoiceNumber', label: 'Invoice Number' },
-    { id: 'dueDate', label: 'Due Date' },
-    { id: 'companyName', label: 'Company Name' },
-  ]
-
   const editor = useEditor({
     extensions: [
       ...getBaseExtensions({ tableResizable: true }),
@@ -109,53 +157,7 @@ const RichTextEditor = ({
       }).configure({
         ...mentionBaseConfig,
         mentionValues,
-        suggestion: {
-          char: '@',
-          items: ({ query }) =>
-            variableItems.filter((v) => v.label.toLowerCase().includes(query.toLowerCase())),
-          render: () => {
-            let renderer: ReactRenderer<MentionListRef>
-            let popup: TippyInstance[]
-
-            return {
-              onStart: (suggestionProps) => {
-                renderer = new ReactRenderer(MentionList, {
-                  props: suggestionProps,
-                  editor: suggestionProps.editor,
-                })
-
-                popup = tippy('body', {
-                  getReferenceClientRect: () => suggestionProps.clientRect?.() ?? new DOMRect(),
-                  appendTo: () => document.body,
-                  content: renderer.element,
-                  showOnCreate: true,
-                  interactive: true,
-                  trigger: 'manual',
-                  placement: 'bottom-start',
-                })
-              },
-              onUpdate: (suggestionProps) => {
-                renderer.updateProps(suggestionProps)
-
-                popup[0].setProps({
-                  getReferenceClientRect: () => suggestionProps.clientRect?.() ?? new DOMRect(),
-                })
-              },
-              onKeyDown: (keyDownProps) => {
-                if (keyDownProps.event.key === 'Escape') {
-                  popup[0].hide()
-                  return true
-                }
-
-                return renderer.ref?.onKeyDown(keyDownProps) ?? false
-              },
-              onExit: () => {
-                popup[0].destroy()
-                renderer.destroy()
-              },
-            }
-          },
-        },
+        suggestion: mentionSuggestion,
       } as MentionSchemaOptions),
       PricingBlock.configure({ entities: entitiesFromProps }),
       SlashCommands.configure({

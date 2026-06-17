@@ -224,7 +224,7 @@ export const useSubscriptionSettingsDrawer = (
         title: translate('text_17791987800304a3fihrighy'),
         children: (
           <form onSubmit={handleFormSubmit}>
-            <button type="submit" hidden aria-hidden="true" />
+            <button type="submit" hidden tabIndex={-1} />
             <SubscriptionSettingsDrawerContent
               form={form}
               initialValues={values}

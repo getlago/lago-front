@@ -11,7 +11,6 @@ import { useFormDrawer } from '~/components/drawers/useDrawer'
 import type { PlanFormInput } from '~/components/plans/types'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import {
-  type BillingItemPlan,
   fromPlanBillingItems,
   type SubscriptionPricingState,
   toPlanBillingItems,
@@ -56,7 +55,7 @@ export const useSubscriptionPricingDrawer = (
     if (!initialBillingItems) return undefined
     const parsed = initialBillingItems as BillingItemsPayload
 
-    return parsed.plans?.[0] as BillingItemPlan | undefined
+    return parsed.plans?.[0]
   }, [initialBillingItems])
   const onSaveRef = useRef<
     | ((
@@ -147,7 +146,7 @@ export const useSubscriptionPricingDrawer = (
             quoteDates={options?.quoteDates}
             customer={options?.customer}
             billingItemPlan={billingItemPlan}
-            subscriptionId={!billingItemPlan ? options?.subscriptionId : undefined}
+            subscriptionId={billingItemPlan ? undefined : options?.subscriptionId}
           />
         ),
       })

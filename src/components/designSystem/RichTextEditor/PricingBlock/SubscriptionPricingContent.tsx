@@ -54,7 +54,7 @@ export function SubscriptionPricingContent({
   customer,
   billingItemPlan,
   subscriptionId,
-}: SubscriptionPricingContentProps) {
+}: Readonly<SubscriptionPricingContentProps>) {
   const { translate } = useInternationalization()
 
   // Plan selection
