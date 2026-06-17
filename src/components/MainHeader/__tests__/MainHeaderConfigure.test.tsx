@@ -196,4 +196,40 @@ describe('MainHeaderConfigure', () => {
       })
     })
   })
+
+  describe('GIVEN an entity whose metadata is a ReactNode', () => {
+    describe('WHEN computing the change-detection snapshot', () => {
+      it('THEN should not crash on the non-serializable element and should push the node to context', () => {
+        const ReadConfigSpy: FC<{ onConfig: (config: MainHeaderConfig | null) => void }> = ({
+          onConfig,
+        }) => {
+          const { config } = useMainHeaderReader()
+
+          onConfig(config)
+
+          return null
+        }
+
+        let capturedConfig: MainHeaderConfig | null = null
+        const metadataNode = <span>ext-id-copyable</span>
+
+        // Before the snapshot fix, JSON.stringify on the element's circular
+        // _owner Fiber threw "Converting circular structure to JSON".
+        expect(() =>
+          render(
+            <MainHeaderProvider>
+              <MainHeaderConfigure entity={{ viewName: 'Customer', metadata: metadataNode }} />
+              <ReadConfigSpy onConfig={(c) => (capturedConfig = c)} />
+            </MainHeaderProvider>,
+          ),
+        ).not.toThrow()
+
+        expect(capturedConfig).toEqual(
+          expect.objectContaining({
+            entity: expect.objectContaining({ metadata: metadataNode }),
+          }),
+        )
+      })
+    })
+  })
 })
