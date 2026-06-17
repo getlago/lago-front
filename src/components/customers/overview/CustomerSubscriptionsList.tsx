@@ -4,6 +4,7 @@ import { generatePath, useParams } from 'react-router-dom'
 
 import { Status, StatusProps, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { SubscriptionsList } from '~/components/subscriptions/SubscriptionsList'
 import { TimezoneDate } from '~/components/TimezoneDate'
@@ -117,6 +118,7 @@ export const CustomerSubscriptionsList = () => {
             customerId={data?.customer?.id}
             customerTimezone={data?.customer?.applicableTimezone}
             containerSize={4}
+            rowSize={72}
             isLoading={loading}
             actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
             onRowActionLink={({ id }) =>
@@ -136,13 +138,9 @@ export const CustomerSubscriptionsList = () => {
                 key: 'name',
                 maxSpace: true,
                 title: translate('text_6253f11816f710014600b9ed'),
-                content: ({ name, isDowngrade, isScheduled }) => (
-                  <>
-                    <div
-                      className={tw('relative flex items-center gap-3', {
-                        'pl-4': isDowngrade,
-                      })}
-                    >
+                content: ({ name, externalId, isDowngrade, isScheduled }) => (
+                  <div className={tw('flex flex-col gap-1', { 'pl-4': isDowngrade })}>
+                    <div className="relative flex items-center gap-3">
                       {isDowngrade && <Icon name="arrow-indent" />}
 
                       <Typography variant="bodyHl" color="grey700">
@@ -153,7 +151,13 @@ export const CustomerSubscriptionsList = () => {
 
                       {isScheduled && <Status type={StatusType.default} label="scheduled" />}
                     </div>
-                  </>
+
+                    {externalId && (
+                      <TypographyWithCopy compact noWrap variant="caption" color="grey600">
+                        {externalId}
+                      </TypographyWithCopy>
+                    )}
+                  </div>
                 ),
               },
               {

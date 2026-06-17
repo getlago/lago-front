@@ -16,6 +16,12 @@ interface TypographyWithCopyProps extends TypographyProps {
   masked?: boolean
   maskOptions?: MaskOptions
   onCopy?: () => void
+  /**
+   * Shrinks the copy button so it hugs its content height and uses a smaller
+   * icon, to sit inline with caption/body text in dense lists. Defaults to
+   * `false`, preserving the original `size="small"` button look.
+   */
+  compact?: boolean
 }
 
 export const TypographyWithCopy: FC<TypographyWithCopyProps> = ({
@@ -24,6 +30,7 @@ export const TypographyWithCopy: FC<TypographyWithCopyProps> = ({
   masked,
   maskOptions,
   onCopy,
+  compact,
   ...typographyProps
 }) => {
   const { translate } = useInternationalization()
@@ -37,7 +44,14 @@ export const TypographyWithCopy: FC<TypographyWithCopyProps> = ({
         endIcon="duplicate"
         variant="quaternary"
         size="small"
-        className={tw('-ml-1 px-1 py-0', className)}
+        className={tw(
+          '-ml-1 px-1 py-0',
+          {
+            '!ml-0 !h-auto !min-h-0 !min-w-0 !items-baseline !py-0 [&_.MuiButton-endIcon>svg]:!size-3 [&_.MuiButton-endIcon]:!ml-1':
+              compact,
+          },
+          className,
+        )}
         onClick={(e) => {
           e.stopPropagation()
           if (onCopy) {
@@ -51,7 +65,17 @@ export const TypographyWithCopy: FC<TypographyWithCopyProps> = ({
           }
         }}
       >
-        <Typography {...typographyProps}>{displayValue}</Typography>
+        <Typography
+          className={tw({
+            // Caption is 14px/24px; the copy button nudges the text baseline ~1px
+            // high, so the code in a `code • text` line misaligns with its plain
+            // sibling. +2px line-height drops the baseline back onto the sibling's.
+            '!leading-[26px]': compact,
+          })}
+          {...typographyProps}
+        >
+          {displayValue}
+        </Typography>
       </Button>
     </Tooltip>
   )

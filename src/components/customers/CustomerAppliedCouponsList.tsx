@@ -15,6 +15,7 @@ import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -104,9 +105,11 @@ export const CustomerAppliedCouponsList = ({
           <Typography variant="body" color="grey700" className="text-nowrap">
             {name}
           </Typography>
-          <Typography variant="body" noWrap>
-            {code || ''}
-          </Typography>
+          {code ? (
+            <TypographyWithCopy compact noWrap variant="body">
+              {code}
+            </TypographyWithCopy>
+          ) : null}
         </div>
       ),
     },

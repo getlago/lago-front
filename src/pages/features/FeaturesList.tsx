@@ -8,6 +8,7 @@ import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import {
   DeleteFeatureDialog,
   DeleteFeatureDialogRef,
@@ -189,9 +190,9 @@ const FeaturesList = () => {
                     <Typography variant="bodyHl" color="grey700">
                       {feature.name || '-'}
                     </Typography>
-                    <Typography variant="caption" color="grey600">
+                    <TypographyWithCopy compact variant="caption" color="grey600">
                       {feature.code}
-                    </Typography>
+                    </TypographyWithCopy>
                   </div>
                 </div>
               ),

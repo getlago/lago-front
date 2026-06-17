@@ -11,6 +11,7 @@ import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table, TableColumn, TableContainerSize } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { buildCreditNoteDocumentData } from '~/components/emails/buildDocumentData'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -301,9 +302,9 @@ const CreditNotesTable = ({
               title: translate('text_64188b3d9735d5007d71227f'),
               minWidth: 160,
               content: ({ number }) => (
-                <Typography variant="body" noWrap>
+                <TypographyWithCopy compact noWrap variant="body">
                   {number}
-                </Typography>
+                </TypographyWithCopy>
               ),
             },
             {

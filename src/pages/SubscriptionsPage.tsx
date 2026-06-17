@@ -13,6 +13,7 @@ import {
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
@@ -198,6 +199,7 @@ const SubscriptionsPage = () => {
             isLoading={isLoading}
             hasError={!!error}
             subscriptions={subscriptions}
+            rowSize={72}
             containerSize={{
               default: 16,
               md: 48,
@@ -206,13 +208,9 @@ const SubscriptionsPage = () => {
               {
                 key: 'name',
                 title: translate('text_6419c64eace749372fc72b0f'),
-                content: ({ name, isDowngrade, isScheduled }) => (
-                  <>
-                    <div
-                      className={tw('relative flex items-center gap-3', {
-                        'pl-4': isDowngrade,
-                      })}
-                    >
+                content: ({ name, externalId, isDowngrade, isScheduled }) => (
+                  <div className={tw('flex flex-col gap-1', { 'pl-4': isDowngrade })}>
+                    <div className="relative flex items-center gap-3">
                       {isDowngrade && <Icon name="arrow-indent" />}
                       <Typography variant="bodyHl" color="grey700" noWrap>
                         {name}
@@ -220,7 +218,12 @@ const SubscriptionsPage = () => {
                       {isDowngrade && <Status type={StatusType.default} label="downgrade" />}
                       {isScheduled && <Status type={StatusType.default} label="scheduled" />}
                     </div>
-                  </>
+                    {externalId && (
+                      <TypographyWithCopy compact noWrap variant="caption" color="grey600">
+                        {externalId}
+                      </TypographyWithCopy>
+                    )}
+                  </div>
                 ),
               },
               {

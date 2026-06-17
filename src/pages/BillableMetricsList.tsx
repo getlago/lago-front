@@ -12,6 +12,7 @@ import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
@@ -136,9 +137,9 @@ const BillableMetricsList = () => {
             <Typography color="textSecondary" variant="bodyHl" noWrap>
               {name}
             </Typography>
-            <Typography variant="caption" noWrap>
+            <TypographyWithCopy compact noWrap variant="caption">
               {code}
-            </Typography>
+            </TypographyWithCopy>
           </div>
         </div>
       ),
