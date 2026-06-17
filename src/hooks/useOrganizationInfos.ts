@@ -1,7 +1,8 @@
-import { gql } from '@apollo/client'
+import { gql, useReactiveVar } from '@apollo/client'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
+import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars/currentOrganizationVar'
 import {
   intlFormatDateTime,
   IntlFormatDateTimeOptions,
@@ -61,11 +62,12 @@ type UseOrganizationInfos = () => {
 export const useOrganizationInfos: UseOrganizationInfos = () => {
   const { isAuthenticated } = useIsAuthenticated()
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
+  const currentOrganizationId = useReactiveVar(currentOrganizationVar)
   const { data, loading, refetch } = useGetOrganizationInfosQuery({
     fetchPolicy: 'cache-first',
     nextFetchPolicy: 'cache-first',
     notifyOnNetworkStatusChange: true,
-    skip: !isAuthenticated,
+    skip: !isAuthenticated || !currentOrganizationId,
   })
 
   const isStale =

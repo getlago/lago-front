@@ -13,6 +13,8 @@ const mockSwitchCurrentOrganization = jest.fn()
 const mockSetCurrentOrganizationId = jest.fn()
 const mockCurrentOrganizationVar = jest.fn()
 const mockGetCurrentOrganizationId = jest.fn()
+const mockGetPersistedOrganizationSlug = jest.fn()
+const mockSetPersistedOrganizationSlug = jest.fn()
 const mockLocationHistoryVar = jest.fn()
 
 // ---------- Mocks ----------
@@ -61,6 +63,8 @@ jest.mock('~/core/apolloClient/reactiveVars', () => ({
   currentOrganizationVar: () => mockCurrentOrganizationVar(),
   setCurrentOrganizationId: (...args: unknown[]) => mockSetCurrentOrganizationId(...args),
   getCurrentOrganizationId: () => mockGetCurrentOrganizationId(),
+  getPersistedOrganizationSlug: () => mockGetPersistedOrganizationSlug(),
+  setPersistedOrganizationSlug: (...args: unknown[]) => mockSetPersistedOrganizationSlug(...args),
   locationHistoryVar: () => mockLocationHistoryVar(),
 }))
 
@@ -102,6 +106,8 @@ describe('OrganizationLayout', () => {
     })
     mockLocationHistoryVar.mockReturnValue([])
     mockGetCurrentOrganizationId.mockReturnValue(TEST_ORG_ID)
+    // Persisted last-used slug (read by the missed-migration detection).
+    mockGetPersistedOrganizationSlug.mockReturnValue(TEST_ORG_SLUG)
   })
 
   describe('GIVEN the user is loading', () => {

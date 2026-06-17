@@ -9,8 +9,6 @@ import {
   useNavigate,
 } from '~/core/router'
 import { stripOrgSlug } from '~/core/router/utils/stripOrgSlug'
-import { getItemFromLS } from '~/core/utils/localStorage'
-import { ORGANIZATION_LS_KEY_ID } from '~/core/utils/localStorageKeys'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { hasIframeParams } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -144,7 +142,6 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
         navigate(loginPath, {
           state: {
             from: location,
-            orgId: getItemFromLS(ORGANIZATION_LS_KEY_ID),
           },
           replace: true,
         })
