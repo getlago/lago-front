@@ -1,6 +1,5 @@
 import { matchPath } from 'react-router-dom'
 
-// IMPORTANT: Keep reactiveVars import before cacheUtils
 import {
   AUTH_TOKEN_LS_KEY,
   CUSTOMER_PORTAL_TOKEN_LS_KEY,
@@ -8,8 +7,7 @@ import {
   TMP_AUTH_TOKEN_LS_KEY,
 } from '~/core/apolloClient/reactiveVars'
 import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
-
-import { getItemFromLS } from './cacheUtils'
+import { getItemFromLS } from '~/core/utils/localStorage'
 
 // Credentials are scoped by route: a logged-in admin previewing a customer
 // portal keeps both tokens in localStorage, and only the URL tells which

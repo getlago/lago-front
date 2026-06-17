@@ -5,9 +5,10 @@ import { useEffect, useRef } from 'react'
 import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { GoogleAuthModeEnum } from '~/components/auth/GoogleAuthButton'
-import { hasDefinedGQLError, LagoGQLError, onLogIn, setItemFromLS } from '~/core/apolloClient'
-import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/constants/localStorageKeys'
+import { hasDefinedGQLError, LagoGQLError, onLogIn } from '~/core/apolloClient'
 import { INVITATION_ROUTE_FORM, LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
+import { setItemFromLS } from '~/core/utils/localStorage'
+import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { LagoApiError, useGoogleLoginUserMutation } from '~/generated/graphql'
 
 gql`

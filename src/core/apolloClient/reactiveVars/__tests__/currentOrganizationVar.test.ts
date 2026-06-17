@@ -1,4 +1,4 @@
-import { removeItemFromLS, setItemFromLS } from '~/core/apolloClient/cacheUtils'
+import { removeItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 
 import {
   currentOrganizationVar,
@@ -6,8 +6,7 @@ import {
   setCurrentOrganizationId,
 } from '../currentOrganizationVar'
 
-// Mock cacheUtils to break circular dependency (cacheUtils → reactiveVars → cacheUtils)
-jest.mock('~/core/apolloClient/cacheUtils', () => ({
+jest.mock('~/core/utils/localStorage', () => ({
   getItemFromLS: jest.fn(),
   setItemFromLS: jest.fn(),
   removeItemFromLS: jest.fn(),

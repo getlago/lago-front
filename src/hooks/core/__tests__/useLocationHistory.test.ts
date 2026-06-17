@@ -2,11 +2,12 @@ import { act, renderHook } from '@testing-library/react'
 import type { Location } from 'react-router-dom'
 
 import { authTokenVar, locationHistoryVar } from '~/core/apolloClient'
+import { getItemFromLS } from '~/core/utils/localStorage'
 import { FeatureFlagEnum } from '~/generated/graphql'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 
 const mockNavigate = jest.fn()
-const mockGetItemFromLS = jest.fn()
+const mockGetItemFromLS = getItemFromLS as jest.Mock
 const mockHasPermissions = jest.fn()
 const mockHasPermissionsOr = jest.fn()
 const mockHasFeatureFlag = jest.fn()
@@ -83,9 +84,9 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   }),
 }))
 
-jest.mock('~/core/apolloClient', () => ({
-  ...jest.requireActual('~/core/apolloClient'),
-  getItemFromLS: () => mockGetItemFromLS(),
+jest.mock('~/core/utils/localStorage', () => ({
+  ...jest.requireActual('~/core/utils/localStorage'),
+  getItemFromLS: jest.fn(),
 }))
 
 describe('useLocationHistory()', () => {
