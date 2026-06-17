@@ -30,6 +30,16 @@ export const useOrderFormActions = () => {
     const version = orderForm.quote.currentVersion
     const content = version?.content
 
+    // Sign — only for generated status, requires orderFormsSign permission
+    if (orderForm.status === OrderFormStatusEnum.Generated && hasPermissions(['orderFormsSign'])) {
+      actions.push({
+        icon: 'writing-sign',
+        label: translate('text_1781686594125upfeikkemuy'),
+        onAction: () =>
+          navigate(generatePath(SIGN_ORDER_FORM_ROUTE, { orderFormId: orderForm.id })),
+      })
+    }
+
     if (content) {
       const header: QuotePdfHeaderData = {
         documentNumber: orderForm.number ?? '',
@@ -61,16 +71,6 @@ export const useOrderFormActions = () => {
         label: translate('text_1779715648584xw9xgemkv9y'),
         onAction: () =>
           navigate(generatePath(VOID_ORDER_FORM_ROUTE, { orderFormId: orderForm.id })),
-      })
-    }
-
-    // Sign — only for generated status, requires orderFormsSign permission
-    if (orderForm.status === OrderFormStatusEnum.Generated && hasPermissions(['orderFormsSign'])) {
-      actions.push({
-        icon: 'writing-sign',
-        label: translate('text_1781686594125upfeikkemuy'),
-        onAction: () =>
-          navigate(generatePath(SIGN_ORDER_FORM_ROUTE, { orderFormId: orderForm.id })),
       })
     }
 
