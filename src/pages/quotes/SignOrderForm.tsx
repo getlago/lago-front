@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
-import { revalidateLogic } from '@tanstack/react-form'
-import { useMemo } from 'react'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { useMemo, useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -8,6 +8,7 @@ import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import RichTextEditor from '~/components/designSystem/RichTextEditor/RichTextEditor'
 import { Typography } from '~/components/designSystem/Typography'
+import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { DocumentUploader } from '~/components/form/DocumentUploader'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
@@ -74,6 +75,7 @@ const SignOrderForm = () => {
   const { goBack } = useLocationHistory()
   const { orderFormId } = useParams()
   const navigate = useNavigate()
+  const warningDialogRef = useRef<WarningDialogRef>(null)
 
   const { data, loading, error } = useGetOrderFormForSignQuery({
     variables: { id: orderFormId || '' },
@@ -118,8 +120,18 @@ const SignOrderForm = () => {
     },
   })
 
-  const onClose = () => {
+  const isDirty = useStore(form.store, (state) => state.isDirty)
+
+  const closeRedirection = () => {
     goBack(generatePath(QUOTES_TAB_ROUTE, { tab: QuotesTabsOptionsEnum.orderForms }))
+  }
+
+  const onClose = () => {
+    if (isDirty) {
+      warningDialogRef.current?.openDialog()
+    } else {
+      closeRedirection()
+    }
   }
 
   if (error) {
@@ -314,6 +326,14 @@ const SignOrderForm = () => {
           </Button>
         </div>
       </CenteredPage.StickyFooter>
+
+      <WarningDialog
+        ref={warningDialogRef}
+        title={translate('text_665deda4babaf700d603ea13')}
+        description={translate('text_665dedd557dc3c00c62eb83d')}
+        continueText={translate('text_645388d5bdbd7b00abffa033')}
+        onContinue={() => closeRedirection()}
+      />
     </CenteredPage.Wrapper>
   )
 }

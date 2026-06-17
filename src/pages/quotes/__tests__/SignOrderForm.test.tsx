@@ -1,12 +1,19 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import {
+  WARNING_DIALOG_CANCEL_BUTTON_TEST_ID,
+  WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID,
+  WARNING_DIALOG_TEST_ID,
+} from '~/components/designSystem/WarningDialog'
 import { addToast } from '~/core/apolloClient'
 import { OrderExecutionModeEnum, OrderFormStatusEnum, OrderTypeEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import SignOrderForm, {
   SIGN_ORDER_FORM_ALERT_TEST_ID,
+  SIGN_ORDER_FORM_CANCEL_BUTTON_TEST_ID,
+  SIGN_ORDER_FORM_CLOSE_BUTTON_TEST_ID,
   SIGN_ORDER_FORM_EXECUTION_TYPE_TEST_ID,
   SIGN_ORDER_FORM_SUBMIT_BUTTON_TEST_ID,
 } from '../SignOrderForm'
@@ -33,8 +40,10 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+const mockGoBack = jest.fn()
+
 jest.mock('~/hooks/core/useLocationHistory', () => ({
-  useLocationHistory: () => ({ goBack: jest.fn() }),
+  useLocationHistory: () => ({ goBack: mockGoBack }),
 }))
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
@@ -144,5 +153,71 @@ describe('SignOrderForm', () => {
       expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
     })
     expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-456/order-forms')
+  })
+
+  describe('unsaved-changes guard', () => {
+    const selectExecutionMode = async (user: ReturnType<typeof userEvent.setup>) => {
+      const comboboxContainer = screen.getByTestId(SIGN_ORDER_FORM_EXECUTION_TYPE_TEST_ID)
+      const comboboxInputBase = comboboxContainer.querySelector('.MuiInputBase-root') as HTMLElement
+
+      await user.click(comboboxInputBase)
+
+      const optionWrapper = await screen.findByTestId('combobox-item-text_1781686594125wc395bj9cul')
+      const option = optionWrapper.querySelector('.MuiAutocomplete-option') as HTMLElement
+
+      await user.click(option)
+    }
+
+    it('navigates back immediately when closing a pristine form', async () => {
+      const user = userEvent.setup()
+
+      render(<SignOrderForm />)
+
+      await user.click(screen.getByTestId(SIGN_ORDER_FORM_CLOSE_BUTTON_TEST_ID))
+
+      expect(screen.queryByTestId(WARNING_DIALOG_TEST_ID)).not.toBeInTheDocument()
+      expect(mockGoBack).toHaveBeenCalled()
+    })
+
+    it('opens the warning dialog instead of navigating when the form is dirty', async () => {
+      const user = userEvent.setup()
+
+      render(<SignOrderForm />)
+
+      await selectExecutionMode(user)
+
+      await user.click(screen.getByTestId(SIGN_ORDER_FORM_CANCEL_BUTTON_TEST_ID))
+
+      expect(await screen.findByTestId(WARNING_DIALOG_TEST_ID)).toBeInTheDocument()
+      expect(mockGoBack).not.toHaveBeenCalled()
+    })
+
+    it('navigates back when confirming the warning dialog', async () => {
+      const user = userEvent.setup()
+
+      render(<SignOrderForm />)
+
+      await selectExecutionMode(user)
+      await user.click(screen.getByTestId(SIGN_ORDER_FORM_CANCEL_BUTTON_TEST_ID))
+
+      await user.click(await screen.findByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID))
+
+      await waitFor(() => {
+        expect(mockGoBack).toHaveBeenCalled()
+      })
+    })
+
+    it('stays on the page when cancelling the warning dialog', async () => {
+      const user = userEvent.setup()
+
+      render(<SignOrderForm />)
+
+      await selectExecutionMode(user)
+      await user.click(screen.getByTestId(SIGN_ORDER_FORM_CANCEL_BUTTON_TEST_ID))
+
+      await user.click(await screen.findByTestId(WARNING_DIALOG_CANCEL_BUTTON_TEST_ID))
+
+      expect(mockGoBack).not.toHaveBeenCalled()
+    })
   })
 })
