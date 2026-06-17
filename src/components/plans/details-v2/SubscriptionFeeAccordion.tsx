@@ -19,6 +19,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
+import { useSubscriptionPremiumGate } from '~/hooks/plans/useSubscriptionPremiumGate'
 import { useUpdatePlanWithCascade } from '~/hooks/plans/useUpdatePlanWithCascade'
 import { useUpdateSubscriptionPlanOverride } from '~/hooks/plans/useUpdateSubscriptionPlanOverride'
 
@@ -57,6 +58,7 @@ export const SubscriptionFeeAccordion = ({
 }: SubscriptionFeeAccordionProps) => {
   const { translate } = useInternationalization()
   const { canUpdate } = useAccordionPermissions(isInSubscriptionForm)
+  const { gateOnClick, premiumIcon } = useSubscriptionPremiumGate(isInSubscriptionForm)
   const drawerRef = useRef<SubscriptionFeeDrawerRef>(null)
 
   // ISO with the plan form: payInAdvance + trialPeriod lock once the plan has
@@ -124,7 +126,8 @@ export const SubscriptionFeeAccordion = ({
           {
             label: translate('text_63e51ef4985f0ebd75c212fc'),
             startIcon: 'pen',
-            onClick: openDrawer,
+            endIcon: premiumIcon,
+            onClick: gateOnClick(openDrawer),
             hidden: !canUpdate,
             dataTest: SUBSCRIPTION_FEE_EDIT_TEST_ID,
           },

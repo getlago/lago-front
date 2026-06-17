@@ -701,16 +701,14 @@ export const UsageChargeDrawerContent = withForm({
               <PlanBillingPeriodInfoSection />
 
               <ChargePayInAdvanceOption
-                chargePayInAdvanceDescription={chargePayInAdvanceDescription}
+                form={form}
+                fields={{ payInAdvance: 'payInAdvance' }}
+                description={chargePayInAdvanceDescription}
                 disabled={isInSubscriptionForm || isExistingChargeDisabled}
                 isPayInAdvanceOptionDisabled={isPayInAdvanceOptionDisabled}
-                payInAdvance={formValues.payInAdvance}
-                handleUpdate={({ invoiceable, payInAdvance, regroupPaidFees }) => {
-                  form.setFieldValue('payInAdvance', payInAdvance)
-                  if (invoiceable !== undefined) {
-                    form.setFieldValue('invoiceable', invoiceable)
-                  }
-                  if (regroupPaidFees === null) {
+                onPayInAdvanceChange={(payInAdvance) => {
+                  if (!payInAdvance) {
+                    form.setFieldValue('invoiceable', true)
                     form.setFieldValue('regroupPaidFees', null)
                   }
                 }}
@@ -730,7 +728,7 @@ export const UsageChargeDrawerContent = withForm({
 
               {!!formValues.billableMetric.recurring && (
                 <div className="flex flex-col gap-4">
-                  <div>
+                  <div className="flex flex-col gap-1">
                     <Typography variant="captionHl" color="grey700">
                       {translate('text_177488074309762bkd4znl3p')}
                     </Typography>

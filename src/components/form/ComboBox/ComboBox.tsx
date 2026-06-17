@@ -151,7 +151,6 @@ export const ComboBox = ({
       noOptionsText={emptyText ?? translate('text_623b3acb8ee4e000ba87d082')}
       selectOnFocus={allowAddValue}
       clearOnBlur
-      clearOnEscape
       handleHomeEndKeys={allowAddValue}
       freeSolo={allowAddValue}
       isOptionEqualToValue={(option, val) => {

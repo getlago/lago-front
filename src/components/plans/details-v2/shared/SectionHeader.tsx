@@ -9,6 +9,7 @@ export type SectionHeaderAction = {
   hidden?: boolean
   disabled?: boolean
   startIcon?: IconName
+  endIcon?: IconName
   dataTest?: string
 }
 
@@ -40,6 +41,7 @@ export const SectionHeader = ({ title, description, action }: SectionHeaderProps
           onClick={action.onClick}
           disabled={action.disabled}
           startIcon={action.startIcon}
+          endIcon={action.endIcon}
         >
           {action.label}
         </Button>

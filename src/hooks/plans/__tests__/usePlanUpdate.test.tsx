@@ -9,6 +9,7 @@ import { usePlanUpdate } from '../usePlanUpdate'
 
 jest.mock('~/core/apolloClient', () => {
   const actual = jest.requireActual('~/core/apolloClient')
+
   return { ...actual, addToast: jest.fn() }
 })
 

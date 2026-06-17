@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { useMemo } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { PlanDetailsV2 } from '~/components/plans/details-v2/PlanDetailsV2'
@@ -11,7 +12,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { tw } from '~/styles/utils'
 
 gql`
   query getSubscriptionForDetailsV2Plan($subscriptionId: ID!) {
@@ -45,6 +45,24 @@ export const SubscriptionDetailsV2Plan = ({ subscriptionId }: Props) => {
 
   const plan = data?.subscription?.plan
 
+  const banner = useMemo(() => {
+    if (!isPremium) {
+      return (
+        <PremiumFeature
+          feature={translate('text_65118a52df984447c18694d1')}
+          title={translate('text_65118a52df984447c18694d0')}
+          description={translate('text_65118a52df984447c18694da')}
+        />
+      )
+    }
+
+    if (!plan?.parent) {
+      return <Alert type="info">{translate('text_652525609f420d00b83dd602')}</Alert>
+    }
+
+    return undefined
+  }, [isPremium, plan?.parent, translate])
+
   if (loading && !plan) {
     return <PlanDetailsV2Skeleton />
   }
@@ -54,40 +72,11 @@ export const SubscriptionDetailsV2Plan = ({ subscriptionId }: Props) => {
   }
 
   return (
-    <>
-      {/* Editing a subscription's plan overrides is a premium feature (the BE
-          override services are premium-gated). Mirror the masked upsell from the
-          subscription edit form: non-premium users see the upsell + a faded,
-          inert (non-interactive) preview of the whole scrolling area. */}
-      {!isPremium && (
-        <PremiumFeature
-          className="mt-12"
-          feature={translate('text_65118a52df984447c18694d0')}
-          title={translate('text_65118a52df984447c18694d0')}
-          description={translate('text_65118a52df984447c18694da')}
-        />
-      )}
-
-      <div
-        className={tw(
-          'flex flex-col',
-          !isPremium && '[mask-image:linear-gradient(to_bottom,black_0%,transparent_100%)]',
-        )}
-        {...(!isPremium && { inert: '' })}
-      >
-        <PlanDetailsV2
-          planId={plan.id}
-          isInSubscriptionForm
-          subscriptionId={subscriptionId}
-          banner={
-            !plan.parent ? (
-              <Alert className="pl-[-4px]" type="info" fullWidth>
-                {translate('text_652525609f420d00b83dd602')}
-              </Alert>
-            ) : undefined
-          }
-        />
-      </div>
-    </>
+    <PlanDetailsV2
+      planId={plan.id}
+      isInSubscriptionForm
+      subscriptionId={subscriptionId}
+      banner={banner}
+    />
   )
 }

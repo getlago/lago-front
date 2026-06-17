@@ -9,6 +9,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
+import { useSubscriptionPremiumGate } from '~/hooks/plans/useSubscriptionPremiumGate'
 
 import { PLAN_SETTINGS_ACCORDION_TEST_ID, PLAN_SETTINGS_EDIT_TEST_ID } from './detailsV2TestIds'
 import { SectionAccordion } from './shared/SectionAccordion'
@@ -40,6 +41,7 @@ export const PlanDetailsV2PlanSettingsSection = ({
 }: PlanDetailsV2PlanSettingsSectionProps) => {
   const { translate } = useInternationalization()
   const { canUpdate } = useAccordionPermissions(isInSubscriptionForm)
+  const { gateOnClick, premiumIcon } = useSubscriptionPremiumGate(isInSubscriptionForm)
   const { openDrawer } = usePlanSettingsDrawer(plan, subscriptionId)
 
   return (
@@ -55,7 +57,8 @@ export const PlanDetailsV2PlanSettingsSection = ({
           {
             label: translate('text_63e51ef4985f0ebd75c212fc'),
             startIcon: 'pen',
-            onClick: openDrawer,
+            endIcon: premiumIcon,
+            onClick: gateOnClick(openDrawer),
             hidden: !canUpdate,
             dataTest: PLAN_SETTINGS_EDIT_TEST_ID,
           },

@@ -1,67 +1,65 @@
-import { FC } from 'react'
-
-import { Typography } from '~/components/designSystem/Typography'
-import { Radio } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { withFieldGroup } from '~/hooks/forms/useAppform'
 
-interface ChargePayInAdvanceOptionProps {
-  chargePayInAdvanceDescription: string | undefined
-  disabled?: boolean
-  isPayInAdvanceOptionDisabled: boolean
+export type ChargePayInAdvanceOptionValues = {
   payInAdvance: boolean
-  handleUpdate: ({
-    invoiceable,
-    payInAdvance,
-    regroupPaidFees,
-  }: {
-    payInAdvance: boolean
-    invoiceable?: boolean
-    regroupPaidFees?: null
-  }) => void
 }
 
-export const ChargePayInAdvanceOption: FC<ChargePayInAdvanceOptionProps> = ({
-  chargePayInAdvanceDescription,
-  disabled,
-  isPayInAdvanceOptionDisabled,
-  payInAdvance,
-  handleUpdate,
-}) => {
-  const { translate } = useInternationalization()
+export type ChargePayInAdvanceOptionProps = {
+  disabled?: boolean
+  isPayInAdvanceOptionDisabled?: boolean
+  description?: string
+  onPayInAdvanceChange?: (payInAdvance: boolean) => void
+}
 
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <Typography variant="captionHl" color="textSecondary" component="legend">
-          {translate('text_6682c52081acea90520743a8')}
-        </Typography>
-        {!!chargePayInAdvanceDescription && (
-          <Typography variant="caption">{chargePayInAdvanceDescription}</Typography>
+const defaultValues: ChargePayInAdvanceOptionValues = {
+  payInAdvance: false,
+}
+
+const defaultProps: ChargePayInAdvanceOptionProps = {
+  disabled: false,
+  isPayInAdvanceOptionDisabled: false,
+}
+
+export const ChargePayInAdvanceOption = withFieldGroup({
+  defaultValues,
+  props: defaultProps,
+  render: function Render({
+    group,
+    disabled,
+    isPayInAdvanceOptionDisabled,
+    description,
+    onPayInAdvanceChange,
+  }) {
+    const { translate } = useInternationalization()
+
+    return (
+      <group.AppField
+        name="payInAdvance"
+        listeners={{
+          onChange: ({ value }) => onPayInAdvanceChange?.(value),
+        }}
+      >
+        {(field) => (
+          <field.RadioGroupField
+            label={translate('text_6682c52081acea90520743a8')}
+            description={description ?? translate('text_1781703119230q5zam349txb')}
+            optionLabelVariant="body"
+            disabled={disabled}
+            options={[
+              {
+                label: translate('text_6682c52081acea90520743ac'),
+                value: false,
+              },
+              {
+                label: translate('text_6682c52081acea90520743ae'),
+                value: true,
+                disabled: isPayInAdvanceOptionDisabled,
+              },
+            ]}
+          />
         )}
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <Radio
-          checked={!payInAdvance}
-          disabled={disabled}
-          label={translate('text_6682c52081acea90520743ac')}
-          labelVariant="body"
-          onChange={() => {
-            handleUpdate({ invoiceable: true, payInAdvance: false, regroupPaidFees: null })
-          }}
-          value={!payInAdvance}
-        />
-        <Radio
-          checked={payInAdvance}
-          disabled={isPayInAdvanceOptionDisabled || disabled}
-          label={translate('text_6682c52081acea90520744c8')}
-          labelVariant="body"
-          onChange={() => {
-            handleUpdate({ payInAdvance: true })
-          }}
-          value={payInAdvance}
-        />
-      </div>
-    </div>
-  )
-}
+      </group.AppField>
+    )
+  },
+})

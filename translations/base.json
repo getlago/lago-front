@@ -4,7 +4,8 @@
   "text_65118a52df984447c186940f": "Assign a plan to {{customerName}}",
   "text_65118a52df984447c1869472": "Add an external id",
   "text_65118a52df984447c186947c": "Add a subscription name",
-  "text_65118a52df984447c18694d0": "Override plan",
+  "text_65118a52df984447c18694d1": "Override plan",
+  "text_65118a52df984447c18694d0": "Unlock plan overrides",
   "text_65118a52df984447c18694da": "Customize certain aspects of the initially selected plan for flexibility.",
   "text_65118a52df984447c18694ee": "Leaving deletes your choices",
   "text_65118a52df984447c18694fe": "By clicking ‘Leave’, the subscription and data you’re creating will be deleted. Are you sure you want to leave?",
@@ -35,7 +36,7 @@
   "text_65201c5a175a4b0238abf2a0": "End date",
   "text_65201c5a175a4b0238abf2a2": "Overridden from",
   "text_6529666e71f6ce006d2bf011": "{{planName}} -  subscription details",
-  "text_652525609f420d00b83dd602": "This subscription is presently associated with a plan that has no overrides. Updating the charges will result in the creation of an overridden plan",
+  "text_652525609f420d00b83dd602": "This subscription is presently associated with a plan that has no overrides. Updating the charges will result in the creation of an overridden plan.",
   "text_65281f686a80b400c8e2f6ad": "{{planName}} - plan details",
   "text_65281f686a80b400c8e2f6b3": "Edit plan",
   "text_65281f686a80b400c8e2f6b6": "Duplicate plan",
@@ -285,7 +286,6 @@
   "text_6682c52081acea90520743aa": "Indicate when this subscription fee is generated and invoiced",
   "text_6682c52081acea90520743ac": "At the end of each billing period (in arrears)",
   "text_6682c52081acea90520743ae": "At the start of each billing period and on event (in advance)",
-  "text_6682c52081acea90520744c8": "Immediately at the event reception (in advance)",
   "text_6682c52081acea90520744ca": "Invoicing strategy",
   "text_6687b0081931407697975943": "Invoice each fee upon event reception",
   "text_6682c52081acea90520744d0": "Unlock all invoicing strategies",
@@ -3385,7 +3385,6 @@
   "text_1761554090907c9n5qyilqow": "Search or select a billable metric",
   "text_1761560753771d6ppz3evqxc": "Unlock Forecasts",
   "text_1761560714509hv9325ywuzq": "Lago requires sufficient usage and revenue data to run its AI model effectively. Contact us to check if you're eligible.",
-  "text_17607297072670cl4jl071yy": "Prorate fixed charge amount",
   "text_1760729707267seik64l67k8": "Tax rates (optional)",
   "text_17607297072672w5hid8gl1i": "Set specific tax rates to apply to this fee.",
   "text_176072970726728iw4tc8ucl": "Fixed charges",
@@ -4292,5 +4291,6 @@
   "text_1780498504241eo24fnc6s9u": "From {{fromDate}} to {{toDate}}",
   "text_17804985042422iw5hwj0u2v": "All prices exclude any applicable taxes",
   "text_17810296077545fp2y0ulzko": "View and edit",
-  "text_17810297639135ya0hmsldpi": "Edit subscription's plan"
+  "text_17810297639135ya0hmsldpi": "Edit subscription's plan",
+  "text_1781703119230q5zam349txb": "Indicate when this fee is generated and invoiced"
 }

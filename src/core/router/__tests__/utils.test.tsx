@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { act } from '@testing-library/react'
 
 import { lazyLoad } from '../utils'

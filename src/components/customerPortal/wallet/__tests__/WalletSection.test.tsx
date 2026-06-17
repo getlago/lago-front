@@ -241,6 +241,7 @@ describe('WalletSection', () => {
     render(<WalletSection viewWallet={mockViewWallet} />)
 
     const viewButton = screen.getByTestId(WALLET_SECTION_VIEW_BUTTON_TEST_ID)
+
     await userEvent.click(viewButton)
 
     expect(mockViewWallet).toHaveBeenCalledWith('wallet-1')

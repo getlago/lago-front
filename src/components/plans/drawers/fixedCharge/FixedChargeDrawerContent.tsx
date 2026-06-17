@@ -4,6 +4,7 @@ import { useStore } from '@tanstack/react-form'
 import { useCallback, useMemo } from 'react'
 
 import { Selector } from '~/components/designSystem/Selector'
+import { Typography } from '~/components/designSystem/Typography'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
 import { ChargeWrapperSwitch } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
@@ -311,26 +312,26 @@ export const FixedChargeDrawerContent = withForm({
               <PlanBillingPeriodInfoSection />
 
               <ChargePayInAdvanceOption
-                chargePayInAdvanceDescription={undefined}
+                form={form}
+                fields={{ payInAdvance: 'payInAdvance' }}
                 disabled={isInSubscriptionForm || isExistingChargeDisabled}
                 isPayInAdvanceOptionDisabled={isPayInAdvanceOptionDisabled}
-                payInAdvance={formValues.payInAdvance}
-                handleUpdate={({ payInAdvance }) => {
-                  form.setFieldValue('payInAdvance', payInAdvance)
-                }}
               />
 
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
-                  <CenteredPage.PageSectionTitle
-                    title={translate('text_17607297072670cl4jl071yy')}
-                  />
+                  <Typography variant="captionHl" color="grey700">
+                    {translate('text_177488074309762bkd4znl3p')}
+                  </Typography>
+                  <Typography variant="caption" color="grey600">
+                    {translate('text_1774880743098ioxd3oxanxo')}
+                  </Typography>
                 </div>
 
                 <form.AppField name="prorated">
                   {(field) => (
                     <field.SwitchField
-                      label={translate('text_17607297072670cl4jl071yy')}
+                      label={translate('text_177488074309762bkd4znl3p')}
                       disabled={
                         isInSubscriptionForm || isExistingChargeDisabled || isProratedOptionDisabled
                       }

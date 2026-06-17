@@ -46,6 +46,7 @@ jest.mock('~/hooks/plans/useUpdatePlanWithCascade', () => ({
 }))
 
 const mockHasPermissions = jest.fn().mockReturnValue(true)
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))

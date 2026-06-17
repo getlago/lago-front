@@ -14,6 +14,7 @@ export type SectionAccordionAction = {
   onClick: () => void
   hidden?: boolean
   startIcon?: IconName
+  endIcon?: IconName
   dataTest?: string
 }
 
@@ -105,6 +106,7 @@ export const SectionAccordion = ({
                           align="left"
                           fullWidth
                           startIcon={action.startIcon}
+                          endIcon={action.endIcon}
                           onClick={(e) => {
                             e.stopPropagation()
                             e.preventDefault()

@@ -37,6 +37,7 @@ const mockHasPermissions = jest.fn((perms?: string[]) => {
   if (!perms) return true
   return !perms.includes('none')
 })
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
@@ -147,6 +148,7 @@ describe('PlanDetailsV2FixedChargesSection', () => {
 
     await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
     const [chargeArg, indexArg] = mockOpenDrawer.mock.calls[0]
+
     expect(chargeArg.id).toBe('fc_1')
     expect(indexArg).toBe(0)
   })
@@ -178,6 +180,7 @@ describe('PlanDetailsV2FixedChargesSection', () => {
 
     await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
     const [, , options] = mockOpenDrawer.mock.calls[0]
+
     expect(options?.alreadyUsedChargeAlertMessage).toBe('text_1760729707268h378x60alri')
   })
 
@@ -205,6 +208,7 @@ describe('PlanDetailsV2FixedChargesSection', () => {
 
     await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
     const [, , options] = mockOpenDrawer.mock.calls[0]
+
     expect(options?.alreadyUsedChargeAlertMessage).toBeUndefined()
   })
 

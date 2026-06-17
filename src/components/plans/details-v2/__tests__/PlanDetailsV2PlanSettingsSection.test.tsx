@@ -41,6 +41,16 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+let mockIsPremium = true
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => ({ isPremium: mockIsPremium }),
+}))
+
+const mockOpenPremiumDialog = jest.fn()
+jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
+  usePremiumWarningDialog: () => ({ open: mockOpenPremiumDialog, close: jest.fn() }),
+}))
+
 const Wrapper = ({ children }: { children: ReactNode }) => (
   <MockedProvider mocks={[]} addTypename={false}>
     <NiceModal.Provider>{children}</NiceModal.Provider>
@@ -50,7 +60,9 @@ const Wrapper = ({ children }: { children: ReactNode }) => (
 describe('PlanDetailsV2PlanSettingsSection', () => {
   beforeEach(() => {
     mockOpenDrawer.mockClear()
+    mockOpenPremiumDialog.mockClear()
     mockHasPermissions.mockReset().mockReturnValue(true)
+    mockIsPremium = true
   })
 
   it('renders the section header and accordion summary', () => {
@@ -101,6 +113,29 @@ describe('PlanDetailsV2PlanSettingsSection', () => {
     )
 
     await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
+  })
+
+  // Drift test: sub plan-override editing is premium-gated. A freemium user's
+  // Edit click opens the upsell modal instead of the drawer.
+  it('opens the premium upsell instead of the drawer in subscription context for freemium users', async () => {
+    mockIsPremium = false
+
+    render(
+      <PlanDetailsV2PlanSettingsSection
+        plan={planDetailsV2Fixture}
+        isInSubscriptionForm
+        subscriptionId="sub_1"
+      />,
+      { wrapper: Wrapper },
+    )
+
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }),
+    )
+
+    await waitFor(() => expect(mockOpenPremiumDialog).toHaveBeenCalledTimes(1))
+    expect(mockOpenDrawer).not.toHaveBeenCalled()
   })
 
   it('hides the Edit action when plansUpdate permission is missing', () => {
