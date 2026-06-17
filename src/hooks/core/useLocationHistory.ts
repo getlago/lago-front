@@ -1,12 +1,6 @@
 import { Location, matchPath, NavigateOptions, useParams } from 'react-router-dom'
 
-import {
-  addLocationToHistory,
-  authTokenVar,
-  getItemFromLS,
-  locationHistoryVar,
-} from '~/core/apolloClient'
-import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
+import { addLocationToHistory, authTokenVar, locationHistoryVar } from '~/core/apolloClient'
 import {
   CustomRouteObject,
   FORBIDDEN_ROUTE,
@@ -15,6 +9,8 @@ import {
   useNavigate,
 } from '~/core/router'
 import { stripOrgSlug } from '~/core/router/utils/stripOrgSlug'
+import { getItemFromLS } from '~/core/utils/localStorage'
+import { ORGANIZATION_LS_KEY_ID } from '~/core/utils/localStorageKeys'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { hasIframeParams } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'

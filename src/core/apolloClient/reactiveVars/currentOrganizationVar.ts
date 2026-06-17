@@ -1,7 +1,7 @@
 import { makeVar } from '@apollo/client'
 
-import { getItemFromLS, removeItemFromLS, setItemFromLS } from '~/core/apolloClient/cacheUtils'
-import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
+import { getItemFromLS, removeItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
+import { ORGANIZATION_LS_KEY_ID } from '~/core/utils/localStorageKeys'
 
 /** ----------------- VAR ----------------- */
 export const currentOrganizationVar = makeVar<string | null>(

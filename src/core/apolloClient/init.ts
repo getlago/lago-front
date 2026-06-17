@@ -19,12 +19,13 @@ import {
 } from '~/core/apolloClient/reactiveVars'
 import { buildWebSocketUrl } from '~/core/apolloClient/websocketUrl'
 import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
+import { getItemFromLS } from '~/core/utils/localStorage'
 import { LagoApiError } from '~/generated/graphql'
 
 import { buildAuthHeaders } from './authHeaders'
 import { cache } from './cache'
 import { setupCachePersistor } from './cachePersistor'
-import { getItemFromLS, omitDeep } from './cacheUtils'
+import { omitDeep } from './cacheUtils'
 import { resolvers, typeDefs } from './graphqlResolvers'
 
 const AUTH_ERRORS = [

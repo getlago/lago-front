@@ -1,7 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import type { Location } from 'react-router-dom'
 
-import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/constants/localStorageKeys'
+import { getItemFromLS, removeItemFromLS } from '~/core/utils/localStorage'
+import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 
 // Import Home component after all mocks are set up
@@ -10,8 +11,8 @@ import Home from '../Home'
 
 const mockNavigate = jest.fn()
 const mockUseLocation = jest.fn()
-const mockGetItemFromLS = jest.fn()
-const mockRemoveItemFromLS = jest.fn()
+const mockGetItemFromLS = getItemFromLS as jest.Mock
+const mockRemoveItemFromLS = removeItemFromLS as jest.Mock
 const mockGetCurrentOrganizationId = jest.fn()
 const mockHasPermissions = jest.fn()
 const mockFindFirstViewPermission = jest.fn()
@@ -39,10 +40,10 @@ jest.mock('react-router-dom', () => ({
   }),
 }))
 
-jest.mock('~/core/apolloClient', () => ({
-  ...jest.requireActual('~/core/apolloClient'),
-  getItemFromLS: (key: string) => mockGetItemFromLS(key),
-  removeItemFromLS: (key: string) => mockRemoveItemFromLS(key),
+jest.mock('~/core/utils/localStorage', () => ({
+  ...jest.requireActual('~/core/utils/localStorage'),
+  getItemFromLS: jest.fn(),
+  removeItemFromLS: jest.fn(),
 }))
 
 jest.mock('~/core/apolloClient/reactiveVars', () => ({

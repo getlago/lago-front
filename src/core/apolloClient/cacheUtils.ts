@@ -1,5 +1,6 @@
 import { ApolloClient, ApolloQueryResult, gql } from '@apollo/client'
 
+import { removeItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import {
   CurrentUserFragmentDoc,
   GetCurrentUserInfosForLoginQuery,
@@ -30,31 +31,6 @@ gql`
     }
   }
 `
-
-// --------------------- Local storage utils ---------------------
-export const getItemFromLS = (key: string) => {
-  const data = typeof window !== 'undefined' ? localStorage.getItem(key) : ''
-
-  try {
-    if (data === 'undefined') {
-      return undefined
-    }
-
-    return !!data ? JSON.parse(data) : data
-  } catch {
-    return data
-  }
-}
-
-export const setItemFromLS = (key: string, value: unknown) => {
-  const stringify = typeof value !== 'string' ? JSON.stringify(value) : value
-
-  return localStorage.setItem(key, stringify)
-}
-
-export const removeItemFromLS = (key: string) => {
-  return localStorage.removeItem(key)
-}
 
 // --------------------- Auth utils ---------------------
 export const logOut = async (client: ApolloClient<object>, resetLocationHistory?: boolean) => {

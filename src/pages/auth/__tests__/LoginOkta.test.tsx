@@ -2,14 +2,15 @@ import { act, configure, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 
-import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/constants/localStorageKeys'
+import { setItemFromLS } from '~/core/utils/localStorage'
+import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 
 // Import after mocks
 import LoginOkta from '../LoginOkta'
 
 configure({ testIdAttribute: 'data-test' })
 
-const mockSetItemFromLS = jest.fn()
+const mockSetItemFromLS = setItemFromLS as jest.Mock
 const mockFetchOktaAuthorizeUrl = jest.fn()
 const mockUseLocation = jest.fn()
 
@@ -31,7 +32,11 @@ jest.mock('~/hooks/ui/useShortcuts', () => ({
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
   hasDefinedGQLError: jest.fn(),
-  setItemFromLS: (key: string, value: unknown) => mockSetItemFromLS(key, value),
+}))
+
+jest.mock('~/core/utils/localStorage', () => ({
+  ...jest.requireActual('~/core/utils/localStorage'),
+  setItemFromLS: jest.fn(),
 }))
 
 jest.mock('~/generated/graphql', () => ({
