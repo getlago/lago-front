@@ -8,9 +8,7 @@ const createEditor = (content = '') =>
     content,
   })
 
-const getMarkdown = (editor: Editor): string =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (editor.storage as any).markdown.getMarkdown()
+const getMarkdown = (editor: Editor): string => (editor.storage as any).markdown.getMarkdown()
 
 describe('getBaseExtensions', () => {
   describe('GIVEN no options are provided', () => {

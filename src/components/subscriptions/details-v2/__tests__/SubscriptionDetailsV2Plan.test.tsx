@@ -1,5 +1,6 @@
 import { MockedProvider } from '@apollo/client/testing'
 import { screen, waitFor } from '@testing-library/react'
+import { isValidElement, ReactElement } from 'react'
 
 import { GetSubscriptionForDetailsV2PlanDocument } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -67,16 +68,20 @@ describe('SubscriptionDetailsV2Plan', () => {
 
     await waitFor(() => expect(capturedProps.length).toBeGreaterThan(0))
     const props = capturedProps[capturedProps.length - 1]
+
     expect(props.planId).toBe('plan_override_1')
     expect(props.isInSubscriptionForm).toBe(true)
     expect(props.subscriptionId).toBe(SUB_ID)
-    // Premium users see no upsell.
+    // Premium users see no upsell: the banner is never the PremiumFeature.
+    if (isValidElement(props.banner)) {
+      render(props.banner as ReactElement)
+    }
     expect(screen.queryByTestId('premium-feature')).not.toBeInTheDocument()
   })
 
   // Drift test: subscription plan overrides are premium-gated — non-premium users
-  // get the upsell over a gated preview, mirroring the subscription edit form.
-  it('shows the premium upsell for non-premium users', async () => {
+  // get the upsell as the PlanDetailsV2 banner over a gated (clickable) preview.
+  it('passes the premium upsell as the PlanDetailsV2 banner for non-premium users', async () => {
     mockIsPremium = false
 
     render(
@@ -85,6 +90,11 @@ describe('SubscriptionDetailsV2Plan', () => {
       </MockedProvider>,
     )
 
+    await waitFor(() => expect(capturedProps.length).toBeGreaterThan(0))
+    const props = capturedProps[capturedProps.length - 1]
+
+    expect(isValidElement(props.banner)).toBe(true)
+    render(props.banner as ReactElement)
     expect(await screen.findByTestId('premium-feature')).toBeInTheDocument()
   })
 })

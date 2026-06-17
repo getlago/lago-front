@@ -10,6 +10,7 @@ import {
   UsageChargeForPlanDetailsSidebarFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { tw } from '~/styles/utils'
 
 import { getEntitlementSectionId, PlanDetailsV2SectionId } from './sidebarSections'
 
@@ -128,6 +129,7 @@ type PlanDetailsV2LeftSidebarProps = {
   entitlements?: EntitlementForPlanDetailsSidebarFragment[]
   onItemClick: (id: string) => void
   onAddClick?: (id: string) => void
+  className?: string
 }
 
 export const PlanDetailsV2LeftSidebar = ({
@@ -137,6 +139,7 @@ export const PlanDetailsV2LeftSidebar = ({
   entitlements = [],
   onItemClick,
   onAddClick,
+  className,
 }: PlanDetailsV2LeftSidebarProps) => {
   const { translate } = useInternationalization()
   const sections = useMemo(
@@ -184,7 +187,7 @@ export const PlanDetailsV2LeftSidebar = ({
               <button
                 type="button"
                 data-test={`sidebar-toggle-${item.id}`}
-                className="flex items-center justify-center rounded-l-lg px-1 py-2.5 hover:bg-grey-300"
+                className="flex items-center justify-center rounded-l-lg px-1 py-2.5 hover:bg-grey-300 focus-visible:ring focus-visible:ring-inset"
                 onClick={() => toggleExpanded(item.id)}
               >
                 <Icon
@@ -197,7 +200,15 @@ export const PlanDetailsV2LeftSidebar = ({
           )}
           <button
             type="button"
-            className="flex flex-1 items-center gap-2 px-2 py-1 text-left"
+            className={tw(
+              'flex flex-1 items-center gap-2 px-2 py-1 text-left focus-visible:ring focus-visible:ring-inset',
+              // The row clips children to its rounded-lg shape (content-visibility:auto
+              // ⇒ contain:paint), so the focus ring's square corners get shaved off
+              // wherever the button meets the row's outer edge. Round the outer-facing
+              // corners — left when no toggle precedes, right when no add button follows.
+              !isGroup && 'rounded-l-lg',
+              !showAddButton && 'rounded-r-lg',
+            )}
             // Leaves pad left to clear the chevron column and step in per depth; groups
             // rely on the chevron for their left slot. The row itself stays full-width.
             style={!isGroup ? { paddingLeft: getLeafPaddingLeft(depth) } : undefined}
@@ -215,7 +226,7 @@ export const PlanDetailsV2LeftSidebar = ({
               <button
                 type="button"
                 data-test={`sidebar-add-${item.id}`}
-                className="flex items-center justify-center rounded-r-lg px-1 py-2.5 hover:bg-grey-300"
+                className="flex items-center justify-center rounded-r-lg px-1 py-2.5 hover:bg-grey-300 focus-visible:ring focus-visible:ring-inset"
                 onClick={() => onAddClick?.(item.id)}
               >
                 <Icon name="plus" size="small" color="dark" />
@@ -242,7 +253,10 @@ export const PlanDetailsV2LeftSidebar = ({
 
   return (
     <nav
-      className="sticky top-0 flex h-screen w-64 flex-col gap-1 border-r border-grey-300 pr-4 pt-4"
+      className={tw(
+        'sticky top-0 flex h-screen w-64 flex-shrink-0 flex-col gap-1 border-r border-grey-300 pr-4 pt-4',
+        className,
+      )}
       aria-label="Plan sections"
     >
       {sections.map((item) => renderItem(item))}

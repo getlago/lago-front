@@ -42,6 +42,7 @@ const mockHasPermissions = jest.fn((perms?: string[]) => {
   if (!perms) return true
   return !perms.includes('none')
 })
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
@@ -157,6 +158,7 @@ describe('PlanDetailsV2UsageChargesSection', () => {
       ...planDetailsV2Fixture,
       charges: [buildUsageChargeFixture({ id: 'ch_1' })],
     }
+
     render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
       wrapper: Wrapper,
     })
@@ -166,6 +168,7 @@ describe('PlanDetailsV2UsageChargesSection', () => {
     )
     await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
     const [chargeArg, indexArg] = mockOpenDrawer.mock.calls[0]
+
     expect(chargeArg.id).toBe('ch_1')
     expect(indexArg).toBe(0)
   })
@@ -175,6 +178,7 @@ describe('PlanDetailsV2UsageChargesSection', () => {
       ...planDetailsV2Fixture,
       charges: [buildUsageChargeFixture({ id: 'ch_1' }), buildUsageChargeFixture({ id: 'ch_2' })],
     }
+
     render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
       wrapper: Wrapper,
     })
@@ -184,6 +188,7 @@ describe('PlanDetailsV2UsageChargesSection', () => {
     )
     await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
     const [, , options] = mockOpenDrawer.mock.calls[0]
+
     expect(options?.alreadyUsedChargeAlertMessage).toBe('text_6435895831d323008a47911f')
   })
 
@@ -192,6 +197,7 @@ describe('PlanDetailsV2UsageChargesSection', () => {
       ...planDetailsV2Fixture,
       charges: [buildUsageChargeFixture({ id: 'ch_1' })],
     }
+
     render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
       wrapper: Wrapper,
     })
@@ -201,6 +207,7 @@ describe('PlanDetailsV2UsageChargesSection', () => {
     )
     await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
     const [, , options] = mockOpenDrawer.mock.calls[0]
+
     expect(options?.alreadyUsedChargeAlertMessage).toBeUndefined()
   })
 
@@ -209,6 +216,7 @@ describe('PlanDetailsV2UsageChargesSection', () => {
       ...planDetailsV2Fixture,
       charges: [buildUsageChargeFixture({ id: 'ch_to_delete' })],
     }
+
     render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
       wrapper: Wrapper,
     })
@@ -225,6 +233,7 @@ describe('PlanDetailsV2UsageChargesSection', () => {
       subscriptionsCount: 3,
       charges: [buildUsageChargeFixture({ id: 'ch_used' })],
     }
+
     render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
       wrapper: Wrapper,
     })
@@ -275,6 +284,7 @@ describe('PlanDetailsV2UsageChargesSection', () => {
       ...planDetailsV2Fixture,
       charges: [buildUsageChargeFixture({ id: 'ch_sub' })],
     }
+
     render(
       <PlanDetailsV2UsageChargesSection
         plan={plan}
@@ -301,6 +311,7 @@ describe('PlanDetailsV2UsageChargesSection', () => {
       ...planDetailsV2Fixture,
       charges: [buildUsageChargeFixture({ id: 'ch_no_perm' })],
     }
+
     render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
       wrapper: Wrapper,
     })
@@ -316,6 +327,7 @@ describe('PlanDetailsV2UsageChargesSection', () => {
       ...planDetailsV2Fixture,
       charges: [buildUsageChargeFixture({ id: 'ch_no_update' })],
     }
+
     render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
       wrapper: Wrapper,
     })
@@ -342,6 +354,7 @@ describe('PlanDetailsV2UsageChargesSection', () => {
         }),
       ],
     }
+
     render(<PlanDetailsV2UsageChargesSection plan={plan} chargeMutations={chargeMutations} />, {
       wrapper: Wrapper,
     })
@@ -351,6 +364,7 @@ describe('PlanDetailsV2UsageChargesSection', () => {
 
   it('exposes openCreate via ref', async () => {
     const ref = createRef<PlanDetailsV2UsageChargesSectionRef>()
+
     render(
       <PlanDetailsV2UsageChargesSection
         ref={ref}

@@ -24,6 +24,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
+import { useSubscriptionPremiumGate } from '~/hooks/plans/useSubscriptionPremiumGate'
 
 import { SectionAccordion } from './shared/SectionAccordion'
 import { SectionHeader } from './shared/SectionHeader'
@@ -120,6 +121,7 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
 >(({ plan, isInSubscriptionForm = false, fixedChargeMutations }, ref) => {
   const { translate } = useInternationalization()
   const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
+  const { gateOnClick, premiumIcon } = useSubscriptionPremiumGate(isInSubscriptionForm)
   const drawerRef = useRef<FixedChargeDrawerRef>(null)
   const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
 
@@ -209,7 +211,8 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
               startIcon: 'pen',
-              onClick: () => openEdit(toLocalInput(fixedCharge), index),
+              endIcon: premiumIcon,
+              onClick: gateOnClick(() => openEdit(toLocalInput(fixedCharge), index)),
               hidden: !canUpdate,
             },
             {
