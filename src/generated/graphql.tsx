@@ -801,7 +801,7 @@ export enum BillingTimeEnum {
   Calendar = 'calendar'
 }
 
-export enum CancelationReasonEnum {
+export enum CancellationReasonEnum {
   PaymentFailed = 'payment_failed',
   Timeout = 'timeout'
 }
@@ -4943,6 +4943,16 @@ export enum MappingTypeEnum {
   Tax = 'tax'
 }
 
+/** Mark Order Form as signed input arguments */
+export type MarkOrderFormAsSignedInput = {
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  executeAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  executionMode?: InputMaybe<OrderExecutionModeEnum>;
+  id: Scalars['ID']['input'];
+  signedDocument?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Membership = {
   __typename?: 'Membership';
   createdAt: Scalars['ISO8601DateTime']['output'];
@@ -5222,6 +5232,8 @@ export type Mutation = {
   loginUser?: Maybe<LoginUser>;
   /** Mark payment dispute as lost */
   loseInvoiceDispute?: Maybe<Invoice>;
+  /** Mark an order form as signed */
+  markOrderFormAsSigned?: Maybe<OrderForm>;
   /** Accepts a membership invite with Okta Oauth */
   oktaAcceptInvite?: Maybe<LoginUser>;
   oktaAuthorize?: Maybe<Authorize>;
@@ -5380,6 +5392,8 @@ export type Mutation = {
   voidCreditNote?: Maybe<CreditNote>;
   /** Void an invoice */
   voidInvoice?: Maybe<Invoice>;
+  /** Void an order form */
+  voidOrderForm?: Maybe<OrderForm>;
   /** Void a quote version */
   voidQuoteVersion?: Maybe<QuoteVersion>;
 };
@@ -5900,6 +5914,11 @@ export type MutationLoseInvoiceDisputeArgs = {
 };
 
 
+export type MutationMarkOrderFormAsSignedArgs = {
+  input: MarkOrderFormAsSignedInput;
+};
+
+
 export type MutationOktaAcceptInviteArgs = {
   input: OktaAcceptInviteInput;
 };
@@ -6305,6 +6324,11 @@ export type MutationVoidInvoiceArgs = {
 };
 
 
+export type MutationVoidOrderFormArgs = {
+  input: VoidOrderFormInput;
+};
+
+
 export type MutationVoidQuoteVersionArgs = {
   input: VoidQuoteVersionInput;
 };
@@ -6392,9 +6416,40 @@ export enum OnTerminationInvoiceEnum {
   Skip = 'skip'
 }
 
+export type Order = {
+  __typename?: 'Order';
+  billingSnapshot: Scalars['JSON']['output'];
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  currency?: Maybe<Scalars['String']['output']>;
+  customer: Customer;
+  executedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  executionMode?: Maybe<OrderExecutionModeEnum>;
+  id: Scalars['ID']['output'];
+  number: Scalars['String']['output'];
+  orderForm: OrderForm;
+  orderType: OrderTypeEnum;
+  organization: Organization;
+  status: OrderStatusEnum;
+  updatedAt: Scalars['ISO8601DateTime']['output'];
+};
+
 export enum OrderByEnum {
   GrossRevenueAmountCents = 'gross_revenue_amount_cents',
   NetRevenueAmountCents = 'net_revenue_amount_cents'
+}
+
+/** OrderCollection type */
+export type OrderCollection = {
+  __typename?: 'OrderCollection';
+  /** A collection of paginated OrderCollection */
+  collection: Array<Order>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+export enum OrderExecutionModeEnum {
+  ExecuteInLago = 'execute_in_lago',
+  OrderOnly = 'order_only'
 }
 
 export type OrderForm = {
@@ -6405,8 +6460,10 @@ export type OrderForm = {
   expiresAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   id: Scalars['ID']['output'];
   number: Scalars['String']['output'];
+  organization: Organization;
   quote: Quote;
   signedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  signedDocumentUrl?: Maybe<Scalars['String']['output']>;
   status: OrderFormStatusEnum;
   updatedAt: Scalars['ISO8601DateTime']['output'];
   voidReason?: Maybe<OrderFormVoidReasonEnum>;
@@ -6433,6 +6490,11 @@ export enum OrderFormVoidReasonEnum {
   Expired = 'expired',
   Invalid = 'invalid',
   Manual = 'manual'
+}
+
+export enum OrderStatusEnum {
+  Created = 'created',
+  Executed = 'executed'
 }
 
 export enum OrderTypeEnum {
@@ -6689,7 +6751,10 @@ export enum PermissionEnum {
   InvoicesUpdate = 'invoices_update',
   InvoicesView = 'invoices_view',
   InvoicesVoid = 'invoices_void',
+  OrderFormsSign = 'order_forms_sign',
   OrderFormsView = 'order_forms_view',
+  OrderFormsVoid = 'order_forms_void',
+  OrdersView = 'orders_view',
   OrganizationEmailsUpdate = 'organization_emails_update',
   OrganizationEmailsView = 'organization_emails_view',
   OrganizationIntegrationsCreate = 'organization_integrations_create',
@@ -6802,7 +6867,10 @@ export type Permissions = {
   invoicesUpdate: Scalars['Boolean']['output'];
   invoicesView: Scalars['Boolean']['output'];
   invoicesVoid: Scalars['Boolean']['output'];
+  orderFormsSign: Scalars['Boolean']['output'];
   orderFormsView: Scalars['Boolean']['output'];
+  orderFormsVoid: Scalars['Boolean']['output'];
+  ordersView: Scalars['Boolean']['output'];
   organizationEmailsUpdate: Scalars['Boolean']['output'];
   organizationEmailsView: Scalars['Boolean']['output'];
   organizationIntegrationsCreate: Scalars['Boolean']['output'];
@@ -7362,10 +7430,14 @@ export type Query = {
   memberships: MembershipCollection;
   /** Query MRR of an organization */
   mrrs: MrrCollection;
+  /** Query a single order */
+  order?: Maybe<Order>;
   /** Query a single order form */
   orderForm?: Maybe<OrderForm>;
   /** Query order forms */
   orderForms: OrderFormCollection;
+  /** Query orders */
+  orders: OrderCollection;
   /** Query the current organization */
   organization?: Maybe<CurrentOrganization>;
   /** Query overdue balances of an organization */
@@ -7710,6 +7782,7 @@ export type QueryCustomersArgs = {
   countries?: InputMaybe<Array<CountryCode>>;
   currencies?: InputMaybe<Array<CurrencyEnum>>;
   customerType?: InputMaybe<CustomerTypeEnum>;
+  externalId?: InputMaybe<Scalars['String']['input']>;
   hasCustomerType?: InputMaybe<Scalars['Boolean']['input']>;
   hasTaxIdentificationNumber?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -8028,6 +8101,11 @@ export type QueryMrrsArgs = {
 };
 
 
+export type QueryOrderArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryOrderFormArgs = {
   id: Scalars['ID']['input'];
 };
@@ -8046,6 +8124,23 @@ export type QueryOrderFormsArgs = {
   quoteNumber?: InputMaybe<Array<Scalars['String']['input']>>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Array<OrderFormStatusEnum>>;
+};
+
+
+export type QueryOrdersArgs = {
+  customerId?: InputMaybe<Array<Scalars['ID']['input']>>;
+  executedAtFrom?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  executedAtTo?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  executionMode?: InputMaybe<Array<OrderExecutionModeEnum>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  number?: InputMaybe<Array<Scalars['String']['input']>>;
+  orderFormNumber?: InputMaybe<Array<Scalars['String']['input']>>;
+  orderType?: InputMaybe<Array<OrderTypeEnum>>;
+  ownerId?: InputMaybe<Array<Scalars['ID']['input']>>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  quoteNumber?: InputMaybe<Array<Scalars['String']['input']>>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Array<OrderStatusEnum>>;
 };
 
 
@@ -8208,6 +8303,7 @@ export type QuerySubscriptionsArgs = {
   billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   currency?: InputMaybe<Scalars['String']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalId?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   overriden?: InputMaybe<Scalars['Boolean']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -8743,8 +8839,8 @@ export type Subscription = {
   activityLogs?: Maybe<Array<ActivityLog>>;
   billingEntityId?: Maybe<Scalars['ID']['output']>;
   billingTime?: Maybe<BillingTimeEnum>;
-  cancelationReason?: Maybe<CancelationReasonEnum>;
   canceledAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  cancellationReason?: Maybe<CancellationReasonEnum>;
   charges?: Maybe<Array<Charge>>;
   consolidateInvoice: Scalars['Boolean']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
@@ -10023,6 +10119,13 @@ export type VoidInvoiceInput = {
   generateCreditNote?: InputMaybe<Scalars['Boolean']['input']>;
   id: Scalars['ID']['input'];
   refundAmount?: InputMaybe<Scalars['BigInt']['input']>;
+};
+
+/** Void Order Form input arguments */
+export type VoidOrderFormInput = {
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
 };
 
 /** Autogenerated input type of VoidQuoteVersion */
@@ -13649,6 +13752,7 @@ export type CustomersQueryVariables = Exact<{
   states?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
   currencies?: InputMaybe<Array<CurrencyEnum> | CurrencyEnum>;
   customerType?: InputMaybe<CustomerTypeEnum>;
+  externalId?: InputMaybe<Scalars['String']['input']>;
   hasTaxIdentificationNumber?: InputMaybe<Scalars['Boolean']['input']>;
   hasCustomerType?: InputMaybe<Scalars['Boolean']['input']>;
   metadata?: InputMaybe<Array<CustomerMetadataFilter> | CustomerMetadataFilter>;
@@ -13804,6 +13908,7 @@ export type GetSubscriptionsListQueryVariables = Exact<{
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Array<StatusTypeEnum> | StatusTypeEnum>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
+  externalId?: InputMaybe<Scalars['String']['input']>;
   overriden?: InputMaybe<Scalars['Boolean']['input']>;
   planCode?: InputMaybe<Scalars['String']['input']>;
   billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
@@ -36103,7 +36208,7 @@ export type CreatePaymentRequestMutationHookResult = ReturnType<typeof useCreate
 export type CreatePaymentRequestMutationResult = Apollo.MutationResult<CreatePaymentRequestMutation>;
 export type CreatePaymentRequestMutationOptions = Apollo.BaseMutationOptions<CreatePaymentRequestMutation, CreatePaymentRequestMutationVariables>;
 export const CustomersDocument = gql`
-    query customers($page: Int, $limit: Int, $searchTerm: String, $accountType: [CustomerAccountTypeEnum!], $billingEntityIds: [ID!], $activeSubscriptionsCountFrom: Int, $activeSubscriptionsCountTo: Int, $countries: [CountryCode!], $zipcodes: [String!], $states: [String!], $currencies: [CurrencyEnum!], $customerType: CustomerTypeEnum, $hasTaxIdentificationNumber: Boolean, $hasCustomerType: Boolean, $metadata: [CustomerMetadataFilter!]) {
+    query customers($page: Int, $limit: Int, $searchTerm: String, $accountType: [CustomerAccountTypeEnum!], $billingEntityIds: [ID!], $activeSubscriptionsCountFrom: Int, $activeSubscriptionsCountTo: Int, $countries: [CountryCode!], $zipcodes: [String!], $states: [String!], $currencies: [CurrencyEnum!], $customerType: CustomerTypeEnum, $externalId: String, $hasTaxIdentificationNumber: Boolean, $hasCustomerType: Boolean, $metadata: [CustomerMetadataFilter!]) {
   customers(
     page: $page
     limit: $limit
@@ -36117,6 +36222,7 @@ export const CustomersDocument = gql`
     states: $states
     currencies: $currencies
     customerType: $customerType
+    externalId: $externalId
     hasTaxIdentificationNumber: $hasTaxIdentificationNumber
     hasCustomerType: $hasCustomerType
     metadata: $metadata
@@ -36157,6 +36263,7 @@ export const CustomersDocument = gql`
  *      states: // value for 'states'
  *      currencies: // value for 'currencies'
  *      customerType: // value for 'customerType'
+ *      externalId: // value for 'externalId'
  *      hasTaxIdentificationNumber: // value for 'hasTaxIdentificationNumber'
  *      hasCustomerType: // value for 'hasCustomerType'
  *      metadata: // value for 'metadata'
@@ -36768,13 +36875,14 @@ export type PlansLazyQueryHookResult = ReturnType<typeof usePlansLazyQuery>;
 export type PlansSuspenseQueryHookResult = ReturnType<typeof usePlansSuspenseQuery>;
 export type PlansQueryResult = Apollo.QueryResult<PlansQuery, PlansQueryVariables>;
 export const GetSubscriptionsListDocument = gql`
-    query getSubscriptionsList($limit: Int, $page: Int, $searchTerm: String, $status: [StatusTypeEnum!], $externalCustomerId: String, $overriden: Boolean, $planCode: String, $billingEntityIds: [ID!]) {
+    query getSubscriptionsList($limit: Int, $page: Int, $searchTerm: String, $status: [StatusTypeEnum!], $externalCustomerId: String, $externalId: String, $overriden: Boolean, $planCode: String, $billingEntityIds: [ID!]) {
   subscriptions(
     limit: $limit
     page: $page
     status: $status
     searchTerm: $searchTerm
     externalCustomerId: $externalCustomerId
+    externalId: $externalId
     overriden: $overriden
     planCode: $planCode
     billingEntityIds: $billingEntityIds
@@ -36808,6 +36916,7 @@ export const GetSubscriptionsListDocument = gql`
  *      searchTerm: // value for 'searchTerm'
  *      status: // value for 'status'
  *      externalCustomerId: // value for 'externalCustomerId'
+ *      externalId: // value for 'externalId'
  *      overriden: // value for 'overriden'
  *      planCode: // value for 'planCode'
  *      billingEntityIds: // value for 'billingEntityIds'

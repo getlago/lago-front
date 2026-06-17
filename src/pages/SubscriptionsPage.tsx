@@ -88,6 +88,7 @@ gql`
     $searchTerm: String
     $status: [StatusTypeEnum!]
     $externalCustomerId: String
+    $externalId: String
     $overriden: Boolean
     $planCode: String
     $billingEntityIds: [ID!]
@@ -98,6 +99,7 @@ gql`
       status: $status
       searchTerm: $searchTerm
       externalCustomerId: $externalCustomerId
+      externalId: $externalId
       overriden: $overriden
       planCode: $planCode
       billingEntityIds: $billingEntityIds

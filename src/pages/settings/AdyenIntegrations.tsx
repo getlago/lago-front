@@ -15,13 +15,11 @@ import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  DeleteAdyenIntegrationDialog,
-  DeleteAdyenIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteAdyenIntegrationDialog'
+import { useDeleteAdyenIntegrationDialog } from '~/components/settings/integrations/DeleteAdyenIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ADYEN_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
+  AddAdyenProviderDialogFragment,
   AddAdyenProviderDialogFragmentDoc,
   AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc,
   AdyenProvider,
@@ -63,7 +61,7 @@ const AdyenIntegrations = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteAdyenIntegrationDialogRef>(null)
+  const { openDeleteAdyenIntegrationDialog } = useDeleteAdyenIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetAdyenIntegrationsListQuery({
@@ -83,6 +81,13 @@ const AdyenIntegrations = () => {
   const canCreateIntegration = hasPermissions(['organizationIntegrationsCreate'])
   const canEditIntegration = hasPermissions(['organizationIntegrationsUpdate'])
   const canDeleteIntegration = hasPermissions(['organizationIntegrationsDelete'])
+
+  const openDeleteDialog = (provider: AddAdyenProviderDialogFragment) => {
+    openDeleteAdyenIntegrationDialog({
+      provider,
+      callback: deleteDialogCallback,
+    })
+  }
 
   return (
     <>
@@ -166,9 +171,8 @@ const AdyenIntegrations = () => {
                               align="left"
                               onClick={() => {
                                 addAdyenDialogRef.current?.openDialog({
+                                  onDelete: openDeleteDialog,
                                   provider: connection,
-                                  deleteModalRef: deleteDialogRef,
-                                  deleteDialogCallback,
                                 })
                                 closePopper()
                               }}
@@ -183,10 +187,7 @@ const AdyenIntegrations = () => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                deleteDialogRef.current?.openDialog({
-                                  provider: connection,
-                                  callback: deleteDialogCallback,
-                                })
+                                openDeleteDialog(connection)
                                 closePopper()
                               }}
                             >
@@ -203,7 +204,6 @@ const AdyenIntegrations = () => {
         </section>
       </IntegrationsPage.Container>
       <AddAdyenDialog ref={addAdyenDialogRef} />
-      <DeleteAdyenIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

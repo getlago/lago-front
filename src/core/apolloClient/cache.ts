@@ -9,6 +9,7 @@ export const queryFieldPolicies: Record<string, FieldPolicy> = {
   // Standard paginated queries - automatically cache by all args except page/limit/offset
   activityLogs: createPaginatedFieldPolicy(),
   addOns: createPaginatedFieldPolicy(),
+  apiKeys: createPaginatedFieldPolicy(),
   appliedCoupons: createPaginatedFieldPolicy(),
   billableMetrics: createPaginatedFieldPolicy(),
   // billingEntity: createPaginatedFieldPolicy(),

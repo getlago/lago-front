@@ -1,10 +1,11 @@
-import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
 
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   DeleteAdyenIntegrationDialogFragment,
+  GetAdyenIntegrationsListDocument,
   useDeleteAdyenIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -27,58 +28,47 @@ type TDeleteAdyenIntegrationDialogProps = {
   callback?: () => void
 }
 
-export interface DeleteAdyenIntegrationDialogRef {
-  openDialog: ({ provider, callback }: TDeleteAdyenIntegrationDialogProps) => unknown
-  closeDialog: () => unknown
-}
+export const useDeleteAdyenIntegrationDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
+  const { translate } = useInternationalization()
+  const client = useApolloClient()
 
-export const DeleteAdyenIntegrationDialog = forwardRef<DeleteAdyenIntegrationDialogRef>(
-  (_, ref) => {
-    const { translate } = useInternationalization()
+  const [deleteAdyen] = useDeleteAdyenIntegrationMutation()
 
-    const dialogRef = useRef<WarningDialogRef>(null)
-    const [localData, setLocalData] = useState<TDeleteAdyenIntegrationDialogProps | undefined>(
-      undefined,
-    )
-    const adyenProvider = localData?.provider
+  const openDeleteAdyenIntegrationDialog = ({
+    provider,
+    callback,
+  }: TDeleteAdyenIntegrationDialogProps) => {
+    centralizedDialog.open({
+      title: translate('text_658461066530343fe1808cd7', { name: provider?.name }),
+      description: translate('text_658461066530343fe1808cc2'),
+      colorVariant: 'danger',
+      actionText: translate('text_645d071272418a14c1c76a81'),
+      onAction: async () => {
+        const result = await deleteAdyen({
+          variables: { input: { id: provider?.id as string } },
+        })
 
-    const [deleteAdyen] = useDeleteAdyenIntegrationMutation({
-      onCompleted(data) {
-        if (data && data.destroyPaymentProvider) {
-          dialogRef.current?.closeDialog()
-          localData?.callback?.()
+        const destroyedId = result.data?.destroyPaymentProvider?.id
+
+        if (destroyedId) {
+          evictFromCache(client, {
+            id: destroyedId,
+            __typename: 'AdyenProvider',
+            listFieldName: 'paymentProviders',
+            listQueryDocument: GetAdyenIntegrationsListDocument,
+          })
+
+          callback?.()
+
           addToast({
             message: translate('text_645d071272418a14c1c76b25'),
             severity: 'success',
           })
         }
       },
-      update(cache) {
-        cache.evict({ id: `AdyenProvider:${adyenProvider?.id}` })
-      },
-      refetchQueries: ['getAdyenIntegrationsList'],
     })
+  }
 
-    useImperativeHandle(ref, () => ({
-      openDialog: (data) => {
-        setLocalData(data)
-        dialogRef.current?.openDialog()
-      },
-      closeDialog: () => dialogRef.current?.closeDialog(),
-    }))
-
-    return (
-      <WarningDialog
-        ref={dialogRef}
-        title={translate('text_658461066530343fe1808cd7', { name: adyenProvider?.name })}
-        description={translate('text_658461066530343fe1808cc2')}
-        onContinue={async () =>
-          await deleteAdyen({ variables: { input: { id: adyenProvider?.id as string } } })
-        }
-        continueText={translate('text_645d071272418a14c1c76a81')}
-      />
-    )
-  },
-)
-
-DeleteAdyenIntegrationDialog.displayName = 'DeleteAdyenIntegrationDialog'
+  return { openDeleteAdyenIntegrationDialog }
+}
