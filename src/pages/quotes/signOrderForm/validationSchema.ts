@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import { z } from 'zod'
 
 import { MarkOrderFormAsSignedInput, OrderExecutionModeEnum } from '~/generated/graphql'
@@ -16,6 +17,18 @@ export const signOrderFormValidationSchema = z
     message: 'text_1781686594125u5ycpo29tzr',
     path: ['executeAt'],
   })
+  // Execution must be scheduled for a future day — today and past are rejected by the backend
+  .refine(
+    (data) => {
+      if (!data.executeAt) return true
+
+      return DateTime.fromISO(data.executeAt).startOf('day') > DateTime.now().startOf('day')
+    },
+    {
+      message: 'text_1781698831945d8qod1ugqsu',
+      path: ['executeAt'],
+    },
+  )
 
 export type SignOrderFormValues = z.infer<typeof signOrderFormValidationSchema>
 

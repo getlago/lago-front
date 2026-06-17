@@ -125,7 +125,7 @@ describe('SignOrderForm', () => {
     await user.click(option)
 
     // Set the execution date by typing into the date input
-    await user.type(screen.getByPlaceholderText('text_17816865941253r8yqeoibh1'), '2026/07/01')
+    await user.type(screen.getByPlaceholderText('text_17816865941253r8yqeoibh1'), '12/25/2030')
 
     await user.click(screen.getByTestId(SIGN_ORDER_FORM_SUBMIT_BUTTON_TEST_ID))
 
