@@ -160,7 +160,9 @@ describe('useOrderFormActions', () => {
   describe('GIVEN a generated order form without orderFormsSign permission', () => {
     describe('WHEN getActions is called', () => {
       it('THEN should not include a sign action', () => {
-        mockHasPermissions.mockImplementation((perms: string[]) => !perms.includes('orderFormsSign'))
+        mockHasPermissions.mockImplementation(
+          (perms: string[]) => !perms.includes('orderFormsSign'),
+        )
         const { result } = renderHook(() => useOrderFormActions())
         const actions = result.current.getActions(createMockOrderForm())
         const signAction = actions.find((a) => a.icon === 'writing-sign')
