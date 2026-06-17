@@ -151,7 +151,10 @@ describe('SubscriptionDetails', () => {
         render(<SubscriptionDetails />)
 
         expect(capturedConfig?.entity?.viewName).toBeDefined()
-        expect(capturedConfig?.entity?.metadata).toBe('test-plan')
+        // metadata is a click-to-copy element wrapping the plan code
+        expect(
+          (capturedConfig?.entity?.metadata as { props: { children: unknown } })?.props.children,
+        ).toBe('test-plan')
       })
 
       it('THEN should configure MainHeader with a dropdown action', () => {
