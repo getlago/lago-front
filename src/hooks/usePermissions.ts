@@ -88,6 +88,8 @@ gql`
       quotesUpdate
       quotesView
       quotesVoid
+      orderFormsSign
+      orderFormsVoid
       pricingUnitsCreate
       pricingUnitsUpdate
       pricingUnitsView
