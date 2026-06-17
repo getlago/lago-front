@@ -14317,6 +14317,20 @@ export type GetMembersForCreateQuoteQueryVariables = Exact<{
 
 export type GetMembersForCreateQuoteQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', collection: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } }> } };
 
+export type GetOrderFormForSignQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetOrderFormForSignQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null }, quote: { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, currentVersion: { __typename?: 'QuoteVersion', version: number } } } | null };
+
+export type MarkOrderFormAsSignedMutationVariables = Exact<{
+  input: MarkOrderFormAsSignedInput;
+}>;
+
+
+export type MarkOrderFormAsSignedMutation = { __typename?: 'Mutation', markOrderFormAsSigned?: { __typename?: 'OrderForm', id: string, status: OrderFormStatusEnum } | null };
+
 export type GetOrderFormForVoidQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -38902,6 +38916,98 @@ export type GetMembersForCreateQuoteQueryHookResult = ReturnType<typeof useGetMe
 export type GetMembersForCreateQuoteLazyQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteLazyQuery>;
 export type GetMembersForCreateQuoteSuspenseQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteSuspenseQuery>;
 export type GetMembersForCreateQuoteQueryResult = Apollo.QueryResult<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>;
+export const GetOrderFormForSignDocument = gql`
+    query getOrderFormForSign($id: ID!) {
+  orderForm(id: $id) {
+    id
+    number
+    status
+    createdAt
+    customer {
+      id
+      name
+    }
+    quote {
+      id
+      number
+      orderType
+      currentVersion {
+        version
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetOrderFormForSignQuery__
+ *
+ * To run a query within a React component, call `useGetOrderFormForSignQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrderFormForSignQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrderFormForSignQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetOrderFormForSignQuery(baseOptions: Apollo.QueryHookOptions<GetOrderFormForSignQuery, GetOrderFormForSignQueryVariables> & ({ variables: GetOrderFormForSignQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrderFormForSignQuery, GetOrderFormForSignQueryVariables>(GetOrderFormForSignDocument, options);
+      }
+export function useGetOrderFormForSignLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrderFormForSignQuery, GetOrderFormForSignQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrderFormForSignQuery, GetOrderFormForSignQueryVariables>(GetOrderFormForSignDocument, options);
+        }
+// @ts-ignore
+export function useGetOrderFormForSignSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrderFormForSignQuery, GetOrderFormForSignQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrderFormForSignQuery, GetOrderFormForSignQueryVariables>;
+export function useGetOrderFormForSignSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrderFormForSignQuery, GetOrderFormForSignQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrderFormForSignQuery | undefined, GetOrderFormForSignQueryVariables>;
+export function useGetOrderFormForSignSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrderFormForSignQuery, GetOrderFormForSignQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOrderFormForSignQuery, GetOrderFormForSignQueryVariables>(GetOrderFormForSignDocument, options);
+        }
+export type GetOrderFormForSignQueryHookResult = ReturnType<typeof useGetOrderFormForSignQuery>;
+export type GetOrderFormForSignLazyQueryHookResult = ReturnType<typeof useGetOrderFormForSignLazyQuery>;
+export type GetOrderFormForSignSuspenseQueryHookResult = ReturnType<typeof useGetOrderFormForSignSuspenseQuery>;
+export type GetOrderFormForSignQueryResult = Apollo.QueryResult<GetOrderFormForSignQuery, GetOrderFormForSignQueryVariables>;
+export const MarkOrderFormAsSignedDocument = gql`
+    mutation markOrderFormAsSigned($input: MarkOrderFormAsSignedInput!) {
+  markOrderFormAsSigned(input: $input) {
+    id
+    status
+  }
+}
+    `;
+export type MarkOrderFormAsSignedMutationFn = Apollo.MutationFunction<MarkOrderFormAsSignedMutation, MarkOrderFormAsSignedMutationVariables>;
+
+/**
+ * __useMarkOrderFormAsSignedMutation__
+ *
+ * To run a mutation, you first call `useMarkOrderFormAsSignedMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMarkOrderFormAsSignedMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [markOrderFormAsSignedMutation, { data, loading, error }] = useMarkOrderFormAsSignedMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useMarkOrderFormAsSignedMutation(baseOptions?: Apollo.MutationHookOptions<MarkOrderFormAsSignedMutation, MarkOrderFormAsSignedMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<MarkOrderFormAsSignedMutation, MarkOrderFormAsSignedMutationVariables>(MarkOrderFormAsSignedDocument, options);
+      }
+export type MarkOrderFormAsSignedMutationHookResult = ReturnType<typeof useMarkOrderFormAsSignedMutation>;
+export type MarkOrderFormAsSignedMutationResult = Apollo.MutationResult<MarkOrderFormAsSignedMutation>;
+export type MarkOrderFormAsSignedMutationOptions = Apollo.BaseMutationOptions<MarkOrderFormAsSignedMutation, MarkOrderFormAsSignedMutationVariables>;
 export const GetOrderFormForVoidDocument = gql`
     query getOrderFormForVoid($id: ID!) {
   orderForm(id: $id) {
