@@ -1,7 +1,7 @@
 import { IconName } from 'lago-design-system'
 import { generatePath } from 'react-router-dom'
 
-import { useNavigate, VOID_ORDER_FORM_ROUTE } from '~/core/router'
+import { useNavigate, VOID_ORDER_FORM_ROUTE, SIGN_ORDER_FORM_ROUTE } from '~/core/router'
 import { OrderFormListItemFragment, OrderFormStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -61,6 +61,16 @@ export const useOrderFormActions = () => {
         label: translate('text_1779715648584xw9xgemkv9y'),
         onAction: () =>
           navigate(generatePath(VOID_ORDER_FORM_ROUTE, { orderFormId: orderForm.id })),
+      })
+    }
+
+    // Sign — only for generated status, requires orderFormsSign permission
+    if (orderForm.status === OrderFormStatusEnum.Generated && hasPermissions(['orderFormsSign'])) {
+      actions.push({
+        icon: 'writing-sign',
+        label: translate('text_1781686594125upfeikkemuy'),
+        onAction: () =>
+          navigate(generatePath(SIGN_ORDER_FORM_ROUTE, { orderFormId: orderForm.id })),
       })
     }
 

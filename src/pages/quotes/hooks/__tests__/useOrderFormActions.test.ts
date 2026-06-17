@@ -58,13 +58,14 @@ describe('useOrderFormActions', () => {
 
   describe('GIVEN a generated order form with all permissions', () => {
     describe('WHEN getActions is called', () => {
-      it('THEN should return 2 actions: download and void', () => {
+      it('THEN should return 3 actions: download, void and sign', () => {
         const { result } = renderHook(() => useOrderFormActions())
         const actions = result.current.getActions(createMockOrderForm())
 
-        expect(actions).toHaveLength(2)
+        expect(actions).toHaveLength(3)
         expect(actions[0].icon).toBe('download')
         expect(actions[1].icon).toBe('stop')
+        expect(actions[2].icon).toBe('writing-sign')
       })
     })
   })
@@ -143,6 +144,32 @@ describe('useOrderFormActions', () => {
     })
   })
 
+  describe('GIVEN a generated order form with orderFormsSign permission', () => {
+    describe('WHEN getActions is called', () => {
+      it('THEN should include a sign action with the correct label', () => {
+        const { result } = renderHook(() => useOrderFormActions())
+        const actions = result.current.getActions(createMockOrderForm())
+        const signAction = actions.find((a) => a.icon === 'writing-sign')
+
+        expect(signAction).toBeDefined()
+        expect(signAction?.label).toBe('text_1781686594125upfeikkemuy')
+      })
+    })
+  })
+
+  describe('GIVEN a generated order form without orderFormsSign permission', () => {
+    describe('WHEN getActions is called', () => {
+      it('THEN should not include a sign action', () => {
+        mockHasPermissions.mockImplementation((perms: string[]) => !perms.includes('orderFormsSign'))
+        const { result } = renderHook(() => useOrderFormActions())
+        const actions = result.current.getActions(createMockOrderForm())
+        const signAction = actions.find((a) => a.icon === 'writing-sign')
+
+        expect(signAction).toBeUndefined()
+      })
+    })
+  })
+
   describe('GIVEN the void action', () => {
     describe('WHEN triggered', () => {
       it('THEN should navigate to the void order form route', () => {
@@ -153,6 +180,20 @@ describe('useOrderFormActions', () => {
         voidAction?.onAction()
 
         expect(testMockNavigateFn).toHaveBeenCalledWith('/order-form/of-42/void')
+      })
+    })
+  })
+
+  describe('GIVEN the sign action', () => {
+    describe('WHEN triggered', () => {
+      it('THEN should navigate to the sign order form route', () => {
+        const { result } = renderHook(() => useOrderFormActions())
+        const actions = result.current.getActions(createMockOrderForm({ id: 'of-99' }))
+        const signAction = actions.find((a) => a.icon === 'writing-sign')
+
+        signAction?.onAction()
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/order-form/of-99/sign')
       })
     })
   })

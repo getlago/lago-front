@@ -21,6 +21,7 @@ export const EDIT_QUOTE_ROUTE = '/quote/:quoteId/version/:versionId/edit'
 export const VOID_QUOTE_ROUTE = '/quote/:quoteId/version/:versionId/void'
 export const APPROVE_QUOTE_ROUTE = '/quote/:quoteId/version/:versionId/approve'
 export const VOID_ORDER_FORM_ROUTE = '/order-form/:orderFormId/void'
+export const SIGN_ORDER_FORM_ROUTE = '/order-form/:orderFormId/sign'
 
 export const quotesRoutes: CustomRouteObject[] = [
   {
