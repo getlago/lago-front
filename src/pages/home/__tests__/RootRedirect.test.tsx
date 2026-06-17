@@ -16,7 +16,7 @@ jest.mock('~/core/router', () => ({
   FORBIDDEN_ROUTE: '/forbidden',
 }))
 
-jest.mock('~/core/apolloClient', () => ({
+jest.mock('~/core/utils/localStorage', () => ({
   getItemFromLS: (key: string) => mockGetItemFromLS(key),
 }))
 

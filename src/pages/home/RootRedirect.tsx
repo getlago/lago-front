@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react'
 
 import { Spinner } from '~/components/designSystem/Spinner'
-import { getItemFromLS } from '~/core/apolloClient'
 import { getPersistedOrganizationSlug } from '~/core/apolloClient/reactiveVars'
-import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/constants/localStorageKeys'
 import { FORBIDDEN_ROUTE, useLocation, useNavigate } from '~/core/router'
+import { getItemFromLS } from '~/core/utils/localStorage'
+import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 /**

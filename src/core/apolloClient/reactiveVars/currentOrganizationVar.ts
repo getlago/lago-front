@@ -1,7 +1,7 @@
 import { makeVar } from '@apollo/client'
 
-import { getItemFromLS, removeItemFromLS, setItemFromLS } from '~/core/apolloClient/cacheUtils'
-import { LAST_USED_ORGANIZATION_LS_KEY } from '~/core/constants/localStorageKeys'
+import { getItemFromLS, removeItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
+import { LAST_USED_ORGANIZATION_LS_KEY } from '~/core/utils/localStorageKeys'
 
 /**
  * Current organization id (UUID) for THIS tab — in-memory only, derived from
