@@ -1,10 +1,12 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
+import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import RichTextEditor from '~/components/designSystem/RichTextEditor/RichTextEditor'
 import { Typography } from '~/components/designSystem/Typography'
 import { DocumentUploader } from '~/components/form/DocumentUploader'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
@@ -22,6 +24,7 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
+import { buildQuotePreviewProps } from './common/buildQuotePreviewProps'
 import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
 import {
   buildSignOrderFormInput,
@@ -34,6 +37,10 @@ export const SIGN_ORDER_FORM_CANCEL_BUTTON_TEST_ID = 'sign-order-form-cancel-but
 export const SIGN_ORDER_FORM_SUBMIT_BUTTON_TEST_ID = 'sign-order-form-submit-button'
 export const SIGN_ORDER_FORM_EXECUTION_TYPE_TEST_ID = 'sign-order-form-execution-type'
 export const SIGN_ORDER_FORM_ALERT_TEST_ID = 'sign-order-form-alert'
+export const SIGN_ORDER_FORM_PREVIEW_TEST_ID = 'sign-order-form-preview'
+
+const MAX_FILE_SIZE_IN_MB = 10 // 10MB
+const MB_TO_BYTES = 1024 * 1024
 
 gql`
   query getOrderFormForSign($id: ID!) {
@@ -47,12 +54,7 @@ gql`
         name
       }
       quote {
-        id
-        number
-        orderType
-        currentVersion {
-          version
-        }
+        ...QuoteDetailItem
       }
     }
   }
@@ -83,6 +85,12 @@ const SignOrderForm = () => {
   const [markOrderFormAsSignedMutation] = useMarkOrderFormAsSignedMutation({
     refetchQueries: ['getOrderForms'],
   })
+
+  // Single source of truth for preview inputs (shared with the PDF renderer).
+  const previewProps = useMemo(
+    () => buildQuotePreviewProps(orderForm?.quote?.currentVersion, orderForm?.quote?.customer),
+    [orderForm?.quote?.currentVersion, orderForm?.quote?.customer],
+  )
 
   const form = useAppForm({
     defaultValues: signOrderFormDefaultValues,
@@ -228,10 +236,12 @@ const SignOrderForm = () => {
                       {
                         value: OrderExecutionModeEnum.ExecuteInLago,
                         label: translate('text_1781686594125wc395bj9cul'),
+                        description: translate('text_17817078224635v32b58mejt'),
                       },
                       {
                         value: OrderExecutionModeEnum.OrderOnly,
                         label: translate('text_1781686594125ibfjmzae7cy'),
+                        description: translate('text_17817078224637p2veq3bqwe'),
                       },
                     ]}
                   />
@@ -259,14 +269,28 @@ const SignOrderForm = () => {
                     onChange={(value) => field.handleChange(value ?? undefined)}
                     accept="application/pdf,image/jpeg,image/png"
                     acceptedMimeTypes={['application/pdf', 'image/jpeg', 'image/png']}
-                    maxSize={10 * 1024 * 1024}
-                    title={translate('text_178168659412569kiwbxedzw')}
+                    maxSize={MAX_FILE_SIZE_IN_MB * MB_TO_BYTES}
                     description={translate('text_1781686594125j2s47tpkzvo')}
                     invalidTypeError={translate('text_1781686594125m4b2ej18zyb')}
                     tooLargeError={translate('text_1781686594125tj83pbtkkad')}
                   />
                 )}
               </form.AppField>
+            </div>
+
+            <div className="flex flex-col gap-6 py-6">
+              <Typography variant="subhead1">
+                {translate('text_1781707135171i07z6v50cd2')}
+              </Typography>
+              <div data-test={SIGN_ORDER_FORM_PREVIEW_TEST_ID}>
+                {orderForm?.quote?.currentVersion?.content ? (
+                  <RichTextEditor mode="preview" isCompact {...previewProps} />
+                ) : (
+                  <Typography color="grey500">
+                    {translate('text_17768523811635qaasto1ziv')}
+                  </Typography>
+                )}
+              </div>
             </div>
           </div>
         </CenteredPage.Container>

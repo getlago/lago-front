@@ -3,6 +3,7 @@ import { FC, ReactNode, useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 
 export const DOCUMENT_UPLOADER_INPUT_TEST_ID = 'document-uploader-input'
@@ -17,7 +18,6 @@ export interface DocumentUploaderProps {
   accept?: string
   acceptedMimeTypes?: string[]
   maxSize?: number
-  title?: ReactNode
   description?: ReactNode
   invalidTypeError?: string
   tooLargeError?: string
@@ -30,16 +30,17 @@ export const DocumentUploader: FC<DocumentUploaderProps> = ({
   accept = DEFAULT_ACCEPT,
   acceptedMimeTypes = DEFAULT_MIME_TYPES,
   maxSize = DEFAULT_MAX_SIZE,
-  title,
   description,
-  invalidTypeError = 'Invalid file type',
-  tooLargeError = 'File is too large',
+  invalidTypeError,
+  tooLargeError,
   className,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null)
   const [fileName, setFileName] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+
+  const { translate } = useInternationalization()
 
   useEffect(() => {
     if (!value) {
@@ -52,12 +53,12 @@ export const DocumentUploader: FC<DocumentUploaderProps> = ({
     if (!file) return
 
     if (!acceptedMimeTypes.includes(file.type)) {
-      setError(invalidTypeError)
+      setError(invalidTypeError ?? translate('text_1781686594125m4b2ej18zyb'))
       return
     }
 
     if (file.size > maxSize) {
-      setError(tooLargeError)
+      setError(tooLargeError ?? translate('text_1781686594125tj83pbtkkad'))
       return
     }
 
@@ -101,18 +102,28 @@ export const DocumentUploader: FC<DocumentUploaderProps> = ({
           isDragging && 'border-blue-600',
         )}
       >
-        <Icon name="file" />
+        <div className="flex size-10 items-center justify-center">
+          <Icon name="upload" />
+        </div>
         <div className="flex flex-col items-center text-center">
-          {title && (
-            <Typography variant="bodyHl" color="grey700">
-              {title}
-            </Typography>
-          )}
+          {
+            <div className="flex flex-row gap-1">
+              <Typography variant="bodyHl" color="primary600">
+                {translate('text_178168659412569kiwbxedzw')}
+              </Typography>
+              <Typography variant="bodyHl" color="grey700">
+                {translate('text_1781709211816eyrk9jcabsg')}
+              </Typography>
+            </div>
+          }
           {description && (
             <Typography variant="caption" color="grey600">
               {description}
             </Typography>
           )}
+          <Typography variant="caption" color="grey600">
+            {translate('text_1781707828627t3f7vohqvq8')}
+          </Typography>
         </div>
       </button>
 
