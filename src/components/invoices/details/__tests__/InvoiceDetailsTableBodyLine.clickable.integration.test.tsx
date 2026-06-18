@@ -1,7 +1,6 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { DeleteAdjustedFeeDialogRef } from '~/components/invoices/details/DeleteAdjustedFeeDialog'
 import { EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
 import { InvoiceDetailsTable } from '~/components/invoices/details/InvoiceDetailsTable'
 import {
@@ -36,6 +35,10 @@ jest.mock('~/components/invoices/details/ViewFeeDetailsDrawer', () => ({
     open: mockHookOpen,
     close: mockHookClose,
   }),
+}))
+
+jest.mock('~/components/invoices/details/DeleteAdjustedFeeDialog', () => ({
+  useDeleteAdjustedFeeDialog: () => ({ openDeleteAdjustedFeeDialog: jest.fn() }),
 }))
 
 const buildFinalizedInvoice = (): InvoiceForDetailsTableFragment =>
@@ -103,9 +106,6 @@ const renderTable = (invoice: InvoiceForDetailsTableFragment) =>
       customer={{ id: 'customer-1', applicableTimezone: TimezoneEnum.TzAmericaNewYork }}
       invoice={invoice}
       editFeeDrawerRef={{ current: null } as unknown as React.RefObject<EditFeeDrawerRef>}
-      deleteAdjustedFeeDialogRef={
-        { current: null } as unknown as React.RefObject<DeleteAdjustedFeeDialogRef>
-      }
       fees={invoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
     />,
   )

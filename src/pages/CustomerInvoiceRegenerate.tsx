@@ -6,10 +6,6 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
-import {
-  DeleteAdjustedFeeDialog,
-  DeleteAdjustedFeeDialogRef,
-} from '~/components/invoices/details/DeleteAdjustedFeeDialog'
 import { EditFeeDrawer, EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
 import { InvoiceDetailsTable } from '~/components/invoices/details/InvoiceDetailsTable'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
@@ -106,7 +102,6 @@ const CustomerInvoiceRegenerate = () => {
   const { customerId, invoiceId } = useParams()
   const navigate = useNavigate()
 
-  const deleteAdjustedFeeDialogRef = useRef<DeleteAdjustedFeeDialogRef>(null)
   const editFeeDrawerRef = useRef<EditFeeDrawerRef>(null)
 
   const {
@@ -392,7 +387,6 @@ const CustomerInvoiceRegenerate = () => {
                 customer={customer}
                 invoice={invoice}
                 editFeeDrawerRef={editFeeDrawerRef}
-                deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                 isDraftOverride={true}
                 onAdd={onAdd}
                 onDelete={onDelete}
@@ -547,7 +541,6 @@ const CustomerInvoiceRegenerate = () => {
         </Button>
       </CenteredPage.StickyFooter>
 
-      <DeleteAdjustedFeeDialog ref={deleteAdjustedFeeDialogRef} />
       <EditFeeDrawer ref={editFeeDrawerRef} />
     </CenteredPage.Wrapper>
   )

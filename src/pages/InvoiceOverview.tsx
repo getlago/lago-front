@@ -8,10 +8,6 @@ import { Alert } from '~/components/designSystem/Alert'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
-import {
-  DeleteAdjustedFeeDialog,
-  DeleteAdjustedFeeDialogRef,
-} from '~/components/invoices/details/DeleteAdjustedFeeDialog'
 import { EditFeeDrawer, EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
 import {
   InvoiceDetailsTable,
@@ -385,7 +381,6 @@ const InvoiceOverview = memo(
     const { invoiceId } = useParams()
 
     const billingEntity = invoice?.billingEntity
-    const deleteAdjustedFeeDialogRef = useRef<DeleteAdjustedFeeDialogRef>(null)
     const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
     const editFeeDrawerRef = useRef<EditFeeDrawerRef>(null)
 
@@ -559,7 +554,6 @@ const InvoiceOverview = memo(
                 customer={customer}
                 invoice={invoice}
                 editFeeDrawerRef={editFeeDrawerRef}
-                deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                 fees={fees}
               />
               {showExternalAppsSection && (
@@ -821,7 +815,6 @@ const InvoiceOverview = memo(
             </>
           )}
         </>
-        <DeleteAdjustedFeeDialog ref={deleteAdjustedFeeDialogRef} />
         <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
         <EditFeeDrawer ref={editFeeDrawerRef} />
       </ViewFeeDetailsDrawerProvider>

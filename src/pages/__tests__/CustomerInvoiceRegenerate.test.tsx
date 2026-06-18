@@ -39,7 +39,7 @@ jest.mock('~/generated/graphql', () => {
 })
 
 jest.mock('~/components/invoices/details/DeleteAdjustedFeeDialog', () => ({
-  DeleteAdjustedFeeDialog: jest.fn(() => null),
+  useDeleteAdjustedFeeDialog: () => ({ openDeleteAdjustedFeeDialog: jest.fn() }),
 }))
 
 jest.mock('~/components/invoices/details/EditFeeDrawer', () => ({
