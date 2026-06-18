@@ -144,6 +144,7 @@ import Text from '~/icons/text.svg'
 import Trash from '~/icons/trash.svg'
 import Underline from '~/icons/underline.svg'
 import Unlock from '~/icons/unlock.svg'
+import Upload from '~/icons/upload.svg'
 import UserAdd from '~/icons/user-add.svg'
 import UserMultiple from '~/icons/user-multiple.svg'
 import User from '~/icons/user.svg'
@@ -301,6 +302,7 @@ export const ALL_ICONS = {
   trash: Trash,
   underline: Underline,
   unlock: Unlock,
+  upload: Upload,
   'user-add': UserAdd,
   user: User,
   'user-multiple': UserMultiple,

@@ -1,7 +1,7 @@
 import { IconName } from 'lago-design-system'
 import { generatePath } from 'react-router-dom'
 
-import { useNavigate, VOID_ORDER_FORM_ROUTE } from '~/core/router'
+import { SIGN_ORDER_FORM_ROUTE, useNavigate, VOID_ORDER_FORM_ROUTE } from '~/core/router'
 import { OrderFormListItemFragment, OrderFormStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -29,6 +29,16 @@ export const useOrderFormActions = () => {
     // Download PDF — only when quote has content
     const version = orderForm.quote.currentVersion
     const content = version?.content
+
+    // Sign — only for generated status, requires orderFormsSign permission
+    if (orderForm.status === OrderFormStatusEnum.Generated && hasPermissions(['orderFormsSign'])) {
+      actions.push({
+        icon: 'writing-sign',
+        label: translate('text_1781686594125upfeikkemuy'),
+        onAction: () =>
+          navigate(generatePath(SIGN_ORDER_FORM_ROUTE, { orderFormId: orderForm.id })),
+      })
+    }
 
     if (content) {
       const header: QuotePdfHeaderData = {
