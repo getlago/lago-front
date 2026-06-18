@@ -1,6 +1,8 @@
 import type { EntityData } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
 import type { AddOnItem } from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
 
+import type { BillingItemPlan } from './serializeQuotePlanBillingItems'
+
 // --- Backend contract types (snake_case) ---
 
 export interface AddOnPayload {
@@ -30,6 +32,7 @@ export interface BillingItemAddon {
 
 export interface BillingItemsPayload {
   addons: BillingItemAddon[]
+  plans?: BillingItemPlan[]
 }
 
 // --- Serialization helpers ---

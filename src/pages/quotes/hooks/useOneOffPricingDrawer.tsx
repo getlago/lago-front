@@ -18,11 +18,7 @@ import {
   fromBillingItems,
   toBillingItems,
 } from '~/core/serializers/serializeQuoteBillingItems'
-import {
-  type AddOnForPricingSectionFragment,
-  CurrencyEnum,
-  OrderTypeEnum,
-} from '~/generated/graphql'
+import { type AddOnForPricingSectionFragment, CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -31,18 +27,17 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 const PRICING_DRAWER_FORM_ID = 'pricing-drawer-form'
 
-interface UsePricingDrawerReturn {
+export interface UseOneOffPricingDrawerReturn {
   onPricingCommand: OnPricingCommand
   isPricingDisabled: () => boolean
   entities: Record<string, EntityData>
   syncEntitiesWithBlocks: (blocks: PricingBlockAttributes[]) => BillingItemsPayload | null
 }
 
-export const usePricingDrawer = (
-  quoteOrderType: OrderTypeEnum | undefined,
+export const useOneOffPricingDrawer = (
   initialBillingItems?: unknown,
   customerCurrency?: CurrencyEnum | null,
-): UsePricingDrawerReturn => {
+): UseOneOffPricingDrawerReturn => {
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
   const formDrawer = useFormDrawer()
@@ -58,9 +53,6 @@ export const usePricingDrawer = (
       ) => void)
     | null
   >(null)
-  const quoteOrderTypeRef = useRef(quoteOrderType)
-
-  quoteOrderTypeRef.current = quoteOrderType
 
   // Hydrate from saved billingItems on mount / when quote data arrives
   useEffect(() => {
@@ -135,14 +127,7 @@ export const usePricingDrawer = (
           ),
         })
         .superRefine((data, ctx) => {
-          const orderType = quoteOrderTypeRef.current ?? OrderTypeEnum.SubscriptionCreation
-          const isPlanSelection =
-            orderType === OrderTypeEnum.SubscriptionCreation ||
-            orderType === OrderTypeEnum.SubscriptionAmendment
-
-          if (isPlanSelection) return
-
-          // One-off: at least one confirmed add-on
+          // At least one confirmed add-on
           const confirmed = data.addOnItems.filter((item) => item.addOnId)
 
           if (confirmed.length === 0) {
@@ -185,83 +170,50 @@ export const usePricingDrawer = (
       onDynamic: validationSchema,
     },
     onSubmit: ({ value }) => {
-      const orderType = quoteOrderTypeRef.current ?? OrderTypeEnum.SubscriptionCreation
-      const isPlanSelection =
-        orderType === OrderTypeEnum.SubscriptionCreation ||
-        orderType === OrderTypeEnum.SubscriptionAmendment
+      const confirmedItems = value.addOnItems.filter((item) => item.addOnId)
 
-      if (isPlanSelection) {
-        if (!value.planId) return
+      if (confirmedItems.length === 0) return
 
-        const entityData: Record<string, EntityData> = {
-          [value.planId]: {
-            entityId: value.planId,
-            entityType: 'plan',
-            name: value.planId,
-            code: '',
-          },
+      const entityData: Record<string, EntityData> = {}
+
+      confirmedItems.forEach((item) => {
+        entityData[item.localId] = {
+          entityId: item.localId,
+          entityType: 'addOn',
+          name: item.name,
+          invoiceDisplayName: item.invoiceDisplayName,
+          code: item.code,
+          description: item.description,
+          units: item.units,
+          unitAmountCents: item.unitAmountCents,
+          totalAmount: item.totalAmount,
+          fromDatetime: item.fromDatetime,
+          toDatetime: item.toDatetime,
         }
+      })
 
-        onSaveRef.current?.({ pricingType: 'plan' as const, entityIds: [value.planId] }, entityData)
-        const updatedPlan = { ...entitiesRef.current, ...entityData }
+      const billingItems = toBillingItems(confirmedItems, payloadsRef.current)
 
-        entitiesRef.current = updatedPlan
-        setEntities(updatedPlan)
-      } else {
-        const confirmedItems = value.addOnItems.filter((item) => item.addOnId)
+      onSaveRef.current?.(
+        {
+          pricingType: 'addOns' as const,
+          entityIds: confirmedItems.map((item) => item.addOnId),
+          localEntityIds: confirmedItems.map((item) => item.localId),
+        },
+        entityData,
+        billingItems,
+      )
+      const updatedAddOns = { ...entitiesRef.current, ...entityData }
 
-        if (confirmedItems.length === 0) return
-
-        const entityData: Record<string, EntityData> = {}
-
-        confirmedItems.forEach((item) => {
-          entityData[item.localId] = {
-            entityId: item.localId,
-            entityType: 'addOn',
-            name: item.name,
-            invoiceDisplayName: item.invoiceDisplayName,
-            code: item.code,
-            description: item.description,
-            units: item.units,
-            unitAmountCents: item.unitAmountCents,
-            totalAmount: item.totalAmount,
-            fromDatetime: item.fromDatetime,
-            toDatetime: item.toDatetime,
-          }
-        })
-
-        const billingItems = toBillingItems(confirmedItems, payloadsRef.current)
-
-        onSaveRef.current?.(
-          {
-            pricingType: 'addOns' as const,
-            entityIds: confirmedItems.map((item) => item.addOnId),
-            localEntityIds: confirmedItems.map((item) => item.localId),
-          },
-          entityData,
-          billingItems,
-        )
-        const updatedAddOns = { ...entitiesRef.current, ...entityData }
-
-        entitiesRef.current = updatedAddOns
-        setEntities(updatedAddOns)
-      }
+      entitiesRef.current = updatedAddOns
+      setEntities(updatedAddOns)
     },
   })
 
   const onPricingCommand: OnPricingCommand = useCallback(
     ({ onSave, editData }) => {
-      const orderType = quoteOrderTypeRef.current ?? OrderTypeEnum.SubscriptionCreation
-      const isPlanSelection =
-        orderType === OrderTypeEnum.SubscriptionCreation ||
-        orderType === OrderTypeEnum.SubscriptionAmendment
-
-      // One-off quotes: only allow one pricing block (new insertion only, not edits)
-      if (
-        orderType === OrderTypeEnum.OneOff &&
-        !editData &&
-        Object.keys(entitiesRef.current).length > 0
-      ) {
+      // Only allow one pricing block (new insertion only, not edits)
+      if (!editData && Object.keys(entitiesRef.current).length > 0) {
         return
       }
 
@@ -269,12 +221,8 @@ export const usePricingDrawer = (
 
       onSaveRef.current = onSave
 
-      // Build initial values from editData
-      const initialPlanId =
-        isPlanSelection && editData?.pricingType === 'plan' ? editData.entityIds[0] : ''
-
       const initialAddOnItems =
-        !isPlanSelection && editData?.pricingType === 'addOns'
+        editData?.pricingType === 'addOns'
           ? editData.entityIds.map((catalogId, i) => {
               const localId = editData.localEntityIds?.[i]
               const lookupId = localId ?? catalogId
@@ -300,7 +248,7 @@ export const usePricingDrawer = (
 
       form.reset(
         {
-          planId: initialPlanId,
+          planId: '',
           addOnItems: initialAddOnItems,
         },
         { keepDefaultValues: true },
@@ -315,10 +263,7 @@ export const usePricingDrawer = (
       }
 
       formDrawer.open({
-        title:
-          orderType === OrderTypeEnum.OneOff
-            ? translate('text_17799586575620rdqef1d7dq')
-            : translate('text_17799586575628qyl2jk1tbn'),
+        title: translate('text_17799586575620rdqef1d7dq'),
         form: {
           id: PRICING_DRAWER_FORM_ID,
           submit: handleSubmit,
@@ -333,7 +278,6 @@ export const usePricingDrawer = (
         children: (
           <PricingDrawerContent
             form={form}
-            quoteType={orderType}
             currency={currency}
             onAddOnPayloadCapture={captureAddOnPayload}
           />
@@ -381,11 +325,7 @@ export const usePricingDrawer = (
     [],
   )
 
-  const isPricingDisabled = useCallback(() => {
-    const orderType = quoteOrderTypeRef.current ?? OrderTypeEnum.SubscriptionCreation
-
-    return orderType === OrderTypeEnum.OneOff && Object.keys(entitiesRef.current).length > 0
-  }, [])
+  const isPricingDisabled = useCallback(() => Object.keys(entitiesRef.current).length > 0, [])
 
   return { onPricingCommand, isPricingDisabled, entities, syncEntitiesWithBlocks }
 }

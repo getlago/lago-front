@@ -58,6 +58,84 @@ interface RichTextEditorProps {
   isCompact?: boolean
 }
 
+const variableItems = [
+  { id: 'customerName', label: 'Customer Name' },
+  { id: 'planName', label: 'Plan Name' },
+  { id: 'amountDue', label: 'Amount Due' },
+  { id: 'invoiceNumber', label: 'Invoice Number' },
+  { id: 'dueDate', label: 'Due Date' },
+  { id: 'companyName', label: 'Company Name' },
+]
+
+const mentionSuggestion: NonNullable<MentionSchemaOptions['suggestion']> = {
+  char: '@',
+  items: ({ query }) =>
+    variableItems.filter((v) => v.label.toLowerCase().includes(query.toLowerCase())),
+  render: () => {
+    let renderer: ReactRenderer<MentionListRef>
+    let popup: TippyInstance[]
+
+    return {
+      onStart: (suggestionProps) => {
+        renderer = new ReactRenderer(MentionList, {
+          props: suggestionProps,
+          editor: suggestionProps.editor,
+        })
+
+        popup = tippy('body', {
+          getReferenceClientRect: () => suggestionProps.clientRect?.() ?? new DOMRect(),
+          appendTo: () => document.body,
+          content: renderer.element,
+          showOnCreate: true,
+          interactive: true,
+          trigger: 'manual',
+          placement: 'bottom-start',
+        })
+      },
+      onUpdate: (suggestionProps) => {
+        renderer.updateProps(suggestionProps)
+
+        popup[0].setProps({
+          getReferenceClientRect: () => suggestionProps.clientRect?.() ?? new DOMRect(),
+        })
+      },
+      onKeyDown: (keyDownProps) => {
+        if (keyDownProps.event.key === 'Escape') {
+          popup[0].hide()
+          return true
+        }
+
+        return renderer.ref?.onKeyDown(keyDownProps) ?? false
+      },
+      onExit: () => {
+        popup[0].destroy()
+        renderer.destroy()
+      },
+    }
+  },
+}
+
+const getInitialEditorContent = (content?: string, templates?: EditorTemplate[]) => {
+  if (content) {
+    return content
+  }
+
+  if (templates && templates.length > 0) {
+    return {
+      type: 'doc',
+      content: [
+        { type: 'paragraph' },
+        {
+          type: 'templateSelector',
+          attrs: { templates },
+        },
+      ],
+    }
+  }
+
+  return ''
+}
+
 const RichTextEditor = ({
   mode = 'edit',
   mentionValues = {},
@@ -77,18 +155,13 @@ const RichTextEditor = ({
   const { translate } = useInternationalization()
   const onChangeRef = useRef(onChange)
   const onPricingBlocksChangeRef = useRef(onPricingBlocksChange)
+  const onPricingCommandRef = useRef(onPricingCommand)
+  const isPricingDisabledRef = useRef(isPricingDisabled)
 
   onChangeRef.current = onChange
   onPricingBlocksChangeRef.current = onPricingBlocksChange
-
-  const variableItems = [
-    { id: 'customerName', label: 'Customer Name' },
-    { id: 'planName', label: 'Plan Name' },
-    { id: 'amountDue', label: 'Amount Due' },
-    { id: 'invoiceNumber', label: 'Invoice Number' },
-    { id: 'dueDate', label: 'Due Date' },
-    { id: 'companyName', label: 'Company Name' },
-  ]
+  onPricingCommandRef.current = onPricingCommand
+  isPricingDisabledRef.current = isPricingDisabled
 
   const editor = useEditor({
     extensions: [
@@ -105,56 +178,18 @@ const RichTextEditor = ({
       }).configure({
         ...mentionBaseConfig,
         mentionValues,
-        suggestion: {
-          char: '@',
-          items: ({ query }) =>
-            variableItems.filter((v) => v.label.toLowerCase().includes(query.toLowerCase())),
-          render: () => {
-            let renderer: ReactRenderer<MentionListRef>
-            let popup: TippyInstance[]
-
-            return {
-              onStart: (suggestionProps) => {
-                renderer = new ReactRenderer(MentionList, {
-                  props: suggestionProps,
-                  editor: suggestionProps.editor,
-                })
-
-                popup = tippy('body', {
-                  getReferenceClientRect: () => suggestionProps.clientRect?.() ?? new DOMRect(),
-                  appendTo: () => document.body,
-                  content: renderer.element,
-                  showOnCreate: true,
-                  interactive: true,
-                  trigger: 'manual',
-                  placement: 'bottom-start',
-                })
-              },
-              onUpdate: (suggestionProps) => {
-                renderer.updateProps(suggestionProps)
-
-                popup[0].setProps({
-                  getReferenceClientRect: () => suggestionProps.clientRect?.() ?? new DOMRect(),
-                })
-              },
-              onKeyDown: (keyDownProps) => {
-                if (keyDownProps.event.key === 'Escape') {
-                  popup[0].hide()
-                  return true
-                }
-
-                return renderer.ref?.onKeyDown(keyDownProps) ?? false
-              },
-              onExit: () => {
-                popup[0].destroy()
-                renderer.destroy()
-              },
-            }
-          },
-        },
+        suggestion: mentionSuggestion,
       } as MentionSchemaOptions),
       PricingBlock.configure({ entities: entitiesFromProps }),
-      SlashCommands.configure({ translate, onPricingCommand, isPricingDisabled }),
+      SlashCommands.configure({
+        translate,
+        onPricingCommand: onPricingCommand
+          ? (params) => onPricingCommandRef.current?.(params)
+          : undefined,
+        isPricingDisabled: isPricingDisabled
+          ? () => isPricingDisabledRef.current?.() ?? false
+          : undefined,
+      }),
       LinkPasteHandler,
       TemplateSelectorExtension.configure({ templates: templates ?? [] }),
       DragHandle,
@@ -167,20 +202,7 @@ const RichTextEditor = ({
           : 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10',
       },
     },
-    content:
-      content ??
-      (templates && templates.length > 0
-        ? {
-            type: 'doc',
-            content: [
-              { type: 'paragraph' },
-              {
-                type: 'templateSelector',
-                attrs: { templates },
-              },
-            ],
-          }
-        : ''),
+    content: getInitialEditorContent(content, templates),
     onUpdate: ({ editor: editorInstance }) => {
       onChangeRef.current?.()
       if (!onPricingBlocksChangeRef.current) return
