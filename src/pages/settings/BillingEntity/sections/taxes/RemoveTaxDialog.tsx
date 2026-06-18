@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import { Tax, useRemoveBillingEntityTaxesMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -15,17 +14,14 @@ gql`
   }
 `
 
-export type RemoveTaxDialogRef = {
-  openDialog: (billingEntityId: string, tax: Tax) => unknown
-  closeDialog: () => unknown
+type RemoveTaxDialogInfos = {
+  billingEntityId: string
+  tax: Tax
 }
 
-export const RemoveTaxDialog = forwardRef<RemoveTaxDialogRef>((_, ref) => {
+export const useRemoveTaxDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
-  const dialogRef = useRef<WarningDialogRef>(null)
-
-  const [tax, setTax] = useState<Tax | null>(null)
-  const [billingEntityId, setBillingEntityId] = useState<string | null>(null)
 
   const [removeTax] = useRemoveBillingEntityTaxesMutation({
     onCompleted(data) {
@@ -39,38 +35,24 @@ export const RemoveTaxDialog = forwardRef<RemoveTaxDialogRef>((_, ref) => {
     refetchQueries: ['getBillingEntityTaxes'],
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (_billingEntityId, _tax) => {
-      setBillingEntityId(_billingEntityId)
-      setTax(_tax)
-
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => {
-      dialogRef.current?.closeDialog()
-    },
-  }))
-
-  return (
-    <WarningDialog
-      ref={dialogRef}
-      title={translate('text_1743241419871l3utqcy1e3h')}
-      description={<Typography>{translate('text_1743241419871xs0wuhvffq9')}</Typography>}
-      onContinue={async () => {
-        if (billingEntityId && tax) {
-          await removeTax({
-            variables: {
-              input: {
-                billingEntityId,
-                taxCodes: [tax.code],
-              },
+  const openRemoveTaxDialog = ({ billingEntityId, tax }: RemoveTaxDialogInfos) => {
+    centralizedDialog.open({
+      title: translate('text_1743241419871l3utqcy1e3h'),
+      description: <Typography>{translate('text_1743241419871xs0wuhvffq9')}</Typography>,
+      colorVariant: 'danger',
+      actionText: translate('text_645bb193927b375079d28b34'),
+      onAction: async () => {
+        await removeTax({
+          variables: {
+            input: {
+              billingEntityId,
+              taxCodes: [tax.code],
             },
-          })
-        }
-      }}
-      continueText={translate('text_645bb193927b375079d28b34')}
-    />
-  )
-})
+          },
+        })
+      },
+    })
+  }
 
-RemoveTaxDialog.displayName = 'RemoveTaxDialog'
+  return { openRemoveTaxDialog }
+}
