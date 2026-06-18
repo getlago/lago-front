@@ -85,11 +85,6 @@ const mockOrderForm = {
       content: '<p>Order form body</p>',
       billingItems: {},
     },
-    customer: {
-      name: 'Acme',
-      billingConfiguration: { documentLocale: 'en' },
-      currency: CurrencyEnum.Usd,
-    },
   },
 }
 
