@@ -115,6 +115,27 @@ const mentionSuggestion: NonNullable<MentionSchemaOptions['suggestion']> = {
   },
 }
 
+const getInitialEditorContent = (content?: string, templates?: EditorTemplate[]) => {
+  if (content) {
+    return content
+  }
+
+  if (templates && templates.length > 0) {
+    return {
+      type: 'doc',
+      content: [
+        { type: 'paragraph' },
+        {
+          type: 'templateSelector',
+          attrs: { templates },
+        },
+      ],
+    }
+  }
+
+  return ''
+}
+
 const RichTextEditor = ({
   mode = 'edit',
   mentionValues = {},
@@ -181,20 +202,7 @@ const RichTextEditor = ({
           : 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10',
       },
     },
-    content:
-      content ??
-      (templates && templates.length > 0
-        ? {
-            type: 'doc',
-            content: [
-              { type: 'paragraph' },
-              {
-                type: 'templateSelector',
-                attrs: { templates },
-              },
-            ],
-          }
-        : ''),
+    content: getInitialEditorContent(content, templates),
     onUpdate: ({ editor: editorInstance }) => {
       onChangeRef.current?.()
       if (!onPricingBlocksChangeRef.current) return
