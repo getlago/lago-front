@@ -58,12 +58,13 @@ export const SubscriptionDetailsV2Plan = ({ subscriptionId }: Props) => {
     context: { silentError: [LagoApiError.NotFound] },
   })
 
-  const { data: overridesData } = useGetSubscriptionFixedChargeUnitsOverridesQuery({
-    variables: { subscriptionId },
-    skip: !subscriptionId,
-    fetchPolicy: 'no-cache',
-    context: { silentError: [LagoApiError.NotFound] },
-  })
+  const { data: overridesData, loading: overridesLoading } =
+    useGetSubscriptionFixedChargeUnitsOverridesQuery({
+      variables: { subscriptionId },
+      skip: !subscriptionId,
+      fetchPolicy: 'no-cache',
+      context: { silentError: [LagoApiError.NotFound] },
+    })
 
   const subscriptionFixedChargeUnitsById = useMemo(() => {
     const map: Record<string, string> = {}
@@ -101,6 +102,15 @@ export const SubscriptionDetailsV2Plan = ({ subscriptionId }: Props) => {
 
   if (!plan) {
     return null
+  }
+
+  // The fixed-charge rows derive their units from `override ?? planDefault`.
+  // Override units come from the separate no-cache overrides query, which
+  // resolves independently of the cached plan data. Holding the skeleton until
+  // it has settled avoids rendering the plan default first and then snapping to
+  // the override (or vice-versa) — the units flicker seen on initial load.
+  if (overridesLoading) {
+    return <PlanDetailsV2Skeleton />
   }
 
   return (

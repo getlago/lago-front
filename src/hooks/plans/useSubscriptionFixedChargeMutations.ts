@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { addToast } from '~/core/apolloClient'
@@ -66,8 +66,13 @@ const comparableTaxCodes = (taxes: BaselineFixedCharge['taxes']): string =>
   JSON.stringify((taxes ?? []).map((tax) => tax.code).sort())
 
 export const useSubscriptionFixedChargeMutations = ({ subscriptionId, fixedCharges }: Args) => {
+  const client = useApolloClient()
   const [updateSubscriptionFixedCharge] = useUpdateSubscriptionFixedChargeMutation({
-    refetchQueries: ['getSubscriptionForDetailsV2Plan', 'getSubscriptionFixedChargeUnitsOverrides'],
+    // Only the cached plan query is refreshed here. The override-aware units
+    // query is fetchPolicy: 'no-cache', and Apollo's name-based refetchQueries
+    // does not reliably re-run no-cache queries — it is refreshed explicitly in
+    // handleSaveCharge instead (see below).
+    refetchQueries: ['getSubscriptionForDetailsV2Plan'],
     awaitRefetchQueries: true,
     onCompleted(data) {
       if (data?.updateSubscriptionFixedCharge?.id) {
@@ -124,7 +129,19 @@ export const useSubscriptionFixedChargeMutations = ({ subscriptionId, fixedCharg
       variables: { input: buildInput(charge) },
     })
 
-    return !!data?.updateSubscriptionFixedCharge?.id
+    if (!data?.updateSubscriptionFixedCharge?.id) {
+      return false
+    }
+
+    // For a units-only override the plan is not cloned, so the cached plan
+    // query keeps showing plan defaults — the new units live only in the
+    // no-cache getSubscriptionFixedChargeUnitsOverrides query. Refresh it
+    // explicitly (client.refetchQueries calls refetch() directly, which honors
+    // no-cache) and await it so the list shows the new units once the drawer
+    // closes, instead of racing the stale plan default.
+    await client.refetchQueries({ include: ['getSubscriptionFixedChargeUnitsOverrides'] })
+
+    return true
   }
 
   // Delete is hidden on the sub tab; no-op to satisfy the shared handler shape.
