@@ -3,6 +3,18 @@ import { gql } from '@apollo/client'
 import { QuoteDetailItemFragment, useGetQuoteQuery } from '~/generated/graphql'
 
 gql`
+  fragment QuotePreviewVersion on QuoteVersion {
+    content
+    billingItems
+  }
+
+  fragment QuotePreviewCustomer on Customer {
+    currency
+    billingConfiguration {
+      documentLocale
+    }
+  }
+
   fragment QuoteDetailItem on Quote {
     id
     number
@@ -18,11 +30,8 @@ gql`
       id
       name
       externalId
-      currency
       netPaymentTerm
-      billingConfiguration {
-        documentLocale
-      }
+      ...QuotePreviewCustomer
       billingEntity {
         id
         code
@@ -48,12 +57,11 @@ gql`
       id
       status
       version
-      content
       currency
       startDate
       endDate
-      billingItems
       createdAt
+      ...QuotePreviewVersion
     }
   }
 

@@ -8,7 +8,6 @@ import type { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import BlockToolbar from './BlockControls/BlockToolbar'
-import { downloadMarkdownPdf } from './common/downloadMarkdownPdf'
 import {
   type EntityData,
   type OnPricingCommand,
@@ -48,7 +47,6 @@ interface RichTextEditorProps {
   content?: string
   templates?: EditorTemplate[]
   getMarkdownRef?: React.MutableRefObject<(() => string) | null>
-  downloadPdfRef?: React.MutableRefObject<(() => void) | null>
   onChange?: () => void
   onPricingCommand?: OnPricingCommand
   isPricingDisabled?: () => boolean
@@ -56,6 +54,7 @@ interface RichTextEditorProps {
   customerLocale?: Locale
   customerCurrency?: CurrencyEnum
   isCompact?: boolean
+  onPreviewReady?: (html: string) => void
 }
 
 const variableItems = [
@@ -143,7 +142,6 @@ const RichTextEditor = ({
   content,
   templates,
   getMarkdownRef,
-  downloadPdfRef,
   onPricingCommand,
   isPricingDisabled,
   onPricingBlocksChange,
@@ -151,6 +149,7 @@ const RichTextEditor = ({
   customerLocale,
   customerCurrency,
   isCompact,
+  onPreviewReady,
 }: RichTextEditorProps) => {
   const { translate } = useInternationalization()
   const onChangeRef = useRef(onChange)
@@ -230,6 +229,23 @@ const RichTextEditor = ({
     }
   }, [editor, isPreview])
 
+  useEffect(() => {
+    if (!editor || !isPreview || !onPreviewReady) return
+
+    let raf2 = 0
+
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        onPreviewReady(editor.view.dom.innerHTML)
+      })
+    })
+
+    return () => {
+      cancelAnimationFrame(raf1)
+      cancelAnimationFrame(raf2)
+    }
+  }, [editor, isPreview, onPreviewReady])
+
   const getMarkdown = useCallback((): string | undefined => {
     if (!editor || !editor.storage || !('markdown' in editor.storage)) return undefined
 
@@ -271,24 +287,6 @@ const RichTextEditor = ({
       }
     }
   }, [getMarkdownRef, getMarkdown])
-
-  useEffect(() => {
-    if (!downloadPdfRef) return
-
-    downloadPdfRef.current = () => {
-      const markdown = getMarkdown()
-
-      if (markdown) {
-        downloadMarkdownPdf({ markdown, mentionValues, entities: entitiesFromProps })
-      }
-    }
-
-    return () => {
-      if (downloadPdfRef) {
-        downloadPdfRef.current = null
-      }
-    }
-  }, [downloadPdfRef, getMarkdown, mentionValues, entitiesFromProps])
 
   if (!editor) return null
 

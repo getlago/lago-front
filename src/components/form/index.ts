@@ -1,4 +1,5 @@
 export * from './AmountInput'
+export * from './DocumentUploader'
 export * from './ButtonSelector'
 export * from './Checkbox'
 export * from './ComboBox'
