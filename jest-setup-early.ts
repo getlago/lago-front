@@ -5,6 +5,19 @@
  * so we can intercept warnings from libraries that cache console references.
  */
 
+import { TextDecoder, TextEncoder } from 'node:util'
+
+// `react-dom/server.browser` (used to render the quote PDF header to static
+// markup) references TextEncoder/TextDecoder at import time. jsdom does not
+// expose them as globals, so polyfill from Node's util before anything imports
+// react-dom/server. Browsers provide these natively, so this is test-only.
+if (typeof globalThis.TextEncoder === 'undefined') {
+  globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder
+}
+if (typeof globalThis.TextDecoder === 'undefined') {
+  globalThis.TextDecoder = TextDecoder as unknown as typeof globalThis.TextDecoder
+}
+
 /**
  * Patterns to suppress in test console output.
  * Each pattern is an array of strings that must ALL be present in the message.
