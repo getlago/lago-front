@@ -5,7 +5,11 @@ import { useNavigate, VOID_ORDER_FORM_ROUTE } from '~/core/router'
 import { OrderFormListItemFragment, OrderFormStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import { buildQuotePreviewProps } from '~/pages/quotes/common/buildQuotePreviewProps'
+import { intlFormatDateTime } from '~/core/timezone'
+import {
+  buildQuotePreviewProps,
+  type QuotePdfHeaderData,
+} from '~/pages/quotes/common/buildQuotePreviewProps'
 import { useDownloadQuotePdf } from '~/pages/quotes/common/QuotePdfProvider'
 
 export interface OrderFormAction {
@@ -28,11 +32,27 @@ export const useOrderFormActions = () => {
     const content = version?.content
 
     if (content) {
+      const header: QuotePdfHeaderData = {
+        documentNumber: orderForm.number,
+        rows: [
+          {
+            label: translate('text_65201c5a175a4b0238abf29a'), // Customer
+            value: orderForm.customer.name ?? '',
+          },
+          {
+            label: translate('text_664cb90097bfa800e6efa3f5'), // Date
+            value: intlFormatDateTime(orderForm.createdAt).date,
+          },
+        ],
+      }
+
       actions.push({
         icon: 'download',
         label: translate('text_17797156485850t8yms6hf7z'),
         onAction: () => {
-          void download(buildQuotePreviewProps(version, orderForm.customer)).catch(() => undefined)
+          void download(buildQuotePreviewProps(version, orderForm.customer, header)).catch(
+            () => undefined,
+          )
         },
       })
     }

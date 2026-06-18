@@ -29,6 +29,10 @@ jest.mock('~/pages/quotes/common/buildQuotePreviewProps', () => ({
   buildQuotePreviewProps: jest.fn(() => ({ content: '# Hello World' })),
 }))
 
+jest.mock('~/core/timezone', () => ({
+  intlFormatDateTime: jest.fn(() => ({ date: 'Apr 10, 2026' })),
+}))
+
 const mockedBuildQuotePreviewProps = buildQuotePreviewProps as jest.MockedFunction<
   typeof buildQuotePreviewProps
 >
@@ -159,7 +163,7 @@ describe('useOrderFormActions', () => {
 
   describe('GIVEN the download action', () => {
     describe('WHEN triggered', () => {
-      it('THEN should download with the props from buildQuotePreviewProps', () => {
+      it('THEN should download with preview props including the header data', () => {
         const { result } = renderHook(() => useOrderFormActions())
         const orderForm = createMockOrderForm()
         const actions = result.current.getActions(orderForm)
@@ -170,6 +174,13 @@ describe('useOrderFormActions', () => {
         expect(mockedBuildQuotePreviewProps).toHaveBeenCalledWith(
           orderForm.quote.currentVersion,
           orderForm.customer,
+          {
+            documentNumber: 'OF-2026-0001',
+            rows: [
+              { label: 'text_65201c5a175a4b0238abf29a', value: 'Acme Corp' },
+              { label: 'text_664cb90097bfa800e6efa3f5', value: 'Apr 10, 2026' },
+            ],
+          },
         )
         expect(mockDownload).toHaveBeenCalledWith({ content: '# Hello World' })
       })
