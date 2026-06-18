@@ -107,7 +107,19 @@ export const printHtmlContent = (html: string, options?: { title?: string }): vo
         return
       }
 
+      // The browser's "Save as PDF" dialog derives its suggested filename from
+      // the TOP document's title (not the iframe's), so temporarily swap it to
+      // the requested title and restore it once printing finishes.
+      const previousDocumentTitle = document.title
+
+      if (options?.title) {
+        document.title = options.title
+      }
+
       const cleanup = (): void => {
+        if (options?.title) {
+          document.title = previousDocumentTitle
+        }
         iframe.remove()
       }
 

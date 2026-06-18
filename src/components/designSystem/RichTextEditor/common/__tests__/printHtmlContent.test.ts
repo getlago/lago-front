@@ -368,6 +368,47 @@ describe('printHtmlContent', () => {
 
   describe('GIVEN a title option', () => {
     describe('WHEN printHtmlContent is called', () => {
+      it('THEN should swap the parent document title to it and restore it after printing', async () => {
+        const originalTitle = document.title
+
+        document.title = 'Lago - Local'
+
+        const mockDoc = createMockIframeDoc()
+        const captured: { onafterprint: (() => void) | null } = { onafterprint: null }
+        const mockPrint = jest.fn()
+
+        const contentWindow = {
+          print: mockPrint,
+          set onafterprint(cb: (() => void) | null) {
+            captured.onafterprint = cb
+          },
+          get onafterprint() {
+            return captured.onafterprint
+          },
+        }
+
+        jest.spyOn(document, 'createElement').mockReturnValueOnce({
+          style: {} as CSSStyleDeclaration,
+          contentDocument: mockDoc,
+          contentWindow,
+          remove: removeSpy,
+        } as unknown as HTMLIFrameElement)
+
+        printHtmlContent('<p>Hello</p>', { title: 'OF-2026-0012' })
+
+        await Promise.resolve()
+        await Promise.resolve()
+
+        // Before printing finishes, the parent title is the requested filename.
+        expect(document.title).toBe('OF-2026-0012')
+
+        // After printing finishes, the original parent title is restored.
+        captured.onafterprint?.()
+        expect(document.title).toBe('Lago - Local')
+
+        document.title = originalTitle
+      })
+
       it('THEN should set the iframe document title', () => {
         const mockDoc = createMockIframeDoc()
         const mockPrint = jest.fn()
