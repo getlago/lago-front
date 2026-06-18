@@ -482,3 +482,21 @@
     color: inherit !important;
   }
 }
+
+/* PDF document header — rendered once at the top of page 1 by QuotePdfProvider.
+   Mirrored into the print iframe via printHtmlContent's stylesheet copy. */
+.quote-pdf-header {
+  @apply mb-8 border-b border-grey-300 pb-4;
+}
+
+.quote-pdf-header__number {
+  @apply mb-2 text-2xl font-semibold text-grey-700;
+}
+
+.quote-pdf-header__row {
+  @apply flex justify-between text-base leading-6 text-grey-600;
+}
+
+.quote-pdf-header__label {
+  @apply font-medium text-grey-500;
+}
