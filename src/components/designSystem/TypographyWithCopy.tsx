@@ -47,7 +47,7 @@ export const TypographyWithCopy: FC<TypographyWithCopyProps> = ({
         className={tw(
           '-ml-1 px-1 py-0',
           {
-            '!ml-0 !h-auto !min-h-0 !min-w-0 !items-baseline !py-0 [&_.MuiButton-endIcon>svg]:!size-3 [&_.MuiButton-endIcon]:!ml-1':
+            '!h-auto !min-h-0 !min-w-0 !items-baseline !py-0 [&_.MuiButton-endIcon>svg]:!size-3 [&_.MuiButton-endIcon]:!ml-1':
               compact,
           },
           className,

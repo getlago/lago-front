@@ -82,7 +82,8 @@ describe('TypographyWithCopy', () => {
 
         const button = screen.getByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID)
 
-        expect(button).toHaveClass('!ml-0')
+        expect(button).toHaveClass('-ml-1')
+        expect(button).not.toHaveClass('!ml-0')
         expect(button).toHaveClass('!h-auto')
         expect(button).toHaveClass('!items-baseline')
       })
