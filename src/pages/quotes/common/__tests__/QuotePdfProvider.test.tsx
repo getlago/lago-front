@@ -1,5 +1,8 @@
+import { ThemeProvider } from '@mui/material/styles'
 import { act, configure, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+
+import { theme } from '~/styles'
 
 import type { QuotePreviewProps } from '../buildQuotePreviewProps'
 import { QuotePdfProvider, useDownloadQuotePdf } from '../QuotePdfProvider'
@@ -143,23 +146,23 @@ describe('QuotePdfProvider', () => {
     )
   })
 
-  it('prepends an escaped header block and passes the document number as title', async () => {
+  it('prepends the rendered header before the content and passes the document number as title', async () => {
     const propsWithHeader = {
       ...PROPS,
       content: '<p>body</p>',
       header: {
         documentNumber: 'OF-2026-0012',
-        rows: [
-          { label: 'Customer', value: 'Acme & Co <script>' },
-          { label: 'Date', value: 'Apr 10, 2026' },
-        ],
+        title: 'Order form for Acme Corp',
+        rows: ['Order form number OF-2026-0012'],
       },
     }
 
     render(
-      <QuotePdfProvider>
-        <Consumer props={propsWithHeader} />
-      </QuotePdfProvider>,
+      <ThemeProvider theme={theme}>
+        <QuotePdfProvider>
+          <Consumer props={propsWithHeader} />
+        </QuotePdfProvider>
+      </ThemeProvider>,
     )
 
     act(() => {
@@ -172,11 +175,11 @@ describe('QuotePdfProvider', () => {
 
     const [html, options] = (printHtmlContent as jest.Mock).mock.calls[0]
 
-    expect(html).toContain('quote-pdf-header')
-    expect(html).toContain('OF-2026-0012')
-    expect(html).toContain('Acme &amp; Co &lt;script&gt;') // escaped
+    expect(html).toContain('Order form for Acme Corp')
+    expect(html).toContain('Order form number OF-2026-0012')
     expect(html).toContain('<p>rendered</p>')
-    expect(html.indexOf('quote-pdf-header')).toBeLessThan(html.indexOf('<p>rendered</p>'))
+    // Header is emitted before the editor content.
+    expect(html.indexOf('Order form for Acme Corp')).toBeLessThan(html.indexOf('<p>rendered</p>'))
     expect(options).toEqual({ title: 'OF-2026-0012' })
   })
 

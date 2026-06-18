@@ -1,22 +1,23 @@
+import { Typography } from '~/components/designSystem/Typography'
+
 import type { QuotePdfHeaderData } from './buildQuotePreviewProps'
 
 /**
  * One-time header rendered at the top of page 1 of a quote / order-form PDF.
  *
- * This is serialized to a static HTML string (via `renderToStaticMarkup`) and
- * injected into the print iframe by `QuotePdfProvider` — it is never mounted in
- * the live app. Styling lives in `richTextEditor.css` under `.quote-pdf-header*`,
- * which `printHtmlContent` mirrors into the iframe. React escapes the
- * backend-sourced text values, so no manual HTML-escaping is needed here.
+ * Mounted live (off-screen) by `QuotePdfProvider`, which captures its rendered
+ * DOM and injects it into the print iframe. Rendering live — rather than
+ * serializing in isolation — is what lets design-system components like
+ * `Typography` work: their MUI theme + emotion styles are present in the app's
+ * <head>, and `printHtmlContent` copies those stylesheets into the iframe.
  */
 export const QuotePdfHeader = ({ header }: { header: QuotePdfHeaderData }) => (
-  <div className="quote-pdf-header">
-    <div className="quote-pdf-header__number">{header.documentNumber}</div>
-    {header.rows.map((row) => (
-      <div className="quote-pdf-header__row" key={row.label}>
-        <span className="quote-pdf-header__label">{row.label}</span>
-        <span className="quote-pdf-header__value">{row.value}</span>
-      </div>
+  <div className="flex flex-col gap-1">
+    <Typography variant="subhead1">{header.title}</Typography>
+    {header.rows.map((row, index) => (
+      <Typography key={index} variant="caption" color="grey600">
+        {row}
+      </Typography>
     ))}
   </div>
 )

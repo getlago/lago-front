@@ -1,7 +1,6 @@
 import { CurrencyEnum } from '~/generated/graphql'
 
-import { buildQuotePreviewProps } from '../buildQuotePreviewProps'
-import type { QuotePdfHeaderData } from '../buildQuotePreviewProps'
+import { buildQuotePreviewProps, type QuotePdfHeaderData } from '../buildQuotePreviewProps'
 
 jest.mock('~/core/serializers/serializeQuoteBillingItems', () => ({
   buildPreviewEntities: jest.fn(() => ({ 'addon-1': { entityId: 'addon-1' } })),
@@ -65,10 +64,8 @@ describe('buildQuotePreviewProps', () => {
     }
     const header: QuotePdfHeaderData = {
       documentNumber: 'OF-2026-0012',
-      rows: [
-        { label: 'Customer', value: 'Acme Corp' },
-        { label: 'Date', value: 'Apr 10, 2026' },
-      ],
+      title: 'Order form for Acme Corp',
+      rows: ['Order form number OF-2026-0012'],
     }
 
     const result = buildQuotePreviewProps(version, customer, header)

@@ -5,7 +5,6 @@ import { useNavigate, VOID_ORDER_FORM_ROUTE } from '~/core/router'
 import { OrderFormListItemFragment, OrderFormStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import { intlFormatDateTime } from '~/core/timezone'
 import {
   buildQuotePreviewProps,
   type QuotePdfHeaderData,
@@ -33,16 +32,14 @@ export const useOrderFormActions = () => {
 
     if (content) {
       const header: QuotePdfHeaderData = {
-        documentNumber: orderForm.number,
+        documentNumber: orderForm.number ?? '',
+        title: translate('text_1781778938224v233vcwkqyt', {
+          customerName: orderForm.customer.name ?? '',
+        }),
         rows: [
-          {
-            label: translate('text_65201c5a175a4b0238abf29a'), // Customer
-            value: orderForm.customer.name ?? '',
-          },
-          {
-            label: translate('text_664cb90097bfa800e6efa3f5'), // Date
-            value: intlFormatDateTime(orderForm.createdAt).date,
-          },
+          translate('text_1781778938224iupllzr5sgb', {
+            orderFormNumber: orderForm.number ?? '',
+          }),
         ],
       }
 

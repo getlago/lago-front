@@ -29,10 +29,6 @@ jest.mock('~/pages/quotes/common/buildQuotePreviewProps', () => ({
   buildQuotePreviewProps: jest.fn(() => ({ content: '# Hello World' })),
 }))
 
-jest.mock('~/core/timezone', () => ({
-  intlFormatDateTime: jest.fn(() => ({ date: 'Apr 10, 2026' })),
-}))
-
 const mockedBuildQuotePreviewProps = buildQuotePreviewProps as jest.MockedFunction<
   typeof buildQuotePreviewProps
 >
@@ -176,10 +172,8 @@ describe('useOrderFormActions', () => {
           orderForm.customer,
           {
             documentNumber: 'OF-2026-0001',
-            rows: [
-              { label: 'text_65201c5a175a4b0238abf29a', value: 'Acme Corp' },
-              { label: 'text_664cb90097bfa800e6efa3f5', value: 'Apr 10, 2026' },
-            ],
+            title: 'text_1781778938224v233vcwkqyt',
+            rows: ['text_1781778938224iupllzr5sgb'],
           },
         )
         expect(mockDownload).toHaveBeenCalledWith({ content: '# Hello World' })

@@ -8,7 +8,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
 
 import { printHtmlContent } from '~/components/designSystem/RichTextEditor/common/printHtmlContent'
 import RichTextEditor from '~/components/designSystem/RichTextEditor/RichTextEditor'
@@ -37,6 +36,7 @@ export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
   const currentRef = useRef<PendingRequest | null>(null)
   const queueRef = useRef<PendingRequest[]>([])
   const requestIdRef = useRef(0)
+  const headerRef = useRef<HTMLDivElement>(null)
 
   const advance = useCallback(() => {
     const next = queueRef.current.shift() ?? null
@@ -79,7 +79,9 @@ export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
       if (!current) return
 
       const header = current.props.header
-      const headerHtml = header ? renderToStaticMarkup(<QuotePdfHeader header={header} />) : ''
+      // The header is mounted live (below), so we capture its already-rendered
+      // DOM — this carries the resolved MUI/emotion styles into the print HTML.
+      const headerHtml = header && headerRef.current ? headerRef.current.innerHTML : ''
       const fullHtml = `<div class="rich-text-editor">${headerHtml}<div class="ProseMirror" contenteditable="false">${html}</div></div>`
 
       if (header) {
@@ -112,6 +114,11 @@ export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
       {children}
       {current && (
         <div key={current.id} className="fixed left-[-9999px] top-0" aria-hidden>
+          {current.props.header && (
+            <div ref={headerRef}>
+              <QuotePdfHeader header={current.props.header} />
+            </div>
+          )}
           <RichTextEditor
             mode="preview"
             isCompact

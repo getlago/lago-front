@@ -11,8 +11,9 @@ import type {
 } from '~/generated/graphql'
 
 export interface QuotePdfHeaderData {
+  title: string
+  rows: Array<string>
   documentNumber: string
-  rows: Array<{ label: string; value: string }>
 }
 
 export interface QuotePreviewProps {
