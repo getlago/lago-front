@@ -7,9 +7,10 @@ import { Spinner } from '~/components/designSystem/Spinner'
 import { switchCurrentOrganization } from '~/core/apolloClient'
 import {
   currentOrganizationVar,
-  getCurrentOrganizationId,
+  getPersistedOrganizationSlug,
   locationHistoryVar,
   setCurrentOrganizationId,
+  setPersistedOrganizationSlug,
 } from '~/core/apolloClient/reactiveVars'
 import { useLocation, useNavigate } from '~/core/router'
 import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'
@@ -63,7 +64,8 @@ const OrganizationLayout = () => {
   const isIframeContext = hasIframeParams(location.search)
 
   // Multi-membership recovery — applies when `soleMembershipSlug` is undefined
-  // (i.e., user has ≥2 memberships). LS-first → `memberships[0]` fallback.
+  // (i.e., user has ≥2 memberships). Resolves via the in-memory org var
+  // (`null` here on a legacy slug-less path) → `memberships[0]` fallback.
   const multiMembershipRecoverySlug = !soleMembershipSlug ? resolveOrgSlug(currentUser) : undefined
 
   const recoveredSlug = soleMembershipSlug ?? multiMembershipRecoverySlug
@@ -80,8 +82,11 @@ const OrganizationLayout = () => {
       } else {
         setCurrentOrganizationId(org.id)
       }
+      // Remember the last used org slug — the only org-related LS write. Read
+      // by `RootRedirect` at `/` to pick a landing slug when the URL has none.
+      setPersistedOrganizationSlug(org.slug)
     }
-  }, [org?.id, currentOrgId, client])
+  }, [org?.id, org?.slug, currentOrgId, client])
 
   // Auto-recover legacy paths universally. Runs in an effect (not render) to
   // avoid React's "cannot update during render" warning when navigation
@@ -139,9 +144,11 @@ const OrganizationLayout = () => {
     // slug-less path. That's a real bug — emit `error` so it's actionable.
     const previousLocations = locationHistoryVar()
     const previousPath = previousLocations[0]?.pathname
-    const orgIdFromLS = getCurrentOrganizationId()
+    // Use the persisted last-used slug to guess the org the user was on (the
+    // var is null on a legacy slug-less path); analytics-only signal.
+    const persistedSlug = getPersistedOrganizationSlug()
     const currentOrg = currentUser?.memberships?.find(
-      (m) => m.organization.id === orgIdFromLS,
+      (m) => m.organization.slug === persistedSlug,
     )?.organization
     const isMissedMigration = currentOrg?.slug && previousPath?.startsWith(`/${currentOrg.slug}/`)
 
@@ -158,7 +165,7 @@ const OrganizationLayout = () => {
           extra: {
             fullPath: location.pathname,
             previousPath: previousPath || null,
-            currentOrgId: orgIdFromLS,
+            currentOrgId: currentOrg?.id,
           },
         },
       )

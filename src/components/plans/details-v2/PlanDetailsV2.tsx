@@ -14,6 +14,8 @@ import {
   useGetPlanForDetailsV2Query,
 } from '~/generated/graphql'
 import { useDetailsV2ChargeMutations } from '~/hooks/plans/useDetailsV2ChargeMutations'
+import { useSubscriptionPremiumGate } from '~/hooks/plans/useSubscriptionPremiumGate'
+import { tw } from '~/styles/utils'
 
 import { EntitlementAccordionRef } from './accordions/EntitlementAccordion'
 import { PlanDetailsV2AdvancedSection } from './PlanDetailsV2AdvancedSection'
@@ -82,6 +84,7 @@ export const PlanDetailsV2 = ({
   subscriptionId,
   banner,
 }: PlanDetailsV2Props) => {
+  const { isGated, openPremiumDialog } = useSubscriptionPremiumGate(isInSubscriptionForm)
   const { data, loading } = useGetPlanForDetailsV2Query({
     variables: { planId },
     skip: !planId,
@@ -103,6 +106,13 @@ export const PlanDetailsV2 = ({
   }
 
   const handleAddClick = (id: string) => {
+    // Sub plan-override editing is premium-gated: freemium users get the upsell
+    // modal instead of the create drawer.
+    if (isGated) {
+      openPremiumDialog()
+      return
+    }
+
     if (id === PlanDetailsV2SectionId.FixedCharges) {
       fixedChargesRef.current?.openCreate()
     }
@@ -135,8 +145,10 @@ export const PlanDetailsV2 = ({
         onAddClick={handleAddClick}
       />
       <div className="flex flex-1 flex-col">
-        {!!banner && <div className="-ml-12">{banner}</div>}
-        <div className="flex flex-col gap-12 py-12 not-last-child:pb-12 not-last-child:shadow-b">
+        {!!banner && <div className="mt-12">{banner}</div>}
+        <div
+          className={tw('flex flex-col gap-12 py-12 not-last-child:pb-12 not-last-child:shadow-b')}
+        >
           {TOP_LEVEL_SECTION_IDS.map((id) => {
             if (id === PlanDetailsV2SectionId.PlanSettings) {
               return (

@@ -27,10 +27,6 @@ jest.mock('~/components/layouts/DetailsPage', () => ({
   },
 }))
 
-jest.mock('~/components/plans/details/PlanDetailsOverview', () => ({
-  PlanDetailsOverview: () => null,
-}))
-
 jest.mock('~/components/plans/details-v2/PlanDetailsV2', () => ({
   PlanDetailsV2: () => null,
 }))
@@ -71,13 +67,6 @@ jest.mock('~/generated/graphql', () => ({
     mockUseGetPlanForDetailsQuery(options),
 }))
 
-const mockIsFeatureFlagActive = jest.fn().mockReturnValue(false)
-
-jest.mock('~/core/utils/featureFlags', () => ({
-  ...jest.requireActual('~/core/utils/featureFlags'),
-  isFeatureFlagActive: (flag: string) => mockIsFeatureFlagActive(flag),
-}))
-
 interface MainHeaderDropdownAction {
   type: string
   items: { hidden?: boolean; label: string }[]
@@ -90,7 +79,6 @@ describe('PlanDetails', () => {
 
     useParamsMock.mockReturnValue({ planId: 'plan-123' })
     mockIsPremium.mockReturnValue(true)
-    mockIsFeatureFlagActive.mockReturnValue(false)
     mockUseGetPlanForDetailsQuery.mockReturnValue({
       data: {
         plan: {
@@ -253,39 +241,19 @@ describe('PlanDetails', () => {
     })
   })
 
-  describe('GIVEN the EDIT_DETAILS_PAGE feature flag', () => {
-    describe('WHEN the flag is off', () => {
-      it('THEN should render the legacy overview tab', () => {
+  describe('GIVEN the v2 overview tab', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should always serve the v2 overview at /overview', () => {
         mockHasPermissions.mockReturnValue(true)
-        mockIsFeatureFlagActive.mockReturnValue(false)
 
         render(<PlanDetails />)
 
         const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTab[]
         const overviewTab = tabs.find((t) => t.title === 'text_628cf761cbe6820138b8f2e4')
 
-        // The overview tab is always visible; the flag only swaps its content
-        // (legacy overview) and route (`/overview`).
         expect(overviewTab).toBeDefined()
         expect(overviewTab?.hidden).toBeFalsy()
         expect(overviewTab?.link).toContain('/overview')
-      })
-    })
-
-    describe('WHEN the flag is on', () => {
-      it('THEN should render the v2 edit overview tab', () => {
-        mockHasPermissions.mockReturnValue(true)
-        mockIsFeatureFlagActive.mockReturnValue(true)
-
-        render(<PlanDetails />)
-
-        const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTab[]
-        const overviewTab = tabs.find((t) => t.title === 'text_628cf761cbe6820138b8f2e4')
-
-        // Flag on routes the overview tab to the v2 edit page (`/edit-overview`).
-        expect(overviewTab).toBeDefined()
-        expect(overviewTab?.hidden).toBeFalsy()
-        expect(overviewTab?.link).toContain('edit-overview')
       })
     })
   })

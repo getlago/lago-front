@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { render } from '~/test-utils'
@@ -6,6 +6,10 @@ import { render } from '~/test-utils'
 import SlashCommandBlockWrapper, {
   SLASH_COMMAND_BLOCK_VIEW_TEST_ID,
 } from '../SlashCommandBlockWrapper'
+
+// The design-system <Typography variant="caption"> renders data-test="caption",
+// so the block's caption line can be targeted without touching the component.
+const CAPTION_TEST_ID = 'caption'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -39,10 +43,12 @@ describe('SlashCommandBlockWrapper', () => {
         expect(screen.getByText('Basic Plan (basic)')).toBeInTheDocument()
       })
 
-      it('THEN should render the click-to-edit translation key', () => {
+      it('THEN should render the caption line', () => {
         render(<SlashCommandBlockWrapper {...defaultProps} />)
 
-        expect(screen.getByText('text_1780329442633n0oe3prszsw')).toBeInTheDocument()
+        const button = screen.getByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)
+
+        expect(within(button).getByTestId(CAPTION_TEST_ID)).toBeInTheDocument()
       })
 
       it('THEN should render the button with the correct test id', () => {
@@ -91,6 +97,45 @@ describe('SlashCommandBlockWrapper', () => {
         )
 
         expect(screen.getByText('One-off invoice of $150.00')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a caption prefix is provided', () => {
+    describe('WHEN rendered with captionTextPrefix', () => {
+      it('THEN should render the prefix and a separator before the caption text', () => {
+        render(<SlashCommandBlockWrapper {...defaultProps} captionTextPrefix="basic" />)
+
+        const button = screen.getByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)
+        const caption = within(button).getByTestId(CAPTION_TEST_ID)
+
+        expect(caption).toHaveTextContent('basic •')
+      })
+    })
+  })
+
+  describe('GIVEN a caption suffix is provided', () => {
+    describe('WHEN rendered with captionTextSuffix', () => {
+      it('THEN should render the suffix after the caption text', () => {
+        render(<SlashCommandBlockWrapper {...defaultProps} captionTextSuffix="2 add-ons" />)
+
+        const button = screen.getByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)
+        const caption = within(button).getByTestId(CAPTION_TEST_ID)
+
+        expect(caption).toHaveTextContent('2 add-ons')
+      })
+    })
+  })
+
+  describe('GIVEN no caption prefix or suffix is provided', () => {
+    describe('WHEN rendered with only the required props', () => {
+      it('THEN should not render the prefix separator', () => {
+        render(<SlashCommandBlockWrapper {...defaultProps} />)
+
+        const button = screen.getByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)
+        const caption = within(button).getByTestId(CAPTION_TEST_ID)
+
+        expect(caption).not.toHaveTextContent('•')
       })
     })
   })

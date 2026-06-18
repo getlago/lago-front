@@ -2,12 +2,10 @@ import { act, renderHook } from '@testing-library/react'
 import type { Location } from 'react-router-dom'
 
 import { authTokenVar, locationHistoryVar } from '~/core/apolloClient'
-import { getItemFromLS } from '~/core/utils/localStorage'
 import { FeatureFlagEnum } from '~/generated/graphql'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 
 const mockNavigate = jest.fn()
-const mockGetItemFromLS = getItemFromLS as jest.Mock
 const mockHasPermissions = jest.fn()
 const mockHasPermissionsOr = jest.fn()
 const mockHasFeatureFlag = jest.fn()
@@ -84,15 +82,9 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   }),
 }))
 
-jest.mock('~/core/utils/localStorage', () => ({
-  ...jest.requireActual('~/core/utils/localStorage'),
-  getItemFromLS: jest.fn(),
-}))
-
 describe('useLocationHistory()', () => {
   beforeEach(() => {
     mockNavigate.mockClear()
-    mockGetItemFromLS.mockClear()
     mockHasPermissions.mockClear()
     mockHasPermissionsOr.mockClear()
     mockUseParams.mockReturnValue({})
@@ -117,10 +109,9 @@ describe('useLocationHistory()', () => {
     describe('when accessing a private route while not authenticated', () => {
       beforeEach(() => {
         authTokenVar(undefined)
-        mockGetItemFromLS.mockReturnValue('org-id-123')
       })
 
-      it('should redirect to login with router state containing from location and orgId', () => {
+      it('should redirect to login storing only the intended destination in router state', () => {
         const { result } = renderHook(() => useLocationHistory())
 
         act(() => {
@@ -130,24 +121,6 @@ describe('useLocationHistory()', () => {
         expect(mockNavigate).toHaveBeenCalledWith('/login', {
           state: {
             from: mockLocation,
-            orgId: 'org-id-123',
-          },
-          replace: true,
-        })
-      })
-
-      it('should store null orgId when no organization is set', () => {
-        mockGetItemFromLS.mockReturnValue(null)
-        const { result } = renderHook(() => useLocationHistory())
-
-        act(() => {
-          result.current.onRouteEnter({ private: true }, mockLocation)
-        })
-
-        expect(mockNavigate).toHaveBeenCalledWith('/login', {
-          state: {
-            from: mockLocation,
-            orgId: null,
           },
           replace: true,
         })
@@ -176,7 +149,7 @@ describe('useLocationHistory()', () => {
           })
 
           expect(mockNavigate).toHaveBeenCalledWith('/login?sfdc=true', {
-            state: { from: sfdcLocation, orgId: 'org-id-123' },
+            state: { from: sfdcLocation },
             replace: true,
           })
         })
@@ -197,7 +170,7 @@ describe('useLocationHistory()', () => {
           })
 
           expect(mockNavigate).toHaveBeenCalledWith('/login?ifrm=true', {
-            state: { from: ifrmLocation, orgId: 'org-id-123' },
+            state: { from: ifrmLocation },
             replace: true,
           })
         })
@@ -218,7 +191,7 @@ describe('useLocationHistory()', () => {
           })
 
           expect(mockNavigate).toHaveBeenCalledWith('/login?sfdc=true&plan=foo', {
-            state: { from: richLocation, orgId: 'org-id-123' },
+            state: { from: richLocation },
             replace: true,
           })
         })
@@ -239,7 +212,7 @@ describe('useLocationHistory()', () => {
           })
 
           expect(mockNavigate).toHaveBeenCalledWith('/login', {
-            state: { from: nonIframeLocation, orgId: 'org-id-123' },
+            state: { from: nonIframeLocation },
             replace: true,
           })
         })
@@ -257,7 +230,6 @@ describe('useLocationHistory()', () => {
           pathname: '/login',
           state: {
             from: { pathname: '/customers/123', search: '', hash: '', state: null, key: 'key' },
-            orgId: 'org-123',
           },
         }
 

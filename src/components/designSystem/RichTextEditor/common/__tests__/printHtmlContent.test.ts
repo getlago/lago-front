@@ -86,6 +86,33 @@ describe('printHtmlContent', () => {
         expect(mockDoc.head.appendChild).toHaveBeenCalled()
       })
 
+      it('THEN should reset html/body overflow so long content paginates', () => {
+        const mockDoc = createMockIframeDoc()
+        const mockPrint = jest.fn()
+
+        jest.spyOn(document, 'createElement').mockReturnValueOnce({
+          style: {} as CSSStyleDeclaration,
+          contentDocument: mockDoc,
+          contentWindow: { print: mockPrint, onafterprint: null },
+          remove: removeSpy,
+        } as unknown as HTMLIFrameElement)
+
+        printHtmlContent('<p>Hello</p>')
+
+        const appendedStyles = (mockDoc.head.appendChild as jest.Mock).mock.calls
+          .map((call) => call[0] as HTMLElement)
+          .filter((el) => el.tagName === 'STYLE')
+        const printReset = appendedStyles.find((el) =>
+          el.textContent?.includes('overflow: visible !important'),
+        )
+
+        // Without this reset, the SPA's copied `html, body { overflow: hidden }`
+        // clips the print to a single page.
+        expect(printReset).toBeDefined()
+        expect(printReset?.textContent).toContain('html, body')
+        expect(printReset?.textContent).toContain('height: auto !important')
+      })
+
       it('THEN should call print on the iframe contentWindow', async () => {
         const mockDoc = createMockIframeDoc()
         const mockPrint = jest.fn()
@@ -103,6 +130,26 @@ describe('printHtmlContent', () => {
         await jest.runAllTimersAsync()
 
         expect(mockPrint).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should give the iframe a sane off-screen page-sized layout box', () => {
+        const mockDoc = createMockIframeDoc()
+        const mockPrint = jest.fn()
+        const mockIframe = {
+          style: {} as CSSStyleDeclaration,
+          contentDocument: mockDoc,
+          contentWindow: { print: mockPrint, onafterprint: null },
+          remove: removeSpy,
+        } as unknown as HTMLIFrameElement
+
+        jest.spyOn(document, 'createElement').mockReturnValueOnce(mockIframe)
+
+        printHtmlContent('<p>Hello</p>')
+
+        expect(mockIframe.style.width).toBeTruthy()
+        expect(mockIframe.style.width).not.toBe('0')
+        expect(mockIframe.style.height).toBeTruthy()
+        expect(mockIframe.style.height).not.toBe('0')
       })
     })
   })
@@ -315,6 +362,67 @@ describe('printHtmlContent', () => {
         await jest.runAllTimersAsync()
 
         expect(mockPrint).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a title option', () => {
+    describe('WHEN printHtmlContent is called', () => {
+      it('THEN should swap the parent document title to it and restore it after printing', async () => {
+        const originalTitle = document.title
+
+        document.title = 'Lago - Local'
+
+        const mockDoc = createMockIframeDoc()
+        const captured: { onafterprint: (() => void) | null } = { onafterprint: null }
+        const mockPrint = jest.fn()
+
+        const contentWindow = {
+          print: mockPrint,
+          set onafterprint(cb: (() => void) | null) {
+            captured.onafterprint = cb
+          },
+          get onafterprint() {
+            return captured.onafterprint
+          },
+        }
+
+        jest.spyOn(document, 'createElement').mockReturnValueOnce({
+          style: {} as CSSStyleDeclaration,
+          contentDocument: mockDoc,
+          contentWindow,
+          remove: removeSpy,
+        } as unknown as HTMLIFrameElement)
+
+        printHtmlContent('<p>Hello</p>', { title: 'OF-2026-0012' })
+
+        await Promise.resolve()
+        await Promise.resolve()
+
+        // Before printing finishes, the parent title is the requested filename.
+        expect(document.title).toBe('OF-2026-0012')
+
+        // After printing finishes, the original parent title is restored.
+        captured.onafterprint?.()
+        expect(document.title).toBe('Lago - Local')
+
+        document.title = originalTitle
+      })
+
+      it('THEN should set the iframe document title', () => {
+        const mockDoc = createMockIframeDoc()
+        const mockPrint = jest.fn()
+
+        jest.spyOn(document, 'createElement').mockReturnValueOnce({
+          style: {} as CSSStyleDeclaration,
+          contentDocument: mockDoc,
+          contentWindow: { print: mockPrint, onafterprint: null },
+          remove: removeSpy,
+        } as unknown as HTMLIFrameElement)
+
+        printHtmlContent('<p>Hello</p>', { title: 'OF-2026-0012' })
+
+        expect((mockDoc as unknown as { title: string }).title).toBe('OF-2026-0012')
       })
     })
   })

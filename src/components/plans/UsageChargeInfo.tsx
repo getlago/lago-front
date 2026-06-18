@@ -171,6 +171,7 @@ export const UsageChargeInfo = ({
             ...filter,
             values: filter.values as Record<string, string[]>,
           })
+
           return (
             <Accordion
               key={`usage-charge-info-${charge.id}-filter-${i}`}

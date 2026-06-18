@@ -45,6 +45,7 @@ jest.mock('~/hooks/plans/useUpdatePlanWithCascade', () => ({
 const mockPremiumIntegrations = jest
   .fn()
   .mockReturnValue([PremiumIntegrationTypeEnum.ProgressiveBilling])
+
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: { premiumIntegrations: mockPremiumIntegrations() },
@@ -52,6 +53,7 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
 }))
 
 const mockHasPermissions = jest.fn().mockReturnValue(true)
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))

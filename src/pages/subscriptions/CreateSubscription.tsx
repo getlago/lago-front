@@ -577,11 +577,11 @@ const CreateSubscription = () => {
                 {!!subscriptionPlanId && (
                   <>
                     {/* Premium "Override plan" full-width divider */}
-                    <div className="relative my-20 flex flex-col items-center gap-3">
+                    <div className="relative mb-8 mt-20 flex flex-col items-center gap-3">
                       <div className="absolute left-1/2 top-0 h-[2px] w-[100vw] -translate-x-1/2 bg-purple-100" />
                       <div className="rounded-b bg-purple-100 px-4 py-1">
                         <Typography variant="captionHl" color="info600">
-                          {translate('text_65118a52df984447c18694d0')}
+                          {translate('text_65118a52df984447c18694d1')}
                         </Typography>
                       </div>
                     </div>
@@ -589,7 +589,7 @@ const CreateSubscription = () => {
                     {/* Premium upsell (non-premium users) */}
                     {!isPremium && (
                       <PremiumFeature
-                        feature={translate('text_65118a52df984447c18694d0')}
+                        feature={translate('text_65118a52df984447c18694d1')}
                         title={translate('text_65118a52df984447c18694d0')}
                         description={translate('text_65118a52df984447c18694da')}
                       />

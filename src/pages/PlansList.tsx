@@ -15,12 +15,7 @@ import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/Delete
 import { SearchInput } from '~/components/SearchInput'
 import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import {
-  CREATE_PLAN_ROUTE,
-  PLAN_DETAILS_ROUTE,
-  UPDATE_PLAN_ROUTE,
-  useNavigate,
-} from '~/core/router'
+import { CREATE_PLAN_ROUTE, PLAN_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { DeletePlanDialogFragmentDoc, usePlansLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
@@ -217,12 +212,13 @@ const PlansList = () => {
             if (canUpdatePlans) {
               actions.push({
                 startIcon: 'pen',
-                title: translate('text_625fd39a15394c0117e7d792'),
+                title: translate('text_17810296077545fp2y0ulzko'),
                 dataTest: 'tab-internal-button-link-update-plan',
                 onAction: () =>
                   navigate(
-                    generatePath(UPDATE_PLAN_ROUTE, {
+                    generatePath(PLAN_DETAILS_ROUTE, {
                       planId: plan.id,
+                      tab: PlanDetailsTabsOptionsEnum.overview,
                     }),
                   ),
               })

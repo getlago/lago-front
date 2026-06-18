@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { NodeViewProps } from '@tiptap/react'
 
@@ -113,7 +113,7 @@ describe('PricingBlockView', () => {
     })
 
     describe('WHEN rendered with entityIds that have context data (plan)', () => {
-      it('THEN should display the plan name and code', () => {
+      it('THEN should display the plan name as the main text and the code in the caption', () => {
         renderPricingBlockView({
           attrs: { pricingType: 'plan', entityIds: ['plan-1'] },
           entities: {
@@ -128,7 +128,26 @@ describe('PricingBlockView', () => {
 
         const button = screen.getByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)
 
-        expect(button).toHaveTextContent('Basic Plan (basic)')
+        expect(button).toHaveTextContent('Basic Plan')
+        expect(within(button).getByTestId('caption')).toHaveTextContent('basic')
+      })
+
+      it('THEN should render the plan (board) icon', () => {
+        renderPricingBlockView({
+          attrs: { pricingType: 'plan', entityIds: ['plan-1'] },
+          entities: {
+            'plan-1': {
+              entityId: 'plan-1',
+              entityType: 'plan',
+              name: 'Basic Plan',
+              code: 'basic',
+            },
+          },
+        })
+
+        const button = screen.getByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)
+
+        expect(within(button).getByTestId('board/medium')).toBeInTheDocument()
       })
     })
 
@@ -156,6 +175,25 @@ describe('PricingBlockView', () => {
 
         expect(button).toHaveTextContent('One-off invoice of')
         expect(button).toHaveTextContent('Click to edit')
+      })
+
+      it('THEN should render the add-ons (document) icon and no plan code prefix', () => {
+        renderPricingBlockView({
+          attrs: { pricingType: 'addOns', entityIds: ['addon-1'] },
+          entities: {
+            'addon-1': {
+              entityId: 'addon-1',
+              entityType: 'addOn',
+              name: 'Storage Add-on',
+              code: 'storage',
+            },
+          },
+        })
+
+        const button = screen.getByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)
+
+        expect(within(button).getByTestId('document/medium')).toBeInTheDocument()
+        expect(within(button).getByTestId('caption')).not.toHaveTextContent('•')
       })
     })
 

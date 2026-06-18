@@ -602,6 +602,7 @@ describe('DragHandle', () => {
 
         // Select the first block
         const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+
         ;(grips[0] as HTMLElement).click()
 
         const event = new KeyboardEvent('keydown', {
@@ -630,6 +631,7 @@ describe('DragHandle', () => {
 
         // Select first block via grip
         const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+
         ;(grips[0] as HTMLElement).click()
 
         expect(storage.hideMenu).toBe(false)
@@ -662,6 +664,7 @@ describe('DragHandle', () => {
 
         // Select first block
         const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+
         ;(grips[0] as HTMLElement).click()
 
         // First ESC — hides menu
@@ -701,6 +704,7 @@ describe('DragHandle', () => {
 
         // Select table via grip
         const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+
         ;(grips[1] as HTMLElement).click()
 
         expect(storage.selectedBlock).not.toBeNull()
@@ -728,6 +732,7 @@ describe('DragHandle', () => {
 
         // Select table via grip
         const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+
         ;(grips[1] as HTMLElement).click()
 
         // First ESC
@@ -776,6 +781,7 @@ describe('DragHandle', () => {
 
         // Select first block
         const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+
         ;(grips[0] as HTMLElement).click()
 
         expect(editor.state.selection instanceof NodeSelection).toBe(true)
@@ -807,6 +813,7 @@ describe('DragHandle', () => {
 
         // Select table via grip
         const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+
         ;(grips[1] as HTMLElement).click()
 
         expect(storage.selectedBlock).not.toBeNull()
@@ -837,6 +844,7 @@ describe('DragHandle', () => {
 
         // Select first block
         const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+
         ;(grips[0] as HTMLElement).click()
 
         expect(editor.state.selection instanceof NodeSelection).toBe(true)

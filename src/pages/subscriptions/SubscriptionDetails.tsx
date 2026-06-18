@@ -11,7 +11,6 @@ import { SubscriptionDetailsV2Overview } from '~/components/subscriptions/detail
 import { SubscriptionDetailsV2Plan } from '~/components/subscriptions/details-v2/SubscriptionDetailsV2Plan'
 import { SubscriptionActivityLogs } from '~/components/subscriptions/SubscriptionActivityLogs'
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
-import { SubscriptionDetailsOverview } from '~/components/subscriptions/SubscriptionDetailsOverview'
 import { SubscriptionEntitlementsTabContent } from '~/components/subscriptions/SubscriptionEntitlementsTabContent'
 import { SubscriptionProgressiveBillingTab } from '~/components/subscriptions/SubscriptionProgressiveBillingTab/SubscriptionProgressiveBillingTab'
 import { SubscriptionUsageTabContent } from '~/components/subscriptions/SubscriptionUsageTabContent'
@@ -29,7 +28,6 @@ import {
   useNavigate,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   LagoApiError,
   StatusTypeEnum,
@@ -146,53 +144,21 @@ const SubscriptionDetails = () => {
     }
 
     return [
-      isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE)
-        ? {
-            title: translate('text_628cf761cbe6820138b8f2e4'),
-            link: !!customerId
-              ? getCustomerSubscriptionDetailsRoute(
-                  CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-                )
-              : getPlanSubscriptionDetailsRoute(
-                  CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-                ),
-            match: [
-              getCustomerSubscriptionDetailsRoute(
-                CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-              ),
-              getPlanSubscriptionDetailsRoute(
-                CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-              ),
-            ],
-            content: (
-              <DetailsPage.Container>
-                <SubscriptionDetailsV2Overview subscriptionId={subscriptionId as string} />
-              </DetailsPage.Container>
-            ),
-            hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
-          }
-        : {
-            title: translate('text_628cf761cbe6820138b8f2e4'),
-            link: !!customerId
-              ? getCustomerSubscriptionDetailsRoute(
-                  CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-                )
-              : getPlanSubscriptionDetailsRoute(
-                  CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-                ),
-            match: [
-              getCustomerSubscriptionDetailsRoute(
-                CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-              ),
-              getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
-            ],
-            content: (
-              <DetailsPage.Container>
-                <SubscriptionDetailsOverview />
-              </DetailsPage.Container>
-            ),
-          },
-
+      {
+        title: translate('text_628cf761cbe6820138b8f2e4'),
+        link: !!customerId
+          ? getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview)
+          : getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
+        match: [
+          getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
+          getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
+        ],
+        content: (
+          <DetailsPage.Container>
+            <SubscriptionDetailsV2Overview subscriptionId={subscriptionId as string} />
+          </DetailsPage.Container>
+        ),
+      },
       {
         title: translate('text_17792001643316pbexygvpu2'),
         link: !!customerId
@@ -215,7 +181,6 @@ const SubscriptionDetails = () => {
             <SubscriptionDetailsV2Plan subscriptionId={subscriptionId as string} />
           </DetailsPage.Container>
         ),
-        hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
       },
       {
         title: translate('text_1724179887722baucvj7bvc1'),

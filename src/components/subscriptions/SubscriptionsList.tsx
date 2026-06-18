@@ -10,7 +10,6 @@ import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMa
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
-  UPDATE_SUBSCRIPTION,
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
   useNavigate,
 } from '~/core/router'
@@ -185,9 +184,22 @@ const generateActionColumn = ({
         title: translate('text_62d7f6178ec94cd09370e63c'),
         onAction: () =>
           navigate(
-            generatePath(UPDATE_SUBSCRIPTION, {
+            generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
               customerId: subscription.customer.id,
               subscriptionId: subscription.id,
+              tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+            }),
+          ),
+      },
+      {
+        startIcon: 'board',
+        title: translate('text_17810297639135ya0hmsldpi'),
+        onAction: () =>
+          navigate(
+            generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+              customerId: subscription.customer.id,
+              subscriptionId: subscription.id,
+              tab: CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
             }),
           ),
       },

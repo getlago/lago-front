@@ -13,7 +13,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 // Ref to access the form instance from tests
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 let formRef: any = null
 
 // Wrapper component that provides form context

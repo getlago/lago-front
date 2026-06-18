@@ -252,5 +252,5 @@ export const getBaseExtensions = (options?: BaseExtensionsOptions): Extensions =
   LinkCard,
   BlockColors,
   BlockMove,
-  Markdown.configure({ html: true }),
+  Markdown.configure({ html: true, transformPastedText: true }),
 ]

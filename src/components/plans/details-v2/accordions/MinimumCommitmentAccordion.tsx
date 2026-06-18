@@ -16,6 +16,7 @@ import { serializeMinimumCommitment } from '~/core/serializers/serializePlanInpu
 import { CommitmentTypeEnum, CurrencyEnum, PlanDetailsV2Fragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
+import { useSubscriptionPremiumGate } from '~/hooks/plans/useSubscriptionPremiumGate'
 import { useUpdatePlanWithCascade } from '~/hooks/plans/useUpdatePlanWithCascade'
 import { useUpdateSubscriptionPlanOverride } from '~/hooks/plans/useUpdateSubscriptionPlanOverride'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -38,6 +39,7 @@ export const MinimumCommitmentAccordion = ({
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const { canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
+  const { gateOnClick, premiumIcon } = useSubscriptionPremiumGate(isInSubscriptionForm)
   const drawerRef = useRef<MinimumCommitmentDrawerRef>(null)
 
   const currency = plan.amountCurrency || CurrencyEnum.Usd
@@ -120,7 +122,8 @@ export const MinimumCommitmentAccordion = ({
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
               startIcon: 'pen',
-              onClick: openEditDrawer,
+              endIcon: premiumIcon,
+              onClick: gateOnClick(openEditDrawer),
               hidden: !canUpdate,
             },
             {

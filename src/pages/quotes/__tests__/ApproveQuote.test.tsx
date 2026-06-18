@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { addToast } from '~/core/apolloClient'
-import { fromBillingItems } from '~/core/serializers/serializeQuoteBillingItems'
+import { buildPreviewEntities } from '~/core/serializers/serializeQuoteBillingItems'
 import { CurrencyEnum, OrderTypeEnum, StatusEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
@@ -60,12 +60,14 @@ jest.mock('~/core/apolloClient', () => ({
 }))
 
 jest.mock('~/core/serializers/serializeQuoteBillingItems', () => ({
-  fromBillingItems: jest.fn(),
+  buildPreviewEntities: jest.fn(),
 }))
 
 const mockUseQuote = useQuote as jest.MockedFunction<typeof useQuote>
 const mockUseApproveQuote = useApproveQuote as jest.MockedFunction<typeof useApproveQuote>
-const mockedFromBillingItems = fromBillingItems as jest.MockedFunction<typeof fromBillingItems>
+const mockedBuildPreviewEntities = buildPreviewEntities as jest.MockedFunction<
+  typeof buildPreviewEntities
+>
 
 const mockQuote = {
   id: 'quote-123',
@@ -372,11 +374,7 @@ describe('ApproveQuote', () => {
           },
         }
 
-        mockedFromBillingItems.mockReturnValue({
-          entities: mockEntities,
-          originalPayloads: {},
-          addOnItems: [],
-        })
+        mockedBuildPreviewEntities.mockReturnValue(mockEntities)
 
         mockUseQuote.mockReturnValue({
           quote: {
@@ -394,7 +392,7 @@ describe('ApproveQuote', () => {
 
         render(<ApproveQuote />)
 
-        expect(mockedFromBillingItems).toHaveBeenCalled()
+        expect(mockedBuildPreviewEntities).toHaveBeenCalled()
         expect(capturedRichTextEditorProps.entities).toEqual(mockEntities)
       })
     })
@@ -417,7 +415,7 @@ describe('ApproveQuote', () => {
 
         render(<ApproveQuote />)
 
-        expect(mockedFromBillingItems).not.toHaveBeenCalled()
+        expect(mockedBuildPreviewEntities).not.toHaveBeenCalled()
         expect(capturedRichTextEditorProps.entities).toEqual({})
       })
     })

@@ -34,6 +34,18 @@ jest.mock('../hooks/useOrderForms', () => ({
   useOrderForms: jest.fn(),
 }))
 
+const mockHasPermissions = jest.fn()
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: mockHasPermissions,
+  }),
+}))
+
+jest.mock('~/pages/quotes/common/QuotePdfProvider', () => ({
+  useDownloadQuotePdf: () => ({ download: jest.fn() }),
+}))
+
 const mockUseOrderForms = useOrderForms as jest.MockedFunction<typeof useOrderForms>
 
 const mockOrderForms = [
@@ -43,7 +55,11 @@ const mockOrderForms = [
     status: OrderFormStatusEnum.Generated,
     createdAt: '2026-04-10T10:00:00Z',
     customer: { id: 'customer-001', name: 'Acme Corp' },
-    quote: { id: 'q-1', number: 'QUO-001', currentVersion: { id: 'qv-1', version: 1 } },
+    quote: {
+      id: 'q-1',
+      number: 'QUO-001',
+      currentVersion: { id: 'qv-1', version: 1, content: '# Order Form 1' },
+    },
   },
   {
     id: 'of-2',
@@ -51,7 +67,11 @@ const mockOrderForms = [
     status: OrderFormStatusEnum.Signed,
     createdAt: '2026-04-11T14:00:00Z',
     customer: { id: 'customer-002', name: 'Globex Inc' },
-    quote: { id: 'q-2', number: 'QUO-002', currentVersion: { id: 'qv-2', version: 3 } },
+    quote: {
+      id: 'q-2',
+      number: 'QUO-002',
+      currentVersion: { id: 'qv-2', version: 3, content: '# Order Form 2' },
+    },
   },
   {
     id: 'of-3',
@@ -59,13 +79,18 @@ const mockOrderForms = [
     status: OrderFormStatusEnum.Voided,
     createdAt: '2026-04-12T08:00:00Z',
     customer: { id: 'customer-003', name: 'Wayne Enterprises' },
-    quote: { id: 'q-3', number: 'QUO-003', currentVersion: { id: 'qv-3', version: 2 } },
+    quote: {
+      id: 'q-3',
+      number: 'QUO-003',
+      currentVersion: { id: 'qv-3', version: 2, content: '# Order Form 3' },
+    },
   },
 ]
 
 describe('OrderFormsList', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasPermissions.mockReturnValue(true)
     mockUseOrderForms.mockReturnValue({
       orderForms: mockOrderForms,
       loading: false,
@@ -139,6 +164,16 @@ describe('OrderFormsList', () => {
         render(<OrderFormsList />)
 
         expect(screen.queryByTestId('table-row-0')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN order forms have actions', () => {
+      it('THEN should render action buttons for each row', () => {
+        render(<OrderFormsList />)
+
+        const actionButtons = screen.getAllByTestId('open-action-button')
+
+        expect(actionButtons.length).toBeGreaterThan(0)
       })
     })
   })

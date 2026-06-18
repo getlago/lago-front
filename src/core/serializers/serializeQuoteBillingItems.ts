@@ -1,6 +1,8 @@
 import type { EntityData } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
 import type { AddOnItem } from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
 
+import type { BillingItemPlan } from './serializeQuotePlanBillingItems'
+
 // --- Backend contract types (snake_case) ---
 
 export interface AddOnPayload {
@@ -30,6 +32,7 @@ export interface BillingItemAddon {
 
 export interface BillingItemsPayload {
   addons: BillingItemAddon[]
+  plans?: BillingItemPlan[]
 }
 
 // --- Serialization helpers ---
@@ -153,4 +156,27 @@ export const fromBillingItems = (billingItems: BillingItemsPayload): FromBilling
   }
 
   return { entities, addOnItems, originalPayloads }
+}
+
+/**
+ * Build the entity map used to render a saved quote preview (read-only flows
+ * such as ApproveQuote, where the pricing drawer is not mounted).
+ *
+ * Entries are dual-keyed: by the generated/saved `localId` AND by the catalog
+ * `addOnId`. Saved content blocks reference add-ons by `localEntityIds` (newer)
+ * or, when those were never persisted, by catalog `entityIds` (legacy). Keying
+ * both ways lets the preview resolve either reference — matching the
+ * backward-compat behavior of `usePricingDrawer` used by the EditQuote flow.
+ */
+export const buildPreviewEntities = (
+  billingItems: BillingItemsPayload,
+): Record<string, EntityData> => {
+  const { entities, addOnItems } = fromBillingItems(billingItems)
+  const previewEntities: Record<string, EntityData> = { ...entities }
+
+  for (const item of addOnItems) {
+    previewEntities[item.addOnId] = entities[item.localId]
+  }
+
+  return previewEntities
 }

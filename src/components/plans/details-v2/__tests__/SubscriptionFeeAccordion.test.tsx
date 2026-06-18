@@ -42,6 +42,7 @@ const mockHasPermissions = jest.fn((perms?: string[]) => {
   if (!perms) return true
   return !perms.includes('none')
 })
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))

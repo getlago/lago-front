@@ -8,9 +8,7 @@ const createEditor = (content = '') =>
     content,
   })
 
-const getMarkdown = (editor: Editor): string =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (editor.storage as any).markdown.getMarkdown()
+const getMarkdown = (editor: Editor): string => (editor.storage as any).markdown.getMarkdown()
 
 describe('getBaseExtensions', () => {
   describe('GIVEN no options are provided', () => {
@@ -279,6 +277,23 @@ describe('getBaseExtensions', () => {
 
         expect(names.length).toBe(uniqueNames.size)
       })
+    })
+  })
+
+  describe('GIVEN the Markdown extension', () => {
+    const findMarkdown = () => getBaseExtensions().find((ext) => ext.name === 'markdown')
+
+    it('THEN is configured to transform pasted plain text as markdown', () => {
+      const markdown = findMarkdown()
+
+      expect(markdown).toBeDefined()
+      expect(markdown?.options.transformPastedText).toBe(true)
+    })
+
+    it('THEN still allows inline HTML (existing behavior preserved)', () => {
+      const markdown = findMarkdown()
+
+      expect(markdown?.options.html).toBe(true)
     })
   })
 })
