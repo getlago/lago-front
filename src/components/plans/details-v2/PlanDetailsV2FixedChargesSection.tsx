@@ -231,7 +231,9 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
                 label: translate('text_63e51ef4985f0ebd75c212fc'),
                 startIcon: 'pen',
                 endIcon: premiumIcon,
-                onClick: gateOnClick(() => openEdit(toLocalInput(fixedCharge, effectiveUnits), index)),
+                onClick: gateOnClick(() =>
+                  openEdit(toLocalInput(fixedCharge, effectiveUnits), index),
+                ),
                 hidden: !canUpdate,
               },
               {
