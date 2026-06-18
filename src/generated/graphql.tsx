@@ -615,6 +615,7 @@ export type ApplyTaxesPayload = {
 export type ApproveQuoteVersionInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  expiresAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   id: Scalars['ID']['input'];
 };
 
@@ -741,6 +742,7 @@ export type BillingEntity = {
   name: Scalars['String']['output'];
   netPaymentTerm: Scalars['Int']['output'];
   organization: Organization;
+  phone?: Maybe<Scalars['String']['output']>;
   selectedInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
   state?: Maybe<Scalars['String']['output']>;
   taxIdentificationNumber?: Maybe<Scalars['String']['output']>;
@@ -1749,6 +1751,7 @@ export type CreateBillingEntityInput = {
   logo?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
+  phone?: InputMaybe<Scalars['String']['input']>;
   state?: InputMaybe<Scalars['String']['input']>;
   taxIdentificationNumber?: InputMaybe<Scalars['String']['input']>;
   timezone?: InputMaybe<TimezoneEnum>;
@@ -8470,6 +8473,7 @@ export type QuoteVersion = {
   currency?: Maybe<Scalars['String']['output']>;
   endDate?: Maybe<Scalars['ISO8601Date']['output']>;
   id: Scalars['ID']['output'];
+  mentionVariables: Scalars['JSON']['output'];
   organization: Organization;
   quote: Quote;
   shareToken?: Maybe<Scalars['String']['output']>;
@@ -9553,6 +9557,7 @@ export type UpdateBillingEntityInput = {
   logo?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
+  phone?: InputMaybe<Scalars['String']['input']>;
   state?: InputMaybe<Scalars['String']['input']>;
   taxIdentificationNumber?: InputMaybe<Scalars['String']['input']>;
   timezone?: InputMaybe<TimezoneEnum>;
