@@ -338,4 +338,24 @@ describe('printHtmlContent', () => {
       })
     })
   })
+
+  describe('GIVEN a title option', () => {
+    describe('WHEN printHtmlContent is called', () => {
+      it('THEN should set the iframe document title', () => {
+        const mockDoc = createMockIframeDoc()
+        const mockPrint = jest.fn()
+
+        jest.spyOn(document, 'createElement').mockReturnValueOnce({
+          style: {} as CSSStyleDeclaration,
+          contentDocument: mockDoc,
+          contentWindow: { print: mockPrint, onafterprint: null },
+          remove: removeSpy,
+        } as unknown as HTMLIFrameElement)
+
+        printHtmlContent('<p>Hello</p>', { title: 'OF-2026-0012' })
+
+        expect((mockDoc as unknown as { title: string }).title).toBe('OF-2026-0012')
+      })
+    })
+  })
 })

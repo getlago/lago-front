@@ -1,4 +1,4 @@
-export const printHtmlContent = (html: string): void => {
+export const printHtmlContent = (html: string, options?: { title?: string }): void => {
   const iframe = document.createElement('iframe')
 
   // Off-screen but with REAL dimensions. A collapsed (0×0) iframe makes the
@@ -16,6 +16,10 @@ export const printHtmlContent = (html: string): void => {
   if (!iframeDoc) {
     iframe.remove()
     return
+  }
+
+  if (options?.title) {
+    iframeDoc.title = options.title
   }
 
   // Copy all stylesheets from the parent document into the iframe
