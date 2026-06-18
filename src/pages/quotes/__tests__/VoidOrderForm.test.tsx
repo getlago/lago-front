@@ -1,14 +1,15 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { addToast } from '~/core/apolloClient'
-import { OrderFormStatusEnum } from '~/generated/graphql'
+import { CurrencyEnum, OrderFormStatusEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import VoidOrderForm, {
   VOID_ORDER_FORM_ALERT_TEST_ID,
   VOID_ORDER_FORM_CANCEL_BUTTON_TEST_ID,
   VOID_ORDER_FORM_CLOSE_BUTTON_TEST_ID,
+  VOID_ORDER_FORM_PREVIEW_TEST_ID,
   VOID_ORDER_FORM_VOID_BUTTON_TEST_ID,
 } from '../VoidOrderForm'
 
@@ -51,6 +52,20 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: jest.fn(),
 }))
 
+let capturedRichTextEditorProps: Record<string, unknown> = {}
+
+jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => ({
+  __esModule: true,
+  default: (props: Record<string, unknown>) => {
+    capturedRichTextEditorProps = props
+    return <div data-test="rich-text-editor" />
+  },
+}))
+
+jest.mock('~/core/serializers/serializeQuoteBillingItems', () => ({
+  buildPreviewEntities: jest.fn(() => ({})),
+}))
+
 const mockOrderForm = {
   id: 'order-form-123',
   number: 'OF-2026-0001',
@@ -59,12 +74,21 @@ const mockOrderForm = {
   customer: {
     id: 'customer-001',
     name: 'Acme Corp',
+    billingConfiguration: { documentLocale: 'en' },
+    currency: CurrencyEnum.Usd,
   },
   quote: {
     id: 'quote-456',
     number: 'QT-2026-0042',
     currentVersion: {
       version: 2,
+      content: '<p>Order form body</p>',
+      billingItems: {},
+    },
+    customer: {
+      name: 'Acme',
+      billingConfiguration: { documentLocale: 'en' },
+      currency: CurrencyEnum.Usd,
     },
   },
 }
@@ -72,6 +96,7 @@ const mockOrderForm = {
 describe('VoidOrderForm', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    capturedRichTextEditorProps = {}
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ orderFormId: 'order-form-123' })
@@ -210,6 +235,41 @@ describe('VoidOrderForm', () => {
 
         expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-456/order-forms')
       })
+    })
+  })
+
+  describe('GIVEN an order form whose quote has content', () => {
+    it('THEN renders the side RTE preview', () => {
+      render(<VoidOrderForm />)
+
+      const preview = screen.getByTestId(VOID_ORDER_FORM_PREVIEW_TEST_ID)
+
+      expect(within(preview).getByTestId('rich-text-editor')).toBeInTheDocument()
+      expect(capturedRichTextEditorProps.mode).toBe('preview')
+    })
+  })
+
+  describe('GIVEN an order form whose quote has no content', () => {
+    it('THEN renders the empty placeholder instead of the editor', () => {
+      mockUseGetOrderFormForVoidQuery.mockReturnValue({
+        data: {
+          orderForm: {
+            ...mockOrderForm,
+            quote: {
+              ...mockOrderForm.quote,
+              currentVersion: { ...mockOrderForm.quote.currentVersion, content: '' },
+            },
+          },
+        },
+        loading: false,
+        error: undefined,
+      })
+
+      render(<VoidOrderForm />)
+
+      const preview = screen.getByTestId(VOID_ORDER_FORM_PREVIEW_TEST_ID)
+
+      expect(within(preview).queryByTestId('rich-text-editor')).not.toBeInTheDocument()
     })
   })
 })
