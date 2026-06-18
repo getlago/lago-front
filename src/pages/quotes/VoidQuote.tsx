@@ -5,8 +5,6 @@ import { generatePath, useParams } from 'react-router-dom'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import RichTextEditor from '~/components/designSystem/RichTextEditor/RichTextEditor'
-import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
@@ -24,7 +22,8 @@ import { FormLoadingSkeleton, Main, Side } from '~/styles/mainObjectsForm'
 
 import { buildQuotePreviewProps } from './common/buildQuotePreviewProps'
 import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
-import { quoteCreatedAtColumn, quoteOrderTypeColumn } from './common/quoteTableColumns'
+import { QuotePreviewCard } from './common/QuotePreviewCard'
+import { quoteCreatedAtColumn } from './common/quoteTableColumns'
 import { useCloneQuote } from './hooks/useCloneQuote'
 import { useQuote } from './hooks/useQuote'
 
@@ -54,6 +53,10 @@ const VoidQuote = () => {
   const { quote, loading, error } = useQuote(quoteId)
   const { hasPermissions } = usePermissions()
   const { cloneQuoteVersion } = useCloneQuote()
+
+  const quoteNumberWithVersion = quote
+    ? `${quote.number} - v${quote.versions[0]?.version ?? ''}`
+    : ''
 
   const previewProps = useMemo(
     () => buildQuotePreviewProps(quote?.currentVersion, quote?.customer),
@@ -146,7 +149,7 @@ const VoidQuote = () => {
     <>
       <PageHeader.Wrapper>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate('text_177641400612565v4yq2wx1u')}
+          {translate('text_1776414006125vf2t8yuiwka', { quoteNumber: quoteNumberWithVersion })}
         </Typography>
         <Button
           data-test={VOID_QUOTE_CLOSE_BUTTON_TEST_ID}
@@ -174,7 +177,9 @@ const VoidQuote = () => {
 
               <div className="flex flex-col gap-1">
                 <Typography variant="headline" color="grey700">
-                  {translate('text_1776414006125vf2t8yuiwka', { quoteNumber: quote?.number })}
+                  {translate('text_1776414006125vf2t8yuiwka', {
+                    quoteNumber: quoteNumberWithVersion,
+                  })}
                 </Typography>
                 <Typography variant="body" color="grey600">
                   {translate('text_177641400612546jssznk1w0')}
@@ -215,7 +220,12 @@ const VoidQuote = () => {
                       maxSpace: true,
                       content: ({ customer }) => customer.name,
                     },
-                    quoteOrderTypeColumn(translate, 'text_6560809c38fb9de88d8a52fb'),
+                    {
+                      key: 'customer.currency',
+                      title: translate('text_632b4acf0c41206cbcb8c324'),
+                      minWidth: 100,
+                      content: ({ customer }) => customer.currency,
+                    },
                     quoteCreatedAtColumn(
                       translate,
                       'text_17758254440392sc27lxm6ua',
@@ -259,19 +269,13 @@ const VoidQuote = () => {
         </Main>
 
         <Side>
-          <div className="h-full overflow-auto p-8" data-test={VOID_QUOTE_PREVIEW_TEST_ID}>
-            {loading ? (
-              <div className="flex flex-col gap-4">
-                <Skeleton variant="text" className="w-3/4" />
-                <Skeleton variant="text" className="w-full" />
-                <Skeleton variant="text" className="w-5/6" />
-              </div>
-            ) : quote?.currentVersion?.content ? (
-              <RichTextEditor mode="preview" isCompact {...previewProps} />
-            ) : (
-              <Typography color="grey500">{translate('text_17768523811635qaasto1ziv')}</Typography>
-            )}
-          </div>
+          <QuotePreviewCard
+            dataTest={VOID_QUOTE_PREVIEW_TEST_ID}
+            loading={loading}
+            quoteNumber={quoteNumberWithVersion}
+            hasContent={!!quote?.currentVersion?.content}
+            previewProps={previewProps}
+          />
         </Side>
       </div>
     </>

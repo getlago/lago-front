@@ -5,8 +5,6 @@ import { generatePath, useParams } from 'react-router-dom'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import RichTextEditor from '~/components/designSystem/RichTextEditor/RichTextEditor'
-import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
@@ -22,6 +20,7 @@ import { FormLoadingSkeleton, Main, Side } from '~/styles/mainObjectsForm'
 
 import { buildQuotePreviewProps } from './common/buildQuotePreviewProps'
 import { getOrderFormStatusMapping } from './common/getOrderFormStatusMapping'
+import { QuotePreviewCard } from './common/QuotePreviewCard'
 
 export const VOID_ORDER_FORM_CLOSE_BUTTON_TEST_ID = 'void-order-form-close-button'
 export const VOID_ORDER_FORM_VOID_BUTTON_TEST_ID = 'void-order-form-void-button'
@@ -74,6 +73,10 @@ const VoidOrderForm = () => {
   })
 
   const orderForm = data?.orderForm
+
+  const quoteNumberWithVersion = orderForm?.quote
+    ? `${orderForm.quote.number} - v${orderForm.quote.currentVersion?.version ?? ''}`
+    : ''
 
   const previewProps = useMemo(
     () => buildQuotePreviewProps(orderForm?.quote?.currentVersion, orderForm?.customer),
@@ -239,19 +242,13 @@ const VoidOrderForm = () => {
         </Main>
 
         <Side>
-          <div className="h-full overflow-auto p-8" data-test={VOID_ORDER_FORM_PREVIEW_TEST_ID}>
-            {loading ? (
-              <div className="flex flex-col gap-4">
-                <Skeleton variant="text" className="w-3/4" />
-                <Skeleton variant="text" className="w-full" />
-                <Skeleton variant="text" className="w-5/6" />
-              </div>
-            ) : orderForm?.quote?.currentVersion?.content ? (
-              <RichTextEditor mode="preview" isCompact {...previewProps} />
-            ) : (
-              <Typography color="grey500">{translate('text_17768523811635qaasto1ziv')}</Typography>
-            )}
-          </div>
+          <QuotePreviewCard
+            dataTest={VOID_ORDER_FORM_PREVIEW_TEST_ID}
+            loading={loading}
+            quoteNumber={quoteNumberWithVersion}
+            hasContent={!!orderForm?.quote?.currentVersion?.content}
+            previewProps={previewProps}
+          />
         </Side>
       </div>
     </>

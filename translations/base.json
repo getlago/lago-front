@@ -4357,5 +4357,6 @@
   "text_17817078224637p2veq3bqwe": "Record the order that will be executed in another tool.",
   "text_1781707828627t3f7vohqvq8": "Ensure your document are in good condition and readable",
   "text_1781859135627z59hpfpa8pt": "Billing anchor date",
-  "text_1781883445506576p2jigfpx": "Quote #{{numberWithVersion}}"
+  "text_1781883445506576p2jigfpx": "Quote #{{numberWithVersion}}",
+  "text_17818008544903clzyy4ziu1": "Quote #{{quoteNumber}}"
 }
