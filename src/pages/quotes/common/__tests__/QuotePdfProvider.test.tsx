@@ -143,6 +143,43 @@ describe('QuotePdfProvider', () => {
     )
   })
 
+  it('prepends an escaped header block and passes the document number as title', async () => {
+    const propsWithHeader = {
+      ...PROPS,
+      content: '<p>body</p>',
+      header: {
+        documentNumber: 'OF-2026-0012',
+        rows: [
+          { label: 'Customer', value: 'Acme & Co <script>' },
+          { label: 'Date', value: 'Apr 10, 2026' },
+        ],
+      },
+    }
+
+    render(
+      <QuotePdfProvider>
+        <Consumer props={propsWithHeader} />
+      </QuotePdfProvider>,
+    )
+
+    act(() => {
+      screen.getByTestId('trigger').click()
+    })
+
+    await act(async () => {
+      ;(capturedEditorProps.onPreviewReady as (html: string) => void)('<p>rendered</p>')
+    })
+
+    const [html, options] = (printHtmlContent as jest.Mock).mock.calls[0]
+
+    expect(html).toContain('quote-pdf-header')
+    expect(html).toContain('OF-2026-0012')
+    expect(html).toContain('Acme &amp; Co &lt;script&gt;') // escaped
+    expect(html).toContain('<p>rendered</p>')
+    expect(html.indexOf('quote-pdf-header')).toBeLessThan(html.indexOf('<p>rendered</p>'))
+    expect(options).toEqual({ title: 'OF-2026-0012' })
+  })
+
   it('queues a second download and renders it after the first completes', async () => {
     const Multi = () => {
       const { download } = useDownloadQuotePdf()

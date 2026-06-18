@@ -13,7 +13,7 @@ import { printHtmlContent } from '~/components/designSystem/RichTextEditor/commo
 import RichTextEditor from '~/components/designSystem/RichTextEditor/RichTextEditor'
 import { addToast } from '~/core/apolloClient'
 
-import type { QuotePreviewProps } from './buildQuotePreviewProps'
+import type { QuotePdfHeaderData, QuotePreviewProps } from './buildQuotePreviewProps'
 
 const PREVIEW_RENDER_TIMEOUT_MS = 5000
 
@@ -29,6 +29,33 @@ interface PendingRequest {
 }
 
 const QuotePdfContext = createContext<QuotePdfContextValue | undefined>(undefined)
+
+const escapeHtml = (value: string): string =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+
+const buildQuotePdfHeaderHtml = (header: QuotePdfHeaderData): string => {
+  const rows = header.rows
+    .map(
+      (row) =>
+        `<div class="quote-pdf-header__row">` +
+        `<span class="quote-pdf-header__label">${escapeHtml(row.label)}</span>` +
+        `<span class="quote-pdf-header__value">${escapeHtml(row.value)}</span>` +
+        `</div>`,
+    )
+    .join('')
+
+  return (
+    `<div class="quote-pdf-header">` +
+    `<div class="quote-pdf-header__number">${escapeHtml(header.documentNumber)}</div>` +
+    rows +
+    `</div>`
+  )
+}
 
 export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
   const [current, setCurrent] = useState<PendingRequest | null>(null)
@@ -76,9 +103,15 @@ export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
     (html: string) => {
       if (!current) return
 
-      printHtmlContent(
-        `<div class="rich-text-editor"><div class="ProseMirror" contenteditable="false">${html}</div></div>`,
-      )
+      const header = current.props.header
+      const headerHtml = header ? buildQuotePdfHeaderHtml(header) : ''
+      const fullHtml = `<div class="rich-text-editor">${headerHtml}<div class="ProseMirror" contenteditable="false">${html}</div></div>`
+
+      if (header) {
+        printHtmlContent(fullHtml, { title: header.documentNumber })
+      } else {
+        printHtmlContent(fullHtml)
+      }
       current.resolve()
       advance()
     },
