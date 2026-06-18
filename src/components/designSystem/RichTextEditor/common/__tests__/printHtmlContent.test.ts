@@ -104,6 +104,26 @@ describe('printHtmlContent', () => {
 
         expect(mockPrint).toHaveBeenCalledTimes(1)
       })
+
+      it('THEN should size the iframe with non-zero dimensions so print can paginate', () => {
+        const mockDoc = createMockIframeDoc()
+        const mockPrint = jest.fn()
+        const mockIframe = {
+          style: {} as CSSStyleDeclaration,
+          contentDocument: mockDoc,
+          contentWindow: { print: mockPrint, onafterprint: null },
+          remove: removeSpy,
+        } as unknown as HTMLIFrameElement
+
+        jest.spyOn(document, 'createElement').mockReturnValueOnce(mockIframe)
+
+        printHtmlContent('<p>Hello</p>')
+
+        expect(mockIframe.style.width).toBeTruthy()
+        expect(mockIframe.style.width).not.toBe('0')
+        expect(mockIframe.style.height).toBeTruthy()
+        expect(mockIframe.style.height).not.toBe('0')
+      })
     })
   })
 

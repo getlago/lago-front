@@ -1,11 +1,14 @@
 export const printHtmlContent = (html: string): void => {
   const iframe = document.createElement('iframe')
 
+  // Off-screen but with REAL dimensions. A collapsed (0×0) iframe makes the
+  // print engine emit only the first page; a page-sized box lets it paginate.
   iframe.style.position = 'fixed'
   iframe.style.left = '-9999px'
   iframe.style.top = '0'
-  iframe.style.width = '0'
-  iframe.style.height = '0'
+  iframe.style.width = '794px' // ~A4 width @96dpi (210mm)
+  iframe.style.height = '1123px' // ~A4 height @96dpi (297mm)
+  iframe.style.border = '0'
   document.body.appendChild(iframe)
 
   const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document
@@ -93,6 +96,14 @@ export const printHtmlContent = (html: string): void => {
       if (!contentWindow) {
         iframe.remove()
         return
+      }
+
+      // Expand to the rendered content height so multi-page content is fully
+      // captured (belt-and-suspenders against single-page truncation).
+      const contentHeight = iframeDoc.body?.scrollHeight
+
+      if (contentHeight) {
+        iframe.style.height = `${contentHeight}px`
       }
 
       const cleanup = (): void => {
