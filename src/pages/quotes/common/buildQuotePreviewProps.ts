@@ -10,17 +10,24 @@ import type {
   QuotePreviewVersionFragment,
 } from '~/generated/graphql'
 
+export interface QuotePdfHeaderData {
+  documentNumber: string
+  rows: Array<{ label: string; value: string }>
+}
+
 export interface QuotePreviewProps {
   content: string
   entities: Record<string, EntityData>
   customerLocale: Locale
   customerCurrency?: CurrencyEnum
   mentionValues: Record<string, string>
+  header?: QuotePdfHeaderData
 }
 
 export const buildQuotePreviewProps = (
   version: QuotePreviewVersionFragment | null | undefined,
   customer: QuotePreviewCustomerFragment | null | undefined,
+  header?: QuotePdfHeaderData,
 ): QuotePreviewProps => ({
   content: version?.content ?? '',
   entities: version?.billingItems
@@ -30,4 +37,5 @@ export const buildQuotePreviewProps = (
   customerCurrency: customer?.currency ?? undefined,
   // Placeholder until the backend exposes mention values; intentionally empty for now.
   mentionValues: {},
+  header,
 })

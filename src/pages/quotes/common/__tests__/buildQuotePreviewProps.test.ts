@@ -1,6 +1,7 @@
 import { CurrencyEnum } from '~/generated/graphql'
 
 import { buildQuotePreviewProps } from '../buildQuotePreviewProps'
+import type { QuotePdfHeaderData } from '../buildQuotePreviewProps'
 
 jest.mock('~/core/serializers/serializeQuoteBillingItems', () => ({
   buildPreviewEntities: jest.fn(() => ({ 'addon-1': { entityId: 'addon-1' } })),
@@ -54,5 +55,30 @@ describe('buildQuotePreviewProps', () => {
     expect(result.customerLocale).toBe('en')
     expect(result.customerCurrency).toBeUndefined()
     expect(result.entities).toEqual({})
+  })
+
+  it('passes through structured header data when provided', () => {
+    const version = { content: '<p>Hi</p>', billingItems: { addons: [] } }
+    const customer = {
+      currency: CurrencyEnum.Eur,
+      billingConfiguration: { documentLocale: 'fr' },
+    }
+    const header: QuotePdfHeaderData = {
+      documentNumber: 'OF-2026-0012',
+      rows: [
+        { label: 'Customer', value: 'Acme Corp' },
+        { label: 'Date', value: 'Apr 10, 2026' },
+      ],
+    }
+
+    const result = buildQuotePreviewProps(version, customer, header)
+
+    expect(result.header).toEqual(header)
+  })
+
+  it('leaves header undefined when not provided', () => {
+    const result = buildQuotePreviewProps(null, null)
+
+    expect(result.header).toBeUndefined()
   })
 })
