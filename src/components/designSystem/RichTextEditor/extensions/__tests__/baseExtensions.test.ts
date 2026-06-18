@@ -279,4 +279,21 @@ describe('getBaseExtensions', () => {
       })
     })
   })
+
+  describe('GIVEN the Markdown extension', () => {
+    const findMarkdown = () => getBaseExtensions().find((ext) => ext.name === 'markdown')
+
+    it('THEN is configured to transform pasted plain text as markdown', () => {
+      const markdown = findMarkdown()
+
+      expect(markdown).toBeDefined()
+      expect(markdown?.options.transformPastedText).toBe(true)
+    })
+
+    it('THEN still allows inline HTML (existing behavior preserved)', () => {
+      const markdown = findMarkdown()
+
+      expect(markdown?.options.html).toBe(true)
+    })
+  })
 })
