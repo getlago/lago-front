@@ -201,7 +201,7 @@ export const PlanDetailsV2LeftSidebar = ({
           <button
             type="button"
             className={tw(
-              'flex flex-1 items-center gap-2 px-2 py-1 text-left focus-visible:ring focus-visible:ring-inset',
+              'flex min-w-0 flex-1 items-center gap-2 px-2 py-1 text-left focus-visible:ring focus-visible:ring-inset',
               // The row clips children to its rounded-lg shape (content-visibility:auto
               // ⇒ contain:paint), so the focus ring's square corners get shaved off
               // wherever the button meets the row's outer edge. Round the outer-facing
@@ -217,7 +217,7 @@ export const PlanDetailsV2LeftSidebar = ({
             onClick={() => (isGroup ? toggleExpanded(item.id) : onItemClick(item.id))}
           >
             <Icon name={iconName} size="small" color="dark" />
-            <Typography variant="caption" color="grey600" noWrap>
+            <Typography className="min-w-0" variant="caption" color="grey600" noWrap>
               {item.label ?? (item.labelKey ? translate(item.labelKey) : '')}
             </Typography>
           </button>
