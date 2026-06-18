@@ -63,9 +63,9 @@ describe('useOrderFormActions', () => {
         const actions = result.current.getActions(createMockOrderForm())
 
         expect(actions).toHaveLength(3)
-        expect(actions[0].icon).toBe('download')
-        expect(actions[1].icon).toBe('stop')
-        expect(actions[2].icon).toBe('writing-sign')
+        expect(actions[0].icon).toBe('writing-sign')
+        expect(actions[1].icon).toBe('download')
+        expect(actions[2].icon).toBe('stop')
       })
     })
   })
