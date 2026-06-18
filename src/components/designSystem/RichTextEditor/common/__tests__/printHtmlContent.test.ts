@@ -132,7 +132,7 @@ describe('printHtmlContent', () => {
         expect(mockPrint).toHaveBeenCalledTimes(1)
       })
 
-      it('THEN should size the iframe with non-zero dimensions so print can paginate', () => {
+      it('THEN should give the iframe a sane off-screen page-sized layout box', () => {
         const mockDoc = createMockIframeDoc()
         const mockPrint = jest.fn()
         const mockIframe = {

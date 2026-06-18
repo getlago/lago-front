@@ -1,8 +1,9 @@
 export const printHtmlContent = (html: string, options?: { title?: string }): void => {
   const iframe = document.createElement('iframe')
 
-  // Off-screen but with REAL dimensions. A collapsed (0×0) iframe makes the
-  // print engine emit only the first page; a page-sized box lets it paginate.
+  // Off-screen, sized to A4 so the content lays out at a sane print width.
+  // (Pagination itself is driven by the html/body overflow reset below, not by
+  // these dimensions.)
   iframe.style.position = 'fixed'
   iframe.style.left = '-9999px'
   iframe.style.top = '0'
@@ -18,6 +19,9 @@ export const printHtmlContent = (html: string, options?: { title?: string }): vo
     return
   }
 
+  // Chrome derives the print filename from the TOP document's title (handled by
+  // the document.title swap before print() below). Setting the iframe's own
+  // title is a defensive fallback for browsers that read it instead.
   if (options?.title) {
     iframeDoc.title = options.title
   }
