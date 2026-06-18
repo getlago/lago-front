@@ -86,6 +86,33 @@ describe('printHtmlContent', () => {
         expect(mockDoc.head.appendChild).toHaveBeenCalled()
       })
 
+      it('THEN should reset html/body overflow so long content paginates', () => {
+        const mockDoc = createMockIframeDoc()
+        const mockPrint = jest.fn()
+
+        jest.spyOn(document, 'createElement').mockReturnValueOnce({
+          style: {} as CSSStyleDeclaration,
+          contentDocument: mockDoc,
+          contentWindow: { print: mockPrint, onafterprint: null },
+          remove: removeSpy,
+        } as unknown as HTMLIFrameElement)
+
+        printHtmlContent('<p>Hello</p>')
+
+        const appendedStyles = (mockDoc.head.appendChild as jest.Mock).mock.calls
+          .map((call) => call[0] as HTMLElement)
+          .filter((el) => el.tagName === 'STYLE')
+        const printReset = appendedStyles.find((el) =>
+          el.textContent?.includes('overflow: visible !important'),
+        )
+
+        // Without this reset, the SPA's copied `html, body { overflow: hidden }`
+        // clips the print to a single page.
+        expect(printReset).toBeDefined()
+        expect(printReset?.textContent).toContain('html, body')
+        expect(printReset?.textContent).toContain('height: auto !important')
+      })
+
       it('THEN should call print on the iframe contentWindow', async () => {
         const mockDoc = createMockIframeDoc()
         const mockPrint = jest.fn()

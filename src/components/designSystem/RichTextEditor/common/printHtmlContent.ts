@@ -55,6 +55,11 @@ export const printHtmlContent = (html: string, options?: { title?: string }): vo
     @media print {
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
     }
+    /* The app's global stylesheets (copied in above) put overflow:hidden and a
+       fixed height on html/body for the SPA shell. Inside this iframe that turns
+       the document into a clip container and the print engine emits only the
+       first page. Reset it so long content flows and paginates. */
+    html, body { height: auto !important; min-height: 0 !important; overflow: visible !important; }
     body { margin: 0; padding: 0; }
     .print-padding { padding: 20mm; }
   `
@@ -100,14 +105,6 @@ export const printHtmlContent = (html: string, options?: { title?: string }): vo
       if (!contentWindow) {
         iframe.remove()
         return
-      }
-
-      // Expand to the rendered content height so multi-page content is fully
-      // captured (belt-and-suspenders against single-page truncation).
-      const contentHeight = iframeDoc.body?.scrollHeight
-
-      if (contentHeight) {
-        iframe.style.height = `${contentHeight}px`
       }
 
       const cleanup = (): void => {
