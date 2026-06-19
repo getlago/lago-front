@@ -800,3 +800,75 @@ describe('UsageChargeDrawerContent', () => {
     })
   })
 })
+
+// --- Drift test: filter list is rendered through VirtualFilterList ---
+
+import { ReactNode } from 'react'
+
+type CapturedVirtualListProps = {
+  items: unknown[]
+  renderItem: (item: unknown, index: number) => ReactNode
+}
+
+const capturedVirtualList: { props?: CapturedVirtualListProps } = {}
+
+jest.mock('~/components/designSystem/VirtualList/VirtualFilterList', () => ({
+  VIRTUALIZATION_THRESHOLD: 50,
+  VirtualFilterList: (props: CapturedVirtualListProps) => (
+    <>
+      {props.items.map((item, index) => {
+        capturedVirtualList.props = props
+
+        return <div key={index}>{props.renderItem(item, index)}</div>
+      })}
+    </>
+  ),
+}))
+
+const mockFormValuesWithThreeFilters = {
+  ...mockEditFormValues,
+  billableMetric: {
+    ...mockEditFormValues.billableMetric,
+    filters: [{ id: 'f1', key: 'region', values: ['us', 'eu', 'ap'] }],
+  },
+  filters: [
+    {
+      values: ['{"region":"us"}'],
+      properties: { amount: '5', packageSize: '' },
+      invoiceDisplayName: '',
+    },
+    {
+      values: ['{"region":"eu"}'],
+      properties: { amount: '8', packageSize: '' },
+      invoiceDisplayName: '',
+    },
+    {
+      values: ['{"region":"ap"}'],
+      properties: { amount: '12', packageSize: '' },
+      invoiceDisplayName: '',
+    },
+  ],
+}
+
+describe('VirtualFilterList drift test', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    capturedVirtualList.props = undefined
+    mockCurrentFormValues = mockFormValuesWithThreeFilters
+    mockForm.store = mockCreateStore(mockFormValuesWithThreeFilters)
+    mockForm.state = { values: mockFormValuesWithThreeFilters }
+  })
+
+  it('renders the filter selectors through VirtualFilterList', () => {
+    render(
+      <UsageChargeDrawerContent
+        isCreateMode={false}
+        editIndex={0}
+        currency="USD"
+        interval="monthly"
+      />,
+    )
+
+    expect(capturedVirtualList.props?.items).toHaveLength(3)
+  })
+})
