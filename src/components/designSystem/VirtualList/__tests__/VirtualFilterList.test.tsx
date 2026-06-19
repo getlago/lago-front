@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 
-import { VIRTUALIZATION_THRESHOLD, VirtualFilterList } from '../VirtualFilterList'
+import { VirtualFilterList, VIRTUALIZATION_THRESHOLD } from '../VirtualFilterList'
 
 // jsdom renders 0 virtual rows (0px viewport); stub the virtualizer to yield
 // every row so we exercise OUR rendering paths, not the virtualizer internals.
@@ -51,6 +51,6 @@ describe('VirtualFilterList', () => {
 
     // Virtualized path: each row carries data-index inside the positioned spacer.
     expect(container.querySelector('[data-index="0"]')).not.toBeNull()
-    expect(screen.getAllByTestId('row').length).toBeGreaterThan(0)
+    expect(screen.getAllByTestId('row')).toHaveLength(VIRTUALIZATION_THRESHOLD + 1)
   })
 })

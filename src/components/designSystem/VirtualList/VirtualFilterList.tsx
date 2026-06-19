@@ -30,14 +30,18 @@ export const VirtualFilterList = <T,>({
   const [scrollElement, setScrollElement] = useState<HTMLElement | null>(null)
   const [scrollMargin, setScrollMargin] = useState(0)
 
+  const getScrollElementRef = useRef(getScrollElement)
+
+  getScrollElementRef.current = getScrollElement
+
   const isVirtualized = items.length > threshold
 
   useLayoutEffect(() => {
     if (!isVirtualized) return
 
     const resolve = () => {
-      const element = getScrollElement
-        ? getScrollElement()
+      const element = getScrollElementRef.current
+        ? getScrollElementRef.current()
         : findNearestScrollableAncestor(rootRef.current)
 
       setScrollElement(element)
@@ -47,6 +51,8 @@ export const VirtualFilterList = <T,>({
         const scrollRect = element.getBoundingClientRect()
 
         setScrollMargin(listRect.top - scrollRect.top + element.scrollTop)
+      } else {
+        setScrollMargin(0)
       }
     }
 
@@ -54,10 +60,10 @@ export const VirtualFilterList = <T,>({
     window.addEventListener('resize', resolve)
 
     return () => window.removeEventListener('resize', resolve)
-  }, [isVirtualized, getScrollElement, items.length])
+  }, [isVirtualized, items.length])
 
   const virtualizer = useVirtualizer({
-    count: items.length,
+    count: isVirtualized ? items.length : 0,
     getScrollElement: () => scrollElement,
     estimateSize: () => estimateItemHeight,
     measureElement: (element) => element.getBoundingClientRect().height,
