@@ -64,7 +64,6 @@ describe('buildQuotePreviewProps', () => {
     }
     const header: QuotePdfHeaderData = {
       documentNumber: 'OF-2026-0012',
-      title: 'Order form for Acme Corp',
       rows: ['Order form number OF-2026-0012'],
     }
 
