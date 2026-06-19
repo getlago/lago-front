@@ -14387,7 +14387,7 @@ export type CreateQuoteMutationVariables = Exact<{
 }>;
 
 
-export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote?: { __typename?: 'Quote', id: string } | null };
+export type CreateQuoteMutation = { __typename?: 'Mutation', createQuote?: { __typename?: 'Quote', id: string, currentVersion: { __typename?: 'QuoteVersion', id: string } } | null };
 
 export type UpdateCustomerCurrencyForQuoteMutationVariables = Exact<{
   input: UpdateCustomerInput;
@@ -39267,6 +39267,9 @@ export const CreateQuoteDocument = gql`
     mutation createQuote($input: CreateQuoteInput!) {
   createQuote(input: $input) {
     id
+    currentVersion {
+      id
+    }
   }
 }
     `;

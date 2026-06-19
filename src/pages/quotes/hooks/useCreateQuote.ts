@@ -2,8 +2,7 @@ import { gql } from '@apollo/client'
 import { generatePath } from 'react-router-dom'
 
 import { addToast } from '~/core/apolloClient'
-import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
+import { EDIT_QUOTE_ROUTE, useNavigate } from '~/core/router'
 import {
   CreateQuoteInput,
   CurrencyEnum,
@@ -15,6 +14,9 @@ gql`
   mutation createQuote($input: CreateQuoteInput!) {
     createQuote(input: $input) {
       id
+      currentVersion {
+        id
+      }
     }
   }
 
@@ -48,16 +50,16 @@ export const useCreateQuote = (): UseCreateQuoteReturn => {
 
   const [createQuote, { loading }] = useCreateQuoteMutation({
     onCompleted({ createQuote: createdQuote }) {
-      if (createdQuote) {
+      if (createdQuote?.currentVersion?.id && createdQuote.id) {
         addToast({
           severity: 'success',
           translateKey: 'text_1776238919927v1w2x3y4z5a',
         })
 
         navigate(
-          generatePath(QUOTE_DETAILS_ROUTE, {
+          generatePath(EDIT_QUOTE_ROUTE, {
             quoteId: createdQuote.id,
-            tab: QuoteDetailsTabsOptionsEnum.overview,
+            versionId: createdQuote.currentVersion.id,
           }),
         )
       }
