@@ -16,7 +16,10 @@ import {
   ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX,
   API_LOGS_FILTER_PREFIX,
   CREDIT_NOTE_LIST_FILTER_PREFIX,
+  CUSTOMER_ANALYTICS_FILTER_PREFIX,
+  CUSTOMER_CREDIT_NOTES_FILTER_PREFIX,
   CUSTOMER_LIST_FILTER_PREFIX,
+  CUSTOMER_PAYMENTS_FILTER_PREFIX,
   FORECASTS_FILTER_PREFIX,
   INVOICE_LIST_FILTER_PREFIX,
   MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX,
@@ -34,6 +37,7 @@ import { INVOICES_ROUTE } from '~/core/router'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import {
   ActivityTypeEnum,
+  CurrencyEnum,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
 } from '~/generated/graphql'
@@ -49,7 +53,11 @@ import {
   ApiLogsAvailableFilters,
   AvailableFiltersEnum,
   CreditNoteAvailableFilters,
+  CustomerAnalyticsAvailableFilters,
   CustomerAvailableFilters,
+  CustomerCreditNotesAvailableFilters,
+  CustomerInvoicesAvailableFilters,
+  CustomerPaymentsAvailableFilters,
   filterDataInlineSeparator,
   ForecastsAvailableFilters,
   InvoiceAvailableFilters,
@@ -150,6 +158,8 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
     value.split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.billingEntityIds]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.billingEntityId]: (value: string) =>
+    value.split(filterDataInlineSeparator)[0],
   [AvailableFiltersEnum.billingEntityCode]: (value: string) => value,
   [AvailableFiltersEnum.country]: (value: string) => value,
   [AvailableFiltersEnum.countries]: (value: string) =>
@@ -394,6 +404,47 @@ export const formatFiltersForSubscriptionQuery = (searchParams: URLSearchParams)
     availableFilters: SubscriptionAvailableFilters,
     filtersNamePrefix: SUBSCRIPTION_LIST_FILTER_PREFIX,
   })
+}
+
+export const formatFiltersForCustomerAnalyticsQuery = (
+  searchParams: URLSearchParams,
+): { currency?: CurrencyEnum; billingEntityId?: string } => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: CustomerAnalyticsAvailableFilters,
+    filtersNamePrefix: CUSTOMER_ANALYTICS_FILTER_PREFIX,
+  }) as { currency?: CurrencyEnum; billingEntityId?: string }
+}
+
+export const formatFiltersForCustomerInvoicesQuery = (
+  searchParams: URLSearchParams,
+  filtersNamePrefix: string,
+): { currency?: CurrencyEnum; billingEntityId?: string } => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: CustomerInvoicesAvailableFilters,
+    filtersNamePrefix,
+  }) as { currency?: CurrencyEnum; billingEntityId?: string }
+}
+
+export const formatFiltersForCustomerPaymentsQuery = (
+  searchParams: URLSearchParams,
+): { currency?: CurrencyEnum } => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: CustomerPaymentsAvailableFilters,
+    filtersNamePrefix: CUSTOMER_PAYMENTS_FILTER_PREFIX,
+  }) as { currency?: CurrencyEnum }
+}
+
+export const formatFiltersForCustomerCreditNotesQuery = (
+  searchParams: URLSearchParams,
+): { currency?: CurrencyEnum; billingEntityId?: string } => {
+  return formatFiltersForQuery({
+    searchParams,
+    availableFilters: CustomerCreditNotesAvailableFilters,
+    filtersNamePrefix: CUSTOMER_CREDIT_NOTES_FILTER_PREFIX,
+  }) as { currency?: CurrencyEnum; billingEntityId?: string }
 }
 
 export const formatFiltersForRevenueStreamsQuery = (searchParams: URLSearchParams) => {
@@ -678,6 +729,8 @@ export const formatActiveFilterValueDisplay = (
         .split(',')
         .map((v) => v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0])
         .join(', ')
+    case AvailableFiltersEnum.billingEntityId:
+      return value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0]
     case AvailableFiltersEnum.userEmails:
       return value.toLocaleLowerCase()
     case AvailableFiltersEnum.billableMetricCode:

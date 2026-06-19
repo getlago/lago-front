@@ -55,6 +55,8 @@ const WALLET_DEFAULT_PRIORITY = 50
 gql`
   fragment WalletForUpdate on Wallet {
     id
+    billingEntityId
+    currency
     expirationAt
     name
     rateAmount
@@ -115,6 +117,9 @@ gql`
       externalId
       currency
       timezone
+      billingEntity {
+        id
+      }
     }
   }
 
@@ -196,7 +201,10 @@ const CreateWallet = () => {
   }, [wallet])
 
   const currency =
-    customerData?.customer?.currency || organization?.defaultCurrency || CurrencyEnum.Usd
+    wallet?.currency ||
+    customerData?.customer?.currency ||
+    organization?.defaultCurrency ||
+    CurrencyEnum.Usd
 
   const navigateToCustomerWalletTab = useCallback(
     (id?: string) => {
@@ -251,6 +259,8 @@ const CreateWallet = () => {
   const formikProps = useFormik<TWalletDataForm>({
     initialValues: {
       currency,
+      billingEntityId:
+        wallet?.billingEntityId || customerData?.customer?.billingEntity?.id || undefined,
       expirationAt: wallet?.expirationAt || undefined,
       grantedCredits: '',
       name: wallet?.name || '',
@@ -298,6 +308,7 @@ const CreateWallet = () => {
       priority,
       paymentMethod,
       invoiceCustomSection,
+      billingEntityId,
       ...values
     }) => {
       const recurringTransactionRulesFormatted =
@@ -365,6 +376,9 @@ const CreateWallet = () => {
           ...values,
           recurringTransactionRules: recurringTransactionRulesFormatted,
           id: walletId,
+          // `null` (not `undefined`) on clear → BE stores NULL on the
+          // wallet column, meaning "inherit from customer".
+          billingEntityId: billingEntityId || null,
           appliesTo: formattedAppliesTo,
           paymentMethod,
           invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
@@ -401,6 +415,9 @@ const CreateWallet = () => {
         const input = {
           ...values,
           customerId,
+          // `null` (not `undefined`) on clear → BE stores NULL on the
+          // wallet column, meaning "inherit from customer".
+          billingEntityId: billingEntityId || null,
           currency: valuesCurrency,
           rateAmount: String(rateAmount),
           grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),

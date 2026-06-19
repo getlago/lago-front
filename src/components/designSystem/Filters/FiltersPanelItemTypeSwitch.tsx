@@ -7,6 +7,7 @@ import { FiltersItemApiKeyIds } from '~/components/designSystem/Filters/filtersE
 import { FiltersItemBillableMetricCode } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillableMetricCode'
 import { FiltersItemBillingEntity } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntity'
 import { FiltersItemBillingEntityCode } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntityCode'
+import { FiltersItemBillingEntityId } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntityId'
 import { FiltersItemCountries } from '~/components/designSystem/Filters/filtersElements/FiltersItemCountries'
 import { FiltersItemCountry } from '~/components/designSystem/Filters/filtersElements/FiltersItemCountry'
 import { FiltersItemCreditNoteCreditStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteCreditStatus'
@@ -88,6 +89,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.amount]: <FiltersItemAmount {...props} />,
     [AvailableFiltersEnum.apiKeyIds]: <FiltersItemApiKeyIds {...props} />,
     [AvailableFiltersEnum.billingEntityIds]: <FiltersItemBillingEntity {...props} />,
+    [AvailableFiltersEnum.billingEntityId]: <FiltersItemBillingEntityId {...props} />,
     [AvailableFiltersEnum.billingEntityCode]: <FiltersItemBillingEntityCode {...props} />,
     [AvailableFiltersEnum.country]: <FiltersItemCountry {...props} />,
     [AvailableFiltersEnum.countries]: <FiltersItemCountries {...props} />,

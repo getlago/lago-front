@@ -137,6 +137,27 @@ const CreditNotesTable = ({
 
   const showCustomerName = !customerTimezone
 
+  const hasNonSearchFilter = !!variables?.currency || !!variables?.billingEntityIds?.length
+
+  let emptyState: { title: string; subtitle: string }
+
+  if (variables?.searchTerm) {
+    emptyState = {
+      title: translate('text_63c6edd80c57d0dfaae389a4'),
+      subtitle: translate('text_63c6edd80c57d0dfaae389a8'),
+    }
+  } else if (hasNonSearchFilter) {
+    emptyState = {
+      title: translate('text_6663014df0a6be0098264dd9'),
+      subtitle: translate('text_66ab48ea4ed9cd01084c60b8'),
+    }
+  } else {
+    emptyState = {
+      title: translate('text_6663014df0a6be0098264dd9'),
+      subtitle: translate('text_6663014df0a6be0098264dda'),
+    }
+  }
+
   return (
     <div className="border-t border-grey-300">
       <InfiniteScroll
@@ -160,18 +181,7 @@ const CreditNotesTable = ({
           }
           isLoading={isLoading}
           hasError={!!error}
-          placeholder={{
-            emptyState: {
-              ...(variables?.searchTerm && {
-                title: translate('text_63c6edd80c57d0dfaae389a4'),
-                subtitle: translate('text_63c6edd80c57d0dfaae389a8'),
-              }),
-              ...(!variables?.searchTerm && {
-                title: translate('text_6663014df0a6be0098264dd9'),
-                subtitle: translate('text_6663014df0a6be0098264dda'),
-              }),
-            },
-          }}
+          placeholder={{ emptyState }}
           actionColumnTooltip={(creditNote) =>
             translate(
               creditNote.canBeVoided && hasPermissions(['creditNotesVoid'])

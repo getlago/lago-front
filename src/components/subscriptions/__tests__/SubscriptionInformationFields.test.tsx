@@ -22,6 +22,7 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
       time: '',
       timezone: '',
     }),
+    hasFeatureFlag: () => false,
   }),
 }))
 
@@ -118,6 +119,12 @@ describe('SubscriptionInformationFields', () => {
             displayName: 'Acme',
             externalId: 'cust-ext-1',
             deletedAt: '2026-01-02',
+            billingEntity: {
+              __typename: undefined,
+              id: '',
+              code: '',
+              name: '',
+            },
           },
         })}
       />,

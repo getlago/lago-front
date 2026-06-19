@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
+import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -90,6 +91,9 @@ gql`
       name
       displayName
       externalId
+      billingEntity {
+        id
+      }
     }
   }
 
@@ -116,6 +120,8 @@ const CreateSubscription = () => {
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
   const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
+
+  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
   const [getPlans, { loading: planLoading, data: planData }] = useGetPlansLazyQuery({
     variables: { limit: 1000 },
@@ -185,11 +191,53 @@ const CreateSubscription = () => {
   const subscriptionIsDirty = useStore(subscriptionForm.store, (s) => s.isDirty)
   const subscriptionCanSubmit = useStore(subscriptionForm.store, (s) => s.canSubmit)
   const subscriptionIsSubmitting = useStore(subscriptionForm.store, (s) => s.isSubmitting)
+  const subscriptionBillingEntityId = useStore(
+    subscriptionForm.store,
+    (s) => s.values.billingEntityId,
+  )
   const subscriptionPaymentMethod = useStore(subscriptionForm.store, (s) => s.values.paymentMethod)
   const subscriptionInvoiceCustomSection = useStore(
     subscriptionForm.store,
     (s) => s.values.invoiceCustomSection,
   )
+  const isEditingSubscription = formType === FORM_TYPE_ENUM.edition
+
+  // Default billingEntityId on first load only:
+  // - edit / upgrade / downgrade flow → preserve the existing subscription's
+  //   explicit entity (Decision 5.6: explicit bindings are sticky and must
+  //   survive subscription mutations)
+  // - pure creation flow → use the customer's current default entity
+  //
+  // Latched with a ref so the default fires *once* per mount. Without the
+  // latch, clearing the picker would immediately re-trigger the default
+  // because `subscriptionBillingEntityId` is back to falsy.
+  const hasInitializedBillingEntityDefaultRef = useRef(false)
+
+  useEffect(() => {
+    if (!hasMultiEntityBilling) return
+    if (hasInitializedBillingEntityDefaultRef.current) return
+    if (subscriptionBillingEntityId) {
+      hasInitializedBillingEntityDefaultRef.current = true
+      return
+    }
+    const hasExistingSubscription =
+      formType === FORM_TYPE_ENUM.edition || formType === FORM_TYPE_ENUM.upgradeDowngrade
+    const defaultEntityId =
+      (hasExistingSubscription ? subscription?.billingEntityId : null) ??
+      customer?.billingEntity?.id
+
+    if (defaultEntityId) {
+      subscriptionForm.setFieldValue('billingEntityId', defaultEntityId)
+      hasInitializedBillingEntityDefaultRef.current = true
+    }
+  }, [
+    hasMultiEntityBilling,
+    formType,
+    subscription?.billingEntityId,
+    customer?.billingEntity?.id,
+    subscriptionBillingEntityId,
+    subscriptionForm,
+  ])
 
   const { form: planForm, plan } = usePlanForm({
     planIdToFetch: subscriptionPlanId,
@@ -436,6 +484,19 @@ const CreateSubscription = () => {
                         />
                       )}
                     </subscriptionForm.AppField>
+
+                    {!!subscriptionPlanId && (
+                      <BillingEntityFormPicker
+                        label={translate('text_1743611497157teaa1zu8l24')}
+                        value={subscriptionBillingEntityId}
+                        onChange={(id) => subscriptionForm.setFieldValue('billingEntityId', id)}
+                        helperText={translate(
+                          isEditingSubscription
+                            ? 'text_1779457001221h9zixqumknp'
+                            : 'text_17800541562349k15h7ik07c',
+                        )}
+                      />
+                    )}
 
                     {!!showCurrencyError ? (
                       <Alert type="danger">{translate('text_632dbaf1d577afb32ae751f5')}</Alert>

@@ -36,17 +36,15 @@ const mockCustomer: AddCustomerDrawerFragment = {
 
 // Create a test wrapper component that properly initializes the form
 const TestBillingAccordionWrapper = ({
-  isEdition = false,
   customer = null,
 }: {
-  isEdition?: boolean
   customer?: AddCustomerDrawerFragment | null
 }) => {
   const form = useAppForm({
     defaultValues: emptyCreateCustomerDefaultValues,
   })
 
-  return <BillingAccordion form={form} isEdition={isEdition} customer={customer} />
+  return <BillingAccordion form={form} customer={customer} />
 }
 
 describe('BillingAccordion Integration Tests', () => {
@@ -84,7 +82,7 @@ describe('BillingAccordion Integration Tests', () => {
 
     it('THEN should render with edition mode', async () => {
       const user = userEvent.setup()
-      const rendered = render(<TestBillingAccordionWrapper isEdition={true} />)
+      const rendered = render(<TestBillingAccordionWrapper />)
 
       const accordionButton = screen.getAllByRole('button')[0]
 
@@ -96,9 +94,7 @@ describe('BillingAccordion Integration Tests', () => {
 
     it('THEN should render with customer data', async () => {
       const user = userEvent.setup()
-      const rendered = render(
-        <TestBillingAccordionWrapper customer={mockCustomer} isEdition={true} />,
-      )
+      const rendered = render(<TestBillingAccordionWrapper customer={mockCustomer} />)
       const accordionButton = screen.getAllByRole('button')[0]
 
       await user.click(accordionButton)

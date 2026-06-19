@@ -48,6 +48,7 @@ export enum AvailableFiltersEnum {
   apiKeyIds = 'apiKeyIds',
   billableMetricCode = 'billableMetricCode',
   billingEntityIds = 'billingEntityIds',
+  billingEntityId = 'billingEntityId',
   billingEntityCode = 'billingEntityCode',
   country = 'country',
   countries = 'countries',
@@ -283,11 +284,29 @@ export const ApiLogsAvailableFilters = [
 ]
 
 export const SubscriptionAvailableFilters = [
+  AvailableFiltersEnum.billingEntityIds,
   AvailableFiltersEnum.customerExternalId,
   AvailableFiltersEnum.externalId,
   AvailableFiltersEnum.overriden,
   AvailableFiltersEnum.planCode,
   AvailableFiltersEnum.subscriptionStatus,
+]
+
+export const CustomerAnalyticsAvailableFilters = [
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.billingEntityId,
+]
+
+export const CustomerInvoicesAvailableFilters = [
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.billingEntityId,
+]
+
+export const CustomerPaymentsAvailableFilters = [AvailableFiltersEnum.currency]
+
+export const CustomerCreditNotesAvailableFilters = [
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.billingEntityId,
 ]
 
 export const SecurityLogsAvailableFilters = [
@@ -315,6 +334,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.apiKeyIds]: 'text_645d071272418a14c1c76aa4',
   [AvailableFiltersEnum.billableMetricCode]: 'text_1761553933730mc7ttuol4be',
   [AvailableFiltersEnum.billingEntityIds]: 'text_17436114971570doqrwuwhf0',
+  [AvailableFiltersEnum.billingEntityId]: 'text_17791856837133nbboq5tcxi',
   [AvailableFiltersEnum.billingEntityCode]: 'text_1747986368158jgf5jdvfsey',
   [AvailableFiltersEnum.country]: 'text_62ab2d0396dd6b0361614da0',
   [AvailableFiltersEnum.countries]: 'text_17599097360429zjcfmkb9oi',

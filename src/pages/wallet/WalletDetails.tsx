@@ -66,12 +66,18 @@ gql`
         last4
       }
     }
+    billingEntityId
     customer {
       id
       name
       firstname
       lastname
       externalId
+      billingEntity {
+        id
+        code
+        name
+      }
     }
     skipInvoiceCustomSections
     selectedInvoiceCustomSections {

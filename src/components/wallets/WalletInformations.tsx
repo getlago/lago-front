@@ -1,3 +1,4 @@
+import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
@@ -52,6 +53,7 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
   } = useOrganizationInfos()
   const { isPremium } = useCurrentUser()
 
+  const showBillingEntityRow = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
   const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   // Resolve the payment method the same way the subscription overview does
@@ -203,7 +205,17 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
                 ? intlFormatDateTimeOrgaTZ(wallet?.expirationAt)?.date
                 : '-',
             },
-            { label: '', value: '' },
+            showBillingEntityRow
+              ? {
+                  label: translate('text_17436114971570doqrwuwhf0'),
+                  value: (
+                    <BillingEntityLabel
+                      ownId={wallet?.billingEntityId}
+                      customerEntity={wallet?.customer?.billingEntity}
+                    />
+                  ),
+                }
+              : { label: '', value: '' },
             {
               label: translate('text_1758286730208kztcznofxvr'),
               value: paidTopUpMinAmountCents || translate('text_1772536695408bfc3c38pg36'),

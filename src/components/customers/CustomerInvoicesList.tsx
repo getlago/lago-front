@@ -259,8 +259,8 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 },
             emptyState: isSearching
               ? {
-                  title: translate('text_63c6cac5c1fc58028d0235eb'),
-                  subtitle: translate('text_63c6cac5c1fc58028d0235ef'),
+                  title: translate('text_63b578e959c1366df5d14569'),
+                  subtitle: translate('text_66ab48ea4ed9cd01084c60b8'),
                 }
               : {
                   title: translate('text_63b578e959c1366df5d14569'),
