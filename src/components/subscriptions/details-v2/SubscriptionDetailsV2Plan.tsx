@@ -1,14 +1,16 @@
-import { gql } from '@apollo/client'
-import { useMemo } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { PlanDetailsV2 } from '~/components/plans/details-v2/PlanDetailsV2'
 import { PlanDetailsV2Skeleton } from '~/components/plans/details-v2/PlanDetailsV2Skeleton'
 import PremiumFeature from '~/components/premium/PremiumFeature'
 import {
+  GetSubscriptionFixedChargeUnitsOverridesDocument,
+  GetSubscriptionFixedChargeUnitsOverridesQuery,
+  GetSubscriptionFixedChargeUnitsOverridesQueryVariables,
   LagoApiError,
   PlanDetailsV2FragmentDoc,
-  useGetSubscriptionFixedChargeUnitsOverridesQuery,
   useGetSubscriptionForDetailsV2PlanQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -28,10 +30,14 @@ gql`
     }
   }
 
-  # Override-aware units come from Subscription.fixedCharges. FixedCharge is
-  # normalised by id in the Apollo cache, so this selection is fetched with
-  # fetchPolicy: 'no-cache' to avoid overwriting the plan-scoped units on the
-  # same FixedCharge entry — plan pages must keep showing plan defaults.
+  # Override-aware units come from Subscription.fixedCharges (the BE returns the
+  # effective units for every fixed charge: the override, or the plan default
+  # when there is no override). FixedCharge is normalised by id, and
+  # Subscription.fixedCharges shares that entity with Plan.fixedCharges, so this
+  # is fetched IMPERATIVELY (client.query, fetchPolicy: 'no-cache') and held in
+  # local state — see the component. A subscribed useQuery would have its result
+  # re-broadcast to the cached plan-default units when the plan queries write the
+  # shared FixedCharge; an imperative one-shot read keeps the override value.
   query getSubscriptionFixedChargeUnitsOverrides($subscriptionId: ID!) {
     subscription(id: $subscriptionId) {
       id
@@ -52,32 +58,54 @@ type Props = {
 export const SubscriptionDetailsV2Plan = ({ subscriptionId }: Props) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
+  const client = useApolloClient()
   const { data, loading } = useGetSubscriptionForDetailsV2PlanQuery({
     variables: { subscriptionId },
     skip: !subscriptionId,
     context: { silentError: [LagoApiError.NotFound] },
   })
 
-  const {
-    data: overridesData,
-    loading: overridesLoading,
-    refetch: refetchOverrides,
-  } = useGetSubscriptionFixedChargeUnitsOverridesQuery({
-    variables: { subscriptionId },
-    skip: !subscriptionId,
-    fetchPolicy: 'no-cache',
-    context: { silentError: [LagoApiError.NotFound] },
-  })
+  // Override units, keyed by FixedCharge id, kept in plain React state and
+  // fetched imperatively so the displayed value is fully decoupled from the
+  // Apollo cache (see the query comment). refetchOverrides is threaded to the
+  // edit mutation so a save re-reads the fresh override units.
+  const [subscriptionFixedChargeUnitsById, setSubscriptionFixedChargeUnitsById] = useState<
+    Record<string, string>
+  >({})
+  const [overridesLoaded, setOverridesLoaded] = useState(false)
 
-  const subscriptionFixedChargeUnitsById = useMemo(() => {
-    const map: Record<string, string> = {}
+  const refetchOverrides = useCallback(async () => {
+    if (!subscriptionId) return
 
-    for (const fixedCharge of overridesData?.subscription?.fixedCharges ?? []) {
-      map[fixedCharge.id] = fixedCharge.units
+    try {
+      const { data: overridesData } = await client.query<
+        GetSubscriptionFixedChargeUnitsOverridesQuery,
+        GetSubscriptionFixedChargeUnitsOverridesQueryVariables
+      >({
+        query: GetSubscriptionFixedChargeUnitsOverridesDocument,
+        variables: { subscriptionId },
+        fetchPolicy: 'no-cache',
+        context: { silentError: [LagoApiError.NotFound] },
+      })
+
+      const map: Record<string, string> = {}
+
+      for (const fixedCharge of overridesData?.subscription?.fixedCharges ?? []) {
+        map[fixedCharge.id] = fixedCharge.units
+      }
+
+      setSubscriptionFixedChargeUnitsById(map)
+    } catch {
+      // Silent (matches the NotFound handling): fall back to plan-default units.
+      setSubscriptionFixedChargeUnitsById({})
+    } finally {
+      setOverridesLoaded(true)
     }
+  }, [client, subscriptionId])
 
-    return map
-  }, [overridesData])
+  useEffect(() => {
+    refetchOverrides()
+  }, [refetchOverrides])
 
   const plan = data?.subscription?.plan
 
@@ -108,11 +136,11 @@ export const SubscriptionDetailsV2Plan = ({ subscriptionId }: Props) => {
   }
 
   // The fixed-charge rows derive their units from `override ?? planDefault`.
-  // Override units come from the separate no-cache overrides query, which
-  // resolves independently of the cached plan data. Holding the skeleton until
-  // it has settled avoids rendering the plan default first and then snapping to
-  // the override (or vice-versa) — the units flicker seen on initial load.
-  if (overridesLoading) {
+  // Override units come from the imperative overrides read, which resolves
+  // independently of the cached plan data. Holding the skeleton until it has
+  // settled avoids rendering the plan default first and then snapping to the
+  // override (or vice-versa) — the units flicker seen on initial load.
+  if (!overridesLoaded) {
     return <PlanDetailsV2Skeleton />
   }
 
