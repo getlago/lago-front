@@ -46,6 +46,7 @@ const BillingEntityCreateEdit = () => {
       legalNumber: billingEntity?.legalNumber || '',
       taxIdentificationNumber: billingEntity?.taxIdentificationNumber || '',
       email: billingEntity?.email || '',
+      phone: billingEntity?.phone || '',
       addressLine1: billingEntity?.addressLine1 || '',
       addressLine2: billingEntity?.addressLine2 || '',
       zipcode: billingEntity?.zipcode || '',
@@ -64,6 +65,7 @@ const BillingEntityCreateEdit = () => {
     onSubmit: async (values) => {
       await onSave({
         ...values,
+        phone: values.phone || null,
       })
     },
   })
@@ -198,6 +200,13 @@ const BillingEntityCreateEdit = () => {
                       beforeChangeFormatter={['lowercase']}
                       label={translate('text_62ab2d0396dd6b0361614d60')}
                       placeholder={translate('text_62ab2d0396dd6b0361614d68')}
+                      formikProps={formikProps}
+                    />
+
+                    <TextInputField
+                      name="phone"
+                      label={translate('text_626c0c09812bbc00e4c59e0d')}
+                      placeholder={translate('text_626c0c09812bbc00e4c59e0f')}
                       formikProps={formikProps}
                     />
 
