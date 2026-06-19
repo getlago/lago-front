@@ -152,7 +152,6 @@ describe('QuotePdfProvider', () => {
       content: '<p>body</p>',
       header: {
         documentNumber: 'OF-2026-0012',
-        title: 'Order form for Acme Corp',
         rows: ['Order form number OF-2026-0012'],
       },
     }
@@ -175,11 +174,12 @@ describe('QuotePdfProvider', () => {
 
     const [html, options] = (printHtmlContent as jest.Mock).mock.calls[0]
 
-    expect(html).toContain('Order form for Acme Corp')
     expect(html).toContain('Order form number OF-2026-0012')
     expect(html).toContain('<p>rendered</p>')
     // Header is emitted before the editor content.
-    expect(html.indexOf('Order form for Acme Corp')).toBeLessThan(html.indexOf('<p>rendered</p>'))
+    expect(html.indexOf('Order form number OF-2026-0012')).toBeLessThan(
+      html.indexOf('<p>rendered</p>'),
+    )
     expect(options).toEqual({ title: 'OF-2026-0012' })
   })
 
