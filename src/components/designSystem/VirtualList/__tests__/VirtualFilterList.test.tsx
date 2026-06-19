@@ -2,6 +2,27 @@ import { render, screen } from '@testing-library/react'
 
 import { VIRTUALIZATION_THRESHOLD, VirtualFilterList } from '../VirtualFilterList'
 
+// jsdom renders 0 virtual rows (0px viewport); stub the virtualizer to yield
+// every row so we exercise OUR rendering paths, not the virtualizer internals.
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getTotalSize: () => count * 64,
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, index) => ({ index, start: index * 64, key: index })),
+    measureElement: () => {},
+  }),
+}))
+
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+beforeAll(() => {
+  global.ResizeObserver = ResizeObserverMock
+})
+
 const makeItems = (n: number) => Array.from({ length: n }, (_, i) => ({ id: `f${i}` }))
 
 const renderList = (count: number) =>
@@ -17,21 +38,19 @@ const renderList = (count: number) =>
   )
 
 describe('VirtualFilterList', () => {
-  it('renders every row when at or below the threshold (no virtualization)', () => {
-    renderList(VIRTUALIZATION_THRESHOLD)
+  it('renders a plain list at or below the threshold (no virtualization wrappers)', () => {
+    const { container } = renderList(VIRTUALIZATION_THRESHOLD)
+
     expect(screen.getAllByTestId('row')).toHaveLength(VIRTUALIZATION_THRESHOLD)
+    // Plain path: rows are not the absolutely-positioned virtual rows.
+    expect(container.querySelector('[data-index]')).toBeNull()
   })
 
-  it('renders only a bounded subset of rows above the threshold', () => {
-    // jsdom reports a 0px scroll viewport, so the virtualizer mounts only
-    // overscan rows. The contract we assert: virtualization renders strictly
-    // fewer than the full set (and at least one row).
-    const total = 5000
+  it('renders through the virtualized path above the threshold', () => {
+    const { container } = renderList(VIRTUALIZATION_THRESHOLD + 1)
 
-    renderList(total)
-    const rendered = screen.getAllByTestId('row').length
-
-    expect(rendered).toBeGreaterThan(0)
-    expect(rendered).toBeLessThan(total)
+    // Virtualized path: each row carries data-index inside the positioned spacer.
+    expect(container.querySelector('[data-index="0"]')).not.toBeNull()
+    expect(screen.getAllByTestId('row').length).toBeGreaterThan(0)
   })
 })
