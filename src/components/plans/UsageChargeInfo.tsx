@@ -69,6 +69,8 @@ export const UsageChargeInfo = ({
   const { translate } = useInternationalization()
   const isAnnual = isPlanIntervalAnnual(planInterval ?? undefined)
 
+  // Filter index is safe as a key here because this is a read-only details view where filters
+  // are never reordered or spliced; a mutable context would need a stable id instead.
   const [openFilterIndexes, setOpenFilterIndexes] = useState<Set<number>>(() => new Set())
 
   const toggleFilterOpen = (index: number, open: boolean) =>

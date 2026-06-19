@@ -59,7 +59,27 @@ export const VirtualFilterList = <T,>({
     resolve()
     window.addEventListener('resize', resolve)
 
-    return () => window.removeEventListener('resize', resolve)
+    // Recompute when any content above the list changes height (e.g. an accordion
+    // expanding) without triggering a window resize event.
+    const resolvedElement = getScrollElementRef.current
+      ? getScrollElementRef.current()
+      : findNearestScrollableAncestor(rootRef.current)
+
+    let resizeObserver: ResizeObserver | null = null
+
+    if (resolvedElement) {
+      resolvedElement.addEventListener('scroll', resolve, { passive: true })
+      resizeObserver = new ResizeObserver(resolve)
+      resizeObserver.observe(resolvedElement)
+    }
+
+    return () => {
+      window.removeEventListener('resize', resolve)
+      if (resolvedElement) {
+        resolvedElement.removeEventListener('scroll', resolve)
+      }
+      resizeObserver?.disconnect()
+    }
   }, [isVirtualized, items.length])
 
   const virtualizer = useVirtualizer({

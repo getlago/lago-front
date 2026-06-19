@@ -340,6 +340,10 @@ const driftCharge = {
 } as unknown as UsageChargeInfoCharge
 
 describe('UsageChargeInfo filters virtualization', () => {
+  beforeEach(() => {
+    capturedVirtualList.props = undefined
+  })
+
   it('renders the filter list through VirtualFilterList with every filter', () => {
     render(<UsageChargeInfo charge={driftCharge} currency={CurrencyEnum.Usd} />)
     expect(capturedVirtualList.props?.items).toHaveLength(2)
