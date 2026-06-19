@@ -5,7 +5,6 @@ import { addToast } from '~/core/apolloClient'
 import {
   CUSTOMER_DETAILS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
-  UPDATE_SUBSCRIPTION,
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -14,7 +13,6 @@ import { render, testMockNavigateFn } from '~/test-utils'
 
 import SubscriptionDetails, {
   SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
-  SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
   SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,
 } from '../SubscriptionDetails'
 
@@ -178,10 +176,6 @@ describe('SubscriptionDetails', () => {
 
     it.each([
       {
-        buttonTestId: SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
-        buttonName: 'update',
-      },
-      {
         buttonTestId: SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,
         buttonName: 'upgrade/downgrade',
       },
@@ -215,10 +209,6 @@ describe('SubscriptionDetails', () => {
     })
 
     it.each([
-      {
-        buttonTestId: SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
-        buttonName: 'update',
-      },
       {
         buttonTestId: SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,
         buttonName: 'upgrade/downgrade',
@@ -406,29 +396,6 @@ describe('SubscriptionDetails', () => {
   })
 
   describe('GIVEN the dropdown actions', () => {
-    describe('WHEN clicking the update subscription item', () => {
-      it('THEN should navigate to the update subscription route', () => {
-        render(<SubscriptionDetails />)
-
-        const dropdownAction = capturedConfig?.actions?.items[0]
-
-        if (dropdownAction?.type === 'dropdown') {
-          const updateItem = dropdownAction.items.find(
-            (i) => i.dataTest === SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
-          )
-
-          updateItem?.onClick(jest.fn())
-
-          expect(testMockNavigateFn).toHaveBeenCalledWith(
-            UPDATE_SUBSCRIPTION.replace(':customerId', 'customer-1').replace(
-              ':subscriptionId',
-              'subscription-1',
-            ),
-          )
-        }
-      })
-    })
-
     describe('WHEN clicking the upgrade/downgrade item', () => {
       it('THEN should navigate to the upgrade/downgrade route', () => {
         render(<SubscriptionDetails />)

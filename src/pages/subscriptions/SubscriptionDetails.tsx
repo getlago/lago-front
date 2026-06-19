@@ -23,7 +23,6 @@ import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
-  UPDATE_SUBSCRIPTION,
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
   useNavigate,
 } from '~/core/router'
@@ -69,7 +68,6 @@ gql`
 `
 
 export const SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID = 'subscription-details-actions'
-export const SUBSCRIPTION_DETAILS_UPDATE_TEST_ID = 'subscription-details-update'
 export const SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID =
   'subscription-details-upgrade-downgrade'
 export const SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID = 'subscription-details-terminate'
@@ -315,20 +313,6 @@ const SubscriptionDetails = () => {
       label: translate('text_626162c62f790600f850b6fe'),
       dataTest: SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID,
       items: [
-        {
-          label: translate('text_62d7f6178ec94cd09370e63c'),
-          dataTest: SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
-          hidden: !canEditSubscription(subscription?.status),
-          onClick: (closePopper) => {
-            navigate(
-              generatePath(UPDATE_SUBSCRIPTION, {
-                customerId: subscription?.customer?.id as string,
-                subscriptionId: subscriptionId as string,
-              }),
-            )
-            closePopper()
-          },
-        },
         {
           label: translate('text_62d7f6178ec94cd09370e64a'),
           dataTest: SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,
