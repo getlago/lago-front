@@ -3,11 +3,11 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import type { QuotePreviewProps } from './buildQuotePreviewProps'
+import type { QuotePdfHeaderData, QuotePreviewProps } from './buildQuotePreviewProps'
+import { QuotePdfHeader } from './QuotePdfHeader'
 
 interface QuotePreviewCardProps {
-  /** Document number shown in the card header, e.g. `QUOTE-001-001 - v3`. */
-  quoteNumber: string
+  header: QuotePdfHeaderData
   /** Whether the quote version has content to render. */
   hasContent: boolean
   previewProps: QuotePreviewProps
@@ -21,7 +21,7 @@ interface QuotePreviewCardProps {
  * document number; the body is the read-only `RichTextEditor` preview.
  */
 export const QuotePreviewCard = ({
-  quoteNumber,
+  header,
   hasContent,
   previewProps,
   loading,
@@ -40,9 +40,7 @@ export const QuotePreviewCard = ({
           </div>
         ) : (
           <>
-            <Typography variant="caption" color="grey600">
-              {translate('text_17818008544903clzyy4ziu1', { quoteNumber })}
-            </Typography>
+            <QuotePdfHeader header={header} />
             {hasContent ? (
               <RichTextEditor mode="preview" isCompact {...previewProps} />
             ) : (

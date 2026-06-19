@@ -4326,8 +4326,7 @@
   "text_1781623709531nm1ezxdq0gb": "Void order forms",
   "text_1781624189693d7zcv2vog4c": "Order form number",
   "text_1781625672232ia473jidiy8": "Order form successfully voided",
-  "text_1781778938224v233vcwkqyt": "Order form for {{customerName}}",
-  "text_1781778938224iupllzr5sgb": "Order form number {{orderFormNumber}}",
+  "text_1781778938224iupllzr5sgb": "Order form #{{orderFormNumber}}",
   "text_1781686594125upfeikkemuy": "Sign order form",
   "text_1781686594125tgfd5ypl1h6": "Marking this order form as signed will create an order. Choose how the order should be executed.",
   "text_1781686594125csy9lu7em4h": "Sign the order form {{orderFormNumber}}",
@@ -4358,5 +4357,5 @@
   "text_1781707828627t3f7vohqvq8": "Ensure your document are in good condition and readable",
   "text_1781859135627z59hpfpa8pt": "Billing anchor date",
   "text_1781883445506576p2jigfpx": "Quote #{{numberWithVersion}}",
-  "text_17818008544903clzyy4ziu1": "Quote #{{quoteNumber}}"
+  "text_17818008544903clzyy4ziu1": "Quote #{{quoteNumberWithVersion}}"
 }

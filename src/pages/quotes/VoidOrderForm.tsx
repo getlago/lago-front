@@ -74,14 +74,17 @@ const VoidOrderForm = () => {
 
   const orderForm = data?.orderForm
 
-  const quoteNumberWithVersion = orderForm?.quote
-    ? `${orderForm.quote.number} - v${orderForm.quote.currentVersion?.version ?? ''}`
-    : ''
+  const orderFormNumber = orderForm?.number ?? ''
 
   const previewProps = useMemo(
     () => buildQuotePreviewProps(orderForm?.quote?.currentVersion, orderForm?.customer),
     [orderForm?.quote?.currentVersion, orderForm?.customer],
   )
+
+  const header = {
+    documentNumber: orderFormNumber,
+    rows: [translate('text_1781778938224iupllzr5sgb', { orderFormNumber })],
+  }
 
   const [voidOrderFormMutation] = useVoidOrderFormMutation({
     refetchQueries: ['getOrderForms'],
@@ -242,7 +245,7 @@ const VoidOrderForm = () => {
           <QuotePreviewCard
             dataTest={VOID_ORDER_FORM_PREVIEW_TEST_ID}
             loading={loading}
-            quoteNumber={quoteNumberWithVersion}
+            header={header}
             hasContent={!!orderForm?.quote?.currentVersion?.content}
             previewProps={previewProps}
           />

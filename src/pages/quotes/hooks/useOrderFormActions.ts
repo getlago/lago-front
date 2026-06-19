@@ -43,9 +43,6 @@ export const useOrderFormActions = () => {
     if (content) {
       const header: QuotePdfHeaderData = {
         documentNumber: orderForm.number ?? '',
-        title: translate('text_1781778938224v233vcwkqyt', {
-          customerName: orderForm.customer.name ?? '',
-        }),
         rows: [
           translate('text_1781778938224iupllzr5sgb', {
             orderFormNumber: orderForm.number ?? '',

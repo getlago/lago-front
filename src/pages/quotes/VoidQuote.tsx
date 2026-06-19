@@ -63,6 +63,11 @@ const VoidQuote = () => {
     [quote?.currentVersion, quote?.customer],
   )
 
+  const header = {
+    documentNumber: quoteNumberWithVersion,
+    rows: [translate('text_17818008544903clzyy4ziu1', { quoteNumberWithVersion })],
+  }
+
   const canVoidAndGenerate = hasPermissions(['quotesVoid', 'quotesClone'])
 
   const [voidQuoteVersionMutation] = useVoidQuoteVersionMutation({
@@ -270,7 +275,7 @@ const VoidQuote = () => {
           <QuotePreviewCard
             dataTest={VOID_QUOTE_PREVIEW_TEST_ID}
             loading={loading}
-            quoteNumber={quoteNumberWithVersion}
+            header={header}
             hasContent={!!quote?.currentVersion?.content}
             previewProps={previewProps}
           />
