@@ -1,4 +1,4 @@
-import { revalidateLogic } from '@tanstack/react-form'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
@@ -6,6 +6,7 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SplitPreviewPage } from '~/components/layouts/SplitPreviewPage'
 import { addToast } from '~/core/apolloClient'
@@ -39,6 +40,7 @@ const ApproveQuote = () => {
   const { goBack } = useLocationHistory()
   const { quoteId, versionId } = useParams()
   const navigate = useNavigate()
+  const centralizedDialog = useCentralizedDialog()
 
   const { quote, loading, error } = useQuote(quoteId)
   const { approveQuote } = useApproveQuote()
@@ -82,7 +84,9 @@ const ApproveQuote = () => {
     },
   })
 
-  const onClose = () => {
+  const isDirty = useStore(form.store, (state) => state.isDirty)
+
+  const closeRedirection = () => {
     if (quoteId) {
       goBack(
         generatePath(QUOTE_DETAILS_ROUTE, {
@@ -91,6 +95,22 @@ const ApproveQuote = () => {
         }),
       )
     }
+  }
+
+  const onClose = () => {
+    if (!isDirty) {
+      closeRedirection()
+
+      return
+    }
+
+    centralizedDialog.open({
+      title: translate('text_665deda4babaf700d603ea13'),
+      description: translate('text_665dedd557dc3c00c62eb83d'),
+      actionText: translate('text_645388d5bdbd7b00abffa033'),
+      colorVariant: 'danger',
+      onAction: () => closeRedirection(),
+    })
   }
 
   if (error) {
