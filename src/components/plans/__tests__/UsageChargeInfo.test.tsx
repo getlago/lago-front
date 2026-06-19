@@ -1,3 +1,5 @@
+import { ReactNode } from 'react'
+
 import { screen } from '@testing-library/react'
 
 import {
@@ -9,6 +11,28 @@ import {
 import { render } from '~/test-utils'
 
 import { UsageChargeInfo, UsageChargeInfoCharge } from '../UsageChargeInfo'
+
+type CapturedVirtualListProps = {
+  items: unknown[]
+  renderItem: (item: unknown, index: number) => ReactNode
+}
+
+const capturedVirtualList: { props?: CapturedVirtualListProps } = {}
+
+jest.mock('~/components/designSystem/VirtualList/VirtualFilterList', () => ({
+  VIRTUALIZATION_THRESHOLD: 50,
+  // Delegate to renderItem so existing content assertions still see real
+  // output, while capturing props for the drift assertion below.
+  VirtualFilterList: (props: CapturedVirtualListProps) => (
+    <>
+      {props.items.map((item, index) => {
+        capturedVirtualList.props = props
+
+        return <div key={index}>{props.renderItem(item, index)}</div>
+      })}
+    </>
+  ),
+}))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (k: string) => k }),
@@ -303,5 +327,22 @@ describe('UsageChargeInfo', () => {
     )
     expect(screen.getByText(/GST/)).toBeInTheDocument()
     expect(screen.queryByText(/VAT/)).not.toBeInTheDocument()
+  })
+})
+
+const driftCharge = {
+  id: 'c1',
+  chargeModel: ChargeModelEnum.Standard,
+  billableMetric: { id: 'bm1', name: 'BM', filters: [{ key: 'region', values: ['v0', 'v1'] }] },
+  filters: [
+    { invoiceDisplayName: 'A', values: { region: ['v0'] }, properties: {} },
+    { invoiceDisplayName: 'B', values: { region: ['v1'] }, properties: {} },
+  ],
+} as unknown as UsageChargeInfoCharge
+
+describe('UsageChargeInfo filters virtualization', () => {
+  it('renders the filter list through VirtualFilterList with every filter', () => {
+    render(<UsageChargeInfo charge={driftCharge} currency={CurrencyEnum.Usd} />)
+    expect(capturedVirtualList.props?.items).toHaveLength(2)
   })
 })
