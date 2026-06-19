@@ -8,6 +8,7 @@ import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder
 import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { SplitPreviewPage } from '~/components/layouts/SplitPreviewPage'
 import { addToast } from '~/core/apolloClient'
 import { QuoteDetailsTabsOptionsEnum, QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, QUOTES_TAB_ROUTE, useNavigate } from '~/core/router'
@@ -15,8 +16,7 @@ import { useGetOrderFormForVoidQuery, useVoidOrderFormMutation } from '~/generat
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { PageHeader } from '~/styles'
-import { FormLoadingSkeleton, Main, Side } from '~/styles/mainObjectsForm'
+import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 import { buildQuotePreviewProps } from './common/buildQuotePreviewProps'
 import { getOrderFormStatusMapping } from './common/getOrderFormStatusMapping'
@@ -138,28 +138,43 @@ const VoidOrderForm = () => {
   }
 
   return (
-    <>
-      <PageHeader.Wrapper>
+    <SplitPreviewPage.Wrapper>
+      <SplitPreviewPage.Header
+        onClose={() => onClose()}
+        closeButtonDataTest={VOID_ORDER_FORM_CLOSE_BUTTON_TEST_ID}
+      >
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_1779715648584xw9xgemkv9y')}
         </Typography>
-        <Button
-          data-test={VOID_ORDER_FORM_CLOSE_BUTTON_TEST_ID}
-          variant="quaternary"
-          icon="close"
-          onClick={() => onClose()}
-        />
-      </PageHeader.Wrapper>
+      </SplitPreviewPage.Header>
 
-      <div className="min-height-minus-nav flex">
-        <Main>
-          {loading && (
-            <div>
-              <FormLoadingSkeleton id="void-order-form" />
-            </div>
-          )}
-
-          {!loading && (
+      <SplitPreviewPage.Body>
+        <SplitPreviewPage.Main
+          footer={
+            !loading && (
+              <>
+                <Button
+                  data-test={VOID_ORDER_FORM_CANCEL_BUTTON_TEST_ID}
+                  variant="quaternary"
+                  onClick={() => onClose()}
+                >
+                  {translate('text_6411e6b530cb47007488b027')}
+                </Button>
+                <Button
+                  data-test={VOID_ORDER_FORM_VOID_BUTTON_TEST_ID}
+                  variant="primary"
+                  danger
+                  onClick={() => onSubmit()}
+                >
+                  {translate('text_1779715648584xw9xgemkv9y')}
+                </Button>
+              </>
+            )
+          }
+        >
+          {loading ? (
+            <FormLoadingSkeleton id="void-order-form" />
+          ) : (
             <div className="flex flex-col gap-12">
               <Alert data-test={VOID_ORDER_FORM_ALERT_TEST_ID} type="warning">
                 <Typography className="text-grey-700">
@@ -219,29 +234,11 @@ const VoidOrderForm = () => {
                   ]}
                 />
               </div>
-
-              <div className="flex w-full items-center justify-end gap-3 pb-12">
-                <Button
-                  data-test={VOID_ORDER_FORM_CANCEL_BUTTON_TEST_ID}
-                  variant="quaternary"
-                  onClick={() => onClose()}
-                >
-                  {translate('text_6411e6b530cb47007488b027')}
-                </Button>
-                <Button
-                  data-test={VOID_ORDER_FORM_VOID_BUTTON_TEST_ID}
-                  variant="primary"
-                  danger
-                  onClick={() => onSubmit()}
-                >
-                  {translate('text_1779715648584xw9xgemkv9y')}
-                </Button>
-              </div>
             </div>
           )}
-        </Main>
+        </SplitPreviewPage.Main>
 
-        <Side>
+        <SplitPreviewPage.Side>
           <QuotePreviewCard
             dataTest={VOID_ORDER_FORM_PREVIEW_TEST_ID}
             loading={loading}
@@ -249,9 +246,9 @@ const VoidOrderForm = () => {
             hasContent={!!orderForm?.quote?.currentVersion?.content}
             previewProps={previewProps}
           />
-        </Side>
-      </div>
-    </>
+        </SplitPreviewPage.Side>
+      </SplitPreviewPage.Body>
+    </SplitPreviewPage.Wrapper>
   )
 }
 

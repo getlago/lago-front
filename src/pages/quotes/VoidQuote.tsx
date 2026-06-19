@@ -8,6 +8,7 @@ import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder
 import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { SplitPreviewPage } from '~/components/layouts/SplitPreviewPage'
 import { addToast } from '~/core/apolloClient'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { EDIT_QUOTE_ROUTE, QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
@@ -17,8 +18,7 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { PageHeader } from '~/styles'
-import { FormLoadingSkeleton, Main, Side } from '~/styles/mainObjectsForm'
+import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 import { buildQuotePreviewProps } from './common/buildQuotePreviewProps'
 import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
@@ -146,28 +146,56 @@ const VoidQuote = () => {
   }
 
   return (
-    <>
-      <PageHeader.Wrapper>
+    <SplitPreviewPage.Wrapper>
+      <SplitPreviewPage.Header
+        onClose={() => onClose()}
+        closeButtonDataTest={VOID_QUOTE_CLOSE_BUTTON_TEST_ID}
+      >
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_1776414006125vf2t8yuiwka', { quoteNumber: quoteNumberWithVersion })}
         </Typography>
-        <Button
-          data-test={VOID_QUOTE_CLOSE_BUTTON_TEST_ID}
-          variant="quaternary"
-          icon="close"
-          onClick={() => onClose()}
-        />
-      </PageHeader.Wrapper>
+      </SplitPreviewPage.Header>
 
-      <div className="min-height-minus-nav flex">
-        <Main>
-          {loading && (
-            <div>
-              <FormLoadingSkeleton id="void-quote" />
-            </div>
-          )}
+      <SplitPreviewPage.Body>
+        <SplitPreviewPage.Main
+          footerAlign="between"
+          footer={
+            !loading && (
+              <>
+                <Button
+                  data-test={VOID_QUOTE_VOID_BUTTON_TEST_ID}
+                  variant="inline"
+                  danger
+                  onClick={() => onSubmit()}
+                >
+                  {translate('text_177641400612565v4yq2wx1u')}
+                </Button>
 
-          {!loading && (
+                <div className="flex gap-3">
+                  <Button
+                    data-test={VOID_QUOTE_CANCEL_BUTTON_TEST_ID}
+                    variant="quaternary"
+                    onClick={() => onClose()}
+                  >
+                    {translate('text_6411e6b530cb47007488b027')}
+                  </Button>
+                  {canVoidAndGenerate && (
+                    <Button
+                      data-test={VOID_QUOTE_VOID_AND_GENERATE_BUTTON_TEST_ID}
+                      variant="primary"
+                      onClick={() => onVoidAndGenerateNewVersion()}
+                    >
+                      {translate('text_17764159264034mafl126pox')}
+                    </Button>
+                  )}
+                </div>
+              </>
+            )
+          }
+        >
+          {loading ? (
+            <FormLoadingSkeleton id="void-quote" />
+          ) : (
             <div className="flex flex-col gap-12">
               <Alert data-test={VOID_QUOTE_ALERT_TEST_ID} type="warning">
                 <Typography className="text-grey-700">
@@ -234,41 +262,11 @@ const VoidQuote = () => {
                   ]}
                 />
               </div>
-
-              <div className="flex w-full items-center justify-between pb-12">
-                <Button
-                  data-test={VOID_QUOTE_VOID_BUTTON_TEST_ID}
-                  variant="inline"
-                  danger
-                  onClick={() => onSubmit()}
-                >
-                  {translate('text_177641400612565v4yq2wx1u')}
-                </Button>
-
-                <div className="flex gap-3">
-                  <Button
-                    data-test={VOID_QUOTE_CANCEL_BUTTON_TEST_ID}
-                    variant="quaternary"
-                    onClick={() => onClose()}
-                  >
-                    {translate('text_6411e6b530cb47007488b027')}
-                  </Button>
-                  {canVoidAndGenerate && (
-                    <Button
-                      data-test={VOID_QUOTE_VOID_AND_GENERATE_BUTTON_TEST_ID}
-                      variant="primary"
-                      onClick={() => onVoidAndGenerateNewVersion()}
-                    >
-                      {translate('text_17764159264034mafl126pox')}
-                    </Button>
-                  )}
-                </div>
-              </div>
             </div>
           )}
-        </Main>
+        </SplitPreviewPage.Main>
 
-        <Side>
+        <SplitPreviewPage.Side>
           <QuotePreviewCard
             dataTest={VOID_QUOTE_PREVIEW_TEST_ID}
             loading={loading}
@@ -276,9 +274,9 @@ const VoidQuote = () => {
             hasContent={!!quote?.currentVersion?.content}
             previewProps={previewProps}
           />
-        </Side>
-      </div>
-    </>
+        </SplitPreviewPage.Side>
+      </SplitPreviewPage.Body>
+    </SplitPreviewPage.Wrapper>
   )
 }
 

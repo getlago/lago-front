@@ -30,7 +30,7 @@ export const QuotePreviewCard = ({
   const { translate } = useInternationalization()
 
   return (
-    <div className="h-full overflow-auto p-8" data-test={dataTest}>
+    <div className="p-8" data-test={dataTest}>
       <div className="mx-auto flex w-full max-w-180 flex-col gap-8 rounded-xl border border-grey-300 bg-white p-8">
         {loading ? (
           <div className="flex flex-col gap-4">
