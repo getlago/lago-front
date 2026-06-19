@@ -24,6 +24,8 @@ interface AccordionBaseProps {
   summary: ReactNode
   children: ReactNode | ((args: { isOpen: boolean }) => ReactNode)
   initiallyOpen?: boolean
+  isOpen?: boolean
+  onToggle?: (open: boolean) => void
   transitionProps?: TransitionProps
   onOpen?: () => void
 }
@@ -48,6 +50,8 @@ export const Accordion = ({
   summary,
   children,
   initiallyOpen = false,
+  isOpen: controlledOpen,
+  onToggle,
   size: localSize,
   noContentMargin = false,
   transitionProps = {},
@@ -55,7 +59,9 @@ export const Accordion = ({
   onOpen,
   ...props
 }: AccordionProps) => {
-  const [isOpen, setIsOpen] = useState(initiallyOpen)
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(initiallyOpen)
+  const isControlled = controlledOpen !== undefined
+  const isOpen = isControlled ? controlledOpen : uncontrolledOpen
   const { translate } = useInternationalization()
 
   const getSize = () => {
@@ -109,8 +115,9 @@ export const Accordion = ({
         const selection = window.getSelection()
 
         if (selection?.type !== 'Range') {
-          setIsOpen(expanded)
+          if (!isControlled) setUncontrolledOpen(expanded)
 
+          onToggle?.(expanded)
           if (expanded && !!onOpen) onOpen()
         }
       }}
