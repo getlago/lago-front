@@ -2,6 +2,7 @@ import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { debounce } from 'lodash'
 import { useEffect, useMemo, useRef } from 'react'
 
+import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import {
   type CurrencyEnum,
@@ -11,6 +12,13 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { usePermissions } from '~/hooks/usePermissions'
+import {
+  buildQuotePreviewProps,
+  type QuotePdfHeaderData,
+} from '~/pages/quotes/common/buildQuotePreviewProps'
+import { useDownloadQuotePdf } from '~/pages/quotes/common/QuotePdfProvider'
+import { useApproveQuote } from '~/pages/quotes/hooks/useApproveQuote'
 import { useUpdateQuote } from '~/pages/quotes/hooks/useUpdateQuote'
 
 import { type EditQuoteAsideFormValues, editQuoteAsideSchema } from './validationSchema'
@@ -27,9 +35,12 @@ export const EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID = 'edit-quote-aside-currenc
 export const EDIT_QUOTE_ASIDE_START_DATE_TEST_ID = 'edit-quote-aside-start-date'
 export const EDIT_QUOTE_ASIDE_END_DATE_TEST_ID = 'edit-quote-aside-end-date'
 export const EDIT_QUOTE_ASIDE_PAYMENT_TERM_TEST_ID = 'edit-quote-aside-payment-term'
+export const EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID = 'edit-quote-aside-download-pdf'
+export const EDIT_QUOTE_ASIDE_APPROVE_TEST_ID = 'edit-quote-aside-approve'
 
 interface EditQuoteAsideProps {
   quote: QuoteDetailItemFragment | null | undefined
+  isSaving?: boolean
   onSaveStart?: () => void
   onSaveFinished?: () => void
   onSaveError?: (payload: UpdateQuoteVersionInput) => void
@@ -37,6 +48,7 @@ interface EditQuoteAsideProps {
 
 const EditQuoteAside = ({
   quote,
+  isSaving,
   onSaveStart,
   onSaveFinished,
   onSaveError,
@@ -46,6 +58,7 @@ const EditQuoteAside = ({
   return (
     <EditQuoteAsideForm
       quote={quote}
+      isSaving={isSaving}
       onSaveStart={onSaveStart}
       onSaveFinished={onSaveFinished}
       onSaveError={onSaveError}
@@ -65,17 +78,31 @@ const formatNetPaymentTerm = (
 
 const EditQuoteAsideForm = ({
   quote,
+  isSaving,
   onSaveStart,
   onSaveFinished,
   onSaveError,
 }: {
   quote: QuoteDetailItemFragment
+  isSaving?: boolean
   onSaveStart?: () => void
   onSaveFinished?: () => void
   onSaveError?: (payload: UpdateQuoteVersionInput) => void
 }) => {
   const { translate } = useInternationalization()
   const { updateQuoteVersion } = useUpdateQuote({ onUpdateFinished: onSaveFinished })
+  const { hasPermissions } = usePermissions()
+  const { download } = useDownloadQuotePdf()
+  const { goToApproveQuote } = useApproveQuote()
+
+  const canApprove = hasPermissions(['quotesApprove'])
+  const pdfHeader: QuotePdfHeaderData = {
+    documentNumber: quote.number,
+    title: translate('text_1781883445506576p2jigfpx', {
+      numberWithVersion: `${quote.number} - v${quote.currentVersion.version}`,
+    }),
+    rows: [],
+  }
 
   const hasSubscription = !!quote.subscription
   const isOneOff = quote.orderType === OrderTypeEnum.OneOff
@@ -168,7 +195,7 @@ const EditQuoteAsideForm = ({
   const gridClassName = 'grid grid-cols-[7.5rem_1fr] items-center gap-0 gap-y-2'
 
   return (
-    <>
+    <div className="flex min-h-full flex-col">
       <div className="flex flex-col gap-3 px-3 py-4">
         <Typography variant="bodyHl" color="grey700">
           {translate('text_1777540287773ez178bggf4h')}
@@ -304,7 +331,31 @@ const EditQuoteAsideForm = ({
           </form.AppField>
         </div>
       </div>
-    </>
+      <div className="sticky bottom-0 mt-auto flex justify-end gap-3 border-t border-grey-200 bg-white p-4">
+        <Button
+          variant="secondary"
+          data-test={EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID}
+          disabled={!!isSaving}
+          onClick={() =>
+            download(buildQuotePreviewProps(quote.currentVersion, quote.customer, pdfHeader)).catch(
+              () => undefined,
+            )
+          }
+        >
+          {translate('text_17797156485850t8yms6hf7z')}
+        </Button>
+        {canApprove && (
+          <Button
+            variant="primary"
+            data-test={EDIT_QUOTE_ASIDE_APPROVE_TEST_ID}
+            disabled={!!isSaving}
+            onClick={() => goToApproveQuote(quote.id, quote.currentVersion.id)}
+          >
+            {translate('text_1776848720529vv5zmyyq94k')}
+          </Button>
+        )}
+      </div>
+    </div>
   )
 }
 

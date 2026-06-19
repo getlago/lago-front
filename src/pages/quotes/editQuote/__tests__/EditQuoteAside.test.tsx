@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/react'
 
 import {
   CurrencyEnum,
@@ -9,9 +9,11 @@ import {
 import { render } from '~/test-utils'
 
 import EditQuoteAside, {
+  EDIT_QUOTE_ASIDE_APPROVE_TEST_ID,
   EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID,
   EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID,
   EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID,
+  EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID,
   EDIT_QUOTE_ASIDE_END_DATE_TEST_ID,
   EDIT_QUOTE_ASIDE_PAYMENT_TERM_TEST_ID,
   EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID,
@@ -42,6 +44,22 @@ jest.mock('~/pages/quotes/hooks/useUpdateQuote', () => ({
     updateQuote: jest.fn(),
     isUpdatingQuote: false,
   }),
+}))
+
+const mockDownload = jest.fn().mockResolvedValue(undefined)
+const mockGoToApproveQuote = jest.fn()
+const mockHasPermissions = jest.fn().mockReturnValue(true)
+
+jest.mock('~/pages/quotes/common/QuotePdfProvider', () => ({
+  useDownloadQuotePdf: () => ({ download: mockDownload }),
+}))
+
+jest.mock('~/pages/quotes/hooks/useApproveQuote', () => ({
+  useApproveQuote: () => ({ goToApproveQuote: mockGoToApproveQuote }),
+}))
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
 
 const mockQuote: QuoteDetailItemFragment = {
@@ -92,6 +110,7 @@ const mockQuote: QuoteDetailItemFragment = {
 describe('EditQuoteAside', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasPermissions.mockReturnValue(true)
   })
 
   describe('GIVEN a quote is provided', () => {
@@ -403,6 +422,59 @@ describe('EditQuoteAside', () => {
         render(<EditQuoteAside quote={amendmentQuote} />)
 
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_END_DATE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the footer actions', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should render the Download PDF button', () => {
+        render(<EditQuoteAside quote={mockQuote} />)
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID)).toBeInTheDocument()
+      })
+
+      it('THEN should render the Approve button when the user has the quotesApprove permission', () => {
+        mockHasPermissions.mockReturnValue(true)
+        render(<EditQuoteAside quote={mockQuote} />)
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_APPROVE_TEST_ID)).toBeInTheDocument()
+      })
+
+      it('THEN should NOT render the Approve button without the quotesApprove permission', () => {
+        mockHasPermissions.mockReturnValue(false)
+        render(<EditQuoteAside quote={mockQuote} />)
+
+        expect(screen.queryByTestId(EDIT_QUOTE_ASIDE_APPROVE_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the Download PDF button is clicked', () => {
+      it('THEN should trigger a PDF download', () => {
+        render(<EditQuoteAside quote={mockQuote} />)
+
+        fireEvent.click(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID))
+
+        expect(mockDownload).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the Approve button is clicked', () => {
+      it('THEN should navigate to the approve quote page', () => {
+        render(<EditQuoteAside quote={mockQuote} />)
+
+        fireEvent.click(screen.getByTestId(EDIT_QUOTE_ASIDE_APPROVE_TEST_ID))
+
+        expect(mockGoToApproveQuote).toHaveBeenCalledWith('quote-1', 'version-1')
+      })
+    })
+
+    describe('WHEN the quote is saving', () => {
+      it('THEN should disable both action buttons', () => {
+        render(<EditQuoteAside quote={mockQuote} isSaving />)
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID)).toBeDisabled()
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_APPROVE_TEST_ID)).toBeDisabled()
       })
     })
   })
