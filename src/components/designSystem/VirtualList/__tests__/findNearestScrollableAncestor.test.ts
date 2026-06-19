@@ -7,9 +7,11 @@ describe('findNearestScrollableAncestor', () => {
 
   it('returns the nearest ancestor with overflow-y auto/scroll', () => {
     const scroller = document.createElement('div')
+
     scroller.style.overflowY = 'auto'
     const middle = document.createElement('div')
     const leaf = document.createElement('div')
+
     scroller.appendChild(middle)
     middle.appendChild(leaf)
     document.body.appendChild(scroller)
@@ -18,8 +20,7 @@ describe('findNearestScrollableAncestor', () => {
     jest
       .spyOn(window, 'getComputedStyle')
       .mockImplementation(
-        (node) =>
-          ({ overflowY: node === scroller ? 'auto' : 'visible' }) as CSSStyleDeclaration,
+        (node) => ({ overflowY: node === scroller ? 'auto' : 'visible' }) as CSSStyleDeclaration,
       )
 
     expect(findNearestScrollableAncestor(leaf)).toBe(scroller)
@@ -28,6 +29,7 @@ describe('findNearestScrollableAncestor', () => {
 
   it('falls back to document.scrollingElement when no scrollable ancestor exists', () => {
     const leaf = document.createElement('div')
+
     document.body.appendChild(leaf)
     jest
       .spyOn(window, 'getComputedStyle')

@@ -1,5 +1,6 @@
 import { act, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { ReactNode } from 'react'
 
 import { ChargeModelEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -800,10 +801,6 @@ describe('UsageChargeDrawerContent', () => {
     })
   })
 })
-
-// --- Drift test: filter list is rendered through VirtualFilterList ---
-
-import { ReactNode } from 'react'
 
 type CapturedVirtualListProps = {
   items: unknown[]

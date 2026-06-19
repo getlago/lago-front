@@ -1,8 +1,6 @@
 const SCROLLABLE_OVERFLOW = new Set(['auto', 'scroll', 'overlay'])
 
-export const findNearestScrollableAncestor = (
-  el: HTMLElement | null,
-): HTMLElement | null => {
+export const findNearestScrollableAncestor = (el: HTMLElement | null): HTMLElement | null => {
   if (!el) return null
 
   let current: HTMLElement | null = el.parentElement

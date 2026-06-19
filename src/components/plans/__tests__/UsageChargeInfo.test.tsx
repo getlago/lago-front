@@ -1,6 +1,5 @@
-import { ReactNode } from 'react'
-
 import { screen } from '@testing-library/react'
+import { ReactNode } from 'react'
 
 import {
   ChargeModelEnum,
