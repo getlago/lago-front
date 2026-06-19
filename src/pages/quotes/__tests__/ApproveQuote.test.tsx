@@ -239,7 +239,7 @@ describe('ApproveQuote', () => {
     })
 
     describe('WHEN data is being fetched', () => {
-      it('THEN should not display the alert or preview', () => {
+      it('THEN should not display the alert or RTE content', () => {
         render(<ApproveQuote />)
 
         expect(screen.queryByTestId(APPROVE_QUOTE_ALERT_TEST_ID)).not.toBeInTheDocument()

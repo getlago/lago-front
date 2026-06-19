@@ -48,7 +48,7 @@ const ApproveQuote = () => {
 
   const header = {
     documentNumber: quoteNumberWithVersion,
-    rows: [translate('text_17818008544903clzyy4ziu1', { quoteNumber: quoteNumberWithVersion })],
+    rows: [translate('text_17818008544903clzyy4ziu1', { quoteNumberWithVersion })],
   }
 
   const onSubmit = async () => {
