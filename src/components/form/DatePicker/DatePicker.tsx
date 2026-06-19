@@ -56,6 +56,7 @@ export const DatePicker = ({
   value,
   error,
   label,
+  description,
   defaultZone,
   disableFuture,
   disablePast,
@@ -124,6 +125,12 @@ export const DatePicker = ({
               label
             )}
           </>
+        )}
+
+        {!!description && (
+          <Typography className="mb-3" variant="caption">
+            {description}
+          </Typography>
         )}
 
         <ConditionalWrapper
