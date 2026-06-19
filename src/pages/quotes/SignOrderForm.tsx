@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { DocumentUploader } from '~/components/form/DocumentUploader'
 import { SplitPreviewPage } from '~/components/layouts/SplitPreviewPage'
 import { addToast } from '~/core/apolloClient'
@@ -75,7 +75,7 @@ const SignOrderForm = () => {
   const { goBack } = useLocationHistory()
   const { orderFormId } = useParams()
   const navigate = useNavigate()
-  const warningDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
 
   const { data, loading, error } = useGetOrderFormForSignQuery({
     variables: { id: orderFormId || '' },
@@ -134,11 +134,19 @@ const SignOrderForm = () => {
   }
 
   const onClose = () => {
-    if (isDirty) {
-      warningDialogRef.current?.openDialog()
-    } else {
+    if (!isDirty) {
       closeRedirection()
+
+      return
     }
+
+    centralizedDialog.open({
+      title: translate('text_665deda4babaf700d603ea13'),
+      description: translate('text_665dedd557dc3c00c62eb83d'),
+      actionText: translate('text_645388d5bdbd7b00abffa033'),
+      colorVariant: 'danger',
+      onAction: () => closeRedirection(),
+    })
   }
 
   if (error) {
@@ -325,14 +333,6 @@ const SignOrderForm = () => {
           />
         </SplitPreviewPage.Side>
       </SplitPreviewPage.Body>
-
-      <WarningDialog
-        ref={warningDialogRef}
-        title={translate('text_665deda4babaf700d603ea13')}
-        description={translate('text_665dedd557dc3c00c62eb83d')}
-        continueText={translate('text_645388d5bdbd7b00abffa033')}
-        onContinue={() => closeRedirection()}
-      />
     </SplitPreviewPage.Wrapper>
   )
 }
