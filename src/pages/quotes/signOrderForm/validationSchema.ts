@@ -13,10 +13,6 @@ export const signOrderFormValidationSchema = z
     message: 'text_17816865941254uzl22ixohk',
     path: ['executionMode'],
   })
-  .refine((data) => !!data.executeAt, {
-    message: 'text_1781686594125u5ycpo29tzr',
-    path: ['executeAt'],
-  })
   // Execution must be scheduled for a future day — today and past are rejected by the backend
   .refine(
     (data) => {

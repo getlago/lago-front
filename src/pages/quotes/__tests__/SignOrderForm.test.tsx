@@ -174,6 +174,45 @@ describe('SignOrderForm', () => {
     expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-456/order-forms')
   })
 
+  it('signs without an execution date (executeAt is optional)', async () => {
+    mockMarkSigned.mockResolvedValueOnce({
+      data: { markOrderFormAsSigned: { id: 'order-form-123', status: OrderFormStatusEnum.Signed } },
+    })
+
+    const user = userEvent.setup()
+
+    renderPage()
+
+    const comboboxContainer = screen.getByTestId(SIGN_ORDER_FORM_EXECUTION_TYPE_TEST_ID)
+    const comboboxInputBase = comboboxContainer.querySelector('.MuiInputBase-root') as HTMLElement
+
+    await user.click(comboboxInputBase)
+
+    const optionWrapper = await screen.findByTestId('combobox-item-text_1781686594125wc395bj9cul')
+    const option = optionWrapper.querySelector('.MuiAutocomplete-option') as HTMLElement
+
+    await user.click(option)
+
+    // No execute-at date set.
+    await user.click(screen.getByTestId(SIGN_ORDER_FORM_SUBMIT_BUTTON_TEST_ID))
+
+    await waitFor(() => {
+      expect(mockMarkSigned).toHaveBeenCalledWith({
+        variables: {
+          input: expect.objectContaining({
+            id: 'order-form-123',
+            executionMode: OrderExecutionModeEnum.ExecuteInLago,
+            executeAt: undefined,
+          }),
+        },
+      })
+    })
+
+    await waitFor(() => {
+      expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-456/order-forms')
+    })
+  })
+
   describe('unsaved-changes guard', () => {
     const selectExecutionMode = async (user: ReturnType<typeof userEvent.setup>) => {
       const comboboxContainer = screen.getByTestId(SIGN_ORDER_FORM_EXECUTION_TYPE_TEST_ID)

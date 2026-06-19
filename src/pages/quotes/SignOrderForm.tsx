@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { DateTime } from 'luxon'
 import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
@@ -295,6 +296,7 @@ const SignOrderForm = () => {
                     <field.DatePickerField
                       label={translate('text_17816865941256grf5qs2924')}
                       placeholder={translate('text_17816865941253r8yqeoibh1')}
+                      minDate={DateTime.now().plus({ days: 1 }).startOf('day')}
                     />
                   )}
                 </form.AppField>
