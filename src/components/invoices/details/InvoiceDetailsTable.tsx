@@ -4,7 +4,6 @@ import { DateTime } from 'luxon'
 import { FC, Fragment, memo, ReactNode, RefObject } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { DeleteAdjustedFeeDialogRef } from '~/components/invoices/details/DeleteAdjustedFeeDialog'
 import { EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
 import {
   getRegenerateModeProps,
@@ -176,7 +175,6 @@ interface InvoiceDetailsTableProps {
   customer: Pick<Customer, 'id' | 'applicableTimezone'> | null | undefined
   invoice: InvoiceForDetailsTableFragment | null | undefined
   editFeeDrawerRef: RefObject<EditFeeDrawerRef>
-  deleteAdjustedFeeDialogRef: RefObject<DeleteAdjustedFeeDialogRef>
   isDraftOverride?: boolean
   fees: FeeDetailsForInvoiceOverviewFragment[] | null | undefined
   onAdd?: OnRegeneratedFeeAdd
@@ -256,7 +254,6 @@ export const InvoiceDetailsTable = memo(
   ({
     customer,
     editFeeDrawerRef,
-    deleteAdjustedFeeDialogRef,
     invoice,
     isDraftOverride,
     fees,
@@ -323,7 +320,6 @@ export const InvoiceDetailsTable = memo(
                         : undefined
                     }
                     editFeeDrawerRef={editFeeDrawerRef}
-                    deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                     isDraftInvoice={isDraftInvoice}
                     fee={
                       feeWithMetadata as FeeForInvoiceDetailsTableBodyLineFragment & {
@@ -390,7 +386,6 @@ export const InvoiceDetailsTable = memo(
                       currency={currency}
                       displayName={subscription.name || subscription.plan.name}
                       editFeeDrawerRef={editFeeDrawerRef}
-                      deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                       fee={undefined}
                       isDraftInvoice={false}
                       hasTaxProviderError={hasTaxProviderError}
@@ -482,7 +477,6 @@ export const InvoiceDetailsTable = memo(
                                 displayName={fee.metadata.displayName}
                                 succeededDate={succeededDate}
                                 editFeeDrawerRef={editFeeDrawerRef}
-                                deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                                 isDraftInvoice={isDraftInvoice}
                                 fee={fee}
                                 hasTaxProviderError={hasTaxProviderError}

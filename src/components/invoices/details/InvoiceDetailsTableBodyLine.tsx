@@ -33,7 +33,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { OnRegeneratedFeeAdd } from '~/pages/CustomerInvoiceRegenerate'
 import { MenuPopper, PopperOpener } from '~/styles'
 
-import { DeleteAdjustedFeeDialogRef } from './DeleteAdjustedFeeDialog'
+import { useDeleteAdjustedFeeDialog } from './DeleteAdjustedFeeDialog'
 import { EditFeeDrawerRef } from './EditFeeDrawer'
 import { CopyFeeIdButton, FeeActionsCell, ViewFeeDetailsButton } from './FeeActionsCell'
 import { InvoiceDetailsTableBodyLineGraduated } from './InvoiceDetailsTableBodyLineGraduated'
@@ -133,7 +133,6 @@ type InvoiceDetailsTableBodyLineBaseProps = {
   hideVat?: boolean
   displayFeeBoundaries?: boolean
   editFeeDrawerRef?: RefObject<EditFeeDrawerRef>
-  deleteAdjustedFeeDialogRef?: RefObject<DeleteAdjustedFeeDialogRef>
   succeededDate?: string
   hasTaxProviderError?: boolean
 }
@@ -229,7 +228,6 @@ export const InvoiceDetailsTableBodyLine = memo(
   ({
     canHaveUnitPrice,
     currency,
-    deleteAdjustedFeeDialogRef,
     displayName,
     editFeeDrawerRef,
     fee,
@@ -246,6 +244,7 @@ export const InvoiceDetailsTableBodyLine = memo(
     const { invoiceId = '' } = useParams()
     const { translate } = useInternationalization()
     const viewFeeDetails = useViewFeeDetailsDrawer()
+    const { openDeleteAdjustedFeeDialog } = useDeleteAdjustedFeeDialog()
     const chargeModel = fee?.charge?.chargeModel
     const isTrueUpFee = !!fee?.metadata?.isTrueUpFee
     const isCommitmentFee = !!fee?.metadata?.isCommitmentFee
@@ -441,7 +440,7 @@ export const InvoiceDetailsTableBodyLine = memo(
                         align="left"
                         onClick={() => {
                           if (isAdjustedFee) {
-                            deleteAdjustedFeeDialogRef?.current?.openDialog({ fee, onDelete })
+                            openDeleteAdjustedFeeDialog({ fee, onDelete })
                           } else if (fee) {
                             if (onAdd && invoiceSubscriptionId) {
                               editFeeDrawerRef?.current?.openDrawer({
