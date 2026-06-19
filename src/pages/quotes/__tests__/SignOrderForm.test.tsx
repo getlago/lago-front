@@ -15,6 +15,7 @@ import SignOrderForm, {
   SIGN_ORDER_FORM_CANCEL_BUTTON_TEST_ID,
   SIGN_ORDER_FORM_CLOSE_BUTTON_TEST_ID,
   SIGN_ORDER_FORM_EXECUTION_TYPE_TEST_ID,
+  SIGN_ORDER_FORM_PREVIEW_TEST_ID,
   SIGN_ORDER_FORM_SUBMIT_BUTTON_TEST_ID,
 } from '../SignOrderForm'
 
@@ -97,6 +98,12 @@ describe('SignOrderForm', () => {
     render(<SignOrderForm />)
 
     expect(screen.getByTestId(SIGN_ORDER_FORM_ALERT_TEST_ID)).toBeInTheDocument()
+  })
+
+  it('renders the document preview card', () => {
+    render(<SignOrderForm />)
+
+    expect(screen.getByTestId(SIGN_ORDER_FORM_PREVIEW_TEST_ID)).toBeInTheDocument()
   })
 
   it('does not call the mutation and shows an error when submitting empty', async () => {
