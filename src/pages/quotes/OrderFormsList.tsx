@@ -50,8 +50,8 @@ const OrderFormsList = ({ quoteNumber }: OrderFormsListProps): JSX.Element => {
         </Typography>
       ),
     },
-    orderFormSourceQuoteColumn(translate),
     orderFormStatusColumn(translate),
+    orderFormSourceQuoteColumn(translate),
     orderFormCreatedAtColumn(translate, 'text_624efab67eb2570101d117e3', intlFormatDateTimeOrgaTZ),
   ]
 
