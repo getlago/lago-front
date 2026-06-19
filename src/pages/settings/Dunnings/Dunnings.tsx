@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -18,10 +18,6 @@ import {
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  DeleteCampaignDialog,
-  DeleteCampaignDialogRef,
-} from '~/components/settings/dunnings/DeleteCampaignDialog'
 import { CREATE_DUNNING_ROUTE, UPDATE_DUNNING_ROUTE, useNavigate } from '~/core/router'
 import {
   DeleteCampaignFragmentDoc,
@@ -32,6 +28,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
+
+import { useDeleteCampaignDialog } from './dialogs/DeleteCampaignDialog'
 
 gql`
   fragment DunningCampaignItem on DunningCampaign {
@@ -69,7 +67,7 @@ const Dunnings = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
-  const deleteCampaignDialogRef = useRef<DeleteCampaignDialogRef>(null)
+  const { openDeleteCampaignDialog } = useDeleteCampaignDialog()
 
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
 
@@ -233,7 +231,7 @@ const Dunnings = () => {
                                 title: translate('text_1732187313660we30lb9kg57'),
                                 disabled: !hasPermissions(['dunningCampaignsDelete']),
                                 onAction: () => {
-                                  deleteCampaignDialogRef.current?.openDialog(campaign)
+                                  openDeleteCampaignDialog(campaign)
                                 },
                               },
                             ]
@@ -248,8 +246,6 @@ const Dunnings = () => {
           </>
         )}
       </SettingsPaddedContainer>
-
-      <DeleteCampaignDialog ref={deleteCampaignDialogRef} />
     </>
   )
 }
