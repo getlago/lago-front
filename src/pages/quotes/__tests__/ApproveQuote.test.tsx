@@ -59,6 +59,12 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: jest.fn(),
 }))
 
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    intlFormatDateTimeOrgaTZ: (date: string) => ({ date }),
+  }),
+}))
+
 jest.mock('~/core/serializers/serializeQuoteBillingItems', () => ({
   buildPreviewEntities: jest.fn(),
 }))
@@ -330,6 +336,27 @@ describe('ApproveQuote', () => {
         await user.click(screen.getByTestId(APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID))
 
         expect(mockGoBack).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  it('sends expiresAt at end-of-day when a valid-until date is set', async () => {
+    const user = userEvent.setup()
+
+    render(<ApproveQuote />)
+
+    await user.type(screen.getByPlaceholderText('text_62cd78ea9bff25e3391b2437'), '12/25/2030')
+
+    await user.click(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID))
+
+    await waitFor(() => {
+      expect(mockApproveQuote).toHaveBeenCalledWith({
+        variables: {
+          input: expect.objectContaining({
+            id: 'version-123',
+            expiresAt: expect.stringContaining('T23:59:59.999'),
+          }),
+        },
       })
     })
   })

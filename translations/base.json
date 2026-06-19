@@ -4134,8 +4134,6 @@
   "text_17768509988630g6v99v8x8h": "Approve the quote {{quoteNumber}} - {{quoteVersion}}",
   "text_1776850998863xqfl9h0n6rc": "Approving a quote transforms it into an order form. Once approved, the order form can be sent for signature. When signed, it becomes an official order that you can execute inside or outside Lago.",
   "text_1776851047915faiji44ys5o": "Quote information",
-  "text_1776851578529wbonlz6ss8y": "Valid",
-  "text_1776851578529rcah0zepkul": "{{days}} day from approval | {{days}} days from approval",
   "text_17768523811635qaasto1ziv": "No content available",
   "text_17791856837133nbboq5tcxi": "Entity",
   "text_17791984503020n5cyfczunj": "List of payments recorded or made from this customer.",
@@ -4355,5 +4353,6 @@
   "text_1781859135627z59hpfpa8pt": "Billing anchor date",
   "text_1781883445506576p2jigfpx": "Quote #{{numberWithVersion}}",
   "text_17818008544903clzyy4ziu1": "Quote #{{quoteNumberWithVersion}}",
-  "text_1781869435540pqqpg9kc005": "Set a future date to automatically execute the order on that day. If no date is set, the order must be executed manually."
+  "text_1781869435540pqqpg9kc005": "Set a future date to automatically execute the order on that day. If no date is set, the order must be executed manually.",
+  "text_1781872376833n9vthkte11e": "Order form valid until (optional)"
 }

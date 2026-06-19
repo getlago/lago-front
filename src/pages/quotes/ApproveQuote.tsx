@@ -1,3 +1,4 @@
+import { revalidateLogic } from '@tanstack/react-form'
 import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
@@ -12,9 +13,15 @@ import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
+import {
+  approveQuoteDefaultValues,
+  approveQuoteValidationSchema,
+  buildApproveQuoteVersionInput,
+} from './approveQuote/validationSchema'
 import { buildQuotePreviewProps } from './common/buildQuotePreviewProps'
 import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
 import { QuotePreviewCard } from './common/QuotePreviewCard'
@@ -51,31 +58,29 @@ const ApproveQuote = () => {
     rows: [translate('text_17818008544903clzyy4ziu1', { quoteNumberWithVersion })],
   }
 
-  const onSubmit = async () => {
-    if (!quoteId || !versionId) return
+  const form = useAppForm({
+    defaultValues: approveQuoteDefaultValues,
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: approveQuoteValidationSchema },
+    onSubmit: async ({ value }) => {
+      if (!quoteId || !versionId) return
 
-    const result = await approveQuote({
-      variables: {
-        input: {
-          id: versionId,
-        },
-      },
-    })
-
-    if (result.data?.approveQuoteVersion) {
-      addToast({
-        severity: 'success',
-        translateKey: 'text_1776848720529o2nn0q3b7iv',
+      const result = await approveQuote({
+        variables: { input: buildApproveQuoteVersionInput(versionId, value) },
       })
 
-      navigate(
-        generatePath(QUOTE_DETAILS_ROUTE, {
-          quoteId,
-          tab: QuoteDetailsTabsOptionsEnum.orderForms,
-        }),
-      )
-    }
-  }
+      if (result.data?.approveQuoteVersion) {
+        addToast({ severity: 'success', translateKey: 'text_1776848720529o2nn0q3b7iv' })
+
+        navigate(
+          generatePath(QUOTE_DETAILS_ROUTE, {
+            quoteId,
+            tab: QuoteDetailsTabsOptionsEnum.orderForms,
+          }),
+        )
+      }
+    },
+  })
 
   const onClose = () => {
     if (quoteId) {
@@ -131,7 +136,7 @@ const ApproveQuote = () => {
                 <Button
                   data-test={APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID}
                   variant="primary"
-                  onClick={() => onSubmit()}
+                  onClick={() => form.handleSubmit()}
                 >
                   {translate('text_1776848720529vv5zmyyq94k')}
                 </Button>
@@ -181,14 +186,20 @@ const ApproveQuote = () => {
                         ? translate(getQuoteOrderTypeTranslationKey(quote.orderType))
                         : '',
                     },
-                    {
-                      label: translate('text_1776851578529wbonlz6ss8y'),
-                      value: translate('text_1776851578529rcah0zepkul', {
-                        days: 20, // Update when we have the validation date
-                      }),
-                    },
                   ]}
                 />
+              </div>
+
+              <div className="flex flex-col gap-6">
+                <form.AppField name="expiresAt">
+                  {(field) => (
+                    <field.DatePickerField
+                      label={translate('text_1781872376833n9vthkte11e')}
+                      placeholder={translate('text_62cd78ea9bff25e3391b2437')}
+                      disablePast
+                    />
+                  )}
+                </form.AppField>
               </div>
             </div>
           )}
