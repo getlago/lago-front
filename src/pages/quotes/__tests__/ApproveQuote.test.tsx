@@ -243,15 +243,15 @@ describe('ApproveQuote', () => {
         render(<ApproveQuote />)
 
         expect(screen.queryByTestId(APPROVE_QUOTE_ALERT_TEST_ID)).not.toBeInTheDocument()
-        expect(screen.queryByTestId(APPROVE_QUOTE_PREVIEW_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId('rich-text-editor-preview')).not.toBeInTheDocument()
       })
 
-      it('THEN should still display the header close button and footer buttons', () => {
+      it('THEN should still display the header close button but not the footer buttons', () => {
         render(<ApproveQuote />)
 
         expect(screen.getByTestId(APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID)).toBeInTheDocument()
-        expect(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID)).toBeInTheDocument()
-        expect(screen.getByTestId(APPROVE_QUOTE_CANCEL_BUTTON_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId(APPROVE_QUOTE_CANCEL_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
