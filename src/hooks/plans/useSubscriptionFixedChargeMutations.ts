@@ -34,6 +34,14 @@ type Args = {
   // Plan-level fixed charges. Used to send only the fields the user actually
   // changed (see buildInput). When absent, every field is sent.
   fixedCharges?: BaselineFixedCharge[] | null
+  // The `refetch` of the no-cache getSubscriptionFixedChargeUnitsOverrides query
+  // (owned by SubscriptionDetailsV2Plan). Calling the query's OWN refetch
+  // reliably pushes the fresh override units into its React hook; the
+  // name-based `client.refetchQueries({ include })` fires the network request
+  // but does not reliably update a no-cache query's rendered data, leaving the
+  // row showing the stale plan default. When absent, falls back to the
+  // name-based refresh.
+  refetchOverrides?: () => Promise<unknown>
 }
 
 // Recursively drops __typename and sorts object keys, so cached values
@@ -65,7 +73,11 @@ const comparableProperties = (
 const comparableTaxCodes = (taxes: BaselineFixedCharge['taxes']): string =>
   JSON.stringify((taxes ?? []).map((tax) => tax.code).sort())
 
-export const useSubscriptionFixedChargeMutations = ({ subscriptionId, fixedCharges }: Args) => {
+export const useSubscriptionFixedChargeMutations = ({
+  subscriptionId,
+  fixedCharges,
+  refetchOverrides,
+}: Args) => {
   const client = useApolloClient()
   const [updateSubscriptionFixedCharge] = useUpdateSubscriptionFixedChargeMutation({
     // Only the cached plan query is refreshed here. The override-aware units
@@ -135,11 +147,16 @@ export const useSubscriptionFixedChargeMutations = ({ subscriptionId, fixedCharg
 
     // For a units-only override the plan is not cloned, so the cached plan
     // query keeps showing plan defaults — the new units live only in the
-    // no-cache getSubscriptionFixedChargeUnitsOverrides query. Refresh it
-    // explicitly (client.refetchQueries calls refetch() directly, which honors
-    // no-cache) and await it so the list shows the new units once the drawer
-    // closes, instead of racing the stale plan default.
-    await client.refetchQueries({ include: ['getSubscriptionFixedChargeUnitsOverrides'] })
+    // no-cache getSubscriptionFixedChargeUnitsOverrides query. Refresh it and
+    // await it so the list shows the new units once the drawer closes, instead
+    // of racing the stale plan default. Prefer the query's OWN refetch (pushes
+    // the result into its hook); fall back to the name-based refresh when no
+    // refetcher was provided.
+    if (refetchOverrides) {
+      await refetchOverrides()
+    } else {
+      await client.refetchQueries({ include: ['getSubscriptionFixedChargeUnitsOverrides'] })
+    }
 
     return true
   }

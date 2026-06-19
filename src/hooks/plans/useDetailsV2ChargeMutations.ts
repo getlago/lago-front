@@ -12,6 +12,10 @@ type Args = {
     | null
     | undefined
   subscriptionId?: string
+  // Refetch of the override-units query, threaded down so a sub-tab fixed-charge
+  // edit reliably refreshes the displayed override units. See
+  // useSubscriptionFixedChargeMutations.
+  refetchOverrides?: () => Promise<unknown>
 }
 
 type Result = {
@@ -19,7 +23,11 @@ type Result = {
   fixedChargeMutations: FixedChargeMutations
 }
 
-export const useDetailsV2ChargeMutations = ({ plan, subscriptionId }: Args): Result => {
+export const useDetailsV2ChargeMutations = ({
+  plan,
+  subscriptionId,
+  refetchOverrides,
+}: Args): Result => {
   const currency = (plan?.amountCurrency as CurrencyEnum) ?? CurrencyEnum.Usd
 
   // All four hooks run unconditionally (rules of hooks). The plan-mode hooks
@@ -40,6 +48,7 @@ export const useDetailsV2ChargeMutations = ({ plan, subscriptionId }: Args): Res
   const subFixed = useSubscriptionFixedChargeMutations({
     subscriptionId: subscriptionId ?? '',
     fixedCharges: plan?.fixedCharges,
+    refetchOverrides,
   })
 
   return subscriptionId

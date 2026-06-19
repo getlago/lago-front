@@ -58,13 +58,16 @@ export const SubscriptionDetailsV2Plan = ({ subscriptionId }: Props) => {
     context: { silentError: [LagoApiError.NotFound] },
   })
 
-  const { data: overridesData, loading: overridesLoading } =
-    useGetSubscriptionFixedChargeUnitsOverridesQuery({
-      variables: { subscriptionId },
-      skip: !subscriptionId,
-      fetchPolicy: 'no-cache',
-      context: { silentError: [LagoApiError.NotFound] },
-    })
+  const {
+    data: overridesData,
+    loading: overridesLoading,
+    refetch: refetchOverrides,
+  } = useGetSubscriptionFixedChargeUnitsOverridesQuery({
+    variables: { subscriptionId },
+    skip: !subscriptionId,
+    fetchPolicy: 'no-cache',
+    context: { silentError: [LagoApiError.NotFound] },
+  })
 
   const subscriptionFixedChargeUnitsById = useMemo(() => {
     const map: Record<string, string> = {}
@@ -119,6 +122,7 @@ export const SubscriptionDetailsV2Plan = ({ subscriptionId }: Props) => {
       isInSubscriptionForm
       subscriptionId={subscriptionId}
       subscriptionFixedChargeUnitsById={subscriptionFixedChargeUnitsById}
+      refetchOverrides={refetchOverrides}
       banner={banner}
     />
   )

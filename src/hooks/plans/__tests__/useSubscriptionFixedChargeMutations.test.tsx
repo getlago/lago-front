@@ -87,6 +87,56 @@ describe('useSubscriptionFixedChargeMutations', () => {
     await waitFor(() => expect(called).toBe(true))
   })
 
+  // After a successful edit, the override-units row must refresh. The no-cache
+  // query's data is only reliably updated by calling its OWN refetch, so when
+  // one is supplied it is used (instead of the name-based client.refetchQueries).
+  it('calls the provided refetchOverrides after a successful save', async () => {
+    const updateMock: MockedResponse = {
+      request: { query: UpdateSubscriptionFixedChargeDocument },
+      variableMatcher: () => true,
+      result: {
+        data: { updateSubscriptionFixedCharge: { __typename: 'FixedCharge', id: 'fc_override_1' } },
+      },
+    }
+    const refetchOverrides = jest.fn().mockResolvedValue(undefined)
+
+    const { result } = renderHook(
+      () => useSubscriptionFixedChargeMutations({ subscriptionId: SUB_ID, refetchOverrides }),
+      { wrapper: wrapper([updateMock]) },
+    )
+
+    let saved: boolean | unknown
+    await act(async () => {
+      saved = await result.current.handleSaveCharge(buildCharge())
+    })
+
+    expect(saved).toBe(true)
+    await waitFor(() => expect(refetchOverrides).toHaveBeenCalledTimes(1))
+  })
+
+  it('does not call refetchOverrides when the save fails', async () => {
+    const updateMock: MockedResponse = {
+      request: { query: UpdateSubscriptionFixedChargeDocument },
+      variableMatcher: () => true,
+      // Error link surfaces failures as a resolved result with data: null.
+      result: { data: { updateSubscriptionFixedCharge: null } },
+    }
+    const refetchOverrides = jest.fn().mockResolvedValue(undefined)
+
+    const { result } = renderHook(
+      () => useSubscriptionFixedChargeMutations({ subscriptionId: SUB_ID, refetchOverrides }),
+      { wrapper: wrapper([updateMock]) },
+    )
+
+    let saved: boolean | unknown
+    await act(async () => {
+      saved = await result.current.handleSaveCharge(buildCharge())
+    })
+
+    expect(saved).toBe(false)
+    expect(refetchOverrides).not.toHaveBeenCalled()
+  })
+
   it('prunes usage-only properties from the override input (standard)', async () => {
     let capturedInput: UpdateSubscriptionFixedChargeInput | undefined
 

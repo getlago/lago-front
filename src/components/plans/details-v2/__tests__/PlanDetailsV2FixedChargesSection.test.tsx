@@ -46,6 +46,13 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (k: string) => k }),
 }))
 
+// Editing in subscription mode is premium-gated (useSubscriptionPremiumGate):
+// a non-premium user gets the upsell modal instead of the edit drawer, so the
+// override-pre-fill assertions need a premium user.
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => ({ isPremium: true }),
+}))
+
 const Wrapper = ({ children }: { children: ReactNode }) => (
   <MockedProvider mocks={[]} addTypename={false}>
     <NiceModal.Provider>{children}</NiceModal.Provider>
@@ -407,6 +414,34 @@ describe('PlanDetailsV2FixedChargesSection', () => {
     const [chargeArg] = mockOpenDrawer.mock.calls[0]
     // Drawer pre-fills with the override, not the plan default.
     expect(chargeArg.units).toBe('42')
+  })
+
+  // Reproduction: the VISIBLE units (FixedChargeInfo), not just the drawer
+  // pre-fill, must reflect the per-subscription override.
+  it('displays the override units in the accordion body, not the plan default', async () => {
+    const plan = {
+      ...planDetailsV2Fixture,
+      fixedCharges: [buildFixedChargeFixture({ id: 'fc_vis', units: '777' })],
+    }
+
+    render(
+      <PlanDetailsV2FixedChargesSection
+        plan={plan}
+        isInSubscriptionForm
+        subscriptionFixedChargeUnitsById={{ fc_vis: '222' }}
+        fixedChargeMutations={{
+          handleSaveCharge: mockHandleSaveCharge,
+          handleDeleteCharge: mockHandleDeleteCharge,
+        }}
+      />,
+      { wrapper: Wrapper },
+    )
+
+    // Expand the accordion so its body (FixedChargeInfo) is visible.
+    await userEvent.click(await screen.findByText('Onboarding'))
+
+    expect(await screen.findByText('222')).toBeInTheDocument()
+    expect(screen.queryByText('777')).not.toBeInTheDocument()
   })
 
   // Drift test: when no override is present for a charge, the plan-level value

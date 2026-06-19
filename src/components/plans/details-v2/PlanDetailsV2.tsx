@@ -80,6 +80,9 @@ type PlanDetailsV2Props = {
   // mode by SubscriptionDetailsV2Plan, which fetches Subscription.fixedCharges
   // with fetchPolicy: 'no-cache' so plan-scope cache entries keep plan defaults.
   subscriptionFixedChargeUnitsById?: Record<string, string>
+  // Refetch of that no-cache override query, so a sub-tab fixed-charge edit can
+  // reliably refresh the displayed override units (see useDetailsV2ChargeMutations).
+  refetchOverrides?: () => Promise<unknown>
   banner?: ReactNode
 }
 
@@ -88,6 +91,7 @@ export const PlanDetailsV2 = ({
   isInSubscriptionForm = false,
   subscriptionId,
   subscriptionFixedChargeUnitsById,
+  refetchOverrides,
   banner,
 }: PlanDetailsV2Props) => {
   const { isGated, openPremiumDialog } = useSubscriptionPremiumGate(isInSubscriptionForm)
@@ -104,6 +108,7 @@ export const PlanDetailsV2 = ({
   const { usageChargeMutations, fixedChargeMutations } = useDetailsV2ChargeMutations({
     plan: data?.plan,
     subscriptionId,
+    refetchOverrides,
   })
 
   // Usage charges are virtualized: a scrolled-out charge is unmounted, so the
