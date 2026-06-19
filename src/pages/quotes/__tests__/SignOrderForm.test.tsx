@@ -84,6 +84,7 @@ const mockOrderForm = {
   number: 'OF-2026-0001',
   status: OrderFormStatusEnum.Generated,
   createdAt: '2026-04-09T10:00:00Z',
+  expiresAt: '2026-12-31T00:00:00Z',
   customer: { id: 'customer-001', name: 'Acme Corp' },
   quote: {
     id: 'quote-456',
@@ -116,6 +117,12 @@ describe('SignOrderForm', () => {
     renderPage()
 
     expect(screen.getByTestId(SIGN_ORDER_FORM_PREVIEW_TEST_ID)).toBeInTheDocument()
+  })
+
+  it('renders the valid-until date in the preview header', () => {
+    renderPage()
+
+    expect(screen.getByTestId(SIGN_ORDER_FORM_PREVIEW_TEST_ID)).toHaveTextContent('2026-12-31')
   })
 
   it('does not call the mutation and shows an error when submitting empty', async () => {

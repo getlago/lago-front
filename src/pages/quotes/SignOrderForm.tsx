@@ -22,9 +22,11 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
+import { buildOrderFormHeader } from './common/buildOrderFormHeader'
 import { buildQuotePreviewProps } from './common/buildQuotePreviewProps'
 import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
 import { QuotePreviewCard } from './common/QuotePreviewCard'
@@ -51,6 +53,7 @@ gql`
       number
       status
       createdAt
+      expiresAt
       customer {
         id
         name
@@ -77,6 +80,7 @@ const SignOrderForm = () => {
   const { orderFormId } = useParams()
   const navigate = useNavigate()
   const centralizedDialog = useCentralizedDialog()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   const { data, loading, error } = useGetOrderFormForSignQuery({
     variables: { id: orderFormId || '' },
@@ -97,10 +101,11 @@ const SignOrderForm = () => {
 
   const orderFormNumber = orderForm?.number ?? ''
 
-  const header = {
-    documentNumber: orderFormNumber,
-    rows: [translate('text_1781778938224iupllzr5sgb', { orderFormNumber })],
-  }
+  const header = buildOrderFormHeader(
+    { number: orderForm?.number, expiresAt: orderForm?.expiresAt },
+    translate,
+    (iso) => intlFormatDateTimeOrgaTZ(iso).date,
+  )
 
   const form = useAppForm({
     defaultValues: signOrderFormDefaultValues,

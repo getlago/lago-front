@@ -29,6 +29,12 @@ jest.mock('~/pages/quotes/common/buildQuotePreviewProps', () => ({
   buildQuotePreviewProps: jest.fn(() => ({ content: '# Hello World' })),
 }))
 
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    intlFormatDateTimeOrgaTZ: (date: string) => ({ date }),
+  }),
+}))
+
 const mockedBuildQuotePreviewProps = buildQuotePreviewProps as jest.MockedFunction<
   typeof buildQuotePreviewProps
 >
@@ -220,6 +226,22 @@ describe('useOrderFormActions', () => {
         )
         expect(mockDownload).toHaveBeenCalledWith({ content: '# Hello World' })
       })
+    })
+  })
+
+  describe('GIVEN the download action for an order form with an expiry date', () => {
+    it('THEN should include a valid-until row in the header', () => {
+      const { result } = renderHook(() => useOrderFormActions())
+      const orderForm = createMockOrderForm({ expiresAt: '2026-12-31T00:00:00Z' })
+      const actions = result.current.getActions(orderForm)
+
+      actions.find((a) => a.icon === 'download')?.onAction()
+
+      const headerArg = mockedBuildQuotePreviewProps.mock.calls[0][2]
+
+      expect(headerArg?.rows).toHaveLength(2)
+      expect(headerArg?.rows?.[0]).toBe('text_1781778938224iupllzr5sgb')
+      expect(headerArg?.rows?.[1]).toBe('text_1781874334924qwjnv1swbo2')
     })
   })
 })

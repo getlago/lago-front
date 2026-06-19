@@ -4,11 +4,10 @@ import { generatePath } from 'react-router-dom'
 import { SIGN_ORDER_FORM_ROUTE, useNavigate, VOID_ORDER_FORM_ROUTE } from '~/core/router'
 import { OrderFormListItemFragment, OrderFormStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import {
-  buildQuotePreviewProps,
-  type QuotePdfHeaderData,
-} from '~/pages/quotes/common/buildQuotePreviewProps'
+import { buildOrderFormHeader } from '~/pages/quotes/common/buildOrderFormHeader'
+import { buildQuotePreviewProps } from '~/pages/quotes/common/buildQuotePreviewProps'
 import { useDownloadQuotePdf } from '~/pages/quotes/common/QuotePdfProvider'
 
 export interface OrderFormAction {
@@ -22,6 +21,7 @@ export const useOrderFormActions = () => {
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
   const { download } = useDownloadQuotePdf()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   const getActions = (orderForm: OrderFormListItemFragment): OrderFormAction[] => {
     const actions: OrderFormAction[] = []
@@ -41,14 +41,11 @@ export const useOrderFormActions = () => {
     }
 
     if (content) {
-      const header: QuotePdfHeaderData = {
-        documentNumber: orderForm.number ?? '',
-        rows: [
-          translate('text_1781778938224iupllzr5sgb', {
-            orderFormNumber: orderForm.number ?? '',
-          }),
-        ],
-      }
+      const header = buildOrderFormHeader(
+        orderForm,
+        translate,
+        (iso) => intlFormatDateTimeOrgaTZ(iso).date,
+      )
 
       actions.push({
         icon: 'download',
