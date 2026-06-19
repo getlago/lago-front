@@ -617,6 +617,7 @@ export const UsageChargeDrawerContent = withForm({
               {!!formValues.filters?.length && (
                 <VirtualFilterList
                   className="flex flex-col gap-4"
+                  gap={16}
                   items={formValues.filters}
                   estimateItemHeight={76}
                   getItemKey={(_filter, filterIndex) => `filter-selector-${filterIndex}`}

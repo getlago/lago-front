@@ -11,6 +11,11 @@ export type VirtualFilterListProps<T> = {
   getItemKey: (item: T, index: number) => string
   estimateItemHeight: number
   className?: string
+  // Vertical spacing between rows, in px. In the plain (below-threshold) branch
+  // this is supplied by the `className` flex gap; in the virtualized branch flex
+  // gap does not apply to the absolutely-positioned rows, so it is baked into
+  // each row's paddingBottom (and thus into its measured height) instead.
+  gap?: number
   threshold?: number
   overscan?: number
   getScrollElement?: () => HTMLElement | null
@@ -22,6 +27,7 @@ export const VirtualFilterList = <T,>({
   getItemKey,
   estimateItemHeight,
   className,
+  gap = 0,
   threshold = VIRTUALIZATION_THRESHOLD,
   overscan = 6,
   getScrollElement,
@@ -106,6 +112,7 @@ export const VirtualFilterList = <T,>({
       <div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
         {virtualizer.getVirtualItems().map((virtualRow) => {
           const item = items[virtualRow.index]
+          const isLastItem = virtualRow.index === items.length - 1
 
           return (
             <div
@@ -117,6 +124,9 @@ export const VirtualFilterList = <T,>({
                 top: 0,
                 left: 0,
                 width: '100%',
+                // Bake the inter-row gap into the measured height (no trailing
+                // gap after the last row, matching flex `gap` behavior).
+                paddingBottom: isLastItem ? 0 : gap,
                 transform: `translateY(${virtualRow.start - scrollMargin}px)`,
               }}
             >

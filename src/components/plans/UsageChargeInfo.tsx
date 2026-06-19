@@ -186,6 +186,7 @@ export const UsageChargeInfo = ({
         {!!charge.filters?.length && (
           <VirtualFilterList
             className="flex flex-col gap-4"
+            gap={16}
             items={charge.filters}
             estimateItemHeight={72}
             getItemKey={(_filter, index) => `usage-charge-info-${charge.id}-filter-${index}`}
