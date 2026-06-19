@@ -470,11 +470,20 @@ describe('EditQuoteAside', () => {
     })
 
     describe('WHEN the quote is saving', () => {
-      it('THEN should disable both action buttons', () => {
+      it('THEN should disable both action buttons and show loading spinners', () => {
         render(<EditQuoteAside quote={mockQuote} isSaving />)
 
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID)).toBeDisabled()
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_APPROVE_TEST_ID)).toBeDisabled()
+        expect(screen.getAllByTestId(/processing/)).toHaveLength(2)
+      })
+    })
+
+    describe('WHEN the quote is NOT saving', () => {
+      it('THEN should not show any loading spinners', () => {
+        render(<EditQuoteAside quote={mockQuote} />)
+
+        expect(screen.queryAllByTestId(/processing/)).toHaveLength(0)
       })
     })
   })

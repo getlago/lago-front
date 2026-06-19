@@ -335,6 +335,7 @@ const EditQuoteAsideForm = ({
         <Button
           variant="secondary"
           data-test={EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID}
+          loading={isSaving}
           disabled={!!isSaving}
           onClick={() =>
             download(buildQuotePreviewProps(quote.currentVersion, quote.customer, pdfHeader)).catch(
@@ -348,6 +349,7 @@ const EditQuoteAsideForm = ({
           <Button
             variant="primary"
             data-test={EDIT_QUOTE_ASIDE_APPROVE_TEST_ID}
+            loading={isSaving}
             disabled={!!isSaving}
             onClick={() => goToApproveQuote(quote.id, quote.currentVersion.id)}
           >
