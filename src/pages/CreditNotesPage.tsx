@@ -20,6 +20,7 @@ import {
   CreditNotesForTableFragmentDoc,
   CreditNoteTableItemFragmentDoc,
   CurrencyEnum,
+  type DataExportCreditNoteFiltersInput,
   PremiumIntegrationTypeEnum,
   useCreateCreditNotesDataExportMutation,
   useGetCreditNotesListLazyQuery,
@@ -80,26 +81,24 @@ gql`
 `
 
 // TODO: This is a temporary workaround
-const formatAmountCurrency = (
-  filters: Record<string, string | string[] | boolean | number>,
+const formatAmountCurrency = <T extends { amountFrom?: unknown; amountTo?: unknown }>(
+  filters: T,
   amountCurrency?: CurrencyEnum | null,
-) => {
-  const _filters = {
-    ...filters,
-  }
+): T => {
+  const _filters = { ...filters } as T
 
   if (_filters.amountFrom) {
     _filters.amountFrom = serializeAmount(
       Number(_filters.amountFrom),
       amountCurrency || CurrencyEnum.Usd,
-    )
+    ) as T['amountFrom']
   }
 
   if (_filters.amountTo) {
     _filters.amountTo = serializeAmount(
       Number(_filters.amountTo),
       amountCurrency || CurrencyEnum.Usd,
-    )
+    ) as T['amountTo']
   }
 
   return _filters
@@ -158,7 +157,7 @@ const CreditNotesPage = () => {
     const filters = {
       ...formatAmountCurrency(formatFiltersForCreditNotesQuery(searchParams), amountCurrency),
       searchTerm: variableCreditNotes?.searchTerm,
-    }
+    } as DataExportCreditNoteFiltersInput
 
     const res = await triggerCreateCreditNotesDataExport({
       variables: {
