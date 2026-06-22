@@ -18,12 +18,14 @@ let formRef: any = null
 
 // Wrapper component that provides form context
 const NameAndCodeGroupWrapper = ({
-  isDisabled = false,
+  disableCodeInput = false,
+  disableAutoGenerateCode = false,
   defaultValues = { name: '', code: '' },
   nameProps,
   codeProps,
 }: {
-  isDisabled?: boolean
+  disableCodeInput?: boolean
+  disableAutoGenerateCode?: boolean
   defaultValues?: { name: string; code: string }
   nameProps?: Record<string, unknown>
   codeProps?: Record<string, unknown>
@@ -43,7 +45,8 @@ const NameAndCodeGroupWrapper = ({
         <NameAndCodeGroup
           form={form}
           fields={{ name: 'name', code: 'code' }}
-          isDisabled={isDisabled}
+          disableCodeInput={disableCodeInput}
+          disableAutoGenerateCode={disableAutoGenerateCode}
           nameProps={nameProps}
           codeProps={codeProps}
         />
@@ -201,22 +204,64 @@ describe('NameAndCodeGroup', () => {
     })
   })
 
+  describe('disableAutoGenerateCode', () => {
+    it('does not auto-generate code when disableAutoGenerateCode is true', async () => {
+      const user = userEvent.setup()
+
+      await act(() =>
+        render(
+          <NameAndCodeGroupWrapper
+            disableAutoGenerateCode={true}
+            defaultValues={{ name: '', code: 'existing_code' }}
+          />,
+        ),
+      )
+
+      const nameInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380a5')
+      const codeInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380d9')
+
+      await user.type(nameInput, 'New Name')
+
+      expect(codeInput).toHaveValue('existing_code')
+    })
+
+    it('keeps code input enabled when disableAutoGenerateCode is true', async () => {
+      await act(() => render(<NameAndCodeGroupWrapper disableAutoGenerateCode={true} />))
+
+      const codeInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380d9')
+
+      expect(codeInput).not.toBeDisabled()
+    })
+
+    it('allows manual code edits when disableAutoGenerateCode is true', async () => {
+      const user = userEvent.setup()
+
+      await act(() => render(<NameAndCodeGroupWrapper disableAutoGenerateCode={true} />))
+
+      const codeInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380d9')
+
+      await user.type(codeInput, 'manual_code')
+
+      expect(codeInput).toHaveValue('manual_code')
+    })
+  })
+
   describe('Disabled State', () => {
-    it('disables code input when isDisabled is true', async () => {
-      await act(() => render(<NameAndCodeGroupWrapper isDisabled={true} />))
+    it('disables code input when disableCodeInput is true', async () => {
+      await act(() => render(<NameAndCodeGroupWrapper disableCodeInput={true} />))
 
       const codeInput = screen.getByPlaceholderText('text_629728388c4d2300e2d380d9')
 
       expect(codeInput).toBeDisabled()
     })
 
-    it('does not auto-generate code when isDisabled is true', async () => {
+    it('does not auto-generate code when disableCodeInput is true', async () => {
       const user = userEvent.setup()
 
       await act(() =>
         render(
           <NameAndCodeGroupWrapper
-            isDisabled={true}
+            disableCodeInput={true}
             defaultValues={{ name: '', code: 'existing_code' }}
           />,
         ),

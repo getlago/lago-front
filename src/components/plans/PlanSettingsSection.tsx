@@ -118,7 +118,7 @@ export const PlanSettingsSection = ({
       <NameAndCodeGroup
         form={form}
         fields={{ name: 'name', code: 'code' }}
-        isDisabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
+        disableCodeInput={isInSubscriptionForm || (isEdition && !canBeEdited)}
         nameProps={{ autoFocus: !isInSubscriptionForm }}
         codeProps={{
           infoText: translate('text_6661fc17337de3591e29e3cd'),
