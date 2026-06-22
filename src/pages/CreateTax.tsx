@@ -1,7 +1,6 @@
 import InputAdornment from '@mui/material/InputAdornment'
-import { useFormik } from 'formik'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useEffect, useRef, useState } from 'react'
-import { number, object, string } from 'yup'
 
 import { Button } from '~/components/designSystem/Button'
 import { Card } from '~/components/designSystem/Card'
@@ -9,56 +8,104 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
-import { TextInput, TextInputField } from '~/components/form'
 import { TaxCodeSnippet } from '~/components/taxes/TaxCodeSnippet'
 import { TaxFormInput } from '~/components/taxes/types'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { scrollToTop } from '~/core/utils/domUtils'
-import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
+import { formatCodeFromName } from '~/core/utils/formatCodeFromName'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCreateEditTax } from '~/hooks/useCreateEditTax'
 import { PageHeader } from '~/styles'
 import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
+
+import { taxFormSchema, TaxFormValues } from './createTax/validationSchema'
+
+const CREATE_TAX_FORM_ID = 'create-tax-form'
 
 const CreateTaxRate = () => {
   const { isEdition, errorCode, loading, onClose, onSave, tax } = useCreateEditTax()
   const leavingNotSavedChargesWarningDialogRef = useRef<WarningDialogRef>(null)
   const savingAppliedTaxRateWarningDialogRef = useRef<WarningDialogRef>(null)
+  const saveAfterConfirmRef = useRef<() => Promise<void>>(async () => {})
   const { translate } = useInternationalization()
-  const formikProps = useFormik<TaxFormInput>({
-    initialValues: {
+
+  const form = useAppForm({
+    defaultValues: {
       code: tax?.code || '',
       description: tax?.description || '',
       name: tax?.name || '',
-      // @ts-expect-error rate is a number but we want to allow empty string to ease input reset and form dirty behaviour
       rate: isNaN(Number(tax?.rate)) ? '' : String(tax?.rate),
+    } as TaxFormValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: taxFormSchema,
     },
-    validationSchema: object().shape({
-      code: string().required(''),
-      description: string(),
-      name: string().required(''),
-      rate: number().max(100, 'text_645bb193927b375079d28b88').required(''),
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: onSave,
+    onSubmit: async ({ value }) => {
+      if ((tax?.customersCount || 0) > 0) {
+        saveAfterConfirmRef.current = async () => {
+          await onSave(value as unknown as TaxFormInput)
+        }
+        savingAppliedTaxRateWarningDialogRef.current?.openDialog()
+      } else {
+        await onSave(value as unknown as TaxFormInput)
+      }
+    },
   })
 
+  useEffect(() => {
+    if (tax) {
+      form.reset({
+        code: tax.code || '',
+        description: tax.description || '',
+        name: tax.name || '',
+        rate: isNaN(Number(tax?.rate)) ? '' : String(tax?.rate),
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tax?.id])
+
   const [shouldDisplayDescription, setShouldDisplayDescription] = useState<boolean>(
-    !!formikProps.initialValues.description,
+    !!tax?.description,
   )
 
   useEffect(() => {
-    setShouldDisplayDescription(!!formikProps.initialValues.description)
-  }, [formikProps.initialValues.description])
+    setShouldDisplayDescription(!!tax?.description)
+  }, [tax?.description])
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
+      form.setFieldMeta('code', (meta) => ({
+        ...meta,
+        errorMap: {
+          ...meta.errorMap,
+          onDynamic: { message: 'text_632a2d437e341dcc76817556' },
+        },
+      }))
       scrollToTop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])
+
+  const codeValue = useStore(form.store, (state) => state.values.code)
+
+  useEffect(() => {
+    if (errorCode === FORM_ERRORS_ENUM.existingCode) {
+      form.setFieldMeta('code', (meta) => ({
+        ...meta,
+        errorMap: { ...meta.errorMap, onDynamic: undefined },
+      }))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [codeValue])
+
+  const formValues = useStore(form.store, (state) => state.values)
+  const isDirty = useStore(form.store, (state) => state.isDirty)
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    form.handleSubmit()
+  }
 
   return (
     <div>
@@ -70,13 +117,15 @@ const CreateTaxRate = () => {
           variant="quaternary"
           icon="close"
           onClick={() =>
-            formikProps.dirty
-              ? leavingNotSavedChargesWarningDialogRef.current?.openDialog()
-              : onClose()
+            isDirty ? leavingNotSavedChargesWarningDialogRef.current?.openDialog() : onClose()
           }
         />
       </PageHeader.Wrapper>
-      <div className="min-height-minus-nav flex">
+      <form
+        id={CREATE_TAX_FORM_ID}
+        className="min-height-minus-nav flex"
+        onSubmit={handleFormSubmit}
+      >
         <Main>
           <div>
             {loading && !tax ? (
@@ -116,43 +165,57 @@ const CreateTaxRate = () => {
                   </Typography>
 
                   <div className="flex gap-3">
-                    <TextInput
-                      className="flex-1"
+                    <form.AppField
                       name="name"
-                      label={translate('text_645bb193927b375079d28ab1')}
-                      placeholder={translate('text_645bb193927b375079d28ace')}
-                      // eslint-disable-next-line jsx-a11y/no-autofocus
-                      autoFocus
-                      value={formikProps.values.name || ''}
-                      onChange={(name) => {
-                        updateNameAndMaybeCode({ name, formikProps })
+                      listeners={{
+                        onChange: ({ value }) => {
+                          const isCodeBlurred = form.getFieldMeta('code')?.isBlurred
+
+                          if (!isCodeBlurred && !isEdition) {
+                            form.setFieldValue('code', formatCodeFromName(value as string))
+                          }
+                        },
                       }}
-                    />
-                    <TextInputField
-                      className="flex-1"
-                      name="code"
-                      disabled={tax?.autoGenerated}
-                      beforeChangeFormatter="code"
-                      label={translate('text_645bb193927b375079d28aea')}
-                      placeholder={translate('text_645bb193927b375079d28b02')}
-                      formikProps={formikProps}
-                      infoText={translate('text_645bb193927b375079d28b7a')}
-                    />
+                    >
+                      {(field) => (
+                        <field.TextInputField
+                          className="flex-1"
+                          label={translate('text_645bb193927b375079d28ab1')}
+                          placeholder={translate('text_645bb193927b375079d28ace')}
+                          // eslint-disable-next-line jsx-a11y/no-autofocus
+                          autoFocus
+                        />
+                      )}
+                    </form.AppField>
+                    <form.AppField name="code">
+                      {(field) => (
+                        <field.TextInputField
+                          className="flex-1"
+                          disabled={tax?.autoGenerated}
+                          beforeChangeFormatter="code"
+                          label={translate('text_645bb193927b375079d28aea')}
+                          placeholder={translate('text_645bb193927b375079d28b02')}
+                          infoText={translate('text_645bb193927b375079d28b7a')}
+                        />
+                      )}
+                    </form.AppField>
                   </div>
 
                   {shouldDisplayDescription ? (
                     <div className="flex items-center">
-                      <TextInputField
-                        className="mr-3 flex-1"
-                        // eslint-disable-next-line jsx-a11y/no-autofocus
-                        autoFocus
-                        multiline
-                        name="description"
-                        label={translate('text_645bb193927b375079d28b22')}
-                        placeholder={translate('text_645bb193927b375079d28b36')}
-                        rows="3"
-                        formikProps={formikProps}
-                      />
+                      <form.AppField name="description">
+                        {(field) => (
+                          <field.TextInputField
+                            className="mr-3 flex-1"
+                            // eslint-disable-next-line jsx-a11y/no-autofocus
+                            autoFocus
+                            multiline
+                            label={translate('text_645bb193927b375079d28b22')}
+                            placeholder={translate('text_645bb193927b375079d28b36')}
+                            rows="3"
+                          />
+                        )}
+                      </form.AppField>
                       <Tooltip
                         className="mt-6"
                         placement="top-end"
@@ -162,7 +225,7 @@ const CreateTaxRate = () => {
                           icon="trash"
                           variant="quaternary"
                           onClick={() => {
-                            formikProps.setFieldValue('description', '')
+                            form.setFieldValue('description', '')
                             setShouldDisplayDescription(false)
                           }}
                         />
@@ -180,39 +243,40 @@ const CreateTaxRate = () => {
                     </Button>
                   )}
 
-                  <TextInputField
-                    name="rate"
-                    disabled={tax?.autoGenerated}
-                    label={translate('text_645bb193927b375079d28b2c')}
-                    beforeChangeFormatter={['positiveNumber', 'quadDecimal']}
-                    placeholder={translate('text_632d68358f1fedc68eed3e86')}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {translate('text_62a0b7107afa2700a65ef70a')}
-                        </InputAdornment>
-                      ),
-                    }}
-                    formikProps={formikProps}
-                  />
+                  <form.AppField name="rate">
+                    {(field) => (
+                      <field.TextInputField
+                        disabled={tax?.autoGenerated}
+                        label={translate('text_645bb193927b375079d28b2c')}
+                        beforeChangeFormatter={['positiveNumber', 'quadDecimal']}
+                        placeholder={translate('text_632d68358f1fedc68eed3e86')}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              {translate('text_62a0b7107afa2700a65ef70a')}
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  </form.AppField>
                 </Card>
 
                 <div className="px-6 pb-20">
-                  <Button
-                    disabled={!formikProps.isValid || (isEdition && !formikProps.dirty)}
-                    fullWidth
-                    size="large"
-                    onClick={() =>
-                      (tax?.customersCount || 0) > 0
-                        ? savingAppliedTaxRateWarningDialogRef.current?.openDialog()
-                        : formikProps.submitForm()
-                    }
-                    data-test="submit"
-                  >
-                    {translate(
-                      isEdition ? 'text_645bb193927b375079d28ab7' : 'text_645bb193927b375079d28b8e',
-                    )}
-                  </Button>
+                  <form.AppForm>
+                    <form.SubmitButton
+                      disabled={isEdition && !isDirty}
+                      fullWidth
+                      size="large"
+                      dataTest="submit"
+                    >
+                      {translate(
+                        isEdition
+                          ? 'text_645bb193927b375079d28ab7'
+                          : 'text_645bb193927b375079d28b8e',
+                      )}
+                    </form.SubmitButton>
+                  </form.AppForm>
                 </div>
               </>
             )}
@@ -221,12 +285,12 @@ const CreateTaxRate = () => {
         <Side>
           <TaxCodeSnippet
             loading={loading}
-            tax={formikProps.values}
+            tax={formValues as unknown as TaxFormInput}
             isEdition={isEdition}
             initialTaxCode={tax?.code}
           />
         </Side>
-      </div>
+      </form>
       <WarningDialog
         ref={leavingNotSavedChargesWarningDialogRef}
         title={translate('text_645bb193927b375079d289cb')}
@@ -248,7 +312,7 @@ const CreateTaxRate = () => {
           tax?.customersCount,
         )}
         continueText={translate('text_6464a12047f2dd00affa9252')}
-        onContinue={formikProps.submitForm}
+        onContinue={() => saveAfterConfirmRef.current()}
       />
     </div>
   )
