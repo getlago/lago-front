@@ -21,7 +21,9 @@ import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 import { taxFormSchema, TaxFormValues } from './createTax/validationSchema'
 
-const CREATE_TAX_FORM_ID = 'create-tax-form'
+export const CREATE_TAX_FORM_ID = 'create-tax-form'
+export const CREATE_TAX_CLOSE_BUTTON_TEST_ID = 'create-tax-close-button'
+export const CREATE_TAX_DESCRIPTION_DELETE_TEST_ID = 'create-tax-description-delete'
 
 const CreateTaxRate = () => {
   const { isEdition, errorCode, loading, onClose, onSave, tax } = useCreateEditTax()
@@ -116,6 +118,7 @@ const CreateTaxRate = () => {
         <Button
           variant="quaternary"
           icon="close"
+          data-test={CREATE_TAX_CLOSE_BUTTON_TEST_ID}
           onClick={() =>
             isDirty ? leavingNotSavedChargesWarningDialogRef.current?.openDialog() : onClose()
           }
@@ -205,6 +208,7 @@ const CreateTaxRate = () => {
                         <Button
                           icon="trash"
                           variant="quaternary"
+                          data-test={CREATE_TAX_DESCRIPTION_DELETE_TEST_ID}
                           onClick={() => {
                             form.setFieldValue('description', '')
                             setShouldDisplayDescription(false)
