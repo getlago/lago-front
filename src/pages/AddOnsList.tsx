@@ -1,9 +1,8 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
+import { useDeleteAddOnDialog } from '~/components/addOns/DeleteAddOnDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
@@ -60,7 +59,7 @@ const AddOnsList = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const deleteDialogRef = useRef<DeleteAddOnDialogRef>(null)
+  const { openDeleteAddOnDialog } = useDeleteAddOnDialog()
   const [getAddOns, { data, error, loading, fetchMore, variables }] = useAddOnsLazyQuery({
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
@@ -228,7 +227,7 @@ const AddOnsList = () => {
                 startIcon: 'trash',
                 title: translate('text_629728388c4d2300e2d38182'),
                 onAction: () => {
-                  deleteDialogRef.current?.openDialog({
+                  openDeleteAddOnDialog({
                     addOn,
                     callback: () => {
                       navigate(ADD_ONS_ROUTE)
@@ -258,8 +257,6 @@ const AddOnsList = () => {
           }}
         />
       </InfiniteScroll>
-
-      <DeleteAddOnDialog ref={deleteDialogRef} />
     </>
   )
 }

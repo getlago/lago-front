@@ -29,7 +29,7 @@ jest.mock('~/components/designSystem/Card', () => ({
 }))
 
 jest.mock('~/components/addOns/DeleteAddOnDialog', () => ({
-  DeleteAddOnDialog: () => null,
+  useDeleteAddOnDialog: () => ({ openDeleteAddOnDialog: jest.fn() }),
 }))
 
 jest.mock('~/hooks/usePermissions', () => ({

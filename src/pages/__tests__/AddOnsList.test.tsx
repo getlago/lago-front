@@ -31,7 +31,7 @@ jest.mock('~/components/SearchInput', () => ({
 }))
 
 jest.mock('~/components/addOns/DeleteAddOnDialog', () => ({
-  DeleteAddOnDialog: () => null,
+  useDeleteAddOnDialog: () => ({ openDeleteAddOnDialog: jest.fn() }),
 }))
 
 jest.mock('react-router-dom', () => ({
