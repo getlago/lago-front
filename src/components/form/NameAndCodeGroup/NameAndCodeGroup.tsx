@@ -10,6 +10,7 @@ export type NameAndCodeGroupValues = {
 
 export type NameAndCodeGroupProps = {
   disableCodeInput?: boolean
+  disableAutoGenerateCode?: boolean
   nameProps?: Partial<TextInputProps>
   codeProps?: Partial<TextInputProps>
 }
@@ -21,18 +22,19 @@ const defaultValues: NameAndCodeGroupValues = {
 
 const defaultProps: NameAndCodeGroupProps = {
   disableCodeInput: false,
+  disableAutoGenerateCode: false,
 }
 
 const NameAndCodeGroup = withFieldGroup({
   defaultValues,
   props: defaultProps,
-  render: function Render({ group, disableCodeInput, nameProps, codeProps }) {
+  render: function Render({ group, disableCodeInput, disableAutoGenerateCode, nameProps, codeProps }) {
     const { translate } = useInternationalization()
 
     const handleNameChange = ({ value }: { value: string }) => {
       const isCodeBlurred = group.getFieldMeta('code')?.isBlurred
 
-      if (isCodeBlurred || disableCodeInput) return
+      if (isCodeBlurred || disableCodeInput || disableAutoGenerateCode) return
 
       group.setFieldValue('code', formatCodeFromName(value))
     }
