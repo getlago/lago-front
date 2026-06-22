@@ -36,8 +36,26 @@ import {
 import { INVOICES_ROUTE } from '~/core/router'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import {
+  type ActivityLogsQueryVariables,
   ActivityTypeEnum,
   CurrencyEnum,
+  type CustomerAccountTypeEnum,
+  type CustomersQueryVariables,
+  type GetApiLogsQueryVariables,
+  type GetCreditNotesListQueryVariables,
+  type GetForecastsQueryVariables,
+  type GetInvoiceCollectionsForAnalyticsQueryVariables,
+  type GetInvoicesListQueryVariables,
+  type GetMrrsQueryVariables,
+  type GetPrepaidCreditsQueryVariables,
+  type GetQuotesQueryVariables,
+  type GetRevenueStreamsQueryVariables,
+  type GetSecurityLogsQueryVariables,
+  type GetSubscriptionsListQueryVariables,
+  type GetUsageBillableMetricQueryVariables,
+  type GetUsageBreakdownQueryVariables,
+  type GetUsageOverviewQueryVariables,
+  type GetWebhookLogQueryVariables,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
 } from '~/generated/graphql'
@@ -287,62 +305,86 @@ export const defineDefaultToDateValue = (
   return searchParamsCopy
 }
 
-type TformatFiltersForQueryReturn = {
+export type TformatFiltersForQueryReturn = {
   [key: string]: string | string[] | boolean
 }
 
-export const formatFiltersForQuery = ({
+export const formatFiltersForQuery = <T = TformatFiltersForQueryReturn>({
   searchParams,
   keyMap,
   availableFilters,
   filtersNamePrefix,
 }: {
   searchParams: URLSearchParams
-  keyMap?: Record<string, string>
+  keyMap?: Partial<Record<AvailableFiltersEnum, keyof T & string>>
   availableFilters: AvailableFiltersEnum[]
   filtersNamePrefix: string
-}): TformatFiltersForQueryReturn => {
+}): T => {
   const filtersSetInUrl = Object.fromEntries(searchParams.entries())
 
-  return Object.entries(filtersSetInUrl).reduce((acc, cur) => {
-    const current = cur as [AvailableFiltersEnum, string | string[] | boolean]
-    const _key = current[0]
+  return Object.entries(filtersSetInUrl).reduce(
+    (acc, cur) => {
+      const current = cur as [AvailableFiltersEnum, string | string[] | boolean]
+      const _key = current[0]
 
-    const key = (
-      filtersNamePrefix ? _key.replace(`${filtersNamePrefix}_`, '') : _key
-    ) as AvailableFiltersEnum
+      const key = (
+        filtersNamePrefix ? _key.replace(`${filtersNamePrefix}_`, '') : _key
+      ) as AvailableFiltersEnum
 
-    if (!availableFilters.includes(key)) {
-      return acc
-    }
+      if (!availableFilters.includes(key)) {
+        return acc
+      }
 
-    const filterFunction = FILTER_VALUE_MAP[key]
+      const filterFunction = FILTER_VALUE_MAP[key]
 
-    const value = filterFunction ? filterFunction(current[1]) : current[1]
+      const value = filterFunction ? filterFunction(current[1]) : current[1]
 
-    if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+      if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+        return {
+          ...acc,
+          ...value,
+        }
+      }
+
       return {
         ...acc,
-        ...value,
+        [keyMap?.[key] || key]: value,
       }
-    }
-
-    return {
-      ...acc,
-      [keyMap?.[key] || key]: value,
-    }
-  }, {} as TformatFiltersForQueryReturn)
+    },
+    {} as Record<string, unknown>,
+  ) as T
 }
 
-export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) => {
-  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+type CreditNotesQueryFilters = Partial<
+  Pick<
+    GetCreditNotesListQueryVariables,
+    | 'amountFrom'
+    | 'amountTo'
+    | 'creditStatus'
+    | 'currency'
+    | 'customerExternalId'
+    | 'invoiceNumber'
+    | 'issuingDateFrom'
+    | 'issuingDateTo'
+    | 'reason'
+    | 'refundStatus'
+    | 'types'
+    | 'selfBilled'
+    | 'billingEntityIds'
+  >
+>
+
+export const formatFiltersForCreditNotesQuery = (
+  searchParams: URLSearchParams,
+): CreditNotesQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof CreditNotesQueryFilters & string>> = {
     [AvailableFiltersEnum.creditNoteReason]: 'reason',
     [AvailableFiltersEnum.creditNoteCreditStatus]: 'creditStatus',
     [AvailableFiltersEnum.creditNoteRefundStatus]: 'refundStatus',
     [AvailableFiltersEnum.creditNoteType]: 'types',
   }
 
-  return formatFiltersForQuery({
+  return formatFiltersForQuery<CreditNotesQueryFilters>({
     searchParams,
     keyMap,
     availableFilters: CreditNoteAvailableFilters,
@@ -350,12 +392,35 @@ export const formatFiltersForCreditNotesQuery = (searchParams: URLSearchParams) 
   })
 }
 
-export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
-  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+type InvoiceQueryFilters = Partial<
+  Pick<
+    GetInvoicesListQueryVariables,
+    | 'currency'
+    | 'customerExternalId'
+    | 'invoiceType'
+    | 'issuingDateFrom'
+    | 'issuingDateTo'
+    | 'partiallyPaid'
+    | 'paymentDisputeLost'
+    | 'paymentOverdue'
+    | 'paymentStatus'
+    | 'settlements'
+    | 'status'
+    | 'amountFrom'
+    | 'amountTo'
+    | 'selfBilled'
+    | 'billingEntityIds'
+  >
+>
+
+export const formatFiltersForInvoiceQuery = (
+  searchParams: URLSearchParams,
+): InvoiceQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof InvoiceQueryFilters & string>> = {
     [AvailableFiltersEnum.settlementType]: 'settlements',
   }
 
-  return formatFiltersForQuery({
+  return formatFiltersForQuery<InvoiceQueryFilters>({
     searchParams,
     keyMap,
     availableFilters: InvoiceAvailableFilters,
@@ -363,8 +428,34 @@ export const formatFiltersForInvoiceQuery = (searchParams: URLSearchParams) => {
   })
 }
 
-export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => {
-  const formatted = formatFiltersForQuery({
+type CustomerQueryFilters = Partial<
+  Pick<
+    CustomersQueryVariables,
+    | 'billingEntityIds'
+    | 'activeSubscriptionsCountFrom'
+    | 'activeSubscriptionsCountTo'
+    | 'customerType'
+    | 'countries'
+    | 'currencies'
+    | 'externalId'
+    | 'states'
+    | 'zipcodes'
+    | 'hasTaxIdentificationNumber'
+    | 'hasCustomerType'
+    | 'metadata'
+  >
+> & { accountType?: CustomerAccountTypeEnum }
+
+export const formatFiltersForCustomerQuery = (
+  searchParams: URLSearchParams,
+): CustomerQueryFilters => {
+  const formatted = formatFiltersForQuery<
+    CustomerQueryFilters & {
+      activeSubscriptionsFrom?: number | null
+      activeSubscriptionsTo?: number | null
+      isCustomerTinEmpty?: boolean
+    }
+  >({
     searchParams,
     availableFilters: CustomerAvailableFilters,
     filtersNamePrefix: CUSTOMER_LIST_FILTER_PREFIX,
@@ -392,13 +483,22 @@ export const formatFiltersForCustomerQuery = (searchParams: URLSearchParams) => 
   return formatted
 }
 
-export const formatFiltersForSubscriptionQuery = (searchParams: URLSearchParams) => {
-  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+type SubscriptionQueryFilters = Partial<
+  Pick<
+    GetSubscriptionsListQueryVariables,
+    'status' | 'externalCustomerId' | 'externalId' | 'overriden' | 'planCode' | 'billingEntityIds'
+  >
+>
+
+export const formatFiltersForSubscriptionQuery = (
+  searchParams: URLSearchParams,
+): SubscriptionQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof SubscriptionQueryFilters & string>> = {
     [AvailableFiltersEnum.subscriptionStatus]: 'status',
     [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
   }
 
-  return formatFiltersForQuery({
+  return formatFiltersForQuery<SubscriptionQueryFilters>({
     keyMap,
     searchParams,
     availableFilters: SubscriptionAvailableFilters,
@@ -409,53 +509,72 @@ export const formatFiltersForSubscriptionQuery = (searchParams: URLSearchParams)
 export const formatFiltersForCustomerAnalyticsQuery = (
   searchParams: URLSearchParams,
 ): { currency?: CurrencyEnum; billingEntityId?: string } => {
-  return formatFiltersForQuery({
+  return formatFiltersForQuery<{ currency?: CurrencyEnum; billingEntityId?: string }>({
     searchParams,
     availableFilters: CustomerAnalyticsAvailableFilters,
     filtersNamePrefix: CUSTOMER_ANALYTICS_FILTER_PREFIX,
-  }) as { currency?: CurrencyEnum; billingEntityId?: string }
+  })
 }
 
 export const formatFiltersForCustomerInvoicesQuery = (
   searchParams: URLSearchParams,
   filtersNamePrefix: string,
 ): { currency?: CurrencyEnum; billingEntityId?: string } => {
-  return formatFiltersForQuery({
+  return formatFiltersForQuery<{ currency?: CurrencyEnum; billingEntityId?: string }>({
     searchParams,
     availableFilters: CustomerInvoicesAvailableFilters,
     filtersNamePrefix,
-  }) as { currency?: CurrencyEnum; billingEntityId?: string }
+  })
 }
 
 export const formatFiltersForCustomerPaymentsQuery = (
   searchParams: URLSearchParams,
 ): { currency?: CurrencyEnum } => {
-  return formatFiltersForQuery({
+  return formatFiltersForQuery<{ currency?: CurrencyEnum }>({
     searchParams,
     availableFilters: CustomerPaymentsAvailableFilters,
     filtersNamePrefix: CUSTOMER_PAYMENTS_FILTER_PREFIX,
-  }) as { currency?: CurrencyEnum }
+  })
 }
 
 export const formatFiltersForCustomerCreditNotesQuery = (
   searchParams: URLSearchParams,
 ): { currency?: CurrencyEnum; billingEntityId?: string } => {
-  return formatFiltersForQuery({
+  return formatFiltersForQuery<{ currency?: CurrencyEnum; billingEntityId?: string }>({
     searchParams,
     availableFilters: CustomerCreditNotesAvailableFilters,
     filtersNamePrefix: CUSTOMER_CREDIT_NOTES_FILTER_PREFIX,
-  }) as { currency?: CurrencyEnum; billingEntityId?: string }
+  })
 }
 
-export const formatFiltersForRevenueStreamsQuery = (searchParams: URLSearchParams) => {
-  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+type RevenueStreamsQueryFilters = Partial<
+  Pick<
+    GetRevenueStreamsQueryVariables,
+    | 'currency'
+    | 'customerCountry'
+    | 'customerType'
+    | 'isCustomerTinEmpty'
+    | 'externalCustomerId'
+    | 'externalSubscriptionId'
+    | 'fromDate'
+    | 'toDate'
+    | 'planCode'
+    | 'timeGranularity'
+    | 'billingEntityCode'
+  >
+>
+
+export const formatFiltersForRevenueStreamsQuery = (
+  searchParams: URLSearchParams,
+): RevenueStreamsQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof RevenueStreamsQueryFilters & string>> = {
     [AvailableFiltersEnum.country]: 'customerCountry',
     [AvailableFiltersEnum.customerType]: 'customerType',
     [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
     [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
   }
 
-  return formatFiltersForQuery({
+  return formatFiltersForQuery<RevenueStreamsQueryFilters>({
     keyMap,
     searchParams,
     availableFilters: [
@@ -466,23 +585,39 @@ export const formatFiltersForRevenueStreamsQuery = (searchParams: URLSearchParam
   })
 }
 
-export const formatFiltersForRevenueStreamsPlansQuery = (searchParams: URLSearchParams) => {
-  return formatFiltersForQuery({
+export const formatFiltersForRevenueStreamsPlansQuery = (
+  searchParams: URLSearchParams,
+): { currency?: CurrencyEnum } => {
+  return formatFiltersForQuery<{ currency?: CurrencyEnum }>({
     searchParams,
     availableFilters: RevenueStreamsPlansAvailableFilters,
     filtersNamePrefix: REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
   })
 }
 
-export const formatFiltersForMrrQuery = (searchParams: URLSearchParams) => {
-  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+type MrrQueryFilters = Partial<
+  Pick<
+    GetMrrsQueryVariables,
+    | 'currency'
+    | 'customerCountry'
+    | 'customerType'
+    | 'isCustomerTinEmpty'
+    | 'externalCustomerId'
+    | 'fromDate'
+    | 'toDate'
+    | 'timeGranularity'
+    | 'billingEntityCode'
+  >
+>
+
+export const formatFiltersForMrrQuery = (searchParams: URLSearchParams): MrrQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof MrrQueryFilters & string>> = {
     [AvailableFiltersEnum.country]: 'customerCountry',
     [AvailableFiltersEnum.customerType]: 'customerType',
     [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
-    [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
   }
 
-  return formatFiltersForQuery({
+  return formatFiltersForQuery<MrrQueryFilters>({
     keyMap,
     searchParams,
     availableFilters: [...MrrOverviewAvailableFilters, AvailableFiltersEnum.timeGranularity],
@@ -490,31 +625,51 @@ export const formatFiltersForMrrQuery = (searchParams: URLSearchParams) => {
   })
 }
 
-export const formatFiltersForMrrPlansQuery = (searchParams: URLSearchParams) => {
-  return formatFiltersForQuery({
+export const formatFiltersForMrrPlansQuery = (
+  searchParams: URLSearchParams,
+): { currency?: CurrencyEnum } => {
+  return formatFiltersForQuery<{ currency?: CurrencyEnum }>({
     searchParams,
     availableFilters: MrrBreakdownPlansAvailableFilters,
     filtersNamePrefix: MRR_BREAKDOWN_PLANS_FILTER_PREFIX,
   })
 }
 
-export const formatFiltersForRevenueStreamsCustomersQuery = (searchParams: URLSearchParams) => {
-  return formatFiltersForQuery({
+export const formatFiltersForRevenueStreamsCustomersQuery = (
+  searchParams: URLSearchParams,
+): { currency?: CurrencyEnum } => {
+  return formatFiltersForQuery<{ currency?: CurrencyEnum }>({
     searchParams,
     availableFilters: RevenueStreamsCustomersAvailableFilters,
     filtersNamePrefix: REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
   })
 }
 
-export const formatFiltersForPrepaidCreditsQuery = (searchParams: URLSearchParams) => {
-  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+type PrepaidCreditsQueryFilters = Partial<
+  Pick<
+    GetPrepaidCreditsQueryVariables,
+    | 'currency'
+    | 'customerCountry'
+    | 'customerType'
+    | 'isCustomerTinEmpty'
+    | 'externalCustomerId'
+    | 'fromDate'
+    | 'toDate'
+    | 'timeGranularity'
+    | 'billingEntityCode'
+  >
+>
+
+export const formatFiltersForPrepaidCreditsQuery = (
+  searchParams: URLSearchParams,
+): PrepaidCreditsQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof PrepaidCreditsQueryFilters & string>> = {
     [AvailableFiltersEnum.country]: 'customerCountry',
     [AvailableFiltersEnum.customerAccountType]: 'customerType',
     [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
-    [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
   }
 
-  return formatFiltersForQuery({
+  return formatFiltersForQuery<PrepaidCreditsQueryFilters>({
     keyMap,
     searchParams,
     availableFilters: [...MrrOverviewAvailableFilters, AvailableFiltersEnum.timeGranularity],
@@ -522,22 +677,40 @@ export const formatFiltersForPrepaidCreditsQuery = (searchParams: URLSearchParam
   })
 }
 
-export const formatFiltersForAnalyticsInvoicesQuery = (searchParams: URLSearchParams) => {
-  return formatFiltersForQuery({
+type AnalyticsInvoicesQueryFilters = Partial<
+  Pick<
+    GetInvoiceCollectionsForAnalyticsQueryVariables,
+    'currency' | 'billingEntityCode' | 'isCustomerTinEmpty'
+  >
+> & { period?: string }
+
+export const formatFiltersForAnalyticsInvoicesQuery = (
+  searchParams: URLSearchParams,
+): AnalyticsInvoicesQueryFilters => {
+  return formatFiltersForQuery<AnalyticsInvoicesQueryFilters>({
     searchParams,
     availableFilters: AnalyticsInvoicesAvailableFilters,
     filtersNamePrefix: ANALYTICS_INVOICES_FILTER_PREFIX,
   })
 }
 
-export const formatFiltersForWebhookLogsQuery = (searchParams: URLSearchParams) => {
-  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+type WebhookLogsQueryFilters = Partial<
+  Pick<
+    GetWebhookLogQueryVariables,
+    'statuses' | 'eventTypes' | 'httpStatuses' | 'fromDate' | 'toDate'
+  >
+>
+
+export const formatFiltersForWebhookLogsQuery = (
+  searchParams: URLSearchParams,
+): WebhookLogsQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof WebhookLogsQueryFilters & string>> = {
     [AvailableFiltersEnum.webhookStatus]: 'statuses',
     [AvailableFiltersEnum.webhookEventTypes]: 'eventTypes',
     [AvailableFiltersEnum.webhookHttpStatuses]: 'httpStatuses',
   }
 
-  return formatFiltersForQuery({
+  return formatFiltersForQuery<WebhookLogsQueryFilters>({
     searchParams: defineDefaultToDateValue(
       searchParams,
       WEBHOOK_LOGS_FILTER_PREFIX,
@@ -549,15 +722,34 @@ export const formatFiltersForWebhookLogsQuery = (searchParams: URLSearchParams) 
   })
 }
 
-export const formatFiltersForUsageOverviewQuery = (searchParams: URLSearchParams) => {
-  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+type UsageOverviewQueryFilters = Partial<
+  Pick<
+    GetUsageOverviewQueryVariables,
+    | 'currency'
+    | 'customerCountry'
+    | 'customerType'
+    | 'isCustomerTinEmpty'
+    | 'externalCustomerId'
+    | 'externalSubscriptionId'
+    | 'fromDate'
+    | 'toDate'
+    | 'planCode'
+    | 'timeGranularity'
+    | 'billingEntityCode'
+  >
+>
+
+export const formatFiltersForUsageOverviewQuery = (
+  searchParams: URLSearchParams,
+): UsageOverviewQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof UsageOverviewQueryFilters & string>> = {
     [AvailableFiltersEnum.country]: 'customerCountry',
     [AvailableFiltersEnum.customerAccountType]: 'customerType',
     [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
     [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
   }
 
-  return formatFiltersForQuery({
+  return formatFiltersForQuery<UsageOverviewQueryFilters>({
     keyMap,
     searchParams,
     availableFilters: [...UsageOverviewAvailableFilters, AvailableFiltersEnum.timeGranularity],
@@ -565,15 +757,31 @@ export const formatFiltersForUsageOverviewQuery = (searchParams: URLSearchParams
   })
 }
 
-export const formatFiltersForUsageBreakdownQuery = (searchParams: URLSearchParams) => {
-  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+type UsageBreakdownQueryFilters = Partial<
+  Pick<
+    GetUsageBreakdownQueryVariables,
+    | 'currency'
+    | 'customerCountry'
+    | 'customerType'
+    | 'externalCustomerId'
+    | 'externalSubscriptionId'
+    | 'fromDate'
+    | 'toDate'
+    | 'planCode'
+  >
+>
+
+export const formatFiltersForUsageBreakdownQuery = (
+  searchParams: URLSearchParams,
+): UsageBreakdownQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof UsageBreakdownQueryFilters & string>> = {
     [AvailableFiltersEnum.country]: 'customerCountry',
     [AvailableFiltersEnum.customerAccountType]: 'customerType',
     [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
     [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
   }
 
-  return formatFiltersForQuery({
+  return formatFiltersForQuery<UsageBreakdownQueryFilters>({
     keyMap,
     searchParams,
     availableFilters: UsageBreakdownAvailableFilters,
@@ -597,8 +805,14 @@ export const formatFiltersForUsageBreakdownRecurringQuery = (searchParams: URLSe
   })
 }
 
-export const formatFiltersForUsageBillableMetricQuery = (searchParams: URLSearchParams) => {
-  return formatFiltersForQuery({
+type UsageBillableMetricQueryFilters = Partial<
+  Pick<GetUsageBillableMetricQueryVariables, 'currency' | 'timeGranularity' | 'fromDate' | 'toDate'>
+>
+
+export const formatFiltersForUsageBillableMetricQuery = (
+  searchParams: URLSearchParams,
+): UsageBillableMetricQueryFilters => {
+  return formatFiltersForQuery<UsageBillableMetricQueryFilters>({
     searchParams,
     availableFilters: [
       ...UsageBillableMetricAvailableFilters,
@@ -608,15 +822,33 @@ export const formatFiltersForUsageBillableMetricQuery = (searchParams: URLSearch
   })
 }
 
-export const formatFiltersForForecastsQuery = (searchParams: URLSearchParams) => {
-  const keyMap: Partial<Record<AvailableFiltersEnum, string>> = {
+type ForecastsQueryFilters = Partial<
+  Pick<
+    GetForecastsQueryVariables,
+    | 'billableMetricCode'
+    | 'billingEntityCode'
+    | 'currency'
+    | 'customerCountry'
+    | 'customerType'
+    | 'externalCustomerId'
+    | 'externalSubscriptionId'
+    | 'isCustomerTinEmpty'
+    | 'planCode'
+    | 'timeGranularity'
+  >
+>
+
+export const formatFiltersForForecastsQuery = (
+  searchParams: URLSearchParams,
+): ForecastsQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof ForecastsQueryFilters & string>> = {
     [AvailableFiltersEnum.country]: 'customerCountry',
     [AvailableFiltersEnum.customerType]: 'customerType',
     [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
     [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
   }
 
-  return formatFiltersForQuery({
+  return formatFiltersForQuery<ForecastsQueryFilters>({
     keyMap,
     searchParams,
     availableFilters: [...ForecastsAvailableFilters, AvailableFiltersEnum.timeGranularity],
@@ -624,8 +856,32 @@ export const formatFiltersForForecastsQuery = (searchParams: URLSearchParams) =>
   })
 }
 
-export const formatFiltersForActivityLogsQuery = (searchParams: URLSearchParams) => {
-  const formatted = formatFiltersForQuery({
+type ActivityLogsQueryFilters = Partial<
+  Pick<
+    ActivityLogsQueryVariables,
+    | 'activityIds'
+    | 'activitySources'
+    | 'activityTypes'
+    | 'apiKeyIds'
+    | 'externalCustomerId'
+    | 'externalSubscriptionId'
+    | 'fromDate'
+    | 'toDate'
+    | 'resourceIds'
+    | 'resourceTypes'
+    | 'userEmails'
+  >
+>
+
+export const formatFiltersForActivityLogsQuery = (
+  searchParams: URLSearchParams,
+): ActivityLogsQueryFilters => {
+  const formatted = formatFiltersForQuery<
+    ActivityLogsQueryFilters & {
+      customerExternalId?: string
+      subscriptionExternalId?: string
+    }
+  >({
     searchParams: defineDefaultToDateValue(searchParams, ACTIVITY_LOG_FILTER_PREFIX),
     availableFilters: ActivityLogsAvailableFilters,
     filtersNamePrefix: ACTIVITY_LOG_FILTER_PREFIX,
@@ -643,8 +899,17 @@ export const formatFiltersForActivityLogsQuery = (searchParams: URLSearchParams)
   return formatted
 }
 
-export const formatFiltersForApiLogsQuery = (searchParams: URLSearchParams) => {
-  return formatFiltersForQuery({
+type ApiLogsQueryFilters = Partial<
+  Pick<
+    GetApiLogsQueryVariables,
+    'fromDate' | 'toDate' | 'apiKeyIds' | 'httpMethods' | 'httpStatuses' | 'requestPaths'
+  >
+>
+
+export const formatFiltersForApiLogsQuery = (
+  searchParams: URLSearchParams,
+): ApiLogsQueryFilters => {
+  return formatFiltersForQuery<ApiLogsQueryFilters>({
     searchParams: defineDefaultToDateValue(searchParams, API_LOGS_FILTER_PREFIX),
     availableFilters: ApiLogsAvailableFilters,
     filtersNamePrefix: API_LOGS_FILTER_PREFIX,
@@ -747,25 +1012,38 @@ export const formatActiveFilterValueDisplay = (
   }
 }
 
-export const formatFiltersForSecurityLogsQuery = (searchParams: URLSearchParams) => {
-  return formatFiltersForQuery({
+type SecurityLogsQueryFilters = Partial<
+  Pick<GetSecurityLogsQueryVariables, 'logEvents' | 'logTypes' | 'userIds' | 'fromDate' | 'toDate'>
+>
+
+export const formatFiltersForSecurityLogsQuery = (
+  searchParams: URLSearchParams,
+): SecurityLogsQueryFilters => {
+  return formatFiltersForQuery<SecurityLogsQueryFilters>({
     searchParams: defineDefaultToDateValue(searchParams, SECURITY_LOGS_FILTER_PREFIX),
     availableFilters: SecurityLogsAvailableFilters,
     filtersNamePrefix: SECURITY_LOGS_FILTER_PREFIX,
   })
 }
 
-export const formatFiltersForQuotesQuery = (searchParams: URLSearchParams) =>
-  formatFiltersForQuery({
+type QuotesQueryFilters = Partial<
+  Pick<
+    GetQuotesQueryVariables,
+    'statuses' | 'customers' | 'numbers' | 'orderTypes' | 'owners' | 'fromDate' | 'toDate'
+  >
+>
+
+export const formatFiltersForQuotesQuery = (searchParams: URLSearchParams): QuotesQueryFilters =>
+  formatFiltersForQuery<QuotesQueryFilters>({
     searchParams,
     availableFilters: QuoteAvailableFilters,
     filtersNamePrefix: QUOTE_LIST_FILTER_PREFIX,
     keyMap: {
-      multipleCustomers: 'customers',
-      quoteStatus: 'statuses',
-      quoteNumber: 'numbers',
-      quoteOrderType: 'orderTypes',
-      userIds: 'owners',
+      [AvailableFiltersEnum.multipleCustomers]: 'customers',
+      [AvailableFiltersEnum.quoteStatus]: 'statuses',
+      [AvailableFiltersEnum.quoteNumber]: 'numbers',
+      [AvailableFiltersEnum.quoteOrderType]: 'orderTypes',
+      [AvailableFiltersEnum.userIds]: 'owners',
     },
   })
 

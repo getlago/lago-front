@@ -89,7 +89,7 @@ export const useUsageAnalyticsOverview = () => {
     return `${now.minus({ days: 30 }).startOf('day').toISO()},${now.endOf('day').toISO()}`
   }, [hasAccessToAnalyticsDashboardsFeature])
 
-  const getDefaultStaticTimeGranularityFilter = useCallback((): string => {
+  const getDefaultStaticTimeGranularityFilter = useCallback((): TimeGranularityEnum => {
     return TimeGranularityEnum.Daily
   }, [])
 

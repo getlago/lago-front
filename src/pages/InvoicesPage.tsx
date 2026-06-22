@@ -28,6 +28,7 @@ import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
+  type DataExportInvoiceFiltersInput,
   InvoiceExportTypeEnum,
   InvoiceListItemFragmentDoc,
   InvoiceStatusTypeEnum,
@@ -113,26 +114,24 @@ gql`
 `
 
 // TODO: This is a temporary workaround
-const formatAmountCurrency = (
-  filters: Record<string, string | string[] | boolean | number>,
+const formatAmountCurrency = <T extends { amountFrom?: unknown; amountTo?: unknown }>(
+  filters: T,
   amountCurrency?: CurrencyEnum | null,
-) => {
-  const _filters = {
-    ...filters,
-  }
+): T => {
+  const _filters = { ...filters } as T
 
   if (_filters.amountFrom) {
     _filters.amountFrom = serializeAmount(
       Number(_filters.amountFrom),
       amountCurrency || CurrencyEnum.Usd,
-    )
+    ) as T['amountFrom']
   }
 
   if (_filters.amountTo) {
     _filters.amountTo = serializeAmount(
       Number(_filters.amountTo),
       amountCurrency || CurrencyEnum.Usd,
-    )
+    ) as T['amountTo']
   }
 
   return _filters
@@ -196,7 +195,7 @@ const InvoicesPage = () => {
     const filters = {
       ...formatAmountCurrency(formatFiltersForInvoiceQuery(searchParams), amountCurrency),
       searchTerm: variables?.searchTerm,
-    }
+    } as DataExportInvoiceFiltersInput
 
     const res = await triggerCreateInvoicesDataExport({
       variables: {
