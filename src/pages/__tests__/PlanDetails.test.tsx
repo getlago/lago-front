@@ -152,7 +152,7 @@ describe('PlanDetails', () => {
 
   describe('GIVEN user has all permissions', () => {
     describe('WHEN actions are configured', () => {
-      it('THEN should include dropdown with edit, duplicate, and delete items', () => {
+      it('THEN should include dropdown with duplicate and delete items', () => {
         mockHasPermissions.mockReturnValue(true)
 
         render(<PlanDetails />)
@@ -165,23 +165,7 @@ describe('PlanDetails', () => {
 
         const visibleItems = actions[0]?.items.filter((i) => !i.hidden)
 
-        expect(visibleItems).toHaveLength(3)
-      })
-    })
-  })
-
-  describe('GIVEN user has no plansUpdate permission', () => {
-    describe('WHEN actions are configured', () => {
-      it('THEN should hide the edit action', () => {
-        mockHasPermissions.mockImplementation((perms: string[]) => !perms.includes('plansUpdate'))
-
-        render(<PlanDetails />)
-
-        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
-          ?.items as MainHeaderDropdownAction[]
-        const editItem = actions[0]?.items[0]
-
-        expect(editItem?.hidden).toBe(true)
+        expect(visibleItems).toHaveLength(2)
       })
     })
   })
@@ -195,7 +179,7 @@ describe('PlanDetails', () => {
 
         const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
           ?.items as MainHeaderDropdownAction[]
-        const duplicateItem = actions[0]?.items[1]
+        const duplicateItem = actions[0]?.items[0]
 
         expect(duplicateItem?.hidden).toBe(true)
       })
@@ -211,7 +195,7 @@ describe('PlanDetails', () => {
 
         const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
           ?.items as MainHeaderDropdownAction[]
-        const deleteItem = actions[0]?.items[2]
+        const deleteItem = actions[0]?.items[1]
 
         expect(deleteItem?.hidden).toBe(true)
       })
