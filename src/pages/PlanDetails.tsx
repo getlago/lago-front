@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
@@ -124,7 +125,7 @@ const PlanDetails = () => {
         entity={{
           viewName: translate('text_65281f686a80b400c8e2f6ad', { planName: plan?.name }),
           viewNameLoading: isPlanLoading,
-          metadata: plan?.code || '',
+          metadata: plan?.code ? <TypographyWithCopy>{plan.code}</TypographyWithCopy> : undefined,
           metadataLoading: isPlanLoading,
         }}
         actions={{ items: actions, loading: isPlanLoading }}

@@ -120,7 +120,10 @@ describe('PlanDetails', () => {
           expect.objectContaining({
             entity: expect.objectContaining({
               viewName: expect.any(String),
-              metadata: 'test-plan',
+              // metadata is a click-to-copy element wrapping the plan code
+              metadata: expect.objectContaining({
+                props: expect.objectContaining({ children: 'test-plan' }),
+              }),
             }),
           }),
         )

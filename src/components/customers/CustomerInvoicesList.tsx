@@ -10,6 +10,7 @@ import { ActionItem } from '~/components/designSystem/Table'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import {
@@ -296,7 +297,14 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
               minWidth: 160,
               maxSpace: true,
               title: translate('text_63ac86d797f728a87b2f9fad'),
-              content: (invoice) => invoice.number || '-',
+              content: (invoice) =>
+                invoice.number ? (
+                  <TypographyWithCopy compact noWrap variant="body">
+                    {invoice.number}
+                  </TypographyWithCopy>
+                ) : (
+                  '-'
+                ),
             },
             {
               key: 'totalAmountCents',

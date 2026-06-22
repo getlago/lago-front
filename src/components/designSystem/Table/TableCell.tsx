@@ -32,10 +32,13 @@ const TableCell = ({
       }}
       sx={{
         '& > div': {
+          // Every column keeps a 4px left gutter so edge-aligned header titles and
+          // cell content (and the copy button's -4px overhang, see Table.tsx) clear
+          // the cell boundary. The first column's left padding is owned by the
+          // table's containerSize rule (clamped to a 4px min); last column drops
+          // its right padding.
+          paddingLeft: '4px',
           paddingRight: `${PADDING_SPACING_RIGHT_PX}px`,
-        },
-        '&:first-of-type > div': {
-          paddingLeft: 0,
         },
         '&:last-of-type > div': {
           paddingRight: 0,

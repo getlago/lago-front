@@ -59,6 +59,7 @@ import { tw } from '~/styles/utils'
 gql`
   fragment WalletAccordion on Wallet {
     id
+    code
     balanceCents
     code
     consumedAmountCents

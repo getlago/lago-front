@@ -90,6 +90,27 @@ export interface TableProps<T> {
 const ACTION_COLUMN_ID = 'actionColumn'
 const LOADING_ROW_COUNT = 3
 
+const MIN_CONTAINER_PADDING_PX = 4
+
+// The outer columns' padding follows the table's exterior gutter
+// (`containerSize`), but never drops below 4px so both edges keep the same small
+// gutter even when `containerSize` is 0 (e.g. dialog/usage tables). On the left
+// this also keeps the inline copy button's -4px overhang clear of the boundary.
+const clampContainerPadding = (
+  value: ResponsiveStyleValue<TableContainerSize>,
+): ResponsiveStyleValue<number> => {
+  if (typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([breakpoint, size]) => [
+        breakpoint,
+        size === undefined ? size : Math.max(size, MIN_CONTAINER_PADDING_PX),
+      ]),
+    )
+  }
+
+  return Math.max(value, MIN_CONTAINER_PADDING_PX)
+}
+
 const countMaxSpaceColumns = <T,>(columns: TableColumn<T>[]) =>
   columns.reduce((acc, column) => {
     if (column.maxSpace) {
@@ -456,10 +477,10 @@ export const Table = <T extends DataItem>({
         ref={tableRef}
         sx={{
           '& .lago-table-cell:first-of-type .lago-table-inner-cell': {
-            ...setResponsiveProperty('paddingLeft', containerSize),
+            ...setResponsiveProperty('paddingLeft', clampContainerPadding(containerSize)),
           },
           '& .lago-table-cell:last-of-type .lago-table-inner-cell': {
-            ...setResponsiveProperty('paddingRight', containerSize),
+            ...setResponsiveProperty('paddingRight', clampContainerPadding(containerSize)),
           },
           '& tbody .lago-table-inner-cell': {
             minHeight: rowSize,
@@ -522,7 +543,9 @@ export const Table = <T extends DataItem>({
                         minWidth={column.minWidth}
                         truncateOverflow={column.truncateOverflow}
                       >
-                        <Typography noWrap>{column.content(item)}</Typography>
+                        <Typography className="-ml-1 pl-1" noWrap>
+                          {column.content(item)}
+                        </Typography>
                       </TableInnerCell>
                     </TableCell>
                   ))}

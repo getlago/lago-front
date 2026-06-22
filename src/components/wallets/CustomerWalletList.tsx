@@ -9,6 +9,7 @@ import { Status, StatusType } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { formatAmount, formatCredits } from '~/components/wallets/utils'
 import { CREATE_WALLET_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
@@ -100,29 +101,39 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
       key: 'id',
       maxSpace: true,
       title: translate('text_1772536695408sddzumtfq2t'),
-      content: ({ code, createdAt, currency, name, rateAmount }) => (
-        <div className="flex flex-col">
-          <Typography variant="bodyHl" color="grey700">
-            {name ||
-              translate('text_62da6ec24a8e24e44f8128b2', {
-                createdAt: intlFormatDateTimeOrgaTZ(createdAt).date,
-              })}
-          </Typography>
-          <Typography variant="caption" color="grey600">
-            {[
-              code,
-              translate('text_62da6ec24a8e24e44f812872', {
-                rateAmount: intlFormatNumber(Number(rateAmount) || 0, {
-                  currencyDisplay: 'symbol',
-                  currency,
-                }),
-              }),
-            ]
-              .filter(Boolean)
-              .join(' • ')}
-          </Typography>
-        </div>
-      ),
+      content: ({ code, createdAt, currency, name, rateAmount }) => {
+        const rateLabel = translate('text_62da6ec24a8e24e44f812872', {
+          rateAmount: intlFormatNumber(Number(rateAmount) || 0, {
+            currencyDisplay: 'symbol',
+            currency,
+          }),
+        })
+
+        return (
+          <div className="flex flex-col">
+            <Typography variant="bodyHl" color="grey700">
+              {name ||
+                translate('text_62da6ec24a8e24e44f8128b2', {
+                  createdAt: intlFormatDateTimeOrgaTZ(createdAt).date,
+                })}
+            </Typography>
+            {code ? (
+              <div className="flex items-baseline gap-1">
+                <TypographyWithCopy className="shrink-0" compact noWrap variant="caption">
+                  {code}
+                </TypographyWithCopy>
+                <Typography className="min-w-0" variant="caption" color="grey600" noWrap>
+                  {`• ${rateLabel}`}
+                </Typography>
+              </div>
+            ) : (
+              <Typography variant="caption" color="grey600">
+                {rateLabel}
+              </Typography>
+            )}
+          </div>
+        )
+      },
     },
     {
       key: 'balanceCents',

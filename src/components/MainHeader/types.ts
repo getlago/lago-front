@@ -95,8 +95,12 @@ export interface MainHeaderEntityConfig {
   viewName: string
   /** Show a skeleton instead of the title + badges row */
   viewNameLoading?: boolean
-  /** Secondary text below the name (e.g. externalId, amount) */
-  metadata?: string
+  /**
+   * Secondary line below the name (e.g. externalId, amount). A plain string is
+   * wrapped in a Typography; pass a ReactNode to render custom content as-is
+   * (e.g. a TypographyWithCopy, or copy button composed next to text).
+   */
+  metadata?: ReactNode
   /** Show a skeleton instead of the metadata line */
   metadataLoading?: boolean
   /** Status badges displayed next to the entity name */

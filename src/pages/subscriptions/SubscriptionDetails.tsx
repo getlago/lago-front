@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
@@ -303,7 +304,9 @@ const SubscriptionDetails = () => {
       planName: subscription?.plan.name,
     }),
     viewNameLoading: isSubscriptionLoading,
-    metadata: subscription?.plan.code || '',
+    metadata: subscription?.plan.code ? (
+      <TypographyWithCopy>{subscription.plan.code}</TypographyWithCopy>
+    ) : undefined,
     metadataLoading: isSubscriptionLoading,
   }
 

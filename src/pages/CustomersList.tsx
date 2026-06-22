@@ -12,6 +12,7 @@ import { formatFiltersForCustomerQuery } from '~/components/designSystem/Filters
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
@@ -201,7 +202,14 @@ const CustomersList = () => {
               {
                 key: 'email',
                 title: translate('text_6419c64eace749372fc72b27'),
-                content: ({ email }) => email || '-',
+                content: ({ email }) =>
+                  email ? (
+                    <TypographyWithCopy compact noWrap variant="body">
+                      {email}
+                    </TypographyWithCopy>
+                  ) : (
+                    '-'
+                  ),
                 maxSpace: true,
                 minWidth: 200,
               },
