@@ -28,7 +28,13 @@ const defaultProps: NameAndCodeGroupProps = {
 const NameAndCodeGroup = withFieldGroup({
   defaultValues,
   props: defaultProps,
-  render: function Render({ group, disableCodeInput, disableAutoGenerateCode, nameProps, codeProps }) {
+  render: function Render({
+    group,
+    disableCodeInput,
+    disableAutoGenerateCode,
+    nameProps,
+    codeProps,
+  }) {
     const { translate } = useInternationalization()
 
     const handleNameChange = ({ value }: { value: string }) => {
