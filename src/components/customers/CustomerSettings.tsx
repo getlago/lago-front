@@ -22,10 +22,7 @@ import {
   DeleteCustomerVatRateDialog,
   DeleteCustomerVatRateDialogRef,
 } from '~/components/customers/DeleteCustomerVatRateDialog'
-import {
-  EditCustomerDocumentLocaleDialog,
-  EditCustomerDocumentLocaleDialogRef,
-} from '~/components/customers/EditCustomerDocumentLocaleDialog'
+import { useEditCustomerDocumentLocaleDialog } from '~/components/customers/EditCustomerDocumentLocaleDialog'
 import {
   EditCustomerDunningCampaignDialog,
   EditCustomerDunningCampaignDialogRef,
@@ -222,7 +219,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const deleteVatRateDialogRef = useRef<DeleteCustomerVatRateDialogRef>(null)
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
   const deleteGracePeriodDialogRef = useRef<DeleteCustomerGracePeriodeDialogRef>(null)
-  const editCustomerDocumentLocale = useRef<EditCustomerDocumentLocaleDialogRef>(null)
+  const { openEditCustomerDocumentLocaleDialog } = useEditCustomerDocumentLocaleDialog()
   const editCustomerDunningCampaignDialogRef = useRef<EditCustomerDunningCampaignDialogRef>(null)
   const editCustomerInvoiceCustomSectionsDialogRef =
     useRef<EditCustomerInvoiceCustomSectionsDialogRef>(null)
@@ -426,7 +423,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                             endIcon={isPremium ? undefined : 'sparkles'}
                             onClick={() =>
                               isPremium
-                                ? editCustomerDocumentLocale?.current?.openDialog()
+                                ? customer && openEditCustomerDocumentLocaleDialog(customer)
                                 : openPremiumWarningDialog()
                             }
                           >
@@ -451,7 +448,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                                   variant="quaternary"
                                   align="left"
                                   onClick={() => {
-                                    editCustomerDocumentLocale.current?.openDialog()
+                                    if (customer) {
+                                      openEditCustomerDocumentLocaleDialog(customer)
+                                    }
                                     closePopper()
                                   }}
                                 >
@@ -952,7 +951,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
             ref={editInvoiceGracePeriodDialogRef}
             invoiceGracePeriod={customer?.invoiceGracePeriod}
           />
-          <EditCustomerDocumentLocaleDialog ref={editCustomerDocumentLocale} customer={customer} />
           <EditCustomerDunningCampaignDialog
             ref={editCustomerDunningCampaignDialogRef}
             customer={customer}
