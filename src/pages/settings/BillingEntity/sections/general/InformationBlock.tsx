@@ -63,6 +63,7 @@ const InformationBlock = ({ billingEntity }: { billingEntity: BillingEntity }) =
     legalNumber,
     taxIdentificationNumber,
     email,
+    phone,
     addressLine1,
     addressLine2,
     zipcode,
@@ -130,6 +131,12 @@ const InformationBlock = ({ billingEntity }: { billingEntity: BillingEntity }) =
       value: email,
       emptyPlaceholder,
       fieldKey: 'email',
+    },
+    {
+      label: translate('text_626c0c301a16a600ea06147d'),
+      value: phone,
+      emptyPlaceholder,
+      fieldKey: 'phone',
     },
     {
       label: translate('text_62ab2d0396dd6b0361614d9c'),
