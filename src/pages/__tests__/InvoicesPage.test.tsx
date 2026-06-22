@@ -83,10 +83,6 @@ jest.mock('~/components/invoices/FinalizeInvoiceDialog', () => ({
   FinalizeInvoiceDialog: () => null,
 }))
 
-jest.mock('~/components/invoices/EditInvoicePaymentStatusDialog', () => ({
-  UpdateInvoicePaymentStatusDialog: () => null,
-}))
-
 jest.mock('~/components/invoices/VoidInvoiceDialog', () => ({
   VoidInvoiceDialog: () => null,
 }))

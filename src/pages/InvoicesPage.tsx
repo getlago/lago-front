@@ -11,10 +11,6 @@ import {
 } from '~/components/designSystem/Filters'
 import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
 import {
-  UpdateInvoicePaymentStatusDialog,
-  UpdateInvoicePaymentStatusDialogRef,
-} from '~/components/invoices/EditInvoicePaymentStatusDialog'
-import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
@@ -149,7 +145,6 @@ const InvoicesPage = () => {
   )
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
-  const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const exportInvoicesDialogRef = useRef<ExportDialogRef>(null)
 
@@ -306,7 +301,6 @@ const InvoicesPage = () => {
       />
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
       <ExportDialog
         ref={exportInvoicesDialogRef}

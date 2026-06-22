@@ -12,10 +12,7 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
-import {
-  UpdateInvoicePaymentStatusDialog,
-  UpdateInvoicePaymentStatusDialogRef,
-} from '~/components/invoices/EditInvoicePaymentStatusDialog'
+import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
 import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
@@ -216,7 +213,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const { generatePaymentUrl } = useGeneratePaymentUrl()
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
-  const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
+  const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
 
   return (
@@ -573,7 +570,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     startIcon: 'coin-dollar',
                     title: translate('text_63eba8c65a6c8043feee2a01'),
                     onAction: () => {
-                      updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
+                      openUpdateInvoicePaymentStatusDialog(invoice)
                     },
                   }
                 : null,
@@ -626,7 +623,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
         />
       </InfiniteScroll>
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
       <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
     </>

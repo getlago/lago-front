@@ -14,10 +14,7 @@ import {
   DisputeInvoiceDialog,
   DisputeInvoiceDialogRef,
 } from '~/components/invoices/DisputeInvoiceDialog'
-import {
-  UpdateInvoicePaymentStatusDialog,
-  UpdateInvoicePaymentStatusDialogRef,
-} from '~/components/invoices/EditInvoicePaymentStatusDialog'
+import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
 import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
@@ -322,7 +319,7 @@ const CustomerInvoiceDetails = () => {
   const { hasPermissions } = usePermissions()
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-  const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
+  const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
@@ -904,7 +901,7 @@ const CustomerInvoiceDetails = () => {
           hidden: !authorizations.canUpdatePaymentStatus,
           onClick: (closePopper: () => void) => {
             if (invoice) {
-              updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
+              openUpdateInvoicePaymentStatusDialog(invoice)
             }
             closePopper()
           },
@@ -1040,7 +1037,6 @@ const CustomerInvoiceDetails = () => {
       )}
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
       <DisputeInvoiceDialog ref={disputeInvoiceDialogRef} />
       {!!invoice && <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoiceId={invoice.id} />}
