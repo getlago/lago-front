@@ -1,20 +1,19 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { forwardRef } from 'react'
-import { object, string } from 'yup'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useRef } from 'react'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { ComboBoxField } from '~/components/form'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
 import { addToast } from '~/core/apolloClient'
 import { documentLocalesDataForComboBox } from '~/core/translations/documentLocales'
 import {
   EditCustomerDocumentLocaleFragment,
-  UpdateCustomerInput,
   useUpdateCustomerDocumentLocaleMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   fragment EditCustomerDocumentLocale on Customer {
@@ -38,50 +37,56 @@ gql`
     }
   }
 `
-export type EditCustomerDocumentLocaleDialogRef = DialogRef
 
-interface EditCustomerDocumentLocaleDialogProps {
-  customer: EditCustomerDocumentLocaleFragment
-}
+export const EDIT_CUSTOMER_DOCUMENT_LOCALE_FORM_ID = 'edit-customer-document-locale-form'
 
-export const EditCustomerDocumentLocaleDialog = forwardRef<
-  DialogRef,
-  EditCustomerDocumentLocaleDialogProps
->(({ customer }: EditCustomerDocumentLocaleDialogProps, ref) => {
+const editCustomerDocumentLocaleValidationSchema = z.object({
+  documentLocale: z
+    .string({ message: 'text_624ea7c29103fd010732ab7d' })
+    .min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+})
+
+export const useEditCustomerDocumentLocaleDialog = () => {
+  const formDialog = useFormDialog()
   const { translate } = useInternationalization()
-  const isEdition = !!customer.billingConfiguration?.documentLocale
-  const customerName = customer?.displayName
+  const customerRef = useRef<EditCustomerDocumentLocaleFragment | null>(null)
+  const successRef = useRef(false)
+
   const [updateDocumentLocale] = useUpdateCustomerDocumentLocaleMutation({
     onCompleted(res) {
       if (res.updateCustomer) {
         addToast({
           severity: 'success',
-          translateKey: isEdition
+          translateKey: !!customerRef.current?.billingConfiguration?.documentLocale
             ? 'text_63ea0f84f400488553caa76f'
             : 'text_63ea0f84f400488553caa77b',
         })
       }
     },
   })
-  const formikProps = useFormik<Pick<UpdateCustomerInput, 'billingConfiguration'>>({
-    initialValues: {
-      billingConfiguration: {
-        documentLocale: customer.billingConfiguration?.documentLocale,
-      },
+
+  const form = useAppForm({
+    defaultValues: {
+      documentLocale: '' as string,
     },
-    validationSchema: object().shape({
-      billingConfiguration: object().shape({
-        documentLocale: string().required(''),
-      }),
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: async (values) => {
-      await updateDocumentLocale({
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: editCustomerDocumentLocaleValidationSchema,
+    },
+    onSubmit: async ({ value }) => {
+      const customer = customerRef.current
+
+      if (!customer) {
+        return
+      }
+
+      const result = await updateDocumentLocale({
         variables: {
           input: {
             id: customer.id,
-            ...values,
+            billingConfiguration: {
+              documentLocale: value.documentLocale,
+            },
             // NOTE: API should not require those fields on customer update
             // To be tackled as improvement
             externalId: customer.externalId,
@@ -89,62 +94,86 @@ export const EditCustomerDocumentLocaleDialog = forwardRef<
           },
         },
       })
+
+      if (result.data?.updateCustomer) {
+        successRef.current = true
+      }
     },
   })
 
-  return (
-    <Dialog
-      ref={ref}
-      title={translate(
-        isEdition ? 'text_63ea0f84f400488553caa65c' : 'text_63ea0f84f400488553caa678',
-      )}
-      description={
-        <Typography
-          html={translate('text_63ea0f84f400488553caa680', {
-            customerName: `<span class="line-break-anywhere">${customerName}</span>`,
-          })}
-        />
-      }
-      onClose={() => {
-        formikProps.resetForm()
-        formikProps.validateForm()
-      }}
-      actions={({ closeDialog }) => (
-        <>
-          <Button variant="quaternary" onClick={closeDialog}>
-            {translate('text_63ea0f84f400488553caa6a5')}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={async () => {
-              await formikProps.submitForm()
-              closeDialog()
-            }}
-          >
-            {isEdition
-              ? translate('text_63ea0f84f400488553caa681')
-              : translate('text_63ea0f84f400488553caa6ad')}
-          </Button>
-        </>
-      )}
-    >
-      <div className="mb-8">
-        <ComboBoxField
-          disableClearable
-          name="billingConfiguration.documentLocale"
-          label={translate('text_63ea0f84f400488553caa687')}
-          placeholder={translate('text_63ea0f84f400488553caa68f')}
-          helperText={
-            <Typography variant="caption" html={translate('text_63e51ef4985f0ebd75c21312')} />
-          }
-          formikProps={formikProps}
-          data={documentLocalesDataForComboBox}
-          PopperProps={{ displayInDialog: true }}
-        />
-      </div>
-    </Dialog>
-  )
-})
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-EditCustomerDocumentLocaleDialog.displayName = 'forwardRef'
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openEditCustomerDocumentLocaleDialog = (customer: EditCustomerDocumentLocaleFragment) => {
+    customerRef.current = customer
+    const isEdition = !!customer.billingConfiguration?.documentLocale
+
+    form.reset()
+    form.setFieldValue('documentLocale', customer.billingConfiguration?.documentLocale ?? '')
+
+    formDialog
+      .open({
+        title: translate(
+          isEdition ? 'text_63ea0f84f400488553caa65c' : 'text_63ea0f84f400488553caa678',
+        ),
+        description: (
+          <Typography
+            html={translate('text_63ea0f84f400488553caa680', {
+              customerName: `<span class="line-break-anywhere">${customer.displayName}</span>`,
+            })}
+          />
+        ),
+        children: (
+          <div className="p-8">
+            <form.AppField name="documentLocale">
+              {(field) => (
+                <field.ComboBoxField
+                  disableClearable
+                  label={translate('text_63ea0f84f400488553caa687')}
+                  placeholder={translate('text_63ea0f84f400488553caa68f')}
+                  helperText={
+                    <Typography
+                      variant="caption"
+                      html={translate('text_63e51ef4985f0ebd75c21312')}
+                    />
+                  }
+                  data={documentLocalesDataForComboBox}
+                  PopperProps={{ displayInDialog: true }}
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        closeOnError: false,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>
+              {translate(
+                isEdition ? 'text_63ea0f84f400488553caa681' : 'text_63ea0f84f400488553caa6ad',
+              )}
+            </form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: EDIT_CUSTOMER_DOCUMENT_LOCALE_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+          customerRef.current = null
+        }
+      })
+  }
+
+  return { openEditCustomerDocumentLocaleDialog }
+}
