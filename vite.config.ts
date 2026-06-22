@@ -47,18 +47,7 @@ export default defineConfig(({ mode }) => {
     svgr({
       include: '**/*.svg',
       svgrOptions: {
-        plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx'],
-        svgoConfig: {
-          plugins: [
-            {
-              name: 'prefixIds',
-              params: {
-                prefixIds: false,
-                prefixClassNames: false,
-              },
-            },
-          ],
-        },
+        plugins: ['@svgr/plugin-jsx'],
       },
     }),
 
