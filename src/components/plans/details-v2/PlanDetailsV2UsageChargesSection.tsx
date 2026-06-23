@@ -203,6 +203,13 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
     return counts
   }, [charges])
 
+  // Charge open state lives in a ref, NOT state: toggling one card must not
+  // re-render the section (and thus every other card). Each SectionAccordion keeps
+  // its own uncontrolled open state; this ref only mirrors it so the state survives
+  // the virtualization unmount/remount cycle - a card reads `initiallyOpen` from the
+  // ref on (re)mount and writes back through `onToggle`. Collapsed by default.
+  const openChargeIdsRef = useRef<Set<string>>(new Set())
+
   const openCreate = () => drawerRef.current?.openDrawer()
 
   useImperativeHandle(ref, () => ({ openCreate }))
@@ -261,6 +268,11 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
           icon="pulse"
           title={charge.invoiceDisplayName || charge.billableMetric.name}
           subtitle={charge.code}
+          initiallyOpen={openChargeIdsRef.current.has(charge.id)}
+          onToggle={(open) => {
+            if (open) openChargeIdsRef.current.add(charge.id)
+            else openChargeIdsRef.current.delete(charge.id)
+          }}
           dataTest={`${USAGE_CHARGE_ACCORDION_TEST_ID_PREFIX}${index}`}
           actions={[
             {

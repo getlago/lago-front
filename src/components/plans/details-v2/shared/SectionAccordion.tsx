@@ -25,7 +25,11 @@ export type SectionAccordionProps = {
   subtitle?: ReactNode
   badge?: ReactNode
   actions?: SectionAccordionAction[]
+  // When the list is virtualized a card unmounts as it scrolls out of the overscan
+  // window. The card stays uncontrolled, but `onToggle` lets the parent persist open
+  // state (e.g. in a ref keyed by id) so `initiallyOpen` can restore it on re-mount.
   initiallyOpen?: boolean
+  onToggle?: (open: boolean) => void
   noContentMargin?: boolean
   dataTest?: string
   children: ReactNode
@@ -39,6 +43,7 @@ export const SectionAccordion = ({
   badge,
   actions,
   initiallyOpen,
+  onToggle,
   noContentMargin,
   dataTest,
   children,
@@ -57,6 +62,7 @@ export const SectionAccordion = ({
       <Accordion
         className="[contain-intrinsic-size:auto_80px] [content-visibility:auto]"
         initiallyOpen={initiallyOpen}
+        onToggle={onToggle}
         noContentMargin={noContentMargin}
         summary={
           <div className="flex flex-1 items-center justify-between gap-3">
