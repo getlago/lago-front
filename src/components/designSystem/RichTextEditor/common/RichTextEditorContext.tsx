@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react'
 
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
+import type { PlanPreviewData } from '~/core/serializers/buildPlanPreviewData'
 import type { Locale } from '~/core/translations'
 import type { CurrencyEnum } from '~/generated/graphql'
 
@@ -19,6 +20,7 @@ export type EntityData = {
   totalAmount?: string
   fromDatetime?: string
   toDatetime?: string
+  plan?: PlanPreviewData
 }
 
 export interface PricingCommandParams {

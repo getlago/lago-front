@@ -368,6 +368,7 @@ describe('fromPlanBillingItems', () => {
         entityType: 'plan',
         name: 'Enterprise Plan',
         code: 'enterprise',
+        plan: { rows: [] },
       },
     })
   })
@@ -557,5 +558,70 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
     expect(result.subscriptionSettings.externalId).toBe('ext_old')
     expect(result.subscriptionSettings.billingTime).toBe('calendar')
     expect(result.overrides.amount_cents).toBe(75000)
+  })
+
+  it('attaches PlanPreviewData to the plan entity (fromPlanBillingItems)', () => {
+    // Build a plans payload with full data (interval + charges present).
+    const plans = [
+      {
+        type: 'plan',
+        id: 'plan-1',
+        overrides: {},
+        payload: {
+          position: 0,
+          plan_code: 'p',
+          plan_name: 'P',
+          plan_description: '',
+          subscription_external_id: null,
+          subscription_name: null,
+          billing_time: 'calendar',
+          start_date: null,
+          end_date: null,
+          payment_method_id: null,
+          invoice_custom_footer: null,
+          interval: 'monthly',
+          amount_cents: '13050',
+          amount_currency: 'USD',
+          pay_in_advance: true,
+          charges: [],
+          fixed_charges: [],
+          minimum_commitment: null,
+        },
+      },
+    ] as any
+
+    const result = fromPlanBillingItems(plans)
+    expect(result.entityData['plan-1'].plan).toBeDefined()
+    expect(result.entityData['plan-1'].plan?.rows[0]).toMatchObject({
+      kind: 'main',
+      rowType: 'subscriptionFee',
+      price: { type: 'amount', amountCents: '13050' },
+    })
+  })
+
+  it('leaves plan undefined for a legacy payload (no interval/charges)', () => {
+    const plans = [
+      {
+        type: 'plan',
+        id: 'plan-legacy',
+        overrides: {},
+        payload: {
+          position: 0,
+          plan_code: 'p',
+          plan_name: 'P',
+          plan_description: '',
+          subscription_external_id: null,
+          subscription_name: null,
+          billing_time: 'calendar',
+          start_date: null,
+          end_date: null,
+          payment_method_id: null,
+          invoice_custom_footer: null,
+        },
+      },
+    ] as any
+
+    const result = fromPlanBillingItems(plans)
+    expect(result.entityData['plan-legacy'].plan).toEqual({ rows: [] })
   })
 })

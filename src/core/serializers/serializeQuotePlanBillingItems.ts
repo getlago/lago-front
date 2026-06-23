@@ -1,4 +1,5 @@
 import type { EntityData } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
+import { buildPlanPreviewData } from './buildPlanPreviewData'
 import type {
   LocalFixedChargeInput,
   LocalUsageChargeInput,
@@ -517,15 +518,6 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
     invoiceCustomFooter: denormalizeOptional(payload.invoice_custom_footer),
   }
 
-  const entityData: Record<string, EntityData> = {
-    [id]: {
-      entityId: id,
-      entityType: 'plan',
-      name: payload.plan_name,
-      code: payload.plan_code,
-    },
-  }
-
   // Backward-compat: legacy payloads don't have interval/charges
   const hasFullPlanData =
     'interval' in payload &&
@@ -577,6 +569,16 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
       code: payload.plan_code,
       description: payload.plan_description,
     }
+  }
+
+  const entityData: Record<string, EntityData> = {
+    [id]: {
+      entityId: id,
+      entityType: 'plan',
+      name: payload.plan_name,
+      code: payload.plan_code,
+      plan: buildPlanPreviewData(formValues, payload),
+    },
   }
 
   return {
