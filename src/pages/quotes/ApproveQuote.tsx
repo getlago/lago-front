@@ -8,7 +8,6 @@ import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { SplitPreviewPage } from '~/components/layouts/SplitPreviewPage'
 import { addToast } from '~/core/apolloClient'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
@@ -16,7 +15,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
+import { PageHeader } from '~/styles'
+import { FormLoadingSkeleton, Main, Side } from '~/styles/mainObjectsForm'
 
 import {
   approveQuoteDefaultValues,
@@ -128,21 +128,24 @@ const ApproveQuote = () => {
   }
 
   return (
-    <SplitPreviewPage.Wrapper>
-      <SplitPreviewPage.Header
-        onClose={() => onClose()}
-        closeButtonDataTest={APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID}
-      >
+    <div>
+      <PageHeader.Wrapper>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
           {translate('text_17768509988630g6v99v8x8h', {
             quoteNumber: quote?.number,
             quoteVersion: `v${quote?.currentVersion?.version}`,
           })}
         </Typography>
-      </SplitPreviewPage.Header>
+        <Button
+          data-test={APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID}
+          variant="quaternary"
+          icon="close"
+          onClick={() => onClose()}
+        />
+      </PageHeader.Wrapper>
 
-      <SplitPreviewPage.Body>
-        <SplitPreviewPage.Main
+      <div className="min-height-minus-nav flex">
+        <Main
           footer={
             !loading && (
               <>
@@ -223,19 +226,21 @@ const ApproveQuote = () => {
               </div>
             </div>
           )}
-        </SplitPreviewPage.Main>
+        </Main>
 
-        <SplitPreviewPage.Side>
-          <QuotePreviewCard
-            dataTest={APPROVE_QUOTE_PREVIEW_TEST_ID}
-            loading={loading}
-            header={header}
-            hasContent={!!quote?.currentVersion?.content}
-            previewProps={previewProps}
-          />
-        </SplitPreviewPage.Side>
-      </SplitPreviewPage.Body>
-    </SplitPreviewPage.Wrapper>
+        <Side>
+          <div className="height-minus-nav overflow-auto">
+            <QuotePreviewCard
+              dataTest={APPROVE_QUOTE_PREVIEW_TEST_ID}
+              loading={loading}
+              header={header}
+              hasContent={!!quote?.currentVersion?.content}
+              previewProps={previewProps}
+            />
+          </div>
+        </Side>
+      </div>
+    </div>
   )
 }
 
