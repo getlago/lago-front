@@ -194,6 +194,12 @@ const EditQuoteAsideForm = ({
 
   const gridClassName = 'grid grid-cols-[7.5rem_1fr] items-center gap-0 gap-y-2'
 
+  const handleDownloadPdf = () => {
+    download(buildQuotePreviewProps(quote.currentVersion, quote.customer, pdfHeader)).catch(
+      () => undefined,
+    )
+  }
+
   return (
     <div className="flex min-h-full flex-col">
       <div className="flex flex-col gap-3 px-3 py-4">
@@ -337,11 +343,7 @@ const EditQuoteAsideForm = ({
           data-test={EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID}
           loading={isSaving}
           disabled={!!isSaving}
-          onClick={() =>
-            download(buildQuotePreviewProps(quote.currentVersion, quote.customer, pdfHeader)).catch(
-              () => undefined,
-            )
-          }
+          onClick={handleDownloadPdf}
         >
           {translate('text_17797156485850t8yms6hf7z')}
         </Button>
