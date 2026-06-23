@@ -92,7 +92,7 @@ describe('buildPlanPreviewData', () => {
       interval: PlanInterval.Yearly,
       timing: 'endOfPeriod',
       units: { type: 'count', value: 5 },
-      price: { type: 'amount', amountCents: '200.00' },
+      price: { type: 'displayAmount', amount: '200.00' },
     })
   })
 
@@ -125,7 +125,7 @@ describe('buildPlanPreviewData', () => {
       kind: 'detail',
       label: { type: 'text', key: 'labelUsage' },
       qualifier: { type: 'perUnit' },
-      value: { type: 'amount', amountCents: '1.20' },
+      value: { type: 'displayAmount', amount: '1.20' },
     })
   })
 
@@ -175,14 +175,14 @@ describe('buildPlanPreviewData', () => {
       kind: 'detail',
       label: { type: 'tierRange', from: 0, to: 10 },
       qualifier: { type: 'perUnit' },
-      value: { type: 'amount', amountCents: '0.00' },
+      value: { type: 'displayAmount', amount: '0.00' },
     })
     // flat fee shown for tier 1 (10.00) but not tiers 2/3 (0)
     expect(details).toContainEqual({
       kind: 'detail',
       label: { type: 'flatFeeForTier', from: 0, to: 10 },
       qualifier: { type: 'flatFee' },
-      value: { type: 'amount', amountCents: '10.00' },
+      value: { type: 'displayAmount', amount: '10.00' },
     })
     expect(details.filter((d) => d.label.type === 'flatFeeForTier')).toHaveLength(1)
     // last tier is open-ended
@@ -190,7 +190,7 @@ describe('buildPlanPreviewData', () => {
       kind: 'detail',
       label: { type: 'tierRange', from: 101, to: undefined },
       qualifier: { type: 'perUnit' },
-      value: { type: 'amount', amountCents: '0.05' },
+      value: { type: 'displayAmount', amount: '0.05' },
     })
   })
 
@@ -217,13 +217,13 @@ describe('buildPlanPreviewData', () => {
       kind: 'detail',
       label: { type: 'tierRange', from: 0, to: 10 },
       qualifier: { type: 'perUnit' },
-      value: { type: 'amount', amountCents: '0.10' },
+      value: { type: 'displayAmount', amount: '0.10' },
     })
     expect(details).toContainEqual({
       kind: 'detail',
       label: { type: 'flatFeeForTier', from: 0, to: 10 },
       qualifier: { type: 'flatFee' },
-      value: { type: 'amount', amountCents: '10.00' },
+      value: { type: 'displayAmount', amount: '10.00' },
     })
   })
 
@@ -247,13 +247,13 @@ describe('buildPlanPreviewData', () => {
       kind: 'detail',
       label: { type: 'text', key: 'labelFreeUnits' },
       qualifier: { type: 'firstNUnits', count: 10 },
-      value: { type: 'amount', amountCents: '0' },
+      value: { type: 'displayAmount', amount: '0' },
     })
     expect(details).toContainEqual({
       kind: 'detail',
       label: { type: 'text', key: 'labelPackage' },
       qualifier: { type: 'perPackage', size: 1000 },
-      value: { type: 'amount', amountCents: '10.00' },
+      value: { type: 'displayAmount', amount: '10.00' },
     })
   })
 
@@ -324,19 +324,19 @@ describe('buildPlanPreviewData', () => {
       kind: 'detail',
       label: { type: 'text', key: 'labelFixedFee' },
       qualifier: { type: 'perTransaction' },
-      value: { type: 'amount', amountCents: '0.10' },
+      value: { type: 'displayAmount', amount: '0.10' },
     })
     expect(details).toContainEqual({
       kind: 'detail',
       label: { type: 'text', key: 'labelMinimum' },
       qualifier: { type: 'perTransaction' },
-      value: { type: 'amount', amountCents: '1.00' },
+      value: { type: 'displayAmount', amount: '1.00' },
     })
     expect(details).toContainEqual({
       kind: 'detail',
       label: { type: 'text', key: 'labelMaximum' },
       qualifier: { type: 'perTransaction' },
-      value: { type: 'amount', amountCents: '4.00' },
+      value: { type: 'displayAmount', amount: '4.00' },
     })
   })
 
@@ -389,7 +389,7 @@ describe('buildPlanPreviewData', () => {
       kind: 'detail',
       label: { type: 'flatFeeForTier', from: 0, to: 10 },
       qualifier: { type: 'flatFee' },
-      value: { type: 'amount', amountCents: '10.00' },
+      value: { type: 'displayAmount', amount: '10.00' },
     })
   })
 

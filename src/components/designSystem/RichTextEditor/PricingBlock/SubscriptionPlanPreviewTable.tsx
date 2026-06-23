@@ -97,6 +97,8 @@ export const SubscriptionPlanPreviewTable = ({
         return String(v.value)
       case 'amount':
         return formatAmount(v.amountCents)
+      case 'displayAmount':
+        return intlFormatNumber(Number.parseFloat(v.amount || '0'), { currency, locale })
       case 'percentage':
         return `${v.rate}%`
       case 'usageBased':

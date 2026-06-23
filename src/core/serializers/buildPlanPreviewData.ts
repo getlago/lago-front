@@ -8,6 +8,7 @@ export type BilledTiming = 'beginningOfPeriod' | 'endOfPeriod' | 'onTransaction'
 export type PreviewCellValue =
   | { type: 'count'; value: number }
   | { type: 'amount'; amountCents: string }
+  | { type: 'displayAmount'; amount: string }
   | { type: 'percentage'; rate: string }
   | { type: 'usageBased' }
   | { type: 'variesWithUsage' }
@@ -91,7 +92,7 @@ const usageDetailRows = (charge: any): PlanPreviewDetailRow[] => {
         kind: 'detail',
         label: { type: 'text', key: 'labelUsage' },
         qualifier: { type: 'perUnit' },
-        value: { type: 'amount', amountCents: String(props.amount ?? '0') },
+        value: { type: 'displayAmount', amount: String(props.amount ?? '0') },
       },
     ]
   }
@@ -105,7 +106,7 @@ const usageDetailRows = (charge: any): PlanPreviewDetailRow[] => {
           kind: 'detail',
           label: { type: 'tierRange', from: num(r.fromValue), to: r.toValue == null ? undefined : num(r.toValue) },
           qualifier: { type: 'perUnit' },
-          value: { type: 'amount', amountCents: String(r.perUnitAmount ?? '0') },
+          value: { type: 'displayAmount', amount: String(r.perUnitAmount ?? '0') },
         },
       ]
 
@@ -114,7 +115,7 @@ const usageDetailRows = (charge: any): PlanPreviewDetailRow[] => {
           kind: 'detail',
           label: { type: 'flatFeeForTier', from: num(r.fromValue), to: r.toValue == null ? undefined : num(r.toValue) },
           qualifier: { type: 'flatFee' },
-          value: { type: 'amount', amountCents: String(r.flatAmount) },
+          value: { type: 'displayAmount', amount: String(r.flatAmount) },
         })
       }
 
@@ -137,14 +138,14 @@ const usageDetailRows = (charge: any): PlanPreviewDetailRow[] => {
         kind: 'detail',
         label: { type: 'text', key: 'labelFreeUnits' },
         qualifier: { type: 'firstNUnits', count: num(props.freeUnits) },
-        value: { type: 'amount', amountCents: '0' },
+        value: { type: 'displayAmount', amount: '0' },
       })
     }
     out.push({
       kind: 'detail',
       label: { type: 'text', key: 'labelPackage' },
       qualifier: { type: 'perPackage', size: num(props.packageSize) },
-      value: { type: 'amount', amountCents: String(props.amount ?? '0') },
+      value: { type: 'displayAmount', amount: String(props.amount ?? '0') },
     })
 
     return out
@@ -181,7 +182,7 @@ const usageDetailRows = (charge: any): PlanPreviewDetailRow[] => {
         kind: 'detail',
         label: { type: 'text', key: 'labelFixedFee' },
         qualifier: { type: 'perTransaction' },
-        value: { type: 'amount', amountCents: String(props.fixedAmount) },
+        value: { type: 'displayAmount', amount: String(props.fixedAmount) },
       })
     }
     if (num(props.perTransactionMinAmount) > 0) {
@@ -189,7 +190,7 @@ const usageDetailRows = (charge: any): PlanPreviewDetailRow[] => {
         kind: 'detail',
         label: { type: 'text', key: 'labelMinimum' },
         qualifier: { type: 'perTransaction' },
-        value: { type: 'amount', amountCents: String(props.perTransactionMinAmount) },
+        value: { type: 'displayAmount', amount: String(props.perTransactionMinAmount) },
       })
     }
     if (num(props.perTransactionMaxAmount) > 0) {
@@ -197,7 +198,7 @@ const usageDetailRows = (charge: any): PlanPreviewDetailRow[] => {
         kind: 'detail',
         label: { type: 'text', key: 'labelMaximum' },
         qualifier: { type: 'perTransaction' },
-        value: { type: 'amount', amountCents: String(props.perTransactionMaxAmount) },
+        value: { type: 'displayAmount', amount: String(props.perTransactionMaxAmount) },
       })
     }
 
@@ -227,7 +228,7 @@ const usageDetailRows = (charge: any): PlanPreviewDetailRow[] => {
           kind: 'detail',
           label: { type: 'flatFeeForTier', from: num(r.fromValue), to: r.toValue == null ? undefined : num(r.toValue) },
           qualifier: { type: 'flatFee' },
-          value: { type: 'amount', amountCents: String(r.flatAmount) },
+          value: { type: 'displayAmount', amount: String(r.flatAmount) },
         })
       }
 
@@ -271,7 +272,7 @@ export const buildPlanPreviewData = (
       interval: fixedInterval(formValues),
       timing: fixedTiming(fc.payInAdvance),
       units: { type: 'count', value: num(fc.units) },
-      price: { type: 'amount', amountCents: String((fc as any).properties?.amount ?? '0') },
+      price: { type: 'displayAmount', amount: String((fc as any).properties?.amount ?? '0') },
     })
   }
 
