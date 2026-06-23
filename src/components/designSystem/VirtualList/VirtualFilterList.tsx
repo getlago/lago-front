@@ -1,9 +1,26 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { Fragment, ReactNode, useLayoutEffect, useRef, useState } from 'react'
+import {
+  Fragment,
+  MutableRefObject,
+  ReactNode,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 
 import { findNearestScrollableAncestor } from './findNearestScrollableAncestor'
 
 export const VIRTUALIZATION_THRESHOLD = 50
+
+// Imperative handle for callers that must drive the list programmatically (e.g.
+// jump-to-item navigation into a row that is currently scrolled out and unmounted).
+// `isVirtualized` lets the caller pick its path: when false the row is mounted, so
+// the caller can resolve it directly (getElementById) instead of scrollToIndex.
+export type VirtualListApi = {
+  scrollToIndex: (index: number, options?: { align?: 'start' | 'center' | 'end' | 'auto' }) => void
+  isVirtualized: boolean
+}
 
 export type VirtualFilterListProps<T> = {
   items: ReadonlyArray<T>
@@ -19,6 +36,8 @@ export type VirtualFilterListProps<T> = {
   threshold?: number
   overscan?: number
   getScrollElement?: () => HTMLElement | null
+  // Populated with the imperative handle while mounted, cleared on unmount.
+  apiRef?: MutableRefObject<VirtualListApi | null>
 }
 
 export const VirtualFilterList = <T,>({
@@ -31,6 +50,7 @@ export const VirtualFilterList = <T,>({
   threshold = VIRTUALIZATION_THRESHOLD,
   overscan = 6,
   getScrollElement,
+  apiRef,
 }: VirtualFilterListProps<T>) => {
   const rootRef = useRef<HTMLDivElement>(null)
   const [scrollElement, setScrollElement] = useState<HTMLElement | null>(null)
@@ -96,6 +116,22 @@ export const VirtualFilterList = <T,>({
     overscan,
     scrollMargin,
   })
+
+  // Expose the imperative handle so callers can drive the list (jump-to-item). The
+  // virtualizer instance is stable, so this only needs to re-sync when the branch
+  // (virtualized vs plain) flips.
+  useEffect(() => {
+    if (!apiRef) return
+
+    apiRef.current = {
+      scrollToIndex: (index, options) => virtualizer.scrollToIndex(index, options),
+      isVirtualized,
+    }
+
+    return () => {
+      apiRef.current = null
+    }
+  }, [apiRef, isVirtualized, virtualizer])
 
   if (!isVirtualized) {
     return (

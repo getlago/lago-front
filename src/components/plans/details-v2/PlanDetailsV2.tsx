@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { ReactNode, useRef } from 'react'
+import { ReactNode, useMemo, useRef } from 'react'
 
 import { openAccordionThenScrollTo } from '~/core/utils/domUtils'
 import {
@@ -100,8 +100,23 @@ export const PlanDetailsV2 = ({
     subscriptionId,
   })
 
+  // Usage charges are virtualized: a scrolled-out charge is unmounted, so the
+  // generic getElementById path would no-op. Route those ids through the section's
+  // scrollToCharge (scrollToIndex + open), and keep the generic open-and-scroll for
+  // the always-mounted sections / fixed charges / entitlements.
+  const usageChargeIds = useMemo(
+    () => new Set((data?.plan?.charges ?? []).map((charge) => charge.id)),
+    [data?.plan?.charges],
+  )
+
   // BIL-160: open the target accordion first, then scroll to + focus it.
   const handleItemClick = (id: string) => {
+    if (usageChargeIds.has(id)) {
+      usageChargesRef.current?.scrollToCharge(id)
+
+      return
+    }
+
     openAccordionThenScrollTo(id)
   }
 

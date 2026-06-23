@@ -30,6 +30,11 @@ export type SectionAccordionProps = {
   // state (e.g. in a ref keyed by id) so `initiallyOpen` can restore it on re-mount.
   initiallyOpen?: boolean
   onToggle?: (open: boolean) => void
+  // Drop the off-screen content-visibility optimization when the parent list is
+  // virtualized: the virtualizer already windows the rows, and a deferred card would
+  // report its contain-intrinsic-size (not its real height) to the virtualizer's
+  // measureElement, mis-positioning rows. Keep it on for the non-virtualized list.
+  disableContentVisibility?: boolean
   noContentMargin?: boolean
   dataTest?: string
   children: ReactNode
@@ -44,6 +49,7 @@ export const SectionAccordion = ({
   actions,
   initiallyOpen,
   onToggle,
+  disableContentVisibility,
   noContentMargin,
   dataTest,
   children,
@@ -60,7 +66,11 @@ export const SectionAccordion = ({
           before-first-render fallback). Without `auto`, an opened card scrolled off-screen
           would collapse to the 80px placeholder, throwing off jump-to scroll math. */}
       <Accordion
-        className="[contain-intrinsic-size:auto_80px] [content-visibility:auto]"
+        className={
+          disableContentVisibility
+            ? undefined
+            : '[contain-intrinsic-size:auto_80px] [content-visibility:auto]'
+        }
         initiallyOpen={initiallyOpen}
         onToggle={onToggle}
         noContentMargin={noContentMargin}
