@@ -53,7 +53,7 @@ export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
     }
 
     if (pricingType === 'plan') {
-      const planEntity = Object.values(entities).find((e) => e.entityType === 'plan')
+      const planEntity = resolvedEntities.find((e) => e.entityType === 'plan')
 
       if (planEntity?.plan) {
         return (

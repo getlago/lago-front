@@ -424,6 +424,9 @@ describe('PricingBlockView', () => {
         })
 
         expect(screen.queryByTestId(PRICING_BLOCK_VIEW_EMPTY_TEST_ID)).not.toBeInTheDocument()
+        // Preview mode must never fall through to the edit-mode interactive UI
+        expect(screen.queryByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId(PRICING_BLOCK_VIEW_UNRESOLVED_TEST_ID)).not.toBeInTheDocument()
       })
     })
 
