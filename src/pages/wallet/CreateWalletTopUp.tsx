@@ -38,7 +38,6 @@ import {
 import {
   CreateCustomerWalletTransactionInput,
   CurrencyEnum,
-  FeatureFlagEnum,
   useCreateCustomerWalletTransactionMutation,
   useGetCustomerInfosForWalletFormQuery,
   useGetCustomerWalletListQuery,
@@ -102,7 +101,7 @@ const CreateWalletTopUp = () => {
   const { goBack } = useLocationHistory()
   const actions = usePermissionsInvoiceActions()
 
-  const { hasFeatureFlag, organization: { defaultCurrency } = {} } = useOrganizationInfos()
+  const { organization: { defaultCurrency } = {} } = useOrganizationInfos()
   const { customerId = '', walletId = '', voidedInvoiceId = '' } = useParams()
   const warningDialogRef = useRef<WarningDialogRef>(null)
 
@@ -138,8 +137,6 @@ const CreateWalletTopUp = () => {
     variables: { id: customerId },
     skip: !customerId,
   })
-
-  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   const currency = wallet?.currency || defaultCurrency || CurrencyEnum.Usd
 
@@ -527,21 +524,20 @@ const CreateWalletTopUp = () => {
               />
             </section>
 
-            {hasAccessToMultiPaymentFlow &&
-              (customerData?.customer?.externalId || customerData?.customer?.id) && (
-                <section className="flex flex-col gap-6 pb-12 shadow-b">
-                  <div className="flex flex-col gap-1">
-                    <Typography variant="subhead1">
-                      {translate('text_17634566456760qoj7hs7jrh')}
-                    </Typography>
-                  </div>
-                  <PaymentMethodsInvoiceSettings
-                    customer={customerData?.customer}
-                    form={formikProps}
-                    viewType={ViewTypeEnum.WalletTransactionTopUp}
-                  />
-                </section>
-              )}
+            {(customerData?.customer?.externalId || customerData?.customer?.id) && (
+              <section className="flex flex-col gap-6 pb-12 shadow-b">
+                <div className="flex flex-col gap-1">
+                  <Typography variant="subhead1">
+                    {translate('text_17634566456760qoj7hs7jrh')}
+                  </Typography>
+                </div>
+                <PaymentMethodsInvoiceSettings
+                  customer={customerData?.customer}
+                  form={formikProps}
+                  viewType={ViewTypeEnum.WalletTransactionTopUp}
+                />
+              </section>
+            )}
 
             <section className="flex flex-col gap-6">
               <Accordion

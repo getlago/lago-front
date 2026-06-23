@@ -3912,6 +3912,7 @@ export enum EventsStoreEnum {
 /** Organization Feature Flag Values */
 export enum FeatureFlagEnum {
   EnrichedEventsAggregation = 'enriched_events_aggregation',
+  EventPropertyCombinations = 'event_property_combinations',
   MultiCurrency = 'multi_currency',
   MultiEntityBilling = 'multi_entity_billing',
   MultiplePaymentMethods = 'multiple_payment_methods',
@@ -11909,15 +11910,6 @@ export type UsageChargeForDrawerFragment = { __typename?: 'Charge', id: string, 
 
 export type FixedChargesOnPlanFormFragment = { __typename?: 'Plan', id: string, billFixedChargesMonthly?: boolean | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, prorated: boolean, units: string, chargeModel: FixedChargeChargeModelEnum, invoiceDisplayName?: string | null, payInAdvance: boolean, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> | null };
 
-export type DeleteCampaignFragment = { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean };
-
-export type DeleteDunningCampaignMutationVariables = Exact<{
-  input: DestroyDunningCampaignInput;
-}>;
-
-
-export type DeleteDunningCampaignMutation = { __typename?: 'Mutation', destroyDunningCampaign?: { __typename?: 'DestroyDunningCampaignPayload', id?: string | null } | null };
-
 export type OrganizationInfoForPreviewDunningCampaignFragment = { __typename?: 'CurrentOrganization', name: string, email?: string | null, logoUrl?: string | null };
 
 export type GetOrganizationInfoForPreviewDunningCampaignQueryVariables = Exact<{ [key: string]: never; }>;
@@ -14717,6 +14709,15 @@ export type UpdateDunningCampaignStatusMutationVariables = Exact<{
 
 
 export type UpdateDunningCampaignStatusMutation = { __typename?: 'Mutation', updateDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean } | null };
+
+export type DeleteCampaignFragment = { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean };
+
+export type DeleteDunningCampaignMutationVariables = Exact<{
+  input: DestroyDunningCampaignInput;
+}>;
+
+
+export type DeleteDunningCampaignMutation = { __typename?: 'Mutation', destroyDunningCampaign?: { __typename?: 'DestroyDunningCampaignPayload', id?: string | null } | null };
 
 export type FlutterwaveIntegrationDetailsFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null, successRedirectUrl?: string | null };
 
@@ -17772,12 +17773,6 @@ export const BillableMetricForUsageChargeSectionFragmentDoc = gql`
   }
 }
     `;
-export const DeleteCampaignFragmentDoc = gql`
-    fragment DeleteCampaign on DunningCampaign {
-  id
-  appliedToOrganization
-}
-    `;
 export const OrganizationInfoForPreviewDunningCampaignFragmentDoc = gql`
     fragment OrganizationInfoForPreviewDunningCampaign on CurrentOrganization {
   name
@@ -20572,6 +20567,12 @@ export const DunningCampaignItemFragmentDoc = gql`
   id
   name
   code
+  appliedToOrganization
+}
+    `;
+export const DeleteCampaignFragmentDoc = gql`
+    fragment DeleteCampaign on DunningCampaign {
+  id
   appliedToOrganization
 }
     `;
@@ -27712,39 +27713,6 @@ export type GetBillableMetricsQueryHookResult = ReturnType<typeof useGetBillable
 export type GetBillableMetricsLazyQueryHookResult = ReturnType<typeof useGetBillableMetricsLazyQuery>;
 export type GetBillableMetricsSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricsSuspenseQuery>;
 export type GetBillableMetricsQueryResult = Apollo.QueryResult<GetBillableMetricsQuery, GetBillableMetricsQueryVariables>;
-export const DeleteDunningCampaignDocument = gql`
-    mutation deleteDunningCampaign($input: DestroyDunningCampaignInput!) {
-  destroyDunningCampaign(input: $input) {
-    id
-  }
-}
-    `;
-export type DeleteDunningCampaignMutationFn = Apollo.MutationFunction<DeleteDunningCampaignMutation, DeleteDunningCampaignMutationVariables>;
-
-/**
- * __useDeleteDunningCampaignMutation__
- *
- * To run a mutation, you first call `useDeleteDunningCampaignMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteDunningCampaignMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [deleteDunningCampaignMutation, { data, loading, error }] = useDeleteDunningCampaignMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useDeleteDunningCampaignMutation(baseOptions?: Apollo.MutationHookOptions<DeleteDunningCampaignMutation, DeleteDunningCampaignMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteDunningCampaignMutation, DeleteDunningCampaignMutationVariables>(DeleteDunningCampaignDocument, options);
-      }
-export type DeleteDunningCampaignMutationHookResult = ReturnType<typeof useDeleteDunningCampaignMutation>;
-export type DeleteDunningCampaignMutationResult = Apollo.MutationResult<DeleteDunningCampaignMutation>;
-export type DeleteDunningCampaignMutationOptions = Apollo.BaseMutationOptions<DeleteDunningCampaignMutation, DeleteDunningCampaignMutationVariables>;
 export const GetOrganizationInfoForPreviewDunningCampaignDocument = gql`
     query getOrganizationInfoForPreviewDunningCampaign {
   organization {
@@ -40524,6 +40492,39 @@ export function useUpdateDunningCampaignStatusMutation(baseOptions?: Apollo.Muta
 export type UpdateDunningCampaignStatusMutationHookResult = ReturnType<typeof useUpdateDunningCampaignStatusMutation>;
 export type UpdateDunningCampaignStatusMutationResult = Apollo.MutationResult<UpdateDunningCampaignStatusMutation>;
 export type UpdateDunningCampaignStatusMutationOptions = Apollo.BaseMutationOptions<UpdateDunningCampaignStatusMutation, UpdateDunningCampaignStatusMutationVariables>;
+export const DeleteDunningCampaignDocument = gql`
+    mutation deleteDunningCampaign($input: DestroyDunningCampaignInput!) {
+  destroyDunningCampaign(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteDunningCampaignMutationFn = Apollo.MutationFunction<DeleteDunningCampaignMutation, DeleteDunningCampaignMutationVariables>;
+
+/**
+ * __useDeleteDunningCampaignMutation__
+ *
+ * To run a mutation, you first call `useDeleteDunningCampaignMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteDunningCampaignMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteDunningCampaignMutation, { data, loading, error }] = useDeleteDunningCampaignMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteDunningCampaignMutation(baseOptions?: Apollo.MutationHookOptions<DeleteDunningCampaignMutation, DeleteDunningCampaignMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteDunningCampaignMutation, DeleteDunningCampaignMutationVariables>(DeleteDunningCampaignDocument, options);
+      }
+export type DeleteDunningCampaignMutationHookResult = ReturnType<typeof useDeleteDunningCampaignMutation>;
+export type DeleteDunningCampaignMutationResult = Apollo.MutationResult<DeleteDunningCampaignMutation>;
+export type DeleteDunningCampaignMutationOptions = Apollo.BaseMutationOptions<DeleteDunningCampaignMutation, DeleteDunningCampaignMutationVariables>;
 export const FlutterwaveIntegrationDetailsDocument = gql`
     query flutterwaveIntegrationDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
   paymentProvider(id: $id) {

@@ -10,7 +10,7 @@ import WalletInformations, {
   WALLET_INFORMATIONS_NO_RECURRING_TEST_ID,
 } from '../WalletInformations'
 
-let mockHasMultiPaymentFlow = false
+let mockHasFeatureFlag = false
 let mockPaymentMethodsList: PaymentMethodItem[] = []
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -20,7 +20,7 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: { defaultCurrency: 'USD' },
     intlFormatDateTimeOrgaTZ: () => ({ date: '2024-01-01' }),
-    hasFeatureFlag: () => mockHasMultiPaymentFlow,
+    hasFeatureFlag: () => mockHasFeatureFlag,
   }),
 }))
 jest.mock('~/hooks/useCurrentUser', () => ({
@@ -90,7 +90,7 @@ const createMockWallet = (overrides = {}) =>
 
 describe('WalletInformations', () => {
   beforeEach(() => {
-    mockHasMultiPaymentFlow = false
+    mockHasFeatureFlag = false
     mockPaymentMethodsList = []
     mockCustomerIcsData = null
   })
@@ -125,11 +125,7 @@ describe('WalletInformations', () => {
     })
   })
 
-  describe('GIVEN the multiple-payment flow is enabled and details are empty ({})', () => {
-    beforeEach(() => {
-      mockHasMultiPaymentFlow = true
-    })
-
+  describe('GIVEN payment method details are empty ({})', () => {
     describe('WHEN the payment method is manual', () => {
       it('THEN resolves "Manual payment" without an inherited badge', () => {
         render(
@@ -197,7 +193,6 @@ describe('WalletInformations', () => {
   describe('GIVEN no explicitly selected invoice custom sections', () => {
     describe('WHEN the customer inherits sections from the billing entity', () => {
       it('THEN still shows the invoice custom sections (fallback), like the subscription overview', () => {
-        mockHasMultiPaymentFlow = true
         mockCustomerIcsData = {
           configurableInvoiceCustomSections: [{ id: 'ics-1', name: 'Footer A' }],
           hasOverwrittenInvoiceCustomSectionsSelection: false,
@@ -216,35 +211,6 @@ describe('WalletInformations', () => {
 
         expect(screen.getByText('Footer A')).toBeInTheDocument()
       })
-    })
-  })
-
-  describe('GIVEN the multiple-payment flow is disabled', () => {
-    // Section title for the "Payment & invoicing" block
-    const PAYMENT_INVOICING_SECTION_TITLE = 'text_1772536695408rpehpvkgn9s'
-
-    it('THEN does not render the payment & invoicing block at all', () => {
-      mockCustomerIcsData = {
-        configurableInvoiceCustomSections: [{ id: 'ics-1', name: 'Footer A' }],
-        hasOverwrittenInvoiceCustomSectionsSelection: false,
-        skipInvoiceCustomSections: false,
-      }
-
-      render(
-        <WalletInformations
-          wallet={createMockWallet({
-            customer: { id: 'cust-1', externalId: 'ext-1' },
-            paymentMethodType: PaymentMethodTypeEnum.Manual,
-            paymentMethod: { details: {} },
-            selectedInvoiceCustomSections: [{ id: 'sel-1', name: 'Selected Footer' }],
-          })}
-        />,
-      )
-
-      expect(screen.queryByText(PAYMENT_INVOICING_SECTION_TITLE)).not.toBeInTheDocument()
-      expect(screen.queryByText(MANUAL_PAYMENT_TRANSLATION_KEY)).not.toBeInTheDocument()
-      expect(screen.queryByText('Footer A')).not.toBeInTheDocument()
-      expect(screen.queryByText('Selected Footer')).not.toBeInTheDocument()
     })
   })
 })

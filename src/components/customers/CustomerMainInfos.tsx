@@ -7,11 +7,9 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import {
   CustomerMainInfosFragment,
-  FeatureFlagEnum,
   usePaymentProvidersListForCustomerMainInfosQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment CustomerMainInfos on Customer {
@@ -145,8 +143,6 @@ interface CustomerMainInfosProps {
 
 export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInfosProps) => {
   const { translate } = useInternationalization()
-  const { hasFeatureFlag } = useOrganizationInfos()
-  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   const { data: paymentProvidersData } = usePaymentProvidersListForCustomerMainInfosQuery({
     variables: { limit: 1000 },
@@ -185,10 +181,7 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         }}
       />
 
-      <div
-        className={`flex flex-col ${hasAccessToMultiPaymentFlow ? 'pb-12 shadow-b' : ''}`}
-        data-id="customer-info-list"
-      >
+      <div className="flex flex-col pb-12 shadow-b" data-id="customer-info-list">
         <CustomerInfoRows customer={customer} />
         <CustomerIntegrationRows
           customer={customer}
@@ -196,14 +189,9 @@ export const CustomerMainInfos = ({ loading, customer, onEdit }: CustomerMainInf
         />
       </div>
 
-      {hasAccessToMultiPaymentFlow && (
-        <div className="mt-12">
-          <CustomerPaymentMethods
-            customer={customer}
-            linkedPaymentProvider={linkedPaymentProvider}
-          />
-        </div>
-      )}
+      <div className="mt-12">
+        <CustomerPaymentMethods customer={customer} linkedPaymentProvider={linkedPaymentProvider} />
+      </div>
     </div>
   )
 }
