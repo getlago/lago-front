@@ -393,6 +393,30 @@ describe('buildPlanPreviewData', () => {
     })
   })
 
+  it('appends a "Minimum spending / Commitment" detail row when a usage charge has minAmountCents', () => {
+    const data = buildPlanPreviewData(
+      baseForm({
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Standard,
+            payInAdvance: false,
+            billableMetric: { name: 'Usage', code: 'u' },
+            filters: [],
+            properties: { amount: '1.20' },
+            minAmountCents: '100.00',
+          },
+        ] as unknown as PlanFormInput['charges'],
+      }),
+      basePayload(),
+    )
+    expect(data.rows).toContainEqual({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelMinimumSpending' },
+      qualifier: { type: 'commitment' },
+      value: { type: 'amount', amountCents: '100.00' },
+    })
+  })
+
   it('dynamic and custom: main usage row only, no detail rows', () => {
     for (const model of [ChargeModelEnum.Dynamic, ChargeModelEnum.Custom]) {
       const data = buildPlanPreviewData(

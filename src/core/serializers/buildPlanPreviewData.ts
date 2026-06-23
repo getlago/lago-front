@@ -288,6 +288,15 @@ export const buildPlanPreviewData = (
       price: { type: 'variesWithUsage' },
     })
     rows.push(...usageDetailRows(charge))
+    const minAmount = (charge as any).minAmountCents
+    if (num(minAmount) > 0) {
+      rows.push({
+        kind: 'detail',
+        label: { type: 'text', key: 'labelMinimumSpending' },
+        qualifier: { type: 'commitment' },
+        value: { type: 'amount', amountCents: String(minAmount) },
+      })
+    }
   }
 
   // 4) Plan minimum commitment (own row)
