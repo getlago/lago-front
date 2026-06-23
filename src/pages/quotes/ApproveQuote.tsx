@@ -220,6 +220,7 @@ const ApproveQuote = () => {
                       label={translate('text_1781872376833n9vthkte11e')}
                       placeholder={translate('text_62cd78ea9bff25e3391b2437')}
                       disablePast
+                      placement="top-end"
                     />
                   )}
                 </form.AppField>
