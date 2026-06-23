@@ -13,6 +13,7 @@ gql`
     number
     status
     createdAt
+    expiresAt
     customer {
       id
       name

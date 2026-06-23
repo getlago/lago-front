@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -7,7 +8,6 @@ import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder
 import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
-import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { EDIT_QUOTE_ROUTE, QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
@@ -17,10 +17,13 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
+import { PageHeader } from '~/styles'
+import { FormLoadingSkeleton, Main, Side } from '~/styles/mainObjectsForm'
 
+import { buildQuotePreviewProps } from './common/buildQuotePreviewProps'
 import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
-import { quoteCreatedAtColumn, quoteOrderTypeColumn } from './common/quoteTableColumns'
+import { QuotePreviewCard } from './common/QuotePreviewCard'
+import { quoteCreatedAtColumn } from './common/quoteTableColumns'
 import { useCloneQuote } from './hooks/useCloneQuote'
 import { useQuote } from './hooks/useQuote'
 
@@ -29,6 +32,7 @@ export const VOID_QUOTE_VOID_BUTTON_TEST_ID = 'void-quote-void-button'
 export const VOID_QUOTE_CANCEL_BUTTON_TEST_ID = 'void-quote-cancel-button'
 export const VOID_QUOTE_VOID_AND_GENERATE_BUTTON_TEST_ID = 'void-quote-void-and-generate-button'
 export const VOID_QUOTE_ALERT_TEST_ID = 'void-quote-alert'
+export const VOID_QUOTE_PREVIEW_TEST_ID = 'void-quote-preview'
 
 gql`
   mutation voidQuoteVersion($input: VoidQuoteVersionInput!) {
@@ -49,6 +53,20 @@ const VoidQuote = () => {
   const { quote, loading, error } = useQuote(quoteId)
   const { hasPermissions } = usePermissions()
   const { cloneQuoteVersion } = useCloneQuote()
+
+  const quoteNumberWithVersion = quote
+    ? `${quote.number} - v${quote.versions[0]?.version ?? ''}`
+    : ''
+
+  const previewProps = useMemo(
+    () => buildQuotePreviewProps(quote?.currentVersion, quote?.customer),
+    [quote?.currentVersion, quote?.customer],
+  )
+
+  const header = {
+    documentNumber: quoteNumberWithVersion,
+    rows: [translate('text_17818008544903clzyy4ziu1', { quoteNumberWithVersion })],
+  }
 
   const canVoidAndGenerate = hasPermissions(['quotesVoid', 'quotesClone'])
 
@@ -133,10 +151,10 @@ const VoidQuote = () => {
   }
 
   return (
-    <CenteredPage.Wrapper>
-      <CenteredPage.Header>
-        <Typography className="font-medium text-grey-700">
-          {translate('text_177641400612565v4yq2wx1u')}
+    <div>
+      <PageHeader.Wrapper>
+        <Typography variant="bodyHl" color="textSecondary" noWrap>
+          {translate('text_1776414006125vf2t8yuiwka', { quoteNumber: quoteNumberWithVersion })}
         </Typography>
         <Button
           data-test={VOID_QUOTE_CLOSE_BUTTON_TEST_ID}
@@ -144,112 +162,131 @@ const VoidQuote = () => {
           icon="close"
           onClick={() => onClose()}
         />
-      </CenteredPage.Header>
+      </PageHeader.Wrapper>
 
-      {loading && (
-        <CenteredPage.Container>
-          <FormLoadingSkeleton id="void-quote" />
-        </CenteredPage.Container>
-      )}
+      <div className="min-height-minus-nav flex">
+        <Main
+          footerAlign="between"
+          footer={
+            !loading && (
+              <>
+                <Button
+                  data-test={VOID_QUOTE_VOID_BUTTON_TEST_ID}
+                  variant="inline"
+                  danger
+                  onClick={() => onSubmit()}
+                >
+                  {translate('text_177641400612565v4yq2wx1u')}
+                </Button>
 
-      {!loading && (
-        <CenteredPage.Container>
-          <div className="flex flex-col gap-12">
-            <Alert data-test={VOID_QUOTE_ALERT_TEST_ID} type="warning">
-              <Typography className="text-grey-700">
-                {translate('text_1776414006125a67i2j1xl8s')}
-              </Typography>
-            </Alert>
+                <div className="flex gap-3">
+                  <Button
+                    data-test={VOID_QUOTE_CANCEL_BUTTON_TEST_ID}
+                    variant="quaternary"
+                    onClick={() => onClose()}
+                  >
+                    {translate('text_6411e6b530cb47007488b027')}
+                  </Button>
+                  {canVoidAndGenerate && (
+                    <Button
+                      data-test={VOID_QUOTE_VOID_AND_GENERATE_BUTTON_TEST_ID}
+                      variant="primary"
+                      onClick={() => onVoidAndGenerateNewVersion()}
+                    >
+                      {translate('text_17764159264034mafl126pox')}
+                    </Button>
+                  )}
+                </div>
+              </>
+            )
+          }
+        >
+          {loading ? (
+            <FormLoadingSkeleton id="void-quote" />
+          ) : (
+            <div className="flex flex-col gap-12">
+              <Alert data-test={VOID_QUOTE_ALERT_TEST_ID} type="warning">
+                <Typography className="text-grey-700">
+                  {translate('text_1776414006125a67i2j1xl8s')}
+                </Typography>
+              </Alert>
 
-            <div className="flex flex-col gap-1">
-              <Typography variant="headline" color="grey700">
-                {translate('text_1776414006125vf2t8yuiwka', {
-                  quoteNumber: quote?.number,
-                })}
-              </Typography>
-              <Typography variant="body" color="grey600">
-                {translate('text_177641400612546jssznk1w0')}
-              </Typography>
-            </div>
+              <div className="flex flex-col gap-1">
+                <Typography variant="headline" color="grey700">
+                  {translate('text_1776414006125vf2t8yuiwka', {
+                    quoteNumber: quoteNumberWithVersion,
+                  })}
+                </Typography>
+                <Typography variant="body" color="grey600">
+                  {translate('text_177641400612546jssznk1w0')}
+                </Typography>
+              </div>
 
-            <div className="flex flex-col gap-6">
-              <Typography variant="subhead1">
-                {translate('text_1776417249197vhv63ozviur')}
-              </Typography>
-              <Table
-                name="quote-void-details"
-                data={quote ? [quote] : []}
-                containerSize={0}
-                columns={[
-                  {
-                    key: 'versions.0.status',
-                    title: translate('text_63ac86d797f728a87b2f9fa7'),
-                    minWidth: 100,
-                    content: ({ versions }) => {
-                      const status = versions[0]?.status
+              <div className="flex flex-col gap-6">
+                <Typography variant="subhead1">
+                  {translate('text_1776417249197vhv63ozviur')}
+                </Typography>
+                <Table
+                  name="quote-void-details"
+                  data={quote ? [quote] : []}
+                  containerSize={0}
+                  columns={[
+                    {
+                      key: 'versions.0.status',
+                      title: translate('text_63ac86d797f728a87b2f9fa7'),
+                      minWidth: 100,
+                      content: ({ versions }) => {
+                        const status = versions[0]?.status
 
-                      if (!status) return null
+                        if (!status) return null
 
-                      return <Status {...getQuoteStatusMapping(status, translate)} />
+                        return <Status {...getQuoteStatusMapping(status, translate)} />
+                      },
                     },
-                  },
-                  {
-                    key: 'number',
-                    title: translate('text_177581001572954eedouxq5u'),
-                    maxSpace: true,
-                    content: ({ number, versions }) => `${number} - v${versions[0]?.version ?? ''}`,
-                  },
-                  {
-                    key: 'customer.name',
-                    title: translate('text_65201c5a175a4b0238abf29a'),
-                    maxSpace: true,
-                    content: ({ customer }) => customer.name,
-                  },
-                  quoteOrderTypeColumn(translate, 'text_6560809c38fb9de88d8a52fb'),
-                  quoteCreatedAtColumn(
-                    translate,
-                    'text_17758254440392sc27lxm6ua',
-                    intlFormatDateTimeOrgaTZ,
-                  ),
-                ]}
-              />
+                    {
+                      key: 'number',
+                      title: translate('text_177581001572954eedouxq5u'),
+                      maxSpace: true,
+                      content: ({ number, versions }) =>
+                        `${number} - v${versions[0]?.version ?? ''}`,
+                    },
+                    {
+                      key: 'customer.name',
+                      title: translate('text_65201c5a175a4b0238abf29a'),
+                      maxSpace: true,
+                      content: ({ customer }) => customer.name,
+                    },
+                    {
+                      key: 'customer.currency',
+                      title: translate('text_632b4acf0c41206cbcb8c324'),
+                      minWidth: 100,
+                      content: ({ customer }) => customer.currency,
+                    },
+                    quoteCreatedAtColumn(
+                      translate,
+                      'text_17758254440392sc27lxm6ua',
+                      intlFormatDateTimeOrgaTZ,
+                    ),
+                  ]}
+                />
+              </div>
             </div>
-          </div>
-        </CenteredPage.Container>
-      )}
+          )}
+        </Main>
 
-      <CenteredPage.StickyFooter>
-        <div className="flex w-full items-center justify-between">
-          <Button
-            data-test={VOID_QUOTE_VOID_BUTTON_TEST_ID}
-            variant="inline"
-            danger
-            onClick={() => onSubmit()}
-          >
-            {translate('text_177641400612565v4yq2wx1u')}
-          </Button>
-
-          <div className="flex gap-3">
-            <Button
-              data-test={VOID_QUOTE_CANCEL_BUTTON_TEST_ID}
-              variant="quaternary"
-              onClick={() => onClose()}
-            >
-              {translate('text_6411e6b530cb47007488b027')}
-            </Button>
-            {canVoidAndGenerate && (
-              <Button
-                data-test={VOID_QUOTE_VOID_AND_GENERATE_BUTTON_TEST_ID}
-                variant="primary"
-                onClick={() => onVoidAndGenerateNewVersion()}
-              >
-                {translate('text_17764159264034mafl126pox')}
-              </Button>
-            )}
+        <Side>
+          <div className="height-minus-nav overflow-auto">
+            <QuotePreviewCard
+              dataTest={VOID_QUOTE_PREVIEW_TEST_ID}
+              loading={loading}
+              header={header}
+              hasContent={!!quote?.currentVersion?.content}
+              previewProps={previewProps}
+            />
           </div>
-        </div>
-      </CenteredPage.StickyFooter>
-    </CenteredPage.Wrapper>
+        </Side>
+      </div>
+    </div>
   )
 }
 

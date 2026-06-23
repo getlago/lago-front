@@ -27,8 +27,8 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
       if (key === 'text_64c7a89b6c67eb6c98898125') return '0 days (at issuing date)'
       if (key === 'text_64c7a89b6c67eb6c9889815f' && params?.days)
         return `${params.days} day${Number(params.days) !== 1 ? 's' : ''}`
-      if (key === 'text_1781883445506576p2jigfpx' && params?.numberWithVersion)
-        return `Quote #${params.numberWithVersion}`
+      if (key === 'text_17818008544903clzyy4ziu1' && params?.quoteNumberWithVersion)
+        return `Quote #${params.quoteNumberWithVersion}`
 
       return key
     },
@@ -476,7 +476,7 @@ describe('EditQuoteAside', () => {
           expect.objectContaining({
             header: expect.objectContaining({
               documentNumber: 'Q-001',
-              title: 'Quote #Q-001 - v1',
+              rows: ['Quote #Q-001 - v1'],
             }),
           }),
         )

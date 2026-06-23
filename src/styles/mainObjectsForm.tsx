@@ -1,15 +1,41 @@
-import { FC, PropsWithChildren } from 'react'
+import { FC, PropsWithChildren, ReactNode } from 'react'
 
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography, TypographyProps } from '~/components/designSystem/Typography'
 
 import { tw } from './utils'
 
-export const Main = ({ children }: PropsWithChildren) => (
-  <div className="w-full px-4 pt-12 md:w-3/5 md:p-12 md:pb-0 [&>div>*:not(:last-child)]:mb-8 [&>div]:max-w-180">
-    {children}
-  </div>
-)
+export const Main = ({
+  children,
+  footer,
+  footerAlign = 'end',
+}: PropsWithChildren & { footer?: ReactNode; footerAlign?: 'between' | 'end' }) => {
+  if (!footer) {
+    return (
+      <div className="w-full px-4 pt-12 md:w-3/5 md:p-12 md:pb-0 [&>div>*:not(:last-child)]:mb-8 [&>div]:max-w-180">
+        {children}
+      </div>
+    )
+  }
+
+  return (
+    <div className="height-minus-nav flex w-full flex-col overflow-hidden md:w-3/5">
+      <div className="flex-1 overflow-auto px-4 py-12 md:px-12 [&>div>*:not(:last-child)]:mb-8 [&>div]:max-w-180">
+        {children}
+      </div>
+      <footer className="shrink-0 bg-white p-4 shadow-t md:px-12">
+        <div
+          className={tw(
+            'flex w-full items-center gap-3',
+            footerAlign === 'between' ? 'justify-between' : 'justify-end',
+          )}
+        >
+          {footer}
+        </div>
+      </footer>
+    </div>
+  )
+}
 
 export const Side = ({ children }: PropsWithChildren) => (
   <div className="height-minus-nav sticky right-0 top-nav hidden w-2/5 bg-grey-100 md:block">

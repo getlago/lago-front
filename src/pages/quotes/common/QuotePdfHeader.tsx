@@ -12,8 +12,7 @@ import type { QuotePdfHeaderData } from './buildQuotePreviewProps'
  * <head>, and `printHtmlContent` copies those stylesheets into the iframe.
  */
 export const QuotePdfHeader = ({ header }: { header: QuotePdfHeaderData }) => (
-  <div className="flex flex-col gap-1">
-    <Typography variant="subhead1">{header.title}</Typography>
+  <div className="flex flex-col">
     {header.rows.map((row, index) => (
       <Typography key={index} variant="caption" color="grey600">
         {row}
