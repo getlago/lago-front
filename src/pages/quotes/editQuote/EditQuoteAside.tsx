@@ -98,8 +98,8 @@ const EditQuoteAsideForm = ({
   const canApprove = hasPermissions(['quotesApprove'])
   const pdfHeader: QuotePdfHeaderData = {
     documentNumber: quote.number,
-    title: translate('text_1781883445506576p2jigfpx', {
-      numberWithVersion: `${quote.number} - v${quote.currentVersion.version}`,
+    title: translate('text_17818008544903clzyy4ziu1', {
+      quoteNumberWithVersion: `${quote.number} - v${quote.currentVersion.version}`,
     }),
     rows: [],
   }
