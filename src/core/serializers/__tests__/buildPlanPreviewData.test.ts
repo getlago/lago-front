@@ -147,4 +147,83 @@ describe('buildPlanPreviewData', () => {
       price: { type: 'amount', amountCents: '1000.00' },
     })
   })
+
+  it('renders graduated ranges: per-unit row per tier, flat-fee row only when present', () => {
+    const data = buildPlanPreviewData(
+      baseForm({
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Graduated,
+            payInAdvance: false,
+            invoiceDisplayName: 'Tiered',
+            billableMetric: { name: 'Tiered', code: 't' },
+            filters: [],
+            properties: {
+              graduatedRanges: [
+                { fromValue: 0, toValue: 10, perUnitAmount: '0.00', flatAmount: '10.00' },
+                { fromValue: 11, toValue: 100, perUnitAmount: '0.10', flatAmount: '0' },
+                { fromValue: 101, toValue: null, perUnitAmount: '0.05', flatAmount: '0' },
+              ],
+            },
+          },
+        ] as unknown as PlanFormInput['charges'],
+      }),
+      basePayload(),
+    )
+    const details = data.rows.filter((r) => r.kind === 'detail')
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'tierRange', from: 0, to: 10 },
+      qualifier: { type: 'perUnit' },
+      value: { type: 'amount', amountCents: '0.00' },
+    })
+    // flat fee shown for tier 1 (10.00) but not tiers 2/3 (0)
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'flatFeeForTier', from: 0, to: 10 },
+      qualifier: { type: 'flatFee' },
+      value: { type: 'amount', amountCents: '10.00' },
+    })
+    expect(details.filter((d) => d.label.type === 'flatFeeForTier')).toHaveLength(1)
+    // last tier is open-ended
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'tierRange', from: 101, to: undefined },
+      qualifier: { type: 'perUnit' },
+      value: { type: 'amount', amountCents: '0.05' },
+    })
+  })
+
+  it('renders volume ranges identically to graduated (perUnit + optional flat fee)', () => {
+    const data = buildPlanPreviewData(
+      baseForm({
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Volume,
+            payInAdvance: false,
+            invoiceDisplayName: 'Vol',
+            billableMetric: { name: 'Vol', code: 'v' },
+            filters: [],
+            properties: {
+              volumeRanges: [{ fromValue: 0, toValue: 10, perUnitAmount: '0.10', flatAmount: '10.00' }],
+            },
+          },
+        ] as unknown as PlanFormInput['charges'],
+      }),
+      basePayload(),
+    )
+    const details = data.rows.filter((r) => r.kind === 'detail')
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'tierRange', from: 0, to: 10 },
+      qualifier: { type: 'perUnit' },
+      value: { type: 'amount', amountCents: '0.10' },
+    })
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'flatFeeForTier', from: 0, to: 10 },
+      qualifier: { type: 'flatFee' },
+      value: { type: 'amount', amountCents: '10.00' },
+    })
+  })
 })

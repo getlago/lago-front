@@ -96,6 +96,39 @@ const usageDetailRows = (charge: any): PlanPreviewDetailRow[] => {
     ]
   }
 
+  type Range = { fromValue: number; toValue?: number | null; perUnitAmount?: string; flatAmount?: string }
+
+  const tierRows = (ranges: Range[]): PlanPreviewDetailRow[] =>
+    ranges.flatMap((r) => {
+      const out: PlanPreviewDetailRow[] = [
+        {
+          kind: 'detail',
+          label: { type: 'tierRange', from: num(r.fromValue), to: r.toValue == null ? undefined : num(r.toValue) },
+          qualifier: { type: 'perUnit' },
+          value: { type: 'amount', amountCents: String(r.perUnitAmount ?? '0') },
+        },
+      ]
+
+      if (num(r.flatAmount) > 0) {
+        out.push({
+          kind: 'detail',
+          label: { type: 'flatFeeForTier', from: num(r.fromValue), to: r.toValue == null ? undefined : num(r.toValue) },
+          qualifier: { type: 'flatFee' },
+          value: { type: 'amount', amountCents: String(r.flatAmount) },
+        })
+      }
+
+      return out
+    })
+
+  if (charge.chargeModel === ChargeModelEnum.Graduated) {
+    return tierRows((props.graduatedRanges ?? []) as Range[])
+  }
+
+  if (charge.chargeModel === ChargeModelEnum.Volume) {
+    return tierRows((props.volumeRanges ?? []) as Range[])
+  }
+
   return []
 }
 
