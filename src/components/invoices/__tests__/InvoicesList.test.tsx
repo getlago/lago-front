@@ -129,6 +129,14 @@ jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
   }),
 }))
 
+const mockOpenUpdateInvoicePaymentStatusDialog = jest.fn()
+
+jest.mock('~/components/invoices/EditInvoicePaymentStatusDialog', () => ({
+  useUpdateInvoicePaymentStatusDialog: () => ({
+    openUpdateInvoicePaymentStatusDialog: mockOpenUpdateInvoicePaymentStatusDialog,
+  }),
+}))
+
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useDownloadInvoiceItemMutation: (options: typeof downloadInvoiceCallbacks) => {
@@ -1503,10 +1511,10 @@ describe('InvoicesList', () => {
         name: 'text_63eba8c65a6c8043feee2a01',
       })
 
-      // Click triggers dialog - this tests line 291
+      // Click triggers the update payment status dialog
       await user.click(updateStatusButton)
 
-      expect(mockCanUpdatePaymentStatus).toHaveBeenCalled()
+      expect(mockOpenUpdateInvoicePaymentStatusDialog).toHaveBeenCalled()
     })
   })
 

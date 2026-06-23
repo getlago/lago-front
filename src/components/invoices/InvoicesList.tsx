@@ -14,10 +14,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
-import {
-  UpdateInvoicePaymentStatusDialog,
-  UpdateInvoicePaymentStatusDialogRef,
-} from '~/components/invoices/EditInvoicePaymentStatusDialog'
+import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
 import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
@@ -102,7 +99,7 @@ const InvoicesList = ({
   const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
-  const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
+  const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const resendInvoiceForCollectionDialogRef = useRef<ResendInvoiceForCollectionDialogRef>(null)
 
@@ -321,7 +318,7 @@ const InvoicesList = ({
             startIcon: 'coin-dollar',
             title: translate('text_63eba8c65a6c8043feee2a01'),
             onAction: () => {
-              updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
+              openUpdateInvoicePaymentStatusDialog(invoice)
             },
           }
         : null
@@ -602,7 +599,6 @@ const InvoicesList = ({
       </InfiniteScroll>
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
       <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
     </div>
