@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client'
 import { Icon, IconName } from 'lago-design-system'
-import { useMemo, useRef, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { findNearestScrollableAncestor } from '~/components/designSystem/VirtualList/findNearestScrollableAncestor'
 import { VirtualFilterList } from '~/components/designSystem/VirtualList/VirtualFilterList'
 import {
   EntitlementForPlanDetailsSidebarFragment,
@@ -154,6 +155,43 @@ export const PlanDetailsV2LeftSidebar = ({
   // we hand VirtualFilterList the ref directly rather than walking ancestors.
   const navRef = useRef<HTMLElement>(null)
 
+  // The nav is `sticky top-0`, but at the top of the page it sits BELOW the page
+  // header/tabs, so a fixed `h-screen` would overflow the viewport by that offset
+  // and hide the bottom of an expanded folder. Size it to "viewport bottom minus
+  // current top" instead; the offset shrinks from header-height to 0 as the page
+  // scrolls and the header scrolls away. Written imperatively (no re-render on
+  // scroll); VirtualFilterList's own ResizeObserver picks up the height change.
+  useLayoutEffect(() => {
+    const element = navRef.current
+
+    if (!element) return
+
+    const pageScrollElement = findNearestScrollableAncestor(element)
+
+    const resizeToViewport = () => {
+      element.style.maxHeight = `${window.innerHeight - element.getBoundingClientRect().top}px`
+    }
+
+    resizeToViewport()
+    window.addEventListener('resize', resizeToViewport)
+    pageScrollElement?.addEventListener('scroll', resizeToViewport, { passive: true })
+
+    // Content above the nav (e.g. the page header) can reflow shortly after mount as
+    // async data settles, shifting the nav's top with no scroll/resize event. Re-measure
+    // for a brief window so the height converges; writing the same value is a no-op.
+    let frame = 0
+    let raf = requestAnimationFrame(function settle() {
+      resizeToViewport()
+      if (frame++ < 30) raf = requestAnimationFrame(settle)
+    })
+
+    return () => {
+      window.removeEventListener('resize', resizeToViewport)
+      pageScrollElement?.removeEventListener('scroll', resizeToViewport)
+      cancelAnimationFrame(raf)
+    }
+  }, [])
+
   const toggleExpanded = (id: string) => {
     setExpanded((prev) => {
       const next = new Set(prev)
@@ -283,7 +321,9 @@ export const PlanDetailsV2LeftSidebar = ({
     <nav
       ref={navRef}
       className={tw(
-        'sticky top-0 flex h-screen min-h-0 w-64 flex-shrink-0 flex-col overflow-y-auto border-r border-grey-300 pr-4 pt-4',
+        // Height is set imperatively (see useLayoutEffect) to "viewport - nav top",
+        // so an expanded folder never extends past the viewport bottom.
+        'sticky top-0 flex min-h-0 w-64 flex-shrink-0 flex-col overflow-y-auto border-r border-grey-300 pr-4 pt-4',
         className,
       )}
       aria-label="Plan sections"
