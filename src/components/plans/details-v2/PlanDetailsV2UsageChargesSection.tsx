@@ -318,7 +318,10 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
           className="flex flex-col gap-6"
           gap={24}
           items={charges}
-          estimateItemHeight={76}
+          // Real collapsed SectionAccordion height (measured in-browser). With the gap
+          // VirtualFilterList adds, this matches the measured row height (98px) exactly,
+          // so the spacer never shifts as rows measure -> jump-to-section lands first try.
+          estimateItemHeight={74}
           getItemKey={(charge) => charge.id}
           apiRef={virtualListApiRef}
           renderItem={(charge, index) => (
