@@ -484,4 +484,43 @@ describe('buildPreviewEntities', () => {
   it('returns an empty map for no addons', () => {
     expect(buildPreviewEntities({ addons: [] })).toEqual({})
   })
+
+  it('includes the plan entity (with PlanPreviewData) when billingItems.plans is present, alongside addons', () => {
+    const billingItems = {
+      addons: [], // keep empty or reuse an existing addon fixture from this suite
+      plans: [
+        {
+          type: 'plan',
+          id: 'plan-1',
+          overrides: {},
+          payload: {
+            position: 0,
+            plan_code: 'p',
+            plan_name: 'P',
+            plan_description: '',
+            subscription_external_id: null,
+            subscription_name: null,
+            billing_time: 'calendar',
+            start_date: null,
+            end_date: null,
+            payment_method_id: null,
+            invoice_custom_footer: null,
+            interval: 'monthly',
+            amount_cents: '13050',
+            amount_currency: 'USD',
+            pay_in_advance: true,
+            charges: [],
+            fixed_charges: [],
+            minimum_commitment: null,
+          },
+        },
+      ],
+    } as any
+
+    const entities = buildPreviewEntities(billingItems)
+
+    expect(entities['plan-1']).toBeDefined()
+    expect(entities['plan-1'].entityType).toBe('plan')
+    expect(entities['plan-1'].plan?.rows.length).toBeGreaterThan(0)
+  })
 })
