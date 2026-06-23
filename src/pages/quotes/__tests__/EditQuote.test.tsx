@@ -100,6 +100,7 @@ jest.mock('../editQuote/EditQuoteAside', () => {
   return {
     __esModule: true,
     default: (props: {
+      isSaving?: boolean
       onSaveStart?: () => void
       onSaveFinished?: () => void
       onSaveError?: (payload: unknown) => void
@@ -110,7 +111,7 @@ jest.mock('../editQuote/EditQuoteAside', () => {
         onSaveError: props.onSaveError,
       }
 
-      return <div data-test="mock-edit-quote-aside" />
+      return <div data-test="mock-edit-quote-aside" data-is-saving={String(!!props.isSaving)} />
     },
   }
 })
@@ -547,6 +548,76 @@ describe('EditQuote', () => {
             expect.objectContaining({ id: 'version-1', startDate: '2026-06-01' }),
             false,
           )
+        })
+      })
+    })
+  })
+
+  describe('GIVEN the isSaving prop passed to the aside', () => {
+    const getAside = () => screen.getByTestId('mock-edit-quote-aside')
+
+    describe('WHEN the save status is idle', () => {
+      it('THEN should pass isSaving=false to the aside', () => {
+        render(<EditQuote />)
+
+        expect(getAside()).toHaveAttribute('data-is-saving', 'false')
+      })
+    })
+
+    describe('WHEN a save starts', () => {
+      it('THEN should pass isSaving=true to the aside', async () => {
+        render(<EditQuote />)
+
+        act(() => {
+          capturedAsideCallbacks.onSaveStart?.()
+        })
+
+        await waitFor(() => {
+          expect(getAside()).toHaveAttribute('data-is-saving', 'true')
+        })
+      })
+    })
+
+    describe('WHEN a save finishes successfully', () => {
+      it('THEN should pass isSaving=false back to the aside', async () => {
+        render(<EditQuote />)
+
+        act(() => {
+          capturedAsideCallbacks.onSaveStart?.()
+        })
+
+        await waitFor(() => {
+          expect(getAside()).toHaveAttribute('data-is-saving', 'true')
+        })
+
+        act(() => {
+          capturedAsideCallbacks.onSaveFinished?.()
+        })
+
+        await waitFor(() => {
+          expect(getAside()).toHaveAttribute('data-is-saving', 'false')
+        })
+      })
+    })
+
+    describe('WHEN a save errors', () => {
+      it('THEN should pass isSaving=false back to the aside', async () => {
+        render(<EditQuote />)
+
+        act(() => {
+          capturedAsideCallbacks.onSaveStart?.()
+        })
+
+        await waitFor(() => {
+          expect(getAside()).toHaveAttribute('data-is-saving', 'true')
+        })
+
+        act(() => {
+          capturedAsideCallbacks.onSaveError?.({ id: 'version-1' })
+        })
+
+        await waitFor(() => {
+          expect(getAside()).toHaveAttribute('data-is-saving', 'false')
         })
       })
     })
