@@ -149,7 +149,7 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
             },
             {
               key: 'subscriptionAt',
-              title: translate('text_65281f686a80b400c8e2f6d1'),
+              title: translate('text_65201c5a175a4b0238abf29e'),
               minWidth: 150,
               content: ({ subscriptionAt }) => (
                 <Typography variant="body" color="grey700">
