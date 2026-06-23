@@ -111,7 +111,12 @@ export const VirtualFilterList = <T,>({
   const virtualizer = useVirtualizer({
     count: isVirtualized ? items.length : 0,
     getScrollElement: () => scrollElement,
-    estimateSize: () => estimateItemHeight,
+    // Include the gap: each rendered row bakes the inter-row gap into its measured
+    // height (paddingBottom below), so an estimate without it makes the spacer
+    // under-reserve space by `gap` per not-yet-measured row. That shortfall pushes
+    // any anchor below the list (e.g. a sibling section the sidebar jumps to) far
+    // above its real position, so scrollIntoView lands short.
+    estimateSize: () => estimateItemHeight + gap,
     measureElement: (element) => element.getBoundingClientRect().height,
     overscan,
     scrollMargin,
