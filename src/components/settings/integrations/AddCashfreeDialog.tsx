@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
-import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 import { object, string } from 'yup'
 
@@ -21,8 +21,6 @@ import {
   useUpdateCashfreeApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { DeleteCashfreeIntegrationDialogRef } from './DeleteCashfreeIntegrationDialog'
 
 gql`
   fragment AddCashfreeProviderDialog on CashfreeProvider {
@@ -77,9 +75,8 @@ gql`
 `
 
 type TAddCashfreeDialogProps = Partial<{
-  deleteModalRef: RefObject<DeleteCashfreeIntegrationDialogRef>
   provider: AddCashfreeProviderDialogFragment
-  deleteDialogCallback: () => void
+  onDeleteClick: () => void
 }>
 
 export interface AddCashfreeDialogRef {
@@ -232,10 +229,7 @@ export const AddCashfreeDialog = forwardRef<AddCashfreeDialogRef>((_, ref) => {
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                localData?.deleteModalRef?.current?.openDialog({
-                  provider: cashfreeProvider,
-                  callback: localData?.deleteDialogCallback,
-                })
+                localData?.onDeleteClick?.()
               }}
             >
               {translate('text_65845f35d7d69c3ab4793dad')}
