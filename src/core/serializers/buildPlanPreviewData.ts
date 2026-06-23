@@ -129,6 +129,113 @@ const usageDetailRows = (charge: any): PlanPreviewDetailRow[] => {
     return tierRows((props.volumeRanges ?? []) as Range[])
   }
 
+  if (charge.chargeModel === ChargeModelEnum.Package) {
+    const out: PlanPreviewDetailRow[] = []
+
+    if (num(props.freeUnits) > 0) {
+      out.push({
+        kind: 'detail',
+        label: { type: 'text', key: 'labelFreeUnits' },
+        qualifier: { type: 'firstNUnits', count: num(props.freeUnits) },
+        value: { type: 'amount', amountCents: '0' },
+      })
+    }
+    out.push({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelPackage' },
+      qualifier: { type: 'perPackage', size: num(props.packageSize) },
+      value: { type: 'amount', amountCents: String(props.amount ?? '0') },
+    })
+
+    return out
+  }
+
+  if (charge.chargeModel === ChargeModelEnum.Percentage) {
+    const out: PlanPreviewDetailRow[] = []
+
+    if (num(props.freeUnitsPerTotalAggregation) > 0) {
+      out.push({
+        kind: 'detail',
+        label: { type: 'text', key: 'labelFreeVolume' },
+        qualifier: { type: 'firstNUnits', count: num(props.freeUnitsPerTotalAggregation) },
+        value: { type: 'percentage', rate: '0' },
+      })
+    }
+    if (num(props.freeUnitsPerEvents) > 0) {
+      out.push({
+        kind: 'detail',
+        label: { type: 'text', key: 'labelFreeTransactions' },
+        qualifier: { type: 'firstNTransactions', count: num(props.freeUnitsPerEvents) },
+        value: { type: 'percentage', rate: '0' },
+      })
+    }
+    // Always-present transaction cost
+    out.push({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelTransactionCost' },
+      qualifier: { type: 'percentOfVolume' },
+      value: { type: 'percentage', rate: String(props.rate ?? '0') },
+    })
+    if (num(props.fixedAmount) > 0) {
+      out.push({
+        kind: 'detail',
+        label: { type: 'text', key: 'labelFixedFee' },
+        qualifier: { type: 'perTransaction' },
+        value: { type: 'amount', amountCents: String(props.fixedAmount) },
+      })
+    }
+    if (num(props.perTransactionMinAmount) > 0) {
+      out.push({
+        kind: 'detail',
+        label: { type: 'text', key: 'labelMinimum' },
+        qualifier: { type: 'perTransaction' },
+        value: { type: 'amount', amountCents: String(props.perTransactionMinAmount) },
+      })
+    }
+    if (num(props.perTransactionMaxAmount) > 0) {
+      out.push({
+        kind: 'detail',
+        label: { type: 'text', key: 'labelMaximum' },
+        qualifier: { type: 'perTransaction' },
+        value: { type: 'amount', amountCents: String(props.perTransactionMaxAmount) },
+      })
+    }
+
+    return out
+  }
+
+  if (charge.chargeModel === ChargeModelEnum.GraduatedPercentage) {
+    const ranges = (props.graduatedPercentageRanges ?? []) as Array<{
+      fromValue: number
+      toValue?: number | null
+      rate?: string
+      flatAmount?: string
+    }>
+
+    return ranges.flatMap((r) => {
+      const out: PlanPreviewDetailRow[] = [
+        {
+          kind: 'detail',
+          label: { type: 'tierRange', from: num(r.fromValue), to: r.toValue == null ? undefined : num(r.toValue) },
+          qualifier: { type: 'percentOfVolume' },
+          value: { type: 'percentage', rate: String(r.rate ?? '0') },
+        },
+      ]
+
+      if (num(r.flatAmount) > 0) {
+        out.push({
+          kind: 'detail',
+          label: { type: 'flatFeeForTier', from: num(r.fromValue), to: r.toValue == null ? undefined : num(r.toValue) },
+          qualifier: { type: 'flatFee' },
+          value: { type: 'amount', amountCents: String(r.flatAmount) },
+        })
+      }
+
+      return out
+    })
+  }
+
+  // dynamic / custom → no detail rows (main usage row only)
   return []
 }
 

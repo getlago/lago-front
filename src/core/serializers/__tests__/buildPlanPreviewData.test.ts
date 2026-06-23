@@ -226,4 +226,191 @@ describe('buildPlanPreviewData', () => {
       value: { type: 'amount', amountCents: '10.00' },
     })
   })
+
+  it('package: optional free-units row + Package/perPackage row', () => {
+    const data = buildPlanPreviewData(
+      baseForm({
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Package,
+            payInAdvance: false,
+            billableMetric: { name: 'Pkg', code: 'p' },
+            filters: [],
+            properties: { amount: '10.00', packageSize: 1000, freeUnits: 10 },
+          },
+        ] as unknown as PlanFormInput['charges'],
+      }),
+      basePayload(),
+    )
+    const details = data.rows.filter((r) => r.kind === 'detail')
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelFreeUnits' },
+      qualifier: { type: 'firstNUnits', count: 10 },
+      value: { type: 'amount', amountCents: '0' },
+    })
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelPackage' },
+      qualifier: { type: 'perPackage', size: 1000 },
+      value: { type: 'amount', amountCents: '10.00' },
+    })
+  })
+
+  it('package: omits free-units row when freeUnits is 0', () => {
+    const data = buildPlanPreviewData(
+      baseForm({
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Package,
+            payInAdvance: false,
+            billableMetric: { name: 'Pkg', code: 'p' },
+            filters: [],
+            properties: { amount: '10.00', packageSize: 1000, freeUnits: 0 },
+          },
+        ] as unknown as PlanFormInput['charges'],
+      }),
+      basePayload(),
+    )
+    expect(
+      data.rows.filter((r) => r.kind === 'detail' && r.label.type === 'text' && r.label.key === 'labelFreeUnits'),
+    ).toHaveLength(0)
+  })
+
+  it('percentage: always shows transaction cost; optional free/fixed/min/max only when present', () => {
+    const data = buildPlanPreviewData(
+      baseForm({
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Percentage,
+            payInAdvance: false,
+            billableMetric: { name: 'Pct', code: 'pct' },
+            filters: [],
+            properties: {
+              rate: '1.50',
+              fixedAmount: '0.10',
+              freeUnitsPerTotalAggregation: '1000',
+              freeUnitsPerEvents: '10',
+              perTransactionMinAmount: '1.00',
+              perTransactionMaxAmount: '4.00',
+            },
+          },
+        ] as unknown as PlanFormInput['charges'],
+      }),
+      basePayload(),
+    )
+    const details = data.rows.filter((r) => r.kind === 'detail')
+    // mandatory transaction cost
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelTransactionCost' },
+      qualifier: { type: 'percentOfVolume' },
+      value: { type: 'percentage', rate: '1.50' },
+    })
+    // optional rows
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelFreeVolume' },
+      qualifier: { type: 'firstNUnits', count: 1000 },
+      value: { type: 'percentage', rate: '0' },
+    })
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelFreeTransactions' },
+      qualifier: { type: 'firstNTransactions', count: 10 },
+      value: { type: 'percentage', rate: '0' },
+    })
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelFixedFee' },
+      qualifier: { type: 'perTransaction' },
+      value: { type: 'amount', amountCents: '0.10' },
+    })
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelMinimum' },
+      qualifier: { type: 'perTransaction' },
+      value: { type: 'amount', amountCents: '1.00' },
+    })
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelMaximum' },
+      qualifier: { type: 'perTransaction' },
+      value: { type: 'amount', amountCents: '4.00' },
+    })
+  })
+
+  it('percentage: only the transaction-cost row when no optional fields', () => {
+    const data = buildPlanPreviewData(
+      baseForm({
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Percentage,
+            payInAdvance: false,
+            billableMetric: { name: 'Pct', code: 'pct' },
+            filters: [],
+            properties: { rate: '1.50' },
+          },
+        ] as unknown as PlanFormInput['charges'],
+      }),
+      basePayload(),
+    )
+    expect(data.rows.filter((r) => r.kind === 'detail')).toHaveLength(1)
+  })
+
+  it('graduated_percentage: tier rows use percentOfVolume + percentage value (+ optional flat fee)', () => {
+    const data = buildPlanPreviewData(
+      baseForm({
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.GraduatedPercentage,
+            payInAdvance: false,
+            billableMetric: { name: 'GP', code: 'gp' },
+            filters: [],
+            properties: {
+              graduatedPercentageRanges: [
+                { fromValue: 0, toValue: 10, rate: '0', flatAmount: '10.00' },
+                { fromValue: 11, toValue: null, rate: '1.50', flatAmount: '0' },
+              ],
+            },
+          },
+        ] as unknown as PlanFormInput['charges'],
+      }),
+      basePayload(),
+    )
+    const details = data.rows.filter((r) => r.kind === 'detail')
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'tierRange', from: 0, to: 10 },
+      qualifier: { type: 'percentOfVolume' },
+      value: { type: 'percentage', rate: '0' },
+    })
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'flatFeeForTier', from: 0, to: 10 },
+      qualifier: { type: 'flatFee' },
+      value: { type: 'amount', amountCents: '10.00' },
+    })
+  })
+
+  it('dynamic and custom: main usage row only, no detail rows', () => {
+    for (const model of [ChargeModelEnum.Dynamic, ChargeModelEnum.Custom]) {
+      const data = buildPlanPreviewData(
+        baseForm({
+          charges: [
+            {
+              chargeModel: model,
+              payInAdvance: false,
+              billableMetric: { name: 'X', code: 'x' },
+              filters: [],
+              properties: model === ChargeModelEnum.Custom ? { customProperties: {} } : {},
+            },
+          ] as unknown as PlanFormInput['charges'],
+        }),
+        basePayload(),
+      )
+      expect(data.rows.filter((r) => r.kind === 'detail')).toHaveLength(0)
+      expect(data.rows.filter((r) => r.kind === 'main' && r.rowType === 'usageCharge')).toHaveLength(1)
+    }
+  })
 })
