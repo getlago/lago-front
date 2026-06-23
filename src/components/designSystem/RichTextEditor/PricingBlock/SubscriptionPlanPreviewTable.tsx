@@ -1,7 +1,6 @@
 import { PreviewTable, type PreviewTableColumn } from '~/components/designSystem/Table/PreviewTable'
 import { Typography } from '~/components/designSystem/Typography'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import type {
   PlanPreviewData,
   PlanPreviewRow,
@@ -9,6 +8,7 @@ import type {
   PreviewDetailLabel,
   PreviewQualifier,
 } from '~/core/serializers/buildPlanPreviewData'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import type { LocaleEnum } from '~/core/translations'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import type { TranslateFunc } from '~/hooks/core/useInternationalization'
@@ -113,7 +113,7 @@ export const SubscriptionPlanPreviewTable = ({
 
   const detailLabel = (label: PreviewDetailLabel): string => {
     if (label.type === 'tierRange') {
-      return label.to == null
+      return label.to === null || label.to === undefined
         ? translate(K.tierFromAbove, { from: label.from })
         : translate(K.tierFromTo, { from: label.from, to: label.to })
     }

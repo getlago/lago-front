@@ -1,11 +1,12 @@
 import type { EntityData } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
-import { buildPlanPreviewData } from './buildPlanPreviewData'
 import type {
   LocalFixedChargeInput,
   LocalUsageChargeInput,
   PlanFormInput,
 } from '~/components/plans/types'
 import { CommitmentTypeEnum } from '~/generated/graphql'
+
+import { buildPlanPreviewData } from './buildPlanPreviewData'
 
 // Re-export so consumers can import PlanFormInput from this serializer module.
 export type { PlanFormInput }
@@ -577,7 +578,7 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
       entityType: 'plan',
       name: payload.plan_name,
       code: payload.plan_code,
-      plan: buildPlanPreviewData(formValues, payload),
+      plan: buildPlanPreviewData(formValues),
     },
   }
 

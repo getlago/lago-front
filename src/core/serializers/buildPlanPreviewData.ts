@@ -1,7 +1,10 @@
 // src/core/serializers/buildPlanPreviewData.ts
+import type {
+  LocalFixedChargeInput,
+  LocalUsageChargeInput,
+  PlanFormInput,
+} from '~/components/plans/types'
 import { ChargeModelEnum, PlanInterval } from '~/generated/graphql'
-
-import type { PlanFormInput, PlanPayload } from './serializeQuotePlanBillingItems'
 
 export type BilledTiming = 'beginningOfPeriod' | 'endOfPeriod' | 'onTransaction'
 
@@ -83,7 +86,7 @@ const chargeName = (charge: {
 }): string => charge.invoiceDisplayName || charge.billableMetric?.name || ''
 
 // Per-model detail rows are added in Tasks 4 & 5. Standard handled here.
-const usageDetailRows = (charge: any): PlanPreviewDetailRow[] => {
+const usageDetailRows = (charge: LocalUsageChargeInput): PlanPreviewDetailRow[] => {
   const props = (charge.properties ?? {}) as Record<string, unknown>
 
   if (charge.chargeModel === ChargeModelEnum.Standard) {
@@ -97,14 +100,23 @@ const usageDetailRows = (charge: any): PlanPreviewDetailRow[] => {
     ]
   }
 
-  type Range = { fromValue: number; toValue?: number | null; perUnitAmount?: string; flatAmount?: string }
+  type Range = {
+    fromValue: number
+    toValue?: number | null
+    perUnitAmount?: string
+    flatAmount?: string
+  }
 
   const tierRows = (ranges: Range[]): PlanPreviewDetailRow[] =>
     ranges.flatMap((r) => {
       const out: PlanPreviewDetailRow[] = [
         {
           kind: 'detail',
-          label: { type: 'tierRange', from: num(r.fromValue), to: r.toValue == null ? undefined : num(r.toValue) },
+          label: {
+            type: 'tierRange',
+            from: num(r.fromValue),
+            to: r.toValue === null || r.toValue === undefined ? undefined : num(r.toValue),
+          },
           qualifier: { type: 'perUnit' },
           value: { type: 'displayAmount', amount: String(r.perUnitAmount ?? '0') },
         },
@@ -113,7 +125,11 @@ const usageDetailRows = (charge: any): PlanPreviewDetailRow[] => {
       if (num(r.flatAmount) > 0) {
         out.push({
           kind: 'detail',
-          label: { type: 'flatFeeForTier', from: num(r.fromValue), to: r.toValue == null ? undefined : num(r.toValue) },
+          label: {
+            type: 'flatFeeForTier',
+            from: num(r.fromValue),
+            to: r.toValue === null || r.toValue === undefined ? undefined : num(r.toValue),
+          },
           qualifier: { type: 'flatFee' },
           value: { type: 'displayAmount', amount: String(r.flatAmount) },
         })
@@ -217,7 +233,11 @@ const usageDetailRows = (charge: any): PlanPreviewDetailRow[] => {
       const out: PlanPreviewDetailRow[] = [
         {
           kind: 'detail',
-          label: { type: 'tierRange', from: num(r.fromValue), to: r.toValue == null ? undefined : num(r.toValue) },
+          label: {
+            type: 'tierRange',
+            from: num(r.fromValue),
+            to: r.toValue === null || r.toValue === undefined ? undefined : num(r.toValue),
+          },
           qualifier: { type: 'percentOfVolume' },
           value: { type: 'percentage', rate: String(r.rate ?? '0') },
         },
@@ -226,7 +246,11 @@ const usageDetailRows = (charge: any): PlanPreviewDetailRow[] => {
       if (num(r.flatAmount) > 0) {
         out.push({
           kind: 'detail',
-          label: { type: 'flatFeeForTier', from: num(r.fromValue), to: r.toValue == null ? undefined : num(r.toValue) },
+          label: {
+            type: 'flatFeeForTier',
+            from: num(r.fromValue),
+            to: r.toValue === null || r.toValue === undefined ? undefined : num(r.toValue),
+          },
           qualifier: { type: 'flatFee' },
           value: { type: 'displayAmount', amount: String(r.flatAmount) },
         })
@@ -240,10 +264,7 @@ const usageDetailRows = (charge: any): PlanPreviewDetailRow[] => {
   return []
 }
 
-export const buildPlanPreviewData = (
-  formValues: PlanFormInput | null,
-  _payload: PlanPayload,
-): PlanPreviewData => {
+export const buildPlanPreviewData = (formValues: PlanFormInput | null): PlanPreviewData => {
   if (!formValues) return { rows: [] }
 
   const rows: PlanPreviewRow[] = []
@@ -264,32 +285,38 @@ export const buildPlanPreviewData = (
 
   // 2) Fixed charges
   for (const fc of formValues.fixedCharges ?? []) {
+    const typedFc = fc as LocalFixedChargeInput
+    const fcProps = (typedFc.properties ?? {}) as Record<string, unknown>
+
     rows.push({
       kind: 'main',
       rowType: 'fixedCharge',
-      name: fc.invoiceDisplayName || (fc as any).addOn?.name || undefined,
+      name: typedFc.invoiceDisplayName || typedFc.addOn?.name || undefined,
       description: undefined,
       interval: fixedInterval(formValues),
-      timing: fixedTiming(fc.payInAdvance),
-      units: { type: 'count', value: num(fc.units) },
-      price: { type: 'displayAmount', amount: String((fc as any).properties?.amount ?? '0') },
+      timing: fixedTiming(typedFc.payInAdvance ?? false),
+      units: { type: 'count', value: num(typedFc.units) },
+      price: { type: 'displayAmount', amount: String(fcProps.amount ?? '0') },
     })
   }
 
   // 3) Usage charges (each is a main row + model-specific detail rows)
   for (const charge of formValues.charges ?? []) {
+    const typedCharge = charge as LocalUsageChargeInput
+
     rows.push({
       kind: 'main',
       rowType: 'usageCharge',
-      name: chargeName(charge as any) || undefined,
+      name: chargeName(typedCharge) || undefined,
       description: undefined,
       interval: usageInterval(formValues),
-      timing: usageTiming((charge as any).payInAdvance),
+      timing: usageTiming(typedCharge.payInAdvance ?? false),
       units: { type: 'usageBased' },
       price: { type: 'variesWithUsage' },
     })
-    rows.push(...usageDetailRows(charge))
-    const minAmount = (charge as any).minAmountCents
+    rows.push(...usageDetailRows(typedCharge))
+    const minAmount = typedCharge.minAmountCents
+
     if (num(minAmount) > 0) {
       rows.push({
         kind: 'detail',

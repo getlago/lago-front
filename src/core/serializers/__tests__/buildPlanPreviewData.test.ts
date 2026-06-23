@@ -1,24 +1,7 @@
 // src/core/serializers/__tests__/buildPlanPreviewData.test.ts
-import { ChargeModelEnum, PlanInterval } from '~/generated/graphql'
 import { buildPlanPreviewData } from '~/core/serializers/buildPlanPreviewData'
-import type { PlanFormInput, PlanPayload } from '~/core/serializers/serializeQuotePlanBillingItems'
-
-// Minimal payload/formValues factories — extend per test.
-const basePayload = (over: Partial<PlanPayload> = {}): PlanPayload =>
-  ({
-    position: 0,
-    plan_code: 'plan_code',
-    plan_name: 'My Plan',
-    plan_description: '',
-    subscription_external_id: null,
-    subscription_name: null,
-    billing_time: 'calendar',
-    start_date: null,
-    end_date: null,
-    payment_method_id: null,
-    invoice_custom_footer: null,
-    ...over,
-  }) as PlanPayload
+import type { PlanFormInput } from '~/core/serializers/serializeQuotePlanBillingItems'
+import { ChargeModelEnum, PlanInterval } from '~/generated/graphql'
 
 const baseForm = (over: Partial<PlanFormInput> = {}): PlanFormInput =>
   ({
@@ -41,14 +24,14 @@ const baseForm = (over: Partial<PlanFormInput> = {}): PlanFormInput =>
 
 describe('buildPlanPreviewData', () => {
   it('returns empty rows for a legacy plan (formValues null)', () => {
-    expect(buildPlanPreviewData(null, basePayload())).toEqual({ rows: [] })
+    expect(buildPlanPreviewData(null)).toEqual({ rows: [] })
   })
 
   it('renders a subscription-fee main row when amountCents > 0 (advance → beginningOfPeriod)', () => {
     const data = buildPlanPreviewData(
       baseForm({ amountCents: '13050', payInAdvance: true, interval: PlanInterval.Monthly }),
-      basePayload(),
     )
+
     expect(data.rows[0]).toEqual({
       kind: 'main',
       rowType: 'subscriptionFee',
@@ -62,8 +45,11 @@ describe('buildPlanPreviewData', () => {
   })
 
   it('omits the subscription-fee row when amountCents is 0', () => {
-    const data = buildPlanPreviewData(baseForm({ amountCents: '0' }), basePayload())
-    expect(data.rows.find((r) => r.kind === 'main' && r.rowType === 'subscriptionFee')).toBeUndefined()
+    const data = buildPlanPreviewData(baseForm({ amountCents: '0' }))
+
+    expect(
+      data.rows.find((r) => r.kind === 'main' && r.rowType === 'subscriptionFee'),
+    ).toBeUndefined()
   })
 
   it('renders a fixed charge main row (units + amount, arrears → endOfPeriod)', () => {
@@ -82,9 +68,9 @@ describe('buildPlanPreviewData', () => {
           },
         ] as unknown as PlanFormInput['fixedCharges'],
       }),
-      basePayload(),
     )
     const row = data.rows.find((r) => r.kind === 'main' && r.rowType === 'fixedCharge')
+
     expect(row).toMatchObject({
       kind: 'main',
       rowType: 'fixedCharge',
@@ -110,9 +96,9 @@ describe('buildPlanPreviewData', () => {
           },
         ] as unknown as PlanFormInput['charges'],
       }),
-      basePayload(),
     )
     const main = data.rows.find((r) => r.kind === 'main' && r.rowType === 'usageCharge')
+
     expect(main).toMatchObject({
       kind: 'main',
       rowType: 'usageCharge',
@@ -137,9 +123,9 @@ describe('buildPlanPreviewData', () => {
           invoiceDisplayName: undefined,
         } as unknown as PlanFormInput['minimumCommitment'],
       }),
-      basePayload(),
     )
     const row = data.rows.find((r) => r.kind === 'main' && r.rowType === 'minimumCommitment')
+
     expect(row).toMatchObject({
       kind: 'main',
       rowType: 'minimumCommitment',
@@ -168,9 +154,9 @@ describe('buildPlanPreviewData', () => {
           },
         ] as unknown as PlanFormInput['charges'],
       }),
-      basePayload(),
     )
     const details = data.rows.filter((r) => r.kind === 'detail')
+
     expect(details).toContainEqual({
       kind: 'detail',
       label: { type: 'tierRange', from: 0, to: 10 },
@@ -205,14 +191,16 @@ describe('buildPlanPreviewData', () => {
             billableMetric: { name: 'Vol', code: 'v' },
             filters: [],
             properties: {
-              volumeRanges: [{ fromValue: 0, toValue: 10, perUnitAmount: '0.10', flatAmount: '10.00' }],
+              volumeRanges: [
+                { fromValue: 0, toValue: 10, perUnitAmount: '0.10', flatAmount: '10.00' },
+              ],
             },
           },
         ] as unknown as PlanFormInput['charges'],
       }),
-      basePayload(),
     )
     const details = data.rows.filter((r) => r.kind === 'detail')
+
     expect(details).toContainEqual({
       kind: 'detail',
       label: { type: 'tierRange', from: 0, to: 10 },
@@ -240,9 +228,9 @@ describe('buildPlanPreviewData', () => {
           },
         ] as unknown as PlanFormInput['charges'],
       }),
-      basePayload(),
     )
     const details = data.rows.filter((r) => r.kind === 'detail')
+
     expect(details).toContainEqual({
       kind: 'detail',
       label: { type: 'text', key: 'labelFreeUnits' },
@@ -270,10 +258,12 @@ describe('buildPlanPreviewData', () => {
           },
         ] as unknown as PlanFormInput['charges'],
       }),
-      basePayload(),
     )
+
     expect(
-      data.rows.filter((r) => r.kind === 'detail' && r.label.type === 'text' && r.label.key === 'labelFreeUnits'),
+      data.rows.filter(
+        (r) => r.kind === 'detail' && r.label.type === 'text' && r.label.key === 'labelFreeUnits',
+      ),
     ).toHaveLength(0)
   })
 
@@ -297,10 +287,10 @@ describe('buildPlanPreviewData', () => {
           },
         ] as unknown as PlanFormInput['charges'],
       }),
-      basePayload(),
     )
     const details = data.rows.filter((r) => r.kind === 'detail')
     // mandatory transaction cost
+
     expect(details).toContainEqual({
       kind: 'detail',
       label: { type: 'text', key: 'labelTransactionCost' },
@@ -353,8 +343,8 @@ describe('buildPlanPreviewData', () => {
           },
         ] as unknown as PlanFormInput['charges'],
       }),
-      basePayload(),
     )
+
     expect(data.rows.filter((r) => r.kind === 'detail')).toHaveLength(1)
   })
 
@@ -376,9 +366,9 @@ describe('buildPlanPreviewData', () => {
           },
         ] as unknown as PlanFormInput['charges'],
       }),
-      basePayload(),
     )
     const details = data.rows.filter((r) => r.kind === 'detail')
+
     expect(details).toContainEqual({
       kind: 'detail',
       label: { type: 'tierRange', from: 0, to: 10 },
@@ -407,8 +397,8 @@ describe('buildPlanPreviewData', () => {
           },
         ] as unknown as PlanFormInput['charges'],
       }),
-      basePayload(),
     )
+
     expect(data.rows).toContainEqual({
       kind: 'detail',
       label: { type: 'text', key: 'labelMinimumSpending' },
@@ -431,10 +421,12 @@ describe('buildPlanPreviewData', () => {
             },
           ] as unknown as PlanFormInput['charges'],
         }),
-        basePayload(),
       )
+
       expect(data.rows.filter((r) => r.kind === 'detail')).toHaveLength(0)
-      expect(data.rows.filter((r) => r.kind === 'main' && r.rowType === 'usageCharge')).toHaveLength(1)
+      expect(
+        data.rows.filter((r) => r.kind === 'main' && r.rowType === 'usageCharge'),
+      ).toHaveLength(1)
     }
   })
 })

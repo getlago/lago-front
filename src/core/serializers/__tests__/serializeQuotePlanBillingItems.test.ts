@@ -591,6 +591,7 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
     ] as any
 
     const result = fromPlanBillingItems(plans)
+
     expect(result.entityData['plan-1'].plan).toBeDefined()
     expect(result.entityData['plan-1'].plan?.rows[0]).toMatchObject({
       kind: 'main',
@@ -622,6 +623,7 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
     ] as any
 
     const result = fromPlanBillingItems(plans)
+
     expect(result.entityData['plan-legacy'].plan).toEqual({ rows: [] })
   })
 })

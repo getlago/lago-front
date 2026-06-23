@@ -1,12 +1,12 @@
 import { screen } from '@testing-library/react'
 
+import type { PlanPreviewData } from '~/core/serializers/buildPlanPreviewData'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import { render } from '~/test-utils'
-import type { PlanPreviewData } from '~/core/serializers/buildPlanPreviewData'
 
 import {
-  SubscriptionPlanPreviewTable,
   SUBSCRIPTION_PLAN_PREVIEW_TABLE_TEST_ID,
+  SubscriptionPlanPreviewTable,
 } from '../SubscriptionPlanPreviewTable'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -68,9 +68,7 @@ describe('SubscriptionPlanPreviewTable', () => {
       it('THEN should render the preview table with correct testid', () => {
         render(<SubscriptionPlanPreviewTable {...defaultProps} />)
 
-        expect(
-          screen.getByTestId('preview-table-subscription-plan-preview'),
-        ).toBeInTheDocument()
+        expect(screen.getByTestId('preview-table-subscription-plan-preview')).toBeInTheDocument()
       })
 
       it('THEN should render 4 header columns', () => {
@@ -126,9 +124,7 @@ describe('SubscriptionPlanPreviewTable', () => {
         render(<SubscriptionPlanPreviewTable {...defaultProps} />)
 
         expect(screen.getByTestId(SUBSCRIPTION_PLAN_PREVIEW_TABLE_TEST_ID)).toBeInTheDocument()
-        expect(
-          screen.getByTestId('preview-table-subscription-plan-preview'),
-        ).toBeInTheDocument()
+        expect(screen.getByTestId('preview-table-subscription-plan-preview')).toBeInTheDocument()
       })
     })
   })
@@ -136,12 +132,7 @@ describe('SubscriptionPlanPreviewTable', () => {
   describe('GIVEN a locale is provided', () => {
     describe('WHEN locale is set', () => {
       it('THEN should render the table without errors', () => {
-        render(
-          <SubscriptionPlanPreviewTable
-            {...defaultProps}
-            locale={'fr' as never}
-          />,
-        )
+        render(<SubscriptionPlanPreviewTable {...defaultProps} locale={'fr' as never} />)
 
         expect(screen.getByTestId(SUBSCRIPTION_PLAN_PREVIEW_TABLE_TEST_ID)).toBeInTheDocument()
       })
@@ -151,12 +142,7 @@ describe('SubscriptionPlanPreviewTable', () => {
   describe('GIVEN different currency values', () => {
     describe('WHEN EUR currency is used', () => {
       it('THEN should render the table without errors', () => {
-        render(
-          <SubscriptionPlanPreviewTable
-            {...defaultProps}
-            currency={CurrencyEnum.Eur}
-          />,
-        )
+        render(<SubscriptionPlanPreviewTable {...defaultProps} currency={CurrencyEnum.Eur} />)
 
         expect(screen.getByTestId(SUBSCRIPTION_PLAN_PREVIEW_TABLE_TEST_ID)).toBeInTheDocument()
       })
