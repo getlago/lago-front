@@ -6,6 +6,9 @@ import type {
 } from '~/components/plans/types'
 import { CommitmentTypeEnum } from '~/generated/graphql'
 
+// Re-export so consumers can import PlanFormInput from this serializer module.
+export type { PlanFormInput }
+
 // --- Plan billing item types (snake_case, matches backend contract) ---
 export interface PlanChargeOverride {
   billable_metric_code: string
