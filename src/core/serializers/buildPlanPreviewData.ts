@@ -141,7 +141,7 @@ export const buildPlanPreviewData = (
       kind: 'main',
       rowType: 'usageCharge',
       name: chargeName(charge as any) || undefined,
-      description: (charge as any).invoiceDisplayName ? undefined : undefined,
+      description: undefined,
       interval: usageInterval(formValues),
       timing: usageTiming((charge as any).payInAdvance),
       units: { type: 'usageBased' },
