@@ -19,8 +19,8 @@ export const Main = ({
   }
 
   return (
-    <div className="flex w-full flex-col pt-12 md:w-3/5">
-      <div className="flex-1 overflow-auto px-4 md:px-12 md:pt-0 [&>div>*:not(:last-child)]:mb-8 [&>div]:max-w-180">
+    <div className="height-minus-nav flex w-full flex-col overflow-hidden md:w-3/5">
+      <div className="flex-1 overflow-auto px-4 py-12 md:px-12 [&>div>*:not(:last-child)]:mb-8 [&>div]:max-w-180">
         {children}
       </div>
       <footer className="shrink-0 bg-white p-4 shadow-t md:px-12">
