@@ -297,6 +297,7 @@ const EditQuote = () => {
         aside={
           <EditQuoteAside
             quote={quote}
+            isSaving={saveStatus === 'saving'}
             onSaveStart={() => setSaveStatus('saving')}
             onSaveFinished={onUpdateFinished}
             onSaveError={(payload) => {
