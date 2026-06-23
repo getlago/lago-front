@@ -9,6 +9,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { OneOffAddOnsPreviewTable } from './OneOffAddOnsPreviewTable'
+import { SubscriptionPlanPreviewTable } from './SubscriptionPlanPreviewTable'
 
 import { useRichTextEditorContext } from '../common/RichTextEditorContext'
 import { PricingType } from '../extensions/PricingBlock.schema'
@@ -37,8 +38,8 @@ export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
   const hasResolved = resolvedEntities.length > 0
 
   // Preview mode: dispatch by pricing type
-  if (mode === 'preview' && hasResolved) {
-    if (pricingType === 'addOns') {
+  if (mode === 'preview') {
+    if (pricingType === 'addOns' && hasResolved) {
       return (
         <NodeViewWrapper className="spacer" data-type="pricingBlock">
           <OneOffAddOnsPreviewTable
@@ -51,7 +52,25 @@ export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
       )
     }
 
-    // Plan preview — fall through to existing resolved rendering for now
+    if (pricingType === 'plan') {
+      const planEntity = Object.values(entities).find((e) => e.entityType === 'plan')
+
+      if (planEntity?.plan) {
+        return (
+          <NodeViewWrapper className="spacer" data-type="pricingBlock">
+            <SubscriptionPlanPreviewTable
+              data={planEntity.plan}
+              translate={translateWithContextualLocal}
+              currency={currency}
+              locale={LocaleEnum[effectiveLocale]}
+            />
+          </NodeViewWrapper>
+        )
+      }
+    }
+
+    // Preview mode never renders the interactive empty/summary UI.
+    return <NodeViewWrapper className="spacer" data-type="pricingBlock" />
   }
 
   const handleClick = () => {
