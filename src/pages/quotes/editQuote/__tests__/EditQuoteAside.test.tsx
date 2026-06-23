@@ -27,6 +27,8 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
       if (key === 'text_64c7a89b6c67eb6c98898125') return '0 days (at issuing date)'
       if (key === 'text_64c7a89b6c67eb6c9889815f' && params?.days)
         return `${params.days} day${Number(params.days) !== 1 ? 's' : ''}`
+      if (key === 'text_1781883445506576p2jigfpx' && params?.numberWithVersion)
+        return `Quote #${params.numberWithVersion}`
 
       return key
     },
@@ -434,6 +436,13 @@ describe('EditQuoteAside', () => {
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID)).toBeInTheDocument()
       })
 
+      it('THEN should still render the Download PDF button without the quotesApprove permission', () => {
+        mockHasPermissions.mockReturnValue(false)
+        render(<EditQuoteAside quote={mockQuote} />)
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID)).toBeInTheDocument()
+      })
+
       it('THEN should render the Approve button when the user has the quotesApprove permission', () => {
         mockHasPermissions.mockReturnValue(true)
         render(<EditQuoteAside quote={mockQuote} />)
@@ -457,6 +466,21 @@ describe('EditQuoteAside', () => {
 
         expect(mockDownload).toHaveBeenCalledTimes(1)
       })
+
+      it('THEN should build the PDF header from the quote number and version', () => {
+        render(<EditQuoteAside quote={mockQuote} />)
+
+        fireEvent.click(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID))
+
+        expect(mockDownload).toHaveBeenCalledWith(
+          expect.objectContaining({
+            header: expect.objectContaining({
+              documentNumber: 'Q-001',
+              title: 'Quote #Q-001 - v1',
+            }),
+          }),
+        )
+      })
     })
 
     describe('WHEN the Approve button is clicked', () => {
@@ -476,6 +500,22 @@ describe('EditQuoteAside', () => {
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID)).toBeDisabled()
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_APPROVE_TEST_ID)).toBeDisabled()
         expect(screen.getAllByTestId(/processing/)).toHaveLength(2)
+      })
+
+      it('THEN should not trigger a PDF download while saving', () => {
+        render(<EditQuoteAside quote={mockQuote} isSaving />)
+
+        fireEvent.click(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID))
+
+        expect(mockDownload).not.toHaveBeenCalled()
+      })
+
+      it('THEN should not navigate to approve while saving', () => {
+        render(<EditQuoteAside quote={mockQuote} isSaving />)
+
+        fireEvent.click(screen.getByTestId(EDIT_QUOTE_ASIDE_APPROVE_TEST_ID))
+
+        expect(mockGoToApproveQuote).not.toHaveBeenCalled()
       })
     })
 
