@@ -476,7 +476,7 @@ describe('EditQuoteAside', () => {
           expect.objectContaining({
             header: expect.objectContaining({
               documentNumber: 'Q-001',
-              title: 'Quote #Q-001 - v1',
+              rows: ['Quote #Q-001 - v1'],
             }),
           }),
         )
