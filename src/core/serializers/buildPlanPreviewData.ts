@@ -55,10 +55,15 @@ export type PlanPreviewRow = PlanPreviewMainRow | PlanPreviewDetailRow
 export type PlanPreviewData = { rows: PlanPreviewRow[] }
 
 const num = (v: unknown): number => {
-  const n = Number.parseFloat(String(v ?? ''))
+  const n = typeof v === 'number' ? v : Number.parseFloat(typeof v === 'string' ? v : '')
 
   return Number.isFinite(n) ? n : 0
 }
+
+// Property bags are typed `unknown`; coerce only primitives so an unexpected
+// object never stringifies to '[object Object]'.
+const amountStr = (v: unknown, fallback = '0'): string =>
+  typeof v === 'string' || typeof v === 'number' ? String(v) : fallback
 
 const fixedTiming = (payInAdvance: boolean): BilledTiming =>
   payInAdvance ? 'beginningOfPeriod' : 'endOfPeriod'
@@ -128,145 +133,149 @@ const tierRows = (ranges: Range[]): PlanPreviewDetailRow[] =>
     return out
   })
 
-// Per-model detail rows are added in Tasks 4 & 5. Standard handled here.
+const standardDetailRows = (props: Record<string, unknown>): PlanPreviewDetailRow[] => [
+  {
+    kind: 'detail',
+    label: { type: 'text', key: 'labelUsage' },
+    qualifier: { type: 'perUnit' },
+    value: { type: 'displayAmount', amount: amountStr(props.amount) },
+  },
+]
+
+const packageDetailRows = (props: Record<string, unknown>): PlanPreviewDetailRow[] => {
+  const out: PlanPreviewDetailRow[] = []
+
+  if (num(props.freeUnits) > 0) {
+    out.push({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelFreeUnits' },
+      qualifier: { type: 'firstNUnits', count: num(props.freeUnits) },
+      value: { type: 'displayAmount', amount: '0' },
+    })
+  }
+  out.push({
+    kind: 'detail',
+    label: { type: 'text', key: 'labelPackage' },
+    qualifier: { type: 'perPackage', size: num(props.packageSize) },
+    value: { type: 'displayAmount', amount: amountStr(props.amount) },
+  })
+
+  return out
+}
+
+const percentageDetailRows = (props: Record<string, unknown>): PlanPreviewDetailRow[] => {
+  const out: PlanPreviewDetailRow[] = []
+
+  if (num(props.freeUnitsPerTotalAggregation) > 0) {
+    out.push({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelFreeVolume' },
+      qualifier: { type: 'firstNUnits', count: num(props.freeUnitsPerTotalAggregation) },
+      value: { type: 'percentage', rate: '0' },
+    })
+  }
+  if (num(props.freeUnitsPerEvents) > 0) {
+    out.push({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelFreeTransactions' },
+      qualifier: { type: 'firstNTransactions', count: num(props.freeUnitsPerEvents) },
+      value: { type: 'percentage', rate: '0' },
+    })
+  }
+  // Always-present transaction cost
+  out.push({
+    kind: 'detail',
+    label: { type: 'text', key: 'labelTransactionCost' },
+    qualifier: { type: 'percentOfVolume' },
+    value: { type: 'percentage', rate: amountStr(props.rate) },
+  })
+  if (num(props.fixedAmount) > 0) {
+    out.push({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelFixedFee' },
+      qualifier: { type: 'perTransaction' },
+      value: { type: 'displayAmount', amount: amountStr(props.fixedAmount) },
+    })
+  }
+  if (num(props.perTransactionMinAmount) > 0) {
+    out.push({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelMinimum' },
+      qualifier: { type: 'perTransaction' },
+      value: { type: 'displayAmount', amount: amountStr(props.perTransactionMinAmount) },
+    })
+  }
+  if (num(props.perTransactionMaxAmount) > 0) {
+    out.push({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelMaximum' },
+      qualifier: { type: 'perTransaction' },
+      value: { type: 'displayAmount', amount: amountStr(props.perTransactionMaxAmount) },
+    })
+  }
+
+  return out
+}
+
+const graduatedPercentageDetailRows = (props: Record<string, unknown>): PlanPreviewDetailRow[] => {
+  const ranges = (props.graduatedPercentageRanges ?? []) as Array<{
+    fromValue: number
+    toValue?: number | null
+    rate?: string
+    flatAmount?: string
+  }>
+
+  return ranges.flatMap((r) => {
+    const out: PlanPreviewDetailRow[] = [
+      {
+        kind: 'detail',
+        label: {
+          type: 'tierRange',
+          from: num(r.fromValue),
+          to: r.toValue === null || r.toValue === undefined ? undefined : num(r.toValue),
+        },
+        qualifier: { type: 'percentOfVolume' },
+        value: { type: 'percentage', rate: String(r.rate ?? '0') },
+      },
+    ]
+
+    if (num(r.flatAmount) > 0) {
+      out.push({
+        kind: 'detail',
+        label: {
+          type: 'flatFeeForTier',
+          from: num(r.fromValue),
+          to: r.toValue === null || r.toValue === undefined ? undefined : num(r.toValue),
+        },
+        qualifier: { type: 'flatFee' },
+        value: { type: 'displayAmount', amount: String(r.flatAmount) },
+      })
+    }
+
+    return out
+  })
+}
+
+// Dispatch per charge model. dynamic / custom → no detail rows (main usage row only).
 const usageDetailRows = (charge: LocalUsageChargeInput): PlanPreviewDetailRow[] => {
   const props = (charge.properties ?? {}) as Record<string, unknown>
 
-  if (charge.chargeModel === ChargeModelEnum.Standard) {
-    return [
-      {
-        kind: 'detail',
-        label: { type: 'text', key: 'labelUsage' },
-        qualifier: { type: 'perUnit' },
-        value: { type: 'displayAmount', amount: String(props.amount ?? '0') },
-      },
-    ]
+  switch (charge.chargeModel) {
+    case ChargeModelEnum.Standard:
+      return standardDetailRows(props)
+    case ChargeModelEnum.Graduated:
+      return tierRows((props.graduatedRanges ?? []) as Range[])
+    case ChargeModelEnum.Volume:
+      return tierRows((props.volumeRanges ?? []) as Range[])
+    case ChargeModelEnum.Package:
+      return packageDetailRows(props)
+    case ChargeModelEnum.Percentage:
+      return percentageDetailRows(props)
+    case ChargeModelEnum.GraduatedPercentage:
+      return graduatedPercentageDetailRows(props)
+    default:
+      return []
   }
-
-  if (charge.chargeModel === ChargeModelEnum.Graduated) {
-    return tierRows((props.graduatedRanges ?? []) as Range[])
-  }
-
-  if (charge.chargeModel === ChargeModelEnum.Volume) {
-    return tierRows((props.volumeRanges ?? []) as Range[])
-  }
-
-  if (charge.chargeModel === ChargeModelEnum.Package) {
-    const out: PlanPreviewDetailRow[] = []
-
-    if (num(props.freeUnits) > 0) {
-      out.push({
-        kind: 'detail',
-        label: { type: 'text', key: 'labelFreeUnits' },
-        qualifier: { type: 'firstNUnits', count: num(props.freeUnits) },
-        value: { type: 'displayAmount', amount: '0' },
-      })
-    }
-    out.push({
-      kind: 'detail',
-      label: { type: 'text', key: 'labelPackage' },
-      qualifier: { type: 'perPackage', size: num(props.packageSize) },
-      value: { type: 'displayAmount', amount: String(props.amount ?? '0') },
-    })
-
-    return out
-  }
-
-  if (charge.chargeModel === ChargeModelEnum.Percentage) {
-    const out: PlanPreviewDetailRow[] = []
-
-    if (num(props.freeUnitsPerTotalAggregation) > 0) {
-      out.push({
-        kind: 'detail',
-        label: { type: 'text', key: 'labelFreeVolume' },
-        qualifier: { type: 'firstNUnits', count: num(props.freeUnitsPerTotalAggregation) },
-        value: { type: 'percentage', rate: '0' },
-      })
-    }
-    if (num(props.freeUnitsPerEvents) > 0) {
-      out.push({
-        kind: 'detail',
-        label: { type: 'text', key: 'labelFreeTransactions' },
-        qualifier: { type: 'firstNTransactions', count: num(props.freeUnitsPerEvents) },
-        value: { type: 'percentage', rate: '0' },
-      })
-    }
-    // Always-present transaction cost
-    out.push({
-      kind: 'detail',
-      label: { type: 'text', key: 'labelTransactionCost' },
-      qualifier: { type: 'percentOfVolume' },
-      value: { type: 'percentage', rate: String(props.rate ?? '0') },
-    })
-    if (num(props.fixedAmount) > 0) {
-      out.push({
-        kind: 'detail',
-        label: { type: 'text', key: 'labelFixedFee' },
-        qualifier: { type: 'perTransaction' },
-        value: { type: 'displayAmount', amount: String(props.fixedAmount) },
-      })
-    }
-    if (num(props.perTransactionMinAmount) > 0) {
-      out.push({
-        kind: 'detail',
-        label: { type: 'text', key: 'labelMinimum' },
-        qualifier: { type: 'perTransaction' },
-        value: { type: 'displayAmount', amount: String(props.perTransactionMinAmount) },
-      })
-    }
-    if (num(props.perTransactionMaxAmount) > 0) {
-      out.push({
-        kind: 'detail',
-        label: { type: 'text', key: 'labelMaximum' },
-        qualifier: { type: 'perTransaction' },
-        value: { type: 'displayAmount', amount: String(props.perTransactionMaxAmount) },
-      })
-    }
-
-    return out
-  }
-
-  if (charge.chargeModel === ChargeModelEnum.GraduatedPercentage) {
-    const ranges = (props.graduatedPercentageRanges ?? []) as Array<{
-      fromValue: number
-      toValue?: number | null
-      rate?: string
-      flatAmount?: string
-    }>
-
-    return ranges.flatMap((r) => {
-      const out: PlanPreviewDetailRow[] = [
-        {
-          kind: 'detail',
-          label: {
-            type: 'tierRange',
-            from: num(r.fromValue),
-            to: r.toValue === null || r.toValue === undefined ? undefined : num(r.toValue),
-          },
-          qualifier: { type: 'percentOfVolume' },
-          value: { type: 'percentage', rate: String(r.rate ?? '0') },
-        },
-      ]
-
-      if (num(r.flatAmount) > 0) {
-        out.push({
-          kind: 'detail',
-          label: {
-            type: 'flatFeeForTier',
-            from: num(r.fromValue),
-            to: r.toValue === null || r.toValue === undefined ? undefined : num(r.toValue),
-          },
-          qualifier: { type: 'flatFee' },
-          value: { type: 'displayAmount', amount: String(r.flatAmount) },
-        })
-      }
-
-      return out
-    })
-  }
-
-  // dynamic / custom → no detail rows (main usage row only)
-  return []
 }
 
 export const buildPlanPreviewData = (formValues: PlanFormInput | null): PlanPreviewData => {
@@ -298,29 +307,33 @@ export const buildPlanPreviewData = (formValues: PlanFormInput | null): PlanPrev
     const fcUnits: PreviewCellValue = { type: 'count', value: num(typedFc.units) }
 
     if (typedFc.chargeModel === FixedChargeChargeModelEnum.Graduated) {
-      rows.push({
-        kind: 'main',
-        rowType: 'fixedCharge',
-        name: fcName,
-        description: undefined,
-        interval: fcInterval,
-        timing: fcTiming,
-        units: fcUnits,
-        price: { type: 'empty' },
-      })
-      rows.push(...tierRows((fcProps.graduatedRanges ?? []) as Range[]))
+      rows.push(
+        {
+          kind: 'main',
+          rowType: 'fixedCharge',
+          name: fcName,
+          description: undefined,
+          interval: fcInterval,
+          timing: fcTiming,
+          units: fcUnits,
+          price: { type: 'empty' },
+        },
+        ...tierRows((fcProps.graduatedRanges ?? []) as Range[]),
+      )
     } else if (typedFc.chargeModel === FixedChargeChargeModelEnum.Volume) {
-      rows.push({
-        kind: 'main',
-        rowType: 'fixedCharge',
-        name: fcName,
-        description: undefined,
-        interval: fcInterval,
-        timing: fcTiming,
-        units: fcUnits,
-        price: { type: 'empty' },
-      })
-      rows.push(...tierRows((fcProps.volumeRanges ?? []) as Range[]))
+      rows.push(
+        {
+          kind: 'main',
+          rowType: 'fixedCharge',
+          name: fcName,
+          description: undefined,
+          interval: fcInterval,
+          timing: fcTiming,
+          units: fcUnits,
+          price: { type: 'empty' },
+        },
+        ...tierRows((fcProps.volumeRanges ?? []) as Range[]),
+      )
     } else {
       // Standard (default)
       rows.push({
@@ -331,7 +344,7 @@ export const buildPlanPreviewData = (formValues: PlanFormInput | null): PlanPrev
         interval: fcInterval,
         timing: fcTiming,
         units: fcUnits,
-        price: { type: 'displayAmount', amount: String(fcProps.amount ?? '0') },
+        price: { type: 'displayAmount', amount: amountStr(fcProps.amount) },
       })
     }
   }
@@ -340,17 +353,19 @@ export const buildPlanPreviewData = (formValues: PlanFormInput | null): PlanPrev
   for (const charge of formValues.charges ?? []) {
     const typedCharge = charge as LocalUsageChargeInput
 
-    rows.push({
-      kind: 'main',
-      rowType: 'usageCharge',
-      name: chargeName(typedCharge) || undefined,
-      description: undefined,
-      interval: usageInterval(formValues),
-      timing: usageChargeTiming(typedCharge),
-      units: { type: 'usageBased' },
-      price: { type: 'variesWithUsage' },
-    })
-    rows.push(...usageDetailRows(typedCharge))
+    rows.push(
+      {
+        kind: 'main',
+        rowType: 'usageCharge',
+        name: chargeName(typedCharge) || undefined,
+        description: undefined,
+        interval: usageInterval(formValues),
+        timing: usageChargeTiming(typedCharge),
+        units: { type: 'usageBased' },
+        price: { type: 'variesWithUsage' },
+      },
+      ...usageDetailRows(typedCharge),
+    )
     const minAmount = typedCharge.minAmountCents
 
     if (num(minAmount) > 0) {
