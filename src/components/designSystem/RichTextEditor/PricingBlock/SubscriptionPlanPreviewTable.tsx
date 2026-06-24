@@ -188,6 +188,7 @@ export const SubscriptionPlanPreviewTable = ({
     {
       key: 'units',
       title: translate(K.colUnits),
+      minWidth: 120,
       textAlign: 'right',
       content: (row) => (
         <Typography variant="body" color={row.kind === 'main' ? 'grey700' : 'grey600'}>
@@ -198,6 +199,7 @@ export const SubscriptionPlanPreviewTable = ({
     {
       key: 'price',
       title: translate(K.colPrice),
+      minWidth: 180,
       textAlign: 'right',
       content: (row) => (
         <Typography variant="body" color={row.kind === 'main' ? 'grey700' : 'grey600'}>
@@ -213,6 +215,9 @@ export const SubscriptionPlanPreviewTable = ({
         name="subscription-plan-preview"
         data={data.rows}
         columns={columns}
+        // Detail rows (usage / tiers) belong to the charge above them — suppress the
+        // divider before a detail row so each charge + its breakdown reads as one group.
+        rowHasDivider={(_row, index) => data.rows[index + 1]?.kind !== 'detail'}
         footer={
           <Typography variant="caption" className="mt-3 text-right">
             {translate(K.taxFooter)}

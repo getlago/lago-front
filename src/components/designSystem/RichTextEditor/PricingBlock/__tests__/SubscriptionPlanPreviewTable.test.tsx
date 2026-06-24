@@ -158,4 +158,79 @@ describe('SubscriptionPlanPreviewTable', () => {
       })
     })
   })
+
+  describe('GIVEN a charge with detail rows', () => {
+    describe('WHEN a main row is followed by a detail row', () => {
+      const grouped: PlanPreviewData = {
+        rows: [
+          {
+            kind: 'main',
+            rowType: 'usageCharge',
+            name: 'API calls',
+            interval: PlanInterval.Monthly,
+            timing: 'endOfPeriod',
+            units: { type: 'usageBased' },
+            price: { type: 'variesWithUsage' },
+          },
+          {
+            kind: 'detail',
+            label: { type: 'tierRange', from: 1, to: 10 },
+            qualifier: { type: 'perUnit' },
+            value: { type: 'displayAmount', amount: '0.10' },
+          },
+          {
+            kind: 'main',
+            rowType: 'subscriptionFee',
+            name: undefined,
+            interval: PlanInterval.Monthly,
+            timing: 'beginningOfPeriod',
+            units: { type: 'count', value: 1 },
+            price: { type: 'displayAmount', amount: '130.50' },
+          },
+        ],
+      }
+
+      it('THEN the main row before a detail row has no bottom divider', () => {
+        render(
+          <SubscriptionPlanPreviewTable
+            data={grouped}
+            translate={mockTranslate}
+            currency={CurrencyEnum.Usd}
+          />,
+        )
+
+        const mainRow = screen.getByTestId('preview-table-subscription-plan-preview-row-0')
+
+        expect(mainRow.className).not.toContain('border-b')
+      })
+
+      it('THEN the detail row that ends the group keeps its bottom divider', () => {
+        render(
+          <SubscriptionPlanPreviewTable
+            data={grouped}
+            translate={mockTranslate}
+            currency={CurrencyEnum.Usd}
+          />,
+        )
+
+        const detailRow = screen.getByTestId('preview-table-subscription-plan-preview-row-1')
+
+        expect(detailRow.className).toContain('border-b')
+      })
+
+      it('THEN the final row keeps its bottom divider', () => {
+        render(
+          <SubscriptionPlanPreviewTable
+            data={grouped}
+            translate={mockTranslate}
+            currency={CurrencyEnum.Usd}
+          />,
+        )
+
+        const lastRow = screen.getByTestId('preview-table-subscription-plan-preview-row-2')
+
+        expect(lastRow.className).toContain('border-b')
+      })
+    })
+  })
 })
