@@ -91,7 +91,9 @@ jest.mock('~/components/invoices/EditInvoiceItemDescriptionDialog', () => ({
 }))
 
 jest.mock('~/components/invoices/EditInvoiceItemTaxDialog', () => ({
-  EditInvoiceItemTaxDialog: jest.fn(() => null),
+  useEditInvoiceItemTaxDialog: () => ({
+    openEditInvoiceItemTaxDialog: jest.fn(),
+  }),
 }))
 
 const mockUseInvoiceBuildRegenerationPreview = useInvoiceBuildRegenerationPreview as jest.Mock
