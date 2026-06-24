@@ -86,6 +86,10 @@ const Quotes = (): JSX.Element => {
         {...(isPremium
           ? {
               tabs,
+              // The filtersSection is tab-dependent but stripped from the config snapshot
+              // (it's a ReactNode). Bump snapshotKey per tab so switching tabs re-pushes the
+              // matching filter panel instead of leaving the previous tab's panel in context.
+              snapshotKey: isOrderFormsTab ? 'order-forms' : 'quotes',
               actions: {
                 items: [
                   {
