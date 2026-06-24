@@ -40,6 +40,9 @@ describe('buildPlanPreviewData', () => {
       interval: PlanInterval.Monthly,
       timing: 'beginningOfPeriod',
       units: { type: 'count', value: 1 },
+      // amountCents is already in display units (major) by the time it reaches the
+      // builder — the form deserializes on load and the quote serializer is passthrough —
+      // so it is rendered directly, never re-divided by 100.
       price: { type: 'displayAmount', amount: '13050' },
     })
   })
