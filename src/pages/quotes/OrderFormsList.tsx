@@ -1,3 +1,7 @@
+import { useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
+
+import { formatFiltersForOrderFormsQuery } from '~/components/designSystem/Filters'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
@@ -22,9 +26,17 @@ interface OrderFormsListProps {
 const OrderFormsList = ({ quoteNumber }: OrderFormsListProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const { orderForms, loading, error, fetchMore, metadata } = useOrderForms(
-    quoteNumber ? { quoteNumber: [quoteNumber] } : undefined,
+  const [searchParams] = useSearchParams()
+
+  const filtersForOrderFormsQuery = useMemo(
+    () => formatFiltersForOrderFormsQuery(searchParams),
+    [searchParams],
   )
+
+  const { orderForms, loading, error, fetchMore, metadata } = useOrderForms({
+    ...filtersForOrderFormsQuery,
+    ...(quoteNumber ? { quoteNumber: [quoteNumber] } : {}),
+  })
   const { getActions } = useOrderFormActions()
 
   const columns: Array<TableColumn<OrderFormListItemFragment>> = [
