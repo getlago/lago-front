@@ -1,15 +1,15 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
+import { useDeleteAddOnDialog } from '~/components/addOns/DeleteAddOnDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
@@ -32,6 +32,7 @@ gql`
   fragment AddOnItem on AddOn {
     id
     name
+    code
     amountCurrency
     amountCents
     customersCount
@@ -58,7 +59,7 @@ const AddOnsList = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const deleteDialogRef = useRef<DeleteAddOnDialogRef>(null)
+  const { openDeleteAddOnDialog } = useDeleteAddOnDialog()
   const [getAddOns, { data, error, loading, fetchMore, variables }] = useAddOnsLazyQuery({
     variables: { limit: 20 },
     notifyOnNetworkStatusChange: true,
@@ -154,7 +155,7 @@ const AddOnsList = () => {
               title: translate('text_629728388c4d2300e2d380bd'),
               minWidth: 200,
               maxSpace: true,
-              content: ({ name, amountCents, amountCurrency }) => (
+              content: ({ name, code, amountCents, amountCurrency }) => (
                 <div className="flex items-center gap-3">
                   <Avatar size="big" variant="connector">
                     <Icon name="puzzle" color="dark" />
@@ -163,17 +164,22 @@ const AddOnsList = () => {
                     <Typography color="textSecondary" variant="bodyHl" noWrap>
                       {name}
                     </Typography>
-                    <Typography variant="caption" noWrap>
-                      {translate('text_629728388c4d2300e2d3810b', {
-                        amountWithCurrency: intlFormatNumber(
-                          deserializeAmount(amountCents, amountCurrency) || 0,
-                          {
-                            currencyDisplay: 'symbol',
-                            currency: amountCurrency,
-                          },
-                        ),
-                      })}
-                    </Typography>
+                    <div className="flex items-baseline gap-1">
+                      <TypographyWithCopy className="shrink-0" compact noWrap variant="caption">
+                        {code}
+                      </TypographyWithCopy>
+                      <Typography className="min-w-0" variant="caption" noWrap>
+                        {`• ${translate('text_629728388c4d2300e2d3810b', {
+                          amountWithCurrency: intlFormatNumber(
+                            deserializeAmount(amountCents, amountCurrency) || 0,
+                            {
+                              currencyDisplay: 'symbol',
+                              currency: amountCurrency,
+                            },
+                          ),
+                        })}`}
+                      </Typography>
+                    </div>
                   </div>
                 </div>
               ),
@@ -221,7 +227,7 @@ const AddOnsList = () => {
                 startIcon: 'trash',
                 title: translate('text_629728388c4d2300e2d38182'),
                 onAction: () => {
-                  deleteDialogRef.current?.openDialog({
+                  openDeleteAddOnDialog({
                     addOn,
                     callback: () => {
                       navigate(ADD_ONS_ROUTE)
@@ -251,8 +257,6 @@ const AddOnsList = () => {
           }}
         />
       </InfiniteScroll>
-
-      <DeleteAddOnDialog ref={deleteDialogRef} />
     </>
   )
 }

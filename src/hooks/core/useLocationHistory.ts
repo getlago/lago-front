@@ -1,12 +1,6 @@
 import { Location, matchPath, NavigateOptions, useParams } from 'react-router-dom'
 
-import {
-  addLocationToHistory,
-  authTokenVar,
-  getItemFromLS,
-  locationHistoryVar,
-} from '~/core/apolloClient'
-import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
+import { addLocationToHistory, authTokenVar, locationHistoryVar } from '~/core/apolloClient'
 import {
   CustomRouteObject,
   FORBIDDEN_ROUTE,
@@ -148,7 +142,6 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
         navigate(loginPath, {
           state: {
             from: location,
-            orgId: getItemFromLS(ORGANIZATION_LS_KEY_ID),
           },
           replace: true,
         })

@@ -117,11 +117,12 @@ caller.
 
 **Do not** read `currentOrganizationVar` from feature components for UI or identifier construction. That is a known bug pattern (logo flashing wrong org cross-tab, webhook URLs baking the wrong UUID, slug page showing the other tab's value, etc.). The fix in every case is migrating off the var and onto `useParams` + memberships.
 
-Legitimate var reads in the codebase (audit anchor, keep this short):
+Legitimate var reads in the codebase (audit anchor, keep this short). Two permitted purposes only: (a) constructing the `x-lago-organization` auth header, (b) gating org-scoped queries so they don't fire header-less, (c) bridging URL → var inside `OrganizationLayout`. UI/identifier construction is never permitted.
 
-- `src/core/apolloClient/init.ts` — auth link (the canonical reason the var exists).
-- `src/layouts/OrganizationLayout.tsx` — switch detection on the `currentOrgId !== org.id` mismatch.
-- `src/core/apolloClient/cacheUtils.ts:onLogIn` — reads the var as `previousOrganizationId` to bias the post-login org choice (transitional behaviour, will become a no-op once LS bootstrap is removed).
+- `src/core/apolloClient/authHeaders.ts` and `src/core/apolloClient/init.ts` — auth-header construction (the canonical reason the var exists).
+- `src/layouts/OrganizationLayout.tsx` — switch detection on the `currentOrgId !== org.id` mismatch (the single sync point that writes the var from the URL slug).
+- `src/components/UserIdentifier.tsx` — query-gates the `UserIdentifier` query (org-scoped `organization` field) on `!!currentOrganizationId` so it doesn't fire on slug-less surfaces (e.g. `/`).
+- `src/hooks/useOrganizationInfos.ts` — query-gates `getOrganizationInfos` (org-scoped) on `!!currentOrganizationId` for the same reason.
 - `src/hooks/useCurrentUser.ts` — slug-first resolution of `currentMembership` with var as a fallback for routes outside `/:organizationSlug` (login, customer portal). The fallback exists so callers in those non-org routes still get a membership; if a future audit shows nobody consumes `currentMembership` from those contexts, the fallback can be dropped.
 
 Anything else reading the var in a feature component is a regression — fix it.

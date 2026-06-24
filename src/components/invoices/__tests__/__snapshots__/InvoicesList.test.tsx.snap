@@ -877,7 +877,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -913,7 +913,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -934,14 +934,47 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
-                      class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
-                      data-test="body"
+                      class="w-fit"
                     >
-                      INV-DRAFT
+                      <div
+                        aria-label="text_623b42ff8ee4e000ba87d0c6"
+                        class=""
+                        data-mui-internal-clone-element="true"
+                      >
+                        <button
+                          class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center -ml-1 px-1 py-0 !h-auto !min-h-0 !min-w-0 !items-baseline !py-0 [&_.MuiButton-endIcon>svg]:!size-3 [&_.MuiButton-endIcon]:!ml-1 css-hash-MuiButtonBase-root-MuiButton-root
+                          data-test="typography-with-copy-button"
+                          tabindex="0"
+                          type="button"
+                        >
+                          <div
+                            class=MuiTypography-root MuiTypography-body MuiTypography-noWrap !leading-[26px] css-hash-MuiTypography-root
+                            data-test="body"
+                          >
+                            INV-DRAFT
+                          </div>
+                          <span
+                            class=MuiButton-icon MuiButton-endIcon MuiButton-iconSizeSmall css-hash-MuiButton-endIcon
+                          >
+                            <svg
+                              class="text-inherit size-4 min-w-4"
+                              data-test="duplicate/medium"
+                              fill="currentColor"
+                              title="duplicate/medium"
+                              viewBox="0 0 16 16"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M14 2H6V4H10C10.5304 4 11.0391 4.21071 11.4142 4.58579C11.7893 4.96086 12 5.46957 12 6V10H14V2ZM2 14H10V6H2V14ZM14 12H12V14C12 14.5304 11.7893 15.0391 11.4142 15.4142C11.0391 15.7893 10.5304 16 10 16H2C1.46957 16 0.960859 15.7893 0.585786 15.4142C0.210714 15.0391 0 14.5304 0 14V6C0 5.46957 0.210714 4.96086 0.585786 4.58579C0.960859 4.21071 1.46957 4 2 4H4V2C4 1.46957 4.21071 0.960859 4.58579 0.585786C4.96086 0.210714 5.46957 0 6 0L14 0C14.5304 0 15.0391 0.210714 15.4142 0.585786C15.7893 0.960859 16 1.46957 16 2V10C16 10.5304 15.7893 11.0391 15.4142 11.4142C15.0391 11.7893 14.5304 12 14 12Z"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -955,7 +988,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -976,7 +1009,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -997,7 +1030,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   />
                 </div>
@@ -1011,7 +1044,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   />
                 </div>
@@ -1025,7 +1058,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 160px; max-width: 600px;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1046,7 +1079,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 104px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1123,7 +1156,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1159,7 +1192,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1180,14 +1213,47 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
-                      class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
-                      data-test="body"
+                      class="w-fit"
                     >
-                      INV-FINALIZED
+                      <div
+                        aria-label="text_623b42ff8ee4e000ba87d0c6"
+                        class=""
+                        data-mui-internal-clone-element="true"
+                      >
+                        <button
+                          class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center -ml-1 px-1 py-0 !h-auto !min-h-0 !min-w-0 !items-baseline !py-0 [&_.MuiButton-endIcon>svg]:!size-3 [&_.MuiButton-endIcon]:!ml-1 css-hash-MuiButtonBase-root-MuiButton-root
+                          data-test="typography-with-copy-button"
+                          tabindex="0"
+                          type="button"
+                        >
+                          <div
+                            class=MuiTypography-root MuiTypography-body MuiTypography-noWrap !leading-[26px] css-hash-MuiTypography-root
+                            data-test="body"
+                          >
+                            INV-FINALIZED
+                          </div>
+                          <span
+                            class=MuiButton-icon MuiButton-endIcon MuiButton-iconSizeSmall css-hash-MuiButton-endIcon
+                          >
+                            <svg
+                              class="text-inherit size-4 min-w-4"
+                              data-test="duplicate/medium"
+                              fill="currentColor"
+                              title="duplicate/medium"
+                              viewBox="0 0 16 16"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M14 2H6V4H10C10.5304 4 11.0391 4.21071 11.4142 4.58579C11.7893 4.96086 12 5.46957 12 6V10H14V2ZM2 14H10V6H2V14ZM14 12H12V14C12 14.5304 11.7893 15.0391 11.4142 15.4142C11.0391 15.7893 10.5304 16 10 16H2C1.46957 16 0.960859 15.7893 0.585786 15.4142C0.210714 15.0391 0 14.5304 0 14V6C0 5.46957 0.210714 4.96086 0.585786 4.58579C0.960859 4.21071 1.46957 4 2 4H4V2C4 1.46957 4.21071 0.960859 4.58579 0.585786C4.96086 0.210714 5.46957 0 6 0L14 0C14.5304 0 15.0391 0.210714 15.4142 0.585786C15.7893 0.960859 16 1.46957 16 2V10C16 10.5304 15.7893 11.0391 15.4142 11.4142C15.0391 11.7893 14.5304 12 14 12Z"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1201,7 +1267,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1222,7 +1288,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1243,7 +1309,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1278,7 +1344,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   />
                 </div>
@@ -1292,7 +1358,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 160px; max-width: 600px;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1313,7 +1379,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 104px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1390,7 +1456,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1426,7 +1492,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1447,14 +1513,47 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
-                      class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
-                      data-test="body"
+                      class="w-fit"
                     >
-                      INV-VOIDED
+                      <div
+                        aria-label="text_623b42ff8ee4e000ba87d0c6"
+                        class=""
+                        data-mui-internal-clone-element="true"
+                      >
+                        <button
+                          class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center -ml-1 px-1 py-0 !h-auto !min-h-0 !min-w-0 !items-baseline !py-0 [&_.MuiButton-endIcon>svg]:!size-3 [&_.MuiButton-endIcon]:!ml-1 css-hash-MuiButtonBase-root-MuiButton-root
+                          data-test="typography-with-copy-button"
+                          tabindex="0"
+                          type="button"
+                        >
+                          <div
+                            class=MuiTypography-root MuiTypography-body MuiTypography-noWrap !leading-[26px] css-hash-MuiTypography-root
+                            data-test="body"
+                          >
+                            INV-VOIDED
+                          </div>
+                          <span
+                            class=MuiButton-icon MuiButton-endIcon MuiButton-iconSizeSmall css-hash-MuiButton-endIcon
+                          >
+                            <svg
+                              class="text-inherit size-4 min-w-4"
+                              data-test="duplicate/medium"
+                              fill="currentColor"
+                              title="duplicate/medium"
+                              viewBox="0 0 16 16"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M14 2H6V4H10C10.5304 4 11.0391 4.21071 11.4142 4.58579C11.7893 4.96086 12 5.46957 12 6V10H14V2ZM2 14H10V6H2V14ZM14 12H12V14C12 14.5304 11.7893 15.0391 11.4142 15.4142C11.0391 15.7893 10.5304 16 10 16H2C1.46957 16 0.960859 15.7893 0.585786 15.4142C0.210714 15.0391 0 14.5304 0 14V6C0 5.46957 0.210714 4.96086 0.585786 4.58579C0.960859 4.21071 1.46957 4 2 4H4V2C4 1.46957 4.21071 0.960859 4.58579 0.585786C4.96086 0.210714 5.46957 0 6 0L14 0C14.5304 0 15.0391 0.210714 15.4142 0.585786C15.7893 0.960859 16 1.46957 16 2V10C16 10.5304 15.7893 11.0391 15.4142 11.4142C15.0391 11.7893 14.5304 12 14 12Z"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1468,7 +1567,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1489,7 +1588,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1510,7 +1609,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   />
                 </div>
@@ -1524,7 +1623,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   />
                 </div>
@@ -1538,7 +1637,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 160px; max-width: 600px;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1559,7 +1658,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                   style="min-width: 104px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1785,7 +1884,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1821,7 +1920,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1842,14 +1941,47 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
-                      class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
-                      data-test="body"
+                      class="w-fit"
                     >
-                      INV-PENDING
+                      <div
+                        aria-label="text_623b42ff8ee4e000ba87d0c6"
+                        class=""
+                        data-mui-internal-clone-element="true"
+                      >
+                        <button
+                          class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center -ml-1 px-1 py-0 !h-auto !min-h-0 !min-w-0 !items-baseline !py-0 [&_.MuiButton-endIcon>svg]:!size-3 [&_.MuiButton-endIcon]:!ml-1 css-hash-MuiButtonBase-root-MuiButton-root
+                          data-test="typography-with-copy-button"
+                          tabindex="0"
+                          type="button"
+                        >
+                          <div
+                            class=MuiTypography-root MuiTypography-body MuiTypography-noWrap !leading-[26px] css-hash-MuiTypography-root
+                            data-test="body"
+                          >
+                            INV-PENDING
+                          </div>
+                          <span
+                            class=MuiButton-icon MuiButton-endIcon MuiButton-iconSizeSmall css-hash-MuiButton-endIcon
+                          >
+                            <svg
+                              class="text-inherit size-4 min-w-4"
+                              data-test="duplicate/medium"
+                              fill="currentColor"
+                              title="duplicate/medium"
+                              viewBox="0 0 16 16"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M14 2H6V4H10C10.5304 4 11.0391 4.21071 11.4142 4.58579C11.7893 4.96086 12 5.46957 12 6V10H14V2ZM2 14H10V6H2V14ZM14 12H12V14C12 14.5304 11.7893 15.0391 11.4142 15.4142C11.0391 15.7893 10.5304 16 10 16H2C1.46957 16 0.960859 15.7893 0.585786 15.4142C0.210714 15.0391 0 14.5304 0 14V6C0 5.46957 0.210714 4.96086 0.585786 4.58579C0.960859 4.21071 1.46957 4 2 4H4V2C4 1.46957 4.21071 0.960859 4.58579 0.585786C4.96086 0.210714 5.46957 0 6 0L14 0C14.5304 0 15.0391 0.210714 15.4142 0.585786C15.7893 0.960859 16 1.46957 16 2V10C16 10.5304 15.7893 11.0391 15.4142 11.4142C15.0391 11.7893 14.5304 12 14 12Z"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1863,7 +1995,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1884,7 +2016,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1905,7 +2037,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1940,7 +2072,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   />
                 </div>
@@ -1954,7 +2086,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 160px; max-width: 600px;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -1975,7 +2107,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 104px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -2052,7 +2184,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -2088,7 +2220,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -2109,14 +2241,47 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
-                      class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
-                      data-test="body"
+                      class="w-fit"
                     >
-                      INV-SUCCEEDED
+                      <div
+                        aria-label="text_623b42ff8ee4e000ba87d0c6"
+                        class=""
+                        data-mui-internal-clone-element="true"
+                      >
+                        <button
+                          class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center -ml-1 px-1 py-0 !h-auto !min-h-0 !min-w-0 !items-baseline !py-0 [&_.MuiButton-endIcon>svg]:!size-3 [&_.MuiButton-endIcon]:!ml-1 css-hash-MuiButtonBase-root-MuiButton-root
+                          data-test="typography-with-copy-button"
+                          tabindex="0"
+                          type="button"
+                        >
+                          <div
+                            class=MuiTypography-root MuiTypography-body MuiTypography-noWrap !leading-[26px] css-hash-MuiTypography-root
+                            data-test="body"
+                          >
+                            INV-SUCCEEDED
+                          </div>
+                          <span
+                            class=MuiButton-icon MuiButton-endIcon MuiButton-iconSizeSmall css-hash-MuiButton-endIcon
+                          >
+                            <svg
+                              class="text-inherit size-4 min-w-4"
+                              data-test="duplicate/medium"
+                              fill="currentColor"
+                              title="duplicate/medium"
+                              viewBox="0 0 16 16"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M14 2H6V4H10C10.5304 4 11.0391 4.21071 11.4142 4.58579C11.7893 4.96086 12 5.46957 12 6V10H14V2ZM2 14H10V6H2V14ZM14 12H12V14C12 14.5304 11.7893 15.0391 11.4142 15.4142C11.0391 15.7893 10.5304 16 10 16H2C1.46957 16 0.960859 15.7893 0.585786 15.4142C0.210714 15.0391 0 14.5304 0 14V6C0 5.46957 0.210714 4.96086 0.585786 4.58579C0.960859 4.21071 1.46957 4 2 4H4V2C4 1.46957 4.21071 0.960859 4.58579 0.585786C4.96086 0.210714 5.46957 0 6 0L14 0C14.5304 0 15.0391 0.210714 15.4142 0.585786C15.7893 0.960859 16 1.46957 16 2V10C16 10.5304 15.7893 11.0391 15.4142 11.4142C15.0391 11.7893 14.5304 12 14 12Z"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2130,7 +2295,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -2151,7 +2316,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -2172,7 +2337,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -2207,7 +2372,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   />
                 </div>
@@ -2221,7 +2386,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 160px; max-width: 600px;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -2242,7 +2407,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 104px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -2319,7 +2484,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -2355,7 +2520,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -2376,14 +2541,47 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
-                      class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
-                      data-test="body"
+                      class="w-fit"
                     >
-                      INV-FAILED
+                      <div
+                        aria-label="text_623b42ff8ee4e000ba87d0c6"
+                        class=""
+                        data-mui-internal-clone-element="true"
+                      >
+                        <button
+                          class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center -ml-1 px-1 py-0 !h-auto !min-h-0 !min-w-0 !items-baseline !py-0 [&_.MuiButton-endIcon>svg]:!size-3 [&_.MuiButton-endIcon]:!ml-1 css-hash-MuiButtonBase-root-MuiButton-root
+                          data-test="typography-with-copy-button"
+                          tabindex="0"
+                          type="button"
+                        >
+                          <div
+                            class=MuiTypography-root MuiTypography-body MuiTypography-noWrap !leading-[26px] css-hash-MuiTypography-root
+                            data-test="body"
+                          >
+                            INV-FAILED
+                          </div>
+                          <span
+                            class=MuiButton-icon MuiButton-endIcon MuiButton-iconSizeSmall css-hash-MuiButton-endIcon
+                          >
+                            <svg
+                              class="text-inherit size-4 min-w-4"
+                              data-test="duplicate/medium"
+                              fill="currentColor"
+                              title="duplicate/medium"
+                              viewBox="0 0 16 16"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M14 2H6V4H10C10.5304 4 11.0391 4.21071 11.4142 4.58579C11.7893 4.96086 12 5.46957 12 6V10H14V2ZM2 14H10V6H2V14ZM14 12H12V14C12 14.5304 11.7893 15.0391 11.4142 15.4142C11.0391 15.7893 10.5304 16 10 16H2C1.46957 16 0.960859 15.7893 0.585786 15.4142C0.210714 15.0391 0 14.5304 0 14V6C0 5.46957 0.210714 4.96086 0.585786 4.58579C0.960859 4.21071 1.46957 4 2 4H4V2C4 1.46957 4.21071 0.960859 4.58579 0.585786C4.96086 0.210714 5.46957 0 6 0L14 0C14.5304 0 15.0391 0.210714 15.4142 0.585786C15.7893 0.960859 16 1.46957 16 2V10C16 10.5304 15.7893 11.0391 15.4142 11.4142C15.0391 11.7893 14.5304 12 14 12Z"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2397,7 +2595,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -2418,7 +2616,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -2439,7 +2637,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -2474,7 +2672,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   />
                 </div>
@@ -2488,7 +2686,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 160px; max-width: 600px;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -2509,7 +2707,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                   style="min-width: 104px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3110,7 +3308,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3146,7 +3344,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3167,14 +3365,47 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
-                      class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
-                      data-test="body"
+                      class="w-fit"
                     >
-                      INV-001
+                      <div
+                        aria-label="text_623b42ff8ee4e000ba87d0c6"
+                        class=""
+                        data-mui-internal-clone-element="true"
+                      >
+                        <button
+                          class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center -ml-1 px-1 py-0 !h-auto !min-h-0 !min-w-0 !items-baseline !py-0 [&_.MuiButton-endIcon>svg]:!size-3 [&_.MuiButton-endIcon]:!ml-1 css-hash-MuiButtonBase-root-MuiButton-root
+                          data-test="typography-with-copy-button"
+                          tabindex="0"
+                          type="button"
+                        >
+                          <div
+                            class=MuiTypography-root MuiTypography-body MuiTypography-noWrap !leading-[26px] css-hash-MuiTypography-root
+                            data-test="body"
+                          >
+                            INV-001
+                          </div>
+                          <span
+                            class=MuiButton-icon MuiButton-endIcon MuiButton-iconSizeSmall css-hash-MuiButton-endIcon
+                          >
+                            <svg
+                              class="text-inherit size-4 min-w-4"
+                              data-test="duplicate/medium"
+                              fill="currentColor"
+                              title="duplicate/medium"
+                              viewBox="0 0 16 16"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M14 2H6V4H10C10.5304 4 11.0391 4.21071 11.4142 4.58579C11.7893 4.96086 12 5.46957 12 6V10H14V2ZM2 14H10V6H2V14ZM14 12H12V14C12 14.5304 11.7893 15.0391 11.4142 15.4142C11.0391 15.7893 10.5304 16 10 16H2C1.46957 16 0.960859 15.7893 0.585786 15.4142C0.210714 15.0391 0 14.5304 0 14V6C0 5.46957 0.210714 4.96086 0.585786 4.58579C0.960859 4.21071 1.46957 4 2 4H4V2C4 1.46957 4.21071 0.960859 4.58579 0.585786C4.96086 0.210714 5.46957 0 6 0L14 0C14.5304 0 15.0391 0.210714 15.4142 0.585786C15.7893 0.960859 16 1.46957 16 2V10C16 10.5304 15.7893 11.0391 15.4142 11.4142C15.0391 11.7893 14.5304 12 14 12Z"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3188,7 +3419,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3209,7 +3440,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3230,7 +3461,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3265,7 +3496,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   />
                 </div>
@@ -3279,7 +3510,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 160px; max-width: 600px;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3300,7 +3531,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 104px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3377,7 +3608,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3413,7 +3644,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3434,14 +3665,47 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
-                      class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
-                      data-test="body"
+                      class="w-fit"
                     >
-                      INV-002
+                      <div
+                        aria-label="text_623b42ff8ee4e000ba87d0c6"
+                        class=""
+                        data-mui-internal-clone-element="true"
+                      >
+                        <button
+                          class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center -ml-1 px-1 py-0 !h-auto !min-h-0 !min-w-0 !items-baseline !py-0 [&_.MuiButton-endIcon>svg]:!size-3 [&_.MuiButton-endIcon]:!ml-1 css-hash-MuiButtonBase-root-MuiButton-root
+                          data-test="typography-with-copy-button"
+                          tabindex="0"
+                          type="button"
+                        >
+                          <div
+                            class=MuiTypography-root MuiTypography-body MuiTypography-noWrap !leading-[26px] css-hash-MuiTypography-root
+                            data-test="body"
+                          >
+                            INV-002
+                          </div>
+                          <span
+                            class=MuiButton-icon MuiButton-endIcon MuiButton-iconSizeSmall css-hash-MuiButton-endIcon
+                          >
+                            <svg
+                              class="text-inherit size-4 min-w-4"
+                              data-test="duplicate/medium"
+                              fill="currentColor"
+                              title="duplicate/medium"
+                              viewBox="0 0 16 16"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M14 2H6V4H10C10.5304 4 11.0391 4.21071 11.4142 4.58579C11.7893 4.96086 12 5.46957 12 6V10H14V2ZM2 14H10V6H2V14ZM14 12H12V14C12 14.5304 11.7893 15.0391 11.4142 15.4142C11.0391 15.7893 10.5304 16 10 16H2C1.46957 16 0.960859 15.7893 0.585786 15.4142C0.210714 15.0391 0 14.5304 0 14V6C0 5.46957 0.210714 4.96086 0.585786 4.58579C0.960859 4.21071 1.46957 4 2 4H4V2C4 1.46957 4.21071 0.960859 4.58579 0.585786C4.96086 0.210714 5.46957 0 6 0L14 0C14.5304 0 15.0391 0.210714 15.4142 0.585786C15.7893 0.960859 16 1.46957 16 2V10C16 10.5304 15.7893 11.0391 15.4142 11.4142C15.0391 11.7893 14.5304 12 14 12Z"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3455,7 +3719,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3476,7 +3740,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3497,7 +3761,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3532,7 +3796,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   />
                 </div>
@@ -3546,7 +3810,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 160px; max-width: 600px;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3567,7 +3831,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 104px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3644,7 +3908,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3680,7 +3944,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3701,14 +3965,47 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
-                      class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
-                      data-test="body"
+                      class="w-fit"
                     >
-                      INV-003
+                      <div
+                        aria-label="text_623b42ff8ee4e000ba87d0c6"
+                        class=""
+                        data-mui-internal-clone-element="true"
+                      >
+                        <button
+                          class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center -ml-1 px-1 py-0 !h-auto !min-h-0 !min-w-0 !items-baseline !py-0 [&_.MuiButton-endIcon>svg]:!size-3 [&_.MuiButton-endIcon]:!ml-1 css-hash-MuiButtonBase-root-MuiButton-root
+                          data-test="typography-with-copy-button"
+                          tabindex="0"
+                          type="button"
+                        >
+                          <div
+                            class=MuiTypography-root MuiTypography-body MuiTypography-noWrap !leading-[26px] css-hash-MuiTypography-root
+                            data-test="body"
+                          >
+                            INV-003
+                          </div>
+                          <span
+                            class=MuiButton-icon MuiButton-endIcon MuiButton-iconSizeSmall css-hash-MuiButton-endIcon
+                          >
+                            <svg
+                              class="text-inherit size-4 min-w-4"
+                              data-test="duplicate/medium"
+                              fill="currentColor"
+                              title="duplicate/medium"
+                              viewBox="0 0 16 16"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M14 2H6V4H10C10.5304 4 11.0391 4.21071 11.4142 4.58579C11.7893 4.96086 12 5.46957 12 6V10H14V2ZM2 14H10V6H2V14ZM14 12H12V14C12 14.5304 11.7893 15.0391 11.4142 15.4142C11.0391 15.7893 10.5304 16 10 16H2C1.46957 16 0.960859 15.7893 0.585786 15.4142C0.210714 15.0391 0 14.5304 0 14V6C0 5.46957 0.210714 4.96086 0.585786 4.58579C0.960859 4.21071 1.46957 4 2 4H4V2C4 1.46957 4.21071 0.960859 4.58579 0.585786C4.96086 0.210714 5.46957 0 6 0L14 0C14.5304 0 15.0391 0.210714 15.4142 0.585786C15.7893 0.960859 16 1.46957 16 2V10C16 10.5304 15.7893 11.0391 15.4142 11.4142C15.0391 11.7893 14.5304 12 14 12Z"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3722,7 +4019,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3743,7 +4040,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3764,7 +4061,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3799,7 +4096,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   />
                 </div>
@@ -3813,7 +4110,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 160px; max-width: 600px;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -3834,7 +4131,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                   style="min-width: 104px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -4060,7 +4357,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -4096,7 +4393,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -4117,14 +4414,47 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
-                      class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
-                      data-test="body"
+                      class="w-fit"
                     >
-                      INV-001
+                      <div
+                        aria-label="text_623b42ff8ee4e000ba87d0c6"
+                        class=""
+                        data-mui-internal-clone-element="true"
+                      >
+                        <button
+                          class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center -ml-1 px-1 py-0 !h-auto !min-h-0 !min-w-0 !items-baseline !py-0 [&_.MuiButton-endIcon>svg]:!size-3 [&_.MuiButton-endIcon]:!ml-1 css-hash-MuiButtonBase-root-MuiButton-root
+                          data-test="typography-with-copy-button"
+                          tabindex="0"
+                          type="button"
+                        >
+                          <div
+                            class=MuiTypography-root MuiTypography-body MuiTypography-noWrap !leading-[26px] css-hash-MuiTypography-root
+                            data-test="body"
+                          >
+                            INV-001
+                          </div>
+                          <span
+                            class=MuiButton-icon MuiButton-endIcon MuiButton-iconSizeSmall css-hash-MuiButton-endIcon
+                          >
+                            <svg
+                              class="text-inherit size-4 min-w-4"
+                              data-test="duplicate/medium"
+                              fill="currentColor"
+                              title="duplicate/medium"
+                              viewBox="0 0 16 16"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M14 2H6V4H10C10.5304 4 11.0391 4.21071 11.4142 4.58579C11.7893 4.96086 12 5.46957 12 6V10H14V2ZM2 14H10V6H2V14ZM14 12H12V14C12 14.5304 11.7893 15.0391 11.4142 15.4142C11.0391 15.7893 10.5304 16 10 16H2C1.46957 16 0.960859 15.7893 0.585786 15.4142C0.210714 15.0391 0 14.5304 0 14V6C0 5.46957 0.210714 4.96086 0.585786 4.58579C0.960859 4.21071 1.46957 4 2 4H4V2C4 1.46957 4.21071 0.960859 4.58579 0.585786C4.96086 0.210714 5.46957 0 6 0L14 0C14.5304 0 15.0391 0.210714 15.4142 0.585786C15.7893 0.960859 16 1.46957 16 2V10C16 10.5304 15.7893 11.0391 15.4142 11.4142C15.0391 11.7893 14.5304 12 14 12Z"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -4138,7 +4468,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -4159,7 +4489,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -4180,7 +4510,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -4215,7 +4545,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -4241,7 +4571,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                   style="min-width: 160px; max-width: 600px;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -4262,7 +4592,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                   style="min-width: 104px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -4488,7 +4818,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -4524,7 +4854,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -4545,14 +4875,47 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
-                      class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
-                      data-test="body"
+                      class="w-fit"
                     >
-                      INV-001
+                      <div
+                        aria-label="text_623b42ff8ee4e000ba87d0c6"
+                        class=""
+                        data-mui-internal-clone-element="true"
+                      >
+                        <button
+                          class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center -ml-1 px-1 py-0 !h-auto !min-h-0 !min-w-0 !items-baseline !py-0 [&_.MuiButton-endIcon>svg]:!size-3 [&_.MuiButton-endIcon]:!ml-1 css-hash-MuiButtonBase-root-MuiButton-root
+                          data-test="typography-with-copy-button"
+                          tabindex="0"
+                          type="button"
+                        >
+                          <div
+                            class=MuiTypography-root MuiTypography-body MuiTypography-noWrap !leading-[26px] css-hash-MuiTypography-root
+                            data-test="body"
+                          >
+                            INV-001
+                          </div>
+                          <span
+                            class=MuiButton-icon MuiButton-endIcon MuiButton-iconSizeSmall css-hash-MuiButton-endIcon
+                          >
+                            <svg
+                              class="text-inherit size-4 min-w-4"
+                              data-test="duplicate/medium"
+                              fill="currentColor"
+                              title="duplicate/medium"
+                              viewBox="0 0 16 16"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M14 2H6V4H10C10.5304 4 11.0391 4.21071 11.4142 4.58579C11.7893 4.96086 12 5.46957 12 6V10H14V2ZM2 14H10V6H2V14ZM14 12H12V14C12 14.5304 11.7893 15.0391 11.4142 15.4142C11.0391 15.7893 10.5304 16 10 16H2C1.46957 16 0.960859 15.7893 0.585786 15.4142C0.210714 15.0391 0 14.5304 0 14V6C0 5.46957 0.210714 4.96086 0.585786 4.58579C0.960859 4.21071 1.46957 4 2 4H4V2C4 1.46957 4.21071 0.960859 4.58579 0.585786C4.96086 0.210714 5.46957 0 6 0L14 0C14.5304 0 15.0391 0.210714 15.4142 0.585786C15.7893 0.960859 16 1.46957 16 2V10C16 10.5304 15.7893 11.0391 15.4142 11.4142C15.0391 11.7893 14.5304 12 14 12Z"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -4566,7 +4929,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -4587,7 +4950,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                   style="min-width: 160px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -4608,7 +4971,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                   style="min-width: 80px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -4659,7 +5022,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                   style="min-width: auto; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   />
                 </div>
@@ -4673,7 +5036,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                   style="min-width: 160px; max-width: 600px;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div
@@ -4694,7 +5057,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                   style="min-width: 104px; max-width: auto;"
                 >
                   <div
-                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap css-hash-MuiTypography-root
+                    class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                     data-test="body"
                   >
                     <div

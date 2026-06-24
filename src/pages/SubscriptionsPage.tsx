@@ -3,7 +3,9 @@ import { Icon, tw } from 'lago-design-system'
 import { useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
+import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
 import {
+  AvailableFiltersEnum,
   Filters,
   formatFiltersForSubscriptionQuery,
   SubscriptionAvailableFilters,
@@ -14,15 +16,24 @@ import { Typography } from '~/components/designSystem/Typography'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
-import { SubscriptionsList } from '~/components/subscriptions/SubscriptionsList'
+import {
+  AnnotatedSubscription,
+  SubscriptionsList,
+} from '~/components/subscriptions/SubscriptionsList'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import { SUBSCRIPTION_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
-import { StatusTypeEnum, Subscription, useGetSubscriptionsListLazyQuery } from '~/generated/graphql'
+import {
+  FeatureFlagEnum,
+  StatusTypeEnum,
+  Subscription,
+  useGetSubscriptionsListLazyQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment SubscriptionForSubscriptionsList on Subscription {
@@ -37,11 +48,17 @@ gql`
     subscriptionAt
     endingAt
     terminatedAt
+    billingEntityId
     customer {
       id
       name
       displayName
       applicableTimezone
+      billingEntity {
+        id
+        code
+        name
+      }
     }
     plan {
       id
@@ -71,8 +88,10 @@ gql`
     $searchTerm: String
     $status: [StatusTypeEnum!]
     $externalCustomerId: String
+    $externalId: String
     $overriden: Boolean
     $planCode: String
+    $billingEntityIds: [ID!]
   ) {
     subscriptions(
       limit: $limit
@@ -80,8 +99,10 @@ gql`
       status: $status
       searchTerm: $searchTerm
       externalCustomerId: $externalCustomerId
+      externalId: $externalId
       overriden: $overriden
       planCode: $planCode
+      billingEntityIds: $billingEntityIds
     ) {
       collection {
         ...SubscriptionForSubscriptionsList
@@ -98,6 +119,19 @@ gql`
 const SubscriptionsPage = () => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
+  const { hasFeatureFlag } = useOrganizationInfos()
+
+  const showBillingEntityColumn = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+
+  // Drop the `billingEntityIds` option from the popper when the flag is off
+  // so the legacy UX matches the pre-epic state (no entity filter visible).
+  const availableFilters = useMemo(
+    () =>
+      showBillingEntityColumn
+        ? SubscriptionAvailableFilters
+        : SubscriptionAvailableFilters.filter((f) => f !== AvailableFiltersEnum.billingEntityIds),
+    [showBillingEntityColumn],
+  )
 
   const filtersForSubscriptionQuery = useMemo(() => {
     return formatFiltersForSubscriptionQuery(searchParams)
@@ -134,7 +168,7 @@ const SubscriptionsPage = () => {
         filtersSection={
           <Filters.Provider
             filtersNamePrefix={SUBSCRIPTION_LIST_FILTER_PREFIX}
-            availableFilters={SubscriptionAvailableFilters}
+            availableFilters={availableFilters}
           >
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
               <SearchInput
@@ -206,6 +240,24 @@ const SubscriptionsPage = () => {
                   </Typography>
                 ),
               },
+
+              ...(showBillingEntityColumn
+                ? [
+                    {
+                      key: 'billingEntityId' as const,
+                      title: translate('text_17436114971570doqrwuwhf0'),
+                      minWidth: 140,
+                      content: ({ billingEntityId, customer }: AnnotatedSubscription) => (
+                        <Typography variant="body" noWrap>
+                          <BillingEntityLabel
+                            ownId={billingEntityId}
+                            customerEntity={customer?.billingEntity}
+                          />
+                        </Typography>
+                      ),
+                    },
+                  ]
+                : []),
 
               {
                 key: 'isOverridden',

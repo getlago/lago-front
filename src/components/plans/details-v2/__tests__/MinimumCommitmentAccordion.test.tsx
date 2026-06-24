@@ -44,11 +44,13 @@ jest.mock('~/hooks/plans/useUpdatePlanWithCascade', () => ({
 }))
 
 const mockIsPremium = jest.fn().mockReturnValue(true)
+
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({ isPremium: mockIsPremium() }),
 }))
 
 const mockHasPermissions = jest.fn().mockReturnValue(true)
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))

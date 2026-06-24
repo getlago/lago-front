@@ -141,7 +141,7 @@ const mockSyncSalesforceIntegrationInvoice = jest.fn()
 const mockUseIntegrationsListQuery = jest.fn().mockReturnValue({ data: null })
 
 // Capture mutation options to test onError/onCompleted callbacks
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const mockMutationOptions: Record<string, any> = {}
 
 jest.mock('~/generated/graphql', () => ({
@@ -150,32 +150,32 @@ jest.mock('~/generated/graphql', () => ({
   useGetInvoiceFeesQuery: () => mockUseGetInvoiceFeesQuery(),
   useGetInvoiceCustomerQuery: () => mockUseGetInvoiceCustomerQuery(),
   useIntegrationsListForCustomerInvoiceDetailsQuery: () => mockUseIntegrationsListQuery(),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   useRefreshInvoiceMutation: (options: any) => {
     mockMutationOptions.refreshInvoice = options || {}
     return [mockRefreshInvoice, { loading: false }]
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   useRetryInvoiceMutation: (options: any) => {
     mockMutationOptions.retryInvoice = options || {}
     return [mockRetryInvoice, { loading: false }]
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   useRetryTaxProviderVoidingMutation: (options: any) => {
     mockMutationOptions.retryTaxProviderVoiding = options || {}
     return [mockRetryTaxProviderVoiding, { loading: false }]
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   useSyncIntegrationInvoiceMutation: (options: any) => {
     mockMutationOptions.syncIntegration = options || {}
     return [mockSyncIntegrationInvoice, { loading: false }]
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   useSyncHubspotIntegrationInvoiceMutation: (options: any) => {
     mockMutationOptions.syncHubspot = options || {}
     return [mockSyncHubspotIntegrationInvoice, { loading: false }]
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   useSyncSalesforceInvoiceMutation: (options: any) => {
     mockMutationOptions.syncSalesforce = options || {}
     return [mockSyncSalesforceIntegrationInvoice, { loading: false }]
@@ -235,7 +235,9 @@ jest.mock('~/components/invoices/FinalizeInvoiceDialog', () => ({
 }))
 
 jest.mock('~/components/invoices/EditInvoicePaymentStatusDialog', () => ({
-  UpdateInvoicePaymentStatusDialog: () => null,
+  useUpdateInvoicePaymentStatusDialog: () => ({
+    openUpdateInvoicePaymentStatusDialog: jest.fn(),
+  }),
 }))
 
 jest.mock('~/components/invoices/VoidInvoiceDialog', () => ({

@@ -3,6 +3,7 @@ import type { AddOnItem } from '~/components/designSystem/RichTextEditor/Pricing
 import {
   type AddOnPayload,
   type BillingItemsPayload,
+  buildPreviewEntities,
   fromBillingItems,
   toBillingItems,
 } from '../serializeQuoteBillingItems'
@@ -415,5 +416,72 @@ describe('fromBillingItems', () => {
     expect(result.originalPayloads[localId1]).toBeDefined()
     expect(result.originalPayloads[localId2]).toBeDefined()
     expect(result.originalPayloads[localId1]).not.toBe(result.originalPayloads[localId2])
+  })
+})
+
+describe('buildPreviewEntities', () => {
+  let uuidCounter: number
+
+  beforeEach(() => {
+    uuidCounter = 0
+    jest.spyOn(crypto, 'randomUUID').mockImplementation(() => {
+      uuidCounter++
+
+      return `mock-uuid-${uuidCounter}` as ReturnType<typeof crypto.randomUUID>
+    })
+  })
+
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
+  const makeBillingItems = (
+    overrides: Partial<BillingItemsPayload['addons'][number]> = {},
+  ): BillingItemsPayload => ({
+    addons: [
+      {
+        type: 'addon',
+        id: 'addon-1',
+        payload: {
+          position: 1,
+          add_on_code: 'setup',
+          name: 'Setup Fee',
+          description: 'One-time setup',
+          units: 1,
+          unit_amount_cents: 50000,
+          total_amount_cents: 50000,
+          invoice_display_name: 'Setup Fee',
+          from_datetime: null,
+          to_datetime: null,
+          tax_codes: [],
+        },
+        overrides: {},
+        ...overrides,
+      },
+    ],
+  })
+
+  it('keys entities by both localId and catalog addOnId so legacy content blocks resolve', () => {
+    // Content blocks that predate localEntityIds reference add-ons by catalog
+    // entityIds; the preview must resolve them even when no localId is persisted.
+    const entities = buildPreviewEntities(makeBillingItems())
+
+    const localId = 'mock-uuid-1'
+
+    expect(entities[localId]).toBeDefined()
+    expect(entities['addon-1']).toBeDefined()
+    expect(entities['addon-1']).toEqual(entities[localId])
+    expect(entities['addon-1'].name).toBe('Setup Fee')
+  })
+
+  it('keys entities by saved localId and catalog addOnId when localId is persisted', () => {
+    const entities = buildPreviewEntities(makeBillingItems({ localId: 'saved-local-1' }))
+
+    expect(entities['saved-local-1']).toBeDefined()
+    expect(entities['addon-1']).toEqual(entities['saved-local-1'])
+  })
+
+  it('returns an empty map for no addons', () => {
+    expect(buildPreviewEntities({ addons: [] })).toEqual({})
   })
 })

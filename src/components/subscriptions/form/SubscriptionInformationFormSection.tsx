@@ -33,6 +33,7 @@ gql`
     subscriptionAt
     endingAt
     billingTime
+    billingEntityId
     periodEndDate
     status
     startedAt

@@ -1,17 +1,20 @@
 import { gql } from '@apollo/client'
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
+import { Filters } from '~/components/designSystem/Filters'
+import { formatFiltersForCustomerAnalyticsQuery } from '~/components/designSystem/Filters/utils'
 import Gross from '~/components/graphs/Gross'
 import MonthSelectorDropdown, {
   AnalyticsPeriodScopeEnum,
   TPeriodScopeTranslationLookupValue,
 } from '~/components/graphs/MonthSelectorDropdown'
 import { PageSectionTitle } from '~/components/layouts/Section'
-import { useGetCustomerSubscriptionForUsageQuery } from '~/generated/graphql'
+import { CUSTOMER_ANALYTICS_FILTER_PREFIX } from '~/core/constants/filters'
+import { CurrencyEnum, useGetCustomerSubscriptionForUsageQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useCustomerFilterDefaults } from '~/hooks/useCustomerFilterDefaults'
 
 gql`
   query getCustomerSubscriptionForUsage($id: ID!) {
@@ -25,8 +28,9 @@ gql`
 
 export const CustomerUsage = () => {
   const { customerId = '' } = useParams()
-  const { organization } = useOrganizationInfos()
   const { translate } = useInternationalization()
+  const [searchParams] = useSearchParams()
+
   const [periodScope, setPeriodScope] = useState<TPeriodScopeTranslationLookupValue>(
     AnalyticsPeriodScopeEnum.Year,
   )
@@ -34,6 +38,15 @@ export const CustomerUsage = () => {
     variables: { id: customerId },
     skip: !customerId,
   })
+
+  const filtersProps = useCustomerFilterDefaults({
+    customerCurrency: data?.customer?.currency ?? undefined,
+    filtersNamePrefix: CUSTOMER_ANALYTICS_FILTER_PREFIX,
+    include: ['currency', 'entity'],
+    withDefaults: true,
+  })
+
+  const { currency, billingEntityId } = formatFiltersForCustomerAnalyticsQuery(searchParams)
 
   return (
     <div>
@@ -45,12 +58,21 @@ export const CustomerUsage = () => {
         }
       />
 
+      {filtersProps && (
+        <Filters.Provider {...filtersProps}>
+          <div className="mb-4 flex items-center gap-2">
+            <Filters.Component />
+          </div>
+        </Filters.Provider>
+      )}
+
       <AnalyticsStateProvider>
         <Gross
           className="analytics-graph py-0"
-          currency={data?.customer?.currency || organization?.defaultCurrency}
+          currency={currency ?? CurrencyEnum.Usd}
           period={periodScope}
           externalCustomerId={data?.customer?.externalId}
+          billingEntityId={billingEntityId}
         />
       </AnalyticsStateProvider>
     </div>

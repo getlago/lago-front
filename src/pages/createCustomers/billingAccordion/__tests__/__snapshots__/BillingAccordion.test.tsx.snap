@@ -2767,7 +2767,7 @@ exports[`BillingAccordion Integration Tests WHEN rendering the component THEN sh
                           class=""
                         >
                           <div
-                            aria-label="This customer’s currency can’t be changed because the customer is carrying a currency defined by a coupon, add-on, wallet or subscription."
+                            aria-label="Your currency selection will be locked once customer carries a coupon, add-on, wallet or a subscription"
                             class=""
                             data-mui-internal-clone-element="true"
                           >

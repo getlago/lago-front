@@ -15,6 +15,12 @@ import { PlanFormInput } from '../types'
 
 // --- Mocks ---
 
+jest.mock('~/core/apolloClient/reactiveVars/currentOrganizationVar', () => {
+  const { makeVar } = jest.requireActual('@apollo/client')
+
+  return { currentOrganizationVar: makeVar(null) }
+})
+
 jest.mock('~/hooks/useOrganizationInfos')
 
 const mockedUseOrganizationInfos = jest.mocked(useOrganizationInfos)

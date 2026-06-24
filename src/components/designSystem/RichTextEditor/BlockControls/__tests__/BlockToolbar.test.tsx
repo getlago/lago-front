@@ -315,7 +315,6 @@ describe('BlockToolbar', () => {
   })
 
   describe('GIVEN the useEditorState selector', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let capturedSelector: any = null
 
     const captureSelectorAndRender = () => {

@@ -12,6 +12,7 @@ import {
   orderFormSourceQuoteColumn,
   orderFormStatusColumn,
 } from './common/orderFormTableColumns'
+import { useOrderFormActions } from './hooks/useOrderFormActions'
 import { useOrderForms } from './hooks/useOrderForms'
 
 interface OrderFormsListProps {
@@ -24,6 +25,7 @@ const OrderFormsList = ({ quoteNumber }: OrderFormsListProps): JSX.Element => {
   const { orderForms, loading, error, fetchMore, metadata } = useOrderForms(
     quoteNumber ? { quoteNumber: [quoteNumber] } : undefined,
   )
+  const { getActions } = useOrderFormActions()
 
   const columns: Array<TableColumn<OrderFormListItemFragment>> = [
     {
@@ -48,8 +50,8 @@ const OrderFormsList = ({ quoteNumber }: OrderFormsListProps): JSX.Element => {
         </Typography>
       ),
     },
-    orderFormSourceQuoteColumn(translate),
     orderFormStatusColumn(translate),
+    orderFormSourceQuoteColumn(translate),
     orderFormCreatedAtColumn(translate, 'text_624efab67eb2570101d117e3', intlFormatDateTimeOrgaTZ),
   ]
 
@@ -63,6 +65,18 @@ const OrderFormsList = ({ quoteNumber }: OrderFormsListProps): JSX.Element => {
           hasError={!!error}
           containerSize={0}
           columns={columns}
+          actionColumnTooltip={() => translate('text_1776414006125pcxcyeblul7')}
+          actionColumn={(orderForm) => {
+            const actions = getActions(orderForm)
+
+            if (actions.length === 0) return null
+
+            return actions.map(({ icon, label, onAction }) => ({
+              startIcon: icon,
+              title: label,
+              onAction: () => onAction(),
+            }))
+          }}
           placeholder={{
             emptyState: {
               title: translate('text_1776697938480e54yje9i5aa'),

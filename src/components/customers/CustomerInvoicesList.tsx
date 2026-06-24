@@ -10,12 +10,10 @@ import { ActionItem } from '~/components/designSystem/Table'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
-import {
-  UpdateInvoicePaymentStatusDialog,
-  UpdateInvoicePaymentStatusDialogRef,
-} from '~/components/invoices/EditInvoicePaymentStatusDialog'
+import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
 import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
@@ -216,7 +214,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const { generatePaymentUrl } = useGeneratePaymentUrl()
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
-  const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
+  const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
   const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
 
   return (
@@ -259,8 +257,8 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 },
             emptyState: isSearching
               ? {
-                  title: translate('text_63c6cac5c1fc58028d0235eb'),
-                  subtitle: translate('text_63c6cac5c1fc58028d0235ef'),
+                  title: translate('text_63b578e959c1366df5d14569'),
+                  subtitle: translate('text_66ab48ea4ed9cd01084c60b8'),
                 }
               : {
                   title: translate('text_63b578e959c1366df5d14569'),
@@ -296,7 +294,14 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
               minWidth: 160,
               maxSpace: true,
               title: translate('text_63ac86d797f728a87b2f9fad'),
-              content: (invoice) => invoice.number || '-',
+              content: (invoice) =>
+                invoice.number ? (
+                  <TypographyWithCopy compact noWrap variant="body">
+                    {invoice.number}
+                  </TypographyWithCopy>
+                ) : (
+                  '-'
+                ),
             },
             {
               key: 'totalAmountCents',
@@ -573,7 +578,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     startIcon: 'coin-dollar',
                     title: translate('text_63eba8c65a6c8043feee2a01'),
                     onAction: () => {
-                      updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
+                      openUpdateInvoicePaymentStatusDialog(invoice)
                     },
                   }
                 : null,
@@ -626,7 +631,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
         />
       </InfiniteScroll>
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
       <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
       <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
     </>

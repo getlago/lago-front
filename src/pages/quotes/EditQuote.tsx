@@ -16,12 +16,13 @@ import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import type { Locale } from '~/core/translations'
-import { type UpdateQuoteVersionInput } from '~/generated/graphql'
+import { OrderTypeEnum, type UpdateQuoteVersionInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import EditQuoteAside from './editQuote/EditQuoteAside'
-import { usePricingDrawer } from './hooks/usePricingDrawer'
+import { useOneOffPricingDrawer } from './hooks/useOneOffPricingDrawer'
 import { useQuote } from './hooks/useQuote'
+import { useSubscriptionPricingDrawer } from './hooks/useSubscriptionPricingDrawer'
 import { useUpdateQuote } from './hooks/useUpdateQuote'
 
 const AUTO_SAVE_DELAY_MS = 2000
@@ -64,12 +65,33 @@ const EditQuote = () => {
 
   const isUpdating = isUpdatingQuote || isUpdatingQuoteVersion
 
+  const handleSubscriptionDatesChange = useCallback(
+    async (startDate?: string, endDate?: string) => {
+      if (!versionId) return
+
+      await updateQuoteVersionRef.current({ id: versionId, startDate, endDate }, false)
+    },
+    [versionId],
+  )
+
+  const isSubscriptionOrder =
+    quote?.orderType === OrderTypeEnum.SubscriptionCreation ||
+    quote?.orderType === OrderTypeEnum.SubscriptionAmendment
+
+  const subscriptionPricing = useSubscriptionPricingDrawer(quote?.currentVersion?.billingItems, {
+    quoteDates: {
+      startDate:
+        quote?.subscription?.subscriptionAt ?? quote?.currentVersion?.startDate ?? undefined,
+      endDate: quote?.currentVersion?.endDate ?? undefined,
+    },
+    onDatesChange: handleSubscriptionDatesChange,
+    customer: quote?.customer,
+    subscriptionId: quote?.subscription?.id,
+  })
+  const oneOffPricing = useOneOffPricingDrawer(quote?.currentVersion?.billingItems)
+
   const { onPricingCommand, isPricingDisabled, entities, syncEntitiesWithBlocks } =
-    usePricingDrawer(
-      quote?.orderType,
-      quote?.currentVersion?.billingItems,
-      quote?.customer?.currency,
-    )
+    isSubscriptionOrder ? subscriptionPricing : oneOffPricing
 
   const customerLocale = (quote?.customer?.billingConfiguration?.documentLocale ?? 'en') as Locale
 
@@ -275,6 +297,7 @@ const EditQuote = () => {
         aside={
           <EditQuoteAside
             quote={quote}
+            isSaving={saveStatus === 'saving'}
             onSaveStart={() => setSaveStatus('saving')}
             onSaveFinished={onUpdateFinished}
             onSaveError={(payload) => {
@@ -284,18 +307,26 @@ const EditQuote = () => {
           />
         }
       >
-        <RichTextEditor
-          content={quote?.currentVersion?.content ?? ''}
-          getMarkdownRef={getMarkdownRef}
-          onChange={handleChange}
-          mode={editorMode}
-          onPricingCommand={handlePricingCommand}
-          isPricingDisabled={isPricingDisabled}
-          entities={entities}
-          onPricingBlocksChange={handlePricingBlocksChange}
-          customerLocale={customerLocale}
-          customerCurrency={quote?.customer?.currency ?? undefined}
-        />
+        {loading ? (
+          <div className="mx-auto my-4 flex max-w-4xl flex-col gap-4 px-10">
+            <Skeleton variant="text" className="w-3/4" />
+            <Skeleton variant="text" className="w-1/2" />
+            <Skeleton variant="text" className="w-5/6" />
+          </div>
+        ) : (
+          <RichTextEditor
+            content={quote?.currentVersion?.content ?? ''}
+            getMarkdownRef={getMarkdownRef}
+            onChange={handleChange}
+            mode={editorMode}
+            onPricingCommand={handlePricingCommand}
+            isPricingDisabled={isPricingDisabled}
+            entities={entities}
+            onPricingBlocksChange={handlePricingBlocksChange}
+            customerLocale={customerLocale}
+            customerCurrency={quote?.customer?.currency ?? undefined}
+          />
+        )}
       </RightAsidePage.Content>
     </RightAsidePage.Wrapper>
   )

@@ -282,7 +282,7 @@ const SubscriptionEntitlementForm = () => {
           <div className="flex gap-2">
             <Typography variant="bodyHl" color="textSecondary" noWrap>
               {translate(
-                isEdition ? 'text_1746623860224seuc6r7gdlc' : 'text_1746623860224049f02r3xcf',
+                isEdition ? 'text_17561254890571tcj63iu382' : 'text_1753864223060devvklm7vk0',
               )}
             </Typography>
             <Chip size="small" label={translate('text_65d8d71a640c5400917f8a13')} />

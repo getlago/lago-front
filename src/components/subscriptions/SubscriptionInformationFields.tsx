@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { generatePath } from 'react-router-dom'
 
+import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
 import { Alert } from '~/components/designSystem/Alert'
 import { Status } from '~/components/designSystem/Status'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
@@ -10,6 +11,7 @@ import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMa
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, Link } from '~/core/router'
 import {
+  FeatureFlagEnum,
   NextSubscriptionTypeEnum,
   StatusTypeEnum,
   SubscriptionInformationFieldsFragment,
@@ -23,6 +25,7 @@ gql`
     externalId
     name
     status
+    startedAt
     subscriptionAt
     endingAt
     terminatedAt
@@ -30,6 +33,7 @@ gql`
     downgradePlanDate
     nextSubscriptionAt
     nextSubscriptionType
+    billingEntityId
     nextPlan {
       id
       name
@@ -48,6 +52,11 @@ gql`
       displayName
       externalId
       deletedAt
+      billingEntity {
+        id
+        code
+        name
+      }
     }
     plan {
       id
@@ -114,10 +123,12 @@ const getSubscriptionInformationGrid = ({
   subscription,
   translate,
   intlFormatDateTimeOrgaTZ,
+  showBillingEntityRow,
 }: {
   subscription?: SubscriptionInformationFieldsFragment | null
   translate: TranslateFunc
   intlFormatDateTimeOrgaTZ: ReturnType<typeof useOrganizationInfos>['intlFormatDateTimeOrgaTZ']
+  showBillingEntityRow: boolean
 }) => {
   const isCustomerDeleted = !!subscription?.customer?.deletedAt
   const customerId = subscription?.customer?.id ?? ''
@@ -151,11 +162,24 @@ const getSubscriptionInformationGrid = ({
     },
     {
       label: translate('text_65201c5a175a4b0238abf29e'),
+      value: intlFormatDateTimeOrgaTZ(subscription?.startedAt ?? '').date,
+    },
+    {
+      label: translate('text_1781859135627z59hpfpa8pt'),
       value: intlFormatDateTimeOrgaTZ(subscription?.subscriptionAt ?? '').date,
     },
     {
       label: translate('text_65201c5a175a4b0238abf2a0'),
       value: <SubscriptionEndOrTerminatedAt subscription={subscription} />,
+    },
+    showBillingEntityRow && {
+      label: translate('text_17436114971570doqrwuwhf0'),
+      value: (
+        <BillingEntityLabel
+          ownId={subscription?.billingEntityId}
+          customerEntity={subscription?.customer?.billingEntity}
+        />
+      ),
     },
     !!parentPlanId && {
       label: translate('text_65201c5a175a4b0238abf2a2'),
@@ -184,7 +208,8 @@ export const SubscriptionInformationFields = ({
   subscription?: SubscriptionInformationFieldsFragment | null
 }) => {
   const { translate } = useInternationalization()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ, hasFeatureFlag } = useOrganizationInfos()
+  const showBillingEntityRow = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
   return (
     <div className="flex flex-col gap-4">
@@ -217,7 +242,12 @@ export const SubscriptionInformationFields = ({
         />
       )}
       <DetailsPage.InfoGrid
-        grid={getSubscriptionInformationGrid({ subscription, translate, intlFormatDateTimeOrgaTZ })}
+        grid={getSubscriptionInformationGrid({
+          subscription,
+          translate,
+          intlFormatDateTimeOrgaTZ,
+          showBillingEntityRow,
+        })}
       />
     </div>
   )

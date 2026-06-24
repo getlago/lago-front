@@ -3,8 +3,9 @@ import { generatePath } from 'react-router-dom'
 
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Status } from '~/components/designSystem/Status'
-import { Table } from '~/components/designSystem/Table/Table'
+import { Table, TableProps } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { buildPaymentDocumentData } from '~/components/emails/buildDocumentData'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { addToast } from '~/core/apolloClient'
@@ -33,6 +34,7 @@ interface CustomerPaymentsListProps {
   loading: boolean
   metadata?: GetPaymentsListQuery['payments']['metadata']
   fetchMore?: GetPaymentsListQueryHookResult['fetchMore']
+  placeholder?: TableProps<PaymentForPaymentsListFragment>['placeholder']
 }
 
 export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
@@ -40,6 +42,7 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
   loading,
   metadata,
   fetchMore,
+  placeholder,
 }) => {
   const { translate } = useInternationalization()
 
@@ -65,6 +68,7 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
         data={payments}
         containerSize={{ default: 4 }}
         isLoading={loading}
+        placeholder={placeholder}
         actionColumn={({ paymentReceipt, customer }) => {
           const canResendEmail =
             hasPermissions(['paymentReceiptsSend']) &&
@@ -159,7 +163,11 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
             maxSpace: true,
             content: ({ payable }) => {
               if (isInvoice(payable)) {
-                return payable.number
+                return payable.number ? (
+                  <TypographyWithCopy compact noWrap variant="body">
+                    {payable.number}
+                  </TypographyWithCopy>
+                ) : null
               }
               if (isPaymentRequest(payable)) {
                 if (payable.invoices.length > 1) {
@@ -167,7 +175,14 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
                     count: payable.invoices.length,
                   })
                 }
-                return payable.invoices[0]?.number
+
+                const firstNumber = payable.invoices[0]?.number
+
+                return firstNumber ? (
+                  <TypographyWithCopy compact noWrap variant="body">
+                    {firstNumber}
+                  </TypographyWithCopy>
+                ) : null
               }
             },
           },

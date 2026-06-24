@@ -5,13 +5,21 @@ import { OperationDefinitionNode } from 'graphql'
  * Evicts a deleted entity from the Apollo cache and removes it from paginated list fields.
  *
  * Uses `cache.batch` with selective `onWatchUpdated` to suppress notifications to detail page
- * query watchers (preventing 404 refetches), while still allowing list query watchers to
- * receive the update and re-render with the item removed.
+ * query watchers (preventing an immediate 404 refetch), while still allowing list query
+ * watchers to receive the update and re-render with the item removed. It also nulls out
+ * single-reference root fields (e.g. a detail query's `entity({"id":"X"})`) so a retained
+ * detail observable keeps a COMPLETE cache diff and is never driven to the network by a
+ * later unrelated cache write.
  *
  * **Why this exists:** After a delete mutation, `cache.evict()` broadcasts to all active
  * `watchQuery` subscriptions. If a detail page query is still mounted, it refires, gets a
- * 404 from the server, and the global error link shows a danger toast. This helper solves
- * the problem by batching the eviction and only allowing specified list watchers through.
+ * 404, and the global error link shows a danger toast. Worse: a `cache-and-network` detail
+ * query is retained (and still cache-watched) by Apollo after its page unmounts. Evicting
+ * only the entity leaves that query's root field missing/dangling -> its diff is INCOMPLETE,
+ * so the next unrelated cache write (anywhere) broadcasts to it and `cache-first` drives a
+ * network refetch -> a delayed 404 for the deleted entity. Writing the field to `null`
+ * instead keeps the diff complete, so the retained query stays quiet. This helper batches
+ * the eviction, allows only the specified list watchers through, and nulls the root fields.
  *
  * @param client - The Apollo Client instance (from `useApolloClient()`)
  * @param options - Configuration for the eviction
@@ -109,6 +117,25 @@ export const evictFromCache = (
           },
         })
       }
+
+      // Null out single-reference root fields pointing at this entity
+      // (e.g. a detail query's `paymentProvider({"id":"X"})`).
+      //
+      // This is the crux of the 404 fix. A detail page's `cache-and-network` query is
+      // retained (and still cache-watched) by Apollo after the page unmounts. Any later
+      // cache write broadcasts to it; it re-diffs, and if the diff is INCOMPLETE it
+      // refetches under `cache-first` -> network -> 404 for the deleted entity.
+      // Evicting the entity (or deleting this field) leaves the field missing ->
+      // incomplete -> refetch. Writing `null` instead keeps the diff COMPLETE
+      // (a nullable object field resolved to null needs no subfields), so the retained
+      // query stays quiet. The entity is gone, so null is the correct value.
+      cache.modify({
+        id: 'ROOT_QUERY',
+        fields(value, { isReference }) {
+          if (isReference(value) && value.__ref === cacheId) return null
+          return value
+        },
+      })
 
       // Evict the normalized entity entry
       cache.evict({ id: cacheId })

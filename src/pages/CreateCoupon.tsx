@@ -243,7 +243,7 @@ const CreateCoupon = () => {
                   <NameAndCodeGroup
                     form={form}
                     fields={{ name: 'name', code: 'code' }}
-                    isDisabled={isEdition && !!coupon?.appliedCouponsCount}
+                    disableCodeInput={isEdition && !!coupon?.appliedCouponsCount}
                   />
 
                   {shouldDisplayDescription ? (

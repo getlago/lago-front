@@ -100,6 +100,7 @@ jest.mock('../editQuote/EditQuoteAside', () => {
   return {
     __esModule: true,
     default: (props: {
+      isSaving?: boolean
       onSaveStart?: () => void
       onSaveFinished?: () => void
       onSaveError?: (payload: unknown) => void
@@ -110,7 +111,7 @@ jest.mock('../editQuote/EditQuoteAside', () => {
         onSaveError: props.onSaveError,
       }
 
-      return <div data-test="mock-edit-quote-aside" />
+      return <div data-test="mock-edit-quote-aside" data-is-saving={String(!!props.isSaving)} />
     },
   }
 })
@@ -190,16 +191,26 @@ const mockDrawerOnPricingCommand = jest.fn()
 const mockSyncEntitiesWithBlocks = jest.fn().mockReturnValue(null)
 let capturedPricingDrawerArgs: unknown[] = []
 
-jest.mock('../hooks/usePricingDrawer', () => ({
-  usePricingDrawer: (...args: unknown[]) => {
+jest.mock('../hooks/useSubscriptionPricingDrawer', () => ({
+  useSubscriptionPricingDrawer: (...args: unknown[]) => {
     capturedPricingDrawerArgs = args
 
     return {
       onPricingCommand: mockDrawerOnPricingCommand,
+      isPricingDisabled: () => false,
       entities: {},
       syncEntitiesWithBlocks: mockSyncEntitiesWithBlocks,
     }
   },
+}))
+
+jest.mock('../hooks/useOneOffPricingDrawer', () => ({
+  useOneOffPricingDrawer: () => ({
+    onPricingCommand: jest.fn(),
+    isPricingDisabled: () => false,
+    entities: {},
+    syncEntitiesWithBlocks: jest.fn().mockReturnValue(null),
+  }),
 }))
 
 jest.mock('../common/getQuoteStatusMapping', () => ({
@@ -542,6 +553,76 @@ describe('EditQuote', () => {
     })
   })
 
+  describe('GIVEN the isSaving prop passed to the aside', () => {
+    const getAside = () => screen.getByTestId('mock-edit-quote-aside')
+
+    describe('WHEN the save status is idle', () => {
+      it('THEN should pass isSaving=false to the aside', () => {
+        render(<EditQuote />)
+
+        expect(getAside()).toHaveAttribute('data-is-saving', 'false')
+      })
+    })
+
+    describe('WHEN a save starts', () => {
+      it('THEN should pass isSaving=true to the aside', async () => {
+        render(<EditQuote />)
+
+        act(() => {
+          capturedAsideCallbacks.onSaveStart?.()
+        })
+
+        await waitFor(() => {
+          expect(getAside()).toHaveAttribute('data-is-saving', 'true')
+        })
+      })
+    })
+
+    describe('WHEN a save finishes successfully', () => {
+      it('THEN should pass isSaving=false back to the aside', async () => {
+        render(<EditQuote />)
+
+        act(() => {
+          capturedAsideCallbacks.onSaveStart?.()
+        })
+
+        await waitFor(() => {
+          expect(getAside()).toHaveAttribute('data-is-saving', 'true')
+        })
+
+        act(() => {
+          capturedAsideCallbacks.onSaveFinished?.()
+        })
+
+        await waitFor(() => {
+          expect(getAside()).toHaveAttribute('data-is-saving', 'false')
+        })
+      })
+    })
+
+    describe('WHEN a save errors', () => {
+      it('THEN should pass isSaving=false back to the aside', async () => {
+        render(<EditQuote />)
+
+        act(() => {
+          capturedAsideCallbacks.onSaveStart?.()
+        })
+
+        await waitFor(() => {
+          expect(getAside()).toHaveAttribute('data-is-saving', 'true')
+        })
+
+        act(() => {
+          capturedAsideCallbacks.onSaveError?.({ id: 'version-1' })
+        })
+
+        await waitFor(() => {
+          expect(getAside()).toHaveAttribute('data-is-saving', 'false')
+        })
+      })
+    })
+  })
+
   describe('GIVEN the close button disabled state', () => {
     describe('WHEN a mutation is in progress', () => {
       it('THEN should disable the close button', () => {
@@ -772,7 +853,7 @@ describe('EditQuote', () => {
     })
 
     describe('WHEN the customer has a currency', () => {
-      it('THEN should pass it as the third argument to usePricingDrawer', () => {
+      it('THEN should pass the customer to useSubscriptionPricingDrawer options', () => {
         mockUseQuote.mockReturnValue({
           quote: {
             ...mockQuote,
@@ -787,7 +868,9 @@ describe('EditQuote', () => {
 
         render(<EditQuote />)
 
-        expect(capturedPricingDrawerArgs[2]).toBe('EUR')
+        const options = capturedPricingDrawerArgs[1] as { customer?: { currency?: string } }
+
+        expect(options.customer?.currency).toBe('EUR')
       })
     })
   })

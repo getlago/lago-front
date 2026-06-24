@@ -4,11 +4,9 @@ import { RetryLink } from '@apollo/client/link/retry'
 import { getMainDefinition } from '@apollo/client/utilities'
 import { captureException, captureMessage } from '@sentry/react'
 import ActionCable from 'actioncable'
-import { LocalForageWrapper, persistCache } from 'apollo3-cache-persist'
 import ApolloLinkTimeout from 'apollo-link-timeout'
 import { createUploadLink } from 'apollo-upload-client'
 import ActionCableLink from 'graphql-ruby-client/subscriptions/ActionCableLink'
-import localForage from 'localforage'
 // IMPORTANT: Keep reactiveVars import before cacheUtils
 import { matchPath } from 'react-router-dom'
 
@@ -21,11 +19,13 @@ import {
 } from '~/core/apolloClient/reactiveVars'
 import { buildWebSocketUrl } from '~/core/apolloClient/websocketUrl'
 import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
+import { getItemFromLS } from '~/core/utils/localStorage'
 import { LagoApiError } from '~/generated/graphql'
 
 import { buildAuthHeaders } from './authHeaders'
 import { cache } from './cache'
-import { getItemFromLS, omitDeep } from './cacheUtils'
+import { setupCachePersistor } from './cachePersistor'
+import { omitDeep } from './cacheUtils'
 import { resolvers, typeDefs } from './graphqlResolvers'
 
 const AUTH_ERRORS = [
@@ -272,11 +272,7 @@ export const initializeApolloClient = async () => {
 
   const splitLink = split(hasSubscriptionOperation, subscriptionLink, httpLink)
 
-  await persistCache({
-    cache,
-    storage: new LocalForageWrapper(localForage),
-    key: `apollo-cache-persist-lago-${appVersion}`,
-  })
+  await setupCachePersistor(appVersion)
 
   const link = ApolloLink.from([
     authLink,

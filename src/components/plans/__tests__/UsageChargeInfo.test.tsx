@@ -119,6 +119,7 @@ describe('UsageChargeInfo', () => {
         } as never,
       ],
     })
+
     render(
       <UsageChargeInfo
         charge={charge}

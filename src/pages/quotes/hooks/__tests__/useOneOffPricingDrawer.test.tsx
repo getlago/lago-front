@@ -3,10 +3,10 @@ import { ReactNode } from 'react'
 import { z } from 'zod'
 
 import { fromBillingItems } from '~/core/serializers/serializeQuoteBillingItems'
-import { CurrencyEnum, OrderTypeEnum } from '~/generated/graphql'
+import { CurrencyEnum } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
-import { usePricingDrawer } from '../usePricingDrawer'
+import { useOneOffPricingDrawer } from '../useOneOffPricingDrawer'
 
 // --- Mocks ---
 
@@ -116,6 +116,15 @@ jest.mock('~/components/designSystem/RichTextEditor/PricingBlock/PricingDrawerCo
   default: () => null,
 }))
 
+jest.mock('../useSubscriptionPricingDrawer', () => ({
+  useSubscriptionPricingDrawer: () => ({
+    onPricingCommand: jest.fn(),
+    isPricingDisabled: jest.fn(() => false),
+    entities: {},
+    syncEntitiesWithBlocks: jest.fn(() => null),
+  }),
+}))
+
 const mockedFromBillingItems = fromBillingItems as jest.Mock
 
 const wrapper = ({ children }: { children: ReactNode }) => (
@@ -151,7 +160,7 @@ const mockBillingItemsPayload = {
 
 // --- Tests ---
 
-describe('usePricingDrawer', () => {
+describe('useOneOffPricingDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     capturedOnSubmit = null
@@ -162,7 +171,7 @@ describe('usePricingDrawer', () => {
   describe('GIVEN the hook is called', () => {
     describe('WHEN it returns', () => {
       it('THEN should return onPricingCommand, entities, and syncEntitiesWithBlocks', () => {
-        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), { wrapper })
+        const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
 
         expect(typeof result.current.onPricingCommand).toBe('function')
         expect(result.current.entities).toBeDefined()
@@ -172,7 +181,7 @@ describe('usePricingDrawer', () => {
 
     describe('WHEN no initialBillingItems is provided', () => {
       it('THEN entities should be an empty object', () => {
-        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), { wrapper })
+        const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
 
         expect(result.current.entities).toEqual({})
       })
@@ -218,10 +227,9 @@ describe('usePricingDrawer', () => {
           ],
         })
 
-        const { result } = renderHook(
-          () => usePricingDrawer(OrderTypeEnum.OneOff, mockBillingItemsPayload),
-          { wrapper },
-        )
+        const { result } = renderHook(() => useOneOffPricingDrawer(mockBillingItemsPayload), {
+          wrapper,
+        })
 
         expect(mockedFromBillingItems).toHaveBeenCalledWith(mockBillingItemsPayload)
         // Entities should include both localId-keyed and backward-compat catalog-keyed entries
@@ -246,7 +254,7 @@ describe('usePricingDrawer', () => {
       it('THEN should not call fromBillingItems', () => {
         const emptyPayload = { addons: [] }
 
-        renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff, emptyPayload), { wrapper })
+        renderHook(() => useOneOffPricingDrawer(emptyPayload), { wrapper })
 
         expect(mockedFromBillingItems).not.toHaveBeenCalled()
       })
@@ -256,7 +264,7 @@ describe('usePricingDrawer', () => {
   describe('GIVEN onPricingCommand is called', () => {
     describe('WHEN called with an onSave callback and no editData', () => {
       it('THEN should open the form drawer', () => {
-        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), { wrapper })
+        const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
 
         act(() => {
           result.current.onPricingCommand({
@@ -278,30 +286,9 @@ describe('usePricingDrawer', () => {
       })
     })
 
-    describe('WHEN called for a subscription creation order type', () => {
-      it('THEN should open the form drawer with the plan selection title', () => {
-        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.SubscriptionCreation), {
-          wrapper,
-        })
-
-        act(() => {
-          result.current.onPricingCommand({
-            onSave: jest.fn(),
-            editData: undefined,
-          })
-        })
-
-        expect(mockFormDrawerOpen).toHaveBeenCalledTimes(1)
-        const callArgs = mockFormDrawerOpen.mock.calls[0][0]
-
-        // The title for subscription types should be the plan selection key
-        expect(callArgs.title).toBe('text_17799586575628qyl2jk1tbn')
-      })
-    })
-
     describe('WHEN called for a one-off order type', () => {
       it('THEN should open the form drawer with the add-on selection title', () => {
-        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), { wrapper })
+        const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
 
         act(() => {
           result.current.onPricingCommand({
@@ -339,10 +326,9 @@ describe('usePricingDrawer', () => {
           ],
         })
 
-        const { result } = renderHook(
-          () => usePricingDrawer(OrderTypeEnum.OneOff, mockBillingItemsPayload),
-          { wrapper },
-        )
+        const { result } = renderHook(() => useOneOffPricingDrawer(mockBillingItemsPayload), {
+          wrapper,
+        })
 
         expect(result.current.isPricingDisabled()).toBe(true)
       })
@@ -350,35 +336,7 @@ describe('usePricingDrawer', () => {
 
     describe('WHEN order type is one-off and no entities exist', () => {
       it('THEN should return false', () => {
-        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), { wrapper })
-
-        expect(result.current.isPricingDisabled()).toBe(false)
-      })
-    })
-
-    describe('WHEN order type is subscription creation and entities exist', () => {
-      it('THEN should return false', () => {
-        mockedFromBillingItems.mockReturnValue({
-          entities: {
-            'local-uuid-1': {
-              entityId: 'local-uuid-1',
-              entityType: 'addOn',
-              name: 'Setup Fee',
-              code: 'setup',
-            },
-          },
-          originalPayloads: {
-            'local-uuid-1': mockAddOnPayload,
-          },
-          addOnItems: [
-            { localId: 'local-uuid-1', addOnId: 'addon-1', name: 'Setup Fee', code: 'setup' },
-          ],
-        })
-
-        const { result } = renderHook(
-          () => usePricingDrawer(OrderTypeEnum.SubscriptionCreation, mockBillingItemsPayload),
-          { wrapper },
-        )
+        const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
 
         expect(result.current.isPricingDisabled()).toBe(false)
       })
@@ -405,10 +363,9 @@ describe('usePricingDrawer', () => {
           ],
         })
 
-        const { result } = renderHook(
-          () => usePricingDrawer(OrderTypeEnum.OneOff, mockBillingItemsPayload),
-          { wrapper },
-        )
+        const { result } = renderHook(() => useOneOffPricingDrawer(mockBillingItemsPayload), {
+          wrapper,
+        })
 
         act(() => {
           result.current.onPricingCommand({
@@ -441,10 +398,9 @@ describe('usePricingDrawer', () => {
           addOnItems: [],
         })
 
-        const { result } = renderHook(
-          () => usePricingDrawer(OrderTypeEnum.OneOff, mockBillingItemsPayload),
-          { wrapper },
-        )
+        const { result } = renderHook(() => useOneOffPricingDrawer(mockBillingItemsPayload), {
+          wrapper,
+        })
 
         const blocks = [
           {
@@ -484,10 +440,9 @@ describe('usePricingDrawer', () => {
           ],
         })
 
-        const { result } = renderHook(
-          () => usePricingDrawer(OrderTypeEnum.OneOff, mockBillingItemsPayload),
-          { wrapper },
-        )
+        const { result } = renderHook(() => useOneOffPricingDrawer(mockBillingItemsPayload), {
+          wrapper,
+        })
 
         // After hydration, entities has both 'local-uuid-1' and 'addon-1' (backward-compat)
         expect(result.current.entities).toHaveProperty('local-uuid-1')
@@ -570,10 +525,9 @@ describe('usePricingDrawer', () => {
           ],
         }
 
-        const { result } = renderHook(
-          () => usePricingDrawer(OrderTypeEnum.OneOff, billingItemsWithTwo),
-          { wrapper },
-        )
+        const { result } = renderHook(() => useOneOffPricingDrawer(billingItemsWithTwo), {
+          wrapper,
+        })
 
         // Blocks only reference local-uuid-1, so local-uuid-2 becomes orphaned
         const blocks = [
@@ -606,7 +560,7 @@ describe('usePricingDrawer', () => {
 
     describe('WHEN there are no entities at all', () => {
       it('THEN should return null', () => {
-        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), { wrapper })
+        const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
 
         const blocks = [{ pricingType: 'addOns' as const, entityIds: [], localEntityIds: [] }]
 
@@ -622,27 +576,6 @@ describe('usePricingDrawer', () => {
   })
 
   describe('GIVEN onPricingCommand is called with editData', () => {
-    describe('WHEN it is a subscription creation with pricingType plan', () => {
-      it('THEN should reset the form with the plan ID as initialPlanId', () => {
-        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.SubscriptionCreation), {
-          wrapper,
-        })
-
-        act(() => {
-          result.current.onPricingCommand({
-            onSave: jest.fn(),
-            editData: { pricingType: 'plan', entityIds: ['plan-abc'] },
-          })
-        })
-
-        expect(mockFormReset).toHaveBeenCalledWith(
-          { planId: 'plan-abc', addOnItems: [] },
-          { keepDefaultValues: true },
-        )
-        expect(mockFormDrawerOpen).toHaveBeenCalled()
-      })
-    })
-
     describe('WHEN it is a one-off order with pricingType addOns and existing entities', () => {
       it('THEN should reset the form with initialAddOnItems from entity data', () => {
         mockedFromBillingItems.mockReturnValue({
@@ -679,10 +612,9 @@ describe('usePricingDrawer', () => {
           ],
         })
 
-        const { result } = renderHook(
-          () => usePricingDrawer(OrderTypeEnum.OneOff, mockBillingItemsPayload),
-          { wrapper },
-        )
+        const { result } = renderHook(() => useOneOffPricingDrawer(mockBillingItemsPayload), {
+          wrapper,
+        })
 
         act(() => {
           result.current.onPricingCommand({
@@ -732,10 +664,9 @@ describe('usePricingDrawer', () => {
           ],
         })
 
-        const { result } = renderHook(
-          () => usePricingDrawer(OrderTypeEnum.OneOff, mockBillingItemsPayload),
-          { wrapper },
-        )
+        const { result } = renderHook(() => useOneOffPricingDrawer(mockBillingItemsPayload), {
+          wrapper,
+        })
 
         act(() => {
           result.current.onPricingCommand({
@@ -752,35 +683,14 @@ describe('usePricingDrawer', () => {
         expect(mockFormDrawerOpen).toHaveBeenCalled()
       })
     })
-
-    describe('WHEN it is a subscription creation with no editData planId', () => {
-      it('THEN should reset the form with an empty planId', () => {
-        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.SubscriptionCreation), {
-          wrapper,
-        })
-
-        act(() => {
-          result.current.onPricingCommand({
-            onSave: jest.fn(),
-            editData: undefined,
-          })
-        })
-
-        expect(mockFormReset).toHaveBeenCalledWith(
-          { planId: '', addOnItems: [] },
-          { keepDefaultValues: true },
-        )
-      })
-    })
   })
 
   describe('GIVEN customerCurrency is provided', () => {
     describe('WHEN onPricingCommand is called', () => {
       it('THEN should pass the customerCurrency to the drawer content instead of organization default', () => {
-        const { result } = renderHook(
-          () => usePricingDrawer(OrderTypeEnum.OneOff, undefined, CurrencyEnum.Eur),
-          { wrapper },
-        )
+        const { result } = renderHook(() => useOneOffPricingDrawer(undefined, CurrencyEnum.Eur), {
+          wrapper,
+        })
 
         act(() => {
           result.current.onPricingCommand({
@@ -798,10 +708,7 @@ describe('usePricingDrawer', () => {
 
     describe('WHEN customerCurrency is null', () => {
       it('THEN should fall back to organization defaultCurrency', () => {
-        const { result } = renderHook(
-          () => usePricingDrawer(OrderTypeEnum.OneOff, undefined, null),
-          { wrapper },
-        )
+        const { result } = renderHook(() => useOneOffPricingDrawer(undefined, null), { wrapper })
 
         act(() => {
           result.current.onPricingCommand({
@@ -819,7 +726,7 @@ describe('usePricingDrawer', () => {
 
     describe('WHEN customerCurrency is not provided', () => {
       it('THEN should use organization defaultCurrency', () => {
-        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), { wrapper })
+        const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
 
         act(() => {
           result.current.onPricingCommand({
@@ -837,74 +744,11 @@ describe('usePricingDrawer', () => {
   })
 
   describe('GIVEN the form onSubmit handler is invoked', () => {
-    describe('WHEN submitting for a subscription creation with a planId', () => {
-      it('THEN should call onSave with plan entity data and update entities', () => {
-        const mockOnSave = jest.fn()
-
-        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.SubscriptionCreation), {
-          wrapper,
-        })
-
-        // Trigger onPricingCommand to capture onSaveRef and onSubmit
-        act(() => {
-          result.current.onPricingCommand({
-            onSave: mockOnSave,
-            editData: undefined,
-          })
-        })
-
-        // Simulate form values for a plan submission
-        mockFormValues = { planId: 'plan-123', addOnItems: [] }
-
-        // Invoke the captured onSubmit
-        expect(capturedOnSubmit).not.toBeNull()
-        act(() => {
-          capturedOnSubmit?.({ value: mockFormValues })
-        })
-
-        expect(mockOnSave).toHaveBeenCalledWith(
-          { pricingType: 'plan', entityIds: ['plan-123'] },
-          expect.objectContaining({
-            'plan-123': expect.objectContaining({
-              entityId: 'plan-123',
-              entityType: 'plan',
-            }),
-          }),
-        )
-      })
-    })
-
-    describe('WHEN submitting for a subscription creation with no planId', () => {
-      it('THEN should not call onSave', () => {
-        const mockOnSave = jest.fn()
-
-        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.SubscriptionCreation), {
-          wrapper,
-        })
-
-        act(() => {
-          result.current.onPricingCommand({
-            onSave: mockOnSave,
-            editData: undefined,
-          })
-        })
-
-        // Empty planId
-        mockFormValues = { planId: '', addOnItems: [] }
-
-        act(() => {
-          capturedOnSubmit?.({ value: mockFormValues })
-        })
-
-        expect(mockOnSave).not.toHaveBeenCalled()
-      })
-    })
-
     describe('WHEN submitting for a one-off with confirmed add-on items', () => {
       it('THEN should call onSave with add-on entity data and billing items', () => {
         const mockOnSave = jest.fn()
 
-        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), {
+        const { result } = renderHook(() => useOneOffPricingDrawer(), {
           wrapper,
         })
 
@@ -965,7 +809,7 @@ describe('usePricingDrawer', () => {
       it('THEN should not call onSave', () => {
         const mockOnSave = jest.fn()
 
-        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), {
+        const { result } = renderHook(() => useOneOffPricingDrawer(), {
           wrapper,
         })
 
@@ -994,7 +838,7 @@ describe('usePricingDrawer', () => {
   describe('GIVEN the captureAddOnPayload callback', () => {
     describe('WHEN an add-on is selected in the drawer', () => {
       it('THEN should store the add-on payload for later serialization', () => {
-        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), { wrapper })
+        const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
 
         act(() => {
           result.current.onPricingCommand({
@@ -1079,7 +923,7 @@ describe('usePricingDrawer', () => {
   describe('GIVEN the handleSubmit function inside onPricingCommand', () => {
     describe('WHEN form.submit is invoked from the drawer', () => {
       it('THEN should call form.handleSubmit', async () => {
-        const { result } = renderHook(() => usePricingDrawer(OrderTypeEnum.OneOff), { wrapper })
+        const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
 
         act(() => {
           result.current.onPricingCommand({
@@ -1098,37 +942,9 @@ describe('usePricingDrawer', () => {
       })
     })
   })
-
-  describe('GIVEN isPricingDisabled is called for subscription amendment', () => {
-    describe('WHEN order type is subscription amendment and entities exist', () => {
-      it('THEN should return false', () => {
-        mockedFromBillingItems.mockReturnValue({
-          entities: {
-            'local-uuid-1': {
-              entityId: 'local-uuid-1',
-              entityType: 'addOn',
-              name: 'Setup Fee',
-              code: 'setup',
-            },
-          },
-          originalPayloads: { 'local-uuid-1': mockAddOnPayload },
-          addOnItems: [
-            { localId: 'local-uuid-1', addOnId: 'addon-1', name: 'Setup Fee', code: 'setup' },
-          ],
-        })
-
-        const { result } = renderHook(
-          () => usePricingDrawer(OrderTypeEnum.SubscriptionAmendment, mockBillingItemsPayload),
-          { wrapper },
-        )
-
-        expect(result.current.isPricingDisabled()).toBe(false)
-      })
-    })
-  })
 })
 
-// --- Standalone validation schema tests (mirrors the superRefine in usePricingDrawer) ---
+// --- Standalone validation schema tests (mirrors the superRefine in useOneOffPricingDrawer) ---
 
 const pricingDrawerValidationSchema = z
   .object({

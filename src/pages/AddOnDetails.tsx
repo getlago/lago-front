@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
-import { DeleteAddOnDialog, DeleteAddOnDialogRef } from '~/components/addOns/DeleteAddOnDialog'
+import { useDeleteAddOnDialog } from '~/components/addOns/DeleteAddOnDialog'
 import { Card } from '~/components/designSystem/Card'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -40,7 +39,7 @@ const AddOnDetails = () => {
   const { translate } = useInternationalization()
   const { addOnId } = useParams()
 
-  const deleteDialogRef = useRef<DeleteAddOnDialogRef>(null)
+  const { openDeleteAddOnDialog } = useDeleteAddOnDialog()
 
   const {
     data: addOnResult,
@@ -93,7 +92,7 @@ const AddOnDetails = () => {
           hidden: !addOn || !hasPermissions(['addonsDelete']),
           onClick: (closePopper) => {
             if (!addOn) return
-            deleteDialogRef.current?.openDialog({
+            openDeleteAddOnDialog({
               addOn,
               callback: () => {
                 navigate(ADD_ONS_ROUTE)
@@ -182,8 +181,6 @@ const AddOnDetails = () => {
           </Card>
         </section>
       </DetailsPage.Container>
-
-      <DeleteAddOnDialog ref={deleteDialogRef} />
     </>
   )
 }

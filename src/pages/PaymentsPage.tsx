@@ -18,6 +18,7 @@ gql`
     $limit: Int
     $page: Int
     $searchTerm: String
+    $currency: CurrencyEnum
   ) {
     payments(
       invoiceId: $invoiceId
@@ -25,6 +26,7 @@ gql`
       limit: $limit
       page: $page
       searchTerm: $searchTerm
+      currency: $currency
     ) {
       metadata {
         currentPage

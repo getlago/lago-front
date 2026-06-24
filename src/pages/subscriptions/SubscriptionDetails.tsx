@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
@@ -11,7 +12,6 @@ import { SubscriptionDetailsV2Overview } from '~/components/subscriptions/detail
 import { SubscriptionDetailsV2Plan } from '~/components/subscriptions/details-v2/SubscriptionDetailsV2Plan'
 import { SubscriptionActivityLogs } from '~/components/subscriptions/SubscriptionActivityLogs'
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
-import { SubscriptionDetailsOverview } from '~/components/subscriptions/SubscriptionDetailsOverview'
 import { SubscriptionEntitlementsTabContent } from '~/components/subscriptions/SubscriptionEntitlementsTabContent'
 import { SubscriptionProgressiveBillingTab } from '~/components/subscriptions/SubscriptionProgressiveBillingTab/SubscriptionProgressiveBillingTab'
 import { SubscriptionUsageTabContent } from '~/components/subscriptions/SubscriptionUsageTabContent'
@@ -24,12 +24,10 @@ import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
-  UPDATE_SUBSCRIPTION,
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
   useNavigate,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   LagoApiError,
   StatusTypeEnum,
@@ -71,7 +69,6 @@ gql`
 `
 
 export const SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID = 'subscription-details-actions'
-export const SUBSCRIPTION_DETAILS_UPDATE_TEST_ID = 'subscription-details-update'
 export const SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID =
   'subscription-details-upgrade-downgrade'
 export const SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID = 'subscription-details-terminate'
@@ -146,53 +143,21 @@ const SubscriptionDetails = () => {
     }
 
     return [
-      isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE)
-        ? {
-            title: translate('text_628cf761cbe6820138b8f2e4'),
-            link: !!customerId
-              ? getCustomerSubscriptionDetailsRoute(
-                  CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-                )
-              : getPlanSubscriptionDetailsRoute(
-                  CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-                ),
-            match: [
-              getCustomerSubscriptionDetailsRoute(
-                CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-              ),
-              getPlanSubscriptionDetailsRoute(
-                CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-              ),
-            ],
-            content: (
-              <DetailsPage.Container>
-                <SubscriptionDetailsV2Overview subscriptionId={subscriptionId as string} />
-              </DetailsPage.Container>
-            ),
-            hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
-          }
-        : {
-            title: translate('text_628cf761cbe6820138b8f2e4'),
-            link: !!customerId
-              ? getCustomerSubscriptionDetailsRoute(
-                  CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-                )
-              : getPlanSubscriptionDetailsRoute(
-                  CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-                ),
-            match: [
-              getCustomerSubscriptionDetailsRoute(
-                CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-              ),
-              getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
-            ],
-            content: (
-              <DetailsPage.Container>
-                <SubscriptionDetailsOverview />
-              </DetailsPage.Container>
-            ),
-          },
-
+      {
+        title: translate('text_628cf761cbe6820138b8f2e4'),
+        link: !!customerId
+          ? getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview)
+          : getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
+        match: [
+          getCustomerSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
+          getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.overview),
+        ],
+        content: (
+          <DetailsPage.Container>
+            <SubscriptionDetailsV2Overview subscriptionId={subscriptionId as string} />
+          </DetailsPage.Container>
+        ),
+      },
       {
         title: translate('text_17792001643316pbexygvpu2'),
         link: !!customerId
@@ -215,7 +180,6 @@ const SubscriptionDetails = () => {
             <SubscriptionDetailsV2Plan subscriptionId={subscriptionId as string} />
           </DetailsPage.Container>
         ),
-        hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
       },
       {
         title: translate('text_1724179887722baucvj7bvc1'),
@@ -340,7 +304,9 @@ const SubscriptionDetails = () => {
       planName: subscription?.plan.name,
     }),
     viewNameLoading: isSubscriptionLoading,
-    metadata: subscription?.plan.code || '',
+    metadata: subscription?.plan.code ? (
+      <TypographyWithCopy>{subscription.plan.code}</TypographyWithCopy>
+    ) : undefined,
     metadataLoading: isSubscriptionLoading,
   }
 
@@ -350,20 +316,6 @@ const SubscriptionDetails = () => {
       label: translate('text_626162c62f790600f850b6fe'),
       dataTest: SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID,
       items: [
-        {
-          label: translate('text_62d7f6178ec94cd09370e63c'),
-          dataTest: SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
-          hidden: !canEditSubscription(subscription?.status),
-          onClick: (closePopper) => {
-            navigate(
-              generatePath(UPDATE_SUBSCRIPTION, {
-                customerId: subscription?.customer?.id as string,
-                subscriptionId: subscriptionId as string,
-              }),
-            )
-            closePopper()
-          },
-        },
         {
           label: translate('text_62d7f6178ec94cd09370e64a'),
           dataTest: SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,

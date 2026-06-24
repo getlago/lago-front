@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { CurrencyEnum, OrderTypeEnum } from '~/generated/graphql'
+import { CurrencyEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { type AddOnItem, pricingDrawerDefaultValues } from '../constants'
@@ -31,14 +31,12 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 // Helper to render with a form wrapper
 const renderWithForm = ({
-  quoteType,
   currency = CurrencyEnum.Usd,
   initialValues,
 }: {
-  quoteType: OrderTypeEnum
   currency?: CurrencyEnum
   initialValues?: { planId?: string; addOnItems?: AddOnItem[] }
-}) => {
+} = {}) => {
   // We use a wrapper component that creates the form via useAppForm
   // and passes it to PricingDrawerContent
   const { useAppForm: useAppFormHook } = jest.requireActual('~/hooks/forms/useAppform')
@@ -52,7 +50,7 @@ const renderWithForm = ({
       },
     })
 
-    return <PricingDrawerContent form={form} quoteType={quoteType} currency={currency} />
+    return <PricingDrawerContent form={form} currency={currency} />
   }
 
   return render(<Wrapper />)
@@ -73,47 +71,6 @@ describe('PricingDrawerContent', () => {
     })
   })
 
-  describe('GIVEN the quote type is SubscriptionCreation', () => {
-    describe('WHEN plans data is loaded', () => {
-      it('THEN should render a plan combobox', () => {
-        mockUsePlansQuery.mockReturnValue({
-          data: {
-            plans: {
-              collection: [
-                { id: 'plan-1', name: 'Basic', code: 'basic' },
-                { id: 'plan-2', name: 'Pro', code: 'pro' },
-              ],
-            },
-          },
-          loading: false,
-        })
-
-        renderWithForm({ quoteType: OrderTypeEnum.SubscriptionCreation })
-
-        expect(screen.getByRole('combobox')).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN the quote type is SubscriptionAmendment', () => {
-    describe('WHEN plans data is loaded', () => {
-      it('THEN should render a plan combobox', () => {
-        mockUsePlansQuery.mockReturnValue({
-          data: {
-            plans: {
-              collection: [{ id: 'plan-1', name: 'Starter', code: 'starter' }],
-            },
-          },
-          loading: false,
-        })
-
-        renderWithForm({ quoteType: OrderTypeEnum.SubscriptionAmendment })
-
-        expect(screen.getByRole('combobox')).toBeInTheDocument()
-      })
-    })
-  })
-
   describe('GIVEN the quote type is OneOff', () => {
     describe('WHEN add-ons data is loaded', () => {
       it('THEN should render an add-on button', () => {
@@ -129,7 +86,7 @@ describe('PricingDrawerContent', () => {
           loading: false,
         })
 
-        renderWithForm({ quoteType: OrderTypeEnum.OneOff })
+        renderWithForm()
 
         expect(screen.getByTestId('add-add-on-button')).toBeInTheDocument()
       })
@@ -143,7 +100,6 @@ describe('PricingDrawerContent', () => {
         })
 
         renderWithForm({
-          quoteType: OrderTypeEnum.OneOff,
           initialValues: {
             addOnItems: [
               {
@@ -176,7 +132,6 @@ describe('PricingDrawerContent', () => {
         })
 
         renderWithForm({
-          quoteType: OrderTypeEnum.OneOff,
           initialValues: {
             addOnItems: [
               {
@@ -209,30 +164,13 @@ describe('PricingDrawerContent', () => {
   })
 
   describe('GIVEN the query configuration', () => {
-    it('THEN should fetch plans with correct options for subscription creation', () => {
-      mockUsePlansQuery.mockReturnValue({
-        data: { plans: { collection: [] } },
-        loading: false,
-      })
-
-      renderWithForm({ quoteType: OrderTypeEnum.SubscriptionCreation })
-
-      expect(mockUsePlansQuery).toHaveBeenCalledWith(
-        expect.objectContaining({
-          variables: { limit: 100 },
-          fetchPolicy: 'network-only',
-          nextFetchPolicy: 'network-only',
-        }),
-      )
-    })
-
     it('THEN should not call plans query for one-off quote type', () => {
       mockUseGetAddOnsForPricingSectionQuery.mockReturnValue({
         data: { addOns: { collection: [] } },
         loading: false,
       })
 
-      renderWithForm({ quoteType: OrderTypeEnum.OneOff })
+      renderWithForm()
 
       expect(mockUsePlansQuery).not.toHaveBeenCalled()
     })
@@ -243,7 +181,7 @@ describe('PricingDrawerContent', () => {
         loading: false,
       })
 
-      renderWithForm({ quoteType: OrderTypeEnum.OneOff })
+      renderWithForm()
 
       expect(mockUseGetAddOnsForPricingSectionQuery).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -252,17 +190,6 @@ describe('PricingDrawerContent', () => {
           nextFetchPolicy: 'network-only',
         }),
       )
-    })
-
-    it('THEN should not call add-ons query for subscription creation quote type', () => {
-      mockUsePlansQuery.mockReturnValue({
-        data: { plans: { collection: [] } },
-        loading: false,
-      })
-
-      renderWithForm({ quoteType: OrderTypeEnum.SubscriptionCreation })
-
-      expect(mockUseGetAddOnsForPricingSectionQuery).not.toHaveBeenCalled()
     })
   })
 })

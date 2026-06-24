@@ -19,9 +19,14 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
+import { useSubscriptionPremiumGate } from '~/hooks/plans/useSubscriptionPremiumGate'
 import { useUpdatePlanWithCascade } from '~/hooks/plans/useUpdatePlanWithCascade'
 import { useUpdateSubscriptionPlanOverride } from '~/hooks/plans/useUpdateSubscriptionPlanOverride'
 
+import {
+  SUBSCRIPTION_FEE_ACCORDION_TEST_ID,
+  SUBSCRIPTION_FEE_EDIT_TEST_ID,
+} from './detailsV2TestIds'
 import { SectionAccordion } from './shared/SectionAccordion'
 import { PlanDetailsV2SectionId } from './sidebarSections'
 
@@ -53,6 +58,7 @@ export const SubscriptionFeeAccordion = ({
 }: SubscriptionFeeAccordionProps) => {
   const { translate } = useInternationalization()
   const { canUpdate } = useAccordionPermissions(isInSubscriptionForm)
+  const { gateOnClick, premiumIcon } = useSubscriptionPremiumGate(isInSubscriptionForm)
   const drawerRef = useRef<SubscriptionFeeDrawerRef>(null)
 
   // ISO with the plan form: payInAdvance + trialPeriod lock once the plan has
@@ -115,12 +121,15 @@ export const SubscriptionFeeAccordion = ({
         title={plan.invoiceDisplayName || translate('text_642d5eb2783a2ad10d670336')}
         subtitle={formattedAmount}
         badge={intervalBadge}
+        dataTest={SUBSCRIPTION_FEE_ACCORDION_TEST_ID}
         actions={[
           {
             label: translate('text_63e51ef4985f0ebd75c212fc'),
             startIcon: 'pen',
-            onClick: openDrawer,
+            endIcon: premiumIcon,
+            onClick: gateOnClick(openDrawer),
             hidden: !canUpdate,
+            dataTest: SUBSCRIPTION_FEE_EDIT_TEST_ID,
           },
         ]}
       >

@@ -9,7 +9,8 @@ export type NameAndCodeGroupValues = {
 }
 
 export type NameAndCodeGroupProps = {
-  isDisabled?: boolean
+  disableCodeInput?: boolean
+  disableAutoGenerateCode?: boolean
   nameProps?: Partial<TextInputProps>
   codeProps?: Partial<TextInputProps>
 }
@@ -20,20 +21,26 @@ const defaultValues: NameAndCodeGroupValues = {
 }
 
 const defaultProps: NameAndCodeGroupProps = {
-  isDisabled: false,
+  disableCodeInput: false,
+  disableAutoGenerateCode: false,
 }
 
 const NameAndCodeGroup = withFieldGroup({
   defaultValues,
   props: defaultProps,
-  render: function Render({ group, isDisabled, nameProps, codeProps }) {
+  render: function Render({
+    group,
+    disableCodeInput,
+    disableAutoGenerateCode,
+    nameProps,
+    codeProps,
+  }) {
     const { translate } = useInternationalization()
 
     const handleNameChange = ({ value }: { value: string }) => {
       const isCodeBlurred = group.getFieldMeta('code')?.isBlurred
 
-      // isDisabled mean we don't want to update the value. Be it directly or indirectly.
-      if (isCodeBlurred || isDisabled) return
+      if (isCodeBlurred || disableCodeInput || disableAutoGenerateCode) return
 
       group.setFieldValue('code', formatCodeFromName(value))
     }
@@ -55,7 +62,7 @@ const NameAndCodeGroup = withFieldGroup({
               label={translate('text_629728388c4d2300e2d380b7')}
               beforeChangeFormatter="code"
               placeholder={translate('text_629728388c4d2300e2d380d9')}
-              disabled={isDisabled}
+              disabled={disableCodeInput}
               {...codeProps}
             />
           )}

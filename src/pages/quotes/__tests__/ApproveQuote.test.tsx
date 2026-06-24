@@ -1,8 +1,16 @@
+import NiceModal from '@ebay/nice-modal-react'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
+import {
+  CENTRALIZED_DIALOG_CANCEL_BUTTON_TEST_ID,
+  CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID,
+  CENTRALIZED_DIALOG_NAME,
+  CENTRALIZED_DIALOG_TEST_ID,
+} from '~/components/dialogs/const'
 import { addToast } from '~/core/apolloClient'
-import { fromBillingItems } from '~/core/serializers/serializeQuoteBillingItems'
+import { buildPreviewEntities } from '~/core/serializers/serializeQuoteBillingItems'
 import { CurrencyEnum, OrderTypeEnum, StatusEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
@@ -15,6 +23,15 @@ import ApproveQuote, {
 } from '../ApproveQuote'
 import { useApproveQuote } from '../hooks/useApproveQuote'
 import { useQuote } from '../hooks/useQuote'
+
+NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
+
+const renderPage = () =>
+  render(
+    <NiceModal.Provider>
+      <ApproveQuote />
+    </NiceModal.Provider>,
+  )
 
 const mockGoBack = jest.fn()
 
@@ -59,13 +76,21 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: jest.fn(),
 }))
 
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    intlFormatDateTimeOrgaTZ: (date: string) => ({ date }),
+  }),
+}))
+
 jest.mock('~/core/serializers/serializeQuoteBillingItems', () => ({
-  fromBillingItems: jest.fn(),
+  buildPreviewEntities: jest.fn(),
 }))
 
 const mockUseQuote = useQuote as jest.MockedFunction<typeof useQuote>
 const mockUseApproveQuote = useApproveQuote as jest.MockedFunction<typeof useApproveQuote>
-const mockedFromBillingItems = fromBillingItems as jest.MockedFunction<typeof fromBillingItems>
+const mockedBuildPreviewEntities = buildPreviewEntities as jest.MockedFunction<
+  typeof buildPreviewEntities
+>
 
 const mockQuote = {
   id: 'quote-123',
@@ -137,19 +162,19 @@ describe('ApproveQuote', () => {
         ['close button', APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID],
         ['preview section', APPROVE_QUOTE_PREVIEW_TEST_ID],
       ])('THEN should display the %s', (_, testId) => {
-        render(<ApproveQuote />)
+        renderPage()
 
         expect(screen.getByTestId(testId)).toBeInTheDocument()
       })
 
       it('THEN should display the quote number', () => {
-        render(<ApproveQuote />)
+        renderPage()
 
         expect(screen.getByText('QT-2026-0042')).toBeInTheDocument()
       })
 
       it('THEN should display the customer name', () => {
-        render(<ApproveQuote />)
+        renderPage()
 
         expect(screen.getByText('Acme Corp')).toBeInTheDocument()
       })
@@ -169,7 +194,7 @@ describe('ApproveQuote', () => {
           refetch: jest.fn(),
         })
 
-        render(<ApproveQuote />)
+        renderPage()
 
         const preview = screen.getByTestId(APPROVE_QUOTE_PREVIEW_TEST_ID)
 
@@ -179,7 +204,7 @@ describe('ApproveQuote', () => {
 
     describe('WHEN content is null', () => {
       it('THEN should show the no content fallback', () => {
-        render(<ApproveQuote />)
+        renderPage()
 
         const preview = screen.getByTestId(APPROVE_QUOTE_PREVIEW_TEST_ID)
 
@@ -194,7 +219,7 @@ describe('ApproveQuote', () => {
       it('THEN should call approveQuote, show success toast, and navigate to order forms tab', async () => {
         const user = userEvent.setup()
 
-        render(<ApproveQuote />)
+        renderPage()
 
         await user.click(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID))
 
@@ -217,7 +242,7 @@ describe('ApproveQuote', () => {
       async (_, testId) => {
         const user = userEvent.setup()
 
-        render(<ApproveQuote />)
+        renderPage()
 
         await user.click(screen.getByTestId(testId))
 
@@ -237,19 +262,19 @@ describe('ApproveQuote', () => {
     })
 
     describe('WHEN data is being fetched', () => {
-      it('THEN should not display the alert or preview', () => {
-        render(<ApproveQuote />)
+      it('THEN should not display the alert or RTE content', () => {
+        renderPage()
 
         expect(screen.queryByTestId(APPROVE_QUOTE_ALERT_TEST_ID)).not.toBeInTheDocument()
-        expect(screen.queryByTestId(APPROVE_QUOTE_PREVIEW_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId('rich-text-editor-preview')).not.toBeInTheDocument()
       })
 
-      it('THEN should still display the header close button and footer buttons', () => {
-        render(<ApproveQuote />)
+      it('THEN should still display the header close button but not the footer buttons', () => {
+        renderPage()
 
         expect(screen.getByTestId(APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID)).toBeInTheDocument()
-        expect(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID)).toBeInTheDocument()
-        expect(screen.getByTestId(APPROVE_QUOTE_CANCEL_BUTTON_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId(APPROVE_QUOTE_CANCEL_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
@@ -266,14 +291,14 @@ describe('ApproveQuote', () => {
 
     describe('WHEN the error is displayed', () => {
       it('THEN should not show the approve page content', () => {
-        render(<ApproveQuote />)
+        renderPage()
 
         expect(screen.queryByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID)).not.toBeInTheDocument()
         expect(screen.queryByTestId(APPROVE_QUOTE_ALERT_TEST_ID)).not.toBeInTheDocument()
       })
 
       it('THEN should display the error placeholder with a reload button', () => {
-        render(<ApproveQuote />)
+        renderPage()
 
         expect(screen.getByRole('button')).toBeInTheDocument()
       })
@@ -290,7 +315,7 @@ describe('ApproveQuote', () => {
           refetch: jest.fn(),
         })
 
-        render(<ApproveQuote />)
+        renderPage()
 
         expect(screen.getByTestId(APPROVE_QUOTE_ALERT_TEST_ID)).toBeInTheDocument()
         expect(screen.getByTestId(APPROVE_QUOTE_PREVIEW_TEST_ID)).toBeInTheDocument()
@@ -309,7 +334,7 @@ describe('ApproveQuote', () => {
       it('THEN should not call approveQuote mutation', async () => {
         const user = userEvent.setup()
 
-        render(<ApproveQuote />)
+        renderPage()
 
         await user.click(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID))
 
@@ -323,11 +348,32 @@ describe('ApproveQuote', () => {
       it('THEN should not call goBack', async () => {
         const user = userEvent.setup()
 
-        render(<ApproveQuote />)
+        renderPage()
 
         await user.click(screen.getByTestId(APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID))
 
         expect(mockGoBack).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  it('sends expiresAt at end-of-day when a valid-until date is set', async () => {
+    const user = userEvent.setup()
+
+    renderPage()
+
+    await user.type(screen.getByPlaceholderText('text_62cd78ea9bff25e3391b2437'), '12/25/2030')
+
+    await user.click(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID))
+
+    await waitFor(() => {
+      expect(mockApproveQuote).toHaveBeenCalledWith({
+        variables: {
+          input: expect.objectContaining({
+            id: 'version-123',
+            expiresAt: expect.stringContaining('T23:59:59.999'),
+          }),
+        },
       })
     })
   })
@@ -346,7 +392,7 @@ describe('ApproveQuote', () => {
       it('THEN should not show success toast or navigate', async () => {
         const user = userEvent.setup()
 
-        render(<ApproveQuote />)
+        renderPage()
 
         await user.click(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID))
 
@@ -372,11 +418,7 @@ describe('ApproveQuote', () => {
           },
         }
 
-        mockedFromBillingItems.mockReturnValue({
-          entities: mockEntities,
-          originalPayloads: {},
-          addOnItems: [],
-        })
+        mockedBuildPreviewEntities.mockReturnValue(mockEntities)
 
         mockUseQuote.mockReturnValue({
           quote: {
@@ -392,9 +434,9 @@ describe('ApproveQuote', () => {
           refetch: jest.fn(),
         })
 
-        render(<ApproveQuote />)
+        renderPage()
 
-        expect(mockedFromBillingItems).toHaveBeenCalled()
+        expect(mockedBuildPreviewEntities).toHaveBeenCalled()
         expect(capturedRichTextEditorProps.entities).toEqual(mockEntities)
       })
     })
@@ -415,9 +457,9 @@ describe('ApproveQuote', () => {
           refetch: jest.fn(),
         })
 
-        render(<ApproveQuote />)
+        renderPage()
 
-        expect(mockedFromBillingItems).not.toHaveBeenCalled()
+        expect(mockedBuildPreviewEntities).not.toHaveBeenCalled()
         expect(capturedRichTextEditorProps.entities).toEqual({})
       })
     })
@@ -443,7 +485,7 @@ describe('ApproveQuote', () => {
           refetch: jest.fn(),
         })
 
-        render(<ApproveQuote />)
+        renderPage()
 
         expect(capturedRichTextEditorProps.customerLocale).toBe('fr')
       })
@@ -464,7 +506,7 @@ describe('ApproveQuote', () => {
           refetch: jest.fn(),
         })
 
-        render(<ApproveQuote />)
+        renderPage()
 
         expect(capturedRichTextEditorProps.customerLocale).toBe('en')
       })
@@ -491,7 +533,7 @@ describe('ApproveQuote', () => {
           refetch: jest.fn(),
         })
 
-        render(<ApproveQuote />)
+        renderPage()
 
         expect(capturedRichTextEditorProps.customerCurrency).toBe(CurrencyEnum.Eur)
       })
@@ -512,7 +554,7 @@ describe('ApproveQuote', () => {
           refetch: jest.fn(),
         })
 
-        render(<ApproveQuote />)
+        renderPage()
 
         expect(capturedRichTextEditorProps.customerCurrency).toBeUndefined()
       })
@@ -535,10 +577,65 @@ describe('ApproveQuote', () => {
           refetch: jest.fn(),
         })
 
-        render(<ApproveQuote />)
+        renderPage()
 
         expect(capturedRichTextEditorProps.isCompact).toBe(true)
       })
+    })
+  })
+
+  describe('unsaved-changes guard', () => {
+    const typeDate = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.type(screen.getByPlaceholderText('text_62cd78ea9bff25e3391b2437'), '12/25/2030')
+    }
+
+    it('navigates back immediately when closing a pristine form', async () => {
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await user.click(screen.getByTestId(APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID))
+
+      expect(screen.queryByTestId(CENTRALIZED_DIALOG_TEST_ID)).not.toBeInTheDocument()
+      expect(mockGoBack).toHaveBeenCalled()
+    })
+
+    it('opens the warning dialog instead of navigating when the form is dirty', async () => {
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await typeDate(user)
+      await user.click(screen.getByTestId(APPROVE_QUOTE_CANCEL_BUTTON_TEST_ID))
+
+      expect(await screen.findByTestId(CENTRALIZED_DIALOG_TEST_ID)).toBeInTheDocument()
+      expect(mockGoBack).not.toHaveBeenCalled()
+    })
+
+    it('navigates back when confirming the warning dialog', async () => {
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await typeDate(user)
+      await user.click(screen.getByTestId(APPROVE_QUOTE_CANCEL_BUTTON_TEST_ID))
+      await user.click(await screen.findByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID))
+
+      await waitFor(() => {
+        expect(mockGoBack).toHaveBeenCalled()
+      })
+    })
+
+    it('stays on the page when cancelling the warning dialog', async () => {
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await typeDate(user)
+      await user.click(screen.getByTestId(APPROVE_QUOTE_CANCEL_BUTTON_TEST_ID))
+      await user.click(await screen.findByTestId(CENTRALIZED_DIALOG_CANCEL_BUTTON_TEST_ID))
+
+      expect(mockGoBack).not.toHaveBeenCalled()
     })
   })
 })

@@ -171,16 +171,31 @@ Before writing any code, create a plan document:
 
 Search for `setFieldError`, `setErrors`, `setStatus` in the onSubmit handler. These are server-side errors set AFTER a mutation response and must be migrated to `formApi.setErrorMap`.
 
-| Formik Call | GQL Error | Target Field | Error Message Key | TanStack `setErrorMap` |
-| ----------- | --------- | ------------ | ----------------- | ---------------------- |
-| `formikBag.setFieldError('email', ...)` | `NotFound` | `email` | `text_xxx` | See Pattern 4 below |
+| Formik Call                             | GQL Error  | Target Field | Error Message Key | TanStack `setErrorMap` |
+| --------------------------------------- | ---------- | ------------ | ----------------- | ---------------------- |
+| `formikBag.setFieldError('email', ...)` | `NotFound` | `email`      | `text_xxx`        | See Pattern 4 below    |
 
 **If no `setFieldError`/`setErrors`/`setStatus` calls are found, write "None" and move on.**
 
 ### Submit Button Disabled Logic
 
 Current: `disabled={!formikProps.isValid || !formikProps.dirty || loading}`
-TanStack: `form.SubmitButton` handles isValid + dirty automatically
+
+TanStack: `form.SubmitButton` handles validity (`canSubmit`) + `isSubmitting` automatically.
+
+**⛔ DO NOT re-introduce a `dirty` gate.** The Formik forms commonly disabled submit on a pristine form (`!dirty`). **Do not preserve this.** The TanStack convention in this codebase is: **the submit button is enabled by default and only becomes disabled when the form has validation errors** (handled automatically by `canSubmit`). Gating on `!isDirty` is wrong — it blocks submitting a dialog when the user hasn't changed anything (e.g., re-confirming a pre-filled value), which diverges from every other migrated TanStack form. Just use a bare `<form.SubmitButton>` and let `canSubmit` do the gating.
+
+```tsx
+// ❌ WRONG — do not gate on dirty
+<form.Subscribe selector={(state) => state.isDirty}>
+  {(isDirty) => <form.SubmitButton disabled={!isDirty}>{label}</form.SubmitButton>}
+</form.Subscribe>
+
+// ✅ CORRECT — enabled by default, disabled only on validation errors (canSubmit)
+<form.SubmitButton>{label}</form.SubmitButton>
+```
+
+(Only pass `disabled` for a genuinely external concern, e.g. an unrelated loading state — never for dirtiness.)
 
 ### Validation Timing
 
@@ -408,11 +423,11 @@ When you need to **react to a field value change** (e.g., propagate a selection,
 
 **When to use `listeners` vs `useStore`:**
 
-| Use case | Tool |
-|----------|------|
-| Read a value for conditional rendering in JSX | `useStore` |
-| Execute a side-effect when a value changes | `listeners.onChange` |
-| Derive another field's value from a change | `listeners.onChange` |
+| Use case                                      | Tool                 |
+| --------------------------------------------- | -------------------- |
+| Read a value for conditional rendering in JSX | `useStore`           |
+| Execute a side-effect when a value changes    | `listeners.onChange` |
+| Derive another field's value from a change    | `listeners.onChange` |
 
 > **Reference**: See `AddBillableMetricToCouponDialog.tsx` and `NameAndCodeGroup.tsx` for real-world examples of listeners.
 
@@ -428,6 +443,7 @@ import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGrou
 ```
 
 This component:
+
 - Renders name and code fields in a 2-column grid
 - Auto-generates the `code` from `name` using `formatCodeFromName` (until the user manually edits the code field)
 - Uses the `withFieldGroup` HOC (different from `withForm` — see Advanced Patterns)
@@ -492,6 +508,8 @@ return (
 
 **Replace submit button:**
 
+Always prefer the registered `form.SubmitButton` over a manually-wired `<Button type="submit">` with `useStore` subscriptions — it internally subscribes to `canSubmit` + `isSubmitting` and adds a `loading` state for free.
+
 ```diff
 - <Button
 -   onClick={formikProps.submitForm}
@@ -504,7 +522,22 @@ return (
 + </form.AppForm>
 ```
 
-Note: `form.SubmitButton` handles `canSubmit` (validity + dirty state) automatically.
+Notes:
+
+- `form.SubmitButton` must be wrapped in `<form.AppForm>` — it reads the form via `useFormContext()`.
+- In TanStack, `canSubmit` = no validation errors + not submitting + not validating. **It does NOT include `isDirty`, and that is intentional — do NOT add a dirty gate.** Even if the original Formik code disabled on pristine forms (`!dirty`), do **not** preserve that. The codebase convention is: submit is enabled by default and only disabled when the form has validation errors (via `canSubmit`). Use a bare `<form.SubmitButton>`. See **Submit Button Disabled Logic** above.
+
+**Common mistake (do not do this):** hand-wiring a `<Button type="submit">` when the registered component already exists.
+
+```diff
+- const canSubmit = useStore(form.store, (s) => s.canSubmit)
+- <Button variant="primary" type="submit" disabled={!canSubmit}>
+-   {submitLabel}
+- </Button>
++ <form.AppForm>
++   <form.SubmitButton variant="primary">{submitLabel}</form.SubmitButton>
++ </form.AppForm>
+```
 
 #### Step 2.9: Update Field Value Changes
 
@@ -574,6 +607,7 @@ Go back to your Validation Migration Plan and verify:
 **CRITICAL: The UI before and after the migration MUST be visually identical** (unless changes are intentional UI/UX improvements).
 
 Verify:
+
 1. **Layout**: The `<form>` wrapper hasn't broken flex/grid layouts, sticky footers, or spacing
 2. **Field alignment**: All form fields maintain their original positioning and sizing
 3. **Error messages**: Error states display in the same position and style as before
@@ -753,9 +787,9 @@ Many forms set server-side errors on specific fields after a mutation fails (e.g
 
 **Formik → TanStack mapping:**
 
-| Formik | TanStack Form |
-|--------|---------------|
-| `formikBag.setFieldError('email', errorMsg)` | `formApi.setErrorMap({ onDynamic: { fields: { email: { message: errorMsg, path: ['email'] } } } })` |
+| Formik                                             | TanStack Form                                                                                                                            |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `formikBag.setFieldError('email', errorMsg)`       | `formApi.setErrorMap({ onDynamic: { fields: { email: { message: errorMsg, path: ['email'] } } } })`                                      |
 | `formikBag.setErrors({ email: msg1, name: msg2 })` | `formApi.setErrorMap({ onDynamic: { fields: { email: { message: msg1, path: ['email'] }, name: { message: msg2, path: ['name'] } } } })` |
 
 **⚠️ CRITICAL: Error value format**
@@ -915,12 +949,12 @@ Use `listeners` on `form.AppField` to react to field value changes. This is pref
 
 **When to use `listeners` vs `useStore`:**
 
-| Use case | Tool |
-|----------|------|
-| Read a value for conditional rendering in JSX | `useStore(form.store, ...)` |
-| Execute a side-effect when a value changes | `listeners={{ onChange }}` |
-| Derive another field's value from a change | `listeners={{ onChange }}` |
-| Update external state (refs, callbacks) on change | `listeners={{ onChange }}` |
+| Use case                                          | Tool                        |
+| ------------------------------------------------- | --------------------------- |
+| Read a value for conditional rendering in JSX     | `useStore(form.store, ...)` |
+| Execute a side-effect when a value changes        | `listeners={{ onChange }}`  |
+| Derive another field's value from a change        | `listeners={{ onChange }}`  |
+| Update external state (refs, callbacks) on change | `listeners={{ onChange }}`  |
 
 ### Pattern 8: `withFieldGroup` for Reusable Field Groups
 
@@ -990,12 +1024,12 @@ const NameAndCodeGroup = withFieldGroup({
 
 **Key differences: `withForm` vs `withFieldGroup`:**
 
-| Aspect | `withForm` | `withFieldGroup` |
-|--------|-----------|-----------------|
-| Purpose | Sub-component of a specific form | Reusable field group across multiple forms |
-| Receives | `form` prop | `group` prop |
-| Usage | `<MySection form={form} />` | `<NameAndCodeGroup group={form} />` |
-| Scope | Specific to one form's structure | Generic, works with any form that has matching fields |
+| Aspect   | `withForm`                       | `withFieldGroup`                                      |
+| -------- | -------------------------------- | ----------------------------------------------------- |
+| Purpose  | Sub-component of a specific form | Reusable field group across multiple forms            |
+| Receives | `form` prop                      | `group` prop                                          |
+| Usage    | `<MySection form={form} />`      | `<NameAndCodeGroup group={form} />`                   |
+| Scope    | Specific to one form's structure | Generic, works with any form that has matching fields |
 
 ### Pattern 9: Dialog with Independent Form
 
@@ -1079,6 +1113,7 @@ export const useAddItemDialog = () => {
 ```
 
 **Key points:**
+
 - The dialog has its own `useAppForm`, separate from the parent form
 - Data flows to the parent via callback (`onSelect` prop) and `useRef`
 - `useFormDialog` + `DialogActionButton` + `useSetDisabledRef` handle dialog UX

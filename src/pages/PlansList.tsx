@@ -9,18 +9,14 @@ import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import {
-  CREATE_PLAN_ROUTE,
-  PLAN_DETAILS_ROUTE,
-  UPDATE_PLAN_ROUTE,
-  useNavigate,
-} from '~/core/router'
+import { CREATE_PLAN_ROUTE, PLAN_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { DeletePlanDialogFragmentDoc, usePlansLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
@@ -169,9 +165,9 @@ const PlansList = () => {
                     <Typography color="textSecondary" variant="bodyHl" noWrap>
                       {name}
                     </Typography>
-                    <Typography variant="caption" noWrap>
+                    <TypographyWithCopy compact noWrap variant="caption">
                       {code}
-                    </Typography>
+                    </TypographyWithCopy>
                   </div>
                 </div>
               ),
@@ -217,12 +213,13 @@ const PlansList = () => {
             if (canUpdatePlans) {
               actions.push({
                 startIcon: 'pen',
-                title: translate('text_625fd39a15394c0117e7d792'),
+                title: translate('text_17810296077545fp2y0ulzko'),
                 dataTest: 'tab-internal-button-link-update-plan',
                 onAction: () =>
                   navigate(
-                    generatePath(UPDATE_PLAN_ROUTE, {
+                    generatePath(PLAN_DETAILS_ROUTE, {
                       planId: plan.id,
+                      tab: PlanDetailsTabsOptionsEnum.overview,
                     }),
                   ),
               })

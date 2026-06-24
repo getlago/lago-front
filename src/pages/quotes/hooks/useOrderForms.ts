@@ -13,9 +13,11 @@ gql`
     number
     status
     createdAt
+    expiresAt
     customer {
       id
       name
+      ...QuotePreviewCustomer
     }
     quote {
       id
@@ -23,6 +25,7 @@ gql`
       currentVersion {
         id
         version
+        ...QuotePreviewVersion
       }
     }
   }

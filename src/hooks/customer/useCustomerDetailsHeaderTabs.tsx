@@ -40,8 +40,8 @@ export function useCustomerDetailsHeaderTabs({
   const { isPremium } = useCurrentUser()
 
   const {
-    creditNotesCreditsAvailableCount,
-    creditNotesBalanceAmountCents,
+    billingEntity: customerBillingEntity,
+    creditNotesBalances,
     externalId,
     hasCreditNotes,
     applicableTimezone: safeTimezone,
@@ -112,6 +112,7 @@ export function useCustomerDetailsHeaderTabs({
           userCurrency={customer?.currency || undefined}
           customerId={customerId}
           customerTimezone={safeTimezone}
+          customerBillingEntity={customerBillingEntity}
           isPartner={isPartner}
         />
       ),
@@ -134,8 +135,8 @@ export function useCustomerDetailsHeaderTabs({
       content: (
         <CustomerCreditNotesList
           customerId={customerId}
-          creditNotesCreditsAvailableCount={creditNotesCreditsAvailableCount}
-          creditNotesBalanceAmountCents={creditNotesBalanceAmountCents}
+          customerBillingEntity={customerBillingEntity}
+          creditNotesBalances={creditNotesBalances}
           userCurrency={customer?.currency || undefined}
           customerTimezone={safeTimezone}
         />

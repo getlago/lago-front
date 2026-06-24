@@ -10,11 +10,15 @@ const SlashCommandBlockWrapper = ({
   displayText,
   handleClick,
   icon,
+  captionTextPrefix,
+  captionTextSuffix,
 }: {
   typeText: string
   displayText: string
   handleClick: () => void
   icon: IconName
+  captionTextPrefix?: string
+  captionTextSuffix?: string
 }) => {
   const { translate } = useInternationalization()
 
@@ -39,7 +43,11 @@ const SlashCommandBlockWrapper = ({
             <Typography variant="bodyHl" color="grey700">
               {displayText}
             </Typography>
-            <Typography variant="caption">{translate('text_1780329442633n0oe3prszsw')}</Typography>
+            <Typography variant="caption">
+              {captionTextPrefix && `${captionTextPrefix} • `}
+              {translate('text_1780329442633n0oe3prszsw')}
+              {captionTextSuffix && ` ${captionTextSuffix}`}
+            </Typography>
           </div>
         </div>
         <div className="click-icon-wrapper">

@@ -10,7 +10,6 @@ import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMa
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
-  UPDATE_SUBSCRIPTION,
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
   useNavigate,
 } from '~/core/router'
@@ -26,7 +25,7 @@ import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternat
 import { usePermissions } from '~/hooks/usePermissions'
 import { useSubscriptionPermissionsActions } from '~/hooks/useSubscriptionPermissionsActions'
 
-type AnnotatedSubscription = {
+export type AnnotatedSubscription = {
   id: string
   externalId?: Subscription['externalId']
   name: Subscription['name']
@@ -40,11 +39,17 @@ type AnnotatedSubscription = {
   isDowngrade?: boolean
   isScheduled?: boolean
   isOverridden?: boolean
+  billingEntityId?: string | null
   customer: {
     id: string
     name?: string
     displayName?: string
     applicableTimezone: TimezoneEnum
+    billingEntity?: {
+      id: string
+      code: string
+      name?: string | null
+    }
   }
 }
 
@@ -77,6 +82,7 @@ const annotateSubscriptions = (
       terminatedAt,
       customer,
       nextSubscription,
+      billingEntityId,
     } = subscription || {}
 
     const isDowngrading = !!nextPlan && nextSubscriptionType === NextSubscriptionTypeEnum.Downgrade
@@ -92,11 +98,13 @@ const annotateSubscriptions = (
       frequency: plan.interval,
       statusType: subscriptionStatusMapping(status),
       payInAdvance: !!plan.payInAdvance,
+      billingEntityId: billingEntityId ?? undefined,
       customer: {
         id: customerId || customer?.id,
         name: customer?.name || undefined,
         displayName: customer?.displayName,
         applicableTimezone: customerTimezone || customer?.applicableTimezone,
+        billingEntity: customer?.billingEntity ?? undefined,
       },
       isScheduled: status === StatusTypeEnum.Pending,
       isOverridden: !!plan.isOverridden,
@@ -176,9 +184,22 @@ const generateActionColumn = ({
         title: translate('text_62d7f6178ec94cd09370e63c'),
         onAction: () =>
           navigate(
-            generatePath(UPDATE_SUBSCRIPTION, {
+            generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
               customerId: subscription.customer.id,
               subscriptionId: subscription.id,
+              tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+            }),
+          ),
+      },
+      {
+        startIcon: 'board',
+        title: translate('text_17810297639135ya0hmsldpi'),
+        onAction: () =>
+          navigate(
+            generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+              customerId: subscription.customer.id,
+              subscriptionId: subscription.id,
+              tab: CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
             }),
           ),
       },

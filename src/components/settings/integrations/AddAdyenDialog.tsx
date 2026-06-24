@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
-import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 import { object, string } from 'yup'
 
@@ -21,8 +21,6 @@ import {
   useUpdateAdyenApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { DeleteAdyenIntegrationDialogRef } from './DeleteAdyenIntegrationDialog'
 
 gql`
   fragment AddAdyenProviderDialog on AdyenProvider {
@@ -80,9 +78,8 @@ gql`
 `
 
 type TAddAdyenDialogProps = Partial<{
-  deleteModalRef: RefObject<DeleteAdyenIntegrationDialogRef>
+  onDelete: (provider: AddAdyenProviderDialogFragment) => void
   provider: AddAdyenProviderDialogFragment
-  deleteDialogCallback: () => void
 }>
 
 export interface AddAdyenDialogRef {
@@ -222,10 +219,9 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                localData?.deleteModalRef?.current?.openDialog({
-                  provider: adyenProvider,
-                  callback: localData.deleteDialogCallback,
-                })
+                if (adyenProvider) {
+                  localData?.onDelete?.(adyenProvider)
+                }
               }}
             >
               {translate('text_65845f35d7d69c3ab4793dad')}

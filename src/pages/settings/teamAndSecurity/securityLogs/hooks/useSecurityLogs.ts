@@ -48,20 +48,8 @@ gql`
   }
 `
 
-type FilterForSecurityLogsQuery = {
-  [key: string]: string | string[] | boolean
-  toDate: string
-}
-
 export const formatSecurityLogs = (securityLogs: SecurityLogs): Array<SecurityLogWithId> => {
   return securityLogs.map((securityLog) => ({ id: securityLog.logId, ...securityLog }))
-}
-
-const isFilterForSecurityLogsQuery = (
-  filter: Record<string, string | string[] | boolean>,
-): filter is FilterForSecurityLogsQuery => {
-  if (!filter.toDate || typeof filter.toDate !== 'string') return false
-  return true
 }
 
 export const useSecurityLogs = () => {
@@ -71,14 +59,11 @@ export const useSecurityLogs = () => {
   const filtersForSecurityLogsQuery = useMemo(() => {
     const formattedFilters = formatFiltersForSecurityLogsQuery(searchParams)
 
-    if (!isFilterForSecurityLogsQuery(formattedFilters)) {
-      return {
-        ...formattedFilters,
-        toDate: defaultToDateTime,
-      }
+    // The security logs query requires a toDate; fall back to the default when none is set.
+    return {
+      ...formattedFilters,
+      toDate: formattedFilters.toDate ?? defaultToDateTime,
     }
-
-    return formattedFilters
   }, [defaultToDateTime, searchParams])
 
   const {

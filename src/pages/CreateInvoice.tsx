@@ -7,6 +7,7 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 import { array, number, object, string } from 'yup'
 
+import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -25,19 +26,13 @@ import {
   EditFeeBillingPeriodRef,
 } from '~/components/invoices/EditFeeBillingPeriod'
 import {
-  EditInvoiceDisplayNameDialog,
-  EditInvoiceDisplayNameDialogRef,
-} from '~/components/invoices/EditInvoiceDisplayNameDialog'
-import {
   EditInvoiceItemDescriptionDialog,
   EditInvoiceItemDescriptionDialogRef,
 } from '~/components/invoices/EditInvoiceItemDescriptionDialog'
-import {
-  EditInvoiceItemTaxDialog,
-  EditInvoiceItemTaxDialogRef,
-} from '~/components/invoices/EditInvoiceItemTaxDialog'
+import { useEditInvoiceItemTaxDialog } from '~/components/invoices/EditInvoiceItemTaxDialog'
 import { InvoiceTaxesDisplay, TaxMapType } from '~/components/invoices/InvoiceTaxesDisplay'
 import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
+import { useEditInvoiceDisplayNameDialog } from '~/components/invoices/useEditInvoiceDisplayName'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -74,6 +69,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
@@ -239,8 +235,8 @@ const CreateInvoice = () => {
 
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const editDescriptionDialogRef = useRef<EditInvoiceItemDescriptionDialogRef>(null)
-  const editTaxDialogRef = useRef<EditInvoiceItemTaxDialogRef>(null)
-  const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
+  const { openEditInvoiceItemTaxDialog } = useEditInvoiceItemTaxDialog()
+  const { openEditInvoiceDisplayNameDialog } = useEditInvoiceDisplayNameDialog()
   const editFeeBillingPeriodDialogRef = useRef<EditFeeBillingPeriodRef>(null)
 
   const handleClosePage = useCallback(() => {
@@ -267,11 +263,17 @@ const CreateInvoice = () => {
     return invoiceFeesToFeeInput(prefillInvoice as Invoice)
   }, [prefillInvoice])
 
+  const { options: billingEntityOptions } = useBillingEntitiesOptions()
+  const [pickedBillingEntityId, setPickedBillingEntityId] = useState<string | undefined>(undefined)
+  const activeBillingEntityCode =
+    billingEntityOptions.find((o) => o.id === pickedBillingEntityId)?.value ??
+    customer?.billingEntity?.code
+
   const { data: billingEntityData } = useGetBillingEntityQuery({
     variables: {
-      code: customer?.billingEntity?.code as string,
+      code: activeBillingEntityCode as string,
     },
-    skip: !customer?.billingEntity?.code,
+    skip: !activeBillingEntityCode,
   })
 
   const billingEntity = billingEntityData?.billingEntity
@@ -369,6 +371,7 @@ const CreateInvoice = () => {
   const formikProps = useFormik<InvoiceFormInput>({
     initialValues: {
       customerId: customerId || '',
+      billingEntityId: customer?.billingEntity?.id || undefined,
       currency: data?.customer?.currency || billingEntity?.defaultCurrency || CurrencyEnum.Usd,
       fees: prefillFees || [],
       paymentMethod: undefined,
@@ -580,6 +583,9 @@ const CreateInvoice = () => {
     translate,
   ])
 
+  const showBillingEntityPicker = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+  const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
+
   if (!!error && !loading) {
     return (
       <GenericPlaceholder
@@ -706,6 +712,33 @@ const CreateInvoice = () => {
                   <Typography>{intlFormatDateTime(DateTime.now().toISO()).date}</Typography>
                 </div>
 
+                <div className="flex flex-row items-start gap-4">
+                  {showBillingEntityPicker && (
+                    <div className="w-80">
+                      <BillingEntityFormPicker
+                        label={translate('text_1743611497157teaa1zu8l24')}
+                        value={formikProps.values.billingEntityId}
+                        onChange={(id) => {
+                          formikProps.setFieldValue('billingEntityId', id)
+                          setPickedBillingEntityId(id)
+                        }}
+                      />
+                    </div>
+                  )}
+                  <div className="w-40">
+                    <ComboBoxField
+                      disableClearable
+                      data={Object.values(CurrencyEnum).map((currencyType) => ({
+                        value: currencyType,
+                      }))}
+                      disabled={!!customer?.currency && !hasMultiCurrency}
+                      formikProps={formikProps}
+                      label={translate('text_6453819268763979024ad057')}
+                      name="currency"
+                    />
+                  </div>
+                </div>
+
                 <div className={tw('flex gap-4', customerIsPartner && 'flex-row-reverse')}>
                   <div className="flex-1">
                     <Typography variant="caption" color="grey600">
@@ -776,18 +809,6 @@ const CreateInvoice = () => {
                     )}
                   </div>
                 </div>
-
-                <ComboBoxField
-                  className="w-fit max-w-40"
-                  disableClearable
-                  data={Object.values(CurrencyEnum).map((currencyType) => ({
-                    value: currencyType,
-                  }))}
-                  disabled={!!customer?.currency}
-                  formikProps={formikProps}
-                  label={translate('text_6453819268763979024ad057')}
-                  name="currency"
-                />
 
                 <div className="w-full">
                   <div className={tw(gridClassname, 'h-12 shadow-b [&>*]:flex [&>*]:items-center')}>
@@ -885,7 +906,7 @@ const CreateInvoice = () => {
                                   onClick={(e) => {
                                     e.stopPropagation()
 
-                                    editInvoiceDisplayNameDialogRef.current?.openDialog({
+                                    openEditInvoiceDisplayNameDialog({
                                       invoiceDisplayName: fee.invoiceDisplayName,
                                       callback: (invoiceDisplayName: string) => {
                                         formikProps.setFieldValue(
@@ -1015,7 +1036,7 @@ const CreateInvoice = () => {
                                     variant="quaternary"
                                     align="left"
                                     onClick={() => {
-                                      editTaxDialogRef.current?.openDialog({
+                                      openEditInvoiceItemTaxDialog({
                                         taxes: fee.taxes,
                                         callback: (newTaxesArray?: LocalFeeInput['taxes']) => {
                                           formikProps.setFieldValue(
@@ -1314,8 +1335,6 @@ const CreateInvoice = () => {
         onContinue={handleClosePage}
       />
       <EditInvoiceItemDescriptionDialog ref={editDescriptionDialogRef} />
-      <EditInvoiceItemTaxDialog ref={editTaxDialogRef} />
-      <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
       <EditFeeBillingPeriod ref={editFeeBillingPeriodDialogRef} />
     </>
   )

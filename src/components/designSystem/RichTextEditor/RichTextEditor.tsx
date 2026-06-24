@@ -8,7 +8,6 @@ import type { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import BlockToolbar from './BlockControls/BlockToolbar'
-import { downloadMarkdownPdf } from './common/downloadMarkdownPdf'
 import {
   type EntityData,
   type OnPricingCommand,
@@ -48,7 +47,6 @@ interface RichTextEditorProps {
   content?: string
   templates?: EditorTemplate[]
   getMarkdownRef?: React.MutableRefObject<(() => string) | null>
-  downloadPdfRef?: React.MutableRefObject<(() => void) | null>
   onChange?: () => void
   onPricingCommand?: OnPricingCommand
   isPricingDisabled?: () => boolean
@@ -56,6 +54,85 @@ interface RichTextEditorProps {
   customerLocale?: Locale
   customerCurrency?: CurrencyEnum
   isCompact?: boolean
+  onPreviewReady?: (html: string) => void
+}
+
+const variableItems = [
+  { id: 'customerName', label: 'Customer Name' },
+  { id: 'planName', label: 'Plan Name' },
+  { id: 'amountDue', label: 'Amount Due' },
+  { id: 'invoiceNumber', label: 'Invoice Number' },
+  { id: 'dueDate', label: 'Due Date' },
+  { id: 'companyName', label: 'Company Name' },
+]
+
+const mentionSuggestion: NonNullable<MentionSchemaOptions['suggestion']> = {
+  char: '@',
+  items: ({ query }) =>
+    variableItems.filter((v) => v.label.toLowerCase().includes(query.toLowerCase())),
+  render: () => {
+    let renderer: ReactRenderer<MentionListRef>
+    let popup: TippyInstance[]
+
+    return {
+      onStart: (suggestionProps) => {
+        renderer = new ReactRenderer(MentionList, {
+          props: suggestionProps,
+          editor: suggestionProps.editor,
+        })
+
+        popup = tippy('body', {
+          getReferenceClientRect: () => suggestionProps.clientRect?.() ?? new DOMRect(),
+          appendTo: () => document.body,
+          content: renderer.element,
+          showOnCreate: true,
+          interactive: true,
+          trigger: 'manual',
+          placement: 'bottom-start',
+        })
+      },
+      onUpdate: (suggestionProps) => {
+        renderer.updateProps(suggestionProps)
+
+        popup[0].setProps({
+          getReferenceClientRect: () => suggestionProps.clientRect?.() ?? new DOMRect(),
+        })
+      },
+      onKeyDown: (keyDownProps) => {
+        if (keyDownProps.event.key === 'Escape') {
+          popup[0].hide()
+          return true
+        }
+
+        return renderer.ref?.onKeyDown(keyDownProps) ?? false
+      },
+      onExit: () => {
+        popup[0].destroy()
+        renderer.destroy()
+      },
+    }
+  },
+}
+
+const getInitialEditorContent = (content?: string, templates?: EditorTemplate[]) => {
+  if (content) {
+    return content
+  }
+
+  if (templates && templates.length > 0) {
+    return {
+      type: 'doc',
+      content: [
+        { type: 'paragraph' },
+        {
+          type: 'templateSelector',
+          attrs: { templates },
+        },
+      ],
+    }
+  }
+
+  return ''
 }
 
 const RichTextEditor = ({
@@ -65,7 +142,6 @@ const RichTextEditor = ({
   content,
   templates,
   getMarkdownRef,
-  downloadPdfRef,
   onPricingCommand,
   isPricingDisabled,
   onPricingBlocksChange,
@@ -73,22 +149,18 @@ const RichTextEditor = ({
   customerLocale,
   customerCurrency,
   isCompact,
+  onPreviewReady,
 }: RichTextEditorProps) => {
   const { translate } = useInternationalization()
   const onChangeRef = useRef(onChange)
   const onPricingBlocksChangeRef = useRef(onPricingBlocksChange)
+  const onPricingCommandRef = useRef(onPricingCommand)
+  const isPricingDisabledRef = useRef(isPricingDisabled)
 
   onChangeRef.current = onChange
   onPricingBlocksChangeRef.current = onPricingBlocksChange
-
-  const variableItems = [
-    { id: 'customerName', label: 'Customer Name' },
-    { id: 'planName', label: 'Plan Name' },
-    { id: 'amountDue', label: 'Amount Due' },
-    { id: 'invoiceNumber', label: 'Invoice Number' },
-    { id: 'dueDate', label: 'Due Date' },
-    { id: 'companyName', label: 'Company Name' },
-  ]
+  onPricingCommandRef.current = onPricingCommand
+  isPricingDisabledRef.current = isPricingDisabled
 
   const editor = useEditor({
     extensions: [
@@ -105,56 +177,18 @@ const RichTextEditor = ({
       }).configure({
         ...mentionBaseConfig,
         mentionValues,
-        suggestion: {
-          char: '@',
-          items: ({ query }) =>
-            variableItems.filter((v) => v.label.toLowerCase().includes(query.toLowerCase())),
-          render: () => {
-            let renderer: ReactRenderer<MentionListRef>
-            let popup: TippyInstance[]
-
-            return {
-              onStart: (suggestionProps) => {
-                renderer = new ReactRenderer(MentionList, {
-                  props: suggestionProps,
-                  editor: suggestionProps.editor,
-                })
-
-                popup = tippy('body', {
-                  getReferenceClientRect: () => suggestionProps.clientRect?.() ?? new DOMRect(),
-                  appendTo: () => document.body,
-                  content: renderer.element,
-                  showOnCreate: true,
-                  interactive: true,
-                  trigger: 'manual',
-                  placement: 'bottom-start',
-                })
-              },
-              onUpdate: (suggestionProps) => {
-                renderer.updateProps(suggestionProps)
-
-                popup[0].setProps({
-                  getReferenceClientRect: () => suggestionProps.clientRect?.() ?? new DOMRect(),
-                })
-              },
-              onKeyDown: (keyDownProps) => {
-                if (keyDownProps.event.key === 'Escape') {
-                  popup[0].hide()
-                  return true
-                }
-
-                return renderer.ref?.onKeyDown(keyDownProps) ?? false
-              },
-              onExit: () => {
-                popup[0].destroy()
-                renderer.destroy()
-              },
-            }
-          },
-        },
+        suggestion: mentionSuggestion,
       } as MentionSchemaOptions),
       PricingBlock.configure({ entities: entitiesFromProps }),
-      SlashCommands.configure({ translate, onPricingCommand, isPricingDisabled }),
+      SlashCommands.configure({
+        translate,
+        onPricingCommand: onPricingCommand
+          ? (params) => onPricingCommandRef.current?.(params)
+          : undefined,
+        isPricingDisabled: isPricingDisabled
+          ? () => isPricingDisabledRef.current?.() ?? false
+          : undefined,
+      }),
       LinkPasteHandler,
       TemplateSelectorExtension.configure({ templates: templates ?? [] }),
       DragHandle,
@@ -167,20 +201,7 @@ const RichTextEditor = ({
           : 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10',
       },
     },
-    content:
-      content ??
-      (templates && templates.length > 0
-        ? {
-            type: 'doc',
-            content: [
-              { type: 'paragraph' },
-              {
-                type: 'templateSelector',
-                attrs: { templates },
-              },
-            ],
-          }
-        : ''),
+    content: getInitialEditorContent(content, templates),
     onUpdate: ({ editor: editorInstance }) => {
       onChangeRef.current?.()
       if (!onPricingBlocksChangeRef.current) return
@@ -207,6 +228,23 @@ const RichTextEditor = ({
       editor.setEditable(!isPreview)
     }
   }, [editor, isPreview])
+
+  useEffect(() => {
+    if (!editor || !isPreview || !onPreviewReady) return
+
+    let raf2 = 0
+
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        onPreviewReady(editor.view.dom.innerHTML)
+      })
+    })
+
+    return () => {
+      cancelAnimationFrame(raf1)
+      cancelAnimationFrame(raf2)
+    }
+  }, [editor, isPreview, onPreviewReady])
 
   const getMarkdown = useCallback((): string | undefined => {
     if (!editor || !editor.storage || !('markdown' in editor.storage)) return undefined
@@ -250,30 +288,12 @@ const RichTextEditor = ({
     }
   }, [getMarkdownRef, getMarkdown])
 
-  useEffect(() => {
-    if (!downloadPdfRef) return
-
-    downloadPdfRef.current = () => {
-      const markdown = getMarkdown()
-
-      if (markdown) {
-        downloadMarkdownPdf({ markdown, mentionValues, entities: entitiesFromProps })
-      }
-    }
-
-    return () => {
-      if (downloadPdfRef) {
-        downloadPdfRef.current = null
-      }
-    }
-  }, [downloadPdfRef, getMarkdown, mentionValues, entitiesFromProps])
-
   if (!editor) return null
 
   return (
     <RichTextEditorProvider value={contextValue}>
       <div
-        className={`rich-text-editor relative size-full max-h-screen overflow-auto ${isPreview ? '' : 'group/editor'}`}
+        className={`rich-text-editor relative size-full overflow-auto ${isPreview ? '' : 'group/editor'}`}
         data-test={RICH_TEXT_EDITOR_TEST_ID}
       >
         {!isPreview && <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />}

@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 
 import {
   BillingTimeEnum,
@@ -22,6 +22,7 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
       time: '',
       timezone: '',
     }),
+    hasFeatureFlag: () => false,
   }),
 }))
 
@@ -32,6 +33,7 @@ const baseSubscription = (
     id: 'sub-1',
     externalId: 'ext-1',
     status: StatusTypeEnum.Active,
+    startedAt: '2026-01-15',
     subscriptionAt: '2026-01-01',
     endingAt: null,
     terminatedAt: null,
@@ -54,14 +56,43 @@ const baseSubscription = (
   }) as SubscriptionInformationFieldsFragment
 
 describe('SubscriptionInformationFields', () => {
-  it('renders the external id, customer name and formatted start date', () => {
+  // "Start date" label key and the new "Billing anchor date" label key
+  const START_DATE_LABEL = 'text_65201c5a175a4b0238abf29e'
+  const BILLING_ANCHOR_LABEL = 'text_1781859135627z59hpfpa8pt'
+
+  const getValueUnderLabel = (labelKey: string) =>
+    within(screen.getByText(labelKey).parentElement as HTMLElement)
+
+  it('renders the external id, customer name and the start date from startedAt', () => {
     render(<SubscriptionInformationFields subscription={baseSubscription()} />)
 
     expect(screen.getByText('ext-1')).toBeInTheDocument()
     expect(screen.getByText('Acme')).toBeInTheDocument()
-    expect(screen.getByText('formatted-2026-01-01')).toBeInTheDocument()
+    // "Start date" shows startedAt; the billing anchor (subscriptionAt) keeps its own label
+    expect(
+      getValueUnderLabel(START_DATE_LABEL).getByText('formatted-2026-01-15'),
+    ).toBeInTheDocument()
+    expect(
+      getValueUnderLabel(BILLING_ANCHOR_LABEL).getByText('formatted-2026-01-01'),
+    ).toBeInTheDocument()
     // status label
     expect(screen.getByText('text_1780604419477p7xvwx52oad')).toBeInTheDocument()
+  })
+
+  it('shows the upgraded version start date under "Start date" and keeps the original billing anchor under its own label', () => {
+    // Upgrade scenario: started_at advances to the new version, subscription_at keeps the anchor
+    render(
+      <SubscriptionInformationFields
+        subscription={baseSubscription({ startedAt: '2026-03-15', subscriptionAt: '2026-01-01' })}
+      />,
+    )
+
+    expect(
+      getValueUnderLabel(START_DATE_LABEL).getByText('formatted-2026-03-15'),
+    ).toBeInTheDocument()
+    expect(
+      getValueUnderLabel(BILLING_ANCHOR_LABEL).getByText('formatted-2026-01-01'),
+    ).toBeInTheDocument()
   })
 
   it('shows "-" for the end date when the subscription is active without an ending date', () => {
@@ -118,6 +149,12 @@ describe('SubscriptionInformationFields', () => {
             displayName: 'Acme',
             externalId: 'cust-ext-1',
             deletedAt: '2026-01-02',
+            billingEntity: {
+              __typename: undefined,
+              id: '',
+              code: '',
+              name: '',
+            },
           },
         })}
       />,

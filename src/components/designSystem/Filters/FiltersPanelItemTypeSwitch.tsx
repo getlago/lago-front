@@ -7,6 +7,7 @@ import { FiltersItemApiKeyIds } from '~/components/designSystem/Filters/filtersE
 import { FiltersItemBillableMetricCode } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillableMetricCode'
 import { FiltersItemBillingEntity } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntity'
 import { FiltersItemBillingEntityCode } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntityCode'
+import { FiltersItemBillingEntityId } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillingEntityId'
 import { FiltersItemCountries } from '~/components/designSystem/Filters/filtersElements/FiltersItemCountries'
 import { FiltersItemCountry } from '~/components/designSystem/Filters/filtersElements/FiltersItemCountry'
 import { FiltersItemCreditNoteCreditStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemCreditNoteCreditStatus'
@@ -19,6 +20,7 @@ import { FiltersItemCustomer } from '~/components/designSystem/Filters/filtersEl
 import { FiltersItemCustomerAccountType } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomerAccountType'
 import { FiltersItemCustomerType } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomerType'
 import { FiltersItemDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemDate'
+import { FiltersItemExternalId } from '~/components/designSystem/Filters/filtersElements/FiltersItemExternalId'
 import { FiltersItemHasCustomerType } from '~/components/designSystem/Filters/filtersElements/FiltersItemHasCustomerType'
 import { FiltersItemHttpMethods } from '~/components/designSystem/Filters/filtersElements/FiltersItemHttpMethods'
 import { FiltersItemHttpStatuses } from '~/components/designSystem/Filters/filtersElements/FiltersItemHttpStatuses'
@@ -87,6 +89,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.amount]: <FiltersItemAmount {...props} />,
     [AvailableFiltersEnum.apiKeyIds]: <FiltersItemApiKeyIds {...props} />,
     [AvailableFiltersEnum.billingEntityIds]: <FiltersItemBillingEntity {...props} />,
+    [AvailableFiltersEnum.billingEntityId]: <FiltersItemBillingEntityId {...props} />,
     [AvailableFiltersEnum.billingEntityCode]: <FiltersItemBillingEntityCode {...props} />,
     [AvailableFiltersEnum.country]: <FiltersItemCountry {...props} />,
     [AvailableFiltersEnum.countries]: <FiltersItemCountries {...props} />,
@@ -100,6 +103,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.customerAccountType]: <FiltersItemCustomerAccountType {...props} />,
     [AvailableFiltersEnum.timeGranularity]: null, // Used in quick filters only
     [AvailableFiltersEnum.customerExternalId]: <FiltersItemCustomer {...props} />,
+    [AvailableFiltersEnum.externalId]: <FiltersItemExternalId {...props} />,
     [AvailableFiltersEnum.date]: <FiltersItemDate {...props} />,
     [AvailableFiltersEnum.hasCustomerType]: <FiltersItemHasCustomerType {...props} />,
     [AvailableFiltersEnum.httpMethods]: <FiltersItemHttpMethods {...props} />,

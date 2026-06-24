@@ -1,93 +1,84 @@
-import { removeItemFromLS, setItemFromLS } from '~/core/apolloClient/cacheUtils'
-
 import {
   currentOrganizationVar,
   getCurrentOrganizationId,
+  getPersistedOrganizationSlug,
   setCurrentOrganizationId,
+  setPersistedOrganizationSlug,
 } from '../currentOrganizationVar'
 
-// Mock cacheUtils to break circular dependency (cacheUtils → reactiveVars → cacheUtils)
-jest.mock('~/core/apolloClient/cacheUtils', () => ({
-  getItemFromLS: jest.fn(),
-  setItemFromLS: jest.fn(),
-  removeItemFromLS: jest.fn(),
-}))
+const LAST_USED_KEY = 'lastUsedOrganizationSlug'
 
 describe('currentOrganizationVar', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    localStorage.clear()
     currentOrganizationVar(null)
   })
 
-  describe('GIVEN getCurrentOrganizationId is called', () => {
-    describe('WHEN the var has not been set', () => {
-      it('THEN should return null', () => {
-        expect(getCurrentOrganizationId()).toBeNull()
-      })
+  describe('getCurrentOrganizationId', () => {
+    it('THEN returns null when the var has not been set', () => {
+      expect(getCurrentOrganizationId()).toBeNull()
     })
 
-    describe('WHEN the var has been set to an org id', () => {
-      it('THEN should return that org id', () => {
-        currentOrganizationVar('org-123')
+    it('THEN returns the var value when set', () => {
+      currentOrganizationVar('org-123')
 
-        expect(getCurrentOrganizationId()).toBe('org-123')
-      })
+      expect(getCurrentOrganizationId()).toBe('org-123')
     })
   })
 
-  describe('GIVEN setCurrentOrganizationId is called', () => {
-    describe('WHEN called with a valid id', () => {
-      it('THEN should update the reactive var', () => {
-        setCurrentOrganizationId('org-456')
+  describe('setCurrentOrganizationId (in-memory only)', () => {
+    it('THEN updates the in-memory var', () => {
+      setCurrentOrganizationId('org-456')
 
-        expect(currentOrganizationVar()).toBe('org-456')
-      })
-
-      it('THEN should persist the id to localStorage', () => {
-        setCurrentOrganizationId('org-456')
-
-        expect(setItemFromLS).toHaveBeenCalledWith('currentOrganization', 'org-456')
-      })
-
-      it('THEN should not call removeItemFromLS', () => {
-        setCurrentOrganizationId('org-456')
-
-        expect(removeItemFromLS).not.toHaveBeenCalled()
-      })
+      expect(currentOrganizationVar()).toBe('org-456')
     })
 
-    describe('WHEN called with null', () => {
-      it('THEN should set the reactive var to null', () => {
-        currentOrganizationVar('org-existing')
+    it('THEN does NOT write the current org to localStorage', () => {
+      setCurrentOrganizationId('org-456')
 
-        setCurrentOrganizationId(null)
-
-        expect(currentOrganizationVar()).toBeNull()
-      })
-
-      it('THEN should remove the key from localStorage', () => {
-        setCurrentOrganizationId(null)
-
-        expect(removeItemFromLS).toHaveBeenCalledWith('currentOrganization')
-      })
-
-      it('THEN should not call setItemFromLS', () => {
-        setCurrentOrganizationId(null)
-
-        expect(setItemFromLS).not.toHaveBeenCalled()
-      })
+      expect(localStorage.getItem(LAST_USED_KEY)).toBeNull()
     })
 
-    describe('WHEN called multiple times', () => {
-      it('THEN should reflect the latest value', () => {
-        setCurrentOrganizationId('org-1')
-        setCurrentOrganizationId('org-2')
-        setCurrentOrganizationId('org-3')
+    it('THEN clearing the var with null leaves the persisted last-used slug untouched', () => {
+      localStorage.setItem(LAST_USED_KEY, 'acme')
+      currentOrganizationVar('org-existing')
 
-        expect(getCurrentOrganizationId()).toBe('org-3')
-        expect(setItemFromLS).toHaveBeenCalledTimes(3)
-        expect(setItemFromLS).toHaveBeenLastCalledWith('currentOrganization', 'org-3')
-      })
+      setCurrentOrganizationId(null)
+
+      expect(currentOrganizationVar()).toBeNull()
+      expect(localStorage.getItem(LAST_USED_KEY)).toBe('acme')
+    })
+  })
+
+  describe('persisted organization slug (localStorage-only "last used")', () => {
+    it('THEN reads the last-used slug from localStorage', () => {
+      localStorage.setItem(LAST_USED_KEY, 'acme')
+
+      expect(getPersistedOrganizationSlug()).toBe('acme')
+    })
+
+    it('THEN returns null when nothing is persisted', () => {
+      expect(getPersistedOrganizationSlug()).toBeNull()
+    })
+
+    it('THEN persists a slug', () => {
+      setPersistedOrganizationSlug('acme')
+
+      expect(localStorage.getItem(LAST_USED_KEY)).toBe('acme')
+    })
+
+    it('THEN removes the persisted slug when set to null', () => {
+      localStorage.setItem(LAST_USED_KEY, 'acme')
+
+      setPersistedOrganizationSlug(null)
+
+      expect(localStorage.getItem(LAST_USED_KEY)).toBeNull()
+    })
+
+    it('THEN does NOT update the in-memory var', () => {
+      setPersistedOrganizationSlug('acme')
+
+      expect(currentOrganizationVar()).toBeNull()
     })
   })
 })

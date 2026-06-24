@@ -12,6 +12,7 @@ import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
@@ -39,6 +40,7 @@ gql`
   fragment CouponItem on Coupon {
     id
     name
+    code
     customersCount
     status
     amountCurrency
@@ -231,7 +233,15 @@ const CouponsList = () => {
                     <Typography color="textSecondary" variant="bodyHl" noWrap>
                       {coupon.name}
                     </Typography>
-                    <CouponCaption coupon={coupon} variant="caption" />
+                    <div className="flex items-baseline gap-1">
+                      <TypographyWithCopy className="shrink-0" compact noWrap variant="caption">
+                        {coupon.code}
+                      </TypographyWithCopy>
+                      <Typography className="shrink-0" variant="caption" noWrap>
+                        •
+                      </Typography>
+                      <CouponCaption coupon={coupon} variant="caption" />
+                    </div>
                   </div>
                 </div>
               ),

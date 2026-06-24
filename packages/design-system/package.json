@@ -35,14 +35,13 @@
   "dependencies": {
     "lodash": "4.18.1",
     "lodash-es": "4.18.1",
-    "sanitize-html": "2.17.4"
+    "sanitize-html": "2.17.5"
   },
   "devDependencies": {
     "@svgr/core": "8.1.0",
-    "@svgr/plugin-svgo": "8.1.0",
     "@svgr/plugin-jsx": "8.1.0",
     "@types/lodash": "4.17.24",
-    "@types/react": "18.3.29",
+    "@types/react": "18.3.31",
     "@types/react-dom": "18.3.7",
     "@types/react-router-dom": "5.3.3",
     "@vitejs/plugin-react": "5.2.0",

@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
+import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -12,10 +13,6 @@ import { Typography } from '~/components/designSystem/Typography'
 import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { BasicComboBoxData, ComboboxItem } from '~/components/form'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
-import {
-  EditInvoiceDisplayNameDialog,
-  EditInvoiceDisplayNameDialogRef,
-} from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
@@ -90,6 +87,9 @@ gql`
       name
       displayName
       externalId
+      billingEntity {
+        id
+      }
     }
   }
 
@@ -112,10 +112,11 @@ const CreateSubscription = () => {
   const { hasFeatureFlag, intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { isRunningInSalesForceIframe, isRunningInIframeContext } = useIframeConfig()
 
-  const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
   const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
+
+  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
   const [getPlans, { loading: planLoading, data: planData }] = useGetPlansLazyQuery({
     variables: { limit: 1000 },
@@ -185,11 +186,53 @@ const CreateSubscription = () => {
   const subscriptionIsDirty = useStore(subscriptionForm.store, (s) => s.isDirty)
   const subscriptionCanSubmit = useStore(subscriptionForm.store, (s) => s.canSubmit)
   const subscriptionIsSubmitting = useStore(subscriptionForm.store, (s) => s.isSubmitting)
+  const subscriptionBillingEntityId = useStore(
+    subscriptionForm.store,
+    (s) => s.values.billingEntityId,
+  )
   const subscriptionPaymentMethod = useStore(subscriptionForm.store, (s) => s.values.paymentMethod)
   const subscriptionInvoiceCustomSection = useStore(
     subscriptionForm.store,
     (s) => s.values.invoiceCustomSection,
   )
+  const isEditingSubscription = formType === FORM_TYPE_ENUM.edition
+
+  // Default billingEntityId on first load only:
+  // - edit / upgrade / downgrade flow → preserve the existing subscription's
+  //   explicit entity (Decision 5.6: explicit bindings are sticky and must
+  //   survive subscription mutations)
+  // - pure creation flow → use the customer's current default entity
+  //
+  // Latched with a ref so the default fires *once* per mount. Without the
+  // latch, clearing the picker would immediately re-trigger the default
+  // because `subscriptionBillingEntityId` is back to falsy.
+  const hasInitializedBillingEntityDefaultRef = useRef(false)
+
+  useEffect(() => {
+    if (!hasMultiEntityBilling) return
+    if (hasInitializedBillingEntityDefaultRef.current) return
+    if (subscriptionBillingEntityId) {
+      hasInitializedBillingEntityDefaultRef.current = true
+      return
+    }
+    const hasExistingSubscription =
+      formType === FORM_TYPE_ENUM.edition || formType === FORM_TYPE_ENUM.upgradeDowngrade
+    const defaultEntityId =
+      (hasExistingSubscription ? subscription?.billingEntityId : null) ??
+      customer?.billingEntity?.id
+
+    if (defaultEntityId) {
+      subscriptionForm.setFieldValue('billingEntityId', defaultEntityId)
+      hasInitializedBillingEntityDefaultRef.current = true
+    }
+  }, [
+    hasMultiEntityBilling,
+    formType,
+    subscription?.billingEntityId,
+    customer?.billingEntity?.id,
+    subscriptionBillingEntityId,
+    subscriptionForm,
+  ])
 
   const { form: planForm, plan } = usePlanForm({
     planIdToFetch: subscriptionPlanId,
@@ -437,6 +480,19 @@ const CreateSubscription = () => {
                       )}
                     </subscriptionForm.AppField>
 
+                    {!!subscriptionPlanId && (
+                      <BillingEntityFormPicker
+                        label={translate('text_1743611497157teaa1zu8l24')}
+                        value={subscriptionBillingEntityId}
+                        onChange={(id) => subscriptionForm.setFieldValue('billingEntityId', id)}
+                        helperText={translate(
+                          isEditingSubscription
+                            ? 'text_1779457001221h9zixqumknp'
+                            : 'text_17800541562349k15h7ik07c',
+                        )}
+                      />
+                    )}
+
                     {!!showCurrencyError ? (
                       <Alert type="danger">{translate('text_632dbaf1d577afb32ae751f5')}</Alert>
                     ) : (
@@ -516,11 +572,11 @@ const CreateSubscription = () => {
                 {!!subscriptionPlanId && (
                   <>
                     {/* Premium "Override plan" full-width divider */}
-                    <div className="relative my-20 flex flex-col items-center gap-3">
+                    <div className="relative mb-8 mt-20 flex flex-col items-center gap-3">
                       <div className="absolute left-1/2 top-0 h-[2px] w-[100vw] -translate-x-1/2 bg-purple-100" />
                       <div className="rounded-b bg-purple-100 px-4 py-1">
                         <Typography variant="captionHl" color="info600">
-                          {translate('text_65118a52df984447c18694d0')}
+                          {translate('text_65118a52df984447c18694d1')}
                         </Typography>
                       </div>
                     </div>
@@ -528,7 +584,7 @@ const CreateSubscription = () => {
                     {/* Premium upsell (non-premium users) */}
                     {!isPremium && (
                       <PremiumFeature
-                        feature={translate('text_65118a52df984447c18694d0')}
+                        feature={translate('text_65118a52df984447c18694d1')}
                         title={translate('text_65118a52df984447c18694d0')}
                         description={translate('text_65118a52df984447c18694da')}
                       />
@@ -631,8 +687,6 @@ const CreateSubscription = () => {
         continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={() => navigateBack()}
       />
-
-      <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
     </>
   )
 }

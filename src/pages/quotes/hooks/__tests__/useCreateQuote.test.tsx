@@ -13,7 +13,10 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
   generatePath: jest.fn((route: string, params: Record<string, string>) =>
-    route.replace(':quoteId', params.quoteId).replace(':tab', params.tab),
+    route
+      .replace(':quoteId', params.quoteId)
+      .replace(':tab', params.tab)
+      .replace(':versionId', params.versionId),
   ),
 }))
 
@@ -250,23 +253,23 @@ describe('useCreateQuote', () => {
 
         act(() => {
           capturedMutationOnCompleted?.({
-            createQuote: { id: 'quote-new' },
+            createQuote: { id: 'quote-new', currentVersion: { id: 'version-1' } },
           })
         })
 
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
       })
 
-      it('THEN should navigate to the quote details page', () => {
+      it('THEN should navigate to the edit quote page', () => {
         renderHook(() => useCreateQuote(), { wrapper })
 
         act(() => {
           capturedMutationOnCompleted?.({
-            createQuote: { id: 'quote-new' },
+            createQuote: { id: 'quote-new', currentVersion: { id: 'version-1' } },
           })
         })
 
-        expect(mockNavigate).toHaveBeenCalledWith('/quote/quote-new/overview')
+        expect(mockNavigate).toHaveBeenCalledWith('/quote/quote-new/version/version-1/edit')
       })
     })
 
