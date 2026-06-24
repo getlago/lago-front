@@ -127,7 +127,11 @@ export const Accordion = ({
         className={tw(
           // Card variant rings the whole card (on the root, above); the borderless
           // variant has no card outline, so it keeps the ring on its summary.
-          'select-text focus:bg-inherit',
+          // Firefox draws its own blue UA focus outline on the focusable summary
+          // div (role=button), which stacks on top of our box-shadow ring and
+          // repaints incorrectly during the expand transition. Suppress it so only
+          // our intentional ring shows.
+          'select-text focus:bg-inherit focus:outline-none',
           {
             'h-23': size === AccordionSizeEnum.large,
             'h-18': size === AccordionSizeEnum.medium,
