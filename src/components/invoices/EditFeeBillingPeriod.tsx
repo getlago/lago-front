@@ -74,7 +74,10 @@ export const useEditFeeBillingPeriodDialog = () => {
     callback,
   }: OpenEditFeeBillingPeriodDialogParams) => {
     callbackRef.current = callback
-    form.reset({ fromDatetime: fromDatetime ?? '', toDatetime: toDatetime ?? '' })
+    form.reset(
+      { fromDatetime: fromDatetime ?? '', toDatetime: toDatetime ?? '' },
+      { keepDefaultValues: true },
+    )
 
     formDialog
       .open({
