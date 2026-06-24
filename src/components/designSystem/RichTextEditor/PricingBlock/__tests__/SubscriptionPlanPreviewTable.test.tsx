@@ -199,9 +199,12 @@ describe('SubscriptionPlanPreviewTable', () => {
           />,
         )
 
-        const mainRow = screen.getByTestId('preview-table-subscription-plan-preview-row-0')
+        const cell = screen
+          .getByTestId('preview-table-subscription-plan-preview-row-0')
+          .querySelector('td')
 
-        expect(mainRow.className).not.toContain('border-b')
+        // grouped with the detail row below → no bottom divider rendered
+        expect(cell?.style.borderBottomWidth).toBe('')
       })
 
       it('THEN the detail row that ends the group keeps its bottom divider', () => {
@@ -213,9 +216,13 @@ describe('SubscriptionPlanPreviewTable', () => {
           />,
         )
 
-        const detailRow = screen.getByTestId('preview-table-subscription-plan-preview-row-1')
+        const cell = screen
+          .getByTestId('preview-table-subscription-plan-preview-row-1')
+          .querySelector('td')
 
-        expect(detailRow.className).toContain('border-b')
+        // group ends here (next row is a main row) → grey-300 divider rendered
+        expect(cell?.style.borderBottomWidth).toBe('1px')
+        expect(cell?.style.borderBottom).toContain('rgb(217, 222, 231)')
       })
 
       it('THEN the final row keeps its bottom divider', () => {
@@ -227,9 +234,11 @@ describe('SubscriptionPlanPreviewTable', () => {
           />,
         )
 
-        const lastRow = screen.getByTestId('preview-table-subscription-plan-preview-row-2')
+        const cell = screen
+          .getByTestId('preview-table-subscription-plan-preview-row-2')
+          .querySelector('td')
 
-        expect(lastRow.className).toContain('border-b')
+        expect(cell?.style.borderBottomWidth).toBe('1px')
       })
     })
   })

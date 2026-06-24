@@ -94,16 +94,13 @@ export const PreviewTable = <T,>({
 
         <MUITableBody>
           {data.map((item, i) => (
-            <MUITableRow
-              key={`${TABLE_ID}-row-${i}`}
-              data-test={`${TABLE_ID}-row-${i}`}
-              className={tw((rowHasDivider?.(item, i) ?? true) && 'border-b border-grey-200')}
-            >
+            <MUITableRow key={`${TABLE_ID}-row-${i}`} data-test={`${TABLE_ID}-row-${i}`}>
               {columns.map((column, j) => (
                 <TableCell
                   key={`${TABLE_ID}-cell-${i}-${j}`}
                   align={column.textAlign || 'left'}
                   maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
+                  hideBottomBorder={!(rowHasDivider?.(item, i) ?? true)}
                   className="align-top"
                 >
                   <TableInnerCell align={column.textAlign}>
