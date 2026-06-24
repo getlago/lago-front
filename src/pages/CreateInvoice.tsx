@@ -25,17 +25,11 @@ import {
   EditFeeBillingPeriod,
   EditFeeBillingPeriodRef,
 } from '~/components/invoices/EditFeeBillingPeriod'
-import {
-  EditInvoiceDisplayNameDialog,
-  EditInvoiceDisplayNameDialogRef,
-} from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { useEditInvoiceItemDescriptionDialog } from '~/components/invoices/EditInvoiceItemDescriptionDialog'
-import {
-  EditInvoiceItemTaxDialog,
-  EditInvoiceItemTaxDialogRef,
-} from '~/components/invoices/EditInvoiceItemTaxDialog'
+import { useEditInvoiceItemTaxDialog } from '~/components/invoices/EditInvoiceItemTaxDialog'
 import { InvoiceTaxesDisplay, TaxMapType } from '~/components/invoices/InvoiceTaxesDisplay'
 import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
+import { useEditInvoiceDisplayNameDialog } from '~/components/invoices/useEditInvoiceDisplayName'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -238,8 +232,8 @@ const CreateInvoice = () => {
 
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const { openEditInvoiceItemDescriptionDialog } = useEditInvoiceItemDescriptionDialog()
-  const editTaxDialogRef = useRef<EditInvoiceItemTaxDialogRef>(null)
-  const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
+  const { openEditInvoiceItemTaxDialog } = useEditInvoiceItemTaxDialog()
+  const { openEditInvoiceDisplayNameDialog } = useEditInvoiceDisplayNameDialog()
   const editFeeBillingPeriodDialogRef = useRef<EditFeeBillingPeriodRef>(null)
 
   const handleClosePage = useCallback(() => {
@@ -909,7 +903,7 @@ const CreateInvoice = () => {
                                   onClick={(e) => {
                                     e.stopPropagation()
 
-                                    editInvoiceDisplayNameDialogRef.current?.openDialog({
+                                    openEditInvoiceDisplayNameDialog({
                                       invoiceDisplayName: fee.invoiceDisplayName,
                                       callback: (invoiceDisplayName: string) => {
                                         formikProps.setFieldValue(
@@ -1039,7 +1033,7 @@ const CreateInvoice = () => {
                                     variant="quaternary"
                                     align="left"
                                     onClick={() => {
-                                      editTaxDialogRef.current?.openDialog({
+                                      openEditInvoiceItemTaxDialog({
                                         taxes: fee.taxes,
                                         callback: (newTaxesArray?: LocalFeeInput['taxes']) => {
                                           formikProps.setFieldValue(
@@ -1337,8 +1331,6 @@ const CreateInvoice = () => {
         continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={handleClosePage}
       />
-      <EditInvoiceItemTaxDialog ref={editTaxDialogRef} />
-      <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
       <EditFeeBillingPeriod ref={editFeeBillingPeriodDialogRef} />
     </>
   )

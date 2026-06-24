@@ -6,10 +6,6 @@ import { generatePath, useSearchParams } from 'react-router-dom'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
-import {
-  EditInvoiceDisplayNameDialog,
-  EditInvoiceDisplayNameDialogRef,
-} from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
@@ -152,7 +148,6 @@ const CreatePlan = () => {
   const { form, isEdition, loading, plan, type } = usePlanForm({})
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const { openCascadeDialog } = useCascadeFormDialog()
-  const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
 
   const canBeEdited = !plan?.subscriptionsCount
   const alreadyExistingFixedChargesIds =
@@ -354,7 +349,6 @@ const CreatePlan = () => {
         continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={() => planCloseRedirection()}
       />
-      <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
     </PlanFormProvider>
   )
 }
