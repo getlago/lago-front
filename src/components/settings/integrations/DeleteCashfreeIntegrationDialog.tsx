@@ -1,9 +1,11 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   DeleteCashfreeIntegrationDialogFragment,
+  GetCashfreeIntegrationsListDocument,
   useDeleteCashfreeMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -29,10 +31,9 @@ type OpenDeleteCashfreeIntegrationDialogData = {
 export const useDeleteCashfreeIntegrationDialog = () => {
   const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
+  const client = useApolloClient()
 
-  const [deleteCashfree] = useDeleteCashfreeMutation({
-    refetchQueries: ['getCashfreeIntegrationsList'],
-  })
+  const [deleteCashfree] = useDeleteCashfreeMutation()
 
   const openDeleteCashfreeIntegrationDialog = (data: OpenDeleteCashfreeIntegrationDialogData) => {
     const provider = data.provider
@@ -45,13 +46,20 @@ export const useDeleteCashfreeIntegrationDialog = () => {
       onAction: async () => {
         const res = await deleteCashfree({
           variables: { input: { id: provider?.id as string } },
-          update(cache) {
-            cache.evict({ id: `CashfreeProvider:${provider?.id}` })
-          },
         })
 
-        if (res.data?.destroyPaymentProvider) {
+        const destroyedId = res.data?.destroyPaymentProvider?.id
+
+        if (destroyedId) {
+          evictFromCache(client, {
+            id: destroyedId,
+            __typename: 'CashfreeProvider',
+            listFieldName: 'paymentProviders',
+            listQueryDocument: GetCashfreeIntegrationsListDocument,
+          })
+
           data.callback?.()
+
           addToast({
             message: translate('text_1727621949511zk6kkl99pzk'),
             severity: 'success',
