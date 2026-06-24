@@ -74,13 +74,7 @@ export const useEditInvoiceDisplayNameDialog = () => {
         closeOnError: false,
         mainAction: (
           <form.AppForm>
-            <form.Subscribe selector={(state) => state.isDirty}>
-              {(isDirty) => (
-                <form.SubmitButton disabled={!isDirty}>
-                  {translate('text_65018c8e5c6b626f030bcf32')}
-                </form.SubmitButton>
-              )}
-            </form.Subscribe>
+            <form.SubmitButton>{translate('text_65018c8e5c6b626f030bcf32')}</form.SubmitButton>
           </form.AppForm>
         ),
         form: {
