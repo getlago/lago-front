@@ -128,13 +128,7 @@ export const useEditFeeBillingPeriodDialog = () => {
         closeOnError: false,
         mainAction: (
           <form.AppForm>
-            <form.Subscribe selector={(state) => state.isDirty}>
-              {(isDirty) => (
-                <form.SubmitButton disabled={!isDirty}>
-                  {translate('text_17295436903260tlyb1gp1i7')}
-                </form.SubmitButton>
-              )}
-            </form.Subscribe>
+            <form.SubmitButton>{translate('text_17295436903260tlyb1gp1i7')}</form.SubmitButton>
           </form.AppForm>
         ),
         form: {
