@@ -246,5 +246,8 @@
   "text_1782223048616qkrwdmyzq4w": "Maximum",
   "text_1782223048616dlfjn4nlsxa": "Mindestumsatz",
   "text_1782223048616ckvs57mnzff": "Von {{from}} bis {{to}} Einheiten",
-  "text_1782223048616d9fxvmvy6xk": "Ab {{from}} Einheiten"
+  "text_1782223048616d9fxvmvy6xk": "Ab {{from}} Einheiten",
+  "text_17822898603051pryf16s23k": "Pauschalgebühr für die ersten {{to}} Einheiten",
+  "text_1782289860305xi20ikioh8l": "Pauschalgebühr für {{from}} bis {{to}} Einheiten",
+  "text_1782289860305wlllob2k8n0": "Pauschalgebühr ab {{from}} Einheiten"
 }

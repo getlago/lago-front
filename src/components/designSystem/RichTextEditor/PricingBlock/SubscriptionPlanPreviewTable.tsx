@@ -60,6 +60,9 @@ const K = {
   labelMinimumSpending: 'text_1782223048616dlfjn4nlsxa',
   tierFromTo: 'text_1782223048616ckvs57mnzff',
   tierFromAbove: 'text_1782223048616d9fxvmvy6xk',
+  flatFeeForFirstUnits: 'text_17822898603051pryf16s23k',
+  flatFeeForRangeUnits: 'text_1782289860305xi20ikioh8l',
+  flatFeeForUnitsAndAbove: 'text_1782289860305wlllob2k8n0',
 } as const
 
 const INTERVAL_KEY: Record<PlanInterval, string> = {
@@ -108,7 +111,15 @@ export const SubscriptionPlanPreviewTable = ({
     }
 
     if (label.type === 'flatFeeForTier') {
-      return translate(K.qualifierFlatFee)
+      if (label.to === undefined) {
+        return translate(K.flatFeeForUnitsAndAbove, { from: label.from })
+      }
+
+      if (label.from === 0) {
+        return translate(K.flatFeeForFirstUnits, { to: label.to })
+      }
+
+      return translate(K.flatFeeForRangeUnits, { from: label.from, to: label.to })
     }
 
     return translate(K[label.key as keyof typeof K] ?? label.key)
@@ -188,7 +199,7 @@ export const SubscriptionPlanPreviewTable = ({
     {
       key: 'units',
       title: translate(K.colUnits),
-      minWidth: 120,
+      minWidth: 160,
       textAlign: 'right',
       content: (row) => (
         <Typography variant="body" color={row.kind === 'main' ? 'grey700' : 'grey600'}>

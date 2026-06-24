@@ -242,4 +242,71 @@ describe('SubscriptionPlanPreviewTable', () => {
       })
     })
   })
+
+  describe('GIVEN flat-fee tier rows', () => {
+    // Resolving translate so we can assert the rendered, interpolated label.
+    // Keys are the generated ids for the three flat-fee variants.
+    const FLAT_FEE_TEMPLATES: Record<string, string> = {
+      text_17822898603051pryf16s23k: 'Flat fee for first {{to}} units',
+      text_1782289860305xi20ikioh8l: 'Flat fee for {{from}} to {{to}} units',
+      text_1782289860305wlllob2k8n0: 'Flat fee for {{from}} units and above',
+    }
+    const resolveTranslate = ((key: string, vars?: Record<string, unknown>) => {
+      const template = FLAT_FEE_TEMPLATES[key] ?? key
+
+      return vars
+        ? Object.entries(vars).reduce(
+            (acc, [k, v]) => acc.replaceAll(`{{${k}}}`, String(v)),
+            template,
+          )
+        : template
+    }) as unknown as typeof mockTranslate
+
+    const flatFeeRow = (from: number, to?: number): PlanPreviewData['rows'][number] => ({
+      kind: 'detail',
+      label: { type: 'flatFeeForTier', from, to },
+      qualifier: { type: 'flatFee' },
+      value: { type: 'displayAmount', amount: '10.00' },
+    })
+
+    const flatFeeData: PlanPreviewData = {
+      rows: [flatFeeRow(0, 10), flatFeeRow(11, 100), flatFeeRow(101)],
+    }
+
+    it('THEN the first tier (from 0) renders the "first N units" variant', () => {
+      render(
+        <SubscriptionPlanPreviewTable
+          data={flatFeeData}
+          translate={resolveTranslate}
+          currency={CurrencyEnum.Usd}
+        />,
+      )
+
+      expect(screen.getByText('Flat fee for first 10 units')).toBeInTheDocument()
+    })
+
+    it('THEN a bounded middle tier renders the "X to Y units" variant', () => {
+      render(
+        <SubscriptionPlanPreviewTable
+          data={flatFeeData}
+          translate={resolveTranslate}
+          currency={CurrencyEnum.Usd}
+        />,
+      )
+
+      expect(screen.getByText('Flat fee for 11 to 100 units')).toBeInTheDocument()
+    })
+
+    it('THEN the open-ended top tier renders the "N units and above" variant', () => {
+      render(
+        <SubscriptionPlanPreviewTable
+          data={flatFeeData}
+          translate={resolveTranslate}
+          currency={CurrencyEnum.Usd}
+        />,
+      )
+
+      expect(screen.getByText('Flat fee for 101 units and above')).toBeInTheDocument()
+    })
+  })
 })

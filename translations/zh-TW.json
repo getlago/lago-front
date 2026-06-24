@@ -246,5 +246,8 @@
   "text_1782223048616qkrwdmyzq4w": "最高",
   "text_1782223048616dlfjn4nlsxa": "最低消費",
   "text_1782223048616ckvs57mnzff": "從 {{from}} 到 {{to}} 個單位",
-  "text_1782223048616d9fxvmvy6xk": "{{from}} 個單位以上"
+  "text_1782223048616d9fxvmvy6xk": "{{from}} 個單位以上",
+  "text_17822898603051pryf16s23k": "前 {{to}} 個單位的固定費用",
+  "text_1782289860305xi20ikioh8l": "{{from}} 到 {{to}} 個單位的固定費用",
+  "text_1782289860305wlllob2k8n0": "{{from}} 個單位以上的固定費用"
 }
