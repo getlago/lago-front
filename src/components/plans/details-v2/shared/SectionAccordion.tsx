@@ -1,3 +1,4 @@
+import { TransitionProps } from '@mui/material/transitions'
 import { Icon, IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
 
@@ -35,6 +36,11 @@ export type SectionAccordionProps = {
   // report its contain-intrinsic-size (not its real height) to the virtualizer's
   // measureElement, mis-positioning rows. Keep it on for the non-virtualized list.
   disableContentVisibility?: boolean
+  // Forwarded to the MUI Collapse transition. Virtualized lists pass `{ timeout: 0 }`
+  // so a card with a huge (also-virtualized) body collapses in one layout pass instead
+  // of animating height frame-by-frame - which would make the outer virtualizer
+  // re-measure + relayout the whole charge tail on every animation frame.
+  transitionProps?: TransitionProps
   noContentMargin?: boolean
   dataTest?: string
   children: ReactNode
@@ -50,6 +56,7 @@ export const SectionAccordion = ({
   initiallyOpen,
   onToggle,
   disableContentVisibility,
+  transitionProps,
   noContentMargin,
   dataTest,
   children,
@@ -73,6 +80,7 @@ export const SectionAccordion = ({
         }
         initiallyOpen={initiallyOpen}
         onToggle={onToggle}
+        transitionProps={transitionProps}
         noContentMargin={noContentMargin}
         summary={
           <div className="flex flex-1 items-center justify-between gap-3">

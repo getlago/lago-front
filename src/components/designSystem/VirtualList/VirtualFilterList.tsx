@@ -13,6 +13,12 @@ import { findNearestScrollableAncestor } from './findNearestScrollableAncestor'
 
 export const VIRTUALIZATION_THRESHOLD = 50
 
+// Single source of truth for the plain-vs-virtualized branch. Callers that must
+// mirror the decision (e.g. to drop content-visibility only when virtualized)
+// share this predicate so the comparison can never drift from the list's own.
+export const shouldVirtualizeList = (count: number, threshold = VIRTUALIZATION_THRESHOLD) =>
+  count > threshold
+
 // Imperative handle for callers that must drive the list programmatically (e.g.
 // jump-to-item navigation into a row that is currently scrolled out and unmounted).
 // `isVirtualized` lets the caller pick its path: when false the row is mounted, so
@@ -60,7 +66,7 @@ export const VirtualFilterList = <T,>({
 
   getScrollElementRef.current = getScrollElement
 
-  const isVirtualized = items.length > threshold
+  const isVirtualized = shouldVirtualizeList(items.length, threshold)
 
   useLayoutEffect(() => {
     if (!isVirtualized) return
@@ -111,6 +117,12 @@ export const VirtualFilterList = <T,>({
   const virtualizer = useVirtualizer({
     count: isVirtualized ? items.length : 0,
     getScrollElement: () => scrollElement,
+    // Stay disabled until the scroll element is resolved (it is set in a layout effect,
+    // so null on first render). While disabled, virtual-core keeps scrollOffset null
+    // instead of caching initialOffset()'s value; without this the first render (element
+    // still null) would cache 0 and the subsequent _willUpdate would force-scroll the
+    // shared container to 0. Once enabled, initialOffset below seeds the real scrollTop.
+    enabled: !!scrollElement,
     // Include the gap: each rendered row bakes the inter-row gap into its measured
     // height (paddingBottom below), so an estimate without it makes the spacer
     // under-reserve space by `gap` per not-yet-measured row. That shortfall pushes
@@ -120,7 +132,29 @@ export const VirtualFilterList = <T,>({
     measureElement: (element) => element.getBoundingClientRect().height,
     overscan,
     scrollMargin,
+    // We virtualize against an ANCESTOR scroll container that is usually already
+    // scrolled (shared with content above, and with sibling virtualizers - e.g. a
+    // charge card's filter list shares the page scroller with the charge list). On
+    // mount virtual-core seeds its scroll offset from initialOffset and force-scrolls
+    // the container to it (_willUpdate -> _scrollToOffset); the default 0 yanks the
+    // whole page to the top whenever such a list mounts/remounts (BIL-205 open + fast
+    // scroll-up teleports). Seed the container's real current scrollTop so the mount is
+    // a no-op scroll.
+    initialOffset: () => scrollElement?.scrollTop ?? 0,
   })
+
+  // When an item resizes, virtual-core auto-adjusts scrollTop to keep content
+  // visually stable. Its default compensates for ANY item whose start is above the
+  // viewport - including the item the user just toggled open/closed while it straddles
+  // the viewport. For a tall accordion card that subtracts the card's FULL height delta
+  // though only the part above the fold actually moved, overshooting and teleporting the
+  // page to the top (BIL-205). Restrict compensation to items ENTIRELY above the viewport
+  // top, where keeping content stable is correct and the delta is bounded; a straddling
+  // item (the toggle case) grows/shrinks in place with no scroll jump.
+  // NB: the config route for this option is inert in virtual-core 3.17.0 (read off the
+  // instance, never copied from options), so it must be assigned on the instance.
+  virtualizer.shouldAdjustScrollPositionOnItemSizeChange = (item) =>
+    !!scrollElement && item.end <= scrollElement.scrollTop
 
   // Expose the imperative handle so callers can drive the list (jump-to-item). The
   // virtualizer instance is stable, so this only needs to re-sync when the branch

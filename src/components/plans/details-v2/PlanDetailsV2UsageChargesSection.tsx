@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
 import {
+  shouldVirtualizeList,
   VirtualFilterList,
-  VIRTUALIZATION_THRESHOLD,
   VirtualListApi,
 } from '~/components/designSystem/VirtualList/VirtualFilterList'
 import {
@@ -195,9 +195,10 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
   const planCurrency = plan.amountCurrency
   const charges = plan.charges ?? []
   const isEmpty = charges.length === 0
-  // Mirrors VirtualFilterList's internal branch (default threshold). Used to drop
-  // content-visibility on the cards only when the list actually virtualizes.
-  const isChargeListVirtualized = charges.length > VIRTUALIZATION_THRESHOLD
+  // Mirrors VirtualFilterList's internal branch (default threshold) via the shared
+  // predicate. Used to drop content-visibility on the cards only when the list
+  // actually virtualizes.
+  const isChargeListVirtualized = shouldVirtualizeList(charges.length)
   // ISO with the plan form: existing charges lock once the plan has subscriptions.
   // Sub mode keeps its own gating (driven by isInSubscriptionForm), so the
   // subscription-count lock does not apply there.
@@ -226,6 +227,11 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
   // ref on (re)mount and writes back through `onToggle`. Collapsed by default.
   const openChargeIdsRef = useRef<Set<string>>(new Set())
   const virtualListApiRef = useRef<VirtualListApi | null>(null)
+  // Handle of the in-flight "wait for the row to mount" loop, so a new jump can
+  // supersede a pending one and unmount can cancel it (no orphaned rAF chains).
+  const scrollFrameRef = useRef<number>()
+
+  useEffect(() => () => cancelAnimationFrame(scrollFrameRef.current ?? 0), [])
 
   const openCreate = () => drawerRef.current?.openDrawer()
 
@@ -233,6 +239,10 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
     const index = charges.findIndex((charge) => charge.id === chargeId)
 
     if (index < 0) return
+
+    // A new jump supersedes any pending one (rapid sidebar clicks would otherwise
+    // leave two loops racing, both calling openAccordionThenScrollTo).
+    cancelAnimationFrame(scrollFrameRef.current ?? 0)
 
     // Mount the card open: a virtualized-out card reads this on (re)mount.
     openChargeIdsRef.current.add(chargeId)
@@ -256,12 +266,10 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
         return
       }
 
-      framesLeft -= 1
-
-      if (framesLeft > 0) requestAnimationFrame(scrollWhenMounted)
+      if (--framesLeft > 0) scrollFrameRef.current = requestAnimationFrame(scrollWhenMounted)
     }
 
-    requestAnimationFrame(scrollWhenMounted)
+    scrollFrameRef.current = requestAnimationFrame(scrollWhenMounted)
   }
 
   useImperativeHandle(ref, () => ({ openCreate, scrollToCharge }))
@@ -331,6 +339,12 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
               title={charge.invoiceDisplayName || charge.billableMetric.name}
               subtitle={charge.code}
               disableContentVisibility={isChargeListVirtualized}
+              // Virtualized: cap the collapse animation at 250ms. MUI's default
+              // timeout:"auto" scales with height (~800ms+ for a huge filter body), and
+              // every animation frame makes the outer virtualizer re-measure + relayout
+              // the whole charge tail (BIL-205 heavy-close). 250ms keeps a light tween
+              // while bounding that frame storm.
+              transitionProps={isChargeListVirtualized ? { timeout: 250 } : undefined}
               initiallyOpen={openChargeIdsRef.current.has(charge.id)}
               onToggle={(open) => {
                 if (open) openChargeIdsRef.current.add(charge.id)

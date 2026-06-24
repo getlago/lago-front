@@ -1,7 +1,7 @@
 import { act, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { ReactNode } from 'react'
 
+import type { VirtualFilterListProps } from '~/components/designSystem/VirtualList/VirtualFilterList'
 import { ChargeModelEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
@@ -802,10 +802,9 @@ describe('UsageChargeDrawerContent', () => {
   })
 })
 
-type CapturedVirtualListProps = {
-  items: unknown[]
-  renderItem: (item: unknown, index: number) => ReactNode
-}
+// Stays in lockstep with the real component: if renderItem's signature changes,
+// this breaks at compile time instead of silently drifting.
+type CapturedVirtualListProps = Pick<VirtualFilterListProps<unknown>, 'items' | 'renderItem'>
 
 const capturedVirtualList: { props?: CapturedVirtualListProps } = {}
 

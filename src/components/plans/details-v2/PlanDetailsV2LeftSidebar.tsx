@@ -176,19 +176,17 @@ export const PlanDetailsV2LeftSidebar = ({
     window.addEventListener('resize', resizeToViewport)
     pageScrollElement?.addEventListener('scroll', resizeToViewport, { passive: true })
 
-    // Content above the nav (e.g. the page header) can reflow shortly after mount as
-    // async data settles, shifting the nav's top with no scroll/resize event. Re-measure
-    // for a brief window so the height converges; writing the same value is a no-op.
-    let frame = 0
-    let raf = requestAnimationFrame(function settle() {
-      resizeToViewport()
-      if (frame++ < 30) raf = requestAnimationFrame(settle)
-    })
+    // Content above the nav (page header, async data) can reflow with no scroll/resize
+    // event, shifting the nav's top. Observe the body so the height re-converges whenever
+    // layout settles - however long that takes - instead of guessing a fixed frame budget.
+    const bodyObserver = new ResizeObserver(resizeToViewport)
+
+    bodyObserver.observe(document.body)
 
     return () => {
       window.removeEventListener('resize', resizeToViewport)
       pageScrollElement?.removeEventListener('scroll', resizeToViewport)
-      cancelAnimationFrame(raf)
+      bodyObserver.disconnect()
     }
   }, [])
 
