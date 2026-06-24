@@ -35,8 +35,21 @@ gql`
     $limit: Int
     $status: [OrderFormStatusEnum!]
     $quoteNumber: [String!]
+    $customerId: [ID!]
+    $ownerId: [ID!]
+    $createdAtFrom: ISO8601DateTime
+    $createdAtTo: ISO8601DateTime
   ) {
-    orderForms(page: $page, limit: $limit, status: $status, quoteNumber: $quoteNumber) {
+    orderForms(
+      page: $page
+      limit: $limit
+      status: $status
+      quoteNumber: $quoteNumber
+      customerId: $customerId
+      ownerId: $ownerId
+      createdAtFrom: $createdAtFrom
+      createdAtTo: $createdAtTo
+    ) {
       metadata {
         currentPage
         totalPages
