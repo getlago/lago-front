@@ -1,6 +1,12 @@
 // By convention, we use value then metadata (usually display value) on each side of the separator.
 export const filterDataInlineSeparator = '|-_-|'
 
+// Multiple-value filters join their selections with a comma. Display labels (customer/entity
+// names, emails) embedded after the separator can themselves contain commas, which would
+// over-split a single selection into several. Encode such commas with this placeholder and
+// decode them back only for display — see escapeFilterLabel / unescapeFilterLabel in utils.
+export const filterDataLabelCommaPlaceholder = '|-COMMA-|'
+
 export enum AvailableQuickFilters {
   invoiceStatus = 'invoiceStatus',
   customerAccountType = 'customerAccountType',

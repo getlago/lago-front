@@ -81,6 +81,7 @@ import {
   CustomerInvoicesAvailableFilters,
   CustomerPaymentsAvailableFilters,
   filterDataInlineSeparator,
+  filterDataLabelCommaPlaceholder,
   ForecastsAvailableFilters,
   InvoiceAvailableFilters,
   MrrBreakdownPlansAvailableFilters,
@@ -159,6 +160,19 @@ export const formatMetadataFilter = (metadata: { key: string; value: string }[])
     .map((item) => (item.value ? `${item.key}=${item.value}` : `${item.key}=`))
     .join(METADATA_SPLITTER)
 }
+
+/**
+ * Multiple-value filters join selections with a comma; the display label embedded after
+ * `filterDataInlineSeparator` (a customer/entity name, an email) can itself contain commas.
+ * escapeFilterLabel encodes those commas at storage time so a single selection never
+ * over-splits; unescapeFilterLabel restores them for display. The id portion (before the
+ * separator) is never escaped, so query decoding is unaffected.
+ */
+export const escapeFilterLabel = (label: string): string =>
+  label.split(',').join(filterDataLabelCommaPlaceholder)
+
+export const unescapeFilterLabel = (label: string): string =>
+  label.split(filterDataLabelCommaPlaceholder).join(',')
 
 export const FiltersItemDates = [
   AvailableFiltersEnum.date,
@@ -987,7 +1001,9 @@ export const formatActiveFilterValueDisplay = (
         .map((v) => formatActivityType(v as ActivityTypeEnum))
         .join(', ')
     case AvailableFiltersEnum.customerExternalId:
-      return value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0]
+      return unescapeFilterLabel(
+        value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
+      )
     case AvailableFiltersEnum.isCustomerTinEmpty:
       return (
         translate?.(
@@ -1019,10 +1035,16 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.multipleCustomers:
       return value
         .split(',')
-        .map((v) => v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0])
+        .map((v) =>
+          unescapeFilterLabel(
+            v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],
+          ),
+        )
         .join(', ')
     case AvailableFiltersEnum.billingEntityId:
-      return value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0]
+      return unescapeFilterLabel(
+        value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
+      )
     case AvailableFiltersEnum.userEmails:
       return value.toLocaleLowerCase()
     case AvailableFiltersEnum.billableMetricCode:
