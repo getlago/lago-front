@@ -29,10 +29,7 @@ import {
   EditInvoiceDisplayNameDialog,
   EditInvoiceDisplayNameDialogRef,
 } from '~/components/invoices/EditInvoiceDisplayNameDialog'
-import {
-  EditInvoiceItemDescriptionDialog,
-  EditInvoiceItemDescriptionDialogRef,
-} from '~/components/invoices/EditInvoiceItemDescriptionDialog'
+import { useEditInvoiceItemDescriptionDialog } from '~/components/invoices/EditInvoiceItemDescriptionDialog'
 import {
   EditInvoiceItemTaxDialog,
   EditInvoiceItemTaxDialogRef,
@@ -240,7 +237,7 @@ const CreateInvoice = () => {
     useState<LocalTaxProviderErrorsEnum | null>(null)
 
   const warningDialogRef = useRef<WarningDialogRef>(null)
-  const editDescriptionDialogRef = useRef<EditInvoiceItemDescriptionDialogRef>(null)
+  const { openEditInvoiceItemDescriptionDialog } = useEditInvoiceItemDescriptionDialog()
   const editTaxDialogRef = useRef<EditInvoiceItemTaxDialogRef>(null)
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
   const editFeeBillingPeriodDialogRef = useRef<EditFeeBillingPeriodRef>(null)
@@ -1022,7 +1019,7 @@ const CreateInvoice = () => {
                                   variant="quaternary"
                                   align="left"
                                   onClick={() => {
-                                    editDescriptionDialogRef.current?.openDialog({
+                                    openEditInvoiceItemDescriptionDialog({
                                       description: fee.description || '',
                                       callback: (newDescription?: string) => {
                                         formikProps.setFieldValue(
@@ -1340,7 +1337,6 @@ const CreateInvoice = () => {
         continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={handleClosePage}
       />
-      <EditInvoiceItemDescriptionDialog ref={editDescriptionDialogRef} />
       <EditInvoiceItemTaxDialog ref={editTaxDialogRef} />
       <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
       <EditFeeBillingPeriod ref={editFeeBillingPeriodDialogRef} />
