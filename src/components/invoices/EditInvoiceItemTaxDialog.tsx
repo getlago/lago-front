@@ -1,17 +1,19 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import { array, object, string } from 'yup'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { useRef } from 'react'
+import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
 import { ComboBox, ComboboxItem } from '~/components/form'
 import { SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { useGetTaxesForInvoiceEditTaxDialogQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 
 import { LocalFeeInput } from './types'
 
@@ -45,105 +47,63 @@ gql`
   }
 `
 
-type EditInvoiceItemTaxDialogProps = {
+export const EDIT_INVOICE_ITEM_TAX_FORM_ID = 'edit-invoice-item-tax-form'
+
+type OpenEditInvoiceItemTaxDialogParams = {
   taxes?: LocalFeeInput['taxes']
   callback: (newTaxesArray: LocalFeeInput['taxes']) => void
 }
 
-export interface EditInvoiceItemTaxDialogRef {
-  openDialog: (data: EditInvoiceItemTaxDialogProps) => unknown
-  closeDialog: () => unknown
+const editInvoiceItemTaxFormDefaultValues: { taxes: LocalFeeInput['taxes'] } = {
+  taxes: [],
 }
 
-export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>((_, ref) => {
-  const { translate } = useInternationalization()
-  const dialogRef = useRef<DialogRef>(null)
-  const [data, setData] = useState<EditInvoiceItemTaxDialogProps>()
+const editInvoiceItemTaxValidationSchema = z.object({
+  taxes: z.array(z.any()).refine((taxes) => taxes.every((tax) => !!tax?.id), { message: '' }),
+})
 
-  const { data: taxesData, loading: taxesLoading } = useGetTaxesForInvoiceEditTaxDialogQuery({
-    variables: { limit: 1000 },
-  })
-  const { collection: taxesCollection } = taxesData?.taxes || {}
+const EditInvoiceItemTaxDialogContent = withForm({
+  defaultValues: editInvoiceItemTaxFormDefaultValues,
+  render: function Render({ form }) {
+    const { translate } = useInternationalization()
+    const { data: taxesData, loading: taxesLoading } = useGetTaxesForInvoiceEditTaxDialogQuery({
+      variables: { limit: 1000 },
+    })
+    const { collection: taxesCollection } = taxesData?.taxes || {}
 
-  const formikProps = useFormik<Omit<EditInvoiceItemTaxDialogProps, 'callback'>>({
-    initialValues: {
-      taxes: data?.taxes || [],
-    },
-    validationSchema: object().shape({
-      taxes: array().of(
-        object().shape({
-          id: string().required(''),
-        }),
+    const taxes = useStore(form.store, (state) => state.values.taxes) || []
+
+    // Include the currently selected taxes in the options so a pre-selected
+    // value still resolves before the taxes query has finished loading.
+    const taxOptions = [
+      ...(taxesCollection || []),
+      ...(taxes || []).filter(
+        (tax) => !!tax?.id && !(taxesCollection || []).some((t) => t?.id === tax?.id),
       ),
-    }),
-    validateOnMount: true,
-    enableReinitialize: true,
-    onSubmit: async (values, formikBag) => {
-      data?.callback(values?.taxes as LocalFeeInput['taxes'])
+    ]
 
-      dialogRef?.current?.closeDialog()
-      formikBag.resetForm()
-    },
-  })
-
-  useImperativeHandle(ref, () => ({
-    openDialog: (datas) => {
-      setData(datas)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
-
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate('text_645bb193927b375079d289b5')}
-      description={translate('text_64d40b7e80e64e40710a4931')}
-      onClose={() => {
-        formikProps.resetForm()
-        formikProps.validateForm()
-      }}
-      actions={({ closeDialog }) => (
-        <>
-          <Button variant="quaternary" onClick={closeDialog}>
-            {translate('text_63eba8c65a6c8043feee2a14')}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={async () => {
-              await formikProps.submitForm()
-              closeDialog()
-            }}
-            data-test="edit-invoice-item-tax-dialog-submit-button"
-          >
-            {translate('text_645bb193927b375079d289b5')}
-          </Button>
-        </>
-      )}
-      data-test="edit-invoice-item-tax-dialog"
-    >
-      {!formikProps.values?.taxes?.length ? (
-        <Typography className="mb-4" variant="caption" color="grey600">
-          {translate('text_64d40b7e80e64e40710a4935')}
-        </Typography>
-      ) : (
-        <>
-          <div className="mb-1">
-            <Typography variant="captionHl" color="grey700">
-              {translate('text_636bedf292786b19d3398f06')}
-            </Typography>
-          </div>
-          <div className="mb-4 flex flex-col gap-3">
-            {formikProps.values?.taxes.map((tax, i) => (
-              <div key={`tax-${i}-item-${tax?.code}`} className="flex items-center gap-3">
-                <ComboBox
-                  disableClearable
-                  containerClassName="flex-1"
-                  className={SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME}
-                  data={[
-                    ...(taxesCollection || []).map(
-                      ({ id: localTaxId = '', name = '', rate = 0 }) => {
+    return (
+      <div className="p-8">
+        {!taxes?.length ? (
+          <Typography className="mb-4" variant="caption" color="grey600">
+            {translate('text_64d40b7e80e64e40710a4935')}
+          </Typography>
+        ) : (
+          <>
+            <div className="mb-1">
+              <Typography variant="captionHl" color="grey700">
+                {translate('text_636bedf292786b19d3398f06')}
+              </Typography>
+            </div>
+            <div className="mb-4 flex flex-col gap-3">
+              {taxes.map((tax, i) => (
+                <div key={`tax-${i}-item-${tax?.code}`} className="flex items-center gap-3">
+                  <ComboBox
+                    disableClearable
+                    containerClassName="flex-1"
+                    className={SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME}
+                    data={[
+                      ...taxOptions.map(({ id: localTaxId = '', name = '', rate = 0 }) => {
                         const formatedRate = intlFormatNumber(Number(rate) / 100 || 0, {
                           style: 'percent',
                         })
@@ -162,62 +122,126 @@ export const EditInvoiceItemTaxDialog = forwardRef<EditInvoiceItemTaxDialogRef>(
                           ),
                           value: localTaxId,
                           disabled:
-                            formikProps.values?.taxes?.map((t) => t?.id)?.includes(localTaxId) &&
+                            taxes?.map((t) => t?.id)?.includes(localTaxId) &&
                             localTaxId !== tax?.id,
                         }
-                      },
-                    ),
-                  ]}
-                  value={tax?.id || ''}
-                  loading={taxesLoading}
-                  placeholder={translate('text_64be910fba8ef9208686a8e7')}
-                  emptyText={translate('text_64be91fd0678965126e5657b')}
-                  onChange={(newTaxId) => {
-                    const newTaxObject = taxesCollection?.find((t) => t?.id === newTaxId)
-                    const newTaxesArray = [...(formikProps?.values?.taxes || [])].map((t, j) => {
-                      if (j === i) {
-                        return newTaxObject
-                      }
+                      }),
+                    ]}
+                    value={tax?.id || ''}
+                    loading={taxesLoading}
+                    placeholder={translate('text_64be910fba8ef9208686a8e7')}
+                    emptyText={translate('text_64be91fd0678965126e5657b')}
+                    onChange={(newTaxId) => {
+                      const newTaxObject = taxesCollection?.find((t) => t?.id === newTaxId)
+                      const newTaxesArray = [...(taxes || [])].map((t, j) => {
+                        if (j === i) {
+                          return newTaxObject
+                        }
 
-                      return t
-                    })
+                        return t
+                      })
 
-                    formikProps.setFieldValue('taxes', newTaxesArray)
-                  }}
-                  PopperProps={{ displayInDialog: true }}
-                />
-                <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
-                  <Button
-                    variant="quaternary"
-                    icon="trash"
-                    data-test="remove-charge"
-                    onClick={() => {
-                      const currentTaxes = [...(formikProps.values.taxes || [])]
-
-                      currentTaxes.splice(i, 1)
-                      formikProps.setFieldValue('taxes', currentTaxes)
+                      form.setFieldValue('taxes', newTaxesArray as LocalFeeInput['taxes'])
                     }}
+                    PopperProps={{ displayInDialog: true }}
                   />
-                </Tooltip>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
+                  <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
+                    <Button
+                      variant="quaternary"
+                      icon="trash"
+                      data-test="remove-charge"
+                      onClick={() => {
+                        const currentTaxes = [...(taxes || [])]
 
-      <Button
-        className="mb-8 flex w-fit"
-        startIcon="plus"
-        variant="inline"
-        onClick={() => {
-          formikProps.setFieldValue('taxes', [...(formikProps.values.taxes || []), {}])
-        }}
-        data-test="add-tax-button"
-      >
-        {translate('text_645bb193927b375079d289af')}
-      </Button>
-    </Dialog>
-  )
+                        currentTaxes.splice(i, 1)
+                        form.setFieldValue('taxes', currentTaxes as LocalFeeInput['taxes'])
+                      }}
+                    />
+                  </Tooltip>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        <Button
+          className="flex w-fit"
+          startIcon="plus"
+          variant="inline"
+          onClick={() => {
+            form.setFieldValue('taxes', [...(taxes || []), {}] as LocalFeeInput['taxes'])
+          }}
+          data-test="add-tax-button"
+        >
+          {translate('text_645bb193927b375079d289af')}
+        </Button>
+      </div>
+    )
+  },
 })
 
-EditInvoiceItemTaxDialog.displayName = 'forwardRef'
+export const useEditInvoiceItemTaxDialog = () => {
+  const formDialog = useFormDialog()
+  const { translate } = useInternationalization()
+  const callbackRef = useRef<((newTaxesArray: LocalFeeInput['taxes']) => void) | null>(null)
+
+  const form = useAppForm({
+    defaultValues: editInvoiceItemTaxFormDefaultValues,
+    validationLogic: revalidateLogic({ mode: 'change' }),
+    validators: {
+      onDynamic: editInvoiceItemTaxValidationSchema,
+    },
+    onSubmit: async ({ value }) => {
+      callbackRef.current?.(value.taxes as LocalFeeInput['taxes'])
+    },
+  })
+
+  const handleSubmit = async (): Promise<DialogResult> => {
+    await form.handleSubmit()
+
+    return { reason: 'success' }
+  }
+
+  const openEditInvoiceItemTaxDialog = ({
+    taxes,
+    callback,
+  }: OpenEditInvoiceItemTaxDialogParams) => {
+    callbackRef.current = callback
+    form.reset({ taxes: (taxes || []) as LocalFeeInput['taxes'] }, { keepDefaultValues: true })
+
+    formDialog
+      .open({
+        title: translate('text_645bb193927b375079d289b5'),
+        description: translate('text_64d40b7e80e64e40710a4931'),
+        cancelOrCloseText: 'cancel',
+        children: <EditInvoiceItemTaxDialogContent form={form} />,
+        closeOnError: false,
+        mainAction: (
+          <form.AppForm>
+            <form.Subscribe selector={(state) => state.isDirty}>
+              {(isDirty) => (
+                <form.SubmitButton
+                  disabled={!isDirty}
+                  dataTest="edit-invoice-item-tax-dialog-submit-button"
+                >
+                  {translate('text_645bb193927b375079d289b5')}
+                </form.SubmitButton>
+              )}
+            </form.Subscribe>
+          </form.AppForm>
+        ),
+        form: {
+          id: EDIT_INVOICE_ITEM_TAX_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+          callbackRef.current = null
+        }
+      })
+  }
+
+  return { openEditInvoiceItemTaxDialog }
+}
