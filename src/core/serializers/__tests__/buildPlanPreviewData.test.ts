@@ -532,4 +532,44 @@ describe('buildPlanPreviewData', () => {
       ).toHaveLength(1)
     }
   })
+
+  it('renders a percentage charge main row with onTransaction timing regardless of payInAdvance', () => {
+    for (const payInAdvance of [true, false]) {
+      const data = buildPlanPreviewData(
+        baseForm({
+          charges: [
+            {
+              chargeModel: ChargeModelEnum.Percentage,
+              payInAdvance,
+              billableMetric: { name: 'Pct', code: 'pct' },
+              filters: [],
+              properties: { rate: '1.50' },
+            },
+          ] as unknown as PlanFormInput['charges'],
+        }),
+      )
+      const main = data.rows.find((r) => r.kind === 'main' && r.rowType === 'usageCharge')
+
+      expect(main).toMatchObject({ timing: 'onTransaction' })
+    }
+  })
+
+  it('keeps non-percentage arrears usage charges on endOfPeriod timing', () => {
+    const data = buildPlanPreviewData(
+      baseForm({
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Standard,
+            payInAdvance: false,
+            billableMetric: { name: 'Std', code: 'std' },
+            filters: [],
+            properties: { amount: '1.20' },
+          },
+        ] as unknown as PlanFormInput['charges'],
+      }),
+    )
+    const main = data.rows.find((r) => r.kind === 'main' && r.rowType === 'usageCharge')
+
+    expect(main).toMatchObject({ timing: 'endOfPeriod' })
+  })
 })

@@ -66,6 +66,12 @@ const fixedTiming = (payInAdvance: boolean): BilledTiming =>
 const usageTiming = (payInAdvance: boolean): BilledTiming =>
   payInAdvance ? 'onTransaction' : 'endOfPeriod'
 
+// Percentage charges are always quoted on transaction, regardless of pay-in-advance.
+const usageChargeTiming = (charge: LocalUsageChargeInput): BilledTiming =>
+  charge.chargeModel === ChargeModelEnum.Percentage
+    ? 'onTransaction'
+    : usageTiming(charge.payInAdvance ?? false)
+
 // Charge cadence: monthly override applies when the plan is non-monthly and the
 // monthly-billing flag is set; otherwise the plan interval. (Assumption — verify
 // against product expectations; see plan notes.)
@@ -340,7 +346,7 @@ export const buildPlanPreviewData = (formValues: PlanFormInput | null): PlanPrev
       name: chargeName(typedCharge) || undefined,
       description: undefined,
       interval: usageInterval(formValues),
-      timing: usageTiming(typedCharge.payInAdvance ?? false),
+      timing: usageChargeTiming(typedCharge),
       units: { type: 'usageBased' },
       price: { type: 'variesWithUsage' },
     })
