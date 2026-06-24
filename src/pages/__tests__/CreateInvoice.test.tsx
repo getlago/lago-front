@@ -77,7 +77,9 @@ jest.mock('~/components/designSystem/WarningDialog', () => ({
 }))
 
 jest.mock('~/components/invoices/EditFeeBillingPeriod', () => ({
-  EditFeeBillingPeriod: jest.fn(() => null),
+  useEditFeeBillingPeriodDialog: () => ({
+    openEditFeeBillingPeriodDialog: jest.fn(),
+  }),
 }))
 
 jest.mock('~/components/invoices/EditInvoiceDisplayNameDialog', () => ({

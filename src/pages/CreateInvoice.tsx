@@ -21,10 +21,7 @@ import { WarningDialog, WarningDialogRef } from '~/components/designSystem/Warni
 import { AmountInput, ComboBox, ComboBoxField, ComboboxItem, TextInput } from '~/components/form'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
-import {
-  EditFeeBillingPeriod,
-  EditFeeBillingPeriodRef,
-} from '~/components/invoices/EditFeeBillingPeriod'
+import { useEditFeeBillingPeriodDialog } from '~/components/invoices/EditFeeBillingPeriod'
 import {
   EditInvoiceDisplayNameDialog,
   EditInvoiceDisplayNameDialogRef,
@@ -243,7 +240,7 @@ const CreateInvoice = () => {
   const editDescriptionDialogRef = useRef<EditInvoiceItemDescriptionDialogRef>(null)
   const editTaxDialogRef = useRef<EditInvoiceItemTaxDialogRef>(null)
   const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
-  const editFeeBillingPeriodDialogRef = useRef<EditFeeBillingPeriodRef>(null)
+  const { openEditFeeBillingPeriodDialog } = useEditFeeBillingPeriodDialog()
 
   const handleClosePage = useCallback(() => {
     goBack(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
@@ -1000,7 +997,7 @@ const CreateInvoice = () => {
                                   variant="quaternary"
                                   align="left"
                                   onClick={() => {
-                                    editFeeBillingPeriodDialogRef.current?.openDialog({
+                                    openEditFeeBillingPeriodDialog({
                                       fromDatetime: fee.fromDatetime,
                                       toDatetime: fee.toDatetime,
                                       callback: (fromDatetime: string, toDatetime: string) => {
@@ -1343,7 +1340,6 @@ const CreateInvoice = () => {
       <EditInvoiceItemDescriptionDialog ref={editDescriptionDialogRef} />
       <EditInvoiceItemTaxDialog ref={editTaxDialogRef} />
       <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
-      <EditFeeBillingPeriod ref={editFeeBillingPeriodDialogRef} />
     </>
   )
 }
