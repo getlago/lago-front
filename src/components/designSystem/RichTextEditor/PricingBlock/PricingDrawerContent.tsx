@@ -17,7 +17,7 @@ const pricingDrawerContentDefaultProps: PricingDrawerContentExtraProps = {
 const PricingDrawerContent = withForm({
   defaultValues: pricingDrawerDefaultValues,
   props: pricingDrawerContentDefaultProps,
-  render: function PricingDrawerContent({ form, currency, onAddOnPayloadCapture }) {
+  render: function PricingDrawerContentRender({ form, currency, onAddOnPayloadCapture }) {
     return (
       <AddOnSelectionContent
         form={form}

@@ -96,7 +96,7 @@ const usageChargeDrawerContentDefaultProps: UsageChargeDrawerContentExtraProps =
 export const UsageChargeDrawerContent = withForm({
   defaultValues: DEFAULT_VALUES,
   props: usageChargeDrawerContentDefaultProps,
-  render: function UsageChargeDrawerContent({
+  render: function UsageChargeDrawerContentRender({
     form,
     isCreateMode,
     isEdition,

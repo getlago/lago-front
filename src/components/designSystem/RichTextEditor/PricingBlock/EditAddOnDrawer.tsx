@@ -13,7 +13,7 @@ const DESCRIPTION_MAX_LENGTH = 255
 
 const EditAddOnDrawer = withForm({
   defaultValues: editAddOnDrawerDefaultValues,
-  render: function EditAddOnDrawer({ form }) {
+  render: function EditAddOnDrawerRender({ form }) {
     const { translate } = useInternationalization()
 
     return (
