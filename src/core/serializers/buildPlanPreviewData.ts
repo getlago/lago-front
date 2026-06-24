@@ -4,7 +4,7 @@ import type {
   LocalUsageChargeInput,
   PlanFormInput,
 } from '~/components/plans/types'
-import { ChargeModelEnum, PlanInterval } from '~/generated/graphql'
+import { ChargeModelEnum, FixedChargeChargeModelEnum, PlanInterval } from '~/generated/graphql'
 
 export type BilledTiming = 'beginningOfPeriod' | 'endOfPeriod' | 'onTransaction'
 
@@ -84,6 +84,44 @@ const chargeName = (charge: {
   billableMetric?: { name?: string }
 }): string => charge.invoiceDisplayName || charge.billableMetric?.name || ''
 
+type Range = {
+  fromValue: number
+  toValue?: number | null
+  perUnitAmount?: string
+  flatAmount?: string
+}
+
+const tierRows = (ranges: Range[]): PlanPreviewDetailRow[] =>
+  ranges.flatMap((r) => {
+    const out: PlanPreviewDetailRow[] = [
+      {
+        kind: 'detail',
+        label: {
+          type: 'tierRange',
+          from: num(r.fromValue),
+          to: r.toValue === null || r.toValue === undefined ? undefined : num(r.toValue),
+        },
+        qualifier: { type: 'perUnit' },
+        value: { type: 'displayAmount', amount: String(r.perUnitAmount ?? '0') },
+      },
+    ]
+
+    if (num(r.flatAmount) > 0) {
+      out.push({
+        kind: 'detail',
+        label: {
+          type: 'flatFeeForTier',
+          from: num(r.fromValue),
+          to: r.toValue === null || r.toValue === undefined ? undefined : num(r.toValue),
+        },
+        qualifier: { type: 'flatFee' },
+        value: { type: 'displayAmount', amount: String(r.flatAmount) },
+      })
+    }
+
+    return out
+  })
+
 // Per-model detail rows are added in Tasks 4 & 5. Standard handled here.
 const usageDetailRows = (charge: LocalUsageChargeInput): PlanPreviewDetailRow[] => {
   const props = (charge.properties ?? {}) as Record<string, unknown>
@@ -98,44 +136,6 @@ const usageDetailRows = (charge: LocalUsageChargeInput): PlanPreviewDetailRow[] 
       },
     ]
   }
-
-  type Range = {
-    fromValue: number
-    toValue?: number | null
-    perUnitAmount?: string
-    flatAmount?: string
-  }
-
-  const tierRows = (ranges: Range[]): PlanPreviewDetailRow[] =>
-    ranges.flatMap((r) => {
-      const out: PlanPreviewDetailRow[] = [
-        {
-          kind: 'detail',
-          label: {
-            type: 'tierRange',
-            from: num(r.fromValue),
-            to: r.toValue === null || r.toValue === undefined ? undefined : num(r.toValue),
-          },
-          qualifier: { type: 'perUnit' },
-          value: { type: 'displayAmount', amount: String(r.perUnitAmount ?? '0') },
-        },
-      ]
-
-      if (num(r.flatAmount) > 0) {
-        out.push({
-          kind: 'detail',
-          label: {
-            type: 'flatFeeForTier',
-            from: num(r.fromValue),
-            to: r.toValue === null || r.toValue === undefined ? undefined : num(r.toValue),
-          },
-          qualifier: { type: 'flatFee' },
-          value: { type: 'displayAmount', amount: String(r.flatAmount) },
-        })
-      }
-
-      return out
-    })
 
   if (charge.chargeModel === ChargeModelEnum.Graduated) {
     return tierRows((props.graduatedRanges ?? []) as Range[])
@@ -286,17 +286,48 @@ export const buildPlanPreviewData = (formValues: PlanFormInput | null): PlanPrev
   for (const fc of formValues.fixedCharges ?? []) {
     const typedFc = fc as LocalFixedChargeInput
     const fcProps = (typedFc.properties ?? {}) as Record<string, unknown>
+    const fcName = typedFc.invoiceDisplayName || typedFc.addOn?.name || undefined
+    const fcInterval = fixedInterval(formValues)
+    const fcTiming = fixedTiming(typedFc.payInAdvance ?? false)
+    const fcUnits: PreviewCellValue = { type: 'count', value: num(typedFc.units) }
 
-    rows.push({
-      kind: 'main',
-      rowType: 'fixedCharge',
-      name: typedFc.invoiceDisplayName || typedFc.addOn?.name || undefined,
-      description: undefined,
-      interval: fixedInterval(formValues),
-      timing: fixedTiming(typedFc.payInAdvance ?? false),
-      units: { type: 'count', value: num(typedFc.units) },
-      price: { type: 'displayAmount', amount: String(fcProps.amount ?? '0') },
-    })
+    if (typedFc.chargeModel === FixedChargeChargeModelEnum.Graduated) {
+      rows.push({
+        kind: 'main',
+        rowType: 'fixedCharge',
+        name: fcName,
+        description: undefined,
+        interval: fcInterval,
+        timing: fcTiming,
+        units: fcUnits,
+        price: { type: 'empty' },
+      })
+      rows.push(...tierRows((fcProps.graduatedRanges ?? []) as Range[]))
+    } else if (typedFc.chargeModel === FixedChargeChargeModelEnum.Volume) {
+      rows.push({
+        kind: 'main',
+        rowType: 'fixedCharge',
+        name: fcName,
+        description: undefined,
+        interval: fcInterval,
+        timing: fcTiming,
+        units: fcUnits,
+        price: { type: 'empty' },
+      })
+      rows.push(...tierRows((fcProps.volumeRanges ?? []) as Range[]))
+    } else {
+      // Standard (default)
+      rows.push({
+        kind: 'main',
+        rowType: 'fixedCharge',
+        name: fcName,
+        description: undefined,
+        interval: fcInterval,
+        timing: fcTiming,
+        units: fcUnits,
+        price: { type: 'displayAmount', amount: String(fcProps.amount ?? '0') },
+      })
+    }
   }
 
   // 3) Usage charges (each is a main row + model-specific detail rows)

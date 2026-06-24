@@ -1,7 +1,7 @@
 // src/core/serializers/__tests__/buildPlanPreviewData.test.ts
 import { buildPlanPreviewData } from '~/core/serializers/buildPlanPreviewData'
 import type { PlanFormInput } from '~/core/serializers/serializeQuotePlanBillingItems'
-import { ChargeModelEnum, PlanInterval } from '~/generated/graphql'
+import { ChargeModelEnum, FixedChargeChargeModelEnum, PlanInterval } from '~/generated/graphql'
 
 const baseForm = (over: Partial<PlanFormInput> = {}): PlanFormInput =>
   ({
@@ -404,6 +404,106 @@ describe('buildPlanPreviewData', () => {
       label: { type: 'text', key: 'labelMinimumSpending' },
       qualifier: { type: 'commitment' },
       value: { type: 'displayAmount', amount: '100.00' },
+    })
+  })
+
+  it('graduated fixed charge: main row with count+empty-price, tier rows below', () => {
+    const data = buildPlanPreviewData(
+      baseForm({
+        amountCents: '0',
+        interval: PlanInterval.Monthly,
+        fixedCharges: [
+          {
+            chargeModel: FixedChargeChargeModelEnum.Graduated,
+            payInAdvance: false,
+            units: '5',
+            invoiceDisplayName: 'Graduated FC',
+            properties: {
+              graduatedRanges: [
+                { fromValue: 0, toValue: 10, perUnitAmount: '0.10', flatAmount: '10.00' },
+                { fromValue: 11, toValue: null, perUnitAmount: '0.05', flatAmount: '0' },
+              ],
+            },
+          },
+        ] as unknown as PlanFormInput['fixedCharges'],
+      }),
+    )
+    const mainRow = data.rows.find((r) => r.kind === 'main' && r.rowType === 'fixedCharge')
+
+    expect(mainRow).toMatchObject({
+      kind: 'main',
+      rowType: 'fixedCharge',
+      units: { type: 'count', value: 5 },
+      price: { type: 'empty' },
+    })
+
+    const details = data.rows.filter((r) => r.kind === 'detail')
+
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'tierRange', from: 0, to: 10 },
+      qualifier: { type: 'perUnit' },
+      value: { type: 'displayAmount', amount: '0.10' },
+    })
+    // flat fee present for tier 1 (10.00), absent for tier 2 (0)
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'flatFeeForTier', from: 0, to: 10 },
+      qualifier: { type: 'flatFee' },
+      value: { type: 'displayAmount', amount: '10.00' },
+    })
+    expect(details.filter((d) => d.label.type === 'flatFeeForTier')).toHaveLength(1)
+    // open-ended top tier (toValue null → to: undefined)
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'tierRange', from: 11, to: undefined },
+      qualifier: { type: 'perUnit' },
+      value: { type: 'displayAmount', amount: '0.05' },
+    })
+  })
+
+  it('volume fixed charge: main row with count+empty-price, tier rows below', () => {
+    const data = buildPlanPreviewData(
+      baseForm({
+        amountCents: '0',
+        interval: PlanInterval.Monthly,
+        fixedCharges: [
+          {
+            chargeModel: FixedChargeChargeModelEnum.Volume,
+            payInAdvance: false,
+            units: '3',
+            invoiceDisplayName: 'Volume FC',
+            properties: {
+              volumeRanges: [
+                { fromValue: 0, toValue: 10, perUnitAmount: '0.20', flatAmount: '5.00' },
+              ],
+            },
+          },
+        ] as unknown as PlanFormInput['fixedCharges'],
+      }),
+    )
+    const mainRow = data.rows.find((r) => r.kind === 'main' && r.rowType === 'fixedCharge')
+
+    expect(mainRow).toMatchObject({
+      kind: 'main',
+      rowType: 'fixedCharge',
+      units: { type: 'count', value: 3 },
+      price: { type: 'empty' },
+    })
+
+    const details = data.rows.filter((r) => r.kind === 'detail')
+
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'tierRange', from: 0, to: 10 },
+      qualifier: { type: 'perUnit' },
+      value: { type: 'displayAmount', amount: '0.20' },
+    })
+    expect(details).toContainEqual({
+      kind: 'detail',
+      label: { type: 'flatFeeForTier', from: 0, to: 10 },
+      qualifier: { type: 'flatFee' },
+      value: { type: 'displayAmount', amount: '5.00' },
     })
   })
 
