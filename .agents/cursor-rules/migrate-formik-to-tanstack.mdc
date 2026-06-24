@@ -149,7 +149,7 @@ Search for `setFieldError`, `setErrors`, `setStatus` in the onSubmit handler. Th
 
 ### Submit Button Disabled Logic
 Current: `disabled={!formikProps.isValid || !formikProps.dirty || loading}`
-TanStack: `form.SubmitButton` handles isValid + dirty automatically
+TanStack: use a bare `<form.SubmitButton>`. It is enabled by default and only disabled on validation errors (canSubmit). DO NOT re-add a `!isDirty` gate — the codebase convention is "allow submit, then show errors", so blocking submit on a pristine form is wrong.
 ```
 
 ---
@@ -418,7 +418,7 @@ return (
 + </form.AppForm>
 ```
 
-Note: `form.SubmitButton` handles `canSubmit` (validity + dirty state) automatically.
+Note: `form.SubmitButton` handles `canSubmit` (no validation errors + not submitting/validating) automatically. It does **not** include `isDirty` — and you must **not** re-add a dirty gate. The submit button stays enabled by default and only disables on validation errors; do not preserve the old Formik `!dirty` gating.
 
 #### Step 2.9: Update Field Value Changes
 

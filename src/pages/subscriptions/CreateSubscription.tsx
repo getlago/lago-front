@@ -13,10 +13,6 @@ import { Typography } from '~/components/designSystem/Typography'
 import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { BasicComboBoxData, ComboboxItem } from '~/components/form'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
-import {
-  EditInvoiceDisplayNameDialog,
-  EditInvoiceDisplayNameDialogRef,
-} from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
@@ -116,7 +112,6 @@ const CreateSubscription = () => {
   const { hasFeatureFlag, intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { isRunningInSalesForceIframe, isRunningInIframeContext } = useIframeConfig()
 
-  const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
   const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
@@ -692,8 +687,6 @@ const CreateSubscription = () => {
         continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={() => navigateBack()}
       />
-
-      <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
     </>
   )
 }
