@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { ReactNode, useMemo, useRef } from 'react'
 
+import { shouldVirtualizeList } from '~/components/designSystem/VirtualList/VirtualFilterList'
 import { openAccordionThenScrollTo } from '~/core/utils/domUtils'
 import {
   EntitlementForPlanDetailsSidebarFragmentDoc,
@@ -109,6 +110,11 @@ export const PlanDetailsV2 = ({
     [data?.plan?.charges],
   )
 
+  // When the charge list is virtualized, the scroll path to a section below it crosses the
+  // virtualizer, whose mid-scroll re-measure adjustments derail a smooth animation (lands
+  // mid-list / snaps to top). Jump instantly in that case; keep smooth on small plans.
+  const chargesVirtualized = shouldVirtualizeList(data?.plan?.charges?.length ?? 0)
+
   // BIL-160: open the target accordion first, then scroll to + focus it.
   const handleItemClick = (id: string) => {
     if (usageChargeIds.has(id)) {
@@ -117,7 +123,7 @@ export const PlanDetailsV2 = ({
       return
     }
 
-    openAccordionThenScrollTo(id)
+    openAccordionThenScrollTo(id, chargesVirtualized ? 'auto' : 'smooth')
   }
 
   const handleAddClick = (id: string) => {

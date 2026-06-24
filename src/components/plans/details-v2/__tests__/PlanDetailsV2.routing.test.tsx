@@ -147,7 +147,8 @@ describe('PlanDetailsV2 sidebar navigation routing', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Subscription fee' }))
 
-    expect(mockOpenAccordionThenScrollTo).toHaveBeenCalledWith('subscription-fee')
+    // 1-charge fixture is below the virtualization threshold, so the jump stays smooth.
+    expect(mockOpenAccordionThenScrollTo).toHaveBeenCalledWith('subscription-fee', 'smooth')
     expect(mockScrollToCharge).not.toHaveBeenCalled()
   })
 })

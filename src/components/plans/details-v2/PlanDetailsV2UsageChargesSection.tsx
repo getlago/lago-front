@@ -247,7 +247,8 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
     // Mount the card open: a virtualized-out card reads this on (re)mount.
     openChargeIdsRef.current.add(chargeId)
 
-    // Plain branch: the card is already in the DOM, so reuse the shared open-and-scroll.
+    // Plain branch: the card is already in the DOM, so reuse the shared open-and-scroll
+    // (smooth - no virtualized list in the scroll path to derail it).
     if (!virtualListApiRef.current?.isVirtualized) {
       openAccordionThenScrollTo(chargeId)
       return
@@ -261,7 +262,9 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
 
     const scrollWhenMounted = () => {
       if (document.getElementById(chargeId)) {
-        openAccordionThenScrollTo(chargeId)
+        // Virtualized: scroll instantly so the list's mid-scroll re-measure adjustments
+        // can't derail a smooth animation.
+        openAccordionThenScrollTo(chargeId, 'auto')
 
         return
       }
