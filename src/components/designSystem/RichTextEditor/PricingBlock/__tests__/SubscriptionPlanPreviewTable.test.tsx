@@ -26,7 +26,8 @@ const data: PlanPreviewData = {
       interval: PlanInterval.Monthly,
       timing: 'beginningOfPeriod',
       units: { type: 'count', value: 1 },
-      price: { type: 'amount', amountCents: '1300' },
+      // display units (dollars): $130.50 — must NOT be passed through deserializeAmount
+      price: { type: 'displayAmount', amount: '130.50' },
     },
     {
       kind: 'main',
@@ -41,7 +42,7 @@ const data: PlanPreviewData = {
       kind: 'detail',
       label: { type: 'tierRange', from: 1, to: 10 },
       qualifier: { type: 'perUnit' },
-      value: { type: 'amount', amountCents: '10' },
+      value: { type: 'displayAmount', amount: '0.10' },
     },
   ],
 }
@@ -92,6 +93,15 @@ describe('SubscriptionPlanPreviewTable', () => {
         render(<SubscriptionPlanPreviewTable {...defaultProps} />)
 
         expect(screen.getByText('API calls')).toBeInTheDocument()
+      })
+
+      it('THEN should render the subscription fee as display-unit dollars (not 100x smaller)', () => {
+        // The subscription fee fixture is { type: 'displayAmount', amount: '130.50' }.
+        // If deserializeAmount were applied it would render ~$1.31 — this assertion
+        // would fail, catching any regression that reintroduces the 100× bug.
+        render(<SubscriptionPlanPreviewTable {...defaultProps} />)
+
+        expect(screen.getByText(/130\.50/)).toBeInTheDocument()
       })
     })
   })

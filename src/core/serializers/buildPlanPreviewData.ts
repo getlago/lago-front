@@ -10,7 +10,6 @@ export type BilledTiming = 'beginningOfPeriod' | 'endOfPeriod' | 'onTransaction'
 
 export type PreviewCellValue =
   | { type: 'count'; value: number }
-  | { type: 'amount'; amountCents: string }
   | { type: 'displayAmount'; amount: string }
   | { type: 'percentage'; rate: string }
   | { type: 'usageBased' }
@@ -279,7 +278,7 @@ export const buildPlanPreviewData = (formValues: PlanFormInput | null): PlanPrev
       interval: formValues.interval,
       timing: fixedTiming(formValues.payInAdvance),
       units: { type: 'count', value: 1 },
-      price: { type: 'amount', amountCents: String(formValues.amountCents) },
+      price: { type: 'displayAmount', amount: String(formValues.amountCents) },
     })
   }
 
@@ -322,7 +321,7 @@ export const buildPlanPreviewData = (formValues: PlanFormInput | null): PlanPrev
         kind: 'detail',
         label: { type: 'text', key: 'labelMinimumSpending' },
         qualifier: { type: 'commitment' },
-        value: { type: 'amount', amountCents: String(minAmount) },
+        value: { type: 'displayAmount', amount: String(minAmount) },
       })
     }
   }
@@ -338,8 +337,8 @@ export const buildPlanPreviewData = (formValues: PlanFormInput | null): PlanPrev
       timing: fixedTiming(formValues.payInAdvance),
       units: { type: 'count', value: 1 },
       price: {
-        type: 'amount',
-        amountCents: String(formValues.minimumCommitment.amountCents ?? '0'),
+        type: 'displayAmount',
+        amount: String(formValues.minimumCommitment.amountCents ?? '0'),
       },
     })
   }

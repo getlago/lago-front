@@ -596,7 +596,7 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
     expect(result.entityData['plan-1'].plan?.rows[0]).toMatchObject({
       kind: 'main',
       rowType: 'subscriptionFee',
-      price: { type: 'amount', amountCents: '13050' },
+      price: { type: 'displayAmount', amount: '13050' },
     })
   })
 

@@ -8,7 +8,6 @@ import type {
   PreviewDetailLabel,
   PreviewQualifier,
 } from '~/core/serializers/buildPlanPreviewData'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import type { LocaleEnum } from '~/core/translations'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import type { TranslateFunc } from '~/hooks/core/useInternationalization'
@@ -83,20 +82,10 @@ export const SubscriptionPlanPreviewTable = ({
   currency,
   locale,
 }: SubscriptionPlanPreviewTableProps) => {
-  // Plan amountCents values are minor units (cents) coming from the API/form —
-  // deserializeAmount converts to display units before formatting.
-  const formatAmount = (amountCents: string) =>
-    intlFormatNumber(deserializeAmount(Number.parseFloat(amountCents || '0'), currency), {
-      currency,
-      locale,
-    })
-
   const formatValue = (v: PreviewCellValue): string => {
     switch (v.type) {
       case 'count':
         return String(v.value)
-      case 'amount':
-        return formatAmount(v.amountCents)
       case 'displayAmount':
         return intlFormatNumber(Number.parseFloat(v.amount || '0'), { currency, locale })
       case 'percentage':

@@ -40,7 +40,7 @@ describe('buildPlanPreviewData', () => {
       interval: PlanInterval.Monthly,
       timing: 'beginningOfPeriod',
       units: { type: 'count', value: 1 },
-      price: { type: 'amount', amountCents: '13050' },
+      price: { type: 'displayAmount', amount: '13050' },
     })
   })
 
@@ -130,7 +130,7 @@ describe('buildPlanPreviewData', () => {
       kind: 'main',
       rowType: 'minimumCommitment',
       units: { type: 'count', value: 1 },
-      price: { type: 'amount', amountCents: '1000.00' },
+      price: { type: 'displayAmount', amount: '1000.00' },
     })
   })
 
@@ -403,7 +403,7 @@ describe('buildPlanPreviewData', () => {
       kind: 'detail',
       label: { type: 'text', key: 'labelMinimumSpending' },
       qualifier: { type: 'commitment' },
-      value: { type: 'amount', amountCents: '100.00' },
+      value: { type: 'displayAmount', amount: '100.00' },
     })
   })
 
