@@ -218,16 +218,9 @@ export const useEditInvoiceItemTaxDialog = () => {
         closeOnError: false,
         mainAction: (
           <form.AppForm>
-            <form.Subscribe selector={(state) => state.isDirty}>
-              {(isDirty) => (
-                <form.SubmitButton
-                  disabled={!isDirty}
-                  dataTest="edit-invoice-item-tax-dialog-submit-button"
-                >
-                  {translate('text_645bb193927b375079d289b5')}
-                </form.SubmitButton>
-              )}
-            </form.Subscribe>
+            <form.SubmitButton dataTest="edit-invoice-item-tax-dialog-submit-button">
+              {translate('text_645bb193927b375079d289b5')}
+            </form.SubmitButton>
           </form.AppForm>
         ),
         form: {
