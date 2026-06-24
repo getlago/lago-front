@@ -1,6 +1,10 @@
 import { FieldPolicy, InMemoryCache } from '@apollo/client'
 
-import { createPaginatedFieldPolicy, mergePaginatedCollection } from './cacheHelpers'
+import {
+  createPaginatedFieldPolicy,
+  createSinglePageFieldPolicy,
+  mergePaginatedCollection,
+} from './cacheHelpers'
 
 // Every root query field consumed via fetchMore needs a merge policy here, otherwise
 // page-2 results are stored under a page-specific storeFieldName and infinite scroll
@@ -16,7 +20,8 @@ export const queryFieldPolicies: Record<string, FieldPolicy> = {
   coupons: createPaginatedFieldPolicy(),
   creditNotes: createPaginatedFieldPolicy(),
   customerInvoices: createPaginatedFieldPolicy(),
-  customers: createPaginatedFieldPolicy(),
+  // POC: numbered pagination (replace pages instead of appending) — see CustomersList
+  customers: createSinglePageFieldPolicy(),
   dunningCampaigns: createPaginatedFieldPolicy(),
   events: createPaginatedFieldPolicy(),
   features: createPaginatedFieldPolicy(),
@@ -30,7 +35,9 @@ export const queryFieldPolicies: Record<string, FieldPolicy> = {
   plans: createPaginatedFieldPolicy(),
   pricingUnits: createPaginatedFieldPolicy(),
   quotes: createPaginatedFieldPolicy(),
-  subscriptions: createPaginatedFieldPolicy(),
+  // POC: numbered pagination (replace pages instead of appending) — shared by
+  // SubscriptionsPage and PlanSubscriptionList, both migrated to <PaginatedContent>
+  subscriptions: createSinglePageFieldPolicy(),
   taxes: createPaginatedFieldPolicy(),
   wallets: createPaginatedFieldPolicy(),
   walletTransactions: createPaginatedFieldPolicy(),
@@ -38,7 +45,8 @@ export const queryFieldPolicies: Record<string, FieldPolicy> = {
   walletTransactionConsumptions: createPaginatedFieldPolicy(),
   webhook: createPaginatedFieldPolicy(),
   webhookEndpoint: createPaginatedFieldPolicy(),
-  webhooks: createPaginatedFieldPolicy(),
+  // POC: numbered pagination (replace pages instead of appending) — webhook logs (WebhookLogs)
+  webhooks: createSinglePageFieldPolicy(),
 
   // Queries where ALL invocations share the same cache (no arg-based separation)
   apiLogs: {

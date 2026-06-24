@@ -10,7 +10,7 @@ import {
   formatFiltersForSubscriptionQuery,
   SubscriptionAvailableFilters,
 } from '~/components/designSystem/Filters'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
@@ -116,6 +116,8 @@ gql`
   }
 `
 
+const PAGE_SIZE = 10
+
 const SubscriptionsPage = () => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
@@ -141,7 +143,7 @@ const SubscriptionsPage = () => {
     useGetSubscriptionsListLazyQuery({
       notifyOnNetworkStatusChange: true,
       variables: {
-        limit: 20,
+        limit: PAGE_SIZE,
         ...filtersForSubscriptionQuery,
       },
     })
@@ -163,7 +165,9 @@ const SubscriptionsPage = () => {
         entity={{
           viewName: translate('text_6250304370f0f700a8fdc28d'),
           metadata: formatCountToMetadata(subscriptionsTotalCount, translate),
-          metadataLoading: isLoading,
+          // totalCount is the same across pages, so only show the loader when we don't
+          // have a count yet (initial load) — not on every page change.
+          metadataLoading: isLoading && subscriptionsTotalCount === undefined,
         }}
         filtersSection={
           <Filters.Provider
@@ -182,22 +186,17 @@ const SubscriptionsPage = () => {
       />
 
       <div className="border-t border-grey-300">
-        <InfiniteScroll
-          onBottom={() => {
-            const { currentPage = 0, totalPages = 0 } = data?.subscriptions.metadata || {}
-
-            currentPage < totalPages &&
-              !isLoading &&
-              fetchMore?.({
-                variables: { page: currentPage + 1 },
-              })
-          }}
+        <PaginatedContent
+          metadata={data?.subscriptions.metadata}
+          loading={isLoading}
+          onPageChange={(page) => fetchMore?.({ variables: { page } })}
         >
           <SubscriptionsList
             name="subscriptions-list"
             isLoading={isLoading}
+            loadingRowCount={PAGE_SIZE}
             hasError={!!error}
-            subscriptions={subscriptions}
+            subscriptions={isLoading ? [] : subscriptions}
             containerSize={{
               default: 16,
               md: 48,
@@ -340,7 +339,7 @@ const SubscriptionsPage = () => {
                   },
             }}
           />
-        </InfiniteScroll>
+        </PaginatedContent>
       </div>
     </>
   )

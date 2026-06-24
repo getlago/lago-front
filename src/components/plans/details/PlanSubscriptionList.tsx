@@ -3,7 +3,7 @@ import { generatePath } from 'react-router-dom'
 
 import { computeCustomerInitials } from '~/components/customers/utils'
 import { Avatar } from '~/components/designSystem/Avatar'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
@@ -67,21 +67,14 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
         {translate('text_65281f686a80b400c8e2f6be')}
       </DetailsPage.SectionTitle>
 
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } =
-            subscriptionResult?.subscriptions?.metadata || {}
-
-          currentPage < totalPages &&
-            !areSubscriptionsLoading &&
-            fetchMoreSubscriptions({
-              variables: { page: currentPage + 1 },
-            })
-        }}
+      <PaginatedContent
+        metadata={subscriptionResult?.subscriptions?.metadata}
+        loading={areSubscriptionsLoading}
+        onPageChange={(page) => fetchMoreSubscriptions({ variables: { page } })}
       >
         <Table
           name="plan-subscriptions"
-          data={subscriptionResult?.subscriptions?.collection || []}
+          data={areSubscriptionsLoading ? [] : subscriptionResult?.subscriptions?.collection || []}
           containerSize={0}
           isLoading={areSubscriptionsLoading}
           hasError={!!subscriptionsError}
@@ -169,7 +162,7 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
             },
           ]}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </section>
   )
 }
