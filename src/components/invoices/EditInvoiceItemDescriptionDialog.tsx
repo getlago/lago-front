@@ -86,13 +86,7 @@ export const useEditInvoiceItemDescriptionDialog = () => {
         closeOnError: false,
         mainAction: (
           <form.AppForm>
-            <form.Subscribe selector={(state) => state.isDirty}>
-              {(isDirty) => (
-                <form.SubmitButton disabled={!isDirty}>
-                  {translate('text_6453819268763979024ad041')}
-                </form.SubmitButton>
-              )}
-            </form.Subscribe>
+            <form.SubmitButton>{translate('text_6453819268763979024ad041')}</form.SubmitButton>
           </form.AppForm>
         ),
         form: {
