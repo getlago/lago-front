@@ -237,6 +237,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
       createdAtTo: value.split(',')[1],
     }
   },
+  [AvailableFiltersEnum.orderFormNumber]: (value: string) => value.split(','),
   [AvailableFiltersEnum.orderFormStatus]: (value: string) => value.split(','),
   [AvailableFiltersEnum.quoteCreatedAt]: (value: string) => {
     return {
@@ -1062,7 +1063,7 @@ export const formatFiltersForQuotesQuery = (searchParams: URLSearchParams): Quot
 type OrderFormsQueryFilters = Partial<
   Pick<
     GetOrderFormsQueryVariables,
-    'status' | 'customerId' | 'ownerId' | 'createdAtFrom' | 'createdAtTo'
+    'status' | 'number' | 'customerId' | 'ownerId' | 'createdAtFrom' | 'createdAtTo'
   >
 >
 
@@ -1075,6 +1076,7 @@ export const formatFiltersForOrderFormsQuery = (
     filtersNamePrefix: ORDER_FORM_LIST_FILTER_PREFIX,
     keyMap: {
       [AvailableFiltersEnum.orderFormStatus]: 'status',
+      [AvailableFiltersEnum.orderFormNumber]: 'number',
       [AvailableFiltersEnum.multipleCustomers]: 'customerId',
       [AvailableFiltersEnum.userIds]: 'ownerId',
     },

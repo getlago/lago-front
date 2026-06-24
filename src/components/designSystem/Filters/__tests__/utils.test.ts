@@ -1424,6 +1424,20 @@ describe('Filters utils', () => {
       )
     })
 
+    it('should format order form number filter as number', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('of_orderFormNumber', 'OF-001,OF-002')
+
+      const result = formatFiltersForOrderFormsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          number: ['OF-001', 'OF-002'],
+        }),
+      )
+    })
+
     it('should format multipleCustomers filter as customerId extracting ids', () => {
       const searchParams = new URLSearchParams()
 

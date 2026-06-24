@@ -32,6 +32,7 @@ import { FiltersItemLogEventsAndTypes } from '~/components/designSystem/Filters/
 import { FiltersItemLoggedDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemLoggedDate'
 import { FiltersItemMetadata } from '~/components/designSystem/Filters/filtersElements/FiltersItemMetadata'
 import { FiltersItemMultipleCustomers } from '~/components/designSystem/Filters/filtersElements/FiltersItemMultipleCustomers'
+import { FiltersItemOrderFormNumber } from '~/components/designSystem/Filters/filtersElements/FiltersItemOrderFormNumber'
 import { FiltersItemOrderFormStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemOrderFormStatus'
 import { FiltersItemOverridden } from '~/components/designSystem/Filters/filtersElements/FiltersItemOverridden'
 import { FiltersItemPartiallyPaid } from '~/components/designSystem/Filters/filtersElements/FiltersItemPartiallyPaid'
@@ -143,6 +144,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.userIds]: <FiltersItemUserIds {...props} />,
     [AvailableFiltersEnum.multipleCustomers]: <FiltersItemMultipleCustomers {...props} />,
     [AvailableFiltersEnum.orderFormCreatedAt]: <FiltersItemDate {...props} />,
+    [AvailableFiltersEnum.orderFormNumber]: <FiltersItemOrderFormNumber {...props} />,
     [AvailableFiltersEnum.orderFormStatus]: <FiltersItemOrderFormStatus {...props} />,
     [AvailableFiltersEnum.quoteCreatedAt]: <FiltersItemDate {...props} />,
     [AvailableFiltersEnum.quoteNumber]: <FiltersItemQuoteNumber {...props} />,

@@ -35,6 +35,7 @@ gql`
     $limit: Int
     $status: [OrderFormStatusEnum!]
     $quoteNumber: [String!]
+    $number: [String!]
     $customerId: [ID!]
     $ownerId: [ID!]
     $createdAtFrom: ISO8601DateTime
@@ -45,6 +46,7 @@ gql`
       limit: $limit
       status: $status
       quoteNumber: $quoteNumber
+      number: $number
       customerId: $customerId
       ownerId: $ownerId
       createdAtFrom: $createdAtFrom
