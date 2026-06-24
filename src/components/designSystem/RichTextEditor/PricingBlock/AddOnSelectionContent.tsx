@@ -180,7 +180,7 @@ const confirmedAddOnRowDefaultProps: ConfirmedAddOnRowProps = {
 const ConfirmedAddOnRow = withForm({
   defaultValues: pricingDrawerDefaultValues,
   props: confirmedAddOnRowDefaultProps,
-  render: function ConfirmedAddOnRow({
+  render: function ConfirmedAddOnRowRender({
     form,
     item,
     index,
@@ -289,7 +289,7 @@ const addOnSelectionContentDefaultProps: AddOnSelectionContentExtraProps = {
 const AddOnSelectionContent = withForm({
   defaultValues: pricingDrawerDefaultValues,
   props: addOnSelectionContentDefaultProps,
-  render: function AddOnSelectionContent({ form, currency, onAddOnPayloadCapture }) {
+  render: function AddOnSelectionContentRender({ form, currency, onAddOnPayloadCapture }) {
     const { translate } = useInternationalization()
     const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
