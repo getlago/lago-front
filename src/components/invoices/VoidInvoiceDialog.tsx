@@ -1,8 +1,6 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { DialogRef } from '~/components/designSystem/Dialog'
-import { WarningDialog } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
@@ -33,21 +31,13 @@ gql`
   ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
 `
 
-type VoidInvoiceDialogProps = {
+type VoidInvoiceDialogData = {
   invoice?: InvoiceForVoidInvoiceDialogFragment | null
 }
 
-export interface VoidInvoiceDialogRef {
-  openDialog: (dialogData: VoidInvoiceDialogProps) => unknown
-  closeDialog: () => unknown
-}
-
-export const VoidInvoiceDialog = forwardRef<VoidInvoiceDialogRef>((_, ref) => {
-  const dialogRef = useRef<DialogRef>(null)
+export const useVoidInvoiceDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
-  const [dialogData, setDialogData] = useState<VoidInvoiceDialogProps | undefined>(undefined)
-
-  const invoice = dialogData?.invoice
 
   const [voidInvoice] = useVoidInvoiceMutation({
     onCompleted(data) {
@@ -82,29 +72,21 @@ export const VoidInvoiceDialog = forwardRef<VoidInvoiceDialogRef>((_, ref) => {
     refetchQueries: ['getCustomerCreditNotes'], // Refresh amounts in case the invoices containes some credits
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setDialogData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
-
-  return (
-    <WarningDialog
-      ref={dialogRef}
-      title={translate('text_65269b43d4d2b15dd929a0df', {
+  const openVoidInvoiceDialog = ({ invoice }: VoidInvoiceDialogData) => {
+    centralizedDialog.open({
+      title: translate('text_65269b43d4d2b15dd929a0df', {
         invoiceNumber: invoice?.number,
-      })}
-      description={translate('text_65269b43d4d2b15dd929a0e5')}
-      onContinue={async () =>
+      }),
+      description: translate('text_65269b43d4d2b15dd929a0e5'),
+      colorVariant: 'danger',
+      actionText: translate('text_65269b43d4d2b15dd929a259'),
+      onAction: async () => {
         await voidInvoice({
           variables: { input: { id: invoice?.id as string } },
         })
-      }
-      continueText={translate('text_65269b43d4d2b15dd929a259')}
-    />
-  )
-})
+      },
+    })
+  }
 
-VoidInvoiceDialog.displayName = 'VoidInvoiceDialog'
+  return { openVoidInvoiceDialog }
+}

@@ -25,7 +25,6 @@ import {
 } from '~/components/invoices/ResendInvoiceForCollectionDialog'
 import { getEmptyStateConfig } from '~/components/invoices/utils/emptyStateMapping'
 import { getMostRecentPaymentMethodId } from '~/components/invoices/utils/getMostRecentPaymentMethodId'
-import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   invoiceStatusMapping,
@@ -100,7 +99,6 @@ const InvoicesList = ({
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
-  const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const resendInvoiceForCollectionDialogRef = useRef<ResendInvoiceForCollectionDialogRef>(null)
 
   const [downloadInvoice] = useDownloadInvoiceItemMutation({
@@ -599,7 +597,6 @@ const InvoicesList = ({
       </InfiniteScroll>
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
       <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
     </div>
   )
