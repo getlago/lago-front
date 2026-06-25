@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.24
+# syntax=docker/dockerfile:1.25
 
 # --- deps stage: install node_modules only ---------------------------------
 FROM node:24.16.0-alpine AS deps
