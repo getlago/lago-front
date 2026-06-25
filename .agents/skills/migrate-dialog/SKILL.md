@@ -187,6 +187,30 @@ export const useMyDialog = () => {
 }
 ```
 
+**Which success signal to use in `handleSubmit`:**
+
+`FormDialog` only keeps the dialog open when `handleSubmit` **throws** (with `closeOnError: false`); returning any value closes it. So `handleSubmit` must throw on failure — the question is how it detects failure:
+
+- **`onSubmit` runs an operation that can fail _without throwing_** (e.g. a mutation that returns GraphQL errors instead of rejecting) → track success with a manual flag (`successRef`) set inside `onSubmit` only on real success, as shown above. `form.state.isSubmitSuccessful` can't see a soft failure — it's `true` whenever `onSubmit` didn't throw, even if the mutation returned errors.
+- **`onSubmit` has no failure mode beyond validation** (e.g. it just calls a callback — no mutation) → drop the `successRef` and read the built-in **`form.state.isSubmitSuccessful`** directly:
+
+```typescript
+const handleSubmit = async (): Promise<DialogResult> => {
+  await form.handleSubmit()
+
+  // isSubmitSuccessful: reset to false at the start of each submit, stays false if
+  // validation fails (onSubmit never runs), true only after onSubmit resolves
+  // without throwing. Throw to keep the dialog open (closeOnError: false).
+  if (!form.state.isSubmitSuccessful) {
+    throw new Error('Submit failed')
+  }
+
+  return { reason: 'success' }
+}
+```
+
+Do **not** drop `validationLogic` to "simplify" — without `revalidateLogic()` the `onDynamic` validator never runs and the schema is silently skipped. Keep `revalidateLogic()` (the default, submit-first); do not use `revalidateLogic({ mode: 'change' })` unless a field genuinely needs live validation feedback.
+
 **New Pattern (hook-based with CentralizedDialog):**
 
 ```typescript
