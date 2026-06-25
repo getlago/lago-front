@@ -16,7 +16,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useQuote } from './hooks/useQuote'
 import { useQuoteVersionActions } from './hooks/useQuoteVersionActions'
 import OrderFormsList from './OrderFormsList'
-import QuoteDetailsActivityLogs from './QuoteDetailsActivityLogs'
 import QuoteDetailsVersions from './QuoteDetailsVersions'
 
 const QuoteDetails = (): JSX.Element => {
@@ -91,14 +90,6 @@ const QuoteDetails = (): JSX.Element => {
               tab: QuoteDetailsTabsOptionsEnum.orderForms,
             }),
             content: <OrderFormsList quoteNumber={quote?.number} />,
-          },
-          {
-            title: translate('text_1747314141347qq6rasuxisl'),
-            link: generatePath(QUOTE_DETAILS_ROUTE, {
-              quoteId: quoteId as string,
-              tab: QuoteDetailsTabsOptionsEnum.activityLogs,
-            }),
-            content: <QuoteDetailsActivityLogs />,
           },
         ]}
       />
