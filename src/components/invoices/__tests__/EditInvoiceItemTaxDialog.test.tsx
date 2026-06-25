@@ -1,6 +1,6 @@
-import { act, renderHook } from '@testing-library/react'
+import { act, renderHook, screen } from '@testing-library/react'
 
-import { AllTheProviders } from '~/test-utils'
+import { AllTheProviders, render } from '~/test-utils'
 
 import {
   EDIT_INVOICE_ITEM_TAX_FORM_ID,
@@ -20,6 +20,14 @@ jest.mock('~/components/dialogs/FormDialog', () => ({
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
+}))
+
+jest.mock('~/generated/graphql', () => ({
+  ...jest.requireActual('~/generated/graphql'),
+  useGetTaxesForInvoiceEditTaxDialogQuery: () => ({
+    data: { taxes: { collection: [] } },
+    loading: false,
+  }),
 }))
 
 const TAX = { id: 'tax-1', name: 'VAT', rate: 20, code: 'vat' }
@@ -157,11 +165,19 @@ describe('useEditInvoiceItemTaxDialog', () => {
     })
 
     describe('WHEN a tax row has no id', () => {
-      it('THEN should not invoke the callback', async () => {
+      it('THEN should not invoke the callback and should throw to keep the dialog open', async () => {
         const callback = jest.fn()
+        let submitThrew = false
 
+        // Mirror FormDialog's handleContinue: it wraps form.submit() in try/catch,
+        // and with closeOnError: false a throw keeps the dialog open.
         mockFormDialogOpen.mockImplementation(async (config) => {
-          await config.form.submit()
+          try {
+            await config.form.submit()
+          } catch {
+            submitThrew = true
+          }
+
           return { reason: 'close' }
         })
 
@@ -174,6 +190,48 @@ describe('useEditInvoiceItemTaxDialog', () => {
         })
 
         expect(callback).not.toHaveBeenCalled()
+        expect(submitThrew).toBe(true)
+      })
+    })
+
+    describe('WHEN submitting with an empty tax row', () => {
+      it('THEN should surface the validation error message on that row', async () => {
+        let captured!: {
+          children: React.ReactElement
+          form: { submit: () => Promise<unknown> }
+        }
+
+        // Pending promise: the dialog stays "open", so the close-cleanup (form.reset)
+        // never runs and the form keeps the [{}] row we want to assert on.
+        mockFormDialogOpen.mockImplementation((config) => {
+          captured = config
+
+          return new Promise(() => {})
+        })
+
+        const { result } = renderHook(() => useEditInvoiceItemTaxDialog(), {
+          wrapper: customWrapper,
+        })
+
+        await act(async () => {
+          result.current.openEditInvoiceItemTaxDialog({ taxes: invalidTaxes, callback: jest.fn() })
+        })
+
+        // Render the dialog body (bound to the same form instance) to assert on the UI.
+        render(captured.children)
+
+        // No error before a submit attempt (submit-first behaviour).
+        expect(screen.queryByText('text_1782385268545ex9rk4gx0rf')).not.toBeInTheDocument()
+
+        await act(async () => {
+          try {
+            await captured.form.submit()
+          } catch {
+            // handleSubmit throws on invalid input to keep the dialog open.
+          }
+        })
+
+        expect(screen.getByText('text_1782385268545ex9rk4gx0rf')).toBeInTheDocument()
       })
     })
   })

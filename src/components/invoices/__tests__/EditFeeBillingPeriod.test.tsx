@@ -3,9 +3,9 @@ import { act, renderHook } from '@testing-library/react'
 import { AllTheProviders } from '~/test-utils'
 
 import {
-  EDIT_INVOICE_ITEM_DESCRIPTION_FORM_ID,
-  useEditInvoiceItemDescriptionDialog,
-} from '../EditInvoiceItemDescriptionDialog'
+  EDIT_FEE_BILLING_PERIOD_FORM_ID,
+  useEditFeeBillingPeriodDialog,
+} from '../EditFeeBillingPeriod'
 
 const mockFormDialogOpen = jest.fn()
 
@@ -21,7 +21,10 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
-describe('useEditInvoiceItemDescriptionDialog', () => {
+const FROM_DATETIME = '2024-01-01T00:00:00.000Z'
+const TO_DATETIME = '2024-01-31T23:59:59.999Z'
+
+describe('useEditFeeBillingPeriodDialog', () => {
   const customWrapper = ({ children }: { children: React.ReactNode }) =>
     AllTheProviders({ children })
 
@@ -32,26 +35,27 @@ describe('useEditInvoiceItemDescriptionDialog', () => {
 
   describe('GIVEN the hook is initialized', () => {
     describe('WHEN rendered', () => {
-      it('THEN should return openEditInvoiceItemDescriptionDialog function', () => {
-        const { result } = renderHook(() => useEditInvoiceItemDescriptionDialog(), {
+      it('THEN should return openEditFeeBillingPeriodDialog function', () => {
+        const { result } = renderHook(() => useEditFeeBillingPeriodDialog(), {
           wrapper: customWrapper,
         })
 
-        expect(typeof result.current.openEditInvoiceItemDescriptionDialog).toBe('function')
+        expect(typeof result.current.openEditFeeBillingPeriodDialog).toBe('function')
       })
     })
   })
 
-  describe('GIVEN openEditInvoiceItemDescriptionDialog is called', () => {
+  describe('GIVEN openEditFeeBillingPeriodDialog is called', () => {
     describe('WHEN opening the dialog', () => {
       it('THEN should call formDialog.open once', () => {
-        const { result } = renderHook(() => useEditInvoiceItemDescriptionDialog(), {
+        const { result } = renderHook(() => useEditFeeBillingPeriodDialog(), {
           wrapper: customWrapper,
         })
 
         act(() => {
-          result.current.openEditInvoiceItemDescriptionDialog({
-            description: 'A description',
+          result.current.openEditFeeBillingPeriodDialog({
+            fromDatetime: FROM_DATETIME,
+            toDatetime: TO_DATETIME,
             callback: jest.fn(),
           })
         })
@@ -59,34 +63,23 @@ describe('useEditInvoiceItemDescriptionDialog', () => {
         expect(mockFormDialogOpen).toHaveBeenCalledTimes(1)
       })
 
-      it('THEN should include closeOnError false', () => {
-        const { result } = renderHook(() => useEditInvoiceItemDescriptionDialog(), {
+      it.each([
+        ['closeOnError', false],
+        ['cancelOrCloseText', 'cancel'],
+      ])('THEN should pass %s', (prop, expected) => {
+        const { result } = renderHook(() => useEditFeeBillingPeriodDialog(), {
           wrapper: customWrapper,
         })
 
         act(() => {
-          result.current.openEditInvoiceItemDescriptionDialog({
-            description: 'A description',
+          result.current.openEditFeeBillingPeriodDialog({
+            fromDatetime: FROM_DATETIME,
+            toDatetime: TO_DATETIME,
             callback: jest.fn(),
           })
         })
 
-        expect(mockFormDialogOpen.mock.calls[0][0].closeOnError).toBe(false)
-      })
-
-      it('THEN should pass cancelOrCloseText as cancel', () => {
-        const { result } = renderHook(() => useEditInvoiceItemDescriptionDialog(), {
-          wrapper: customWrapper,
-        })
-
-        act(() => {
-          result.current.openEditInvoiceItemDescriptionDialog({
-            description: 'A description',
-            callback: jest.fn(),
-          })
-        })
-
-        expect(mockFormDialogOpen.mock.calls[0][0].cancelOrCloseText).toBe('cancel')
+        expect(mockFormDialogOpen.mock.calls[0][0][prop]).toBe(expected)
       })
 
       it.each([
@@ -95,13 +88,14 @@ describe('useEditInvoiceItemDescriptionDialog', () => {
         ['children', 'object'],
         ['mainAction', 'object'],
       ])('THEN should include %s', (prop, expectedType) => {
-        const { result } = renderHook(() => useEditInvoiceItemDescriptionDialog(), {
+        const { result } = renderHook(() => useEditFeeBillingPeriodDialog(), {
           wrapper: customWrapper,
         })
 
         act(() => {
-          result.current.openEditInvoiceItemDescriptionDialog({
-            description: 'A description',
+          result.current.openEditFeeBillingPeriodDialog({
+            fromDatetime: FROM_DATETIME,
+            toDatetime: TO_DATETIME,
             callback: jest.fn(),
           })
         })
@@ -113,28 +107,29 @@ describe('useEditInvoiceItemDescriptionDialog', () => {
       })
 
       it('THEN should include form with the expected id and a submit function', () => {
-        const { result } = renderHook(() => useEditInvoiceItemDescriptionDialog(), {
+        const { result } = renderHook(() => useEditFeeBillingPeriodDialog(), {
           wrapper: customWrapper,
         })
 
         act(() => {
-          result.current.openEditInvoiceItemDescriptionDialog({
-            description: 'A description',
+          result.current.openEditFeeBillingPeriodDialog({
+            fromDatetime: FROM_DATETIME,
+            toDatetime: TO_DATETIME,
             callback: jest.fn(),
           })
         })
 
         const callArgs = mockFormDialogOpen.mock.calls[0][0]
 
-        expect(callArgs.form.id).toBe(EDIT_INVOICE_ITEM_DESCRIPTION_FORM_ID)
+        expect(callArgs.form.id).toBe(EDIT_FEE_BILLING_PERIOD_FORM_ID)
         expect(typeof callArgs.form.submit).toBe('function')
       })
     })
   })
 
   describe('GIVEN the form is submitted', () => {
-    describe('WHEN a description is provided', () => {
-      it('THEN should invoke the callback with that description', async () => {
+    describe('WHEN the billing period is valid', () => {
+      it('THEN should invoke the callback with the from and to datetimes', async () => {
         const callback = jest.fn()
 
         mockFormDialogOpen.mockImplementation(async (config) => {
@@ -142,22 +137,23 @@ describe('useEditInvoiceItemDescriptionDialog', () => {
           return { reason: 'success' }
         })
 
-        const { result } = renderHook(() => useEditInvoiceItemDescriptionDialog(), {
+        const { result } = renderHook(() => useEditFeeBillingPeriodDialog(), {
           wrapper: customWrapper,
         })
 
         await act(async () => {
-          result.current.openEditInvoiceItemDescriptionDialog({
-            description: 'A description',
+          result.current.openEditFeeBillingPeriodDialog({
+            fromDatetime: FROM_DATETIME,
+            toDatetime: TO_DATETIME,
             callback,
           })
         })
 
-        expect(callback).toHaveBeenCalledWith('A description')
+        expect(callback).toHaveBeenCalledWith(FROM_DATETIME, TO_DATETIME)
       })
     })
 
-    describe('WHEN the description exceeds the max length', () => {
+    describe('WHEN the to datetime is before the from datetime', () => {
       it('THEN should not invoke the callback and should throw to keep the dialog open', async () => {
         const callback = jest.fn()
         let submitThrew = false
@@ -174,13 +170,14 @@ describe('useEditInvoiceItemDescriptionDialog', () => {
           return { reason: 'close' }
         })
 
-        const { result } = renderHook(() => useEditInvoiceItemDescriptionDialog(), {
+        const { result } = renderHook(() => useEditFeeBillingPeriodDialog(), {
           wrapper: customWrapper,
         })
 
         await act(async () => {
-          result.current.openEditInvoiceItemDescriptionDialog({
-            description: 'a'.repeat(256),
+          result.current.openEditFeeBillingPeriodDialog({
+            fromDatetime: TO_DATETIME,
+            toDatetime: FROM_DATETIME,
             callback,
           })
         })
@@ -198,13 +195,14 @@ describe('useEditInvoiceItemDescriptionDialog', () => {
 
         mockFormDialogOpen.mockResolvedValue({ reason: 'close' })
 
-        const { result } = renderHook(() => useEditInvoiceItemDescriptionDialog(), {
+        const { result } = renderHook(() => useEditFeeBillingPeriodDialog(), {
           wrapper: customWrapper,
         })
 
         await act(async () => {
-          result.current.openEditInvoiceItemDescriptionDialog({
-            description: 'A description',
+          result.current.openEditFeeBillingPeriodDialog({
+            fromDatetime: FROM_DATETIME,
+            toDatetime: TO_DATETIME,
             callback,
           })
         })

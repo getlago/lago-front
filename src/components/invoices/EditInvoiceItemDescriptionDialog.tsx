@@ -29,7 +29,7 @@ export const useEditInvoiceItemDescriptionDialog = () => {
     defaultValues: {
       description: '',
     },
-    validationLogic: revalidateLogic({ mode: 'change' }),
+    validationLogic: revalidateLogic(),
     validators: {
       onDynamic: editInvoiceItemDescriptionValidationSchema,
     },
@@ -42,6 +42,13 @@ export const useEditInvoiceItemDescriptionDialog = () => {
 
   const handleSubmit = async (): Promise<DialogResult> => {
     await form.handleSubmit()
+
+    // On validation error onSubmit never runs and isSubmitSuccessful stays false:
+    // throw to keep the dialog open (closeOnError: false swallows the error, inline
+    // field errors stay visible). Returning a result would let FormDialog close it.
+    if (!form.state.isSubmitSuccessful) {
+      throw new Error('Submit failed')
+    }
 
     return { reason: 'success' }
   }
