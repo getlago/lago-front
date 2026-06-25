@@ -1,0 +1,73 @@
+import { FetchMoreQueryOptions, gql, OperationVariables } from '@apollo/client'
+
+import {
+  GetOrdersQuery,
+  GetOrdersQueryVariables,
+  OrderListItemFragment,
+  useGetOrdersQuery,
+} from '~/generated/graphql'
+
+gql`
+  fragment OrderListItem on Order {
+    id
+    number
+    status
+    executionMode
+    executedAt
+    orderForm {
+      id
+      number
+      quote {
+        id
+        number
+      }
+    }
+  }
+
+  query getOrders($page: Int, $limit: Int, $quoteNumber: [String!]) {
+    orders(page: $page, limit: $limit, quoteNumber: $quoteNumber) {
+      metadata {
+        currentPage
+        totalPages
+        totalCount
+      }
+      collection {
+        ...OrderListItem
+      }
+    }
+  }
+`
+
+interface UseOrdersReturn {
+  orders: OrderListItemFragment[]
+  metadata: GetOrdersQuery['orders']['metadata'] | undefined
+  loading: boolean
+  error: Error | undefined
+  fetchMore:
+    | ((
+        fetchMoreOptions: FetchMoreQueryOptions<OperationVariables, GetOrdersQuery>,
+      ) => Promise<unknown>)
+    | undefined
+}
+
+export const useOrders = (
+  variables?: Omit<GetOrdersQueryVariables, 'limit' | 'page'>,
+): UseOrdersReturn => {
+  const { data, loading, error, fetchMore } = useGetOrdersQuery({
+    variables: {
+      limit: 20,
+      ...variables,
+    },
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
+  })
+
+  return {
+    orders: data?.orders?.collection || [],
+    metadata: data?.orders?.metadata,
+    loading,
+    error,
+    fetchMore,
+  }
+}
