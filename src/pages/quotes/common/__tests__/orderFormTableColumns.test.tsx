@@ -33,7 +33,7 @@ describe('orderFormStatusColumn', () => {
           number: 'OF-001',
           status: OrderFormStatusEnum.Generated,
           createdAt: '2026-04-10T10:00:00Z',
-          customer: { id: 'c-1', name: 'Test Customer', displayName: 'Test Customer' },
+          customer: { id: 'c-1', displayName: 'Test Customer' },
           quote: { id: 'q-1', number: 'QUO-001', currentVersion: { id: 'qv-1', version: 1 } },
         })
 
@@ -58,7 +58,7 @@ describe('orderFormStatusColumn', () => {
           number: 'OF-001',
           status,
           createdAt: '2026-04-10T10:00:00Z',
-          customer: { id: 'c-1', name: 'Test Customer', displayName: 'Test Customer' },
+          customer: { id: 'c-1', displayName: 'Test Customer' },
           quote: { id: 'q-1', number: 'QUO-001', currentVersion: { id: 'qv-1', version: 1 } },
         })
 
@@ -113,7 +113,7 @@ describe('orderFormCreatedAtColumn', () => {
           number: 'OF-001',
           status: OrderFormStatusEnum.Generated,
           createdAt: '2026-04-10T10:00:00Z',
-          customer: { id: 'c-1', name: 'Test Customer', displayName: 'Test Customer' },
+          customer: { id: 'c-1', displayName: 'Test Customer' },
           quote: { id: 'q-1', number: 'QUO-001', currentVersion: { id: 'qv-1', version: 1 } },
         })
 

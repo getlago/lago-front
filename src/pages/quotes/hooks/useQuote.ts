@@ -28,7 +28,6 @@ gql`
     createdAt
     customer {
       id
-      name
       displayName
       externalId
       netPaymentTerm

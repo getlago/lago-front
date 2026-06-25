@@ -16,7 +16,6 @@ gql`
     expiresAt
     customer {
       id
-      name
       displayName
       ...QuotePreviewCustomer
     }

@@ -20,7 +20,6 @@ gql`
     createdAt
     customer {
       id
-      name
       displayName
     }
   }

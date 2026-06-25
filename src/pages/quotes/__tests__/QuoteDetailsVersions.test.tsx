@@ -57,7 +57,6 @@ const mockQuote: QuoteDetailItemFragment = {
   createdAt: '2026-04-09T15:00:00Z',
   customer: {
     id: 'customer-001',
-    name: 'Acme Corp',
     displayName: 'Acme Corp',
     externalId: 'ext-acme-001',
     currency: null,
