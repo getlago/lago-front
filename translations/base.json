@@ -4354,5 +4354,7 @@
   "text_17818008544903clzyy4ziu1": "Quote #{{quoteNumberWithVersion}}",
   "text_1781869435540pqqpg9kc005": "Set a future date to automatically execute the order on that day. If no date is set, the order must be executed manually.",
   "text_1781872376833n9vthkte11e": "Order form valid until (optional)",
-  "text_1781874334924qwjnv1swbo2": "Valid until: {{date}}"
+  "text_1781874334924qwjnv1swbo2": "Valid until: {{date}}",
+  "text_1782378031093sfjoizk5vap": "This customer is linked to an entity using Lago EU Tax Management. Changing the billing entity may change how taxes are calculated on future invoices.",
+  "text_1782378031093gnp1nv78zfv": "The selected billing entity uses Lago EU Tax Management. Switching to it may change how taxes are calculated on future invoices."
 }
