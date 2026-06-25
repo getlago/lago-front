@@ -34,11 +34,6 @@ jest.mock('../QuoteDetailsVersions', () => ({
   default: () => null,
 }))
 
-jest.mock('../QuoteDetailsActivityLogs', () => ({
-  __esModule: true,
-  default: () => null,
-}))
-
 jest.mock('../OrderFormsList', () => ({
   __esModule: true,
   default: () => null,
@@ -141,12 +136,12 @@ describe('QuoteDetails', () => {
         expect(config.entity.metadata).toContain('ext-acme-001')
       })
 
-      it('THEN should configure MainHeader with three tabs', () => {
+      it('THEN should configure MainHeader with two tabs', () => {
         render(<QuoteDetails />)
 
         const config = mockMainHeaderConfigure.mock.calls[0][0]
 
-        expect(config.tabs).toHaveLength(3)
+        expect(config.tabs).toHaveLength(2)
       })
 
       it('THEN should have the first tab linking to overview', () => {
@@ -163,14 +158,6 @@ describe('QuoteDetails', () => {
         const config = mockMainHeaderConfigure.mock.calls[0][0]
 
         expect(config.tabs[1].link).toBe('/quote/quote-draft-001/order-forms')
-      })
-
-      it('THEN should have Activity logs as the third tab', () => {
-        render(<QuoteDetails />)
-
-        const config = mockMainHeaderConfigure.mock.calls[0][0]
-
-        expect(config.tabs[2].link).toBe('/quote/quote-draft-001/activity-logs')
       })
     })
 
