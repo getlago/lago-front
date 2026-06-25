@@ -45,8 +45,15 @@ const getScrollParent = (element: HTMLElement): HTMLElement => {
 }
 
 /**
- * Opens a target accordion (if collapsed), then smooth-scrolls it to the top of the
- * scroll container (respecting its `scroll-margin-top`) and focuses it.
+ * Opens a target accordion (if collapsed), then scrolls it to the top of the scroll
+ * container (respecting its `scroll-margin-top`) and focuses it.
+ *
+ * `behavior` defaults to `'smooth'`. Pass `'auto'` (instant) when the scroll path crosses
+ * a VIRTUALIZED list (the usage-charge list on large plans): a smooth scroll animates over
+ * many frames, and during those frames the virtualizer re-measures rows and issues its own
+ * scroll adjustments that interrupt and derail the animation - it can land mid-list or snap
+ * to the top. An instant scroll lands in a single frame, leaving no window to interrupt.
+ * Small (non-virtualized) plans keep the smooth scroll.
  *
  * To keep the scroll snappy AND accurate, the open is made instant entirely from here —
  * no CSS class / theme rule (MUI rewrites the accordion's className on the open re-render,
@@ -65,8 +72,12 @@ const getScrollParent = (element: HTMLElement): HTMLElement => {
  * summary, so this degrades to a plain smooth scroll (settles immediately).
  *
  * @param id - The id of the element to scroll to and (when it's an accordion) open
+ * @param behavior - Scroll behavior; `'smooth'` (default) or `'auto'` (instant)
  */
-export const openAccordionThenScrollTo = (id: string): void => {
+export const openAccordionThenScrollTo = (
+  id: string,
+  behavior: ScrollBehavior = 'smooth',
+): void => {
   const target = document.getElementById(id)
 
   if (!target) return
@@ -121,11 +132,13 @@ export const openAccordionThenScrollTo = (id: string): void => {
 
     // Scroll once the opened height is in place (height stable) or the cap is hit.
     if (stableFrames >= 2 || elapsedFrames >= SCROLL_SETTLE_MAX_FRAMES) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      // Caller picks the behavior: instant when crossing a virtualized list (a smooth
+      // animation gets derailed by the list's own scroll adjustments), smooth otherwise.
+      target.scrollIntoView({ behavior, block: 'start' })
       // preventScroll so the focus doesn't fight the scroll; focusVisible forces the
       // existing `focus-visible:ring` to show on this programmatic focus.
       summary?.focus({ preventScroll: true, focusVisible: true })
-      // Hand the inline styles back after the smooth scroll so user toggles animate again.
+      // Hand the inline styles back after the scroll so user toggles animate again.
       setTimeout(restore, RESTORE_COLLAPSE_ANIM_DELAY_MS)
 
       return

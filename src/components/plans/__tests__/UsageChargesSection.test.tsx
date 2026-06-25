@@ -63,6 +63,27 @@ jest.mock('~/core/apolloClient/reactiveVars/duplicatePlanVar', () => ({
   useDuplicatePlanVar: () => ({ type: '' }),
 }))
 
+// jsdom has no layout; stub the virtualizer to yield every row so the virtualized
+// branch is exercised. The plain (<= threshold) branch ignores it.
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getTotalSize: () => count * 76,
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, index) => ({ index, start: index * 76, key: index })),
+    measureElement: () => {},
+  }),
+}))
+
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+beforeAll(() => {
+  global.ResizeObserver = ResizeObserverMock
+})
+
 // --- Helpers ---
 
 const createMockCharge = (overrides: Partial<LocalUsageChargeInput> = {}): LocalUsageChargeInput =>
@@ -196,6 +217,45 @@ describe('UsageChargesSection', () => {
           initialCharge: undefined,
           isUsedInSubscription: false,
         })
+      })
+    })
+  })
+
+  describe('GIVEN the charge list crosses the virtualization threshold', () => {
+    const buildCharges = (count: number) =>
+      Array.from({ length: count }, (_, i) =>
+        createMockCharge({
+          id: `charge-${i}`,
+          billableMetric: {
+            id: `bm-${i}`,
+            name: `Metric ${i}`,
+            code: `metric_${i}`,
+            aggregationType: AggregationTypeEnum.CountAgg,
+            recurring: false,
+            filters: [],
+          },
+        } as Partial<LocalUsageChargeInput>),
+      )
+
+    describe('WHEN there are more charges than the threshold', () => {
+      it('THEN should render the charge list through the virtualized path', () => {
+        const form = createForm({ charges: buildCharges(51) })
+
+        const { container } = render(<UsageChargesSection form={form} isEdition={false} />)
+
+        // Virtualized rows carry data-index inside the positioned spacer.
+        expect(container.querySelector('[data-index="0"]')).not.toBeNull()
+      })
+    })
+
+    describe('WHEN there are at or below the threshold', () => {
+      it('THEN should render the charge list as a plain list (no virtual rows)', () => {
+        const form = createForm({ charges: buildCharges(3) })
+
+        const { container } = render(<UsageChargesSection form={form} isEdition={false} />)
+
+        expect(container.querySelector('[data-index]')).toBeNull()
+        expect(screen.getByTestId('usage-charge-selector-0')).toBeInTheDocument()
       })
     })
   })

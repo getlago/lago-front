@@ -5,7 +5,6 @@ import { BreakdownNameCell } from '~/components/customers/usage/sections/Breakdo
 import { PresentationBreakdownRow } from '~/components/customers/usage/usageDetailsHelpers'
 import { Typography } from '~/components/designSystem/Typography'
 
-export const VIRTUALIZATION_THRESHOLD = 50
 const BREAKDOWN_ROW_HEIGHT = 48
 const MAX_VIRTUAL_LIST_HEIGHT = 440
 

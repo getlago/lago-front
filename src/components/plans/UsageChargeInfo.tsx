@@ -1,6 +1,9 @@
+import { useState } from 'react'
+
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Typography } from '~/components/designSystem/Typography'
+import { VirtualFilterList } from '~/components/designSystem/VirtualList/VirtualFilterList'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PlanDetailsChargeWrapperSwitch } from '~/components/plans/details/PlanDetailsChargeWrapperSwitch'
 import PlanDetailsPresentationGroupKeys from '~/components/plans/details/PlanDetailsPresentationGroupKeys'
@@ -65,6 +68,20 @@ export const UsageChargeInfo = ({
 }: UsageChargeInfoProps) => {
   const { translate } = useInternationalization()
   const isAnnual = isPlanIntervalAnnual(planInterval ?? undefined)
+
+  // Filter index is safe as a key here because this is a read-only details view where filters
+  // are never reordered or spliced; a mutable context would need a stable id instead.
+  const [openFilterIndexes, setOpenFilterIndexes] = useState<Set<number>>(() => new Set())
+
+  const toggleFilterOpen = (index: number, open: boolean) =>
+    setOpenFilterIndexes((current) => {
+      const next = new Set(current)
+
+      if (open) next.add(index)
+      else next.delete(index)
+
+      return next
+    })
   const chargeTaxes = charge.taxes?.length ? charge.taxes : null
   const fallbackTaxes = planTaxes?.length ? planTaxes : null
   const taxesApplied = chargeTaxes ?? fallbackTaxes
@@ -166,30 +183,40 @@ export const UsageChargeInfo = ({
           />
         </ConditionalWrapper>
 
-        {charge.filters?.map((filter, i) => {
-          const fallbackName = composeChargeFilterDisplayName({
-            ...filter,
-            values: filter.values as Record<string, string[]>,
-          })
+        {!!charge.filters?.length && (
+          <VirtualFilterList
+            className="flex flex-col gap-4"
+            gap={16}
+            items={charge.filters}
+            estimateItemHeight={72}
+            getItemKey={(_filter, index) => `usage-charge-info-${charge.id}-filter-${index}`}
+            renderItem={(filter, i) => {
+              const fallbackName = composeChargeFilterDisplayName({
+                ...filter,
+                values: filter.values as Record<string, string[]>,
+              })
 
-          return (
-            <Accordion
-              key={`usage-charge-info-${charge.id}-filter-${i}`}
-              summary={
-                <Typography noWrap variant="bodyHl" color="grey700">
-                  {filter.invoiceDisplayName || fallbackName}
-                </Typography>
-              }
-            >
-              <PlanDetailsChargeWrapperSwitch
-                currency={currency}
-                chargeModel={charge.chargeModel}
-                values={filter.properties}
-                chargeAppliedPricingUnit={charge.appliedPricingUnit}
-              />
-            </Accordion>
-          )
-        })}
+              return (
+                <Accordion
+                  isOpen={openFilterIndexes.has(i)}
+                  onToggle={(open) => toggleFilterOpen(i, open)}
+                  summary={
+                    <Typography noWrap variant="bodyHl" color="grey700">
+                      {filter.invoiceDisplayName || fallbackName}
+                    </Typography>
+                  }
+                >
+                  <PlanDetailsChargeWrapperSwitch
+                    currency={currency}
+                    chargeModel={charge.chargeModel}
+                    values={filter.properties}
+                    chargeAppliedPricingUnit={charge.appliedPricingUnit}
+                  />
+                </Accordion>
+              )
+            }}
+          />
+        )}
       </section>
 
       <div className="px-4 pb-4">

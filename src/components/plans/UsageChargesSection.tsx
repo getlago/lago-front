@@ -6,6 +6,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Tooltip } from '~/components/designSystem/Tooltip'
+import { VirtualFilterList } from '~/components/designSystem/VirtualList/VirtualFilterList'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
   UsageChargeDrawer,
@@ -185,11 +186,14 @@ export const UsageChargesSection = ({
         />
 
         {!!hasAnyCharge && (
-          <div className="flex flex-col gap-4">
-            {charges.map((charge, i) => {
-              return renderChargeSelector(charge, i)
-            })}
-          </div>
+          <VirtualFilterList
+            className="flex flex-col gap-4"
+            gap={16}
+            items={charges}
+            estimateItemHeight={76}
+            getItemKey={(charge, i) => `usage-charge-${charge.billableMetric.id}-${i}`}
+            renderItem={(charge, i) => renderChargeSelector(charge, i)}
+          />
         )}
 
         {/* Single add button at the bottom */}

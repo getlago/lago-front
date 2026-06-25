@@ -51,6 +51,28 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (k: string) => k }),
 }))
 
+// jsdom has no layout, so stub the virtualizer to yield every row. The plain
+// (<= threshold) branch ignores it, so the existing tests are unaffected.
+const mockScrollToIndex = jest.fn()
+
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getTotalSize: () => count * 98,
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, index) => ({ index, start: index * 98, key: index })),
+    measureElement: () => {},
+    scrollToIndex: mockScrollToIndex,
+  }),
+}))
+
+// Lazy wrapper so the factory doesn't touch the const before it initializes.
+const mockOpenAccordionThenScrollTo = jest.fn()
+
+jest.mock('~/core/utils/domUtils', () => ({
+  ...jest.requireActual('~/core/utils/domUtils'),
+  openAccordionThenScrollTo: (...args: unknown[]) => mockOpenAccordionThenScrollTo(...args),
+}))
+
 const Wrapper = ({ children }: { children: ReactNode }) => (
   <MockedProvider mocks={[]} addTypename={false}>
     <NiceModal.Provider>{children}</NiceModal.Provider>
@@ -64,6 +86,8 @@ describe('PlanDetailsV2UsageChargesSection', () => {
     mockHandleSaveCharge.mockClear()
     mockHandleDeleteCharge.mockClear()
     mockHasPermissions.mockReset().mockReturnValue(true)
+    mockScrollToIndex.mockClear()
+    mockOpenAccordionThenScrollTo.mockClear()
   })
 
   it('renders the empty-state helper when plan has no usage charges', () => {
@@ -377,5 +401,82 @@ describe('PlanDetailsV2UsageChargesSection', () => {
     )
     ref.current?.openCreate()
     await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
+  })
+
+  describe('charge-list virtualization', () => {
+    const buildCharges = (count: number) =>
+      Array.from({ length: count }, (_, i) => buildUsageChargeFixture({ id: `ch_${i}` }))
+
+    const planWith = (count: number) => ({ ...planDetailsV2Fixture, charges: buildCharges(count) })
+
+    it('renders the charge list through the virtualized path above the threshold', () => {
+      const { container } = render(
+        <PlanDetailsV2UsageChargesSection plan={planWith(51)} chargeMutations={chargeMutations} />,
+        { wrapper: Wrapper },
+      )
+
+      // Virtualized rows carry data-index inside the positioned spacer.
+      expect(container.querySelector('[data-index="0"]')).not.toBeNull()
+    })
+
+    it('renders the charge list as a plain list at or below the threshold', () => {
+      const { container } = render(
+        <PlanDetailsV2UsageChargesSection plan={planWith(3)} chargeMutations={chargeMutations} />,
+        { wrapper: Wrapper },
+      )
+
+      expect(container.querySelector('[data-index]')).toBeNull()
+    })
+
+    it('drops the off-screen content-visibility on cards only when virtualized', () => {
+      const virtualized = render(
+        <PlanDetailsV2UsageChargesSection plan={planWith(51)} chargeMutations={chargeMutations} />,
+        { wrapper: Wrapper },
+      )
+
+      expect(virtualized.container.querySelector('[class*="content-visibility"]')).toBeNull()
+
+      const plain = render(
+        <PlanDetailsV2UsageChargesSection plan={planWith(3)} chargeMutations={chargeMutations} />,
+        { wrapper: Wrapper },
+      )
+
+      expect(plain.container.querySelector('[class*="content-visibility"]')).not.toBeNull()
+    })
+
+    it('scrollToCharge drives the virtualizer to the charge index when virtualized', () => {
+      const ref = createRef<PlanDetailsV2UsageChargesSectionRef>()
+
+      render(
+        <PlanDetailsV2UsageChargesSection
+          ref={ref}
+          plan={planWith(51)}
+          chargeMutations={chargeMutations}
+        />,
+        { wrapper: Wrapper },
+      )
+
+      ref.current?.scrollToCharge('ch_5')
+
+      expect(mockScrollToIndex).toHaveBeenCalledWith(5, { align: 'start' })
+    })
+
+    it('scrollToCharge falls back to openAccordionThenScrollTo when not virtualized', () => {
+      const ref = createRef<PlanDetailsV2UsageChargesSectionRef>()
+
+      render(
+        <PlanDetailsV2UsageChargesSection
+          ref={ref}
+          plan={planWith(3)}
+          chargeMutations={chargeMutations}
+        />,
+        { wrapper: Wrapper },
+      )
+
+      ref.current?.scrollToCharge('ch_1')
+
+      expect(mockOpenAccordionThenScrollTo).toHaveBeenCalledWith('ch_1')
+      expect(mockScrollToIndex).not.toHaveBeenCalled()
+    })
   })
 })

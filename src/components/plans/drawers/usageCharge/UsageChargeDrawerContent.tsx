@@ -6,6 +6,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Card } from '~/components/designSystem/Card'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
+import { VirtualFilterList } from '~/components/designSystem/VirtualList/VirtualFilterList'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { DRAWER_TRANSITION_DURATION } from '~/components/drawers/const'
 import { useDrawer } from '~/components/drawers/useDrawer'
@@ -613,10 +614,14 @@ export const UsageChargeDrawerContent = withForm({
                 />
               )}
 
-              {/* Filter selectors */}
               {!!formValues.filters?.length && (
-                <div className="flex flex-col gap-4">
-                  {formValues.filters.map((filter, filterIndex) => {
+                <VirtualFilterList
+                  className="flex flex-col gap-4"
+                  gap={16}
+                  items={formValues.filters}
+                  estimateItemHeight={76}
+                  getItemKey={(_filter, filterIndex) => `filter-selector-${filterIndex}`}
+                  renderItem={(filter, filterIndex) => {
                     const displayValues = filter.values
                       .map((value: string) => {
                         try {
@@ -631,7 +636,6 @@ export const UsageChargeDrawerContent = withForm({
 
                     return (
                       <Selector
-                        key={`filter-selector-${filterIndex}`}
                         data-test={`filter-charge-selector-${filterIndex}`}
                         icon="filter"
                         title={
@@ -665,8 +669,8 @@ export const UsageChargeDrawerContent = withForm({
                         onClick={() => openFilterDrawer(filter, filterIndex)}
                       />
                     )
-                  })}
-                </div>
+                  }}
+                />
               )}
 
               {/* Add filter */}

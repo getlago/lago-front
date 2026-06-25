@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { render } from '~/test-utils'
@@ -342,6 +342,64 @@ describe('Accordion', () => {
       expect(screen.queryByText('Test Content')).not.toBeInTheDocument()
 
       jest.restoreAllMocks()
+    })
+  })
+
+  describe('Controlled mode', () => {
+    it('uses isOpen prop instead of internal state and calls onToggle', () => {
+      const onToggle = jest.fn()
+      const { rerender } = render(
+        <Accordion isOpen={false} onToggle={onToggle} summary={<span>Summary</span>}>
+          <span data-test="content">Content</span>
+        </Accordion>,
+      )
+
+      // unmountOnExit is true, so closed content is not in the DOM
+      expect(screen.queryByTestId('content')).not.toBeInTheDocument()
+
+      const summary = screen.getByText('Summary')
+
+      fireEvent.click(summary)
+      expect(onToggle).toHaveBeenCalledWith(true)
+
+      // Parent owns the state: re-render with isOpen=true to reflect it
+      rerender(
+        <Accordion isOpen onToggle={onToggle} summary={<span>Summary</span>}>
+          <span data-test="content">Content</span>
+        </Accordion>,
+      )
+      expect(screen.getByTestId('content')).toBeInTheDocument()
+    })
+
+    it('does not update internal state when controlled (isOpen prop controls visibility)', () => {
+      const onToggle = jest.fn()
+      render(
+        <Accordion isOpen={false} onToggle={onToggle} summary={<span>Summary</span>}>
+          <span data-test="content">Content</span>
+        </Accordion>,
+      )
+
+      expect(screen.queryByTestId('content')).not.toBeInTheDocument()
+
+      fireEvent.click(screen.getByText('Summary'))
+
+      // Even after click, content stays hidden because parent did not update isOpen
+      expect(screen.queryByTestId('content')).not.toBeInTheDocument()
+      expect(onToggle).toHaveBeenCalledWith(true)
+    })
+
+    it('calls onToggle with false when closing in controlled mode', () => {
+      const onToggle = jest.fn()
+      render(
+        <Accordion isOpen onToggle={onToggle} summary={<span>Summary</span>}>
+          <span data-test="content">Content</span>
+        </Accordion>,
+      )
+
+      expect(screen.getByTestId('content')).toBeInTheDocument()
+
+      fireEvent.click(screen.getByText('Summary'))
+      expect(onToggle).toHaveBeenCalledWith(false)
     })
   })
 

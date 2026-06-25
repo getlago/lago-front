@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
-import { ReactNode, useRef } from 'react'
+import { ReactNode, useMemo, useRef } from 'react'
 
+import { shouldVirtualizeList } from '~/components/designSystem/VirtualList/VirtualFilterList'
 import { openAccordionThenScrollTo } from '~/core/utils/domUtils'
 import {
   EntitlementForPlanDetailsSidebarFragmentDoc,
@@ -100,9 +101,29 @@ export const PlanDetailsV2 = ({
     subscriptionId,
   })
 
+  // Usage charges are virtualized: a scrolled-out charge is unmounted, so the
+  // generic getElementById path would no-op. Route those ids through the section's
+  // scrollToCharge (scrollToIndex + open), and keep the generic open-and-scroll for
+  // the always-mounted sections / fixed charges / entitlements.
+  const usageChargeIds = useMemo(
+    () => new Set((data?.plan?.charges ?? []).map((charge) => charge.id)),
+    [data?.plan?.charges],
+  )
+
+  // When the charge list is virtualized, the scroll path to a section below it crosses the
+  // virtualizer, whose mid-scroll re-measure adjustments derail a smooth animation (lands
+  // mid-list / snaps to top). Jump instantly in that case; keep smooth on small plans.
+  const chargesVirtualized = shouldVirtualizeList(data?.plan?.charges?.length ?? 0)
+
   // BIL-160: open the target accordion first, then scroll to + focus it.
   const handleItemClick = (id: string) => {
-    openAccordionThenScrollTo(id)
+    if (usageChargeIds.has(id)) {
+      usageChargesRef.current?.scrollToCharge(id)
+
+      return
+    }
+
+    openAccordionThenScrollTo(id, chargesVirtualized ? 'auto' : 'smooth')
   }
 
   const handleAddClick = (id: string) => {

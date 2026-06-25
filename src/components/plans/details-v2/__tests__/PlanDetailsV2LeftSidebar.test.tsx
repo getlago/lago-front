@@ -26,9 +26,38 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+// jsdom has no layout; stub the virtualizer to yield every row so the virtualized
+// branch is exercised. The plain (<= threshold) branch ignores it.
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getTotalSize: () => count * 36,
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, index) => ({ index, start: index * 36, key: index })),
+    measureElement: () => {},
+  }),
+}))
+
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+beforeAll(() => {
+  global.ResizeObserver = ResizeObserverMock
+})
+
 const renderSidebar = (
   props: Partial<React.ComponentProps<typeof PlanDetailsV2LeftSidebar>> = {},
 ) => render(<PlanDetailsV2LeftSidebar onItemClick={jest.fn()} {...props} />)
+
+const buildUsageCharges = (count: number) =>
+  Array.from({ length: count }, (_, i) => ({
+    id: `uc-${i}`,
+    invoiceDisplayName: `Usage charge ${i}`,
+    code: `usage_${i}`,
+    billableMetric: { id: `bm-${i}`, name: `Metric ${i}` },
+  }))
 
 describe('PlanDetailsV2LeftSidebar', () => {
   it('renders every root-level section (no "Advanced settings" folder)', () => {
@@ -223,6 +252,29 @@ describe('PlanDetailsV2LeftSidebar', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Seats feature' }))
 
       expect(onItemClick).toHaveBeenCalledWith('entitlement-seats')
+    })
+  })
+
+  describe('virtualization and viewport sizing', () => {
+    it('renders the expanded folder through the virtualized path above the threshold', async () => {
+      const { container } = renderSidebar({ usageCharges: buildUsageCharges(51) })
+
+      // Collapsed: only the ~7 section rows, below threshold -> plain (no virtual rows).
+      expect(container.querySelector('[data-index]')).toBeNull()
+
+      await userEvent.click(screen.getByTestId('sidebar-toggle-usage-charges'))
+
+      // Expanded: sections + 51 children cross the threshold -> virtualized rows appear.
+      expect(container.querySelector('[data-index="0"]')).not.toBeNull()
+    })
+
+    it('sizes the nav height to the visible viewport (innerHeight - nav top)', () => {
+      renderSidebar()
+
+      const nav = screen.getByRole('navigation', { name: /plan sections/i })
+
+      // jsdom getBoundingClientRect().top is 0, so maxHeight resolves to innerHeight.
+      expect(nav.style.maxHeight).toBe(`${window.innerHeight}px`)
     })
   })
 })

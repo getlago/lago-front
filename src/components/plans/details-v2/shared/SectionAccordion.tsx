@@ -1,3 +1,4 @@
+import { TransitionProps } from '@mui/material/transitions'
 import { Icon, IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
 
@@ -25,7 +26,21 @@ export type SectionAccordionProps = {
   subtitle?: ReactNode
   badge?: ReactNode
   actions?: SectionAccordionAction[]
+  // When the list is virtualized a card unmounts as it scrolls out of the overscan
+  // window. The card stays uncontrolled, but `onToggle` lets the parent persist open
+  // state (e.g. in a ref keyed by id) so `initiallyOpen` can restore it on re-mount.
   initiallyOpen?: boolean
+  onToggle?: (open: boolean) => void
+  // Drop the off-screen content-visibility optimization when the parent list is
+  // virtualized: the virtualizer already windows the rows, and a deferred card would
+  // report its contain-intrinsic-size (not its real height) to the virtualizer's
+  // measureElement, mis-positioning rows. Keep it on for the non-virtualized list.
+  disableContentVisibility?: boolean
+  // Forwarded to the MUI Collapse transition. Virtualized lists pass `{ timeout: 0 }`
+  // so a card with a huge (also-virtualized) body collapses in one layout pass instead
+  // of animating height frame-by-frame - which would make the outer virtualizer
+  // re-measure + relayout the whole charge tail on every animation frame.
+  transitionProps?: TransitionProps
   noContentMargin?: boolean
   dataTest?: string
   children: ReactNode
@@ -39,6 +54,9 @@ export const SectionAccordion = ({
   badge,
   actions,
   initiallyOpen,
+  onToggle,
+  disableContentVisibility,
+  transitionProps,
   noContentMargin,
   dataTest,
   children,
@@ -55,8 +73,14 @@ export const SectionAccordion = ({
           before-first-render fallback). Without `auto`, an opened card scrolled off-screen
           would collapse to the 80px placeholder, throwing off jump-to scroll math. */}
       <Accordion
-        className="[contain-intrinsic-size:auto_80px] [content-visibility:auto]"
+        className={
+          disableContentVisibility
+            ? undefined
+            : '[contain-intrinsic-size:auto_80px] [content-visibility:auto]'
+        }
         initiallyOpen={initiallyOpen}
+        onToggle={onToggle}
+        transitionProps={transitionProps}
         noContentMargin={noContentMargin}
         summary={
           <div className="flex flex-1 items-center justify-between gap-3">
