@@ -47,6 +47,7 @@ const mockCustomer: AddCustomerDrawerFragment = {
     id: 'billing-entity-1',
     name: 'Test Billing Entity',
     code: 'TBE',
+    euTaxManagement: false,
   },
 }
 

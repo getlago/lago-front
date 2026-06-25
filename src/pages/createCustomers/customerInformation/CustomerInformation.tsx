@@ -1,5 +1,7 @@
+import { useStore } from '@tanstack/react-form'
 import { useMemo } from 'react'
 
+import { BillingEntityTaxAlerts } from '~/components/billingEntity/BillingEntityTaxAlerts'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Typography } from '~/components/designSystem/Typography'
 import { getTimezoneConfig } from '~/core/timezone'
@@ -11,6 +13,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
+import { BillingEntityOption } from '~/hooks/useBillingEntitiesOptions'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
@@ -20,7 +23,7 @@ import HelperText from './HelperText'
 type CustomerInformationProps = {
   isEdition?: boolean
   customer?: AddCustomerDrawerFragment | null
-  billingEntitiesList: { value: string; label: string }[]
+  billingEntitiesList: BillingEntityOption[]
   isLoadingBillingEntities: boolean
 }
 
@@ -52,6 +55,12 @@ const CustomerInformation = withForm({
       !isEdition ||
       customer?.canEditAttributes ||
       hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+
+    const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+    const selectedBillingEntityCode = useStore(
+      form.store,
+      (state) => state.values.billingEntityCode,
+    )
 
     const timezoneComboboxData = useMemo(
       () =>
@@ -97,6 +106,14 @@ const CustomerInformation = withForm({
             />
           )}
         </form.AppField>
+
+        {hasMultiEntityBilling && (
+          <BillingEntityTaxAlerts
+            currentBillingEntity={customer?.billingEntity}
+            selectedBillingEntityCode={selectedBillingEntityCode}
+            billingEntities={billingEntitiesList}
+          />
+        )}
 
         <form.AppField name="externalId">
           {(field) => (

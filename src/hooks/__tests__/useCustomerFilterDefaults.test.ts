@@ -30,6 +30,7 @@ const DEFAULT_ENTITY: BillingEntityOption = {
   label: 'Acme US (default)',
   name: 'Acme US',
   isDefault: true,
+  euTaxManagement: false,
 }
 
 const SECONDARY_ENTITY: BillingEntityOption = {
@@ -38,6 +39,7 @@ const SECONDARY_ENTITY: BillingEntityOption = {
   label: 'Acme EU',
   name: 'Acme EU',
   isDefault: false,
+  euTaxManagement: false,
 }
 
 beforeEach(() => {
