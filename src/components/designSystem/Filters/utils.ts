@@ -24,6 +24,7 @@ import {
   INVOICE_LIST_FILTER_PREFIX,
   MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX,
   MRR_BREAKDOWN_PLANS_FILTER_PREFIX,
+  ORDER_FORM_LIST_FILTER_PREFIX,
   PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX,
   QUOTE_LIST_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
@@ -47,6 +48,7 @@ import {
   type GetInvoiceCollectionsForAnalyticsQueryVariables,
   type GetInvoicesListQueryVariables,
   type GetMrrsQueryVariables,
+  type GetOrderFormsQueryVariables,
   type GetPrepaidCreditsQueryVariables,
   type GetQuotesQueryVariables,
   type GetRevenueStreamsQueryVariables,
@@ -81,6 +83,7 @@ import {
   InvoiceAvailableFilters,
   MrrBreakdownPlansAvailableFilters,
   MrrOverviewAvailableFilters,
+  OrderFormAvailableFilters,
   QuoteAvailableFilters,
   RevenueStreamsAvailablePopperFilters,
   RevenueStreamsCustomersAvailableFilters,
@@ -160,6 +163,7 @@ export const FiltersItemDates = [
   AvailableFiltersEnum.loggedDate,
   AvailableFiltersEnum.webhookDate,
   AvailableFiltersEnum.quoteCreatedAt,
+  AvailableFiltersEnum.orderFormCreatedAt,
 ]
 
 // TODO: Fix this type
@@ -227,6 +231,14 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.planCode]: (value: string) => value,
+  [AvailableFiltersEnum.orderFormCreatedAt]: (value: string) => {
+    return {
+      createdAtFrom: value.split(',')[0],
+      createdAtTo: value.split(',')[1],
+    }
+  },
+  [AvailableFiltersEnum.orderFormNumber]: (value: string) => value.split(','),
+  [AvailableFiltersEnum.orderFormStatus]: (value: string) => value.split(','),
   [AvailableFiltersEnum.quoteCreatedAt]: (value: string) => {
     return {
       fromDate: value.split(',')[0],
@@ -976,6 +988,7 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.loggedDate:
     case AvailableFiltersEnum.webhookDate:
     case AvailableFiltersEnum.quoteCreatedAt:
+    case AvailableFiltersEnum.orderFormCreatedAt:
       return value
         .split(',')
         .map((v) => {
@@ -1044,6 +1057,28 @@ export const formatFiltersForQuotesQuery = (searchParams: URLSearchParams): Quot
       [AvailableFiltersEnum.quoteNumber]: 'numbers',
       [AvailableFiltersEnum.quoteOrderType]: 'orderTypes',
       [AvailableFiltersEnum.userIds]: 'owners',
+    },
+  })
+
+type OrderFormsQueryFilters = Partial<
+  Pick<
+    GetOrderFormsQueryVariables,
+    'status' | 'number' | 'customerId' | 'ownerId' | 'createdAtFrom' | 'createdAtTo'
+  >
+>
+
+export const formatFiltersForOrderFormsQuery = (
+  searchParams: URLSearchParams,
+): OrderFormsQueryFilters =>
+  formatFiltersForQuery<OrderFormsQueryFilters>({
+    searchParams,
+    availableFilters: OrderFormAvailableFilters,
+    filtersNamePrefix: ORDER_FORM_LIST_FILTER_PREFIX,
+    keyMap: {
+      [AvailableFiltersEnum.orderFormStatus]: 'status',
+      [AvailableFiltersEnum.orderFormNumber]: 'number',
+      [AvailableFiltersEnum.multipleCustomers]: 'customerId',
+      [AvailableFiltersEnum.userIds]: 'ownerId',
     },
   })
 

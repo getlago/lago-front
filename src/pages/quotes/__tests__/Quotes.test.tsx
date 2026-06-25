@@ -27,11 +27,13 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 const mockNavigate = jest.fn()
+const mockUseParams = jest.fn()
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
   useLocation: () => ({ pathname: '/quotes/quotes' }),
+  useParams: () => mockUseParams(),
 }))
 
 const mockHasPermissions = jest.fn()
@@ -51,6 +53,7 @@ describe('Quotes', () => {
     jest.clearAllMocks()
     capturedConfig = null
     mockIsPremium.mockReturnValue(true)
+    mockUseParams.mockReturnValue({})
   })
 
   describe('GIVEN the page is rendered', () => {
@@ -172,6 +175,48 @@ describe('Quotes', () => {
         render(<Quotes />)
 
         expect(screen.getByTestId('quotes-premium-feature')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the user is on the Quotes tab', () => {
+    beforeEach(() => {
+      mockHasPermissions.mockReturnValue(true)
+      mockUseParams.mockReturnValue({ tab: 'quotes' })
+    })
+
+    describe('WHEN the page renders', () => {
+      it('THEN should configure MainHeader with the quotes snapshotKey', () => {
+        render(<Quotes />)
+
+        expect(capturedConfig?.snapshotKey).toBe('quotes')
+      })
+
+      it('THEN should configure MainHeader with a filters section', () => {
+        render(<Quotes />)
+
+        expect(capturedConfig?.filtersSection).toBeDefined()
+      })
+    })
+  })
+
+  describe('GIVEN the user is on the Order Forms tab', () => {
+    beforeEach(() => {
+      mockHasPermissions.mockReturnValue(true)
+      mockUseParams.mockReturnValue({ tab: 'order-forms' })
+    })
+
+    describe('WHEN the page renders', () => {
+      it('THEN should configure MainHeader with the order-forms snapshotKey', () => {
+        render(<Quotes />)
+
+        expect(capturedConfig?.snapshotKey).toBe('order-forms')
+      })
+
+      it('THEN should configure MainHeader with a filters section', () => {
+        render(<Quotes />)
+
+        expect(capturedConfig?.filtersSection).toBeDefined()
       })
     })
   })

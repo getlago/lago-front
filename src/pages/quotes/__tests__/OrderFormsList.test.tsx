@@ -46,6 +46,13 @@ jest.mock('~/pages/quotes/common/QuotePdfProvider', () => ({
   useDownloadQuotePdf: () => ({ download: jest.fn() }),
 }))
 
+let mockSearchParams = new URLSearchParams()
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useSearchParams: () => [mockSearchParams, jest.fn()],
+}))
+
 const mockUseOrderForms = useOrderForms as jest.MockedFunction<typeof useOrderForms>
 
 const mockOrderForms = [
@@ -90,6 +97,7 @@ const mockOrderForms = [
 describe('OrderFormsList', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockSearchParams = new URLSearchParams()
     mockHasPermissions.mockReturnValue(true)
     mockUseOrderForms.mockReturnValue({
       orderForms: mockOrderForms,
@@ -174,6 +182,77 @@ describe('OrderFormsList', () => {
         const actionButtons = screen.getAllByTestId('open-action-button')
 
         expect(actionButtons.length).toBeGreaterThan(0)
+      })
+    })
+  })
+
+  describe('GIVEN no URL filters and no quoteNumber prop', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should call useOrderForms with no filter variables', () => {
+        render(<OrderFormsList />)
+
+        expect(mockUseOrderForms).toHaveBeenCalledWith({})
+      })
+    })
+  })
+
+  describe('GIVEN of_-prefixed URL filters are present', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should pass the formatted status filter to useOrderForms', () => {
+        mockSearchParams = new URLSearchParams()
+        mockSearchParams.set('of_orderFormStatus', 'generated,signed')
+
+        render(<OrderFormsList />)
+
+        expect(mockUseOrderForms).toHaveBeenCalledWith(
+          expect.objectContaining({ status: ['generated', 'signed'] }),
+        )
+      })
+
+      it('THEN should pass the formatted number filter to useOrderForms', () => {
+        mockSearchParams = new URLSearchParams()
+        mockSearchParams.set('of_orderFormNumber', 'OF-001,OF-002')
+
+        render(<OrderFormsList />)
+
+        expect(mockUseOrderForms).toHaveBeenCalledWith(
+          expect.objectContaining({ number: ['OF-001', 'OF-002'] }),
+        )
+      })
+
+      it('THEN should ignore filters with a different prefix', () => {
+        mockSearchParams = new URLSearchParams()
+        mockSearchParams.set('qu_quoteStatus', 'draft')
+
+        render(<OrderFormsList />)
+
+        expect(mockUseOrderForms).toHaveBeenCalledWith({})
+      })
+    })
+  })
+
+  describe('GIVEN the quoteNumber prop is provided', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should pass the quoteNumber to useOrderForms', () => {
+        render(<OrderFormsList quoteNumber="QUO-001" />)
+
+        expect(mockUseOrderForms).toHaveBeenCalledWith(
+          expect.objectContaining({ quoteNumber: ['QUO-001'] }),
+        )
+      })
+
+      it('THEN should merge the quoteNumber prop with URL filters', () => {
+        mockSearchParams = new URLSearchParams()
+        mockSearchParams.set('of_orderFormStatus', 'signed')
+
+        render(<OrderFormsList quoteNumber="QUO-001" />)
+
+        expect(mockUseOrderForms).toHaveBeenCalledWith(
+          expect.objectContaining({
+            status: ['signed'],
+            quoteNumber: ['QUO-001'],
+          }),
+        )
       })
     })
   })

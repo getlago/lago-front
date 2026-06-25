@@ -14398,6 +14398,11 @@ export type GetOrderFormsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   status?: InputMaybe<Array<OrderFormStatusEnum> | OrderFormStatusEnum>;
   quoteNumber?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  number?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  customerId?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  ownerId?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  createdAtFrom?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  createdAtTo?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
 }>;
 
 
@@ -39320,12 +39325,17 @@ export type UpdateCustomerCurrencyForQuoteMutationHookResult = ReturnType<typeof
 export type UpdateCustomerCurrencyForQuoteMutationResult = Apollo.MutationResult<UpdateCustomerCurrencyForQuoteMutation>;
 export type UpdateCustomerCurrencyForQuoteMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerCurrencyForQuoteMutation, UpdateCustomerCurrencyForQuoteMutationVariables>;
 export const GetOrderFormsDocument = gql`
-    query getOrderForms($page: Int, $limit: Int, $status: [OrderFormStatusEnum!], $quoteNumber: [String!]) {
+    query getOrderForms($page: Int, $limit: Int, $status: [OrderFormStatusEnum!], $quoteNumber: [String!], $number: [String!], $customerId: [ID!], $ownerId: [ID!], $createdAtFrom: ISO8601DateTime, $createdAtTo: ISO8601DateTime) {
   orderForms(
     page: $page
     limit: $limit
     status: $status
     quoteNumber: $quoteNumber
+    number: $number
+    customerId: $customerId
+    ownerId: $ownerId
+    createdAtFrom: $createdAtFrom
+    createdAtTo: $createdAtTo
   ) {
     metadata {
       currentPage
@@ -39355,6 +39365,11 @@ export const GetOrderFormsDocument = gql`
  *      limit: // value for 'limit'
  *      status: // value for 'status'
  *      quoteNumber: // value for 'quoteNumber'
+ *      number: // value for 'number'
+ *      customerId: // value for 'customerId'
+ *      ownerId: // value for 'ownerId'
+ *      createdAtFrom: // value for 'createdAtFrom'
+ *      createdAtTo: // value for 'createdAtTo'
  *   },
  * });
  */

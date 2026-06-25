@@ -1,12 +1,16 @@
 import { useEffect, useMemo } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
-import { AvailableFiltersEnum, Filters } from '~/components/designSystem/Filters'
+import {
+  Filters,
+  OrderFormAvailableFilters,
+  QuoteAvailableFilters,
+} from '~/components/designSystem/Filters'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import PremiumFeature from '~/components/premium/PremiumFeature'
-import { QUOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
+import { ORDER_FORM_LIST_FILTER_PREFIX, QUOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CREATE_QUOTE_ROUTE,
@@ -31,6 +35,8 @@ const Quotes = (): JSX.Element => {
   const { hasPermissions } = usePermissions()
   const canCreateQuotes = hasPermissions(['quotesCreate'])
   const { isPremium } = useCurrentUser()
+  const { tab } = useParams()
+  const isOrderFormsTab = tab === QuotesTabsOptionsEnum.orderForms
 
   useEffect(() => {
     if (pathname === QUOTES_LIST_ROUTE) {
@@ -80,6 +86,10 @@ const Quotes = (): JSX.Element => {
         {...(isPremium
           ? {
               tabs,
+              // The filtersSection is tab-dependent but stripped from the config snapshot
+              // (it's a ReactNode). Bump snapshotKey per tab so switching tabs re-pushes the
+              // matching filter panel instead of leaving the previous tab's panel in context.
+              snapshotKey: isOrderFormsTab ? 'order-forms' : 'quotes',
               actions: {
                 items: [
                   {
@@ -95,15 +105,13 @@ const Quotes = (): JSX.Element => {
               filtersSection: (
                 <div className="pt-4">
                   <Filters.Provider
-                    filtersNamePrefix={QUOTE_LIST_FILTER_PREFIX}
-                    availableFilters={[
-                      AvailableFiltersEnum.quoteStatus,
-                      AvailableFiltersEnum.multipleCustomers,
-                      AvailableFiltersEnum.quoteNumber,
-                      AvailableFiltersEnum.quoteCreatedAt,
-                      AvailableFiltersEnum.quoteOrderType,
-                      AvailableFiltersEnum.userIds,
-                    ]}
+                    key={isOrderFormsTab ? 'order-forms' : 'quotes'}
+                    filtersNamePrefix={
+                      isOrderFormsTab ? ORDER_FORM_LIST_FILTER_PREFIX : QUOTE_LIST_FILTER_PREFIX
+                    }
+                    availableFilters={
+                      isOrderFormsTab ? OrderFormAvailableFilters : QuoteAvailableFilters
+                    }
                   >
                     <Filters.Component />
                   </Filters.Provider>
