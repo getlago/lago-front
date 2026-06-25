@@ -4189,6 +4189,11 @@
   "text_1779278937735vlpgsllouzy": "Edit",
   "text_1779437694622y666yr137gm": "Save failed",
   "text_1779972384579cgilv8fpjw6": "Failed to create quote",
+  "text_1780047483204bk0fhgkeisn": "Top-up type",
+  "text_1780047483205fq5350ul8l9": "Paid credits",
+  "text_1780047483205pks944o79kd": "Free credits",
+  "text_178004748320594nw5fau04a": "Paid",
+  "text_17800474832056s97uz7bjy7": "Free",
   "text_17800541562349k15h7ik07c": "If not selected, this billing object will be linked to the customer’s default billing entity.",
   "text_178047301390626q8o2l7ob4": "View order forms",
   "text_17774502138912d3etwcacpe": "Presentation group keys",
@@ -4356,5 +4361,6 @@
   "text_1781872376833n9vthkte11e": "Order form valid until (optional)",
   "text_1781874334924qwjnv1swbo2": "Valid until: {{date}}",
   "text_1782378031093sfjoizk5vap": "This customer is linked to an entity using Lago EU Tax Management. Changing the billing entity may change how taxes are calculated on future invoices.",
-  "text_1782378031093gnp1nv78zfv": "The selected billing entity uses Lago EU Tax Management. Switching to it may change how taxes are calculated on future invoices."
+  "text_1782378031093gnp1nv78zfv": "The selected billing entity uses Lago EU Tax Management. Switching to it may change how taxes are calculated on future invoices.",
+  "text_1782385268545ex9rk4gx0rf": "Please select a tax or remove the empty row"
 }

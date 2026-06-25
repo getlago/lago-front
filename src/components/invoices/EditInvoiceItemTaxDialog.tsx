@@ -59,7 +59,9 @@ const editInvoiceItemTaxFormDefaultValues: { taxes: LocalFeeInput['taxes'] } = {
 }
 
 const editInvoiceItemTaxValidationSchema = z.object({
-  taxes: z.array(z.any()).refine((taxes) => taxes.every((tax) => !!tax?.id), { message: '' }),
+  taxes: z.array(z.any()).refine((taxes) => taxes.every((tax) => !!tax?.id), {
+    message: 'text_1782385268545ex9rk4gx0rf',
+  }),
 })
 
 const EditInvoiceItemTaxDialogContent = withForm({
@@ -72,6 +74,13 @@ const EditInvoiceItemTaxDialogContent = withForm({
     const { collection: taxesCollection } = taxesData?.taxes || {}
 
     const taxes = useStore(form.store, (state) => state.values.taxes) || []
+
+    // Array-level refine error (a row without an id). Lands on the `taxes` field
+    // meta; surface it on the offending empty rows after a submit attempt.
+    const taxesErrorMessage = useStore(
+      form.store,
+      (state) => state.fieldMeta.taxes?.errors?.[0]?.message,
+    )
 
     // Include the currently selected taxes in the options so a pre-selected
     // value still resolves before the taxes query has finished loading.
@@ -128,6 +137,7 @@ const EditInvoiceItemTaxDialogContent = withForm({
                       }),
                     ]}
                     value={tax?.id || ''}
+                    error={!tax?.id && taxesErrorMessage ? translate(taxesErrorMessage) : undefined}
                     loading={taxesLoading}
                     placeholder={translate('text_64be910fba8ef9208686a8e7')}
                     emptyText={translate('text_64be91fd0678965126e5657b')}
@@ -187,7 +197,7 @@ export const useEditInvoiceItemTaxDialog = () => {
 
   const form = useAppForm({
     defaultValues: editInvoiceItemTaxFormDefaultValues,
-    validationLogic: revalidateLogic({ mode: 'change' }),
+    validationLogic: revalidateLogic(),
     validators: {
       onDynamic: editInvoiceItemTaxValidationSchema,
     },
@@ -198,6 +208,13 @@ export const useEditInvoiceItemTaxDialog = () => {
 
   const handleSubmit = async (): Promise<DialogResult> => {
     await form.handleSubmit()
+
+    // On validation error onSubmit never runs and isSubmitSuccessful stays false:
+    // throw to keep the dialog open (closeOnError: false swallows the error, inline
+    // field errors stay visible). Returning a result would let FormDialog close it.
+    if (!form.state.isSubmitSuccessful) {
+      throw new Error('Submit failed')
+    }
 
     return { reason: 'success' }
   }

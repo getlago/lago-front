@@ -21,10 +21,7 @@ import { WarningDialog, WarningDialogRef } from '~/components/designSystem/Warni
 import { AmountInput, ComboBox, ComboBoxField, ComboboxItem, TextInput } from '~/components/form'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
-import {
-  EditFeeBillingPeriod,
-  EditFeeBillingPeriodRef,
-} from '~/components/invoices/EditFeeBillingPeriod'
+import { useEditFeeBillingPeriodDialog } from '~/components/invoices/EditFeeBillingPeriod'
 import { useEditInvoiceItemDescriptionDialog } from '~/components/invoices/EditInvoiceItemDescriptionDialog'
 import { useEditInvoiceItemTaxDialog } from '~/components/invoices/EditInvoiceItemTaxDialog'
 import { InvoiceTaxesDisplay, TaxMapType } from '~/components/invoices/InvoiceTaxesDisplay'
@@ -234,7 +231,7 @@ const CreateInvoice = () => {
   const { openEditInvoiceItemDescriptionDialog } = useEditInvoiceItemDescriptionDialog()
   const { openEditInvoiceItemTaxDialog } = useEditInvoiceItemTaxDialog()
   const { openEditInvoiceDisplayNameDialog } = useEditInvoiceDisplayNameDialog()
-  const editFeeBillingPeriodDialogRef = useRef<EditFeeBillingPeriodRef>(null)
+  const { openEditFeeBillingPeriodDialog } = useEditFeeBillingPeriodDialog()
 
   const handleClosePage = useCallback(() => {
     goBack(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
@@ -991,7 +988,7 @@ const CreateInvoice = () => {
                                   variant="quaternary"
                                   align="left"
                                   onClick={() => {
-                                    editFeeBillingPeriodDialogRef.current?.openDialog({
+                                    openEditFeeBillingPeriodDialog({
                                       fromDatetime: fee.fromDatetime,
                                       toDatetime: fee.toDatetime,
                                       callback: (fromDatetime: string, toDatetime: string) => {
@@ -1331,7 +1328,6 @@ const CreateInvoice = () => {
         continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={handleClosePage}
       />
-      <EditFeeBillingPeriod ref={editFeeBillingPeriodDialogRef} />
     </>
   )
 }
