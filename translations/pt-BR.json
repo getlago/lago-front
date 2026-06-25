@@ -3128,5 +3128,12 @@
   "text_1779289915866etwoweh1syv": "Taxa de assinatura",
   "text_1778496527600gzfmf3x6r2q": "Dados de uso desta assinatura no período de faturamento atual em aberto.",
   "text_17786802483174e1d300blik": "Uso vinculado aos filtros de cobrança e grupos de preços",
-  "text_177883198759933bb02ulslv": "preço por"
+  "text_177883198759933bb02ulslv": "preço por",
+  "text_17786802483175q57751skt9": "Esta cobrança não tem filtros nem chave de grupo de preços.",
+  "text_1778831987599grvoqfl2yd2": "dividido por",
+  "text_1778836980285mhlwwvofsqm": "Uso de {{billableMetricName}}",
+  "text_17788413630335ar3zl10prt": "Uso até agora",
+  "text_17788413630339w2go4tbxga": "Fim do período projetado",
+  "text_1778841363033djjc5c8dsvx": "Período de faturamento atual",
+  "text_1779790016087nsol47cwuwg": "Filtros"
 }

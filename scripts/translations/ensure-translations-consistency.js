@@ -120,29 +120,65 @@ function main() {
 
       if (result.missingKeys.length > 0) {
         console.info(`  ${colors.red}Missing keys: ${result.missingKeys.length}${colors.reset}`)
-        result.missingKeys.slice(0, 10).forEach((key) => {
+        result.missingKeys.forEach((key) => {
           console.info(`    - ${key}`)
         })
-        if (result.missingKeys.length > 10) {
-          console.info(`    ... and ${result.missingKeys.length - 10} more`)
-        }
       }
 
       console.info()
     }
   }
 
-  // Summary
+  // base.json and pt-BR.json are allowed to hold MORE keys than the locale set
+  // (base.json is the English source; pt-BR currently carries a manual-copy
+  // superset). They must never hold FEWER: every key present in the locales above
+  // has to exist in both, otherwise those keys render raw under those locales.
+  const supersetFiles = ['base.json', 'pt-BR.json']
+  const supersetResults = []
+
+  for (const file of supersetFiles) {
+    const filePath = path.join(TRANSLATIONS_DIR, file)
+
+    if (!fs.existsSync(filePath)) {
+      console.info(`${colors.red}✗ ${file} not found${colors.reset}\n`)
+      hasErrors = true
+      supersetResults.push({ file, missingKeys: [], isValid: false })
+      continue
+    }
+
+    const keys = new Set(getAllKeys(readJsonFile(filePath)))
+    const missingKeys = allKeys.filter((key) => !keys.has(key))
+
+    supersetResults.push({ file, missingKeys, isValid: missingKeys.length === 0 })
+
+    if (missingKeys.length === 0) {
+      console.info(`${colors.green}✓ ${file}${colors.reset}`)
+      console.info(`  Total keys: ${keys.size} (covers all ${allKeys.length} locale keys)\n`)
+    } else {
+      hasErrors = true
+      console.info(`${colors.red}✗ ${file}${colors.reset}`)
+      console.info(
+        `  ${colors.red}Missing ${missingKeys.length} key(s) that exist in the locales:${colors.reset}`,
+      )
+      missingKeys.forEach((key) => {
+        console.info(`    - ${key}`)
+      })
+      console.info()
+    }
+  }
+
+  // Summary (counts every checked file: the locales + base.json + pt-BR.json)
   console.info(`${'='.repeat(80)}\n`)
-  const validFiles = results.filter((r) => r.isValid).length
-  const totalFiles = results.length
+  const allResults = [...results, ...supersetResults]
+  const validFiles = allResults.filter((r) => r.isValid).length
+  const totalFiles = allResults.length
 
   if (hasErrors) {
     console.info(`${colors.red}Validation failed!${colors.reset}`)
     console.info(`${validFiles}/${totalFiles} files are valid\n`)
 
     // Provide summary of issues
-    const totalMissing = results.reduce((sum, r) => sum + r.missingKeys.length, 0)
+    const totalMissing = allResults.reduce((sum, r) => sum + r.missingKeys.length, 0)
 
     if (totalMissing > 0) {
       console.info(
