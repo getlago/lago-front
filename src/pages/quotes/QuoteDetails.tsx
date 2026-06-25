@@ -16,11 +16,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useQuote } from './hooks/useQuote'
 import { useQuoteVersionActions } from './hooks/useQuoteVersionActions'
 import OrderFormsList from './OrderFormsList'
-<<<<<<< HEAD
-=======
 import OrdersList from './OrdersList'
-import QuoteDetailsActivityLogs from './QuoteDetailsActivityLogs'
->>>>>>> 9358695e3 (feat(orders): add Orders tab to quotes list and quote details)
 import QuoteDetailsVersions from './QuoteDetailsVersions'
 
 const QuoteDetails = (): JSX.Element => {
