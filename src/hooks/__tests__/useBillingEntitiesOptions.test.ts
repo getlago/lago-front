@@ -101,6 +101,7 @@ describe('useBillingEntitiesOptions', () => {
         value: '',
         label: 'Use customer default',
         isDefault: false,
+        euTaxManagement: false,
       })
       expect(result.current.options[1].value).toBe('us')
     })
