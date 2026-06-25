@@ -281,8 +281,10 @@ jest.mock('~/components/subscriptions/FeatureEntitlementSection', () => ({
   FeatureEntitlementSection: () => <div data-test="feature-entitlement-section" />,
 }))
 
-jest.mock('~/components/invoices/EditInvoiceDisplayNameDialog', () => ({
-  EditInvoiceDisplayNameDialog: () => <div data-test="edit-invoice-display-name-dialog" />,
+jest.mock('~/components/invoices/useEditInvoiceDisplayName', () => ({
+  useEditInvoiceDisplayNameDialog: () => ({
+    openEditInvoiceDisplayNameDialog: jest.fn(),
+  }),
 }))
 
 jest.mock('~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings', () => ({

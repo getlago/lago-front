@@ -180,7 +180,22 @@ Search for `setFieldError`, `setErrors`, `setStatus` in the onSubmit handler. Th
 ### Submit Button Disabled Logic
 
 Current: `disabled={!formikProps.isValid || !formikProps.dirty || loading}`
-TanStack: `form.SubmitButton` handles validity + isSubmitting automatically. It does **not** subscribe to `isDirty` — if the original Formik logic gated on `dirty`, preserve that by passing `disabled={!isDirty}` explicitly (subscribe to `isDirty` via `useStore(form.store, (s) => s.isDirty)`).
+
+TanStack: `form.SubmitButton` handles validity (`canSubmit`) + `isSubmitting` automatically.
+
+**⛔ DO NOT re-introduce a `dirty` gate.** The Formik forms commonly disabled submit on a pristine form (`!dirty`). **Do not preserve this.** The TanStack convention in this codebase is: **the submit button is enabled by default and only becomes disabled when the form has validation errors** (handled automatically by `canSubmit`). Gating on `!isDirty` is wrong — it blocks submitting a dialog when the user hasn't changed anything (e.g., re-confirming a pre-filled value), which diverges from every other migrated TanStack form. Just use a bare `<form.SubmitButton>` and let `canSubmit` do the gating.
+
+```tsx
+// ❌ WRONG — do not gate on dirty
+<form.Subscribe selector={(state) => state.isDirty}>
+  {(isDirty) => <form.SubmitButton disabled={!isDirty}>{label}</form.SubmitButton>}
+</form.Subscribe>
+
+// ✅ CORRECT — enabled by default, disabled only on validation errors (canSubmit)
+<form.SubmitButton>{label}</form.SubmitButton>
+```
+
+(Only pass `disabled` for a genuinely external concern, e.g. an unrelated loading state — never for dirtiness.)
 
 ### Validation Timing
 
@@ -510,7 +525,7 @@ Always prefer the registered `form.SubmitButton` over a manually-wired `<Button 
 Notes:
 
 - `form.SubmitButton` must be wrapped in `<form.AppForm>` — it reads the form via `useFormContext()`.
-- In TanStack, `canSubmit` = no validation errors + not submitting + not validating. **It does NOT include `isDirty`.** If the original Formik code disables on pristine forms (`!dirty`), preserve that by passing `disabled={!isDirty}` (and subscribing to `isDirty` via `useStore(form.store, (s) => s.isDirty)`).
+- In TanStack, `canSubmit` = no validation errors + not submitting + not validating. **It does NOT include `isDirty`, and that is intentional — do NOT add a dirty gate.** Even if the original Formik code disabled on pristine forms (`!dirty`), do **not** preserve that. The codebase convention is: submit is enabled by default and only disabled when the form has validation errors (via `canSubmit`). Use a bare `<form.SubmitButton>`. See **Submit Button Disabled Logic** above.
 
 **Common mistake (do not do this):** hand-wiring a `<Button type="submit">` when the registered component already exists.
 

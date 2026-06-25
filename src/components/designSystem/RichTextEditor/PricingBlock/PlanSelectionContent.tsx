@@ -11,7 +11,7 @@ import { pricingDrawerDefaultValues } from './constants'
 
 const PlanSelectionContent = withForm({
   defaultValues: pricingDrawerDefaultValues,
-  render: function PlanSelectionContent({ form }) {
+  render: function PlanSelectionContentRender({ form }) {
     const { translate } = useInternationalization()
 
     const { data: plansData, loading: plansLoading } = usePlansQuery({

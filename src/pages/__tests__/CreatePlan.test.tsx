@@ -160,19 +160,11 @@ jest.mock('~/components/plans/details-v2/shared/useCascadeFormDialog', () => ({
   }),
 }))
 
-jest.mock('~/components/invoices/EditInvoiceDisplayNameDialog', () => {
-  const React = jest.requireActual('react')
-
-  const MockDialog = React.forwardRef((_props: unknown, ref: unknown) => {
-    React.useImperativeHandle(ref, () => ({ openDialog: jest.fn() }))
-
-    return React.createElement('div', { 'data-test': 'edit-invoice-name-dialog-mock' })
-  })
-
-  MockDialog.displayName = 'EditInvoiceDisplayNameDialog'
-
-  return { EditInvoiceDisplayNameDialog: MockDialog }
-})
+jest.mock('~/components/invoices/useEditInvoiceDisplayName', () => ({
+  useEditInvoiceDisplayNameDialog: () => ({
+    openEditInvoiceDisplayNameDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/styles/mainObjectsForm', () => {
   const React = jest.requireActual('react')

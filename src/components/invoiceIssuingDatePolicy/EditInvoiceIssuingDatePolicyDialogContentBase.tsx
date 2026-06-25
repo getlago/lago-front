@@ -44,7 +44,7 @@ type EditInvoiceIssuingDatePolicyDialogContentComponentWithDisplayName =
 export const EditInvoiceIssuingDatePolicyDialogContentBase = forwardRef<
   EditInvoiceIssuingDatePolicyDialogContentRef,
   EditInvoiceIssuingDatePolicyDialogContentProps<FormikValues>
->(function EditInvoiceIssuingDatePolicyDialogContentBase<
+>(function EditInvoiceIssuingDatePolicyDialogContentBaseRender<
   FormValues extends FormikValues = FormikValues,
 >(
   {

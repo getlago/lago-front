@@ -1,108 +1,106 @@
-import { useFormik } from 'formik'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import { object, string } from 'yup'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useRef } from 'react'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { TextInputField } from '~/components/form'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 const MAX_CHAR_LIMIT = 255
 
-type EditInvoiceItemDescriptionDialogProps = {
+export const EDIT_INVOICE_ITEM_DESCRIPTION_FORM_ID = 'edit-invoice-item-description-form'
+
+type OpenEditInvoiceItemDescriptionDialogParams = {
   description?: string
   callback: (description: string) => void
 }
 
-export interface EditInvoiceItemDescriptionDialogRef {
-  openDialog: (data: EditInvoiceItemDescriptionDialogProps) => unknown
-  closeDialog: () => unknown
+const editInvoiceItemDescriptionValidationSchema = z.object({
+  description: z.string().max(MAX_CHAR_LIMIT, { message: 'text_6453819268763979024ad029' }),
+})
+
+export const useEditInvoiceItemDescriptionDialog = () => {
+  const formDialog = useFormDialog()
+  const { translate } = useInternationalization()
+  const callbackRef = useRef<((description: string) => void) | null>(null)
+
+  const form = useAppForm({
+    defaultValues: {
+      description: '',
+    },
+    validationLogic: revalidateLogic({ mode: 'change' }),
+    validators: {
+      onDynamic: editInvoiceItemDescriptionValidationSchema,
+    },
+    onSubmit: async ({ value }) => {
+      if (value.description) {
+        callbackRef.current?.(value.description)
+      }
+    },
+  })
+
+  const handleSubmit = async (): Promise<DialogResult> => {
+    await form.handleSubmit()
+
+    return { reason: 'success' }
+  }
+
+  const openEditInvoiceItemDescriptionDialog = ({
+    description,
+    callback,
+  }: OpenEditInvoiceItemDescriptionDialogParams) => {
+    callbackRef.current = callback
+    form.reset()
+    form.setFieldValue('description', description ?? '')
+
+    formDialog
+      .open({
+        title: translate('text_6453819268763979024acff7'),
+        description: translate('text_6453819268763979024ad005'),
+        cancelOrCloseText: 'cancel',
+        children: (
+          <div className="p-8">
+            <form.AppField name="description">
+              {(field) => (
+                <field.TextInputField
+                  // eslint-disable-next-line jsx-a11y/no-autofocus
+                  autoFocus
+                  multiline
+                  className="whitespace-pre-line"
+                  rows="3"
+                  label={translate('text_6453819268763979024ad011')}
+                  helperText={
+                    <div className="flex justify-between gap-2">
+                      <div className="flex-1">{translate('text_64539c4583bc9200f203b11d')}</div>
+                      <div className="shrink-0">
+                        {(field.state.value || '').length}/{MAX_CHAR_LIMIT}
+                      </div>
+                    </div>
+                  }
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        closeOnError: false,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>{translate('text_6453819268763979024ad041')}</form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: EDIT_INVOICE_ITEM_DESCRIPTION_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+          callbackRef.current = null
+        }
+      })
+  }
+
+  return { openEditInvoiceItemDescriptionDialog }
 }
-
-export const EditInvoiceItemDescriptionDialog = forwardRef<EditInvoiceItemDescriptionDialogRef>(
-  (_, ref) => {
-    const { translate } = useInternationalization()
-    const dialogRef = useRef<DialogRef>(null)
-    const [data, setData] = useState<EditInvoiceItemDescriptionDialogProps>()
-
-    const formikProps = useFormik<Omit<EditInvoiceItemDescriptionDialogProps, 'callback'>>({
-      initialValues: {
-        description: data?.description || undefined,
-      },
-      validationSchema: object().shape({
-        description: string().max(MAX_CHAR_LIMIT, 'text_6453819268763979024ad029'),
-      }),
-      validateOnMount: true,
-      enableReinitialize: true,
-      onSubmit: (values, formikBag) => {
-        !!values.description && data?.callback(values.description)
-
-        dialogRef?.current?.closeDialog()
-        formikBag.resetForm()
-      },
-    })
-
-    useImperativeHandle(ref, () => ({
-      openDialog: (datas) => {
-        setData(datas)
-        dialogRef.current?.openDialog()
-      },
-      closeDialog: () => dialogRef.current?.closeDialog(),
-    }))
-
-    return (
-      <Dialog
-        ref={dialogRef}
-        title={translate('text_6453819268763979024acff7')}
-        description={translate('text_6453819268763979024ad005')}
-        onClose={() => {
-          formikProps.resetForm()
-          formikProps.validateForm()
-        }}
-        actions={({ closeDialog }) => (
-          <>
-            <Button variant="quaternary" onClick={closeDialog}>
-              {translate('text_63eba8c65a6c8043feee2a14')}
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!formikProps.isValid || !formikProps.dirty}
-              onClick={async () => {
-                await formikProps.submitForm()
-                closeDialog()
-              }}
-            >
-              {translate('text_6453819268763979024ad041')}
-            </Button>
-          </>
-        )}
-      >
-        <TextInputField
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          autoFocus
-          multiline
-          name="description"
-          className="mb-8 whitespace-pre-line"
-          rows="3"
-          label={translate('text_6453819268763979024ad011')}
-          error={formikProps.errors.description}
-          formikProps={formikProps}
-          helperText={
-            <div className="flex justify-between">
-              <div className="flex-1">
-                {!!formikProps.errors?.description
-                  ? translate('text_6453819268763979024ad029')
-                  : translate('text_64539c4583bc9200f203b11d')}
-              </div>
-              <div className="shrink-0">
-                {(formikProps.values?.description || '').length}/{MAX_CHAR_LIMIT}
-              </div>
-            </div>
-          }
-        />
-      </Dialog>
-    )
-  },
-)
-
-EditInvoiceItemDescriptionDialog.displayName = 'forwardRef'
