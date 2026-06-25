@@ -83,7 +83,7 @@ const fixedChargeDrawerContentDefaultProps: FixedChargeDrawerContentExtraProps =
 export const FixedChargeDrawerContent = withForm({
   defaultValues: DEFAULT_VALUES,
   props: fixedChargeDrawerContentDefaultProps,
-  render: function FixedChargeDrawerContent({
+  render: function FixedChargeDrawerContentRender({
     form,
     isCreateMode,
     isEdition,

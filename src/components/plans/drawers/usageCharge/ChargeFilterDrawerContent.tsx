@@ -65,7 +65,7 @@ const chargeFilterDrawerContentDefaultProps: ChargeFilterDrawerContentExtraProps
 export const ChargeFilterDrawerContent = withForm({
   defaultValues: chargeFilterDefaultValues,
   props: chargeFilterDrawerContentDefaultProps,
-  render: function ChargeFilterDrawerContent({
+  render: function ChargeFilterDrawerContentRender({
     form,
     billableMetricFilters,
     existingFilterValues,

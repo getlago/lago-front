@@ -13,7 +13,7 @@ export type TableMenuOpenerProps = {
 }
 
 const TableMenuOpener = forwardRef<HTMLButtonElement, TableMenuOpenerProps>(
-  function TableMenuOpener({ variant, isSelected, index, onSelect, onClick }, ref) {
+  function TableMenuOpenerRender({ variant, isSelected, index, onSelect, onClick }, ref) {
     return (
       <button
         ref={ref}
