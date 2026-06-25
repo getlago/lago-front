@@ -29,6 +29,7 @@ gql`
     customer {
       id
       name
+      displayName
       externalId
       netPaymentTerm
       ...QuotePreviewCustomer

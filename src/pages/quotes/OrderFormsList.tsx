@@ -40,13 +40,13 @@ const OrderFormsList = ({ quoteNumber }: OrderFormsListProps): JSX.Element => {
       ),
     },
     {
-      key: 'customer.name',
+      key: 'customer.displayName',
       title: translate('text_65201c5a175a4b0238abf29a'),
       maxSpace: true,
       minWidth: 160,
       content: ({ customer }) => (
         <Typography color="grey600" noWrap>
-          {customer.name}
+          {customer.displayName}
         </Typography>
       ),
     },

@@ -17,6 +17,7 @@ gql`
     customer {
       id
       name
+      displayName
       ...QuotePreviewCustomer
     }
     quote {

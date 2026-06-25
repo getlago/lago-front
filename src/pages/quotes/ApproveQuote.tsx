@@ -201,7 +201,7 @@ const ApproveQuote = () => {
                     },
                     {
                       label: translate('text_65201c5a175a4b0238abf29a'),
-                      value: quote?.customer.name,
+                      value: quote?.customer.displayName,
                     },
                     {
                       label: translate('text_6560809c38fb9de88d8a52fb'),

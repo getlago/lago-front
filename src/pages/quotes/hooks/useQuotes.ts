@@ -21,6 +21,7 @@ gql`
     customer {
       id
       name
+      displayName
     }
   }
 
