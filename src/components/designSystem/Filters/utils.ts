@@ -1001,6 +1001,7 @@ export const formatActiveFilterValueDisplay = (
         .map((v) => formatActivityType(v as ActivityTypeEnum))
         .join(', ')
     case AvailableFiltersEnum.customerExternalId:
+    case AvailableFiltersEnum.billingEntityId:
       return unescapeFilterLabel(
         value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
       )
@@ -1041,10 +1042,6 @@ export const formatActiveFilterValueDisplay = (
           ),
         )
         .join(', ')
-    case AvailableFiltersEnum.billingEntityId:
-      return unescapeFilterLabel(
-        value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
-      )
     case AvailableFiltersEnum.userEmails:
       return value.toLocaleLowerCase()
     case AvailableFiltersEnum.billableMetricCode:
