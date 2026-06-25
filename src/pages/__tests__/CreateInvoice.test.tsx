@@ -87,7 +87,9 @@ jest.mock('~/components/invoices/useEditInvoiceDisplayName', () => ({
 }))
 
 jest.mock('~/components/invoices/EditInvoiceItemDescriptionDialog', () => ({
-  EditInvoiceItemDescriptionDialog: jest.fn(() => null),
+  useEditInvoiceItemDescriptionDialog: () => ({
+    openEditInvoiceItemDescriptionDialog: jest.fn(),
+  }),
 }))
 
 jest.mock('~/components/invoices/EditInvoiceItemTaxDialog', () => ({
