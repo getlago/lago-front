@@ -14408,6 +14408,17 @@ export type GetOrderFormsQueryVariables = Exact<{
 
 export type GetOrderFormsQuery = { __typename?: 'Query', orderForms: { __typename?: 'OrderFormCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, expiresAt?: any | null, customer: { __typename?: 'Customer', id: string, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, quote: { __typename?: 'Quote', id: string, number: string, currentVersion: { __typename?: 'QuoteVersion', id: string, version: number, content?: string | null, billingItems?: any | null } } }> } };
 
+export type OrderListItemFragment = { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, executionMode?: OrderExecutionModeEnum | null, executedAt?: any | null, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string } } };
+
+export type GetOrdersQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  quoteNumber?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type GetOrdersQuery = { __typename?: 'Query', orders: { __typename?: 'OrderCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, executionMode?: OrderExecutionModeEnum | null, executedAt?: any | null, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string } } }> } };
+
 export type QuotePreviewVersionFragment = { __typename?: 'QuoteVersion', content?: string | null, billingItems?: any | null };
 
 export type QuotePreviewCustomerFragment = { __typename?: 'Customer', currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null };
@@ -20390,6 +20401,23 @@ export const OrderFormListItemFragmentDoc = gql`
 }
     ${QuotePreviewCustomerFragmentDoc}
 ${QuotePreviewVersionFragmentDoc}`;
+export const OrderListItemFragmentDoc = gql`
+    fragment OrderListItem on Order {
+  id
+  number
+  status
+  executionMode
+  executedAt
+  orderForm {
+    id
+    number
+    quote {
+      id
+      number
+    }
+  }
+}
+    `;
 export const QuoteDetailItemFragmentDoc = gql`
     fragment QuoteDetailItem on Quote {
   id
@@ -39392,6 +39420,58 @@ export type GetOrderFormsQueryHookResult = ReturnType<typeof useGetOrderFormsQue
 export type GetOrderFormsLazyQueryHookResult = ReturnType<typeof useGetOrderFormsLazyQuery>;
 export type GetOrderFormsSuspenseQueryHookResult = ReturnType<typeof useGetOrderFormsSuspenseQuery>;
 export type GetOrderFormsQueryResult = Apollo.QueryResult<GetOrderFormsQuery, GetOrderFormsQueryVariables>;
+export const GetOrdersDocument = gql`
+    query getOrders($page: Int, $limit: Int, $quoteNumber: [String!]) {
+  orders(page: $page, limit: $limit, quoteNumber: $quoteNumber) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      ...OrderListItem
+    }
+  }
+}
+    ${OrderListItemFragmentDoc}`;
+
+/**
+ * __useGetOrdersQuery__
+ *
+ * To run a query within a React component, call `useGetOrdersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrdersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrdersQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      quoteNumber: // value for 'quoteNumber'
+ *   },
+ * });
+ */
+export function useGetOrdersQuery(baseOptions?: Apollo.QueryHookOptions<GetOrdersQuery, GetOrdersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrdersQuery, GetOrdersQueryVariables>(GetOrdersDocument, options);
+      }
+export function useGetOrdersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrdersQuery, GetOrdersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrdersQuery, GetOrdersQueryVariables>(GetOrdersDocument, options);
+        }
+// @ts-ignore
+export function useGetOrdersSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrdersQuery, GetOrdersQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrdersQuery, GetOrdersQueryVariables>;
+export function useGetOrdersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrdersQuery, GetOrdersQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrdersQuery | undefined, GetOrdersQueryVariables>;
+export function useGetOrdersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrdersQuery, GetOrdersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOrdersQuery, GetOrdersQueryVariables>(GetOrdersDocument, options);
+        }
+export type GetOrdersQueryHookResult = ReturnType<typeof useGetOrdersQuery>;
+export type GetOrdersLazyQueryHookResult = ReturnType<typeof useGetOrdersLazyQuery>;
+export type GetOrdersSuspenseQueryHookResult = ReturnType<typeof useGetOrdersSuspenseQuery>;
+export type GetOrdersQueryResult = Apollo.QueryResult<GetOrdersQuery, GetOrdersQueryVariables>;
 export const GetQuoteDocument = gql`
     query getQuote($id: ID!) {
   quote(id: $id) {

@@ -4362,5 +4362,16 @@
   "text_1781874334924qwjnv1swbo2": "Valid until: {{date}}",
   "text_1782378031093sfjoizk5vap": "This customer is linked to an entity using Lago EU Tax Management. Changing the billing entity may change how taxes are calculated on future invoices.",
   "text_1782378031093gnp1nv78zfv": "The selected billing entity uses Lago EU Tax Management. Switching to it may change how taxes are calculated on future invoices.",
-  "text_1782385268545ex9rk4gx0rf": "Please select a tax or remove the empty row"
+  "text_1782385268545ex9rk4gx0rf": "Please select a tax or remove the empty row",
+  "text_17823920587596x5e6nes7qv": "Orders",
+  "text_1782392058759pmmuy0h997w": "Order number",
+  "text_1782392058759f99av1go7r6": "Order form",
+  "text_17823920587599ha9n3uhfuj": "Execution mode",
+  "text_1782392058759njezxv1yrhl": "Execution date",
+  "text_1782392058759gdepj0tu2cn": "Created",
+  "text_17823920587590tcd0ckxjde": "Executed",
+  "text_1782392058759vsncvwa3829": "Execute in Lago",
+  "text_1782392058759l2hdxjsbklc": "Order only",
+  "text_1782392058759fvp6ye50x8g": "No order yet",
+  "text_1782392058759ee7h86svmtj": "Orders will appear here once their order forms are signed."
 }

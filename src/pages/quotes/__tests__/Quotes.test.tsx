@@ -66,12 +66,12 @@ describe('Quotes', () => {
         expect(capturedConfig?.entity?.viewName).toEqual(expect.any(String))
       })
 
-      it('THEN should configure MainHeader with two tabs', () => {
+      it('THEN should configure MainHeader with three tabs', () => {
         mockHasPermissions.mockReturnValue(true)
 
         render(<Quotes />)
 
-        expect(capturedConfig?.tabs).toHaveLength(2)
+        expect(capturedConfig?.tabs).toHaveLength(3)
       })
 
       it('THEN should have a Quotes tab as the first tab', () => {
@@ -90,6 +90,15 @@ describe('Quotes', () => {
 
         expect(capturedConfig?.tabs?.[1].title).toEqual(expect.any(String))
         expect(capturedConfig?.tabs?.[1].link).toBe('/quotes/order-forms')
+      })
+
+      it('THEN should have an Orders tab as the third tab', () => {
+        mockHasPermissions.mockReturnValue(true)
+
+        render(<Quotes />)
+
+        expect(capturedConfig?.tabs?.[2].title).toEqual(expect.any(String))
+        expect(capturedConfig?.tabs?.[2].link).toBe('/quotes/orders')
       })
 
       it('THEN should render the active tab content', () => {

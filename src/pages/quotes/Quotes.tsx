@@ -24,6 +24,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import OrderFormsList from './OrderFormsList'
+import OrdersList from './OrdersList'
 import QuotesList from './QuotesList'
 
 export const CREATE_QUOTE_BUTTON_TEST_ID = 'create-quote-button'
@@ -70,6 +71,13 @@ const Quotes = (): JSX.Element => {
           tab: QuotesTabsOptionsEnum.orderForms,
         }),
         content: <OrderFormsList />,
+      },
+      {
+        title: translate('text_17823920587596x5e6nes7qv'),
+        link: generatePath(QUOTES_TAB_ROUTE, {
+          tab: QuotesTabsOptionsEnum.orders,
+        }),
+        content: <OrdersList />,
       },
     ],
     [translate],
