@@ -104,6 +104,7 @@ const mockQuote = {
   customer: {
     id: 'customer-001',
     name: 'Acme',
+    displayName: 'Acme',
     externalId: 'ext-acme-001',
     netPaymentTerm: null,
     billingConfiguration: { documentLocale: 'en' },

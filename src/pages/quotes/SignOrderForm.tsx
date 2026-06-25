@@ -57,6 +57,7 @@ gql`
       customer {
         id
         name
+        displayName
       }
       quote {
         ...QuoteDetailItem
@@ -245,7 +246,7 @@ const SignOrderForm = () => {
                       {translate('text_65201c5a175a4b0238abf29a')}
                     </Typography>
                     <Typography variant="body" color="grey700">
-                      {orderForm?.customer.name}
+                      {orderForm?.customer.displayName}
                     </Typography>
                   </div>
                   <div className="flex flex-col">

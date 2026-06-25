@@ -45,7 +45,7 @@ const mockQuotes = [
     versions: [{ id: 'version-1', status: StatusEnum.Draft, version: 2 }],
     orderType: OrderTypeEnum.SubscriptionAmendment,
     createdAt: '2026-04-09T15:00:00Z',
-    customer: { id: 'customer-001', name: 'Acme Corp' },
+    customer: { id: 'customer-001', name: 'Acme Corp', displayName: 'Acme Corp' },
   },
   {
     id: 'quote-2',
@@ -53,7 +53,7 @@ const mockQuotes = [
     versions: [{ id: 'version-2', status: StatusEnum.Approved, version: 2 }],
     orderType: OrderTypeEnum.SubscriptionCreation,
     createdAt: '2026-04-01T09:00:00Z',
-    customer: { id: 'customer-002', name: 'Globex Inc' },
+    customer: { id: 'customer-002', name: 'Globex Inc', displayName: 'Globex Inc' },
   },
   {
     id: 'quote-3',
@@ -61,7 +61,7 @@ const mockQuotes = [
     versions: [{ id: 'version-3', status: StatusEnum.Voided, version: 1 }],
     orderType: OrderTypeEnum.OneOff,
     createdAt: '2026-03-10T08:00:00Z',
-    customer: { id: 'customer-003', name: 'Wayne Enterprises' },
+    customer: { id: 'customer-003', name: 'Wayne Enterprises', displayName: 'Wayne Enterprises' },
   },
 ]
 

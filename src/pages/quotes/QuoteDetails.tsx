@@ -70,7 +70,7 @@ const QuoteDetails = (): JSX.Element => {
         entity={{
           viewName: quote?.number ?? '',
           viewNameLoading: loading,
-          metadata: quote ? `${quote.customer.name} - ${quote.customer.externalId}` : '',
+          metadata: quote ? `${quote.customer.displayName} - ${quote.customer.externalId}` : '',
           metadataLoading: loading,
         }}
         actions={{ items: headerActions, loading }}

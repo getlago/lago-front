@@ -62,7 +62,7 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
     },
     {
       label: translate('text_65201c5a175a4b0238abf29a'),
-      value: `${quote.customer.name} - ${quote.customer.externalId}`,
+      value: `${quote.customer.displayName} - ${quote.customer.externalId}`,
     },
     {
       label: translate('text_6560809c38fb9de88d8a52fb'),

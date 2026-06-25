@@ -38,6 +38,7 @@ gql`
       customer {
         id
         name
+        displayName
         ...QuotePreviewCustomer
       }
       quote {
@@ -225,10 +226,10 @@ const VoidOrderForm = () => {
                       content: ({ number }) => number,
                     },
                     {
-                      key: 'customer.name',
+                      key: 'customer.displayName',
                       title: translate('text_65201c5a175a4b0238abf29a'),
                       maxSpace: true,
-                      content: ({ customer }) => customer.name,
+                      content: ({ customer }) => customer.displayName,
                     },
                     {
                       key: 'quote.number',

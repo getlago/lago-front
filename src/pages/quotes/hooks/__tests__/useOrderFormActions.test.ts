@@ -46,7 +46,7 @@ const createMockOrderForm = (
   number: 'OF-2026-0001',
   status: OrderFormStatusEnum.Generated,
   createdAt: '2026-04-10T10:00:00Z',
-  customer: { id: 'customer-001', name: 'Acme Corp' },
+  customer: { id: 'customer-001', displayName: 'Acme Corp' },
   quote: {
     id: 'q-1',
     number: 'QUO-001',

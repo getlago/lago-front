@@ -112,7 +112,7 @@ const EditQuoteAsideForm = ({
   const getDefaultValues = (): EditQuoteAsideFormValues => {
     return {
       orderTypeLabel: translate(getQuoteOrderTypeTranslationKey(quote.orderType)),
-      customerName: quote.customer.name ?? '',
+      customerName: quote.customer.displayName,
       billingEntityId: quote.customer.billingEntity?.id ?? '',
       currency:
         quote.customer.currency ??
