@@ -158,11 +158,19 @@ describe('useEditInvoiceItemDescriptionDialog', () => {
     })
 
     describe('WHEN the description exceeds the max length', () => {
-      it('THEN should not invoke the callback', async () => {
+      it('THEN should not invoke the callback and should throw to keep the dialog open', async () => {
         const callback = jest.fn()
+        let submitThrew = false
 
+        // Mirror FormDialog's handleContinue: it wraps form.submit() in try/catch,
+        // and with closeOnError: false a throw keeps the dialog open.
         mockFormDialogOpen.mockImplementation(async (config) => {
-          await config.form.submit()
+          try {
+            await config.form.submit()
+          } catch {
+            submitThrew = true
+          }
+
           return { reason: 'close' }
         })
 
@@ -178,6 +186,7 @@ describe('useEditInvoiceItemDescriptionDialog', () => {
         })
 
         expect(callback).not.toHaveBeenCalled()
+        expect(submitThrew).toBe(true)
       })
     })
   })
