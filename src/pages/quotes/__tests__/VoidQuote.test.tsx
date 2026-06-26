@@ -100,6 +100,7 @@ const mockQuote = {
     endDate: null,
     billingItems: {},
     createdAt: '2026-04-09T10:00:00Z',
+    mentionVariables: {},
   },
   customer: {
     id: 'customer-001',
