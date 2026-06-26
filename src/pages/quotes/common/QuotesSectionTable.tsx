@@ -39,9 +39,7 @@ export const QuotesSectionTable = <T extends { id: string }>({
   const onBottom = () => {
     const { currentPage = 0, totalPages = 0 } = metadata || {}
 
-    currentPage < totalPages &&
-      !isLoading &&
-      fetchMore?.({ variables: { page: currentPage + 1 } })
+    currentPage < totalPages && !isLoading && fetchMore?.({ variables: { page: currentPage + 1 } })
   }
 
   return (
