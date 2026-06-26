@@ -67,7 +67,6 @@ describe('QuotesSectionTable', () => {
         fetchMore={fetchMore}
       />,
     )
-
     ;(mockInfiniteScrollProps.current?.onBottom as () => void)()
     expect(fetchMore).toHaveBeenCalledWith({ variables: { page: 2 } })
   })
@@ -82,7 +81,6 @@ describe('QuotesSectionTable', () => {
         fetchMore={fetchMore}
       />,
     )
-
     ;(mockInfiniteScrollProps.current?.onBottom as () => void)()
     expect(fetchMore).not.toHaveBeenCalled()
   })
@@ -98,7 +96,6 @@ describe('QuotesSectionTable', () => {
         fetchMore={fetchMore}
       />,
     )
-
     ;(mockInfiniteScrollProps.current?.onBottom as () => void)()
     expect(fetchMore).not.toHaveBeenCalled()
   })
