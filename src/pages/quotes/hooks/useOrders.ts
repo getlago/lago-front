@@ -24,8 +24,30 @@ gql`
     }
   }
 
-  query getOrders($page: Int, $limit: Int, $quoteNumber: [String!]) {
-    orders(page: $page, limit: $limit, quoteNumber: $quoteNumber) {
+  query getOrders(
+    $page: Int
+    $limit: Int
+    $quoteNumber: [String!]
+    $status: [OrderStatusEnum!]
+    $customerId: [ID!]
+    $number: [String!]
+    $ownerId: [ID!]
+    $executionMode: [OrderExecutionModeEnum!]
+    $executedAtFrom: ISO8601DateTime
+    $executedAtTo: ISO8601DateTime
+  ) {
+    orders(
+      page: $page
+      limit: $limit
+      quoteNumber: $quoteNumber
+      status: $status
+      customerId: $customerId
+      number: $number
+      ownerId: $ownerId
+      executionMode: $executionMode
+      executedAtFrom: $executedAtFrom
+      executedAtTo: $executedAtTo
+    ) {
       metadata {
         currentPage
         totalPages
