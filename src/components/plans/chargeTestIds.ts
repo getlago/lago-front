@@ -14,3 +14,6 @@ export const GRADUATED_PERCENTAGE_CHARGE_TABLE_ADD_TIER_TEST_ID = 'add-tier'
 
 // VolumeChargeTable
 export const VOLUME_CHARGE_TABLE_ADD_TIER_TEST_ID = 'add-tier'
+
+// FixedChargesSection
+export const FIXED_CHARGES_ADD_BUTTON_TEST_ID = 'add-fixed-charge'

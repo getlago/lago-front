@@ -1,5 +1,5 @@
 import { ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
-import { FIXED_CHARGES_ADD_BUTTON_TEST_ID } from '~/components/plans/form/FixedChargesSection'
+import { FIXED_CHARGES_ADD_BUTTON_TEST_ID } from '~/components/plans/chargeTestIds'
 
 import { customerName } from '../../support/reusableConstants'
 

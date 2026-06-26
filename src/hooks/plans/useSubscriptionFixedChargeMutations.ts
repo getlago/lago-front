@@ -71,7 +71,7 @@ const comparableProperties = (
   )
 
 const comparableTaxCodes = (taxes: BaselineFixedCharge['taxes']): string =>
-  JSON.stringify((taxes ?? []).map((tax) => tax.code).sort())
+  JSON.stringify((taxes ?? []).map((tax) => tax.code).sort((a, b) => a.localeCompare(b)))
 
 export const useSubscriptionFixedChargeMutations = ({
   subscriptionId,

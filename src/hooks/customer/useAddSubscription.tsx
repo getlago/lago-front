@@ -153,7 +153,7 @@ const comparableChargeContent = (charge: {
   comparable({
     invoiceDisplayName: charge.invoiceDisplayName || '',
     properties: charge.properties ?? null,
-    taxCodes: [...(charge.taxCodes ?? [])].sort(),
+    taxCodes: [...(charge.taxCodes ?? [])].sort((a, b) => a.localeCompare(b)),
   })
 
 // Clean plan values (non editable fields not accepted by BE / Graph fails if they are sent)

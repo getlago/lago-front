@@ -7,6 +7,7 @@ import { Chip } from '~/components/designSystem/Chip'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { FIXED_CHARGES_ADD_BUTTON_TEST_ID } from '~/components/plans/chargeTestIds'
 import {
   FixedChargeDrawer,
   FixedChargeDrawerRef,
@@ -64,9 +65,6 @@ gql`
   ${GraduatedChargeFragmentDoc}
   ${VolumeRangesFragmentDoc}
 `
-
-// Test ID constants
-export const FIXED_CHARGES_ADD_BUTTON_TEST_ID = 'add-fixed-charge'
 
 interface FixedChargesSectionProps {
   form: PlanFormType
