@@ -78,6 +78,11 @@ jest.mock('~/hooks/plans/usePlanForm', () => ({
     loading: false,
     type: 'creation',
   }),
+  buildDefaultValues: jest.fn(() => ({})),
+}))
+
+jest.mock('~/hooks/plans/useCustomPricingUnits', () => ({
+  useCustomPricingUnits: () => ({ hasAnyPricingUnitConfigured: false }),
 }))
 
 const mockSubscriptionFormIsDirty = false

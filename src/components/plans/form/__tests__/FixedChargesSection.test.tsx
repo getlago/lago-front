@@ -5,8 +5,9 @@ import { ChargeModelEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 import { createMockPlanForm } from '~/test-utils/createMockPlanForm'
 
+import { FIXED_CHARGES_ADD_BUTTON_TEST_ID } from '../../chargeTestIds'
 import { LocalFixedChargeInput, PlanFormInput } from '../../types'
-import { FIXED_CHARGES_ADD_BUTTON_TEST_ID, FixedChargesSection } from '../FixedChargesSection'
+import { FixedChargesSection } from '../FixedChargesSection'
 
 // --- Mocks ---
 

@@ -108,6 +108,9 @@ type UseAddSubscriptionReturn = {
     values: Omit<CreateSubscriptionInput, 'customerId'>,
     planValues: PlanFormInput,
     hasPlanBeingChangedFromInitial: boolean,
+    // The plan's baseline (unedited) values, used to send only the fields the
+    // user actually changed. See buildPlanOverridesInput.
+    planBaselineValues?: PlanFormInput | null,
   ) => Promise<string | undefined>
 }
 
@@ -116,6 +119,42 @@ type UseAddSubscription = (args: {
   billingTime?: BillingTimeEnum
   subscriptionAt?: string
 }) => UseAddSubscriptionReturn
+
+// Recursively drops __typename and sorts object keys so two values produced by
+// the same serialization compare equal regardless of key order / __typename.
+const sortedWithoutTypename = (value: unknown): unknown => {
+  if (Array.isArray(value)) return value.map(sortedWithoutTypename)
+
+  if (value !== null && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([key]) => key !== '__typename')
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([key, entry]) => [key, sortedWithoutTypename(entry)]),
+    )
+  }
+
+  return value
+}
+
+const comparable = (value: unknown): string => JSON.stringify(sortedWithoutTypename(value))
+
+// The override-meaningful content of a (serialized + cleaned) fixed charge,
+// excluding `units` (compared separately) and identity fields. The edit drawer
+// writes the whole charge back and augments it with normalization-only fields
+// (e.g. `applyUnitsImmediately`) that the untouched baseline charge lacks, so we
+// compare an explicit whitelist instead of the whole object to avoid reading
+// that noise as a real change.
+const comparableChargeContent = (charge: {
+  invoiceDisplayName?: string | null
+  properties?: unknown
+  taxCodes?: Array<string> | null
+}): string =>
+  comparable({
+    invoiceDisplayName: charge.invoiceDisplayName || '',
+    properties: charge.properties ?? null,
+    taxCodes: [...(charge.taxCodes ?? [])].sort((a, b) => a.localeCompare(b)),
+  })
 
 // Clean plan values (non editable fields not accepted by BE / Graph fails if they are sent)
 export const cleanPlanValues = (planValues: PlanOverridesInput) => {
@@ -152,6 +191,60 @@ export const cleanPlanValues = (planValues: PlanOverridesInput) => {
       prorated: undefined,
     })),
   }
+}
+
+// Builds the `planOverrides` payload from the edited plan values, diffed against
+// the original plan (the form's baseline values).
+//
+// When the only difference is fixed-charge units, returns a minimal
+// `{ fixedCharges: [{ id, units }] }` so the BE takes its per-subscription
+// units-override fast path instead of cloning the whole plan. Any other change
+// (a plan-level field, or a non-units field on a fixed charge) sends the full
+// cleaned payload, the existing behaviour.
+//
+// Fixed charges cannot be added or removed from the subscription form, so they
+// always match the baseline 1:1 by id.
+export const buildPlanOverridesInput = (
+  currentValues: PlanFormInput,
+  baselineValues?: PlanFormInput | null,
+): PlanOverridesInput => {
+  const current = cleanPlanValues(serializePlanInput(currentValues) as PlanOverridesInput)
+
+  // No baseline to diff against (plan still loading) → send the full payload.
+  if (!baselineValues) return current
+
+  const baseline = cleanPlanValues(serializePlanInput(baselineValues) as PlanOverridesInput)
+
+  const { fixedCharges: currentFixedCharges, ...currentRest } = current
+  const { fixedCharges: baselineFixedCharges, ...baselineRest } = baseline
+
+  // Any plan-level (non fixed-charge) field changed → full payload.
+  if (comparable(currentRest) !== comparable(baselineRest)) {
+    return current
+  }
+
+  const changedUnits: Array<{ id: string; units: string }> = []
+
+  for (const charge of currentFixedCharges ?? []) {
+    const original = baselineFixedCharges?.find((fixedCharge) => fixedCharge.id === charge.id)
+
+    // No baseline match → can't prove it's units-only, send the full payload.
+    if (!original) return current
+
+    // A non-units content field changed on this charge → full payload.
+    if (comparableChargeContent(charge) !== comparableChargeContent(original)) {
+      return current
+    }
+
+    if (String(charge.units ?? '') !== String(original.units ?? '')) {
+      changedUnits.push({ id: charge.id as string, units: String(charge.units ?? '') })
+    }
+  }
+
+  // Nothing units-related changed → keep the full payload behaviour.
+  if (changedUnits.length === 0) return current
+
+  return { fixedCharges: changedUnits }
 }
 
 export const useAddSubscription: UseAddSubscription = ({
@@ -280,8 +373,11 @@ export const useAddSubscription: UseAddSubscription = ({
       },
       { ...planValues },
       hasPlanBeingChangedFromInitial,
+      planBaselineValues,
     ) => {
-      const serializedPlanValues = serializePlanInput(planValues)
+      const planOverrides = hasPlanBeingChangedFromInitial
+        ? buildPlanOverridesInput(planValues, planBaselineValues)
+        : undefined
 
       const parsedPaymentMethod = paymentMethod
         ? {
@@ -327,9 +423,7 @@ export const useAddSubscription: UseAddSubscription = ({
                   externalId: externalId || undefined,
                   paymentMethod: parsedPaymentMethod,
                   ...values,
-                  planOverrides: hasPlanBeingChangedFromInitial
-                    ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput) }
-                    : undefined,
+                  planOverrides,
                 },
               },
             })
@@ -345,9 +439,7 @@ export const useAddSubscription: UseAddSubscription = ({
                   // subscription column, meaning "inherit from customer".
                   billingEntityId: billingEntityId || null,
                   paymentMethod: parsedPaymentMethod,
-                  planOverrides: hasPlanBeingChangedFromInitial
-                    ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput) }
-                    : undefined,
+                  planOverrides,
                 },
               },
             })

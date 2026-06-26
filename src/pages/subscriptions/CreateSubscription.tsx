@@ -55,7 +55,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
 import { useAppForm } from '~/hooks/forms/useAppform'
-import { usePlanForm } from '~/hooks/plans/usePlanForm'
+import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
+import { buildDefaultValues, usePlanForm } from '~/hooks/plans/usePlanForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -163,6 +164,7 @@ const CreateSubscription = () => {
         localValues,
         planForm.state.values,
         planFormIsDirty,
+        planBaselineValues,
       )
 
       if (errorsString === 'CurrenciesDoesNotMatch') {
@@ -238,6 +240,23 @@ const CreateSubscription = () => {
     planIdToFetch: subscriptionPlanId,
     isUsedInSubscriptionForm: true,
   })
+
+  const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
+
+  // The plan's unedited baseline, rebuilt the same way the plan form is
+  // initialized (usePlanFormSetup → buildDefaultValues). Diffed against the
+  // edited values in useAddSubscription so a units-only fixed-charge change
+  // sends a minimal planOverrides instead of cloning the whole plan.
+  const planBaselineValues = useMemo(
+    () =>
+      buildDefaultValues(
+        plan,
+        FORM_TYPE_ENUM.creation,
+        (plan?.amountCurrency as CurrencyEnum) || CurrencyEnum.Usd,
+        hasAnyPricingUnitConfigured,
+      ),
+    [plan, hasAnyPricingUnitConfigured],
+  )
 
   const alreadyExistingPlanFixedChargesIds =
     plan?.fixedCharges?.map((fixedCharge) => fixedCharge.id) || []

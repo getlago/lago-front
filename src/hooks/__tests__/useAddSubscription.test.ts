@@ -8,7 +8,7 @@ import {
   PlanOverridesInput,
   RegroupPaidFeesEnum,
 } from '~/generated/graphql'
-import { cleanPlanValues } from '~/hooks/customer/useAddSubscription'
+import { buildPlanOverridesInput, cleanPlanValues } from '~/hooks/customer/useAddSubscription'
 
 describe('cleanPlanValues', () => {
   // Mock plan form input with all the fields that exist in the form but should be cleaned
@@ -234,5 +234,153 @@ describe('cleanPlanValues', () => {
 
       expect(result.charges?.[0]?.appliedPricingUnit).toBeUndefined()
     })
+  })
+})
+
+describe('buildPlanOverridesInput', () => {
+  const buildBaseValues = (): PlanFormInput =>
+    ({
+      name: 'Standard with Fixed Charges',
+      code: 'PLAN_CODE',
+      description: '',
+      interval: PlanInterval.Monthly,
+      entitlements: [],
+      amountCents: '10',
+      amountCurrency: CurrencyEnum.Usd,
+      trialPeriod: 0,
+      payInAdvance: true,
+      billChargesMonthly: false,
+      billFixedChargesMonthly: false,
+      taxes: [],
+      minimumCommitment: {},
+      charges: [],
+      fixedCharges: [
+        {
+          id: 'fixed-charge-1',
+          units: '1',
+          invoiceDisplayName: 'Fixed Charge 1',
+          payInAdvance: false,
+          prorated: false,
+          chargeModel: FixedChargeChargeModelEnum.Standard,
+          properties: { amount: '12' },
+          taxes: [],
+          addOn: { id: 'add-on-1', name: 'Add On 1', code: 'ADD_ON_1' },
+        },
+        {
+          id: 'fixed-charge-2',
+          units: '5',
+          invoiceDisplayName: 'Fixed Charge 2',
+          payInAdvance: false,
+          prorated: false,
+          chargeModel: FixedChargeChargeModelEnum.Standard,
+          properties: { amount: '20' },
+          taxes: [],
+          addOn: { id: 'add-on-2', name: 'Add On 2', code: 'ADD_ON_2' },
+        },
+      ],
+    }) as unknown as PlanFormInput
+
+  const clone = (values: PlanFormInput): PlanFormInput =>
+    JSON.parse(JSON.stringify(values)) as PlanFormInput
+
+  it('sends only the changed fixed charge id + units when nothing else changed', () => {
+    const baseline = buildBaseValues()
+    const current = clone(baseline)
+
+    // Only the first fixed charge's units changed
+    ;(current.fixedCharges[0] as { units: string }).units = '3'
+
+    const result = buildPlanOverridesInput(current, baseline)
+
+    expect(result).toEqual({
+      fixedCharges: [{ id: 'fixed-charge-1', units: '3' }],
+    })
+  })
+
+  it('only includes the fixed charges whose units actually changed', () => {
+    const baseline = buildBaseValues()
+    const current = clone(baseline)
+
+    // Both still present, but only the second one's units moved
+    ;(current.fixedCharges[1] as { units: string }).units = '9'
+
+    const result = buildPlanOverridesInput(current, baseline)
+
+    expect(result).toEqual({
+      fixedCharges: [{ id: 'fixed-charge-2', units: '9' }],
+    })
+  })
+
+  it('treats drawer-added applyUnitsImmediately as noise, not a real change', () => {
+    // The edit drawer writes the whole charge back, augmenting it with
+    // `applyUnitsImmediately: false` — a field the untouched baseline charge
+    // (pulled raw from the plan) never has. That asymmetry must not be read as
+    // a non-units change.
+    const baseline = buildBaseValues()
+    const current = clone(baseline)
+
+    ;(current.fixedCharges[0] as { units: string }).units = '99'
+    ;(current.fixedCharges[0] as { applyUnitsImmediately: boolean }).applyUnitsImmediately = false
+
+    const result = buildPlanOverridesInput(current, baseline)
+
+    expect(result).toEqual({
+      fixedCharges: [{ id: 'fixed-charge-1', units: '99' }],
+    })
+  })
+
+  it('normalizes an empty invoiceDisplayName against an absent one', () => {
+    const baseline = buildBaseValues()
+    // Baseline charge has no invoiceDisplayName at all
+    delete (baseline.fixedCharges[0] as { invoiceDisplayName?: string }).invoiceDisplayName
+    const current = clone(baseline)
+
+    ;(current.fixedCharges[0] as { units: string }).units = '99'
+    // The drawer initializes the field to an empty string
+    ;(current.fixedCharges[0] as { invoiceDisplayName: string }).invoiceDisplayName = ''
+
+    const result = buildPlanOverridesInput(current, baseline)
+
+    expect(result).toEqual({
+      fixedCharges: [{ id: 'fixed-charge-1', units: '99' }],
+    })
+  })
+
+  it('sends the full payload when a non-fixed-charge field also changed', () => {
+    const baseline = buildBaseValues()
+    const current = clone(baseline)
+
+    ;(current.fixedCharges[0] as { units: string }).units = '3'
+    current.amountCents = '20'
+
+    const result = buildPlanOverridesInput(current, baseline)
+
+    // Falls back to the full cleaned payload, not the minimal units-only one
+    // (amountCents is serialized to cents: '20' USD → 2000)
+    expect(result.amountCents).toBe(2000)
+    expect(result.fixedCharges).toHaveLength(2)
+    expect(result.fixedCharges?.[0]).toMatchObject({ id: 'fixed-charge-1', units: '3' })
+  })
+
+  it('sends the full payload when a fixed charge field other than units changed', () => {
+    const baseline = buildBaseValues()
+    const current = clone(baseline)
+
+    ;(current.fixedCharges[0] as { units: string }).units = '3'
+    ;(current.fixedCharges[0] as { invoiceDisplayName: string }).invoiceDisplayName = 'Renamed'
+
+    const result = buildPlanOverridesInput(current, baseline)
+
+    expect(result.fixedCharges).toHaveLength(2)
+    expect(result.fixedCharges?.[0]).toMatchObject({ invoiceDisplayName: 'Renamed' })
+  })
+
+  it('sends the full payload when no baseline is available', () => {
+    const current = buildBaseValues()
+
+    const result = buildPlanOverridesInput(current, undefined)
+
+    expect(result.fixedCharges).toHaveLength(2)
+    expect(result.amountCents).toBe(1000)
   })
 })
