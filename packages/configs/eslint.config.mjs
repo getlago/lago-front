@@ -210,6 +210,9 @@ export default [
                 '~/components/taxes/*Dialog*',
                 '~/components/wallets/*Dialog*',
               ],
+              // Allow the migrated hook exports (useXxxDialog) that still live
+              // in these files; only the legacy component/ref exports stay flagged.
+              allowImportNamePattern: '^use',
               message:
                 'This dialog component is deprecated. Please use the new dialog management system in ~/components/dialogs instead.',
             },

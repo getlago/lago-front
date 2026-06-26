@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { CreditNoteDetailsActivityLogs } from '~/components/creditNote/CreditNoteDetailsActivityLogs'
@@ -9,10 +9,7 @@ import {
   CREDIT_NOTE_TYPE_TRANSLATIONS_MAP,
   getCreditNoteTypes,
 } from '~/components/creditNote/utils'
-import {
-  VoidCreditNoteDialog,
-  VoidCreditNoteDialogRef,
-} from '~/components/customers/creditNotes/VoidCreditNoteDialog'
+import { useVoidCreditNoteDialog } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { StatusType } from '~/components/designSystem/Status'
 import { buildCreditNoteDocumentData } from '~/components/emails/buildDocumentData'
@@ -108,7 +105,7 @@ const CreditNoteDetails = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { customerId, invoiceId, creditNoteId } = useParams()
-  const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
+  const { openVoidCreditNoteDialog } = useVoidCreditNoteDialog()
   const { isPremium } = useCurrentUser()
   const activeTabContent = useMainHeaderTabContent()
 
@@ -282,7 +279,7 @@ const CreditNoteDetails = () => {
           onClick: (closePopper) => {
             if (!creditNote?.id) return
 
-            voidCreditNoteDialogRef.current?.openDialog({
+            openVoidCreditNoteDialog({
               id: creditNote?.id,
               totalAmountCents: creditNote?.totalAmountCents,
               currency: creditNote?.currency,
@@ -470,8 +467,6 @@ const CreditNoteDetails = () => {
       ) : (
         <>{activeTabContent}</>
       )}
-
-      <VoidCreditNoteDialog ref={voidCreditNoteDialogRef} />
     </>
   )
 }
