@@ -5,17 +5,69 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { Locale, LocaleEnum } from '~/core/translations'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { OneOffAddOnsPreviewTable } from './OneOffAddOnsPreviewTable'
+import { SubscriptionPlanPreviewTable } from './SubscriptionPlanPreviewTable'
 
-import { useRichTextEditorContext } from '../common/RichTextEditorContext'
+import { type EntityData, useRichTextEditorContext } from '../common/RichTextEditorContext'
 import { PricingType } from '../extensions/PricingBlock.schema'
 import SlashCommandBlockWrapper from '../SlashCommandBlockWrapper/SlashCommandBlockWrapper'
 
 export const PRICING_BLOCK_VIEW_EMPTY_TEST_ID = 'pricing-block-view-empty'
 export const PRICING_BLOCK_VIEW_UNRESOLVED_TEST_ID = 'pricing-block-view-unresolved'
+
+type PricingBlockPreviewProps = {
+  pricingType: PricingType
+  resolvedEntities: EntityData[]
+  hasResolved: boolean
+  translate: TranslateFunc
+  currency: CurrencyEnum
+  locale: LocaleEnum
+}
+
+// Preview-mode rendering, split out of PricingBlockView to keep each piece simple.
+const PricingBlockPreview = ({
+  pricingType,
+  resolvedEntities,
+  hasResolved,
+  translate,
+  currency,
+  locale,
+}: PricingBlockPreviewProps) => {
+  if (pricingType === 'addOns' && hasResolved) {
+    return (
+      <NodeViewWrapper className="spacer" data-type="pricingBlock">
+        <OneOffAddOnsPreviewTable
+          entities={resolvedEntities}
+          translate={translate}
+          currency={currency}
+          locale={locale}
+        />
+      </NodeViewWrapper>
+    )
+  }
+
+  const planEntity =
+    pricingType === 'plan' ? resolvedEntities.find((e) => e.entityType === 'plan') : undefined
+
+  if (planEntity?.plan) {
+    return (
+      <NodeViewWrapper className="spacer" data-type="pricingBlock">
+        <SubscriptionPlanPreviewTable
+          data={planEntity.plan}
+          translate={translate}
+          currency={currency}
+          locale={locale}
+        />
+      </NodeViewWrapper>
+    )
+  }
+
+  // Preview mode never renders the interactive empty/summary UI.
+  return <NodeViewWrapper className="spacer" data-type="pricingBlock" />
+}
 
 export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
   const { entities, onPricingCommand, mode, customerLocale, customerCurrency } =
@@ -37,21 +89,17 @@ export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
   const hasResolved = resolvedEntities.length > 0
 
   // Preview mode: dispatch by pricing type
-  if (mode === 'preview' && hasResolved) {
-    if (pricingType === 'addOns') {
-      return (
-        <NodeViewWrapper className="spacer" data-type="pricingBlock">
-          <OneOffAddOnsPreviewTable
-            entities={resolvedEntities}
-            translate={translateWithContextualLocal}
-            currency={currency}
-            locale={LocaleEnum[effectiveLocale]}
-          />
-        </NodeViewWrapper>
-      )
-    }
-
-    // Plan preview — fall through to existing resolved rendering for now
+  if (mode === 'preview') {
+    return (
+      <PricingBlockPreview
+        pricingType={pricingType}
+        resolvedEntities={resolvedEntities}
+        hasResolved={hasResolved}
+        translate={translateWithContextualLocal}
+        currency={currency}
+        locale={LocaleEnum[effectiveLocale]}
+      />
+    )
   }
 
   const handleClick = () => {

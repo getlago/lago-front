@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { NodeViewProps } from '@tiptap/react'
 
 import type { Locale } from '~/core/translations'
-import { CurrencyEnum } from '~/generated/graphql'
+import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
@@ -18,6 +18,7 @@ import {
   PRICING_BLOCK_VIEW_UNRESOLVED_TEST_ID,
   PricingBlockView,
 } from '../PricingBlockView'
+import { SUBSCRIPTION_PLAN_PREVIEW_TABLE_TEST_ID } from '../SubscriptionPlanPreviewTable'
 
 jest.mock('@tiptap/react', () => ({
   ...jest.requireActual('@tiptap/react'),
@@ -381,48 +382,75 @@ describe('PricingBlockView', () => {
       })
     })
 
-    describe('WHEN rendered with plan pricing type and resolved entities', () => {
-      it('THEN should fall through to the edit-mode resolved view', () => {
+    describe('WHEN rendered with plan pricing type and a resolved plan with data', () => {
+      it('THEN should render the subscription plan preview table', () => {
+        const planEntity: EntityData = {
+          entityId: 'plan-1',
+          entityType: 'plan',
+          name: 'My Plan',
+          code: 'plan_code',
+          plan: {
+            rows: [
+              {
+                kind: 'main' as const,
+                rowType: 'usageCharge' as const,
+                name: 'API calls',
+                interval: PlanInterval.Monthly,
+                timing: 'endOfPeriod' as const,
+                units: { type: 'usageBased' as const },
+                price: { type: 'variesWithUsage' as const },
+              },
+            ],
+          },
+        }
+
         renderPricingBlockView({
           mode: 'preview',
-          attrs: { pricingType: 'plan', entityIds: ['plan-1'] },
-          entities: {
-            'plan-1': {
-              entityId: 'plan-1',
-              entityType: 'plan',
-              name: 'Basic Plan',
-              code: 'basic',
-            },
-          },
+          entities: { 'plan-1': planEntity },
+          attrs: { pricingType: 'plan', entityIds: ['plan-1'], localEntityIds: [] },
         })
 
-        // Plan preview falls through to existing resolved rendering
-        expect(screen.getByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)).toBeInTheDocument()
-        expect(screen.queryByTestId(ONE_OFF_ADDONS_PREVIEW_TABLE_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(SUBSCRIPTION_PLAN_PREVIEW_TABLE_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByText('API calls')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN rendered with plan pricing type but no resolved plan', () => {
+      it('THEN should render nothing (no Select-pricing button)', () => {
+        renderPricingBlockView({
+          mode: 'preview',
+          entities: {},
+          attrs: { pricingType: 'plan', entityIds: ['missing'], localEntityIds: [] },
+        })
+
+        expect(screen.queryByTestId(PRICING_BLOCK_VIEW_EMPTY_TEST_ID)).not.toBeInTheDocument()
+        // Preview mode must never fall through to the edit-mode interactive UI
+        expect(screen.queryByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId(PRICING_BLOCK_VIEW_UNRESOLVED_TEST_ID)).not.toBeInTheDocument()
       })
     })
 
     describe('WHEN rendered with addOns pricing type but no resolved entities', () => {
-      it('THEN should render the unresolved view instead of the preview table', () => {
+      it('THEN should render nothing (no unresolved view) in preview mode', () => {
         renderPricingBlockView({
           mode: 'preview',
           attrs: { pricingType: 'addOns', entityIds: ['addon-missing'] },
           entities: {},
         })
 
-        expect(screen.getByTestId(PRICING_BLOCK_VIEW_UNRESOLVED_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(PRICING_BLOCK_VIEW_UNRESOLVED_TEST_ID)).not.toBeInTheDocument()
         expect(screen.queryByTestId(ONE_OFF_ADDONS_PREVIEW_TABLE_TEST_ID)).not.toBeInTheDocument()
       })
     })
 
     describe('WHEN rendered with empty entityIds', () => {
-      it('THEN should show the empty state', () => {
+      it('THEN should not show the empty state button in preview mode', () => {
         renderPricingBlockView({
           mode: 'preview',
           attrs: { pricingType: 'addOns', entityIds: [] },
         })
 
-        expect(screen.getByTestId(PRICING_BLOCK_VIEW_EMPTY_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(PRICING_BLOCK_VIEW_EMPTY_TEST_ID)).not.toBeInTheDocument()
       })
     })
 

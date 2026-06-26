@@ -5,7 +5,6 @@ import MUITableHead from '@mui/material/TableHead'
 import MUITableRow from '@mui/material/TableRow'
 import { ReactNode } from 'react'
 
-import { theme } from '~/styles'
 import { tw } from '~/styles/utils'
 
 import TableCell from './TableCell'
@@ -29,6 +28,9 @@ export interface PreviewTableProps<T> {
   columns: PreviewTableColumn<T>[]
   containerClassName?: string
   footer?: ReactNode
+  // Controls the bottom divider per row. Defaults to `true` for every row.
+  // Return `false` to visually group a row with the row below it (no separator).
+  rowHasDivider?: (item: T, index: number) => boolean
 }
 
 const countMaxSpaceColumns = <T,>(columns: PreviewTableColumn<T>[]) =>
@@ -40,6 +42,7 @@ export const PreviewTable = <T,>({
   columns,
   containerClassName,
   footer,
+  rowHasDivider,
 }: PreviewTableProps<T>) => {
   const TABLE_ID = `preview-table-${name}`
   const maxSpaceColumns = countMaxSpaceColumns(columns)
@@ -91,18 +94,13 @@ export const PreviewTable = <T,>({
 
         <MUITableBody>
           {data.map((item, i) => (
-            <MUITableRow
-              key={`${TABLE_ID}-row-${i}`}
-              data-test={`${TABLE_ID}-row-${i}`}
-              sx={{
-                borderBottom: `1px solid ${theme.palette.grey[200]}`,
-              }}
-            >
+            <MUITableRow key={`${TABLE_ID}-row-${i}`} data-test={`${TABLE_ID}-row-${i}`}>
               {columns.map((column, j) => (
                 <TableCell
                   key={`${TABLE_ID}-cell-${i}-${j}`}
                   align={column.textAlign || 'left'}
                   maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
+                  hideBottomBorder={!(rowHasDivider?.(item, i) ?? true)}
                   className="align-top"
                 >
                   <TableInnerCell align={column.textAlign}>
