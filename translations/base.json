@@ -1087,8 +1087,6 @@
   "text_63b578e959c1366df5d14559": "There are no succeeded invoices",
   "text_63b578e959c1366df5d1455f": "An invoice is succeeded when it has been paid by a customer.",
   "text_65269b43d4d2b15dd929a259": "Void invoice",
-  "text_65269b43d4d2b15dd929a0df": "You’re about to void the invoice {{invoiceNumber}}",
-  "text_65269b43d4d2b15dd929a0e5": "By voiding this invoice, you will prevent any further updates to its payment status. Lago will treat this invoice as unpaid.\r\nPlease note that any associated credit notes or applied prepaid credits may be lost if their respective objects are voided or terminated. Are you sure you want to proceed?",
   "text_65269b43d4d2b15dd929a254": "Invoice successfully voided",
   "text_65269b6afe1fda4ad9bf672b": "Invoice status",
   "text_65269c2e471133226211fd74": "Finalized",

@@ -1115,8 +1115,6 @@
   "text_63b578e959c136df5d14559": "Não há faturas pagas",
   "text_63b578e959c136df5d1455f": "Uma fatura é considerada paga quando foi quitada por um cliente.",
   "text_65269b43d4d2b15dd929a259": "Anular fatura",
-  "text_65269b43d4d2b15dd929a0df": "Você está prestes a anular a fatura {{invoiceNumber}}",
-  "text_65269b43d4d2b15dd929a0e5": "Ao anular esta fatura, você impedirá futuras atualizações de seu status de pagamento. O Lago tratará esta fatura como não paga.\r\nObserve que quaisquer notas de crédito associadas ou créditos pré-pagos aplicados podem ser perdidos se seus respectivos objetos forem anulados ou encerrados. Tem certeza de que deseja prosseguir?",
   "text_65269b43d4d2b15dd929a254": "Fatura anulada com sucesso",
   "text_65269b6afe1fda4ad9bf672b": "Status da fatura",
   "text_65269c2e471133226211fd74": "Finalizada",
