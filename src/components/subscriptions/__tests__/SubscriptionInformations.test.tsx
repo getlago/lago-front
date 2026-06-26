@@ -50,6 +50,7 @@ const baseSubscription: SubscriptionForSubscriptionInformationsFragment = {
   nextSubscriptionAt: null,
   nextSubscriptionType: null,
   billingEntityId: 'entity-1',
+  activationRules: [],
   nextPlan: null,
   previousPlan: null,
   previousSubscription: null,

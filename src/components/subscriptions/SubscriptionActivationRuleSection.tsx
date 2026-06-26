@@ -41,7 +41,7 @@ export const SubscriptionActivationRuleSection = withForm({
     TYPING_PLACEHOLDER_DATE,
   ),
   props: subscriptionActivationRuleDefaultProps,
-  render: function SubscriptionActivationRuleSection({
+  render: function SubscriptionActivationRuleSectionRender({
     form,
     customerExternalId,
     formType,
