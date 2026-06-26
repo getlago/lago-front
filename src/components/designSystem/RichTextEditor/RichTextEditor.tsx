@@ -31,7 +31,7 @@ import { type PricingBlockAttributes } from './extensions/PricingBlock.schema'
 import { SlashCommands } from './extensions/SlashCommands'
 import { TableCommands } from './extensions/TableCommands'
 import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
-import { MentionList, type MentionListRef } from './Mentions/MentionList'
+import { MentionList, type MentionItem, type MentionListRef } from './Mentions/MentionList'
 import { MentionNodeView } from './Mentions/MentionNodeView'
 import './richTextEditor.css'
 import TableControls from './Table/TableControls'
@@ -55,21 +55,15 @@ interface RichTextEditorProps {
   customerCurrency?: CurrencyEnum
   isCompact?: boolean
   onPreviewReady?: (html: string) => void
+  variableItems?: MentionItem[]
 }
 
-const variableItems = [
-  { id: 'customerName', label: 'Customer Name' },
-  { id: 'planName', label: 'Plan Name' },
-  { id: 'amountDue', label: 'Amount Due' },
-  { id: 'invoiceNumber', label: 'Invoice Number' },
-  { id: 'dueDate', label: 'Due Date' },
-  { id: 'companyName', label: 'Company Name' },
-]
-
-const mentionSuggestion: NonNullable<MentionSchemaOptions['suggestion']> = {
+export const createMentionSuggestion = (
+  items: MentionItem[],
+): NonNullable<MentionSchemaOptions['suggestion']> => ({
   char: '@',
   items: ({ query }) =>
-    variableItems.filter((v) => v.label.toLowerCase().includes(query.toLowerCase())),
+    items.filter((v) => v.label.toLowerCase().includes(query.toLowerCase())),
   render: () => {
     let renderer: ReactRenderer<MentionListRef>
     let popup: TippyInstance[]
@@ -112,7 +106,7 @@ const mentionSuggestion: NonNullable<MentionSchemaOptions['suggestion']> = {
       },
     }
   },
-}
+})
 
 const getInitialEditorContent = (content?: string, templates?: EditorTemplate[]) => {
   if (content) {
@@ -150,6 +144,7 @@ const RichTextEditor = ({
   customerCurrency,
   isCompact,
   onPreviewReady,
+  variableItems = [],
 }: RichTextEditorProps) => {
   const { translate } = useInternationalization()
   const onChangeRef = useRef(onChange)
@@ -161,6 +156,8 @@ const RichTextEditor = ({
   onPricingBlocksChangeRef.current = onPricingBlocksChange
   onPricingCommandRef.current = onPricingCommand
   isPricingDisabledRef.current = isPricingDisabled
+
+  const mentionSuggestion = useMemo(() => createMentionSuggestion(variableItems), [variableItems])
 
   const editor = useEditor({
     extensions: [
@@ -219,7 +216,7 @@ const RichTextEditor = ({
       })
       onPricingBlocksChangeRef.current(blocks)
     },
-  })
+  }, [mode, mentionValues, entitiesFromProps, onPricingCommand, customerLocale, customerCurrency, variableItems])
 
   const isPreview = mode === 'preview'
 
