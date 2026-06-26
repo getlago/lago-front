@@ -77,4 +77,25 @@ describe('buildQuotePreviewProps', () => {
 
     expect(result.header).toBeUndefined()
   })
+
+  it('surfaces populated mentionVariables from the version payload', () => {
+    const version = {
+      content: '<p>Hello</p>',
+      billingItems: null,
+      mentionVariables: { customer_name: 'Keenan Feldspar', organization_logo: null },
+    }
+
+    const result = buildQuotePreviewProps(version, null)
+
+    expect(result.mentionValues).toEqual({
+      customer_name: 'Keenan Feldspar',
+      organization_logo: null,
+    })
+  })
+
+  it('falls back to {} when mentionVariables is absent (null version)', () => {
+    const result = buildQuotePreviewProps(null, null)
+
+    expect(result.mentionValues).toEqual({})
+  })
 })

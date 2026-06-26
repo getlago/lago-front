@@ -35,7 +35,6 @@ export const buildQuotePreviewProps = (
     : {},
   customerLocale: (customer?.billingConfiguration?.documentLocale ?? 'en') as Locale,
   customerCurrency: customer?.currency ?? undefined,
-  // Placeholder until the backend exposes mention values; intentionally empty for now.
-  mentionValues: {},
+  mentionValues: (version?.mentionVariables ?? {}) as Record<string, string>,
   header,
 })
