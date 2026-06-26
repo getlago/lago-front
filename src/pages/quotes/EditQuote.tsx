@@ -18,6 +18,7 @@ import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBilli
 import type { Locale } from '~/core/translations'
 import { OrderTypeEnum, type UpdateQuoteVersionInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { QUOTE_MENTION_VARIABLES } from '~/pages/quotes/common/mentionVariables'
 
 import EditQuoteAside from './editQuote/EditQuoteAside'
 import { useOneOffPricingDrawer } from './hooks/useOneOffPricingDrawer'
@@ -143,6 +144,11 @@ const EditQuote = () => {
         }
       }, AUTO_SAVE_DELAY_MS),
     [versionId],
+  )
+
+  const mentionItems = useMemo(
+    () => QUOTE_MENTION_VARIABLES.map((v) => ({ id: v.id, label: translate(v.labelKey) })),
+    [translate],
   )
 
   // Compare content instead of blindly trusting onChange — Tiptap fires onChange
@@ -325,6 +331,7 @@ const EditQuote = () => {
             onPricingBlocksChange={handlePricingBlocksChange}
             customerLocale={customerLocale}
             customerCurrency={quote?.customer?.currency ?? undefined}
+            variableItems={mentionItems}
           />
         )}
       </RightAsidePage.Content>
