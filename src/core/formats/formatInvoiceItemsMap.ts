@@ -536,7 +536,7 @@ export const groupAndFormatFees = <TFee extends FeeForGrouping>({
  * Sorts fees by type and display name
  * Works with any fee type that has metadata attached
  */
-export const _newDeepFormatFees = <T extends { metadata: FeeMetadata }>(feesToFormat: T[]): T[] => {
+const _newDeepFormatFees = <T extends { metadata: FeeMetadata }>(feesToFormat: T[]): T[] => {
   return feesToFormat.sort((a, b) => {
     const aDisplayName = a?.metadata?.displayName.toLowerCase().replace('•', '').replace('-', '')
     const bDisplayName = b?.metadata?.displayName.toLowerCase().replace('•', '').replace('-', '')

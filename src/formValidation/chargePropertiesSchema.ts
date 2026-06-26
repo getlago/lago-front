@@ -24,7 +24,7 @@ const volumeRangeSchema = z.object({
   flatAmount: z.string().optional(),
 })
 
-export const propertiesZodSchema = z.object({
+const propertiesZodSchema = z.object({
   amount: z.string().optional().nullable(),
   rate: z.string().optional().nullable(),
   fixedAmount: z.string().optional().nullable(),
