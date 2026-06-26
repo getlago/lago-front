@@ -31,7 +31,7 @@ import { type PricingBlockAttributes } from './extensions/PricingBlock.schema'
 import { SlashCommands } from './extensions/SlashCommands'
 import { TableCommands } from './extensions/TableCommands'
 import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
-import { MentionList, type MentionItem, type MentionListRef } from './Mentions/MentionList'
+import { type MentionItem, MentionList, type MentionListRef } from './Mentions/MentionList'
 import { MentionNodeView } from './Mentions/MentionNodeView'
 import './richTextEditor.css'
 import TableControls from './Table/TableControls'
@@ -62,8 +62,7 @@ export const createMentionSuggestion = (
   items: MentionItem[],
 ): NonNullable<MentionSchemaOptions['suggestion']> => ({
   char: '@',
-  items: ({ query }) =>
-    items.filter((v) => v.label.toLowerCase().includes(query.toLowerCase())),
+  items: ({ query }) => items.filter((v) => v.label.toLowerCase().includes(query.toLowerCase())),
   render: () => {
     let renderer: ReactRenderer<MentionListRef>
     let popup: TippyInstance[]
@@ -159,64 +158,75 @@ const RichTextEditor = ({
 
   const mentionSuggestion = useMemo(() => createMentionSuggestion(variableItems), [variableItems])
 
-  const editor = useEditor({
-    extensions: [
-      ...getBaseExtensions({ tableResizable: true }),
+  const editor = useEditor(
+    {
+      extensions: [
+        ...getBaseExtensions({ tableResizable: true }),
 
-      // Editor-specific overrides and additions
-      Placeholder.configure({
-        placeholder: translate('text_1774281162711nymiwumt66k'),
-      }),
-      MentionSchema.extend({
-        addNodeView() {
-          return ReactNodeViewRenderer(MentionNodeView, { as: 'span' })
+        // Editor-specific overrides and additions
+        Placeholder.configure({
+          placeholder: translate('text_1774281162711nymiwumt66k'),
+        }),
+        MentionSchema.extend({
+          addNodeView() {
+            return ReactNodeViewRenderer(MentionNodeView, { as: 'span' })
+          },
+        }).configure({
+          ...mentionBaseConfig,
+          mentionValues,
+          suggestion: mentionSuggestion,
+        } as MentionSchemaOptions),
+        PricingBlock.configure({ entities: entitiesFromProps }),
+        SlashCommands.configure({
+          translate,
+          onPricingCommand: onPricingCommand
+            ? (params) => onPricingCommandRef.current?.(params)
+            : undefined,
+          isPricingDisabled: isPricingDisabled
+            ? () => isPricingDisabledRef.current?.() ?? false
+            : undefined,
+        }),
+        LinkPasteHandler,
+        TemplateSelectorExtension.configure({ templates: templates ?? [] }),
+        DragHandle,
+        TableCommands,
+      ],
+      editorProps: {
+        attributes: {
+          class: isCompact
+            ? 'max-w-4xl mx-auto focus:outline-none min-h-[300px] mb-4 px-0'
+            : 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10',
         },
-      }).configure({
-        ...mentionBaseConfig,
-        mentionValues,
-        suggestion: mentionSuggestion,
-      } as MentionSchemaOptions),
-      PricingBlock.configure({ entities: entitiesFromProps }),
-      SlashCommands.configure({
-        translate,
-        onPricingCommand: onPricingCommand
-          ? (params) => onPricingCommandRef.current?.(params)
-          : undefined,
-        isPricingDisabled: isPricingDisabled
-          ? () => isPricingDisabledRef.current?.() ?? false
-          : undefined,
-      }),
-      LinkPasteHandler,
-      TemplateSelectorExtension.configure({ templates: templates ?? [] }),
-      DragHandle,
-      TableCommands,
-    ],
-    editorProps: {
-      attributes: {
-        class: isCompact
-          ? 'max-w-4xl mx-auto focus:outline-none min-h-[300px] mb-4 px-0'
-          : 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10',
+      },
+      content: getInitialEditorContent(content, templates),
+      onUpdate: ({ editor: editorInstance }) => {
+        onChangeRef.current?.()
+        if (!onPricingBlocksChangeRef.current) return
+
+        const blocks: PricingBlockAttributes[] = []
+
+        editorInstance.state.doc.descendants((node) => {
+          if (node.type.name === 'pricingBlock' && node.attrs.entityIds?.length) {
+            blocks.push({
+              pricingType: node.attrs.pricingType,
+              entityIds: node.attrs.entityIds,
+              localEntityIds: node.attrs.localEntityIds,
+            })
+          }
+        })
+        onPricingBlocksChangeRef.current(blocks)
       },
     },
-    content: getInitialEditorContent(content, templates),
-    onUpdate: ({ editor: editorInstance }) => {
-      onChangeRef.current?.()
-      if (!onPricingBlocksChangeRef.current) return
-
-      const blocks: PricingBlockAttributes[] = []
-
-      editorInstance.state.doc.descendants((node) => {
-        if (node.type.name === 'pricingBlock' && node.attrs.entityIds?.length) {
-          blocks.push({
-            pricingType: node.attrs.pricingType,
-            entityIds: node.attrs.entityIds,
-            localEntityIds: node.attrs.localEntityIds,
-          })
-        }
-      })
-      onPricingBlocksChangeRef.current(blocks)
-    },
-  }, [mode, mentionValues, entitiesFromProps, onPricingCommand, customerLocale, customerCurrency, variableItems])
+    [
+      mode,
+      mentionValues,
+      entitiesFromProps,
+      onPricingCommand,
+      customerLocale,
+      customerCurrency,
+      variableItems,
+    ],
+  )
 
   const isPreview = mode === 'preview'
 
