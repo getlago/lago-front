@@ -145,7 +145,9 @@ jest.mock('~/components/creditNote/CreditNoteDetailsActivityLogs', () => ({
 }))
 
 jest.mock('~/components/customers/creditNotes/VoidCreditNoteDialog', () => ({
-  VoidCreditNoteDialog: () => null,
+  useVoidCreditNoteDialog: () => ({
+    openVoidCreditNoteDialog: jest.fn(),
+  }),
 }))
 
 describe('CreditNoteDetails', () => {
