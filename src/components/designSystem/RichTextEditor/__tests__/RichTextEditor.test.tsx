@@ -328,6 +328,25 @@ describe('RichTextEditor', () => {
     })
   })
 
+  describe('GIVEN the editor is created', () => {
+    it('THEN calls useEditor with no dependency array so it is created once', async () => {
+      // Regression: a 2nd-arg deps array recreates the editor whenever any dep
+      // changes identity. The default `mentionValues = {}` (and unstable
+      // entities/callbacks from callers) get a new reference every render, so a
+      // deps array causes an infinite re-mount loop ("Maximum update depth
+      // exceeded") the moment the editor is interacted with. The editor must be
+      // created once; dynamic values are threaded via refs, and the static
+      // variableItems catalog is stable.
+      const tiptap = jest.requireMock('@tiptap/react')
+
+      tiptap.useEditor.mockClear()
+
+      await act(() => render(<RichTextEditor />))
+
+      expect(tiptap.useEditor.mock.calls[0]).toHaveLength(1)
+    })
+  })
+
   describe('GIVEN the editor is in preview mode', () => {
     describe('WHEN mode is set to preview', () => {
       it('THEN should not render the toolbar', async () => {

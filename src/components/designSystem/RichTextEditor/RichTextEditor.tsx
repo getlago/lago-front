@@ -163,75 +163,64 @@ const RichTextEditor = ({
 
   const mentionSuggestion = useMemo(() => createMentionSuggestion(variableItems), [variableItems])
 
-  const editor = useEditor(
-    {
-      extensions: [
-        ...getBaseExtensions({ tableResizable: true }),
+  const editor = useEditor({
+    extensions: [
+      ...getBaseExtensions({ tableResizable: true }),
 
-        // Editor-specific overrides and additions
-        Placeholder.configure({
-          placeholder: translate('text_1774281162711nymiwumt66k'),
-        }),
-        MentionSchema.extend({
-          addNodeView() {
-            return ReactNodeViewRenderer(MentionNodeView, { as: 'span' })
-          },
-        }).configure({
-          ...mentionBaseConfig,
-          mentionValues,
-          suggestion: mentionSuggestion,
-        } as MentionSchemaOptions),
-        PricingBlock.configure({ entities: entitiesFromProps }),
-        SlashCommands.configure({
-          translate,
-          onPricingCommand: onPricingCommand
-            ? (params) => onPricingCommandRef.current?.(params)
-            : undefined,
-          isPricingDisabled: isPricingDisabled
-            ? () => isPricingDisabledRef.current?.() ?? false
-            : undefined,
-        }),
-        LinkPasteHandler,
-        TemplateSelectorExtension.configure({ templates: templates ?? [] }),
-        DragHandle,
-        TableCommands,
-      ],
-      editorProps: {
-        attributes: {
-          class: isCompact
-            ? 'max-w-4xl mx-auto focus:outline-none min-h-[300px] mb-4 px-0'
-            : 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10',
+      // Editor-specific overrides and additions
+      Placeholder.configure({
+        placeholder: translate('text_1774281162711nymiwumt66k'),
+      }),
+      MentionSchema.extend({
+        addNodeView() {
+          return ReactNodeViewRenderer(MentionNodeView, { as: 'span' })
         },
-      },
-      content: getInitialEditorContent(content, templates),
-      onUpdate: ({ editor: editorInstance }) => {
-        onChangeRef.current?.()
-        if (!onPricingBlocksChangeRef.current) return
-
-        const blocks: PricingBlockAttributes[] = []
-
-        editorInstance.state.doc.descendants((node) => {
-          if (node.type.name === 'pricingBlock' && node.attrs.entityIds?.length) {
-            blocks.push({
-              pricingType: node.attrs.pricingType,
-              entityIds: node.attrs.entityIds,
-              localEntityIds: node.attrs.localEntityIds,
-            })
-          }
-        })
-        onPricingBlocksChangeRef.current(blocks)
+      }).configure({
+        ...mentionBaseConfig,
+        mentionValues,
+        suggestion: mentionSuggestion,
+      } as MentionSchemaOptions),
+      PricingBlock.configure({ entities: entitiesFromProps }),
+      SlashCommands.configure({
+        translate,
+        onPricingCommand: onPricingCommand
+          ? (params) => onPricingCommandRef.current?.(params)
+          : undefined,
+        isPricingDisabled: isPricingDisabled
+          ? () => isPricingDisabledRef.current?.() ?? false
+          : undefined,
+      }),
+      LinkPasteHandler,
+      TemplateSelectorExtension.configure({ templates: templates ?? [] }),
+      DragHandle,
+      TableCommands,
+    ],
+    editorProps: {
+      attributes: {
+        class: isCompact
+          ? 'max-w-4xl mx-auto focus:outline-none min-h-[300px] mb-4 px-0'
+          : 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10',
       },
     },
-    [
-      mode,
-      mentionValues,
-      entitiesFromProps,
-      onPricingCommand,
-      customerLocale,
-      customerCurrency,
-      variableItems,
-    ],
-  )
+    content: getInitialEditorContent(content, templates),
+    onUpdate: ({ editor: editorInstance }) => {
+      onChangeRef.current?.()
+      if (!onPricingBlocksChangeRef.current) return
+
+      const blocks: PricingBlockAttributes[] = []
+
+      editorInstance.state.doc.descendants((node) => {
+        if (node.type.name === 'pricingBlock' && node.attrs.entityIds?.length) {
+          blocks.push({
+            pricingType: node.attrs.pricingType,
+            entityIds: node.attrs.entityIds,
+            localEntityIds: node.attrs.localEntityIds,
+          })
+        }
+      })
+      onPricingBlocksChangeRef.current(blocks)
+    },
+  })
 
   const isPreview = mode === 'preview'
 
