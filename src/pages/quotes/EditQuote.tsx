@@ -151,6 +151,11 @@ const EditQuote = () => {
     [translate],
   )
 
+  const mentionValues = useMemo(
+    () => (quote?.currentVersion?.mentionVariables ?? {}) as Record<string, string>,
+    [quote?.currentVersion?.mentionVariables],
+  )
+
   // Compare content instead of blindly trusting onChange — Tiptap fires onChange
   // on initialization and mode switches, not just on real user edits.
   const handleChange = () => {
@@ -332,6 +337,7 @@ const EditQuote = () => {
             customerLocale={customerLocale}
             customerCurrency={quote?.customer?.currency ?? undefined}
             variableItems={mentionItems}
+            mentionValues={mentionValues}
           />
         )}
       </RightAsidePage.Content>
