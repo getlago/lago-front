@@ -15,7 +15,6 @@ import {
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
 import InvoicesList from '~/components/invoices/InvoicesList'
-import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
@@ -145,7 +144,6 @@ const InvoicesPage = () => {
   )
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
-  const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
   const exportInvoicesDialogRef = useRef<ExportDialogRef>(null)
 
   const filtersForInvoiceQuery = useMemo(() => {
@@ -301,7 +299,6 @@ const InvoicesPage = () => {
       />
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
       <ExportDialog
         ref={exportInvoicesDialogRef}
         totalCountLabel={translate(
