@@ -1,9 +1,9 @@
 ---
+name: create-rich-text-editor-custom-node
 description: Create a new custom TipTap node for the Rich Text Editor that works in edit mode, on-screen preview, and PDF download. Generates the schema, editor extension, NodeView component, CSS styles, tests, and registers the extension.
-globs:
-  - 'src/components/designSystem/RichTextEditor/**/*.ts'
-  - 'src/components/designSystem/RichTextEditor/**/*.tsx'
-  - 'src/components/designSystem/RichTextEditor/**/*.css'
+user-invocable: true
+argument-hint: '<node-name>'
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, AskUserQuestion
 ---
 
 # Create Rich Text Editor Custom Node
