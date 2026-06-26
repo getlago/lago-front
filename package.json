@@ -97,7 +97,7 @@
     "jscodeshift": "17.3.0",
     "npm-run-all2": "9.0.2",
     "postcss": "8.5.15",
-    "postcss-preset-env": "11.3.0",
+    "postcss-preset-env": "11.3.1",
     "prettier": "3.8.4",
     "prettier-plugin-tailwindcss": "0.8.0",
     "tailwind-merge": "2.6.1",
