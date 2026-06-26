@@ -84,6 +84,10 @@ export enum AvailableFiltersEnum {
   orderFormCreatedAt = 'orderFormCreatedAt',
   orderFormNumber = 'orderFormNumber',
   orderFormStatus = 'orderFormStatus',
+  orderStatus = 'orderStatus',
+  orderNumber = 'orderNumber',
+  orderExecutedAt = 'orderExecutedAt',
+  orderExecutionMode = 'orderExecutionMode',
   quoteCreatedAt = 'quoteCreatedAt',
   quoteNumber = 'quoteNumber',
   quoteOrderType = 'quoteOrderType',
@@ -336,6 +340,15 @@ export const OrderFormAvailableFilters = [
   AvailableFiltersEnum.userIds,
 ]
 
+export const OrderAvailableFilters = [
+  AvailableFiltersEnum.orderStatus,
+  AvailableFiltersEnum.multipleCustomers,
+  AvailableFiltersEnum.orderNumber,
+  AvailableFiltersEnum.orderExecutedAt,
+  AvailableFiltersEnum.orderExecutionMode,
+  AvailableFiltersEnum.userIds,
+]
+
 const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.activityIds]: 'text_1747666154075d10admbnf16',
   [AvailableFiltersEnum.activitySources]: 'text_1747666154075g4ceq9ii0xm',
@@ -381,6 +394,10 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.orderFormCreatedAt]: 'text_1776870266380s3zbpmnfrhj',
   [AvailableFiltersEnum.orderFormNumber]: 'text_1781624189693d7zcv2vog4c',
   [AvailableFiltersEnum.orderFormStatus]: 'text_63ac86d797f728a87b2f9fa7',
+  [AvailableFiltersEnum.orderStatus]: 'text_63ac86d797f728a87b2f9fa7',
+  [AvailableFiltersEnum.orderNumber]: 'text_1782392058759pmmuy0h997w',
+  [AvailableFiltersEnum.orderExecutedAt]: 'text_1782489945765vho6glo5dtv',
+  [AvailableFiltersEnum.orderExecutionMode]: 'text_17823920587599ha9n3uhfuj',
   [AvailableFiltersEnum.quoteCreatedAt]: 'text_1776870266380s3zbpmnfrhj',
   [AvailableFiltersEnum.quoteNumber]: 'text_1776870266380lnc721e4opb',
   [AvailableFiltersEnum.quoteOrderType]: 'text_1776870266380ydi5pjfjcqq',
