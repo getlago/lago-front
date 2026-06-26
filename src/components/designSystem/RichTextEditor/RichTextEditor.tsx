@@ -55,6 +55,11 @@ interface RichTextEditorProps {
   customerCurrency?: CurrencyEnum
   isCompact?: boolean
   onPreviewReady?: (html: string) => void
+  /**
+   * Variables offered by the `@`-mention dropdown. Pass a STABLE reference
+   * (module-level const or `useMemo`) — a new array identity on each render
+   * recreates the editor and resets cursor/selection state.
+   */
   variableItems?: MentionItem[]
 }
 
