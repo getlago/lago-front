@@ -4432,5 +4432,21 @@
   "text_1779882021466cfug4osir5m": "In {{hours}} hours",
   "text_1779882021466f56z1ymyt09": "In less than 1 hour",
   "text_1779882021466x423uayjorq": "Expired",
-  "text_1779882021466eoq8jjhfteu": "Timeout duration must be a whole number greater than or equal to 0"
+  "text_1779882021466eoq8jjhfteu": "Timeout duration must be a whole number greater than or equal to 0",
+  "text_17824815094139q1xxugt3u2": "Customer name",
+  "text_1782481509413m756ic70533": "Customer email",
+  "text_1782481509413fxcamxyayvd": "Organization name",
+  "text_1782481509413ru9er6prs5z": "Organization logo",
+  "text_1782481509413jz09a6cha9o": "Billing entity name",
+  "text_17824815094137ngfbp39shm": "Billing entity legal name",
+  "text_1782481509413hwhue53hm4w": "Billing entity address",
+  "text_17824815094135nxd94eavhr": "Billing entity tax ID",
+  "text_1782481509413ktltfto21hj": "Billing entity email",
+  "text_1782481509413n8saddc0v3k": "Quote number",
+  "text_17824815094133dn7osufza0": "Quote date",
+  "text_1782481509413xyjflsl0nyl": "Quote version",
+  "text_1782481509413kl4e2532e9e": "Quote currency",
+  "text_1782481509414pdptl0o3jmb": "Term duration",
+  "text_1782481509414nxr0nibo8wj": "Start date",
+  "text_1782481509414fozc0xn274l": "Payment terms"
 }
