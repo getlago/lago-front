@@ -4451,7 +4451,7 @@
   "text_1782481509414fozc0xn274l": "Payment terms",
   "text_1782489945765vho6glo5dtv": "Executed at",
   "text_178272359198433nj9yyhjt2": "Edit order {{orderNumber}}",
-  "text_178272359198410yt5vl9ki4": "You can edit this order to update key details such as the execution date or add new attachments, like updated contracts or supporting documents.",
+  "text_178272359198410yt5vl9ki4": "You can edit this order to update its execution type and execution date.",
   "text_17827235919844cwbnt9ltfe": "Edit order",
   "text_1782723591984c30uudt9ma9": "Order updated successfully",
   "text_1782723591984l12xpznkwqd": "Order #{{orderNumber}}",
