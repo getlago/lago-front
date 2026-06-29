@@ -14,7 +14,6 @@ import { EDIT_QUOTE_ROUTE, QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/route
 import { useVoidQuoteVersionMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { PageHeader } from '~/styles'
@@ -23,7 +22,7 @@ import { FormLoadingSkeleton, Main, Side } from '~/styles/mainObjectsForm'
 import { buildQuotePreviewProps } from './common/buildQuotePreviewProps'
 import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
 import { QuotePreviewCard } from './common/QuotePreviewCard'
-import { quoteCreatedAtColumn } from './common/quoteTableColumns'
+import { useSharedColumns } from './common/sharedColumns'
 import { useCloneQuote } from './hooks/useCloneQuote'
 import { useQuote } from './hooks/useQuote'
 
@@ -48,7 +47,7 @@ const VoidQuote = () => {
   const { goBack } = useLocationHistory()
   const { quoteId } = useParams()
   const navigate = useNavigate()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { getCreatedAtColumn } = useSharedColumns()
 
   const { quote, loading, error } = useQuote(quoteId)
   const { hasPermissions } = usePermissions()
@@ -262,10 +261,9 @@ const VoidQuote = () => {
                       minWidth: 100,
                       content: ({ customer }) => customer.currency,
                     },
-                    quoteCreatedAtColumn(
-                      translate,
+                    getCreatedAtColumn<NonNullable<typeof quote>>(
                       'text_17758254440392sc27lxm6ua',
-                      intlFormatDateTimeOrgaTZ,
+                      160,
                     ),
                   ]}
                 />
