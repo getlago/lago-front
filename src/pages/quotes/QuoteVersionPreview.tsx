@@ -98,7 +98,7 @@ const QuoteVersionPreview = () => {
     <div>
       <PageHeader.Wrapper>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate('text_17768509988630g6v99v8x8h', {
+          {translate('text_17827453798351lxoetcgnjt', {
             quoteNumber: quote?.number,
             quoteVersion: `v${targetVersion?.version ?? ''}`,
           })}
@@ -119,7 +119,7 @@ const QuoteVersionPreview = () => {
             <div className="flex flex-col gap-12">
               <div className="flex flex-col gap-1">
                 <Typography variant="headline">
-                  {translate('text_17768509988630g6v99v8x8h', {
+                  {translate('text_17827453798351lxoetcgnjt', {
                     quoteNumber: quote?.number,
                     quoteVersion: `v${targetVersion?.version ?? ''}`,
                   })}
