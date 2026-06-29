@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 import { object, string } from 'yup'
 
@@ -19,8 +19,6 @@ import {
   useUpdateFlutterwavePaymentProviderMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { DeleteFlutterwaveIntegrationDialogRef } from './DeleteFlutterwaveIntegrationDialog'
 
 gql`
   fragment AddFlutterwaveProviderDialog on FlutterwaveProvider {
@@ -71,9 +69,8 @@ gql`
 `
 
 type TAddFlutterwaveDialogProps = Partial<{
-  deleteModalRef: RefObject<DeleteFlutterwaveIntegrationDialogRef>
+  onDelete: (provider: FlutterwaveIntegrationDetailsFragment) => void
   provider: FlutterwaveIntegrationDetailsFragment
-  deleteDialogCallback: () => void
 }>
 
 export interface AddFlutterwaveDialogRef {
@@ -211,10 +208,9 @@ export const AddFlutterwaveDialog = forwardRef<AddFlutterwaveDialogRef>((_, ref)
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                localData?.deleteModalRef?.current?.openDialog({
-                  provider: flutterwaveProvider,
-                  callback: localData?.deleteDialogCallback,
-                })
+                if (flutterwaveProvider) {
+                  localData?.onDelete?.(flutterwaveProvider)
+                }
               }}
             >
               {translate('text_65845f35d7d69c3ab4793dad')}
