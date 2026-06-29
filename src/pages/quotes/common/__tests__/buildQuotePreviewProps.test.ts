@@ -14,7 +14,7 @@ describe('buildQuotePreviewProps', () => {
   })
 
   it('builds entities from billingItems and extracts locale + currency', () => {
-    const version = { content: '<p>Hi</p>', billingItems: { addons: [] } }
+    const version = { content: '<p>Hi</p>', billingItems: { addons: [] }, mentionVariables: {} }
     const customer = {
       currency: CurrencyEnum.Eur,
       billingConfiguration: { documentLocale: 'fr' },
@@ -46,7 +46,7 @@ describe('buildQuotePreviewProps', () => {
   })
 
   it('defaults locale to en and currency to undefined when missing on customer', () => {
-    const version = { content: '<p>x</p>', billingItems: null }
+    const version = { content: '<p>x</p>', billingItems: null, mentionVariables: {} }
     const customer = { currency: null, billingConfiguration: null }
 
     const result = buildQuotePreviewProps(version, customer)
@@ -57,7 +57,7 @@ describe('buildQuotePreviewProps', () => {
   })
 
   it('passes through structured header data when provided', () => {
-    const version = { content: '<p>Hi</p>', billingItems: { addons: [] } }
+    const version = { content: '<p>Hi</p>', billingItems: { addons: [] }, mentionVariables: {} }
     const customer = {
       currency: CurrencyEnum.Eur,
       billingConfiguration: { documentLocale: 'fr' },
@@ -76,5 +76,26 @@ describe('buildQuotePreviewProps', () => {
     const result = buildQuotePreviewProps(null, null)
 
     expect(result.header).toBeUndefined()
+  })
+
+  it('surfaces populated mentionVariables from the version payload', () => {
+    const version = {
+      content: '<p>Hello</p>',
+      billingItems: null,
+      mentionVariables: { customer_name: 'Keenan Feldspar', organization_logo: null },
+    }
+
+    const result = buildQuotePreviewProps(version, null)
+
+    expect(result.mentionValues).toEqual({
+      customer_name: 'Keenan Feldspar',
+      organization_logo: null,
+    })
+  })
+
+  it('falls back to {} when mentionVariables is absent (null version)', () => {
+    const result = buildQuotePreviewProps(null, null)
+
+    expect(result.mentionValues).toEqual({})
   })
 })

@@ -106,6 +106,7 @@ const mockQuote: QuoteDetailItemFragment = {
     endDate: null,
     billingItems: null,
     createdAt: '2026-01-01',
+    mentionVariables: {},
   },
 }
 

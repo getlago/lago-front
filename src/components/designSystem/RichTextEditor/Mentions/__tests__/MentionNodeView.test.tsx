@@ -117,4 +117,34 @@ describe('MentionNodeView', () => {
       })
     })
   })
+
+  describe('GIVEN the component is in preview mode', () => {
+    describe('WHEN mentionValues has a value for the id', () => {
+      it('THEN should display the resolved value instead of @label', () => {
+        renderMentionNodeView({
+          mode: 'preview',
+          mentionValues: { customerName: 'Acme Corp' },
+        })
+
+        const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)
+
+        expect(element).toHaveTextContent('Acme Corp')
+        expect(element).not.toHaveTextContent('@Customer Name')
+        expect(element).toHaveClass('variable-mention--resolved')
+      })
+    })
+
+    describe('WHEN mentionValues has no value for the id', () => {
+      it('THEN should fall back to @label', () => {
+        renderMentionNodeView({
+          mode: 'preview',
+          mentionValues: {},
+        })
+
+        const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)
+
+        expect(element).toHaveTextContent('@Customer Name')
+      })
+    })
+  })
 })

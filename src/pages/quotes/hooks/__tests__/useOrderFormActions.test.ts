@@ -50,7 +50,7 @@ const createMockOrderForm = (
   quote: {
     id: 'q-1',
     number: 'QUO-001',
-    currentVersion: { id: 'qv-1', version: 1, content: '# Hello World' },
+    currentVersion: { id: 'qv-1', version: 1, content: '# Hello World', mentionVariables: {} },
   },
   ...overrides,
 })
@@ -140,7 +140,7 @@ describe('useOrderFormActions', () => {
             quote: {
               id: 'q-1',
               number: 'QUO-001',
-              currentVersion: { id: 'qv-1', version: 1, content: null },
+              currentVersion: { id: 'qv-1', version: 1, content: null, mentionVariables: {} },
             },
           }),
         )
