@@ -52,6 +52,7 @@ const mockQuote: QuoteDetailItemFragment = {
     endDate: null,
     billingItems: null,
     createdAt: '2026-04-09T15:00:00Z',
+    mentionVariables: {},
   },
   orderType: OrderTypeEnum.SubscriptionAmendment,
   createdAt: '2026-04-09T15:00:00Z',

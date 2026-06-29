@@ -19,6 +19,12 @@ const mentionValues: Record<string, string> = {
   companyName: 'Lago Inc.',
 }
 
+const demoVariableItems = [
+  { id: 'customer_name', label: 'Customer name' },
+  { id: 'quote_number', label: 'Quote number' },
+  { id: 'quote_currency', label: 'Quote currency' },
+]
+
 // Simulates a GraphQL fetch: GET /api/templates
 const fetchTemplates = (): Promise<EditorTemplate[]> =>
   new Promise((resolve) => {
@@ -126,6 +132,7 @@ Best,
           mode={mode1}
           mentionValues={mentionValues}
           getMarkdownRef={getMarkdownRef1}
+          variableItems={demoVariableItems}
         />
       </Block>
 
@@ -146,6 +153,7 @@ Best,
             mentionValues={mentionValues}
             templates={templates}
             getMarkdownRef={getMarkdownRef2}
+            variableItems={demoVariableItems}
           />
         )}
       </Block>
@@ -164,6 +172,7 @@ Best,
           mentionValues={mentionValues}
           content={preSavedContent}
           getMarkdownRef={getMarkdownRef3}
+          variableItems={demoVariableItems}
         />
       </Block>
     </Container>

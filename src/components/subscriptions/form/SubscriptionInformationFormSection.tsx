@@ -37,6 +37,13 @@ gql`
     periodEndDate
     status
     startedAt
+    activationRules {
+      id
+      type
+      timeoutHours
+      status
+      expiresAt
+    }
     paymentMethodType
     paymentMethod {
       id

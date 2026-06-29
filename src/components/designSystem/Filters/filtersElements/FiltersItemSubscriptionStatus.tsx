@@ -17,6 +17,8 @@ const subscriptionStatusMapping = (status?: StatusTypeEnum | null): string => {
       return 'text_624efab67eb2570101d1180e'
     case StatusTypeEnum.Pending:
       return 'text_1734774653389j2meo530xlb'
+    case StatusTypeEnum.Incomplete:
+      return 'text_1779882021466dr07sleoyk9'
     case StatusTypeEnum.Canceled:
       return 'text_17429854230668s8zhn9ujq6'
     case StatusTypeEnum.Terminated:

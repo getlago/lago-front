@@ -27,6 +27,7 @@ export const SubscriptionInvoiceConsolidationSection = withFieldGroup({
           {(field) => (
             <field.RadioGroupField
               optionsGapSpacing={3}
+              optionLabelVariant="body"
               options={[
                 {
                   value: true,

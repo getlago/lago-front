@@ -6,6 +6,7 @@ gql`
   fragment QuotePreviewVersion on QuoteVersion {
     content
     billingItems
+    mentionVariables
   }
 
   fragment QuotePreviewCustomer on Customer {

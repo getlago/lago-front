@@ -9,7 +9,10 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { SubscriptionInformationFields } from './SubscriptionInformationFields'
 
-export { SubscriptionDowngradeAlert } from './SubscriptionInformationFields'
+export {
+  SubscriptionDetailAlerts,
+  SubscriptionDowngradeAlert,
+} from './SubscriptionInformationFields'
 
 gql`
   fragment SubscriptionForSubscriptionInformations on Subscription {
