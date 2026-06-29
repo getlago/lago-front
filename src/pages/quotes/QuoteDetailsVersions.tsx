@@ -10,7 +10,6 @@ import { EDIT_QUOTE_ROUTE, QUOTE_VERSION_PREVIEW_ROUTE } from '~/core/router'
 import { QuoteDetailItemFragment, StatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { usePermissions } from '~/hooks/usePermissions'
 
 import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
 import { getQuoteStatusMapping } from './common/getQuoteStatusMapping'
@@ -28,15 +27,11 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { getActions } = useQuoteVersionActions()
-  const { hasPermissions } = usePermissions()
 
   const getRowLink = (version: QuoteVersion): string =>
     version.status === StatusEnum.Draft
       ? generatePath(EDIT_QUOTE_ROUTE, { quoteId: quote.id, versionId: version.id })
       : generatePath(QUOTE_VERSION_PREVIEW_ROUTE, { quoteId: quote.id, versionId: version.id })
-
-  const canClickRow = (version: QuoteVersion): boolean =>
-    version.status !== StatusEnum.Draft || hasPermissions(['quotesUpdate'])
 
   const versionColumns: Array<TableColumn<QuoteVersion>> = [
     {
@@ -139,7 +134,6 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
           containerSize={0}
           columns={versionColumns}
           onRowActionLink={getRowLink}
-          isRowClickable={canClickRow}
           actionColumnTooltip={() => translate('text_1776414006125pcxcyeblul7')}
           actionColumn={versionActionColumn}
         />

@@ -27,12 +27,6 @@ jest.mock('../hooks/useQuoteVersionActions', () => ({
   useQuoteVersionActions: jest.fn(),
 }))
 
-const mockHasPermissions = jest.fn()
-
-jest.mock('~/hooks/usePermissions', () => ({
-  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
-}))
-
 const mockUseQuoteVersionActions = useQuoteVersionActions as jest.MockedFunction<
   typeof useQuoteVersionActions
 >
@@ -87,7 +81,6 @@ describe('QuoteDetailsVersions', () => {
     jest.clearAllMocks()
     mockGetActions.mockReturnValue([])
     mockUseQuoteVersionActions.mockReturnValue({ getActions: mockGetActions })
-    mockHasPermissions.mockReturnValue(true)
   })
 
   describe('GIVEN the component is rendered with a quote', () => {
@@ -192,10 +185,9 @@ describe('QuoteDetailsVersions', () => {
       })
     })
 
-    describe('WHEN a draft version row is clicked AND the user can update', () => {
+    describe('WHEN a draft version row is clicked', () => {
       it('THEN should navigate to that version edit page', async () => {
         const user = userEvent.setup()
-        mockHasPermissions.mockReturnValue(true)
 
         render(<QuoteDetailsVersions quote={mockQuote} />)
 
@@ -203,19 +195,6 @@ describe('QuoteDetailsVersions', () => {
         await user.click(screen.getByTestId('table-row-0'))
 
         expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-v2/version/version-v2/edit')
-      })
-    })
-
-    describe('WHEN a draft version row is clicked AND the user cannot update', () => {
-      it('THEN should not navigate', async () => {
-        const user = userEvent.setup()
-        mockHasPermissions.mockReturnValue(false)
-
-        render(<QuoteDetailsVersions quote={mockQuote} />)
-
-        await user.click(screen.getByTestId('table-row-0'))
-
-        expect(testMockNavigateFn).not.toHaveBeenCalled()
       })
     })
   })

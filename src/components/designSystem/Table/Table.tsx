@@ -78,13 +78,6 @@ export interface TableProps<T> {
   placeholder?: TablePlaceholder
   onRowActionLink?: (item: T) => string
   onRowActionClick?: (item: T) => void
-  /**
-   * Optional PURE predicate to gate row clickability per-row. Must be
-   * side-effect free — it is evaluated during render. When provided, a row is
-   * clickable only if this returns true AND the table is otherwise clickable.
-   * Defaults to all rows clickable. Does not replace onRowActionLink/onRowActionClick.
-   */
-  isRowClickable?: (item: T) => boolean
   actionColumn?: ActionColumn<T>
   actionColumnTooltip?: (item: T) => string
   rowDataTestId?: (item: T) => string
@@ -290,7 +283,6 @@ export const Table = <T extends DataItem>({
   containerClassName,
   onRowActionLink,
   onRowActionClick,
-  isRowClickable,
   actionColumn,
   actionColumnTooltip,
   rowDataTestId,
@@ -326,7 +318,7 @@ export const Table = <T extends DataItem>({
     },
   })
 
-  const isTableClickable = (!!onRowActionLink || !!onRowActionClick) && !isLoading
+  const isClickable = (!!onRowActionLink || !!onRowActionClick) && !isLoading
   const shouldDisplayActionColumn =
     !!actionColumn &&
     (data.length > 0
@@ -397,9 +389,6 @@ export const Table = <T extends DataItem>({
 
     // Make sure anything other than the action column button is clicked
     const link = onRowActionLink(item)
-
-    // A falsy link marks this row as non-navigable (e.g. permission-gated).
-    if (!link) return
 
     // `window.open` bypasses the `useNavigate` wrapper, so prepend the org
     // slug manually via the shared util (same guard logic as the wrapper).
@@ -530,94 +519,90 @@ export const Table = <T extends DataItem>({
         <MUITableBody>
           {renderPlaceholder() ??
             (data.length > 0 &&
-              data.map((item, i) => {
-                const rowClickable = isTableClickable && (isRowClickable?.(item) ?? true)
-
-                return (
-                  <TableRow
-                    key={`${TABLE_ID}-row-${i}`}
-                    id={`${TABLE_ID}-row-${i}`}
-                    data-id={item.id}
-                    isClickable={rowClickable}
-                    tabIndex={rowClickable ? 0 : undefined}
-                    onKeyDown={rowClickable ? onKeyDown : undefined}
-                    onClick={rowClickable ? (e) => handleRowClick(e, item) : undefined}
-                    data-test={rowDataTestId?.(item) || `table-row-${i}`}
-                  >
-                    {filteredColumns.map((column, j) => (
-                      <TableCell
-                        key={`${TABLE_ID}-cell-${i}-${j}`}
-                        align={column.textAlign || 'left'}
-                        maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
-                        tdCellClassName={column.tdCellClassName}
+              data.map((item, i) => (
+                <TableRow
+                  key={`${TABLE_ID}-row-${i}`}
+                  id={`${TABLE_ID}-row-${i}`}
+                  data-id={item.id}
+                  isClickable={isClickable}
+                  tabIndex={isClickable ? 0 : undefined}
+                  onKeyDown={isClickable ? onKeyDown : undefined}
+                  onClick={isClickable ? (e) => handleRowClick(e, item) : undefined}
+                  data-test={rowDataTestId?.(item) || `table-row-${i}`}
+                >
+                  {filteredColumns.map((column, j) => (
+                    <TableCell
+                      key={`${TABLE_ID}-cell-${i}-${j}`}
+                      align={column.textAlign || 'left'}
+                      maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
+                      tdCellClassName={column.tdCellClassName}
+                    >
+                      <TableInnerCell
+                        align={column.textAlign}
+                        maxWidth={column.maxWidth}
+                        minWidth={column.minWidth}
+                        truncateOverflow={column.truncateOverflow}
                       >
-                        <TableInnerCell
-                          align={column.textAlign}
-                          maxWidth={column.maxWidth}
-                          minWidth={column.minWidth}
-                          truncateOverflow={column.truncateOverflow}
-                        >
-                          <Typography className="-ml-1 pl-1" noWrap>
-                            {column.content(item)}
-                          </Typography>
-                        </TableInnerCell>
-                      </TableCell>
-                    ))}
-                    {shouldDisplayActionColumn && (
-                      <TableActionCell>
-                        <TableInnerCell data-id={ACTION_COLUMN_ID}>
-                          {Array.isArray(actionColumn(item)) ? (
-                            <Popper
-                              displayInDialog={tableInDialog}
-                              popperGroupName={`${TABLE_ID}-action-cell`}
-                              PopperProps={{ placement: 'bottom-end' }}
-                              opener={({ isOpen }) => (
-                                <PopperOpener className="relative right-0 top-0 h-full md:right-0">
-                                  <Tooltip
-                                    className="right-0"
-                                    placement="top-end"
-                                    disableHoverListener={isOpen}
-                                    title={actionColumnTooltip?.(item) || null}
-                                  >
-                                    <Button
-                                      icon="dots-horizontal"
-                                      variant="quaternary"
-                                      data-test="open-action-button"
-                                    />
-                                  </Tooltip>
-                                </PopperOpener>
-                              )}
-                            >
-                              {({ closePopper }) => (
-                                <MenuPopper data-id={`${TABLE_ID}-popper`}>
-                                  {(actionColumn(item) as Array<ActionItem<T> | null>)
-                                    .filter((action) => !!action)
-                                    .map((action, j) => {
-                                      if (!action) {
-                                        return
-                                      }
+                        <Typography className="-ml-1 pl-1" noWrap>
+                          {column.content(item)}
+                        </Typography>
+                      </TableInnerCell>
+                    </TableCell>
+                  ))}
+                  {shouldDisplayActionColumn && (
+                    <TableActionCell>
+                      <TableInnerCell data-id={ACTION_COLUMN_ID}>
+                        {Array.isArray(actionColumn(item)) ? (
+                          <Popper
+                            displayInDialog={tableInDialog}
+                            popperGroupName={`${TABLE_ID}-action-cell`}
+                            PopperProps={{ placement: 'bottom-end' }}
+                            opener={({ isOpen }) => (
+                              <PopperOpener className="relative right-0 top-0 h-full md:right-0">
+                                <Tooltip
+                                  className="right-0"
+                                  placement="top-end"
+                                  disableHoverListener={isOpen}
+                                  title={actionColumnTooltip?.(item) || null}
+                                >
+                                  <Button
+                                    icon="dots-horizontal"
+                                    variant="quaternary"
+                                    data-test="open-action-button"
+                                  />
+                                </Tooltip>
+                              </PopperOpener>
+                            )}
+                          >
+                            {({ closePopper }) => (
+                              <MenuPopper data-id={`${TABLE_ID}-popper`}>
+                                {(actionColumn(item) as Array<ActionItem<T> | null>)
+                                  .filter((action) => !!action)
+                                  .map((action, j) => {
+                                    if (!action) {
+                                      return
+                                    }
 
-                                      return (
-                                        <ActionItemButton
-                                          key={`${TABLE_ID}-popper-action-${i}-${j}`}
-                                          action={action}
-                                          item={item}
-                                          closePopper={closePopper}
-                                        />
-                                      )
-                                    })}
-                                </MenuPopper>
-                              )}
-                            </Popper>
-                          ) : (
-                            (actionColumn(item) as ReactNode)
-                          )}
-                        </TableInnerCell>
-                      </TableActionCell>
-                    )}
-                  </TableRow>
-                )
-              }))}
+                                    return (
+                                      <ActionItemButton
+                                        key={`${TABLE_ID}-popper-action-${i}-${j}`}
+                                        action={action}
+                                        item={item}
+                                        closePopper={closePopper}
+                                      />
+                                    )
+                                  })}
+                              </MenuPopper>
+                            )}
+                          </Popper>
+                        ) : (
+                          (actionColumn(item) as ReactNode)
+                        )}
+                      </TableInnerCell>
+                    </TableActionCell>
+                  )}
+                </TableRow>
+              )))}
           {isLoading &&
             LoadingRows({
               columns: filteredColumns,
