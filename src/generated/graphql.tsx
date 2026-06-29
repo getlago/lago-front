@@ -14364,6 +14364,20 @@ export type GetMembersForCreateQuoteQueryVariables = Exact<{
 
 export type GetMembersForCreateQuoteQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', collection: Array<{ __typename?: 'Membership', id: string, user: { __typename?: 'User', id: string, email?: string | null } }> } };
 
+export type GetOrderForEditQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetOrderForEditQuery = { __typename?: 'Query', order?: { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, orderType: OrderTypeEnum, executeAt?: any | null, executionMode?: OrderExecutionModeEnum | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: string | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null } } } } | null };
+
+export type UpdateOrderMutationVariables = Exact<{
+  input: UpdateOrderInput;
+}>;
+
+
+export type UpdateOrderMutation = { __typename?: 'Mutation', updateOrder?: { __typename?: 'Order', id: string, executeAt?: any | null, executionMode?: OrderExecutionModeEnum | null } | null };
+
 export type GetOrderFormForSignQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -39118,6 +39132,101 @@ export type GetMembersForCreateQuoteQueryHookResult = ReturnType<typeof useGetMe
 export type GetMembersForCreateQuoteLazyQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteLazyQuery>;
 export type GetMembersForCreateQuoteSuspenseQueryHookResult = ReturnType<typeof useGetMembersForCreateQuoteSuspenseQuery>;
 export type GetMembersForCreateQuoteQueryResult = Apollo.QueryResult<GetMembersForCreateQuoteQuery, GetMembersForCreateQuoteQueryVariables>;
+export const GetOrderForEditDocument = gql`
+    query getOrderForEdit($id: ID!) {
+  order(id: $id) {
+    id
+    number
+    status
+    orderType
+    executeAt
+    executionMode
+    customer {
+      id
+      name
+      displayName
+    }
+    orderForm {
+      id
+      number
+      quote {
+        ...QuoteDetailItem
+      }
+    }
+  }
+}
+    ${QuoteDetailItemFragmentDoc}`;
+
+/**
+ * __useGetOrderForEditQuery__
+ *
+ * To run a query within a React component, call `useGetOrderForEditQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrderForEditQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrderForEditQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetOrderForEditQuery(baseOptions: Apollo.QueryHookOptions<GetOrderForEditQuery, GetOrderForEditQueryVariables> & ({ variables: GetOrderForEditQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrderForEditQuery, GetOrderForEditQueryVariables>(GetOrderForEditDocument, options);
+      }
+export function useGetOrderForEditLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrderForEditQuery, GetOrderForEditQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrderForEditQuery, GetOrderForEditQueryVariables>(GetOrderForEditDocument, options);
+        }
+// @ts-ignore
+export function useGetOrderForEditSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrderForEditQuery, GetOrderForEditQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrderForEditQuery, GetOrderForEditQueryVariables>;
+export function useGetOrderForEditSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrderForEditQuery, GetOrderForEditQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrderForEditQuery | undefined, GetOrderForEditQueryVariables>;
+export function useGetOrderForEditSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrderForEditQuery, GetOrderForEditQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOrderForEditQuery, GetOrderForEditQueryVariables>(GetOrderForEditDocument, options);
+        }
+export type GetOrderForEditQueryHookResult = ReturnType<typeof useGetOrderForEditQuery>;
+export type GetOrderForEditLazyQueryHookResult = ReturnType<typeof useGetOrderForEditLazyQuery>;
+export type GetOrderForEditSuspenseQueryHookResult = ReturnType<typeof useGetOrderForEditSuspenseQuery>;
+export type GetOrderForEditQueryResult = Apollo.QueryResult<GetOrderForEditQuery, GetOrderForEditQueryVariables>;
+export const UpdateOrderDocument = gql`
+    mutation updateOrder($input: UpdateOrderInput!) {
+  updateOrder(input: $input) {
+    id
+    executeAt
+    executionMode
+  }
+}
+    `;
+export type UpdateOrderMutationFn = Apollo.MutationFunction<UpdateOrderMutation, UpdateOrderMutationVariables>;
+
+/**
+ * __useUpdateOrderMutation__
+ *
+ * To run a mutation, you first call `useUpdateOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateOrderMutation, { data, loading, error }] = useUpdateOrderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateOrderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateOrderMutation, UpdateOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateOrderMutation, UpdateOrderMutationVariables>(UpdateOrderDocument, options);
+      }
+export type UpdateOrderMutationHookResult = ReturnType<typeof useUpdateOrderMutation>;
+export type UpdateOrderMutationResult = Apollo.MutationResult<UpdateOrderMutation>;
+export type UpdateOrderMutationOptions = Apollo.BaseMutationOptions<UpdateOrderMutation, UpdateOrderMutationVariables>;
 export const GetOrderFormForSignDocument = gql`
     query getOrderFormForSign($id: ID!) {
   orderForm(id: $id) {
