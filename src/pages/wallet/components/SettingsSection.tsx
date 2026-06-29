@@ -15,6 +15,7 @@ import {
   TextInput,
   TextInputField,
 } from '~/components/form'
+import { PO } from '~/components/purchaseOrder/PO'
 import {
   ADD_MAX_TOPUP_OPTION_DATA_TEST,
   ADD_MIN_MAX_AMOUNT_DATA_TEST,
@@ -135,6 +136,26 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
           formikProps={formikProps}
         />
       </div>
+
+      <PO
+        value={formikProps.values.purchaseOrderNumber}
+        onChange={(value) => void formikProps.setFieldValue('purchaseOrderNumber', value)}
+        description={translate('text_1782219771287bvb76ri8eyp')}
+      >
+        <div className="flex flex-col gap-1">
+          <PO.Title />
+          <PO.Description />
+        </div>
+        {formikProps.values.purchaseOrderNumber ? (
+          <div className="flex items-center gap-3">
+            <PO.Number className="min-w-0 flex-1" />
+            <PO.EditButton />
+            <PO.TrashButton />
+          </div>
+        ) : (
+          <PO.AddButton />
+        )}
+      </PO>
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">

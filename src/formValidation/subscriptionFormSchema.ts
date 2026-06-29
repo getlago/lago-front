@@ -16,6 +16,7 @@ export interface SubscriptionFormValues {
   invoiceCustomSection?: InvoiceCustomSectionInput
   billingEntityId?: string
   consolidateInvoice: boolean
+  purchaseOrderNumber?: string | null
 }
 
 export const subscriptionFormSchema = z
@@ -59,5 +60,13 @@ export const subscriptionFormSchema = z
           path: ['endingAt'],
         })
       }
+    }
+
+    if ((data.purchaseOrderNumber || '').length > 255) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_1782219771287u79diql28g4',
+        path: ['purchaseOrderNumber'],
+      })
     }
   })

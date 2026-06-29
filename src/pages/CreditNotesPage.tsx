@@ -37,6 +37,7 @@ gql`
     $currency: CurrencyEnum
     $customerExternalId: String
     $invoiceNumber: String
+    $purchaseOrderNumber: String
     $issuingDateFrom: ISO8601Date
     $issuingDateTo: ISO8601Date
     $reason: [CreditNoteReasonEnum!]
@@ -55,6 +56,7 @@ gql`
       currency: $currency
       customerExternalId: $customerExternalId
       invoiceNumber: $invoiceNumber
+      purchaseOrderNumber: $purchaseOrderNumber
       issuingDateFrom: $issuingDateFrom
       issuingDateTo: $issuingDateTo
       reason: $reason
@@ -206,6 +208,7 @@ const CreditNotesPage = () => {
               AvailableFiltersEnum.currency,
               AvailableFiltersEnum.customerExternalId,
               AvailableFiltersEnum.invoiceNumber,
+              AvailableFiltersEnum.purchaseOrderNumber,
               AvailableFiltersEnum.issuingDate,
               AvailableFiltersEnum.creditNoteReason,
               AvailableFiltersEnum.creditNoteRefundStatus,

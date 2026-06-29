@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { PlanFormInput } from '~/components/plans/types'
+import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -276,6 +277,7 @@ export const useAddSubscription: UseAddSubscription = ({
         billingTime,
         paymentMethod,
         billingEntityId,
+        purchaseOrderNumber,
         ...values
       },
       { ...planValues },
@@ -326,6 +328,7 @@ export const useAddSubscription: UseAddSubscription = ({
                   name: name || undefined,
                   externalId: externalId || undefined,
                   paymentMethod: parsedPaymentMethod,
+                  purchaseOrderNumber: normalizePurchaseOrderNumber(purchaseOrderNumber),
                   ...values,
                   planOverrides: hasPlanBeingChangedFromInitial
                     ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput) }
@@ -345,6 +348,7 @@ export const useAddSubscription: UseAddSubscription = ({
                   // subscription column, meaning "inherit from customer".
                   billingEntityId: billingEntityId || null,
                   paymentMethod: parsedPaymentMethod,
+                  purchaseOrderNumber: normalizePurchaseOrderNumber(purchaseOrderNumber),
                   planOverrides: hasPlanBeingChangedFromInitial
                     ? { ...cleanPlanValues(serializedPlanValues as PlanOverridesInput) }
                     : undefined,

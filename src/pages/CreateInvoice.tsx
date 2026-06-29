@@ -41,6 +41,7 @@ import { InvoiceTaxesDisplay, TaxMapType } from '~/components/invoices/InvoiceTa
 import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { normalizePurchaseOrderNumber, PO } from '~/components/purchaseOrder/PO'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   ADD_ITEM_FOR_INVOICE_INPUT_NAME,
@@ -258,6 +259,9 @@ const CreateInvoice = () => {
 
   const { invoiceBuildRegenerationPreview: prefillInvoice } =
     useInvoiceBuildRegenerationPreview(voidedInvoiceId)
+  const prefillInvoicePurchaseOrderNumber = (
+    prefillInvoice as { purchaseOrderNumber?: string | null } | undefined
+  )?.purchaseOrderNumber
 
   const prefillFees = useMemo(() => {
     const fees = prefillInvoice?.fees
@@ -382,6 +386,7 @@ const CreateInvoice = () => {
       fees: prefillFees || [],
       paymentMethod: undefined,
       invoiceCustomSection: undefined,
+      purchaseOrderNumber: prefillInvoicePurchaseOrderNumber || undefined,
     },
     validationSchema: object().shape({
       customerId: string().required(''),
@@ -395,10 +400,17 @@ const CreateInvoice = () => {
           }),
         )
         .required(''),
+      purchaseOrderNumber: string().max(255, translate('text_1782219771287u79diql28g4')).nullable(),
     }),
     enableReinitialize: true,
     validateOnMount: true,
-    onSubmit: async ({ fees, paymentMethod, invoiceCustomSection, ...values }) => {
+    onSubmit: async ({
+      fees,
+      paymentMethod,
+      invoiceCustomSection,
+      purchaseOrderNumber,
+      ...values
+    }) => {
       if (voidedInvoiceId && prefillInvoice?.id && actions.canVoid(prefillInvoice)) {
         const res = await voidInvoice({
           variables: {
@@ -418,6 +430,7 @@ const CreateInvoice = () => {
         variables: {
           input: {
             ...values,
+            purchaseOrderNumber: normalizePurchaseOrderNumber(purchaseOrderNumber),
             ...(prefillInvoice?.id ? { voidedInvoiceId: prefillInvoice.id } : {}),
             paymentMethod,
             invoiceCustomSection: toInvoiceCustomSectionReference(
@@ -815,6 +828,28 @@ const CreateInvoice = () => {
                     )}
                   </div>
                 </div>
+
+                <PO
+                  value={formikProps.values.purchaseOrderNumber}
+                  onChange={(value) =>
+                    void formikProps.setFieldValue('purchaseOrderNumber', value || undefined)
+                  }
+                  description={translate('text_1782219771286e8qwitkefxr')}
+                >
+                  <div className="flex flex-col gap-1">
+                    <PO.Title />
+                    <PO.Description />
+                  </div>
+                  {formikProps.values.purchaseOrderNumber ? (
+                    <div className="flex items-center gap-3">
+                      <PO.Number className="min-w-0 flex-1" />
+                      <PO.EditButton />
+                      <PO.TrashButton />
+                    </div>
+                  ) : (
+                    <PO.AddButton />
+                  )}
+                </PO>
 
                 <div className="w-full">
                   <div className={tw(gridClassname, 'h-12 shadow-b [&>*]:flex [&>*]:items-center')}>

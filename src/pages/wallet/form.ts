@@ -108,6 +108,7 @@ export const topUpAmountError = ({
 export const walletFormSchema = () => {
   return object().shape({
     name: string(),
+    purchaseOrderNumber: string().max(255, 'text_1782219771287u79diql28g4').nullable(),
     appliesTo: object()
       .shape({
         feeTypes: array().of(string()).nullable(),
@@ -205,6 +206,7 @@ export const walletFormSchema = () => {
         object().shape({
           trigger: string().required(''),
           method: string().required(''),
+          purchaseOrderNumber: string().max(255, 'text_1782219771287u79diql28g4').nullable(),
           interval: string()
             .test({
               test: function (interval) {

@@ -21,6 +21,7 @@ import {
 import { InvoiceCustomerInfos } from '~/components/invoices/InvoiceCustomerInfos'
 import { InvoiceOverviewHeaderButtons } from '~/components/invoices/InvoiceOverviewHeaderButtons'
 import { Metadatas } from '~/components/invoices/Metadatas'
+import { PO } from '~/components/purchaseOrder/PO'
 import { envGlobalVar } from '~/core/apolloClient'
 import {
   buildAnrokInvoiceUrl,
@@ -74,6 +75,7 @@ gql`
     externalIntegrationId
     taxProviderId
     taxProviderVoidable
+    purchaseOrderNumber
     integrationHubspotSyncable
     externalHubspotIntegrationId
     integrationSalesforceSyncable
@@ -307,6 +309,9 @@ export const InvoiceQuickInfo = ({
     return null
   }
 
+  const purchaseOrderNumber = (invoice as { purchaseOrderNumber?: string | null })
+    .purchaseOrderNumber
+
   return (
     <>
       {customerIsPartner && (
@@ -343,6 +348,17 @@ export const InvoiceQuickInfo = ({
           </Typography>
         </div>
       )}
+      <div className="box-border flex items-center gap-2 py-6 shadow-b">
+        <div className="min-w-[140px]">
+          <Typography className="text-sm text-grey-600">
+            {translate('text_17822197712867qhfbaf9fpk')}
+          </Typography>
+        </div>
+
+        <PO value={purchaseOrderNumber} className="min-w-0">
+          <PO.Number />
+        </PO>
+      </div>
       <InvoiceCustomerInfos invoice={invoice} />
     </>
   )

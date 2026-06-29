@@ -4354,5 +4354,15 @@
   "text_17818008544903clzyy4ziu1": "Quote #{{quoteNumberWithVersion}}",
   "text_1781869435540pqqpg9kc005": "Set a future date to automatically execute the order on that day. If no date is set, the order must be executed manually.",
   "text_1781872376833n9vthkte11e": "Order form valid until (optional)",
-  "text_1781874334924qwjnv1swbo2": "Valid until: {{date}}"
+  "text_1781874334924qwjnv1swbo2": "Valid until: {{date}}",
+  "text_17822197712865r9iwe3lgel": "Purchase order number",
+  "text_17822197712867qhfbaf9fpk": "PO number",
+  "text_1782219771286pz2trdo2ehq": "Add purchase order number",
+  "text_17822197712864tnvgq76xou": "Add number",
+  "text_17822197712869ou05y6kwt7": "Type a purchase order number",
+  "text_1782219771286e8qwitkefxr": "The PO number defined here will display on the invoice.",
+  "text_1782219771287u79diql28g4": "Purchase order number must be 255 characters or fewer.",
+  "text_1782219771287jpjz8hd1kil": "Define a PO number to display on future finalized invoices linked to this subscription.",
+  "text_1782219771287bvb76ri8eyp": "Define a PO number to display on future finalized invoices linked to this wallet.",
+  "text_1782219771287vpdskzmf2wd": "Define a PO number to display on future finalized invoices linked to this recurring top-up rule."
 }

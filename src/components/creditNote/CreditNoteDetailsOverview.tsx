@@ -9,6 +9,7 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Status } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { PO } from '~/components/purchaseOrder/PO'
 import { envGlobalVar } from '~/core/apolloClient'
 import {
   creditNoteCreditStatusMapping,
@@ -46,6 +47,7 @@ gql`
       refundStatus
       refundedAt
       refundAmountCents
+      purchaseOrderNumber
       xmlUrl
       billingEntity {
         id
@@ -94,6 +96,8 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
   })
 
   const creditNote = data?.creditNote
+  const purchaseOrderNumber = (creditNote as { purchaseOrderNumber?: string | null } | undefined)
+    ?.purchaseOrderNumber
   const isRefunded = creditNote?.refundAmountCents > 0
 
   const hasError = (!!error || !creditNote) && !loading
@@ -228,6 +232,14 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
                     }
                   />
                 )}
+                <DetailsPage.OverviewLine
+                  title={translate('text_17822197712867qhfbaf9fpk')}
+                  value={
+                    <PO value={purchaseOrderNumber}>
+                      <PO.Number />
+                    </PO>
+                  }
+                />
               </>
             )}
             {creditNote?.createdAt && (

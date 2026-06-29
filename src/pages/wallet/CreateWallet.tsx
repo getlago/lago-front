@@ -10,6 +10,7 @@ import { WarningDialog, WarningDialogRef } from '~/components/designSystem/Warni
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import {
   CLOSE_CREATE_WALLET_BUTTON_DATA_TEST,
   SUBMIT_WALLET_DATA_TEST,
@@ -64,6 +65,7 @@ gql`
     paidTopUpMinAmountCents
     paidTopUpMaxAmountCents
     priority
+    purchaseOrderNumber
     paymentMethodType
     paymentMethod {
       id
@@ -93,6 +95,7 @@ gql`
       transactionName
       trigger
       ignorePaidTopUpLimits
+      purchaseOrderNumber
       paymentMethodType
       paymentMethod {
         id
@@ -180,6 +183,8 @@ const CreateWallet = () => {
   })
   const isLoading = customerLoading || walletLoading
   const wallet = walletData?.wallet
+  const walletPurchaseOrderNumber = (wallet as { purchaseOrderNumber?: string | null } | undefined)
+    ?.purchaseOrderNumber
 
   const [showExpirationDate, setShowExpirationDate] = useState(!!wallet?.expirationAt)
   const [isRecurringTopUpEnabled, setIsRecurringTopUpEnabled] = useState(
@@ -290,6 +295,7 @@ const CreateWallet = () => {
         paymentMethodType: wallet?.paymentMethodType,
         paymentMethodId: wallet?.paymentMethod?.id,
       },
+      purchaseOrderNumber: walletPurchaseOrderNumber || null,
       invoiceCustomSection: {
         invoiceCustomSections: wallet?.selectedInvoiceCustomSections || [],
         skipInvoiceCustomSections: wallet?.skipInvoiceCustomSections || false,
@@ -309,6 +315,7 @@ const CreateWallet = () => {
       paymentMethod,
       invoiceCustomSection,
       billingEntityId,
+      purchaseOrderNumber,
       ...values
     }) => {
       const recurringTransactionRulesFormatted =
@@ -327,6 +334,7 @@ const CreateWallet = () => {
                 expirationAt,
                 ignorePaidTopUpLimits,
                 invoiceCustomSection: ruleInvoiceCustomSection,
+                purchaseOrderNumber: rulePurchaseOrderNumber,
                 ...rest
               } = rule
 
@@ -358,6 +366,7 @@ const CreateWallet = () => {
                 targetOngoingBalance: targetedBalance,
                 invoiceRequiresSuccessfulPayment,
                 ignorePaidTopUpLimits,
+                purchaseOrderNumber: normalizePurchaseOrderNumber(rulePurchaseOrderNumber),
                 expirationAt: expirationAt === '' ? null : expirationAt,
                 invoiceCustomSection: toInvoiceCustomSectionReference(
                   ruleInvoiceCustomSection as InvoiceCustomSectionInput,
@@ -381,6 +390,7 @@ const CreateWallet = () => {
           billingEntityId: billingEntityId || null,
           appliesTo: formattedAppliesTo,
           paymentMethod,
+          purchaseOrderNumber: normalizePurchaseOrderNumber(purchaseOrderNumber),
           invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
           ...(values.paidTopUpMinAmountCents
             ? {
@@ -425,6 +435,7 @@ const CreateWallet = () => {
           recurringTransactionRules: recurringTransactionRulesFormatted,
           appliesTo: formattedAppliesTo,
           paymentMethod,
+          purchaseOrderNumber: normalizePurchaseOrderNumber(purchaseOrderNumber),
           invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
           ...(values.paidTopUpMinAmountCents
             ? {

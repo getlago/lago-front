@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
+import { PO } from '~/components/purchaseOrder/PO'
 import { PaymentInvoiceDetails } from '~/components/subscriptions/PaymentInvoiceDetails'
 import {
   FeatureFlagEnum,
@@ -18,6 +19,7 @@ gql`
   fragment InvoicingPaymentsSection on Subscription {
     id
     consolidateInvoice
+    purchaseOrderNumber
     paymentMethodType
     paymentMethod {
       id
@@ -46,6 +48,8 @@ export const InvoicingPaymentsSection = ({ subscription }: InvoicingPaymentsSect
   const { hasPermissions } = usePermissions()
   const { hasFeatureFlag } = useOrganizationInfos()
   const { openDrawer } = useInvoicingPaymentsDrawer(subscription)
+  const purchaseOrderNumber = (subscription as { purchaseOrderNumber?: string | null })
+    .purchaseOrderNumber
 
   return (
     <section className="flex flex-col gap-6">
@@ -66,6 +70,14 @@ export const InvoicingPaymentsSection = ({ subscription }: InvoicingPaymentsSect
             ? 'text_1778745351091h7z5baw0ta6'
             : 'text_1778745351091fxaqr5dwok8',
         )}
+      />
+      <DetailsPage.InfoGridItem
+        label={translate('text_17822197712867qhfbaf9fpk')}
+        value={
+          <PO value={purchaseOrderNumber}>
+            <PO.Number />
+          </PO>
+        }
       />
       {hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods) && (
         <PaymentInvoiceDetails

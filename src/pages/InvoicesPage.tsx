@@ -52,6 +52,7 @@ gql`
     $paymentDisputeLost: Boolean
     $paymentOverdue: Boolean
     $paymentStatus: [InvoicePaymentStatusTypeEnum!]
+    $purchaseOrderNumber: String
     $searchTerm: String
     $settlements: [InvoiceSettlementTypeEnum!]
     $status: [InvoiceStatusTypeEnum!]
@@ -72,6 +73,7 @@ gql`
       paymentDisputeLost: $paymentDisputeLost
       paymentOverdue: $paymentOverdue
       paymentStatus: $paymentStatus
+      purchaseOrderNumber: $purchaseOrderNumber
       searchTerm: $searchTerm
       settlements: $settlements
       status: $status
@@ -268,6 +270,7 @@ const InvoicesPage = () => {
               AvailableFiltersEnum.status,
               AvailableFiltersEnum.invoiceType,
               AvailableFiltersEnum.paymentStatus,
+              AvailableFiltersEnum.purchaseOrderNumber,
               AvailableFiltersEnum.currency,
               AvailableFiltersEnum.issuingDate,
               AvailableFiltersEnum.customerExternalId,

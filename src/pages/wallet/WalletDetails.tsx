@@ -54,6 +54,7 @@ gql`
     ongoingBalanceCents
     creditsOngoingBalance
     priority
+    purchaseOrderNumber
     paidTopUpMinAmountCents
     paidTopUpMinCredits
     paidTopUpMaxAmountCents
@@ -98,6 +99,7 @@ gql`
       paidCredits
       grantedCredits
       trigger
+      purchaseOrderNumber
       thresholdCredits
       expirationAt
       interval

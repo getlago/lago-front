@@ -106,6 +106,7 @@ gql`
     taxStatus
     totalAmountCents
     currency
+    purchaseOrderNumber
     refundableAmountCents
     creditableAmountCents
     offsettableAmountCents

@@ -23,6 +23,7 @@ import {
 } from '~/components/form'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { PO } from '~/components/purchaseOrder/PO'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
 import {
   ADD_METADATA_DATA_TEST,
@@ -102,6 +103,7 @@ const DEFAULT_RULES: UpdateRecurringTransactionRuleInput = {
   targetOngoingBalance: null,
   startedAt: DateTime.now().toISO(),
   invoiceRequiresSuccessfulPayment: false,
+  purchaseOrderNumber: null,
 }
 
 interface TopUpSectionProps {
@@ -255,6 +257,31 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                 placeholder={translate('text_17580145853390n3v83gao69')}
                 helperText={translate('text_1758014585339r3kd52x7r58')}
               />
+
+              <PO
+                value={formikProps.values.recurringTransactionRules?.[0]?.purchaseOrderNumber}
+                onChange={(value) =>
+                  void formikProps.setFieldValue(
+                    'recurringTransactionRules.0.purchaseOrderNumber',
+                    value,
+                  )
+                }
+                description={translate('text_1782219771287vpdskzmf2wd')}
+              >
+                <div className="flex flex-col gap-1">
+                  <PO.Title />
+                  <PO.Description />
+                </div>
+                {formikProps.values.recurringTransactionRules?.[0]?.purchaseOrderNumber ? (
+                  <div className="flex items-center gap-3">
+                    <PO.Number className="min-w-0 flex-1" />
+                    <PO.EditButton />
+                    <PO.TrashButton />
+                  </div>
+                ) : (
+                  <PO.AddButton />
+                )}
+              </PO>
 
               {recurringTransactionRules?.method === RecurringTransactionMethodEnum.Fixed && (
                 <>

@@ -9,6 +9,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { EditFeeDrawer, EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
 import { InvoiceDetailsTable } from '~/components/invoices/details/InvoiceDetailsTable'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { normalizePurchaseOrderNumber, PO } from '~/components/purchaseOrder/PO'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import {
@@ -121,10 +122,13 @@ const CustomerInvoiceRegenerate = () => {
 
   const customer = invoice?.customer
   const billingEntity = invoice?.billingEntity
+  const invoicePurchaseOrderNumber = (invoice as { purchaseOrderNumber?: string | null } | null)
+    ?.purchaseOrderNumber
   const hasTaxProvider =
     !!fullCustomer?.customer?.anrokCustomer?.id || !!fullCustomer?.customer?.avalaraCustomer?.id
 
   const [fees, setFees] = useState(fullFees || [])
+  const [purchaseOrderNumber, setPurchaseOrderNumber] = useState<string | null>(null)
   // Store a deep copy of the original fees from the query, to avoid Apollo cache pollution
   // when previewAdjustedFee mutation returns partial fee data that gets merged into cache.
   const originalFeesRef = useRef<typeof fullFees>(null)
@@ -142,6 +146,10 @@ const CustomerInvoiceRegenerate = () => {
       hasInitializedFees.current = true
     }
   }, [fullFees])
+
+  useEffect(() => {
+    setPurchaseOrderNumber(invoicePurchaseOrderNumber || null)
+  }, [invoice?.id, invoicePurchaseOrderNumber])
 
   const [taxProviderTaxesResult, setTaxProviderTaxesResult] =
     useState<FetchDraftInvoiceTaxesMutation['fetchDraftInvoiceTaxes']>(null)
@@ -279,6 +287,7 @@ const CustomerInvoiceRegenerate = () => {
         input: {
           voidedInvoiceId: invoiceId,
           fees: feesInput,
+          purchaseOrderNumber: normalizePurchaseOrderNumber(purchaseOrderNumber),
         },
       },
     })
@@ -381,6 +390,29 @@ const CustomerInvoiceRegenerate = () => {
                 invoice={invoice}
                 billingEntity={billingEntity}
               />
+            )}
+            {invoice && (
+              <div className="py-6 shadow-b">
+                <PO
+                  value={purchaseOrderNumber}
+                  onChange={setPurchaseOrderNumber}
+                  description={translate('text_1782219771286e8qwitkefxr')}
+                >
+                  <div className="flex flex-col gap-1">
+                    <PO.Title />
+                    <PO.Description />
+                  </div>
+                  {purchaseOrderNumber ? (
+                    <div className="flex items-center gap-3">
+                      <PO.Number className="min-w-0 flex-1" />
+                      <PO.EditButton />
+                      <PO.TrashButton />
+                    </div>
+                  ) : (
+                    <PO.AddButton />
+                  )}
+                </PO>
+              </div>
             )}
             {invoice && customer && (
               <InvoiceDetailsTable

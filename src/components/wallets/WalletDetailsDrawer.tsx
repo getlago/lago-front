@@ -22,6 +22,7 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
+import { PO } from '~/components/purchaseOrder/PO'
 import WalletTransactionItems from '~/components/wallets/WalletTransactionItems'
 import { buildGoCardlessPaymentUrl, buildStripePaymentUrl } from '~/core/constants/externalUrls'
 import {
@@ -67,6 +68,7 @@ gql`
     source
     invoiceRequiresSuccessfulPayment
     priority
+    purchaseOrderNumber
     remainingAmountCents
     remainingCreditAmount
     metadata {
@@ -272,6 +274,9 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
       amount,
       creditAmount,
     } = data?.walletTransaction || {}
+    const purchaseOrderNumber = (
+      data?.walletTransaction as { purchaseOrderNumber?: string | null } | undefined
+    )?.purchaseOrderNumber
 
     const formatted = useMemo(() => {
       const deserialized = {
@@ -505,6 +510,14 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                                   value={priority}
                                 />
                               )}
+                              <DetailRow
+                                label={translate('text_17822197712867qhfbaf9fpk')}
+                                value={
+                                  <PO value={purchaseOrderNumber}>
+                                    <PO.Number />
+                                  </PO>
+                                }
+                              />
                               <DetailRow
                                 label={translate('text_1741943835752ttg2ano3kju')}
                                 value={formatted.credit}

@@ -1873,6 +1873,7 @@ export type CreateCustomerWalletInput = {
   paidTopUpMinAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   priority: Scalars['Int']['input'];
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   rateAmount: Scalars['String']['input'];
   recurringTransactionRules?: InputMaybe<Array<CreateRecurringTransactionRuleInput>>;
   transactionName?: InputMaybe<Scalars['String']['input']>;
@@ -1891,6 +1892,7 @@ export type CreateCustomerWalletTransactionInput = {
   paidCredits?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   priority?: InputMaybe<Scalars['Int']['input']>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   voidedCredits?: InputMaybe<Scalars['String']['input']>;
   walletId: Scalars['ID']['input'];
 };
@@ -2011,6 +2013,7 @@ export type CreateInvoiceInput = {
   fees: Array<FeeInput>;
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   voidedInvoiceId?: InputMaybe<Scalars['ID']['input']>;
 };
 
@@ -2135,6 +2138,7 @@ export type CreateRecurringTransactionRuleInput = {
   method?: InputMaybe<RecurringTransactionMethodEnum>;
   paidCredits?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   startedAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   targetOngoingBalance?: InputMaybe<Scalars['String']['input']>;
   thresholdCredits?: InputMaybe<Scalars['String']['input']>;
@@ -2203,6 +2207,7 @@ export type CreateSubscriptionInput = {
   planId: Scalars['ID']['input'];
   planOverrides?: InputMaybe<PlanOverridesInput>;
   progressiveBillingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   subscriptionAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   subscriptionId?: InputMaybe<Scalars['ID']['input']>;
   usageThresholds?: InputMaybe<Array<UsageThresholdInput>>;
@@ -2252,6 +2257,7 @@ export type CreditNote = {
   metadata?: Maybe<Array<ItemMetadata>>;
   number: Scalars['String']['output'];
   offsetAmountCents: Scalars['BigInt']['output'];
+  purchaseOrderNumber?: Maybe<Scalars['String']['output']>;
   reason: CreditNoteReasonEnum;
   refundAmountCents: Scalars['BigInt']['output'];
   refundStatus?: Maybe<CreditNoteRefundStatusEnum>;
@@ -3282,6 +3288,7 @@ export type DataExportCreditNoteFiltersInput = {
   invoiceNumber?: InputMaybe<Scalars['String']['input']>;
   issuingDateFrom?: InputMaybe<Scalars['ISO8601Date']['input']>;
   issuingDateTo?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   reason?: InputMaybe<Array<CreditNoteReasonEnum>>;
   refundStatus?: InputMaybe<Array<CreditNoteRefundStatusEnum>>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
@@ -3306,6 +3313,7 @@ export type DataExportInvoiceFiltersInput = {
   paymentDisputeLost?: InputMaybe<Scalars['Boolean']['input']>;
   paymentOverdue?: InputMaybe<Scalars['Boolean']['input']>;
   paymentStatus?: InputMaybe<Array<InvoicePaymentStatusTypeEnum>>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum>>;
@@ -4584,6 +4592,7 @@ export type Invoice = {
   prepaidGrantedCreditAmountCents?: Maybe<Scalars['BigInt']['output']>;
   prepaidPurchasedCreditAmountCents?: Maybe<Scalars['BigInt']['output']>;
   progressiveBillingCreditAmountCents: Scalars['BigInt']['output'];
+  purchaseOrderNumber?: Maybe<Scalars['String']['output']>;
   readyForPaymentProcessing: Scalars['Boolean']['output'];
   refundableAmountCents: Scalars['BigInt']['output'];
   regeneratedInvoiceId?: Maybe<Scalars['String']['output']>;
@@ -7708,6 +7717,7 @@ export type QueryCreditNotesArgs = {
   issuingDateTo?: InputMaybe<Scalars['ISO8601Date']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   reason?: InputMaybe<Array<CreditNoteReasonEnum>>;
   refundStatus?: InputMaybe<Array<CreditNoteRefundStatusEnum>>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
@@ -8108,6 +8118,7 @@ export type QueryInvoicesArgs = {
   paymentOverdue?: InputMaybe<Scalars['Boolean']['input']>;
   paymentStatus?: InputMaybe<Array<InvoicePaymentStatusTypeEnum>>;
   positiveDueAmount?: InputMaybe<Scalars['Boolean']['input']>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
   settlements?: InputMaybe<Array<InvoiceSettlementTypeEnum>>;
@@ -8511,6 +8522,7 @@ export type RecurringTransactionRule = {
   paidCredits: Scalars['String']['output'];
   paymentMethod?: Maybe<PaymentMethod>;
   paymentMethodType?: Maybe<PaymentMethodTypeEnum>;
+  purchaseOrderNumber?: Maybe<Scalars['String']['output']>;
   selectedInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
   skipInvoiceCustomSections?: Maybe<Scalars['Boolean']['output']>;
   startedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -8538,6 +8550,7 @@ export type RegenerateInvoiceInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   fees: Array<VoidedInvoiceFeeInput>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   voidedInvoiceId: Scalars['ID']['input'];
 };
 
@@ -8898,6 +8911,7 @@ export type Subscription = {
   previousPlan?: Maybe<Plan>;
   previousSubscription?: Maybe<Subscription>;
   progressiveBillingDisabled?: Maybe<Scalars['Boolean']['output']>;
+  purchaseOrderNumber?: Maybe<Scalars['String']['output']>;
   selectedInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
   skipInvoiceCustomSections?: Maybe<Scalars['Boolean']['output']>;
   startedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -9707,6 +9721,7 @@ export type UpdateCustomerWalletInput = {
   paidTopUpMinAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   priority: Scalars['Int']['input'];
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   recurringTransactionRules?: InputMaybe<Array<UpdateRecurringTransactionRuleInput>>;
 };
 
@@ -9989,6 +10004,7 @@ export type UpdateRecurringTransactionRuleInput = {
   method?: InputMaybe<RecurringTransactionMethodEnum>;
   paidCredits?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   startedAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   targetOngoingBalance?: InputMaybe<Scalars['String']['input']>;
   thresholdCredits?: InputMaybe<Scalars['String']['input']>;
@@ -10092,6 +10108,7 @@ export type UpdateSubscriptionInput = {
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   planOverrides?: InputMaybe<PlanOverridesInput>;
   progressiveBillingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   subscriptionAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   usageThresholds?: InputMaybe<Array<UsageThresholdInput>>;
 };
@@ -10234,6 +10251,7 @@ export type Wallet = {
   paymentMethod?: Maybe<PaymentMethod>;
   paymentMethodType?: Maybe<PaymentMethodTypeEnum>;
   priority: Scalars['Int']['output'];
+  purchaseOrderNumber?: Maybe<Scalars['String']['output']>;
   rateAmount: Scalars['Float']['output'];
   recurringTransactionRules?: Maybe<Array<RecurringTransactionRule>>;
   selectedInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
@@ -10290,6 +10308,7 @@ export type WalletTransaction = {
   metadata?: Maybe<Array<WalletTransactionMetadataObject>>;
   name?: Maybe<Scalars['String']['output']>;
   priority: Scalars['Int']['output'];
+  purchaseOrderNumber?: Maybe<Scalars['String']['output']>;
   remainingAmountCents?: Maybe<Scalars['BigInt']['output']>;
   remainingCreditAmount?: Maybe<Scalars['String']['output']>;
   selectedInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
@@ -13585,6 +13604,7 @@ export type GetCreditNotesListQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
   customerExternalId?: InputMaybe<Scalars['String']['input']>;
   invoiceNumber?: InputMaybe<Scalars['String']['input']>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   issuingDateFrom?: InputMaybe<Scalars['ISO8601Date']['input']>;
   issuingDateTo?: InputMaybe<Scalars['ISO8601Date']['input']>;
   reason?: InputMaybe<Array<CreditNoteReasonEnum> | CreditNoteReasonEnum>;
@@ -13861,6 +13881,7 @@ export type GetInvoicesListQueryVariables = Exact<{
   paymentDisputeLost?: InputMaybe<Scalars['Boolean']['input']>;
   paymentOverdue?: InputMaybe<Scalars['Boolean']['input']>;
   paymentStatus?: InputMaybe<Array<InvoicePaymentStatusTypeEnum> | InvoicePaymentStatusTypeEnum>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   settlements?: InputMaybe<Array<InvoiceSettlementTypeEnum> | InvoiceSettlementTypeEnum>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum> | InvoiceStatusTypeEnum>;
@@ -18485,6 +18506,7 @@ export const SubscriptionForSubscriptionEditFormFragmentDoc = gql`
   periodEndDate
   status
   startedAt
+  purchaseOrderNumber
   paymentMethodType
   paymentMethod {
     id
@@ -18509,6 +18531,7 @@ export const InvoicingPaymentsSectionFragmentDoc = gql`
     fragment InvoicingPaymentsSection on Subscription {
   id
   consolidateInvoice
+  purchaseOrderNumber
   paymentMethodType
   paymentMethod {
     id
@@ -18567,6 +18590,7 @@ export const WalletForUpdateFragmentDoc = gql`
   paidTopUpMinAmountCents
   paidTopUpMaxAmountCents
   priority
+  purchaseOrderNumber
   paymentMethodType
   paymentMethod {
     id
@@ -18590,6 +18614,7 @@ export const WalletForUpdateFragmentDoc = gql`
     lagoId
     method
     paidCredits
+    purchaseOrderNumber
     startedAt
     targetOngoingBalance
     thresholdCredits
@@ -18686,6 +18711,7 @@ export const WalletTransactionDetailsFragmentDoc = gql`
   source
   invoiceRequiresSuccessfulPayment
   priority
+  purchaseOrderNumber
   remainingAmountCents
   remainingCreditAmount
   metadata {
@@ -19615,6 +19641,7 @@ export const InvoiceDetailsForInvoiceOverviewFragmentDoc = gql`
   externalIntegrationId
   taxProviderId
   taxProviderVoidable
+  purchaseOrderNumber
   integrationHubspotSyncable
   externalHubspotIntegrationId
   integrationSalesforceSyncable
@@ -19739,6 +19766,7 @@ export const AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc = gql`
   taxStatus
   totalAmountCents
   currency
+  purchaseOrderNumber
   refundableAmountCents
   creditableAmountCents
   offsettableAmountCents
@@ -20221,6 +20249,7 @@ export const InvoiceForInvoiceBuildRegenerationPreviewFragmentDoc = gql`
   paymentDueDate
   paymentOverdue
   paymentStatus
+  purchaseOrderNumber
   refundableAmountCents
   regeneratedInvoiceId
   status
@@ -21141,6 +21170,7 @@ export const WalletDetailsFragmentDoc = gql`
   ongoingBalanceCents
   creditsOngoingBalance
   priority
+  purchaseOrderNumber
   paidTopUpMinAmountCents
   paidTopUpMinCredits
   paidTopUpMaxAmountCents
@@ -21185,6 +21215,7 @@ export const WalletDetailsFragmentDoc = gql`
     paidCredits
     grantedCredits
     trigger
+    purchaseOrderNumber
     thresholdCredits
     expirationAt
     interval
@@ -22641,6 +22672,7 @@ export const GetCreditNoteForDetailsOverviewDocument = gql`
     refundStatus
     refundedAt
     refundAmountCents
+    purchaseOrderNumber
     xmlUrl
     billingEntity {
       id
@@ -35391,7 +35423,7 @@ export type CreatePaymentMutationHookResult = ReturnType<typeof useCreatePayment
 export type CreatePaymentMutationResult = Apollo.MutationResult<CreatePaymentMutation>;
 export type CreatePaymentMutationOptions = Apollo.BaseMutationOptions<CreatePaymentMutation, CreatePaymentMutationVariables>;
 export const GetCreditNotesListDocument = gql`
-    query getCreditNotesList($amountFrom: Int, $amountTo: Int, $creditStatus: [CreditNoteCreditStatusEnum!], $currency: CurrencyEnum, $customerExternalId: String, $invoiceNumber: String, $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $reason: [CreditNoteReasonEnum!], $refundStatus: [CreditNoteRefundStatusEnum!], $types: [CreditNoteTypeEnum!], $limit: Int, $page: Int, $searchTerm: String, $selfBilled: Boolean, $billingEntityIds: [ID!]) {
+    query getCreditNotesList($amountFrom: Int, $amountTo: Int, $creditStatus: [CreditNoteCreditStatusEnum!], $currency: CurrencyEnum, $customerExternalId: String, $invoiceNumber: String, $purchaseOrderNumber: String, $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $reason: [CreditNoteReasonEnum!], $refundStatus: [CreditNoteRefundStatusEnum!], $types: [CreditNoteTypeEnum!], $limit: Int, $page: Int, $searchTerm: String, $selfBilled: Boolean, $billingEntityIds: [ID!]) {
   creditNotes(
     amountFrom: $amountFrom
     amountTo: $amountTo
@@ -35399,6 +35431,7 @@ export const GetCreditNotesListDocument = gql`
     currency: $currency
     customerExternalId: $customerExternalId
     invoiceNumber: $invoiceNumber
+    purchaseOrderNumber: $purchaseOrderNumber
     issuingDateFrom: $issuingDateFrom
     issuingDateTo: $issuingDateTo
     reason: $reason
@@ -36628,7 +36661,7 @@ export type OktaAcceptInviteMutationHookResult = ReturnType<typeof useOktaAccept
 export type OktaAcceptInviteMutationResult = Apollo.MutationResult<OktaAcceptInviteMutation>;
 export type OktaAcceptInviteMutationOptions = Apollo.BaseMutationOptions<OktaAcceptInviteMutation, OktaAcceptInviteMutationVariables>;
 export const GetInvoicesListDocument = gql`
-    query getInvoicesList($currency: CurrencyEnum, $customerExternalId: String, $invoiceType: [InvoiceTypeEnum!], $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $limit: Int, $page: Int, $partiallyPaid: Boolean, $paymentDisputeLost: Boolean, $paymentOverdue: Boolean, $paymentStatus: [InvoicePaymentStatusTypeEnum!], $searchTerm: String, $settlements: [InvoiceSettlementTypeEnum!], $status: [InvoiceStatusTypeEnum!], $amountFrom: Int, $amountTo: Int, $selfBilled: Boolean, $billingEntityIds: [ID!]) {
+    query getInvoicesList($currency: CurrencyEnum, $customerExternalId: String, $invoiceType: [InvoiceTypeEnum!], $issuingDateFrom: ISO8601Date, $issuingDateTo: ISO8601Date, $limit: Int, $page: Int, $partiallyPaid: Boolean, $paymentDisputeLost: Boolean, $paymentOverdue: Boolean, $paymentStatus: [InvoicePaymentStatusTypeEnum!], $purchaseOrderNumber: String, $searchTerm: String, $settlements: [InvoiceSettlementTypeEnum!], $status: [InvoiceStatusTypeEnum!], $amountFrom: Int, $amountTo: Int, $selfBilled: Boolean, $billingEntityIds: [ID!]) {
   invoices(
     currency: $currency
     customerExternalId: $customerExternalId
@@ -36641,6 +36674,7 @@ export const GetInvoicesListDocument = gql`
     paymentDisputeLost: $paymentDisputeLost
     paymentOverdue: $paymentOverdue
     paymentStatus: $paymentStatus
+    purchaseOrderNumber: $purchaseOrderNumber
     searchTerm: $searchTerm
     settlements: $settlements
     status: $status
@@ -37971,6 +38005,7 @@ export const GetCreditNoteForDetailsDocument = gql`
     refundAmountCents
     offsetAmountCents
     currency
+    purchaseOrderNumber
     integrationSyncable
     taxProviderSyncable
     externalIntegrationId

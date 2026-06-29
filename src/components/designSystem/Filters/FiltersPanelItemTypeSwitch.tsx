@@ -39,6 +39,7 @@ import { FiltersItemPaymentOverdue } from '~/components/designSystem/Filters/fil
 import { FiltersItemPaymentStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemPaymentStatus'
 import { FiltersItemPeriod } from '~/components/designSystem/Filters/filtersElements/FiltersItemPeriod'
 import { FiltersItemPlanCode } from '~/components/designSystem/Filters/filtersElements/FiltersItemPlanCode'
+import { FiltersItemPurchaseOrderNumber } from '~/components/designSystem/Filters/filtersElements/FiltersItemPurchaseOrderNumber'
 import { FiltersItemQuoteNumber } from '~/components/designSystem/Filters/filtersElements/FiltersItemQuoteNumber'
 import { FiltersItemQuoteOrderType } from '~/components/designSystem/Filters/filtersElements/FiltersItemQuoteOrderType'
 import { FiltersItemQuoteStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemQuoteStatus'
@@ -126,6 +127,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.paymentStatus]: <FiltersItemPaymentStatus {...props} />,
     [AvailableFiltersEnum.period]: <FiltersItemPeriod {...props} />,
     [AvailableFiltersEnum.planCode]: <FiltersItemPlanCode {...props} />,
+    [AvailableFiltersEnum.purchaseOrderNumber]: <FiltersItemPurchaseOrderNumber {...props} />,
     [AvailableFiltersEnum.requestPaths]: <FiltersItemRequestPath {...props} />,
     [AvailableFiltersEnum.resourceIds]: <FiltersItemResourceIds {...props} />,
     [AvailableFiltersEnum.resourceTypes]: <FiltersItemResourceTypes {...props} />,

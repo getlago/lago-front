@@ -1,4 +1,5 @@
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
+import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import {
   SubscriptionUpdateFormOptions,
   useUpdateSubscriptionForm,
@@ -21,5 +22,6 @@ export const useUpdateSubscriptionInvoicingPayments = ({
           }
         : undefined,
       invoiceCustomSection: toInvoiceCustomSectionReference(value.invoiceCustomSection),
+      purchaseOrderNumber: normalizePurchaseOrderNumber(value.purchaseOrderNumber),
     }),
   })

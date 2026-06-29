@@ -38,6 +38,7 @@ gql`
     status
     startedAt
     paymentMethodType
+    purchaseOrderNumber
     paymentMethod {
       id
     }

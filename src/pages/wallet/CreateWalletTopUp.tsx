@@ -17,6 +17,7 @@ import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { normalizePurchaseOrderNumber, PO } from '~/components/purchaseOrder/PO'
 import {
   ADD_METADATA_DATA_TEST,
   CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST,
@@ -173,6 +174,7 @@ const CreateWalletTopUp = () => {
       metadata: undefined,
       ignorePaidTopUpLimits: undefined,
       priority: 50,
+      purchaseOrderNumber: undefined,
     },
     validationSchema: object().shape({
       paidCredits: string().test({
@@ -205,6 +207,7 @@ const CreateWalletTopUp = () => {
       }),
       metadata: metadataSchema().nullable(),
       priority: number(),
+      purchaseOrderNumber: string().max(255, translate('text_1782219771287u79diql28g4')).nullable(),
     }),
     validateOnMount: true,
     onSubmit: async ({
@@ -215,6 +218,7 @@ const CreateWalletTopUp = () => {
       invoiceCustomSection,
       paymentMethod,
       priority,
+      purchaseOrderNumber,
       ...rest
     }) => {
       if (!wallet) return
@@ -243,6 +247,7 @@ const CreateWalletTopUp = () => {
           input: {
             ...rest,
             walletId: wallet.id,
+            purchaseOrderNumber: normalizePurchaseOrderNumber(purchaseOrderNumber),
             priority: Number(priority) || Number(WALLET_TOP_UP_DEFAULT_PRIORITY),
             grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
             paidCredits: paidCredits === '' ? '0' : String(paidCredits),
@@ -525,6 +530,28 @@ const CreateWalletTopUp = () => {
                 placeholder={WALLET_TOP_UP_DEFAULT_PRIORITY}
                 formikProps={formikProps}
               />
+
+              <PO
+                value={formikProps.values.purchaseOrderNumber}
+                onChange={(value) =>
+                  void formikProps.setFieldValue('purchaseOrderNumber', value || undefined)
+                }
+                description={translate('text_1782219771286e8qwitkefxr')}
+              >
+                <div className="flex flex-col gap-1">
+                  <PO.Title />
+                  <PO.Description />
+                </div>
+                {formikProps.values.purchaseOrderNumber ? (
+                  <div className="flex items-center gap-3">
+                    <PO.Number className="min-w-0 flex-1" />
+                    <PO.EditButton />
+                    <PO.TrashButton />
+                  </div>
+                ) : (
+                  <PO.AddButton />
+                )}
+              </PO>
             </section>
 
             {hasAccessToMultiPaymentFlow &&

@@ -7,6 +7,7 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { useDisplayedPaymentMethod } from '~/components/paymentMethodSelection/useDisplayedPaymentMethod'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import PremiumFeature from '~/components/premium/PremiumFeature'
+import { PO } from '~/components/purchaseOrder/PO'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { formatPaymentMethodDetails } from '~/core/formats/formatPaymentMethodDetails'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -109,6 +110,11 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
   }
 
   const recurring = wallet?.recurringTransactionRules?.[0]
+  const walletPurchaseOrderNumber = (wallet as { purchaseOrderNumber?: string | null })
+    .purchaseOrderNumber
+  const recurringPurchaseOrderNumber = (
+    recurring as { purchaseOrderNumber?: string | null } | undefined
+  )?.purchaseOrderNumber
 
   const currency = wallet?.currency || defaultCurrency || CurrencyEnum.Usd
 
@@ -198,6 +204,14 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
             {
               label: translate('text_1755697949545w7vb1hox4n5'),
               value: wallet?.priority || '-',
+            },
+            {
+              label: translate('text_17822197712867qhfbaf9fpk'),
+              value: (
+                <PO value={walletPurchaseOrderNumber}>
+                  <PO.Number />
+                </PO>
+              ),
             },
             {
               label: translate('text_1772536695408pz0actopowa'),
@@ -348,6 +362,14 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
               {
                 label: translate('text_1773043324341gpkiojxh628'),
                 value: recurring?.transactionName || '-',
+              },
+              {
+                label: translate('text_17822197712867qhfbaf9fpk'),
+                value: (
+                  <PO value={recurringPurchaseOrderNumber}>
+                    <PO.Number />
+                  </PO>
+                ),
               },
               {
                 label: translate('text_1773043324341q5g4muycilq'),

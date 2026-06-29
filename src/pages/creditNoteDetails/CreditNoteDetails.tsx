@@ -63,6 +63,7 @@ gql`
       refundAmountCents
       offsetAmountCents
       currency
+      purchaseOrderNumber
       integrationSyncable
       taxProviderSyncable
       externalIntegrationId

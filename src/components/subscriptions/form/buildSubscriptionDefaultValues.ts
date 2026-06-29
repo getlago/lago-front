@@ -13,23 +13,30 @@ export const buildSubscriptionDefaultValues = (
   subscription: SubscriptionDefaultsSource,
   formType: SubscriptionFormType,
   currentDate: string,
-): SubscriptionFormValues => ({
-  planId:
-    subscription?.plan?.id && formType !== FORM_TYPE_ENUM.upgradeDowngrade
-      ? subscription.plan.id
-      : '',
-  name: subscription?.name && formType !== FORM_TYPE_ENUM.upgradeDowngrade ? subscription.name : '',
-  externalId: subscription?.externalId || '',
-  subscriptionAt: subscription?.subscriptionAt || currentDate,
-  endingAt: subscription?.endingAt || undefined,
-  billingTime: subscription?.billingTime || BillingTimeEnum.Calendar,
-  paymentMethod: {
-    paymentMethodType: subscription?.paymentMethodType,
-    paymentMethodId: subscription?.paymentMethod?.id,
-  },
-  invoiceCustomSection: {
-    invoiceCustomSections: subscription?.selectedInvoiceCustomSections || [],
-    skipInvoiceCustomSections: subscription?.skipInvoiceCustomSections || false,
-  },
-  consolidateInvoice: subscription?.consolidateInvoice ?? true,
-})
+): SubscriptionFormValues => {
+  const purchaseOrderNumber = (subscription as { purchaseOrderNumber?: string | null } | undefined)
+    ?.purchaseOrderNumber
+
+  return {
+    planId:
+      subscription?.plan?.id && formType !== FORM_TYPE_ENUM.upgradeDowngrade
+        ? subscription.plan.id
+        : '',
+    name:
+      subscription?.name && formType !== FORM_TYPE_ENUM.upgradeDowngrade ? subscription.name : '',
+    externalId: subscription?.externalId || '',
+    subscriptionAt: subscription?.subscriptionAt || currentDate,
+    endingAt: subscription?.endingAt || undefined,
+    billingTime: subscription?.billingTime || BillingTimeEnum.Calendar,
+    paymentMethod: {
+      paymentMethodType: subscription?.paymentMethodType,
+      paymentMethodId: subscription?.paymentMethod?.id,
+    },
+    invoiceCustomSection: {
+      invoiceCustomSections: subscription?.selectedInvoiceCustomSections || [],
+      skipInvoiceCustomSections: subscription?.skipInvoiceCustomSections || false,
+    },
+    consolidateInvoice: subscription?.consolidateInvoice ?? true,
+    purchaseOrderNumber: purchaseOrderNumber || null,
+  }
+}
