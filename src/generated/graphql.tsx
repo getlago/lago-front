@@ -14489,6 +14489,13 @@ export type GetQuoteQueryVariables = Exact<{
 
 export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: string | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } | null };
 
+export type GetQuotePreviewQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetQuotePreviewQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, customer: { __typename?: 'Customer', id: string, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, content?: string | null, billingItems?: any | null, mentionVariables: any }> } | null };
+
 export type QuoteListItemFragment = { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number }>, customer: { __typename?: 'Customer', id: string, displayName: string } };
 
 export type GetQuotesQueryVariables = Exact<{
@@ -39766,6 +39773,63 @@ export type GetQuoteQueryHookResult = ReturnType<typeof useGetQuoteQuery>;
 export type GetQuoteLazyQueryHookResult = ReturnType<typeof useGetQuoteLazyQuery>;
 export type GetQuoteSuspenseQueryHookResult = ReturnType<typeof useGetQuoteSuspenseQuery>;
 export type GetQuoteQueryResult = Apollo.QueryResult<GetQuoteQuery, GetQuoteQueryVariables>;
+export const GetQuotePreviewDocument = gql`
+    query getQuotePreview($id: ID!) {
+  quote(id: $id) {
+    id
+    number
+    orderType
+    customer {
+      id
+      displayName
+      ...QuotePreviewCustomer
+    }
+    versions {
+      id
+      status
+      version
+      ...QuotePreviewVersion
+    }
+  }
+}
+    ${QuotePreviewCustomerFragmentDoc}
+${QuotePreviewVersionFragmentDoc}`;
+
+/**
+ * __useGetQuotePreviewQuery__
+ *
+ * To run a query within a React component, call `useGetQuotePreviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetQuotePreviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetQuotePreviewQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetQuotePreviewQuery(baseOptions: Apollo.QueryHookOptions<GetQuotePreviewQuery, GetQuotePreviewQueryVariables> & ({ variables: GetQuotePreviewQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetQuotePreviewQuery, GetQuotePreviewQueryVariables>(GetQuotePreviewDocument, options);
+      }
+export function useGetQuotePreviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetQuotePreviewQuery, GetQuotePreviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetQuotePreviewQuery, GetQuotePreviewQueryVariables>(GetQuotePreviewDocument, options);
+        }
+// @ts-ignore
+export function useGetQuotePreviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetQuotePreviewQuery, GetQuotePreviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetQuotePreviewQuery, GetQuotePreviewQueryVariables>;
+export function useGetQuotePreviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetQuotePreviewQuery, GetQuotePreviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetQuotePreviewQuery | undefined, GetQuotePreviewQueryVariables>;
+export function useGetQuotePreviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetQuotePreviewQuery, GetQuotePreviewQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetQuotePreviewQuery, GetQuotePreviewQueryVariables>(GetQuotePreviewDocument, options);
+        }
+export type GetQuotePreviewQueryHookResult = ReturnType<typeof useGetQuotePreviewQuery>;
+export type GetQuotePreviewLazyQueryHookResult = ReturnType<typeof useGetQuotePreviewLazyQuery>;
+export type GetQuotePreviewSuspenseQueryHookResult = ReturnType<typeof useGetQuotePreviewSuspenseQuery>;
+export type GetQuotePreviewQueryResult = Apollo.QueryResult<GetQuotePreviewQuery, GetQuotePreviewQueryVariables>;
 export const GetQuotesDocument = gql`
     query getQuotes($page: Int, $limit: Int, $statuses: [StatusEnum!], $customers: [ID!], $numbers: [String!], $fromDate: ISO8601Date, $toDate: ISO8601Date, $owners: [ID!], $orderTypes: [OrderTypeEnum!]) {
   quotes(
