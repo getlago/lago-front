@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { DateTime } from 'luxon'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -12,6 +12,7 @@ import { addToast } from '~/core/apolloClient'
 import { QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTES_TAB_ROUTE } from '~/core/router'
 import {
+  GetOrderForEditQuery,
   OrderExecutionModeEnum,
   useGetOrderForEditQuery,
   useUpdateOrderMutation,
@@ -29,7 +30,7 @@ import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTrans
 import { QuotePreviewCard } from './common/QuotePreviewCard'
 import {
   buildUpdateOrderInput,
-  editOrderDefaultValues,
+  EditOrderFormValues,
   editOrderValidationSchema,
 } from './editOrder/validationSchema'
 
@@ -74,18 +75,24 @@ gql`
   }
 `
 
-const EditOrder = () => {
+type EditOrderFormContentProps = {
+  order?: GetOrderForEditQuery['order']
+  loading: boolean
+}
+
+/**
+ * The form is split from the query so it can be remounted (via `key` on the
+ * order id) once the order is loaded. This lets `defaultValues` be seeded from
+ * the fetched order at the form's first render — the field components then
+ * mount already displaying the order's values, instead of mounting empty and
+ * being patched by a post-load `reset()` (which doesn't reliably propagate to
+ * the inputs once they've mounted uncontrolled).
+ */
+const EditOrderFormContent = ({ order, loading }: EditOrderFormContentProps) => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
   const { orderId } = useParams()
   const centralizedDialog = useCentralizedDialog()
-
-  const { data, loading, error } = useGetOrderForEditQuery({
-    variables: { id: orderId || '' },
-    skip: !orderId,
-  })
-
-  const order = data?.order
 
   const [updateOrderMutation] = useUpdateOrderMutation({
     refetchQueries: ['getOrders'],
@@ -108,8 +115,13 @@ const EditOrder = () => {
     goBack(generatePath(QUOTES_TAB_ROUTE, { tab: QuotesTabsOptionsEnum.orders }))
   }
 
+  const defaultValues: EditOrderFormValues = {
+    executionMode: order?.executionMode ?? undefined,
+    executeAt: order?.executeAt ?? undefined,
+  }
+
   const form = useAppForm({
-    defaultValues: editOrderDefaultValues,
+    defaultValues,
     validationLogic: revalidateLogic(),
     validators: { onDynamic: editOrderValidationSchema },
     onSubmit: async ({ value }) => {
@@ -127,18 +139,6 @@ const EditOrder = () => {
     },
   })
 
-  // Pre-populate the form from the fetched order once it loads. reset() also
-  // re-baselines the dirty state, so editing from these values marks the form dirty.
-  useEffect(() => {
-    if (order) {
-      form.reset({
-        executionMode: order.executionMode ?? undefined,
-        executeAt: order.executeAt ?? undefined,
-      })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [order?.id, order?.executionMode, order?.executeAt])
-
   const isDirty = useStore(form.store, (state) => state.isDirty)
 
   const onClose = () => {
@@ -155,20 +155,6 @@ const EditOrder = () => {
       colorVariant: 'danger',
       onAction: () => closeRedirection(),
     })
-  }
-
-  if (error) {
-    return (
-      <GenericPlaceholder
-        className="pt-12"
-        title={translate('text_634812d6f16b31ce5cbf4126')}
-        subtitle={translate('text_634812d6f16b31ce5cbf4128')}
-        buttonTitle={translate('text_634812d6f16b31ce5cbf412a')}
-        buttonVariant="primary"
-        buttonAction={() => location.reload()}
-        image={<ErrorImage width="136" height="104" />}
-      />
-    )
   }
 
   return (
@@ -208,13 +194,13 @@ const EditOrder = () => {
             )
           }
         >
-          {loading ? (
+          {loading || !order ? (
             <FormLoadingSkeleton id="edit-order" />
           ) : (
             <div className="flex flex-col gap-12">
               <div className="flex flex-col gap-1">
                 <Typography variant="headline" color="grey700">
-                  {translate('text_178272359198433nj9yyhjt2', { orderNumber: order?.number })}
+                  {translate('text_178272359198433nj9yyhjt2', { orderNumber: order.number })}
                 </Typography>
                 <Typography variant="body" color="grey600">
                   {translate('text_178272359198410yt5vl9ki4')}
@@ -231,7 +217,7 @@ const EditOrder = () => {
                       {translate('text_1781686594125hr5o1ucifso')}
                     </Typography>
                     <Typography variant="body" color="grey700">
-                      {order?.number}
+                      {order.number}
                     </Typography>
                   </div>
                   <div className="flex flex-col">
@@ -239,7 +225,7 @@ const EditOrder = () => {
                       {translate('text_65201c5a175a4b0238abf29a')}
                     </Typography>
                     <Typography variant="body" color="grey700">
-                      {order?.customer.displayName}
+                      {order.customer.displayName}
                     </Typography>
                   </div>
                   <div className="flex flex-col">
@@ -247,7 +233,7 @@ const EditOrder = () => {
                       {translate('text_1781686594125ilr4k8xhb5m')}
                     </Typography>
                     <Typography variant="body" color="grey700">
-                      {order?.orderType
+                      {order.orderType
                         ? translate(getQuoteOrderTypeTranslationKey(order.orderType))
                         : ''}
                     </Typography>
@@ -257,9 +243,7 @@ const EditOrder = () => {
                       {translate('text_1779695273381h7tmhdzrv48')}
                     </Typography>
                     <Typography variant="body" color="grey700">
-                      {order
-                        ? `${order.orderForm.quote.number} - v${order.orderForm.quote.currentVersion.version}`
-                        : ''}
+                      {`${order.orderForm.quote.number} - v${order.orderForm.quote.currentVersion.version}`}
                     </Typography>
                   </div>
                 </div>
@@ -323,6 +307,36 @@ const EditOrder = () => {
       </div>
     </div>
   )
+}
+
+const EditOrder = () => {
+  const { translate } = useInternationalization()
+  const { orderId } = useParams()
+
+  const { data, loading, error } = useGetOrderForEditQuery({
+    variables: { id: orderId || '' },
+    skip: !orderId,
+  })
+
+  const order = data?.order
+
+  if (error) {
+    return (
+      <GenericPlaceholder
+        className="pt-12"
+        title={translate('text_634812d6f16b31ce5cbf4126')}
+        subtitle={translate('text_634812d6f16b31ce5cbf4128')}
+        buttonTitle={translate('text_634812d6f16b31ce5cbf412a')}
+        buttonVariant="primary"
+        buttonAction={() => location.reload()}
+        image={<ErrorImage width="136" height="104" />}
+      />
+    )
+  }
+
+  // Keying on the order id remounts the form once the order is loaded, so the
+  // form's defaultValues are seeded from the fetched order at first render.
+  return <EditOrderFormContent key={order?.id ?? 'pending'} order={order} loading={loading} />
 }
 
 export default EditOrder

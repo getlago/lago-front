@@ -162,6 +162,48 @@ describe('EditOrder', () => {
     expect(mockGoBack).toHaveBeenCalled()
   })
 
+  it('pre-fills the execution type and date inputs once the order finishes loading', async () => {
+    // First paint: query still loading, no data yet (the real-app sequence)
+    mockUseGetOrderForEditQuery.mockReturnValue({
+      data: undefined,
+      loading: true,
+      error: undefined,
+    })
+
+    const { rerender } = renderPage()
+
+    // Then the order arrives
+    mockUseGetOrderForEditQuery.mockReturnValue({
+      data: {
+        order: {
+          ...mockOrder,
+          executionMode: OrderExecutionModeEnum.ExecuteInLago,
+          // Noon UTC keeps the same calendar date across all realistic test timezones
+          executeAt: '2030-12-25T12:00:00.000Z',
+        },
+      },
+      loading: false,
+      error: undefined,
+    })
+
+    rerender(
+      <NiceModal.Provider>
+        <EditOrder />
+      </NiceModal.Provider>,
+    )
+
+    // The execution-type combobox input shows the selected option's label
+    await waitFor(() => {
+      const comboboxContainer = screen.getByTestId(EDIT_ORDER_EXECUTION_TYPE_TEST_ID)
+      const comboboxInput = comboboxContainer.querySelector('input') as HTMLInputElement
+
+      expect(comboboxInput).toHaveValue('text_1781686594125wc395bj9cul')
+    })
+
+    // The execution-date input shows the order's executeAt date
+    expect(screen.getByPlaceholderText('text_17816865941253r8yqeoibh1')).toHaveValue('12/25/2030')
+  })
+
   it('shows a validation error and does not call the mutation when executionMode is empty', async () => {
     mockUseGetOrderForEditQuery.mockReturnValue({
       data: { order: { ...mockOrder, executionMode: null } },
