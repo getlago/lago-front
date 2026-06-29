@@ -10,6 +10,7 @@ const CreateQuote = lazyLoad(() => import('~/pages/quotes/CreateQuote'))
 const EditQuote = lazyLoad(() => import('~/pages/quotes/EditQuote'))
 const VoidQuote = lazyLoad(() => import('~/pages/quotes/VoidQuote'))
 const ApproveQuote = lazyLoad(() => import('~/pages/quotes/ApproveQuote'))
+const QuoteVersionPreview = lazyLoad(() => import('~/pages/quotes/QuoteVersionPreview'))
 const VoidOrderForm = lazyLoad(() => import('~/pages/quotes/VoidOrderForm'))
 const SignOrderForm = lazyLoad(() => import('~/pages/quotes/SignOrderForm'))
 const EditOrder = lazyLoad(() => import('~/pages/quotes/EditOrder'))
@@ -22,6 +23,7 @@ export const CREATE_QUOTE_ROUTE = '/quote/create'
 export const EDIT_QUOTE_ROUTE = '/quote/:quoteId/version/:versionId/edit'
 export const VOID_QUOTE_ROUTE = '/quote/:quoteId/version/:versionId/void'
 export const APPROVE_QUOTE_ROUTE = '/quote/:quoteId/version/:versionId/approve'
+export const QUOTE_VERSION_PREVIEW_ROUTE = '/quote/:quoteId/version/:versionId/preview'
 export const VOID_ORDER_FORM_ROUTE = '/order-form/:orderFormId/void'
 export const SIGN_ORDER_FORM_ROUTE = '/order-form/:orderFormId/sign'
 export const EDIT_ORDER_ROUTE = '/order/:orderId/edit'
@@ -68,6 +70,12 @@ export const quotesModificationRoutes: CustomRouteObject[] = [
     private: true,
     element: <ApproveQuote />,
     permissions: ['quotesApprove'],
+  },
+  {
+    path: QUOTE_VERSION_PREVIEW_ROUTE,
+    private: true,
+    element: <QuoteVersionPreview />,
+    permissions: ['quotesView'],
   },
 ]
 
