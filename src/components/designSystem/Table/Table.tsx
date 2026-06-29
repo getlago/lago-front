@@ -78,6 +78,13 @@ export interface TableProps<T> {
   placeholder?: TablePlaceholder
   onRowActionLink?: (item: T) => string
   onRowActionClick?: (item: T) => void
+  /**
+   * Optional PURE predicate to gate row clickability per-row. Must be
+   * side-effect free — it is evaluated during render. When provided, a row is
+   * clickable only if this returns true AND the table is otherwise clickable.
+   * Defaults to all rows clickable. Does not replace onRowActionLink/onRowActionClick.
+   */
+  isRowClickable?: (item: T) => boolean
   actionColumn?: ActionColumn<T>
   actionColumnTooltip?: (item: T) => string
   rowDataTestId?: (item: T) => string
@@ -283,6 +290,7 @@ export const Table = <T extends DataItem>({
   containerClassName,
   onRowActionLink,
   onRowActionClick,
+  isRowClickable,
   actionColumn,
   actionColumnTooltip,
   rowDataTestId,
@@ -318,7 +326,7 @@ export const Table = <T extends DataItem>({
     },
   })
 
-  const isClickable = (!!onRowActionLink || !!onRowActionClick) && !isLoading
+  const isTableClickable = (!!onRowActionLink || !!onRowActionClick) && !isLoading
   const shouldDisplayActionColumn =
     !!actionColumn &&
     (data.length > 0
@@ -523,18 +531,17 @@ export const Table = <T extends DataItem>({
           {renderPlaceholder() ??
             (data.length > 0 &&
               data.map((item, i) => {
-                const rowLink = onRowActionLink?.(item)
-                const isRowClickable = (!!rowLink || !!onRowActionClick) && !isLoading
+                const rowClickable = isTableClickable && (isRowClickable?.(item) ?? true)
 
                 return (
                   <TableRow
                     key={`${TABLE_ID}-row-${i}`}
                     id={`${TABLE_ID}-row-${i}`}
                     data-id={item.id}
-                    isClickable={isRowClickable}
-                    tabIndex={isRowClickable ? 0 : undefined}
-                    onKeyDown={isRowClickable ? onKeyDown : undefined}
-                    onClick={isRowClickable ? (e) => handleRowClick(e, item) : undefined}
+                    isClickable={rowClickable}
+                    tabIndex={rowClickable ? 0 : undefined}
+                    onKeyDown={rowClickable ? onKeyDown : undefined}
+                    onClick={rowClickable ? (e) => handleRowClick(e, item) : undefined}
                     data-test={rowDataTestId?.(item) || `table-row-${i}`}
                   >
                     {filteredColumns.map((column, j) => (
