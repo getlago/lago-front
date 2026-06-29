@@ -34,11 +34,19 @@ gql`
     createSubscription(input: $input) {
       id
       status
+      cancellationReason
       startedAt
       subscriptionAt
       endingAt
       name
       externalId
+      activationRules {
+        id
+        type
+        timeoutHours
+        status
+        expiresAt
+      }
       paymentMethodType
       paymentMethod {
         id
@@ -67,11 +75,19 @@ gql`
     updateSubscription(input: $input) {
       id
       status
+      cancellationReason
       startedAt
       subscriptionAt
       endingAt
       name
       externalId
+      activationRules {
+        id
+        type
+        timeoutHours
+        status
+        expiresAt
+      }
       paymentMethodType
       paymentMethod {
         id

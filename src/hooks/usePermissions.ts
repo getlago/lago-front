@@ -44,6 +44,7 @@ gql`
       developersKeysManage
       developersManage
       dunningCampaignsCreate
+      dunningCampaignsDelete
       dunningCampaignsUpdate
       dunningCampaignsView
       featuresCreate

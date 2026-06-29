@@ -14,7 +14,9 @@ jest.mock('~/components/settings/integrations/AddFlutterwaveDialog', () => ({
   AddFlutterwaveDialog: () => null,
 }))
 jest.mock('~/components/settings/integrations/DeleteFlutterwaveIntegrationDialog', () => ({
-  DeleteFlutterwaveIntegrationDialog: () => null,
+  useDeleteFlutterwaveIntegrationDialog: () => ({
+    openDeleteFlutterwaveIntegrationDialog: () => null,
+  }),
 }))
 
 describe('FlutterwaveIntegrations', () => {

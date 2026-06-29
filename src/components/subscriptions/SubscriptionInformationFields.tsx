@@ -11,6 +11,14 @@ import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMa
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, Link } from '~/core/router'
 import {
+  getPaymentActivationRule,
+  getTimeoutDisplayValue,
+  isPaymentActivationExpired,
+  shouldShowTimeoutField,
+} from '~/core/utils/subscriptionUtils'
+import {
+  ActivationRuleStatusEnum,
+  CancellationReasonEnum,
   FeatureFlagEnum,
   NextSubscriptionTypeEnum,
   StatusTypeEnum,
@@ -26,6 +34,7 @@ gql`
     name
     status
     startedAt
+    cancellationReason
     subscriptionAt
     endingAt
     terminatedAt
@@ -34,6 +43,13 @@ gql`
     nextSubscriptionAt
     nextSubscriptionType
     billingEntityId
+    activationRules {
+      id
+      type
+      timeoutHours
+      status
+      expiresAt
+    }
     nextPlan {
       id
       name
@@ -119,6 +135,55 @@ export const SubscriptionDowngradeAlert = ({
   return <Alert type="info">{content}</Alert>
 }
 
+export const SubscriptionDetailAlerts = ({
+  subscription,
+}: {
+  subscription?: SubscriptionInformationFieldsFragment | null
+}) => {
+  const { translate } = useInternationalization()
+  const paymentActivationRule = getPaymentActivationRule(subscription)
+
+  let paymentGatedAlert: { content: string; type: 'info' | 'warning' } | null = null
+
+  if (
+    subscription?.status === StatusTypeEnum.Incomplete ||
+    paymentActivationRule?.status === ActivationRuleStatusEnum.Pending
+  ) {
+    paymentGatedAlert = {
+      type: 'warning',
+      content: translate('text_1779882021466ft5t6uhchje'),
+    }
+  } else if (
+    subscription?.status === StatusTypeEnum.Canceled &&
+    subscription.cancellationReason === CancellationReasonEnum.PaymentFailed
+  ) {
+    paymentGatedAlert = {
+      type: 'info',
+      content: translate('text_1779882021466fjki5ke02ts'),
+    }
+  } else if (
+    subscription?.status === StatusTypeEnum.Canceled &&
+    isPaymentActivationExpired(subscription)
+  ) {
+    paymentGatedAlert = {
+      type: 'info',
+      content: translate('text_17798820214667pspf9fl978'),
+    }
+  }
+
+  return (
+    <>
+      {!!paymentGatedAlert && (
+        <div className="mb-2">
+          <Alert type={paymentGatedAlert.type}>{paymentGatedAlert.content}</Alert>
+        </div>
+      )}
+
+      <SubscriptionDowngradeAlert subscription={subscription} />
+    </>
+  )
+}
+
 const getSubscriptionInformationGrid = ({
   subscription,
   translate,
@@ -132,8 +197,6 @@ const getSubscriptionInformationGrid = ({
 }) => {
   const isCustomerDeleted = !!subscription?.customer?.deletedAt
   const customerId = subscription?.customer?.id ?? ''
-  const subscriptionId = subscription?.id ?? ''
-  const parentPlanId = subscription?.plan?.parent?.id
 
   const customerNameForDisplay = [
     subscription?.customer?.displayName || subscription?.customer?.externalId,
@@ -181,24 +244,6 @@ const getSubscriptionInformationGrid = ({
         />
       ),
     },
-    !!parentPlanId && {
-      label: translate('text_65201c5a175a4b0238abf2a2'),
-      value:
-        !!customerId && !!subscriptionId ? (
-          <Link
-            to={generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
-              customerId,
-              subscriptionId,
-              planId: parentPlanId,
-              tab: PlanDetailsTabsOptionsEnum.overview,
-            })}
-          >
-            {subscription?.plan?.parent?.name}
-          </Link>
-        ) : (
-          subscription?.plan?.parent?.name
-        ),
-    },
   ]
 }
 
@@ -211,9 +256,14 @@ export const SubscriptionInformationFields = ({
   const { intlFormatDateTimeOrgaTZ, hasFeatureFlag } = useOrganizationInfos()
   const showBillingEntityRow = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
+  const paymentActivationRule = getPaymentActivationRule(subscription)
+  const customerId = subscription?.customer?.id ?? ''
+  const subscriptionId = subscription?.id ?? ''
+  const parentPlanId = subscription?.plan?.parent?.id
+
   return (
-    <div className="flex flex-col gap-4">
-      <SubscriptionDowngradeAlert subscription={subscription} />
+    <div className="flex max-w-168 flex-col gap-4">
+      <SubscriptionDetailAlerts subscription={subscription} />
 
       <DetailsPage.InfoGridItem
         label={translate('text_1780604419477p7xvwx52oad')}
@@ -249,6 +299,47 @@ export const SubscriptionInformationFields = ({
           showBillingEntityRow,
         })}
       />
+
+      {!!paymentActivationRule && (
+        <DetailsPage.InfoGrid
+          grid={[
+            {
+              label: translate('text_1779882021466qvd6vq3z01j'),
+              value: translate('text_17798820214664cmfymurz59'),
+            },
+            subscription?.status !== StatusTypeEnum.Active &&
+              shouldShowTimeoutField(subscription) && {
+                label: translate('text_1779882021466w19mlm8mn8b'),
+                value: getTimeoutDisplayValue(subscription, translate),
+              },
+          ]}
+        />
+      )}
+
+      {!!parentPlanId && (
+        <DetailsPage.InfoGrid
+          grid={[
+            {
+              label: translate('text_65201c5a175a4b0238abf2a2'),
+              value:
+                !!customerId && !!subscriptionId ? (
+                  <Link
+                    to={generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
+                      customerId,
+                      subscriptionId,
+                      planId: parentPlanId,
+                      tab: PlanDetailsTabsOptionsEnum.overview,
+                    })}
+                  >
+                    {subscription?.plan?.parent?.name}
+                  </Link>
+                ) : (
+                  subscription?.plan?.parent?.name
+                ),
+            },
+          ]}
+        />
+      )}
     </div>
   )
 }
