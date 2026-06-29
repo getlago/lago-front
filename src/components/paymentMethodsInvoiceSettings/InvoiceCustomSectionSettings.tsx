@@ -2,7 +2,7 @@ import { InvoceCustomFooter } from '~/components/invoceCustomFooter/InvoceCustom
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { getFieldPath, getFieldValue } from '~/core/form/fieldPathUtils'
 
-import { InvoiceCustomSectionSettingsProps, ViewTypeEnum } from './types'
+import { SettingsComponentProps, ViewTypeEnum } from './types'
 
 // Standalone invoice custom-section settings: renders only when the customer has
 // an id. Owns the `invoiceCustomSection` form field via the optional
@@ -12,7 +12,7 @@ export const InvoiceCustomSectionSettings = <T extends ViewTypeEnum>({
   form,
   viewType,
   formFieldBasePath,
-}: InvoiceCustomSectionSettingsProps<T>) => {
+}: SettingsComponentProps<T>) => {
   const id = customer?.id
 
   if (!id) return null

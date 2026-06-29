@@ -2,7 +2,7 @@ import { PaymentMethodSelection } from '~/components/paymentMethodSelection/Paym
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { getFieldPath, getFieldValue } from '~/core/form/fieldPathUtils'
 
-import { PaymentMethodSettingsProps, ViewTypeEnum } from './types'
+import { SettingsComponentProps, ViewTypeEnum } from './types'
 
 // Standalone payment-method settings: renders only when the customer has an
 // externalId (the payment methods list is keyed by external id). Owns the
@@ -12,7 +12,7 @@ export const PaymentMethodSettings = <T extends ViewTypeEnum>({
   form,
   viewType,
   formFieldBasePath,
-}: PaymentMethodSettingsProps<T>) => {
+}: SettingsComponentProps<T>) => {
   const externalId = customer?.externalId
 
   if (!externalId) return null

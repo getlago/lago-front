@@ -20,7 +20,7 @@ import {
 import { render } from '~/test-utils'
 
 import { PaymentMethodsInvoiceSettings } from '../PaymentMethodsInvoiceSettings'
-import { PaymentMethodsInvoiceSettingsProps, ViewTypeEnum } from '../types'
+import { SettingsComponentProps, ViewTypeEnum } from '../types'
 
 /**
  * Regression guard for the bug where editing the payment method through the
@@ -104,7 +104,7 @@ const ReactiveHarness = () => {
         {
           values: { paymentMethod, invoiceCustomSection },
           setFieldValue: form.setFieldValue,
-        } as PaymentMethodsInvoiceSettingsProps<ViewTypeEnum.Subscription>['form']
+        } as SettingsComponentProps<ViewTypeEnum.Subscription>['form']
       }
     />
   )
@@ -130,7 +130,7 @@ const SnapshotHarness = () => {
         {
           values: form.state.values,
           setFieldValue: form.setFieldValue,
-        } as PaymentMethodsInvoiceSettingsProps<ViewTypeEnum.Subscription>['form']
+        } as SettingsComponentProps<ViewTypeEnum.Subscription>['form']
       }
     />
   )

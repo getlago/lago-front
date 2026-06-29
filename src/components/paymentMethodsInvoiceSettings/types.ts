@@ -34,20 +34,11 @@ export interface PaymentMethodsForm<T extends ViewTypeEnum = ViewTypeEnum> {
   setFieldValue(field: string, value: unknown): unknown
 }
 
-export interface PaymentMethodsSettingsBaseProps<T extends ViewTypeEnum = ViewTypeEnum> {
+// Shared by both single-purpose settings components and the composite — they
+// only differ in which child (and customer field) they render.
+export interface SettingsComponentProps<T extends ViewTypeEnum = ViewTypeEnum> {
   customer: CustomerForPaymentMethods
   form: PaymentMethodsForm<T>
   viewType: T
   formFieldBasePath?: string
 }
-
-// The single-purpose settings components and the composite share the exact same
-// props contract — they only differ in which child (and customer field) they render.
-export type PaymentMethodSettingsProps<T extends ViewTypeEnum = ViewTypeEnum> =
-  PaymentMethodsSettingsBaseProps<T>
-
-export type InvoiceCustomSectionSettingsProps<T extends ViewTypeEnum = ViewTypeEnum> =
-  PaymentMethodsSettingsBaseProps<T>
-
-export type PaymentMethodsInvoiceSettingsProps<T extends ViewTypeEnum = ViewTypeEnum> =
-  PaymentMethodsSettingsBaseProps<T>
