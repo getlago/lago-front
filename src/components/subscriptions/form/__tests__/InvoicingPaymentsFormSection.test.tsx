@@ -4,12 +4,20 @@ import { render } from '~/test-utils'
 
 import { InvoicingPaymentsFormSection } from '../InvoicingPaymentsFormSection'
 
-const mockPaymentMethodsInvoiceSettings: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
+const mockPaymentMethodSettings: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
+const mockInvoiceCustomSectionFields: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 const mockConsolidationSection: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 
-jest.mock('~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings', () => ({
-  PaymentMethodsInvoiceSettings: (props: Record<string, unknown>) => {
-    mockPaymentMethodsInvoiceSettings(props)
+jest.mock('~/components/paymentMethodsInvoiceSettings/PaymentMethodSettings', () => ({
+  PaymentMethodSettings: (props: Record<string, unknown>) => {
+    mockPaymentMethodSettings(props)
+    return null
+  },
+}))
+
+jest.mock('~/components/invoceCustomFooter/InvoiceCustomSectionFields', () => ({
+  InvoiceCustomSectionFields: (props: Record<string, unknown>) => {
+    mockInvoiceCustomSectionFields(props)
     return null
   },
 }))
@@ -76,7 +84,7 @@ describe('InvoicingPaymentsFormSection', () => {
   })
 
   describe('GIVEN a customer with id', () => {
-    it('THEN should render the section title and forward props to PaymentMethodsInvoiceSettings', () => {
+    it('THEN renders the section title and the inline payment + custom-section fields', () => {
       render(
         <InvoicingPaymentsFormSection
           // @ts-expect-error - mock form shape
@@ -86,7 +94,7 @@ describe('InvoicingPaymentsFormSection', () => {
       )
 
       expect(screen.getByText('text_1762862388271au34vz50g8i')).toBeInTheDocument()
-      expect(mockPaymentMethodsInvoiceSettings).toHaveBeenCalledWith(
+      expect(mockPaymentMethodSettings).toHaveBeenCalledWith(
         expect.objectContaining({
           customer: { id: 'cust-1' },
           viewType: 'subscription',
@@ -96,9 +104,16 @@ describe('InvoicingPaymentsFormSection', () => {
           }),
         }),
       )
+      expect(mockInvoiceCustomSectionFields).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customerId: 'cust-1',
+          viewType: 'subscription',
+          onChange: expect.any(Function),
+        }),
+      )
     })
 
-    it('THEN should render the consolidation field group wired to consolidateInvoice', () => {
+    it('THEN renders the consolidation field group wired to consolidateInvoice', () => {
       render(
         <InvoicingPaymentsFormSection
           // @ts-expect-error - mock form shape
@@ -112,7 +127,7 @@ describe('InvoicingPaymentsFormSection', () => {
       )
     })
 
-    it('hides PaymentMethodsInvoiceSettings without the MultiplePaymentMethods flag but keeps consolidation', () => {
+    it('hides the payment + custom-section fields without the flag but keeps consolidation', () => {
       mockHasFeatureFlag = false
 
       render(
@@ -124,12 +139,13 @@ describe('InvoicingPaymentsFormSection', () => {
       )
 
       expect(mockConsolidationSection).toHaveBeenCalled()
-      expect(mockPaymentMethodsInvoiceSettings).not.toHaveBeenCalled()
+      expect(mockPaymentMethodSettings).not.toHaveBeenCalled()
+      expect(mockInvoiceCustomSectionFields).not.toHaveBeenCalled()
     })
   })
 
   describe('GIVEN a customer with externalId only', () => {
-    it('THEN should render the section', () => {
+    it('THEN renders payment settings but not the custom-section fields (no customer id)', () => {
       render(
         <InvoicingPaymentsFormSection
           // @ts-expect-error - mock form shape
@@ -139,14 +155,15 @@ describe('InvoicingPaymentsFormSection', () => {
       )
 
       expect(screen.getByText('text_1762862388271au34vz50g8i')).toBeInTheDocument()
-      expect(mockPaymentMethodsInvoiceSettings).toHaveBeenCalledWith(
+      expect(mockPaymentMethodSettings).toHaveBeenCalledWith(
         expect.objectContaining({ customer: { externalId: 'ext-1' } }),
       )
+      expect(mockInvoiceCustomSectionFields).not.toHaveBeenCalled()
     })
   })
 
   describe('GIVEN a customer without id or externalId', () => {
-    it('THEN should render consolidation but not the payment settings', () => {
+    it('THEN renders consolidation but not the payment + custom-section fields', () => {
       render(
         <InvoicingPaymentsFormSection
           // @ts-expect-error - mock form shape
@@ -157,7 +174,8 @@ describe('InvoicingPaymentsFormSection', () => {
 
       expect(screen.getByText('text_1762862388271au34vz50g8i')).toBeInTheDocument()
       expect(mockConsolidationSection).toHaveBeenCalled()
-      expect(mockPaymentMethodsInvoiceSettings).not.toHaveBeenCalled()
+      expect(mockPaymentMethodSettings).not.toHaveBeenCalled()
+      expect(mockInvoiceCustomSectionFields).not.toHaveBeenCalled()
     })
   })
 })

@@ -4,13 +4,12 @@ import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import {
   EditInvoiceCustomSectionDialog,
-  InvoiceCustomSectionBehavior,
   InvoiceCustomSectionSelection,
 } from '~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { InvoiceCustomSectionDisplay } from './InvoiceCustomSectionDisplay'
-import { InvoiceCustomSectionInput } from './types'
+import { InvoiceCustomSectionBehavior, InvoiceCustomSectionInput } from './types'
 
 import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
@@ -91,6 +90,7 @@ export const InvoceCustomFooter = ({
       <EditInvoiceCustomSectionDialog
         open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
+        customerId={customerId}
         selectedSections={selectedSections}
         skipInvoiceCustomSections={skipSections}
         onSave={handleDialogSave}
