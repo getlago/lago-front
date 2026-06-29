@@ -569,11 +569,30 @@ const CreateSubscription = () => {
                         customerExternalId={customer?.externalId}
                       />
 
-                      {/* Section: Invoicing & payments */}
+                      {/* Section: Payments */}
+                      {hasAccessToMultiPaymentFlow && (
+                        <CenteredPage.PageSection>
+                          <CenteredPage.PageSectionTitle
+                            title={translate('text_17787453510917ul9ghihdtv')}
+                            description={translate('text_17787453510910bn5dsjxtqz')}
+                          />
+
+                          <PaymentMethodSettings
+                            customer={customer}
+                            form={{
+                              values: { paymentMethod: subscriptionPaymentMethod },
+                              setFieldValue: subscriptionForm.setFieldValue,
+                            }}
+                            viewType={ViewTypeEnum.Subscription}
+                          />
+                        </CenteredPage.PageSection>
+                      )}
+
+                      {/* Section: Invoicing */}
                       <CenteredPage.PageSection>
                         <CenteredPage.PageSectionTitle
-                          title={translate('text_17787453510917ul9ghihdtv')}
-                          description={translate('text_17787453510910bn5dsjxtqz')}
+                          title={translate('text_17423672025282dl7iozy1ru')}
+                          description={translate('text_1782738644346p066xtwa8yj')}
                         />
 
                         {/* Invoice consolidation + custom sections live in a drawer */}
@@ -581,20 +600,6 @@ const CreateSubscription = () => {
                           form={subscriptionForm}
                           customerId={customer?.id}
                         />
-
-                        {hasAccessToMultiPaymentFlow && (customer?.externalId || customer?.id) && (
-                          <PaymentMethodSettings
-                            customer={customer}
-                            // `values` MUST come from reactive store slices (useStore above),
-                            // never from `subscriptionForm.state.values` — a non-reactive
-                            // snapshot would not re-render the displayed selection on edit.
-                            form={{
-                              values: { paymentMethod: subscriptionPaymentMethod },
-                              setFieldValue: subscriptionForm.setFieldValue,
-                            }}
-                            viewType={ViewTypeEnum.Subscription}
-                          />
-                        )}
                       </CenteredPage.PageSection>
                     </>
                   )}
