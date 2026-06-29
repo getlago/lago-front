@@ -10,7 +10,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import { QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { QUOTES_TAB_ROUTE, useNavigate } from '~/core/router'
+import { QUOTES_TAB_ROUTE } from '~/core/router'
 import {
   OrderExecutionModeEnum,
   useGetOrderForEditQuery,
@@ -78,7 +78,6 @@ const EditOrder = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
   const { orderId } = useParams()
-  const navigate = useNavigate()
   const centralizedDialog = useCentralizedDialog()
 
   const { data, loading, error } = useGetOrderForEditQuery({
