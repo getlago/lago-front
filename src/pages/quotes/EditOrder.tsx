@@ -299,6 +299,7 @@ const EditOrder = () => {
                       label={translate('text_17816865941256grf5qs2924')}
                       description={translate('text_1781869435540pqqpg9kc005')}
                       placeholder={translate('text_17816865941253r8yqeoibh1')}
+                      placement="top-end"
                       minDate={DateTime.now().plus({ days: 1 }).startOf('day')}
                     />
                   )}
