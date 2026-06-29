@@ -1,14 +1,11 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
-import { useFormik } from 'formik'
+import { revalidateLogic } from '@tanstack/react-form'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { object, string } from 'yup'
 
 import { Alert } from '~/components/designSystem/Alert'
-import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import { TextInputField } from '~/components/form'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { LOGIN_ROUTE, useLocation } from '~/core/router'
 import { setItemFromLS } from '~/core/utils/localStorage'
@@ -16,8 +13,10 @@ import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { addValuesToUrlState } from '~/core/utils/urlUtils'
 import { LagoApiError, useFetchOktaAuthorizeUrlMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useShortcuts } from '~/hooks/ui/useShortcuts'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { Card, Page, StyledLogo } from '~/styles/auth'
+
+import { loginOktaDefaultValues, loginOktaValidationSchema } from './loginOktaForm/validationSchema'
 
 const getErrorKey = (code: LagoApiError): string => {
   switch (code) {
@@ -44,15 +43,13 @@ const LoginOkta = () => {
   const [searchParams] = useSearchParams()
   const previousLocation = (location.state as { from?: Location } | null)?.from?.pathname
   const [errorAlert, setErrorAlert] = useState<LagoApiError>()
-  const [errorField, setErrorField] = useState<LagoApiError>()
 
   const lagoErrorCode = searchParams.get('lago_error_code')
 
-  const [fetchOktaAuthorizeUrl, { error: fetchOktaAuthorizeUrlError, loading }] =
-    useFetchOktaAuthorizeUrlMutation({
-      context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-      fetchPolicy: 'network-only',
-    })
+  const [fetchOktaAuthorizeUrl] = useFetchOktaAuthorizeUrlMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    fetchPolicy: 'network-only',
+  })
 
   useEffect(() => {
     if (lagoErrorCode) {
@@ -65,40 +62,44 @@ const LoginOkta = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => {
-    if (!fetchOktaAuthorizeUrlError) return
-
-    if (hasDefinedGQLError('DomainNotConfigured', fetchOktaAuthorizeUrlError)) {
-      setErrorField(LagoApiError.DomainNotConfigured)
-      return
-    }
-
-    setErrorAlert(LagoApiError.UnprocessableEntity)
-  }, [fetchOktaAuthorizeUrlError])
-
-  const formikProps = useFormik({
-    initialValues: {
-      email: '',
+  const form = useAppForm({
+    defaultValues: loginOktaDefaultValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: loginOktaValidationSchema,
     },
-    validationSchema: object().shape({
-      email: string()
-        .email('text_620bc4d4269a55014d493fc3')
-        .required('text_620bc4d4269a55014d493f98'),
-    }),
-    validateOnChange: false,
-    validateOnBlur: false,
-    onSubmit: async (values) => {
-      const { data } = await fetchOktaAuthorizeUrl({
+    onSubmit: async ({ value, formApi }) => {
+      const answer = await fetchOktaAuthorizeUrl({
         variables: {
           input: {
-            email: values.email,
+            email: value.email,
           },
         },
       })
 
+      const { errors, data } = answer
+
+      if (hasDefinedGQLError('DomainNotConfigured', errors)) {
+        formApi.setErrorMap({
+          onDynamic: {
+            fields: {
+              email: {
+                message: translate(getErrorKey(LagoApiError.DomainNotConfigured)),
+                path: ['email'],
+              },
+            },
+          },
+        })
+        return
+      }
+
+      if (errors?.length) {
+        setErrorAlert(LagoApiError.UnprocessableEntity)
+        return
+      }
+
       if (!data?.oktaAuthorize?.url) return
 
-      setErrorField(undefined)
       setErrorAlert(undefined)
 
       if (previousLocation) {
@@ -113,23 +114,9 @@ const LoginOkta = () => {
     },
   })
 
-  useShortcuts([
-    {
-      keys: ['Enter'],
-      action: formikProps.submitForm,
-    },
-  ])
-
-  const getEmailFieldError = (): string | undefined => {
-    if (formikProps.touched.email && formikProps.errors.email) {
-      return formikProps.errors.email
-    }
-
-    if (errorField) {
-      return translate(getErrorKey(errorField))
-    }
-
-    return undefined
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    form.handleSubmit()
   }
 
   return (
@@ -137,48 +124,48 @@ const LoginOkta = () => {
       <Card>
         <StyledLogo height={24} />
 
-        <Stack spacing={8}>
-          <Stack spacing={3}>
-            <Typography variant="headline">{translate('text_664c90c9b2b6c2012aa50bce')}</Typography>
-            <Typography>{translate('text_664c90c9b2b6c2012aa50bd0')}</Typography>
+        <form onSubmit={handleSubmit}>
+          <Stack spacing={8}>
+            <Stack spacing={3}>
+              <Typography variant="headline">
+                {translate('text_664c90c9b2b6c2012aa50bce')}
+              </Typography>
+              <Typography>{translate('text_664c90c9b2b6c2012aa50bd0')}</Typography>
+            </Stack>
+
+            {!!errorAlert && (
+              <Alert type="danger" data-test="login-okta-error-alert">
+                <Typography color="textSecondary">{translate(getErrorKey(errorAlert))}</Typography>
+              </Alert>
+            )}
+
+            <form.AppField name="email">
+              {(field) => (
+                <field.TextInputField
+                  // eslint-disable-next-line jsx-a11y/no-autofocus
+                  autoFocus
+                  beforeChangeFormatter={['lowercase']}
+                  label={translate('text_62ab2d0396dd6b0361614d60')}
+                  placeholder={translate('text_62a99ba2af7535cefacab4bf')}
+                />
+              )}
+            </form.AppField>
+
+            <form.AppForm>
+              <form.SubmitButton dataTest="submit" fullWidth size="large">
+                {translate('text_620bc4d4269a55014d493f6d')}
+              </form.SubmitButton>
+            </form.AppForm>
+
+            <Typography
+              className="mx-auto text-center"
+              variant="caption"
+              html={translate('text_664c90c9b2b6c2012aa50bda', {
+                linkLogin: LOGIN_ROUTE,
+              })}
+            />
           </Stack>
-
-          {/* This error is displayed in the input */}
-          {!!errorAlert && (
-            <Alert type="danger" data-test="login-okta-error-alert">
-              <Typography color="textSecondary">{translate(getErrorKey(errorAlert))}</Typography>
-            </Alert>
-          )}
-
-          <TextInputField
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-            name="email"
-            beforeChangeFormatter={['lowercase']}
-            formikProps={formikProps}
-            label={translate('text_62ab2d0396dd6b0361614d60')}
-            placeholder={translate('text_62a99ba2af7535cefacab4bf')}
-            error={getEmailFieldError()}
-          />
-
-          <Button
-            data-test="submit"
-            fullWidth
-            size="large"
-            onClick={formikProps.submitForm}
-            loading={formikProps.isSubmitting || loading}
-          >
-            {translate('text_620bc4d4269a55014d493f6d')}
-          </Button>
-
-          <Typography
-            className="mx-auto text-center"
-            variant="caption"
-            html={translate('text_664c90c9b2b6c2012aa50bda', {
-              linkLogin: LOGIN_ROUTE,
-            })}
-          />
-        </Stack>
+        </form>
       </Card>
     </Page>
   )
