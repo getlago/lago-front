@@ -10,7 +10,11 @@ import {
 } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
 import { addToast } from '~/core/apolloClient'
-import { LagoApiError, MemberForEditRoleForDialogFragment } from '~/generated/graphql'
+import {
+  LagoApiError,
+  MemberForEditRoleForDialogFragment,
+  PermissionEnum,
+} from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { EDIT_MEMBER_ROLE_FORM_ID, useEditMemberRoleDialog } from '../EditMemberRoleDialog'
@@ -94,105 +98,15 @@ Element.prototype.scrollIntoView = jest.fn()
 const MEMBER_ID = 'member-123'
 const MEMBER_EMAIL = 'member@example.com'
 
-const permissions: MemberForEditRoleForDialogFragment['permissions'] = {
+// Build a fully-granted permissions fixture from PermissionEnum so new
+// permissions are picked up automatically. Enum keys are PascalCase
+// (`AddonsCreate`); the Permissions type fields are the camelCase equivalent.
+const permissions = {
   __typename: 'Permissions',
-  aiConversationsView: true,
-  aiConversationsCreate: true,
-  addonsCreate: true,
-  addonsDelete: true,
-  addonsUpdate: true,
-  addonsView: true,
-  analyticsView: true,
-  auditLogsView: true,
-  authenticationMethodsView: true,
-  authenticationMethodsUpdate: true,
-  billableMetricsCreate: true,
-  billableMetricsDelete: true,
-  billableMetricsUpdate: true,
-  billableMetricsView: true,
-  billingEntitiesView: true,
-  billingEntitiesCreate: true,
-  billingEntitiesUpdate: true,
-  billingEntitiesDelete: true,
-  couponsAttach: true,
-  couponsCreate: true,
-  couponsDelete: true,
-  couponsDetach: true,
-  couponsUpdate: true,
-  couponsView: true,
-  creditNotesCreate: true,
-  creditNotesView: true,
-  creditNotesVoid: true,
-  creditNotesSend: true,
-  customersCreate: true,
-  customersDelete: true,
-  customersUpdate: true,
-  customersView: true,
-  dataApiView: true,
-  developersKeysManage: true,
-  developersManage: true,
-  dunningCampaignsCreate: true,
-  dunningCampaignsUpdate: true,
-  dunningCampaignsView: true,
-  featuresCreate: true,
-  featuresDelete: true,
-  featuresUpdate: true,
-  featuresView: true,
-  invoiceCustomSectionsCreate: true,
-  invoiceCustomSectionsUpdate: true,
-  invoicesCreate: true,
-  invoicesSend: true,
-  invoicesUpdate: true,
-  invoicesView: true,
-  invoicesVoid: true,
-  organizationEmailsUpdate: true,
-  organizationEmailsView: true,
-  organizationIntegrationsCreate: true,
-  organizationIntegrationsDelete: true,
-  organizationIntegrationsUpdate: true,
-  organizationIntegrationsView: true,
-  organizationInvoicesUpdate: true,
-  organizationInvoicesView: true,
-  organizationMembersCreate: true,
-  organizationMembersDelete: true,
-  organizationMembersUpdate: true,
-  organizationMembersView: true,
-  organizationTaxesUpdate: true,
-  organizationTaxesView: true,
-  organizationUpdate: true,
-  organizationView: true,
-  paymentsCreate: true,
-  paymentsView: true,
-  paymentReceiptsSend: true,
-  paymentReceiptsView: true,
-  plansCreate: true,
-  plansDelete: true,
-  plansUpdate: true,
-  plansView: true,
-  quotesApprove: true,
-  quotesClone: true,
-  quotesCreate: true,
-  quotesUpdate: true,
-  quotesView: true,
-  quotesVoid: true,
-  orderFormsSign: true,
-  orderFormsVoid: true,
-  pricingUnitsCreate: true,
-  pricingUnitsUpdate: true,
-  pricingUnitsView: true,
-  rolesCreate: true,
-  rolesDelete: true,
-  rolesUpdate: true,
-  rolesView: true,
-  securityLogsView: true,
-  subscriptionsCreate: true,
-  subscriptionsUpdate: true,
-  subscriptionsView: true,
-  walletsCreate: true,
-  walletsTerminate: true,
-  walletsTopUp: true,
-  walletsUpdate: true,
-}
+  ...Object.fromEntries(
+    Object.keys(PermissionEnum).map((key) => [key.charAt(0).toLowerCase() + key.slice(1), true]),
+  ),
+} as MemberForEditRoleForDialogFragment['permissions']
 
 const NiceModalWrapper = ({ children }: { children: ReactNode }) => {
   return <NiceModal.Provider>{children}</NiceModal.Provider>
