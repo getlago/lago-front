@@ -34,7 +34,9 @@ export interface PaymentMethodsForm<T extends ViewTypeEnum = ViewTypeEnum> {
   setFieldValue(field: string, value: unknown): unknown
 }
 
-export interface PaymentMethodsInvoiceSettingsProps<T extends ViewTypeEnum = ViewTypeEnum> {
+// Shared by both single-purpose settings components and the composite — they
+// only differ in which child (and customer field) they render.
+export interface SettingsComponentProps<T extends ViewTypeEnum = ViewTypeEnum> {
   customer: CustomerForPaymentMethods
   form: PaymentMethodsForm<T>
   viewType: T
