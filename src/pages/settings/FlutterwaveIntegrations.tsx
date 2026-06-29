@@ -11,10 +11,7 @@ import {
   AddFlutterwaveDialog,
   AddFlutterwaveDialogRef,
 } from '~/components/settings/integrations/AddFlutterwaveDialog'
-import {
-  DeleteFlutterwaveIntegrationDialog,
-  DeleteFlutterwaveIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteFlutterwaveIntegrationDialog'
+import { useDeleteFlutterwaveIntegrationDialog } from '~/components/settings/integrations/DeleteFlutterwaveIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE,
@@ -58,7 +55,7 @@ const FlutterwaveIntegrations = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const addDialogRef = useRef<AddFlutterwaveDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteFlutterwaveIntegrationDialogRef>(null)
+  const { openDeleteFlutterwaveIntegrationDialog } = useDeleteFlutterwaveIntegrationDialog()
   const { hasPermissions } = usePermissions()
 
   const { data, loading } = useGetFlutterwaveIntegrationsListQuery({
@@ -164,8 +161,11 @@ const FlutterwaveIntegrations = () => {
                               onClick={() => {
                                 addDialogRef.current?.openDialog({
                                   provider: connection,
-                                  deleteModalRef: deleteDialogRef,
-                                  deleteDialogCallback,
+                                  onDelete: (provider) =>
+                                    openDeleteFlutterwaveIntegrationDialog({
+                                      provider,
+                                      callback: deleteDialogCallback,
+                                    }),
                                 })
                                 closePopper()
                               }}
@@ -180,7 +180,7 @@ const FlutterwaveIntegrations = () => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                deleteDialogRef.current?.openDialog({
+                                openDeleteFlutterwaveIntegrationDialog({
                                   provider: connection,
                                   callback: deleteDialogCallback,
                                 })
@@ -201,7 +201,6 @@ const FlutterwaveIntegrations = () => {
       </IntegrationsPage.Container>
 
       <AddFlutterwaveDialog ref={addDialogRef} />
-      <DeleteFlutterwaveIntegrationDialog ref={deleteDialogRef} />
     </>
   )
 }
