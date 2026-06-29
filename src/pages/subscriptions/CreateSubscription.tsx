@@ -28,7 +28,6 @@ import { buildSubscriptionDefaultValues } from '~/components/subscriptions/form/
 import { InvoicingSettingsSection } from '~/components/subscriptions/form/InvoicingSettingsSection'
 import { SubscriptionInformationFormSection } from '~/components/subscriptions/form/SubscriptionInformationFormSection'
 import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
-import { SubscriptionActivationRuleSection } from '~/components/subscriptions/SubscriptionActivationRuleSection'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -120,9 +119,6 @@ const CreateSubscription = () => {
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
   const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
-  const hasAccessToPaymentGatedSubscriptions = hasFeatureFlag(
-    FeatureFlagEnum.PaymentGatedSubscriptions,
-  )
 
   const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
@@ -402,8 +398,6 @@ const CreateSubscription = () => {
   ])
 
   const customerName = customer?.displayName
-  const shouldDisplayActivationRuleSection =
-    hasAccessToPaymentGatedSubscriptions && !!customer?.externalId
 
   const navigateBack = useCallback(() => {
     const origin = searchParams.get('origin')
@@ -572,6 +566,7 @@ const CreateSubscription = () => {
                         shouldDisplaySubscriptionName={shouldDisplaySubscriptionName}
                         setShouldDisplaySubscriptionName={setShouldDisplaySubscriptionName}
                         selectedPlanInterval={selectedPlan?.interval}
+                        customerExternalId={customer?.externalId}
                       />
 
                       {/* Section: Invoicing & payments */}
@@ -598,15 +593,6 @@ const CreateSubscription = () => {
                               setFieldValue: subscriptionForm.setFieldValue,
                             }}
                             viewType={ViewTypeEnum.Subscription}
-                          />
-                        )}
-
-                        {shouldDisplayActivationRuleSection && (
-                          <SubscriptionActivationRuleSection
-                            form={subscriptionForm}
-                            customerExternalId={customer?.externalId}
-                            formType={formType}
-                            subscriptionStatus={subscription?.status}
                           />
                         )}
                       </CenteredPage.PageSection>
