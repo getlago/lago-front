@@ -158,4 +158,14 @@ describe('OrdersList', () => {
       expect(screen.getByTestId('table-orders-list')).toBeInTheDocument()
     })
   })
+
+  it('passes URL filters to useOrders when no quoteNumber prop is given', () => {
+    window.history.pushState({}, '', '/orders?or_orderStatus=executed')
+    try {
+      render(<OrdersList />)
+      expect(mockUseOrders).toHaveBeenCalledWith(expect.objectContaining({ status: ['executed'] }))
+    } finally {
+      window.history.pushState({}, '', '/')
+    }
+  })
 })

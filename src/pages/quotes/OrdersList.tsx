@@ -1,3 +1,7 @@
+import { useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
+
+import { formatFiltersForOrdersQuery } from '~/components/designSystem/Filters'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { QuotesSectionTable } from './common/QuotesSectionTable'
@@ -10,8 +14,19 @@ interface OrdersListProps {
 
 const OrdersList = ({ quoteNumber }: OrdersListProps): JSX.Element => {
   const { translate } = useInternationalization()
+  const [searchParams] = useSearchParams()
+
+  const filtersForOrdersQuery = useMemo(
+    () => formatFiltersForOrdersQuery(searchParams),
+    [searchParams],
+  )
+
+  const defaultFilters = {
+    ...filtersForOrdersQuery,
+  }
+
   const { orders, loading, error, fetchMore, metadata } = useOrders(
-    quoteNumber ? { quoteNumber: [quoteNumber] } : undefined,
+    quoteNumber ? { ...defaultFilters, quoteNumber: [quoteNumber] } : defaultFilters,
   )
   const columns = useOrdersColumns({ hideSourceQuote: !!quoteNumber })
 

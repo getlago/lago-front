@@ -229,4 +229,25 @@ describe('Quotes', () => {
       })
     })
   })
+
+  describe('GIVEN the user is on the Orders tab', () => {
+    beforeEach(() => {
+      mockHasPermissions.mockReturnValue(true)
+      mockUseParams.mockReturnValue({ tab: 'orders' })
+    })
+
+    describe('WHEN the page renders', () => {
+      it('THEN should configure MainHeader with the orders snapshotKey', () => {
+        render(<Quotes />)
+
+        expect(capturedConfig?.snapshotKey).toBe('orders')
+      })
+
+      it('THEN should configure MainHeader with a filters section', () => {
+        render(<Quotes />)
+
+        expect(capturedConfig?.filtersSection).toBeDefined()
+      })
+    })
+  })
 })

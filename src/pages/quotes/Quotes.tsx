@@ -3,6 +3,7 @@ import { generatePath, useParams } from 'react-router-dom'
 
 import {
   Filters,
+  OrderAvailableFilters,
   OrderFormAvailableFilters,
   QuoteAvailableFilters,
 } from '~/components/designSystem/Filters'
@@ -10,7 +11,11 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import PremiumFeature from '~/components/premium/PremiumFeature'
-import { ORDER_FORM_LIST_FILTER_PREFIX, QUOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
+import {
+  ORDER_FORM_LIST_FILTER_PREFIX,
+  ORDER_LIST_FILTER_PREFIX,
+  QUOTE_LIST_FILTER_PREFIX,
+} from '~/core/constants/filters'
 import { QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CREATE_QUOTE_ROUTE,
@@ -37,7 +42,33 @@ const Quotes = (): JSX.Element => {
   const canCreateQuotes = hasPermissions(['quotesCreate'])
   const { isPremium } = useCurrentUser()
   const { tab } = useParams()
-  const isOrderFormsTab = tab === QuotesTabsOptionsEnum.orderForms
+  const tabFilterConfig: Record<
+    QuotesTabsOptionsEnum,
+    {
+      filtersNamePrefix: string
+      availableFilters: typeof QuoteAvailableFilters
+      snapshotKey: string
+    }
+  > = {
+    [QuotesTabsOptionsEnum.quotes]: {
+      filtersNamePrefix: QUOTE_LIST_FILTER_PREFIX,
+      availableFilters: QuoteAvailableFilters,
+      snapshotKey: 'quotes',
+    },
+    [QuotesTabsOptionsEnum.orderForms]: {
+      filtersNamePrefix: ORDER_FORM_LIST_FILTER_PREFIX,
+      availableFilters: OrderFormAvailableFilters,
+      snapshotKey: 'order-forms',
+    },
+    [QuotesTabsOptionsEnum.orders]: {
+      filtersNamePrefix: ORDER_LIST_FILTER_PREFIX,
+      availableFilters: OrderAvailableFilters,
+      snapshotKey: 'orders',
+    },
+  }
+
+  const filterConfig =
+    tabFilterConfig[tab as QuotesTabsOptionsEnum] ?? tabFilterConfig[QuotesTabsOptionsEnum.quotes]
 
   useEffect(() => {
     if (pathname === QUOTES_LIST_ROUTE) {
@@ -97,7 +128,7 @@ const Quotes = (): JSX.Element => {
               // The filtersSection is tab-dependent but stripped from the config snapshot
               // (it's a ReactNode). Bump snapshotKey per tab so switching tabs re-pushes the
               // matching filter panel instead of leaving the previous tab's panel in context.
-              snapshotKey: isOrderFormsTab ? 'order-forms' : 'quotes',
+              snapshotKey: filterConfig.snapshotKey,
               actions: {
                 items: [
                   {
@@ -113,13 +144,9 @@ const Quotes = (): JSX.Element => {
               filtersSection: (
                 <div className="pt-4">
                   <Filters.Provider
-                    key={isOrderFormsTab ? 'order-forms' : 'quotes'}
-                    filtersNamePrefix={
-                      isOrderFormsTab ? ORDER_FORM_LIST_FILTER_PREFIX : QUOTE_LIST_FILTER_PREFIX
-                    }
-                    availableFilters={
-                      isOrderFormsTab ? OrderFormAvailableFilters : QuoteAvailableFilters
-                    }
+                    key={filterConfig.snapshotKey}
+                    filtersNamePrefix={filterConfig.filtersNamePrefix}
+                    availableFilters={filterConfig.availableFilters}
                   >
                     <Filters.Component />
                   </Filters.Provider>

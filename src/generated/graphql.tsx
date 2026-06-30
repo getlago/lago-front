@@ -14447,6 +14447,13 @@ export type GetOrdersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   quoteNumber?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  status?: InputMaybe<Array<OrderStatusEnum> | OrderStatusEnum>;
+  customerId?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  number?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+  ownerId?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  executionMode?: InputMaybe<Array<OrderExecutionModeEnum> | OrderExecutionModeEnum>;
+  executedAtFrom?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  executedAtTo?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
 }>;
 
 
@@ -39534,8 +39541,19 @@ export type GetOrderFormsLazyQueryHookResult = ReturnType<typeof useGetOrderForm
 export type GetOrderFormsSuspenseQueryHookResult = ReturnType<typeof useGetOrderFormsSuspenseQuery>;
 export type GetOrderFormsQueryResult = Apollo.QueryResult<GetOrderFormsQuery, GetOrderFormsQueryVariables>;
 export const GetOrdersDocument = gql`
-    query getOrders($page: Int, $limit: Int, $quoteNumber: [String!]) {
-  orders(page: $page, limit: $limit, quoteNumber: $quoteNumber) {
+    query getOrders($page: Int, $limit: Int, $quoteNumber: [String!], $status: [OrderStatusEnum!], $customerId: [ID!], $number: [String!], $ownerId: [ID!], $executionMode: [OrderExecutionModeEnum!], $executedAtFrom: ISO8601DateTime, $executedAtTo: ISO8601DateTime) {
+  orders(
+    page: $page
+    limit: $limit
+    quoteNumber: $quoteNumber
+    status: $status
+    customerId: $customerId
+    number: $number
+    ownerId: $ownerId
+    executionMode: $executionMode
+    executedAtFrom: $executedAtFrom
+    executedAtTo: $executedAtTo
+  ) {
     metadata {
       currentPage
       totalPages
@@ -39563,6 +39581,13 @@ export const GetOrdersDocument = gql`
  *      page: // value for 'page'
  *      limit: // value for 'limit'
  *      quoteNumber: // value for 'quoteNumber'
+ *      status: // value for 'status'
+ *      customerId: // value for 'customerId'
+ *      number: // value for 'number'
+ *      ownerId: // value for 'ownerId'
+ *      executionMode: // value for 'executionMode'
+ *      executedAtFrom: // value for 'executedAtFrom'
+ *      executedAtTo: // value for 'executedAtTo'
  *   },
  * });
  */
