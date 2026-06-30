@@ -14,8 +14,6 @@ import { WarningDialog, WarningDialogRef } from '~/components/designSystem/Warni
 import { BasicComboBoxData, ComboboxItem } from '~/components/form'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
-import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
@@ -25,10 +23,10 @@ import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import PremiumFeature from '~/components/premium/PremiumFeature'
 import { FeatureEntitlementSection } from '~/components/subscriptions/FeatureEntitlementSection'
 import { buildSubscriptionDefaultValues } from '~/components/subscriptions/form/buildSubscriptionDefaultValues'
+import { InvoicingSettingsSection } from '~/components/subscriptions/form/InvoicingSettingsSection'
+import { PaymentSettingsSection } from '~/components/subscriptions/form/PaymentSettingsSection'
 import { SubscriptionInformationFormSection } from '~/components/subscriptions/form/SubscriptionInformationFormSection'
 import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
-import { SubscriptionActivationRuleSection } from '~/components/subscriptions/SubscriptionActivationRuleSection'
-import { SubscriptionInvoiceConsolidationSection } from '~/components/subscriptions/SubscriptionInvoiceConsolidationSection'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -120,9 +118,6 @@ const CreateSubscription = () => {
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
   const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
-  const hasAccessToPaymentGatedSubscriptions = hasFeatureFlag(
-    FeatureFlagEnum.PaymentGatedSubscriptions,
-  )
 
   const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
@@ -206,11 +201,6 @@ const CreateSubscription = () => {
   const subscriptionBillingEntityId = useStore(
     subscriptionForm.store,
     (s) => s.values.billingEntityId,
-  )
-  const subscriptionPaymentMethod = useStore(subscriptionForm.store, (s) => s.values.paymentMethod)
-  const subscriptionInvoiceCustomSection = useStore(
-    subscriptionForm.store,
-    (s) => s.values.invoiceCustomSection,
   )
   const isEditingSubscription = formType === FORM_TYPE_ENUM.edition
 
@@ -406,8 +396,6 @@ const CreateSubscription = () => {
   ])
 
   const customerName = customer?.displayName
-  const shouldDisplayActivationRuleSection =
-    hasAccessToPaymentGatedSubscriptions && !!customer?.externalId
 
   const navigateBack = useCallback(() => {
     const origin = searchParams.get('origin')
@@ -576,45 +564,37 @@ const CreateSubscription = () => {
                         shouldDisplaySubscriptionName={shouldDisplaySubscriptionName}
                         setShouldDisplaySubscriptionName={setShouldDisplaySubscriptionName}
                         selectedPlanInterval={selectedPlan?.interval}
+                        customerExternalId={customer?.externalId}
                       />
 
-                      {/* Section: Invoicing & payments */}
+                      {/* Section: Payments */}
+                      {hasAccessToMultiPaymentFlow && (
+                        <CenteredPage.PageSection>
+                          <CenteredPage.PageSectionTitle
+                            title={translate('text_17828013737948943pe3k8nc')}
+                            description={translate('text_17828013737955532qxu3wq4')}
+                          />
+
+                          {/* Payment method lives in a drawer */}
+                          <PaymentSettingsSection
+                            form={subscriptionForm}
+                            externalCustomerId={customer?.externalId ?? ''}
+                          />
+                        </CenteredPage.PageSection>
+                      )}
+
+                      {/* Section: Invoicing */}
                       <CenteredPage.PageSection>
                         <CenteredPage.PageSectionTitle
-                          title={translate('text_17787453510917ul9ghihdtv')}
-                          description={translate('text_17787453510910bn5dsjxtqz')}
+                          title={translate('text_17423672025282dl7iozy1ru')}
+                          description={translate('text_1782738644346p066xtwa8yj')}
                         />
 
-                        <SubscriptionInvoiceConsolidationSection
+                        {/* Invoice consolidation + custom sections live in a drawer */}
+                        <InvoicingSettingsSection
                           form={subscriptionForm}
-                          fields={{ consolidateInvoice: 'consolidateInvoice' }}
+                          customerId={customer?.id}
                         />
-
-                        {hasAccessToMultiPaymentFlow && (customer?.externalId || customer?.id) && (
-                          <PaymentMethodsInvoiceSettings
-                            customer={customer}
-                            // `values` MUST come from reactive store slices (useStore above),
-                            // never from `subscriptionForm.state.values` — a non-reactive
-                            // snapshot would not re-render the displayed selection on edit.
-                            form={{
-                              values: {
-                                paymentMethod: subscriptionPaymentMethod,
-                                invoiceCustomSection: subscriptionInvoiceCustomSection,
-                              },
-                              setFieldValue: subscriptionForm.setFieldValue,
-                            }}
-                            viewType={ViewTypeEnum.Subscription}
-                          />
-                        )}
-
-                        {shouldDisplayActivationRuleSection && (
-                          <SubscriptionActivationRuleSection
-                            form={subscriptionForm}
-                            customerExternalId={customer?.externalId}
-                            formType={formType}
-                            subscriptionStatus={subscription?.status}
-                          />
-                        )}
                       </CenteredPage.PageSection>
                     </>
                   )}

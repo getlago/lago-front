@@ -6,17 +6,20 @@ import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/s
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { SubscriptionActivationRuleSection } from '~/components/subscriptions/SubscriptionActivationRuleSection'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   AddSubscriptionPlanFragmentDoc,
   BillingTimeEnum,
+  FeatureFlagEnum,
   PlanInterval,
   StatusTypeEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import {
   buildSubscriptionDefaultValues,
@@ -89,6 +92,7 @@ interface SubscriptionInformationFormSectionExtraProps {
   shouldDisplaySubscriptionName: boolean
   setShouldDisplaySubscriptionName: Dispatch<SetStateAction<boolean>>
   selectedPlanInterval?: PlanInterval
+  customerExternalId?: string | null
 }
 
 const subscriptionInformationDefaultProps: SubscriptionInformationFormSectionExtraProps = {
@@ -100,6 +104,7 @@ const subscriptionInformationDefaultProps: SubscriptionInformationFormSectionExt
   shouldDisplaySubscriptionName: false,
   setShouldDisplaySubscriptionName: () => {},
   selectedPlanInterval: undefined,
+  customerExternalId: undefined,
 }
 
 const TYPING_PLACEHOLDER_DATE = '2026-01-01'
@@ -121,8 +126,13 @@ export const SubscriptionInformationFormSection = withForm({
     shouldDisplaySubscriptionName,
     setShouldDisplaySubscriptionName,
     selectedPlanInterval,
+    customerExternalId,
   }) {
     const { translate } = useInternationalization()
+    const { hasFeatureFlag } = useOrganizationInfos()
+
+    const shouldDisplayActivationRuleSection =
+      hasFeatureFlag(FeatureFlagEnum.PaymentGatedSubscriptions) && !!customerExternalId
 
     const subscriptionBillingTime = useStore(form.store, (state) => state.values.billingTime)
     const subscriptionAt = useStore(form.store, (state) => state.values.subscriptionAt)
@@ -308,6 +318,15 @@ export const SubscriptionInformationFormSection = withForm({
                 </form.Subscribe>
               </div>
             </>
+          )}
+
+          {shouldDisplayActivationRuleSection && (
+            <SubscriptionActivationRuleSection
+              form={form}
+              customerExternalId={customerExternalId}
+              formType={formType}
+              subscriptionStatus={subscription?.status}
+            />
           )}
         </div>
       </CenteredPage.PageSection>

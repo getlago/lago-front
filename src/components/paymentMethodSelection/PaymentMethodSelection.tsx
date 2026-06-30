@@ -75,7 +75,7 @@ export const PaymentMethodSelection = ({
         onClose={() => setIsDialogOpen(false)}
         selectedPaymentMethod={selectedPaymentMethod}
         setSelectedPaymentMethod={setSelectedPaymentMethod}
-        paymentMethodsList={paymentMethodsList}
+        externalCustomerId={externalCustomerId}
         viewType={viewType}
       />
     </div>

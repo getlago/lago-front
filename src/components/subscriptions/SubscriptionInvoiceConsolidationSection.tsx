@@ -1,4 +1,3 @@
-import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withFieldGroup } from '~/hooks/forms/useAppform'
 
@@ -18,9 +17,7 @@ export const SubscriptionInvoiceConsolidationSection = withFieldGroup({
     const { translate } = useInternationalization()
 
     return (
-      <div className="flex flex-col gap-2" data-test={CONSOLIDATION_SECTION_TEST_ID}>
-        <CenteredPage.SubsectionTitle title={translate('text_177874535109128tmqdq682k')} />
-
+      <div data-test={CONSOLIDATION_SECTION_TEST_ID}>
         <group.AppField name="consolidateInvoice">
           {(field) => (
             <field.RadioGroupField

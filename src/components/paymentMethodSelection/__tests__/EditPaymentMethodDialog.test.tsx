@@ -1,160 +1,114 @@
-import { screen, waitFor } from '@testing-library/react'
+import { act, cleanup, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
-import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
-import { PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
 import { render } from '~/test-utils'
 
 import {
-  EDIT_PM_DIALOG_MANUAL_RADIO_TEST_ID,
   EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID,
-  EDIT_PM_DIALOG_SPECIFIC_RADIO_TEST_ID,
   EditPaymentMethodDialog,
 } from '../EditPaymentMethodDialog'
-import { SelectedPaymentMethod } from '../types'
+import { PaymentMethodBehavior, SelectedPaymentMethod } from '../types'
+
+// The selector content is unit-tested in PaymentMethodFields.test; here we only
+// verify the dialog shell: seeding the draft, committing it on save, the guard.
+const mockFieldsProps: {
+  current: {
+    value?: SelectedPaymentMethod
+    onChange: (v: SelectedPaymentMethod) => void
+    onBehaviorChange?: (b: PaymentMethodBehavior) => void
+  } | null
+} = { current: null }
+
+jest.mock('../PaymentMethodFields', () => ({
+  PaymentMethodFields: (props: {
+    value?: SelectedPaymentMethod
+    onChange: (v: SelectedPaymentMethod) => void
+    onBehaviorChange?: (b: PaymentMethodBehavior) => void
+  }) => {
+    mockFieldsProps.current = props
+
+    return <div data-test="payment-method-fields" />
+  },
+}))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
-  useInternationalization: () => ({
-    translate: (key: string) => key,
-    locale: 'en',
-  }),
+  useInternationalization: () => ({ translate: (key: string) => key, locale: 'en' }),
 }))
-
-jest.mock('~/components/paymentMethodSelection/PaymentMethodComboBox', () => ({
-  PaymentMethodComboBox: jest.fn(() => <div data-testid="payment-method-combobox" />),
-}))
-
-const mockSetSelectedPaymentMethod = jest.fn()
-const mockOnClose = jest.fn()
-
-const paymentMethod1 = createMockPaymentMethod({
-  id: 'pm_001',
-  isDefault: true,
-  details: {
-    __typename: 'PaymentMethodDetails',
-    brand: 'visa',
-    last4: '4242',
-    type: 'card',
-    expirationMonth: '12',
-    expirationYear: '2025',
-  },
-})
-
-const paymentMethodsList: PaymentMethodList = [paymentMethod1]
-
-type PrepareType = {
-  open?: boolean
-  selectedPaymentMethod?: SelectedPaymentMethod
-  paymentMethodsList?: PaymentMethodList
-  viewType?: ViewTypeEnum
-}
 
 function prepare({
   open = true,
-  selectedPaymentMethod,
-  paymentMethodsList: list = paymentMethodsList,
-  viewType = ViewTypeEnum.Subscription,
-}: PrepareType = {}) {
-  return render(
+  selectedPaymentMethod = undefined,
+  onSave = jest.fn(),
+  onClose = jest.fn(),
+}: {
+  open?: boolean
+  selectedPaymentMethod?: SelectedPaymentMethod
+  onSave?: jest.Mock
+  onClose?: jest.Mock
+} = {}) {
+  render(
     <EditPaymentMethodDialog
       open={open}
-      onClose={mockOnClose}
+      onClose={onClose}
+      externalCustomerId="ext_1"
       selectedPaymentMethod={selectedPaymentMethod}
-      setSelectedPaymentMethod={mockSetSelectedPaymentMethod}
-      paymentMethodsList={list}
-      viewType={viewType}
+      setSelectedPaymentMethod={onSave}
+      viewType={ViewTypeEnum.Subscription}
     />,
   )
+
+  return { onSave, onClose }
 }
 
 describe('EditPaymentMethodDialog', () => {
-  beforeEach(() => {
+  afterEach(() => {
+    cleanup()
     jest.clearAllMocks()
+    mockFieldsProps.current = null
   })
 
-  describe('WHEN saving with FALLBACK behavior', () => {
-    it('THEN calls setSelectedPaymentMethod with fallback values and closes dialog', async () => {
-      prepare()
+  it('seeds the shared fields with the current selection on open', async () => {
+    const selectedPaymentMethod = {
+      paymentMethodId: 'pm_1',
+      paymentMethodType: PaymentMethodTypeEnum.Provider,
+    }
 
-      await waitFor(() => {
-        expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
-      })
+    await act(() => prepare({ selectedPaymentMethod }))
 
-      // Find and click the save button
-      const saveButton = screen.getByTestId(EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID)
-
-      await userEvent.click(saveButton)
-
-      await waitFor(() => {
-        expect(mockSetSelectedPaymentMethod).toHaveBeenCalledWith({
-          paymentMethodId: null,
-          paymentMethodType: PaymentMethodTypeEnum.Provider,
-        })
-        expect(mockOnClose).toHaveBeenCalled()
-      })
-    })
+    expect(screen.getByTestId('payment-method-fields')).toBeInTheDocument()
+    expect(mockFieldsProps.current?.value).toEqual(selectedPaymentMethod)
   })
 
-  describe('WHEN saving with MANUAL behavior', () => {
-    it('THEN calls setSelectedPaymentMethod with manual values and closes dialog', async () => {
-      prepare()
+  it('commits the edited draft on save and closes', async () => {
+    const user = userEvent.setup()
+    const { onSave, onClose } = await act(() => prepare())
 
-      await waitFor(() => {
-        expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
-      })
+    const manual = { paymentMethodId: null, paymentMethodType: PaymentMethodTypeEnum.Manual }
 
-      // Find the MANUAL radio button container and click the radio input inside
-      const manualRadioContainer = screen.getByTestId(EDIT_PM_DIALOG_MANUAL_RADIO_TEST_ID)
-      const manualRadioInput = manualRadioContainer.querySelector(
-        'input[type="radio"]',
-      ) as HTMLElement
-
-      await userEvent.click(manualRadioInput)
-
-      // Click save button
-      const saveButton = screen.getByTestId(EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID)
-
-      await userEvent.click(saveButton)
-
-      await waitFor(() => {
-        expect(mockSetSelectedPaymentMethod).toHaveBeenCalledWith({
-          paymentMethodId: null,
-          paymentMethodType: PaymentMethodTypeEnum.Manual,
-        })
-        expect(mockOnClose).toHaveBeenCalled()
-      })
+    act(() => {
+      mockFieldsProps.current?.onBehaviorChange?.(PaymentMethodBehavior.MANUAL)
+      mockFieldsProps.current?.onChange(manual)
     })
+
+    await user.click(screen.getByTestId(EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID))
+
+    expect(onSave).toHaveBeenCalledWith(manual)
+    expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  describe('WHEN behavior is SPECIFIC and paymentMethodId is empty', () => {
-    it('THEN disables save button', async () => {
-      prepare()
+  it('disables save when "specific" is picked without a method', async () => {
+    await act(() => prepare())
 
-      await waitFor(() => {
-        expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
-      })
-
-      // Initially save button should be enabled (FALLBACK behavior)
-      let saveButton = screen.getByTestId(EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID)
-
-      expect(saveButton).not.toBeDisabled()
-
-      // Find the SPECIFIC radio button container and click the radio input inside
-      const specificRadioContainer = screen.getByTestId(EDIT_PM_DIALOG_SPECIFIC_RADIO_TEST_ID)
-      const specificRadioInput = specificRadioContainer.querySelector(
-        'input[type="radio"]',
-      ) as HTMLElement
-
-      await userEvent.click(specificRadioInput)
-
-      // Wait for the component to update
-      await waitFor(() => {
-        saveButton = screen.getByTestId(EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID)
-        // Save button should be disabled when SPECIFIC is selected but no payment method is chosen
-        expect(saveButton).toBeDisabled()
+    act(() => {
+      mockFieldsProps.current?.onBehaviorChange?.(PaymentMethodBehavior.SPECIFIC)
+      mockFieldsProps.current?.onChange({
+        paymentMethodId: undefined,
+        paymentMethodType: PaymentMethodTypeEnum.Provider,
       })
     })
+
+    expect(screen.getByTestId(EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID)).toBeDisabled()
   })
 })
