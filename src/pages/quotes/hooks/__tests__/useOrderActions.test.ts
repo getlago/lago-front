@@ -27,10 +27,15 @@ const createMockOrder = (
   status: OrderStatusEnum.Created,
   executionMode: null,
   executedAt: null,
+  customer: { id: 'customer-001', displayName: 'Acme Corp' },
   orderForm: {
     id: 'of-1',
     number: 'OF-2026-0001',
-    quote: { id: 'q-1', number: 'QT-001' },
+    quote: {
+      id: 'q-1',
+      number: 'QT-001',
+      currentVersion: { id: 'qv-1', version: 1, content: '# Hello World', mentionVariables: {} },
+    },
   },
   ...overrides,
 })
