@@ -66,7 +66,7 @@ const OrderFormDetails = () => {
     <div>
       <PageHeader.Wrapper>
         <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate('text_1781686594125csy9lu7em4h', { orderFormNumber })}
+          {translate('text_17828094623997l9tqj385k5', { orderFormNumber })}
         </Typography>
         <Button
           data-test={ORDER_FORM_DETAILS_CLOSE_BUTTON_TEST_ID}
@@ -83,7 +83,7 @@ const OrderFormDetails = () => {
           ) : (
             <div className="flex flex-col gap-12">
               <Typography variant="headline" color="grey700">
-                {translate('text_1781686594125csy9lu7em4h', { orderFormNumber })}
+                {translate('text_17828094623997l9tqj385k5', { orderFormNumber })}
               </Typography>
 
               <div className="flex flex-col gap-6">
