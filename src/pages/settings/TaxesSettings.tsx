@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -18,7 +17,7 @@ import {
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { DeleteTaxDialog, DeleteTaxDialogRef } from '~/components/taxes/DeleteTaxDialog'
+import { useDeleteTaxDialog } from '~/components/taxes/DeleteTaxDialog'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_TAX_ROUTE, UPDATE_TAX_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -63,7 +62,7 @@ const TaxesSettings = () => {
   const { hasPermissions } = usePermissions()
   const { hasTaxProvider } = useIntegrations()
   const { translate } = useInternationalization()
-  const deleteDialogRef = useRef<DeleteTaxDialogRef>(null)
+  const { openDeleteTaxDialog } = useDeleteTaxDialog()
   const { data, error, loading, fetchMore } = useGetTaxesSettingsInformationsQuery({
     variables: {
       limit: 20,
@@ -204,7 +203,7 @@ const TaxesSettings = () => {
                             title: translate('text_645bb193927b375079d28b82'),
                             startIcon: 'trash',
                             onAction: () => {
-                              deleteDialogRef.current?.openDialog(tax)
+                              openDeleteTaxDialog(tax)
                             },
                           })
                         }
@@ -217,7 +216,6 @@ const TaxesSettings = () => {
           </SettingsListItem>
         </SettingsListWrapper>
       </SettingsPaddedContainer>
-      <DeleteTaxDialog ref={deleteDialogRef} />
     </>
   )
 }
