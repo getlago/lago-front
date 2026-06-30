@@ -62,9 +62,9 @@ const baseBillingItemPlan: BillingItemPlan = {
   id: 'plan_123',
   payload: {
     position: 1,
-    plan_code: 'enterprise',
-    plan_name: 'Enterprise Plan',
-    plan_description: 'Custom enterprise offering',
+    code: 'enterprise',
+    name: 'Enterprise Plan',
+    description: 'Custom enterprise offering',
     subscription_external_id: null,
     subscription_name: null,
     billing_time: 'anniversary',
@@ -87,9 +87,9 @@ describe('toPlanBillingItems', () => {
     expect(result.plans[0].type).toBe('plan')
     expect(result.plans[0].id).toBe('plan_123')
     expect(result.plans[0].payload.position).toBe(1)
-    expect(result.plans[0].payload.plan_code).toBe('enterprise')
-    expect(result.plans[0].payload.plan_name).toBe('Enterprise Plan')
-    expect(result.plans[0].payload.plan_description).toBe('Custom enterprise offering')
+    expect(result.plans[0].payload.code).toBe('enterprise')
+    expect(result.plans[0].payload.name).toBe('Enterprise Plan')
+    expect(result.plans[0].payload.description).toBe('Custom enterprise offering')
     expect(result.plans[0].payload.billing_time).toBe('anniversary')
     expect(result.plans[0].payload.subscription_external_id).toBeNull()
     expect(result.plans[0].payload.subscription_name).toBeNull()
@@ -532,9 +532,9 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
       id: 'plan_legacy',
       payload: {
         position: 1,
-        plan_code: 'legacy',
-        plan_name: 'Legacy Plan',
-        plan_description: 'Old plan',
+        code: 'legacy',
+        name: 'Legacy Plan',
+        description: 'Old plan',
         subscription_external_id: 'ext_old',
         subscription_name: null,
         billing_time: 'calendar',
@@ -569,9 +569,9 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
         overrides: {},
         payload: {
           position: 0,
-          plan_code: 'p',
-          plan_name: 'P',
-          plan_description: '',
+          code: 'p',
+          name: 'P',
+          description: '',
           subscription_external_id: null,
           subscription_name: null,
           billing_time: 'calendar',
@@ -608,9 +608,9 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
         overrides: {},
         payload: {
           position: 0,
-          plan_code: 'p',
-          plan_name: 'P',
-          plan_description: '',
+          code: 'p',
+          name: 'P',
+          description: '',
           subscription_external_id: null,
           subscription_name: null,
           billing_time: 'calendar',

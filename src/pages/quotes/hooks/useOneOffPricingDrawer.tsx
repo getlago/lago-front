@@ -90,7 +90,7 @@ export const useOneOffPricingDrawer = (
       catalogIdMapRef.current[localId] = addOn.id
       payloadsRef.current[localId] = {
         position: 0, // will be set correctly by toBillingItems
-        add_on_code: addOn.code,
+        code: addOn.code,
         name: addOn.name,
         description: addOn.description ?? '',
         units: 1,
