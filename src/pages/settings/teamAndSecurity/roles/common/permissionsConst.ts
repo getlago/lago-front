@@ -105,6 +105,8 @@ export const permissionGroupMapping: PermissionGroupMapping = {
     'OrderFormsView',
     'OrderFormsSign',
     'OrderFormsVoid',
+    'OrdersUpdate',
+    'OrdersView',
   ],
   roles: ['RolesCreate', 'RolesDelete', 'RolesUpdate', 'RolesView'],
   securityLogs: ['SecurityLogsView'],
@@ -258,6 +260,8 @@ export const permissionDescriptionMapping: Partial<Record<PermissionName, string
   OrderFormsView: 'text_178047301390626q8o2l7ob4',
   OrderFormsSign: 'text_1781623709531xo64x5511bd',
   OrderFormsVoid: 'text_1781623709531nm1ezxdq0gb',
+  OrdersUpdate: 'text_1782723591984gz2mp067m0n',
+  OrdersView: 'text_1782723591984jx3x7kt7rph',
 
   // Payment Methods
   PaymentMethodsCreate: 'text_1766047581850xfo6ml8ll9w',

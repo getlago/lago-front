@@ -293,6 +293,8 @@ exports[`permissionsConst snapshot tests permissionGroupMapping structure matche
     "OrderFormsView",
     "OrderFormsSign",
     "OrderFormsVoid",
+    "OrdersUpdate",
+    "OrdersView",
   ],
   "roles": [
     "RolesCreate",

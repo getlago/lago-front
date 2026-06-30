@@ -1,11 +1,13 @@
 import { Fragment } from 'react'
+import { generatePath } from 'react-router-dom'
 
 import { Chip } from '~/components/designSystem/Chip'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { QuoteDetailItemFragment } from '~/generated/graphql'
+import { EDIT_QUOTE_ROUTE, QUOTE_VERSION_PREVIEW_ROUTE } from '~/core/router'
+import { QuoteDetailItemFragment, StatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
@@ -25,6 +27,11 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { getActions } = useQuoteVersionActions()
+
+  const getRowLink = (version: QuoteVersion): string =>
+    version.status === StatusEnum.Draft
+      ? generatePath(EDIT_QUOTE_ROUTE, { quoteId: quote.id, versionId: version.id })
+      : generatePath(QUOTE_VERSION_PREVIEW_ROUTE, { quoteId: quote.id, versionId: version.id })
 
   const versionColumns: Array<TableColumn<QuoteVersion>> = [
     {
@@ -126,6 +133,7 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
           data={quote.versions}
           containerSize={0}
           columns={versionColumns}
+          onRowActionLink={getRowLink}
           actionColumnTooltip={() => translate('text_1776414006125pcxcyeblul7')}
           actionColumn={versionActionColumn}
         />

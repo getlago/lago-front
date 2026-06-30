@@ -4459,5 +4459,14 @@
   "text_1782801373795xhgdr3uewyu": "Use the selected payment method for this {{object}}’s invoices.",
   "text_1782801373795pwkwintj6s8": "Do not use any payment method",
   "text_1782801373795mbjugce2ya0": "Invoices won’t be sent to a payment provider. Record manual payments to settle them.",
-  "text_1782804838056cnj8mzoxrd3": "Select the payment method to use from the chosen payment connection."
+  "text_1782804838056cnj8mzoxrd3": "Select the payment method to use from the chosen payment connection.",
+  "text_178272359198433nj9yyhjt2": "Edit order {{orderNumber}}",
+  "text_178272359198410yt5vl9ki4": "You can edit this order to update its execution type and execution date.",
+  "text_17827235919844cwbnt9ltfe": "Edit order",
+  "text_1782723591984c30uudt9ma9": "Order updated successfully",
+  "text_1782723591984l12xpznkwqd": "Order #{{orderNumber}}",
+  "text_1782723591984gz2mp067m0n": "Edit orders",
+  "text_1782723591984jx3x7kt7rph": "View orders",
+  "text_1782744552573k822vj4c3o0": "This is a read-only preview of the selected quote version.",
+  "text_17827453798351lxoetcgnjt": "Quote {{quoteNumber}} - {{quoteVersion}}"
 }
