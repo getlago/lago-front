@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
@@ -29,28 +29,23 @@ export const WebhookLogTable: FC<WebhookLogTableProps> = ({
   const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
   const { translate } = useInternationalization()
 
-  const { data, error, loading, fetchMore, variables } = getWebhookLogsResult
+  const { data, error, fetchMore, variables } = getWebhookLogsResult
 
   return (
-    <InfiniteScroll
-      onBottom={async () => {
-        const { currentPage = 0, totalPages = 0 } = data?.webhooks?.metadata || {}
-
-        if (currentPage < totalPages && !isLoading) {
-          await fetchMore({
-            variables: { page: currentPage + 1 },
-          })
-        }
-      }}
+    <PaginatedContent
+      metadata={data?.webhooks?.metadata}
+      loading={isLoading}
+      onPageChange={(page) => fetchMore({ variables: { page } })}
     >
       <Table
         name="webhook-logs"
         containerClassName="h-full md:h-auto"
         containerSize={16}
         rowSize={48}
-        data={data?.webhooks.collection || []}
+        data={isLoading ? [] : data?.webhooks.collection || []}
         hasError={!!error}
-        isLoading={loading}
+        isLoading={isLoading}
+        loadingRowCount={variables?.limit ?? undefined}
         onRowActionLink={({ id }) => {
           const currentParams = searchParams.toString()
           const path = generatePath(WEBHOOK_LOGS_ROUTE, {
@@ -106,6 +101,6 @@ export const WebhookLogTable: FC<WebhookLogTableProps> = ({
           },
         }}
       />
-    </InfiniteScroll>
+    </PaginatedContent>
   )
 }

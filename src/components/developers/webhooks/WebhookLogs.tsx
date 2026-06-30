@@ -90,7 +90,7 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
   const queryVariables = useMemo(
     () => ({
       webhookEndpointId: webhookId,
-      limit: 20,
+      limit: 10,
       ...filtersForWebhookLogsQuery,
     }),
     [webhookId, filtersForWebhookLogsQuery],
