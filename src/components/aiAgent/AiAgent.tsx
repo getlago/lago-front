@@ -11,6 +11,7 @@ import { getHiddenAiAgentPaths } from '~/components/aiAgent/utils'
 import { useLocation } from '~/core/router'
 import {
   AGENT_TYPE_LABELS,
+  AGENT_TYPE_SHOW_HISTORY,
   AIPanelEnum,
   PANEL_CLOSED,
   PANEL_OPEN,
@@ -69,6 +70,7 @@ export const AiAgent = () => {
     isPremium && hasPermissions(['aiConversationsView', 'aiConversationsCreate'])
 
   const shouldDisplayWelcomeMessage = !state.messages.length
+  const agentHasHistory = AGENT_TYPE_SHOW_HISTORY[agentType]
   const emptyStateTitle = translate(AGENT_TYPE_LABELS[agentType])
 
   const onBackButton = () => {
@@ -110,7 +112,9 @@ export const AiAgent = () => {
             showAgentSelector={shouldDisplayWelcomeMessage && !showHistory}
             showBackButton={!shouldDisplayWelcomeMessage || showHistory}
             onBackButton={onBackButton}
-            showHistoryButton={shouldDisplayWelcomeMessage && !showHistory && hasAccessToAiAgent}
+            showHistoryButton={
+              agentHasHistory && shouldDisplayWelcomeMessage && !showHistory && hasAccessToAiAgent
+            }
             onShowHistory={() => setShowHistory(true)}
           >
             {showHistory && <ChatHistory hideHistory={() => setShowHistory(false)} />}

@@ -24,6 +24,11 @@ export const AGENT_TYPE_LABELS: Record<AiAgentTypeEnum, string> = {
   [AiAgentTypeEnum.finance]: 'text_17805629795197990fik8a0f',
 }
 
+export const AGENT_TYPE_SHOW_HISTORY: Record<AiAgentTypeEnum, boolean> = {
+  [AiAgentTypeEnum.billing]: true,
+  [AiAgentTypeEnum.finance]: false,
+}
+
 interface AiAgentContextType extends UsePanelReturn<AIPanelEnum> {
   state: ChatState
   conversationId?: string
