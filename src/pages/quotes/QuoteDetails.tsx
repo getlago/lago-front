@@ -16,7 +16,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useQuote } from './hooks/useQuote'
 import { useQuoteVersionActions } from './hooks/useQuoteVersionActions'
 import OrderFormsList from './OrderFormsList'
-import QuoteDetailsActivityLogs from './QuoteDetailsActivityLogs'
+import OrdersList from './OrdersList'
 import QuoteDetailsVersions from './QuoteDetailsVersions'
 
 const QuoteDetails = (): JSX.Element => {
@@ -71,7 +71,7 @@ const QuoteDetails = (): JSX.Element => {
         entity={{
           viewName: quote?.number ?? '',
           viewNameLoading: loading,
-          metadata: quote ? `${quote.customer.name} - ${quote.customer.externalId}` : '',
+          metadata: quote ? `${quote.customer.displayName} - ${quote.customer.externalId}` : '',
           metadataLoading: loading,
         }}
         actions={{ items: headerActions, loading }}
@@ -93,12 +93,12 @@ const QuoteDetails = (): JSX.Element => {
             content: <OrderFormsList quoteNumber={quote?.number} />,
           },
           {
-            title: translate('text_1747314141347qq6rasuxisl'),
+            title: translate('text_17823920587596x5e6nes7qv'),
             link: generatePath(QUOTE_DETAILS_ROUTE, {
               quoteId: quoteId as string,
-              tab: QuoteDetailsTabsOptionsEnum.activityLogs,
+              tab: QuoteDetailsTabsOptionsEnum.orders,
             }),
-            content: <QuoteDetailsActivityLogs />,
+            content: <OrdersList quoteNumber={quote?.number} />,
           },
         ]}
       />

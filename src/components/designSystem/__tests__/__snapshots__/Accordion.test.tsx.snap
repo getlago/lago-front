@@ -7,7 +7,7 @@ exports[`Accordion Snapshot Tests matches snapshot for borderless variant 1`] = 
   >
     <div
       aria-expanded="true"
-      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus:outline-none h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
@@ -85,7 +85,7 @@ exports[`Accordion Snapshot Tests matches snapshot for closed card accordion 1`]
   >
     <div
       aria-expanded="false"
-      class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+      class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus:outline-none h-18 rounded-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
@@ -138,7 +138,7 @@ exports[`Accordion Snapshot Tests matches snapshot for large size 1`] = `
   >
     <div
       aria-expanded="true"
-      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-23 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus:outline-none h-23 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
@@ -216,7 +216,7 @@ exports[`Accordion Snapshot Tests matches snapshot for medium size 1`] = `
   >
     <div
       aria-expanded="true"
-      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus:outline-none h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
@@ -294,7 +294,7 @@ exports[`Accordion Snapshot Tests matches snapshot for open card accordion 1`] =
   >
     <div
       aria-expanded="true"
-      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus:outline-none h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
@@ -372,7 +372,7 @@ exports[`Accordion Snapshot Tests matches snapshot with function children 1`] = 
   >
     <div
       aria-expanded="true"
-      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus:outline-none h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
@@ -451,7 +451,7 @@ exports[`Accordion Snapshot Tests matches snapshot with noContentMargin 1`] = `
   >
     <div
       aria-expanded="true"
-      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus:outline-none h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >

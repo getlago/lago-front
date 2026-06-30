@@ -1,12 +1,8 @@
 import { ApolloError, gql, LazyQueryHookOptions } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
-import {
-  VoidCreditNoteDialog,
-  VoidCreditNoteDialogRef,
-} from '~/components/customers/creditNotes/VoidCreditNoteDialog'
+import { useVoidCreditNoteDialog } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table, TableColumn, TableContainerSize } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
@@ -123,7 +119,7 @@ const CreditNotesTable = ({
   tableContainerSize,
 }: TCreditNoteTableProps) => {
   const { translate } = useInternationalization()
-  const voidCreditNoteDialogRef = useRef<VoidCreditNoteDialogRef>(null)
+  const { openVoidCreditNoteDialog } = useVoidCreditNoteDialog()
   const { hasPermissions } = usePermissions()
   const { showResendEmailDialog } = useResendEmailDialog()
 
@@ -263,7 +259,7 @@ const CreditNotesTable = ({
                   startIcon: 'stop',
                   title: translate('text_636d12ce54c41fccdf0ef72f'),
                   onAction: async ({ id, totalAmountCents, currency }) => {
-                    voidCreditNoteDialogRef.current?.openDialog({
+                    openVoidCreditNoteDialog({
                       id,
                       totalAmountCents,
                       currency,
@@ -358,8 +354,6 @@ const CreditNotesTable = ({
           ]}
         />
       </InfiniteScroll>
-
-      <VoidCreditNoteDialog ref={voidCreditNoteDialogRef} />
     </div>
   )
 }

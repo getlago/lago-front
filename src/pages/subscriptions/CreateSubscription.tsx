@@ -13,10 +13,6 @@ import { Typography } from '~/components/designSystem/Typography'
 import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
 import { BasicComboBoxData, ComboboxItem } from '~/components/form'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
-import {
-  EditInvoiceDisplayNameDialog,
-  EditInvoiceDisplayNameDialogRef,
-} from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
@@ -31,6 +27,7 @@ import { FeatureEntitlementSection } from '~/components/subscriptions/FeatureEnt
 import { buildSubscriptionDefaultValues } from '~/components/subscriptions/form/buildSubscriptionDefaultValues'
 import { SubscriptionInformationFormSection } from '~/components/subscriptions/form/SubscriptionInformationFormSection'
 import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
+import { SubscriptionActivationRuleSection } from '~/components/subscriptions/SubscriptionActivationRuleSection'
 import { SubscriptionInvoiceConsolidationSection } from '~/components/subscriptions/SubscriptionInvoiceConsolidationSection'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
@@ -43,6 +40,7 @@ import {
   useLocation,
   useNavigate,
 } from '~/core/router'
+import { serializeActivationRules } from '~/core/serializers'
 import { getTimezoneConfig } from '~/core/timezone'
 import { subscriptionFormSchema } from '~/formValidation/subscriptionFormSchema'
 import {
@@ -59,10 +57,12 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
 import { useAppForm } from '~/hooks/forms/useAppform'
-import { usePlanForm } from '~/hooks/plans/usePlanForm'
+import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
+import { buildDefaultValues, usePlanForm } from '~/hooks/plans/usePlanForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useRedirectIncompleteSubscription } from '~/hooks/useRedirectIncompleteSubscription'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 import { tw } from '~/styles/utils'
 
@@ -94,6 +94,7 @@ gql`
       billingEntity {
         id
       }
+      paymentProvider
     }
   }
 
@@ -116,9 +117,11 @@ const CreateSubscription = () => {
   const { hasFeatureFlag, intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { isRunningInSalesForceIframe, isRunningInIframeContext } = useIframeConfig()
 
-  const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
+  const hasAccessToPaymentGatedSubscriptions = hasFeatureFlag(
+    FeatureFlagEnum.PaymentGatedSubscriptions,
+  )
 
   const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
@@ -154,11 +157,19 @@ const CreateSubscription = () => {
       onDynamic: subscriptionFormSchema,
     },
     onSubmit: async ({ value }) => {
-      const { invoiceCustomSection, ...restValues } = value
+      const {
+        activationRuleTimeoutHours,
+        activationRuleType,
+        invoiceCustomSection,
+        ...restValues
+      } = value
 
       const localValues = {
-        id: formType === FORM_TYPE_ENUM.edition ? subscription?.id : undefined,
         ...restValues,
+        activationRules: serializeActivationRules({
+          activationRuleTimeoutHours,
+          activationRuleType,
+        }),
         invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
       }
       const rootElement = document.getElementById('root')
@@ -167,6 +178,7 @@ const CreateSubscription = () => {
         localValues,
         planForm.state.values,
         planFormIsDirty,
+        planBaselineValues,
       )
 
       if (errorsString === 'CurrenciesDoesNotMatch') {
@@ -243,6 +255,23 @@ const CreateSubscription = () => {
     isUsedInSubscriptionForm: true,
   })
 
+  const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
+
+  // The plan's unedited baseline, rebuilt the same way the plan form is
+  // initialized (usePlanFormSetup → buildDefaultValues). Diffed against the
+  // edited values in useAddSubscription so a units-only fixed-charge change
+  // sends a minimal planOverrides instead of cloning the whole plan.
+  const planBaselineValues = useMemo(
+    () =>
+      buildDefaultValues(
+        plan,
+        FORM_TYPE_ENUM.creation,
+        (plan?.amountCurrency as CurrencyEnum) || CurrencyEnum.Usd,
+        hasAnyPricingUnitConfigured,
+      ),
+    [plan, hasAnyPricingUnitConfigured],
+  )
+
   const alreadyExistingPlanFixedChargesIds =
     plan?.fixedCharges?.map((fixedCharge) => fixedCharge.id) || []
 
@@ -277,6 +306,12 @@ const CreateSubscription = () => {
       !!(formType !== FORM_TYPE_ENUM.upgradeDowngrade && subscription?.name),
     )
   }, [subscription?.name, formType])
+
+  useRedirectIncompleteSubscription({
+    customerId,
+    subscriptionId: subscription?.id,
+    subscriptionStatus: subscription?.status,
+  })
 
   // Remove currency error is value changes
   useEffect(() => {
@@ -370,6 +405,8 @@ const CreateSubscription = () => {
   ])
 
   const customerName = customer?.displayName
+  const shouldDisplayActivationRuleSection =
+    hasAccessToPaymentGatedSubscriptions && !!customer?.externalId
 
   const navigateBack = useCallback(() => {
     const origin = searchParams.get('origin')
@@ -568,6 +605,15 @@ const CreateSubscription = () => {
                             viewType={ViewTypeEnum.Subscription}
                           />
                         )}
+
+                        {shouldDisplayActivationRuleSection && (
+                          <SubscriptionActivationRuleSection
+                            form={subscriptionForm}
+                            customerExternalId={customer?.externalId}
+                            formType={formType}
+                            subscriptionStatus={subscription?.status}
+                          />
+                        )}
                       </CenteredPage.PageSection>
                     </>
                   )}
@@ -691,8 +737,6 @@ const CreateSubscription = () => {
         continueText={translate('text_645388d5bdbd7b00abffa033')}
         onContinue={() => navigateBack()}
       />
-
-      <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
     </>
   )
 }

@@ -219,7 +219,8 @@
   }
 
   .variable-mention--resolved {
-    @apply bg-grey-200;
+    @apply px-0 py-0;
+    background: transparent;
   }
 
   .block-type-wrapper {

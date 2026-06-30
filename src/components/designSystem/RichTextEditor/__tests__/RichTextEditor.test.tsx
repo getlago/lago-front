@@ -188,8 +188,17 @@ describe('RichTextEditor', () => {
   })
 
   describe('GIVEN the mention extension is configured', () => {
+    const sixItems = [
+      { id: 'customerName', label: 'Customer Name' },
+      { id: 'planName', label: 'Plan Name' },
+      { id: 'amountDue', label: 'Amount Due' },
+      { id: 'invoiceNumber', label: 'Invoice Number' },
+      { id: 'dueDate', label: 'Due Date' },
+      { id: 'companyName', label: 'Company Name' },
+    ]
+
     beforeEach(async () => {
-      await act(() => render(<RichTextEditor />))
+      await act(() => render(<RichTextEditor variableItems={sixItems} />))
     })
 
     it('THEN should set the trigger character to @', () => {
@@ -263,6 +272,78 @@ describe('RichTextEditor', () => {
 
         expect(results).toHaveLength(0)
       })
+    })
+  })
+
+  describe('GIVEN variableItems prop drives the mention suggestion', () => {
+    describe('WHEN variableItems are provided', () => {
+      it('THEN suggestion.items returns only those items on empty query', async () => {
+        const items = [
+          { id: 'customer_name', label: 'Customer name' },
+          { id: 'quote_number', label: 'Quote number' },
+        ]
+
+        await act(() => render(<RichTextEditor variableItems={items} />))
+
+        const suggestion = capturedMentionConfig.suggestion as {
+          items: (args: { query: string }) => { id: string; label: string }[]
+        }
+        const results = suggestion.items({ query: '' })
+
+        expect(results).toHaveLength(2)
+        expect(results.map((r) => r.label)).toEqual(['Customer name', 'Quote number'])
+      })
+
+      it('THEN suggestion.items filters by query substring (case-insensitive)', async () => {
+        const items = [
+          { id: 'customer_name', label: 'Customer name' },
+          { id: 'quote_number', label: 'Quote number' },
+          { id: 'quote_currency', label: 'Quote currency' },
+        ]
+
+        await act(() => render(<RichTextEditor variableItems={items} />))
+
+        const suggestion = capturedMentionConfig.suggestion as {
+          items: (args: { query: string }) => { id: string; label: string }[]
+        }
+
+        expect(suggestion.items({ query: 'quote' })).toHaveLength(2)
+        expect(suggestion.items({ query: 'CUST' })).toHaveLength(1)
+        expect(suggestion.items({ query: 'CUST' })[0].label).toBe('Customer name')
+        expect(suggestion.items({ query: 'xyz' })).toHaveLength(0)
+      })
+    })
+
+    describe('WHEN variableItems is not provided (default)', () => {
+      it('THEN suggestion.items returns empty array', async () => {
+        await act(() => render(<RichTextEditor />))
+
+        const suggestion = capturedMentionConfig.suggestion as {
+          items: (args: { query: string }) => { id: string; label: string }[]
+        }
+        const results = suggestion.items({ query: '' })
+
+        expect(results).toHaveLength(0)
+      })
+    })
+  })
+
+  describe('GIVEN the editor is created', () => {
+    it('THEN calls useEditor with no dependency array so it is created once', async () => {
+      // Regression: a 2nd-arg deps array recreates the editor whenever any dep
+      // changes identity. The default `mentionValues = {}` (and unstable
+      // entities/callbacks from callers) get a new reference every render, so a
+      // deps array causes an infinite re-mount loop ("Maximum update depth
+      // exceeded") the moment the editor is interacted with. The editor must be
+      // created once; dynamic values are threaded via refs, and the static
+      // variableItems catalog is stable.
+      const tiptap = jest.requireMock('@tiptap/react')
+
+      tiptap.useEditor.mockClear()
+
+      await act(() => render(<RichTextEditor />))
+
+      expect(tiptap.useEditor.mock.calls[0]).toHaveLength(1)
     })
   })
 

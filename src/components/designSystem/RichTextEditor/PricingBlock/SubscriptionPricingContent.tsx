@@ -67,6 +67,15 @@ export function SubscriptionPricingContent({
     variables: { limit: 100 },
   })
 
+  // Track the plan this drawer opened with. Once the user picks a *different*
+  // plan, stop forwarding billingItemPlan so usePlanFormSetup falls back to
+  // fetching the newly selected plan and resets prices to its defaults (LAGO-1602).
+  const originalBillingItemPlanId = useRef(billingItemPlan?.id)
+  const userSwitchedPlan =
+    !!originalBillingItemPlanId.current &&
+    !!selectedPlanId &&
+    selectedPlanId !== originalBillingItemPlanId.current
+
   // Plan form — fetches plan by ID and creates TanStack form (no Router needed)
   const {
     form: planForm,
@@ -77,7 +86,7 @@ export function SubscriptionPricingContent({
     invoicingSettings: billingItemInvoicingSettings,
   } = usePlanFormSetup({
     planIdToFetch: selectedPlanId || undefined,
-    billingItemPlan,
+    billingItemPlan: userSwitchedPlan ? undefined : billingItemPlan,
     subscriptionId,
   })
 

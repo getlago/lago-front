@@ -2,7 +2,10 @@ import { MockedProvider } from '@apollo/client/testing'
 import { screen, waitFor } from '@testing-library/react'
 import { isValidElement, ReactElement } from 'react'
 
-import { GetSubscriptionForDetailsV2PlanDocument } from '~/generated/graphql'
+import {
+  GetSubscriptionFixedChargeUnitsOverridesDocument,
+  GetSubscriptionForDetailsV2PlanDocument,
+} from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { SubscriptionDetailsV2Plan } from '../SubscriptionDetailsV2Plan'
@@ -53,6 +56,21 @@ const queryMock = {
   },
 }
 
+const overridesMock = {
+  request: {
+    query: GetSubscriptionFixedChargeUnitsOverridesDocument,
+    variables: { subscriptionId: SUB_ID },
+  },
+  result: {
+    data: {
+      subscription: {
+        id: SUB_ID,
+        fixedCharges: [{ id: '05de03c3', units: '2' }],
+      },
+    },
+  },
+}
+
 describe('SubscriptionDetailsV2Plan', () => {
   beforeEach(() => {
     capturedProps.length = 0
@@ -77,6 +95,19 @@ describe('SubscriptionDetailsV2Plan', () => {
       render(props.banner as ReactElement)
     }
     expect(screen.queryByTestId('premium-feature')).not.toBeInTheDocument()
+  })
+
+  it('passes the per-subscription override units map to PlanDetailsV2', async () => {
+    render(
+      <MockedProvider mocks={[queryMock, overridesMock]} addTypename={false}>
+        <SubscriptionDetailsV2Plan subscriptionId={SUB_ID} />
+      </MockedProvider>,
+    )
+
+    await waitFor(() => expect(capturedProps.length).toBeGreaterThan(0))
+    const props = capturedProps[capturedProps.length - 1]
+
+    expect(props.subscriptionFixedChargeUnitsById).toEqual({ '05de03c3': '2' })
   })
 
   // Drift test: subscription plan overrides are premium-gated — non-premium users

@@ -12,6 +12,8 @@ export type BillingEntityOption = {
   /** Raw entity name, without the "(default)" suffix — for display outside the picker. */
   name?: string | null
   isDefault: boolean
+  /** Whether the entity uses Lago EU Tax Management — drives the billing-entity tax alerts. */
+  euTaxManagement: boolean
 }
 
 type UseBillingEntitiesOptionsParams = {
@@ -81,6 +83,7 @@ export const useBillingEntitiesOptions = ({
             label: `${entity.name || entity.code}${defaultSuffix}`,
             name: entity.name,
             isDefault: !!entity.isDefault,
+            euTaxManagement: !!entity.euTaxManagement,
           }
         })
         .sort((a, b) => Number(b.isDefault) - Number(a.isDefault)) ?? []
@@ -93,6 +96,7 @@ export const useBillingEntitiesOptions = ({
         value: '',
         label: inheritLabel ?? translate('text_1778155404199jv285agrvax'),
         isDefault: false,
+        euTaxManagement: false,
       })
     }
 

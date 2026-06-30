@@ -1,12 +1,21 @@
 import { useEffect, useMemo } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
-import { AvailableFiltersEnum, Filters } from '~/components/designSystem/Filters'
+import {
+  Filters,
+  OrderAvailableFilters,
+  OrderFormAvailableFilters,
+  QuoteAvailableFilters,
+} from '~/components/designSystem/Filters'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import PremiumFeature from '~/components/premium/PremiumFeature'
-import { QUOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
+import {
+  ORDER_FORM_LIST_FILTER_PREFIX,
+  ORDER_LIST_FILTER_PREFIX,
+  QUOTE_LIST_FILTER_PREFIX,
+} from '~/core/constants/filters'
 import { QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CREATE_QUOTE_ROUTE,
@@ -20,6 +29,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import OrderFormsList from './OrderFormsList'
+import OrdersList from './OrdersList'
 import QuotesList from './QuotesList'
 
 export const CREATE_QUOTE_BUTTON_TEST_ID = 'create-quote-button'
@@ -31,6 +41,34 @@ const Quotes = (): JSX.Element => {
   const { hasPermissions } = usePermissions()
   const canCreateQuotes = hasPermissions(['quotesCreate'])
   const { isPremium } = useCurrentUser()
+  const { tab } = useParams()
+  const tabFilterConfig: Record<
+    QuotesTabsOptionsEnum,
+    {
+      filtersNamePrefix: string
+      availableFilters: typeof QuoteAvailableFilters
+      snapshotKey: string
+    }
+  > = {
+    [QuotesTabsOptionsEnum.quotes]: {
+      filtersNamePrefix: QUOTE_LIST_FILTER_PREFIX,
+      availableFilters: QuoteAvailableFilters,
+      snapshotKey: 'quotes',
+    },
+    [QuotesTabsOptionsEnum.orderForms]: {
+      filtersNamePrefix: ORDER_FORM_LIST_FILTER_PREFIX,
+      availableFilters: OrderFormAvailableFilters,
+      snapshotKey: 'order-forms',
+    },
+    [QuotesTabsOptionsEnum.orders]: {
+      filtersNamePrefix: ORDER_LIST_FILTER_PREFIX,
+      availableFilters: OrderAvailableFilters,
+      snapshotKey: 'orders',
+    },
+  }
+
+  const filterConfig =
+    tabFilterConfig[tab as QuotesTabsOptionsEnum] ?? tabFilterConfig[QuotesTabsOptionsEnum.quotes]
 
   useEffect(() => {
     if (pathname === QUOTES_LIST_ROUTE) {
@@ -65,6 +103,13 @@ const Quotes = (): JSX.Element => {
         }),
         content: <OrderFormsList />,
       },
+      {
+        title: translate('text_17823920587596x5e6nes7qv'),
+        link: generatePath(QUOTES_TAB_ROUTE, {
+          tab: QuotesTabsOptionsEnum.orders,
+        }),
+        content: <OrdersList />,
+      },
     ],
     [translate],
   )
@@ -80,6 +125,10 @@ const Quotes = (): JSX.Element => {
         {...(isPremium
           ? {
               tabs,
+              // The filtersSection is tab-dependent but stripped from the config snapshot
+              // (it's a ReactNode). Bump snapshotKey per tab so switching tabs re-pushes the
+              // matching filter panel instead of leaving the previous tab's panel in context.
+              snapshotKey: filterConfig.snapshotKey,
               actions: {
                 items: [
                   {
@@ -95,15 +144,9 @@ const Quotes = (): JSX.Element => {
               filtersSection: (
                 <div className="pt-4">
                   <Filters.Provider
-                    filtersNamePrefix={QUOTE_LIST_FILTER_PREFIX}
-                    availableFilters={[
-                      AvailableFiltersEnum.quoteStatus,
-                      AvailableFiltersEnum.multipleCustomers,
-                      AvailableFiltersEnum.quoteNumber,
-                      AvailableFiltersEnum.quoteCreatedAt,
-                      AvailableFiltersEnum.quoteOrderType,
-                      AvailableFiltersEnum.userIds,
-                    ]}
+                    key={filterConfig.snapshotKey}
+                    filtersNamePrefix={filterConfig.filtersNamePrefix}
+                    availableFilters={filterConfig.availableFilters}
                   >
                     <Filters.Component />
                   </Filters.Provider>

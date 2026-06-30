@@ -30,7 +30,7 @@ export const InvoicingPaymentsFormSection = withForm({
     TYPING_PLACEHOLDER_DATE,
   ),
   props: invoicingPaymentsDefaultProps,
-  render: function InvoicingPaymentsFormSection({ form, customer }) {
+  render: function InvoicingPaymentsFormSectionRender({ form, customer }) {
     const { translate } = useInternationalization()
 
     // Reactive store slices - never the non-reactive `form.state.values`

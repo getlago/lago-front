@@ -27,11 +27,13 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 const mockNavigate = jest.fn()
+const mockUseParams = jest.fn()
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
   useLocation: () => ({ pathname: '/quotes/quotes' }),
+  useParams: () => mockUseParams(),
 }))
 
 const mockHasPermissions = jest.fn()
@@ -51,6 +53,7 @@ describe('Quotes', () => {
     jest.clearAllMocks()
     capturedConfig = null
     mockIsPremium.mockReturnValue(true)
+    mockUseParams.mockReturnValue({})
   })
 
   describe('GIVEN the page is rendered', () => {
@@ -63,12 +66,12 @@ describe('Quotes', () => {
         expect(capturedConfig?.entity?.viewName).toEqual(expect.any(String))
       })
 
-      it('THEN should configure MainHeader with two tabs', () => {
+      it('THEN should configure MainHeader with three tabs', () => {
         mockHasPermissions.mockReturnValue(true)
 
         render(<Quotes />)
 
-        expect(capturedConfig?.tabs).toHaveLength(2)
+        expect(capturedConfig?.tabs).toHaveLength(3)
       })
 
       it('THEN should have a Quotes tab as the first tab', () => {
@@ -87,6 +90,15 @@ describe('Quotes', () => {
 
         expect(capturedConfig?.tabs?.[1].title).toEqual(expect.any(String))
         expect(capturedConfig?.tabs?.[1].link).toBe('/quotes/order-forms')
+      })
+
+      it('THEN should have an Orders tab as the third tab', () => {
+        mockHasPermissions.mockReturnValue(true)
+
+        render(<Quotes />)
+
+        expect(capturedConfig?.tabs?.[2].title).toEqual(expect.any(String))
+        expect(capturedConfig?.tabs?.[2].link).toBe('/quotes/orders')
       })
 
       it('THEN should render the active tab content', () => {
@@ -172,6 +184,69 @@ describe('Quotes', () => {
         render(<Quotes />)
 
         expect(screen.getByTestId('quotes-premium-feature')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the user is on the Quotes tab', () => {
+    beforeEach(() => {
+      mockHasPermissions.mockReturnValue(true)
+      mockUseParams.mockReturnValue({ tab: 'quotes' })
+    })
+
+    describe('WHEN the page renders', () => {
+      it('THEN should configure MainHeader with the quotes snapshotKey', () => {
+        render(<Quotes />)
+
+        expect(capturedConfig?.snapshotKey).toBe('quotes')
+      })
+
+      it('THEN should configure MainHeader with a filters section', () => {
+        render(<Quotes />)
+
+        expect(capturedConfig?.filtersSection).toBeDefined()
+      })
+    })
+  })
+
+  describe('GIVEN the user is on the Order Forms tab', () => {
+    beforeEach(() => {
+      mockHasPermissions.mockReturnValue(true)
+      mockUseParams.mockReturnValue({ tab: 'order-forms' })
+    })
+
+    describe('WHEN the page renders', () => {
+      it('THEN should configure MainHeader with the order-forms snapshotKey', () => {
+        render(<Quotes />)
+
+        expect(capturedConfig?.snapshotKey).toBe('order-forms')
+      })
+
+      it('THEN should configure MainHeader with a filters section', () => {
+        render(<Quotes />)
+
+        expect(capturedConfig?.filtersSection).toBeDefined()
+      })
+    })
+  })
+
+  describe('GIVEN the user is on the Orders tab', () => {
+    beforeEach(() => {
+      mockHasPermissions.mockReturnValue(true)
+      mockUseParams.mockReturnValue({ tab: 'orders' })
+    })
+
+    describe('WHEN the page renders', () => {
+      it('THEN should configure MainHeader with the orders snapshotKey', () => {
+        render(<Quotes />)
+
+        expect(capturedConfig?.snapshotKey).toBe('orders')
+      })
+
+      it('THEN should configure MainHeader with a filters section', () => {
+        render(<Quotes />)
+
+        expect(capturedConfig?.filtersSection).toBeDefined()
       })
     })
   })

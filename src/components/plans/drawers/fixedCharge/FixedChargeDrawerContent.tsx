@@ -3,6 +3,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import { useStore } from '@tanstack/react-form'
 import { useCallback, useMemo } from 'react'
 
+import { Alert } from '~/components/designSystem/Alert'
 import { Selector } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
@@ -83,7 +84,7 @@ const fixedChargeDrawerContentDefaultProps: FixedChargeDrawerContentExtraProps =
 export const FixedChargeDrawerContent = withForm({
   defaultValues: DEFAULT_VALUES,
   props: fixedChargeDrawerContentDefaultProps,
-  render: function FixedChargeDrawerContent({
+  render: function FixedChargeDrawerContentRender({
     form,
     isCreateMode,
     isEdition,
@@ -265,6 +266,12 @@ export const FixedChargeDrawerContent = withForm({
                 localCharge={formValues as unknown as LocalFixedChargeInput}
                 propertyCursor="properties"
               />
+
+              <Alert type="info">
+                <Typography variant="body" color="grey700">
+                  {translate('text_1781789973520dpkwtttnk2m')}
+                </Typography>
+              </Alert>
 
               <form.AppField name="units">
                 {(field) => (

@@ -1,7 +1,7 @@
 import type { EntityData } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
 import type { AddOnItem } from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
 
-import type { BillingItemPlan } from './serializeQuotePlanBillingItems'
+import { type BillingItemPlan, fromPlanBillingItems } from './serializeQuotePlanBillingItems'
 
 // --- Backend contract types (snake_case) ---
 
@@ -176,6 +176,12 @@ export const buildPreviewEntities = (
 
   for (const item of addOnItems) {
     previewEntities[item.addOnId] = entities[item.localId]
+  }
+
+  if (billingItems.plans && billingItems.plans.length > 0) {
+    const { entityData } = fromPlanBillingItems(billingItems.plans)
+
+    Object.assign(previewEntities, entityData)
   }
 
   return previewEntities

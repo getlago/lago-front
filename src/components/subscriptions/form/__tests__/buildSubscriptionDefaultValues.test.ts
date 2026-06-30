@@ -1,5 +1,6 @@
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
-import { BillingTimeEnum } from '~/generated/graphql'
+import { ActivationRuleFormTypeEnum } from '~/core/constants/subscriptionActivationRules'
+import { ActivationRuleTypeEnum, BillingTimeEnum } from '~/generated/graphql'
 
 import {
   buildSubscriptionDefaultValues,
@@ -41,6 +42,8 @@ describe('buildSubscriptionDefaultValues', () => {
         paymentMethod: { paymentMethodType: undefined, paymentMethodId: undefined },
         invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
         consolidateInvoice: true,
+        activationRuleType: ActivationRuleFormTypeEnum.Immediately,
+        activationRuleTimeoutHours: '24',
       })
     })
   })
@@ -125,6 +128,57 @@ describe('buildSubscriptionDefaultValues', () => {
       expect(result.invoiceCustomSection).toEqual({
         invoiceCustomSections: [{ id: 'section-1' }],
         skipInvoiceCustomSections: true,
+      })
+    })
+  })
+
+  describe('GIVEN activation rule hydration', () => {
+    describe('WHEN the subscription has no activation rules', () => {
+      it('THEN should default to immediate activation with the default timeout', () => {
+        const result = buildSubscriptionDefaultValues(
+          baseSubscription,
+          FORM_TYPE_ENUM.edition,
+          CURRENT_DATE,
+        )
+
+        expect(result.activationRuleType).toBe(ActivationRuleFormTypeEnum.Immediately)
+        expect(result.activationRuleTimeoutHours).toBe('24')
+      })
+    })
+
+    describe('WHEN the subscription has a payment activation rule with a timeout', () => {
+      it('THEN should hydrate on-payment activation with the timeout as a string', () => {
+        const subscription = {
+          ...baseSubscription,
+          activationRules: [{ type: ActivationRuleTypeEnum.Payment, timeoutHours: 72 }],
+        } as unknown as SubscriptionDefaultsSource
+
+        const result = buildSubscriptionDefaultValues(
+          subscription,
+          FORM_TYPE_ENUM.edition,
+          CURRENT_DATE,
+        )
+
+        expect(result.activationRuleType).toBe(ActivationRuleFormTypeEnum.OnPayment)
+        expect(result.activationRuleTimeoutHours).toBe('72')
+      })
+    })
+
+    describe('WHEN the payment activation rule has a null timeout', () => {
+      it('THEN should hydrate on-payment activation with an empty timeout', () => {
+        const subscription = {
+          ...baseSubscription,
+          activationRules: [{ type: ActivationRuleTypeEnum.Payment, timeoutHours: null }],
+        } as unknown as SubscriptionDefaultsSource
+
+        const result = buildSubscriptionDefaultValues(
+          subscription,
+          FORM_TYPE_ENUM.edition,
+          CURRENT_DATE,
+        )
+
+        expect(result.activationRuleType).toBe(ActivationRuleFormTypeEnum.OnPayment)
+        expect(result.activationRuleTimeoutHours).toBe('')
       })
     })
   })

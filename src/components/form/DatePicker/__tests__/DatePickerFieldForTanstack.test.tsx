@@ -80,6 +80,14 @@ describe('DatePickerFieldForTanstack', () => {
 
         expect(mockedUseFieldContext).toHaveBeenCalled()
       })
+
+      it('THEN should render the description when provided', () => {
+        mockedUseFieldContext.mockReturnValue(createMockField())
+
+        const { getByText } = render(<DatePickerField description="Pick a date" />)
+
+        expect(getByText('Pick a date')).toBeInTheDocument()
+      })
     })
 
     describe('WHEN there are validation errors', () => {

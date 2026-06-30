@@ -2,10 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { AmountCentsCell } from '~/components/customers/usage/sections/AmountCentsCell'
 import { BreakdownNameCell } from '~/components/customers/usage/sections/BreakdownNameCell'
-import {
-  VIRTUALIZATION_THRESHOLD,
-  VirtualizedBreakdownRows,
-} from '~/components/customers/usage/sections/VirtualizedBreakdownRows'
+import { VirtualizedBreakdownRows } from '~/components/customers/usage/sections/VirtualizedBreakdownRows'
 import {
   isBreakdownRow,
   makeBreakdownRows,
@@ -15,6 +12,7 @@ import {
 } from '~/components/customers/usage/usageDetailsHelpers'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
+import { VIRTUALIZATION_THRESHOLD } from '~/components/designSystem/VirtualList/VirtualFilterList'
 import { LocaleEnum } from '~/core/translations'
 import { CurrencyEnum, ProjectedChargeUsage } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'

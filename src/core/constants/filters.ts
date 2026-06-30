@@ -34,6 +34,10 @@ export const SECURITY_LOGS_FILTER_PREFIX = 'secul'
 
 export const QUOTE_LIST_FILTER_PREFIX = 'qu'
 
+export const ORDER_FORM_LIST_FILTER_PREFIX = 'of'
+
+export const ORDER_LIST_FILTER_PREFIX = 'or'
+
 export const CUSTOMER_ANALYTICS_FILTER_PREFIX = 'cua'
 
 export const CUSTOMER_INVOICES_DRAFT_FILTER_PREFIX = 'cid'

@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
-import { ReactNode, useRef } from 'react'
+import { ReactNode, useMemo, useRef } from 'react'
 
+import { shouldVirtualizeList } from '~/components/designSystem/VirtualList/VirtualFilterList'
 import { openAccordionThenScrollTo } from '~/core/utils/domUtils'
 import {
   EntitlementForPlanDetailsSidebarFragmentDoc,
@@ -75,6 +76,13 @@ type PlanDetailsV2Props = {
   planId: string
   isInSubscriptionForm?: boolean
   subscriptionId?: string
+  // Override units keyed by FixedCharge id. Populated only in subscription
+  // mode by SubscriptionDetailsV2Plan, which fetches Subscription.fixedCharges
+  // with fetchPolicy: 'no-cache' so plan-scope cache entries keep plan defaults.
+  subscriptionFixedChargeUnitsById?: Record<string, string>
+  // Refetch of that no-cache override query, so a sub-tab fixed-charge edit can
+  // reliably refresh the displayed override units (see useDetailsV2ChargeMutations).
+  refetchOverrides?: () => Promise<unknown>
   banner?: ReactNode
 }
 
@@ -82,6 +90,8 @@ export const PlanDetailsV2 = ({
   planId,
   isInSubscriptionForm = false,
   subscriptionId,
+  subscriptionFixedChargeUnitsById,
+  refetchOverrides,
   banner,
 }: PlanDetailsV2Props) => {
   const { isGated, openPremiumDialog } = useSubscriptionPremiumGate(isInSubscriptionForm)
@@ -98,11 +108,32 @@ export const PlanDetailsV2 = ({
   const { usageChargeMutations, fixedChargeMutations } = useDetailsV2ChargeMutations({
     plan: data?.plan,
     subscriptionId,
+    refetchOverrides,
   })
+
+  // Usage charges are virtualized: a scrolled-out charge is unmounted, so the
+  // generic getElementById path would no-op. Route those ids through the section's
+  // scrollToCharge (scrollToIndex + open), and keep the generic open-and-scroll for
+  // the always-mounted sections / fixed charges / entitlements.
+  const usageChargeIds = useMemo(
+    () => new Set((data?.plan?.charges ?? []).map((charge) => charge.id)),
+    [data?.plan?.charges],
+  )
+
+  // When the charge list is virtualized, the scroll path to a section below it crosses the
+  // virtualizer, whose mid-scroll re-measure adjustments derail a smooth animation (lands
+  // mid-list / snaps to top). Jump instantly in that case; keep smooth on small plans.
+  const chargesVirtualized = shouldVirtualizeList(data?.plan?.charges?.length ?? 0)
 
   // BIL-160: open the target accordion first, then scroll to + focus it.
   const handleItemClick = (id: string) => {
-    openAccordionThenScrollTo(id)
+    if (usageChargeIds.has(id)) {
+      usageChargesRef.current?.scrollToCharge(id)
+
+      return
+    }
+
+    openAccordionThenScrollTo(id, chargesVirtualized ? 'auto' : 'smooth')
   }
 
   const handleAddClick = (id: string) => {
@@ -168,6 +199,7 @@ export const PlanDetailsV2 = ({
                   plan={plan}
                   isInSubscriptionForm={isInSubscriptionForm}
                   fixedChargeMutations={fixedChargeMutations}
+                  subscriptionFixedChargeUnitsById={subscriptionFixedChargeUnitsById}
                 />
               )
             }

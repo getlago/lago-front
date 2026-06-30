@@ -321,6 +321,20 @@ describe('DomUtils', () => {
       expect(mockScrollIntoView).not.toHaveBeenCalled()
       expect(mockFocus).not.toHaveBeenCalled()
     })
+
+    it('scrolls instantly when behavior is "auto" (crossing a virtualized list)', () => {
+      const sectionId = 'open-then-scroll-auto'
+
+      render(<section id={sectionId}>Plain section</section>)
+
+      openAccordionThenScrollTo(sectionId, 'auto')
+
+      act(() => {
+        jest.advanceTimersByTime(100)
+      })
+
+      expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: 'auto', block: 'start' })
+    })
   })
 
   describe('scrollToAndClickElement', () => {

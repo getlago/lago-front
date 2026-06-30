@@ -24,6 +24,8 @@ interface AccordionBaseProps {
   summary: ReactNode
   children: ReactNode | ((args: { isOpen: boolean }) => ReactNode)
   initiallyOpen?: boolean
+  isOpen?: boolean
+  onToggle?: (open: boolean) => void
   transitionProps?: TransitionProps
   onOpen?: () => void
 }
@@ -48,6 +50,8 @@ export const Accordion = ({
   summary,
   children,
   initiallyOpen = false,
+  isOpen: controlledOpen,
+  onToggle,
   size: localSize,
   noContentMargin = false,
   transitionProps = {},
@@ -55,7 +59,9 @@ export const Accordion = ({
   onOpen,
   ...props
 }: AccordionProps) => {
-  const [isOpen, setIsOpen] = useState(initiallyOpen)
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(initiallyOpen)
+  const isControlled = controlledOpen !== undefined
+  const isOpen = isControlled ? controlledOpen : uncontrolledOpen
   const { translate } = useInternationalization()
 
   const getSize = () => {
@@ -109,8 +115,9 @@ export const Accordion = ({
         const selection = window.getSelection()
 
         if (selection?.type !== 'Range') {
-          setIsOpen(expanded)
+          if (!isControlled) setUncontrolledOpen(expanded)
 
+          onToggle?.(expanded)
           if (expanded && !!onOpen) onOpen()
         }
       }}
@@ -120,7 +127,11 @@ export const Accordion = ({
         className={tw(
           // Card variant rings the whole card (on the root, above); the borderless
           // variant has no card outline, so it keeps the ring on its summary.
-          'select-text focus:bg-inherit',
+          // Firefox draws its own blue UA focus outline on the focusable summary
+          // div (role=button), which stacks on top of our box-shadow ring and
+          // repaints incorrectly during the expand transition. Suppress it so only
+          // our intentional ring shows.
+          'select-text focus:bg-inherit focus:outline-none',
           {
             'h-23': size === AccordionSizeEnum.large,
             'h-18': size === AccordionSizeEnum.medium,

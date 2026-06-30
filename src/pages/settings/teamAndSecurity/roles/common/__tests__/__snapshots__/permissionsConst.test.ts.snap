@@ -63,6 +63,7 @@ exports[`permissionsConst snapshot tests allPermissions matches snapshot 1`] = `
   "OrderFormsSign",
   "OrderFormsView",
   "OrderFormsVoid",
+  "OrdersUpdate",
   "OrdersView",
   "OrganizationEmailsUpdate",
   "OrganizationEmailsView",
@@ -292,6 +293,8 @@ exports[`permissionsConst snapshot tests permissionGroupMapping structure matche
     "OrderFormsView",
     "OrderFormsSign",
     "OrderFormsVoid",
+    "OrdersUpdate",
+    "OrdersView",
   ],
   "roles": [
     "RolesCreate",

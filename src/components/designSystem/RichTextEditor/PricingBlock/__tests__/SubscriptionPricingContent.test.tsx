@@ -1,8 +1,9 @@
-import { act, screen } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import type { PlanFormInput } from '~/components/plans/types'
 import {
+  type BillingItemPlan,
   DEFAULT_INVOICING_SETTINGS,
   DEFAULT_SUBSCRIPTION_SETTINGS,
   type SubscriptionPricingState,
@@ -13,6 +14,7 @@ import {
   FixedChargeChargeModelEnum,
   PlanInterval,
 } from '~/generated/graphql'
+import { usePlanFormSetup } from '~/hooks/plans/usePlanFormSetup'
 import { render } from '~/test-utils'
 
 import { SubscriptionPricingContent } from '../SubscriptionPricingContent'
@@ -40,6 +42,28 @@ const mockPlan = {
   entitlements: [],
 }
 
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getTotalSize: () => count * 56,
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, i) => ({
+        index: i,
+        key: String(i),
+        start: i * 56,
+        size: 56,
+      })),
+    scrollToIndex: jest.fn(),
+    measureElement: jest.fn(),
+  }),
+}))
+
+jest.mock('~/hooks/useDebouncedSearch', () => ({
+  useDebouncedSearch: (searchQuery: unknown) => ({
+    debouncedSearch: searchQuery,
+    isLoading: false,
+  }),
+}))
+
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   usePlansLazyQuery: jest.fn(() => [
@@ -47,7 +71,10 @@ jest.mock('~/generated/graphql', () => ({
     {
       data: {
         plans: {
-          collection: [{ id: 'plan_1', name: 'Starter', code: 'starter' }],
+          collection: [
+            { id: 'plan_1', name: 'Starter', code: 'starter' },
+            { id: 'plan_2', name: 'Pro', code: 'pro' },
+          ],
         },
       },
       loading: false,
@@ -446,6 +473,84 @@ describe('SubscriptionPricingContent', () => {
       await user.click(invoicingSelector)
 
       expect(mockOpenInvoicingSettings).toHaveBeenCalledWith(DEFAULT_INVOICING_SETTINGS)
+    })
+  })
+
+  describe('GIVEN an existing draft quote being edited (billingItemPlan set)', () => {
+    const billingItemPlan = {
+      type: 'plan',
+      id: 'plan_1',
+      payload: {},
+      overrides: {},
+    } as unknown as BillingItemPlan
+
+    const initialState: SubscriptionPricingState = {
+      planId: 'plan_1',
+      planCode: 'starter',
+      planName: 'Starter',
+      planDescription: '',
+      subscriptionSettings: DEFAULT_SUBSCRIPTION_SETTINGS,
+      invoicingSettings: DEFAULT_INVOICING_SETTINGS,
+      overrides: {},
+    }
+
+    it('WHEN the user switches to a different plan THEN billingItemPlan is dropped so prices reset', async () => {
+      const stateRef = { current: null as SubscriptionPricingState | null }
+      const formValuesRef = { current: null as PlanFormInput | null }
+
+      await act(() =>
+        render(
+          <SubscriptionPricingContent
+            stateRef={stateRef}
+            formValuesRef={formValuesRef}
+            initialState={initialState}
+            billingItemPlan={billingItemPlan}
+          />,
+        ),
+      )
+
+      // Initially the original plan is forwarded to the hook
+      expect(usePlanFormSetup).toHaveBeenCalledWith(expect.objectContaining({ billingItemPlan }))
+
+      // Switch the plan via the ComboBox — click opens the dropdown, then select Pro
+      const combobox = screen.getByRole('combobox') as HTMLInputElement
+
+      await userEvent.click(combobox)
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('listbox').length).toBeGreaterThan(0)
+      })
+
+      const listboxId = combobox.getAttribute('aria-controls') as string
+      const listbox = document.getElementById(listboxId) as HTMLElement
+
+      await userEvent.click(within(listbox).getByText('Pro (pro)'))
+
+      // After the switch, the hook is called WITHOUT billingItemPlan so it fetches plan_2 and resets
+      expect(usePlanFormSetup).toHaveBeenLastCalledWith(
+        expect.objectContaining({ billingItemPlan: undefined, planIdToFetch: 'plan_2' }),
+      )
+    })
+
+    it('WHEN the user re-selects the original plan THEN billingItemPlan is preserved', async () => {
+      const stateRef = { current: null as SubscriptionPricingState | null }
+      const formValuesRef = { current: null as PlanFormInput | null }
+
+      await act(() =>
+        render(
+          <SubscriptionPricingContent
+            stateRef={stateRef}
+            formValuesRef={formValuesRef}
+            initialState={initialState}
+            billingItemPlan={billingItemPlan}
+          />,
+        ),
+      )
+
+      // No switch happened — original plan stays forwarded (saved customizations preserved)
+      expect(usePlanFormSetup).toHaveBeenLastCalledWith(
+        expect.objectContaining({ billingItemPlan, planIdToFetch: 'plan_1' }),
+      )
     })
   })
 })

@@ -9,6 +9,8 @@ import {
   formatFiltersForCustomerQuery,
   formatFiltersForInvoiceQuery,
   formatFiltersForMrrQuery,
+  formatFiltersForOrderFormsQuery,
+  formatFiltersForOrdersQuery,
   formatFiltersForQuery,
   formatFiltersForQuotesQuery,
   formatFiltersForRevenueStreamsQuery,
@@ -1405,6 +1407,205 @@ describe('Filters utils', () => {
         }),
       )
       expect(result).not.toHaveProperty('logTypes')
+    })
+  })
+
+  describe('formatFiltersForOrderFormsQuery', () => {
+    it('should format order form status filter with prefix', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('of_orderFormStatus', 'generated,signed')
+
+      const result = formatFiltersForOrderFormsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          status: ['generated', 'signed'],
+        }),
+      )
+    })
+
+    it('should format order form number filter as number', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('of_orderFormNumber', 'OF-001,OF-002')
+
+      const result = formatFiltersForOrderFormsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          number: ['OF-001', 'OF-002'],
+        }),
+      )
+    })
+
+    it('should format multipleCustomers filter as customerId extracting ids', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'of_multipleCustomers',
+        `cust-1${filterDataInlineSeparator}Acme Corp,cust-2${filterDataInlineSeparator}Beta Inc`,
+      )
+
+      const result = formatFiltersForOrderFormsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          customerId: ['cust-1', 'cust-2'],
+        }),
+      )
+    })
+
+    it('should format orderFormCreatedAt into createdAtFrom and createdAtTo', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('of_orderFormCreatedAt', '2026-01-01,2026-01-31')
+
+      const result = formatFiltersForOrderFormsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          createdAtFrom: '2026-01-01',
+          createdAtTo: '2026-01-31',
+        }),
+      )
+    })
+
+    it('should format userIds filter as ownerId', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'of_userIds',
+        `user-1${filterDataInlineSeparator}alice@example.com,user-2${filterDataInlineSeparator}bob@example.com`,
+      )
+
+      const result = formatFiltersForOrderFormsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          ownerId: ['user-1', 'user-2'],
+        }),
+      )
+    })
+
+    it('should ignore filters with a different prefix', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('qu_quoteStatus', 'draft')
+      searchParams.set('of_orderFormStatus', 'signed')
+
+      const result = formatFiltersForOrderFormsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          status: ['signed'],
+        }),
+      )
+      expect(result).not.toHaveProperty('statuses')
+    })
+  })
+
+  describe('formatFiltersForOrdersQuery', () => {
+    it('should format order status filter with prefix', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('or_orderStatus', 'created,executed')
+
+      const result = formatFiltersForOrdersQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          status: ['created', 'executed'],
+        }),
+      )
+    })
+
+    it('should format order number filter as number', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('or_orderNumber', 'OR-001,OR-002')
+
+      const result = formatFiltersForOrdersQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          number: ['OR-001', 'OR-002'],
+        }),
+      )
+    })
+
+    it('should format execution mode filter', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('or_orderExecutionMode', 'execute_in_lago,order_only')
+
+      const result = formatFiltersForOrdersQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          executionMode: ['execute_in_lago', 'order_only'],
+        }),
+      )
+    })
+
+    it('should format multipleCustomers filter as customerId extracting ids', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'or_multipleCustomers',
+        `cust-1${filterDataInlineSeparator}Acme Corp,cust-2${filterDataInlineSeparator}Beta Inc`,
+      )
+
+      const result = formatFiltersForOrdersQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          customerId: ['cust-1', 'cust-2'],
+        }),
+      )
+    })
+
+    it('should format userIds filter as ownerId extracting ids', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'or_userIds',
+        `user-1${filterDataInlineSeparator}Alice,user-2${filterDataInlineSeparator}Bob`,
+      )
+
+      const result = formatFiltersForOrdersQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          ownerId: ['user-1', 'user-2'],
+        }),
+      )
+    })
+
+    it('should format orderExecutedAt into executedAtFrom and executedAtTo', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('or_orderExecutedAt', '2026-01-01,2026-01-31')
+
+      const result = formatFiltersForOrdersQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          executedAtFrom: '2026-01-01',
+          executedAtTo: '2026-01-31',
+        }),
+      )
+    })
+
+    it('should ignore unknown params', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('or_orderStatus', 'created')
+      searchParams.set('randomSearchUrlParam', 'anditsvalue')
+
+      const result = formatFiltersForOrdersQuery(searchParams)
+
+      expect(result).toEqual({ status: ['created'] })
     })
   })
 })

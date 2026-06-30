@@ -15,6 +15,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   AmountInputField,
+  ButtonSelector,
   ComboBox,
   ComboBoxField,
   DatePickerField,
@@ -28,6 +29,7 @@ import {
   ADD_METADATA_DATA_TEST,
   RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
   RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST,
+  RECURRING_TOPUP_TYPE_DATA_TEST,
   SHOW_RECURRING_EXPIRATION_AT_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
 import { dateErrorCodes, FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
@@ -98,6 +100,7 @@ const DEFAULT_RULES: UpdateRecurringTransactionRuleInput = {
   paidCredits: '',
   thresholdCredits: '',
   targetOngoingBalance: null,
+  grantsTargetTopUp: null,
   startedAt: DateTime.now().toISO(),
   invoiceRequiresSuccessfulPayment: false,
 }
@@ -235,6 +238,10 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                     'recurringTransactionRules.0.targetOngoingBalance',
                     DEFAULT_RULES.targetOngoingBalance,
                   )
+                  formikProps.setFieldValue(
+                    'recurringTransactionRules.0.grantsTargetTopUp',
+                    value === RecurringTransactionMethodEnum.Target ? false : null,
+                  )
 
                   formikProps.setFieldValue('recurringTransactionRules.0.method', value)
                 }}
@@ -330,6 +337,28 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
 
               {recurringTransactionRules?.method === RecurringTransactionMethodEnum.Target && (
                 <>
+                  <ButtonSelector
+                    data-test={RECURRING_TOPUP_TYPE_DATA_TEST}
+                    label={translate('text_1780047483204bk0fhgkeisn')}
+                    options={[
+                      {
+                        value: false,
+                        label: translate('text_1780047483205fq5350ul8l9'),
+                      },
+                      {
+                        value: true,
+                        label: translate('text_1780047483205pks944o79kd'),
+                      },
+                    ]}
+                    value={recurringTransactionRules?.grantsTargetTopUp ?? false}
+                    onChange={(value) => {
+                      formikProps.setFieldValue(
+                        'recurringTransactionRules.0.grantsTargetTopUp',
+                        value,
+                      )
+                    }}
+                  />
+
                   <AmountInputField
                     name="recurringTransactionRules.0.targetOngoingBalance"
                     currency={formikProps.values.currency}

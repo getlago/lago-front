@@ -24,6 +24,8 @@ import {
   INVOICE_LIST_FILTER_PREFIX,
   MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX,
   MRR_BREAKDOWN_PLANS_FILTER_PREFIX,
+  ORDER_FORM_LIST_FILTER_PREFIX,
+  ORDER_LIST_FILTER_PREFIX,
   PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX,
   QUOTE_LIST_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
@@ -47,6 +49,8 @@ import {
   type GetInvoiceCollectionsForAnalyticsQueryVariables,
   type GetInvoicesListQueryVariables,
   type GetMrrsQueryVariables,
+  type GetOrderFormsQueryVariables,
+  type GetOrdersQueryVariables,
   type GetPrepaidCreditsQueryVariables,
   type GetQuotesQueryVariables,
   type GetRevenueStreamsQueryVariables,
@@ -81,6 +85,8 @@ import {
   InvoiceAvailableFilters,
   MrrBreakdownPlansAvailableFilters,
   MrrOverviewAvailableFilters,
+  OrderAvailableFilters,
+  OrderFormAvailableFilters,
   QuoteAvailableFilters,
   RevenueStreamsAvailablePopperFilters,
   RevenueStreamsCustomersAvailableFilters,
@@ -160,6 +166,8 @@ export const FiltersItemDates = [
   AvailableFiltersEnum.loggedDate,
   AvailableFiltersEnum.webhookDate,
   AvailableFiltersEnum.quoteCreatedAt,
+  AvailableFiltersEnum.orderFormCreatedAt,
+  AvailableFiltersEnum.orderExecutedAt,
 ]
 
 // TODO: Fix this type
@@ -227,6 +235,23 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.planCode]: (value: string) => value,
+  [AvailableFiltersEnum.orderFormCreatedAt]: (value: string) => {
+    return {
+      createdAtFrom: value.split(',')[0],
+      createdAtTo: value.split(',')[1],
+    }
+  },
+  [AvailableFiltersEnum.orderFormNumber]: (value: string) => value.split(','),
+  [AvailableFiltersEnum.orderFormStatus]: (value: string) => value.split(','),
+  [AvailableFiltersEnum.orderStatus]: (value: string) => value.split(','),
+  [AvailableFiltersEnum.orderNumber]: (value: string) => value.split(','),
+  [AvailableFiltersEnum.orderExecutionMode]: (value: string) => value.split(','),
+  [AvailableFiltersEnum.orderExecutedAt]: (value: string) => {
+    return {
+      executedAtFrom: value.split(',')[0],
+      executedAtTo: value.split(',')[1],
+    }
+  },
   [AvailableFiltersEnum.quoteCreatedAt]: (value: string) => {
     return {
       fromDate: value.split(',')[0],
@@ -976,6 +1001,8 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.loggedDate:
     case AvailableFiltersEnum.webhookDate:
     case AvailableFiltersEnum.quoteCreatedAt:
+    case AvailableFiltersEnum.orderFormCreatedAt:
+    case AvailableFiltersEnum.orderExecutedAt:
       return value
         .split(',')
         .map((v) => {
@@ -1044,6 +1071,55 @@ export const formatFiltersForQuotesQuery = (searchParams: URLSearchParams): Quot
       [AvailableFiltersEnum.quoteNumber]: 'numbers',
       [AvailableFiltersEnum.quoteOrderType]: 'orderTypes',
       [AvailableFiltersEnum.userIds]: 'owners',
+    },
+  })
+
+type OrderFormsQueryFilters = Partial<
+  Pick<
+    GetOrderFormsQueryVariables,
+    'status' | 'number' | 'customerId' | 'ownerId' | 'createdAtFrom' | 'createdAtTo'
+  >
+>
+
+export const formatFiltersForOrderFormsQuery = (
+  searchParams: URLSearchParams,
+): OrderFormsQueryFilters =>
+  formatFiltersForQuery<OrderFormsQueryFilters>({
+    searchParams,
+    availableFilters: OrderFormAvailableFilters,
+    filtersNamePrefix: ORDER_FORM_LIST_FILTER_PREFIX,
+    keyMap: {
+      [AvailableFiltersEnum.orderFormStatus]: 'status',
+      [AvailableFiltersEnum.orderFormNumber]: 'number',
+      [AvailableFiltersEnum.multipleCustomers]: 'customerId',
+      [AvailableFiltersEnum.userIds]: 'ownerId',
+    },
+  })
+
+type OrdersQueryFilters = Partial<
+  Pick<
+    GetOrdersQueryVariables,
+    | 'status'
+    | 'number'
+    | 'customerId'
+    | 'ownerId'
+    | 'executionMode'
+    | 'executedAtFrom'
+    | 'executedAtTo'
+  >
+>
+
+export const formatFiltersForOrdersQuery = (searchParams: URLSearchParams): OrdersQueryFilters =>
+  formatFiltersForQuery<OrdersQueryFilters>({
+    searchParams,
+    availableFilters: OrderAvailableFilters,
+    filtersNamePrefix: ORDER_LIST_FILTER_PREFIX,
+    keyMap: {
+      [AvailableFiltersEnum.orderStatus]: 'status',
+      [AvailableFiltersEnum.orderNumber]: 'number',
+      [AvailableFiltersEnum.multipleCustomers]: 'customerId',
+      [AvailableFiltersEnum.orderExecutionMode]: 'executionMode',
+      [AvailableFiltersEnum.userIds]: 'ownerId',
     },
   })
 

@@ -77,19 +77,27 @@ jest.mock('~/components/designSystem/WarningDialog', () => ({
 }))
 
 jest.mock('~/components/invoices/EditFeeBillingPeriod', () => ({
-  EditFeeBillingPeriod: jest.fn(() => null),
+  useEditFeeBillingPeriodDialog: () => ({
+    openEditFeeBillingPeriodDialog: jest.fn(),
+  }),
 }))
 
-jest.mock('~/components/invoices/EditInvoiceDisplayNameDialog', () => ({
-  EditInvoiceDisplayNameDialog: jest.fn(() => null),
+jest.mock('~/components/invoices/useEditInvoiceDisplayName', () => ({
+  useEditInvoiceDisplayNameDialog: () => ({
+    openEditInvoiceDisplayNameDialog: jest.fn(),
+  }),
 }))
 
 jest.mock('~/components/invoices/EditInvoiceItemDescriptionDialog', () => ({
-  EditInvoiceItemDescriptionDialog: jest.fn(() => null),
+  useEditInvoiceItemDescriptionDialog: () => ({
+    openEditInvoiceItemDescriptionDialog: jest.fn(),
+  }),
 }))
 
 jest.mock('~/components/invoices/EditInvoiceItemTaxDialog', () => ({
-  EditInvoiceItemTaxDialog: jest.fn(() => null),
+  useEditInvoiceItemTaxDialog: () => ({
+    openEditInvoiceItemTaxDialog: jest.fn(),
+  }),
 }))
 
 const mockUseInvoiceBuildRegenerationPreview = useInvoiceBuildRegenerationPreview as jest.Mock

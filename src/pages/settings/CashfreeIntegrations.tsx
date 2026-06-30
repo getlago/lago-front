@@ -15,10 +15,7 @@ import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  DeleteCashfreeIntegrationDialog,
-  DeleteCashfreeIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteCashfreeIntegrationDialog'
+import { useDeleteCashfreeIntegrationDialog } from '~/components/settings/integrations/DeleteCashfreeIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CASHFREE_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -62,7 +59,7 @@ const CashfreeIntegrations = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const addCashfreeDialogRef = useRef<AddCashfreeDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteCashfreeIntegrationDialogRef>(null)
+  const { openDeleteCashfreeIntegrationDialog } = useDeleteCashfreeIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetCashfreeIntegrationsListQuery({
@@ -167,8 +164,11 @@ const CashfreeIntegrations = () => {
                               onClick={() => {
                                 addCashfreeDialogRef.current?.openDialog({
                                   provider: connection,
-                                  deleteModalRef: deleteDialogRef,
-                                  deleteDialogCallback,
+                                  onDeleteClick: () =>
+                                    openDeleteCashfreeIntegrationDialog({
+                                      provider: connection,
+                                      callback: deleteDialogCallback,
+                                    }),
                                 })
                                 closePopper()
                               }}
@@ -183,7 +183,7 @@ const CashfreeIntegrations = () => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                deleteDialogRef.current?.openDialog({
+                                openDeleteCashfreeIntegrationDialog({
                                   provider: connection,
                                   callback: deleteDialogCallback,
                                 })
@@ -204,7 +204,6 @@ const CashfreeIntegrations = () => {
       </IntegrationsPage.Container>
 
       <AddCashfreeDialog ref={addCashfreeDialogRef} />
-      <DeleteCashfreeIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

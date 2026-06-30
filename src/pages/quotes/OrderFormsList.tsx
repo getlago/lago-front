@@ -1,17 +1,11 @@
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
-import { Table, TableColumn } from '~/components/designSystem/Table/Table'
-import { Typography } from '~/components/designSystem/Typography'
-import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { OrderFormListItemFragment } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
-import { createOrderFormsPaginationHandler } from './common/orderFormsPaginationHandler'
-import {
-  orderFormCreatedAtColumn,
-  orderFormSourceQuoteColumn,
-  orderFormStatusColumn,
-} from './common/orderFormTableColumns'
+import { formatFiltersForOrderFormsQuery } from '~/components/designSystem/Filters'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+import { QuotesSectionTable } from './common/QuotesSectionTable'
+import { useOrderFormsColumns } from './common/useOrderFormsColumns'
 import { useOrderFormActions } from './hooks/useOrderFormActions'
 import { useOrderForms } from './hooks/useOrderForms'
 
@@ -21,71 +15,35 @@ interface OrderFormsListProps {
 
 const OrderFormsList = ({ quoteNumber }: OrderFormsListProps): JSX.Element => {
   const { translate } = useInternationalization()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const { orderForms, loading, error, fetchMore, metadata } = useOrderForms(
-    quoteNumber ? { quoteNumber: [quoteNumber] } : undefined,
-  )
-  const { getActions } = useOrderFormActions()
+  const [searchParams] = useSearchParams()
 
-  const columns: Array<TableColumn<OrderFormListItemFragment>> = [
-    {
-      key: 'number',
-      title: translate('text_1775746196826pyjlfqx3anr'),
-      minWidth: 160,
-      maxSpace: true,
-      content: ({ number }) => (
-        <Typography variant="bodyHl" noWrap>
-          {number}
-        </Typography>
-      ),
-    },
-    {
-      key: 'customer.name',
-      title: translate('text_65201c5a175a4b0238abf29a'),
-      maxSpace: true,
-      minWidth: 160,
-      content: ({ customer }) => (
-        <Typography color="grey600" noWrap>
-          {customer.name}
-        </Typography>
-      ),
-    },
-    orderFormStatusColumn(translate),
-    orderFormSourceQuoteColumn(translate),
-    orderFormCreatedAtColumn(translate, 'text_624efab67eb2570101d117e3', intlFormatDateTimeOrgaTZ),
-  ]
+  const filtersForOrderFormsQuery = useMemo(
+    () => formatFiltersForOrderFormsQuery(searchParams),
+    [searchParams],
+  )
+
+  const { orderForms, loading, error, fetchMore, metadata } = useOrderForms({
+    ...filtersForOrderFormsQuery,
+    ...(quoteNumber ? { quoteNumber: [quoteNumber] } : {}),
+  })
+  const { getActions } = useOrderFormActions()
+  const columns = useOrderFormsColumns()
 
   return (
-    <DetailsPage.Container>
-      <InfiniteScroll onBottom={createOrderFormsPaginationHandler(metadata, loading, fetchMore)}>
-        <Table
-          name="order-forms-list"
-          data={orderForms}
-          isLoading={loading}
-          hasError={!!error}
-          containerSize={0}
-          columns={columns}
-          actionColumnTooltip={() => translate('text_1776414006125pcxcyeblul7')}
-          actionColumn={(orderForm) => {
-            const actions = getActions(orderForm)
-
-            if (actions.length === 0) return null
-
-            return actions.map(({ icon, label, onAction }) => ({
-              startIcon: icon,
-              title: label,
-              onAction: () => onAction(),
-            }))
-          }}
-          placeholder={{
-            emptyState: {
-              title: translate('text_1776697938480e54yje9i5aa'),
-              subtitle: translate('text_17766979384803pz48gknynl'),
-            },
-          }}
-        />
-      </InfiniteScroll>
-    </DetailsPage.Container>
+    <QuotesSectionTable
+      name="order-forms-list"
+      data={orderForms}
+      isLoading={loading}
+      hasError={!!error}
+      metadata={metadata}
+      fetchMore={fetchMore}
+      columns={columns}
+      getActions={(orderForm) => getActions(orderForm)}
+      emptyState={{
+        title: translate('text_1776697938480e54yje9i5aa'),
+        subtitle: translate('text_17766979384803pz48gknynl'),
+      }}
+    />
   )
 }
 

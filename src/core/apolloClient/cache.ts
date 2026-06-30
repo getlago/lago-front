@@ -26,6 +26,7 @@ export const queryFieldPolicies: Record<string, FieldPolicy> = {
   invoices: createPaginatedFieldPolicy(),
   memberships: createPaginatedFieldPolicy(),
   orderForms: createPaginatedFieldPolicy(),
+  orders: createPaginatedFieldPolicy(),
   payments: createPaginatedFieldPolicy(),
   plans: createPaginatedFieldPolicy(),
   pricingUnits: createPaginatedFieldPolicy(),

@@ -46,6 +46,13 @@ jest.mock('~/pages/quotes/common/QuotePdfProvider', () => ({
   useDownloadQuotePdf: () => ({ download: jest.fn() }),
 }))
 
+let mockSearchParams = new URLSearchParams()
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useSearchParams: () => [mockSearchParams, jest.fn()],
+}))
+
 const mockUseOrderForms = useOrderForms as jest.MockedFunction<typeof useOrderForms>
 
 const mockOrderForms = [
@@ -54,11 +61,11 @@ const mockOrderForms = [
     number: 'OF-2026-0001',
     status: OrderFormStatusEnum.Generated,
     createdAt: '2026-04-10T10:00:00Z',
-    customer: { id: 'customer-001', name: 'Acme Corp' },
+    customer: { id: 'customer-001', name: 'Acme Corp', displayName: 'Acme Corp' },
     quote: {
       id: 'q-1',
       number: 'QUO-001',
-      currentVersion: { id: 'qv-1', version: 1, content: '# Order Form 1' },
+      currentVersion: { id: 'qv-1', version: 1, content: '# Order Form 1', mentionVariables: {} },
     },
   },
   {
@@ -66,11 +73,11 @@ const mockOrderForms = [
     number: 'OF-2026-0002',
     status: OrderFormStatusEnum.Signed,
     createdAt: '2026-04-11T14:00:00Z',
-    customer: { id: 'customer-002', name: 'Globex Inc' },
+    customer: { id: 'customer-002', name: 'Globex Inc', displayName: 'Globex Inc' },
     quote: {
       id: 'q-2',
       number: 'QUO-002',
-      currentVersion: { id: 'qv-2', version: 3, content: '# Order Form 2' },
+      currentVersion: { id: 'qv-2', version: 3, content: '# Order Form 2', mentionVariables: {} },
     },
   },
   {
@@ -78,11 +85,11 @@ const mockOrderForms = [
     number: 'OF-2026-0003',
     status: OrderFormStatusEnum.Voided,
     createdAt: '2026-04-12T08:00:00Z',
-    customer: { id: 'customer-003', name: 'Wayne Enterprises' },
+    customer: { id: 'customer-003', name: 'Wayne Enterprises', displayName: 'Wayne Enterprises' },
     quote: {
       id: 'q-3',
       number: 'QUO-003',
-      currentVersion: { id: 'qv-3', version: 2, content: '# Order Form 3' },
+      currentVersion: { id: 'qv-3', version: 2, content: '# Order Form 3', mentionVariables: {} },
     },
   },
 ]
@@ -90,6 +97,7 @@ const mockOrderForms = [
 describe('OrderFormsList', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockSearchParams = new URLSearchParams()
     mockHasPermissions.mockReturnValue(true)
     mockUseOrderForms.mockReturnValue({
       orderForms: mockOrderForms,
@@ -174,6 +182,77 @@ describe('OrderFormsList', () => {
         const actionButtons = screen.getAllByTestId('open-action-button')
 
         expect(actionButtons.length).toBeGreaterThan(0)
+      })
+    })
+  })
+
+  describe('GIVEN no URL filters and no quoteNumber prop', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should call useOrderForms with no filter variables', () => {
+        render(<OrderFormsList />)
+
+        expect(mockUseOrderForms).toHaveBeenCalledWith({})
+      })
+    })
+  })
+
+  describe('GIVEN of_-prefixed URL filters are present', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should pass the formatted status filter to useOrderForms', () => {
+        mockSearchParams = new URLSearchParams()
+        mockSearchParams.set('of_orderFormStatus', 'generated,signed')
+
+        render(<OrderFormsList />)
+
+        expect(mockUseOrderForms).toHaveBeenCalledWith(
+          expect.objectContaining({ status: ['generated', 'signed'] }),
+        )
+      })
+
+      it('THEN should pass the formatted number filter to useOrderForms', () => {
+        mockSearchParams = new URLSearchParams()
+        mockSearchParams.set('of_orderFormNumber', 'OF-001,OF-002')
+
+        render(<OrderFormsList />)
+
+        expect(mockUseOrderForms).toHaveBeenCalledWith(
+          expect.objectContaining({ number: ['OF-001', 'OF-002'] }),
+        )
+      })
+
+      it('THEN should ignore filters with a different prefix', () => {
+        mockSearchParams = new URLSearchParams()
+        mockSearchParams.set('qu_quoteStatus', 'draft')
+
+        render(<OrderFormsList />)
+
+        expect(mockUseOrderForms).toHaveBeenCalledWith({})
+      })
+    })
+  })
+
+  describe('GIVEN the quoteNumber prop is provided', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should pass the quoteNumber to useOrderForms', () => {
+        render(<OrderFormsList quoteNumber="QUO-001" />)
+
+        expect(mockUseOrderForms).toHaveBeenCalledWith(
+          expect.objectContaining({ quoteNumber: ['QUO-001'] }),
+        )
+      })
+
+      it('THEN should merge the quoteNumber prop with URL filters', () => {
+        mockSearchParams = new URLSearchParams()
+        mockSearchParams.set('of_orderFormStatus', 'signed')
+
+        render(<OrderFormsList quoteNumber="QUO-001" />)
+
+        expect(mockUseOrderForms).toHaveBeenCalledWith(
+          expect.objectContaining({
+            status: ['signed'],
+            quoteNumber: ['QUO-001'],
+          }),
+        )
       })
     })
   })

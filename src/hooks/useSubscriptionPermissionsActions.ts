@@ -5,12 +5,16 @@ export const useSubscriptionPermissionsActions = () => {
   const { hasPermissions } = usePermissions()
 
   /**
-   * Checks if a subscription status allows editing (not terminated or canceled).
+   * Checks if a subscription status allows editing (not terminated, canceled, or incomplete).
    */
   const isStatusEditable = (status: StatusTypeEnum | null | undefined): boolean => {
     if (!status) return false
 
-    return status !== StatusTypeEnum.Terminated && status !== StatusTypeEnum.Canceled
+    return (
+      status !== StatusTypeEnum.Terminated &&
+      status !== StatusTypeEnum.Canceled &&
+      status !== StatusTypeEnum.Incomplete
+    )
   }
 
   /**

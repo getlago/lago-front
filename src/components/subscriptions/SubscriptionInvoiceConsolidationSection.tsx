@@ -20,10 +20,12 @@ export const SubscriptionInvoiceConsolidationSection = withFieldGroup({
     return (
       <div className="flex flex-col gap-2" data-test={CONSOLIDATION_SECTION_TEST_ID}>
         <CenteredPage.SubsectionTitle title={translate('text_177874535109128tmqdq682k')} />
+
         <group.AppField name="consolidateInvoice">
           {(field) => (
             <field.RadioGroupField
               optionsGapSpacing={3}
+              optionLabelVariant="body"
               options={[
                 {
                   value: true,

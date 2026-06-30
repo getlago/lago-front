@@ -7,7 +7,7 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
   >
     <div
       aria-expanded="true"
-      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus:outline-none h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
@@ -310,7 +310,7 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
   >
     <div
       aria-expanded="false"
-      class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+      class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus:outline-none h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >
@@ -376,7 +376,7 @@ exports[`MetadataAccordion Integration Tests WHEN rendering the component THEN s
   >
     <div
       aria-expanded="true"
-      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+      class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus:outline-none h-auto focus:rounded-lg focus-visible:ring css-hash-MuiButtonBase-root-MuiAccordionSummary-root
       role="button"
       tabindex="0"
     >

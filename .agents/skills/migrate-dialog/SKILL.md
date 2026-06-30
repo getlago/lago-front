@@ -49,6 +49,7 @@ Before starting, gather context by reading these reference files:
 1. Read the target dialog file completely
 2. Identify:
    - Whether it's a **form dialog** (has form fields + submit) or a **simple dialog** (just actions/display)
+   - Whether it's a **deletion dialog** (mutation destroys a resource). If so, see [Deletion dialogs: cache eviction](#deletion-dialogs-cache-eviction) - the migration must also fix cache handling, not just the dialog system. This is especially common for integration delete dialogs (`destroyPaymentProvider`, etc.).
    - The imperative ref interface (`openDialog`, `closeDialog`)
    - Internal state managed via `useState` (typically `localData`)
    - Form setup (if any): `useAppForm`, validation schema, `onSubmit` handler
@@ -187,6 +188,30 @@ export const useMyDialog = () => {
 }
 ```
 
+**Which success signal to use in `handleSubmit`:**
+
+`FormDialog` only keeps the dialog open when `handleSubmit` **throws** (with `closeOnError: false`); returning any value closes it. So `handleSubmit` must throw on failure — the question is how it detects failure:
+
+- **`onSubmit` runs an operation that can fail _without throwing_** (e.g. a mutation that returns GraphQL errors instead of rejecting) → track success with a manual flag (`successRef`) set inside `onSubmit` only on real success, as shown above. `form.state.isSubmitSuccessful` can't see a soft failure — it's `true` whenever `onSubmit` didn't throw, even if the mutation returned errors.
+- **`onSubmit` has no failure mode beyond validation** (e.g. it just calls a callback — no mutation) → drop the `successRef` and read the built-in **`form.state.isSubmitSuccessful`** directly:
+
+```typescript
+const handleSubmit = async (): Promise<DialogResult> => {
+  await form.handleSubmit()
+
+  // isSubmitSuccessful: reset to false at the start of each submit, stays false if
+  // validation fails (onSubmit never runs), true only after onSubmit resolves
+  // without throwing. Throw to keep the dialog open (closeOnError: false).
+  if (!form.state.isSubmitSuccessful) {
+    throw new Error('Submit failed')
+  }
+
+  return { reason: 'success' }
+}
+```
+
+Do **not** drop `validationLogic` to "simplify" — without `revalidateLogic()` the `onDynamic` validator never runs and the schema is silently skipped. Keep `revalidateLogic()` (the default, submit-first); do not use `revalidateLogic({ mode: 'change' })` unless a field genuinely needs live validation feedback.
+
 **New Pattern (hook-based with CentralizedDialog):**
 
 ```typescript
@@ -210,6 +235,61 @@ export const useMyDialog = () => {
   return { openMyDialog }
 }
 ```
+
+#### Deletion dialogs: cache eviction
+
+If the dialog's mutation **destroys a resource** (delete customer, delete an integration/payment provider, etc.), the migration must also fix Apollo cache handling. Do **not** carry over a legacy `refetchQueries` + bare `cache.evict()` combo.
+
+**Why:** a bare `cache.evict()` broadcasts to **all** active `watchQuery` subscriptions. A still-mounted (or Apollo-retained `cache-and-network`) detail-page query then refires, gets a **404** for the just-deleted entity, and the global error link shows a danger toast. `refetchQueries` with named queries makes it worse by refetching every cached query that referenced the dead entity. This is a recurring bug, especially for **integration delete dialogs**.
+
+**Use the `evictFromCache` helper** (`src/core/apolloClient/evictFromCache.ts`). It removes the entity from paginated list fields, nulls single-reference root fields (keeps retained detail queries' cache diff complete so they don't refetch), and suppresses all watchers except the named list query - then evicts + `gc()`.
+
+```typescript
+import { gql, useApolloClient } from '@apollo/client'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
+import { GetMyListDocument, useDeleteMyEntityMutation } from '~/generated/graphql'
+
+export const useDeleteMyEntityDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
+  const { translate } = useInternationalization()
+  const client = useApolloClient()
+
+  // No refetchQueries, no inline update/evict here
+  const [deleteMyEntity] = useDeleteMyEntityMutation()
+
+  const openDeleteMyEntityDialog = (data: { entity: MyEntity | null; callback?: () => void }) => {
+    centralizedDialog.open({
+      title: translate('...'),
+      description: translate('...'),
+      actionText: translate('...'),
+      colorVariant: 'danger',
+      onAction: async () => {
+        const res = await deleteMyEntity({
+          variables: { input: { id: data.entity?.id as string } },
+        })
+
+        const destroyedId = res.data?.destroyMyEntity?.id
+
+        if (destroyedId) {
+          evictFromCache(client, {
+            id: destroyedId,
+            __typename: 'MyEntity',
+            listFieldName: 'myEntities', // root query field with { collection, metadata }
+            listQueryDocument: GetMyListDocument,
+          })
+
+          data.callback?.()
+          addToast({ message: translate('...'), severity: 'success' })
+        }
+      },
+    })
+  }
+
+  return { openDeleteMyEntityDialog }
+}
+```
+
+**Canonical example:** `src/components/settings/integrations/DeleteAdyenIntegrationDialog.tsx`. The `__typename` (e.g. `CashfreeProvider`), `listFieldName` (e.g. `paymentProviders`), and `listQueryDocument` come from the list page's query. For entities in multiple lists, pass arrays to `listFieldName`/`listQueryDocument` (see the helper's JSDoc).
 
 **New Pattern (hook-based with FormDialogOpeningDialog):**
 
@@ -553,6 +633,7 @@ type FormDialogOpeningDialogProps = FormDialogProps & {
 - [ ] Find all usages of the dialog (parent components)
 - [ ] Identify data passed via `openDialog`
 - [ ] Identify any props passed to the dialog component
+- [ ] Identify if it's a **deletion dialog** (destroy mutation) - if so, plan the `evictFromCache` migration
 - [ ] (FormDialogOpeningDialog) Identify if the dialog has a secondary action button (e.g., delete from edit) that opens another dialog
 
 ### Phase 2: Implementation
@@ -563,6 +644,7 @@ type FormDialogOpeningDialogProps = FormDialogProps & {
 - [ ] Implement `handleSubmit` returning `Promise<DialogResult>` (for FormDialog/FormDialogOpeningDialog)
 - [ ] Handle form reset and cleanup in `.then()` callback (for FormDialog/FormDialogOpeningDialog)
 - [ ] Remove old exports (`forwardRef`, `DialogRef` interface, `displayName`)
+- [ ] (Deletion dialog) Replace `refetchQueries` / bare `cache.evict()` with the `evictFromCache` helper
 - [ ] Update parent components (replace ref with hook, remove JSX rendering)
 - [ ] Move any component props to open function data
 - [ ] (FormDialogOpeningDialog) Configure `canOpenDialog`, `openDialogText`, and `otherDialogProps`

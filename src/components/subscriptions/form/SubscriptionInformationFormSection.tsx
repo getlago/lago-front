@@ -37,6 +37,13 @@ gql`
     periodEndDate
     status
     startedAt
+    activationRules {
+      id
+      type
+      timeoutHours
+      status
+      expiresAt
+    }
     paymentMethodType
     paymentMethod {
       id
@@ -104,7 +111,7 @@ export const SubscriptionInformationFormSection = withForm({
     TYPING_PLACEHOLDER_DATE,
   ),
   props: subscriptionInformationDefaultProps,
-  render: function SubscriptionInformationFormSection({
+  render: function SubscriptionInformationFormSectionRender({
     form,
     formType,
     subscription,

@@ -14,7 +14,9 @@ jest.mock('~/components/settings/integrations/AddCashfreeDialog', () => ({
   AddCashfreeDialog: () => null,
 }))
 jest.mock('~/components/settings/integrations/DeleteCashfreeIntegrationDialog', () => ({
-  DeleteCashfreeIntegrationDialog: () => null,
+  useDeleteCashfreeIntegrationDialog: () => ({
+    openDeleteCashfreeIntegrationDialog: jest.fn(),
+  }),
 }))
 jest.mock('~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog', () => ({
   AddEditDeleteSuccessRedirectUrlDialog: () => null,

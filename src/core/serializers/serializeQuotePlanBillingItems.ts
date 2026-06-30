@@ -6,6 +6,11 @@ import type {
 } from '~/components/plans/types'
 import { CommitmentTypeEnum } from '~/generated/graphql'
 
+import { buildPlanPreviewData } from './buildPlanPreviewData'
+
+// Re-export so consumers can import PlanFormInput from this serializer module.
+export type { PlanFormInput }
+
 // --- Plan billing item types (snake_case, matches backend contract) ---
 export interface PlanChargeOverride {
   billable_metric_code: string
@@ -514,15 +519,6 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
     invoiceCustomFooter: denormalizeOptional(payload.invoice_custom_footer),
   }
 
-  const entityData: Record<string, EntityData> = {
-    [id]: {
-      entityId: id,
-      entityType: 'plan',
-      name: payload.plan_name,
-      code: payload.plan_code,
-    },
-  }
-
   // Backward-compat: legacy payloads don't have interval/charges
   const hasFullPlanData =
     'interval' in payload &&
@@ -574,6 +570,16 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
       code: payload.plan_code,
       description: payload.plan_description,
     }
+  }
+
+  const entityData: Record<string, EntityData> = {
+    [id]: {
+      entityId: id,
+      entityType: 'plan',
+      name: payload.plan_name,
+      code: payload.plan_code,
+      plan: buildPlanPreviewData(formValues),
+    },
   }
 
   return {

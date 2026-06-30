@@ -34,12 +34,12 @@ jest.mock('../QuoteDetailsVersions', () => ({
   default: () => null,
 }))
 
-jest.mock('../QuoteDetailsActivityLogs', () => ({
+jest.mock('../OrderFormsList', () => ({
   __esModule: true,
   default: () => null,
 }))
 
-jest.mock('../OrderFormsList', () => ({
+jest.mock('../OrdersList', () => ({
   __esModule: true,
   default: () => null,
 }))
@@ -62,10 +62,12 @@ const mockQuote = {
     endDate: null,
     billingItems: null,
     createdAt: '2026-04-09T10:00:00Z',
+    mentionVariables: {},
   },
   customer: {
     id: 'customer-001',
     name: 'Acme Corp',
+    displayName: 'Acme Corp',
     externalId: 'ext-acme-001',
     currency: null,
     netPaymentTerm: null,
@@ -165,12 +167,12 @@ describe('QuoteDetails', () => {
         expect(config.tabs[1].link).toBe('/quote/quote-draft-001/order-forms')
       })
 
-      it('THEN should have Activity logs as the third tab', () => {
+      it('THEN should have Orders as the third tab', () => {
         render(<QuoteDetails />)
 
         const config = mockMainHeaderConfigure.mock.calls[0][0]
 
-        expect(config.tabs[2].link).toBe('/quote/quote-draft-001/activity-logs')
+        expect(config.tabs[2].link).toBe('/quote/quote-draft-001/orders')
       })
     })
 

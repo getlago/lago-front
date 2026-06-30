@@ -6,6 +6,7 @@ gql`
   fragment QuotePreviewVersion on QuoteVersion {
     content
     billingItems
+    mentionVariables
   }
 
   fragment QuotePreviewCustomer on Customer {
@@ -28,7 +29,7 @@ gql`
     createdAt
     customer {
       id
-      name
+      displayName
       externalId
       netPaymentTerm
       ...QuotePreviewCustomer

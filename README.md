@@ -25,7 +25,7 @@ Check the wiki [guide](https://github.com/getlago/lago-front/wiki)
 
 ## AI-Assisted Development Skills
 
-This project includes a set of custom skills for AI coding assistants (Claude Code and Cursor) that automate common migration and testing workflows. Skills are invoked via slash commands.
+This project includes a set of custom skills for Claude Code that automate common migration and testing workflows. Skills are invoked via slash commands.
 
 | Skill                          | Command                              | Description                                                                                                                                                                                                |
 | ------------------------------ | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -35,14 +35,13 @@ This project includes a set of custom skills for AI coding assistants (Claude Co
 
 ### Skill files
 
-- **Claude Code**: `.claude/skills/<skill-name>/SKILL.md`
-- **Cursor**: `.cursor/rules/<skill-name>.mdc`
+Skills live in `.agents/skills/<skill-name>/SKILL.md`. `.claude/skills` symlinks to `.agents/skills`.
 
 ## Running Multiple Frontends in Parallel
 
 The `lago-worktree` script lets you run isolated frontend instances side-by-side using git worktrees. Each worktree gets its own branch, Docker container, and port — only the **front** (and optionally the **API**) run in a separate container, while everything else (database, Redis, Redpanda, PDF service, etc.) is shared with the main stack.
 
-This is especially useful for **AI-assisted development**: you can spin up parallel worktrees and let multiple AI agents (Claude Code, Cursor, etc.) work on different tickets simultaneously, each in its own isolated environment other then the main branch.
+This is especially useful for **AI-assisted development**: you can spin up parallel worktrees and let multiple Claude Code agents work on different tickets simultaneously, each in its own isolated environment other then the main branch.
 
 ### Setup
 

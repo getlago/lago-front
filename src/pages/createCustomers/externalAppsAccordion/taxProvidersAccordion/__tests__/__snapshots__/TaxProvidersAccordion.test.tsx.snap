@@ -14,7 +14,7 @@ exports[`TaxProvidersAccordion Integration Tests WHEN rendering the component TH
     >
       <div
         aria-expanded="false"
-        class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+        class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus:outline-none h-18 rounded-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
@@ -128,7 +128,7 @@ exports[`TaxProvidersAccordion Integration Tests WHEN rendering the component TH
     >
       <div
         aria-expanded="true"
-        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus:outline-none h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
@@ -378,7 +378,7 @@ exports[`TaxProvidersAccordion Integration Tests WHEN rendering the component TH
     >
       <div
         aria-expanded="true"
-        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus:outline-none h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
@@ -628,7 +628,7 @@ exports[`TaxProvidersAccordion Integration Tests WHEN rendering the component TH
     >
       <div
         aria-expanded="true"
-        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus:outline-none h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
@@ -878,7 +878,7 @@ exports[`TaxProvidersAccordion Integration Tests WHEN selecting tax providers TH
     >
       <div
         aria-expanded="false"
-        class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+        class=MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters select-text focus:bg-inherit focus:outline-none h-18 rounded-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
@@ -987,7 +987,7 @@ exports[`TaxProvidersAccordion Integration Tests WHEN user interacts with the ac
     >
       <div
         aria-expanded="true"
-        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
+        class=MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters select-text focus:bg-inherit focus:outline-none h-18 rounded-t-xl hover:bg-grey-100 active:bg-grey-200 css-hash-MuiButtonBase-root-MuiAccordionSummary-root
         role="button"
         tabindex="0"
       >
