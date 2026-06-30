@@ -14441,6 +14441,13 @@ export type UpdateCustomerCurrencyForQuoteMutationVariables = Exact<{
 
 export type UpdateCustomerCurrencyForQuoteMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null } | null };
 
+export type GetOrderFormDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetOrderFormDetailsQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, expiresAt?: any | null, signedDocumentUrl?: string | null, customer: { __typename?: 'Customer', id: string, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, quote: { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, currentVersion: { __typename?: 'QuoteVersion', id: string, version: number, content?: string | null, billingItems?: any | null, mentionVariables: any } } } | null };
+
 export type OrderFormListItemFragment = { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, expiresAt?: any | null, customer: { __typename?: 'Customer', id: string, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, quote: { __typename?: 'Quote', id: string, number: string, currentVersion: { __typename?: 'QuoteVersion', id: string, version: number, content?: string | null, billingItems?: any | null, mentionVariables: any } } };
 
 export type GetOrderFormsQueryVariables = Exact<{
@@ -39603,6 +39610,69 @@ export function useUpdateCustomerCurrencyForQuoteMutation(baseOptions?: Apollo.M
 export type UpdateCustomerCurrencyForQuoteMutationHookResult = ReturnType<typeof useUpdateCustomerCurrencyForQuoteMutation>;
 export type UpdateCustomerCurrencyForQuoteMutationResult = Apollo.MutationResult<UpdateCustomerCurrencyForQuoteMutation>;
 export type UpdateCustomerCurrencyForQuoteMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerCurrencyForQuoteMutation, UpdateCustomerCurrencyForQuoteMutationVariables>;
+export const GetOrderFormDetailsDocument = gql`
+    query getOrderFormDetails($id: ID!) {
+  orderForm(id: $id) {
+    id
+    number
+    status
+    expiresAt
+    signedDocumentUrl
+    customer {
+      id
+      displayName
+      ...QuotePreviewCustomer
+    }
+    quote {
+      id
+      number
+      orderType
+      currentVersion {
+        id
+        version
+        ...QuotePreviewVersion
+      }
+    }
+  }
+}
+    ${QuotePreviewCustomerFragmentDoc}
+${QuotePreviewVersionFragmentDoc}`;
+
+/**
+ * __useGetOrderFormDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetOrderFormDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrderFormDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrderFormDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetOrderFormDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetOrderFormDetailsQuery, GetOrderFormDetailsQueryVariables> & ({ variables: GetOrderFormDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrderFormDetailsQuery, GetOrderFormDetailsQueryVariables>(GetOrderFormDetailsDocument, options);
+      }
+export function useGetOrderFormDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrderFormDetailsQuery, GetOrderFormDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrderFormDetailsQuery, GetOrderFormDetailsQueryVariables>(GetOrderFormDetailsDocument, options);
+        }
+// @ts-ignore
+export function useGetOrderFormDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetOrderFormDetailsQuery, GetOrderFormDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrderFormDetailsQuery, GetOrderFormDetailsQueryVariables>;
+export function useGetOrderFormDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrderFormDetailsQuery, GetOrderFormDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetOrderFormDetailsQuery | undefined, GetOrderFormDetailsQueryVariables>;
+export function useGetOrderFormDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrderFormDetailsQuery, GetOrderFormDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOrderFormDetailsQuery, GetOrderFormDetailsQueryVariables>(GetOrderFormDetailsDocument, options);
+        }
+export type GetOrderFormDetailsQueryHookResult = ReturnType<typeof useGetOrderFormDetailsQuery>;
+export type GetOrderFormDetailsLazyQueryHookResult = ReturnType<typeof useGetOrderFormDetailsLazyQuery>;
+export type GetOrderFormDetailsSuspenseQueryHookResult = ReturnType<typeof useGetOrderFormDetailsSuspenseQuery>;
+export type GetOrderFormDetailsQueryResult = Apollo.QueryResult<GetOrderFormDetailsQuery, GetOrderFormDetailsQueryVariables>;
 export const GetOrderFormsDocument = gql`
     query getOrderForms($page: Int, $limit: Int, $status: [OrderFormStatusEnum!], $quoteNumber: [String!], $number: [String!], $customerId: [ID!], $ownerId: [ID!], $createdAtFrom: ISO8601DateTime, $createdAtTo: ISO8601DateTime) {
   orderForms(

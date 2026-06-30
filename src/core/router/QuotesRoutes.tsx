@@ -13,6 +13,7 @@ const ApproveQuote = lazyLoad(() => import('~/pages/quotes/ApproveQuote'))
 const QuoteVersionPreview = lazyLoad(() => import('~/pages/quotes/QuoteVersionPreview'))
 const VoidOrderForm = lazyLoad(() => import('~/pages/quotes/VoidOrderForm'))
 const SignOrderForm = lazyLoad(() => import('~/pages/quotes/SignOrderForm'))
+const OrderFormDetails = lazyLoad(() => import('~/pages/quotes/OrderFormDetails'))
 const EditOrder = lazyLoad(() => import('~/pages/quotes/EditOrder'))
 
 // ----------- Routes -----------
@@ -26,6 +27,7 @@ export const APPROVE_QUOTE_ROUTE = '/quote/:quoteId/version/:versionId/approve'
 export const QUOTE_VERSION_PREVIEW_ROUTE = '/quote/:quoteId/version/:versionId/preview'
 export const VOID_ORDER_FORM_ROUTE = '/order-form/:orderFormId/void'
 export const SIGN_ORDER_FORM_ROUTE = '/order-form/:orderFormId/sign'
+export const ORDER_FORM_DETAILS_ROUTE = '/order-form/:orderFormId'
 export const EDIT_ORDER_ROUTE = '/order/:orderId/edit'
 
 export const quotesRoutes: CustomRouteObject[] = [
@@ -91,6 +93,12 @@ export const orderFormsModificationRoutes: CustomRouteObject[] = [
     private: true,
     element: <SignOrderForm />,
     permissions: ['orderFormsSign'],
+  },
+  {
+    path: ORDER_FORM_DETAILS_ROUTE,
+    private: true,
+    element: <OrderFormDetails />,
+    permissions: ['orderFormsView'],
   },
 ]
 
