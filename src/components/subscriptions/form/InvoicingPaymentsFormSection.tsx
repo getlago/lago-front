@@ -1,7 +1,8 @@
 import { useStore } from '@tanstack/react-form'
 
+import { InvoiceCustomSectionFields } from '~/components/invoceCustomFooter/InvoiceCustomSectionFields'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
+import { PaymentMethodSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { SubscriptionInvoiceConsolidationSection } from '~/components/subscriptions/SubscriptionInvoiceConsolidationSection'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -57,14 +58,21 @@ export const InvoicingPaymentsFormSection = withForm({
           fields={{ consolidateInvoice: 'consolidateInvoice' }}
         />
         {showPaymentSettings && (
-          <PaymentMethodsInvoiceSettings
-            customer={customer}
-            form={{
-              values: { paymentMethod, invoiceCustomSection },
-              setFieldValue: form.setFieldValue,
-            }}
-            viewType={ViewTypeEnum.Subscription}
-          />
+          <>
+            <PaymentMethodSettings
+              customer={customer}
+              form={{ values: { paymentMethod }, setFieldValue: form.setFieldValue }}
+              viewType={ViewTypeEnum.Subscription}
+            />
+            {customer?.id && (
+              <InvoiceCustomSectionFields
+                viewType={ViewTypeEnum.Subscription}
+                customerId={customer.id}
+                value={invoiceCustomSection}
+                onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
+              />
+            )}
+          </>
         )}
       </CenteredPage.PageSection>
     )
