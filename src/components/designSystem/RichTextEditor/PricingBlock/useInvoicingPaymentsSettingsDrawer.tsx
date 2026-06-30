@@ -8,9 +8,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import type { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
-import { FeatureFlagEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import type { QuoteCustomer } from '~/pages/quotes/hooks/useSubscriptionPricingDrawer'
 
 export const INVOICING_PAYMENTS_DRAWER_SAVE_TEST_ID = 'invoicing-payments-drawer-save'
@@ -78,7 +76,6 @@ export const useInvoicingPaymentsSettingsDrawer = (
   customer?: QuoteCustomer | null,
 ) => {
   const { translate } = useInternationalization()
-  const { hasFeatureFlag } = useOrganizationInfos()
   const drawer = useDrawer()
 
   const valuesRef = useRef<{
@@ -99,9 +96,7 @@ export const useInvoicingPaymentsSettingsDrawer = (
     drawer.close()
   }, [onSave, drawer])
 
-  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
-  const showPaymentSettings =
-    hasAccessToMultiPaymentFlow && Boolean(customer?.externalId || customer?.id)
+  const showSection = Boolean(customer?.externalId || customer?.id)
 
   const openDrawer = useCallback(
     (values: InvoicingPaymentsSettingsFormValues) => {
@@ -123,7 +118,7 @@ export const useInvoicingPaymentsSettingsDrawer = (
               title={translate('text_17791987800309g2j0x3t2n0')}
               description={translate('text_1779198780030brdysjhb54o')}
             />
-            {showPaymentSettings && customer ? (
+            {showSection && customer ? (
               <InvoicingPaymentsDrawerContent
                 customer={customer}
                 initialValues={values}
@@ -149,8 +144,8 @@ export const useInvoicingPaymentsSettingsDrawer = (
         ),
       })
     },
-    [drawer, translate, handleSave, showPaymentSettings, customer],
+    [drawer, translate, handleSave, showSection, customer],
   )
 
-  return { openDrawer, showSection: showPaymentSettings }
+  return { openDrawer, showSection }
 }

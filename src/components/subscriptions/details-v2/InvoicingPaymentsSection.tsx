@@ -4,12 +4,10 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { PaymentInvoiceDetails } from '~/components/subscriptions/PaymentInvoiceDetails'
 import {
-  FeatureFlagEnum,
   InvoicingPaymentsSectionFragment,
   SubscriptionForSubscriptionEditFormFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { useInvoicingPaymentsDrawer } from './drawers/useInvoicingPaymentsDrawer'
@@ -44,7 +42,6 @@ type InvoicingPaymentsSectionProps = {
 export const InvoicingPaymentsSection = ({ subscription }: InvoicingPaymentsSectionProps) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { hasFeatureFlag } = useOrganizationInfos()
   const { openDrawer } = useInvoicingPaymentsDrawer(subscription)
 
   return (
@@ -67,19 +64,17 @@ export const InvoicingPaymentsSection = ({ subscription }: InvoicingPaymentsSect
             : 'text_1778745351091fxaqr5dwok8',
         )}
       />
-      {hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods) && (
-        <PaymentInvoiceDetails
-          hideSectionTitle
-          selectedPaymentMethod={{
-            paymentMethodType: subscription.paymentMethodType,
-            paymentMethodId: subscription.paymentMethod?.id,
-          }}
-          externalCustomerId={subscription.customer?.externalId}
-          customerId={subscription.customer?.id}
-          selectedInvoiceCustomSections={subscription.selectedInvoiceCustomSections}
-          skipInvoiceCustomSections={subscription.skipInvoiceCustomSections}
-        />
-      )}
+      <PaymentInvoiceDetails
+        hideSectionTitle
+        selectedPaymentMethod={{
+          paymentMethodType: subscription.paymentMethodType,
+          paymentMethodId: subscription.paymentMethod?.id,
+        }}
+        externalCustomerId={subscription.customer?.externalId}
+        customerId={subscription.customer?.id}
+        selectedInvoiceCustomSections={subscription.selectedInvoiceCustomSections}
+        skipInvoiceCustomSections={subscription.skipInvoiceCustomSections}
+      />
     </section>
   )
 }

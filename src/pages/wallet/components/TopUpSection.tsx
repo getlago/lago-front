@@ -41,7 +41,6 @@ import {
 } from '~/formValidation/metadataSchema'
 import {
   CurrencyEnum,
-  FeatureFlagEnum,
   GetCustomerInfosForWalletFormQuery,
   RecurringTransactionIntervalEnum,
   RecurringTransactionMethodEnum,
@@ -50,7 +49,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { topUpAmountError, walletFormErrorCodes } from '~/pages/wallet/form'
 import { TWalletDataForm } from '~/pages/wallet/types'
 
@@ -155,26 +153,20 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
   const hasMinMax =
     !!formikProps?.values?.paidTopUpMinAmountCents || !!formikProps?.values?.paidTopUpMaxAmountCents
 
-  const { hasFeatureFlag } = useOrganizationInfos()
-  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
-
   return (
     <>
-      {hasAccessToMultiPaymentFlow &&
-        (customerData?.customer?.externalId || customerData?.customer?.id) && (
-          <section className="flex w-full flex-col gap-6 pb-12 shadow-b">
-            <div className="flex flex-col gap-1">
-              <Typography variant="subhead1">
-                {translate('text_17634566456760qoj7hs7jrh')}
-              </Typography>
-            </div>
-            <PaymentMethodsInvoiceSettings
-              customer={customerData?.customer}
-              form={formikProps}
-              viewType={ViewTypeEnum.WalletTopUp}
-            />
-          </section>
-        )}
+      {(customerData?.customer?.externalId || customerData?.customer?.id) && (
+        <section className="flex w-full flex-col gap-6 pb-12 shadow-b">
+          <div className="flex flex-col gap-1">
+            <Typography variant="subhead1">{translate('text_17634566456760qoj7hs7jrh')}</Typography>
+          </div>
+          <PaymentMethodsInvoiceSettings
+            customer={customerData?.customer}
+            form={formikProps}
+            viewType={ViewTypeEnum.WalletTopUp}
+          />
+        </section>
+      )}
 
       <section className="flex w-full flex-col gap-6">
         <div className="flex flex-col gap-1">
@@ -573,17 +565,16 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
               )}
             </div>
 
-            {hasAccessToMultiPaymentFlow &&
-              (customerData?.customer?.externalId || customerData?.customer?.id) && (
-                <div className="flex flex-col gap-6 p-4 shadow-b">
-                  <PaymentMethodsInvoiceSettings
-                    customer={customerData?.customer}
-                    form={formikProps}
-                    formFieldBasePath="recurringTransactionRules.0"
-                    viewType={ViewTypeEnum.WalletRecurringTopUp}
-                  />
-                </div>
-              )}
+            {(customerData?.customer?.externalId || customerData?.customer?.id) && (
+              <div className="flex flex-col gap-6 p-4 shadow-b">
+                <PaymentMethodsInvoiceSettings
+                  customer={customerData?.customer}
+                  form={formikProps}
+                  formFieldBasePath="recurringTransactionRules.0"
+                  viewType={ViewTypeEnum.WalletRecurringTopUp}
+                />
+              </div>
+            )}
 
             <div className="flex flex-col gap-6 p-4">
               <div>

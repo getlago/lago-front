@@ -119,7 +119,6 @@ const CreateSubscription = () => {
 
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
-  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
   const hasAccessToPaymentGatedSubscriptions = hasFeatureFlag(
     FeatureFlagEnum.PaymentGatedSubscriptions,
   )
@@ -590,7 +589,7 @@ const CreateSubscription = () => {
                           fields={{ consolidateInvoice: 'consolidateInvoice' }}
                         />
 
-                        {hasAccessToMultiPaymentFlow && (customer?.externalId || customer?.id) && (
+                        {(customer?.externalId || customer?.id) && (
                           <PaymentMethodsInvoiceSettings
                             customer={customer}
                             // `values` MUST come from reactive store slices (useStore above),

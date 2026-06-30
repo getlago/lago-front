@@ -29,12 +29,6 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
-let mockHasFeatureFlag = true
-
-jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({ hasFeatureFlag: () => mockHasFeatureFlag }),
-}))
-
 let mockHasPermission = true
 
 jest.mock('~/hooks/usePermissions', () => ({
@@ -60,21 +54,10 @@ describe('InvoicingPaymentsSection', () => {
   beforeEach(() => {
     mockOpenDrawer.mockClear()
     mockPaymentInvoiceDetails.mockClear()
-    mockHasFeatureFlag = true
     mockHasPermission = true
   })
 
-  it('renders consolidation but hides payment details without the MultiplePaymentMethods flag', () => {
-    mockHasFeatureFlag = false
-
-    render(<InvoicingPaymentsSection subscription={subscription} />)
-
-    expect(screen.getByText('text_1762862388271au34vz50g8i')).toBeInTheDocument()
-    expect(screen.getByText('text_177874535109128tmqdq682k')).toBeInTheDocument()
-    expect(mockPaymentInvoiceDetails).not.toHaveBeenCalled()
-  })
-
-  it('renders the section and the read-only display when the feature flag is on', () => {
+  it('renders the section and the read-only display', () => {
     render(<InvoicingPaymentsSection subscription={subscription} />)
 
     expect(screen.getByText('text_1762862388271au34vz50g8i')).toBeInTheDocument() // title

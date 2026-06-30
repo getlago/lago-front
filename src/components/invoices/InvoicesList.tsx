@@ -25,7 +25,7 @@ import {
 } from '~/components/invoices/ResendInvoiceForCollectionDialog'
 import { getEmptyStateConfig } from '~/components/invoices/utils/emptyStateMapping'
 import { getMostRecentPaymentMethodId } from '~/components/invoices/utils/getMostRecentPaymentMethodId'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast } from '~/core/apolloClient'
 import {
   invoiceStatusMapping,
   isInvoicePartiallyPaid,
@@ -47,20 +47,16 @@ import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
-  FeatureFlagEnum,
   GetInvoicesListQuery,
   GetInvoicesListQueryResult,
   Invoice,
   InvoiceStatusTypeEnum,
-  LagoApiError,
   useDownloadInvoiceItemMutation,
-  useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useGeneratePaymentUrl } from '~/hooks/useGeneratePaymentUrl'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 
@@ -88,14 +84,11 @@ const InvoicesList = ({
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const actions = usePermissionsInvoiceActions()
-  const { hasFeatureFlag } = useOrganizationInfos()
   const { showResendEmailDialog } = useResendEmailDialog()
 
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
 
   const { handleDownloadFile } = useDownloadFile()
-
-  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
@@ -104,18 +97,6 @@ const InvoicesList = ({
   const [downloadInvoice] = useDownloadInvoiceItemMutation({
     onCompleted({ downloadInvoice: data }) {
       handleDownloadFile(data?.fileUrl)
-    },
-  })
-
-  const [retryCollect] = useRetryInvoicePaymentMutation({
-    context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
-    onCompleted({ retryInvoicePayment: data }) {
-      if (data?.id) {
-        addToast({
-          severity: 'success',
-          translateKey: 'text_63ac86d897f728a87b2fa0b3',
-        })
-      }
     },
   })
 
@@ -272,28 +253,11 @@ const InvoicesList = ({
       ? {
           startIcon: 'push',
           title: translate('text_63ac86d897f728a87b2fa039'),
-          onAction: async () => {
-            if (hasAccessToMultiPaymentFlow) {
-              resendInvoiceForCollectionDialogRef.current?.openDialog({
-                invoice,
-                preselectedPaymentMethodId: getMostRecentPaymentMethodId(invoice?.payments),
-              })
-            } else {
-              const { errors } = await retryCollect({
-                variables: {
-                  input: {
-                    id: invoice.id,
-                  },
-                },
-              })
-
-              if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
-                addToast({
-                  severity: 'info',
-                  translateKey: 'text_63b6d06df1a53b7e2ad973ad',
-                })
-              }
-            }
+          onAction: () => {
+            resendInvoiceForCollectionDialogRef.current?.openDialog({
+              invoice,
+              preselectedPaymentMethodId: getMostRecentPaymentMethodId(invoice?.payments),
+            })
           },
         }
       : null

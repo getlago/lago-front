@@ -1,7 +1,6 @@
 import { act, render, renderHook, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { FeatureFlagEnum } from '~/generated/graphql'
 import type { QuoteCustomer } from '~/pages/quotes/hooks/useSubscriptionPricingDrawer'
 
 import {
@@ -20,15 +19,6 @@ jest.mock('~/components/drawers/useDrawer', () => ({
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
-  }),
-}))
-
-const mockHasFeatureFlag = jest.fn().mockReturnValue(true)
-
-jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({
-    hasFeatureFlag: mockHasFeatureFlag,
-    organization: { defaultCurrency: 'USD' },
   }),
 }))
 
@@ -54,7 +44,6 @@ const mockCustomer: QuoteCustomer = {
 describe('useInvoicingPaymentsSettingsDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockHasFeatureFlag.mockReturnValue(true)
   })
 
   it('returns openDrawer function', () => {
@@ -81,45 +70,27 @@ describe('useInvoicingPaymentsSettingsDrawer', () => {
   })
 
   describe('GIVEN showSection return value', () => {
-    it('WHEN feature flag is enabled AND customer has id THEN returns showSection true', () => {
-      mockHasFeatureFlag.mockReturnValue(true)
-
+    it('WHEN customer has id THEN returns showSection true', () => {
       const { result } = renderHook(() =>
         useInvoicingPaymentsSettingsDrawer(mockOnSave, mockCustomer),
       )
 
       expect(result.current.showSection).toBe(true)
-      expect(mockHasFeatureFlag).toHaveBeenCalledWith(FeatureFlagEnum.MultiplePaymentMethods)
-    })
-
-    it('WHEN feature flag is disabled THEN returns showSection false', () => {
-      mockHasFeatureFlag.mockReturnValue(false)
-
-      const { result } = renderHook(() =>
-        useInvoicingPaymentsSettingsDrawer(mockOnSave, mockCustomer),
-      )
-
-      expect(result.current.showSection).toBe(false)
     })
 
     it('WHEN customer is null THEN returns showSection false', () => {
-      mockHasFeatureFlag.mockReturnValue(true)
-
       const { result } = renderHook(() => useInvoicingPaymentsSettingsDrawer(mockOnSave, null))
 
       expect(result.current.showSection).toBe(false)
     })
 
     it('WHEN customer is undefined THEN returns showSection false', () => {
-      mockHasFeatureFlag.mockReturnValue(true)
-
       const { result } = renderHook(() => useInvoicingPaymentsSettingsDrawer(mockOnSave, undefined))
 
       expect(result.current.showSection).toBe(false)
     })
 
     it('WHEN customer has only externalId THEN returns showSection true', () => {
-      mockHasFeatureFlag.mockReturnValue(true)
       const customerWithExternalIdOnly: QuoteCustomer = {
         id: '',
         externalId: 'ext-123',
@@ -255,9 +226,7 @@ describe('useInvoicingPaymentsSettingsDrawer', () => {
   })
 
   describe('GIVEN InvoicingPaymentsDrawerContent rendering', () => {
-    it('WHEN customer is provided and feature flag enabled THEN renders PaymentMethodsInvoiceSettings', () => {
-      mockHasFeatureFlag.mockReturnValue(true)
-
+    it('WHEN customer is provided THEN renders PaymentMethodsInvoiceSettings', () => {
       const { result } = renderHook(() =>
         useInvoicingPaymentsSettingsDrawer(mockOnSave, mockCustomer),
       )
@@ -275,8 +244,6 @@ describe('useInvoicingPaymentsSettingsDrawer', () => {
     })
 
     it('WHEN customer is provided with initial paymentMethodId THEN passes it to content', () => {
-      mockHasFeatureFlag.mockReturnValue(true)
-
       const valuesWithPayment: InvoicingPaymentsSettingsFormValues = {
         paymentMethodId: 'pm-initial',
         invoiceCustomFooter: '',
@@ -296,25 +263,6 @@ describe('useInvoicingPaymentsSettingsDrawer', () => {
       expect(
         container.querySelector('[data-test="payment-methods-invoice-settings"]'),
       ).toBeInTheDocument()
-    })
-
-    it('WHEN feature flag is disabled THEN does not render PaymentMethodsInvoiceSettings', () => {
-      mockHasFeatureFlag.mockReturnValue(false)
-
-      const { result } = renderHook(() =>
-        useInvoicingPaymentsSettingsDrawer(mockOnSave, mockCustomer),
-      )
-
-      act(() => {
-        result.current.openDrawer(defaultValues)
-      })
-
-      const drawerCallArgs = mockDrawerOpen.mock.calls[0][0]
-      const { container } = render(drawerCallArgs.children)
-
-      expect(
-        container.querySelector('[data-test="payment-methods-invoice-settings"]'),
-      ).not.toBeInTheDocument()
     })
   })
 })

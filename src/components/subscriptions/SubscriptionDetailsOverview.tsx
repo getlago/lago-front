@@ -4,12 +4,10 @@ import { useParams } from 'react-router-dom'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PlanDetailsOverview } from '~/components/plans/details/PlanDetailsOverview'
 import {
-  FeatureFlagEnum,
   LagoApiError,
   SubscriptionForSubscriptionInformationsFragmentDoc,
   useGetSubscriptionForDetailsOverviewQuery,
 } from '~/generated/graphql'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { PaymentInvoiceDetails } from './PaymentInvoiceDetails'
 import { SubscriptionInformations } from './SubscriptionInformations'
@@ -38,8 +36,6 @@ gql`
 `
 
 export const SubscriptionDetailsOverview = () => {
-  const { hasFeatureFlag } = useOrganizationInfos()
-  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
   const { subscriptionId } = useParams()
   const { data: subscriptionResult, loading: isSubscriptionLoading } =
     useGetSubscriptionForDetailsOverviewQuery({
@@ -61,18 +57,16 @@ export const SubscriptionDetailsOverview = () => {
   return (
     <div className="flex flex-col gap-12">
       <SubscriptionInformations subscription={subscription} />
-      {hasAccessToMultiPaymentFlow && (
-        <PaymentInvoiceDetails
-          selectedPaymentMethod={{
-            paymentMethodType: subscription?.paymentMethodType,
-            paymentMethodId: subscription?.paymentMethod?.id,
-          }}
-          externalCustomerId={subscription?.customer?.externalId}
-          customerId={subscription?.customer?.id}
-          selectedInvoiceCustomSections={subscription?.selectedInvoiceCustomSections}
-          skipInvoiceCustomSections={subscription?.skipInvoiceCustomSections}
-        />
-      )}
+      <PaymentInvoiceDetails
+        selectedPaymentMethod={{
+          paymentMethodType: subscription?.paymentMethodType,
+          paymentMethodId: subscription?.paymentMethod?.id,
+        }}
+        externalCustomerId={subscription?.customer?.externalId}
+        customerId={subscription?.customer?.id}
+        selectedInvoiceCustomSections={subscription?.selectedInvoiceCustomSections}
+        skipInvoiceCustomSections={subscription?.skipInvoiceCustomSections}
+      />
       <PlanDetailsOverview
         planId={subscription?.plan.id}
         showEntitlementSection={false}

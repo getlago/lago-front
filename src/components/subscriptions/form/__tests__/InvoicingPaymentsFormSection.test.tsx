@@ -25,12 +25,6 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
-let mockHasFeatureFlag = true
-
-jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({ hasFeatureFlag: () => mockHasFeatureFlag }),
-}))
-
 jest.mock('@tanstack/react-form', () => ({
   revalidateLogic: jest.fn(() => ({})),
   useStore: (store: { state: unknown }, selector: (state: unknown) => unknown) =>
@@ -72,7 +66,6 @@ const createMockForm = () => {
 describe('InvoicingPaymentsFormSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockHasFeatureFlag = true
   })
 
   describe('GIVEN a customer with id', () => {
@@ -110,21 +103,6 @@ describe('InvoicingPaymentsFormSection', () => {
       expect(mockConsolidationSection).toHaveBeenCalledWith(
         expect.objectContaining({ fields: { consolidateInvoice: 'consolidateInvoice' } }),
       )
-    })
-
-    it('hides PaymentMethodsInvoiceSettings without the MultiplePaymentMethods flag but keeps consolidation', () => {
-      mockHasFeatureFlag = false
-
-      render(
-        <InvoicingPaymentsFormSection
-          // @ts-expect-error - mock form shape
-          form={createMockForm()}
-          customer={{ id: 'cus-1' }}
-        />,
-      )
-
-      expect(mockConsolidationSection).toHaveBeenCalled()
-      expect(mockPaymentMethodsInvoiceSettings).not.toHaveBeenCalled()
     })
   })
 
