@@ -1,7 +1,8 @@
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { OrderTypeEnum, QuoteDetailItemFragment, StatusEnum } from '~/generated/graphql'
-import { render } from '~/test-utils'
+import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useQuoteVersionActions } from '../hooks/useQuoteVersionActions'
 import QuoteDetailsVersions, { QUOTE_VERSIONS_TABLE_TEST_ID } from '../QuoteDetailsVersions'
@@ -164,6 +165,36 @@ describe('QuoteDetailsVersions', () => {
         render(<QuoteDetailsVersions quote={mockQuote} />)
 
         expect(screen.queryByTestId('table-row-0-action-button')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN row-click navigation', () => {
+    describe('WHEN an approved version row is clicked', () => {
+      it('THEN should navigate to that version preview', async () => {
+        const user = userEvent.setup()
+
+        render(<QuoteDetailsVersions quote={mockQuote} />)
+
+        // row-1 is the Approved version-v1 (see mockQuote.versions order)
+        await user.click(screen.getByTestId('table-row-1'))
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith(
+          '/quote/quote-v2/version/version-v1/preview',
+        )
+      })
+    })
+
+    describe('WHEN a draft version row is clicked', () => {
+      it('THEN should navigate to that version edit page', async () => {
+        const user = userEvent.setup()
+
+        render(<QuoteDetailsVersions quote={mockQuote} />)
+
+        // row-0 is the Draft version-v2
+        await user.click(screen.getByTestId('table-row-0'))
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-v2/version/version-v2/edit')
       })
     })
   })
