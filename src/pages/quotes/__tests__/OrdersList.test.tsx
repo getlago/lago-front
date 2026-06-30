@@ -34,6 +34,10 @@ jest.mock('../hooks/useOrders', () => ({
   useOrders: jest.fn(),
 }))
 
+jest.mock('~/pages/quotes/common/QuotePdfProvider', () => ({
+  useDownloadQuotePdf: () => ({ download: jest.fn() }),
+}))
+
 const mockUseOrders = useOrders as jest.MockedFunction<typeof useOrders>
 
 const mockOrders = [
@@ -43,7 +47,16 @@ const mockOrders = [
     status: OrderStatusEnum.Executed,
     executionMode: OrderExecutionModeEnum.ExecuteInLago,
     executedAt: '2026-04-10T10:00:00Z',
-    orderForm: { id: 'of-1', number: 'OF-2026-0001', quote: { id: 'q-1', number: 'QUO-001' } },
+    customer: { id: 'customer-001', displayName: 'Acme Corp' },
+    orderForm: {
+      id: 'of-1',
+      number: 'OF-2026-0001',
+      quote: {
+        id: 'q-1',
+        number: 'QUO-001',
+        currentVersion: { id: 'qv-1', version: 1, content: '# Hello World', mentionVariables: {} },
+      },
+    },
   },
   {
     id: 'order-2',
@@ -51,7 +64,16 @@ const mockOrders = [
     status: OrderStatusEnum.Created,
     executionMode: null,
     executedAt: null,
-    orderForm: { id: 'of-2', number: 'OF-2026-0002', quote: { id: 'q-2', number: 'QUO-002' } },
+    customer: { id: 'customer-002', displayName: 'Globex Corp' },
+    orderForm: {
+      id: 'of-2',
+      number: 'OF-2026-0002',
+      quote: {
+        id: 'q-2',
+        number: 'QUO-002',
+        currentVersion: { id: 'qv-2', version: 1, content: '# Hello World', mentionVariables: {} },
+      },
+    },
   },
 ]
 
