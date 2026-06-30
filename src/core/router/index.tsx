@@ -7,6 +7,7 @@ import { customerObjectCreationRoutes, customerRoutes, customerVoidRoutes } from
 import { objectCreationRoutes, objectDetailsRoutes, objectListRoutes } from './ObjectsRoutes'
 import {
   orderFormsModificationRoutes,
+  ordersModificationRoutes,
   quotesModificationRoutes,
   quotesRoutes,
 } from './QuotesRoutes'
@@ -149,6 +150,7 @@ export const routes: CustomRouteObject[] = [
       ...makeRelative(objectCreationRoutes),
       ...makeRelative(quotesModificationRoutes),
       ...makeRelative(orderFormsModificationRoutes),
+      ...makeRelative(ordersModificationRoutes),
     ],
   },
   ...authRoutes,
