@@ -1,11 +1,15 @@
-import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
+import { ReactNode } from 'react'
 
-import { DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
-import { DeleteTaxFragment, useDeleteTaxMutation } from '~/generated/graphql'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
+import {
+  DeleteTaxFragment,
+  GetTaxesSettingsInformationsDocument,
+  useDeleteTaxMutation,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -22,70 +26,54 @@ gql`
   }
 `
 
-export interface DeleteTaxDialogRef {
-  openDialog: (tax: DeleteTaxFragment) => unknown
-  closeDialog: () => unknown
-}
-
-export const DeleteTaxDialog = forwardRef<DeleteTaxDialogRef>((_, ref) => {
+export const useDeleteTaxDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
-  const dialogRef = useRef<DialogRef>(null)
-  const [tax, setTax] = useState<DeleteTaxFragment | undefined>(undefined)
-  const [deleteTax] = useDeleteTaxMutation({
-    onCompleted(data) {
-      if (data && data.destroyTax) {
-        addToast({
-          message: translate('text_645bb193927b375079d28b5a'),
-          severity: 'success',
+  const client = useApolloClient()
+
+  const [deleteTax] = useDeleteTaxMutation()
+
+  const getDescription = (customersCount: number): ReactNode => {
+    let copy = translate('text_645cb766cca2dd00e2956271')
+
+    if (customersCount) {
+      copy = translate('text_645bb193927b375079d28b0c', { count: customersCount }, customersCount)
+    }
+
+    return <Typography>{copy}</Typography>
+  }
+
+  const openDeleteTaxDialog = (tax: DeleteTaxFragment) => {
+    centralizedDialog.open({
+      title: translate('text_645bb193927b375079d28af7', {
+        name: tax.name,
+      }),
+      description: getDescription(tax.customersCount),
+      colorVariant: 'danger',
+      actionText: translate('text_645bb193927b375079d28b34'),
+      onAction: async () => {
+        const result = await deleteTax({
+          variables: { input: { id: tax.id } },
         })
-      }
-    },
-    update(cache, { data }) {
-      if (!data?.destroyTax) return
-      const cacheId = cache.identify({
-        id: data?.destroyTax.id,
-        __typename: 'Tax',
-      })
 
-      cache.evict({ id: cacheId })
-    },
-  })
+        const destroyedId = result.data?.destroyTax?.id
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setTax(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => {
-      dialogRef.current?.closeDialog()
-    },
-  }))
+        if (destroyedId) {
+          evictFromCache(client, {
+            id: destroyedId,
+            __typename: 'Tax',
+            listFieldName: 'taxes',
+            listQueryDocument: GetTaxesSettingsInformationsDocument,
+          })
 
-  return (
-    <WarningDialog
-      ref={dialogRef}
-      title={translate('text_645bb193927b375079d28af7', {
-        name: tax?.name,
-      })}
-      description={
-        <Typography>
-          {!!tax?.customersCount
-            ? translate(
-                'text_645bb193927b375079d28b0c',
-                { count: tax?.customersCount },
-                tax?.customersCount,
-              )
-            : translate('text_645cb766cca2dd00e2956271')}
-        </Typography>
-      }
-      onContinue={async () =>
-        await deleteTax({
-          variables: { input: { id: tax?.id || '' } },
-        })
-      }
-      continueText={translate('text_645bb193927b375079d28b34')}
-    />
-  )
-})
+          addToast({
+            message: translate('text_645bb193927b375079d28b5a'),
+            severity: 'success',
+          })
+        }
+      },
+    })
+  }
 
-DeleteTaxDialog.displayName = 'DeleteTaxDialog'
+  return { openDeleteTaxDialog }
+}
