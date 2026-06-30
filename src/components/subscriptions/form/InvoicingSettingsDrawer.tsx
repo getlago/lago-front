@@ -139,7 +139,7 @@ interface InvoicingSettingsDrawerProps {
   viewType: ViewTypeEnum
   customerId?: string
   showCustomSection: boolean
-  onSave: (values: InvoicingSettingsValues) => void
+  onSave: (values: InvoicingSettingsValues) => void | Promise<void>
 }
 
 export const InvoicingSettingsDrawer = forwardRef<
@@ -156,7 +156,7 @@ export const InvoicingSettingsDrawer = forwardRef<
       onDynamic: invoicingSettingsValidationSchema,
     },
     onSubmit: async ({ value }) => {
-      onSave({
+      await onSave({
         consolidateInvoice: value.consolidateInvoice,
         invoiceCustomSection: value.invoiceCustomSection,
       })

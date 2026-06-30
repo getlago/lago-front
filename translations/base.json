@@ -4468,5 +4468,8 @@
   "text_1782723591984gz2mp067m0n": "Edit orders",
   "text_1782723591984jx3x7kt7rph": "View orders",
   "text_1782744552573k822vj4c3o0": "This is a read-only preview of the selected quote version.",
-  "text_17827453798351lxoetcgnjt": "Quote {{quoteNumber}} - {{quoteVersion}}"
+  "text_17827453798351lxoetcgnjt": "Quote {{quoteNumber}} - {{quoteVersion}}",
+  "text_1782825858647rr5zp42t63m": "Payment app and settings",
+  "text_1782825858647ro8ahgg7uys": "How the subscription is paid.",
+  "text_1782825858647mvpxt3d6et4": "How invoices are generated for this subscription."
 }

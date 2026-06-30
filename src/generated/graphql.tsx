@@ -12776,13 +12776,6 @@ export type ProjectedUsageForSubscriptionUsageQueryVariables = Exact<{
 
 export type ProjectedUsageForSubscriptionUsageQuery = { __typename?: 'Query', customerProjectedUsage: { __typename?: 'CustomerProjectedUsage', amountCents: any, projectedAmountCents: any, currency: CurrencyEnum, fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ProjectedChargeUsage', id: string, units: number, amountCents: any, pricingUnitAmountCents?: any | null, projectedUnits: number, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null, properties?: { __typename?: 'Properties', pricingGroupKeys?: Array<string> | null, presentationGroupKeys?: Array<{ __typename?: 'PresentationGroupKey', value: string }> | null } | null }, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string }, filters?: Array<{ __typename?: 'ProjectedChargeFilterUsage', id?: string | null, invoiceDisplayName?: string | null, amountCents: any, units: number, values: any, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, projectedPresentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> | null, groupedUsage: Array<{ __typename?: 'ProjectedGroupedChargeUsage', amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, projectedUnits: number, projectedAmountCents: any, id: string, pricingUnitAmountCents?: any | null, pricingUnitProjectedAmountCents?: any | null, filters?: Array<{ __typename?: 'ProjectedChargeFilterUsage', id?: string | null, invoiceDisplayName?: string | null, amountCents: any, units: number, values: any, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, projectedPresentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, projectedPresentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }>, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, projectedPresentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> } };
 
-export type GetSubscriptionForDetailsOverviewQueryVariables = Exact<{
-  subscriptionId: Scalars['ID']['input'];
-}>;
-
-
-export type GetSubscriptionForDetailsOverviewQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, externalId: string, name?: string | null, status?: StatusTypeEnum | null, startedAt?: any | null, cancellationReason?: CancellationReasonEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingTime?: BillingTimeEnum | null, downgradePlanDate?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, billingEntityId?: string | null, plan: { __typename?: 'Plan', id: string, name: string, parent?: { __typename?: 'Plan', id: string, name: string } | null }, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousSubscription?: { __typename?: 'Subscription', id: string, downgradePlanDate?: any | null } | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string, deletedAt?: any | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } } } | null };
-
 export type GetEntitlementsForSubscriptionDetailsQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
 }>;
@@ -12836,14 +12829,12 @@ export type DestroySubscriptionAlertMutationVariables = Exact<{
 
 export type DestroySubscriptionAlertMutation = { __typename?: 'Mutation', destroySubscriptionAlert?: { __typename?: 'Alert', id: string } | null };
 
-export type InvoicingPaymentsSectionFragment = { __typename?: 'Subscription', id: string, consolidateInvoice: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, name?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, billingTime?: BillingTimeEnum | null, billingEntityId?: string | null, periodEndDate?: any | null, status?: StatusTypeEnum | null, startedAt?: any | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null, customer: { __typename?: 'Customer', id: string, externalId: string }, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } };
-
 export type GetSubscriptionForDetailsV2OverviewQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
 }>;
 
 
-export type GetSubscriptionForDetailsV2OverviewQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, consolidateInvoice: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, externalId: string, name?: string | null, status?: StatusTypeEnum | null, startedAt?: any | null, cancellationReason?: CancellationReasonEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingTime?: BillingTimeEnum | null, downgradePlanDate?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, billingEntityId?: string | null, periodEndDate?: any | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, name?: string | null, displayName: string, deletedAt?: any | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } }, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousSubscription?: { __typename?: 'Subscription', id: string, downgradePlanDate?: any | null } | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string, name: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } } | null };
+export type GetSubscriptionForDetailsV2OverviewQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, externalId: string, name?: string | null, status?: StatusTypeEnum | null, startedAt?: any | null, cancellationReason?: CancellationReasonEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingTime?: BillingTimeEnum | null, downgradePlanDate?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, billingEntityId?: string | null, periodEndDate?: any | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, name?: string | null, displayName: string, deletedAt?: any | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } }, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousSubscription?: { __typename?: 'Subscription', id: string, downgradePlanDate?: any | null } | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string, name: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } } | null };
 
 export type GetSubscriptionForDetailsV2PlanQueryVariables = Exact<{
   subscriptionId: Scalars['ID']['input'];
@@ -12860,6 +12851,10 @@ export type GetSubscriptionFixedChargeUnitsOverridesQueryVariables = Exact<{
 export type GetSubscriptionFixedChargeUnitsOverridesQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, units: string }> | null } | null };
 
 export type SubscriptionInformationSectionFragment = { __typename?: 'Subscription', id: string, externalId: string, name?: string | null, status?: StatusTypeEnum | null, startedAt?: any | null, cancellationReason?: CancellationReasonEnum | null, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingTime?: BillingTimeEnum | null, downgradePlanDate?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, billingEntityId?: string | null, periodEndDate?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, name?: string | null, displayName: string, deletedAt?: any | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } }, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, nextPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousPlan?: { __typename?: 'Plan', id: string, name: string } | null, previousSubscription?: { __typename?: 'Subscription', id: string, downgradePlanDate?: any | null } | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string, name: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null }, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null };
+
+export type SubscriptionInvoiceSectionFragment = { __typename?: 'Subscription', id: string, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, customer: { __typename?: 'Customer', id: string, externalId: string } };
+
+export type SubscriptionPaymentSectionFragment = { __typename?: 'Subscription', id: string, paymentMethodType?: PaymentMethodTypeEnum | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string } };
 
 export type SubscriptionForSubscriptionEditFormFragment = { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, billingTime?: BillingTimeEnum | null, billingEntityId?: string | null, periodEndDate?: any | null, status?: StatusTypeEnum | null, startedAt?: any | null, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }> | null, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, parent?: { __typename?: 'Plan', id: string } | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null } };
 
@@ -18592,26 +18587,6 @@ export const SubscriptionForSubscriptionEditFormFragmentDoc = gql`
   }
 }
     ${AddSubscriptionPlanFragmentDoc}`;
-export const InvoicingPaymentsSectionFragmentDoc = gql`
-    fragment InvoicingPaymentsSection on Subscription {
-  id
-  consolidateInvoice
-  paymentMethodType
-  paymentMethod {
-    id
-  }
-  skipInvoiceCustomSections
-  selectedInvoiceCustomSections {
-    id
-    name
-  }
-  customer {
-    id
-    externalId
-  }
-  ...SubscriptionForSubscriptionEditForm
-}
-    ${SubscriptionForSubscriptionEditFormFragmentDoc}`;
 export const SubscriptionInformationSectionFragmentDoc = gql`
     fragment SubscriptionInformationSection on Subscription {
   id
@@ -18624,6 +18599,34 @@ export const SubscriptionInformationSectionFragmentDoc = gql`
 }
     ${SubscriptionInformationFieldsFragmentDoc}
 ${SubscriptionForSubscriptionEditFormFragmentDoc}`;
+export const SubscriptionInvoiceSectionFragmentDoc = gql`
+    fragment SubscriptionInvoiceSection on Subscription {
+  id
+  consolidateInvoice
+  skipInvoiceCustomSections
+  selectedInvoiceCustomSections {
+    id
+    name
+  }
+  customer {
+    id
+    externalId
+  }
+}
+    `;
+export const SubscriptionPaymentSectionFragmentDoc = gql`
+    fragment SubscriptionPaymentSection on Subscription {
+  id
+  paymentMethodType
+  paymentMethod {
+    id
+  }
+  customer {
+    id
+    externalId
+  }
+}
+    `;
 export const BillableMetricForWalletScopeSectionFragmentDoc = gql`
     fragment BillableMetricForWalletScopeSection on BillableMetric {
   id
@@ -31221,62 +31224,6 @@ export type ProjectedUsageForSubscriptionUsageQueryHookResult = ReturnType<typeo
 export type ProjectedUsageForSubscriptionUsageLazyQueryHookResult = ReturnType<typeof useProjectedUsageForSubscriptionUsageLazyQuery>;
 export type ProjectedUsageForSubscriptionUsageSuspenseQueryHookResult = ReturnType<typeof useProjectedUsageForSubscriptionUsageSuspenseQuery>;
 export type ProjectedUsageForSubscriptionUsageQueryResult = Apollo.QueryResult<ProjectedUsageForSubscriptionUsageQuery, ProjectedUsageForSubscriptionUsageQueryVariables>;
-export const GetSubscriptionForDetailsOverviewDocument = gql`
-    query getSubscriptionForDetailsOverview($subscriptionId: ID!) {
-  subscription(id: $subscriptionId) {
-    id
-    plan {
-      id
-    }
-    paymentMethodType
-    paymentMethod {
-      id
-    }
-    skipInvoiceCustomSections
-    selectedInvoiceCustomSections {
-      id
-      name
-    }
-    ...SubscriptionForSubscriptionInformations
-  }
-}
-    ${SubscriptionForSubscriptionInformationsFragmentDoc}`;
-
-/**
- * __useGetSubscriptionForDetailsOverviewQuery__
- *
- * To run a query within a React component, call `useGetSubscriptionForDetailsOverviewQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetSubscriptionForDetailsOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetSubscriptionForDetailsOverviewQuery({
- *   variables: {
- *      subscriptionId: // value for 'subscriptionId'
- *   },
- * });
- */
-export function useGetSubscriptionForDetailsOverviewQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables> & ({ variables: GetSubscriptionForDetailsOverviewQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>(GetSubscriptionForDetailsOverviewDocument, options);
-      }
-export function useGetSubscriptionForDetailsOverviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>(GetSubscriptionForDetailsOverviewDocument, options);
-        }
-// @ts-ignore
-export function useGetSubscriptionForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>;
-export function useGetSubscriptionForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionForDetailsOverviewQuery | undefined, GetSubscriptionForDetailsOverviewQueryVariables>;
-export function useGetSubscriptionForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>(GetSubscriptionForDetailsOverviewDocument, options);
-        }
-export type GetSubscriptionForDetailsOverviewQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsOverviewQuery>;
-export type GetSubscriptionForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsOverviewLazyQuery>;
-export type GetSubscriptionForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionForDetailsOverviewSuspenseQuery>;
-export type GetSubscriptionForDetailsOverviewQueryResult = Apollo.QueryResult<GetSubscriptionForDetailsOverviewQuery, GetSubscriptionForDetailsOverviewQueryVariables>;
 export const GetEntitlementsForSubscriptionDetailsDocument = gql`
     query getEntitlementsForSubscriptionDetails($subscriptionId: ID!) {
   subscriptionEntitlements(subscriptionId: $subscriptionId) {
@@ -31493,11 +31440,13 @@ export const GetSubscriptionForDetailsV2OverviewDocument = gql`
   subscription(id: $subscriptionId) {
     id
     ...SubscriptionInformationSection
-    ...InvoicingPaymentsSection
+    ...SubscriptionPaymentSection
+    ...SubscriptionInvoiceSection
   }
 }
     ${SubscriptionInformationSectionFragmentDoc}
-${InvoicingPaymentsSectionFragmentDoc}`;
+${SubscriptionPaymentSectionFragmentDoc}
+${SubscriptionInvoiceSectionFragmentDoc}`;
 
 /**
  * __useGetSubscriptionForDetailsV2OverviewQuery__

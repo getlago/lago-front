@@ -87,7 +87,7 @@ export interface PaymentSettingsDrawerRef {
 interface PaymentSettingsDrawerProps {
   viewType: ViewTypeEnum
   externalCustomerId: string
-  onSave: (values: PaymentSettingsValues) => void
+  onSave: (values: PaymentSettingsValues) => void | Promise<void>
 }
 
 export const PaymentSettingsDrawer = forwardRef<
@@ -104,7 +104,7 @@ export const PaymentSettingsDrawer = forwardRef<
       onDynamic: paymentSettingsValidationSchema,
     },
     onSubmit: async ({ value }) => {
-      onSave({ paymentMethod: value.paymentMethod })
+      await onSave({ paymentMethod: value.paymentMethod })
       drawer.close()
     },
   })
