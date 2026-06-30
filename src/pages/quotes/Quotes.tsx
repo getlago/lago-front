@@ -40,6 +40,7 @@ const Quotes = (): JSX.Element => {
   const { pathname } = useLocation()
   const { hasPermissions } = usePermissions()
   const canCreateQuotes = hasPermissions(['quotesCreate'])
+  const canViewOrderForms = hasPermissions(['orderFormsView'])
   const { isPremium } = useCurrentUser()
   const { tab } = useParams()
   const tabFilterConfig: Record<
@@ -96,13 +97,17 @@ const Quotes = (): JSX.Element => {
         ],
         content: <QuotesList />,
       },
-      {
-        title: translate('text_17757461968258p4ij8g74zp'),
-        link: generatePath(QUOTES_TAB_ROUTE, {
-          tab: QuotesTabsOptionsEnum.orderForms,
-        }),
-        content: <OrderFormsList />,
-      },
+      ...(canViewOrderForms
+        ? [
+            {
+              title: translate('text_17757461968258p4ij8g74zp'),
+              link: generatePath(QUOTES_TAB_ROUTE, {
+                tab: QuotesTabsOptionsEnum.orderForms,
+              }),
+              content: <OrderFormsList />,
+            },
+          ]
+        : []),
       {
         title: translate('text_17823920587596x5e6nes7qv'),
         link: generatePath(QUOTES_TAB_ROUTE, {
@@ -111,7 +116,7 @@ const Quotes = (): JSX.Element => {
         content: <OrdersList />,
       },
     ],
-    [translate],
+    [translate, canViewOrderForms],
   )
 
   const activeTabContent = useMainHeaderTabContent()

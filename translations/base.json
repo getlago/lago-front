@@ -4458,5 +4458,9 @@
   "text_1782723591984gz2mp067m0n": "Edit orders",
   "text_1782723591984jx3x7kt7rph": "View orders",
   "text_1782744552573k822vj4c3o0": "This is a read-only preview of the selected quote version.",
-  "text_17827453798351lxoetcgnjt": "Quote {{quoteNumber}} - {{quoteVersion}}"
+  "text_17827453798351lxoetcgnjt": "Quote {{quoteNumber}} - {{quoteVersion}}",
+  "text_1782808811242x7jvelxo3kr": "Valid until",
+  "text_178280881124242ngphx36je": "View signed document",
+  "text_17828094623997l9tqj385k5": "Order form {{orderFormNumber}}",
+  "text_1782821511108j6cgg7ioq23": "This is a read-only preview of this order form."
 }
