@@ -14,12 +14,22 @@ gql`
     status
     executionMode
     executedAt
+    customer {
+      id
+      displayName
+      ...QuotePreviewCustomer
+    }
     orderForm {
       id
       number
       quote {
         id
         number
+        currentVersion {
+          id
+          version
+          ...QuotePreviewVersion
+        }
       }
     }
   }
