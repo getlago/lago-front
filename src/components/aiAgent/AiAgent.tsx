@@ -9,13 +9,21 @@ import { PanelAiAgent } from '~/components/aiAgent/PanelAiAgent'
 import { PanelWrapper } from '~/components/aiAgent/PanelWrapper'
 import { getHiddenAiAgentPaths } from '~/components/aiAgent/utils'
 import { useLocation } from '~/core/router'
-import { AIPanelEnum, PANEL_CLOSED, PANEL_OPEN, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
+import {
+  AGENT_TYPE_LABELS,
+  AGENT_TYPE_SHOW_HISTORY,
+  AIPanelEnum,
+  PANEL_CLOSED,
+  PANEL_OPEN,
+  useAiAgent,
+} from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
 export const AiAgent = () => {
-  const { panelRef, currentPanelOpened, panelOpen, state, resetConversation } = useAiAgent()
+  const { agentType, panelRef, currentPanelOpened, panelOpen, state, resetConversation } =
+    useAiAgent()
   const { isPremium, currentUser } = useCurrentUser()
   const { translate } = useInternationalization()
   const [showHistory, setShowHistory] = useState(false)
@@ -62,6 +70,8 @@ export const AiAgent = () => {
     isPremium && hasPermissions(['aiConversationsView', 'aiConversationsCreate'])
 
   const shouldDisplayWelcomeMessage = !state.messages.length
+  const agentHasHistory = AGENT_TYPE_SHOW_HISTORY[agentType]
+  const emptyStateTitle = translate(AGENT_TYPE_LABELS[agentType])
 
   const onBackButton = () => {
     if (showHistory) {
@@ -96,12 +106,15 @@ export const AiAgent = () => {
             title={
               showHistory
                 ? translate('text_17574172258513wv8yozezoz')
-                : (state.messages[0]?.message ?? translate('text_175741722585199myqwj6vyw'))
+                : (state.messages[0]?.message ?? emptyStateTitle)
             }
             isBeta={shouldDisplayWelcomeMessage && !showHistory}
+            showAgentSelector={shouldDisplayWelcomeMessage && !showHistory}
             showBackButton={!shouldDisplayWelcomeMessage || showHistory}
             onBackButton={onBackButton}
-            showHistoryButton={shouldDisplayWelcomeMessage && !showHistory && hasAccessToAiAgent}
+            showHistoryButton={
+              agentHasHistory && shouldDisplayWelcomeMessage && !showHistory && hasAccessToAiAgent
+            }
             onShowHistory={() => setShowHistory(true)}
           >
             {showHistory && <ChatHistory hideHistory={() => setShowHistory(false)} />}

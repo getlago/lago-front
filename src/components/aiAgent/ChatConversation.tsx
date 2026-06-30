@@ -48,6 +48,13 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
           )
         }
 
+        // Skip the assistant bubble while it has nothing to render yet — the
+        // loader stands in for the pending reply. An empty Received element
+        // would otherwise stack a second gap-6 above the loader.
+        if (!message.message && !message.financeAssistantResult) {
+          return null
+        }
+
         return (
           <ChatMessages.Received key={message.id}>
             <Message message={message} />
@@ -57,7 +64,7 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
 
       {state.isLoading && <ChatMessages.Loading />}
 
-      {subscription.error && (
+      {(subscription.error || state.hasError) && (
         <ChatMessages.Error>{translate('text_1757417225851jw88w0yfa0n')}</ChatMessages.Error>
       )}
     </div>
