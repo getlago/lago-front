@@ -112,7 +112,7 @@ export const PanelAiAgent = ({ hasAccessToAiAgent }: PanelAiAgentProps) => {
       )}
 
       {!shouldDisplayWelcomeMessage && !state.messages.length && initialPrompt && !error && (
-        <div className="mt-auto flex h-full flex-col gap-12 p-6">
+        <div className="mt-auto flex h-full flex-col gap-6 p-6">
           <ChatMessages.Sent>{initialPrompt}</ChatMessages.Sent>
 
           <ChatMessages.Loading />
