@@ -4468,5 +4468,9 @@
   "text_17827453798351lxoetcgnjt": "Quote {{quoteNumber}} - {{quoteVersion}}",
   "text_1782825858647rr5zp42t63m": "Payment app and settings",
   "text_1782825858647ro8ahgg7uys": "How the subscription is paid.",
-  "text_1782825858647mvpxt3d6et4": "How invoices are generated for this subscription."
+  "text_1782825858647mvpxt3d6et4": "How invoices are generated for this subscription.",
+  "text_1782808811242x7jvelxo3kr": "Valid until",
+  "text_178280881124242ngphx36je": "View signed document",
+  "text_17828094623997l9tqj385k5": "Order form {{orderFormNumber}}",
+  "text_1782821511108j6cgg7ioq23": "This is a read-only preview of this order form."
 }

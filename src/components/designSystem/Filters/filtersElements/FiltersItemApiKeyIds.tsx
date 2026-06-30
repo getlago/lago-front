@@ -7,6 +7,7 @@ import { useGetApiKeyIdsForFilterItemApiKeyIdsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { filterDataInlineSeparator, FiltersFormValues } from '../types'
+import { escapeFilterLabel, unescapeFilterLabel } from '../utils'
 
 gql`
   query getApiKeyIdsForFilterItemApiKeyIds {
@@ -34,7 +35,7 @@ export const FiltersItemApiKeyIds = ({ value, setFilterValue }: FiltersItemApiKe
 
     return data.apiKeys.collection.map((apiKey) => ({
       label: apiKey.value,
-      value: `${apiKey.id}${filterDataInlineSeparator}${apiKey.value}`,
+      value: `${apiKey.id}${filterDataInlineSeparator}${escapeFilterLabel(apiKey.value)}`,
     }))
   }, [data?.apiKeys?.collection])
 
@@ -52,7 +53,7 @@ export const FiltersItemApiKeyIds = ({ value, setFilterValue }: FiltersItemApiKe
         ?.split(',')
         .filter((v) => !!v)
         .map((v) => ({
-          label: v.split(filterDataInlineSeparator)[1],
+          label: unescapeFilterLabel(v.split(filterDataInlineSeparator)[1] ?? ''),
           value: v,
         }))}
     />
