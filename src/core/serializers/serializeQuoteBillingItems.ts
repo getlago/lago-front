@@ -1,6 +1,8 @@
 import type { EntityData } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
 import type { AddOnItem } from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
 
+import type { BillingItemCoupon } from './serializeQuoteCoupons'
+import { fromCoupons } from './serializeQuoteCoupons'
 import { type BillingItemPlan, fromPlanBillingItems } from './serializeQuotePlanBillingItems'
 
 // --- Backend contract types (snake_case) ---
@@ -33,6 +35,7 @@ interface BillingItemAddon {
 export interface BillingItemsPayload {
   addons: BillingItemAddon[]
   plans?: BillingItemPlan[]
+  coupons?: BillingItemCoupon[]
 }
 
 // --- Serialization helpers ---
@@ -182,6 +185,16 @@ export const buildPreviewEntities = (
     const { entityData } = fromPlanBillingItems(billingItems.plans)
 
     Object.assign(previewEntities, entityData)
+  }
+
+  if (billingItems.coupons && billingItems.coupons.length > 0) {
+    const { entities: couponEntities } = fromCoupons(billingItems.coupons)
+
+    Object.assign(previewEntities, couponEntities)
+    // also key by couponId for legacy entityIds resolution
+    for (const c of billingItems.coupons) {
+      previewEntities[c.id] = couponEntities[c.localId]
+    }
   }
 
   return previewEntities
