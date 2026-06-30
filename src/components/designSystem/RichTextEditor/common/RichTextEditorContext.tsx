@@ -3,7 +3,7 @@ import { createContext, useContext } from 'react'
 import type { PlanPreviewData } from '~/core/serializers/buildPlanPreviewData'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import type { Locale } from '~/core/translations'
-import { CouponFrequency, CouponTypeEnum, type CurrencyEnum } from '~/generated/graphql'
+import { type CouponFrequency, type CouponTypeEnum, type CurrencyEnum } from '~/generated/graphql'
 
 import type { PricingBlockAttributes, PricingType } from '../extensions/PricingBlock.schema'
 import type { RichTextEditorMode } from '../RichTextEditor'
