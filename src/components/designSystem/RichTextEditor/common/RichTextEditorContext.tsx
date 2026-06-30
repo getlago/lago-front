@@ -3,14 +3,14 @@ import { createContext, useContext } from 'react'
 import type { PlanPreviewData } from '~/core/serializers/buildPlanPreviewData'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import type { Locale } from '~/core/translations'
-import type { CurrencyEnum } from '~/generated/graphql'
+import { CouponFrequency, CouponTypeEnum, type CurrencyEnum } from '~/generated/graphql'
 
 import type { PricingBlockAttributes, PricingType } from '../extensions/PricingBlock.schema'
 import type { RichTextEditorMode } from '../RichTextEditor'
 
 export type EntityData = {
   entityId: string
-  entityType: 'plan' | 'addOn'
+  entityType: 'plan' | 'addOn' | 'coupon'
   name: string
   invoiceDisplayName?: string
   code: string
@@ -21,6 +21,13 @@ export type EntityData = {
   fromDatetime?: string
   toDatetime?: string
   plan?: PlanPreviewData
+  // coupon-only display fields
+  couponType?: CouponTypeEnum
+  amountCents?: string
+  amountCurrency?: CurrencyEnum
+  percentageRate?: number | null
+  frequency?: CouponFrequency
+  frequencyDuration?: number | null
 }
 
 export interface PricingCommandParams {
