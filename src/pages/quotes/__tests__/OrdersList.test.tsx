@@ -34,6 +34,10 @@ jest.mock('../hooks/useOrders', () => ({
   useOrders: jest.fn(),
 }))
 
+jest.mock('~/pages/quotes/common/QuotePdfProvider', () => ({
+  useDownloadQuotePdf: () => ({ download: jest.fn() }),
+}))
+
 const mockUseOrders = useOrders as jest.MockedFunction<typeof useOrders>
 
 const mockOrders = [
