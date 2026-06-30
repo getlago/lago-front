@@ -37,6 +37,7 @@ jest.mock('~/generated/graphql', () => ({
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
     hasPermissions: () => true,
+    hasPermissionsOr: () => true,
   }),
 }))
 

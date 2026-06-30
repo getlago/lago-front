@@ -25,7 +25,7 @@ interface BottomNavSectionProps {
 
 export const BottomNavSection = ({ isLoading, onItemClick }: BottomNavSectionProps) => {
   const { translate } = useInternationalization()
-  const { hasPermissions } = usePermissions()
+  const { hasPermissions, hasPermissionsOr } = usePermissions()
   const { openPanel: openInspector } = useDeveloperTool()
 
   const { appEnv } = envGlobalVar()
@@ -49,7 +49,7 @@ export const BottomNavSection = ({ isLoading, onItemClick }: BottomNavSectionPro
       icon: 'terminal',
       onAction: openInspector,
       canBeClickedOnActive: true,
-      hidden: !hasPermissions(['developersManage']),
+      hidden: !hasPermissionsOr(['developersManage', 'developersKeysManage']),
     },
   ]
 
