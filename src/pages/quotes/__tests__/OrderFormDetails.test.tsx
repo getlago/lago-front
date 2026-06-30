@@ -9,6 +9,7 @@ import { useOrderFormDetails } from '../hooks/useOrderFormDetails'
 import OrderFormDetails, {
   ORDER_FORM_DETAILS_ATTACHMENTS_TEST_ID,
   ORDER_FORM_DETAILS_CLOSE_BUTTON_TEST_ID,
+  ORDER_FORM_DETAILS_DESCRIPTION_TEST_ID,
   ORDER_FORM_DETAILS_PREVIEW_TEST_ID,
 } from '../OrderFormDetails'
 
@@ -97,6 +98,7 @@ describe('OrderFormDetails', () => {
     it('THEN shows order form information, the attachment link, and the preview', () => {
       renderPage()
 
+      expect(screen.getByTestId(ORDER_FORM_DETAILS_DESCRIPTION_TEST_ID)).toBeInTheDocument()
       expect(screen.getByText('Acme Corp')).toBeInTheDocument()
       expect(screen.getByText('OF-2026-0001')).toBeInTheDocument()
       expect(screen.getByText('QUO-001 - v2')).toBeInTheDocument()

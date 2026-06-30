@@ -4461,5 +4461,6 @@
   "text_17827453798351lxoetcgnjt": "Quote {{quoteNumber}} - {{quoteVersion}}",
   "text_1782808811242x7jvelxo3kr": "Valid until",
   "text_178280881124242ngphx36je": "View signed document",
-  "text_17828094623997l9tqj385k5": "Order form {{orderFormNumber}}"
+  "text_17828094623997l9tqj385k5": "Order form {{orderFormNumber}}",
+  "text_1782821511108j6cgg7ioq23": "This is a read-only preview of this order form."
 }

@@ -20,6 +20,7 @@ import { QuotePreviewCard } from './common/QuotePreviewCard'
 import { useOrderFormDetails } from './hooks/useOrderFormDetails'
 
 export const ORDER_FORM_DETAILS_CLOSE_BUTTON_TEST_ID = 'order-form-details-close-button'
+export const ORDER_FORM_DETAILS_DESCRIPTION_TEST_ID = 'order-form-details-description'
 export const ORDER_FORM_DETAILS_PREVIEW_TEST_ID = 'order-form-details-preview'
 export const ORDER_FORM_DETAILS_ATTACHMENTS_TEST_ID = 'order-form-details-attachments'
 
@@ -82,9 +83,14 @@ const OrderFormDetails = () => {
             <FormLoadingSkeleton id="order-form-details" />
           ) : (
             <div className="flex flex-col gap-12">
-              <Typography variant="headline" color="grey700">
-                {translate('text_17828094623997l9tqj385k5', { orderFormNumber })}
-              </Typography>
+              <div className="flex flex-col gap-1">
+                <Typography variant="headline" color="grey700">
+                  {translate('text_17828094623997l9tqj385k5', { orderFormNumber })}
+                </Typography>
+                <Typography data-test={ORDER_FORM_DETAILS_DESCRIPTION_TEST_ID} color="grey600">
+                  {translate('text_1782821511108j6cgg7ioq23')}
+                </Typography>
+              </div>
 
               <div className="flex flex-col gap-6">
                 <Typography variant="subhead1">
