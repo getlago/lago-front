@@ -21,6 +21,7 @@ import { useOrderFormDetails } from './hooks/useOrderFormDetails'
 
 export const ORDER_FORM_DETAILS_CLOSE_BUTTON_TEST_ID = 'order-form-details-close-button'
 export const ORDER_FORM_DETAILS_DESCRIPTION_TEST_ID = 'order-form-details-description'
+export const ORDER_FORM_DETAILS_ERROR_TEST_ID = 'order-form-details-error'
 export const ORDER_FORM_DETAILS_PREVIEW_TEST_ID = 'order-form-details-preview'
 export const ORDER_FORM_DETAILS_ATTACHMENTS_TEST_ID = 'order-form-details-attachments'
 
@@ -52,6 +53,7 @@ const OrderFormDetails = () => {
   if (error) {
     return (
       <GenericPlaceholder
+        data-test={ORDER_FORM_DETAILS_ERROR_TEST_ID}
         className="pt-12"
         title={translate('text_634812d6f16b31ce5cbf4126')}
         subtitle={translate('text_634812d6f16b31ce5cbf4128')}

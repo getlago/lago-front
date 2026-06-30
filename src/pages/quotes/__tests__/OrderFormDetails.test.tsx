@@ -10,6 +10,7 @@ import OrderFormDetails, {
   ORDER_FORM_DETAILS_ATTACHMENTS_TEST_ID,
   ORDER_FORM_DETAILS_CLOSE_BUTTON_TEST_ID,
   ORDER_FORM_DETAILS_DESCRIPTION_TEST_ID,
+  ORDER_FORM_DETAILS_ERROR_TEST_ID,
   ORDER_FORM_DETAILS_PREVIEW_TEST_ID,
 } from '../OrderFormDetails'
 
@@ -126,6 +127,37 @@ describe('OrderFormDetails', () => {
       await user.click(screen.getByTestId(ORDER_FORM_DETAILS_CLOSE_BUTTON_TEST_ID))
 
       expect(mockGoBack).toHaveBeenCalledWith('/quotes/order-forms')
+    })
+  })
+
+  describe('GIVEN the query errors', () => {
+    it('THEN shows the error placeholder instead of the page', () => {
+      mockUseOrderFormDetails.mockReturnValue({
+        orderForm: undefined,
+        loading: false,
+        error: new Error('boom'),
+      })
+
+      render(<OrderFormDetails />, { useParams: { orderFormId: 'of-1' } })
+
+      expect(screen.getByTestId(ORDER_FORM_DETAILS_ERROR_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(ORDER_FORM_DETAILS_DESCRIPTION_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(ORDER_FORM_DETAILS_CLOSE_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the page is loading', () => {
+    it('THEN shows the close button but not the order form information yet', () => {
+      mockUseOrderFormDetails.mockReturnValue({
+        orderForm: undefined,
+        loading: true,
+        error: undefined,
+      })
+
+      render(<OrderFormDetails />, { useParams: { orderFormId: 'of-1' } })
+
+      expect(screen.getByTestId(ORDER_FORM_DETAILS_CLOSE_BUTTON_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(ORDER_FORM_DETAILS_DESCRIPTION_TEST_ID)).not.toBeInTheDocument()
     })
   })
 })
