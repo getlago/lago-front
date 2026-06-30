@@ -6,6 +6,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { EditInvoiceCustomSectionDialogActions } from './EditInvoiceCustomSectionDialogActions'
 import { InvoiceCustomSectionFields } from './InvoiceCustomSectionFields'
 import {
+  deriveInvoiceCustomSectionBehavior,
   InvoiceCustomSectionBasic,
   InvoiceCustomSectionBehavior,
   InvoiceCustomSectionInput,
@@ -16,12 +17,6 @@ import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoi
 export interface InvoiceCustomSectionSelection {
   behavior: InvoiceCustomSectionBehavior
   selectedSections: InvoiceCustomSectionBasic[]
-}
-
-const deriveBehavior = (value: InvoiceCustomSectionInput): InvoiceCustomSectionBehavior => {
-  if (value.skipInvoiceCustomSections) return InvoiceCustomSectionBehavior.NONE
-  if (value.invoiceCustomSections.length > 0) return InvoiceCustomSectionBehavior.APPLY
-  return InvoiceCustomSectionBehavior.FALLBACK
 }
 
 interface EditInvoiceCustomSectionDialogProps {
@@ -59,7 +54,9 @@ export const EditInvoiceCustomSectionDialog = ({
   }
 
   const [draft, setDraft] = useState<InvoiceCustomSectionInput>(seedValue)
-  const [behavior, setBehavior] = useState<InvoiceCustomSectionBehavior>(deriveBehavior(seedValue))
+  const [behavior, setBehavior] = useState<InvoiceCustomSectionBehavior>(
+    deriveInvoiceCustomSectionBehavior(seedValue),
+  )
 
   useEffect(() => {
     if (open) {
@@ -69,7 +66,7 @@ export const EditInvoiceCustomSectionDialog = ({
       }
 
       setDraft(next)
-      setBehavior(deriveBehavior(next))
+      setBehavior(deriveInvoiceCustomSectionBehavior(next))
     }
   }, [open, selectedSections, skipInvoiceCustomSections])
 
@@ -78,7 +75,10 @@ export const EditInvoiceCustomSectionDialog = ({
     behavior === InvoiceCustomSectionBehavior.APPLY && draft.invoiceCustomSections.length === 0
 
   const handleSave = (): void => {
-    onSave({ behavior: deriveBehavior(draft), selectedSections: draft.invoiceCustomSections })
+    onSave({
+      behavior: deriveInvoiceCustomSectionBehavior(draft),
+      selectedSections: draft.invoiceCustomSections,
+    })
     onClose()
   }
 
@@ -106,7 +106,6 @@ export const EditInvoiceCustomSectionDialog = ({
           value={seedValue}
           onChange={setDraft}
           onBehaviorChange={setBehavior}
-          showHeader={false}
         />
       </div>
     </Dialog>

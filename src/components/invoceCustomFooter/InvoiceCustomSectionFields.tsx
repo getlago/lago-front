@@ -3,12 +3,12 @@ import { useState } from 'react'
 import { Chip } from '~/components/designSystem/Chip'
 import { MultipleComboBox } from '~/components/form'
 import { Radio } from '~/components/form/Radio/Radio'
-import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
 
 import {
+  deriveInvoiceCustomSectionBehavior,
   InvoiceCustomSectionBasic,
   InvoiceCustomSectionBehavior,
   InvoiceCustomSectionInput,
@@ -22,38 +22,22 @@ export const ICS_FIELDS_NONE_RADIO_TEST_ID = 'invoice-custom-section-fields-none
 export const ICS_FIELDS_CUSTOMER_DEFAULT_CHIPS_TEST_ID =
   'invoice-custom-section-fields-customer-default-chips'
 
-const deriveBehavior = (value?: InvoiceCustomSectionInput): InvoiceCustomSectionBehavior => {
-  if (value?.skipInvoiceCustomSections) return InvoiceCustomSectionBehavior.NONE
-  if (value?.invoiceCustomSections?.length) return InvoiceCustomSectionBehavior.APPLY
-  return InvoiceCustomSectionBehavior.FALLBACK
-}
-
 interface InvoiceCustomSectionFieldsProps {
   viewType: ViewTypeEnum
   customerId: string
   value?: InvoiceCustomSectionInput
   onChange: (value: InvoiceCustomSectionInput) => void
-  // Optional: notified when the radio behavior changes. The dialog uses it to
-  // re-enable/disable its Save button (an empty "apply" must block save); the
-  // drawer ignores it.
   onBehaviorChange?: (behavior: InvoiceCustomSectionBehavior) => void
-  // The drawer needs the subsection title/description to separate this block
-  // from invoice consolidation; the dialog already has its own title, so it
-  // opts out.
-  showHeader?: boolean
+  error?: string
 }
 
-// Inline invoice custom-section selector (3 behaviors: fall back to the
-// customer default, apply specific sections, or skip). Controlled via
-// `value`/`onChange` so it can live directly inside the Invoicing settings
-// drawer instead of behind the legacy EditInvoiceCustomSectionDialog.
 export const InvoiceCustomSectionFields = ({
   viewType,
   customerId,
   value,
   onChange,
   onBehaviorChange,
-  showHeader = true,
+  error,
 }: InvoiceCustomSectionFieldsProps) => {
   const { translate } = useInternationalization()
   const { data: orgInvoiceCustomSections, loading } = useInvoiceCustomSections()
@@ -61,19 +45,13 @@ export const InvoiceCustomSectionFields = ({
 
   const viewTypeLabel = translate(VIEW_TYPE_TRANSLATION_KEYS[viewType])
 
-  // Sections the customer default resolves to (own override or billing entity),
-  // shown as a read-only preview under the "use customer default" option.
   const customerDefaultSections =
     customerInvoiceCustomSections && !customerInvoiceCustomSections.skipInvoiceCustomSections
       ? customerInvoiceCustomSections.configurableInvoiceCustomSections
       : []
 
-  // Behavior cannot be derived from `value` alone (an empty "apply" selection is
-  // indistinguishable from "fallback"), and the picked sections must survive a
-  // round-trip through NONE — so both are tracked locally, seeded once on mount.
-  // The drawer remounts this content on every open, so the seed stays fresh.
   const [behavior, setBehavior] = useState<InvoiceCustomSectionBehavior>(() =>
-    deriveBehavior(value),
+    deriveInvoiceCustomSectionBehavior(value),
   )
   const [selectedSections, setSelectedSections] = useState<InvoiceCustomSectionBasic[]>(
     () => value?.invoiceCustomSections ?? [],
@@ -110,13 +88,6 @@ export const InvoiceCustomSectionFields = ({
 
   return (
     <div className="flex flex-col gap-4">
-      {showHeader && (
-        <CenteredPage.SubsectionTitle
-          title={translate('text_1749024634192ov41w9fp6r2')}
-          description={translate('text_1782738644347o1c2bvdta8j', { object: viewTypeLabel })}
-        />
-      )}
-
       <div data-test={ICS_FIELDS_FALLBACK_RADIO_TEST_ID}>
         <Radio
           name="invoiceCustomSectionBehavior"
@@ -165,6 +136,7 @@ export const InvoiceCustomSectionFields = ({
               }))}
               placeholder={translate('text_17653633183105vrys5z3tvj')}
               emptyText={translate('text_173642092241713ws50zg9v4')}
+              error={error}
               // z-dialog (2000) sits above both the dialog (2000) and the
               // drawer (1600) layers this renders inside, so the dropdown is
               // never hidden behind its host overlay.

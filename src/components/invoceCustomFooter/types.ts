@@ -19,3 +19,15 @@ export interface InvoiceCustomSectionInput {
   invoiceCustomSections: InvoiceCustomSectionBasic[]
   skipInvoiceCustomSections: boolean
 }
+
+// Behavior cannot be fully derived from the value alone (an empty "apply"
+// selection is indistinguishable from "fallback"), so callers that must tell
+// them apart track behavior separately. This resolves the unambiguous cases.
+export const deriveInvoiceCustomSectionBehavior = (
+  value?: InvoiceCustomSectionInput | null,
+): InvoiceCustomSectionBehavior => {
+  if (value?.skipInvoiceCustomSections) return InvoiceCustomSectionBehavior.NONE
+  if (value?.invoiceCustomSections?.length) return InvoiceCustomSectionBehavior.APPLY
+
+  return InvoiceCustomSectionBehavior.FALLBACK
+}

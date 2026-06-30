@@ -1,12 +1,20 @@
-import { useStore } from '@tanstack/react-form'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { forwardRef, useImperativeHandle } from 'react'
+import { z } from 'zod'
 
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { InvoiceCustomSectionFields } from '~/components/invoceCustomFooter/InvoiceCustomSectionFields'
-import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
+import {
+  deriveInvoiceCustomSectionBehavior,
+  InvoiceCustomSectionBehavior,
+  InvoiceCustomSectionInput,
+} from '~/components/invoceCustomFooter/types'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import {
+  VIEW_TYPE_TRANSLATION_KEYS,
+  ViewTypeEnum,
+} from '~/components/paymentMethodsInvoiceSettings/types'
 import { SubscriptionInvoiceConsolidationSection } from '~/components/subscriptions/SubscriptionInvoiceConsolidationSection'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
@@ -18,10 +26,34 @@ export interface InvoicingSettingsValues {
   invoiceCustomSection: InvoiceCustomSectionInput
 }
 
-const DEFAULT_VALUES: InvoicingSettingsValues = {
+interface InvoicingSettingsFormValues extends InvoicingSettingsValues {
+  invoiceCustomSectionBehavior: InvoiceCustomSectionBehavior
+}
+
+const DEFAULT_VALUES: InvoicingSettingsFormValues = {
   consolidateInvoice: true,
   invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
+  invoiceCustomSectionBehavior: InvoiceCustomSectionBehavior.FALLBACK,
 }
+
+const invoicingSettingsValidationSchema = z
+  .object({
+    consolidateInvoice: z.boolean(),
+    invoiceCustomSection: z.custom<InvoiceCustomSectionInput>(),
+    invoiceCustomSectionBehavior: z.enum(InvoiceCustomSectionBehavior),
+  })
+  .superRefine((values, ctx) => {
+    if (
+      values.invoiceCustomSectionBehavior === InvoiceCustomSectionBehavior.APPLY &&
+      values.invoiceCustomSection.invoiceCustomSections.length === 0
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['invoiceCustomSection'],
+        message: 'text_624ea7c29103fd010732ab7d',
+      })
+    }
+  })
 
 interface InvoicingSettingsDrawerContentExtraProps {
   viewType: ViewTypeEnum
@@ -45,32 +77,52 @@ const InvoicingSettingsDrawerContent = withForm({
     showCustomSection,
   }) {
     const { translate } = useInternationalization()
-    // Reactive slice so the inline custom-section selector re-renders on edit.
+    const viewTypeLabel = translate(VIEW_TYPE_TRANSLATION_KEYS[viewType])
     const invoiceCustomSection = useStore(form.store, (s) => s.values.invoiceCustomSection)
+    const invoiceCustomSectionError = useStore(
+      form.store,
+      (s) => s.fieldMeta.invoiceCustomSection?.errors?.[0]?.message,
+    )
 
     return (
-      <CenteredPage.PageSection>
-        <CenteredPage.PageSectionTitle
+      <CenteredPage.SectionWrapper>
+        <CenteredPage.PageTitle
           title={translate('text_17423672025282dl7iozy1ru')}
           description={translate('text_1782738644346p066xtwa8yj')}
         />
 
         <CenteredPage.SubsectionWrapper>
-          <SubscriptionInvoiceConsolidationSection
-            form={form}
-            fields={{ consolidateInvoice: 'consolidateInvoice' }}
-          />
+          <CenteredPage.PageSection>
+            <CenteredPage.PageSectionTitle
+              title={translate('text_177874535109128tmqdq682k')}
+              description={translate('text_17827386443477iuks0kxmx5')}
+            />
+            <SubscriptionInvoiceConsolidationSection
+              form={form}
+              fields={{ consolidateInvoice: 'consolidateInvoice' }}
+            />
+          </CenteredPage.PageSection>
 
           {showCustomSection && customerId && (
-            <InvoiceCustomSectionFields
-              viewType={viewType}
-              customerId={customerId}
-              value={invoiceCustomSection}
-              onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
-            />
+            <CenteredPage.PageSection>
+              <CenteredPage.PageSectionTitle
+                title={translate('text_1749024634192ov41w9fp6r2')}
+                description={translate('text_1782738644347o1c2bvdta8j', { object: viewTypeLabel })}
+              />
+              <InvoiceCustomSectionFields
+                viewType={viewType}
+                customerId={customerId}
+                value={invoiceCustomSection}
+                onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
+                onBehaviorChange={(behavior) =>
+                  form.setFieldValue('invoiceCustomSectionBehavior', behavior)
+                }
+                error={invoiceCustomSectionError ? translate(invoiceCustomSectionError) : undefined}
+              />
+            </CenteredPage.PageSection>
           )}
         </CenteredPage.SubsectionWrapper>
-      </CenteredPage.PageSection>
+      </CenteredPage.SectionWrapper>
     )
   },
 })
@@ -90,10 +142,6 @@ interface InvoicingSettingsDrawerProps {
   onSave: (values: InvoicingSettingsValues) => void
 }
 
-// Invoicing settings drawer for the subscription form: holds a local draft of
-// `consolidateInvoice` + `invoiceCustomSection` (seeded on open from the parent
-// form) and commits it back through `onSave` on "Save edits". Mirrors the
-// FixedChargeDrawer local-draft pattern — no live binding to the parent form.
 export const InvoicingSettingsDrawer = forwardRef<
   InvoicingSettingsDrawerRef,
   InvoicingSettingsDrawerProps
@@ -103,6 +151,10 @@ export const InvoicingSettingsDrawer = forwardRef<
 
   const form = useAppForm({
     defaultValues: DEFAULT_VALUES,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: invoicingSettingsValidationSchema,
+    },
     onSubmit: async ({ value }) => {
       onSave({
         consolidateInvoice: value.consolidateInvoice,
@@ -140,10 +192,14 @@ export const InvoicingSettingsDrawer = forwardRef<
 
   useImperativeHandle(ref, () => ({
     openDrawer: (values) => {
+      const invoiceCustomSection =
+        values.invoiceCustomSection ?? DEFAULT_VALUES.invoiceCustomSection
+
       form.reset(
         {
           consolidateInvoice: values.consolidateInvoice,
-          invoiceCustomSection: values.invoiceCustomSection ?? DEFAULT_VALUES.invoiceCustomSection,
+          invoiceCustomSection,
+          invoiceCustomSectionBehavior: deriveInvoiceCustomSectionBehavior(invoiceCustomSection),
         },
         { keepDefaultValues: true },
       )

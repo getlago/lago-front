@@ -4,13 +4,13 @@ import { render } from '~/test-utils'
 
 import { InvoicingPaymentsFormSection } from '../InvoicingPaymentsFormSection'
 
-const mockPaymentMethodSettings: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
+const mockPaymentMethodFields: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 const mockInvoiceCustomSectionFields: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 const mockConsolidationSection: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 
-jest.mock('~/components/paymentMethodsInvoiceSettings/PaymentMethodSettings', () => ({
-  PaymentMethodSettings: (props: Record<string, unknown>) => {
-    mockPaymentMethodSettings(props)
+jest.mock('~/components/paymentMethodSelection/PaymentMethodFields', () => ({
+  PaymentMethodFields: (props: Record<string, unknown>) => {
+    mockPaymentMethodFields(props)
     return null
   },
 }))
@@ -83,25 +83,22 @@ describe('InvoicingPaymentsFormSection', () => {
     mockHasFeatureFlag = true
   })
 
-  describe('GIVEN a customer with id', () => {
+  describe('GIVEN a customer with externalId and id', () => {
     it('THEN renders the section title and the inline payment + custom-section fields', () => {
       render(
         <InvoicingPaymentsFormSection
           // @ts-expect-error - mock form shape
           form={createMockForm()}
-          customer={{ id: 'cust-1' }}
+          customer={{ id: 'cust-1', externalId: 'ext-1' }}
         />,
       )
 
       expect(screen.getByText('text_1762862388271au34vz50g8i')).toBeInTheDocument()
-      expect(mockPaymentMethodSettings).toHaveBeenCalledWith(
+      expect(mockPaymentMethodFields).toHaveBeenCalledWith(
         expect.objectContaining({
-          customer: { id: 'cust-1' },
+          externalCustomerId: 'ext-1',
           viewType: 'subscription',
-          form: expect.objectContaining({
-            values: expect.any(Object),
-            setFieldValue: expect.any(Function),
-          }),
+          onChange: expect.any(Function),
         }),
       )
       expect(mockInvoiceCustomSectionFields).toHaveBeenCalledWith(
@@ -118,7 +115,7 @@ describe('InvoicingPaymentsFormSection', () => {
         <InvoicingPaymentsFormSection
           // @ts-expect-error - mock form shape
           form={createMockForm()}
-          customer={{ id: 'cus-1' }}
+          customer={{ id: 'cust-1', externalId: 'ext-1' }}
         />,
       )
 
@@ -134,18 +131,35 @@ describe('InvoicingPaymentsFormSection', () => {
         <InvoicingPaymentsFormSection
           // @ts-expect-error - mock form shape
           form={createMockForm()}
-          customer={{ id: 'cus-1' }}
+          customer={{ id: 'cust-1', externalId: 'ext-1' }}
         />,
       )
 
       expect(mockConsolidationSection).toHaveBeenCalled()
-      expect(mockPaymentMethodSettings).not.toHaveBeenCalled()
+      expect(mockPaymentMethodFields).not.toHaveBeenCalled()
       expect(mockInvoiceCustomSectionFields).not.toHaveBeenCalled()
     })
   })
 
+  describe('GIVEN a customer with id only', () => {
+    it('THEN renders the custom-section fields but not the payment fields (no externalId)', () => {
+      render(
+        <InvoicingPaymentsFormSection
+          // @ts-expect-error - mock form shape
+          form={createMockForm()}
+          customer={{ id: 'cust-1' }}
+        />,
+      )
+
+      expect(mockInvoiceCustomSectionFields).toHaveBeenCalledWith(
+        expect.objectContaining({ customerId: 'cust-1' }),
+      )
+      expect(mockPaymentMethodFields).not.toHaveBeenCalled()
+    })
+  })
+
   describe('GIVEN a customer with externalId only', () => {
-    it('THEN renders payment settings but not the custom-section fields (no customer id)', () => {
+    it('THEN renders the payment fields but not the custom-section fields (no customer id)', () => {
       render(
         <InvoicingPaymentsFormSection
           // @ts-expect-error - mock form shape
@@ -155,8 +169,8 @@ describe('InvoicingPaymentsFormSection', () => {
       )
 
       expect(screen.getByText('text_1762862388271au34vz50g8i')).toBeInTheDocument()
-      expect(mockPaymentMethodSettings).toHaveBeenCalledWith(
-        expect.objectContaining({ customer: { externalId: 'ext-1' } }),
+      expect(mockPaymentMethodFields).toHaveBeenCalledWith(
+        expect.objectContaining({ externalCustomerId: 'ext-1' }),
       )
       expect(mockInvoiceCustomSectionFields).not.toHaveBeenCalled()
     })
@@ -174,7 +188,7 @@ describe('InvoicingPaymentsFormSection', () => {
 
       expect(screen.getByText('text_1762862388271au34vz50g8i')).toBeInTheDocument()
       expect(mockConsolidationSection).toHaveBeenCalled()
-      expect(mockPaymentMethodSettings).not.toHaveBeenCalled()
+      expect(mockPaymentMethodFields).not.toHaveBeenCalled()
       expect(mockInvoiceCustomSectionFields).not.toHaveBeenCalled()
     })
   })
