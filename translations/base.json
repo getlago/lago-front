@@ -4432,5 +4432,6 @@
   "text_1779882021466cfug4osir5m": "In {{hours}} hours",
   "text_1779882021466f56z1ymyt09": "In less than 1 hour",
   "text_1779882021466x423uayjorq": "Expired",
-  "text_1779882021466eoq8jjhfteu": "Timeout duration must be a whole number greater than or equal to 0"
+  "text_1779882021466eoq8jjhfteu": "Timeout duration must be a whole number greater than or equal to 0",
+  "text_1767070000000zhcnlanguage": "Chinese (Simplified)"
 }

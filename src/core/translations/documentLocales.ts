@@ -14,6 +14,7 @@ export const DocumentLocales: documentLocalesType = {
   es: 'Spanish',
   sv: 'Swedish',
   'pt-BR': 'Portuguese (Brazil)',
+  'zh-CN': 'Chinese (Simplified)',
   'zh-TW': 'Chinese (Taïwan)',
 }
 

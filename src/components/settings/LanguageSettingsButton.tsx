@@ -22,6 +22,8 @@ const mapLanguageKey = (language: LocaleEnum) => {
       return 'text_66b7d0d955677300665ac8d0'
     case LocaleEnum.sv:
       return 'text_6526cd088700e000714f0025'
+    case LocaleEnum['zh-CN']:
+      return 'text_1767070000000zhcnlanguage'
     case LocaleEnum['zh-TW']:
       return 'text_64188b3d9735d5007d712241'
     default:

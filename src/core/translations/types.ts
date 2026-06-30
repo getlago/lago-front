@@ -15,6 +15,7 @@ export enum LocaleEnum {
   es = 'es', // Spanish
   sv = 'sv', // Swedish
   'pt-BR' = 'pt-BR', // Brazilian Portuguese
+  'zh-CN' = 'zh-CN', // Chinese (Simplified)
   'zh-TW' = 'zh-TW', // Chinese (Traditional)
 }
 export type Locale = keyof typeof LocaleEnum

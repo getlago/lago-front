@@ -4,6 +4,7 @@ import { getTranslations, Locale, LocaleEnum } from '~/core/translations'
 import { getItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 
 const LOCALE_LS_KEY = 'locale'
+const DEFAULT_LOCALE = LocaleEnum['zh-CN']
 
 interface InternationalizationVar {
   locale: Locale
@@ -11,7 +12,7 @@ interface InternationalizationVar {
 }
 
 const internationalizationVar = makeVar<InternationalizationVar>({
-  locale: getItemFromLS(LOCALE_LS_KEY) ?? LocaleEnum.en,
+  locale: getItemFromLS(LOCALE_LS_KEY) ?? DEFAULT_LOCALE,
   // `undefined` (not `{}`) is the "translations not loaded yet" sentinel so `translateKey`
   // can detect it in O(1) without enumerating the multi-thousand-key translations object.
   translations: undefined,

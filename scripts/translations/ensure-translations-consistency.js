@@ -17,6 +17,8 @@ const colors = {
 }
 
 const TRANSLATIONS_DIR = path.join(__dirname, '../../translations')
+const supersetFiles = ['base.json', 'pt-BR.json']
+const completeLocaleFiles = ['zh-CN.json']
 
 function readJsonFile(filePath) {
   try {
@@ -47,16 +49,19 @@ function getAllKeys(obj, prefix = '') {
 function main() {
   console.info(`${colors.cyan}=== Translation Files Validator ===${colors.reset}\n`)
 
-  // Get all translation files (excluding base.json and pt-BR.json)
+  // Get partial translation files. Complete locales are checked against base.json below.
   const files = fs
     .readdirSync(TRANSLATIONS_DIR)
-    .filter((file) => file.endsWith('.json') && file !== 'base.json' && file !== 'pt-BR.json')
+    .filter(
+      (file) =>
+        file.endsWith('.json') &&
+        !supersetFiles.includes(file) &&
+        !completeLocaleFiles.includes(file),
+    )
     .sort()
 
   if (files.length === 0) {
-    console.info(
-      `${colors.yellow}No translation files found (excluding base.json and pt-BR.json)${colors.reset}`,
-    )
+    console.info(`${colors.yellow}No partial translation files found${colors.reset}`)
     return
   }
 
@@ -133,7 +138,6 @@ function main() {
   // (base.json is the English source; pt-BR currently carries a manual-copy
   // superset). They must never hold FEWER: every key present in the locales above
   // has to exist in both, otherwise those keys render raw under those locales.
-  const supersetFiles = ['base.json', 'pt-BR.json']
   const supersetResults = []
 
   for (const file of supersetFiles) {
@@ -167,9 +171,59 @@ function main() {
     }
   }
 
+  const baseFilePath = path.join(TRANSLATIONS_DIR, 'base.json')
+  const baseKeys = new Set(getAllKeys(readJsonFile(baseFilePath)))
+  const completeLocaleResults = []
+
+  for (const file of completeLocaleFiles) {
+    const filePath = path.join(TRANSLATIONS_DIR, file)
+
+    if (!fs.existsSync(filePath)) {
+      console.info(`${colors.red}✗ ${file} not found${colors.reset}\n`)
+      hasErrors = true
+      completeLocaleResults.push({ file, missingKeys: [], isValid: false })
+      continue
+    }
+
+    const keys = new Set(getAllKeys(readJsonFile(filePath)))
+    const missingKeys = Array.from(baseKeys)
+      .filter((key) => !keys.has(key))
+      .sort()
+    const extraKeys = Array.from(keys)
+      .filter((key) => !baseKeys.has(key))
+      .sort()
+    const isValid = missingKeys.length === 0 && extraKeys.length === 0
+
+    completeLocaleResults.push({ file, missingKeys, extraKeys, isValid })
+
+    if (isValid) {
+      console.info(`${colors.green}✓ ${file}${colors.reset}`)
+      console.info(`  Total keys: ${keys.size} (matches base.json)\n`)
+    } else {
+      hasErrors = true
+      console.info(`${colors.red}✗ ${file}${colors.reset}`)
+
+      if (missingKeys.length > 0) {
+        console.info(`  ${colors.red}Missing base keys: ${missingKeys.length}${colors.reset}`)
+        missingKeys.forEach((key) => {
+          console.info(`    - ${key}`)
+        })
+      }
+
+      if (extraKeys.length > 0) {
+        console.info(`  ${colors.red}Extra keys: ${extraKeys.length}${colors.reset}`)
+        extraKeys.forEach((key) => {
+          console.info(`    - ${key}`)
+        })
+      }
+
+      console.info()
+    }
+  }
+
   // Summary (counts every checked file: the locales + base.json + pt-BR.json)
   console.info(`${'='.repeat(80)}\n`)
-  const allResults = [...results, ...supersetResults]
+  const allResults = [...results, ...supersetResults, ...completeLocaleResults]
   const validFiles = allResults.filter((r) => r.isValid).length
   const totalFiles = allResults.length
 
@@ -179,11 +233,16 @@ function main() {
 
     // Provide summary of issues
     const totalMissing = allResults.reduce((sum, r) => sum + r.missingKeys.length, 0)
+    const totalExtra = allResults.reduce((sum, r) => sum + (r.extraKeys?.length || 0), 0)
 
     if (totalMissing > 0) {
       console.info(
         `${colors.red}Total missing keys across all files: ${totalMissing}${colors.reset}`,
       )
+    }
+
+    if (totalExtra > 0) {
+      console.info(`${colors.red}Total extra keys across all files: ${totalExtra}${colors.reset}`)
     }
 
     process.exit(1)
