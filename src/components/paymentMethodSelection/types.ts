@@ -1,10 +1,23 @@
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
-import { PaymentMethodReferenceInput } from '~/generated/graphql'
+import { PaymentMethodReferenceInput, PaymentMethodTypeEnum } from '~/generated/graphql'
 import { PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
 
 import { ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export type SelectedPaymentMethod = PaymentMethodReferenceInput | null | undefined
+
+export enum PaymentMethodBehavior {
+  FALLBACK = 'fallback',
+  SPECIFIC = 'specific',
+  MANUAL = 'manual',
+}
+
+export const deriveBehavior = (value?: SelectedPaymentMethod): PaymentMethodBehavior => {
+  if (value?.paymentMethodType === PaymentMethodTypeEnum.Manual) return PaymentMethodBehavior.MANUAL
+  if (value?.paymentMethodId) return PaymentMethodBehavior.SPECIFIC
+
+  return PaymentMethodBehavior.FALLBACK
+}
 
 export interface PaymentMethodComboBoxProps {
   paymentMethodsList?: PaymentMethodList
@@ -14,6 +27,7 @@ export interface PaymentMethodComboBoxProps {
   className?: string
   disabled?: boolean
   name?: string
+  error?: string
   PopperProps?: ComboBoxProps['PopperProps']
 }
 
@@ -24,13 +38,4 @@ export interface PaymentMethodSelectionProps {
   viewType: ViewTypeEnum
   className?: string
   disabled?: boolean
-}
-
-export interface EditPaymentMethodDialogProps {
-  open: boolean
-  onClose: () => void
-  selectedPaymentMethod: SelectedPaymentMethod
-  setSelectedPaymentMethod: (value: SelectedPaymentMethod) => void
-  paymentMethodsList: PaymentMethodList
-  viewType: ViewTypeEnum
 }

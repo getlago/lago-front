@@ -292,8 +292,8 @@ jest.mock('~/components/invoices/useEditInvoiceDisplayName', () => ({
   }),
 }))
 
-jest.mock('~/components/paymentMethodsInvoiceSettings/PaymentMethodSettings', () => ({
-  PaymentMethodSettings: () => <div data-test="payment-methods-settings" />,
+jest.mock('~/components/subscriptions/form/PaymentSettingsSection', () => ({
+  PaymentSettingsSection: () => <div data-test="payment-settings-section" />,
 }))
 
 jest.mock('~/components/subscriptions/form/InvoicingSettingsSection', () => ({

@@ -81,6 +81,19 @@ describe('InvoiceCustomSectionFields', () => {
     expect(mockComboboxProps.current?.PopperProps).toEqual({ displayInDialog: true })
   })
 
+  it('forwards the validation error to the combobox', () => {
+    const value: InvoiceCustomSectionInput = {
+      invoiceCustomSections: [{ id: 'cs_1', name: 'Bank details' }],
+      skipInvoiceCustomSections: false,
+    }
+
+    render(
+      <InvoiceCustomSectionFields {...baseProps} value={value} onChange={jest.fn()} error="boom" />,
+    )
+
+    expect(mockComboboxProps.current?.error).toBe('boom')
+  })
+
   it('seeds NONE behavior when sections are skipped (no display, no combobox)', () => {
     const value: InvoiceCustomSectionInput = {
       invoiceCustomSections: [],

@@ -14,8 +14,6 @@ import { WarningDialog, WarningDialogRef } from '~/components/designSystem/Warni
 import { BasicComboBoxData, ComboboxItem } from '~/components/form'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { PaymentMethodSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodSettings'
-import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
@@ -26,6 +24,7 @@ import PremiumFeature from '~/components/premium/PremiumFeature'
 import { FeatureEntitlementSection } from '~/components/subscriptions/FeatureEntitlementSection'
 import { buildSubscriptionDefaultValues } from '~/components/subscriptions/form/buildSubscriptionDefaultValues'
 import { InvoicingSettingsSection } from '~/components/subscriptions/form/InvoicingSettingsSection'
+import { PaymentSettingsSection } from '~/components/subscriptions/form/PaymentSettingsSection'
 import { SubscriptionInformationFormSection } from '~/components/subscriptions/form/SubscriptionInformationFormSection'
 import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
@@ -203,7 +202,6 @@ const CreateSubscription = () => {
     subscriptionForm.store,
     (s) => s.values.billingEntityId,
   )
-  const subscriptionPaymentMethod = useStore(subscriptionForm.store, (s) => s.values.paymentMethod)
   const isEditingSubscription = formType === FORM_TYPE_ENUM.edition
 
   // Default billingEntityId on first load only:
@@ -573,17 +571,14 @@ const CreateSubscription = () => {
                       {hasAccessToMultiPaymentFlow && (
                         <CenteredPage.PageSection>
                           <CenteredPage.PageSectionTitle
-                            title={translate('text_17787453510917ul9ghihdtv')}
-                            description={translate('text_17787453510910bn5dsjxtqz')}
+                            title={translate('text_17828013737948943pe3k8nc')}
+                            description={translate('text_17828013737955532qxu3wq4')}
                           />
 
-                          <PaymentMethodSettings
-                            customer={customer}
-                            form={{
-                              values: { paymentMethod: subscriptionPaymentMethod },
-                              setFieldValue: subscriptionForm.setFieldValue,
-                            }}
-                            viewType={ViewTypeEnum.Subscription}
+                          {/* Payment method lives in a drawer */}
+                          <PaymentSettingsSection
+                            form={subscriptionForm}
+                            externalCustomerId={customer?.externalId ?? ''}
                           />
                         </CenteredPage.PageSection>
                       )}
