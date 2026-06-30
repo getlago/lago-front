@@ -4,13 +4,13 @@ import userEvent from '@testing-library/user-event'
 
 import { EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID } from '~/components/paymentMethodSelection/EditPaymentMethodDialog'
 import {
-  PM_FIELDS_FALLBACK_RADIO_TEST_ID,
-  PM_FIELDS_MANUAL_RADIO_TEST_ID,
-} from '~/components/paymentMethodSelection/PaymentMethodFields'
-import {
   INHERITED_BADGE_TEST_ID,
   MANUAL_PAYMENT_METHOD_TEST_ID,
 } from '~/components/paymentMethodSelection/PaymentMethodDisplay'
+import {
+  PM_FIELDS_FALLBACK_RADIO_TEST_ID,
+  PM_FIELDS_MANUAL_RADIO_TEST_ID,
+} from '~/components/paymentMethodSelection/PaymentMethodFields'
 import { EDIT_PAYMENT_METHOD_BUTTON_TEST_ID } from '~/components/paymentMethodSelection/PaymentMethodSelection'
 import { Customer, PaymentMethodsDocument } from '~/generated/graphql'
 import {
