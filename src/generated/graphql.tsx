@@ -14408,6 +14408,13 @@ export type VoidQuoteVersionMutationVariables = Exact<{
 
 export type VoidQuoteVersionMutation = { __typename?: 'Mutation', voidQuoteVersion?: { __typename?: 'QuoteVersion', id: string, status: StatusEnum } | null };
 
+export type AddQuoteImageMutationVariables = Exact<{
+  input: AddQuoteImageInput;
+}>;
+
+
+export type AddQuoteImageMutation = { __typename?: 'Mutation', addQuoteImage?: { __typename?: 'AddQuoteImagePayload', id: string, url: string } | null };
+
 export type ApproveQuoteVersionMutationVariables = Exact<{
   input: ApproveQuoteVersionInput;
 }>;
@@ -39420,6 +39427,40 @@ export function useVoidQuoteVersionMutation(baseOptions?: Apollo.MutationHookOpt
 export type VoidQuoteVersionMutationHookResult = ReturnType<typeof useVoidQuoteVersionMutation>;
 export type VoidQuoteVersionMutationResult = Apollo.MutationResult<VoidQuoteVersionMutation>;
 export type VoidQuoteVersionMutationOptions = Apollo.BaseMutationOptions<VoidQuoteVersionMutation, VoidQuoteVersionMutationVariables>;
+export const AddQuoteImageDocument = gql`
+    mutation addQuoteImage($input: AddQuoteImageInput!) {
+  addQuoteImage(input: $input) {
+    id
+    url
+  }
+}
+    `;
+export type AddQuoteImageMutationFn = Apollo.MutationFunction<AddQuoteImageMutation, AddQuoteImageMutationVariables>;
+
+/**
+ * __useAddQuoteImageMutation__
+ *
+ * To run a mutation, you first call `useAddQuoteImageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddQuoteImageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addQuoteImageMutation, { data, loading, error }] = useAddQuoteImageMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddQuoteImageMutation(baseOptions?: Apollo.MutationHookOptions<AddQuoteImageMutation, AddQuoteImageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddQuoteImageMutation, AddQuoteImageMutationVariables>(AddQuoteImageDocument, options);
+      }
+export type AddQuoteImageMutationHookResult = ReturnType<typeof useAddQuoteImageMutation>;
+export type AddQuoteImageMutationResult = Apollo.MutationResult<AddQuoteImageMutation>;
+export type AddQuoteImageMutationOptions = Apollo.BaseMutationOptions<AddQuoteImageMutation, AddQuoteImageMutationVariables>;
 export const ApproveQuoteVersionDocument = gql`
     mutation approveQuoteVersion($input: ApproveQuoteVersionInput!) {
   approveQuoteVersion(input: $input) {
