@@ -133,6 +133,24 @@ describe('MentionSchema', () => {
         expect(html).not.toContain('variable-mention--resolved')
         expect(html).toContain('@Customer Name')
       })
+
+      it('THEN should render nothing (not @label) when the value is an empty string', () => {
+        const html = getHtmlForMention(
+          { id: 'customerName', label: 'Customer Name' },
+          { customerName: '' },
+        )
+
+        expect(html).not.toContain('@Customer Name')
+      })
+
+      it('THEN should render nothing (not @label) when the value is null', () => {
+        const html = getHtmlForMention(
+          { id: 'customerName', label: 'Customer Name' },
+          { customerName: null as unknown as string },
+        )
+
+        expect(html).not.toContain('@Customer Name')
+      })
     })
   })
 })
