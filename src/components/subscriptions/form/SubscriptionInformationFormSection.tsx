@@ -12,14 +12,12 @@ import { getTimezoneConfig } from '~/core/timezone'
 import {
   AddSubscriptionPlanFragmentDoc,
   BillingTimeEnum,
-  FeatureFlagEnum,
   PlanInterval,
   StatusTypeEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import {
   buildSubscriptionDefaultValues,
@@ -129,10 +127,6 @@ export const SubscriptionInformationFormSection = withForm({
     customerExternalId,
   }) {
     const { translate } = useInternationalization()
-    const { hasFeatureFlag } = useOrganizationInfos()
-
-    const shouldDisplayActivationRuleSection =
-      hasFeatureFlag(FeatureFlagEnum.PaymentGatedSubscriptions) && !!customerExternalId
 
     const subscriptionBillingTime = useStore(form.store, (state) => state.values.billingTime)
     const subscriptionAt = useStore(form.store, (state) => state.values.subscriptionAt)
@@ -320,7 +314,7 @@ export const SubscriptionInformationFormSection = withForm({
             </>
           )}
 
-          {shouldDisplayActivationRuleSection && (
+          {!!customerExternalId && (
             <SubscriptionActivationRuleSection
               form={form}
               customerExternalId={customerExternalId}
