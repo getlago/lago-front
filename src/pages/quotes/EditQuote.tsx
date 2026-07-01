@@ -123,8 +123,13 @@ const EditQuote = () => {
 
   const quoteCurrency = quote?.customer?.currency ?? CurrencyEnum.Usd
 
+  // Stable ref so useDiscountDrawer can call savePricingBlock without a
+  // forward-declaration error (savePricingBlock is defined below).
+  const savePricingBlockRef = useRef<(billingItems?: BillingItemsPayload) => void>(() => undefined)
+
   const discount = useDiscountDrawer(quote?.currentVersion?.billingItems, {
     currency: quoteCurrency,
+    onPersist: (billingItems) => savePricingBlockRef.current(billingItems),
   })
 
   const mergedEntities = useMemo(
@@ -228,6 +233,8 @@ const EditQuote = () => {
     }
   }, [])
 
+  // Keep the ref in sync with the latest savePricingBlock so the stable wrapper
+  // passed to useDiscountDrawer always calls the current version.
   const savePricingBlock = useCallback(
     async (billingItems?: BillingItemsPayload) => {
       if (!versionId) return
@@ -256,6 +263,8 @@ const EditQuote = () => {
     },
     [versionId, refetchQuote],
   )
+
+  savePricingBlockRef.current = savePricingBlock
 
   const handlePricingCommand = useCallback<OnPricingCommand>(
     ({ onSave, editData }) => {
