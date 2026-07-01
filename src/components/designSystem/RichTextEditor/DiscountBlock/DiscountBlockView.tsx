@@ -13,7 +13,7 @@ export const DiscountBlockView = ({ node, updateAttributes }: NodeViewProps) => 
   const localId = (node.attrs.localId ?? '') as string
   const isEmpty = couponId === ''
 
-  const entity = entities[localId] ?? entities[couponId]
+  const entity = (localId && entities[localId]) || (couponId && entities[couponId]) || undefined
 
   const handleClick = () => {
     onDiscountCommand?.({
