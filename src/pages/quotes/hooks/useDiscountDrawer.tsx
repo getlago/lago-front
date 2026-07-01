@@ -39,10 +39,13 @@ interface DiscountFormValues {
   code: string
   currency: CurrencyEnum
   amount: string
-  // Kept as strings — the TanStack TextInputField stores raw string values.
+  // Kept as strings — the TanStack TextInputField stores raw string values,
+  // EXCEPT frequencyDuration: the `int` beforeChangeFormatter runs parseInt and
+  // stores a number, so its value can be a string (prefill/default) or a number
+  // (after the user types). Coerced to number|null when building the payload.
   percentageRate: string
   frequency: CouponFrequency
-  frequencyDuration: string
+  frequencyDuration: string | number
 }
 
 const makeDefaults = (currency: CurrencyEnum): DiscountFormValues => ({
@@ -67,7 +70,8 @@ const schema = z
     amount: z.string(),
     percentageRate: z.string(),
     frequency: z.nativeEnum(CouponFrequency),
-    frequencyDuration: z.string(),
+    // number when set via the `int` input formatter, string on prefill/default
+    frequencyDuration: z.union([z.string(), z.number()]),
   })
   .superRefine((data, ctx) => {
     if (data.couponType === CouponTypeEnum.FixedAmount && !data.amount) {
