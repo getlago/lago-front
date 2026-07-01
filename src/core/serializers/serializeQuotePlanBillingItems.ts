@@ -123,9 +123,9 @@ export interface SerializedUsageThreshold {
 
 export interface PlanPayload {
   position: number
-  plan_code: string
-  plan_name: string
-  plan_description: string
+  code: string
+  name: string
+  description: string
   subscription_external_id: string | null
   subscription_name: string | null
   billing_time: 'anniversary' | 'calendar'
@@ -363,9 +363,9 @@ export const toPlanBillingItems = (
 
   const payload: PlanPayload = {
     position: 1,
-    plan_code: planCode,
-    plan_name: planName,
-    plan_description: planDescription,
+    code: planCode,
+    name: planName,
+    description: planDescription,
     subscription_external_id: normalizeOptional(subscriptionSettings.externalId),
     subscription_name: normalizeOptional(subscriptionSettings.subscriptionName),
     billing_time: subscriptionSettings.billingTime,
@@ -566,9 +566,9 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
           }
         : undefined,
       entitlements: [],
-      name: payload.plan_name,
-      code: payload.plan_code,
-      description: payload.plan_description,
+      name: payload.name,
+      code: payload.code,
+      description: payload.description,
     }
   }
 
@@ -576,17 +576,17 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
     [id]: {
       entityId: id,
       entityType: 'plan',
-      name: payload.plan_name,
-      code: payload.plan_code,
+      name: payload.name,
+      code: payload.code,
       plan: buildPlanPreviewData(formValues),
     },
   }
 
   return {
     planId: id,
-    planCode: payload.plan_code,
-    planName: payload.plan_name,
-    planDescription: payload.plan_description,
+    planCode: payload.code,
+    planName: payload.name,
+    planDescription: payload.description,
     subscriptionSettings,
     invoicingSettings,
     overrides,

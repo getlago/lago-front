@@ -135,7 +135,7 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 
 const mockAddOnPayload = {
   position: 1,
-  add_on_code: 'setup',
+  code: 'setup',
   name: 'Setup Fee',
   description: 'One-time setup fee',
   units: 1,
@@ -474,7 +474,7 @@ describe('useOneOffPricingDrawer', () => {
         const secondPayload = {
           ...mockAddOnPayload,
           position: 2,
-          add_on_code: 'onboarding',
+          code: 'onboarding',
           name: 'Onboarding Fee',
         }
 
