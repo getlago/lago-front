@@ -264,6 +264,164 @@ describe('useDiscountDrawer', () => {
     expect(payload?.coupons).toEqual([])
   })
 
+  it('calls onPersist with billingItems containing coupon overrides on add', async () => {
+    const onPersist = jest.fn()
+    const { result } = renderHook(() =>
+      useDiscountDrawer(undefined, { currency: CurrencyEnum.Usd, onPersist }),
+    )
+
+    const onSave = jest.fn()
+
+    act(() => {
+      result.current.onDiscountCommand({ onSave })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(
+      <>
+        {openArgs.children}
+        {openArgs.actions}
+      </>,
+    )
+
+    const comboBoxInput = screen.getByRole('combobox') as HTMLInputElement
+
+    await userEvent.type(comboBoxInput, 'Ten')
+
+    await waitFor(() => {
+      expect(comboBoxInput.getAttribute('aria-controls')).toBeTruthy()
+    })
+
+    const listboxId = comboBoxInput.getAttribute('aria-controls') as string
+    const listbox = document.getElementById(listboxId) as HTMLElement
+
+    await userEvent.click(within(listbox).getByText('Ten Off'))
+
+    const saveButton = screen.getByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)
+
+    await waitFor(() => {
+      expect(saveButton).not.toBeDisabled()
+    })
+
+    await userEvent.click(saveButton)
+
+    await waitFor(() => {
+      expect(onPersist).toHaveBeenCalledTimes(1)
+    })
+
+    const persistedPayload = onPersist.mock.calls[0][0] as {
+      coupons: Array<{
+        id: string
+        localId: string
+        overrides: {
+          amount_cents: number | null
+          percentage_rate: number | null
+          frequency: string
+          frequency_duration: number | null
+        }
+      }>
+    }
+
+    expect(persistedPayload.coupons).toHaveLength(1)
+
+    const [coupon] = persistedPayload.coupons
+
+    expect(coupon.id).toBe('cpn_fixed')
+    expect(coupon.localId).toBe('mock-uuid-1')
+    expect(coupon.overrides).toEqual({
+      amount_cents: 1000,
+      percentage_rate: null,
+      frequency: 'once',
+      frequency_duration: null,
+    })
+  })
+
+  it('calls onPersist with updated overrides when editing an existing coupon', async () => {
+    const initialBillingItems: BillingItemsPayload = {
+      addons: [],
+      coupons: [
+        {
+          type: 'coupon',
+          id: 'cpn_fixed',
+          localId: 'saved-local',
+          payload: {
+            position: 1,
+            code: 'COUPON_CODE',
+            id: 'cpn_fixed',
+            name: 'Ten Off',
+            type: 'fixed_amount',
+            amount_cents: 1000,
+            percentage_rate: null,
+            currency: CurrencyEnum.Usd,
+            frequency: 'once',
+            frequency_duration: null,
+            expiration_at: null,
+            limited_plans: false,
+            plan_codes: [],
+            limited_billable_metrics: false,
+            billable_metric_codes: [],
+            coupon_overrides: null,
+            catalog_snapshot: null,
+            resolved_payload: null,
+          },
+          overrides: {
+            amount_cents: 1000,
+            percentage_rate: null,
+            frequency: 'once',
+            frequency_duration: null,
+          },
+        },
+      ],
+    }
+
+    const onPersist = jest.fn()
+    const { result } = renderHook(() =>
+      useDiscountDrawer(initialBillingItems, { currency: CurrencyEnum.Usd, onPersist }),
+    )
+
+    const onSave = jest.fn()
+
+    act(() => {
+      result.current.onDiscountCommand({
+        onSave,
+        editData: { couponId: 'cpn_fixed', localId: 'saved-local' },
+      })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(
+      <>
+        {openArgs.children}
+        {openArgs.actions}
+      </>,
+    )
+
+    // The form opens pre-filled with valid values from the existing coupon, so the save
+    // button is enabled immediately — no combobox interaction needed.
+    const allSaveButtons = screen.getAllByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)
+    const saveButton = allSaveButtons[allSaveButtons.length - 1]
+
+    await waitFor(() => {
+      expect(saveButton).not.toBeDisabled()
+    })
+
+    await userEvent.click(saveButton)
+
+    await waitFor(() => {
+      expect(onPersist).toHaveBeenCalledTimes(1)
+    })
+
+    const persistedPayload = onPersist.mock.calls[0][0] as {
+      coupons: Array<{ id: string; localId: string }>
+    }
+
+    expect(persistedPayload.coupons).toHaveLength(1)
+    expect(persistedPayload.coupons[0].id).toBe('cpn_fixed')
+    expect(persistedPayload.coupons[0].localId).toBe('saved-local')
+  })
+
   it('prefills from saved override values when editing', () => {
     const initialBillingItems: BillingItemsPayload = {
       addons: [],

@@ -275,7 +275,7 @@ interface PendingSave {
 
 export const useDiscountDrawer = (
   billingItems: BillingItemsPayload | null | undefined,
-  options: { currency: CurrencyEnum },
+  options: { currency: CurrencyEnum; onPersist?: (billingItems: BillingItemsPayload) => void },
 ): {
   onDiscountCommand: OnDiscountCommand
   entities: Record<string, EntityData>
@@ -284,6 +284,7 @@ export const useDiscountDrawer = (
   const { translate } = useInternationalization()
   const drawer = useDrawer()
   const currency = options.currency
+  const { onPersist } = options
 
   const initial = fromCoupons(billingItems?.coupons ?? [])
 
@@ -357,9 +358,10 @@ export const useDiscountDrawer = (
         }
       }
 
-      rebuild()
+      const updated = rebuild()
 
       onSave({ couponId: value.couponId, localId })
+      onPersist?.(updated)
       drawer.close()
     },
   })
