@@ -2,10 +2,6 @@ import { mergeAttributes, Node } from '@tiptap/core'
 
 import { wrapInBlockWrapper } from './BlockWrapper'
 
-export interface LinkCardAttributes {
-  href: string
-}
-
 export const LinkCard = Node.create({
   name: 'linkCard',
   group: 'block',

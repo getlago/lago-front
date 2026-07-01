@@ -1,5 +1,3 @@
-import { FormikProps } from 'formik'
-
 import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import {
   BillingEntityForIntegrationMapping,
@@ -20,11 +18,6 @@ export type FormValuesType = Record<
     externalId: string
   }
 >
-
-export type AnrokIntegrationMapItemFormProps = {
-  formikProps: FormikProps<FormValuesType>
-  billingEntityKey: 'default' | string
-}
 
 export interface AnrokIntegrationMapItemDrawerRef {
   openDrawer: (props: AnrokIntegrationMapItemDrawerProps) => unknown

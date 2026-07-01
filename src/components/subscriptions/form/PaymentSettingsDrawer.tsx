@@ -14,7 +14,7 @@ import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 
 const PAYMENT_SETTINGS_FORM_ID = 'payment-settings-drawer-form'
 
-export interface PaymentSettingsValues {
+interface PaymentSettingsValues {
   paymentMethod: SelectedPaymentMethod
 }
 

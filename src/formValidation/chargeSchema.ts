@@ -273,7 +273,7 @@ const filtersShape = array()
     then: (schema) => schema.of(createFilterShape(volumeShape)),
   })
 
-export const customShape = {
+const customShape = {
   customProperties: object().json().required(''),
 }
 

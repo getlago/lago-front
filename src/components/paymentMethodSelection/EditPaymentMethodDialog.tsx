@@ -9,7 +9,8 @@ import { deriveBehavior, PaymentMethodBehavior, SelectedPaymentMethod } from './
 
 import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
-export const EDIT_PM_DIALOG_CANCEL_BUTTON_TEST_ID = 'edit-payment-method-dialog-cancel-button'
+const EDIT_PM_DIALOG_CANCEL_BUTTON_TEST_ID = 'edit-payment-method-dialog-cancel-button'
+
 export const EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID = 'edit-payment-method-dialog-save-button'
 
 interface EditPaymentMethodDialogProps {

@@ -33,7 +33,7 @@ gql`
 `
 
 export const ADD_PLAN_FORM_ID = 'add-plan-to-coupon-form'
-export const SUBMIT_ADD_PLAN_DIALOG_TEST_ID = 'submit-add-plan-to-coupon-dialog'
+const SUBMIT_ADD_PLAN_DIALOG_TEST_ID = 'submit-add-plan-to-coupon-dialog'
 
 interface AddPlanContentProps {
   attachedPlansIds?: string[]

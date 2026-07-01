@@ -10,7 +10,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { POPPER_GROUP_NAME } from '~/core/constants/popper'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 
-export type SectionAccordionAction = {
+type SectionAccordionAction = {
   label: string
   onClick: () => void
   hidden?: boolean

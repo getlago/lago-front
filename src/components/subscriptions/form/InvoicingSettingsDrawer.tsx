@@ -21,7 +21,7 @@ import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 
 const INVOICING_SETTINGS_FORM_ID = 'invoicing-settings-drawer-form'
 
-export interface InvoicingSettingsValues {
+interface InvoicingSettingsValues {
   consolidateInvoice: boolean
   invoiceCustomSection: InvoiceCustomSectionInput
 }

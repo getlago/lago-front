@@ -23,7 +23,7 @@ export type EntityData = {
   plan?: PlanPreviewData
 }
 
-export interface PricingCommandParams {
+interface PricingCommandParams {
   onSave: (
     attrs: PricingBlockAttributes,
     entityData: Record<string, EntityData>,

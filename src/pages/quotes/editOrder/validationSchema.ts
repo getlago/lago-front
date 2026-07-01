@@ -27,11 +27,6 @@ export const editOrderValidationSchema = z
 
 export type EditOrderFormValues = z.infer<typeof editOrderValidationSchema>
 
-export const editOrderDefaultValues: EditOrderFormValues = {
-  executionMode: undefined,
-  executeAt: undefined,
-}
-
 export const buildUpdateOrderInput = (
   orderId: string,
   values: EditOrderFormValues,

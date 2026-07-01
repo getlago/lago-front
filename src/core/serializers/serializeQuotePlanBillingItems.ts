@@ -12,18 +12,18 @@ import { buildPlanPreviewData } from './buildPlanPreviewData'
 export type { PlanFormInput }
 
 // --- Plan billing item types (snake_case, matches backend contract) ---
-export interface PlanChargeOverride {
+interface PlanChargeOverride {
   billable_metric_code: string
   charge_model: string
   properties: Record<string, unknown>
 }
 
-export interface PlanMinimumCommitmentOverride {
+interface PlanMinimumCommitmentOverride {
   amount_cents: number
   invoice_display_name?: string
 }
 
-export interface PlanUsageThresholdOverride {
+interface PlanUsageThresholdOverride {
   amount_cents: number
   recurring: boolean
   threshold_display_name?: string
@@ -39,14 +39,14 @@ export interface PlanOverrides {
 
 // --- Serialized plan form types (stored in PlanPayload for form reconstruction) ---
 
-export interface SerializedTax {
+interface SerializedTax {
   id: string
   code: string
   name: string
   rate: number
 }
 
-export interface SerializedBillableMetric {
+interface SerializedBillableMetric {
   id: string
   code: string
   name: string
@@ -55,20 +55,20 @@ export interface SerializedBillableMetric {
   filters: Array<{ id: string; key: string; values: string[] }>
 }
 
-export interface SerializedChargeFilter {
+interface SerializedChargeFilter {
   invoice_display_name: string | null
   properties: Record<string, unknown>
   values: string[]
 }
 
-export interface SerializedAppliedPricingUnit {
+interface SerializedAppliedPricingUnit {
   code: string
   short_name: string
   type: string
   conversion_rate: string
 }
 
-export interface SerializedCharge {
+interface SerializedCharge {
   id?: string
   billable_metric: SerializedBillableMetric
   charge_model: string
@@ -85,13 +85,13 @@ export interface SerializedCharge {
   applied_pricing_unit: SerializedAppliedPricingUnit | null
 }
 
-export interface SerializedAddOn {
+interface SerializedAddOn {
   id: string
   name: string
   code: string
 }
 
-export interface SerializedFixedCharge {
+interface SerializedFixedCharge {
   id?: string
   add_on: SerializedAddOn
   charge_model: string
@@ -105,7 +105,7 @@ export interface SerializedFixedCharge {
   taxes: SerializedTax[]
 }
 
-export interface SerializedMinimumCommitment {
+interface SerializedMinimumCommitment {
   id?: string
   amount_cents: string
   invoice_display_name: string | null
@@ -114,14 +114,14 @@ export interface SerializedMinimumCommitment {
   taxes: SerializedTax[]
 }
 
-export interface SerializedUsageThreshold {
+interface SerializedUsageThreshold {
   id?: string
   amount_cents: number | string
   threshold_display_name: string | null
   recurring: boolean
 }
 
-export interface PlanPayload {
+interface PlanPayload {
   position: number
   plan_code: string
   plan_name: string

@@ -63,7 +63,7 @@ interface RichTextEditorProps {
   variableItems?: MentionItem[]
 }
 
-export const createMentionSuggestion = (
+const createMentionSuggestion = (
   items: MentionItem[],
 ): NonNullable<MentionSchemaOptions['suggestion']> => ({
   char: '@',

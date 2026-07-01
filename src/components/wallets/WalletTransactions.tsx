@@ -2,8 +2,6 @@ import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { FC, PropsWithChildren, useMemo } from 'react'
 
-import { Card } from '~/components/designSystem/Card'
-import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TimezoneDate } from '~/components/TimezoneDate'
@@ -287,19 +285,4 @@ const DetailSummaryLine: FC<PropsWithChildren<{ className?: string }>> = ({
   children,
 }) => {
   return <div className={tw('flex items-center [&_*]:flex', className)}>{children}</div>
-}
-
-export const WalletTransactionsSkeleton = () => {
-  return (
-    <Card className="p-4">
-      <div className="flex flex-1 items-center gap-3">
-        <Icon name="chevron-right" color="disabled" />
-        <Skeleton variant="connectorAvatar" size="big" />
-        <div className="w-full">
-          <Skeleton variant="text" className="max-w-60" />
-          <Skeleton variant="text" className="max-w-30" />
-        </div>
-      </div>
-    </Card>
-  )
 }

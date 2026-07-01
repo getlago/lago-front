@@ -14,7 +14,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type Tax = { id: string; name: string; rate: number }
 
-export type FixedChargeInfoCharge = {
+type FixedChargeInfoCharge = {
   id: string
   invoiceDisplayName?: string | null
   chargeModel: FixedChargeChargeModelEnum

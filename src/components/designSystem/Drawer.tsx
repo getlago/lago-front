@@ -18,7 +18,7 @@ import {
   PreventClosingDrawerDialogRef,
 } from './PreventClosingDrawerDialog'
 
-export const DRAWER_TRANSITION_DURATION = 250
+const DRAWER_TRANSITION_DURATION = 250
 
 interface DrawerProps extends Pick<MuiDrawerProps, 'anchor'> {
   className?: string

@@ -9,11 +9,6 @@ type UseKeyNavigation<T = HTMLDivElement> = (options: useKeyNavigationOptions) =
   onKeyDown: KeyboardEventHandler<T>
 }
 
-export interface ListKeyNavigationItemProps {
-  id: string
-  'data-id'?: string | number
-}
-
 // Allow to navigate in a list
 export const useListKeysNavigation: UseKeyNavigation = ({
   getElmId,

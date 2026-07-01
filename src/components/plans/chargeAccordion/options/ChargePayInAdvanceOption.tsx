@@ -1,11 +1,11 @@
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withFieldGroup } from '~/hooks/forms/useAppform'
 
-export type ChargePayInAdvanceOptionValues = {
+type ChargePayInAdvanceOptionValues = {
   payInAdvance: boolean
 }
 
-export type ChargePayInAdvanceOptionProps = {
+type ChargePayInAdvanceOptionProps = {
   disabled?: boolean
   isPayInAdvanceOptionDisabled?: boolean
   description?: string
