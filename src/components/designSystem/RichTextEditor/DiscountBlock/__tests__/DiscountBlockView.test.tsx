@@ -209,6 +209,107 @@ describe('DiscountBlockView', () => {
     })
   })
 
+  describe('GIVEN mode is preview and entity is resolved', () => {
+    const couponEntityFixed: EntityData = {
+      entityId: 'coupon-2',
+      entityType: 'coupon',
+      name: '$10 Off',
+      code: 'ten-dollars-off',
+      couponType: 'fixed_amount' as EntityData['couponType'],
+      amountCents: '1000',
+      amountCurrency: 'USD' as EntityData['amountCurrency'],
+      percentageRate: null,
+      frequency: 'once' as EntityData['frequency'],
+      frequencyDuration: null,
+    }
+
+    const couponEntityPct: EntityData = {
+      entityId: 'coupon-3',
+      entityType: 'coupon',
+      name: '15% Off',
+      code: 'fifteen-pct-off',
+      couponType: 'percentage' as EntityData['couponType'],
+      amountCents: undefined,
+      amountCurrency: undefined,
+      percentageRate: 15,
+      frequency: 'recurring' as EntityData['frequency'],
+      frequencyDuration: 3,
+    }
+
+    const renderPreview = ({
+      attrs = {},
+      entities = {} as Record<string, EntityData>,
+    }: {
+      attrs?: Record<string, unknown>
+      entities?: Record<string, EntityData>
+    } = {}) => {
+      const nodeProps = createNodeProps(attrs)
+
+      return render(
+        <RichTextEditorProvider
+          value={{
+            mode: 'preview',
+            mentionValues: {},
+            entities,
+          }}
+        >
+          <DiscountBlockView {...nodeProps} />
+        </RichTextEditorProvider>,
+      )
+    }
+
+    describe('WHEN rendered with a resolved fixed-amount coupon', () => {
+      it('THEN should display the coupon name', () => {
+        renderPreview({
+          attrs: { couponId: 'coupon-2', localId: 'local-2' },
+          entities: { 'local-2': couponEntityFixed },
+        })
+
+        expect(screen.getByText('$10 Off')).toBeInTheDocument()
+      })
+
+      it('THEN should NOT render the interactive SlashCommandBlockWrapper edit button', () => {
+        renderPreview({
+          attrs: { couponId: 'coupon-2', localId: 'local-2' },
+          entities: { 'local-2': couponEntityFixed },
+        })
+
+        expect(screen.queryByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN rendered with a resolved percentage coupon', () => {
+      it('THEN should display the coupon name', () => {
+        renderPreview({
+          attrs: { couponId: 'coupon-3', localId: 'local-3' },
+          entities: { 'local-3': couponEntityPct },
+        })
+
+        expect(screen.getByText('15% Off')).toBeInTheDocument()
+      })
+
+      it('THEN should NOT render the interactive edit button', () => {
+        renderPreview({
+          attrs: { couponId: 'coupon-3', localId: 'local-3' },
+          entities: { 'local-3': couponEntityPct },
+        })
+
+        expect(screen.queryByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN rendered with no entity resolved in preview mode', () => {
+      it('THEN should NOT render the interactive edit button', () => {
+        renderPreview({
+          attrs: { couponId: 'unknown-coupon', localId: '' },
+          entities: {},
+        })
+
+        expect(screen.queryByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
   describe('GIVEN couponId is set but entity is not resolved', () => {
     describe('WHEN rendered', () => {
       it('THEN should display the unresolved fallback with coupon id', () => {
