@@ -4,7 +4,7 @@ import { Editor, Range, ReactRenderer } from '@tiptap/react'
 import Suggestion, { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/suggestion'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
-import type { OnPricingCommand } from '../common/RichTextEditorContext'
+import type { OnDiscountCommand, OnPricingCommand } from '../common/RichTextEditorContext'
 import { SlashMenu, type SlashMenuRef } from '../SlashMenu/SlashMenu'
 
 export interface SlashCommandItem {
@@ -68,6 +68,7 @@ export const SlashCommands = Extension.create({
       translate: ((key: string) => key) as (key: string) => string,
       onPricingCommand: undefined as OnPricingCommand | undefined,
       isPricingDisabled: undefined as (() => boolean) | undefined,
+      onDiscountCommand: undefined as OnDiscountCommand | undefined,
       suggestion: {
         char: '/',
         command: ({
@@ -129,7 +130,7 @@ export const SlashCommands = Extension.create({
   },
 
   addProseMirrorPlugins() {
-    const { translate, onPricingCommand, isPricingDisabled } = this.options
+    const { translate, onPricingCommand, isPricingDisabled, onDiscountCommand } = this.options
 
     const resolvedItems: SlashCommandItem[] = slashCommandDefinitions.map((def) => ({
       title: translate(def.titleKey),
@@ -160,6 +161,30 @@ export const SlashCommands = Extension.create({
         },
       }
       resolvedItems.push(pricingItem)
+    }
+
+    if (onDiscountCommand) {
+      const discountItem: SlashCommandItem = {
+        title: translate('text_1782889379261hdcd0jhzdm6'),
+        description: translate('text_178288937926153opd9g5cwg'),
+        command: (editor) => {
+          onDiscountCommand({
+            onSave: (attrs) => {
+              editor.chain().focus().insertContent({ type: 'discountBlock', attrs }).run()
+
+              // After inserting an atom node, ProseMirror may create a NodeSelection
+              // which triggers the BlockToolbar overlay. Move to a text selection.
+              const { selection } = editor.state
+
+              if (selection instanceof NodeSelection) {
+                editor.commands.setTextSelection(selection.from + selection.node.nodeSize)
+              }
+            },
+          })
+        },
+      }
+
+      resolvedItems.push(discountItem)
     }
 
     const editorRef = this.editor

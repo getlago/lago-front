@@ -10,6 +10,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import BlockToolbar from './BlockControls/BlockToolbar'
 import {
   type EntityData,
+  type OnDiscountCommand,
   type OnPricingCommand,
   RichTextEditorProvider,
 } from './common/RichTextEditorContext'
@@ -19,6 +20,8 @@ import {
   RICH_TEXT_EDITOR_TOOLBAR_TEST_ID,
 } from './constants'
 import { getBaseExtensions } from './extensions/baseExtensions'
+import { DiscountBlock } from './extensions/DiscountBlock'
+import { type DiscountBlockAttributes } from './extensions/DiscountBlock.schema'
 import { DragHandle } from './extensions/DragHandle'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
 import {
@@ -51,6 +54,8 @@ interface RichTextEditorProps {
   onPricingCommand?: OnPricingCommand
   isPricingDisabled?: () => boolean
   onPricingBlocksChange?: (blocks: PricingBlockAttributes[]) => void
+  onDiscountCommand?: OnDiscountCommand
+  onDiscountBlocksChange?: (blocks: DiscountBlockAttributes[]) => void
   customerLocale?: Locale
   customerCurrency?: CurrencyEnum
   isCompact?: boolean
@@ -143,6 +148,8 @@ const RichTextEditor = ({
   onPricingCommand,
   isPricingDisabled,
   onPricingBlocksChange,
+  onDiscountCommand,
+  onDiscountBlocksChange,
   onChange,
   customerLocale,
   customerCurrency,
@@ -155,11 +162,15 @@ const RichTextEditor = ({
   const onPricingBlocksChangeRef = useRef(onPricingBlocksChange)
   const onPricingCommandRef = useRef(onPricingCommand)
   const isPricingDisabledRef = useRef(isPricingDisabled)
+  const onDiscountCommandRef = useRef(onDiscountCommand)
+  const onDiscountBlocksChangeRef = useRef(onDiscountBlocksChange)
 
   onChangeRef.current = onChange
   onPricingBlocksChangeRef.current = onPricingBlocksChange
   onPricingCommandRef.current = onPricingCommand
   isPricingDisabledRef.current = isPricingDisabled
+  onDiscountCommandRef.current = onDiscountCommand
+  onDiscountBlocksChangeRef.current = onDiscountBlocksChange
 
   const mentionSuggestion = useMemo(() => createMentionSuggestion(variableItems), [variableItems])
 
@@ -181,6 +192,7 @@ const RichTextEditor = ({
         suggestion: mentionSuggestion,
       } as MentionSchemaOptions),
       PricingBlock.configure({ entities: entitiesFromProps }),
+      DiscountBlock.configure({ entities: entitiesFromProps }),
       SlashCommands.configure({
         translate,
         onPricingCommand: onPricingCommand
@@ -188,6 +200,9 @@ const RichTextEditor = ({
           : undefined,
         isPricingDisabled: isPricingDisabled
           ? () => isPricingDisabledRef.current?.() ?? false
+          : undefined,
+        onDiscountCommand: onDiscountCommand
+          ? (params) => onDiscountCommandRef.current?.(params)
           : undefined,
       }),
       LinkPasteHandler,
@@ -205,20 +220,34 @@ const RichTextEditor = ({
     content: getInitialEditorContent(content, templates),
     onUpdate: ({ editor: editorInstance }) => {
       onChangeRef.current?.()
-      if (!onPricingBlocksChangeRef.current) return
+      if (onPricingBlocksChangeRef.current) {
+        const blocks: PricingBlockAttributes[] = []
 
-      const blocks: PricingBlockAttributes[] = []
+        editorInstance.state.doc.descendants((node) => {
+          if (node.type.name === 'pricingBlock' && node.attrs.entityIds?.length) {
+            blocks.push({
+              pricingType: node.attrs.pricingType,
+              entityIds: node.attrs.entityIds,
+              localEntityIds: node.attrs.localEntityIds,
+            })
+          }
+        })
+        onPricingBlocksChangeRef.current(blocks)
+      }
 
-      editorInstance.state.doc.descendants((node) => {
-        if (node.type.name === 'pricingBlock' && node.attrs.entityIds?.length) {
-          blocks.push({
-            pricingType: node.attrs.pricingType,
-            entityIds: node.attrs.entityIds,
-            localEntityIds: node.attrs.localEntityIds,
-          })
-        }
-      })
-      onPricingBlocksChangeRef.current(blocks)
+      if (onDiscountBlocksChangeRef.current) {
+        const discountBlocks: DiscountBlockAttributes[] = []
+
+        editorInstance.state.doc.descendants((node) => {
+          if (node.type.name === 'discountBlock' && node.attrs.couponId) {
+            discountBlocks.push({
+              couponId: node.attrs.couponId,
+              localId: node.attrs.localId,
+            })
+          }
+        })
+        onDiscountBlocksChangeRef.current(discountBlocks)
+      }
     },
   })
 
@@ -271,10 +300,19 @@ const RichTextEditor = ({
       mentionValues,
       entities: entitiesFromProps,
       onPricingCommand,
+      onDiscountCommand,
       customerLocale,
       customerCurrency,
     }),
-    [mode, mentionValues, entitiesFromProps, onPricingCommand, customerLocale, customerCurrency],
+    [
+      mode,
+      mentionValues,
+      entitiesFromProps,
+      onPricingCommand,
+      onDiscountCommand,
+      customerLocale,
+      customerCurrency,
+    ],
   )
 
   useEffect(() => {

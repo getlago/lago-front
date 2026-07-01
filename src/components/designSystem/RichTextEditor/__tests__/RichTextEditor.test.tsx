@@ -23,6 +23,12 @@ jest.mock('../extensions/PricingBlock', () => ({
   },
 }))
 
+jest.mock('../extensions/DiscountBlock', () => ({
+  DiscountBlock: {
+    configure: jest.fn(() => 'discount-block-extension'),
+  },
+}))
+
 jest.mock('../extensions/SlashCommands', () => ({
   SlashCommands: {
     configure: jest.fn((config: Record<string, unknown>) => {
@@ -595,6 +601,109 @@ describe('RichTextEditor', () => {
       expect(onPreviewReady).toHaveBeenCalledWith('<p>Preview content</p>')
 
       rafSpy.mockRestore()
+    })
+  })
+
+  describe('GIVEN onDiscountCommand prop', () => {
+    describe('WHEN onDiscountCommand is provided', () => {
+      it('THEN passes onDiscountCommand to SlashCommands.configure', async () => {
+        const onDiscountCommand = jest.fn()
+
+        await act(() => render(<RichTextEditor onDiscountCommand={onDiscountCommand} />))
+
+        expect(capturedSlashCommandsConfig.onDiscountCommand).toBeDefined()
+        expect(typeof capturedSlashCommandsConfig.onDiscountCommand).toBe('function')
+      })
+    })
+
+    describe('WHEN onDiscountCommand is not provided', () => {
+      it('THEN passes undefined onDiscountCommand to SlashCommands.configure', async () => {
+        await act(() => render(<RichTextEditor />))
+
+        expect(capturedSlashCommandsConfig.onDiscountCommand).toBeUndefined()
+      })
+    })
+  })
+
+  describe('GIVEN the DiscountBlock extension', () => {
+    it('THEN registers DiscountBlock with entities from props', async () => {
+      const { DiscountBlock } = jest.requireMock('../extensions/DiscountBlock') as {
+        DiscountBlock: { configure: jest.Mock }
+      }
+
+      DiscountBlock.configure.mockClear()
+
+      const entities = {
+        'local-1': {
+          entityId: 'cpn_1',
+          entityType: 'coupon' as const,
+          name: 'Summer Sale',
+          code: 'SUMMER',
+        },
+      }
+
+      await act(() => render(<RichTextEditor entities={entities} />))
+
+      expect(DiscountBlock.configure).toHaveBeenCalledWith({ entities })
+    })
+  })
+
+  describe('GIVEN onDiscountBlocksChange prop', () => {
+    describe('WHEN the editor updates with discount block nodes', () => {
+      it('THEN calls onDiscountBlocksChange with the collected discount blocks', async () => {
+        const onDiscountBlocksChange = jest.fn()
+
+        await act(() => render(<RichTextEditor onDiscountBlocksChange={onDiscountBlocksChange} />))
+
+        const onUpdate = (capturedEditorConfig as { onUpdate?: (arg: { editor: unknown }) => void })
+          .onUpdate
+
+        expect(onUpdate).toBeDefined()
+
+        const mockDocWithDiscount = {
+          state: {
+            doc: {
+              descendants: jest.fn((cb: (node: unknown) => void) => {
+                cb({
+                  type: { name: 'discountBlock' },
+                  attrs: { couponId: 'cpn_1', localId: 'local-1' },
+                })
+                cb({ type: { name: 'discountBlock' }, attrs: { couponId: '', localId: 'local-2' } })
+              }),
+            },
+          },
+        }
+
+        await act(() => onUpdate?.({ editor: mockDocWithDiscount }))
+
+        expect(onDiscountBlocksChange).toHaveBeenCalledWith([
+          { couponId: 'cpn_1', localId: 'local-1' },
+        ])
+      })
+    })
+
+    describe('WHEN the editor updates without discount block nodes', () => {
+      it('THEN calls onDiscountBlocksChange with an empty array', async () => {
+        const onDiscountBlocksChange = jest.fn()
+
+        await act(() => render(<RichTextEditor onDiscountBlocksChange={onDiscountBlocksChange} />))
+
+        const onUpdate = (capturedEditorConfig as { onUpdate?: (arg: { editor: unknown }) => void })
+          .onUpdate
+        const mockDocEmpty = {
+          state: {
+            doc: {
+              descendants: jest.fn((cb: (node: unknown) => void) => {
+                cb({ type: { name: 'paragraph' }, attrs: {} })
+              }),
+            },
+          },
+        }
+
+        await act(() => onUpdate?.({ editor: mockDocEmpty }))
+
+        expect(onDiscountBlocksChange).toHaveBeenCalledWith([])
+      })
     })
   })
 })
