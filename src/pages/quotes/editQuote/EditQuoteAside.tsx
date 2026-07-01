@@ -196,9 +196,14 @@ const EditQuoteAsideForm = ({
   const gridClassName = 'grid grid-cols-[7.5rem_1fr] items-center gap-0 gap-y-2'
 
   const handleDownloadPdf = () => {
-    download(buildQuotePreviewProps(quote.currentVersion, quote.customer, pdfHeader)).catch(
-      () => undefined,
-    )
+    download(
+      buildQuotePreviewProps(
+        quote.currentVersion,
+        quote.customer,
+        (quote.images ?? {}) as Record<string, string>,
+        pdfHeader,
+      ),
+    ).catch(() => undefined)
   }
 
   return (

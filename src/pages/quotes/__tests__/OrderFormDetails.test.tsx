@@ -72,6 +72,7 @@ const baseOrderForm = {
   quote: {
     id: 'quote-1',
     number: 'QUO-001',
+    images: {},
     orderType: OrderTypeEnum.SubscriptionCreation,
     currentVersion: {
       id: 'qv-1',
