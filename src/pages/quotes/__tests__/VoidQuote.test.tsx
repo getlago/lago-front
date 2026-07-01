@@ -85,6 +85,7 @@ const mockUseQuote = useQuote as jest.MockedFunction<typeof useQuote>
 const mockQuote = {
   id: 'quote-123',
   number: 'QT-2026-0042',
+  images: {},
   orderType: OrderTypeEnum.SubscriptionCreation,
   createdAt: '2026-04-09T10:00:00Z',
   versions: [
