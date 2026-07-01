@@ -337,6 +337,92 @@ describe('useDiscountDrawer', () => {
     })
   })
 
+  it('persists a typed recurring duration (int formatter yields a number, not a string)', async () => {
+    // Regression: the `int` beforeChangeFormatter runs parseInt and stores
+    // frequencyDuration as a NUMBER. The schema previously declared z.string(),
+    // so typing a duration on a recurring discount failed validation
+    // ("Invalid input: expected string, received number") and blocked save.
+    const onPersist = jest.fn()
+    const { result } = renderHook(() =>
+      useDiscountDrawer(undefined, { currency: CurrencyEnum.Usd, onPersist }),
+    )
+
+    const onSave = jest.fn()
+
+    act(() => {
+      result.current.onDiscountCommand({ onSave })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(
+      <>
+        {openArgs.children}
+        {openArgs.actions}
+      </>,
+    )
+
+    // Only the coupon combobox is rendered until a coupon is selected.
+    const comboBoxInput = screen.getByRole('combobox') as HTMLInputElement
+
+    await userEvent.type(comboBoxInput, 'Ten')
+
+    await waitFor(() => {
+      expect(comboBoxInput.getAttribute('aria-controls')).toBeTruthy()
+    })
+
+    const listboxId = comboBoxInput.getAttribute('aria-controls') as string
+    const listbox = document.getElementById(listboxId) as HTMLElement
+
+    await userEvent.click(within(listbox).getByText('Ten Off'))
+
+    // Selecting the coupon prefills frequency = Once (its label key). Switch the
+    // frequency dropdown to Recurring so the duration field appears.
+    const freqInput = (await screen.findByDisplayValue(
+      'text_632d68358f1fedc68eed3ea3',
+    )) as HTMLInputElement
+
+    await userEvent.click(freqInput)
+
+    await waitFor(() => {
+      expect(freqInput.getAttribute('aria-controls')).toBeTruthy()
+    })
+
+    const freqListbox = document.getElementById(
+      freqInput.getAttribute('aria-controls') as string,
+    ) as HTMLElement
+
+    await userEvent.click(within(freqListbox).getByText('text_632d68358f1fedc68eed3e64'))
+
+    // Duration field now renders. Typing runs the `int` formatter → number.
+    const durationInput = await screen.findByPlaceholderText('text_632d68358f1fedc68eed3e88')
+
+    await userEvent.type(durationInput, '6')
+
+    const saveButton = screen.getByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)
+
+    // Before the fix, the numeric value failed z.string() validation, so
+    // canSubmit stayed false and the button never enabled.
+    await waitFor(() => {
+      expect(saveButton).not.toBeDisabled()
+    })
+
+    await userEvent.click(saveButton)
+
+    await waitFor(() => {
+      expect(onPersist).toHaveBeenCalledTimes(1)
+    })
+
+    const persistedPayload = onPersist.mock.calls[0][0] as {
+      coupons: Array<{
+        overrides: { frequency: string; frequency_duration: number | null }
+      }>
+    }
+
+    expect(persistedPayload.coupons[0].overrides.frequency).toBe('recurring')
+    expect(persistedPayload.coupons[0].overrides.frequency_duration).toBe(6)
+  })
+
   it('calls onPersist with updated overrides when editing an existing coupon', async () => {
     const initialBillingItems: BillingItemsPayload = {
       addons: [],
