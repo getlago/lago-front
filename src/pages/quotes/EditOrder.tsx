@@ -103,8 +103,13 @@ const EditOrderFormContent = ({ order, loading }: EditOrderFormContentProps) => 
       buildQuotePreviewProps(
         order?.orderForm?.quote?.currentVersion,
         order?.orderForm?.quote?.customer,
+        (order?.orderForm?.quote?.images ?? {}) as Record<string, string>,
       ),
-    [order?.orderForm?.quote?.currentVersion, order?.orderForm?.quote?.customer],
+    [
+      order?.orderForm?.quote?.currentVersion,
+      order?.orderForm?.quote?.customer,
+      order?.orderForm?.quote?.images,
+    ],
   )
 
   const orderNumber = order?.number ?? ''

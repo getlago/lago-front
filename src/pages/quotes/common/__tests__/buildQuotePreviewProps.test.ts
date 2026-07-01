@@ -29,6 +29,7 @@ describe('buildQuotePreviewProps', () => {
       customerLocale: 'fr',
       customerCurrency: CurrencyEnum.Eur,
       mentionValues: {},
+      images: {},
     })
   })
 
@@ -42,6 +43,7 @@ describe('buildQuotePreviewProps', () => {
       customerLocale: 'en',
       customerCurrency: undefined,
       mentionValues: {},
+      images: {},
     })
   })
 
@@ -67,7 +69,7 @@ describe('buildQuotePreviewProps', () => {
       rows: ['Order form number OF-2026-0012'],
     }
 
-    const result = buildQuotePreviewProps(version, customer, header)
+    const result = buildQuotePreviewProps(version, customer, {}, header)
 
     expect(result.header).toEqual(header)
   })
@@ -97,5 +99,19 @@ describe('buildQuotePreviewProps', () => {
     const result = buildQuotePreviewProps(null, null)
 
     expect(result.mentionValues).toEqual({})
+  })
+
+  it('passes through the images map when provided', () => {
+    const images = { 'blob-1': 'https://example.com/signed-url' }
+
+    const result = buildQuotePreviewProps(null, null, images)
+
+    expect(result.images).toEqual(images)
+  })
+
+  it('defaults images to {} when not provided', () => {
+    const result = buildQuotePreviewProps(null, null)
+
+    expect(result.images).toEqual({})
   })
 })

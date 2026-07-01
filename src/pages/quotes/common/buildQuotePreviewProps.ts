@@ -21,12 +21,14 @@ export interface QuotePreviewProps {
   customerLocale: Locale
   customerCurrency?: CurrencyEnum
   mentionValues: Record<string, string>
+  images: Record<string, string>
   header?: QuotePdfHeaderData
 }
 
 export const buildQuotePreviewProps = (
   version: QuotePreviewVersionFragment | null | undefined,
   customer: QuotePreviewCustomerFragment | null | undefined,
+  images: Record<string, string> = {},
   header?: QuotePdfHeaderData,
 ): QuotePreviewProps => ({
   content: version?.content ?? '',
@@ -36,5 +38,6 @@ export const buildQuotePreviewProps = (
   customerLocale: (customer?.billingConfiguration?.documentLocale ?? 'en') as Locale,
   customerCurrency: customer?.currency ?? undefined,
   mentionValues: (version?.mentionVariables ?? {}) as Record<string, string>,
+  images,
   header,
 })
