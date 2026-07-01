@@ -92,7 +92,7 @@ export const ChargeFilter = memo(
     useEffect(() => {
       if (showComboBox) {
         // Focus filter combobox and show options
-        setTimeout(() => {
+        const timeoutId = setTimeout(() => {
           const elements = document.querySelectorAll(
             `.${SEARCH_FILTER_FOR_CHARGE_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
           )
@@ -103,6 +103,8 @@ export const ChargeFilter = memo(
           elementToFocus.scrollIntoView({ behavior: 'smooth', block: 'center' })
           elementToFocus.click()
         }, 0)
+
+        return () => clearTimeout(timeoutId)
       }
     }, [showComboBox])
 

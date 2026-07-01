@@ -65,12 +65,13 @@ const resolveRowAndCol = (
 
   for (let d = tableDepth + 1; d <= $pos.depth; d++) {
     const ancestor = $pos.node(d)
+    const nodeName = ancestor.type.name
 
-    if (ancestor.type.name === 'tableRow') {
+    if (nodeName === 'tableRow') {
       rowIndex = $pos.index(tableDepth)
       rowPos = $pos.before(d)
     }
-    if (ancestor.type.name === 'tableCell' || ancestor.type.name === 'tableHeader') {
+    if (nodeName === 'tableCell' || nodeName === 'tableHeader') {
       colIndex = $pos.index(d - 1)
     }
   }

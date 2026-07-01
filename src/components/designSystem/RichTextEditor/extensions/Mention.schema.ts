@@ -1,6 +1,19 @@
 import Mention, { type MentionOptions } from '@tiptap/extension-mention'
 
 /**
+ * Escapes HTML-significant characters so a mention `id`/`label` parsed from
+ * stored markdown cannot break out of the attribute/text context and inject
+ * markup when written back via innerHTML.
+ */
+const escapeHtml = (value: string): string =>
+  value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
+
+/**
  * Shared Mention schema — markdown storage and resolution-aware renderHTML.
  * Used by both the editor (which adds addNodeView + suggestion) and headless consumers.
  *
@@ -26,10 +39,15 @@ export const MentionSchema = Mention.extend({
         },
         parse: {
           updateDOM(element: HTMLElement) {
+            // Safe: both interpolated captures pass through escapeHtml, so no
+            // markup can be injected. The sink is flagged only because the
+            // sanitizer is applied inside the replacer rather than wrapping the
+            // whole expression, which the static check can't see.
+            // react-doctor-disable-next-line react-doctor/dangerous-html-sink
             element.innerHTML = element.innerHTML.replaceAll(
               /\{(\w+)\|([^}]+)\}/g,
               (_match: string, id: string, label: string) =>
-                `<span data-type="mention" data-id="${id}" data-label="${label}" class="variable-mention">@${label}</span>`,
+                `<span data-type="mention" data-id="${escapeHtml(id)}" data-label="${escapeHtml(label)}" class="variable-mention">@${escapeHtml(label)}</span>`,
             )
           },
         },

@@ -103,26 +103,28 @@ function main() {
       console.log(`${colors.green}✓ ${result.file}${colors.reset}`)
       console.log(`  Total keys: ${result.totalKeys} (matches base)\n`)
     } else {
+      const { missingKeys, extraKeys } = result
+
       console.log(`${colors.red}✗ ${result.file}${colors.reset}`)
       console.log(`  Total keys: ${result.totalKeys} (base has ${baseKeys.size})`)
 
-      if (result.missingKeys.length > 0) {
-        console.log(`  ${colors.red}Missing keys: ${result.missingKeys.length}${colors.reset}`)
-        result.missingKeys.slice(0, 10).forEach((key) => {
+      if (missingKeys.length > 0) {
+        console.log(`  ${colors.red}Missing keys: ${missingKeys.length}${colors.reset}`)
+        missingKeys.slice(0, 10).forEach((key) => {
           console.log(`    - ${key}`)
         })
-        if (result.missingKeys.length > 10) {
-          console.log(`    ... and ${result.missingKeys.length - 10} more`)
+        if (missingKeys.length > 10) {
+          console.log(`    ... and ${missingKeys.length - 10} more`)
         }
       }
 
-      if (result.extraKeys.length > 0) {
-        console.log(`  ${colors.yellow}Extra keys: ${result.extraKeys.length}${colors.reset}`)
-        result.extraKeys.slice(0, 10).forEach((key) => {
+      if (extraKeys.length > 0) {
+        console.log(`  ${colors.yellow}Extra keys: ${extraKeys.length}${colors.reset}`)
+        extraKeys.slice(0, 10).forEach((key) => {
           console.log(`    - ${key}`)
         })
-        if (result.extraKeys.length > 10) {
-          console.log(`    ... and ${result.extraKeys.length - 10} more`)
+        if (extraKeys.length > 10) {
+          console.log(`    ... and ${extraKeys.length - 10} more`)
         }
       }
 

@@ -1,0 +1,23 @@
+{
+  // React Doctor configuration. JSON5 syntax (comments + trailing commas allowed).
+  // Docs: https://www.react.doctor/docs/configuration/config-files
+  "ignore": {
+    "overrides": [
+      {
+        // Manually-run team CLI that validates translation files. It is an
+        // entry point in its own right (invoked by hand), not imported from the
+        // app, so deslop cannot see it as reachable. False positive.
+        "files": ["check-translations.js"],
+        "rules": ["deslop/unused-file"],
+      },
+      {
+        // Reachable via a lazy route: CustomerRoutes.tsx does
+        // `lazyLoad(() => import(`~/pages/CustomerInvoiceVoid`))`. deslop cannot
+        // resolve the template-literal path alias, so it reports it unused.
+        // False positive.
+        "files": ["src/pages/CustomerInvoiceVoid.tsx"],
+        "rules": ["deslop/unused-file"],
+      },
+    ],
+  },
+}
