@@ -22,7 +22,7 @@ export interface AddOnPayload {
 // position, code, and tax_codes are not overridable
 type OverridableFields = Omit<AddOnPayload, 'position' | 'code' | 'tax_codes'>
 
-export interface BillingItemAddon {
+interface BillingItemAddon {
   type: 'addon'
   id: string
   localId?: string

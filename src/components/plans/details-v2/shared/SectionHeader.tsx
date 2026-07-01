@@ -3,7 +3,7 @@ import { IconName } from 'lago-design-system'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 
-export type SectionHeaderAction = {
+type SectionHeaderAction = {
   label: string
   onClick: () => void
   hidden?: boolean

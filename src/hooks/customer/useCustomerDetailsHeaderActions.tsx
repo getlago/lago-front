@@ -19,8 +19,8 @@ import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useIsCustomerReadyForOverduePayment } from '~/hooks/useIsCustomerReadyForOverduePayment'
 import { usePermissions } from '~/hooks/usePermissions'
 
-export const REQUEST_OVERDUE_PAYMENT_BUTTON_TEST_ID = 'request-overdue-payment-button'
-export const CUSTOMER_ACTIONS_BUTTON_TEST_ID = 'customer-actions'
+const REQUEST_OVERDUE_PAYMENT_BUTTON_TEST_ID = 'request-overdue-payment-button'
+const CUSTOMER_ACTIONS_BUTTON_TEST_ID = 'customer-actions'
 
 interface UseCustomerDetailsHeaderActionsParams {
   customerId: string

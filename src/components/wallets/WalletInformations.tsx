@@ -27,7 +27,7 @@ import { tw } from '~/styles/utils'
 
 export const WALLET_INFORMATIONS_CONTAINER_TEST_ID = 'wallet-informations-container'
 export const WALLET_INFORMATIONS_NO_RECURRING_TEST_ID = 'wallet-informations-no-recurring'
-export const WALLET_INFORMATIONS_TOPUP_TYPE_TEST_ID = 'wallet-informations-topup-type'
+const WALLET_INFORMATIONS_TOPUP_TYPE_TEST_ID = 'wallet-informations-topup-type'
 
 type WalletInformationsProps = {
   wallet?: WalletDetailsFragment | null

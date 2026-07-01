@@ -10,9 +10,6 @@ import {
   ACTIVITY_LOG_FILTER_PREFIX,
   ANALYTICS_INVOICES_FILTER_PREFIX,
   ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
-  ANALYTICS_USAGE_BREAKDOWN_FILTER_PREFIX,
-  ANALYTICS_USAGE_BREAKDOWN_METERED_FILTER_PREFIX,
-  ANALYTICS_USAGE_BREAKDOWN_RECURRING_FILTER_PREFIX,
   ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX,
   API_LOGS_FILTER_PREFIX,
   CREDIT_NOTE_LIST_FILTER_PREFIX,
@@ -57,7 +54,6 @@ import {
   type GetSecurityLogsQueryVariables,
   type GetSubscriptionsListQueryVariables,
   type GetUsageBillableMetricQueryVariables,
-  type GetUsageBreakdownQueryVariables,
   type GetUsageOverviewQueryVariables,
   type GetWebhookLogQueryVariables,
   InvoicePaymentStatusTypeEnum,
@@ -95,9 +91,6 @@ import {
   SecurityLogsAvailableFilters,
   SubscriptionAvailableFilters,
   UsageBillableMetricAvailableFilters,
-  UsageBreakdownAvailableFilters,
-  UsageBreakdownMeteredAvailableFilters,
-  UsageBreakdownRecurringAvailableFilters,
   UsageOverviewAvailableFilters,
   WebhookLogsAvailableFilters,
 } from './types'
@@ -793,54 +786,6 @@ export const formatFiltersForUsageOverviewQuery = (
     searchParams,
     availableFilters: [...UsageOverviewAvailableFilters, AvailableFiltersEnum.timeGranularity],
     filtersNamePrefix: ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX,
-  })
-}
-
-type UsageBreakdownQueryFilters = Partial<
-  Pick<
-    GetUsageBreakdownQueryVariables,
-    | 'currency'
-    | 'customerCountry'
-    | 'customerType'
-    | 'externalCustomerId'
-    | 'externalSubscriptionId'
-    | 'fromDate'
-    | 'toDate'
-    | 'planCode'
-  >
->
-
-export const formatFiltersForUsageBreakdownQuery = (
-  searchParams: URLSearchParams,
-): UsageBreakdownQueryFilters => {
-  const keyMap: Partial<Record<AvailableFiltersEnum, keyof UsageBreakdownQueryFilters & string>> = {
-    [AvailableFiltersEnum.country]: 'customerCountry',
-    [AvailableFiltersEnum.customerAccountType]: 'customerType',
-    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
-    [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
-  }
-
-  return formatFiltersForQuery<UsageBreakdownQueryFilters>({
-    keyMap,
-    searchParams,
-    availableFilters: UsageBreakdownAvailableFilters,
-    filtersNamePrefix: ANALYTICS_USAGE_BREAKDOWN_FILTER_PREFIX,
-  })
-}
-
-export const formatFiltersForUsageBreakdownMeteredQuery = (searchParams: URLSearchParams) => {
-  return formatFiltersForQuery({
-    searchParams,
-    availableFilters: UsageBreakdownMeteredAvailableFilters,
-    filtersNamePrefix: ANALYTICS_USAGE_BREAKDOWN_METERED_FILTER_PREFIX,
-  })
-}
-
-export const formatFiltersForUsageBreakdownRecurringQuery = (searchParams: URLSearchParams) => {
-  return formatFiltersForQuery({
-    searchParams,
-    availableFilters: UsageBreakdownRecurringAvailableFilters,
-    filtersNamePrefix: ANALYTICS_USAGE_BREAKDOWN_RECURRING_FILTER_PREFIX,
   })
 }
 

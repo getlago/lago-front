@@ -2,7 +2,7 @@ import type { Editor } from '@tiptap/core'
 import { TextSelection } from '@tiptap/pm/state'
 import { CellSelection } from '@tiptap/pm/tables'
 
-export const resolveCellPos = (editor: Editor, contentPos: number) => {
+const resolveCellPos = (editor: Editor, contentPos: number) => {
   // cellPos from posAtDOM points inside the cell content.
   // Walk up to find the cell node position for CellSelection.
   const $pos = editor.state.doc.resolve(contentPos)

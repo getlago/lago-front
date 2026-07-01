@@ -22,25 +22,19 @@ export type TGetIsPayInAdvanceOptionDisabledForUsageChargeProps = {
   isRecurring: boolean
 }
 
-export type TGetIsProRatedOptionDisabledForUsageChargeProps = {
+type TGetIsProRatedOptionDisabledForUsageChargeProps = {
   aggregationType: AggregationTypeEnum
   chargeModel: ChargeModelEnum
   isPayInAdvance: boolean
 }
 
-export type TGetIsPayInAdvanceOptionDisabledForFixedChargeProps = {
+type TGetIsPayInAdvanceOptionDisabledForFixedChargeProps = {
   chargeModel: FixedChargeChargeModelEnum
   isProrated: boolean
 }
 
-export type TGetIsProRatedOptionDisabledForFixedChargeProps = {
+type TGetIsProRatedOptionDisabledForFixedChargeProps = {
   chargeModel: FixedChargeChargeModelEnum
-  isPayInAdvance: boolean
-}
-
-export type TGetIsAbleToSwitchToProRatedProps = {
-  aggregationType: AggregationTypeEnum
-  chargeModel: ChargeModelEnum
   isPayInAdvance: boolean
 }
 

@@ -11,7 +11,7 @@ export interface PricingBlockAttributes {
   localEntityIds?: string[]
 }
 
-export interface PricingBlockPreviewRow {
+interface PricingBlockPreviewRow {
   nameValue: string
   codeValue: string
 }

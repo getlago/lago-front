@@ -11,7 +11,7 @@ import { Typography } from '~/components/designSystem/Typography'
  * @returns A human-readable duration string (e.g., "2m 30s", "1h 15m", "45s")
  */
 
-export const formatDuration = (seconds: number): string => {
+const formatDuration = (seconds: number): string => {
   const locale = 'en-US'
   const durationObject = Duration.fromObject({ minutes: 0, seconds })
     .reconfigure({ locale })

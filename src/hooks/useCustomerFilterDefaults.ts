@@ -7,7 +7,7 @@ import { CurrencyEnum, FeatureFlagEnum } from '~/generated/graphql'
 import { useBillingEntitiesOptions } from './useBillingEntitiesOptions'
 import { useOrganizationInfos } from './useOrganizationInfos'
 
-export type CustomerFilterKind = 'currency' | 'entity'
+type CustomerFilterKind = 'currency' | 'entity'
 
 type UseCustomerFilterDefaultsArgs = {
   /**

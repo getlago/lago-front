@@ -35,15 +35,3 @@ export const formattedPrepaidCreditsDataLoadingFixture: PrepaidCreditsDataForOve
     voidedAmount: -amountRand(),
     voidedCreditsQuantity: amountRand(),
   }))
-
-export const formattedPrepaidCreditsDataForStackedBarChartLoadingFixture = Array.from(
-  Array(10),
-).map((_, i) => ({
-  axisName: DateTime.now()
-    .minus({ months: 12 - i })
-    .toISO(),
-  offeredCredits: 10,
-  paidCredits: 1000 + i * 100,
-  consumedCredits: 500 - i * 100,
-  voidedCredits: 10,
-}))

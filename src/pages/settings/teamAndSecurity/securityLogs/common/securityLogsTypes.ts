@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { GetSecurityLogsQuery } from '~/generated/graphql'
 
 export type SecurityLogs = NonNullable<GetSecurityLogsQuery['securityLogs']>['collection']
-export type SecurityLog = SecurityLogs[number]
+type SecurityLog = SecurityLogs[number]
 
 export type SecurityLogWithId = SecurityLog & { id: string }
 
@@ -17,8 +17,6 @@ export const apiKeyResourceSchema = z.object({
   name: z.string(),
   value_ending: z.union([z.string(), z.number()]),
 })
-export type ApiKeyResource = z.infer<typeof apiKeyResourceSchema>
-
 export const rotatedApiKeyResourceSchema = z.object({
   name: z.string(),
   value_ending: z.object({
@@ -26,27 +24,22 @@ export const rotatedApiKeyResourceSchema = z.object({
     added: z.string(),
   }),
 })
-export type RotatedApiKeyResource = z.infer<typeof rotatedApiKeyResourceSchema>
 
 export const billingEntityResourceSchema = z.object({
   billing_entity_name: z.string(),
 })
-export type BillingEntityResource = z.infer<typeof billingEntityResourceSchema>
 
 export const integrationResourceSchema = z.object({
   integration_name: z.string(),
 })
-export type IntegrationResource = z.infer<typeof integrationResourceSchema>
 
 export const roleResourceSchema = z.object({
   role_code: z.string(),
 })
-export type RoleResource = z.infer<typeof roleResourceSchema>
 
 export const inviteResourceSchema = z.object({
   invitee_email: z.string(),
 })
-export type InviteResource = z.infer<typeof inviteResourceSchema>
 
 // Backend (`Memberships::UpdateService#register_security_log`) sends
 // `{ added: ['code', ...], deleted: ['code', ...] }`. Either key can be absent
@@ -62,12 +55,10 @@ export const roleEditedResourceSchema = z
   .refine(({ roles }) => !!roles.added?.length || !!roles.deleted?.length, {
     message: 'roles.added or roles.deleted must contain at least one code',
   })
-export type RoleEditedResource = z.infer<typeof roleEditedResourceSchema>
 
 export const webhookResourceSchema = z.object({
   webhook_url: z.string(),
 })
-export type WebhookResource = z.infer<typeof webhookResourceSchema>
 
 const stringDiffSchema = z.object({
   deleted: z.string(),
@@ -78,4 +69,3 @@ export const webhookEditedResourceSchema = z.object({
   webhook_url: z.union([z.string(), stringDiffSchema]),
   signature_algo: stringDiffSchema.optional(),
 })
-export type WebhookEditedResource = z.infer<typeof webhookEditedResourceSchema>

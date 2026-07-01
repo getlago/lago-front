@@ -15,8 +15,6 @@ import { usePermissions } from '~/hooks/usePermissions'
 import { CustomerInvoiceBalancesBreakdown } from './CustomerInvoiceBalancesBreakdown'
 import { CustomerInvoiceBalancesLegacyCards } from './CustomerInvoiceBalancesLegacyCards'
 
-export { OVERDUE_INVOICES_ALERT_TEST_ID } from './CustomerInvoiceBalancesLegacyCards'
-
 export const CUSTOMER_OVERVIEW_BREAKDOWN = 'customer-overview-breakdown'
 export const CUSTOMER_OVERVIEW_LEGACY_CARDS = 'customer-overview-legacy-cards'
 

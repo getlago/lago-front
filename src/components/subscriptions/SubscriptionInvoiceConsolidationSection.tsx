@@ -3,7 +3,7 @@ import { withFieldGroup } from '~/hooks/forms/useAppform'
 
 export const CONSOLIDATION_SECTION_TEST_ID = 'consolidation-section'
 
-export type SubscriptionInvoiceConsolidationGroupValues = {
+type SubscriptionInvoiceConsolidationGroupValues = {
   consolidateInvoice: boolean
 }
 

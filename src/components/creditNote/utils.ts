@@ -14,7 +14,7 @@ import { CreditNoteForm, CreditTypeEnum, FeesPerInvoice, FromFee } from './types
 // PayBack Fields Helper
 // ----------------------------------------
 
-export interface PayBackFieldInfo {
+interface PayBackFieldInfo {
   path: string
   value: number
   show: boolean

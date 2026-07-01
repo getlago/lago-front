@@ -55,7 +55,7 @@ type CreditNotesBalanceRow = Pick<
   'currency' | 'billingEntityId' | 'amountCents' | 'creditsAvailableCount'
 >
 
-export const CREDIT_NOTES_LIST_CONTAINER = 'credit-notes-list-container'
+const CREDIT_NOTES_LIST_CONTAINER = 'credit-notes-list-container'
 
 interface CustomerCreditNotesListProps {
   customerId: string
