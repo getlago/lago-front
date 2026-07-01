@@ -563,8 +563,8 @@ describe('useDiscountDrawer', () => {
 
     render(<>{openArgs.children}</>)
 
-    // Prefilled amount from override (4200 cents / USD = 42.00), currency locked USD.
-    expect(screen.getByDisplayValue('42.00')).toBeInTheDocument()
+    // Prefilled amount from override (4200 cents / USD = 42), no trailing .00, currency locked USD.
+    expect(screen.getByDisplayValue('42')).toBeInTheDocument()
     expect(screen.getByDisplayValue(CurrencyEnum.Usd)).toBeInTheDocument()
   })
 })

@@ -117,7 +117,7 @@ describe('serializeQuoteCoupons', () => {
       const { entities, discountItems, originalPayloads } = fromCoupons(saved)
 
       expect(discountItems[0].couponId).toBe('cpn_uuid')
-      expect(discountItems[0].amount).toBe('90.00') // 9000 cents / EUR
+      expect(discountItems[0].amount).toBe('90') // 9000 cents / EUR, no trailing .00
       expect(discountItems[0].frequency).toBe(CouponFrequency.Recurring)
       expect(entities['local-1'].entityType).toBe('coupon')
       expect(entities['local-1'].name).toBe('Enterprise 20% Discount')
