@@ -347,8 +347,8 @@ importers:
         specifier: 8.0.2
         version: 8.0.2(postcss@8.5.15)
       cypress:
-        specifier: 15.17.0
-        version: 15.17.0
+        specifier: 15.18.0
+        version: 15.18.0
       cypress-vite:
         specifier: 1.10.1
         version: 1.10.1(chokidar@3.6.0)(debug@4.4.3)(vite@7.3.5(@types/node@24.13.2)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.8.3))
@@ -4877,8 +4877,8 @@ packages:
       debug: ^2 || ^3 || ^4
       vite: ^2.9 || ^3 || ^4 || ^5 || ^6 || ^7 || ^8
 
-  cypress@15.17.0:
-    resolution: {integrity: sha512-WL5Gcqi1GaDWozBwXmkSAtOPafTsVSRS764iX6xvuz3DPzvBAxbkRyEi4BreVdVWxLDpiYRgZCyJUafBw44njw==}
+  cypress@15.18.0:
+    resolution: {integrity: sha512-aLfOYSLlVt1b6QSoVUjbCY27taZlYAT8ST47xQbwd9pvQrY/g5gXi12yItZTB+kxkkj+ZcvUYmRLUC95SlCJsw==}
     engines: {node: ^20.1.0 || ^22.0.0 || >=24.0.0}
     hasBin: true
 
@@ -13615,7 +13615,7 @@ snapshots:
       debug: 4.4.3(supports-color@8.1.1)
       vite: 7.3.5(@types/node@24.13.2)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.8.3)
 
-  cypress@15.17.0:
+  cypress@15.18.0:
     dependencies:
       '@cypress/request': 4.0.1
       '@cypress/xvfb': 1.2.4(supports-color@8.1.1)
@@ -14465,7 +14465,7 @@ snapshots:
       call-bound: 1.0.4
       define-properties: 1.2.1
       functions-have-names: 1.2.3
-      hasown: 2.0.2
+      hasown: 2.0.4
       is-callable: 1.2.7
 
   functions-have-names@1.2.3: {}
