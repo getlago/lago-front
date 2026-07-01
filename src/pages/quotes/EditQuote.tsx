@@ -21,6 +21,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { QUOTE_MENTION_VARIABLES } from '~/pages/quotes/common/mentionVariables'
 
 import EditQuoteAside from './editQuote/EditQuoteAside'
+import { useAddQuoteImage } from './hooks/useAddQuoteImage'
 import { useOneOffPricingDrawer } from './hooks/useOneOffPricingDrawer'
 import { useQuote } from './hooks/useQuote'
 import { useSubscriptionPricingDrawer } from './hooks/useSubscriptionPricingDrawer'
@@ -35,6 +36,27 @@ const EditQuote = () => {
   const navigate = useNavigate()
   const { quoteId } = useParams()
   const { quote, loading, refetch: refetchQuote } = useQuote(quoteId)
+
+  const { addQuoteImage } = useAddQuoteImage()
+  const [uploadedImages, setUploadedImages] = useState<Record<string, string>>({})
+
+  const images = useMemo(
+    () => ({ ...((quote?.images ?? {}) as Record<string, string>), ...uploadedImages }),
+    [quote?.images, uploadedImages],
+  )
+
+  const onImageUpload = useCallback(
+    async (base64: string): Promise<string> => {
+      if (!quoteId) throw new Error('Missing quote id')
+
+      const { id, url } = await addQuoteImage({ id: quoteId, image: base64 })
+
+      setUploadedImages((prev) => ({ ...prev, [id]: url }))
+
+      return id
+    },
+    [quoteId, addQuoteImage],
+  )
 
   const versionId = quote?.currentVersion?.id
 
@@ -338,6 +360,8 @@ const EditQuote = () => {
             customerCurrency={quote?.customer?.currency ?? undefined}
             variableItems={mentionItems}
             mentionValues={mentionValues}
+            images={images}
+            onImageUpload={onImageUpload}
           />
         )}
       </RightAsidePage.Content>

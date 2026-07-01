@@ -95,6 +95,7 @@ const mockedBuildPreviewEntities = buildPreviewEntities as jest.MockedFunction<
 const mockQuote = {
   id: 'quote-123',
   number: 'QT-2026-0042',
+  images: {},
   orderType: OrderTypeEnum.SubscriptionCreation,
   createdAt: '2026-04-09T10:00:00Z',
   versions: [
