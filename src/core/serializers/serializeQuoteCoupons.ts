@@ -1,7 +1,7 @@
 import type { EntityData } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
 import { CouponFrequency, CouponTypeEnum, CurrencyEnum } from '~/generated/graphql'
 
-import { deserializeAmount, getCurrencyPrecision, serializeAmount } from './serializeAmount'
+import { deserializeAmount, serializeAmount } from './serializeAmount'
 
 // --- Backend contract (snake_case) ---
 export interface CouponPayload {
@@ -110,7 +110,6 @@ export const fromCoupons = (
       frequencyDuration: overrides.frequency_duration ?? payload.frequency_duration,
     }
 
-    const precision = getCurrencyPrecision(currency)
     const amountNumber = deserializeAmount(effectiveAmountCents, currency)
 
     discountItems.push({
@@ -120,7 +119,9 @@ export const fromCoupons = (
       name: payload.name,
       code: payload.code,
       currency,
-      amount: amountNumber.toFixed(precision),
+      // toString() (not toFixed) so whole amounts show as "90" not "90.00",
+      // matching the fresh-coupon-select prefill in useDiscountDrawer.
+      amount: amountNumber.toString(),
       percentageRate: overrides.percentage_rate ?? payload.percentage_rate,
       frequency,
       frequencyDuration: overrides.frequency_duration ?? payload.frequency_duration,
