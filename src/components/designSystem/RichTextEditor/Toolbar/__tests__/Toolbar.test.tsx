@@ -4,6 +4,7 @@ import { Editor } from '@tiptap/core'
 
 import { render } from '~/test-utils'
 
+import { RichTextEditorProvider } from '../../common/RichTextEditorContext'
 import Toolbar, {
   TOOLBAR_ALIGN_CENTER_BUTTON_TEST_ID,
   TOOLBAR_ALIGN_JUSTIFY_BUTTON_TEST_ID,
@@ -174,7 +175,21 @@ describe('Toolbar', () => {
       ])('THEN should render the %s button', async (_, testId) => {
         const { editor } = createMockEditor()
 
-        await act(() => render(<Toolbar editor={editor} />))
+        await act(() =>
+          render(
+            <RichTextEditorProvider
+              value={{
+                mode: 'edit',
+                mentionValues: {},
+                entities: {},
+                images: {},
+                onImageUpload: jest.fn().mockResolvedValue('id'),
+              }}
+            >
+              <Toolbar editor={editor} />
+            </RichTextEditorProvider>,
+          ),
+        )
 
         expect(screen.getByTestId(testId)).toBeInTheDocument()
       })
@@ -374,7 +389,21 @@ describe('Toolbar', () => {
         const user = userEvent.setup({ pointerEventsCheck: 0 })
         const { editor } = createMockEditor()
 
-        await act(() => render(<Toolbar editor={editor} />))
+        await act(() =>
+          render(
+            <RichTextEditorProvider
+              value={{
+                mode: 'edit',
+                mentionValues: {},
+                entities: {},
+                images: {},
+                onImageUpload: jest.fn().mockResolvedValue('id'),
+              }}
+            >
+              <Toolbar editor={editor} />
+            </RichTextEditorProvider>,
+          ),
+        )
         await user.hover(screen.getByTestId(testId))
 
         expect(await screen.findByRole('tooltip')).toBeInTheDocument()
@@ -390,6 +419,18 @@ describe('Toolbar', () => {
         await act(() => render(<Toolbar editor={editor} />))
 
         expect(screen.queryByTestId(TOOLBAR_OVERFLOW_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN no onImageUpload in context', () => {
+    describe('WHEN the toolbar renders', () => {
+      it('THEN the image button is not rendered', async () => {
+        const { editor } = createMockEditor()
+
+        await act(() => render(<Toolbar editor={editor} />))
+
+        expect(screen.queryByTestId(TOOLBAR_IMAGE_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
