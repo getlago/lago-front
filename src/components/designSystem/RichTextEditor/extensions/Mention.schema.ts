@@ -45,7 +45,7 @@ export const MentionSchema = Mention.extend({
     // present-but-empty/null value resolves to nothing (empty variables
     // disappear), while an absent id (unknown variable, or edit mode with no
     // configured values) keeps the @label token.
-    const isResolved = !!mentionValues && Object.prototype.hasOwnProperty.call(mentionValues, id)
+    const isResolved = !!mentionValues && Object.hasOwn(mentionValues, id)
 
     if (isResolved) {
       return [

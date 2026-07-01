@@ -18,7 +18,7 @@ export const MentionNodeView = ({ node }: NodeViewProps) => {
   // the variable stays visible/editable. This mirrors the schema renderHTML,
   // and is the rendering path that actually reaches preview and the PDF
   // (serialized from the live NodeView DOM, not getHTML()).
-  const isResolved = mode === 'preview' && Object.prototype.hasOwnProperty.call(mentionValues, id)
+  const isResolved = mode === 'preview' && Object.hasOwn(mentionValues, id)
 
   if (isResolved) {
     return (
