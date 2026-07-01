@@ -20,6 +20,24 @@ jobs:
           ref: ${{ github.event.inputs.api_branch }}
           path: api
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6.0.9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version-file: package.json
+          cache: "pnpm"
+          cache-dependency-path: ./pnpm-lock.yaml
+
+      # Install dependencies before any CI secret is exposed to a step env, and
+      # with lifecycle scripts disabled, so a malicious package script cannot run
+      # arbitrary code or read secrets during install. Cypress installs its own
+      # binary in a later step and the app is built inside Docker, so no host
+      # postinstall step is needed here.
+      - name: Install dependencies
+        run: pnpm install --ignore-scripts
+
       - name: Build Front local image
         run: |
           docker build -t getlago/front:ci ./
@@ -37,19 +55,6 @@ jobs:
           LAGO_LICENSE: ${{ secrets.LAGO_LICENSE }}
         run: |
           docker compose -f ./ci/docker-compose.ci.yml --env-file ./.env up -d db redis api front
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v6.0.9
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v6.4.0
-        with:
-          node-version-file: package.json
-          cache: "pnpm"
-          cache-dependency-path: ./pnpm-lock.yaml
-
-      - name: Install dependencies
-        run: pnpm install
 
       - name: Populate db
         run: docker compose -f ./ci/docker-compose.ci.yml --env-file ./.env exec api bundle exec rails db:seed

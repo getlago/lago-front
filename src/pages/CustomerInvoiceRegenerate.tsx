@@ -137,7 +137,7 @@ const CustomerInvoiceRegenerate = () => {
   useEffect(() => {
     if (fullFees?.length && !hasInitializedFees.current) {
       // Deep clone to preserve original data independent of Apollo cache mutations
-      originalFeesRef.current = JSON.parse(JSON.stringify(fullFees))
+      originalFeesRef.current = structuredClone(fullFees)
       setFees(fullFees)
       hasInitializedFees.current = true
     }

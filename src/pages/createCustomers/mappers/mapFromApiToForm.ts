@@ -47,7 +47,10 @@ export const mapFromApiToForm = (
       customer.shippingAddress?.country,
     ]
 
-    return billingAddress.every((value, index) => value === shippingAddress[index])
+    return (
+      billingAddress.length === shippingAddress.length &&
+      billingAddress.every((value, index) => value === shippingAddress[index])
+    )
   }
 
   // Should only have one between xero and netsuite

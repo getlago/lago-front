@@ -290,12 +290,11 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
             (fee) => !trueUpFeeIds?.includes(fee?.id),
           )
           const newFees = []
+          const unorderedDataById = new Map(unorderedData.map((fee) => [fee.id, fee]))
 
           for (const currentFee of feesWithoutTrueUpOnes || []) {
             if (currentFee?.trueUpFee?.id) {
-              const relatedTrueUpFee = unorderedData.find(
-                (fee) => fee.id === currentFee.trueUpFee?.id,
-              )
+              const relatedTrueUpFee = unorderedDataById.get(currentFee.trueUpFee.id)
 
               newFees.push(currentFee, relatedTrueUpFee)
             } else {
