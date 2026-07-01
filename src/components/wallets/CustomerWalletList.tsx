@@ -22,7 +22,6 @@ import {
   CustomerWalletFragment,
   TimezoneEnum,
   useGetCustomerWalletListQuery,
-  WalletAccordionFragmentDoc,
   WalletForUpdateFragmentDoc,
   WalletInfosForTransactionsFragmentDoc,
   WalletStatusEnum,
@@ -36,6 +35,30 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 const ACTIVE_WALLET_COUNT_LIMIT = 6
 
 gql`
+  fragment WalletAccordion on Wallet {
+    id
+    code
+    balanceCents
+    consumedAmountCents
+    consumedCredits
+    createdAt
+    creditsBalance
+    currency
+    expirationAt
+    lastBalanceSyncAt
+    lastConsumedCreditAt
+    lastOngoingBalanceSyncAt
+    name
+    rateAmount
+    status
+    terminatedAt
+    ongoingBalanceCents
+    creditsOngoingBalance
+    priority
+
+    ...WalletInfosForTransactions
+  }
+
   fragment CustomerWallet on Wallet {
     ...WalletForUpdate
     ...WalletAccordion
@@ -55,9 +78,8 @@ gql`
     }
   }
 
-  ${WalletAccordionFragmentDoc}
-  ${WalletForUpdateFragmentDoc}
   ${WalletInfosForTransactionsFragmentDoc}
+  ${WalletForUpdateFragmentDoc}
 `
 
 export const CUSTOMER_WALLET_LIST_LOADING_TEST_ID = 'customer-wallet-list-loading'
