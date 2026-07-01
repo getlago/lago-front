@@ -202,6 +202,15 @@ export const DragHandle = Extension.create({
         view(editorView) {
           const handleOutsideClick = (event: MouseEvent) => {
             const target = event.target as HTMLElement
+
+            // Editor-owned floating UI (e.g. the block toolbar's color picker)
+            // renders in a Popper portaled to document.body — outside
+            // .rich-text-editor. Clicking it must not count as an outside click,
+            // or the active block NodeSelection would be cleared on mousedown
+            // before the toolbar command runs, so the color is never applied
+            // (LAGO-1671).
+            if (target.closest('[data-rte-preserve-selection]')) return
+
             const editorContainer = editorView.dom.closest('.rich-text-editor')
 
             if (!editorContainer || editorContainer.contains(target)) return
