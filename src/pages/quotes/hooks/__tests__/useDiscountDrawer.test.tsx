@@ -1,0 +1,321 @@
+import { act, renderHook, screen, waitFor, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+
+import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
+import { CouponFrequency, CouponTypeEnum, CurrencyEnum } from '~/generated/graphql'
+import { render } from '~/test-utils'
+
+import { DISCOUNT_DRAWER_SAVE_TEST_ID, useDiscountDrawer } from '../useDiscountDrawer'
+
+// --- Mocks ---
+
+const mockCryptoRandomUUID = jest.fn(() => 'mock-uuid-1')
+
+Object.defineProperty(globalThis, 'crypto', {
+  value: {
+    ...globalThis.crypto,
+    randomUUID: mockCryptoRandomUUID,
+  },
+  writable: true,
+})
+
+const mockDrawerOpen = jest.fn()
+const mockDrawerClose = jest.fn()
+
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: mockDrawerOpen, close: mockDrawerClose }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({
+    translate: (key: string) => key,
+  }),
+}))
+
+// Controllable coupon dataset returned by the lazy query. The standalone async
+// ComboBox reads `data` and calls `getCoupons` (the fetch trigger). Must be
+// prefixed with `mock` to be referenceable inside the jest.mock factory.
+const mockGetCoupons = jest.fn()
+
+jest.mock('~/generated/graphql', () => {
+  const actual = jest.requireActual('~/generated/graphql')
+
+  const fixedAmountCoupon = {
+    __typename: 'Coupon',
+    id: 'cpn_fixed',
+    name: 'Ten Off',
+    amountCurrency: actual.CurrencyEnum.Eur,
+    amountCents: 1000,
+    couponType: actual.CouponTypeEnum.FixedAmount,
+    percentageRate: null,
+    frequency: actual.CouponFrequency.Once,
+    frequencyDuration: null,
+    plans: [],
+    billableMetrics: [],
+  }
+
+  return {
+    ...actual,
+    useGetCouponForCustomerLazyQuery: () => [
+      mockGetCoupons,
+      {
+        loading: false,
+        data: { coupons: { collection: [fixedAmountCoupon] } },
+      },
+    ],
+  }
+})
+
+// Note: @tanstack/react-form is NOT mocked — real revalidateLogic is required
+// so form.setFieldValue works without "validates is not iterable" errors.
+
+// The ComboBox renders its options through a virtualizer that has no layout in
+// jsdom — mock it so the option list is actually rendered and clickable.
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getTotalSize: () => count * 56,
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, i) => ({
+        index: i,
+        key: String(i),
+        start: i * 56,
+        size: 56,
+      })),
+    scrollToIndex: jest.fn(),
+    measureElement: jest.fn(),
+  }),
+}))
+
+const options = { currency: CurrencyEnum.Usd }
+
+describe('useDiscountDrawer', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockCryptoRandomUUID.mockReturnValue('mock-uuid-1')
+  })
+
+  it('returns the expected interface', () => {
+    const { result } = renderHook(() => useDiscountDrawer(undefined, options))
+
+    expect(result.current).toHaveProperty('onDiscountCommand')
+    expect(result.current).toHaveProperty('entities')
+    expect(result.current).toHaveProperty('syncDiscountBlocks')
+  })
+
+  it('opens the drawer when onDiscountCommand is called', () => {
+    const { result } = renderHook(() => useDiscountDrawer(undefined, options))
+
+    act(() => {
+      result.current.onDiscountCommand({ onSave: jest.fn() })
+    })
+
+    expect(mockDrawerOpen).toHaveBeenCalledTimes(1)
+  })
+
+  it('blocks save when no coupon is selected', async () => {
+    const { result } = renderHook(() => useDiscountDrawer(undefined, options))
+
+    const onSave = jest.fn()
+
+    act(() => {
+      result.current.onDiscountCommand({ onSave })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(
+      <>
+        {openArgs.children}
+        {openArgs.actions}
+      </>,
+    )
+
+    // Attempting to save without a coupon runs validation, which fails on the
+    // required couponId — onSave must not fire and the drawer must stay open.
+    await userEvent.click(screen.getByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID))
+
+    await waitFor(() => {
+      expect(screen.getByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)).toBeDisabled()
+    })
+
+    expect(onSave).not.toHaveBeenCalled()
+    expect(mockDrawerClose).not.toHaveBeenCalled()
+  })
+
+  it('prefills amount and locks currency when a fixed-amount coupon is selected', async () => {
+    const { result } = renderHook(() => useDiscountDrawer(undefined, options))
+
+    act(() => {
+      result.current.onDiscountCommand({ onSave: jest.fn() })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(<>{openArgs.children}</>)
+
+    const comboBoxInput = screen.getByRole('combobox') as HTMLInputElement
+
+    await userEvent.type(comboBoxInput, 'Ten')
+
+    await waitFor(() => {
+      const listboxId = comboBoxInput.getAttribute('aria-controls')
+
+      expect(listboxId).toBeTruthy()
+    })
+
+    const listboxId = comboBoxInput.getAttribute('aria-controls') as string
+    const listbox = document.getElementById(listboxId) as HTMLElement
+
+    await userEvent.click(within(listbox).getByText('Ten Off'))
+
+    // Amount field appears prefilled from the coupon (1000 cents / EUR precision).
+    await waitFor(() => {
+      const amountInput = screen.getByDisplayValue('10') as HTMLInputElement
+
+      expect(amountInput).toBeInTheDocument()
+    })
+
+    // Currency is locked to the drawer's currency (USD), not the coupon's EUR.
+    expect(screen.getByDisplayValue(CurrencyEnum.Usd)).toBeInTheDocument()
+  })
+
+  it('saves a valid fixed-amount coupon and produces the coupons payload via syncDiscountBlocks', async () => {
+    const { result } = renderHook(() => useDiscountDrawer(undefined, options))
+
+    const onSave = jest.fn()
+
+    act(() => {
+      result.current.onDiscountCommand({ onSave })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(
+      <>
+        {openArgs.children}
+        {openArgs.actions}
+      </>,
+    )
+
+    const comboBoxInput = screen.getByRole('combobox') as HTMLInputElement
+
+    await userEvent.type(comboBoxInput, 'Ten')
+
+    await waitFor(() => {
+      expect(comboBoxInput.getAttribute('aria-controls')).toBeTruthy()
+    })
+
+    const listboxId = comboBoxInput.getAttribute('aria-controls') as string
+    const listbox = document.getElementById(listboxId) as HTMLElement
+
+    await userEvent.click(within(listbox).getByText('Ten Off'))
+
+    const saveButton = screen.getByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)
+
+    await waitFor(() => {
+      expect(saveButton).not.toBeDisabled()
+    })
+
+    await userEvent.click(saveButton)
+
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledWith({ couponId: 'cpn_fixed', localId: 'mock-uuid-1' })
+    })
+
+    expect(mockDrawerClose).toHaveBeenCalled()
+
+    // Saving rebuilds the entities from the toCoupons -> fromCoupons round-trip,
+    // which is the same serialization that produces the payload overrides.
+    await waitFor(() => {
+      expect(result.current.entities).toHaveProperty('mock-uuid-1')
+    })
+    expect(result.current.entities['mock-uuid-1']).toMatchObject({
+      entityType: 'coupon',
+      couponType: CouponTypeEnum.FixedAmount,
+      amountCents: '1000',
+      percentageRate: null,
+      frequency: CouponFrequency.Once,
+      frequencyDuration: null,
+    })
+
+    // syncDiscountBlocks returns undefined when nothing changed, and a rebuilt
+    // payload when a block is removed.
+    let payload: BillingItemsPayload | undefined
+
+    act(() => {
+      payload = result.current.syncDiscountBlocks([
+        { couponId: 'cpn_fixed', localId: 'mock-uuid-1' },
+      ])
+    })
+
+    expect(payload).toBeUndefined()
+
+    act(() => {
+      payload = result.current.syncDiscountBlocks([])
+    })
+
+    expect(payload).toBeDefined()
+    expect(payload?.coupons).toEqual([])
+  })
+
+  it('prefills from saved override values when editing', () => {
+    const initialBillingItems: BillingItemsPayload = {
+      addons: [],
+      coupons: [
+        {
+          type: 'coupon',
+          id: 'cpn_edit',
+          localId: 'saved-local',
+          payload: {
+            position: 1,
+            code: 'EDIT',
+            id: 'cpn_edit',
+            name: 'Edit Coupon',
+            type: 'fixed_amount',
+            amount_cents: 5000,
+            percentage_rate: null,
+            currency: CurrencyEnum.Usd,
+            frequency: 'recurring',
+            frequency_duration: 3,
+            expiration_at: null,
+            limited_plans: false,
+            plan_codes: [],
+            limited_billable_metrics: false,
+            billable_metric_codes: [],
+            coupon_overrides: null,
+            catalog_snapshot: null,
+            resolved_payload: null,
+          },
+          overrides: {
+            amount_cents: 4200,
+            percentage_rate: null,
+            frequency: 'recurring',
+            frequency_duration: 6,
+          },
+        },
+      ],
+    }
+
+    const { result } = renderHook(() => useDiscountDrawer(initialBillingItems, options))
+
+    // entities hydrated from saved coupon
+    expect(result.current.entities).toHaveProperty('saved-local')
+    expect(result.current.entities['saved-local'].entityType).toBe('coupon')
+
+    act(() => {
+      result.current.onDiscountCommand({
+        onSave: jest.fn(),
+        editData: { couponId: 'cpn_edit', localId: 'saved-local' },
+      })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(<>{openArgs.children}</>)
+
+    // Prefilled amount from override (4200 cents / USD = 42.00), currency locked USD.
+    expect(screen.getByDisplayValue('42.00')).toBeInTheDocument()
+    expect(screen.getByDisplayValue(CurrencyEnum.Usd)).toBeInTheDocument()
+  })
+})
