@@ -35,7 +35,7 @@ const DiscountBlockPreview = ({ entity }: { entity: EntityData }) => {
     valueLabel = intlFormatNumber(deserializeAmount(entity.amountCents, entity.amountCurrency), {
       currency: entity.amountCurrency,
     })
-  } else if (entity.couponType === CouponTypeEnum.Percentage && entity.percentageRate != null) {
+  } else if (entity.couponType === CouponTypeEnum.Percentage && entity.percentageRate !== null) {
     valueLabel = `${entity.percentageRate}%`
   }
 

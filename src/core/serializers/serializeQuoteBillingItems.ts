@@ -1,8 +1,7 @@
 import type { EntityData } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
 import type { AddOnItem } from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
 
-import type { BillingItemCoupon } from './serializeQuoteCoupons'
-import { fromCoupons } from './serializeQuoteCoupons'
+import { type BillingItemCoupon, fromCoupons } from './serializeQuoteCoupons'
 import { type BillingItemPlan, fromPlanBillingItems } from './serializeQuotePlanBillingItems'
 
 // --- Backend contract types (snake_case) ---
