@@ -14,7 +14,9 @@ jest.mock('~/components/settings/integrations/AddHubspotDialog', () => ({
   AddHubspotDialog: () => null,
 }))
 jest.mock('~/components/settings/integrations/DeleteHubspotIntegrationDialog', () => ({
-  DeleteHubspotIntegrationDialog: () => null,
+  useDeleteHubspotIntegrationDialog: () => ({
+    openDeleteHubspotIntegrationDialog: jest.fn(),
+  }),
 }))
 
 describe('HubspotIntegrations', () => {

@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import Nango from '@nangohq/frontend'
 import { useFormik } from 'formik'
 import { GraphQLFormattedError } from 'graphql'
-import { forwardRef, RefObject, useId, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useId, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
@@ -12,7 +12,7 @@ import { Chip } from '~/components/designSystem/Chip'
 import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
 import { Checkbox, CheckboxField, ComboBoxField, TextInputField } from '~/components/form'
-import { DeleteHubspotIntegrationDialogRef } from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
+import { useDeleteHubspotIntegrationDialog } from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { getHubspotTargetedObjectTranslationKey } from '~/core/constants/form'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -55,7 +55,6 @@ gql`
 `
 
 type TAddHubspotDialogProps = Partial<{
-  deleteModalRef: RefObject<DeleteHubspotIntegrationDialogRef>
   provider: HubspotForCreateDialogFragment
   deleteDialogCallback: () => void
 }>
@@ -76,6 +75,7 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
   const [showGlobalError, setShowGlobalError] = useState(false)
   const hubspotProvider = localData?.provider
   const isEdition = !!hubspotProvider
+  const { openDeleteHubspotIntegrationDialog } = useDeleteHubspotIntegrationDialog()
 
   const [createIntegration] = useCreateHubspotIntegrationMutation({
     onCompleted({ createHubspotIntegration }) {
@@ -216,9 +216,9 @@ export const AddHubspotDialog = forwardRef<AddHubspotDialogRef>((_, ref) => {
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                localData?.deleteModalRef?.current?.openDialog({
+                openDeleteHubspotIntegrationDialog({
                   provider: hubspotProvider,
-                  callback: localData.deleteDialogCallback,
+                  callback: localData?.deleteDialogCallback,
                 })
               }}
             >

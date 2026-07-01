@@ -11,10 +11,7 @@ import {
   AddHubspotDialog,
   AddHubspotDialogRef,
 } from '~/components/settings/integrations/AddHubspotDialog'
-import {
-  DeleteHubspotIntegrationDialog,
-  DeleteHubspotIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
+import { useDeleteHubspotIntegrationDialog } from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { HUBSPOT_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -55,7 +52,7 @@ const HubspotIntegrations = () => {
   const { translate } = useInternationalization()
 
   const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteHubspotIntegrationDialogRef>(null)
+  const { openDeleteHubspotIntegrationDialog } = useDeleteHubspotIntegrationDialog()
 
   const { data, loading } = useGetHubspotIntegrationsListQuery({
     variables: { limit: 1000, types: [IntegrationTypeEnum.Hubspot] },
@@ -154,7 +151,6 @@ const HubspotIntegrations = () => {
                           onClick={() => {
                             addHubspotDialogRef.current?.openDialog({
                               provider: connection,
-                              deleteModalRef: deleteDialogRef,
                               deleteDialogCallback,
                             })
                             closePopper()
@@ -167,7 +163,7 @@ const HubspotIntegrations = () => {
                           variant="quaternary"
                           align="left"
                           onClick={() => {
-                            deleteDialogRef.current?.openDialog({
+                            openDeleteHubspotIntegrationDialog({
                               provider: connection,
                               callback: deleteDialogCallback,
                             })
@@ -185,7 +181,6 @@ const HubspotIntegrations = () => {
         </section>
       </IntegrationsPage.Container>
       <AddHubspotDialog ref={addHubspotDialogRef} />
-      <DeleteHubspotIntegrationDialog ref={deleteDialogRef} />
     </>
   )
 }
