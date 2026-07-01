@@ -350,8 +350,8 @@ importers:
         specifier: 15.18.0
         version: 15.18.0
       cypress-vite:
-        specifier: 1.10.1
-        version: 1.10.1(chokidar@3.6.0)(debug@4.4.3)(vite@7.3.5(@types/node@24.13.2)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.8.3))
+        specifier: 1.10.2
+        version: 1.10.2(chokidar@3.6.0)(debug@4.4.3)(vite@7.3.5(@types/node@24.13.2)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.8.3))
       dotenv:
         specifier: 17.4.2
         version: 17.4.2
@@ -4870,8 +4870,8 @@ packages:
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
-  cypress-vite@1.10.1:
-    resolution: {integrity: sha512-xS+EwiVpCC/+ktz8JIFxUlpfFf1izeBg5v9UJwSca5l8j4TBL+kM/xrrVULW+n5WEuJcgYfmLyP30MfN68Oxvg==}
+  cypress-vite@1.10.2:
+    resolution: {integrity: sha512-tmCH7riwzprnl5M21ZXfU4jzBY7XBFHLBOAZA7B+SXSYOHmMbNPFrt+Y45EzlW8DVQCTVWs/dH76zx3WXvCZAA==}
     peerDependencies:
       chokidar: ^2 || ^3 || ^4 || ^5
       debug: ^2 || ^3 || ^4
@@ -13609,7 +13609,7 @@ snapshots:
 
   csstype@3.2.3: {}
 
-  cypress-vite@1.10.1(chokidar@3.6.0)(debug@4.4.3)(vite@7.3.5(@types/node@24.13.2)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.8.3)):
+  cypress-vite@1.10.2(chokidar@3.6.0)(debug@4.4.3)(vite@7.3.5(@types/node@24.13.2)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.8.3)):
     dependencies:
       chokidar: 3.6.0
       debug: 4.4.3(supports-color@8.1.1)
