@@ -58,12 +58,14 @@ export const ChargeFilter = memo(
     const filterValues: BasicComboBoxData[] = useMemo(() => {
       if (!billableMetricFilters) return []
 
+      const selectedFilterValues = new Set(filter.values)
+
       return billableMetricFilters.reduce<BasicComboBoxData[]>((acc, cur) => {
         const parentKeyStrigified = transformFilterObjectToString(cur.key)
         let hasAnyChildKeySelected = false
 
         for (const v of cur.values) {
-          if (filter.values.includes(transformFilterObjectToString(cur.key, v))) {
+          if (selectedFilterValues.has(transformFilterObjectToString(cur.key, v))) {
             hasAnyChildKeySelected = true
             break
           }

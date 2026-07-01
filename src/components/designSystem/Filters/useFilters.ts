@@ -20,6 +20,8 @@ export const useFilters = () => {
   const localKeyWithPrefix = (key: string) => keyWithPrefix(key, prefix)
 
   const removeExistingFilters = () => {
+    const availableFilterSet = new Set(context.availableFilters)
+
     // Only remove the filters from the URL that are currently applied and are removable (availableFilters)
     for (const search in searchParamsObject) {
       const key = keyWithoutPrefix(search) as AvailableFiltersEnum
@@ -27,7 +29,7 @@ export const useFilters = () => {
       // if value is part of the static filters, reset to default static value
       if (context.staticFilters?.[key]) {
         searchParams.set(search, context.staticFilters[key])
-      } else if (context.availableFilters.includes(key)) {
+      } else if (availableFilterSet.has(key)) {
         // otherwise, remove the filter from the URL
         searchParams.delete(search)
       }

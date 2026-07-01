@@ -77,12 +77,22 @@ export const fillInvoicesDataPerMonthForPaymentStatus = (
   const lastTwelveMonths = getLastTwelveMonthsNumbersUntilNow()
   const res = []
 
+  // Index the matching-status rows by formatted month once, so the per-month
+  // loop below is O(1) lookups instead of a full scan each iteration.
+  const dataByMonth = new Map<string, NonNullable<typeof data>[number]>()
+
+  for (const d of data ?? []) {
+    if (d.paymentStatus !== paymentStatus) continue
+
+    const monthKey = DateTime.fromISO(d.month).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)
+
+    if (!dataByMonth.has(monthKey)) {
+      dataByMonth.set(monthKey, d)
+    }
+  }
+
   for (const month of lastTwelveMonths) {
-    const existingMonthData = data?.find(
-      (d) =>
-        d.paymentStatus === paymentStatus &&
-        DateTime.fromISO(d.month).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT) === month,
-    )
+    const existingMonthData = dataByMonth.get(month)
 
     if (existingMonthData) {
       res.push({

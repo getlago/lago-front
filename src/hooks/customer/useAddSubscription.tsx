@@ -241,8 +241,12 @@ export const buildPlanOverridesInput = (
 
   const changedUnits: Array<{ id: string; units: string }> = []
 
+  const baselineFixedChargeById = new Map(
+    (baselineFixedCharges ?? []).map((fixedCharge) => [fixedCharge.id, fixedCharge]),
+  )
+
   for (const charge of currentFixedCharges ?? []) {
-    const original = baselineFixedCharges?.find((fixedCharge) => fixedCharge.id === charge.id)
+    const original = baselineFixedChargeById.get(charge.id)
 
     // No baseline match → can't prove it's units-only, send the full payload.
     if (!original) return current
