@@ -39,7 +39,6 @@ gql`
     id
     code
     balanceCents
-    code
     consumedAmountCents
     consumedCredits
     createdAt
