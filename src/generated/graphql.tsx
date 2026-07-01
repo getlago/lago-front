@@ -10970,7 +10970,7 @@ export type GetCouponForCustomerQueryVariables = Exact<{
 }>;
 
 
-export type GetCouponForCustomerQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null }> } };
+export type GetCouponForCustomerQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, code: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null }> } };
 
 export type AddCouponMutationVariables = Exact<{
   input: CreateAppliedCouponInput;
@@ -23563,6 +23563,7 @@ export const GetCouponForCustomerDocument = gql`
     collection {
       id
       name
+      code
       amountCurrency
       amountCents
       couponType

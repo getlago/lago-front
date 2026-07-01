@@ -142,7 +142,7 @@ const DiscountDrawerContent = withForm({
                   form.setFieldValue('couponId', coupon.id)
                   form.setFieldValue('couponType', coupon.couponType)
                   form.setFieldValue('name', coupon.name)
-                  form.setFieldValue('code', coupon.name)
+                  form.setFieldValue('code', coupon.code ?? '')
                   form.setFieldValue(
                     'amount',
                     deserializeAmount(coupon.amountCents ?? 0, lockedCurrency).toString(),
