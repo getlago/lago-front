@@ -45,6 +45,7 @@ jest.mock('~/generated/graphql', () => {
     __typename: 'Coupon',
     id: 'cpn_fixed',
     name: 'Ten Off',
+    code: 'COUPON_CODE',
     amountCurrency: actual.CurrencyEnum.Eur,
     amountCents: 1000,
     couponType: actual.CouponTypeEnum.FixedAmount,
@@ -238,6 +239,10 @@ describe('useDiscountDrawer', () => {
       frequency: CouponFrequency.Once,
       frequencyDuration: null,
     })
+
+    // Regression guard: the saved item's code must come from coupon.code, NOT coupon.name.
+    // Previously form.setFieldValue('code', coupon.name) wrote the name into the code field.
+    expect(result.current.entities['mock-uuid-1']).toMatchObject({ code: 'COUPON_CODE' })
 
     // syncDiscountBlocks returns undefined when nothing changed, and a rebuilt
     // payload when a block is removed.
