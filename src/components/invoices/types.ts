@@ -14,4 +14,5 @@ export type InvoiceFormInput = Omit<
   fees: LocalFeeInput[]
   paymentMethod?: SelectedPaymentMethod
   invoiceCustomSection?: InvoiceCustomSectionInput
+  purchaseOrderNumber?: string | null
 }
