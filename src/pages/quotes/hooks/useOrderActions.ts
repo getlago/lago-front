@@ -45,12 +45,12 @@ export const useOrderActions = () => {
         label: translate('text_17797156485850t8yms6hf7z'),
         onAction: () => {
           void download(
-            buildQuotePreviewProps(
+            buildQuotePreviewProps({
               version,
-              order.customer,
-              (order.orderForm.quote.images ?? {}) as Record<string, string>,
+              customer: order.customer,
+              images: (order.orderForm.quote.images ?? {}) as Record<string, string>,
               header,
-            ),
+            }),
           ).catch(() => undefined)
         },
       })

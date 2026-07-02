@@ -218,15 +218,15 @@ describe('useOrderFormActions', () => {
 
         downloadAction?.onAction()
 
-        expect(mockedBuildQuotePreviewProps).toHaveBeenCalledWith(
-          orderForm.quote.currentVersion,
-          orderForm.customer,
-          orderForm.quote.images,
-          {
+        expect(mockedBuildQuotePreviewProps).toHaveBeenCalledWith({
+          version: orderForm.quote.currentVersion,
+          customer: orderForm.customer,
+          images: orderForm.quote.images,
+          header: {
             documentNumber: 'OF-2026-0001',
             rows: ['text_1781778938224iupllzr5sgb'],
           },
-        )
+        })
         expect(mockDownload).toHaveBeenCalledWith({ content: '# Hello World' })
       })
     })
@@ -240,7 +240,7 @@ describe('useOrderFormActions', () => {
 
       actions.find((a) => a.icon === 'download')?.onAction()
 
-      const headerArg = mockedBuildQuotePreviewProps.mock.calls[0][3]
+      const headerArg = mockedBuildQuotePreviewProps.mock.calls[0][0].header
 
       expect(headerArg?.rows).toHaveLength(2)
       expect(headerArg?.rows?.[0]).toBe('text_1781778938224iupllzr5sgb')

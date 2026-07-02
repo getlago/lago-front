@@ -197,12 +197,12 @@ const EditQuoteAsideForm = ({
 
   const handleDownloadPdf = () => {
     download(
-      buildQuotePreviewProps(
-        quote.currentVersion,
-        quote.customer,
-        (quote.images ?? {}) as Record<string, string>,
-        pdfHeader,
-      ),
+      buildQuotePreviewProps({
+        version: quote.currentVersion,
+        customer: quote.customer,
+        images: (quote.images ?? {}) as Record<string, string>,
+        header: pdfHeader,
+      }),
     ).catch(() => undefined)
   }
 

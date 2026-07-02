@@ -138,15 +138,15 @@ describe('useOrderActions', () => {
 
       downloadAction?.onAction()
 
-      expect(mockedBuildQuotePreviewProps).toHaveBeenCalledWith(
-        order.orderForm.quote.currentVersion,
-        order.customer,
-        order.orderForm.quote.images,
-        {
+      expect(mockedBuildQuotePreviewProps).toHaveBeenCalledWith({
+        version: order.orderForm.quote.currentVersion,
+        customer: order.customer,
+        images: order.orderForm.quote.images,
+        header: {
           documentNumber: 'OR-2026-0001',
           rows: ['text_1782723591984l12xpznkwqd'],
         },
-      )
+      })
       expect(mockDownload).toHaveBeenCalledWith({ content: '# Hello World' })
     })
   })

@@ -131,10 +131,11 @@ export const printHtmlContent = (html: string, options?: { title?: string }): vo
   // Bound the wait: a stalled resource must never hang the download. Whichever
   // settles first — all resources loaded, or the timeout — triggers printing.
   const RESOURCE_WAIT_TIMEOUT_MS = 3000
+  let timeoutId: ReturnType<typeof globalThis.setTimeout> | undefined
   const waitForResources = Promise.race([
     Promise.all([waitForStylesheets, waitForImages]),
     new Promise<void>((resolve) => {
-      globalThis.setTimeout(resolve, RESOURCE_WAIT_TIMEOUT_MS)
+      timeoutId = globalThis.setTimeout(resolve, RESOURCE_WAIT_TIMEOUT_MS)
     }),
   ])
 
@@ -143,6 +144,9 @@ export const printHtmlContent = (html: string, options?: { title?: string }): vo
       // If waiting fails, fall through and attempt to print anyway
     })
     .finally(() => {
+      // Cancel the timeout if the resources won the race, so it doesn't linger.
+      globalThis.clearTimeout(timeoutId)
+
       const contentWindow = iframe.contentWindow
 
       if (!contentWindow) {

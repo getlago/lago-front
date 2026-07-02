@@ -35,11 +35,11 @@ const OrderFormDetails = () => {
 
   const previewProps = useMemo(
     () =>
-      buildQuotePreviewProps(
-        orderForm?.quote?.currentVersion,
-        orderForm?.customer,
-        (orderForm?.quote?.images ?? {}) as Record<string, string>,
-      ),
+      buildQuotePreviewProps({
+        version: orderForm?.quote?.currentVersion,
+        customer: orderForm?.customer,
+        images: (orderForm?.quote?.images ?? {}) as Record<string, string>,
+      }),
     [orderForm?.quote?.currentVersion, orderForm?.customer, orderForm?.quote?.images],
   )
 

@@ -100,11 +100,11 @@ const EditOrderFormContent = ({ order, loading }: EditOrderFormContentProps) => 
 
   const previewProps = useMemo(
     () =>
-      buildQuotePreviewProps(
-        order?.orderForm?.quote?.currentVersion,
-        order?.orderForm?.quote?.customer,
-        (order?.orderForm?.quote?.images ?? {}) as Record<string, string>,
-      ),
+      buildQuotePreviewProps({
+        version: order?.orderForm?.quote?.currentVersion,
+        customer: order?.orderForm?.quote?.customer,
+        images: (order?.orderForm?.quote?.images ?? {}) as Record<string, string>,
+      }),
     [
       order?.orderForm?.quote?.currentVersion,
       order?.orderForm?.quote?.customer,

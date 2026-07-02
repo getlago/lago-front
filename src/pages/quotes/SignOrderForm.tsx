@@ -97,11 +97,11 @@ const SignOrderForm = () => {
   // Single source of truth for preview inputs (shared with the PDF renderer).
   const previewProps = useMemo(
     () =>
-      buildQuotePreviewProps(
-        orderForm?.quote?.currentVersion,
-        orderForm?.quote?.customer,
-        (orderForm?.quote?.images ?? {}) as Record<string, string>,
-      ),
+      buildQuotePreviewProps({
+        version: orderForm?.quote?.currentVersion,
+        customer: orderForm?.quote?.customer,
+        images: (orderForm?.quote?.images ?? {}) as Record<string, string>,
+      }),
     [orderForm?.quote?.currentVersion, orderForm?.quote?.customer, orderForm?.quote?.images],
   )
 

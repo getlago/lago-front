@@ -59,11 +59,11 @@ const QuoteVersionPreview = () => {
 
   const previewProps = useMemo(
     () =>
-      buildQuotePreviewProps(
-        targetVersion,
-        quote?.customer,
-        (quote?.images ?? {}) as Record<string, string>,
-      ),
+      buildQuotePreviewProps({
+        version: targetVersion,
+        customer: quote?.customer,
+        images: (quote?.images ?? {}) as Record<string, string>,
+      }),
     [targetVersion, quote?.customer, quote?.images],
   )
 

@@ -25,12 +25,17 @@ export interface QuotePreviewProps {
   header?: QuotePdfHeaderData
 }
 
-export const buildQuotePreviewProps = (
-  version: QuotePreviewVersionFragment | null | undefined,
-  customer: QuotePreviewCustomerFragment | null | undefined,
-  images: Record<string, string> = {},
-  header?: QuotePdfHeaderData,
-): QuotePreviewProps => ({
+export const buildQuotePreviewProps = ({
+  version,
+  customer,
+  images = {},
+  header,
+}: {
+  version: QuotePreviewVersionFragment | null | undefined
+  customer: QuotePreviewCustomerFragment | null | undefined
+  images?: Record<string, string>
+  header?: QuotePdfHeaderData
+}): QuotePreviewProps => ({
   content: version?.content ?? '',
   entities: version?.billingItems
     ? buildPreviewEntities(version.billingItems as BillingItemsPayload)

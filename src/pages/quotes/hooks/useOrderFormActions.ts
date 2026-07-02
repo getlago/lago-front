@@ -52,12 +52,12 @@ export const useOrderFormActions = () => {
         label: translate('text_17797156485850t8yms6hf7z'),
         onAction: () => {
           void download(
-            buildQuotePreviewProps(
+            buildQuotePreviewProps({
               version,
-              orderForm.customer,
-              (orderForm.quote.images ?? {}) as Record<string, string>,
+              customer: orderForm.customer,
+              images: (orderForm.quote.images ?? {}) as Record<string, string>,
               header,
-            ),
+            }),
           ).catch(() => undefined)
         },
       })
