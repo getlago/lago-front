@@ -6,7 +6,7 @@ import {
   ReactRenderer,
   useEditor,
 } from '@tiptap/react'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { type MutableRefObject, useCallback, useEffect, useMemo, useRef } from 'react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
 import type { Locale } from '~/core/translations'
@@ -179,6 +179,53 @@ const collectDiscountBlocks = (editorInstance: Editor): DiscountBlockAttributes[
   return discountBlocks
 }
 
+const readMarkdownFromEditor = (editor: Editor | null | undefined): string | undefined => {
+  if (!editor || !editor.storage || !('markdown' in editor.storage)) return undefined
+
+  const storage: unknown = editor.storage.markdown
+
+  if (
+    !storage ||
+    typeof storage !== 'object' ||
+    !('getMarkdown' in storage) ||
+    typeof storage.getMarkdown !== 'function'
+  )
+    return undefined
+
+  const result: unknown = storage.getMarkdown()
+
+  return typeof result === 'string' ? result : undefined
+}
+
+const buildSlashCommandsOptions = ({
+  translate,
+  onPricingCommand,
+  onPricingCommandRef,
+  isPricingDisabled,
+  isPricingDisabledRef,
+  onDiscountCommand,
+  onDiscountCommandRef,
+}: {
+  translate: (key: string) => string
+  onPricingCommand?: OnPricingCommand
+  onPricingCommandRef: MutableRefObject<OnPricingCommand | undefined>
+  isPricingDisabled?: () => boolean
+  isPricingDisabledRef: MutableRefObject<(() => boolean) | undefined>
+  onDiscountCommand?: OnDiscountCommand
+  onDiscountCommandRef: MutableRefObject<OnDiscountCommand | undefined>
+}) => ({
+  translate,
+  onPricingCommand: onPricingCommand
+    ? (params: Parameters<OnPricingCommand>[0]) => onPricingCommandRef.current?.(params)
+    : undefined,
+  isPricingDisabled: isPricingDisabled
+    ? () => isPricingDisabledRef.current?.() ?? false
+    : undefined,
+  onDiscountCommand: onDiscountCommand
+    ? (params: Parameters<OnDiscountCommand>[0]) => onDiscountCommandRef.current?.(params)
+    : undefined,
+})
+
 const RichTextEditor = ({
   mode = 'edit',
   mentionValues = {},
@@ -217,6 +264,10 @@ const RichTextEditor = ({
 
   const mentionSuggestion = useMemo(() => createMentionSuggestion(variableItems), [variableItems])
 
+  const editorAttributesClass = isCompact
+    ? 'max-w-4xl mx-auto focus:outline-none min-h-[300px] mb-4 px-0'
+    : 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10'
+
   const editor = useEditor({
     extensions: [
       ...getBaseExtensions({ tableResizable: true }),
@@ -241,18 +292,17 @@ const RichTextEditor = ({
         },
       }).configure({ images }),
       DiscountBlock.configure({ entities: entitiesFromProps }),
-      SlashCommands.configure({
-        translate,
-        onPricingCommand: onPricingCommand
-          ? (params) => onPricingCommandRef.current?.(params)
-          : undefined,
-        isPricingDisabled: isPricingDisabled
-          ? () => isPricingDisabledRef.current?.() ?? false
-          : undefined,
-        onDiscountCommand: onDiscountCommand
-          ? (params) => onDiscountCommandRef.current?.(params)
-          : undefined,
-      }),
+      SlashCommands.configure(
+        buildSlashCommandsOptions({
+          translate,
+          onPricingCommand,
+          onPricingCommandRef,
+          isPricingDisabled,
+          isPricingDisabledRef,
+          onDiscountCommand,
+          onDiscountCommandRef,
+        }),
+      ),
       LinkPasteHandler,
       TemplateSelectorExtension.configure({ templates: templates ?? [] }),
       DragHandle,
@@ -260,9 +310,7 @@ const RichTextEditor = ({
     ],
     editorProps: {
       attributes: {
-        class: isCompact
-          ? 'max-w-4xl mx-auto focus:outline-none min-h-[300px] mb-4 px-0'
-          : 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10',
+        class: editorAttributesClass,
       },
     },
     content: getInitialEditorContent(content, templates),
@@ -304,23 +352,10 @@ const RichTextEditor = ({
     }
   }, [editor, isPreview, onPreviewReady])
 
-  const getMarkdown = useCallback((): string | undefined => {
-    if (!editor || !editor.storage || !('markdown' in editor.storage)) return undefined
-
-    const storage: unknown = editor.storage.markdown
-
-    if (
-      !storage ||
-      typeof storage !== 'object' ||
-      !('getMarkdown' in storage) ||
-      typeof storage.getMarkdown !== 'function'
-    )
-      return undefined
-
-    const result: unknown = storage.getMarkdown()
-
-    return typeof result === 'string' ? result : undefined
-  }, [editor])
+  const getMarkdown = useCallback(
+    (): string | undefined => readMarkdownFromEditor(editor),
+    [editor],
+  )
 
   const contextValue = useMemo(
     () => ({
