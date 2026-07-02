@@ -372,7 +372,7 @@ export const useDiscountDrawer = (
 
   const handleFormSubmit = (event?: React.FormEvent) => {
     event?.preventDefault()
-    void form.handleSubmit()
+    form.handleSubmit()
   }
 
   const onDiscountCommand = useCallback<OnDiscountCommand>(

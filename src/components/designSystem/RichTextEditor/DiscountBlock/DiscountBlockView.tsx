@@ -18,12 +18,19 @@ export const DISCOUNT_BLOCK_VIEW_UNRESOLVED_TEST_ID = 'discount-block-view-unres
 const DiscountBlockPreview = ({ entity }: { entity: EntityData }) => {
   const { translate } = useInternationalization()
 
-  const frequencyLabel =
-    entity.frequency === CouponFrequency.Once
-      ? translate('text_632d68358f1fedc68eed3ea3')
-      : entity.frequency === CouponFrequency.Recurring
-        ? translate('text_632d68358f1fedc68eed3e64')
-        : translate('text_63c83a3476e46bc6ab9d85d6')
+  const getFrequencyKey = () => {
+    if (entity.frequency === CouponFrequency.Once) {
+      return 'text_632d68358f1fedc68eed3ea3'
+    }
+
+    if (entity.frequency === CouponFrequency.Recurring) {
+      return 'text_632d68358f1fedc68eed3e64'
+    }
+
+    return 'text_63c83a3476e46bc6ab9d85d6'
+  }
+
+  const frequencyLabel = translate(getFrequencyKey())
 
   let valueLabel = ''
 

@@ -1,5 +1,11 @@
 import Placeholder from '@tiptap/extension-placeholder'
-import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '@tiptap/react'
+import {
+  type Editor,
+  EditorContent,
+  ReactNodeViewRenderer,
+  ReactRenderer,
+  useEditor,
+} from '@tiptap/react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
@@ -142,6 +148,37 @@ const getInitialEditorContent = (content?: string, templates?: EditorTemplate[])
   return ''
 }
 
+const collectPricingBlocks = (editorInstance: Editor): PricingBlockAttributes[] => {
+  const blocks: PricingBlockAttributes[] = []
+
+  editorInstance.state.doc.descendants((node) => {
+    if (node.type.name === 'pricingBlock' && node.attrs.entityIds?.length) {
+      blocks.push({
+        pricingType: node.attrs.pricingType,
+        entityIds: node.attrs.entityIds,
+        localEntityIds: node.attrs.localEntityIds,
+      })
+    }
+  })
+
+  return blocks
+}
+
+const collectDiscountBlocks = (editorInstance: Editor): DiscountBlockAttributes[] => {
+  const discountBlocks: DiscountBlockAttributes[] = []
+
+  editorInstance.state.doc.descendants((node) => {
+    if (node.type.name === 'discountBlock' && node.attrs.couponId) {
+      discountBlocks.push({
+        couponId: node.attrs.couponId,
+        localId: node.attrs.localId,
+      })
+    }
+  })
+
+  return discountBlocks
+}
+
 const RichTextEditor = ({
   mode = 'edit',
   mentionValues = {},
@@ -231,33 +268,13 @@ const RichTextEditor = ({
     content: getInitialEditorContent(content, templates),
     onUpdate: ({ editor: editorInstance }) => {
       onChangeRef.current?.()
-      if (onPricingBlocksChangeRef.current) {
-        const blocks: PricingBlockAttributes[] = []
 
-        editorInstance.state.doc.descendants((node) => {
-          if (node.type.name === 'pricingBlock' && node.attrs.entityIds?.length) {
-            blocks.push({
-              pricingType: node.attrs.pricingType,
-              entityIds: node.attrs.entityIds,
-              localEntityIds: node.attrs.localEntityIds,
-            })
-          }
-        })
-        onPricingBlocksChangeRef.current(blocks)
+      if (onPricingBlocksChangeRef.current) {
+        onPricingBlocksChangeRef.current(collectPricingBlocks(editorInstance))
       }
 
       if (onDiscountBlocksChangeRef.current) {
-        const discountBlocks: DiscountBlockAttributes[] = []
-
-        editorInstance.state.doc.descendants((node) => {
-          if (node.type.name === 'discountBlock' && node.attrs.couponId) {
-            discountBlocks.push({
-              couponId: node.attrs.couponId,
-              localId: node.attrs.localId,
-            })
-          }
-        })
-        onDiscountBlocksChangeRef.current(discountBlocks)
+        onDiscountBlocksChangeRef.current(collectDiscountBlocks(editorInstance))
       }
     },
   })
