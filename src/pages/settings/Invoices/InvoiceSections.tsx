@@ -149,7 +149,9 @@ const InvoiceSections = () => {
                   <Table
                     name="pricing-units"
                     containerSize={{ default: 4 }}
-                    data={pricingUnitsLoading ? [] : (pricingUnitsData?.pricingUnits?.collection ?? [])}
+                    data={
+                      pricingUnitsLoading ? [] : (pricingUnitsData?.pricingUnits?.collection ?? [])
+                    }
                     isLoading={pricingUnitsLoading}
                     loadingRowCount={pricingUnitsPageSize}
                     hasError={!!pricingUnitsError}
@@ -230,7 +232,11 @@ const InvoiceSections = () => {
                 <Table
                   name="invoice-custom-section"
                   containerSize={{ default: 0 }}
-                  data={invoiceCustomSectionsLoading ? [] : (invoiceCustomSectionsData?.invoiceCustomSections?.collection ?? [])}
+                  data={
+                    invoiceCustomSectionsLoading
+                      ? []
+                      : (invoiceCustomSectionsData?.invoiceCustomSections?.collection ?? [])
+                  }
                   isLoading={invoiceCustomSectionsLoading}
                   loadingRowCount={customSectionsPageSize}
                   hasError={!!invoiceCustomSectionsError}
