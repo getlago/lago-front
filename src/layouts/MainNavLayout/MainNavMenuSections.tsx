@@ -25,9 +25,11 @@ import {
   INVOICES_ROUTE,
   PAYMENT_DETAILS_ROUTE,
   PAYMENTS_ROUTE,
+  PLAN_CATALOG_ROUTE,
   PLAN_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
+  PRODUCT_CATALOG_ROUTE,
   QUOTE_DETAILS_ROUTE,
   QUOTES_LIST_ROUTE,
   QUOTES_TAB_ROUTE,
@@ -48,6 +50,7 @@ import { VerticalMenuSkeleton } from './VerticalMenuSkeleton'
 export const MAIN_NAV_MENU_SECTIONS_TEST_ID = 'main-nav-menu-sections'
 export const MAIN_NAV_REPORTS_SECTION_TEST_ID = 'main-nav-reports-section'
 export const MAIN_NAV_CONFIGURATION_SECTION_TEST_ID = 'main-nav-configuration-section'
+export const MAIN_NAV_CATALOG_SECTION_TEST_ID = 'main-nav-catalog-section'
 export const MAIN_NAV_BILLING_SECTION_TEST_ID = 'main-nav-billing-section'
 
 interface MainNavMenuSectionsProps {
@@ -57,7 +60,7 @@ interface MainNavMenuSectionsProps {
 
 export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSectionsProps) => {
   const { translate } = useInternationalization()
-  const { hasPermissions } = usePermissions()
+  const { hasPermissions, hasPermissionsOr } = usePermissions()
   const { hasFeatureFlag } = useOrganizationInfos()
   const { isPremium } = useCurrentUser()
 
@@ -119,6 +122,25 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       canBeClickedOnActive: true,
       match: [COUPONS_ROUTE, COUPON_DETAILS_ROUTE],
       hidden: !hasPermissions(['couponsView']),
+    },
+  ]
+
+  const getCatalogTabs = (): NavTab[] => [
+    {
+      title: translate('text_1783019143196z1oi70j03vt'),
+      icon: 'box',
+      link: PRODUCT_CATALOG_ROUTE,
+      canBeClickedOnActive: true,
+      match: [PRODUCT_CATALOG_ROUTE],
+      hidden: !hasPermissionsOr(['productsView', 'productItemsView', 'rateCardsView']),
+    },
+    {
+      title: translate('text_62442e40cea25600b0b6d85a'),
+      icon: 'board',
+      link: PLAN_CATALOG_ROUTE,
+      canBeClickedOnActive: true,
+      match: [PLAN_CATALOG_ROUTE],
+      hidden: !hasPermissions(['plansView']),
     },
   ]
 
@@ -193,10 +215,16 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
 
   const reportsTabs = getNavTabs(getReportsTabs())
   const configurationTabs = getNavTabs(getConfigurationTabs())
+  const catalogTabs = getNavTabs(getCatalogTabs())
   const billingTabs = getNavTabs(getBillingTabs())
 
   // Don't render the section group if all sections are hidden
-  if (reportsTabs.allTabsHidden && configurationTabs.allTabsHidden && billingTabs.allTabsHidden) {
+  if (
+    reportsTabs.allTabsHidden &&
+    configurationTabs.allTabsHidden &&
+    catalogTabs.allTabsHidden &&
+    billingTabs.allTabsHidden
+  ) {
     return null
   }
 
@@ -230,6 +258,22 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
             loadingComponent={<VerticalMenuSkeleton numberOfElements={5} />}
             onClick={onItemClick}
             tabs={configurationTabs.tabs}
+          />
+        </NavLayout.NavSection>
+      )}
+
+      {/* Catalog & pricing */}
+      {!catalogTabs.allTabsHidden && (
+        <NavLayout.NavSection data-test={MAIN_NAV_CATALOG_SECTION_TEST_ID}>
+          <VerticalMenuSectionTitle
+            title={translate('text_1783019143196lwfj3wt5eyh')}
+            loading={isLoading}
+          />
+          <VerticalMenu
+            loading={isLoading}
+            loadingComponent={<VerticalMenuSkeleton numberOfElements={2} />}
+            onClick={onItemClick}
+            tabs={catalogTabs.tabs}
           />
         </NavLayout.NavSection>
       )}

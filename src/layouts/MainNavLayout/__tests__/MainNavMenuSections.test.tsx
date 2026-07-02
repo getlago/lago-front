@@ -1,9 +1,10 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 
 import { render } from '~/test-utils'
 
 import {
   MAIN_NAV_BILLING_SECTION_TEST_ID,
+  MAIN_NAV_CATALOG_SECTION_TEST_ID,
   MAIN_NAV_CONFIGURATION_SECTION_TEST_ID,
   MAIN_NAV_MENU_SECTIONS_TEST_ID,
   MAIN_NAV_REPORTS_SECTION_TEST_ID,
@@ -11,11 +12,13 @@ import {
 } from '../MainNavMenuSections'
 
 const mockHasPermissions = jest.fn()
+const mockHasPermissionsOr = jest.fn()
 const mockHasFeatureFlag = jest.fn()
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
     hasPermissions: mockHasPermissions,
+    hasPermissionsOr: mockHasPermissionsOr,
   }),
 }))
 
@@ -52,6 +55,7 @@ describe('MainNavMenuSections', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+    mockHasPermissionsOr.mockReturnValue(true)
     mockHasFeatureFlag.mockReturnValue(true)
     mockIsPremium.mockReturnValue(true)
   })
@@ -116,6 +120,30 @@ describe('MainNavMenuSections', () => {
 
       expect(screen.queryByTestId(MAIN_NAV_REPORTS_SECTION_TEST_ID)).not.toBeInTheDocument()
     })
+
+    it('renders the catalog section', () => {
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(screen.getByTestId(MAIN_NAV_CATALOG_SECTION_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('renders the catalog section between configuration and billing', () => {
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      const container = screen.getByTestId(MAIN_NAV_MENU_SECTIONS_TEST_ID)
+      const order = [
+        MAIN_NAV_CONFIGURATION_SECTION_TEST_ID,
+        MAIN_NAV_CATALOG_SECTION_TEST_ID,
+        MAIN_NAV_BILLING_SECTION_TEST_ID,
+      ].map((id) => within(container).getByTestId(id))
+
+      expect(order[0].compareDocumentPosition(order[1])).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      )
+      expect(order[1].compareDocumentPosition(order[2])).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      )
+    })
   })
 
   describe('Section visibility based on tab permissions', () => {
@@ -168,6 +196,7 @@ describe('MainNavMenuSections', () => {
 
     it('does not render any sections when all permissions are false', () => {
       mockHasPermissions.mockReturnValue(false)
+      mockHasPermissionsOr.mockReturnValue(false)
 
       render(<MainNavMenuSections {...defaultProps} />)
 
@@ -175,6 +204,7 @@ describe('MainNavMenuSections', () => {
       expect(screen.queryByTestId(MAIN_NAV_BILLING_SECTION_TEST_ID)).not.toBeInTheDocument()
       expect(screen.queryByTestId(MAIN_NAV_REPORTS_SECTION_TEST_ID)).not.toBeInTheDocument()
       expect(screen.queryByTestId(MAIN_NAV_CONFIGURATION_SECTION_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(MAIN_NAV_CATALOG_SECTION_TEST_ID)).not.toBeInTheDocument()
     })
 
     it('renders only sections with visible tabs', () => {
@@ -202,6 +232,17 @@ describe('MainNavMenuSections', () => {
       // Reports and configuration should be hidden
       expect(screen.queryByTestId(MAIN_NAV_REPORTS_SECTION_TEST_ID)).not.toBeInTheDocument()
       expect(screen.queryByTestId(MAIN_NAV_CONFIGURATION_SECTION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('does not render catalog section when all catalog tabs are hidden', () => {
+      mockHasPermissions.mockImplementation(
+        (permissions: string[]) => !permissions.includes('plansView'),
+      )
+      mockHasPermissionsOr.mockReturnValue(false)
+
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(screen.queryByTestId(MAIN_NAV_CATALOG_SECTION_TEST_ID)).not.toBeInTheDocument()
     })
   })
 
