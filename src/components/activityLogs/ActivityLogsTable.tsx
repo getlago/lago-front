@@ -73,11 +73,11 @@ export const ActivityLogsTable: FC<ActivityLogsTableProps> = ({
   }, [error, refetch, translate])
 
   const logs = useMemo(() => {
-    return data.map((log) => ({
+    return (isLoading ? [] : data).map((log) => ({
       ...log,
       id: log.activityId,
     }))
-  }, [data])
+  }, [data, isLoading])
 
   const columns: Array<TableColumn<(typeof logs)[number]>> = [
     {

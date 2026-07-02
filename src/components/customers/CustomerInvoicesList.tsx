@@ -230,7 +230,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
           isLoading={isLoading}
           loadingRowCount={DEFAULT_PAGE_SIZE}
           hasError={hasError}
-          data={invoiceData?.collection ?? []}
+          data={isLoading ? [] : (invoiceData?.collection ?? [])}
           onRowActionLink={({ id }) =>
             generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
               customerId,

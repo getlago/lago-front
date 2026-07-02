@@ -235,7 +235,7 @@ const BillableMetricsList = () => {
       >
         <Table
           name="billable-metrics-list"
-          data={data?.billableMetrics?.collection ?? []}
+          data={isLoading ? [] : (data?.billableMetrics?.collection ?? [])}
           loadingRowCount={pageSize}
           containerSize={{
             default: 16,

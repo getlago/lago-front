@@ -154,7 +154,7 @@ const FeaturesList = () => {
           name="features-list"
           isLoading={isLoading}
           hasError={!!featuresError}
-          data={featuresData?.features?.collection ?? []}
+          data={isLoading ? [] : (featuresData?.features?.collection ?? [])}
           loadingRowCount={pageSize}
           containerSize={{
             default: 16,

@@ -327,7 +327,7 @@ export const ApiKeys = () => {
                     isLoading={apiKeysLoading}
                     containerSize={{ default: 0 }}
                     rowSize={48}
-                    data={apiKeysData?.apiKeys.collection ?? []}
+                    data={apiKeysLoading ? [] : (apiKeysData?.apiKeys.collection ?? [])}
                     loadingRowCount={pageSize}
                     columns={[
                       {

@@ -166,7 +166,7 @@ const CustomersList = () => {
         >
           <Table
             name="customers-list"
-            data={data?.customers?.collection ?? []}
+            data={isLoading ? [] : (data?.customers?.collection ?? [])}
             isLoading={isLoading}
             loadingRowCount={pageSize}
             hasError={!!error}

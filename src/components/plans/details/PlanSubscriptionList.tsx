@@ -76,7 +76,9 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
       >
         <Table
           name="plan-subscriptions"
-          data={subscriptionResult?.subscriptions?.collection ?? []}
+          data={
+            areSubscriptionsLoading ? [] : (subscriptionResult?.subscriptions?.collection ?? [])
+          }
           containerSize={0}
           isLoading={areSubscriptionsLoading}
           loadingRowCount={DEFAULT_PAGE_SIZE}
