@@ -43,13 +43,14 @@ const ImagePopperForm = ({ editor, closePopper }: ImagePopperFormProps) => {
   }
 
   return (
-    <div className="flex w-80 flex-col gap-2 p-3">
+    <div className="flex w-90 flex-col gap-2 p-3">
       <DocumentUploader
         value={null}
         onChange={handleChange}
         accept={IMAGE_ACCEPT}
         acceptedMimeTypes={IMAGE_MIME_TYPES}
         maxSize={IMAGE_MAX_SIZE}
+        description={translate('text_1782997762645ugjob60lzff')}
       />
       {uploading && (
         <Typography variant="caption" color="grey600">

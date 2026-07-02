@@ -4461,5 +4461,6 @@
   "text_178280881124242ngphx36je": "View signed document",
   "text_17828094623997l9tqj385k5": "Order form {{orderFormNumber}}",
   "text_1782821511108j6cgg7ioq23": "This is a read-only preview of this order form.",
-  "text_1782918544840f0jput31j5k": "Could not upload the image. Please try again."
+  "text_1782918544840f0jput31j5k": "Could not upload the image. Please try again.",
+  "text_1782997762645ugjob60lzff": "PNG, JPG, WEBP, GIF less than 5MB."
 }
