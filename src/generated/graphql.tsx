@@ -12096,10 +12096,10 @@ export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityT
     | { __typename?: 'PaymentReceipt', id: string }
     | { __typename?: 'PaymentRequest', id: string }
     | { __typename?: 'Plan', id: string }
-    | { __typename?: 'Product' }
-    | { __typename?: 'ProductItem' }
-    | { __typename?: 'ProductItemFilter' }
-    | { __typename?: 'RateCard' }
+    | { __typename?: 'Product', id: string }
+    | { __typename?: 'ProductItem', id: string }
+    | { __typename?: 'ProductItemFilter', id: string }
+    | { __typename?: 'RateCard', id: string }
     | { __typename?: 'Subscription', id: string }
     | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null }
    | null };
@@ -12120,10 +12120,10 @@ export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { 
       | { __typename?: 'PaymentReceipt', id: string }
       | { __typename?: 'PaymentRequest', id: string }
       | { __typename?: 'Plan', id: string }
-      | { __typename?: 'Product' }
-      | { __typename?: 'ProductItem' }
-      | { __typename?: 'ProductItemFilter' }
-      | { __typename?: 'RateCard' }
+      | { __typename?: 'Product', id: string }
+      | { __typename?: 'ProductItem', id: string }
+      | { __typename?: 'ProductItemFilter', id: string }
+      | { __typename?: 'RateCard', id: string }
       | { __typename?: 'Subscription', id: string }
       | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null }
      | null } | null };
@@ -17426,6 +17426,18 @@ export const ActivityLogDetailsFragmentDoc = gql`
       }
     }
     ... on PaymentReceipt {
+      id
+    }
+    ... on Product {
+      id
+    }
+    ... on ProductItem {
+      id
+    }
+    ... on ProductItemFilter {
+      id
+    }
+    ... on RateCard {
       id
     }
   }

@@ -4476,5 +4476,21 @@
   "text_1783584917380so6uufk82e0": "Automatic top-ups triggered on a set interval or when a threshold is reached.",
   "text_1783584917380z3uuxa0ey02": "Rule {{number}}",
   "text_1783019143196lwfj3wt5eyh": "Catalog & pricing",
-  "text_1783019143196z1oi70j03vt": "Product catalog"
+  "text_1783019143196z1oi70j03vt": "Product catalog",
+  "text_17830207943996vz6dqrmz1g": "Product {{code}} was created",
+  "text_1783020794399lcwfxs5h0ub": "Product {{code}} was updated",
+  "text_17830207943993vjrz9gc5zb": "Product {{code}} was deleted",
+  "text_1783020794399kzsy89qai1g": "Product item {{code}} was created",
+  "text_1783020794399nd5yf5pf3x9": "Product item {{code}} was updated",
+  "text_1783020794399gv7kchne26v": "Product item {{code}} was deleted",
+  "text_178302079439951bxs3kwrf5": "Product item filter {{code}} was created",
+  "text_1783020794399sqni1fhpkxx": "Product item filter {{code}} was updated",
+  "text_178302079439981vv999kce4": "Product item filter {{code}} was deleted",
+  "text_1783020794399t0t1weg8x8g": "Rate card {{code}} was created",
+  "text_1783020794399sf4d304ggs6": "Rate card {{code}} was updated",
+  "text_17830207943995t96rbcm3ht": "Rate card {{code}} was deleted",
+  "text_1783020794399ai60io2ufkg": "Product",
+  "text_1783020794400si0ioidu0m5": "Product item",
+  "text_1783020794400u55s2kj2o4n": "Product item filter",
+  "text_1783020794400xdy5qokafvy": "Rate card"
 }
