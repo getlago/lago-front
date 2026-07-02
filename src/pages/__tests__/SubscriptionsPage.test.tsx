@@ -59,19 +59,17 @@ jest.mock('~/generated/graphql', () => ({
   ],
 }))
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let capturedListProps: Record<string, any> | null = null
 
 jest.mock('~/components/subscriptions/SubscriptionsList', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   SubscriptionsList: (props: Record<string, any>) => {
     capturedListProps = props
     return <div data-test="subscriptions-list-mock">{props.name}</div>
   },
 }))
 
-jest.mock('~/components/designSystem/InfiniteScroll', () => ({
-  InfiniteScroll: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+jest.mock('~/components/designSystem/PaginatedContent', () => ({
+  PaginatedContent: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }))
 
 describe('SubscriptionsPage', () => {

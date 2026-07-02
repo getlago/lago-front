@@ -1,11 +1,12 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
+import { useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { useDeleteAddOnDialog } from '~/components/addOns/DeleteAddOnDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
@@ -13,6 +14,7 @@ import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   ADD_ON_DETAILS_ROUTE,
@@ -60,14 +62,14 @@ const AddOnsList = () => {
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { openDeleteAddOnDialog } = useDeleteAddOnDialog()
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const [getAddOns, { data, error, loading, fetchMore, variables }] = useAddOnsLazyQuery({
-    variables: { limit: 20 },
+    variables: { limit: pageSize },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getAddOns, loading)
-  const list = data?.addOns?.collection || []
 
   const canCreateAddOns = hasPermissions(['addonsCreate'])
   const canUpdateAddOns = hasPermissions(['addonsUpdate'])
@@ -103,7 +105,7 @@ const AddOnsList = () => {
         entity={{
           viewName: translate('text_629728388c4d2300e2d3809b'),
           metadata: formatCountToMetadata(addOnsTotalCount, translate),
-          metadataLoading: isLoading,
+          metadataLoading: isLoading && addOnsTotalCount === undefined,
         }}
         actions={{
           items: [
@@ -125,20 +127,17 @@ const AddOnsList = () => {
         }
       />
 
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } = data?.addOns?.metadata || {}
-
-          currentPage < totalPages &&
-            !isLoading &&
-            fetchMore({
-              variables: { page: currentPage + 1 },
-            })
-        }}
+      <PaginatedContent
+        metadata={data?.addOns?.metadata}
+        loading={isLoading}
+        pageSize={pageSize}
+        onPageChange={(page) => fetchMore({ variables: { page } })}
+        onPageSizeChange={setPageSize}
       >
         <Table
           name="add-ons-list"
-          data={list}
+          data={data?.addOns?.collection ?? []}
+          loadingRowCount={pageSize}
           containerSize={{
             default: 16,
             md: 48,
@@ -256,7 +255,7 @@ const AddOnsList = () => {
             emptyState: getEmptyState(),
           }}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </>
   )
 }

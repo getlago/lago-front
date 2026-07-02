@@ -6,6 +6,7 @@ import { generatePath, useParams } from 'react-router-dom'
 import { Avatar, AvatarBadge } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Pagination } from '~/components/designSystem/Pagination'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Table, TableColumn, TableContainerSize } from '~/components/designSystem/Table'
@@ -200,7 +201,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
           <>
             <Table
               name="wallet-transactions-list"
-              data={list || []}
+              data={isLoading ? [] : list || []}
               containerSize={containerSize}
               rowSize={72}
               isLoading={isLoading}
@@ -482,19 +483,12 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
         )}
       </div>
       <div className="flex items-center justify-between gap-4 px-4 py-1">
-        {currentPage < totalPages && (
-          <Button
-            variant="quaternary"
-            size="medium"
-            onClick={() =>
-              fetchMore({
-                variables: { page: currentPage + 1 },
-              })
-            }
-          >
-            {translate('text_62da6ec24a8e24e44f8128aa')}
-          </Button>
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          loading={isLoading}
+          onPageChange={(page) => fetchMore({ variables: { page } })}
+        />
         {footer}
       </div>
 

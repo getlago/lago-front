@@ -57,6 +57,7 @@ export const InvoiceCreditNoteList = () => {
   const canIssueCreditNote = hasPermissions(['creditNotesCreate'])
   const premiumWarningDialog = usePremiumWarningDialog()
   const { data, loading, error, fetchMore, variables } = useGetInvoiceCreditNotesQuery({
+    notifyOnNetworkStatusChange: true,
     variables: { invoiceId: invoiceId as string, limit: 20 },
     skip: !invoiceId || !customerId,
   })

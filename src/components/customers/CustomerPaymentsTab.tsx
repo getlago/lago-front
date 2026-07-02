@@ -35,6 +35,7 @@ export const CustomerPaymentsTab: FC<CustomerPaymentsTabProps> = ({ externalCust
   const { currency } = formatFiltersForCustomerPaymentsQuery(searchParams)
 
   const { data, loading, fetchMore } = useGetPaymentsListQuery({
+    notifyOnNetworkStatusChange: true,
     variables: { externalCustomerId: externalCustomerId as string, limit: 20, currency },
     skip: !externalCustomerId,
   })

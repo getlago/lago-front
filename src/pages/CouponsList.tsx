@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
+import { useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
@@ -7,7 +8,7 @@ import { useDeleteCoupon } from '~/components/coupons/useDeleteCoupon'
 import { useTerminateCoupon } from '~/components/coupons/useTerminateCoupon'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
@@ -16,6 +17,7 @@ import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -83,14 +85,14 @@ const CouponsList = () => {
   const actions = usePermissionsCouponActions()
   const { openDialog: openDeleteDialog } = useDeleteCoupon()
   const { openDialog: openTerminateDialog } = useTerminateCoupon()
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const [getCoupons, { data, error, loading, fetchMore, variables }] = useCouponsLazyQuery({
-    variables: { limit: 20 },
+    variables: { limit: pageSize },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCoupons, loading)
-  const list = data?.coupons?.collection || []
 
   const getEmptyState = (): Partial<GenericPlaceholderProps> => {
     if (variables?.searchTerm) {
@@ -167,7 +169,7 @@ const CouponsList = () => {
         entity={{
           viewName: translate('text_62865498824cc10126ab2956'),
           metadata: formatCountToMetadata(couponsTotalCount, translate),
-          metadataLoading: isLoading,
+          metadataLoading: isLoading && couponsTotalCount === undefined,
         }}
         actions={{
           items: [
@@ -189,20 +191,17 @@ const CouponsList = () => {
         }
       />
 
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } = data?.coupons?.metadata || {}
-
-          currentPage < totalPages &&
-            !isLoading &&
-            fetchMore({
-              variables: { page: currentPage + 1 },
-            })
-        }}
+      <PaginatedContent
+        metadata={data?.coupons?.metadata}
+        loading={isLoading}
+        pageSize={pageSize}
+        onPageChange={(page) => fetchMore({ variables: { page } })}
+        onPageSizeChange={setPageSize}
       >
         <Table
           name="coupons-list"
-          data={list}
+          data={data?.coupons?.collection ?? []}
+          loadingRowCount={pageSize}
           containerSize={{
             default: 16,
             md: 48,
@@ -293,7 +292,7 @@ const CouponsList = () => {
             emptyState: getEmptyState(),
           }}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </>
   )
 }

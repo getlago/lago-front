@@ -106,6 +106,7 @@ export const CustomerInvoicesTab = ({
     error: errorDraft,
     loading: loadingDraft,
   } = useGetCustomerInvoicesQuery({
+    notifyOnNetworkStatusChange: true,
     variables: {
       customerId,
       limit: DRAFT_INVOICES_ITEMS_COUNT,

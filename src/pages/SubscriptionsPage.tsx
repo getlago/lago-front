@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
@@ -10,7 +10,7 @@ import {
   formatFiltersForSubscriptionQuery,
   SubscriptionAvailableFilters,
 } from '~/components/designSystem/Filters'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
@@ -23,6 +23,7 @@ import {
 import { TimezoneDate } from '~/components/TimezoneDate'
 import { SUBSCRIPTION_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { getIntervalTranslationKey } from '~/core/constants/form'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
 import {
@@ -137,11 +138,13 @@ const SubscriptionsPage = () => {
     return formatFiltersForSubscriptionQuery(searchParams)
   }, [searchParams])
 
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+
   const [getSubscriptions, { data, error, loading, variables, fetchMore }] =
     useGetSubscriptionsListLazyQuery({
       notifyOnNetworkStatusChange: true,
       variables: {
-        limit: 20,
+        limit: pageSize,
         ...filtersForSubscriptionQuery,
       },
     })
@@ -163,7 +166,7 @@ const SubscriptionsPage = () => {
         entity={{
           viewName: translate('text_6250304370f0f700a8fdc28d'),
           metadata: formatCountToMetadata(subscriptionsTotalCount, translate),
-          metadataLoading: isLoading,
+          metadataLoading: isLoading && subscriptionsTotalCount === undefined,
         }}
         filtersSection={
           <Filters.Provider
@@ -182,22 +185,19 @@ const SubscriptionsPage = () => {
       />
 
       <div className="border-t border-grey-300">
-        <InfiniteScroll
-          onBottom={() => {
-            const { currentPage = 0, totalPages = 0 } = data?.subscriptions.metadata || {}
-
-            currentPage < totalPages &&
-              !isLoading &&
-              fetchMore?.({
-                variables: { page: currentPage + 1 },
-              })
-          }}
+        <PaginatedContent
+          metadata={data?.subscriptions.metadata}
+          loading={isLoading}
+          pageSize={pageSize}
+          onPageChange={(page) => fetchMore?.({ variables: { page } })}
+          onPageSizeChange={setPageSize}
         >
           <SubscriptionsList
             name="subscriptions-list"
             isLoading={isLoading}
+            loadingRowCount={pageSize}
             hasError={!!error}
-            subscriptions={subscriptions}
+            subscriptions={isLoading ? [] : subscriptions}
             containerSize={{
               default: 16,
               md: 48,
@@ -340,7 +340,7 @@ const SubscriptionsPage = () => {
                   },
             }}
           />
-        </InfiniteScroll>
+        </PaginatedContent>
       </div>
     </>
   )

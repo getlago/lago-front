@@ -6,7 +6,7 @@ import { APPLIED_COUPON_STATUS_CONFIG } from '~/components/coupons/utils'
 import { computeCustomerInitials } from '~/components/customers/utils'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -14,6 +14,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_TAB_ROUTE } from '~/core/router'
 import { intlFormatDateTime } from '~/core/timezone'
@@ -32,6 +33,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         id
@@ -176,28 +178,23 @@ export const CouponDetailsAppliedCoupons = ({ couponCode }: CouponDetailsApplied
       </Tooltip>
     )
 
-  const fetchNextPage = () => {
-    const { currentPage = 0, totalPages = 0 } = data?.appliedCoupons?.metadata || {}
-
-    currentPage < totalPages &&
-      !loading &&
-      fetchMore({
-        variables: { page: currentPage + 1 },
-      })
-  }
-
   return (
     <section>
       <DetailsPage.SectionTitle variant="subhead1" noWrap>
         {translate('text_62865498824cc10126ab2956')}
       </DetailsPage.SectionTitle>
 
-      <InfiniteScroll onBottom={fetchNextPage}>
+      <PaginatedContent
+        metadata={data?.appliedCoupons?.metadata}
+        loading={loading}
+        onPageChange={(page) => fetchMore({ variables: { page } })}
+      >
         <Table
           name="coupon-details-applied-coupons"
-          data={appliedCoupons}
+          data={loading ? [] : appliedCoupons}
           containerSize={0}
           isLoading={loading}
+          loadingRowCount={DEFAULT_PAGE_SIZE}
           hasError={!!error}
           rowSize={72}
           onRowActionLink={getRowActionLink}
@@ -210,7 +207,7 @@ export const CouponDetailsAppliedCoupons = ({ couponCode }: CouponDetailsApplied
           columns={columns}
           actionColumn={actionColumn}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </section>
   )
 }

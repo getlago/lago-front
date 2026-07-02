@@ -3,10 +3,11 @@ import { useSearchParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Chip } from '~/components/designSystem/Chip'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { ActionColumn, ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { MEMBERS_PAGE_ROLE_FILTER_KEY } from '~/core/constants/roles'
 import { GetMembersQuery, MembershipItemForMembershipSettingsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -38,8 +39,9 @@ const getRolesColumn = (getDisplayName: (role: AllowedElements) => string) =>
 
 const MemberList = () => {
   const { translate } = useInternationalization()
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const { members, metadata, membersLoading, membersFetchMore, membersError, membersRefetch } =
-    useGetMembersList()
+    useGetMembersList(pageSize)
   const { hasPermissions } = usePermissions()
   const { currentUser } = useCurrentUser()
   const { getDisplayName } = useRoleDisplayInformation()
@@ -69,16 +71,6 @@ const MemberList = () => {
       return matchesRole && matchesSearch
     })
   }, [members, selectedRole, searchQuery])
-
-  const handleInfiniteScrolling = () => {
-    const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-    currentPage < totalPages &&
-      !membersLoading &&
-      membersFetchMore({
-        variables: { page: currentPage + 1 },
-      })
-  }
 
   const columns: Array<TableColumn<Membership> | null> = [
     {
@@ -166,20 +158,27 @@ const MemberList = () => {
   return (
     <div>
       <MembersFilters searchQuery={searchQuery} setSearchQuery={setSearchQuery} type="members" />
-      <InfiniteScroll onBottom={handleInfiniteScrolling}>
+      <PaginatedContent
+        metadata={metadata}
+        loading={membersLoading}
+        pageSize={pageSize}
+        onPageChange={(page) => membersFetchMore({ variables: { page } })}
+        onPageSizeChange={setPageSize}
+      >
         <Table
           name="members-setting-members-list"
           containerSize={{ default: 0 }}
           rowSize={72}
           isLoading={membersLoading}
-          data={filteredMembers}
+          data={membersLoading ? [] : filteredMembers}
+          loadingRowCount={pageSize}
           hasError={!!membersError}
           placeholder={tablePlaceholder}
           columns={columns}
           actionColumnTooltip={() => translate('text_626162c62f790600f850b7b6')}
           actionColumn={actionColumn}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </div>
   )
 }

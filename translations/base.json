@@ -562,7 +562,6 @@
   "text_62da6ec24a8e24e44f812892": "Credit invoiced|Credits invoiced",
   "text_62da6ec24a8e24e44f812896": "{{amount}} credits|{{amount}} credit|{{amount}} credits",
   "text_62da6ec24a8e24e44f81289a": "Credit purchased|Credits purchased",
-  "text_62da6ec24a8e24e44f8128aa": "Load more",
   "text_62da6ec24a8e24e44f8128b2": "Wallet created on {{createdAt}}",
   "text_62e0ee200a543924c8f6775e": "Something went wrong",
   "text_62e0ee200a543924c8f67760": "Please refresh wallet transactions or contact us if the error persists.",
@@ -4463,5 +4462,7 @@
   "text_1782808811242x7jvelxo3kr": "Valid until",
   "text_178280881124242ngphx36je": "View signed document",
   "text_17828094623997l9tqj385k5": "Order form {{orderFormNumber}}",
-  "text_1782821511108j6cgg7ioq23": "This is a read-only preview of this order form."
+  "text_1782821511108j6cgg7ioq23": "This is a read-only preview of this order form.",
+  "text_1782992964028u0dbq1gbcy4": "{{startNumber}}-{{endNumber}} of {{count}} result|{{startNumber}}-{{endNumber}} of {{count}} results",
+  "text_1782992964029cazjloaotl0": "{{count}} rows per page"
 }

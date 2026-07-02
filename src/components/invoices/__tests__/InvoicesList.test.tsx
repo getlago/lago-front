@@ -330,10 +330,10 @@ describe('InvoicesList', () => {
   })
 
   describe('Loading State', () => {
-    it('renders loading state when isLoading is true', async () => {
+    it('renders the full-list skeleton while loading', async () => {
       await renderInvoicesList({ isLoading: true, invoices: undefined })
 
-      // Table should still render headers but with loading skeletons in body
+      // Loading → skeleton rows fill the list
       const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
 
       expect(bodyRows.length).toBeGreaterThan(0)
@@ -1518,22 +1518,9 @@ describe('InvoicesList', () => {
     })
   })
 
-  describe('Infinite Scroll onBottom', () => {
-    let intersectionObserverCallback: (entries: Array<{ isIntersecting: boolean }>) => void
-
-    beforeEach(() => {
-      // Reset intersection observer mock to capture the callback
-      mockIntersectionObserver.mockImplementation((callback) => {
-        intersectionObserverCallback = callback
-        return {
-          observe: jest.fn(),
-          unobserve: jest.fn(),
-          disconnect: jest.fn(),
-        }
-      })
-    })
-
-    it('calls fetchMore when scrolling to bottom and more pages available', async () => {
+  describe('Pagination', () => {
+    it('calls fetchMore with the next page when the next control is clicked', async () => {
+      const user = userEvent.setup()
       const fetchMore = jest.fn()
 
       await renderInvoicesList({
@@ -1542,49 +1529,46 @@ describe('InvoicesList', () => {
         isLoading: false,
       })
 
-      // Simulate intersection observer callback firing
-      await act(async () => {
-        intersectionObserverCallback([{ isIntersecting: true }])
-      })
+      const pagination = screen.getByRole('navigation', { name: 'pagination' })
+      const buttons = within(pagination).getAllByRole('button')
+
+      // [prev, next] — click the next chevron (last control)
+      await user.click(buttons[buttons.length - 1])
 
       expect(fetchMore).toHaveBeenCalledWith({
         variables: { page: 2 },
       })
     })
 
-    it('does not call fetchMore when on last page', async () => {
-      const fetchMore = jest.fn()
-
+    it('disables the next control on the last page', async () => {
       await renderInvoicesList({
-        fetchMore,
+        fetchMore: jest.fn(),
         metadata: createMockMetadata({ currentPage: 3, totalPages: 3, totalCount: 30 }),
         isLoading: false,
       })
 
-      await act(async () => {
-        intersectionObserverCallback([{ isIntersecting: true }])
-      })
+      const pagination = screen.getByRole('navigation', { name: 'pagination' })
+      const buttons = within(pagination).getAllByRole('button')
 
-      expect(fetchMore).not.toHaveBeenCalled()
+      // the last control is the "next" chevron
+      expect(buttons[buttons.length - 1]).toBeDisabled()
     })
 
-    it('does not call fetchMore when isLoading is true', async () => {
-      const fetchMore = jest.fn()
-
+    it('keeps the pager visible with disabled controls while loading', async () => {
       await renderInvoicesList({
-        fetchMore,
+        fetchMore: jest.fn(),
         metadata: createMockMetadata({ currentPage: 1, totalPages: 3, totalCount: 30 }),
         isLoading: true,
       })
 
-      await act(async () => {
-        intersectionObserverCallback([{ isIntersecting: true }])
-      })
+      const pagination = screen.getByRole('navigation', { name: 'pagination' })
 
-      expect(fetchMore).not.toHaveBeenCalled()
+      within(pagination)
+        .getAllByRole('button')
+        .forEach((button) => expect(button).toBeDisabled())
     })
 
-    it('does not call fetchMore when metadata is undefined', async () => {
+    it('does not render the pagination control when metadata is undefined', async () => {
       const fetchMore = jest.fn()
 
       await renderInvoicesList({
@@ -1593,10 +1577,7 @@ describe('InvoicesList', () => {
         isLoading: false,
       })
 
-      await act(async () => {
-        intersectionObserverCallback([{ isIntersecting: true }])
-      })
-
+      expect(screen.queryByRole('navigation', { name: 'pagination' })).not.toBeInTheDocument()
       expect(fetchMore).not.toHaveBeenCalled()
     })
   })

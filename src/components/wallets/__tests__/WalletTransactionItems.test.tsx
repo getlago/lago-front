@@ -1,5 +1,5 @@
 import { ApolloError } from '@apollo/client'
-import { act, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
 import {
@@ -17,15 +17,18 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-// Mock IntersectionObserver for InfiniteScroll
-const mockIntersectionObserver = jest.fn()
+// Repoint the InfiniteScroll mock to PaginatedContent (passthrough) and capture its props
+const mockPaginatedContentProps: { current?: Record<string, unknown> } = {}
 
-mockIntersectionObserver.mockReturnValue({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
-})
-window.IntersectionObserver = mockIntersectionObserver
+jest.mock('~/components/designSystem/PaginatedContent', () => ({
+  PaginatedContent: (props: {
+    children: React.ReactNode
+    onPageChange: (page: number) => void
+  }) => {
+    mockPaginatedContentProps.current = props
+    return props.children
+  },
+}))
 
 const mockFetchMore = jest.fn()
 
@@ -56,6 +59,7 @@ const createMockTransaction = (
 describe('WalletTransactionItems', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockPaginatedContentProps.current = undefined
   })
 
   afterEach(() => {
@@ -161,21 +165,9 @@ describe('WalletTransactionItems', () => {
   })
 
   describe('GIVEN there are multiple pages of transactions', () => {
-    describe('WHEN the user scrolls to the bottom', () => {
-      it('THEN should call fetchMore with the next page', () => {
+    describe('WHEN the user changes page', () => {
+      it('THEN should thread the pagination metadata through to PaginatedContent', () => {
         const transactions = [createMockTransaction({ id: 'consumption-1' })]
-
-        // Capture the IntersectionObserver callback
-        let intersectionCallback: (entries: Array<{ isIntersecting: boolean }>) => void = () =>
-          undefined
-
-        mockIntersectionObserver.mockImplementation(
-          (callback: (entries: Array<{ isIntersecting: boolean }>) => void) => {
-            intersectionCallback = callback
-
-            return { observe: jest.fn(), unobserve: jest.fn(), disconnect: jest.fn() }
-          },
-        )
 
         render(
           <WalletTransactionItems
@@ -190,27 +182,14 @@ describe('WalletTransactionItems', () => {
           />,
         )
 
-        // Simulate scroll to bottom
-        act(() => {
-          intersectionCallback([{ isIntersecting: true }])
+        expect(mockPaginatedContentProps.current?.metadata).toEqual({
+          currentPage: 1,
+          totalPages: 3,
         })
-
-        expect(mockFetchMore).toHaveBeenCalledWith({ variables: { page: 2 } })
       })
 
-      it('THEN should not call fetchMore when already on the last page', () => {
+      it('THEN should call fetchMore with the requested page', () => {
         const transactions = [createMockTransaction({ id: 'consumption-1' })]
-
-        let intersectionCallback: (entries: Array<{ isIntersecting: boolean }>) => void = () =>
-          undefined
-
-        mockIntersectionObserver.mockImplementation(
-          (callback: (entries: Array<{ isIntersecting: boolean }>) => void) => {
-            intersectionCallback = callback
-
-            return { observe: jest.fn(), unobserve: jest.fn(), disconnect: jest.fn() }
-          },
-        )
 
         render(
           <WalletTransactionItems
@@ -218,18 +197,15 @@ describe('WalletTransactionItems', () => {
             error={undefined}
             transactions={transactions}
             isConsumption={true}
-            pagination={{ currentPage: 3, totalPages: 3, fetchMore: mockFetchMore }}
+            pagination={{ currentPage: 1, totalPages: 3, fetchMore: mockFetchMore }}
             wallet={mockWallet}
             customerId="customer-1"
             timezone={TimezoneEnum.TzUtc}
           />,
         )
+        ;(mockPaginatedContentProps.current?.onPageChange as (page: number) => void)(2)
 
-        act(() => {
-          intersectionCallback([{ isIntersecting: true }])
-        })
-
-        expect(mockFetchMore).not.toHaveBeenCalled()
+        expect(mockFetchMore).toHaveBeenCalledWith({ variables: { page: 2 } })
       })
     })
   })

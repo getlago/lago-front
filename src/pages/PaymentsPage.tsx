@@ -1,10 +1,12 @@
 import { gql } from '@apollo/client'
+import { useState } from 'react'
 
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { PaymentsList } from '~/components/invoices/PaymentsList'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CREATE_PAYMENT_ROUTE, useNavigate } from '~/core/router'
 import { PaymentForPaymentsListFragmentDoc, useGetPaymentsListLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -48,13 +50,15 @@ const PaymentsPage = () => {
   const navigate = useNavigate()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
 
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+
   const [getPayments, { data, loading, error, fetchMore, variables }] = useGetPaymentsListLazyQuery(
     {
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only',
       nextFetchPolicy: 'network-only',
       variables: {
-        limit: 20,
+        limit: pageSize,
       },
     },
   )
@@ -104,6 +108,8 @@ const PaymentsPage = () => {
         isLoading={paymentsIsLoading}
         metadata={data?.payments?.metadata}
         variables={variables}
+        pageSize={pageSize}
+        onPageSizeChange={setPageSize}
       />
     </>
   )

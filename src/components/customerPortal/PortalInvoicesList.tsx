@@ -9,6 +9,7 @@ import { LoaderInvoicesListTotal } from '~/components/customerPortal/common/Sect
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { Button } from '~/components/designSystem/Button'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Status, StatusProps, StatusType } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -102,7 +103,8 @@ export const PORTAL_INVOICES_LIST_ERROR_TEST_ID = 'portal-invoices-list-error'
 export const PORTAL_INVOICES_LIST_CONTENT_TEST_ID = 'portal-invoices-list-content'
 export const PORTAL_INVOICES_LIST_TOTALS_TEST_ID = 'portal-invoices-list-totals'
 export const PORTAL_INVOICES_LIST_OVERDUE_TEST_ID = 'portal-invoices-list-overdue'
-export const PORTAL_INVOICES_LIST_LOAD_MORE_TEST_ID = 'portal-invoices-list-load-more'
+
+const PORTAL_INVOICES_PAGE_SIZE = 8
 
 const INVOICE_TYPE_TRANSLATION_MAP: Record<InvoiceTypeEnum, string> = {
   [InvoiceTypeEnum.AddOn]: 'text_1728472697691t126b808cm9',
@@ -154,7 +156,7 @@ const PortalInvoicesList = () => {
       fetchPolicy: 'network-only',
       nextFetchPolicy: 'network-only',
       variables: {
-        limit: 8,
+        limit: PORTAL_INVOICES_PAGE_SIZE,
         status: [InvoiceStatusTypeEnum.Finalized],
       },
     })
@@ -212,8 +214,6 @@ const PortalInvoicesList = () => {
   const { metadata, collection } = data?.customerPortalInvoices || {}
   const hasSearchTerm = !!variables?.searchTerm
   const hasNoInvoices = !loading && !error && !metadata?.totalCount && !hasSearchTerm
-
-  const { currentPage = 0, totalPages = 0 } = metadata || {}
 
   if (error) {
     return (
@@ -282,13 +282,20 @@ const PortalInvoicesList = () => {
       />
 
       {!hasNoInvoices && (
-        <>
+        <PaginatedContent
+          metadata={metadata}
+          loading={loading || searchIsLoading}
+          pageSize={PORTAL_INVOICES_PAGE_SIZE}
+          sticky={false}
+          onPageChange={(page) => fetchMore({ variables: { page } })}
+        >
           <Table
             name="portal-invoice"
             containerSize={{
               default: 0,
             }}
             isLoading={loading || searchIsLoading}
+            loadingRowCount={PORTAL_INVOICES_PAGE_SIZE}
             hasError={!!error}
             placeholder={{
               errorState: {
@@ -302,7 +309,7 @@ const PortalInvoicesList = () => {
                 subtitle: translate('text_641d6b1ae9019c00b59fe250'),
               },
             }}
-            data={collection ?? []}
+            data={loading || searchIsLoading ? [] : (collection ?? [])}
             columns={[
               {
                 key: 'issuingDate',
@@ -408,25 +415,7 @@ const PortalInvoicesList = () => {
               )
             }}
           />
-
-          {currentPage < totalPages && (
-            <Button
-              data-test={PORTAL_INVOICES_LIST_LOAD_MORE_TEST_ID}
-              className="mt-2"
-              variant="quaternary"
-              startIcon="chevron-down"
-              onClick={() =>
-                fetchMore({
-                  variables: { page: currentPage + 1 },
-                })
-              }
-            >
-              <Typography variant="subhead2" color="grey600">
-                {translate('text_62da6ec24a8e24e44f8128aa')}
-              </Typography>
-            </Button>
-          )}
-        </>
+        </PaginatedContent>
       )}
     </div>
   )

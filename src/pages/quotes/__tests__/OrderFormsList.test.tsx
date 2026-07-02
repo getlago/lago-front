@@ -200,7 +200,7 @@ describe('OrderFormsList', () => {
       it('THEN should call useOrderForms with no filter variables', () => {
         render(<OrderFormsList />)
 
-        expect(mockUseOrderForms).toHaveBeenCalledWith({})
+        expect(mockUseOrderForms).toHaveBeenCalledWith({}, expect.any(Number))
       })
     })
   })
@@ -215,6 +215,7 @@ describe('OrderFormsList', () => {
 
         expect(mockUseOrderForms).toHaveBeenCalledWith(
           expect.objectContaining({ status: ['generated', 'signed'] }),
+          expect.any(Number),
         )
       })
 
@@ -226,6 +227,7 @@ describe('OrderFormsList', () => {
 
         expect(mockUseOrderForms).toHaveBeenCalledWith(
           expect.objectContaining({ number: ['OF-001', 'OF-002'] }),
+          expect.any(Number),
         )
       })
 
@@ -235,7 +237,7 @@ describe('OrderFormsList', () => {
 
         render(<OrderFormsList />)
 
-        expect(mockUseOrderForms).toHaveBeenCalledWith({})
+        expect(mockUseOrderForms).toHaveBeenCalledWith({}, expect.any(Number))
       })
     })
   })
@@ -247,6 +249,7 @@ describe('OrderFormsList', () => {
 
         expect(mockUseOrderForms).toHaveBeenCalledWith(
           expect.objectContaining({ quoteNumber: ['QUO-001'] }),
+          expect.any(Number),
         )
       })
 
@@ -261,6 +264,7 @@ describe('OrderFormsList', () => {
             status: ['signed'],
             quoteNumber: ['QUO-001'],
           }),
+          expect.any(Number),
         )
       })
     })

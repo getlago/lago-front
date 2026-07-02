@@ -5,7 +5,7 @@ import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
@@ -71,6 +71,8 @@ type TInvoiceListProps = {
   isLoading: boolean
   metadata: GetInvoicesListQuery['invoices']['metadata'] | undefined
   variables: LazyQueryHookOptions['variables'] | undefined
+  pageSize?: number
+  onPageSizeChange?: (pageSize: number) => void
 }
 
 type InvoiceItem = GetInvoicesListQuery['invoices']['collection'][number]
@@ -82,6 +84,8 @@ const InvoicesList = ({
   isLoading,
   metadata,
   variables,
+  pageSize,
+  onPageSizeChange,
 }: TInvoiceListProps) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
@@ -372,25 +376,22 @@ const InvoicesList = ({
 
   return (
     <div className="border-t border-grey-300">
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-          currentPage < totalPages &&
-            !isLoading &&
-            fetchMore({
-              variables: { page: currentPage + 1 },
-            })
-        }}
+      <PaginatedContent
+        metadata={metadata}
+        loading={isLoading}
+        pageSize={pageSize}
+        onPageChange={(page) => fetchMore({ variables: { page } })}
+        onPageSizeChange={onPageSizeChange}
       >
         <Table
           name="invoices-list"
-          data={invoices || []}
+          data={isLoading ? [] : invoices || []}
           containerSize={{
             default: 16,
             md: 48,
           }}
           isLoading={isLoading}
+          loadingRowCount={pageSize}
           hasError={!!error}
           actionColumn={(invoice) => {
             const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
@@ -594,7 +595,7 @@ const InvoicesList = ({
             emptyState,
           }}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />

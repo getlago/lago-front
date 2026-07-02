@@ -10584,7 +10584,7 @@ export type GetMrrPlanBreakdownQueryVariables = Exact<{
 }>;
 
 
-export type GetMrrPlanBreakdownQuery = { __typename?: 'Query', dataApiMrrsPlans: { __typename?: 'DataApiMrrsPlans', collection: Array<{ __typename?: 'DataApiMrrPlan', activeCustomersCount: any, activeCustomersShare: number, amountCurrency: CurrencyEnum, mrr: number, mrrShare?: number | null, planCode: string, planDeletedAt?: any | null, planId: string, planInterval: PlanInterval, planName: string }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
+export type GetMrrPlanBreakdownQuery = { __typename?: 'Query', dataApiMrrsPlans: { __typename?: 'DataApiMrrsPlans', collection: Array<{ __typename?: 'DataApiMrrPlan', activeCustomersCount: any, activeCustomersShare: number, amountCurrency: CurrencyEnum, mrr: number, mrrShare?: number | null, planCode: string, planDeletedAt?: any | null, planId: string, planInterval: PlanInterval, planName: string }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type MrrDataForOverviewSectionFragment = { __typename?: 'DataApiMrr', endOfPeriodDt: any, endingMrr: any, mrrChange: any, mrrChurn: any, mrrContraction: any, mrrExpansion: any, mrrNew: any, startOfPeriodDt: any, startingMrr: any };
 
@@ -10630,7 +10630,7 @@ export type GetRevenueStreamsCustomerBreakdownQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamsCustomers', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerDeletedAt?: any | null, customerName?: string | null, externalCustomerId: string, grossRevenueAmountCents: any, grossRevenueShare?: number | null }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
+export type GetRevenueStreamsCustomerBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsCustomers: { __typename?: 'DataApiRevenueStreamsCustomers', collection: Array<{ __typename?: 'DataApiRevenueStreamCustomer', amountCurrency: CurrencyEnum, customerDeletedAt?: any | null, customerName?: string | null, externalCustomerId: string, grossRevenueAmountCents: any, grossRevenueShare?: number | null }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type RevenueStreamDataForOverviewSectionFragment = { __typename?: 'DataApiRevenueStream', commitmentFeeAmountCents: any, couponsAmountCents: any, endOfPeriodDt: any, grossRevenueAmountCents: any, netRevenueAmountCents: any, oneOffFeeAmountCents: any, startOfPeriodDt: any, subscriptionFeeAmountCents: any, usageBasedFeeAmountCents: any, contraRevenueAmountCents?: any | null, creditNotesCreditsAmountCents?: any | null, freeCreditsAmountCents?: any | null, prepaidCreditsAmountCents?: any | null, progressiveBillingCreditAmountCents?: any | null };
 
@@ -10641,7 +10641,7 @@ export type GetRevenueStreamsPlanBreakdownQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsPlanBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsPlans: { __typename?: 'DataApiRevenueStreamsPlans', collection: Array<{ __typename?: 'DataApiRevenueStreamPlan', amountCurrency: CurrencyEnum, customersCount: number, customersShare: number, netRevenueAmountCents: any, netRevenueShare?: number | null, planCode: string, planDeletedAt?: any | null, planId: string, planInterval: PlanInterval, planName: string }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number } } };
+export type GetRevenueStreamsPlanBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsPlans: { __typename?: 'DataApiRevenueStreamsPlans', collection: Array<{ __typename?: 'DataApiRevenueStreamPlan', amountCurrency: CurrencyEnum, customersCount: number, customersShare: number, netRevenueAmountCents: any, netRevenueShare?: number | null, planCode: string, planDeletedAt?: any | null, planId: string, planInterval: PlanInterval, planName: string }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type GetRevenueStreamsQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
@@ -10717,7 +10717,7 @@ export type BillableMetricActivityLogsQueryVariables = Exact<{
 }>;
 
 
-export type BillableMetricActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type BillableMetricActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
 export type BillableMetricDetailsFragment = { __typename?: 'BillableMetric', name: string, code: string, description?: string | null, aggregationType: AggregationTypeEnum, fieldName?: string | null, recurring: boolean, expression?: string | null, weightedInterval?: WeightedIntervalEnum | null, roundingFunction?: RoundingFunctionEnum | null, roundingPrecision?: number | null, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null };
 
@@ -10756,7 +10756,7 @@ export type CouponDetailsActivityLogsQueryVariables = Exact<{
 }>;
 
 
-export type CouponDetailsActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type CouponDetailsActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
 export type GetAppliedCouponsForCouponDetailsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -10765,7 +10765,7 @@ export type GetAppliedCouponsForCouponDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetAppliedCouponsForCouponDetailsQuery = { __typename?: 'Query', appliedCoupons: { __typename?: 'AppliedCouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AppliedCoupon', id: string, status: AppliedCouponStatusEnum, createdAt: any, terminatedAt?: any | null, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code: string }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } }> } };
+export type GetAppliedCouponsForCouponDetailsQuery = { __typename?: 'Query', appliedCoupons: { __typename?: 'AppliedCouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'AppliedCoupon', id: string, status: AppliedCouponStatusEnum, createdAt: any, terminatedAt?: any | null, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code: string }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } }> } };
 
 export type CouponDetailsForOverviewFragment = { __typename?: 'Coupon', name: string, code: string, couponType: CouponTypeEnum, amountCurrency?: CurrencyEnum | null, status: CouponStatusEnum, frequency: CouponFrequency, reusable: boolean, expirationAt?: any | null, amountCents?: any | null, percentageRate?: number | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string }> | null, plans?: Array<{ __typename?: 'Plan', id: string, name: string }> | null };
 
@@ -10802,7 +10802,7 @@ export type CreditNoteDetailsActivityLogsQueryVariables = Exact<{
 }>;
 
 
-export type CreditNoteDetailsActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type CreditNoteDetailsActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
 export type CustomerForCreditNoteDetailsExternalSyncFragment = { __typename?: 'Customer', anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, integrationId?: string | null, externalAccountId?: string | null } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string, integrationId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null } | null };
 
@@ -10956,7 +10956,7 @@ export type GetPortalWalletsQueryVariables = Exact<{
 }>;
 
 
-export type GetPortalWalletsQuery = { __typename?: 'Query', customerPortalWallets: { __typename?: 'CustomerPortalWalletCollection', collection: Array<{ __typename?: 'CustomerPortalWallet', id: string, name?: string | null, currency: CurrencyEnum, balanceCents: any, creditsBalance: number, expirationAt?: any | null, consumedCredits: number, consumedAmountCents: any, status: WalletStatusEnum, creditsOngoingBalance: number, ongoingBalanceCents: any, rateAmount: number, lastBalanceSyncAt?: any | null, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
+export type GetPortalWalletsQuery = { __typename?: 'Query', customerPortalWallets: { __typename?: 'CustomerPortalWalletCollection', collection: Array<{ __typename?: 'CustomerPortalWallet', id: string, name?: string | null, currency: CurrencyEnum, balanceCents: any, creditsBalance: number, expirationAt?: any | null, consumedCredits: number, consumedAmountCents: any, status: WalletStatusEnum, creditsOngoingBalance: number, ongoingBalanceCents: any, rateAmount: number, lastBalanceSyncAt?: any | null, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type CouponPlansForCustomerFragment = { __typename?: 'Plan', id: string, name: string };
 
@@ -10986,7 +10986,7 @@ export type CustomerActivityLogsQueryVariables = Exact<{
 }>;
 
 
-export type CustomerActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type CustomerActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
 export type GetAppliedCouponsForCustomerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -10995,7 +10995,7 @@ export type GetAppliedCouponsForCustomerQueryVariables = Exact<{
 }>;
 
 
-export type GetAppliedCouponsForCustomerQuery = { __typename?: 'Query', appliedCoupons: { __typename?: 'AppliedCouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AppliedCoupon', id: string, status: AppliedCouponStatusEnum, createdAt: any, terminatedAt?: any | null, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code: string } }> } };
+export type GetAppliedCouponsForCustomerQuery = { __typename?: 'Query', appliedCoupons: { __typename?: 'AppliedCouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'AppliedCoupon', id: string, status: AppliedCouponStatusEnum, createdAt: any, terminatedAt?: any | null, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, amountCentsRemaining?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null, frequencyDurationRemaining?: number | null, coupon: { __typename?: 'Coupon', id: string, name: string, code: string } }> } };
 
 export type GetCustomerCreditNotesQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
@@ -11402,7 +11402,7 @@ export type ActivityLogsQueryVariables = Exact<{
 }>;
 
 
-export type ActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, externalCustomerId?: string | null, externalSubscriptionId?: string | null, loggedAt: any }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type ActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, externalCustomerId?: string | null, externalSubscriptionId?: string | null, loggedAt: any }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
 export type ApiKeyRevealedForApiKeysListFragment = { __typename?: 'ApiKey', id: string, value: string };
 
@@ -11468,7 +11468,7 @@ export type GetApiLogsQueryVariables = Exact<{
 }>;
 
 
-export type GetApiLogsQuery = { __typename?: 'Query', apiLogs?: { __typename?: 'ApiLogCollection', collection: Array<{ __typename?: 'ApiLog', requestId: string, httpMethod: HttpMethodEnum, httpStatus: number, requestPath?: string | null, loggedAt: any }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type GetApiLogsQuery = { __typename?: 'Query', apiLogs?: { __typename?: 'ApiLogCollection', collection: Array<{ __typename?: 'ApiLog', requestId: string, httpMethod: HttpMethodEnum, httpStatus: number, requestPath?: string | null, loggedAt: any }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
 export type EventDetailsFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
 
@@ -11487,7 +11487,7 @@ export type EventsQueryVariables = Exact<{
 }>;
 
 
-export type EventsQuery = { __typename?: 'Query', events?: { __typename?: 'EventCollection', collection: Array<{ __typename?: 'Event', id: string, transactionId?: string | null, code: string, receivedAt?: any | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type EventsQuery = { __typename?: 'Query', events?: { __typename?: 'EventCollection', collection: Array<{ __typename?: 'Event', id: string, transactionId?: string | null, code: string, receivedAt?: any | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
 export type WebhookLogDetailsFragment = { __typename?: 'Webhook', id: string, webhookType: string, status: WebhookStatusEnum, payload?: string | null, response?: string | null, httpStatus?: number | null, endpoint: string, retries: number, updatedAt: any };
 
@@ -11520,7 +11520,7 @@ export type GetWebhookLogQueryVariables = Exact<{
 }>;
 
 
-export type GetWebhookLogQuery = { __typename?: 'Query', webhooks: { __typename?: 'WebhookCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Webhook', id: string, status: WebhookStatusEnum, webhookType: string, createdAt: any, updatedAt: any, endpoint: string }> } };
+export type GetWebhookLogQuery = { __typename?: 'Query', webhooks: { __typename?: 'WebhookCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Webhook', id: string, status: WebhookStatusEnum, webhookType: string, createdAt: any, updatedAt: any, endpoint: string }> } };
 
 export type GetOrganizationHmacDataQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -11562,7 +11562,7 @@ export type FeatureDetailsActivityLogsQueryVariables = Exact<{
 }>;
 
 
-export type FeatureDetailsActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type FeatureDetailsActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
 export type FeatureDetailsFragment = { __typename?: 'FeatureObject', id: string, name?: string | null, code: string, description?: string | null, privileges: Array<{ __typename?: 'PrivilegeObject', id: string, name?: string | null, code: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> };
 
@@ -11678,7 +11678,7 @@ export type InvoiceActivityLogsQueryVariables = Exact<{
 }>;
 
 
-export type InvoiceActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type InvoiceActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
 export type GetInvoiceCreditNotesQueryVariables = Exact<{
   invoiceId: Scalars['ID']['input'];
@@ -11877,14 +11877,7 @@ export type PlanDetailsActivityLogsQueryVariables = Exact<{
 }>;
 
 
-export type PlanDetailsActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
-
-export type GetPlanForDetailsOverviewSectionQueryVariables = Exact<{
-  plan: Scalars['ID']['input'];
-}>;
-
-
-export type GetPlanForDetailsOverviewSectionQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id: string, name: string, code: string, description?: string | null, interval: PlanInterval, payInAdvance: boolean, invoiceDisplayName?: string | null, amountCents: any, amountCurrency: CurrencyEnum, trialPeriod?: number | null, subscriptionsCount: number, billChargesMonthly?: boolean | null, hasOverriddenPlans?: boolean | null, billFixedChargesMonthly?: boolean | null, minimumCommitment?: { __typename?: 'Commitment', amountCents: any, commitmentType: CommitmentTypeEnum, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, charges?: Array<{ __typename?: 'Charge', id: string, minAmountCents: any, payInAdvance: boolean, chargeModel: ChargeModelEnum, invoiceable: boolean, prorated: boolean, invoiceDisplayName?: string | null, regroupPaidFees?: RegroupPaidFeesEnum | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', conversionRate: number, pricingUnit: { __typename?: 'PricingUnit', id: string, code: string, name: string, shortName: string } } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null }, properties?: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null, presentationGroupKeys?: Array<{ __typename?: 'PresentationGroupKey', value: string, options?: { __typename?: 'PresentationGroupKeyOptions', displayInInvoice?: boolean | null } | null }> | null } | null, filters?: Array<{ __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any, properties: { __typename?: 'Properties', amount?: string | null, packageSize?: any | null, freeUnits?: any | null, pricingGroupKeys?: Array<string> | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, rate?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', flatAmount: string, fromValue: number, rate: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } }> | null }> | null, usageThresholds?: Array<{ __typename?: 'UsageThreshold', id: string, amountCents: any, recurring: boolean, thresholdDisplayName?: string | null }> | null, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, prorated: boolean, units: string, chargeModel: FixedChargeChargeModelEnum, invoiceDisplayName?: string | null, payInAdvance: boolean, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> | null } | null };
+export type PlanDetailsActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
 export type GetSubscribtionsForPlanDetailsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -11894,7 +11887,7 @@ export type GetSubscribtionsForPlanDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetSubscribtionsForPlanDetailsQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, endingAt?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, parent?: { __typename?: 'Plan', id: string } | null }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
+export type GetSubscribtionsForPlanDetailsQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, endingAt?: any | null, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, parent?: { __typename?: 'Plan', id: string } | null }, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type FeatureEntitlementPrivilegeForPlanFragment = { __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } };
 
@@ -12731,7 +12724,7 @@ export type SubscriptionActivityLogsQueryVariables = Exact<{
 }>;
 
 
-export type SubscriptionActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type SubscriptionActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
 export type GetAlertsOfSubscriptionQueryVariables = Exact<{
   subscriptionExternalId: Scalars['String']['input'];
@@ -12878,6 +12871,8 @@ export type GetTaxesForTaxesSelectorSectionQueryVariables = Exact<{
 
 export type GetTaxesForTaxesSelectorSectionQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> } };
 
+export type WalletAccordionFragment = { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean };
+
 export type CustomerWalletFragment = { __typename?: 'Wallet', id: string, billingEntityId?: string | null, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null };
 
 export type GetCustomerWalletListQueryVariables = Exact<{
@@ -12887,7 +12882,7 @@ export type GetCustomerWalletListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'WalletCollectionMetadata', currentPage: number, totalPages: number, customerActiveWalletsCount: number }, collection: Array<{ __typename?: 'Wallet', id: string, billingEntityId?: string | null, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null }> } };
+export type GetCustomerWalletListQuery = { __typename?: 'Query', wallets: { __typename?: 'WalletCollection', metadata: { __typename?: 'WalletCollectionMetadata', currentPage: number, totalPages: number, totalCount: number, customerActiveWalletsCount: number }, collection: Array<{ __typename?: 'Wallet', id: string, billingEntityId?: string | null, currency: CurrencyEnum, expirationAt?: any | null, name?: string | null, rateAmount: number, invoiceRequiresSuccessfulPayment: boolean, paidTopUpMinAmountCents?: any | null, paidTopUpMaxAmountCents?: any | null, priority: number, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, code: string, name: string }> | null } | null, recurringTransactionRules?: Array<{ __typename?: 'RecurringTransactionRule', expirationAt?: any | null, grantedCredits: string, grantsTargetTopUp?: boolean | null, interval?: RecurringTransactionIntervalEnum | null, invoiceRequiresSuccessfulPayment: boolean, lagoId: string, method: RecurringTransactionMethodEnum, paidCredits: string, startedAt?: any | null, targetOngoingBalance?: string | null, thresholdCredits?: string | null, transactionName?: string | null, trigger: RecurringTransactionTriggerEnum, ignorePaidTopUpLimits: boolean, paymentMethodType?: PaymentMethodTypeEnum | null, skipInvoiceCustomSections?: boolean | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, transactionMetadata?: Array<{ __typename?: 'TransactionMetadata', key: string, value: string }> | null }> | null }> } };
 
 export type DeleteWalletAlertDialogFragment = { __typename?: 'Alert', id: string };
 
@@ -12906,8 +12901,6 @@ export type TerminateCustomerWalletMutationVariables = Exact<{
 export type TerminateCustomerWalletMutation = { __typename?: 'Mutation', terminateCustomerWallet?: { __typename?: 'Wallet', id: string, status: WalletStatusEnum, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean, customer?: { __typename?: 'Customer', id: string, hasActiveWallet: boolean } | null } | null };
 
 export type WalletForVoidTransactionFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, rateAmount: number, creditsBalance: number };
-
-export type WalletAccordionFragment = { __typename?: 'Wallet', id: string, code?: string | null, balanceCents: any, consumedAmountCents: any, consumedCredits: number, createdAt: any, creditsBalance: number, currency: CurrencyEnum, expirationAt?: any | null, lastBalanceSyncAt?: any | null, lastConsumedCreditAt?: any | null, lastOngoingBalanceSyncAt?: any | null, name?: string | null, rateAmount: number, status: WalletStatusEnum, terminatedAt?: any | null, ongoingBalanceCents: any, creditsOngoingBalance: number, priority: number, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, traceable: boolean };
 
 export type GetWalletAlertsQueryVariables = Exact<{
   walletId: Scalars['String']['input'];
@@ -14786,7 +14779,7 @@ export type GetDunningCampaignsQueryVariables = Exact<{
 }>;
 
 
-export type GetDunningCampaignsQuery = { __typename?: 'Query', dunningCampaigns: { __typename?: 'DunningCampaignCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean }> } };
+export type GetDunningCampaignsQuery = { __typename?: 'Query', dunningCampaigns: { __typename?: 'DunningCampaignCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'DunningCampaign', id: string, name: string, code: string, appliedToOrganization: boolean }> } };
 
 export type UpdateDunningCampaignStatusMutationVariables = Exact<{
   input: UpdateDunningCampaignInput;
@@ -14993,7 +14986,7 @@ export type GetOrganizationSettingsInvoiceSectionsQueryVariables = Exact<{
 }>;
 
 
-export type GetOrganizationSettingsInvoiceSectionsQuery = { __typename?: 'Query', invoiceCustomSections?: { __typename?: 'InvoiceCustomSectionCollection', collection: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } | null };
+export type GetOrganizationSettingsInvoiceSectionsQuery = { __typename?: 'Query', invoiceCustomSections?: { __typename?: 'InvoiceCustomSectionCollection', collection: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string, code: string }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
 export type GetOrganizationSettingsPricingUnitsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -15001,7 +14994,7 @@ export type GetOrganizationSettingsPricingUnitsQueryVariables = Exact<{
 }>;
 
 
-export type GetOrganizationSettingsPricingUnitsQuery = { __typename?: 'Query', pricingUnits: { __typename?: 'PricingUnitCollection', collection: Array<{ __typename?: 'PricingUnit', id: string, name: string, shortName: string }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
+export type GetOrganizationSettingsPricingUnitsQuery = { __typename?: 'Query', pricingUnits: { __typename?: 'PricingUnitCollection', collection: Array<{ __typename?: 'PricingUnit', id: string, name: string, shortName: string }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type GetTaxesForTaxManagementIntegrationDetailsPageQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -15197,7 +15190,7 @@ export type GetTaxesSettingsInformationsQueryVariables = Exact<{
 }>;
 
 
-export type GetTaxesSettingsInformationsQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number, autoGenerated: boolean, customersCount: number }> } };
+export type GetTaxesSettingsInformationsQuery = { __typename?: 'Query', taxes: { __typename?: 'TaxCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number, autoGenerated: boolean, customersCount: number }> } };
 
 export type XeroIntegrationDetailsFragment = { __typename?: 'XeroIntegration', id: string, name: string, connectionId: string, code: string, hasMappingsConfigured?: boolean | null, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null };
 
@@ -15667,7 +15660,7 @@ export type GetSecurityLogsQueryVariables = Exact<{
 }>;
 
 
-export type GetSecurityLogsQuery = { __typename?: 'Query', securityLogs?: { __typename?: 'SecurityLogCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'SecurityLog', logId: string, logEvent: LogEventEnum, logType: LogTypeEnum, deviceInfo?: any | null, resources?: any | null, loggedAt: any, userEmail?: string | null }> } | null };
+export type GetSecurityLogsQuery = { __typename?: 'Query', securityLogs?: { __typename?: 'SecurityLogCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'SecurityLog', logId: string, logEvent: LogEventEnum, logType: LogTypeEnum, deviceInfo?: any | null, resources?: any | null, loggedAt: any, userEmail?: string | null }> } | null };
 
 export type AddSubscriptionPlanFragment = { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval, entitlements?: Array<{ __typename?: 'PlanEntitlement', code: string, name: string, privileges: Array<{ __typename?: 'PlanEntitlementPrivilegeObject', code: string, name?: string | null, value: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> }> | null };
 
@@ -18727,7 +18720,6 @@ export const WalletAccordionFragmentDoc = gql`
   id
   code
   balanceCents
-  code
   consumedAmountCents
   consumedCredits
   createdAt
@@ -21595,6 +21587,7 @@ export const GetMrrPlanBreakdownDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -21783,6 +21776,7 @@ export const GetRevenueStreamsCustomerBreakdownDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -21843,6 +21837,7 @@ export const GetRevenueStreamsPlanBreakdownDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -22208,6 +22203,7 @@ export const BillableMetricActivityLogsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -22385,6 +22381,7 @@ export const CouponDetailsActivityLogsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -22434,6 +22431,7 @@ export const GetAppliedCouponsForCouponDetailsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       id
@@ -22618,6 +22616,7 @@ export const CreditNoteDetailsActivityLogsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -23511,6 +23510,7 @@ export const GetPortalWalletsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -23667,6 +23667,7 @@ export const CustomerActivityLogsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -23719,6 +23720,7 @@ export const GetAppliedCouponsForCustomerDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       id
@@ -25622,6 +25624,7 @@ export const ActivityLogsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -25950,6 +25953,7 @@ export const GetApiLogsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -26051,6 +26055,7 @@ export const EventsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -26185,6 +26190,7 @@ export const GetWebhookLogDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       id
@@ -26407,6 +26413,7 @@ export const FeatureDetailsActivityLogsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -26996,6 +27003,7 @@ export const InvoiceActivityLogsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -27525,6 +27533,7 @@ export const PlanDetailsActivityLogsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -27568,49 +27577,6 @@ export type PlanDetailsActivityLogsQueryHookResult = ReturnType<typeof usePlanDe
 export type PlanDetailsActivityLogsLazyQueryHookResult = ReturnType<typeof usePlanDetailsActivityLogsLazyQuery>;
 export type PlanDetailsActivityLogsSuspenseQueryHookResult = ReturnType<typeof usePlanDetailsActivityLogsSuspenseQuery>;
 export type PlanDetailsActivityLogsQueryResult = Apollo.QueryResult<PlanDetailsActivityLogsQuery, PlanDetailsActivityLogsQueryVariables>;
-export const GetPlanForDetailsOverviewSectionDocument = gql`
-    query getPlanForDetailsOverviewSection($plan: ID!) {
-  plan(id: $plan) {
-    ...EditPlan
-  }
-}
-    ${EditPlanFragmentDoc}`;
-
-/**
- * __useGetPlanForDetailsOverviewSectionQuery__
- *
- * To run a query within a React component, call `useGetPlanForDetailsOverviewSectionQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetPlanForDetailsOverviewSectionQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetPlanForDetailsOverviewSectionQuery({
- *   variables: {
- *      plan: // value for 'plan'
- *   },
- * });
- */
-export function useGetPlanForDetailsOverviewSectionQuery(baseOptions: Apollo.QueryHookOptions<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables> & ({ variables: GetPlanForDetailsOverviewSectionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>(GetPlanForDetailsOverviewSectionDocument, options);
-      }
-export function useGetPlanForDetailsOverviewSectionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>(GetPlanForDetailsOverviewSectionDocument, options);
-        }
-// @ts-ignore
-export function useGetPlanForDetailsOverviewSectionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>;
-export function useGetPlanForDetailsOverviewSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlanForDetailsOverviewSectionQuery | undefined, GetPlanForDetailsOverviewSectionQueryVariables>;
-export function useGetPlanForDetailsOverviewSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>(GetPlanForDetailsOverviewSectionDocument, options);
-        }
-export type GetPlanForDetailsOverviewSectionQueryHookResult = ReturnType<typeof useGetPlanForDetailsOverviewSectionQuery>;
-export type GetPlanForDetailsOverviewSectionLazyQueryHookResult = ReturnType<typeof useGetPlanForDetailsOverviewSectionLazyQuery>;
-export type GetPlanForDetailsOverviewSectionSuspenseQueryHookResult = ReturnType<typeof useGetPlanForDetailsOverviewSectionSuspenseQuery>;
-export type GetPlanForDetailsOverviewSectionQueryResult = Apollo.QueryResult<GetPlanForDetailsOverviewSectionQuery, GetPlanForDetailsOverviewSectionQueryVariables>;
 export const GetSubscribtionsForPlanDetailsDocument = gql`
     query getSubscribtionsForPlanDetails($page: Int, $limit: Int, $planCode: String, $status: [StatusTypeEnum!]) {
   subscriptions(page: $page, limit: $limit, planCode: $planCode, status: $status) {
@@ -27634,6 +27600,7 @@ export const GetSubscribtionsForPlanDetailsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -30943,6 +30910,7 @@ export const SubscriptionActivityLogsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -31679,6 +31647,7 @@ export const GetCustomerWalletListDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
       customerActiveWalletsCount
     }
     collection {
@@ -40865,6 +40834,7 @@ export const GetDunningCampaignsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       id
@@ -41547,6 +41517,7 @@ export const GetOrganizationSettingsInvoiceSectionsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -41599,6 +41570,7 @@ export const GetOrganizationSettingsPricingUnitsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -42169,6 +42141,7 @@ export const GetTaxesSettingsInformationsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       id
@@ -44058,6 +44031,7 @@ export const GetSecurityLogsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       ...SecurityLogItem

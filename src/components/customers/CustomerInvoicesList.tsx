@@ -4,7 +4,7 @@ import { FC, useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { ActionItem } from '~/components/designSystem/Table'
 import { Table } from '~/components/designSystem/Table/Table'
@@ -24,6 +24,7 @@ import {
 } from '~/components/invoices/ResendInvoiceForCollectionDialog'
 import { getMostRecentPaymentMethodId } from '~/components/invoices/utils/getMostRecentPaymentMethodId'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   invoiceStatusMapping,
   isInvoicePartiallyPaid,
@@ -217,21 +218,17 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
 
   return (
     <>
-      <InfiniteScroll
-        onBottom={() => {
-          if (!fetchMore) return
-
-          const { currentPage = 0, totalPages = 0 } = invoiceData?.metadata || {}
-
-          currentPage < totalPages &&
-            !isLoading &&
-            fetchMore({ variables: { page: currentPage + 1 } })
-        }}
+      <PaginatedContent
+        metadata={invoiceData?.metadata}
+        loading={isLoading}
+        onPageChange={(page) => fetchMore?.({ variables: { page } })}
+        sticky={false}
       >
         <Table
           name="customer-invoices"
           containerSize={{ default: 4 }}
           isLoading={isLoading}
+          loadingRowCount={DEFAULT_PAGE_SIZE}
           hasError={hasError}
           data={invoiceData?.collection ?? []}
           onRowActionLink={({ id }) =>
@@ -627,7 +624,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             ]
           }}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
     </>

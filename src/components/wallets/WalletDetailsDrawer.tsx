@@ -207,6 +207,7 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
       loading: fundingsLoading,
       fetchMore: fundingsFetchMore,
     } = useGetWalletTransactionFundingsQuery({
+      notifyOnNetworkStatusChange: true,
       variables: {
         walletTransactionId: walletTransactionId as string,
         limit: 20,
@@ -223,6 +224,7 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
       loading: consumptionsLoading,
       fetchMore: consumptionsFetchMore,
     } = useGetWalletTransactionConsumptionsQuery({
+      notifyOnNetworkStatusChange: true,
       variables: {
         walletTransactionId: walletTransactionId as string,
         limit: 20,

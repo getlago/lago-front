@@ -2,7 +2,7 @@ import { ApolloError, gql, LazyQueryHookOptions } from '@apollo/client'
 import { FC } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
@@ -104,6 +104,8 @@ interface PaymentsListProps {
   error?: ApolloError
   variables?: LazyQueryHookOptions['variables']
   fetchMore?: GetPaymentsListQueryHookResult['fetchMore']
+  pageSize?: number
+  onPageSizeChange?: (pageSize: number) => void
 }
 
 export const PaymentsList: FC<PaymentsListProps> = ({
@@ -113,6 +115,8 @@ export const PaymentsList: FC<PaymentsListProps> = ({
   error,
   variables,
   fetchMore,
+  pageSize,
+  onPageSizeChange,
 }) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
@@ -122,25 +126,22 @@ export const PaymentsList: FC<PaymentsListProps> = ({
 
   return (
     <div className="border-t border-grey-300">
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-          currentPage < totalPages &&
-            !isLoading &&
-            fetchMore?.({
-              variables: { page: currentPage + 1 },
-            })
-        }}
+      <PaginatedContent
+        metadata={metadata}
+        loading={isLoading}
+        pageSize={pageSize}
+        onPageChange={(page) => fetchMore?.({ variables: { page } })}
+        onPageSizeChange={onPageSizeChange}
       >
         <Table
           name="payments-list"
-          data={payments || []}
+          data={isLoading ? [] : payments || []}
           containerSize={{
             default: 16,
             md: 48,
           }}
           isLoading={isLoading}
+          loadingRowCount={pageSize}
           hasError={!!error}
           actionColumn={({ paymentReceipt, customer }) => {
             const canResendEmail =
@@ -321,7 +322,7 @@ export const PaymentsList: FC<PaymentsListProps> = ({
                 },
           }}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </div>
   )
 }

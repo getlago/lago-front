@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
@@ -29,6 +29,7 @@ import {
   SettingsPageHeaderContainer,
 } from '~/components/layouts/Settings'
 import { addToast } from '~/core/apolloClient'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CREATE_API_KEYS_ROUTE, UPDATE_API_KEYS_ROUTE, useLocation } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
@@ -105,6 +106,7 @@ export const ApiKeys = () => {
   const [showOrganizationId, setShowOrganizationId] = useState(false)
   const [shownApiKeysMap, setShownApiKeysMap] = useState<Map<string, string>>(new Map())
   const [loadingKeyIds, setLoadingKeyIds] = useState<Set<string>>(new Set())
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
 
   const { data: organizationData, loading: organizationLoading } =
     useGetOrganizationInfosForApiKeyQuery()
@@ -113,7 +115,7 @@ export const ApiKeys = () => {
     loading: apiKeysLoading,
     fetchMore: fetchMoreApiKeys,
   } = useGetApiKeysQuery({
-    variables: { page: 1, limit: 20 },
+    variables: { page: 1, limit: pageSize },
     notifyOnNetworkStatusChange: true,
   })
   const [getApiKeyValue] = useGetApiKeyValueLazyQuery({
@@ -312,16 +314,12 @@ export const ApiKeys = () => {
                   }
                 />
 
-                <InfiniteScroll
-                  onBottom={async () => {
-                    const { currentPage = 0, totalPages = 0 } = apiKeysData?.apiKeys.metadata || {}
-
-                    if (currentPage < totalPages && !apiKeysLoading) {
-                      await fetchMoreApiKeys({
-                        variables: { page: currentPage + 1 },
-                      })
-                    }
-                  }}
+                <PaginatedContent
+                  metadata={apiKeysData?.apiKeys.metadata}
+                  loading={apiKeysLoading}
+                  pageSize={pageSize}
+                  onPageChange={(page) => fetchMoreApiKeys({ variables: { page } })}
+                  onPageSizeChange={setPageSize}
                 >
                   <Table
                     tableInDialog
@@ -329,7 +327,8 @@ export const ApiKeys = () => {
                     isLoading={apiKeysLoading}
                     containerSize={{ default: 0 }}
                     rowSize={48}
-                    data={apiKeysData?.apiKeys.collection || []}
+                    data={apiKeysData?.apiKeys.collection ?? []}
+                    loadingRowCount={pageSize}
                     columns={[
                       {
                         key: 'id',
@@ -536,7 +535,7 @@ export const ApiKeys = () => {
                       ]
                     }}
                   />
-                </InfiniteScroll>
+                </PaginatedContent>
               </SettingsListItem>
             </>
           )}

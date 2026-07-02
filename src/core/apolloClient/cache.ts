@@ -1,74 +1,81 @@
 import { FieldPolicy, InMemoryCache } from '@apollo/client'
 
-import { createPaginatedFieldPolicy, mergePaginatedCollection } from './cacheHelpers'
+import { createPaginatedFieldPolicy, createSinglePageFieldPolicy } from './cacheHelpers'
 
 // Every root query field consumed via fetchMore needs a merge policy here, otherwise
-// page-2 results are stored under a page-specific storeFieldName and infinite scroll
-// silently stops. Guarded by __tests__/cache.test.ts.
+// page-2 results are stored under a page-specific storeFieldName and the list silently
+// stops. Guarded by __tests__/cache.test.ts.
+//
+// `createSinglePageFieldPolicy()` = NUMBERED pagination (replace pages, one page shown at
+// a time — the list is wrapped in `<PaginatedContent>` / renders a `<Pagination>` control).
+// `createPaginatedFieldPolicy()` = legacy infinite scroll (append pages). Only fields with
+// no numbered-pagination consumer remain on the append policy.
 export const queryFieldPolicies: Record<string, FieldPolicy> = {
-  // Standard paginated queries - automatically cache by all args except page/limit/offset
-  activityLogs: createPaginatedFieldPolicy(),
-  addOns: createPaginatedFieldPolicy(),
-  apiKeys: createPaginatedFieldPolicy(),
-  appliedCoupons: createPaginatedFieldPolicy(),
-  billableMetrics: createPaginatedFieldPolicy(),
-  // billingEntity: createPaginatedFieldPolicy(),
-  coupons: createPaginatedFieldPolicy(),
-  creditNotes: createPaginatedFieldPolicy(),
-  customerInvoices: createPaginatedFieldPolicy(),
-  customers: createPaginatedFieldPolicy(),
-  dunningCampaigns: createPaginatedFieldPolicy(),
-  events: createPaginatedFieldPolicy(),
-  features: createPaginatedFieldPolicy(),
-  invites: createPaginatedFieldPolicy(),
-  invoiceCreditNotes: createPaginatedFieldPolicy(),
-  invoiceCustomSections: createPaginatedFieldPolicy(),
-  invoices: createPaginatedFieldPolicy(),
-  memberships: createPaginatedFieldPolicy(),
-  orderForms: createPaginatedFieldPolicy(),
-  orders: createPaginatedFieldPolicy(),
-  payments: createPaginatedFieldPolicy(),
-  plans: createPaginatedFieldPolicy(),
-  pricingUnits: createPaginatedFieldPolicy(),
-  quotes: createPaginatedFieldPolicy(),
-  subscriptions: createPaginatedFieldPolicy(),
-  taxes: createPaginatedFieldPolicy(),
-  wallets: createPaginatedFieldPolicy(),
-  walletTransactions: createPaginatedFieldPolicy(),
-  walletTransactionFundings: createPaginatedFieldPolicy(),
-  walletTransactionConsumptions: createPaginatedFieldPolicy(),
+  // Numbered pagination — replace pages instead of appending (migrated off infinite scroll)
+  activityLogs: createSinglePageFieldPolicy(),
+  addOns: createSinglePageFieldPolicy(),
+  apiKeys: createSinglePageFieldPolicy(),
+  appliedCoupons: createSinglePageFieldPolicy(),
+  billableMetrics: createSinglePageFieldPolicy(),
+  coupons: createSinglePageFieldPolicy(),
+  creditNotes: createSinglePageFieldPolicy(),
+  customerInvoices: createSinglePageFieldPolicy(),
+  customers: createSinglePageFieldPolicy(),
+  dunningCampaigns: createSinglePageFieldPolicy(),
+  events: createSinglePageFieldPolicy(),
+  features: createSinglePageFieldPolicy(),
+  invites: createSinglePageFieldPolicy(),
+  invoiceCreditNotes: createSinglePageFieldPolicy(),
+  invoiceCustomSections: createSinglePageFieldPolicy(),
+  invoices: createSinglePageFieldPolicy(),
+  memberships: createSinglePageFieldPolicy(),
+  orderForms: createSinglePageFieldPolicy(),
+  orders: createSinglePageFieldPolicy(),
+  payments: createSinglePageFieldPolicy(),
+  plans: createSinglePageFieldPolicy(),
+  pricingUnits: createSinglePageFieldPolicy(),
+  quotes: createSinglePageFieldPolicy(),
+  subscriptions: createSinglePageFieldPolicy(),
+  taxes: createSinglePageFieldPolicy(),
+  wallets: createSinglePageFieldPolicy(),
+  walletTransactions: createSinglePageFieldPolicy(),
+  walletTransactionFundings: createSinglePageFieldPolicy(),
+  walletTransactionConsumptions: createSinglePageFieldPolicy(),
+  webhooks: createSinglePageFieldPolicy(),
+
+  // Not yet migrated to numbered pagination — still append (infinite scroll)
   webhook: createPaginatedFieldPolicy(),
   webhookEndpoint: createPaginatedFieldPolicy(),
-  webhooks: createPaginatedFieldPolicy(),
 
-  // Queries where ALL invocations share the same cache (no arg-based separation)
+  // Queries where ALL invocations share the same cache (no arg-based separation).
+  // Numbered pagination → replace pages (keep keyArgs:false, replace merge in place).
   apiLogs: {
     keyArgs: false,
-    merge: mergePaginatedCollection,
+    merge: (_existing, incoming) => incoming,
   },
   securityLogs: {
     keyArgs: false,
-    merge: mergePaginatedCollection,
+    merge: (_existing, incoming) => incoming,
   },
   customerPortalInvoices: {
     keyArgs: false,
-    merge: mergePaginatedCollection,
+    merge: (_existing, incoming) => incoming,
   },
   customerPortalWallets: {
     keyArgs: false,
-    merge: mergePaginatedCollection,
+    merge: (_existing, incoming) => incoming,
   },
   dataApiMrrsPlans: {
     keyArgs: false,
-    merge: mergePaginatedCollection,
+    merge: (_existing, incoming) => incoming,
   },
   dataApiRevenueStreamsCustomers: {
     keyArgs: false,
-    merge: mergePaginatedCollection,
+    merge: (_existing, incoming) => incoming,
   },
   dataApiRevenueStreamsPlans: {
     keyArgs: false,
-    merge: mergePaginatedCollection,
+    merge: (_existing, incoming) => incoming,
   },
 
   // Non-paginated field (no merge function needed)

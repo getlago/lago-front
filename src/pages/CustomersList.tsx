@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
 import {
@@ -9,13 +9,14 @@ import {
 import { computeCustomerInitials } from '~/components/customers/utils'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { formatFiltersForCustomerQuery } from '~/components/designSystem/Filters'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   CREATE_CUSTOMER_ROUTE,
   CUSTOMER_DETAILS_ROUTE,
@@ -110,9 +111,11 @@ const CustomersList = () => {
     return formatFiltersForCustomerQuery(searchParams)
   }, [searchParams])
 
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+
   const [getCustomers, { data, error, loading, fetchMore, variables }] = useCustomersLazyQuery({
     variables: {
-      limit: 20,
+      limit: pageSize,
       ...filtersForCustomerQuery,
       accountType: [
         (filtersForCustomerQuery.accountType as CustomerAccountTypeEnum) ??
@@ -147,28 +150,25 @@ const CustomersList = () => {
         entity={{
           viewName: translate('text_624efab67eb2570101d117a5'),
           metadata: formatCountToMetadata(customersTotalCount, translate),
-          metadataLoading: isLoading,
+          metadataLoading: isLoading && customersTotalCount === undefined,
         }}
         actions={{ items: headerActions }}
         filtersSection={headerFilters}
       />
 
       <div className="border-t border-grey-300">
-        <InfiniteScroll
-          onBottom={() => {
-            const { currentPage = 0, totalPages = 0 } = data?.customers?.metadata || {}
-
-            currentPage < totalPages &&
-              !isLoading &&
-              fetchMore({
-                variables: { page: currentPage + 1 },
-              })
-          }}
+        <PaginatedContent
+          metadata={data?.customers?.metadata}
+          loading={isLoading}
+          pageSize={pageSize}
+          onPageChange={(page) => fetchMore({ variables: { page } })}
+          onPageSizeChange={setPageSize}
         >
           <Table
             name="customers-list"
-            data={data?.customers?.collection || []}
-            isLoading={loading}
+            data={data?.customers?.collection ?? []}
+            isLoading={isLoading}
+            loadingRowCount={pageSize}
             hasError={!!error}
             containerSize={{
               default: 16,
@@ -311,7 +311,7 @@ const CustomersList = () => {
               },
             }}
           />
-        </InfiniteScroll>
+        </PaginatedContent>
       </div>
       <DeleteCustomerDialog ref={deleteDialogRef} />
     </>

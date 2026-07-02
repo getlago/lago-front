@@ -65,6 +65,7 @@ const CustomerDraftInvoicesList = () => {
   const { translate } = useInternationalization()
   const [getDraftInvoices, { data, error, loading, fetchMore }] =
     useGetCustomerDraftInvoicesLazyQuery({
+      notifyOnNetworkStatusChange: true,
       variables: { customerId, limit: 20, status: [InvoiceStatusTypeEnum.Draft] },
     })
   const { data: customerData, loading: customerLoading } =

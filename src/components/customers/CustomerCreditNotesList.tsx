@@ -89,6 +89,7 @@ export const CustomerCreditNotesList = ({
 
   const [getCreditNotes, { data, loading, error, fetchMore, variables }] =
     useGetCustomerCreditNotesLazyQuery({
+      notifyOnNetworkStatusChange: true,
       variables: { customerId, limit: 20 },
     })
 
@@ -176,6 +177,7 @@ export const CustomerCreditNotesList = ({
           customerTimezone={customerTimezone}
           error={error}
           variables={variables}
+          sticky={false}
         />
       )}
     </div>

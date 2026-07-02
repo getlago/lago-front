@@ -1,4 +1,4 @@
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { MappableTypeEnum } from '~/generated/graphql'
 import { FetchIntegrationItemsListProps } from '~/pages/settings/integrations/FetchableIntegrationItemList/types'
 import {
@@ -44,16 +44,10 @@ const FetchableIntegrationItemList = ({
       )
     }
 
-    const handleOnBottom = () => {
-      if (!metadata || !('currentPage' in metadata) || !('totalPages' in metadata)) return
-      const { currentPage = 0, totalPages = 0 } = metadata
-
-      if (currentPage < totalPages && !isLoading) {
-        fetchMore({
-          variables: { page: currentPage + 1 },
-        })
-      }
-    }
+    const paginationMetadata =
+      metadata && 'currentPage' in metadata && 'totalPages' in metadata
+        ? { currentPage: metadata.currentPage, totalPages: metadata.totalPages }
+        : undefined
 
     const formattedItems: Array<IntegrationItem> = itemsToDisplay.map((itemToDisplay) => {
       return {
@@ -67,7 +61,11 @@ const FetchableIntegrationItemList = ({
     })
 
     return (
-      <InfiniteScroll onBottom={handleOnBottom}>
+      <PaginatedContent
+        metadata={paginationMetadata}
+        loading={isLoading}
+        onPageChange={(page) => fetchMore({ variables: { page } })}
+      >
         <IntegrationItemsTable
           integrationId={integrationId}
           integrationMapItemDrawerRef={integrationMapItemDrawerRef}
@@ -76,7 +74,7 @@ const FetchableIntegrationItemList = ({
           firstColumnName={firstColumnName}
           isLoading={showLoadingState}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     )
   }
 

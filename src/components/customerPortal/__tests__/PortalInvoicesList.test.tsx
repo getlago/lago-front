@@ -7,7 +7,6 @@ import { render } from '~/test-utils'
 import PortalInvoicesList, {
   PORTAL_INVOICES_LIST_CONTENT_TEST_ID,
   PORTAL_INVOICES_LIST_ERROR_TEST_ID,
-  PORTAL_INVOICES_LIST_LOAD_MORE_TEST_ID,
   PORTAL_INVOICES_LIST_OVERDUE_TEST_ID,
   PORTAL_INVOICES_LIST_TOTALS_TEST_ID,
 } from '../PortalInvoicesList'
@@ -368,7 +367,7 @@ describe('PortalInvoicesList', () => {
   })
 
   describe('Pagination', () => {
-    it('GIVEN there are more pages THEN should show load more button', () => {
+    it('GIVEN there are more pages THEN should show the pagination control', () => {
       // GIVEN
       mockUseCustomerPortalInvoicesLazyQuery.mockReturnValue([
         mockGetInvoices,
@@ -408,17 +407,17 @@ describe('PortalInvoicesList', () => {
       render(<PortalInvoicesList />)
 
       // THEN
-      expect(screen.getByTestId(PORTAL_INVOICES_LIST_LOAD_MORE_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId('pagination')).toBeInTheDocument()
     })
 
-    it('GIVEN there are no more pages THEN should not show load more button', () => {
+    it('GIVEN there are no more pages THEN should not show the pagination control', () => {
       // GIVEN - default mocks have currentPage=1, totalPages=1
 
       // WHEN
       render(<PortalInvoicesList />)
 
       // THEN
-      expect(screen.queryByTestId(PORTAL_INVOICES_LIST_LOAD_MORE_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId('pagination')).not.toBeInTheDocument()
     })
   })
 

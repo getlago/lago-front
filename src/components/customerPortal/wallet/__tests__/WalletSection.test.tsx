@@ -6,7 +6,6 @@ import { render } from '~/test-utils'
 import WalletSection, {
   WALLET_SECTION_CONTENT_TEST_ID,
   WALLET_SECTION_ERROR_TEST_ID,
-  WALLET_SECTION_LOAD_MORE_TEST_ID,
   WALLET_SECTION_VIEW_BUTTON_TEST_ID,
   WALLET_SECTION_WALLET_ITEM_TEST_ID,
 } from '../WalletSection'
@@ -249,8 +248,8 @@ describe('WalletSection', () => {
 
   // GIVEN there are more pages
   // WHEN the component renders
-  // THEN should show load more button
-  it('should show load more button when there are more pages', () => {
+  // THEN should show the pagination control
+  it('should show the pagination control when there are more pages', () => {
     mockUseGetPortalWalletsQuery.mockReturnValue({
       data: {
         customerPortalWallets: {
@@ -266,13 +265,13 @@ describe('WalletSection', () => {
 
     render(<WalletSection viewWallet={mockViewWallet} />)
 
-    expect(screen.getByTestId(WALLET_SECTION_LOAD_MORE_TEST_ID)).toBeInTheDocument()
+    expect(screen.getByTestId('pagination')).toBeInTheDocument()
   })
 
   // GIVEN there are no more pages
   // WHEN the component renders
-  // THEN should not show load more button
-  it('should not show load more button when there are no more pages', () => {
+  // THEN should not show the pagination control
+  it('should not show the pagination control when there are no more pages', () => {
     mockUseGetPortalWalletsQuery.mockReturnValue({
       data: {
         customerPortalWallets: {
@@ -288,6 +287,6 @@ describe('WalletSection', () => {
 
     render(<WalletSection viewWallet={mockViewWallet} />)
 
-    expect(screen.queryByTestId(WALLET_SECTION_LOAD_MORE_TEST_ID)).not.toBeInTheDocument()
+    expect(screen.queryByTestId('pagination')).not.toBeInTheDocument()
   })
 })

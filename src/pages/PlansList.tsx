@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
@@ -15,6 +15,7 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { updateDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CREATE_PLAN_ROUTE, PLAN_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { DeletePlanDialogFragmentDoc, usePlansLazyQuery } from '~/generated/graphql'
@@ -56,14 +57,14 @@ const PlansList = () => {
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const deleteDialogRef = useRef<DeletePlanDialogRef>(null)
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const [getPlans, { data, error, loading, fetchMore, variables }] = usePlansLazyQuery({
-    variables: { limit: 20 },
+    variables: { limit: pageSize },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getPlans, loading)
-  const list = data?.plans?.collection || []
 
   const canUpdatePlans = hasPermissions(['plansUpdate'])
   const canCreatePlans = hasPermissions(['plansCreate'])
@@ -99,7 +100,7 @@ const PlansList = () => {
         entity={{
           viewName: translate('text_62442e40cea25600b0b6d84a'),
           metadata: formatCountToMetadata(plansTotalCount, translate),
-          metadataLoading: isLoading,
+          metadataLoading: isLoading && plansTotalCount === undefined,
         }}
         actions={{
           items: [
@@ -121,20 +122,17 @@ const PlansList = () => {
         }
       />
 
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } = data?.plans?.metadata || {}
-
-          currentPage < totalPages &&
-            !isLoading &&
-            fetchMore({
-              variables: { page: currentPage + 1 },
-            })
-        }}
+      <PaginatedContent
+        metadata={data?.plans?.metadata}
+        loading={isLoading}
+        pageSize={pageSize}
+        onPageChange={(page) => fetchMore({ variables: { page } })}
+        onPageSizeChange={setPageSize}
       >
         <Table
           name="plans-list"
-          data={list}
+          data={data?.plans?.collection ?? []}
+          loadingRowCount={pageSize}
           containerSize={{
             default: 16,
             md: 48,
@@ -268,7 +266,7 @@ const PlansList = () => {
             emptyState: getEmptyState(),
           }}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
 
       <DeletePlanDialog ref={deleteDialogRef} />
     </>

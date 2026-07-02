@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import {
@@ -18,6 +18,7 @@ import {
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CREATE_DUNNING_ROUTE, UPDATE_DUNNING_ROUTE, useNavigate } from '~/core/router'
 import {
   DeleteCampaignFragmentDoc,
@@ -44,6 +45,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         id
@@ -71,10 +73,13 @@ const Dunnings = () => {
 
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
 
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+
   const { data, loading, error, fetchMore } = useGetDunningCampaignsQuery({
     variables: {
-      limit: 20,
+      limit: pageSize,
     },
+    notifyOnNetworkStatusChange: true,
   })
 
   const hasAccessToFeature = premiumIntegrations?.includes(PremiumIntegrationTypeEnum.AutoDunning)
@@ -170,25 +175,20 @@ const Dunnings = () => {
                     )}
 
                     {!!data?.dunningCampaigns.collection.length && (
-                      <InfiniteScroll
-                        onBottom={() => {
-                          const { currentPage, totalPages } = data.dunningCampaigns.metadata
-
-                          currentPage < totalPages &&
-                            !loading &&
-                            fetchMore({
-                              variables: {
-                                page: currentPage + 1,
-                              },
-                            })
-                        }}
+                      <PaginatedContent
+                        metadata={data?.dunningCampaigns.metadata}
+                        loading={loading}
+                        pageSize={pageSize}
+                        onPageChange={(page) => fetchMore({ variables: { page } })}
+                        onPageSizeChange={setPageSize}
                       >
                         <Table
                           name="dunnings-settings-list"
                           containerSize={{ default: 0 }}
                           rowSize={72}
                           isLoading={loading}
-                          data={sortedTable}
+                          data={loading ? [] : sortedTable}
+                          loadingRowCount={pageSize}
                           columns={[
                             {
                               key: 'name',
@@ -237,7 +237,7 @@ const Dunnings = () => {
                             ]
                           }}
                         />
-                      </InfiniteScroll>
+                      </PaginatedContent>
                     )}
                   </>
                 )}

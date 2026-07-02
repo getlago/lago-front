@@ -27,8 +27,8 @@ jest.mock('~/components/designSystem/Table/Table', () => ({
   },
 }))
 
-jest.mock('~/components/designSystem/InfiniteScroll', () => ({
-  InfiniteScroll: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+jest.mock('~/components/designSystem/PaginatedContent', () => ({
+  PaginatedContent: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }))
 
 jest.mock('~/components/SearchInput', () => ({

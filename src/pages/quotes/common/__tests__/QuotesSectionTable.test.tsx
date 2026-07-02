@@ -7,6 +7,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 const mockTableProps: { current?: Record<string, unknown> } = {}
+
 jest.mock('~/components/designSystem/Table/Table', () => ({
   Table: (props: Record<string, unknown>) => {
     mockTableProps.current = props
@@ -14,10 +15,14 @@ jest.mock('~/components/designSystem/Table/Table', () => ({
   },
 }))
 
-const mockInfiniteScrollProps: { current?: Record<string, unknown> } = {}
-jest.mock('~/components/designSystem/InfiniteScroll', () => ({
-  InfiniteScroll: (props: { children: React.ReactNode; onBottom: () => void }) => {
-    mockInfiniteScrollProps.current = props
+const mockPaginatedContentProps: { current?: Record<string, unknown> } = {}
+
+jest.mock('~/components/designSystem/PaginatedContent', () => ({
+  PaginatedContent: (props: {
+    children: React.ReactNode
+    onPageChange: (page: number) => void
+  }) => {
+    mockPaginatedContentProps.current = props
     return props.children
   },
 }))
@@ -35,7 +40,7 @@ const baseProps = {
 
 beforeEach(() => {
   mockTableProps.current = undefined
-  mockInfiniteScrollProps.current = undefined
+  mockPaginatedContentProps.current = undefined
 })
 
 describe('QuotesSectionTable', () => {
@@ -57,7 +62,7 @@ describe('QuotesSectionTable', () => {
     })
   })
 
-  it('onBottom calls fetchMore with the next page when more pages exist', () => {
+  it('threads pagination metadata through to PaginatedContent', () => {
     const fetchMore = jest.fn()
 
     render(
@@ -67,25 +72,25 @@ describe('QuotesSectionTable', () => {
         fetchMore={fetchMore}
       />,
     )
-    ;(mockInfiniteScrollProps.current?.onBottom as () => void)()
-    expect(fetchMore).toHaveBeenCalledWith({ variables: { page: 2 } })
+
+    expect(mockPaginatedContentProps.current?.metadata).toEqual({ currentPage: 1, totalPages: 3 })
   })
 
-  it('onBottom is a no-op on the last page', () => {
+  it('onPageChange calls fetchMore with the requested page', () => {
     const fetchMore = jest.fn()
 
     render(
       <QuotesSectionTable<Row>
         {...baseProps}
-        metadata={{ currentPage: 3, totalPages: 3 }}
+        metadata={{ currentPage: 1, totalPages: 3 }}
         fetchMore={fetchMore}
       />,
     )
-    ;(mockInfiniteScrollProps.current?.onBottom as () => void)()
-    expect(fetchMore).not.toHaveBeenCalled()
+    ;(mockPaginatedContentProps.current?.onPageChange as (page: number) => void)(2)
+    expect(fetchMore).toHaveBeenCalledWith({ variables: { page: 2 } })
   })
 
-  it('onBottom is a no-op while loading', () => {
+  it('gates the PaginatedContent controls while loading', () => {
     const fetchMore = jest.fn()
 
     render(
@@ -96,8 +101,8 @@ describe('QuotesSectionTable', () => {
         fetchMore={fetchMore}
       />,
     )
-    ;(mockInfiniteScrollProps.current?.onBottom as () => void)()
-    expect(fetchMore).not.toHaveBeenCalled()
+
+    expect(mockPaginatedContentProps.current?.loading).toBe(true)
   })
 
   it('maps getActions results into action items and returns null when empty', () => {

@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { formatFiltersForOrderFormsQuery } from '~/components/designSystem/Filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { ORDER_FORM_DETAILS_ROUTE, SIGN_ORDER_FORM_ROUTE } from '~/core/router'
 import { OrderFormListItemFragment, OrderFormStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -24,10 +25,15 @@ const OrderFormsList = ({ quoteNumber }: OrderFormsListProps): JSX.Element => {
     [searchParams],
   )
 
-  const { orderForms, loading, error, fetchMore, metadata } = useOrderForms({
-    ...filtersForOrderFormsQuery,
-    ...(quoteNumber ? { quoteNumber: [quoteNumber] } : {}),
-  })
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+
+  const { orderForms, loading, error, fetchMore, metadata } = useOrderForms(
+    {
+      ...filtersForOrderFormsQuery,
+      ...(quoteNumber ? { quoteNumber: [quoteNumber] } : {}),
+    },
+    pageSize,
+  )
   const { getActions } = useOrderFormActions()
   const columns = useOrderFormsColumns()
 
@@ -45,6 +51,8 @@ const OrderFormsList = ({ quoteNumber }: OrderFormsListProps): JSX.Element => {
       metadata={metadata}
       fetchMore={fetchMore}
       columns={columns}
+      pageSize={pageSize}
+      onPageSizeChange={setPageSize}
       getActions={(orderForm) => getActions(orderForm)}
       onRowActionLink={getRowLink}
       emptyState={{

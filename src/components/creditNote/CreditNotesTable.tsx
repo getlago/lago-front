@@ -3,7 +3,7 @@ import { generatePath } from 'react-router-dom'
 
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
 import { useVoidCreditNoteDialog } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Table, TableColumn, TableContainerSize } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
@@ -106,6 +106,9 @@ type TCreditNoteTableProps = {
   variables: LazyQueryHookOptions['variables'] | undefined
   customerTimezone?: TimezoneEnum
   tableContainerSize?: ResponsiveStyleValue<TableContainerSize>
+  pageSize?: number
+  onPageSizeChange?: (pageSize: number) => void
+  sticky?: boolean
 }
 
 const CreditNotesTable = ({
@@ -117,6 +120,9 @@ const CreditNotesTable = ({
   customerTimezone,
   error,
   tableContainerSize,
+  pageSize,
+  onPageSizeChange,
+  sticky,
 }: TCreditNoteTableProps) => {
   const { translate } = useInternationalization()
   const { openVoidCreditNoteDialog } = useVoidCreditNoteDialog()
@@ -157,20 +163,18 @@ const CreditNotesTable = ({
 
   return (
     <div className="border-t border-grey-300">
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-          currentPage < totalPages &&
-            !isLoading &&
-            fetchMore({
-              variables: { page: currentPage + 1 },
-            })
-        }}
+      <PaginatedContent
+        metadata={metadata}
+        loading={isLoading}
+        pageSize={pageSize}
+        sticky={sticky}
+        onPageChange={(page) => fetchMore({ variables: { page } })}
+        onPageSizeChange={onPageSizeChange}
       >
         <Table
           name="credit-notes-list"
-          data={creditNotes || []}
+          data={isLoading ? [] : creditNotes || []}
+          loadingRowCount={pageSize}
           containerSize={
             tableContainerSize || {
               default: 0,
@@ -353,7 +357,7 @@ const CreditNotesTable = ({
             },
           ]}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </div>
   )
 }

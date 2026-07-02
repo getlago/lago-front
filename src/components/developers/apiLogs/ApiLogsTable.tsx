@@ -1,7 +1,7 @@
 import { FC, RefObject, useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
@@ -16,9 +16,16 @@ import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 interface ApiLogsTableProps {
   getApiLogsResult: GetApiLogsQueryResult
   logListRef: RefObject<ListSectionRef>
+  pageSize?: number
+  onPageSizeChange?: (pageSize: number) => void
 }
 
-export const ApiLogsTable: FC<ApiLogsTableProps> = ({ getApiLogsResult, logListRef }) => {
+export const ApiLogsTable: FC<ApiLogsTableProps> = ({
+  getApiLogsResult,
+  logListRef,
+  pageSize,
+  onPageSizeChange,
+}) => {
   const { translate } = useInternationalization()
   const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
   const [searchParams] = useSearchParams()
@@ -26,30 +33,29 @@ export const ApiLogsTable: FC<ApiLogsTableProps> = ({ getApiLogsResult, logListR
   const { data, error, loading, fetchMore, refetch } = getApiLogsResult
 
   const apiLogs = useMemo(() => {
-    return (data?.apiLogs?.collection ?? []).map((log) => ({
-      ...log,
-      id: log.requestId,
-    }))
-  }, [data?.apiLogs?.collection])
+    return loading
+      ? []
+      : (data?.apiLogs?.collection ?? []).map((log) => ({
+          ...log,
+          id: log.requestId,
+        }))
+  }, [data?.apiLogs?.collection, loading])
 
   return (
-    <InfiniteScroll
-      onBottom={async () => {
-        const { currentPage = 0, totalPages = 0 } = data?.apiLogs?.metadata || {}
-
-        if (currentPage < totalPages && !loading) {
-          await fetchMore({
-            variables: { page: currentPage + 1 },
-          })
-        }
-      }}
+    <PaginatedContent
+      metadata={data?.apiLogs?.metadata}
+      loading={loading}
+      pageSize={pageSize}
+      onPageChange={(page) => fetchMore({ variables: { page } })}
+      onPageSizeChange={onPageSizeChange}
     >
       <Table
         name="api-logs"
         containerClassName="h-auto"
         containerSize={16}
         rowSize={48}
-        data={apiLogs}
+        data={loading ? [] : apiLogs}
+        loadingRowCount={pageSize}
         hasError={!!error}
         isLoading={loading}
         onRowActionLink={({ id }) => {
@@ -112,6 +118,6 @@ export const ApiLogsTable: FC<ApiLogsTableProps> = ({ getApiLogsResult, logListR
           },
         }}
       />
-    </InfiniteScroll>
+    </PaginatedContent>
   )
 }

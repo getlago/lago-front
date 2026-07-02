@@ -8,11 +8,12 @@ import {
   formatFiltersForRevenueStreamsCustomersQuery,
   RevenueStreamsCustomersAvailableFilters,
 } from '~/components/designSystem/Filters'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX } from '~/core/constants/filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
@@ -37,6 +38,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
@@ -111,34 +113,34 @@ export const RevenueStreamsCustomerBreakdownSection = () => {
         </Filters.Provider>
       </div>
 
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } =
-            revenueStreamsCustomerBreakdownData?.dataApiRevenueStreamsCustomers.metadata || {}
-
-          currentPage < totalPages &&
-            !revenueStreamsCustomerBreakdownLoading &&
-            fetchMore({
-              variables: {
-                ...variables,
-                page: currentPage + 1,
-              },
-            })
-        }}
+      <PaginatedContent
+        metadata={revenueStreamsCustomerBreakdownData?.dataApiRevenueStreamsCustomers.metadata}
+        loading={revenueStreamsCustomerBreakdownLoading}
+        onPageChange={(page) =>
+          fetchMore({
+            variables: {
+              ...variables,
+              page,
+            },
+          })
+        }
       >
         <Table
           name="revenue-streams-customer-breakdown"
           containerSize={{ default: 0 }}
           rowSize={72}
+          loadingRowCount={DEFAULT_PAGE_SIZE}
           isLoading={revenueStreamsCustomerBreakdownLoading}
           hasError={!!revenueStreamsCustomerBreakdownError}
           data={
-            revenueStreamsCustomerBreakdownData?.dataApiRevenueStreamsCustomers.collection.map(
-              (c) => ({
-                id: c.externalCustomerId,
-                ...c,
-              }),
-            ) || []
+            revenueStreamsCustomerBreakdownLoading
+              ? []
+              : revenueStreamsCustomerBreakdownData?.dataApiRevenueStreamsCustomers.collection.map(
+                  (c) => ({
+                    id: c.externalCustomerId,
+                    ...c,
+                  }),
+                ) || []
           }
           placeholder={{
             emptyState: {
@@ -198,7 +200,7 @@ export const RevenueStreamsCustomerBreakdownSection = () => {
             },
           ]}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </>
   )
 }

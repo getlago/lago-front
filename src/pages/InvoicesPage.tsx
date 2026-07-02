@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import {
@@ -20,6 +20,7 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
@@ -146,6 +147,8 @@ const InvoicesPage = () => {
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const exportInvoicesDialogRef = useRef<ExportDialogRef>(null)
 
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+
   const filtersForInvoiceQuery = useMemo(() => {
     return formatFiltersForInvoiceQuery(searchParams)
   }, [searchParams])
@@ -156,7 +159,7 @@ const InvoicesPage = () => {
       fetchPolicy: 'network-only',
       nextFetchPolicy: 'network-only',
       variables: {
-        limit: 20,
+        limit: pageSize,
         status: [
           InvoiceStatusTypeEnum.Draft,
           InvoiceStatusTypeEnum.Failed,
@@ -296,6 +299,8 @@ const InvoicesPage = () => {
         isLoading={invoiceIsLoading}
         metadata={data?.invoices?.metadata}
         variables={variables}
+        pageSize={pageSize}
+        onPageSizeChange={setPageSize}
       />
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />

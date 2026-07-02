@@ -2,8 +2,9 @@ import { gql } from '@apollo/client'
 
 import { ActivityLogsTable } from '~/components/activityLogs/ActivityLogsTable'
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { PageSectionTitle } from '~/components/layouts/Section'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   ActivityLogsTableDataFragmentDoc,
   LagoApiError,
@@ -34,6 +35,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
@@ -59,6 +61,7 @@ export const InvoiceActivityLogs = ({ invoiceId }: InvoiceActivityLogsProps) => 
       resourceIds: [invoiceId],
       limit: 20,
     },
+    notifyOnNetworkStatusChange: true,
     context: {
       silentErrorCodes: [LagoApiError.FeatureUnavailable],
     },
@@ -73,22 +76,17 @@ export const InvoiceActivityLogs = ({ invoiceId }: InvoiceActivityLogsProps) => 
           subtitle={translate('text_17488660976163zo6rqtqwyf')}
         />
 
-        <InfiniteScroll
-          onBottom={async () => {
-            const { currentPage = 0, totalPages = 0 } = data?.activityLogs?.metadata || {}
-
-            if (currentPage < totalPages && !loading) {
-              await fetchMore({
-                variables: { page: currentPage + 1 },
-              })
-            }
-          }}
+        <PaginatedContent
+          metadata={data?.activityLogs?.metadata}
+          loading={loading}
+          onPageChange={(page) => fetchMore({ variables: { page } })}
         >
           <ActivityLogsTable
             containerSize={4}
             data={data?.activityLogs?.collection ?? []}
             error={error}
             isLoading={loading}
+            loadingRowCount={DEFAULT_PAGE_SIZE}
             refetch={refetch}
             onRowActionLink={(row) => {
               const url = buildLinkToActivityLog(row.activityId)
@@ -100,7 +98,7 @@ export const InvoiceActivityLogs = ({ invoiceId }: InvoiceActivityLogsProps) => 
               return ''
             }}
           />
-        </InfiniteScroll>
+        </PaginatedContent>
       </div>
     </div>
   )

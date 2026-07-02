@@ -3,11 +3,12 @@ import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Chip } from '~/components/designSystem/Chip'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { ActionColumn, ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { addToast } from '~/core/apolloClient'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { MEMBERS_PAGE_ROLE_FILTER_KEY, RoleItem } from '~/core/constants/roles'
 import { INVITATION_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -46,8 +47,9 @@ const getRolesColumn = (
 
 const MembersInvitationList = () => {
   const { translate } = useInternationalization()
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const { invitations, metadata, invitesLoading, invitesFetchMore, invitesError, invitesRefetch } =
-    useGetMembersInvitationList()
+    useGetMembersInvitationList(pageSize)
   const { roles } = useRolesList()
   const { getDisplayName } = useRoleDisplayInformation()
   const { hasPermissions } = usePermissions()
@@ -77,16 +79,6 @@ const MembersInvitationList = () => {
       return matchesRole && matchesSearch
     })
   }, [invitations, selectedRole, searchQuery])
-
-  const handleInfiniteScrolling = () => {
-    const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-    currentPage < totalPages &&
-      !invitesLoading &&
-      invitesFetchMore({
-        variables: { page: currentPage + 1 },
-      })
-  }
 
   const columns: Array<TableColumn<Invitation> | null> = [
     {
@@ -205,20 +197,27 @@ const MembersInvitationList = () => {
         setSearchQuery={setSearchQuery}
         type="invitations"
       />
-      <InfiniteScroll onBottom={handleInfiniteScrolling}>
+      <PaginatedContent
+        metadata={metadata}
+        loading={invitesLoading}
+        pageSize={pageSize}
+        onPageChange={(page) => invitesFetchMore({ variables: { page } })}
+        onPageSizeChange={setPageSize}
+      >
         <Table
           name="members-setting-invitations-list"
           containerSize={{ default: 0 }}
           rowSize={72}
           isLoading={invitesLoading}
-          data={filteredInvitations}
+          data={invitesLoading ? [] : filteredInvitations}
+          loadingRowCount={pageSize}
           hasError={!!invitesError}
           placeholder={getTablePlaceholder()}
           columns={columns}
           actionColumnTooltip={() => translate('text_626162c62f790600f850b7b6')}
           actionColumn={actionColumn}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </div>
   )
 }

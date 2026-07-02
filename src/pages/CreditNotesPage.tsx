@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
@@ -14,6 +14,7 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast } from '~/core/apolloClient'
 import { CREDIT_NOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreditNoteExportTypeEnum,
@@ -116,6 +117,8 @@ const CreditNotesPage = () => {
 
   const exportCreditNotesDialogRef = useRef<ExportDialogRef>(null)
 
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+
   const filtersForCreditNotesQuery = useMemo(() => {
     return formatFiltersForCreditNotesQuery(searchParams)
   }, [searchParams])
@@ -134,7 +137,7 @@ const CreditNotesPage = () => {
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
     variables: {
-      limit: 20,
+      limit: pageSize,
       ...formatAmountCurrency(filtersForCreditNotesQuery, amountCurrency),
     },
   })
@@ -230,6 +233,8 @@ const CreditNotesPage = () => {
         isLoading={creditNoteIsLoading}
         metadata={dataCreditNotes?.creditNotes?.metadata}
         variables={variableCreditNotes}
+        pageSize={pageSize}
+        onPageSizeChange={setPageSize}
         tableContainerSize={{
           default: 16,
           md: 48,

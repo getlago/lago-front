@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableProps } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
@@ -9,6 +9,7 @@ import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy
 import { buildPaymentDocumentData } from '~/components/emails/buildDocumentData'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { addToast } from '~/core/apolloClient'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { payablePaymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_PAYMENT_DETAILS_ROUTE } from '~/core/router'
@@ -52,22 +53,18 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
   const { showResendEmailDialog } = useResendEmailDialog()
 
   return (
-    <InfiniteScroll
-      onBottom={() => {
-        const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-        currentPage < totalPages &&
-          !loading &&
-          fetchMore?.({
-            variables: { page: currentPage + 1 },
-          })
-      }}
+    <PaginatedContent
+      metadata={metadata}
+      loading={loading}
+      onPageChange={(page) => fetchMore?.({ variables: { page } })}
+      sticky={false}
     >
       <Table
         name="customer-payments-list"
-        data={payments}
+        data={loading ? [] : payments}
         containerSize={{ default: 4 }}
         isLoading={loading}
+        loadingRowCount={DEFAULT_PAGE_SIZE}
         placeholder={placeholder}
         actionColumn={({ paymentReceipt, customer }) => {
           const canResendEmail =
@@ -224,6 +221,6 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
           },
         ]}
       />
-    </InfiniteScroll>
+    </PaginatedContent>
   )
 }

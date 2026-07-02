@@ -133,7 +133,7 @@ describe('OrdersList', () => {
     it('THEN should request orders scoped to the quote', () => {
       render(<OrdersList quoteNumber="QUO-001" />)
 
-      expect(mockUseOrders).toHaveBeenCalledWith({ quoteNumber: ['QUO-001'] })
+      expect(mockUseOrders).toHaveBeenCalledWith({ quoteNumber: ['QUO-001'] }, expect.any(Number))
     })
 
     it('THEN should NOT display the source quote column', () => {
@@ -185,7 +185,10 @@ describe('OrdersList', () => {
     window.history.pushState({}, '', '/orders?or_orderStatus=executed')
     try {
       render(<OrdersList />)
-      expect(mockUseOrders).toHaveBeenCalledWith(expect.objectContaining({ status: ['executed'] }))
+      expect(mockUseOrders).toHaveBeenCalledWith(
+        expect.objectContaining({ status: ['executed'] }),
+        expect.any(Number),
+      )
     } finally {
       window.history.pushState({}, '', '/')
     }

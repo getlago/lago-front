@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { InviteForEditRoleForDialogFragmentDoc, useGetInvitesQuery } from '~/generated/graphql'
 
 gql`
@@ -31,14 +32,14 @@ gql`
   ${InviteForEditRoleForDialogFragmentDoc}
 `
 
-export const useGetMembersInvitationList = () => {
+export const useGetMembersInvitationList = (pageSize: number = DEFAULT_PAGE_SIZE) => {
   const {
     data: invitesData,
     error: invitesError,
     loading: invitesLoading,
     refetch: invitesRefetch,
     fetchMore: invitesFetchMore,
-  } = useGetInvitesQuery({ variables: { limit: 20 }, notifyOnNetworkStatusChange: true })
+  } = useGetInvitesQuery({ variables: { limit: pageSize }, notifyOnNetworkStatusChange: true })
 
   return {
     invitations: invitesData?.invites.collection || [],
