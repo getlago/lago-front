@@ -65,6 +65,7 @@ describe('MainNavMenuSections', () => {
       expect(MAIN_NAV_MENU_SECTIONS_TEST_ID).toBe('main-nav-menu-sections')
       expect(MAIN_NAV_REPORTS_SECTION_TEST_ID).toBe('main-nav-reports-section')
       expect(MAIN_NAV_CONFIGURATION_SECTION_TEST_ID).toBe('main-nav-configuration-section')
+      expect(MAIN_NAV_CATALOG_SECTION_TEST_ID).toBe('main-nav-catalog-section')
       expect(MAIN_NAV_BILLING_SECTION_TEST_ID).toBe('main-nav-billing-section')
     })
 
@@ -73,6 +74,7 @@ describe('MainNavMenuSections', () => {
         MAIN_NAV_MENU_SECTIONS_TEST_ID,
         MAIN_NAV_REPORTS_SECTION_TEST_ID,
         MAIN_NAV_CONFIGURATION_SECTION_TEST_ID,
+        MAIN_NAV_CATALOG_SECTION_TEST_ID,
         MAIN_NAV_BILLING_SECTION_TEST_ID,
       ]
 

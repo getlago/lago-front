@@ -262,7 +262,6 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
         </NavLayout.NavSection>
       )}
 
-      {/* Catalog & pricing */}
       {!catalogTabs.allTabsHidden && (
         <NavLayout.NavSection data-test={MAIN_NAV_CATALOG_SECTION_TEST_ID}>
           <VerticalMenuSectionTitle
