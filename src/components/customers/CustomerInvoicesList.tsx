@@ -171,6 +171,7 @@ interface CustomerInvoicesListProps {
   customerTimezone?: TimezoneEnum
   customerId: string
   fetchMore?: (options: FetchMoreQueryOptions<{ page: number }>) => Promise<unknown>
+  pageSize?: number
 }
 
 export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
@@ -181,6 +182,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   customerTimezone = TimezoneEnum.TzUtc,
   customerId,
   fetchMore,
+  pageSize = DEFAULT_PAGE_SIZE,
 }) => {
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
@@ -228,7 +230,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
           name="customer-invoices"
           containerSize={{ default: 4 }}
           isLoading={isLoading}
-          loadingRowCount={DEFAULT_PAGE_SIZE}
+          loadingRowCount={pageSize}
           hasError={hasError}
           data={isLoading ? [] : (invoiceData?.collection ?? [])}
           onRowActionLink={({ id }) =>

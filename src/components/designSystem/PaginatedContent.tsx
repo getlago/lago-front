@@ -58,8 +58,18 @@ export const PaginatedContent = ({
     <>
       {children}
 
+      {/* A grow spacer pushes the pager to the bottom of the flex-col content area when the
+          list is short (no pager stranded mid-page), leaving margin-top free for the -1px
+          overlap below. Only meaningful in the sticky/full-page flex layout. */}
+      {sticky && <div className="flex-1" aria-hidden />}
+
       <Pagination
-        className={tw('border-t border-grey-300 bg-white', sticky && 'sticky bottom-0 z-10')}
+        className={tw(
+          // -mt-px overlaps the last row's bottom border with the pager's top border so they
+          // read as a single 1px divider instead of a doubled 2px line when flush.
+          '-mt-px border-t border-grey-300 bg-white',
+          sticky && 'sticky bottom-0 z-10',
+        )}
         currentPage={metadata?.currentPage ?? 1}
         totalPages={metadata?.totalPages ?? 0}
         totalCount={metadata?.totalCount}

@@ -375,7 +375,7 @@ const InvoicesList = ({
   }
 
   return (
-    <div className="border-t border-grey-300">
+    <>
       <PaginatedContent
         metadata={metadata}
         loading={isLoading}
@@ -385,6 +385,7 @@ const InvoicesList = ({
       >
         <Table
           name="invoices-list"
+          containerClassName="h-auto shrink-0 border-t border-grey-300"
           data={isLoading ? [] : invoices || []}
           containerSize={{
             default: 16,
@@ -599,7 +600,7 @@ const InvoicesList = ({
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
-    </div>
+    </>
   )
 }
 

@@ -224,7 +224,7 @@ const InvoicesPage = () => {
         entity={{
           viewName: translate('text_63ac86d797f728a87b2f9f85'),
           metadata: formatCountToMetadata(invoicesTotalCount, translate),
-          metadataLoading: invoiceIsLoading,
+          metadataLoading: invoiceIsLoading && invoicesTotalCount === undefined,
         }}
         actions={{
           loading: invoiceIsLoading,

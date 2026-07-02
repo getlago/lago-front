@@ -182,7 +182,7 @@ const CreditNotesPage = () => {
         entity={{
           viewName: translate('text_66461ada56a84401188e8c63'),
           metadata: formatCountToMetadata(creditNotesTotalCount, translate),
-          metadataLoading: creditNoteIsLoading,
+          metadataLoading: creditNoteIsLoading && creditNotesTotalCount === undefined,
         }}
         actions={{
           loading: creditNoteIsLoading,

@@ -13633,25 +13633,6 @@ export type GenerateCustomerPortalUrlMutationVariables = Exact<{
 
 export type GenerateCustomerPortalUrlMutation = { __typename?: 'Mutation', generateCustomerPortalUrl?: { __typename?: 'GenerateCustomerPortalUrlPayload', url: string } | null };
 
-export type GetCustomerDraftInvoicesQueryVariables = Exact<{
-  customerId: Scalars['ID']['input'];
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  page?: InputMaybe<Scalars['Int']['input']>;
-  status?: InputMaybe<Array<InvoiceStatusTypeEnum> | InvoiceStatusTypeEnum>;
-  searchTerm?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type GetCustomerDraftInvoicesQuery = { __typename?: 'Query', customerInvoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, creditableAmountCents: any, refundableAmountCents: any, offsettableAmountCents: any, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
-
-export type GetCustomerInfosForDraftInvoicesListQueryVariables = Exact<{
-  customerId: Scalars['ID']['input'];
-  status?: InputMaybe<Array<InvoiceStatusTypeEnum> | InvoiceStatusTypeEnum>;
-}>;
-
-
-export type GetCustomerInfosForDraftInvoicesListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } | null, customerInvoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } } };
-
 export type AllInvoiceDetailsForCustomerInvoiceDetailsFragment = { __typename?: 'Invoice', id: string, invoiceType: InvoiceTypeEnum, number: string, paymentStatus: InvoicePaymentStatusTypeEnum, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, totalAmountCents: any, currency?: CurrencyEnum | null, refundableAmountCents: any, creditableAmountCents: any, offsettableAmountCents: any, voidable: boolean, paymentDisputeLostAt?: any | null, integrationSyncable: boolean, externalIntegrationId?: string | null, taxProviderVoidable: boolean, integrationHubspotSyncable: boolean, associatedActiveWalletPresent: boolean, voidedAt?: any | null, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, expectedFinalizationDate: any, taxProviderId?: string | null, externalHubspotIntegrationId?: string | null, integrationSalesforceSyncable: boolean, externalSalesforceIntegrationId?: string | null, xmlUrl?: string | null, subTotalExcludingTaxesAmountCents: any, subTotalIncludingTaxesAmountCents: any, issuingDate: any, allChargesHaveFees: boolean, allFixedChargesHaveFees: boolean, versionNumber: number, paymentDueDate: any, paymentOverdue: boolean, totalPaidAmountCents: any, totalDueAmountCents: any, couponsAmountCents: any, creditNotesAmountCents: any, totalSettledAmountCents: any, prepaidCreditAmountCents: any, prepaidGrantedCreditAmountCents?: any | null, prepaidPurchasedCreditAmountCents?: any | null, progressiveBillingCreditAmountCents: any, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, customer: { __typename?: 'Customer', id: string, email?: string | null, name?: string | null, displayName: string, legalNumber?: string | null, legalName?: string | null, taxIdentificationNumber?: string | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, zipcode?: string | null, applicableTimezone: TimezoneEnum, deletedAt?: any | null, accountType: CustomerAccountTypeEnum }, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, logoUrl?: string | null }, subscriptions?: Array<{ __typename?: 'Subscription', id: string, name?: string | null, currentBillingPeriodStartedAt?: any | null, currentBillingPeriodEndingAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval } }> | null, appliedTaxes?: Array<{ __typename?: 'InvoiceAppliedTax', id: string, amountCents: any, feesAmountCents: any, taxableAmountCents: any, taxRate: number, taxName: string, taxCode: string, enumedTaxCode?: InvoiceAppliedTaxOnWholeInvoiceCodeEnum | null }> | null, invoiceSubscriptions?: Array<{ __typename?: 'InvoiceSubscription', acceptNewChargeFees: boolean, subscription: { __typename?: 'Subscription', id: string }, invoice: { __typename?: 'Invoice', id: string } }> | null, fees?: Array<{ __typename?: 'Fee', id: string, amountCents: any, currency: CurrencyEnum, preciseUnitAmount: number, adjustedFee: boolean, feeType: FeeTypesEnum, groupedBy: any, itemName: string, invoiceDisplayName?: string | null, invoiceName?: string | null, units: number, invoiceId?: string | null, amountCurrency: CurrencyEnum, preciseAmountCents: number, preciseCouponsAmountCents: number, subTotalExcludingTaxesAmountCents: any, subTotalExcludingTaxesPreciseAmountCents: number, taxesRate?: number | null, taxesAmountCents: any, taxesPreciseAmountCents: number, totalAmountCents: any, preciseTotalAmountCents: number, eventsCount?: any | null, payInAdvance: boolean, itemCode: string, itemType: string, charge?: { __typename?: 'Charge', id: string, payInAdvance: boolean, minAmountCents: any, chargeModel: ChargeModelEnum, prorated: boolean, invoiceable: boolean, billableMetric: { __typename?: 'BillableMetric', id: string, name: string, recurring: boolean } } | null, chargeFilter?: { __typename?: 'ChargeFilter', invoiceDisplayName?: string | null, values: any } | null, properties?: { __typename?: 'FeeProperties', fromDatetime?: any | null, toDatetime?: any | null } | null, pricingUnitUsage?: { __typename?: 'PricingUnitUsage', amountCents: any, conversionRate: number, shortName: string, preciseUnitAmount: number } | null, subscription?: { __typename?: 'Subscription', id: string, plan: { __typename?: 'Plan', id: string, name: string, interval: PlanInterval } } | null, trueUpParentFee?: { __typename?: 'Fee', id: string } | null, fixedCharge?: { __typename?: 'FixedCharge', id: string, chargeModel: FixedChargeChargeModelEnum, prorated: boolean, addOn: { __typename?: 'AddOn', id: string } } | null, addOn?: { __typename?: 'AddOn', id: string } | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> | null };
 
 export type FeeAppliedTaxesForInvoiceDetailsFragment = { __typename?: 'Fee', appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxCode: string, taxRate: number, tax?: { __typename?: 'Tax', id: string, code: string, name: string, rate: number } | null }> | null };
@@ -35626,111 +35607,6 @@ export function useGenerateCustomerPortalUrlMutation(baseOptions?: Apollo.Mutati
 export type GenerateCustomerPortalUrlMutationHookResult = ReturnType<typeof useGenerateCustomerPortalUrlMutation>;
 export type GenerateCustomerPortalUrlMutationResult = Apollo.MutationResult<GenerateCustomerPortalUrlMutation>;
 export type GenerateCustomerPortalUrlMutationOptions = Apollo.BaseMutationOptions<GenerateCustomerPortalUrlMutation, GenerateCustomerPortalUrlMutationVariables>;
-export const GetCustomerDraftInvoicesDocument = gql`
-    query getCustomerDraftInvoices($customerId: ID!, $limit: Int, $page: Int, $status: [InvoiceStatusTypeEnum!], $searchTerm: String) {
-  customerInvoices(
-    customerId: $customerId
-    limit: $limit
-    page: $page
-    status: $status
-    searchTerm: $searchTerm
-  ) {
-    ...InvoiceForInvoiceList
-  }
-}
-    ${InvoiceForInvoiceListFragmentDoc}`;
-
-/**
- * __useGetCustomerDraftInvoicesQuery__
- *
- * To run a query within a React component, call `useGetCustomerDraftInvoicesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCustomerDraftInvoicesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCustomerDraftInvoicesQuery({
- *   variables: {
- *      customerId: // value for 'customerId'
- *      limit: // value for 'limit'
- *      page: // value for 'page'
- *      status: // value for 'status'
- *      searchTerm: // value for 'searchTerm'
- *   },
- * });
- */
-export function useGetCustomerDraftInvoicesQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables> & ({ variables: GetCustomerDraftInvoicesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>(GetCustomerDraftInvoicesDocument, options);
-      }
-export function useGetCustomerDraftInvoicesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>(GetCustomerDraftInvoicesDocument, options);
-        }
-// @ts-ignore
-export function useGetCustomerDraftInvoicesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>;
-export function useGetCustomerDraftInvoicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerDraftInvoicesQuery | undefined, GetCustomerDraftInvoicesQueryVariables>;
-export function useGetCustomerDraftInvoicesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>(GetCustomerDraftInvoicesDocument, options);
-        }
-export type GetCustomerDraftInvoicesQueryHookResult = ReturnType<typeof useGetCustomerDraftInvoicesQuery>;
-export type GetCustomerDraftInvoicesLazyQueryHookResult = ReturnType<typeof useGetCustomerDraftInvoicesLazyQuery>;
-export type GetCustomerDraftInvoicesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerDraftInvoicesSuspenseQuery>;
-export type GetCustomerDraftInvoicesQueryResult = Apollo.QueryResult<GetCustomerDraftInvoicesQuery, GetCustomerDraftInvoicesQueryVariables>;
-export const GetCustomerInfosForDraftInvoicesListDocument = gql`
-    query getCustomerInfosForDraftInvoicesList($customerId: ID!, $status: [InvoiceStatusTypeEnum!]) {
-  customer(id: $customerId) {
-    id
-    name
-    displayName
-    applicableTimezone
-  }
-  customerInvoices(customerId: $customerId, status: $status) {
-    metadata {
-      totalCount
-    }
-  }
-}
-    `;
-
-/**
- * __useGetCustomerInfosForDraftInvoicesListQuery__
- *
- * To run a query within a React component, call `useGetCustomerInfosForDraftInvoicesListQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCustomerInfosForDraftInvoicesListQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCustomerInfosForDraftInvoicesListQuery({
- *   variables: {
- *      customerId: // value for 'customerId'
- *      status: // value for 'status'
- *   },
- * });
- */
-export function useGetCustomerInfosForDraftInvoicesListQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables> & ({ variables: GetCustomerInfosForDraftInvoicesListQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>(GetCustomerInfosForDraftInvoicesListDocument, options);
-      }
-export function useGetCustomerInfosForDraftInvoicesListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>(GetCustomerInfosForDraftInvoicesListDocument, options);
-        }
-// @ts-ignore
-export function useGetCustomerInfosForDraftInvoicesListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>;
-export function useGetCustomerInfosForDraftInvoicesListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerInfosForDraftInvoicesListQuery | undefined, GetCustomerInfosForDraftInvoicesListQueryVariables>;
-export function useGetCustomerInfosForDraftInvoicesListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>(GetCustomerInfosForDraftInvoicesListDocument, options);
-        }
-export type GetCustomerInfosForDraftInvoicesListQueryHookResult = ReturnType<typeof useGetCustomerInfosForDraftInvoicesListQuery>;
-export type GetCustomerInfosForDraftInvoicesListLazyQueryHookResult = ReturnType<typeof useGetCustomerInfosForDraftInvoicesListLazyQuery>;
-export type GetCustomerInfosForDraftInvoicesListSuspenseQueryHookResult = ReturnType<typeof useGetCustomerInfosForDraftInvoicesListSuspenseQuery>;
-export type GetCustomerInfosForDraftInvoicesListQueryResult = Apollo.QueryResult<GetCustomerInfosForDraftInvoicesListQuery, GetCustomerInfosForDraftInvoicesListQueryVariables>;
 export const GetInvoiceDetailsDocument = gql`
     query getInvoiceDetails($id: ID!) {
   invoice(id: $id) {

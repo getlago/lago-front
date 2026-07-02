@@ -74,7 +74,7 @@ const PaymentsPage = () => {
         entity={{
           viewName: translate('text_6672ebb8b1b50be550eccbed'),
           metadata: formatCountToMetadata(paymentsTotalCount, translate),
-          metadataLoading: paymentsIsLoading,
+          metadataLoading: paymentsIsLoading && paymentsTotalCount === undefined,
         }}
         actions={{
           items: [

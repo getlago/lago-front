@@ -8,7 +8,6 @@ import {
   INVOICES_TAB_CONTAINER,
   INVOICES_TAB_DRAFT_SECTION,
   INVOICES_TAB_FINALIZED_SECTION,
-  INVOICES_TAB_SEE_MORE,
 } from '../CustomerInvoicesTab'
 
 // --- Mocks ---
@@ -124,33 +123,6 @@ describe('CustomerInvoicesTab', () => {
         renderComponent({ isPartner: true })
 
         expect(screen.queryByTestId('mock-customer-overview')).not.toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN draft invoice count exceeds the display limit', () => {
-    describe('WHEN there are more than 4 draft invoices', () => {
-      it('THEN should show the "See More" button', () => {
-        setupMocks(5)
-
-        renderComponent()
-
-        expect(screen.getByTestId(INVOICES_TAB_SEE_MORE)).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN draft invoice count is within the display limit', () => {
-    describe.each([
-      { count: 3, label: '3 drafts' },
-      { count: 4, label: '4 drafts (exact limit)' },
-    ])('WHEN there are $label', ({ count }) => {
-      it('THEN should NOT show the "See More" button', () => {
-        setupMocks(count)
-
-        renderComponent()
-
-        expect(screen.queryByTestId(INVOICES_TAB_SEE_MORE)).not.toBeInTheDocument()
       })
     })
   })

@@ -142,7 +142,7 @@ const AddOnsList = () => {
             default: 16,
             md: 48,
           }}
-          containerClassName={tw('h-[calc(100%-theme(space.nav))] border-t border-grey-300')}
+          containerClassName={tw('h-auto shrink-0 border-t border-grey-300')}
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
@@ -164,7 +164,12 @@ const AddOnsList = () => {
                       {name}
                     </Typography>
                     <div className="flex items-baseline gap-1">
-                      <TypographyWithCopy className="shrink-0" compact noWrap variant="caption">
+                      <TypographyWithCopy
+                        className="h-auto shrink-0"
+                        compact
+                        noWrap
+                        variant="caption"
+                      >
                         {code}
                       </TypographyWithCopy>
                       <Typography className="min-w-0" variant="caption" noWrap>

@@ -184,164 +184,163 @@ const SubscriptionsPage = () => {
         }
       />
 
-      <div className="border-t border-grey-300">
-        <PaginatedContent
-          metadata={data?.subscriptions.metadata}
-          loading={isLoading}
-          pageSize={pageSize}
-          onPageChange={(page) => fetchMore?.({ variables: { page } })}
-          onPageSizeChange={setPageSize}
-        >
-          <SubscriptionsList
-            name="subscriptions-list"
-            isLoading={isLoading}
-            loadingRowCount={pageSize}
-            hasError={!!error}
-            subscriptions={isLoading ? [] : subscriptions}
-            containerSize={{
-              default: 16,
-              md: 48,
-            }}
-            columns={[
-              {
-                key: 'name',
-                title: translate('text_6419c64eace749372fc72b0f'),
-                content: ({ name, isDowngrade, isScheduled }) => (
-                  <>
-                    <div
-                      className={tw('relative flex items-center gap-3', {
-                        'pl-4': isDowngrade,
-                      })}
-                    >
-                      {isDowngrade && <Icon name="arrow-indent" />}
-                      <Typography variant="bodyHl" color="grey700" noWrap>
-                        {name}
+      <PaginatedContent
+        metadata={data?.subscriptions.metadata}
+        loading={isLoading}
+        pageSize={pageSize}
+        onPageChange={(page) => fetchMore?.({ variables: { page } })}
+        onPageSizeChange={setPageSize}
+      >
+        <SubscriptionsList
+          name="subscriptions-list"
+          containerClassName="h-auto shrink-0 border-t border-grey-300"
+          isLoading={isLoading}
+          loadingRowCount={pageSize}
+          hasError={!!error}
+          subscriptions={isLoading ? [] : subscriptions}
+          containerSize={{
+            default: 16,
+            md: 48,
+          }}
+          columns={[
+            {
+              key: 'name',
+              title: translate('text_6419c64eace749372fc72b0f'),
+              content: ({ name, isDowngrade, isScheduled }) => (
+                <>
+                  <div
+                    className={tw('relative flex items-center gap-3', {
+                      'pl-4': isDowngrade,
+                    })}
+                  >
+                    {isDowngrade && <Icon name="arrow-indent" />}
+                    <Typography variant="bodyHl" color="grey700" noWrap>
+                      {name}
+                    </Typography>
+                    {isDowngrade && <Status type={StatusType.default} label="downgrade" />}
+                    {isScheduled && <Status type={StatusType.default} label="scheduled" />}
+                  </div>
+                </>
+              ),
+            },
+            {
+              key: 'statusType.type',
+              title: translate('text_62d7f6178ec94cd09370e5fb'),
+              content: ({ statusType }) => <Status {...statusType} />,
+            },
+
+            {
+              key: 'customer.name',
+              title: translate('text_63ac86d797f728a87b2f9fb3'),
+              maxSpace: true,
+              minWidth: 160,
+              content: ({ customer }) => (
+                <Typography variant="body" noWrap>
+                  {customer?.displayName || customer?.name || '-'}
+                </Typography>
+              ),
+            },
+
+            ...(showBillingEntityColumn
+              ? [
+                  {
+                    key: 'billingEntityId' as const,
+                    title: translate('text_17436114971570doqrwuwhf0'),
+                    minWidth: 140,
+                    content: ({ billingEntityId, customer }: AnnotatedSubscription) => (
+                      <Typography variant="body" noWrap>
+                        <BillingEntityLabel
+                          ownId={billingEntityId}
+                          customerEntity={customer?.billingEntity}
+                        />
                       </Typography>
-                      {isDowngrade && <Status type={StatusType.default} label="downgrade" />}
-                      {isScheduled && <Status type={StatusType.default} label="scheduled" />}
-                    </div>
-                  </>
-                ),
-              },
-              {
-                key: 'statusType.type',
-                title: translate('text_62d7f6178ec94cd09370e5fb'),
-                content: ({ statusType }) => <Status {...statusType} />,
-              },
-
-              {
-                key: 'customer.name',
-                title: translate('text_63ac86d797f728a87b2f9fb3'),
-                maxSpace: true,
-                minWidth: 160,
-                content: ({ customer }) => (
-                  <Typography variant="body" noWrap>
-                    {customer?.displayName || customer?.name || '-'}
-                  </Typography>
-                ),
-              },
-
-              ...(showBillingEntityColumn
-                ? [
-                    {
-                      key: 'billingEntityId' as const,
-                      title: translate('text_17436114971570doqrwuwhf0'),
-                      minWidth: 140,
-                      content: ({ billingEntityId, customer }: AnnotatedSubscription) => (
-                        <Typography variant="body" noWrap>
-                          <BillingEntityLabel
-                            ownId={billingEntityId}
-                            customerEntity={customer?.billingEntity}
-                          />
-                        </Typography>
-                      ),
-                    },
-                  ]
-                : []),
-
-              {
-                key: 'isOverridden',
-                title: translate('text_65281f686a80b400c8e2f6c4'),
-                content: ({ isOverridden }) => (
-                  <Typography>
-                    {isOverridden
-                      ? translate('text_65281f686a80b400c8e2f6dd')
-                      : translate('text_65281f686a80b400c8e2f6d1')}
-                  </Typography>
-                ),
-              },
-
-              {
-                key: 'frequency',
-                title: translate('text_1736968618645gg26amx8djq'),
-                content: ({ frequency }) => (
-                  <Typography>{translate(getIntervalTranslationKey[frequency])}</Typography>
-                ),
-              },
-
-              {
-                key: 'startedAt',
-                title: translate('text_65201c5a175a4b0238abf29e'),
-                content: ({ startedAt, customer }) =>
-                  !!startedAt ? (
-                    <TimezoneDate
-                      mainTypographyProps={{ variant: 'body', color: 'grey600', noWrap: true }}
-                      date={startedAt}
-                      customerTimezone={customer.applicableTimezone}
-                    />
-                  ) : (
-                    <Typography>-</Typography>
-                  ),
-              },
-              {
-                key: 'endingAt',
-                title: translate('text_65201c5a175a4b0238abf2a0'),
-                content: ({ endingAt, status, terminatedAt, customer }) =>
-                  endingAt || terminatedAt ? (
-                    <TimezoneDate
-                      mainTypographyProps={{ variant: 'body', color: 'grey600', noWrap: true }}
-                      date={status === StatusTypeEnum.Terminated ? terminatedAt : endingAt}
-                      customerTimezone={customer.applicableTimezone}
-                    />
-                  ) : (
-                    <Typography>-</Typography>
-                  ),
-              },
-            ]}
-            actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
-            onRowActionLink={({ id, customer }) =>
-              generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                customerId: customer.id,
-                subscriptionId: id,
-                tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-              })
-            }
-            placeholder={{
-              errorState: hasSearchParams
-                ? {
-                    title: translate('text_623b53fea66c76017eaebb6e'),
-                    subtitle: translate('text_63bab307a61c62af497e0599'),
-                  }
-                : {
-                    title: translate('text_63ac86d797f728a87b2f9fea'),
-                    subtitle: translate('text_63ac86d797f728a87b2f9ff2'),
-                    buttonTitle: translate('text_63ac86d797f728a87b2f9ffa'),
-                    buttonAction: () => location.reload(),
-                    buttonVariant: 'primary',
+                    ),
                   },
-              emptyState: hasSearchParams
-                ? {
-                    title: translate('text_1751969008731sd4e2mssx90'),
-                    subtitle: translate('text_66ab48ea4ed9cd01084c60b8'),
-                  }
-                : {
-                    title: translate('text_1751969008731m6hlinilrky'),
-                    subtitle: translate('text_1751969070668mwxq0nou1x9'),
-                  },
-            }}
-          />
-        </PaginatedContent>
-      </div>
+                ]
+              : []),
+
+            {
+              key: 'isOverridden',
+              title: translate('text_65281f686a80b400c8e2f6c4'),
+              content: ({ isOverridden }) => (
+                <Typography>
+                  {isOverridden
+                    ? translate('text_65281f686a80b400c8e2f6dd')
+                    : translate('text_65281f686a80b400c8e2f6d1')}
+                </Typography>
+              ),
+            },
+
+            {
+              key: 'frequency',
+              title: translate('text_1736968618645gg26amx8djq'),
+              content: ({ frequency }) => (
+                <Typography>{translate(getIntervalTranslationKey[frequency])}</Typography>
+              ),
+            },
+
+            {
+              key: 'startedAt',
+              title: translate('text_65201c5a175a4b0238abf29e'),
+              content: ({ startedAt, customer }) =>
+                !!startedAt ? (
+                  <TimezoneDate
+                    mainTypographyProps={{ variant: 'body', color: 'grey600', noWrap: true }}
+                    date={startedAt}
+                    customerTimezone={customer.applicableTimezone}
+                  />
+                ) : (
+                  <Typography>-</Typography>
+                ),
+            },
+            {
+              key: 'endingAt',
+              title: translate('text_65201c5a175a4b0238abf2a0'),
+              content: ({ endingAt, status, terminatedAt, customer }) =>
+                endingAt || terminatedAt ? (
+                  <TimezoneDate
+                    mainTypographyProps={{ variant: 'body', color: 'grey600', noWrap: true }}
+                    date={status === StatusTypeEnum.Terminated ? terminatedAt : endingAt}
+                    customerTimezone={customer.applicableTimezone}
+                  />
+                ) : (
+                  <Typography>-</Typography>
+                ),
+            },
+          ]}
+          actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
+          onRowActionLink={({ id, customer }) =>
+            generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+              customerId: customer.id,
+              subscriptionId: id,
+              tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+            })
+          }
+          placeholder={{
+            errorState: hasSearchParams
+              ? {
+                  title: translate('text_623b53fea66c76017eaebb6e'),
+                  subtitle: translate('text_63bab307a61c62af497e0599'),
+                }
+              : {
+                  title: translate('text_63ac86d797f728a87b2f9fea'),
+                  subtitle: translate('text_63ac86d797f728a87b2f9ff2'),
+                  buttonTitle: translate('text_63ac86d797f728a87b2f9ffa'),
+                  buttonAction: () => location.reload(),
+                  buttonVariant: 'primary',
+                },
+            emptyState: hasSearchParams
+              ? {
+                  title: translate('text_1751969008731sd4e2mssx90'),
+                  subtitle: translate('text_66ab48ea4ed9cd01084c60b8'),
+                }
+              : {
+                  title: translate('text_1751969008731m6hlinilrky'),
+                  subtitle: translate('text_1751969070668mwxq0nou1x9'),
+                },
+          }}
+        />
+      </PaginatedContent>
     </>
   )
 }

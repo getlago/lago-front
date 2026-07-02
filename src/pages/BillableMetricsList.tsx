@@ -241,7 +241,7 @@ const BillableMetricsList = () => {
             default: 16,
             md: 48,
           }}
-          containerClassName={tw('h-[calc(100%-theme(space.nav))] border-t border-grey-300')}
+          containerClassName={tw('h-auto shrink-0 border-t border-grey-300')}
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
