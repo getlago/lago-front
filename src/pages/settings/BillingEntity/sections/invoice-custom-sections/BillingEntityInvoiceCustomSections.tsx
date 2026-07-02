@@ -22,10 +22,7 @@ import {
   ApplyInvoiceCustomSectionDialog,
   ApplyInvoiceCustomSectionDialogRef,
 } from '~/pages/settings/BillingEntity/sections/invoice-custom-sections/ApplyInvoiceCustomSectionDialog'
-import {
-  RemoveInvoiceCustomSectionDialog,
-  RemoveInvoiceCustomSectionDialogRef,
-} from '~/pages/settings/BillingEntity/sections/invoice-custom-sections/RemoveInvoiceCustomSectionDialog'
+import { useRemoveInvoiceCustomSectionDialog } from '~/pages/settings/BillingEntity/sections/invoice-custom-sections/RemoveInvoiceCustomSectionDialog'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 const BillingEntityInvoiceCustomSections = () => {
@@ -33,7 +30,7 @@ const BillingEntityInvoiceCustomSections = () => {
   const { translate } = useInternationalization()
 
   const applyInvoiceCustomSectionDialogRef = useRef<ApplyInvoiceCustomSectionDialogRef>(null)
-  const removeInvoiceCustomSectionDialogRef = useRef<RemoveInvoiceCustomSectionDialogRef>(null)
+  const { openRemoveInvoiceCustomSectionDialog } = useRemoveInvoiceCustomSectionDialog()
 
   const { billingEntityCode } = useParams()
 
@@ -154,10 +151,10 @@ const BillingEntityInvoiceCustomSections = () => {
                             variant="quaternary"
                             onClick={() => {
                               if (billingEntity && customSection) {
-                                removeInvoiceCustomSectionDialogRef?.current?.openDialog(
-                                  billingEntity as BillingEntity,
-                                  customSection.id,
-                                )
+                                openRemoveInvoiceCustomSectionDialog({
+                                  billingEntity: billingEntity as BillingEntity,
+                                  invoiceCustomSectionId: customSection.id,
+                                })
                               }
                             }}
                           />
@@ -173,7 +170,6 @@ const BillingEntityInvoiceCustomSections = () => {
       </SettingsPaddedContainer>
 
       <ApplyInvoiceCustomSectionDialog ref={applyInvoiceCustomSectionDialogRef} />
-      <RemoveInvoiceCustomSectionDialog ref={removeInvoiceCustomSectionDialogRef} />
     </>
   )
 }
