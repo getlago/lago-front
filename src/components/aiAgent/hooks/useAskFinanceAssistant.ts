@@ -7,6 +7,7 @@ gql`
   mutation askFinanceAssistant($input: AskFinanceAssistantInput!) {
     askFinanceAssistant(input: $input) {
       explanation
+      messageId
       results
       sessionExpired
       sessionId
@@ -48,6 +49,7 @@ export const useAskFinanceAssistant = () => {
           results: answer.results,
           sessionExpired: answer.sessionExpired,
           sqlQuery: answer.sqlQuery || undefined,
+          messageId: answer.messageId,
         },
       })
     } catch {

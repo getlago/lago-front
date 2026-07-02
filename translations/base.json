@@ -4493,5 +4493,8 @@
   "text_1780562979520jx3625rmwtf": "List overdue invoices",
   "text_17805629795204i5o89ggf48": "Show daily usages by product",
   "text_17805629795209jls35q0dyn": "Ask for a custom report",
-  "text_178108767575418a6s91vcje": "The previous session expired, so this answer was created without the earlier conversation context."
+  "text_178108767575418a6s91vcje": "The previous session expired, so this answer was created without the earlier conversation context.",
+  "text_1782899568265kc2tovrmz2s": "Export to CSV",
+  "text_1782899568265bph7iv6nops": "Could not export the results. Please try again.",
+  "text_1782903800979dsgmc2xp79z": "We're building your report..."
 }

@@ -12,7 +12,7 @@ interface ChatConversationProps {
 }
 
 export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) => {
-  const { lastAssistantMessage, state, setChatDone, streamChunk } = useAiAgent()
+  const { agentType, lastAssistantMessage, state, setChatDone, streamChunk } = useAiAgent()
   const { translate } = useInternationalization()
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
         )
       })}
 
-      {state.isLoading && <ChatMessages.Loading />}
+      {state.isLoading && <ChatMessages.Loading agentType={agentType} />}
 
       {(subscription.error || state.hasError) && (
         <ChatMessages.Error>{translate('text_1757417225851jw88w0yfa0n')}</ChatMessages.Error>
