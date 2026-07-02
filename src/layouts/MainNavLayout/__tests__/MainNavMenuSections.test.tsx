@@ -137,12 +137,8 @@ describe('MainNavMenuSections', () => {
         MAIN_NAV_BILLING_SECTION_TEST_ID,
       ].map((id) => within(container).getByTestId(id))
 
-      expect(order[0].compareDocumentPosition(order[1])).toBe(
-        Node.DOCUMENT_POSITION_FOLLOWING,
-      )
-      expect(order[1].compareDocumentPosition(order[2])).toBe(
-        Node.DOCUMENT_POSITION_FOLLOWING,
-      )
+      expect(order[0].compareDocumentPosition(order[1])).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+      expect(order[1].compareDocumentPosition(order[2])).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
     })
   })
 
