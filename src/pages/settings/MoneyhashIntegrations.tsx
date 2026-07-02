@@ -15,10 +15,7 @@ import {
   AddMoneyhashDialog,
   AddMoneyhashDialogRef,
 } from '~/components/settings/integrations/AddMoneyhashDialog'
-import {
-  DeleteMoneyhashIntegrationDialog,
-  DeleteMoneyhashIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteMoneyhashIntegrationDialog'
+import { useDeleteMoneyhashIntegrationDialog } from '~/components/settings/integrations/DeleteMoneyhashIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, MONEYHASH_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -61,8 +58,8 @@ const MoneyhashIntegrations = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const addMoneyhashDialogRef = useRef<AddMoneyhashDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteMoneyhashIntegrationDialogRef>(null)
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
+  const { openDeleteMoneyhashIntegrationDialog } = useDeleteMoneyhashIntegrationDialog()
   const { translate } = useInternationalization()
   const { data, loading } = useGetMoneyhashIntegrationsListQuery({
     variables: { limit: 1000, type: ProviderTypeEnum.Moneyhash },
@@ -164,7 +161,6 @@ const MoneyhashIntegrations = () => {
                               onClick={() => {
                                 addMoneyhashDialogRef.current?.openDialog({
                                   provider: connection,
-                                  deleteModalRef: deleteDialogRef,
                                   deleteDialogCallback,
                                 })
                                 closePopper()
@@ -180,7 +176,7 @@ const MoneyhashIntegrations = () => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                deleteDialogRef.current?.openDialog({
+                                openDeleteMoneyhashIntegrationDialog({
                                   provider: connection,
                                   callback: deleteDialogCallback,
                                 })
@@ -200,7 +196,6 @@ const MoneyhashIntegrations = () => {
         </section>
       </IntegrationsPage.Container>
       <AddMoneyhashDialog ref={addMoneyhashDialogRef} />
-      <DeleteMoneyhashIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
