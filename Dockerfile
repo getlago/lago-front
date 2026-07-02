@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.25
 
 # --- deps stage: install node_modules only ---------------------------------
-FROM node:24.17.0-alpine AS deps
+FROM node:24.18.0-alpine AS deps
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store,sharing=locked \
 
 
 # --- build stage: compile the app ------------------------------------------
-FROM node:24.17.0-alpine AS build
+FROM node:24.18.0-alpine AS build
 
 WORKDIR /app
 ENV NODE_OPTIONS="--max-old-space-size=4096"
