@@ -4,6 +4,8 @@ import { ReactNode } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
+import { AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 /**
  * Converts a number (in seconds) into a human-readable duration string
@@ -42,7 +44,20 @@ const ReceivedMessage = ({ children }: { children: ReactNode }) => {
   )
 }
 
-const LoadingMessage = () => {
+const LoadingMessage = ({ agentType }: { agentType: AiAgentTypeEnum }) => {
+  const { translate } = useInternationalization()
+
+  if (agentType === AiAgentTypeEnum.finance) {
+    return (
+      <div className="flex items-center gap-1">
+        <Typography variant="caption" color="grey500">
+          {translate('text_1782903800979dsgmc2xp79z')}
+        </Typography>
+        <div className="h-5 w-3 animate-pulse rounded-sm bg-grey-600" />
+      </div>
+    )
+  }
+
   return (
     <div className="flex gap-1">
       <div className="h-5 w-3 animate-pulse rounded-sm bg-grey-600" />

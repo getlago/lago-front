@@ -115,7 +115,7 @@ export const PanelAiAgent = ({ hasAccessToAiAgent }: PanelAiAgentProps) => {
         <div className="mt-auto flex h-full flex-col gap-6 p-6">
           <ChatMessages.Sent>{initialPrompt}</ChatMessages.Sent>
 
-          <ChatMessages.Loading />
+          <ChatMessages.Loading agentType={agentType} />
         </div>
       )}
 

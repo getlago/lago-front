@@ -49,6 +49,8 @@ export type FinanceAssistantResult = {
   results: string
   sqlQuery?: string
   sessionExpired?: boolean
+  // per-answer id from the agent; the key /export uses to re-run this query's SQL
+  messageId?: string
 }
 
 export type ChatMessage = {
