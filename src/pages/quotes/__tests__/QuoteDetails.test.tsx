@@ -53,6 +53,7 @@ jest.mock('~/hooks/usePermissions', () => ({
 const mockQuote = {
   id: 'quote-draft-001',
   number: 'QT-2026-0042',
+  images: {},
   orderType: OrderTypeEnum.SubscriptionCreation,
   createdAt: '2026-04-09T10:00:00Z',
   versions: [

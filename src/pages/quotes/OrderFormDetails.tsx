@@ -34,8 +34,13 @@ const OrderFormDetails = () => {
   const { orderForm, loading, error } = useOrderFormDetails(orderFormId)
 
   const previewProps = useMemo(
-    () => buildQuotePreviewProps(orderForm?.quote?.currentVersion, orderForm?.customer),
-    [orderForm?.quote?.currentVersion, orderForm?.customer],
+    () =>
+      buildQuotePreviewProps(
+        orderForm?.quote?.currentVersion,
+        orderForm?.customer,
+        (orderForm?.quote?.images ?? {}) as Record<string, string>,
+      ),
+    [orderForm?.quote?.currentVersion, orderForm?.customer, orderForm?.quote?.images],
   )
 
   const orderFormNumber = orderForm?.number ?? ''

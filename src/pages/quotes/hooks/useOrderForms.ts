@@ -22,6 +22,7 @@ gql`
     quote {
       id
       number
+      images
       currentVersion {
         id
         version
