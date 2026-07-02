@@ -96,6 +96,18 @@ gql`
       pricingUnitsCreate
       pricingUnitsUpdate
       pricingUnitsView
+      productsView
+      productsCreate
+      productsUpdate
+      productsDelete
+      productItemsView
+      productItemsCreate
+      productItemsUpdate
+      productItemsDelete
+      rateCardsView
+      rateCardsCreate
+      rateCardsUpdate
+      rateCardsDelete
       rolesCreate
       rolesDelete
       rolesUpdate
