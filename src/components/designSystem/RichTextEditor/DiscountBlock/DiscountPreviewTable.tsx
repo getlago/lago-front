@@ -82,6 +82,7 @@ export const DiscountPreviewTable = ({
       key: 'value',
       title: translate(K.discountValue),
       textAlign: 'right',
+      minWidth: 180,
       content: (item) => (
         <Typography variant="body" color="grey700">
           {formatValue(item, currency, locale)}
@@ -92,6 +93,7 @@ export const DiscountPreviewTable = ({
       key: 'duration',
       title: translate(K.duration),
       textAlign: 'right',
+      minWidth: 200,
       content: (item) => (
         <Typography variant="body" color="grey700">
           {formatDuration(item, translate)}
