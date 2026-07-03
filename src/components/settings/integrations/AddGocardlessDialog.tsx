@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
-import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 import { object, string } from 'yup'
 
@@ -22,7 +22,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { DeleteGocardlessIntegrationDialogRef } from './DeleteGocardlessIntegrationDialog'
+import { useDeleteGocardlessIntegrationDialog } from './DeleteGocardlessIntegrationDialog'
 
 gql`
   fragment AddGocardlessProviderDialog on GocardlessProvider {
@@ -66,7 +66,6 @@ gql`
 `
 
 type TAddGocardlessDialogProps = Partial<{
-  deleteModalRef: RefObject<DeleteGocardlessIntegrationDialogRef>
   provider: AddGocardlessProviderDialogFragment
   deleteDialogCallback: () => void
 }>
@@ -85,6 +84,7 @@ export const AddGocardlessDialog = forwardRef<AddGocardlessDialogRef>((_, ref) =
   const [localData, setLocalData] = useState<TAddGocardlessDialogProps | undefined>(undefined)
   const gocardlessProvider = localData?.provider
   const isEdition = !!gocardlessProvider
+  const { openDeleteGocardlessIntegrationDialog } = useDeleteGocardlessIntegrationDialog()
 
   const [updateApiKey] = useUpdateGocardlessApiKeyMutation({
     onCompleted({ updateGocardlessPaymentProvider }) {
@@ -206,7 +206,7 @@ export const AddGocardlessDialog = forwardRef<AddGocardlessDialogRef>((_, ref) =
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                localData?.deleteModalRef?.current?.openDialog({
+                openDeleteGocardlessIntegrationDialog({
                   provider: gocardlessProvider,
                   callback: localData?.deleteDialogCallback,
                 })
