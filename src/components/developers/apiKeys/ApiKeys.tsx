@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'

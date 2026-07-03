@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 
-import { Pagination } from '~/components/designSystem/Pagination'
+import { Pagination } from '~/components/designSystem/Pagination/Pagination'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({

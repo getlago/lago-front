@@ -10,7 +10,7 @@ import {
   formatFiltersForSubscriptionQuery,
   SubscriptionAvailableFilters,
 } from '~/components/designSystem/Filters'
-import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'

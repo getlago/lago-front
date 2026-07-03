@@ -3,7 +3,7 @@ import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import {
   WALLET_TRANSACTION_ITEM_ROW_TEST_ID,

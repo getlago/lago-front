@@ -68,7 +68,7 @@ jest.mock('~/components/subscriptions/SubscriptionsList', () => ({
   },
 }))
 
-jest.mock('~/components/designSystem/PaginatedContent', () => ({
+jest.mock('~/components/designSystem/Pagination', () => ({
   PaginatedContent: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }))
 

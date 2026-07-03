@@ -3,7 +3,7 @@ import { generatePath } from 'react-router-dom'
 
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
 import { useVoidCreditNoteDialog } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
-import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table, TableColumn, TableContainerSize } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'

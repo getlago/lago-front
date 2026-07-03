@@ -1,7 +1,7 @@
 import { FC, RefObject, useMemo } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { EVENT_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'

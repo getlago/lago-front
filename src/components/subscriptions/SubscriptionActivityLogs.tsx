@@ -3,7 +3,7 @@ import { FC } from 'react'
 
 import { ActivityLogsTable } from '~/components/activityLogs/ActivityLogsTable'
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
-import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {

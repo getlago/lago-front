@@ -8,7 +8,7 @@ import {
   DeleteBillableMetricDialogRef,
 } from '~/components/billableMetrics/DeleteBillableMetricDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
-import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'

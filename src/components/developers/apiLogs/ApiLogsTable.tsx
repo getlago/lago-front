@@ -1,7 +1,7 @@
 import { FC, RefObject, useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
-import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'

@@ -1,12 +1,12 @@
 import { configure, render, screen } from '@testing-library/react'
 
-import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
+import { PaginatedContent } from '~/components/designSystem/Pagination/PaginatedContent'
 
 configure({ testIdAttribute: 'data-test' })
 
 const mockPaginationSpy = jest.fn()
 
-jest.mock('~/components/designSystem/Pagination', () => ({
+jest.mock('~/components/designSystem/Pagination/Pagination', () => ({
   Pagination: (props: Record<string, unknown>) => {
     mockPaginationSpy(props)
     return <div data-test="pagination-stub" className={props.className as string} />
@@ -83,7 +83,7 @@ describe('PaginatedContent', () => {
     )
   })
 
-  it('forwards pageSize, onPageChange, onPageSizeChange, pageSizeOptions and loading', () => {
+  it('forwards pageSize, onPageSizeChange, pageSizeOptions and loading', () => {
     const onPageSizeChange = jest.fn()
 
     render(
@@ -101,12 +101,47 @@ describe('PaginatedContent', () => {
     expect(mockPaginationSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         pageSize: 50,
-        onPageChange,
         onPageSizeChange,
         pageSizeOptions: [20, 50, 100],
         loading: true,
       }),
     )
+  })
+
+  it('wraps onPageChange (to scroll the list to the top) but delegates to the provided handler', () => {
+    render(
+      <PaginatedContent onPageChange={onPageChange}>
+        <div />
+      </PaginatedContent>,
+    )
+
+    const { onPageChange: forwardedOnPageChange } = mockPaginationSpy.mock.calls[0][0] as {
+      onPageChange: (page: number) => void
+    }
+
+    // it's a wrapper, not the same function reference…
+    expect(forwardedOnPageChange).not.toBe(onPageChange)
+
+    // …but calling it forwards the requested page to the caller's handler
+    forwardedOnPageChange(4)
+    expect(onPageChange).toHaveBeenCalledWith(4)
+  })
+
+  it('also wraps and delegates onPageChange when sticky is false (nested list branch)', () => {
+    render(
+      <PaginatedContent onPageChange={onPageChange} sticky={false}>
+        <div />
+      </PaginatedContent>,
+    )
+
+    const { onPageChange: forwardedOnPageChange } = mockPaginationSpy.mock.calls[0][0] as {
+      onPageChange: (page: number) => void
+    }
+
+    expect(forwardedOnPageChange).not.toBe(onPageChange)
+
+    forwardedOnPageChange(2)
+    expect(onPageChange).toHaveBeenCalledWith(2)
   })
 
   it('renders children + pager as siblings (no wrapper div) by default (sticky)', () => {

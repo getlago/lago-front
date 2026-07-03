@@ -4,7 +4,7 @@ import { FC, useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
-import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { ActionItem } from '~/components/designSystem/Table'
 import { Table } from '~/components/designSystem/Table/Table'

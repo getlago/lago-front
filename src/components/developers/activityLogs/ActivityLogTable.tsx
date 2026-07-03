@@ -2,7 +2,7 @@ import { FC, RefObject } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { ActivityLogsTable as Table } from '~/components/activityLogs/ActivityLogsTable'
-import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { ACTIVITY_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef } from '~/components/developers/LogsLayout'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'

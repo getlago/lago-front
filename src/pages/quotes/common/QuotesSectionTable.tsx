@@ -1,6 +1,6 @@
 import { IconName } from 'lago-design-system'
 
-import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

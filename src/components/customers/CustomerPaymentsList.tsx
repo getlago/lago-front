@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableProps } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'

@@ -17,7 +17,7 @@ jest.mock('~/components/designSystem/Table/Table', () => ({
 
 const mockPaginatedContentProps: { current?: Record<string, unknown> } = {}
 
-jest.mock('~/components/designSystem/PaginatedContent', () => ({
+jest.mock('~/components/designSystem/Pagination', () => ({
   PaginatedContent: (props: {
     children: React.ReactNode
     onPageChange: (page: number) => void

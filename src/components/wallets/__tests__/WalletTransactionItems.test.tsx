@@ -20,7 +20,7 @@ import { render } from '~/test-utils'
 // Repoint the InfiniteScroll mock to PaginatedContent (passthrough) and capture its props
 const mockPaginatedContentProps: { current?: Record<string, unknown> } = {}
 
-jest.mock('~/components/designSystem/PaginatedContent', () => ({
+jest.mock('~/components/designSystem/Pagination', () => ({
   PaginatedContent: (props: {
     children: React.ReactNode
     onPageChange: (page: number) => void

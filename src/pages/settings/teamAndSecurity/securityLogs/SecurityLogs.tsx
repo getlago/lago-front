@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Filters, SecurityLogsAvailableFilters } from '~/components/designSystem/Filters'
-import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { LogsLayout } from '~/components/developers/LogsLayout'

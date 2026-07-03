@@ -1,6 +1,7 @@
-import { ReactNode } from 'react'
+import { ReactNode, useRef } from 'react'
 
-import { Pagination } from '~/components/designSystem/Pagination'
+import { Pagination } from '~/components/designSystem/Pagination/Pagination'
+import { getScrollableAncestor } from '~/components/designSystem/Pagination/utils'
 import { CollectionMetadata } from '~/generated/graphql'
 import { tw } from '~/styles/utils'
 
@@ -51,8 +52,43 @@ export const PaginatedContent = ({
   sticky = true,
   children,
 }: PaginatedContentProps) => {
+  const pagerRef = useRef<HTMLElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  // After a page change, reposition the list so the new page isn't opened scrolled to its end
+  // (e.g. paging from the bottom of a 100-row page):
+  //  - sticky (single full-page list): reset the page scroll container to the top.
+  //  - non-sticky (nested lists, often several on one page): re-align only THIS list's top, and
+  //    only when it has scrolled above the fold — so short, fully-visible lists and the other
+  //    pagers on the same page don't cause a jump to the top.
+  const handlePageChange = (page: number) => {
+    onPageChange(page)
+
+    if (sticky) {
+      getScrollableAncestor(pagerRef.current)?.scrollTo({ top: 0 })
+      return
+    }
+
+    const list = contentRef.current
+    const scroller = getScrollableAncestor(list)
+
+    if (!list || !scroller) {
+      return
+    }
+
+    const listTop = list.getBoundingClientRect().top
+    const scrollerTop = scroller.getBoundingClientRect().top
+
+    // Only when the list's top is above the visible area do we pull it back up to the top;
+    // if it's already visible we leave the scroll position untouched.
+    if (listTop < scrollerTop) {
+      scroller.scrollTo({ top: scroller.scrollTop + listTop - scrollerTop })
+    }
+  }
+
   const pager = (
     <Pagination
+      ref={pagerRef}
       className={tw(
         'border-t border-grey-300 bg-white',
         // sticky: mt-auto pushes the pager to the bottom of the flex-col content area when the
@@ -65,7 +101,7 @@ export const PaginatedContent = ({
       totalPages={metadata?.totalPages ?? 0}
       totalCount={metadata?.totalCount ?? 0}
       pageSize={pageSize}
-      onPageChange={onPageChange}
+      onPageChange={handlePageChange}
       onPageSizeChange={onPageSizeChange}
       pageSizeOptions={pageSizeOptions}
       loading={loading}
@@ -78,7 +114,7 @@ export const PaginatedContent = ({
   //   doesn't inherit an ancestor's flex `gap` (e.g. settings cards) as a spurious gap.
   if (!sticky) {
     return (
-      <div>
+      <div ref={contentRef}>
         {children}
         {pager}
       </div>

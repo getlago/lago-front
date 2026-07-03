@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { generatePath, useParams } from 'react-router-dom'
 
-import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status, StatusProps, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import { PageSectionTitle } from '~/components/layouts/Section'
