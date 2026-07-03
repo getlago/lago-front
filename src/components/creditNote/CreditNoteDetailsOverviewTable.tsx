@@ -58,6 +58,7 @@ gql`
       id
       invoiceType
       number
+      purchaseOrderNumber
     }
     items {
       amountCents
