@@ -127,4 +127,49 @@ describe('Pagination', () => {
 
     expect(screen.getByRole('navigation', { name: 'pagination' })).toBeInTheDocument()
   })
+
+  it('renders nothing on a single page when there is no rows-per-page menu', () => {
+    const { container } = render(<Pagination {...baseProps} totalPages={1} totalCount={12} />)
+
+    expect(container).toBeEmptyDOMElement()
+  })
+
+  it('keeps the footer (menu + disabled arrows) on a single page when a larger page size hides the pager', () => {
+    // 35 items shown at once (pageSize 50) → one page, but the smallest option (20) would
+    // repaginate, so the menu must stay reachable to switch back.
+    render(
+      <Pagination
+        {...baseProps}
+        totalPages={1}
+        totalCount={35}
+        pageSize={50}
+        onPageSizeChange={jest.fn()}
+        pageSizeOptions={[20, 50, 100]}
+      />,
+    )
+
+    const nav = screen.getByRole('navigation', { name: 'pagination' })
+    const [prev, next] = within(nav).getAllByRole('button')
+
+    // the results/size-menu label is present…
+    expect(screen.getByText('1-35 of 35 results')).toBeInTheDocument()
+    // …and the prev/next arrows stay rendered but disabled (single page)
+    expect(prev).toBeDisabled()
+    expect(next).toBeDisabled()
+  })
+
+  it('hides the footer with a menu when even the smallest option shows everything', () => {
+    const { container } = render(
+      <Pagination
+        {...baseProps}
+        totalPages={1}
+        totalCount={15}
+        pageSize={20}
+        onPageSizeChange={jest.fn()}
+        pageSizeOptions={[20, 50, 100]}
+      />,
+    )
+
+    expect(container).toBeEmptyDOMElement()
+  })
 })

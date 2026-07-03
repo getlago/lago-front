@@ -1,0 +1,163 @@
+import { configure, render, screen } from '@testing-library/react'
+
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
+
+configure({ testIdAttribute: 'data-test' })
+
+const mockPaginationSpy = jest.fn()
+
+jest.mock('~/components/designSystem/Pagination', () => ({
+  Pagination: (props: Record<string, unknown>) => {
+    mockPaginationSpy(props)
+    return <div data-test="pagination-stub" className={props.className as string} />
+  },
+}))
+
+describe('PaginatedContent', () => {
+  const onPageChange = jest.fn()
+
+  beforeEach(() => {
+    mockPaginationSpy.mockClear()
+    onPageChange.mockClear()
+  })
+
+  it('renders the children next to the pager', () => {
+    render(
+      <PaginatedContent onPageChange={onPageChange}>
+        <span data-test="list-content">rows</span>
+      </PaginatedContent>,
+    )
+
+    expect(screen.getByTestId('list-content')).toBeInTheDocument()
+    expect(screen.getByTestId('pagination-stub')).toBeInTheDocument()
+  })
+
+  it('forwards metadata fields to Pagination', () => {
+    render(
+      <PaginatedContent
+        onPageChange={onPageChange}
+        metadata={{ currentPage: 3, totalPages: 7, totalCount: 130 }}
+      >
+        <div />
+      </PaginatedContent>,
+    )
+
+    expect(mockPaginationSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        currentPage: 3,
+        totalPages: 7,
+        totalCount: 130,
+      }),
+    )
+  })
+
+  it('falls back to currentPage=1, totalPages=0, totalCount=0 when metadata is undefined', () => {
+    render(
+      <PaginatedContent onPageChange={onPageChange}>
+        <div />
+      </PaginatedContent>,
+    )
+
+    expect(mockPaginationSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        currentPage: 1,
+        totalPages: 0,
+        totalCount: 0,
+      }),
+    )
+  })
+
+  it('falls back to currentPage=1, totalPages=0, totalCount=0 when metadata is null', () => {
+    render(
+      <PaginatedContent onPageChange={onPageChange} metadata={null}>
+        <div />
+      </PaginatedContent>,
+    )
+
+    expect(mockPaginationSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        currentPage: 1,
+        totalPages: 0,
+        totalCount: 0,
+      }),
+    )
+  })
+
+  it('forwards pageSize, onPageChange, onPageSizeChange, pageSizeOptions and loading', () => {
+    const onPageSizeChange = jest.fn()
+
+    render(
+      <PaginatedContent
+        onPageChange={onPageChange}
+        pageSize={50}
+        onPageSizeChange={onPageSizeChange}
+        pageSizeOptions={[20, 50, 100]}
+        loading
+      >
+        <div />
+      </PaginatedContent>,
+    )
+
+    expect(mockPaginationSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pageSize: 50,
+        onPageChange,
+        onPageSizeChange,
+        pageSizeOptions: [20, 50, 100],
+        loading: true,
+      }),
+    )
+  })
+
+  it('renders children + pager as siblings (no wrapper div) by default (sticky)', () => {
+    const { container } = render(
+      <PaginatedContent onPageChange={onPageChange}>
+        <span data-test="list-content">rows</span>
+      </PaginatedContent>,
+    )
+
+    expect(container.children).toHaveLength(2)
+    expect(container.firstElementChild).toBe(screen.getByTestId('list-content'))
+  })
+
+  it('gives the pager the sticky positioning classes by default', () => {
+    render(
+      <PaginatedContent onPageChange={onPageChange}>
+        <div />
+      </PaginatedContent>,
+    )
+
+    const [[{ className }]] = mockPaginationSpy.mock.calls
+
+    expect(className).toContain('sticky')
+    expect(className).toContain('bottom-0')
+    expect(className).toContain('mt-auto')
+  })
+
+  it('wraps children + pager in a single <div> when sticky is false', () => {
+    const { container } = render(
+      <PaginatedContent onPageChange={onPageChange} sticky={false}>
+        <span data-test="list-content">rows</span>
+      </PaginatedContent>,
+    )
+
+    const wrapper = container.firstElementChild as HTMLElement
+
+    expect(wrapper.tagName).toBe('DIV')
+    expect(wrapper.children).toHaveLength(2)
+    expect(container.children).toHaveLength(1)
+  })
+
+  it('gives the pager the overlap-margin class (no sticky) when sticky is false', () => {
+    render(
+      <PaginatedContent onPageChange={onPageChange} sticky={false}>
+        <div />
+      </PaginatedContent>,
+    )
+
+    const [[{ className }]] = mockPaginationSpy.mock.calls
+
+    expect(className).toContain('-mt-px')
+    expect(className).not.toContain('sticky')
+  })
+})

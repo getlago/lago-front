@@ -55,9 +55,13 @@ export const Pagination = ({
 }: PaginationProps) => {
   const { translate } = useInternationalization()
 
-  // Single page (or none) → no pager. While loading we keep it visible (with its loader) so
-  // it doesn't flicker in/out as the cached metadata comes and goes.
-  if (!loading && (!totalPages || totalPages <= 1)) {
+  const smallestPageSize = Math.min(...pageSizeOptions)
+  const hasPageSizeMenu = !!onPageSizeChange
+  const showFooter = hasPageSizeMenu ? totalCount > smallestPageSize : totalPages > 1
+
+  // While loading we keep the footer visible (with its loader) so it doesn't flicker in/out
+  // as the cached metadata comes and goes.
+  if (!loading && !showFooter) {
     return null
   }
 
