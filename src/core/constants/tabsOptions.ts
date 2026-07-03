@@ -75,6 +75,13 @@ export enum QuotesTabsOptionsEnum {
   orders = 'orders',
 }
 
+export enum ProductCatalogTabsOptionsEnum {
+  products = 'products',
+  productItems = 'product-items',
+  productItemFilters = 'product-item-filters',
+  rateCards = 'rate-cards',
+}
+
 export enum QuoteDetailsTabsOptionsEnum {
   overview = 'overview',
   orderForms = 'order-forms',

@@ -30,6 +30,7 @@ import {
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
   PRODUCT_CATALOG_ROUTE,
+  PRODUCT_CATALOG_TAB_ROUTE,
   QUOTE_DETAILS_ROUTE,
   QUOTES_LIST_ROUTE,
   QUOTES_TAB_ROUTE,
@@ -131,10 +132,15 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       icon: 'box',
       link: PRODUCT_CATALOG_ROUTE,
       canBeClickedOnActive: true,
-      match: [PRODUCT_CATALOG_ROUTE],
+      match: [PRODUCT_CATALOG_ROUTE, PRODUCT_CATALOG_TAB_ROUTE],
       hidden:
         !hasFeatureFlag(FeatureFlagEnum.ProductCatalog) ||
-        !hasPermissionsOr(['productsView', 'productItemsView', 'rateCardsView']),
+        !hasPermissionsOr([
+          'productsView',
+          'productItemsView',
+          'productItemFiltersView',
+          'rateCardsView',
+        ]),
     },
     {
       title: translate('text_62442e40cea25600b0b6d85a'),
