@@ -2,10 +2,7 @@ import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 
-import {
-  DeleteCustomerDocumentLocaleDialog,
-  DeleteCustomerDocumentLocaleDialogRef,
-} from '~/components/customers/DeleteCustomerDocumentLocaleDialog'
+import { useDeleteCustomerDocumentLocaleDialog } from '~/components/customers/DeleteCustomerDocumentLocaleDialog'
 import {
   DeleteCustomerFinalizeZeroAmountInvoiceDialog,
   DeleteCustomerFinalizeZeroAmountInvoiceDialogRef,
@@ -220,7 +217,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const editCustomerDunningCampaignDialogRef = useRef<EditCustomerDunningCampaignDialogRef>(null)
   const editCustomerInvoiceCustomSectionsDialogRef =
     useRef<EditCustomerInvoiceCustomSectionsDialogRef>(null)
-  const deleteCustomerDocumentLocale = useRef<DeleteCustomerDocumentLocaleDialogRef>(null)
+  const { openDeleteCustomerDocumentLocaleDialog } = useDeleteCustomerDocumentLocaleDialog()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
   const deleteOrganizationNetPaymentTermDialogRef =
@@ -459,7 +456,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                                   variant="quaternary"
                                   align="left"
                                   onClick={() => {
-                                    deleteCustomerDocumentLocale.current?.openDialog()
+                                    if (customer) {
+                                      openDeleteCustomerDocumentLocaleDialog(customer)
+                                    }
                                     closePopper()
                                   }}
                                 >
@@ -965,10 +964,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
             customerId={customerId}
           />
           <DeleteCustomerGracePeriodeDialog ref={deleteGracePeriodDialogRef} customer={customer} />
-          <DeleteCustomerDocumentLocaleDialog
-            ref={deleteCustomerDocumentLocale}
-            customer={customer}
-          />
           <EditNetPaymentTermDialog
             ref={editNetPaymentTermDialogRef}
             description={translate('text_64c7a89b6c67eb6c988980eb')}
