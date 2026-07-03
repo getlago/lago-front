@@ -75,6 +75,43 @@
   import { useMatch } from 'react-router-dom'
   ```
 
+## Pagination (numbered lists & tables)
+
+All lists use numbered pagination via `PaginatedContent` + `Pagination`
+(`src/components/designSystem/`, prop docs inline). Infinite scroll is gone.
+Reference sites: `SubscriptionsPage.tsx` (full-page, sticky),
+`CustomerPaymentsTab.tsx` (nested, non-sticky).
+
+Adding a paginated list:
+
+1. Query the `{ collection, metadata }` root field with `$page`/`$limit`, select
+   `metadata { currentPage totalPages totalCount }`, then `pnpm codegen`.
+2. Register the field in `queryFieldPolicies` (`cache.ts`) with
+   `createSinglePageFieldPolicy()` (replace merge). **Skipping this makes page 2
+   silently stop** — `cache.test.ts` guard fails CI. Never use
+   `createPaginatedFieldPolicy()` (legacy append/infinite-scroll).
+3. Query hook: `notifyOnNetworkStatusChange: true`, `limit: DEFAULT_PAGE_SIZE`.
+4. Wrap the table:
+   ```tsx
+   <PaginatedContent
+     metadata={data?.<field>.metadata}   // MUST pass, else totalCount=0 → pager hidden
+     loading={loading}
+     pageSize={DEFAULT_PAGE_SIZE}
+     onPageChange={(page) => fetchMore({ variables: { page } })}
+     sticky={/* full-page: true (default) · list inside a scrolling tab: false */}
+   >
+     <Table data={loading ? [] : rows} loadingRowCount={DEFAULT_PAGE_SIZE} ... />
+   </PaginatedContent>
+   ```
+   - `data={loading ? [] : rows}` → skeletons replace the list (never append).
+   - `sticky` → table `containerClassName="h-auto shrink-0 border-t border-grey-300"`;
+     `sticky={false}` → `containerClassName="border-t border-grey-300"`.
+   - Rows-per-page menu only if you pass `onPageSizeChange` + local
+     `useState(DEFAULT_PAGE_SIZE)`.
+
+Constants in `~/core/constants/pagination`: `DEFAULT_PAGE_SIZE = 20`,
+`PAGE_SIZE_OPTIONS = [20, 50, 100]`.
+
 ## Organization slug architecture
 
 All authenticated app routes are nested under `/:organizationSlug/...`. The
