@@ -50,7 +50,7 @@ describe('QuotesSectionTable', () => {
     render(
       <QuotesSectionTable<Row>
         {...baseProps}
-        metadata={{ currentPage: 1, totalPages: 2 }}
+        metadata={{ currentPage: 1, totalPages: 2, totalCount: 10 }}
         fetchMore={fetchMore}
       />,
     )
@@ -68,12 +68,16 @@ describe('QuotesSectionTable', () => {
     render(
       <QuotesSectionTable<Row>
         {...baseProps}
-        metadata={{ currentPage: 1, totalPages: 3 }}
+        metadata={{ currentPage: 1, totalPages: 3, totalCount: 10 }}
         fetchMore={fetchMore}
       />,
     )
 
-    expect(mockPaginatedContentProps.current?.metadata).toEqual({ currentPage: 1, totalPages: 3 })
+    expect(mockPaginatedContentProps.current?.metadata).toEqual({
+      currentPage: 1,
+      totalPages: 3,
+      totalCount: 10,
+    })
   })
 
   it('onPageChange calls fetchMore with the requested page', () => {
@@ -82,7 +86,7 @@ describe('QuotesSectionTable', () => {
     render(
       <QuotesSectionTable<Row>
         {...baseProps}
-        metadata={{ currentPage: 1, totalPages: 3 }}
+        metadata={{ currentPage: 1, totalPages: 3, totalCount: 10 }}
         fetchMore={fetchMore}
       />,
     )
@@ -97,7 +101,7 @@ describe('QuotesSectionTable', () => {
       <QuotesSectionTable<Row>
         {...baseProps}
         isLoading
-        metadata={{ currentPage: 1, totalPages: 3 }}
+        metadata={{ currentPage: 1, totalPages: 3, totalCount: 10 }}
         fetchMore={fetchMore}
       />,
     )
@@ -114,7 +118,7 @@ describe('QuotesSectionTable', () => {
     render(
       <QuotesSectionTable<Row>
         {...baseProps}
-        metadata={{ currentPage: 1, totalPages: 1 }}
+        metadata={{ currentPage: 1, totalPages: 1, totalCount: 10 }}
         fetchMore={jest.fn()}
         getActions={getActions}
       />,
@@ -139,7 +143,7 @@ describe('QuotesSectionTable', () => {
     render(
       <QuotesSectionTable<Row>
         {...baseProps}
-        metadata={{ currentPage: 1, totalPages: 1 }}
+        metadata={{ currentPage: 1, totalPages: 1, totalCount: 10 }}
         fetchMore={jest.fn()}
       />,
     )

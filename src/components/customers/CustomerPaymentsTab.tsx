@@ -7,6 +7,7 @@ import { formatFiltersForCustomerPaymentsQuery } from '~/components/designSystem
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { CUSTOMER_PAYMENTS_FILTER_PREFIX } from '~/core/constants/filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CREATE_PAYMENT_ROUTE, useNavigate } from '~/core/router'
 import { useGetPaymentsListQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -36,7 +37,11 @@ export const CustomerPaymentsTab: FC<CustomerPaymentsTabProps> = ({ externalCust
 
   const { data, loading, fetchMore } = useGetPaymentsListQuery({
     notifyOnNetworkStatusChange: true,
-    variables: { externalCustomerId: externalCustomerId as string, limit: 20, currency },
+    variables: {
+      externalCustomerId: externalCustomerId as string,
+      limit: DEFAULT_PAGE_SIZE,
+      currency,
+    },
     skip: !externalCustomerId,
   })
 

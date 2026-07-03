@@ -104,6 +104,8 @@ interface WalletTransactionListProps {
   containerSize?: ResponsiveStyleValue<TableContainerSize>
 }
 
+const WALLET_TRANSACTIONS_ITEMS_PER_PAGE = 10
+
 export const WalletTransactionList: FC<WalletTransactionListProps> = ({
   customerTimezone,
   isOpen,
@@ -119,11 +121,15 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
 
   const [getWalletTransactions, { data, error, fetchMore, loading, refetch }] =
     useGetWalletTransactionsLazyQuery({
-      variables: { walletId: wallet.id, limit: 20 },
+      variables: { walletId: wallet.id, limit: WALLET_TRANSACTIONS_ITEMS_PER_PAGE },
       notifyOnNetworkStatusChange: true,
     })
   const list = data?.walletTransactions?.collection
-  const { currentPage = 0, totalPages = 0 } = data?.walletTransactions?.metadata || {}
+  const {
+    currentPage = 0,
+    totalPages = 0,
+    totalCount = 0,
+  } = data?.walletTransactions?.metadata || {}
 
   const hasData = !!list && !!list?.length
   const hasError = !!error && !loading
@@ -163,6 +169,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
           />
         )}
         {isLoading &&
+          !list?.length &&
           [1, 2, 3].map((i) => (
             <div
               className="flex w-full gap-3 px-3 py-4 shadow-b"
@@ -197,7 +204,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
             image={<EmptyImage width="136" height="104" />}
           />
         )}
-        {!isLoading && !isWalletEmpty && (
+        {!!list?.length && (
           <>
             <Table
               name="wallet-transactions-list"
@@ -205,6 +212,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
               containerSize={containerSize}
               rowSize={72}
               isLoading={isLoading}
+              loadingRowCount={WALLET_TRANSACTIONS_ITEMS_PER_PAGE}
               hasError={!!error}
               actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
               actionColumn={(transaction) =>
@@ -482,10 +490,12 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
           </>
         )}
       </div>
-      <div className="flex items-center justify-between gap-4 px-4 py-1">
+      <div className="flex items-center justify-between gap-4 py-1">
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
+          totalCount={totalCount}
+          pageSize={WALLET_TRANSACTIONS_ITEMS_PER_PAGE}
           loading={isLoading}
           onPageChange={(page) => fetchMore({ variables: { page } })}
         />

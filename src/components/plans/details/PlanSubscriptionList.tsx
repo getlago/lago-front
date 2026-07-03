@@ -57,7 +57,11 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
     error: subscriptionsError,
     fetchMore: fetchMoreSubscriptions,
   } = useGetSubscribtionsForPlanDetailsQuery({
-    variables: { planCode: planCode as string, limit: 20, status: [StatusTypeEnum.Active] },
+    variables: {
+      planCode: planCode as string,
+      limit: DEFAULT_PAGE_SIZE,
+      status: [StatusTypeEnum.Active],
+    },
     skip: !planCode,
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',

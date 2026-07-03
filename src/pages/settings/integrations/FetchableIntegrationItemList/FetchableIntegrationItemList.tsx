@@ -45,8 +45,12 @@ const FetchableIntegrationItemList = ({
     }
 
     const paginationMetadata =
-      metadata && 'currentPage' in metadata && 'totalPages' in metadata
-        ? { currentPage: metadata.currentPage, totalPages: metadata.totalPages }
+      metadata && 'currentPage' in metadata && 'totalPages' in metadata && 'totalCount' in metadata
+        ? {
+            currentPage: metadata.currentPage,
+            totalPages: metadata.totalPages,
+            totalCount: metadata.totalCount,
+          }
         : undefined
 
     const formattedItems: Array<IntegrationItem> = itemsToDisplay.map((itemToDisplay) => {

@@ -22,8 +22,11 @@ export const SettingsPageHeaderContainer = ({ children }: PropsWithChildren) => 
   <div className="flex flex-col gap-1">{children}</div>
 )
 
-export const SettingsListWrapper = ({ children }: PropsWithChildren) => (
-  <div className="flex flex-col gap-12">{children}</div>
+export const SettingsListWrapper = ({
+  children,
+  className,
+}: PropsWithChildren & { className?: string }) => (
+  <div className={tw('flex flex-col gap-12', className)}>{children}</div>
 )
 
 export const SettingsListItem = ({

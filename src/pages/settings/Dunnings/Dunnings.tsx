@@ -115,13 +115,13 @@ const Dunnings = () => {
         }}
       />
 
-      <SettingsPaddedContainer>
-        {!!loading ? (
+      <SettingsPaddedContainer className="min-h-0 flex-1 pb-0">
+        {loading && !data ? (
           <SettingsListItemLoadingSkeleton count={2} />
         ) : (
           <>
-            <SettingsListWrapper>
-              <SettingsListItem>
+            <SettingsListWrapper className="min-h-0 flex-1">
+              <SettingsListItem className="min-h-0 flex-1">
                 <SettingsListItemHeader
                   label={translate('text_1728574726495w5aylnynne9')}
                   sublabel={translate('text_1728574726495kqlx1l8crvp')}
@@ -184,6 +184,7 @@ const Dunnings = () => {
                       >
                         <Table
                           name="dunnings-settings-list"
+                          containerClassName="h-auto shrink-0"
                           containerSize={{ default: 0 }}
                           rowSize={72}
                           isLoading={loading}

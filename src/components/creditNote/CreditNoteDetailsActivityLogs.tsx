@@ -61,7 +61,7 @@ export const CreditNoteDetailsActivityLogs = ({
     variables: {
       resourceTypes: [ResourceTypeEnum.CreditNote],
       resourceIds: [creditNoteId],
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
     },
     notifyOnNetworkStatusChange: true,
     context: {

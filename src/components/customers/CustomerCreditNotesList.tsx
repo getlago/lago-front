@@ -12,6 +12,7 @@ import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_CREDIT_NOTES_FILTER_PREFIX } from '~/core/constants/filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   CreditNotesForTableFragmentDoc,
   CurrencyEnum,
@@ -90,7 +91,7 @@ export const CustomerCreditNotesList = ({
   const [getCreditNotes, { data, loading, error, fetchMore, variables }] =
     useGetCustomerCreditNotesLazyQuery({
       notifyOnNetworkStatusChange: true,
-      variables: { customerId, limit: 20 },
+      variables: { customerId, limit: DEFAULT_PAGE_SIZE },
     })
 
   const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined)
@@ -99,7 +100,7 @@ export const CustomerCreditNotesList = ({
     getCreditNotes({
       variables: {
         customerId,
-        limit: 20,
+        limit: DEFAULT_PAGE_SIZE,
         searchTerm,
         currency,
         billingEntityIds: billingEntityId ? [billingEntityId] : undefined,

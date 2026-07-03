@@ -14,7 +14,6 @@ import { PageSectionTitle } from '~/components/layouts/Section'
 import { formatAmount, formatCredits } from '~/components/wallets/utils'
 import { CREATE_WALLET_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import WalletActions from '~/components/wallets/WalletActions'
-import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_WALLET_ROUTE, useNavigate, WALLET_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -34,6 +33,8 @@ import { WalletDetailsTabsOptionsEnum } from '~/pages/wallet/WalletDetails'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 const ACTIVE_WALLET_COUNT_LIMIT = 6
+
+const WALLET_LIST_ITEMS_PER_PAGE = 10
 
 gql`
   fragment WalletAccordion on Wallet {
@@ -99,7 +100,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
-    variables: { customerId, page: 0, limit: 10 },
+    variables: { customerId, page: 0, limit: WALLET_LIST_ITEMS_PER_PAGE },
     notifyOnNetworkStatusChange: true,
   })
   const walletsCollection = data?.wallets?.collection || []
@@ -294,7 +295,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
         }
       />
 
-      {loading && (
+      {loading && !walletsCollection.length && (
         <div data-test={CUSTOMER_WALLET_LIST_LOADING_TEST_ID} className="flex flex-col gap-4">
           {[1, 2, 3].map((i) => (
             <Skeleton key={`customer-wallet-list-${i}`} variant="text" />
@@ -308,7 +309,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
         </Typography>
       )}
 
-      {!loading && !!walletsCollection.length && (
+      {!!walletsCollection.length && (
         <PaginatedContent
           metadata={data?.wallets?.metadata}
           loading={loading}
@@ -319,7 +320,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
             name="customer-wallet-list"
             data={loading ? [] : walletsCollection}
             isLoading={loading}
-            loadingRowCount={DEFAULT_PAGE_SIZE}
+            loadingRowCount={WALLET_LIST_ITEMS_PER_PAGE}
             hasError={!!error}
             containerSize={0}
             rowSize={72}

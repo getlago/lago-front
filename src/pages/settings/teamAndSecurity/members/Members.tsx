@@ -25,9 +25,9 @@ const Members = () => {
   const { openCreateInviteDialog } = useCreateInviteDialog()
 
   return (
-    <SettingsWithTabsPaddedContainer>
-      <SettingsListWrapper>
-        <SettingsListItem className="[box-shadow:none]">
+    <SettingsWithTabsPaddedContainer className="min-h-0 flex-1 pb-0">
+      <SettingsListWrapper className="min-h-0 flex-1">
+        <SettingsListItem className="min-h-0 flex-1 [box-shadow:none]">
           <SettingsListItemHeader
             label={translate('text_63208b630aaf8df6bbfb2657')}
             sublabel={translate('text_63208b630aaf8df6bbfb2659')}
@@ -42,6 +42,7 @@ const Members = () => {
             }
           />
           <NavigationTab
+            tabPanelClassName="min-h-0 flex-1 flex-col [&:not([hidden])]:flex"
             tabs={[
               {
                 title: translate('text_63208b630aaf8df6bbfb2655'),

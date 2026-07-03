@@ -80,7 +80,7 @@ export const RevenueStreamsPlanBreakdownSection = () => {
     notifyOnNetworkStatusChange: true,
     variables: {
       ...filtersForRevenueStreamsQuery,
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
     },
   })
 

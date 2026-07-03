@@ -61,7 +61,7 @@ export const BillableMetricDetailsActivityLogs = ({
     variables: {
       resourceTypes: [ResourceTypeEnum.BillableMetric],
       resourceIds: [billableMetricId],
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
     },
     notifyOnNetworkStatusChange: true,
     context: {

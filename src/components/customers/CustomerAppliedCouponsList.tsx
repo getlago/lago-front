@@ -74,7 +74,7 @@ export const CustomerAppliedCouponsList = ({
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
 
   const { data, error, loading, fetchMore } = useGetAppliedCouponsForCustomerQuery({
-    variables: { externalCustomerId: customerExternalId, page: 0, limit: 20 },
+    variables: { externalCustomerId: customerExternalId, page: 0, limit: DEFAULT_PAGE_SIZE },
     skip: !customerExternalId,
     notifyOnNetworkStatusChange: true,
   })

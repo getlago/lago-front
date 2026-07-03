@@ -59,7 +59,7 @@ export const PlanDetailsActivityLogs = ({ planId }: PlanDetailsActivityLogsProps
     variables: {
       resourceTypes: [ResourceTypeEnum.Plan],
       resourceIds: [planId],
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
     },
     notifyOnNetworkStatusChange: true,
     context: {

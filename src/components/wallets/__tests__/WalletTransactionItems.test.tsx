@@ -175,7 +175,7 @@ describe('WalletTransactionItems', () => {
             error={undefined}
             transactions={transactions}
             isConsumption={true}
-            pagination={{ currentPage: 1, totalPages: 3, fetchMore: mockFetchMore }}
+            pagination={{ currentPage: 1, totalPages: 3, totalCount: 25, fetchMore: mockFetchMore }}
             wallet={mockWallet}
             customerId="customer-1"
             timezone={TimezoneEnum.TzUtc}
@@ -185,6 +185,7 @@ describe('WalletTransactionItems', () => {
         expect(mockPaginatedContentProps.current?.metadata).toEqual({
           currentPage: 1,
           totalPages: 3,
+          totalCount: 25,
         })
       })
 

@@ -47,7 +47,7 @@ export const CustomerActivityLogs = ({ externalCustomerId }: CustomerActivityLog
   const { data, loading, error, refetch, fetchMore } = useCustomerActivityLogsQuery({
     variables: {
       externalCustomerId: externalCustomerId,
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
     },
     notifyOnNetworkStatusChange: true,
     context: {

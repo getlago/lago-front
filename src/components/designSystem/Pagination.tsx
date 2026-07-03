@@ -12,7 +12,7 @@ interface PaginationProps {
   currentPage: number
   totalPages: number
   /** Total number of items across all pages — drives the "X-Y of N results" label */
-  totalCount?: number
+  totalCount: number
   /** Rows displayed per page — drives the range label and the selected option */
   pageSize?: number
   onPageChange: (page: number) => void
@@ -62,18 +62,14 @@ export const Pagination = ({
   }
 
   const startNumber = (currentPage - 1) * pageSize + 1
-  const endNumber =
-    totalCount !== undefined ? Math.min(currentPage * pageSize, totalCount) : currentPage * pageSize
+  const endNumber = Math.min(currentPage * pageSize, totalCount)
 
-  // "{start}-{end} of {total} results" when the total is known, otherwise just "{start}-{end}"
-  const rangeLabel =
-    totalCount !== undefined
-      ? translate(
-          'text_1782992964028u0dbq1gbcy4',
-          { startNumber, endNumber, count: totalCount },
-          totalCount,
-        )
-      : `${startNumber}-${endNumber}`
+  // "{start}-{end} of {total} results"
+  const rangeLabel = translate(
+    'text_1782992964028u0dbq1gbcy4',
+    { startNumber, endNumber, count: totalCount },
+    totalCount,
+  )
 
   // 40px tall, 12px horizontal padding, 16px, grey-600, centered
   const labelClassName = 'flex h-10 items-center justify-center px-3 text-base text-grey-600'

@@ -70,7 +70,7 @@ export const CouponDetailsAppliedCoupons = ({ couponCode }: CouponDetailsApplied
   const centralizedDialog = useCentralizedDialog()
 
   const { data, loading, error, fetchMore } = useGetAppliedCouponsForCouponDetailsQuery({
-    variables: { couponCode: couponCode ? [couponCode] : undefined, limit: 20 },
+    variables: { couponCode: couponCode ? [couponCode] : undefined, limit: DEFAULT_PAGE_SIZE },
     skip: !couponCode,
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',

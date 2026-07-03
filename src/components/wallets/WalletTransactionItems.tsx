@@ -46,6 +46,7 @@ type WalletTransactionItemsProps = {
   pagination: {
     currentPage?: number
     totalPages?: number
+    totalCount?: number
     fetchMore:
       | GetWalletTransactionConsumptionsQueryResult['fetchMore']
       | GetWalletTransactionFundingsQueryResult['fetchMore']
@@ -115,6 +116,7 @@ const WalletTransactionItems = ({
       metadata={{
         currentPage: pagination.currentPage ?? 1,
         totalPages: pagination.totalPages ?? 0,
+        totalCount: pagination.totalCount ?? 0,
       }}
       loading={isLoading}
       onPageChange={(page) => pagination.fetchMore({ variables: { page } })}

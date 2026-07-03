@@ -97,8 +97,8 @@ const TaxesSettings = () => {
         }}
       />
 
-      <SettingsPaddedContainer>
-        {!loading && hasTaxProvider && (
+      <SettingsPaddedContainer className="min-h-0 flex-1 pb-0">
+        {hasTaxProvider && (
           <Alert type="info">
             <Typography variant="body" color="grey700">
               {translate('text_66ba65e562cbc500f04c7dbb')}
@@ -106,8 +106,8 @@ const TaxesSettings = () => {
           </Alert>
         )}
 
-        <SettingsListWrapper>
-          <SettingsListItem>
+        <SettingsListWrapper className="min-h-0 flex-1">
+          <SettingsListItem className="min-h-0 flex-1">
             <SettingsListItemHeader
               label={translate('text_645bb193927b375079d28ae8')}
               sublabel={translate('text_645ca29272ea80007df9d7af')}
@@ -138,6 +138,7 @@ const TaxesSettings = () => {
             >
               <Table
                 name="tax-settings-taxes"
+                containerClassName="h-auto shrink-0"
                 containerSize={{ default: 0 }}
                 rowSize={72}
                 isLoading={loading}

@@ -10,7 +10,7 @@ interface QuotesSectionTableProps<T> {
   data: T[]
   isLoading: boolean
   hasError: boolean
-  metadata: { currentPage: number; totalPages: number; totalCount?: number } | undefined
+  metadata: { currentPage: number; totalPages: number; totalCount: number } | undefined
   fetchMore: ((opts: { variables: { page: number } }) => Promise<unknown>) | undefined
   columns: Array<TableColumn<T>>
   emptyState: { title: string; subtitle: string }

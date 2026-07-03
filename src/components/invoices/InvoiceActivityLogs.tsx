@@ -59,7 +59,7 @@ export const InvoiceActivityLogs = ({ invoiceId }: InvoiceActivityLogsProps) => 
     variables: {
       resourceTypes: [ResourceTypeEnum.Invoice],
       resourceIds: [invoiceId],
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
     },
     notifyOnNetworkStatusChange: true,
     context: {

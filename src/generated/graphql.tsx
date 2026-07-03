@@ -12280,7 +12280,7 @@ export type GetAddOnsForAnrokItemsListQueryVariables = Exact<{
 }>;
 
 
-export type GetAddOnsForAnrokItemsListQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
+export type GetAddOnsForAnrokItemsListQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
 
 export type GetBillableMetricsForAnrokItemsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -12290,7 +12290,7 @@ export type GetBillableMetricsForAnrokItemsListQueryVariables = Exact<{
 }>;
 
 
-export type GetBillableMetricsForAnrokItemsListQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
+export type GetBillableMetricsForAnrokItemsListQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
 
 export type AnrokIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
@@ -12348,7 +12348,7 @@ export type GetAddOnsForAvalaraItemsListQueryVariables = Exact<{
 }>;
 
 
-export type GetAddOnsForAvalaraItemsListQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
+export type GetAddOnsForAvalaraItemsListQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
 
 export type GetBillableMetricsForAvalaraItemsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -12358,7 +12358,7 @@ export type GetBillableMetricsForAvalaraItemsListQueryVariables = Exact<{
 }>;
 
 
-export type GetBillableMetricsForAvalaraItemsListQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
+export type GetBillableMetricsForAvalaraItemsListQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
 
 export type AvalaraIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
@@ -12496,7 +12496,7 @@ export type GetAddOnsForNetsuiteItemsListQueryVariables = Exact<{
 }>;
 
 
-export type GetAddOnsForNetsuiteItemsListQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
+export type GetAddOnsForNetsuiteItemsListQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
 
 export type GetBillableMetricsForNetsuiteItemsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -12506,7 +12506,7 @@ export type GetBillableMetricsForNetsuiteItemsListQueryVariables = Exact<{
 }>;
 
 
-export type GetBillableMetricsForNetsuiteItemsListQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
+export type GetBillableMetricsForNetsuiteItemsListQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
 
 export type NetsuiteIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
@@ -12558,7 +12558,7 @@ export type GetAddOnsForXeroItemsListQueryVariables = Exact<{
 }>;
 
 
-export type GetAddOnsForXeroItemsListQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null, mappableId: string }> | null }> } };
+export type GetAddOnsForXeroItemsListQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null, mappableId: string }> | null }> } };
 
 export type GetBillableMetricsForXeroItemsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -12568,7 +12568,7 @@ export type GetBillableMetricsForXeroItemsListQueryVariables = Exact<{
 }>;
 
 
-export type GetBillableMetricsForXeroItemsListQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null, mappableId: string }> | null }> } };
+export type GetBillableMetricsForXeroItemsListQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null, mappableId: string }> | null }> } };
 
 export type XeroIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null, mappableId: string }> | null };
 
@@ -12929,7 +12929,7 @@ export type GetWalletTransactionFundingsQueryVariables = Exact<{
 }>;
 
 
-export type GetWalletTransactionFundingsQuery = { __typename?: 'Query', walletTransactionFundings: { __typename?: 'WalletTransactionFundingCollection', collection: Array<{ __typename?: 'WalletTransactionFunding', id: string, amountCents: any, createdAt: any, creditAmount: string, walletTransaction: { __typename?: 'WalletTransaction', id: string, transactionStatus: WalletTransactionTransactionStatusEnum } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
+export type GetWalletTransactionFundingsQuery = { __typename?: 'Query', walletTransactionFundings: { __typename?: 'WalletTransactionFundingCollection', collection: Array<{ __typename?: 'WalletTransactionFunding', id: string, amountCents: any, createdAt: any, creditAmount: string, walletTransaction: { __typename?: 'WalletTransaction', id: string, transactionStatus: WalletTransactionTransactionStatusEnum } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type GetWalletTransactionConsumptionsQueryVariables = Exact<{
   walletTransactionId: Scalars['ID']['input'];
@@ -12938,7 +12938,7 @@ export type GetWalletTransactionConsumptionsQueryVariables = Exact<{
 }>;
 
 
-export type GetWalletTransactionConsumptionsQuery = { __typename?: 'Query', walletTransactionConsumptions: { __typename?: 'WalletTransactionConsumptionCollection', collection: Array<{ __typename?: 'WalletTransactionConsumption', id: string, amountCents: any, createdAt: any, creditAmount: string, walletTransaction: { __typename?: 'WalletTransaction', id: string, transactionStatus: WalletTransactionTransactionStatusEnum } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
+export type GetWalletTransactionConsumptionsQuery = { __typename?: 'Query', walletTransactionConsumptions: { __typename?: 'WalletTransactionConsumptionCollection', collection: Array<{ __typename?: 'WalletTransactionConsumption', id: string, amountCents: any, createdAt: any, creditAmount: string, walletTransaction: { __typename?: 'WalletTransaction', id: string, transactionStatus: WalletTransactionTransactionStatusEnum } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type WalletInfosForTransactionsFragment = { __typename?: 'Wallet', id: string, currency: CurrencyEnum, status: WalletStatusEnum, ongoingUsageBalanceCents: any, creditsOngoingUsageBalance: number, rateAmount: number, traceable: boolean };
 
@@ -29259,6 +29259,7 @@ export const GetAddOnsForAnrokItemsListDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       id
@@ -29312,6 +29313,7 @@ export const GetBillableMetricsForAnrokItemsListDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       id
@@ -29504,6 +29506,7 @@ export const GetAddOnsForAvalaraItemsListDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       id
@@ -29557,6 +29560,7 @@ export const GetBillableMetricsForAvalaraItemsListDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       id
@@ -30013,6 +30017,7 @@ export const GetAddOnsForNetsuiteItemsListDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       id
@@ -30066,6 +30071,7 @@ export const GetBillableMetricsForNetsuiteItemsListDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       id
@@ -30224,6 +30230,7 @@ export const GetAddOnsForXeroItemsListDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       id
@@ -30277,6 +30284,7 @@ export const GetBillableMetricsForXeroItemsListDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
     collection {
       id
@@ -31858,6 +31866,7 @@ export const GetWalletTransactionFundingsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }
@@ -31913,6 +31922,7 @@ export const GetWalletTransactionConsumptionsDocument = gql`
     metadata {
       currentPage
       totalPages
+      totalCount
     }
   }
 }

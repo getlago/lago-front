@@ -59,7 +59,7 @@ export const CouponDetailsActivityLogs = ({ couponId }: CouponDetailsActivityLog
     variables: {
       resourceTypes: [ResourceTypeEnum.Coupon],
       resourceIds: [couponId],
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
     },
     notifyOnNetworkStatusChange: true,
     context: {

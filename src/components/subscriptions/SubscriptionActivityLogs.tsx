@@ -50,7 +50,7 @@ export const SubscriptionActivityLogs: FC<SubscriptionActivityLogsProps> = ({
   const { data, loading, error, refetch, fetchMore } = useSubscriptionActivityLogsQuery({
     variables: {
       externalSubscriptionId: externalSubscriptionId,
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
     },
     notifyOnNetworkStatusChange: true,
     context: {

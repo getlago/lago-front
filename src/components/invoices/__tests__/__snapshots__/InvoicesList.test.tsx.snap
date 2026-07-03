@@ -709,13 +709,9 @@ exports[`InvoicesList Snapshot Tests matches snapshot in loading state 1`] = `
       </tbody>
     </table>
   </div>
-  <div
-    aria-hidden="true"
-    class="flex-1"
-  />
   <nav
     aria-label="pagination"
-    class="flex items-center gap-3 px-4 py-3 -mt-px border-t border-grey-300 bg-white sticky bottom-0 z-10"
+    class="flex items-center gap-3 px-4 py-3 border-t border-grey-300 bg-white sticky bottom-0 z-10 mt-auto"
     data-test="pagination"
   >
     <button
@@ -1765,10 +1761,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
       </tbody>
     </table>
   </div>
-  <div
-    aria-hidden="true"
-    class="flex-1"
-  />
 </div>
 `;
 
@@ -2807,10 +2799,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
       </tbody>
     </table>
   </div>
-  <div
-    aria-hidden="true"
-    class="flex-1"
-  />
 </div>
 `;
 
@@ -2981,10 +2969,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with empty state 1`] = `
       </tbody>
     </table>
   </div>
-  <div
-    aria-hidden="true"
-    class="flex-1"
-  />
 </div>
 `;
 
@@ -3168,10 +3152,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with error state 1`] = `
       </tbody>
     </table>
   </div>
-  <div
-    aria-hidden="true"
-    class="flex-1"
-  />
 </div>
 `;
 
@@ -4210,10 +4190,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
       </tbody>
     </table>
   </div>
-  <div
-    aria-hidden="true"
-    class="flex-1"
-  />
 </div>
 `;
 
@@ -4664,10 +4640,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
       </tbody>
     </table>
   </div>
-  <div
-    aria-hidden="true"
-    class="flex-1"
-  />
 </div>
 `;
 
@@ -5122,9 +5094,5 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
       </tbody>
     </table>
   </div>
-  <div
-    aria-hidden="true"
-    class="flex-1"
-  />
 </div>
 `;

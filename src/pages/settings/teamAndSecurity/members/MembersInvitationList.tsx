@@ -191,7 +191,7 @@ const MembersInvitationList = () => {
   }
 
   return (
-    <div>
+    <div className="flex min-h-0 flex-1 flex-col">
       <MembersFilters
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -206,6 +206,7 @@ const MembersInvitationList = () => {
       >
         <Table
           name="members-setting-invitations-list"
+          containerClassName="h-auto shrink-0"
           containerSize={{ default: 0 }}
           rowSize={72}
           isLoading={invitesLoading}

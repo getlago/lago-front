@@ -24,6 +24,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import WalletTransactionItems from '~/components/wallets/WalletTransactionItems'
 import { buildGoCardlessPaymentUrl, buildStripePaymentUrl } from '~/core/constants/externalUrls'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   payablePaymentStatusMapping,
   paymentStatusMapping,
@@ -132,6 +133,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
@@ -148,6 +150,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
@@ -210,7 +213,7 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
       notifyOnNetworkStatusChange: true,
       variables: {
         walletTransactionId: walletTransactionId as string,
-        limit: 20,
+        limit: DEFAULT_PAGE_SIZE,
       },
       skip: !walletTransactionId || !showFundingTab,
       context: {
@@ -227,7 +230,7 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
       notifyOnNetworkStatusChange: true,
       variables: {
         walletTransactionId: walletTransactionId as string,
-        limit: 20,
+        limit: DEFAULT_PAGE_SIZE,
       },
       skip: !walletTransactionId || !showConsumptionTab,
       context: {

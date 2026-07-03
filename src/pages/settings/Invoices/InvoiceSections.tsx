@@ -145,9 +145,11 @@ const InvoiceSections = () => {
                   pageSize={pricingUnitsPageSize}
                   onPageChange={(page) => pricingUnitsFetchMore?.({ variables: { page } })}
                   onPageSizeChange={setPricingUnitsPageSize}
+                  sticky={false}
                 >
                   <Table
                     name="pricing-units"
+                    containerClassName="h-auto"
                     containerSize={{ default: 4 }}
                     data={
                       pricingUnitsLoading ? [] : (pricingUnitsData?.pricingUnits?.collection ?? [])
@@ -228,9 +230,11 @@ const InvoiceSections = () => {
                 pageSize={customSectionsPageSize}
                 onPageChange={(page) => invoiceCustomSectionsFetchMore?.({ variables: { page } })}
                 onPageSizeChange={setCustomSectionsPageSize}
+                sticky={false}
               >
                 <Table
                   name="invoice-custom-section"
+                  containerClassName="h-auto"
                   containerSize={{ default: 0 }}
                   data={
                     invoiceCustomSectionsLoading

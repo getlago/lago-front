@@ -111,7 +111,7 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
   const {
     currentPage = 0,
     totalPages = 0,
-    totalCount,
+    totalCount = 0,
   } = customerWalletData?.customerPortalWallets?.metadata || {}
   const isLoading = customerWalletLoading || customerPortalUserLoading
   const isError = !isLoading && (customerWalletError || customerPortalUserError)

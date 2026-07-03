@@ -30,7 +30,7 @@ export const InvoicePaymentList: FC<{
   const premiumWarningDialog = usePremiumWarningDialog()
 
   const { data, loading, error, fetchMore } = useGetPaymentsListQuery({
-    variables: { invoiceId: invoiceId as string, limit: 20 },
+    variables: { invoiceId: invoiceId as string, limit: DEFAULT_PAGE_SIZE },
     skip: !invoiceId,
     notifyOnNetworkStatusChange: true,
   })

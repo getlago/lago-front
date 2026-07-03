@@ -80,7 +80,7 @@ export const MrrBreakdownSection = () => {
     notifyOnNetworkStatusChange: true,
     variables: {
       ...filtersForMrrQuery,
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
     },
   })
 

@@ -92,7 +92,7 @@ const SecurityLogs = () => {
 
   return (
     <div
-      className="flex flex-col gap-4 px-4 pb-20 pt-10 md:px-12"
+      className="flex min-h-0 flex-1 flex-col gap-4 px-4 pb-0 pt-10 md:px-12"
       data-test={SECURITY_LOGS_CONTAINER_TEST_ID}
     >
       <SettingsListItemHeader
@@ -133,6 +133,7 @@ const SecurityLogs = () => {
       >
         <Table
           name="security-logs"
+          containerClassName="h-auto shrink-0"
           containerSize={{ default: 4 }}
           rowSize={72}
           columns={columns}

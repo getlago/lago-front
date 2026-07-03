@@ -47,12 +47,6 @@ describe('Pagination', () => {
     expect(screen.getByText('41-45 of 45 results')).toBeInTheDocument()
   })
 
-  it('shows only the range when totalCount is unknown', () => {
-    render(<Pagination {...baseProps} currentPage={2} totalCount={undefined} />)
-
-    expect(screen.getByText('21-40')).toBeInTheDocument()
-  })
-
   it('calls onPageChange when prev / next are clicked', () => {
     const onPageChange = jest.fn()
 

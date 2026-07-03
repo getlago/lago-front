@@ -59,7 +59,7 @@ export const FeatureDetailsActivityLogs = ({ featureId }: FeatureDetailsActivity
     variables: {
       resourceTypes: [ResourceTypeEnum.Feature],
       resourceIds: [featureId],
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
     },
     notifyOnNetworkStatusChange: true,
     context: {
