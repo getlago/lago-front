@@ -6,9 +6,8 @@ import { generatePath } from 'react-router-dom'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
-import { DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import {
@@ -76,7 +75,7 @@ const LagoTaxManagementIntegration = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const deleteConnectionRef = useRef<DialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
   const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
 
   const { data: billingEntitiesData, loading: billingEntitiesLoading } =
@@ -156,7 +155,13 @@ const LagoTaxManagementIntegration = () => {
               disabled: loading,
               dataTest: LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID,
               onClick: () => {
-                deleteConnectionRef.current?.openDialog()
+                centralizedDialog.open({
+                  title: translate('text_657078c28394d6b1ae1b9707'),
+                  description: translate('text_657078c28394d6b1ae1b970d'),
+                  actionText: translate('text_657078c28394d6b1ae1b971b'),
+                  colorVariant: 'danger',
+                  onAction: removeEuTaxManagement,
+                })
               },
             },
           ],
@@ -245,14 +250,6 @@ const LagoTaxManagementIntegration = () => {
       </IntegrationsPage.Container>
 
       <AddLagoTaxManagementDialog isUpdate={true} ref={addLagoTaxManagementDialog} />
-
-      <WarningDialog
-        ref={deleteConnectionRef}
-        title={translate('text_657078c28394d6b1ae1b9707')}
-        description={translate('text_657078c28394d6b1ae1b970d')}
-        continueText={translate('text_657078c28394d6b1ae1b971b')}
-        onContinue={removeEuTaxManagement}
-      />
     </>
   )
 }
