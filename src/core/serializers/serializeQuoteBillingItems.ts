@@ -32,7 +32,7 @@ interface BillingItemAddon {
 }
 
 export interface BillingItemsPayload {
-  addons: BillingItemAddon[]
+  addons?: BillingItemAddon[]
   plans?: BillingItemPlan[]
   coupons?: BillingItemCoupon[]
 }
@@ -50,7 +50,7 @@ const normalizeDateTime = (value: string): string | null => (value === '' ? null
 export const toBillingItems = (
   addOnItems: AddOnItem[],
   originalPayloads: Record<string, AddOnPayload>,
-): BillingItemsPayload => {
+): Required<Pick<BillingItemsPayload, 'addons'>> => {
   const addons: BillingItemAddon[] = addOnItems.map((item, index) => {
     const original = originalPayloads[item.localId] ?? originalPayloads[item.addOnId]
     const payload: AddOnPayload = { ...original, position: index + 1 }
@@ -108,7 +108,9 @@ export const fromBillingItems = (billingItems: BillingItemsPayload): FromBilling
   const addOnItems: AddOnItem[] = []
   const originalPayloads: Record<string, AddOnPayload> = {}
 
-  const sorted = [...billingItems.addons].sort((a, b) => a.payload.position - b.payload.position)
+  const sorted = [...(billingItems.addons ?? [])].sort(
+    (a, b) => a.payload.position - b.payload.position,
+  )
 
   for (const addon of sorted) {
     const { payload, overrides, id, localId: savedLocalId } = addon

@@ -311,7 +311,7 @@ export const useDiscountDrawer = (
     entitiesRef.current = nextEntities
     setEntities(nextEntities)
 
-    return { ...(billingItems ?? { addons: [] }), coupons }
+    return { ...billingItems, coupons }
   }, [billingItems])
 
   const form = useAppForm({

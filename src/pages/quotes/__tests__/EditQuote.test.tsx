@@ -694,7 +694,7 @@ describe('EditQuote', () => {
         const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
         const mockAttrs = { pricingType: 'addOns', entityIds: ['addon-1'] }
         const mockEntityData = { 'addon-1': { name: 'Test Add-on' } }
-        const mockBillingItems = [{ addOnId: 'addon-1' }]
+        const mockBillingItems = { addons: [{ addOnId: 'addon-1' }] }
 
         await act(async () => {
           wrappedOnSave(mockAttrs, mockEntityData, mockBillingItems)
@@ -746,7 +746,7 @@ describe('EditQuote', () => {
 
     describe('WHEN pricing blocks change and syncEntitiesWithBlocks returns billing items', () => {
       it('THEN should save the updated billing items', async () => {
-        const mockBillingItems = [{ addOnId: 'addon-1', units: '2' }]
+        const mockBillingItems = { addons: [{ addOnId: 'addon-1', units: '2' }] }
 
         mockSyncEntitiesWithBlocks.mockReturnValue(mockBillingItems)
         mockUpdateQuoteVersion.mockResolvedValue({
@@ -944,7 +944,9 @@ describe('EditQuote', () => {
 
     describe('WHEN discount blocks change and syncDiscountBlocks returns billing items', () => {
       it('THEN should save the updated billing items', async () => {
-        const mockBillingItems = { addons: [], coupons: [{ id: 'coupon-1', position: 1 }] }
+        // The discount drawer owns only the `coupons` key and returns a partial
+        // without `addons`; savePricingBlock normalizes `addons` back in.
+        const mockBillingItems = { coupons: [{ id: 'coupon-1', position: 1 }] }
 
         mockSyncDiscountBlocks.mockReturnValue(mockBillingItems)
         mockUpdateQuoteVersion.mockResolvedValue({
@@ -963,7 +965,9 @@ describe('EditQuote', () => {
 
         await waitFor(() => {
           expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
-            expect.objectContaining({ billingItems: mockBillingItems }),
+            expect.objectContaining({
+              billingItems: { addons: [], coupons: [{ id: 'coupon-1', position: 1 }] },
+            }),
             false,
           )
         })
