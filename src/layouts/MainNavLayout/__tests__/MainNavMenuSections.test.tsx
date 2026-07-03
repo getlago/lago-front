@@ -1,5 +1,6 @@
 import { screen, within } from '@testing-library/react'
 
+import { FeatureFlagEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
@@ -241,6 +242,22 @@ describe('MainNavMenuSections', () => {
       render(<MainNavMenuSections {...defaultProps} />)
 
       expect(screen.queryByTestId(MAIN_NAV_CATALOG_SECTION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('does not render catalog section when the ProductCatalog feature flag is off', () => {
+      mockHasFeatureFlag.mockImplementation((flag: FeatureFlagEnum) => {
+        return flag !== FeatureFlagEnum.ProductCatalog
+      })
+
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(screen.queryByTestId(MAIN_NAV_CATALOG_SECTION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('gates the catalog section on the ProductCatalog feature flag', () => {
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(mockHasFeatureFlag).toHaveBeenCalledWith(FeatureFlagEnum.ProductCatalog)
     })
   })
 

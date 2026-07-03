@@ -132,7 +132,9 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       link: PRODUCT_CATALOG_ROUTE,
       canBeClickedOnActive: true,
       match: [PRODUCT_CATALOG_ROUTE],
-      hidden: !hasPermissionsOr(['productsView', 'productItemsView', 'rateCardsView']),
+      hidden:
+        !hasFeatureFlag(FeatureFlagEnum.ProductCatalog) ||
+        !hasPermissionsOr(['productsView', 'productItemsView', 'rateCardsView']),
     },
     {
       title: translate('text_62442e40cea25600b0b6d85a'),
@@ -140,7 +142,8 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       link: PLAN_CATALOG_ROUTE,
       canBeClickedOnActive: true,
       match: [PLAN_CATALOG_ROUTE],
-      hidden: !hasPermissions(['plansView']),
+      hidden:
+        !hasFeatureFlag(FeatureFlagEnum.ProductCatalog) || !hasPermissions(['plansView']),
     },
   ]
 
