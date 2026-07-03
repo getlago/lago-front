@@ -15,6 +15,7 @@ import {
   DISCOUNT_BLOCK_VIEW_UNRESOLVED_TEST_ID,
   DiscountBlockView,
 } from '../DiscountBlockView'
+import { DISCOUNT_PREVIEW_TABLE_TEST_ID } from '../DiscountPreviewTable'
 
 jest.mock('@tiptap/react', () => ({
   ...jest.requireActual('@tiptap/react'),
@@ -278,6 +279,16 @@ describe('DiscountBlockView', () => {
 
         expect(screen.queryByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)).not.toBeInTheDocument()
       })
+
+      it('THEN should render the preview table with the formatted fixed amount', () => {
+        renderPreview({
+          attrs: { couponId: 'coupon-2', localId: 'local-2' },
+          entities: { 'local-2': couponEntityFixed },
+        })
+
+        expect(screen.getByTestId(DISCOUNT_PREVIEW_TABLE_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByText('$10.00')).toBeInTheDocument()
+      })
     })
 
     describe('WHEN rendered with a resolved percentage coupon', () => {
@@ -297,6 +308,16 @@ describe('DiscountBlockView', () => {
         })
 
         expect(screen.queryByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should render the percentage value in the preview table', () => {
+        renderPreview({
+          attrs: { couponId: 'coupon-3', localId: 'local-3' },
+          entities: { 'local-3': couponEntityPct },
+        })
+
+        expect(screen.getByTestId(DISCOUNT_PREVIEW_TABLE_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByText('15%')).toBeInTheDocument()
       })
     })
 
