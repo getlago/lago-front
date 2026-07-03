@@ -249,5 +249,11 @@
   "text_1782223048616d9fxvmvy6xk": "Ab {{from}} Einheiten",
   "text_17822898603051pryf16s23k": "Pauschalgebühr für die ersten {{to}} Einheiten",
   "text_1782289860305xi20ikioh8l": "Pauschalgebühr für {{from}} bis {{to}} Einheiten",
-  "text_1782289860305wlllob2k8n0": "Pauschalgebühr ab {{from}} Einheiten"
+  "text_1782289860305wlllob2k8n0": "Pauschalgebühr ab {{from}} Einheiten",
+  "text_1782889379261hdcd0jhzdm6": "Rabatt",
+  "text_1782891666475j9e81afl8in": "Rabatt",
+  "text_632d68358f1fedc68eed3e80": "Laufzeit",
+  "text_632d68358f1fedc68eed3ea3": "Einmalig",
+  "text_63c83a3476e46bc6ab9d85d6": "Unbegrenzt",
+  "text_17830875698228lpz4i09jop": "{{count}} Abrechnungszeitraum|{{count}} Abrechnungszeiträume"
 }

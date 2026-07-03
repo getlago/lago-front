@@ -4469,5 +4469,6 @@
   "text_1782891666475u5j60v91cv2": "Discount and coupon",
   "text_1782891666475ht76172d37q": "Apply a coupon to this quote to grant a discount.",
   "text_1783342959387sv77znuw5yx": "Select a coupon",
-  "text_1783342959387cz07147m6qq": "Coupon: {{couponId}}"
+  "text_1783342959387cz07147m6qq": "Coupon: {{couponId}}",
+  "text_17830875698228lpz4i09jop": "{{count}} billing period|{{count}} billing periods"
 }
