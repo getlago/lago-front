@@ -12,7 +12,7 @@ export const DISCOUNT_PREVIEW_TABLE_TEST_ID = 'discount-preview-table'
 
 const K = {
   discountLabel: 'text_1782889379261hdcd0jhzdm6',
-  discountValue: 'text_1782891666475j9e81afl8in',
+  discountValue: 'text_1783090333139dnllq2q6ege',
   duration: 'text_632d68358f1fedc68eed3e80',
   once: 'text_632d68358f1fedc68eed3ea3',
   forever: 'text_63c83a3476e46bc6ab9d85d6',

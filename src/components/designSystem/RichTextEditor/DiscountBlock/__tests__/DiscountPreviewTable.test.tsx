@@ -12,7 +12,7 @@ const BILLING_PERIODS_KEY = 'text_17830875698228lpz4i09jop'
 const translate = ((key: string, data?: Record<string, unknown>) => {
   const map: Record<string, string> = {
     text_1782889379261hdcd0jhzdm6: 'Discount',
-    text_1782891666475j9e81afl8in: 'Discount',
+    text_1783090333139dnllq2q6ege: 'Discount value',
     text_632d68358f1fedc68eed3e80: 'Duration',
     text_632d68358f1fedc68eed3ea3: 'Once',
     text_63c83a3476e46bc6ab9d85d6: 'Forever',
