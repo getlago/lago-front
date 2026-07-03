@@ -11241,11 +11241,13 @@ export type GetCustomerGrossRevenuesQueryVariables = Exact<{
 export type GetCustomerGrossRevenuesQuery = { __typename?: 'Query', grossRevenues: { __typename?: 'GrossRevenueCollection', collection: Array<{ __typename?: 'GrossRevenue', amountCents?: any | null, billingEntityId?: string | null, currency?: CurrencyEnum | null, invoicesCount: any, month: any }> } };
 
 export type GetCustomerSubscriptionForListQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
+  externalCustomerId: Scalars['String']['input'];
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, subscriptions: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval, payInAdvance: boolean, parent?: { __typename?: 'Plan', id: string } | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }> } | null };
+export type GetCustomerSubscriptionForListQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, amountCurrency: CurrencyEnum, name: string, interval: PlanInterval, payInAdvance: boolean, parent?: { __typename?: 'Plan', id: string } | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval: PlanInterval } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type EditCustomerIssuingDatePolicyDialogFragment = { __typename?: 'Customer', id: string, invoiceGracePeriod?: number | null, externalId: string, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', subscriptionInvoiceIssuingDateAdjustment?: CustomerSubscriptionInvoiceIssuingDateAdjustmentEnum | null, subscriptionInvoiceIssuingDateAnchor?: CustomerSubscriptionInvoiceIssuingDateAnchorEnum | null } | null };
 
@@ -24884,11 +24886,13 @@ export type GetCustomerGrossRevenuesLazyQueryHookResult = ReturnType<typeof useG
 export type GetCustomerGrossRevenuesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerGrossRevenuesSuspenseQuery>;
 export type GetCustomerGrossRevenuesQueryResult = Apollo.QueryResult<GetCustomerGrossRevenuesQuery, GetCustomerGrossRevenuesQueryVariables>;
 export const GetCustomerSubscriptionForListDocument = gql`
-    query getCustomerSubscriptionForList($id: ID!) {
-  customer(id: $id) {
-    id
-    applicableTimezone
-    subscriptions {
+    query getCustomerSubscriptionForList($externalCustomerId: String!, $page: Int, $limit: Int) {
+  subscriptions(
+    externalCustomerId: $externalCustomerId
+    page: $page
+    limit: $limit
+  ) {
+    collection {
       id
       status
       startedAt
@@ -24924,6 +24928,11 @@ export const GetCustomerSubscriptionForListDocument = gql`
         status
       }
     }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
   }
 }
     `;
@@ -24940,7 +24949,9 @@ export const GetCustomerSubscriptionForListDocument = gql`
  * @example
  * const { data, loading, error } = useGetCustomerSubscriptionForListQuery({
  *   variables: {
- *      id: // value for 'id'
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
  *   },
  * });
  */

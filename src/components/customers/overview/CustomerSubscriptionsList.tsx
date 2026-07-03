@@ -2,12 +2,14 @@ import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { generatePath, useParams } from 'react-router-dom'
 
+import { PaginatedContent } from '~/components/designSystem/PaginatedContent'
 import { Status, StatusProps, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { SubscriptionsList } from '~/components/subscriptions/SubscriptionsList'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import { getIntervalTranslationKey } from '~/core/constants/form'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CREATE_SUBSCRIPTION,
@@ -17,6 +19,7 @@ import {
 import {
   StatusTypeEnum,
   Subscription,
+  TimezoneEnum,
   useGetCustomerSubscriptionForListQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -24,11 +27,9 @@ import { usePermissions } from '~/hooks/usePermissions'
 import { tw } from '~/styles/utils'
 
 gql`
-  query getCustomerSubscriptionForList($id: ID!) {
-    customer(id: $id) {
-      id
-      applicableTimezone
-      subscriptions {
+  query getCustomerSubscriptionForList($externalCustomerId: String!, $page: Int, $limit: Int) {
+    subscriptions(externalCustomerId: $externalCustomerId, page: $page, limit: $limit) {
+      collection {
         id
         status
         startedAt
@@ -64,21 +65,35 @@ gql`
           status
         }
       }
+      metadata {
+        currentPage
+        totalPages
+        totalCount
+      }
     }
   }
 `
 
-export const CustomerSubscriptionsList = () => {
+interface CustomerSubscriptionsListProps {
+  customerExternalId?: string | null
+  customerTimezone?: TimezoneEnum
+}
+
+export const CustomerSubscriptionsList = ({
+  customerExternalId,
+  customerTimezone,
+}: CustomerSubscriptionsListProps) => {
   const { customerId } = useParams()
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { data, loading } = useGetCustomerSubscriptionForListQuery({
-    variables: { id: customerId as string },
-    skip: !customerId,
+  const { data, loading, fetchMore } = useGetCustomerSubscriptionForListQuery({
+    variables: { externalCustomerId: customerExternalId as string, limit: DEFAULT_PAGE_SIZE },
+    skip: !customerExternalId,
     notifyOnNetworkStatusChange: true,
   })
-  const subscriptions = data?.customer?.subscriptions as Subscription[]
+  const subscriptions = data?.subscriptions?.collection as Subscription[]
+  const metadata = data?.subscriptions?.metadata
   const hasNoSubscription = !subscriptions || !subscriptions.length
 
   return (
@@ -110,14 +125,21 @@ export const CustomerSubscriptionsList = () => {
       )}
 
       {(!hasNoSubscription || !!loading) && (
-        <>
+        <PaginatedContent
+          metadata={metadata}
+          loading={loading}
+          pageSize={DEFAULT_PAGE_SIZE}
+          onPageChange={(page) => fetchMore({ variables: { page } })}
+          sticky={false}
+        >
           <SubscriptionsList
             name="customer-subscriptions"
-            subscriptions={subscriptions}
-            customerId={data?.customer?.id}
-            customerTimezone={data?.customer?.applicableTimezone}
+            subscriptions={loading ? [] : subscriptions}
+            customerId={customerId}
+            customerTimezone={customerTimezone}
             containerSize={4}
             isLoading={loading}
+            loadingRowCount={DEFAULT_PAGE_SIZE}
             actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
             onRowActionLink={({ id }) =>
               generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
@@ -204,7 +226,7 @@ export const CustomerSubscriptionsList = () => {
               },
             ]}
           />
-        </>
+        </PaginatedContent>
       )}
     </div>
   )

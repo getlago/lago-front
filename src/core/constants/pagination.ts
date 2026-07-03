@@ -6,4 +6,4 @@
  */
 export const DEFAULT_PAGE_SIZE = 20
 
-export const PAGE_SIZE_OPTIONS = [20, 50, 100]
+export const PAGE_SIZE_OPTIONS = [DEFAULT_PAGE_SIZE, 50, 100]
