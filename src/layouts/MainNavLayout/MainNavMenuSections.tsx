@@ -142,8 +142,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       link: PLAN_CATALOG_ROUTE,
       canBeClickedOnActive: true,
       match: [PLAN_CATALOG_ROUTE],
-      hidden:
-        !hasFeatureFlag(FeatureFlagEnum.ProductCatalog) || !hasPermissions(['plansView']),
+      hidden: !hasFeatureFlag(FeatureFlagEnum.ProductCatalog) || !hasPermissions(['plansView']),
     },
   ]
 
