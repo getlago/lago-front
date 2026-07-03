@@ -81,6 +81,7 @@ export const FeatureDetailsActivityLogs = ({ featureId }: FeatureDetailsActivity
             metadata={data?.activityLogs?.metadata}
             loading={loading}
             onPageChange={(page) => fetchMore({ variables: { page } })}
+            sticky={false}
           >
             <ActivityLogsTable
               containerSize={4}

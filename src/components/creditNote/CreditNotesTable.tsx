@@ -172,7 +172,7 @@ const CreditNotesTable = ({
     >
       <Table
         name="credit-notes-list"
-        containerClassName={`border-t border-grey-300${sticky ? ' h-auto shrink-0' : ''}`}
+        containerClassName={`border-t border-grey-300${sticky ? ' h-auto shrink-0 -mb-px' : ''}`}
         data={isLoading ? [] : creditNotes || []}
         loadingRowCount={pageSize}
         containerSize={

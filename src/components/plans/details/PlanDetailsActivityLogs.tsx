@@ -81,6 +81,7 @@ export const PlanDetailsActivityLogs = ({ planId }: PlanDetailsActivityLogsProps
             metadata={data?.activityLogs?.metadata}
             loading={loading}
             onPageChange={(page) => fetchMore({ variables: { page } })}
+            sticky={false}
           >
             <ActivityLogsTable
               containerSize={4}

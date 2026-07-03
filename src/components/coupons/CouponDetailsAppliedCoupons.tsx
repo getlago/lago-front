@@ -188,6 +188,7 @@ export const CouponDetailsAppliedCoupons = ({ couponCode }: CouponDetailsApplied
         metadata={data?.appliedCoupons?.metadata}
         loading={loading}
         onPageChange={(page) => fetchMore({ variables: { page } })}
+        sticky={false}
       >
         <Table
           name="coupon-details-applied-coupons"

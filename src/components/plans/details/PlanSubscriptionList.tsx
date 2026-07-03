@@ -77,6 +77,7 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
         metadata={subscriptionResult?.subscriptions?.metadata}
         loading={areSubscriptionsLoading}
         onPageChange={(page) => fetchMoreSubscriptions({ variables: { page } })}
+        sticky={false}
       >
         <Table
           name="plan-subscriptions"

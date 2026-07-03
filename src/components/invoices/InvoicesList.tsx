@@ -385,7 +385,7 @@ const InvoicesList = ({
       >
         <Table
           name="invoices-list"
-          containerClassName="h-auto shrink-0 border-t border-grey-300"
+          containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
           data={isLoading ? [] : invoices || []}
           containerSize={{
             default: 16,

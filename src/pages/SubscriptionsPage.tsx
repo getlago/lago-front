@@ -193,7 +193,7 @@ const SubscriptionsPage = () => {
       >
         <SubscriptionsList
           name="subscriptions-list"
-          containerClassName="h-auto shrink-0 border-t border-grey-300"
+          containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
           isLoading={isLoading}
           loadingRowCount={pageSize}
           hasError={!!error}

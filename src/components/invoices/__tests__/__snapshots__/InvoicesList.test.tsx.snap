@@ -3,7 +3,7 @@
 exports[`InvoicesList Snapshot Tests matches snapshot in loading state 1`] = `
 <div>
   <div
-    class="w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)] h-auto shrink-0 border-t border-grey-300"
+    class="w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)] -mb-px h-auto shrink-0 border-t border-grey-300"
   >
     <table
       class=MuiTable-root border-separate css-hash-MuiTable-root
@@ -771,7 +771,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot in loading state 1`] = `
 exports[`InvoicesList Snapshot Tests matches snapshot with different invoice statuses 1`] = `
 <div>
   <div
-    class="w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)] h-auto shrink-0 border-t border-grey-300"
+    class="w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)] -mb-px h-auto shrink-0 border-t border-grey-300"
   >
     <table
       class=MuiTable-root border-separate css-hash-MuiTable-root
@@ -1767,7 +1767,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
 exports[`InvoicesList Snapshot Tests matches snapshot with different payment statuses 1`] = `
 <div>
   <div
-    class="w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)] h-auto shrink-0 border-t border-grey-300"
+    class="w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)] -mb-px h-auto shrink-0 border-t border-grey-300"
   >
     <table
       class=MuiTable-root border-separate css-hash-MuiTable-root
@@ -2805,7 +2805,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
 exports[`InvoicesList Snapshot Tests matches snapshot with empty state 1`] = `
 <div>
   <div
-    class="w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)] h-auto shrink-0 border-t border-grey-300"
+    class="w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)] -mb-px h-auto shrink-0 border-t border-grey-300"
   >
     <table
       class=MuiTable-root border-separate css-hash-MuiTable-root
@@ -2975,7 +2975,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with empty state 1`] = `
 exports[`InvoicesList Snapshot Tests matches snapshot with error state 1`] = `
 <div>
   <div
-    class="w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)] h-auto shrink-0 border-t border-grey-300"
+    class="w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)] -mb-px h-auto shrink-0 border-t border-grey-300"
   >
     <table
       class=MuiTable-root border-separate css-hash-MuiTable-root
@@ -3158,7 +3158,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with error state 1`] = `
 exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
 <div>
   <div
-    class="w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)] h-auto shrink-0 border-t border-grey-300"
+    class="w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)] -mb-px h-auto shrink-0 border-t border-grey-300"
   >
     <table
       class=MuiTable-root border-separate css-hash-MuiTable-root
@@ -4196,7 +4196,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
 exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] = `
 <div>
   <div
-    class="w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)] h-auto shrink-0 border-t border-grey-300"
+    class="w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)] -mb-px h-auto shrink-0 border-t border-grey-300"
   >
     <table
       class=MuiTable-root border-separate css-hash-MuiTable-root
@@ -4646,7 +4646,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
 exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoice 1`] = `
 <div>
   <div
-    class="w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)] h-auto shrink-0 border-t border-grey-300"
+    class="w-0 min-w-full overflow-auto [-webkit-transform:translateZ(0)] -mb-px h-auto shrink-0 border-t border-grey-300"
   >
     <table
       class=MuiTable-root border-separate css-hash-MuiTable-root
