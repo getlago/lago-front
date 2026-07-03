@@ -104,6 +104,10 @@ gql`
       productItemsCreate
       productItemsUpdate
       productItemsDelete
+      productItemFiltersView
+      productItemFiltersCreate
+      productItemFiltersUpdate
+      productItemFiltersDelete
       rateCardsView
       rateCardsCreate
       rateCardsUpdate
