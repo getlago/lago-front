@@ -6,10 +6,6 @@ import {
   AddCouponToCustomerDialog,
   AddCouponToCustomerDialogRef,
 } from '~/components/customers/AddCouponToCustomerDialog'
-import {
-  DeleteCustomerDialog,
-  DeleteCustomerDialogRef,
-} from '~/components/customers/DeleteCustomerDialog'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
@@ -73,7 +69,6 @@ const POLLING_INTERVAL = 1000
 const MAX_POLLING_ATTEMPTS = 3
 
 const CustomerDetails = () => {
-  const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
   const pollingAttemptsRef = useRef(0)
   const { translate } = useInternationalization()
@@ -136,7 +131,6 @@ const CustomerDetails = () => {
   const actions = useCustomerDetailsHeaderActions({
     customerId: customerId as string,
     customer,
-    deleteDialogRef,
     addCouponDialogRef,
   })
 
@@ -179,7 +173,6 @@ const CustomerDetails = () => {
         </div>
       )}
 
-      <DeleteCustomerDialog ref={deleteDialogRef} />
       <AddCouponToCustomerDialog ref={addCouponDialogRef} customer={customer} />
     </div>
   )
