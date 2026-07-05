@@ -1,7 +1,6 @@
 import { gql, useApolloClient } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
@@ -23,69 +22,53 @@ gql`
   }
 `
 
-interface DeleteFeatureDialogProps {
+type TDeleteFeatureDialogProps = {
   feature: FeatureForDeleteFeatureDialogFragment | undefined
   callback?: () => void
 }
 
-export interface DeleteFeatureDialogRef {
-  openDialog: (dialogData: DeleteFeatureDialogProps) => unknown
-  closeDialog: () => unknown
-}
-
-export const DeleteFeatureDialog = forwardRef<DeleteFeatureDialogRef>((_, ref) => {
+export const useDeleteFeatureDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
-  const dialogRef = useRef<WarningDialogRef>(null)
-  const [dialogData, setDialogData] = useState<DeleteFeatureDialogProps | undefined>(undefined)
   const client = useApolloClient()
 
-  const [destroyFeature] = useDestroyFeatureMutation({
-    onCompleted({ destroyFeature: destroyedFeature }) {
-      if (destroyedFeature?.id) {
-        dialogRef.current?.closeDialog()
+  const [destroyFeature] = useDestroyFeatureMutation()
 
-        addToast({
-          message: translate('text_1752692673070wmlmc9i3rjz'),
-          severity: 'success',
-        })
-
-        evictFromCache(client, {
-          id: destroyedFeature.id,
-          __typename: 'FeatureObject',
-          listFieldName: 'features',
-          listQueryDocument: GetFeaturesListDocument,
-        })
-
-        dialogData?.callback?.()
-      }
-    },
-  })
-
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setDialogData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
-
-  return (
-    <WarningDialog
-      ref={dialogRef}
-      title={translate('text_1752692673070h6yiax84d7x')}
-      description={translate('text_1752693359315c6eoxf5szyk')}
-      onContinue={async () => {
-        await destroyFeature({
+  const openDeleteFeatureDialog = ({ feature, callback }: TDeleteFeatureDialogProps) => {
+    centralizedDialog.open({
+      title: translate('text_1752692673070h6yiax84d7x'),
+      description: translate('text_1752693359315c6eoxf5szyk'),
+      colorVariant: 'danger',
+      actionText: translate('text_1752693359315sd2ms0qxvi3'),
+      onAction: async () => {
+        const result = await destroyFeature({
           variables: {
             input: {
-              id: dialogData?.feature?.id || '',
+              id: feature?.id || '',
             },
           },
         })
-      }}
-      continueText={translate('text_1752693359315sd2ms0qxvi3')}
-    />
-  )
-})
 
-DeleteFeatureDialog.displayName = 'DeleteFeatureDialog'
+        const destroyedId = result.data?.destroyFeature?.id
+
+        if (destroyedId) {
+          evictFromCache(client, {
+            id: destroyedId,
+            __typename: 'FeatureObject',
+            listFieldName: 'features',
+            listQueryDocument: GetFeaturesListDocument,
+          })
+
+          callback?.()
+
+          addToast({
+            message: translate('text_1752692673070wmlmc9i3rjz'),
+            severity: 'success',
+          })
+        }
+      },
+    })
+  }
+
+  return { openDeleteFeatureDialog }
+}
