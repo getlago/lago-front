@@ -33,8 +33,7 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { tw } from '~/styles/utils'
 
 type WalletTransactionItem =
-  | WalletTransactionFundingItemFragment
-  | WalletTransactionConsumptionItemFragment
+  WalletTransactionFundingItemFragment | WalletTransactionConsumptionItemFragment
 
 type WalletTransactionItemsProps = {
   isLoading: boolean

@@ -70,9 +70,7 @@ interface MainHeaderCustomAction {
 }
 
 export type MainHeaderAction =
-  | MainHeaderDropdownAction
-  | MainHeaderInPageAction
-  | MainHeaderCustomAction
+  MainHeaderDropdownAction | MainHeaderInPageAction | MainHeaderCustomAction
 
 // ─── Actions config ─────────────────────────────────────────────
 

@@ -17,14 +17,7 @@ export enum StatusType {
 }
 
 type StatusLabelSuccess =
-  | 'succeeded'
-  | 'finalized'
-  | 'active'
-  | 'pay'
-  | 'available'
-  | 'refunded'
-  | 'delivered'
-  | number
+  'succeeded' | 'finalized' | 'active' | 'pay' | 'available' | 'refunded' | 'delivered' | number
 type StatusLabelWarning = 'failed' | 'incomplete'
 type StatusLabelOutline = 'draft'
 type StatusLabelDefault = 'downgrade' | 'scheduled' | 'pending' | 'toPay' | 'processing' | 'n/a'

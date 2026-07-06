@@ -154,8 +154,7 @@ export const AddAnrokDialog = forwardRef<AddAnrokDialogRef>((_, ref) => {
       }
 
       const { errors } = res as
-        | FetchResult<UpdateAnrokIntegrationMutation>
-        | FetchResult<CreateAnrokIntegrationMutation>
+        FetchResult<UpdateAnrokIntegrationMutation> | FetchResult<CreateAnrokIntegrationMutation>
 
       if (!errors) dialogRef.current?.closeDialog()
 

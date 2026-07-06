@@ -9,8 +9,7 @@ import { ProgressiveBillingDrawer, ProgressiveBillingDrawerRef } from '../Progre
 // --- Mocks ---
 
 let capturedOnSubmit:
-  | ((args: { value: Record<string, unknown> }) => void | Promise<void>)
-  | undefined
+  ((args: { value: Record<string, unknown> }) => void | Promise<void>) | undefined
 let capturedDefaultValues: Record<string, unknown> | undefined
 let capturedDrawerOpenProps:
   | {
