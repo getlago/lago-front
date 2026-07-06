@@ -223,6 +223,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
       <PaginatedContent
         metadata={invoiceData?.metadata}
         loading={isLoading}
+        pageSize={pageSize}
         onPageChange={(page) => fetchMore?.({ variables: { page } })}
         sticky={false}
       >

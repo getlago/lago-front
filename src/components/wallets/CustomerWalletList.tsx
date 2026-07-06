@@ -313,6 +313,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
         <PaginatedContent
           metadata={data?.wallets?.metadata}
           loading={loading}
+          pageSize={WALLET_LIST_ITEMS_PER_PAGE}
           onPageChange={(page) => fetchMore({ variables: { page } })}
           sticky={false}
         >
