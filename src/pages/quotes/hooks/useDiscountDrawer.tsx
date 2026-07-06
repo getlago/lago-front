@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useCallback, useRef, useState } from 'react'
 import { z } from 'zod'
@@ -25,10 +26,36 @@ import {
   CouponStatusEnum,
   CouponTypeEnum,
   CurrencyEnum,
-  useGetCouponForCustomerLazyQuery,
+  useGetCouponsForDiscountDrawerLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
+
+gql`
+  query getCouponsForDiscountDrawer(
+    $page: Int
+    $limit: Int
+    $status: CouponStatusEnum
+    $searchTerm: String
+  ) {
+    coupons(page: $page, limit: $limit, status: $status, searchTerm: $searchTerm) {
+      metadata {
+        currentPage
+        totalPages
+      }
+      collection {
+        id
+        name
+        code
+        couponType
+        amountCents
+        percentageRate
+        frequency
+        frequencyDuration
+      }
+    }
+  }
+`
 
 export const DISCOUNT_DRAWER_SAVE_TEST_ID = 'discount-drawer-save'
 
@@ -104,7 +131,7 @@ const DiscountDrawerContent = withForm({
   props: { lockedCurrency: CurrencyEnum.Usd as CurrencyEnum },
   render: function Render({ form, lockedCurrency }) {
     const { translate } = useInternationalization()
-    const [getCoupons, { loading, data }] = useGetCouponForCustomerLazyQuery({
+    const [getCoupons, { loading, data }] = useGetCouponsForDiscountDrawerLazyQuery({
       variables: { limit: 50, status: CouponStatusEnum.Active },
       fetchPolicy: 'network-only',
       notifyOnNetworkStatusChange: true,

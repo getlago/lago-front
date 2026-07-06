@@ -58,7 +58,7 @@ jest.mock('~/generated/graphql', () => {
 
   return {
     ...actual,
-    useGetCouponForCustomerLazyQuery: () => [
+    useGetCouponsForDiscountDrawerLazyQuery: () => [
       mockGetCoupons,
       {
         loading: false,

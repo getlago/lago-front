@@ -104,7 +104,9 @@ export const DiscountBlockView = ({ node, updateAttributes }: NodeViewProps) => 
             tabIndex={0}
             data-test={DISCOUNT_BLOCK_VIEW_EMPTY_TEST_ID}
           >
-            <span className="pricing-block__placeholder">Select a coupon</span>
+            <span className="pricing-block__placeholder">
+              {translate('text_1783342959387sv77znuw5yx')}
+            </span>
           </button>
         </div>
       </NodeViewWrapper>
@@ -131,7 +133,7 @@ export const DiscountBlockView = ({ node, updateAttributes }: NodeViewProps) => 
       <div className="block-wrapper">
         <div className="pricing-block" data-test={DISCOUNT_BLOCK_VIEW_UNRESOLVED_TEST_ID}>
           <div className="pricing-block__unresolved">
-            <span>{`Coupon: ${couponId}`}</span>
+            <span>{translate('text_1783342959387cz07147m6qq', { couponId })}</span>
           </div>
         </div>
       </div>

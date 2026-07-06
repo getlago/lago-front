@@ -62,7 +62,6 @@ gql`
       collection {
         id
         name
-        code
         amountCurrency
         amountCents
         couponType
