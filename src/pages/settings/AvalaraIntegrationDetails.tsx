@@ -14,10 +14,7 @@ import {
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
 import AvalaraIntegrationItemsList from '~/components/settings/integrations/AvalaraIntegrationItemsList'
 import AvalaraIntegrationSettings from '~/components/settings/integrations/AvalaraIntegrationSettings'
-import {
-  DeleteAvalaraIntegrationDialog,
-  DeleteAvalaraIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteAvalaraIntegrationDialog'
+import { useDeleteAvalaraIntegrationDialog } from '~/components/settings/integrations/DeleteAvalaraIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   AVALARA_INTEGRATION_DETAILS_ROUTE,
@@ -79,7 +76,7 @@ const AvalaraIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
   const addAvalaraDialogRef = useRef<AddAvalaraDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteAvalaraIntegrationDialogRef>(null)
+  const { openDeleteAvalaraIntegrationDialog } = useDeleteAvalaraIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetAvalaraIntegrationsDetailsQuery({
@@ -142,7 +139,6 @@ const AvalaraIntegrationDetails = () => {
                   onClick: (closePopper) => {
                     addAvalaraDialogRef.current?.openDialog({
                       integration: avalaraIntegration,
-                      deleteModalRef: deleteDialogRef,
                       deleteDialogCallback,
                     })
                     closePopper()
@@ -151,7 +147,7 @@ const AvalaraIntegrationDetails = () => {
                 {
                   label: translate('text_65845f35d7d69c3ab4793dad'),
                   onClick: (closePopper) => {
-                    deleteDialogRef.current?.openDialog({
+                    openDeleteAvalaraIntegrationDialog({
                       provider: avalaraIntegration,
                       callback: deleteDialogCallback,
                     })
@@ -186,7 +182,6 @@ const AvalaraIntegrationDetails = () => {
       />
       <>{activeTabContent}</>
       <AddAvalaraDialog ref={addAvalaraDialogRef} />
-      <DeleteAvalaraIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

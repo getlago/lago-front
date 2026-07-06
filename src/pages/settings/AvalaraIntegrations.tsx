@@ -11,10 +11,7 @@ import {
   AddAvalaraDialog,
   AddAvalaraDialogRef,
 } from '~/components/settings/integrations/AddAvalaraDialog'
-import {
-  DeleteAvalaraIntegrationDialog,
-  DeleteAvalaraIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteAvalaraIntegrationDialog'
+import { useDeleteAvalaraIntegrationDialog } from '~/components/settings/integrations/DeleteAvalaraIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { AVALARA_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -60,7 +57,7 @@ const AvalaraIntegrations = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const addAvalaraDialogRef = useRef<AddAvalaraDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteAvalaraIntegrationDialogRef>(null)
+  const { openDeleteAvalaraIntegrationDialog } = useDeleteAvalaraIntegrationDialog()
   const { data, loading } = useGetAvalaraIntegrationsListQuery({
     variables: { limit: 1000, types: [IntegrationTypeEnum.Avalara] },
   })
@@ -158,7 +155,6 @@ const AvalaraIntegrations = () => {
                           onClick={() => {
                             addAvalaraDialogRef.current?.openDialog({
                               integration: connection,
-                              deleteModalRef: deleteDialogRef,
                               deleteDialogCallback,
                             })
                             closePopper()
@@ -171,7 +167,7 @@ const AvalaraIntegrations = () => {
                           variant="quaternary"
                           align="left"
                           onClick={() => {
-                            deleteDialogRef.current?.openDialog({
+                            openDeleteAvalaraIntegrationDialog({
                               provider: connection,
                               callback: deleteDialogCallback,
                             })
@@ -189,7 +185,6 @@ const AvalaraIntegrations = () => {
         </section>
       </IntegrationsPage.Container>
       <AddAvalaraDialog ref={addAvalaraDialogRef} />
-      <DeleteAvalaraIntegrationDialog ref={deleteDialogRef} />
     </>
   )
 }

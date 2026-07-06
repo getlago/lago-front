@@ -7,10 +7,6 @@ import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
-import {
-  DeleteAvalaraIntegrationDialog,
-  DeleteAvalaraIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteAvalaraIntegrationDialog'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { useNavigate } from '~/core/router'
@@ -80,7 +76,6 @@ const AvalaraIntegrationSettings = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
   const addAvalaraDialogRef = useRef<AddAvalaraDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteAvalaraIntegrationDialogRef>(null)
   const { translate } = useInternationalization()
 
   const [retryAllAvalaraInvoices] = useRetryAllAvalaraInvoicesMutation({
@@ -150,7 +145,6 @@ const AvalaraIntegrationSettings = () => {
                 onClick={() => {
                   addAvalaraDialogRef.current?.openDialog({
                     integration: avalaraIntegration,
-                    deleteModalRef: deleteDialogRef,
                     deleteDialogCallback,
                   })
                 }}
@@ -228,7 +222,6 @@ const AvalaraIntegrationSettings = () => {
       </IntegrationsPage.Container>
 
       <AddAvalaraDialog ref={addAvalaraDialogRef} />
-      <DeleteAvalaraIntegrationDialog ref={deleteDialogRef} />
     </>
   )
 }
