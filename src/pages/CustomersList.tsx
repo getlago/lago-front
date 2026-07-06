@@ -1,11 +1,8 @@
 import { gql } from '@apollo/client'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
-import {
-  DeleteCustomerDialog,
-  DeleteCustomerDialogRef,
-} from '~/components/customers/DeleteCustomerDialog'
+import { useDeleteCustomerDialog } from '~/components/customers/DeleteCustomerDialog'
 import { computeCustomerInitials } from '~/components/customers/utils'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { formatFiltersForCustomerQuery } from '~/components/designSystem/Filters'
@@ -124,7 +121,7 @@ const CustomersList = () => {
     nextFetchPolicy: 'network-only',
   })
 
-  const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
+  const { openDeleteCustomerDialog } = useDeleteCustomerDialog()
 
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCustomers, loading)
 
@@ -262,7 +259,7 @@ const CustomersList = () => {
                       startIcon: 'trash',
                       title: translate('text_6261640f28a49700f1290df5'),
                       onAction: () => {
-                        deleteDialogRef.current?.openDialog({ customer })
+                        openDeleteCustomerDialog({ customer })
                       },
                     }
                   : null,
@@ -313,7 +310,6 @@ const CustomersList = () => {
           />
         </InfiniteScroll>
       </div>
-      <DeleteCustomerDialog ref={deleteDialogRef} />
     </>
   )
 }
