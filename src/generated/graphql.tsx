@@ -14435,6 +14435,16 @@ export type UpdateCustomerCurrencyForQuoteMutationVariables = Exact<{
 
 export type UpdateCustomerCurrencyForQuoteMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null } | null };
 
+export type GetCouponsForDiscountDrawerQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  status?: InputMaybe<CouponStatusEnum>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetCouponsForDiscountDrawerQuery = { __typename?: 'Query', coupons: { __typename?: 'CouponCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Coupon', id: string, name: string, code: string, couponType: CouponTypeEnum, amountCents?: any | null, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null }> } };
+
 export type GetOrderFormDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -39553,6 +39563,65 @@ export function useUpdateCustomerCurrencyForQuoteMutation(baseOptions?: Apollo.M
 export type UpdateCustomerCurrencyForQuoteMutationHookResult = ReturnType<typeof useUpdateCustomerCurrencyForQuoteMutation>;
 export type UpdateCustomerCurrencyForQuoteMutationResult = Apollo.MutationResult<UpdateCustomerCurrencyForQuoteMutation>;
 export type UpdateCustomerCurrencyForQuoteMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerCurrencyForQuoteMutation, UpdateCustomerCurrencyForQuoteMutationVariables>;
+export const GetCouponsForDiscountDrawerDocument = gql`
+    query getCouponsForDiscountDrawer($page: Int, $limit: Int, $status: CouponStatusEnum, $searchTerm: String) {
+  coupons(page: $page, limit: $limit, status: $status, searchTerm: $searchTerm) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      name
+      code
+      couponType
+      amountCents
+      percentageRate
+      frequency
+      frequencyDuration
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCouponsForDiscountDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetCouponsForDiscountDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCouponsForDiscountDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCouponsForDiscountDrawerQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      status: // value for 'status'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetCouponsForDiscountDrawerQuery(baseOptions?: Apollo.QueryHookOptions<GetCouponsForDiscountDrawerQuery, GetCouponsForDiscountDrawerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCouponsForDiscountDrawerQuery, GetCouponsForDiscountDrawerQueryVariables>(GetCouponsForDiscountDrawerDocument, options);
+      }
+export function useGetCouponsForDiscountDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCouponsForDiscountDrawerQuery, GetCouponsForDiscountDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCouponsForDiscountDrawerQuery, GetCouponsForDiscountDrawerQueryVariables>(GetCouponsForDiscountDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetCouponsForDiscountDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCouponsForDiscountDrawerQuery, GetCouponsForDiscountDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetCouponsForDiscountDrawerQuery, GetCouponsForDiscountDrawerQueryVariables>;
+export function useGetCouponsForDiscountDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCouponsForDiscountDrawerQuery, GetCouponsForDiscountDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetCouponsForDiscountDrawerQuery | undefined, GetCouponsForDiscountDrawerQueryVariables>;
+export function useGetCouponsForDiscountDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCouponsForDiscountDrawerQuery, GetCouponsForDiscountDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCouponsForDiscountDrawerQuery, GetCouponsForDiscountDrawerQueryVariables>(GetCouponsForDiscountDrawerDocument, options);
+        }
+export type GetCouponsForDiscountDrawerQueryHookResult = ReturnType<typeof useGetCouponsForDiscountDrawerQuery>;
+export type GetCouponsForDiscountDrawerLazyQueryHookResult = ReturnType<typeof useGetCouponsForDiscountDrawerLazyQuery>;
+export type GetCouponsForDiscountDrawerSuspenseQueryHookResult = ReturnType<typeof useGetCouponsForDiscountDrawerSuspenseQuery>;
+export type GetCouponsForDiscountDrawerQueryResult = Apollo.QueryResult<GetCouponsForDiscountDrawerQuery, GetCouponsForDiscountDrawerQueryVariables>;
 export const GetOrderFormDetailsDocument = gql`
     query getOrderFormDetails($id: ID!) {
   orderForm(id: $id) {

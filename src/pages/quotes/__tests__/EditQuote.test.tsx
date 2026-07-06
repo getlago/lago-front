@@ -27,6 +27,8 @@ type PricingCommandParams = {
 
 let capturedOnPricingCommand: ((params: PricingCommandParams) => void) | undefined
 let capturedOnPricingBlocksChange: ((blocks: unknown[]) => void) | undefined
+let capturedOnDiscountCommand: ((params: unknown) => void) | undefined
+let capturedOnDiscountBlocksChange: ((blocks: unknown[]) => void) | undefined
 let capturedEditorCustomerLocale: string | undefined
 let capturedEditorCustomerCurrency: string | undefined
 
@@ -53,6 +55,8 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
     onChange,
     onPricingCommand,
     onPricingBlocksChange,
+    onDiscountCommand,
+    onDiscountBlocksChange,
     customerLocale,
     customerCurrency,
   }: {
@@ -60,6 +64,8 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
     onChange?: () => void
     onPricingCommand?: (params: PricingCommandParams) => void
     onPricingBlocksChange?: (blocks: unknown[]) => void
+    onDiscountCommand?: (params: unknown) => void
+    onDiscountBlocksChange?: (blocks: unknown[]) => void
     customerLocale?: string
     customerCurrency?: string
   }) => {
@@ -70,6 +76,8 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
       capturedOnChange = onChange
       capturedOnPricingCommand = onPricingCommand
       capturedOnPricingBlocksChange = onPricingBlocksChange
+      capturedOnDiscountCommand = onDiscountCommand
+      capturedOnDiscountBlocksChange = onDiscountBlocksChange
       capturedEditorCustomerLocale = customerLocale
       capturedEditorCustomerCurrency = customerCurrency
 
@@ -83,6 +91,8 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
       onChange,
       onPricingCommand,
       onPricingBlocksChange,
+      onDiscountCommand,
+      onDiscountBlocksChange,
       customerLocale,
       customerCurrency,
     ])
@@ -213,6 +223,17 @@ jest.mock('../hooks/useOneOffPricingDrawer', () => ({
   }),
 }))
 
+const mockDiscountOnDiscountCommand = jest.fn()
+const mockSyncDiscountBlocks = jest.fn().mockReturnValue(null)
+
+jest.mock('../hooks/useDiscountDrawer', () => ({
+  useDiscountDrawer: () => ({
+    onDiscountCommand: mockDiscountOnDiscountCommand,
+    entities: {},
+    syncDiscountBlocks: mockSyncDiscountBlocks,
+  }),
+}))
+
 jest.mock('../common/getQuoteStatusMapping', () => ({
   getQuoteStatusMapping: () => ({ type: 'outline', label: 'draft' }),
 }))
@@ -239,10 +260,13 @@ describe('EditQuote', () => {
     capturedAsideCallbacks = {}
     capturedOnPricingCommand = undefined
     capturedOnPricingBlocksChange = undefined
+    capturedOnDiscountCommand = undefined
+    capturedOnDiscountBlocksChange = undefined
     capturedEditorCustomerLocale = undefined
     capturedEditorCustomerCurrency = undefined
     capturedPricingDrawerArgs = []
     mockSyncEntitiesWithBlocks.mockReturnValue(null)
+    mockSyncDiscountBlocks.mockReturnValue(null)
 
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
@@ -670,7 +694,7 @@ describe('EditQuote', () => {
         const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
         const mockAttrs = { pricingType: 'addOns', entityIds: ['addon-1'] }
         const mockEntityData = { 'addon-1': { name: 'Test Add-on' } }
-        const mockBillingItems = [{ addOnId: 'addon-1' }]
+        const mockBillingItems = { addons: [{ addOnId: 'addon-1' }] }
 
         await act(async () => {
           wrappedOnSave(mockAttrs, mockEntityData, mockBillingItems)
@@ -722,7 +746,7 @@ describe('EditQuote', () => {
 
     describe('WHEN pricing blocks change and syncEntitiesWithBlocks returns billing items', () => {
       it('THEN should save the updated billing items', async () => {
-        const mockBillingItems = [{ addOnId: 'addon-1', units: '2' }]
+        const mockBillingItems = { addons: [{ addOnId: 'addon-1', units: '2' }] }
 
         mockSyncEntitiesWithBlocks.mockReturnValue(mockBillingItems)
         mockUpdateQuoteVersion.mockResolvedValue({
@@ -871,6 +895,99 @@ describe('EditQuote', () => {
         const options = capturedPricingDrawerArgs[1] as { customer?: { currency?: string } }
 
         expect(options.customer?.currency).toBe('EUR')
+      })
+    })
+  })
+
+  describe('GIVEN the discount command integration', () => {
+    describe('WHEN the quote is a subscription order', () => {
+      it('THEN should pass a defined onDiscountCommand to RichTextEditor', () => {
+        // mockQuote.orderType = 'subscription_creation' by default
+        render(<EditQuote />)
+
+        expect(capturedOnDiscountCommand).toBeDefined()
+      })
+    })
+
+    describe('WHEN the quote is a one-off order', () => {
+      it('THEN should pass undefined onDiscountCommand to RichTextEditor', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            orderType: 'one_off',
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        expect(capturedOnDiscountCommand).toBeUndefined()
+      })
+    })
+
+    describe('WHEN handleDiscountCommand is invoked from the editor', () => {
+      it('THEN should delegate to useDiscountDrawer onDiscountCommand with editData', () => {
+        render(<EditQuote />)
+
+        const mockEditData = { couponId: 'coupon-1', localId: 'local-1' }
+
+        act(() => {
+          capturedOnDiscountCommand?.({ onSave: jest.fn(), editData: mockEditData })
+        })
+
+        expect(mockDiscountOnDiscountCommand).toHaveBeenCalledWith(
+          expect.objectContaining({ editData: mockEditData }),
+        )
+      })
+    })
+
+    describe('WHEN discount blocks change and syncDiscountBlocks returns billing items', () => {
+      it('THEN should save the updated billing items', async () => {
+        // The discount drawer owns only the `coupons` key and returns a partial
+        // without `addons`; savePricingBlock normalizes `addons` back in.
+        const mockBillingItems = { coupons: [{ id: 'coupon-1', position: 1 }] }
+
+        mockSyncDiscountBlocks.mockReturnValue(mockBillingItems)
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: { updateQuoteVersion: { id: 'version-1' } },
+        })
+
+        render(<EditQuote />)
+
+        const mockBlocks = [{ couponId: 'coupon-1', localId: 'local-1' }]
+
+        await act(async () => {
+          capturedOnDiscountBlocksChange?.(mockBlocks)
+        })
+
+        expect(mockSyncDiscountBlocks).toHaveBeenCalledWith(mockBlocks)
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            expect.objectContaining({
+              billingItems: { addons: [], coupons: [{ id: 'coupon-1', position: 1 }] },
+            }),
+            false,
+          )
+        })
+      })
+    })
+
+    describe('WHEN discount blocks change but syncDiscountBlocks returns null', () => {
+      it('THEN should not trigger a save', async () => {
+        mockSyncDiscountBlocks.mockReturnValue(null)
+
+        render(<EditQuote />)
+
+        const mockBlocks = [{ couponId: 'coupon-1', localId: 'local-1' }]
+
+        await act(async () => {
+          capturedOnDiscountBlocksChange?.(mockBlocks)
+        })
+
+        expect(mockSyncDiscountBlocks).toHaveBeenCalledWith(mockBlocks)
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
       })
     })
   })

@@ -187,11 +187,115 @@ describe('useSubscriptionPricingDrawer', () => {
       expect.objectContaining({
         plan_123: expect.objectContaining({ entityId: 'plan_123', entityType: 'plan' }),
       }),
-      expect.objectContaining({ addons: [], plans: expect.any(Array) }),
+      // The drawer owns only the `plans` key; `addons` is normalized in by the
+      // save funnel (savePricingBlock), not by this drawer.
+      expect.objectContaining({ plans: expect.any(Array) }),
     )
     expect(onDatesChange).toHaveBeenCalledWith('2023-07-26', '2024-07-26')
     expect(result.current.entities).toHaveProperty('plan_123')
     expect(mockDrawerClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('preserves existing coupons in the payload when saving a plan', () => {
+    // Regression: coupons live alongside plans in billingItems. Saving a plan
+    // must not overwrite billingItems and drop a previously-added coupon.
+    mockInjectedState = {
+      planId: 'plan_123',
+      planCode: 'enterprise',
+      planName: 'Enterprise Plan',
+      planDescription: '',
+      subscriptionSettings: {
+        externalId: '',
+        subscriptionName: '',
+        billingTime: 'anniversary',
+        startDate: '2023-07-26',
+        endDate: '',
+      },
+      invoicingSettings: { paymentMethodId: '', invoiceCustomFooter: '' },
+      overrides: {},
+    }
+
+    const existingCoupon = {
+      type: 'coupon',
+      id: 'cpn_1',
+      localId: 'local-cpn-1',
+      payload: {},
+      overrides: {},
+    } as unknown as NonNullable<BillingItemsPayload['coupons']>[number]
+
+    const initialBillingItems: BillingItemsPayload = {
+      addons: [],
+      coupons: [existingCoupon],
+    }
+
+    const onSave = jest.fn()
+
+    const { result } = renderHook(() => useSubscriptionPricingDrawer(initialBillingItems))
+
+    act(() => {
+      result.current.onPricingCommand({ onSave })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(openArgs.children)
+
+    act(() => {
+      openArgs.form.submit()
+    })
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      expect.objectContaining({ plans: expect.any(Array), coupons: [existingCoupon] }),
+    )
+  })
+
+  it('syncEntitiesWithBlocks preserves existing coupons when pruning an orphaned plan', () => {
+    const existingCoupon = {
+      type: 'coupon',
+      id: 'cpn_1',
+      localId: 'local-cpn-1',
+      payload: {},
+      overrides: {},
+    } as unknown as NonNullable<BillingItemsPayload['coupons']>[number]
+
+    const initialBillingItems: BillingItemsPayload = {
+      addons: [],
+      plans: [
+        {
+          type: 'plan',
+          id: 'plan_123',
+          payload: {
+            position: 1,
+            code: 'enterprise',
+            name: 'Enterprise Plan',
+            description: '',
+            subscription_external_id: null,
+            subscription_name: null,
+            billing_time: 'anniversary',
+            start_date: '2023-07-26',
+            end_date: null,
+            payment_method_id: null,
+            invoice_custom_footer: null,
+          },
+          overrides: {},
+        },
+      ],
+      coupons: [existingCoupon],
+    }
+
+    const { result } = renderHook(() => useSubscriptionPricingDrawer(initialBillingItems))
+
+    let billingItems: BillingItemsPayload | null = null
+
+    act(() => {
+      billingItems = result.current.syncEntitiesWithBlocks([
+        { pricingType: 'plan', entityIds: ['plan_other'] },
+      ])
+    })
+
+    expect(billingItems).toEqual(expect.objectContaining({ plans: [], coupons: [existingCoupon] }))
   })
 
   it('does not save or close the drawer when no subscription state is set', () => {
