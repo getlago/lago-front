@@ -14,10 +14,7 @@ import {
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
 import AnrokIntegrationItemsList from '~/components/settings/integrations/AnrokIntegrationItemsList'
 import AnrokIntegrationSettings from '~/components/settings/integrations/AnrokIntegrationSettings'
-import {
-  DeleteAnrokIntegrationDialog,
-  DeleteAnrokIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteAnrokIntegrationDialog'
+import { useDeleteAnrokIntegrationDialog } from '~/components/settings/integrations/DeleteAnrokIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   ANROK_INTEGRATION_DETAILS_ROUTE,
@@ -82,7 +79,7 @@ const AnrokIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
   const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteAnrokIntegrationDialogRef>(null)
+  const { openDeleteAnrokIntegrationDialog } = useDeleteAnrokIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetAnrokIntegrationsDetailsQuery({
@@ -145,8 +142,11 @@ const AnrokIntegrationDetails = () => {
                   onClick: (closePopper) => {
                     addAnrokDialogRef.current?.openDialog({
                       integration: anrokIntegration,
-                      deleteModalRef: deleteDialogRef,
-                      deleteDialogCallback,
+                      onDelete: (provider) =>
+                        openDeleteAnrokIntegrationDialog({
+                          provider,
+                          callback: deleteDialogCallback,
+                        }),
                     })
                     closePopper()
                   },
@@ -154,7 +154,7 @@ const AnrokIntegrationDetails = () => {
                 {
                   label: translate('text_65845f35d7d69c3ab4793dad'),
                   onClick: (closePopper) => {
-                    deleteDialogRef.current?.openDialog({
+                    openDeleteAnrokIntegrationDialog({
                       provider: anrokIntegration,
                       callback: deleteDialogCallback,
                     })
@@ -189,7 +189,6 @@ const AnrokIntegrationDetails = () => {
       />
       <>{activeTabContent}</>
       <AddAnrokDialog ref={addAnrokDialogRef} />
-      <DeleteAnrokIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
