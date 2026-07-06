@@ -8,7 +8,7 @@ import type { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 import type { EntityData } from '../common/RichTextEditorContext'
 
-export const DISCOUNT_PREVIEW_TABLE_TEST_ID = 'discount-preview-table'
+export const DISCOUNT_PREVIEW_TABLE_TEST_ID = 'preview-table-discount-preview'
 
 const K = {
   discountLabel: 'text_1782889379261hdcd0jhzdm6',
@@ -102,9 +102,5 @@ export const DiscountPreviewTable = ({
     },
   ]
 
-  return (
-    <div data-test={DISCOUNT_PREVIEW_TABLE_TEST_ID}>
-      <PreviewTable name="discount-preview" data={[entity]} columns={columns} />
-    </div>
-  )
+  return <PreviewTable name="discount-preview" data={[entity]} columns={columns} />
 }
