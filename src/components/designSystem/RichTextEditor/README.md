@@ -279,13 +279,13 @@ const getHtml = (customerId: string, customers?: Record<string, unknown>) => {
 
 ## Summary: where to change what
 
-| What you want to change                 | Where to edit                              |
-| --------------------------------------- | ------------------------------------------ |
+| What you want to change                 | Where to edit                                                                |
+| --------------------------------------- | ---------------------------------------------------------------------------- |
 | How a node looks in **preview and PDF** | The React NodeView (if present); `renderHTML()` for nodes without a NodeView |
-| How a node behaves in **edit mode**     | The `NodeView` component (`*View.tsx`)     |
-| **Markdown** serialization format       | `addStorage()` in the `.schema.ts` file    |
-| Shared styles (editor + PDF)            | `richTextEditor.css` inside `.ProseMirror` |
-| Which extensions are always included    | `baseExtensions.ts`                        |
+| How a node behaves in **edit mode**     | The `NodeView` component (`*View.tsx`)                                       |
+| **Markdown** serialization format       | `addStorage()` in the `.schema.ts` file                                      |
+| Shared styles (editor + PDF)            | `richTextEditor.css` inside `.ProseMirror`                                   |
+| Which extensions are always included    | `baseExtensions.ts`                                                          |
 
 ## Key rules
 

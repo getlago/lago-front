@@ -102,7 +102,6 @@ export const PORTAL_INVOICES_LIST_ERROR_TEST_ID = 'portal-invoices-list-error'
 export const PORTAL_INVOICES_LIST_CONTENT_TEST_ID = 'portal-invoices-list-content'
 export const PORTAL_INVOICES_LIST_TOTALS_TEST_ID = 'portal-invoices-list-totals'
 export const PORTAL_INVOICES_LIST_OVERDUE_TEST_ID = 'portal-invoices-list-overdue'
-export const PORTAL_INVOICES_LIST_SEARCH_TEST_ID = 'portal-invoices-list-search'
 export const PORTAL_INVOICES_LIST_LOAD_MORE_TEST_ID = 'portal-invoices-list-load-more'
 
 const INVOICE_TYPE_TRANSLATION_MAP: Record<InvoiceTypeEnum, string> = {

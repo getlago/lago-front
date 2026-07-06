@@ -90,6 +90,7 @@ gql`
       quotesView
       quotesVoid
       orderFormsSign
+      orderFormsView
       orderFormsVoid
       ordersUpdate
       pricingUnitsCreate

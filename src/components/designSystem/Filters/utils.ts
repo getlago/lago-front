@@ -10,9 +10,6 @@ import {
   ACTIVITY_LOG_FILTER_PREFIX,
   ANALYTICS_INVOICES_FILTER_PREFIX,
   ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
-  ANALYTICS_USAGE_BREAKDOWN_FILTER_PREFIX,
-  ANALYTICS_USAGE_BREAKDOWN_METERED_FILTER_PREFIX,
-  ANALYTICS_USAGE_BREAKDOWN_RECURRING_FILTER_PREFIX,
   ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX,
   API_LOGS_FILTER_PREFIX,
   CREDIT_NOTE_LIST_FILTER_PREFIX,
@@ -57,7 +54,6 @@ import {
   type GetSecurityLogsQueryVariables,
   type GetSubscriptionsListQueryVariables,
   type GetUsageBillableMetricQueryVariables,
-  type GetUsageBreakdownQueryVariables,
   type GetUsageOverviewQueryVariables,
   type GetWebhookLogQueryVariables,
   InvoicePaymentStatusTypeEnum,
@@ -81,6 +77,7 @@ import {
   CustomerInvoicesAvailableFilters,
   CustomerPaymentsAvailableFilters,
   filterDataInlineSeparator,
+  filterDataLabelCommaPlaceholder,
   ForecastsAvailableFilters,
   InvoiceAvailableFilters,
   MrrBreakdownPlansAvailableFilters,
@@ -94,9 +91,6 @@ import {
   SecurityLogsAvailableFilters,
   SubscriptionAvailableFilters,
   UsageBillableMetricAvailableFilters,
-  UsageBreakdownAvailableFilters,
-  UsageBreakdownMeteredAvailableFilters,
-  UsageBreakdownRecurringAvailableFilters,
   UsageOverviewAvailableFilters,
   WebhookLogsAvailableFilters,
 } from './types'
@@ -159,6 +153,19 @@ export const formatMetadataFilter = (metadata: { key: string; value: string }[])
     .map((item) => (item.value ? `${item.key}=${item.value}` : `${item.key}=`))
     .join(METADATA_SPLITTER)
 }
+
+/**
+ * Multiple-value filters join selections with a comma; the display label embedded after
+ * `filterDataInlineSeparator` (a customer/entity name, an email) can itself contain commas.
+ * escapeFilterLabel encodes those commas at storage time so a single selection never
+ * over-splits; unescapeFilterLabel restores them for display. The id portion (before the
+ * separator) is never escaped, so query decoding is unaffected.
+ */
+export const escapeFilterLabel = (label: string): string =>
+  label.split(',').join(filterDataLabelCommaPlaceholder)
+
+export const unescapeFilterLabel = (label: string): string =>
+  label.split(filterDataLabelCommaPlaceholder).join(',')
 
 export const FiltersItemDates = [
   AvailableFiltersEnum.date,
@@ -782,54 +789,6 @@ export const formatFiltersForUsageOverviewQuery = (
   })
 }
 
-type UsageBreakdownQueryFilters = Partial<
-  Pick<
-    GetUsageBreakdownQueryVariables,
-    | 'currency'
-    | 'customerCountry'
-    | 'customerType'
-    | 'externalCustomerId'
-    | 'externalSubscriptionId'
-    | 'fromDate'
-    | 'toDate'
-    | 'planCode'
-  >
->
-
-export const formatFiltersForUsageBreakdownQuery = (
-  searchParams: URLSearchParams,
-): UsageBreakdownQueryFilters => {
-  const keyMap: Partial<Record<AvailableFiltersEnum, keyof UsageBreakdownQueryFilters & string>> = {
-    [AvailableFiltersEnum.country]: 'customerCountry',
-    [AvailableFiltersEnum.customerAccountType]: 'customerType',
-    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
-    [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
-  }
-
-  return formatFiltersForQuery<UsageBreakdownQueryFilters>({
-    keyMap,
-    searchParams,
-    availableFilters: UsageBreakdownAvailableFilters,
-    filtersNamePrefix: ANALYTICS_USAGE_BREAKDOWN_FILTER_PREFIX,
-  })
-}
-
-export const formatFiltersForUsageBreakdownMeteredQuery = (searchParams: URLSearchParams) => {
-  return formatFiltersForQuery({
-    searchParams,
-    availableFilters: UsageBreakdownMeteredAvailableFilters,
-    filtersNamePrefix: ANALYTICS_USAGE_BREAKDOWN_METERED_FILTER_PREFIX,
-  })
-}
-
-export const formatFiltersForUsageBreakdownRecurringQuery = (searchParams: URLSearchParams) => {
-  return formatFiltersForQuery({
-    searchParams,
-    availableFilters: UsageBreakdownRecurringAvailableFilters,
-    filtersNamePrefix: ANALYTICS_USAGE_BREAKDOWN_RECURRING_FILTER_PREFIX,
-  })
-}
-
 type UsageBillableMetricQueryFilters = Partial<
   Pick<GetUsageBillableMetricQueryVariables, 'currency' | 'timeGranularity' | 'fromDate' | 'toDate'>
 >
@@ -987,7 +946,10 @@ export const formatActiveFilterValueDisplay = (
         .map((v) => formatActivityType(v as ActivityTypeEnum))
         .join(', ')
     case AvailableFiltersEnum.customerExternalId:
-      return value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0]
+    case AvailableFiltersEnum.billingEntityId:
+      return unescapeFilterLabel(
+        value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
+      )
     case AvailableFiltersEnum.isCustomerTinEmpty:
       return (
         translate?.(
@@ -1019,10 +981,12 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.multipleCustomers:
       return value
         .split(',')
-        .map((v) => v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0])
+        .map((v) =>
+          unescapeFilterLabel(
+            v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],
+          ),
+        )
         .join(', ')
-    case AvailableFiltersEnum.billingEntityId:
-      return value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0]
     case AvailableFiltersEnum.userEmails:
       return value.toLocaleLowerCase()
     case AvailableFiltersEnum.billableMetricCode:

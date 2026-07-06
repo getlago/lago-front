@@ -7,7 +7,7 @@ import { type BillingItemPlan, fromPlanBillingItems } from './serializeQuotePlan
 
 export interface AddOnPayload {
   position: number
-  add_on_code: string
+  code: string
   name: string
   description: string
   units: number
@@ -19,10 +19,10 @@ export interface AddOnPayload {
   tax_codes: string[]
 }
 
-// position, add_on_code, and tax_codes are not overridable
-type OverridableFields = Omit<AddOnPayload, 'position' | 'add_on_code' | 'tax_codes'>
+// position, code, and tax_codes are not overridable
+type OverridableFields = Omit<AddOnPayload, 'position' | 'code' | 'tax_codes'>
 
-export interface BillingItemAddon {
+interface BillingItemAddon {
   type: 'addon'
   id: string
   localId?: string
@@ -129,7 +129,7 @@ export const fromBillingItems = (billingItems: BillingItemsPayload): FromBilling
       entityType: 'addOn',
       name: effective.name,
       invoiceDisplayName: effective.invoice_display_name,
-      code: payload.add_on_code,
+      code: payload.code,
       description: effective.description,
       units: String(effective.units),
       unitAmountCents: String(effective.unit_amount_cents),
@@ -143,7 +143,7 @@ export const fromBillingItems = (billingItems: BillingItemsPayload): FromBilling
       addOnId: id,
       name: effective.name,
       invoiceDisplayName: effective.invoice_display_name,
-      code: payload.add_on_code,
+      code: payload.code,
       description: effective.description,
       units: String(effective.units),
       unitAmountCents: String(effective.unit_amount_cents),

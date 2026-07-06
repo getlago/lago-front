@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 import { object, string } from 'yup'
 
@@ -21,7 +21,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { DeleteMoneyhashIntegrationDialogRef } from './DeleteMoneyhashIntegrationDialog'
+import { useDeleteMoneyhashIntegrationDialog } from './DeleteMoneyhashIntegrationDialog'
 
 gql`
   fragment AddMoneyhashProviderDialog on MoneyhashProvider {
@@ -71,7 +71,6 @@ gql`
 `
 
 type TAddMoneyhashDialogProps = Partial<{
-  deleteModalRef: RefObject<DeleteMoneyhashIntegrationDialogRef>
   provider: AddMoneyhashProviderDialogFragment
   deleteDialogCallback: () => void
 }>
@@ -88,6 +87,7 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
   const [localData, setLocalData] = useState<TAddMoneyhashDialogProps | undefined>(undefined)
   const moneyhashProvider = localData?.provider
   const isEdition = !!moneyhashProvider
+  const { openDeleteMoneyhashIntegrationDialog } = useDeleteMoneyhashIntegrationDialog()
 
   const [addApiKey] = useAddMoneyhashApiKeyMutation({
     onCompleted({ addMoneyhashPaymentProvider }) {
@@ -208,9 +208,9 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                localData?.deleteModalRef?.current?.openDialog({
+                openDeleteMoneyhashIntegrationDialog({
                   provider: moneyhashProvider,
-                  callback: localData.deleteDialogCallback,
+                  callback: localData?.deleteDialogCallback,
                 })
               }}
             >

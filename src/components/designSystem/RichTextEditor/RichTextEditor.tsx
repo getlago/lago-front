@@ -28,6 +28,8 @@ import {
 } from './extensions/Mention.schema'
 import { PricingBlock } from './extensions/PricingBlock'
 import { type PricingBlockAttributes } from './extensions/PricingBlock.schema'
+import { QuoteImageSchema } from './extensions/QuoteImage'
+import { QuoteImageNodeView } from './extensions/QuoteImageNodeView'
 import { SlashCommands } from './extensions/SlashCommands'
 import { TableCommands } from './extensions/TableCommands'
 import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
@@ -53,6 +55,8 @@ interface RichTextEditorProps {
   onPricingBlocksChange?: (blocks: PricingBlockAttributes[]) => void
   customerLocale?: Locale
   customerCurrency?: CurrencyEnum
+  images?: Record<string, string>
+  onImageUpload?: (base64: string) => Promise<string>
   isCompact?: boolean
   onPreviewReady?: (html: string) => void
   /**
@@ -63,7 +67,7 @@ interface RichTextEditorProps {
   variableItems?: MentionItem[]
 }
 
-export const createMentionSuggestion = (
+const createMentionSuggestion = (
   items: MentionItem[],
 ): NonNullable<MentionSchemaOptions['suggestion']> => ({
   char: '@',
@@ -146,6 +150,8 @@ const RichTextEditor = ({
   onChange,
   customerLocale,
   customerCurrency,
+  images = {},
+  onImageUpload,
   isCompact,
   onPreviewReady,
   variableItems = [],
@@ -181,6 +187,11 @@ const RichTextEditor = ({
         suggestion: mentionSuggestion,
       } as MentionSchemaOptions),
       PricingBlock.configure({ entities: entitiesFromProps }),
+      QuoteImageSchema.extend({
+        addNodeView() {
+          return ReactNodeViewRenderer(QuoteImageNodeView, { as: 'div' })
+        },
+      }).configure({ images }),
       SlashCommands.configure({
         translate,
         onPricingCommand: onPricingCommand
@@ -270,11 +281,22 @@ const RichTextEditor = ({
       mode,
       mentionValues,
       entities: entitiesFromProps,
+      images,
       onPricingCommand,
+      onImageUpload,
       customerLocale,
       customerCurrency,
     }),
-    [mode, mentionValues, entitiesFromProps, onPricingCommand, customerLocale, customerCurrency],
+    [
+      mode,
+      mentionValues,
+      entitiesFromProps,
+      images,
+      onPricingCommand,
+      onImageUpload,
+      customerLocale,
+      customerCurrency,
+    ],
   )
 
   useEffect(() => {

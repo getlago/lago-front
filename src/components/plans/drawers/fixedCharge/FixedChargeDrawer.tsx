@@ -30,7 +30,7 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 import { DEFAULT_VALUES } from './constants'
 import { FixedChargeDrawerContent } from './FixedChargeDrawerContent'
 
-export { type FixedChargeDrawerFormValues, DEFAULT_VALUES } from './constants'
+export { type FixedChargeDrawerFormValues } from './constants'
 
 const FIXED_CHARGE_FORM_ID = 'fixed-charge-drawer-form'
 

@@ -34,7 +34,8 @@ gql`
 `
 
 // Error message identifiers for validation
-export const ERROR_REQUIRED = 'REQUIRED'
+const ERROR_REQUIRED = 'REQUIRED'
+
 export const ERROR_ASCENDING_ORDER = 'ASCENDING_ORDER'
 
 export const DEFAULT_PROGRESSIVE_BILLING = {

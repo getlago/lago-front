@@ -44,9 +44,16 @@ jest.mock('../OrdersList', () => ({
   default: () => null,
 }))
 
+const mockHasPermissions = jest.fn()
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
 const mockQuote = {
   id: 'quote-draft-001',
   number: 'QT-2026-0042',
+  images: {},
   orderType: OrderTypeEnum.SubscriptionCreation,
   createdAt: '2026-04-09T10:00:00Z',
   versions: [
@@ -96,6 +103,7 @@ const mockUseQuoteVersionActions = useQuoteVersionActions as jest.MockedFunction
 describe('QuoteDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasPermissions.mockReturnValue(true)
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ quoteId: 'quote-draft-001' })
@@ -173,6 +181,21 @@ describe('QuoteDetails', () => {
         const config = mockMainHeaderConfigure.mock.calls[0][0]
 
         expect(config.tabs[2].link).toBe('/quote/quote-draft-001/orders')
+      })
+    })
+
+    describe('WHEN the user lacks the orderFormsView permission', () => {
+      it('THEN should hide the order forms tab', () => {
+        mockHasPermissions.mockReturnValue(false)
+
+        render(<QuoteDetails />)
+
+        const config = mockMainHeaderConfigure.mock.calls[0][0]
+
+        expect(config.tabs).toHaveLength(2)
+        expect(
+          config.tabs.some((tab: { link?: string }) => tab.link?.endsWith('/order-forms')),
+        ).toBe(false)
       })
     })
 

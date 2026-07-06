@@ -8,6 +8,7 @@ import { useGetCustomersForFilterItemCustomerLazyQuery } from '~/generated/graph
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { filterDataInlineSeparator, FiltersFormValues } from '../types'
+import { escapeFilterLabel } from '../utils'
 
 gql`
   query getCustomersForFilterItemCustomer($page: Int, $limit: Int, $searchTerm: String) {
@@ -61,7 +62,7 @@ export const FiltersItemCustomer = ({ value, setFilterValue }: FiltersItemCustom
             )}
           </ComboboxItem>
         ),
-        value: `${externalId}${filterDataInlineSeparator}${customerName}`,
+        value: `${externalId}${filterDataInlineSeparator}${escapeFilterLabel(customerName ?? '')}`,
       }
     })
   }, [data?.customers?.collection, translate])

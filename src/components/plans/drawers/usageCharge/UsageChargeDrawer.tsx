@@ -150,7 +150,7 @@ gql`
 // `code` is only required when the field is shown (v2 details/edition via
 // `showCode`); the legacy plan form keeps it optional so its hidden, empty code
 // never blocks submit.
-export const buildUsageChargeDrawerSchema = (requireCode: boolean) =>
+const buildUsageChargeDrawerSchema = (requireCode: boolean) =>
   z
     .object({
       billableMetricId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),

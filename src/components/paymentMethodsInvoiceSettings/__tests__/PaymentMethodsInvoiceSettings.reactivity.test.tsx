@@ -2,15 +2,15 @@ import { useForm, useStore } from '@tanstack/react-form'
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import {
-  EDIT_PM_DIALOG_FALLBACK_RADIO_TEST_ID,
-  EDIT_PM_DIALOG_MANUAL_RADIO_TEST_ID,
-  EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID,
-} from '~/components/paymentMethodSelection/EditPaymentMethodDialog'
+import { EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID } from '~/components/paymentMethodSelection/EditPaymentMethodDialog'
 import {
   INHERITED_BADGE_TEST_ID,
   MANUAL_PAYMENT_METHOD_TEST_ID,
 } from '~/components/paymentMethodSelection/PaymentMethodDisplay'
+import {
+  PM_FIELDS_FALLBACK_RADIO_TEST_ID,
+  PM_FIELDS_MANUAL_RADIO_TEST_ID,
+} from '~/components/paymentMethodSelection/PaymentMethodFields'
 import { EDIT_PAYMENT_METHOD_BUTTON_TEST_ID } from '~/components/paymentMethodSelection/PaymentMethodSelection'
 import { Customer, PaymentMethodsDocument } from '~/generated/graphql'
 import {
@@ -20,7 +20,7 @@ import {
 import { render } from '~/test-utils'
 
 import { PaymentMethodsInvoiceSettings } from '../PaymentMethodsInvoiceSettings'
-import { PaymentMethodsInvoiceSettingsProps, ViewTypeEnum } from '../types'
+import { SettingsComponentProps, ViewTypeEnum } from '../types'
 
 /**
  * Regression guard for the bug where editing the payment method through the
@@ -104,7 +104,7 @@ const ReactiveHarness = () => {
         {
           values: { paymentMethod, invoiceCustomSection },
           setFieldValue: form.setFieldValue,
-        } as PaymentMethodsInvoiceSettingsProps<ViewTypeEnum.Subscription>['form']
+        } as SettingsComponentProps<ViewTypeEnum.Subscription>['form']
       }
     />
   )
@@ -130,7 +130,7 @@ const SnapshotHarness = () => {
         {
           values: form.state.values,
           setFieldValue: form.setFieldValue,
-        } as PaymentMethodsInvoiceSettingsProps<ViewTypeEnum.Subscription>['form']
+        } as SettingsComponentProps<ViewTypeEnum.Subscription>['form']
       }
     />
   )
@@ -168,13 +168,13 @@ describe('PaymentMethodsInvoiceSettings — TanStack form reactivity (subscripti
         expect(screen.queryByTestId(MANUAL_PAYMENT_METHOD_TEST_ID)).not.toBeInTheDocument()
 
         // 1st change: fallback -> manual
-        await openDialogAndSelect(EDIT_PM_DIALOG_MANUAL_RADIO_TEST_ID)
+        await openDialogAndSelect(PM_FIELDS_MANUAL_RADIO_TEST_ID)
         await waitFor(() => {
           expect(screen.getByTestId(MANUAL_PAYMENT_METHOD_TEST_ID)).toBeInTheDocument()
         })
 
         // 2nd change: manual -> fallback (this is where the regression manifested)
-        await openDialogAndSelect(EDIT_PM_DIALOG_FALLBACK_RADIO_TEST_ID)
+        await openDialogAndSelect(PM_FIELDS_FALLBACK_RADIO_TEST_ID)
         await waitFor(() => {
           expect(screen.queryByTestId(MANUAL_PAYMENT_METHOD_TEST_ID)).not.toBeInTheDocument()
           expect(screen.getByTestId(INHERITED_BADGE_TEST_ID)).toBeInTheDocument()
@@ -193,13 +193,13 @@ describe('PaymentMethodsInvoiceSettings — TanStack form reactivity (subscripti
         })
 
         // 1st change reflects (the isDirty flip forces one re-render)
-        await openDialogAndSelect(EDIT_PM_DIALOG_MANUAL_RADIO_TEST_ID)
+        await openDialogAndSelect(PM_FIELDS_MANUAL_RADIO_TEST_ID)
         await waitFor(() => {
           expect(screen.getByTestId(MANUAL_PAYMENT_METHOD_TEST_ID)).toBeInTheDocument()
         })
 
         // 2nd change is NOT reflected — the display stays stale on "manual"
-        await openDialogAndSelect(EDIT_PM_DIALOG_FALLBACK_RADIO_TEST_ID)
+        await openDialogAndSelect(PM_FIELDS_FALLBACK_RADIO_TEST_ID)
         expect(screen.getByTestId(MANUAL_PAYMENT_METHOD_TEST_ID)).toBeInTheDocument()
       })
     })

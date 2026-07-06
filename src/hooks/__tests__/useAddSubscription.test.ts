@@ -332,6 +332,7 @@ describe('buildPlanOverridesInput', () => {
   it('normalizes an empty invoiceDisplayName against an absent one', () => {
     const baseline = buildBaseValues()
     // Baseline charge has no invoiceDisplayName at all
+
     delete (baseline.fixedCharges[0] as { invoiceDisplayName?: string }).invoiceDisplayName
     const current = clone(baseline)
 

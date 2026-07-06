@@ -16,10 +16,7 @@ import {
   AddMoneyhashDialog,
   AddMoneyhashDialogRef,
 } from '~/components/settings/integrations/AddMoneyhashDialog'
-import {
-  DeleteMoneyhashIntegrationDialog,
-  DeleteMoneyhashIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteMoneyhashIntegrationDialog'
+import { useDeleteMoneyhashIntegrationDialog } from '~/components/settings/integrations/DeleteMoneyhashIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, MONEYHASH_INTEGRATION_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -71,8 +68,8 @@ const MoneyhashIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId } = useParams()
   const addMoneyhashDialogRef = useRef<AddMoneyhashDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteMoneyhashIntegrationDialogRef>(null)
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
+  const { openDeleteMoneyhashIntegrationDialog } = useDeleteMoneyhashIntegrationDialog()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { data, loading } = useGetMoneyhashIntegrationsDetailsQuery({
@@ -139,7 +136,6 @@ const MoneyhashIntegrationDetails = () => {
                   onClick: (closePopper) => {
                     addMoneyhashDialogRef.current?.openDialog({
                       provider: moneyhashPaymentProvider,
-                      deleteModalRef: deleteDialogRef,
                       deleteDialogCallback,
                     })
                     closePopper()
@@ -149,7 +145,7 @@ const MoneyhashIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dad'),
                   hidden: !canDeleteIntegration,
                   onClick: (closePopper) => {
-                    deleteDialogRef.current?.openDialog({
+                    openDeleteMoneyhashIntegrationDialog({
                       provider: moneyhashPaymentProvider,
                       callback: deleteDialogCallback,
                     })
@@ -173,7 +169,6 @@ const MoneyhashIntegrationDetails = () => {
               onClick={() => {
                 addMoneyhashDialogRef.current?.openDialog({
                   provider: moneyhashPaymentProvider,
-                  deleteModalRef: deleteDialogRef,
                   deleteDialogCallback,
                 })
               }}
@@ -255,7 +250,6 @@ const MoneyhashIntegrationDetails = () => {
         </>
       </section>
       <AddMoneyhashDialog ref={addMoneyhashDialogRef} />
-      <DeleteMoneyhashIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

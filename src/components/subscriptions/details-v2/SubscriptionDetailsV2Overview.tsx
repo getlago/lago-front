@@ -1,27 +1,32 @@
 import { gql } from '@apollo/client'
 
+import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
-  InvoicingPaymentsSectionFragmentDoc,
   LagoApiError,
   SubscriptionInformationSectionFragmentDoc,
+  SubscriptionInvoiceSectionFragmentDoc,
+  SubscriptionPaymentSectionFragmentDoc,
   useGetSubscriptionForDetailsV2OverviewQuery,
 } from '~/generated/graphql'
 
-import { InvoicingPaymentsSection } from './InvoicingPaymentsSection'
 import { SubscriptionInformationSection } from './SubscriptionInformationSection'
+import { SubscriptionInvoiceSection } from './SubscriptionInvoiceSection'
+import { SubscriptionPaymentSection } from './SubscriptionPaymentSection'
 
 gql`
   query getSubscriptionForDetailsV2Overview($subscriptionId: ID!) {
     subscription(id: $subscriptionId) {
       id
       ...SubscriptionInformationSection
-      ...InvoicingPaymentsSection
+      ...SubscriptionPaymentSection
+      ...SubscriptionInvoiceSection
     }
   }
 
   ${SubscriptionInformationSectionFragmentDoc}
-  ${InvoicingPaymentsSectionFragmentDoc}
+  ${SubscriptionPaymentSectionFragmentDoc}
+  ${SubscriptionInvoiceSectionFragmentDoc}
 `
 
 type Props = {
@@ -46,9 +51,12 @@ export const SubscriptionDetailsV2Overview = ({ subscriptionId }: Props) => {
   }
 
   return (
-    <div className="flex flex-col gap-12 pt-6">
-      <SubscriptionInformationSection subscription={subscription} />
-      <InvoicingPaymentsSection subscription={subscription} />
+    <div className="pt-6">
+      <CenteredPage.SubsectionWrapper>
+        <SubscriptionInformationSection subscription={subscription} />
+        <SubscriptionPaymentSection subscription={subscription} />
+        <SubscriptionInvoiceSection subscription={subscription} />
+      </CenteredPage.SubsectionWrapper>
     </div>
   )
 }

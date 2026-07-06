@@ -16,7 +16,7 @@ import { CurrencyEnum, TaxForPlanAndChargesInPlanFormFragment } from '~/generate
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-export const MINIMUM_COMMITMENT_DRAWER_SAVE_TEST_ID = 'minimum-commitment-drawer-save'
+const MINIMUM_COMMITMENT_DRAWER_SAVE_TEST_ID = 'minimum-commitment-drawer-save'
 
 const MINIMUM_COMMITMENT_FORM_ID = 'minimum-commitment-drawer-form'
 

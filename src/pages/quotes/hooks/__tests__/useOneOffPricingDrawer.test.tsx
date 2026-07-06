@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 import { z } from 'zod'
 
-import { fromBillingItems } from '~/core/serializers/serializeQuoteBillingItems'
+import { fromBillingItems, toBillingItems } from '~/core/serializers/serializeQuoteBillingItems'
 import { CurrencyEnum } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
@@ -126,6 +126,7 @@ jest.mock('../useSubscriptionPricingDrawer', () => ({
 }))
 
 const mockedFromBillingItems = fromBillingItems as jest.Mock
+const mockedToBillingItems = toBillingItems as jest.Mock
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <AllTheProviders>{children}</AllTheProviders>
@@ -135,7 +136,7 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 
 const mockAddOnPayload = {
   position: 1,
-  add_on_code: 'setup',
+  code: 'setup',
   name: 'Setup Fee',
   description: 'One-time setup fee',
   units: 1,
@@ -420,9 +421,13 @@ describe('useOneOffPricingDrawer', () => {
       })
     })
 
-    describe('WHEN all entities are referenced in blocks (with backward-compat entries)', () => {
-      it('THEN should clean up backward-compat keys and return updated billing items', () => {
-        // Hydration creates both localId-keyed and backward-compat catalog-keyed entries
+    describe('WHEN a block references an add-on by localEntityId and the catalog alias also exists in state', () => {
+      it('THEN should treat the add-on as active and return null (the alias is not a real orphan)', () => {
+        // Regression: after a save→refetch, hydration dual-keys state by both
+        // localId and the catalog addOnId. A block still references the add-on
+        // via its localEntityId, so the addOnId alias must NOT be mistaken for a
+        // deleted add-on — otherwise a no-op sync (e.g. on the editor preview
+        // toggle) rebuilds from catalog payloads and wipes the user's overrides.
         mockedFromBillingItems.mockReturnValue({
           entities: {
             'local-uuid-1': {
@@ -462,19 +467,21 @@ describe('useOneOffPricingDrawer', () => {
           syncResult = result.current.syncEntitiesWithBlocks(blocks)
         })
 
-        // Backward-compat key 'addon-1' was orphaned and cleaned up
-        expect(syncResult).not.toBeNull()
+        // No genuine deletion → no save, and both keys are retained (the alias
+        // is still needed to resolve legacy blocks that reference the catalog id)
+        expect(syncResult).toBeNull()
+        expect(mockedToBillingItems).not.toHaveBeenCalled()
         expect(result.current.entities).toHaveProperty('local-uuid-1')
-        expect(result.current.entities).not.toHaveProperty('addon-1')
+        expect(result.current.entities).toHaveProperty('addon-1')
       })
     })
 
-    describe('WHEN some entities are not referenced in blocks', () => {
-      it('THEN should remove orphaned entities and return updated billing items', () => {
+    describe('WHEN a block has been deleted so one add-on is no longer referenced', () => {
+      it('THEN should remove the orphaned add-on and rebuild survivors via toBillingItems (preserving overrides)', () => {
         const secondPayload = {
           ...mockAddOnPayload,
           position: 2,
-          add_on_code: 'onboarding',
+          code: 'onboarding',
           name: 'Onboarding Fee',
         }
 
@@ -485,6 +492,9 @@ describe('useOneOffPricingDrawer', () => {
               entityType: 'addOn',
               name: 'Setup Fee',
               code: 'setup',
+              units: '2',
+              unitAmountCents: '2000',
+              totalAmount: '4000',
             },
             'local-uuid-2': {
               entityId: 'local-uuid-2',
@@ -507,6 +517,20 @@ describe('useOneOffPricingDrawer', () => {
             },
           ],
         })
+
+        const rebuilt = {
+          addons: [
+            {
+              type: 'addon' as const,
+              id: 'addon-1',
+              localId: 'local-uuid-1',
+              payload: mockAddOnPayload,
+              overrides: { units: 2, unit_amount_cents: 2000, total_amount_cents: 4000 },
+            },
+          ],
+        }
+
+        mockedToBillingItems.mockReturnValueOnce(rebuilt)
 
         const billingItemsWithTwo = {
           addons: [
@@ -544,17 +568,27 @@ describe('useOneOffPricingDrawer', () => {
           syncResult = result.current.syncEntitiesWithBlocks(blocks)
         })
 
-        expect(syncResult).not.toBeNull()
+        // Survivors are rebuilt through toBillingItems so overrides are preserved
+        expect(syncResult).toBe(rebuilt)
+        expect(mockedToBillingItems).toHaveBeenCalledTimes(1)
 
-        const payload = syncResult as { addons: Array<{ id: string }> }
+        const [survivingItems] = mockedToBillingItems.mock.calls[0]
 
-        // Only local-uuid-1 should remain
-        expect(payload.addons).toHaveLength(1)
-        expect(payload.addons[0].id).toBe('local-uuid-1')
+        // Only the surviving add-on is passed, carrying its localId + catalog addOnId
+        // and its edited values (not catalog defaults)
+        expect(survivingItems).toHaveLength(1)
+        expect(survivingItems[0]).toMatchObject({
+          localId: 'local-uuid-1',
+          addOnId: 'addon-1',
+          units: '2',
+          unitAmountCents: '2000',
+          totalAmount: '4000',
+        })
 
-        // Entities should no longer include local-uuid-2
+        // Orphaned add-on removed from state, including its backward-compat alias
         expect(result.current.entities).toHaveProperty('local-uuid-1')
         expect(result.current.entities).not.toHaveProperty('local-uuid-2')
+        expect(result.current.entities).not.toHaveProperty('addon-2')
       })
     })
 

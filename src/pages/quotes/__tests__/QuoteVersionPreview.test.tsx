@@ -68,6 +68,7 @@ const draftVersion = {
 const mockQuote = {
   id: 'quote-123',
   number: 'QT-2026-0042',
+  images: {},
   orderType: OrderTypeEnum.SubscriptionCreation,
   customer: {
     id: 'customer-001',

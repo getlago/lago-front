@@ -9,7 +9,7 @@ import {
 
 import { prependOrgSlug } from './utils/prependOrgSlug'
 
-export interface NavigateOptions extends RRNavigateOptions {
+interface NavigateOptions extends RRNavigateOptions {
   /**
    * When true, the wrapper does NOT prepend the current org slug.
    * Use when the caller already builds a slug-prefixed path for a

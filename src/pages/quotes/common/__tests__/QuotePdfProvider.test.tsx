@@ -48,6 +48,7 @@ const PROPS: QuotePreviewProps = {
   customerLocale: 'en',
   customerCurrency: undefined,
   mentionValues: {},
+  images: {},
 }
 
 const Consumer = ({ props }: { props: QuotePreviewProps }) => {

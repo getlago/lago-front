@@ -78,6 +78,7 @@ const renderPricingBlockView = ({
           mode,
           mentionValues: {},
           entities,
+          images: {},
           onPricingCommand,
           customerLocale,
           customerCurrency,

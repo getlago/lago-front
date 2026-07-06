@@ -23,7 +23,7 @@ export type EntityData = {
   plan?: PlanPreviewData
 }
 
-export interface PricingCommandParams {
+interface PricingCommandParams {
   onSave: (
     attrs: PricingBlockAttributes,
     entityData: Record<string, EntityData>,
@@ -38,7 +38,9 @@ interface RichTextEditorContextValue {
   mode: RichTextEditorMode
   mentionValues: Record<string, string>
   entities: Record<string, EntityData>
+  images: Record<string, string>
   onPricingCommand?: OnPricingCommand
+  onImageUpload?: (base64: string) => Promise<string>
   customerLocale?: Locale
   customerCurrency?: CurrencyEnum
 }
@@ -47,6 +49,7 @@ const RichTextEditorContext = createContext<RichTextEditorContextValue>({
   mode: 'edit',
   mentionValues: {},
   entities: {},
+  images: {},
 })
 
 export const RichTextEditorProvider = RichTextEditorContext.Provider

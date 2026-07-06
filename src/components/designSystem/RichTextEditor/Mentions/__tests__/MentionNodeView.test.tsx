@@ -56,7 +56,7 @@ const renderMentionNodeView = ({
   mentionValues = {} as Record<string, string>,
 } = {}) => {
   return render(
-    <RichTextEditorProvider value={{ mode, mentionValues, entities: {} }}>
+    <RichTextEditorProvider value={{ mode, mentionValues, entities: {}, images: {} }}>
       <MentionNodeView {...defaultProps} node={node} />
     </RichTextEditorProvider>,
   )
@@ -144,6 +144,34 @@ describe('MentionNodeView', () => {
         const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)
 
         expect(element).toHaveTextContent('@Customer Name')
+      })
+    })
+
+    describe('WHEN the resolved value is an empty string', () => {
+      it('THEN should render nothing instead of the @label', () => {
+        renderMentionNodeView({
+          mode: 'preview',
+          mentionValues: { customerName: '' },
+        })
+
+        const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)
+
+        expect(element).not.toHaveTextContent('@Customer Name')
+        expect(element).toBeEmptyDOMElement()
+      })
+    })
+
+    describe('WHEN the resolved value is null', () => {
+      it('THEN should render nothing instead of the @label', () => {
+        renderMentionNodeView({
+          mode: 'preview',
+          mentionValues: { customerName: null as unknown as string },
+        })
+
+        const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)
+
+        expect(element).not.toHaveTextContent('@Customer Name')
+        expect(element).toBeEmptyDOMElement()
       })
     })
   })

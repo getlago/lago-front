@@ -1,10 +1,11 @@
-import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
 
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   DeleteGocardlessIntegrationDialogFragment,
+  GetGocardlessIntegrationsListDocument,
   useDeleteGocardlessMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -22,65 +23,53 @@ gql`
   }
 `
 
-type TDeleteGocardlessIntegrationDialogProps = {
+type OpenDeleteGocardlessIntegrationDialogData = {
   provider: DeleteGocardlessIntegrationDialogFragment | null
   callback?: () => void
 }
 
-export interface DeleteGocardlessIntegrationDialogRef {
-  openDialog: ({ provider, callback }: TDeleteGocardlessIntegrationDialogProps) => unknown
-  closeDialog: () => unknown
-}
+export const useDeleteGocardlessIntegrationDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
+  const { translate } = useInternationalization()
+  const client = useApolloClient()
 
-export const DeleteGocardlessIntegrationDialog = forwardRef<DeleteGocardlessIntegrationDialogRef>(
-  (_, ref) => {
-    const { translate } = useInternationalization()
+  const [deleteGocardless] = useDeleteGocardlessMutation()
 
-    const dialogRef = useRef<WarningDialogRef>(null)
-    const [localData, setLocalData] = useState<TDeleteGocardlessIntegrationDialogProps | undefined>(
-      undefined,
-    )
+  const openDeleteGocardlessIntegrationDialog = (
+    data: OpenDeleteGocardlessIntegrationDialogData,
+  ) => {
+    const provider = data.provider
 
-    const gocardlessProvider = localData?.provider
+    centralizedDialog.open({
+      title: translate('text_658461066530343fe1808cd7', { name: provider?.name }),
+      description: translate('text_65846181a741a1401ecdddb7'),
+      actionText: translate('text_659d5de7c9b7f51394f7f3fd'),
+      colorVariant: 'danger',
+      onAction: async () => {
+        const res = await deleteGocardless({
+          variables: { input: { id: provider?.id as string } },
+        })
 
-    const [deleteGocardless] = useDeleteGocardlessMutation({
-      onCompleted(data) {
-        if (data && data.destroyPaymentProvider) {
-          dialogRef.current?.closeDialog()
-          localData?.callback?.()
+        const destroyedId = res.data?.destroyPaymentProvider?.id
+
+        if (destroyedId) {
+          evictFromCache(client, {
+            id: destroyedId,
+            __typename: 'GocardlessProvider',
+            listFieldName: 'paymentProviders',
+            listQueryDocument: GetGocardlessIntegrationsListDocument,
+          })
+
+          data.callback?.()
+
           addToast({
             message: translate('text_62b1edddbf5f461ab9712758'),
             severity: 'success',
           })
         }
       },
-      update(cache) {
-        cache.evict({ id: `GocardlessProvider:${gocardlessProvider?.id}` })
-      },
-      refetchQueries: ['getGocardlessIntegrationsList'],
     })
+  }
 
-    useImperativeHandle(ref, () => ({
-      openDialog: (data) => {
-        setLocalData(data)
-        dialogRef.current?.openDialog()
-      },
-      closeDialog: () => dialogRef.current?.closeDialog(),
-    }))
-
-    return (
-      <WarningDialog
-        mode="danger"
-        ref={dialogRef}
-        title={translate('text_658461066530343fe1808cd7', { name: gocardlessProvider?.name })}
-        description={translate('text_65846181a741a1401ecdddb7')}
-        onContinue={async () =>
-          await deleteGocardless({ variables: { input: { id: gocardlessProvider?.id as string } } })
-        }
-        continueText={translate('text_659d5de7c9b7f51394f7f3fd')}
-      />
-    )
-  },
-)
-
-DeleteGocardlessIntegrationDialog.displayName = 'DeleteGocardlessIntegrationDialog'
+  return { openDeleteGocardlessIntegrationDialog }
+}

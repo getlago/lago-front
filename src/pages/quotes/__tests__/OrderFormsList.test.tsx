@@ -1,7 +1,8 @@
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { OrderFormStatusEnum } from '~/generated/graphql'
-import { render } from '~/test-utils'
+import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useOrderForms } from '../hooks/useOrderForms'
 import OrderFormsList from '../OrderFormsList'
@@ -48,10 +49,18 @@ jest.mock('~/pages/quotes/common/QuotePdfProvider', () => ({
 
 let mockSearchParams = new URLSearchParams()
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useSearchParams: () => [mockSearchParams, jest.fn()],
-}))
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom')
+  const { mockNavigate } = (
+    globalThis as unknown as { __testRouterMocks: { mockNavigate: jest.Mock } }
+  ).__testRouterMocks
+
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+    useSearchParams: () => [mockSearchParams, jest.fn()],
+  }
+})
 
 const mockUseOrderForms = useOrderForms as jest.MockedFunction<typeof useOrderForms>
 
@@ -65,6 +74,7 @@ const mockOrderForms = [
     quote: {
       id: 'q-1',
       number: 'QUO-001',
+      images: {},
       currentVersion: { id: 'qv-1', version: 1, content: '# Order Form 1', mentionVariables: {} },
     },
   },
@@ -77,6 +87,7 @@ const mockOrderForms = [
     quote: {
       id: 'q-2',
       number: 'QUO-002',
+      images: {},
       currentVersion: { id: 'qv-2', version: 3, content: '# Order Form 2', mentionVariables: {} },
     },
   },
@@ -89,6 +100,7 @@ const mockOrderForms = [
     quote: {
       id: 'q-3',
       number: 'QUO-003',
+      images: {},
       currentVersion: { id: 'qv-3', version: 2, content: '# Order Form 3', mentionVariables: {} },
     },
   },
@@ -254,6 +266,39 @@ describe('OrderFormsList', () => {
           }),
         )
       })
+    })
+  })
+
+  describe('row navigation', () => {
+    beforeEach(() => {
+      mockHasPermissions.mockReturnValue(true)
+      mockUseOrderForms.mockReturnValue({
+        orderForms: mockOrderForms,
+        loading: false,
+        error: undefined,
+        fetchMore: jest.fn(),
+        metadata: { currentPage: 1, totalPages: 1 },
+      } as unknown as ReturnType<typeof useOrderForms>)
+    })
+
+    it('THEN navigates a generated order form row to the sign page', async () => {
+      const user = userEvent.setup()
+
+      render(<OrderFormsList />)
+
+      await user.click(screen.getByTestId('table-row-0'))
+
+      expect(testMockNavigateFn).toHaveBeenCalledWith('/order-form/of-1/sign')
+    })
+
+    it('THEN navigates a non-generated order form row to the details page', async () => {
+      const user = userEvent.setup()
+
+      render(<OrderFormsList />)
+
+      await user.click(screen.getByTestId('table-row-1'))
+
+      expect(testMockNavigateFn).toHaveBeenCalledWith('/order-form/of-2')
     })
   })
 })

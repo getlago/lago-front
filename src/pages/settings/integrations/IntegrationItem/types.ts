@@ -7,7 +7,7 @@ import {
   MappableIntegrationProvider,
 } from '~/pages/settings/integrations/common'
 
-export type IntegrationMappings = Array<ItemMapping> | undefined | null
+type IntegrationMappings = Array<ItemMapping> | undefined | null
 
 export type IntegrationItem = {
   id: string

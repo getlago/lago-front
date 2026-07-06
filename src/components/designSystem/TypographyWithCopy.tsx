@@ -9,7 +9,6 @@ import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 
-export const TYPOGRAPHY_WITH_COPY_CONTAINER_TEST_ID = 'typography-with-copy-container'
 export const TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID = 'typography-with-copy-button'
 
 interface TypographyWithCopyProps extends TypographyProps {

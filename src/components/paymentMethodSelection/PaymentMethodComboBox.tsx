@@ -13,6 +13,7 @@ export const PaymentMethodComboBox = ({
   className,
   disabled = false,
   name = 'selectPaymentMethod',
+  error,
   PopperProps,
 }: PaymentMethodComboBoxProps) => {
   const { translate } = useInternationalization()
@@ -60,6 +61,7 @@ export const PaymentMethodComboBox = ({
       value={selectedValue}
       onChange={onChange}
       disabled={disabled}
+      error={error}
       sortValues={false}
       PopperProps={PopperProps}
     />

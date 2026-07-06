@@ -11,7 +11,7 @@ import {
 describe('toBillingItems', () => {
   const makePayload = (overrides: Partial<AddOnPayload> = {}): AddOnPayload => ({
     position: 1,
-    add_on_code: 'setup',
+    code: 'setup',
     name: 'Setup Fee',
     description: 'One-time setup',
     units: 1,
@@ -91,8 +91,8 @@ describe('toBillingItems', () => {
       makeAddOnItem({ localId: 'local-b', addOnId: 'b' }),
     ]
     const payloads: Record<string, AddOnPayload> = {
-      'local-a': makePayload({ add_on_code: 'a' }),
-      'local-b': makePayload({ add_on_code: 'b' }),
+      'local-a': makePayload({ code: 'a' }),
+      'local-b': makePayload({ code: 'b' }),
     }
 
     const result = toBillingItems(items, payloads)
@@ -188,7 +188,7 @@ describe('fromBillingItems', () => {
         id: 'addon-1',
         payload: {
           position: 1,
-          add_on_code: 'setup',
+          code: 'setup',
           name: 'Setup Fee',
           description: 'One-time setup',
           units: 1,
@@ -233,7 +233,7 @@ describe('fromBillingItems', () => {
           id: 'addon-1',
           payload: {
             position: 1,
-            add_on_code: 'setup',
+            code: 'setup',
             name: 'Setup Fee',
             description: 'One-time setup',
             units: 1,
@@ -305,7 +305,7 @@ describe('fromBillingItems', () => {
           id: 'addon-b',
           payload: {
             position: 2,
-            add_on_code: 'b',
+            code: 'b',
             name: 'B',
             description: '',
             units: 1,
@@ -323,7 +323,7 @@ describe('fromBillingItems', () => {
           id: 'addon-a',
           payload: {
             position: 1,
-            add_on_code: 'a',
+            code: 'a',
             name: 'A',
             description: '',
             units: 1,
@@ -361,7 +361,7 @@ describe('fromBillingItems', () => {
           id: 'addon-1',
           payload: {
             position: 1,
-            add_on_code: 'setup',
+            code: 'setup',
             name: 'Setup Fee',
             description: 'One-time setup',
             units: 1,
@@ -379,7 +379,7 @@ describe('fromBillingItems', () => {
           id: 'addon-1',
           payload: {
             position: 2,
-            add_on_code: 'setup',
+            code: 'setup',
             name: 'Setup Fee',
             description: 'One-time setup',
             units: 3,
@@ -444,7 +444,7 @@ describe('buildPreviewEntities', () => {
         id: 'addon-1',
         payload: {
           position: 1,
-          add_on_code: 'setup',
+          code: 'setup',
           name: 'Setup Fee',
           description: 'One-time setup',
           units: 1,
@@ -495,9 +495,9 @@ describe('buildPreviewEntities', () => {
           overrides: {},
           payload: {
             position: 0,
-            plan_code: 'p',
-            plan_name: 'P',
-            plan_description: '',
+            code: 'p',
+            name: 'P',
+            description: '',
             subscription_external_id: null,
             subscription_name: null,
             billing_time: 'calendar',

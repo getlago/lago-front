@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import { AvailableFiltersEnum, filterDataInlineSeparator } from '../types'
 import {
   defineDefaultToDateValue,
+  escapeFilterLabel,
   FILTER_VALUE_MAP,
   formatActiveFilterValueDisplay,
   formatFiltersForCreditNotesQuery,
@@ -22,6 +23,7 @@ import {
   keyWithPrefix,
   parseFromToValue,
   parseMetadataFilter,
+  unescapeFilterLabel,
 } from '../utils'
 
 describe('Filters utils', () => {
@@ -1606,6 +1608,46 @@ describe('Filters utils', () => {
       const result = formatFiltersForOrdersQuery(searchParams)
 
       expect(result).toEqual({ status: ['created'] })
+    })
+  })
+
+  describe('comma-safe filter labels (escapeFilterLabel / unescapeFilterLabel)', () => {
+    it('escapes and unescapes a label containing commas, round-tripping exactly', () => {
+      const label = 'Bernhard, Strosin & Rolfson'
+      const escaped = escapeFilterLabel(label)
+
+      expect(escaped).not.toContain(',')
+      expect(unescapeFilterLabel(escaped)).toBe(label)
+    })
+
+    it('is a no-op for labels without commas', () => {
+      expect(escapeFilterLabel('Acme Corp')).toBe('Acme Corp')
+      expect(unescapeFilterLabel('Acme Corp')).toBe('Acme Corp')
+    })
+
+    it('keeps a comma-named customer as a single multipleCustomers chip with the real name', () => {
+      const value = `cust-1${filterDataInlineSeparator}${escapeFilterLabel('Bernhard, Strosin & Rolfson')}`
+
+      expect(formatActiveFilterValueDisplay(AvailableFiltersEnum.multipleCustomers, value)).toBe(
+        'Bernhard, Strosin & Rolfson',
+      )
+    })
+
+    it('extracts a single customer id from a comma-named customer in the query filters', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'qu_multipleCustomers',
+        `cust-1${filterDataInlineSeparator}${escapeFilterLabel('Bernhard, Strosin & Rolfson')}`,
+      )
+
+      const result = formatFiltersForQuotesQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          customers: ['cust-1'],
+        }),
+      )
     })
   })
 })

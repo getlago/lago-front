@@ -58,8 +58,13 @@ const VoidQuote = () => {
     : ''
 
   const previewProps = useMemo(
-    () => buildQuotePreviewProps(quote?.currentVersion, quote?.customer),
-    [quote?.currentVersion, quote?.customer],
+    () =>
+      buildQuotePreviewProps({
+        version: quote?.currentVersion,
+        customer: quote?.customer,
+        images: (quote?.images ?? {}) as Record<string, string>,
+      }),
+    [quote?.currentVersion, quote?.customer, quote?.images],
   )
 
   const header = {

@@ -184,7 +184,7 @@ describe('usePlanFormSetup', () => {
   describe('GIVEN a billingItemPlan (case 2)', () => {
     const billingItemPlan = {
       id: 'plan-from-billing',
-      payload: { plan_name: 'Test Plan', plan_code: 'test' },
+      payload: { name: 'Test Plan', code: 'test' },
       overrides: {},
     }
 

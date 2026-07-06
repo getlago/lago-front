@@ -9,7 +9,10 @@ import type {
   OnPricingCommand,
 } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
 import type { PricingBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/PricingBlock.schema'
-import { pricingDrawerDefaultValues } from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
+import {
+  type AddOnItem,
+  pricingDrawerDefaultValues,
+} from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
 import PricingDrawerContent from '~/components/designSystem/RichTextEditor/PricingBlock/PricingDrawerContent'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import {
@@ -90,7 +93,7 @@ export const useOneOffPricingDrawer = (
       catalogIdMapRef.current[localId] = addOn.id
       payloadsRef.current[localId] = {
         position: 0, // will be set correctly by toBillingItems
-        add_on_code: addOn.code,
+        code: addOn.code,
         name: addOn.name,
         description: addOn.description ?? '',
         units: 1,
@@ -289,38 +292,69 @@ export const useOneOffPricingDrawer = (
 
   const syncEntitiesWithBlocks = useCallback(
     (blocks: PricingBlockAttributes[]): BillingItemsPayload | null => {
-      const activeEntityIds = new Set(
+      // Blocks reference add-ons by localEntityIds (preferred) or legacy catalog entityIds.
+      const activeRefIds = new Set(
         blocks.flatMap((b) => (b.localEntityIds?.length ? b.localEntityIds : b.entityIds)),
       )
 
-      const currentKeys = Object.keys(entitiesRef.current)
-      const orphanedKeys = currentKeys.filter((id) => !activeEntityIds.has(id))
+      // Add-ons are canonically identified by their localId; the catalog addOnId
+      // kept in entities/payloads is only a backward-compat alias (so legacy
+      // blocks referencing the catalog id still resolve). An add-on survives if a
+      // block references it by either its localId or its catalog alias — treating
+      // the alias as its own orphan would wrongly prune add-ons on a no-op sync
+      // (e.g. the editor's preview toggle, which fires an update).
+      const allLocalIds = Object.keys(catalogIdMapRef.current)
+      const removedLocalIds = allLocalIds.filter(
+        (localId) =>
+          !activeRefIds.has(localId) && !activeRefIds.has(catalogIdMapRef.current[localId]),
+      )
 
-      if (orphanedKeys.length === 0) return null
+      if (removedLocalIds.length === 0) return null
 
+      // Prune the deleted add-ons (and their alias keys) from local state.
       const updatedEntities = { ...entitiesRef.current }
       const updatedPayloads = { ...payloadsRef.current }
 
-      for (const key of orphanedKeys) {
-        delete updatedEntities[key]
-        delete updatedPayloads[key]
+      for (const localId of removedLocalIds) {
+        const addOnId = catalogIdMapRef.current[localId]
+
+        delete updatedEntities[localId]
+        delete updatedEntities[addOnId]
+        delete updatedPayloads[localId]
+        delete updatedPayloads[addOnId]
+        delete catalogIdMapRef.current[localId]
       }
 
       entitiesRef.current = updatedEntities
       payloadsRef.current = updatedPayloads
       setEntities(updatedEntities)
 
-      // Rebuild billing items from remaining payloads
-      const remainingIds = Object.keys(updatedPayloads)
+      // Rebuild the surviving billing items through toBillingItems so the user's
+      // overrides (units, unit price, dates, names) are preserved — rebuilding
+      // straight from the catalog payloads would reset them to catalog defaults.
+      const survivingItems: AddOnItem[] = Object.keys(catalogIdMapRef.current)
+        .map((localId): AddOnItem | null => {
+          const entity = updatedEntities[localId]
 
-      return {
-        addons: remainingIds.map((id, i) => ({
-          type: 'addon' as const,
-          id,
-          payload: { ...updatedPayloads[id], position: i + 1 },
-          overrides: {},
-        })),
-      }
+          if (!entity) return null
+
+          return {
+            localId,
+            addOnId: catalogIdMapRef.current[localId],
+            name: entity.name,
+            invoiceDisplayName: entity.invoiceDisplayName ?? '',
+            code: entity.code,
+            description: entity.description ?? '',
+            units: entity.units ?? '',
+            unitAmountCents: entity.unitAmountCents ?? '',
+            totalAmount: entity.totalAmount ?? '',
+            fromDatetime: entity.fromDatetime ?? '',
+            toDatetime: entity.toDatetime ?? '',
+          }
+        })
+        .filter((item): item is AddOnItem => item !== null)
+
+      return toBillingItems(survivingItems, payloadsRef.current)
     },
     [],
   )

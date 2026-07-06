@@ -3,12 +3,12 @@ import { formatCodeFromName } from '~/core/utils/formatCodeFromName'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withFieldGroup } from '~/hooks/forms/useAppform'
 
-export type NameAndCodeGroupValues = {
+type NameAndCodeGroupValues = {
   code: string
   name: string
 }
 
-export type NameAndCodeGroupProps = {
+type NameAndCodeGroupProps = {
   disableCodeInput?: boolean
   disableAutoGenerateCode?: boolean
   nameProps?: Partial<TextInputProps>
