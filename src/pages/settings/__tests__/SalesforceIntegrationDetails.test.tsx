@@ -10,7 +10,9 @@ jest.mock('~/components/settings/integrations/AddSalesforceDialog', () => ({
   AddSalesforceDialog: () => null,
 }))
 jest.mock('~/components/settings/integrations/DeleteSalesforceIntegrationDialog', () => ({
-  DeleteSalesforceIntegrationDialog: () => null,
+  useDeleteSalesforceIntegrationDialog: () => ({
+    openDeleteSalesforceIntegrationDialog: jest.fn(),
+  }),
 }))
 
 const mockQueryResult = jest.fn()

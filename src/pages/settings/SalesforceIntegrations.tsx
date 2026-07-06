@@ -11,10 +11,7 @@ import {
   AddSalesforceDialog,
   AddSalesforceDialogRef,
 } from '~/components/settings/integrations/AddSalesforceDialog'
-import {
-  DeleteSalesforceIntegrationDialog,
-  DeleteSalesforceIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteSalesforceIntegrationDialog'
+import { useDeleteSalesforceIntegrationDialog } from '~/components/settings/integrations/DeleteSalesforceIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   INTEGRATIONS_ROUTE,
@@ -62,7 +59,7 @@ const SalesforceIntegrations = () => {
   const { translate } = useInternationalization()
 
   const addSalesforceDialogRef = useRef<AddSalesforceDialogRef>(null)
-  const deleteSalesforceDialogRef = useRef<DeleteSalesforceIntegrationDialogRef>(null)
+  const { openDeleteSalesforceIntegrationDialog } = useDeleteSalesforceIntegrationDialog()
 
   const { data, loading } = useGetSalesforceIntegrationsListQuery({
     variables: { limit: 1000, types: [IntegrationTypeEnum.Salesforce] },
@@ -157,8 +154,11 @@ const SalesforceIntegrations = () => {
                           onClick={() => {
                             addSalesforceDialogRef.current?.openDialog({
                               provider: connection,
-                              deleteModalRef: deleteSalesforceDialogRef,
-                              deleteDialogCallback,
+                              onDelete: (provider) =>
+                                openDeleteSalesforceIntegrationDialog({
+                                  provider,
+                                  callback: deleteDialogCallback,
+                                }),
                             })
                             closePopper()
                           }}
@@ -170,7 +170,7 @@ const SalesforceIntegrations = () => {
                           variant="quaternary"
                           align="left"
                           onClick={() => {
-                            deleteSalesforceDialogRef.current?.openDialog({
+                            openDeleteSalesforceIntegrationDialog({
                               provider: connection,
                               callback: deleteDialogCallback,
                             })
@@ -189,7 +189,6 @@ const SalesforceIntegrations = () => {
       </IntegrationsPage.Container>
 
       <AddSalesforceDialog ref={addSalesforceDialogRef} />
-      <DeleteSalesforceIntegrationDialog ref={deleteSalesforceDialogRef} />
     </>
   )
 }
