@@ -18,7 +18,7 @@ jest.mock('~/components/settings/integrations/AddXeroDialog', () => ({
   AddXeroDialog: () => null,
 }))
 jest.mock('~/components/settings/integrations/DeleteXeroIntegrationDialog', () => ({
-  DeleteXeroIntegrationDialog: () => null,
+  useDeleteXeroIntegrationDialog: () => ({ openDeleteXeroIntegrationDialog: jest.fn() }),
 }))
 
 describe('XeroIntegrations', () => {

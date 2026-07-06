@@ -27,10 +27,7 @@ import {
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from './AddEditDeleteSuccessRedirectUrlDialog'
 import { AddXeroDialog, AddXeroDialogRef } from './AddXeroDialog'
-import {
-  DeleteXeroIntegrationDialog,
-  DeleteXeroIntegrationDialogRef,
-} from './DeleteXeroIntegrationDialog'
+import { useDeleteXeroIntegrationDialog } from './DeleteXeroIntegrationDialog'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -99,7 +96,7 @@ const XeroIntegrationSettings = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
   const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteXeroIntegrationDialogRef>(null)
+  const { openDeleteXeroIntegrationDialog } = useDeleteXeroIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetXeroIntegrationsSettingsQuery({
@@ -123,6 +120,13 @@ const XeroIntegrationSettings = () => {
         generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
       )
     }
+  }
+  const openDeleteDialog = () => {
+    if (!xeroIntegration) return
+    openDeleteXeroIntegrationDialog({
+      provider: xeroIntegration,
+      callback: deleteDialogCallback,
+    })
   }
 
   return (
@@ -156,8 +160,7 @@ const XeroIntegrationSettings = () => {
               onClick={() => {
                 addXeroDialogRef.current?.openDialog({
                   provider: xeroIntegration,
-                  deleteModalRef: deleteDialogRef,
-                  deleteDialogCallback,
+                  onDelete: openDeleteDialog,
                 })
               }}
             >
@@ -196,7 +199,6 @@ const XeroIntegrationSettings = () => {
         </section>
       </IntegrationsPage.Container>
       <AddXeroDialog ref={addXeroDialogRef} />
-      <DeleteXeroIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

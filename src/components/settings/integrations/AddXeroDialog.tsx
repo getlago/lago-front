@@ -3,7 +3,7 @@ import Stack from '@mui/material/Stack'
 import Nango from '@nangohq/frontend'
 import { useFormik } from 'formik'
 import { GraphQLFormattedError } from 'graphql'
-import { forwardRef, RefObject, useId, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useId, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
@@ -24,8 +24,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { XeroIntegrationDetailsTabs } from '~/pages/settings/XeroIntegrationDetails'
-
-import { DeleteXeroIntegrationDialogRef } from './DeleteXeroIntegrationDialog'
 
 gql`
   fragment XeroForCreateDialogDialog on XeroIntegration {
@@ -53,9 +51,8 @@ gql`
 `
 
 type TAddXeroDialogProps = Partial<{
-  deleteModalRef: RefObject<DeleteXeroIntegrationDialogRef>
+  onDelete: (provider: XeroForCreateDialogDialogFragment) => void
   provider: XeroForCreateDialogDialogFragment
-  deleteDialogCallback: () => void
 }>
 
 export interface AddXeroDialogRef {
@@ -217,10 +214,7 @@ export const AddXeroDialog = forwardRef<AddXeroDialogRef>((_, ref) => {
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                localData?.deleteModalRef?.current?.openDialog({
-                  provider: xeroProvider,
-                  callback: localData.deleteDialogCallback,
-                })
+                localData?.onDelete?.(xeroProvider)
               }}
             >
               {translate('text_65845f35d7d69c3ab4793dad')}
