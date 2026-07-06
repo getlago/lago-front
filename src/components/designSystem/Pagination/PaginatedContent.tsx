@@ -22,6 +22,11 @@ interface PaginatedContentProps {
    *  `false` for lists inside a scrolling section/tab (customer detail, portal) so it
    *  doesn't float mid-content. */
   sticky?: boolean
+  /** Indent the pager's controls by the standard page gutter (`px-4 md:px-12`). Pass `true`
+   *  ONLY for full-page lists rendered directly in the unpadded main scroll area, where the
+   *  table fakes the gutter via `containerSize`. Leave `false` (default) inside an already-padded
+   *  container (settings, customer detail) — otherwise the gutter is applied twice. */
+  insetPager?: boolean
   children: ReactNode
 }
 
@@ -50,6 +55,7 @@ export const PaginatedContent = ({
   pageSizeOptions,
   loading,
   sticky = true,
+  insetPager = false,
   children,
 }: PaginatedContentProps) => {
   const pagerRef = useRef<HTMLElement>(null)
@@ -91,11 +97,15 @@ export const PaginatedContent = ({
       ref={pagerRef}
       className={tw(
         'border-t border-grey-300 bg-white',
-        // sticky: mt-auto pushes the pager to the bottom of the flex-col content area when the
-        //   list is short (no pager stranded mid-page); it stays visible once the page scrolls.
-        // non-sticky: -mt-px overlaps the last row's bottom border with the pager's top border
-        //   so they read as a single 1px divider instead of a doubled 2px line.
+        // sticky: mt-auto pushes the pager to the bottom of the flex-col scroll area when the list
+        //   is short; it stays visible once the page scrolls.
+        // non-sticky: nested lists live inside an already-padded wrapper, so -mt-px just overlaps
+        //   the last row's bottom border with the pager's top border.
         sticky ? 'sticky bottom-0 z-10 mt-auto' : '-mt-px',
+        // insetPager: only full-page lists (rendered in the unpadded main scroll area) need the
+        //   page gutter on the pager to align its controls with the table content — the border
+        //   stays full-width, only the controls indent. Padded containers already provide it.
+        insetPager && 'px-4 md:px-12',
       )}
       currentPage={metadata?.currentPage ?? 1}
       totalPages={metadata?.totalPages ?? 0}

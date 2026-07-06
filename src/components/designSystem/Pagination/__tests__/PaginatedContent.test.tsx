@@ -169,6 +169,32 @@ describe('PaginatedContent', () => {
     expect(className).toContain('mt-auto')
   })
 
+  it('does not indent the pager with the page gutter by default', () => {
+    render(
+      <PaginatedContent onPageChange={onPageChange}>
+        <div />
+      </PaginatedContent>,
+    )
+
+    const [[{ className }]] = mockPaginationSpy.mock.calls
+
+    // padded containers (settings, customer detail) provide the gutter — the pager must not double it
+    expect(className).not.toContain('md:px-12')
+  })
+
+  it('indents the pager with the page gutter when insetPager is set (full-page lists)', () => {
+    render(
+      <PaginatedContent onPageChange={onPageChange} insetPager>
+        <div />
+      </PaginatedContent>,
+    )
+
+    const [[{ className }]] = mockPaginationSpy.mock.calls
+
+    expect(className).toContain('px-4')
+    expect(className).toContain('md:px-12')
+  })
+
   it('wraps children + pager in a single <div> when sticky is false', () => {
     const { container } = render(
       <PaginatedContent onPageChange={onPageChange} sticky={false}>

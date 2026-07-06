@@ -163,6 +163,7 @@ const CreditNotesTable = ({
 
   return (
     <PaginatedContent
+      insetPager
       metadata={metadata}
       loading={isLoading}
       pageSize={pageSize}

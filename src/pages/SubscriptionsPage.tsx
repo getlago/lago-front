@@ -185,6 +185,7 @@ const SubscriptionsPage = () => {
       />
 
       <PaginatedContent
+        insetPager
         metadata={data?.subscriptions.metadata}
         loading={isLoading}
         pageSize={pageSize}

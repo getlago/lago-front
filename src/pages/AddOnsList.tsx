@@ -128,6 +128,7 @@ const AddOnsList = () => {
       />
 
       <PaginatedContent
+        insetPager
         metadata={data?.addOns?.metadata}
         loading={isLoading}
         pageSize={pageSize}

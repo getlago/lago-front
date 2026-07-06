@@ -227,6 +227,7 @@ const BillableMetricsList = () => {
       />
 
       <PaginatedContent
+        insetPager
         metadata={data?.billableMetrics?.metadata}
         loading={isLoading}
         pageSize={pageSize}

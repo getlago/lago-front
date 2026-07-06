@@ -144,6 +144,7 @@ const FeaturesList = () => {
       />
 
       <PaginatedContent
+        insetPager
         metadata={featuresData?.features?.metadata}
         loading={isLoading}
         pageSize={pageSize}

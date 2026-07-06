@@ -123,6 +123,7 @@ const PlansList = () => {
       />
 
       <PaginatedContent
+        insetPager
         metadata={data?.plans?.metadata}
         loading={isLoading}
         pageSize={pageSize}

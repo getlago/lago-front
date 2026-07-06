@@ -192,6 +192,7 @@ const CouponsList = () => {
       />
 
       <PaginatedContent
+        insetPager
         metadata={data?.coupons?.metadata}
         loading={isLoading}
         pageSize={pageSize}

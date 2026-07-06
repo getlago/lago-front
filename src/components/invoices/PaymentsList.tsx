@@ -126,6 +126,7 @@ export const PaymentsList: FC<PaymentsListProps> = ({
 
   return (
     <PaginatedContent
+      insetPager
       metadata={metadata}
       loading={isLoading}
       pageSize={pageSize}

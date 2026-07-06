@@ -711,7 +711,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot in loading state 1`] = `
   </div>
   <nav
     aria-label="pagination"
-    class="flex items-center gap-3 px-4 py-3 border-t border-grey-300 bg-white sticky bottom-0 z-10 mt-auto"
+    class="flex items-center gap-3 py-3 border-t border-grey-300 bg-white sticky bottom-0 z-10 mt-auto px-4 md:px-12"
     data-test="pagination"
   >
     <button

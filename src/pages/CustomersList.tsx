@@ -157,6 +157,7 @@ const CustomersList = () => {
       />
 
       <PaginatedContent
+        insetPager
         metadata={data?.customers?.metadata}
         loading={isLoading}
         pageSize={pageSize}
