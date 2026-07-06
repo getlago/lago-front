@@ -413,6 +413,7 @@ describe('PlanDetailsV2FixedChargesSection', () => {
     await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
     const [chargeArg] = mockOpenDrawer.mock.calls[0]
     // Drawer pre-fills with the override, not the plan default.
+
     expect(chargeArg.units).toBe('42')
   })
 
@@ -472,6 +473,7 @@ describe('PlanDetailsV2FixedChargesSection', () => {
 
     await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
     const [chargeArg] = mockOpenDrawer.mock.calls[0]
+
     expect(chargeArg.units).toBe('7')
   })
 

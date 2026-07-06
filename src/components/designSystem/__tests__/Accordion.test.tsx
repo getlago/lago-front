@@ -373,6 +373,7 @@ describe('Accordion', () => {
 
     it('does not update internal state when controlled (isOpen prop controls visibility)', () => {
       const onToggle = jest.fn()
+
       render(
         <Accordion isOpen={false} onToggle={onToggle} summary={<span>Summary</span>}>
           <span data-test="content">Content</span>
@@ -390,6 +391,7 @@ describe('Accordion', () => {
 
     it('calls onToggle with false when closing in controlled mode', () => {
       const onToggle = jest.fn()
+
       render(
         <Accordion isOpen onToggle={onToggle} summary={<span>Summary</span>}>
           <span data-test="content">Content</span>

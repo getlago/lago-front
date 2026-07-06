@@ -22,6 +22,7 @@ export const LOGIN_ROUTE = '/login'
 export const LOGIN_OKTA = `${LOGIN_ROUTE}/okta`
 export const FORGOT_PASSWORD_ROUTE = '/forgot-password'
 const RESET_PASSWORD_ROUTE = '/reset-password/:token'
+
 export const SIGN_UP_ROUTE = '/sign-up'
 export const INVITATION_ROUTE = '/invitation/:token'
 export const INVITATION_ROUTE_FORM = '/invitation/:token/form'

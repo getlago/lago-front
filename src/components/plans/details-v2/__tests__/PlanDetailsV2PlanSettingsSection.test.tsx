@@ -42,11 +42,13 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 let mockIsPremium = true
+
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({ isPremium: mockIsPremium }),
 }))
 
 const mockOpenPremiumDialog = jest.fn()
+
 jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
   usePremiumWarningDialog: () => ({ open: mockOpenPremiumDialog, close: jest.fn() }),
 }))
