@@ -4484,5 +4484,22 @@
   "text_1784560679832ird9d8k4iqw": "Credits to void must be greater than 0.",
   "text_1784637373017e1som6d92em": "Delete all",
   "text_1784642866287h7jm6pidh6u": "Delete all metadata",
-  "text_17846428662872wnc279xn2s": "You\u2019re about to delete all metadata. Are you sure?"
+  "text_17846428662872wnc279xn2s": "You\u2019re about to delete all metadata. Are you sure?",
+  "text_1783352692385rxn8gajgtw4": "Prepaid credits",
+  "text_1783352692385djf5dxfo8l5": "Include free or paid credits in this quote. Configure how credits are applied and consumed.",
+  "text_17833526923851igosmn1oar": "Credits and wallet settings",
+  "text_1783352692385hz7bj9un6gr": "Define the wallet information to easily identify it.",
+  "text_178335269238576yarvlompv": "Wallet scope limitation",
+  "text_1783352692385a04ln0put4m": "By default, wallet credits apply to all items on subscription invoices. Limit the scope for more control.",
+  "text_1783352692385e6ttj3xne6k": "Free and paid credits",
+  "text_17833526923856caxxme9l8x": "Define the amount of free or paid credits included in this quote.",
+  "text_1783352692385mulfe6vb211": "Wallet recurring top-up rule",
+  "text_1783352692385xcnr96jj40l": "Define an automatic top-up based on a set interval or when a predefined threshold is reached.",
+  "text_1783352692385g9pml8ryold": "Select credits",
+  "text_1783352692386vc0tpd7owy3": "Prepaid credits",
+  "text_1783352692386xocpgvrz3na": "Credits and wallets",
+  "text_1783352692386nm1wsx38b6v": "Add prepaid credits to this quote",
+  "text_1783352692386p9bls6f0o76": "Purchase order number",
+  "text_1783352692386valktkog1dw": "Add purchase order number",
+  "text_17833526923863j848qxkffb": "Wallet settings"
 }
