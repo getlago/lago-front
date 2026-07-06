@@ -31,7 +31,7 @@ jest.mock('~/components/SearchInput', () => ({
 }))
 
 jest.mock('~/components/billableMetrics/DeleteBillableMetricDialog', () => ({
-  DeleteBillableMetricDialog: () => null,
+  useDeleteBillableMetricDialog: () => ({ openDeleteBillableMetricDialog: jest.fn() }),
 }))
 
 jest.mock('react-router-dom', () => ({

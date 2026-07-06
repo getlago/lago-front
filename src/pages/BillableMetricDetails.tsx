@@ -1,13 +1,9 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { BillableMetricDetailsActivityLogs } from '~/components/billableMetrics/BillableMetricDetailsActivityLogs'
 import { BillableMetricDetailsOverview } from '~/components/billableMetrics/BillableMetricDetailsOverview'
-import {
-  DeleteBillableMetricDialog,
-  DeleteBillableMetricDialogRef,
-} from '~/components/billableMetrics/DeleteBillableMetricDialog'
+import { useDeleteBillableMetricDialog } from '~/components/billableMetrics/DeleteBillableMetricDialog'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
@@ -45,7 +41,7 @@ const BillableMetricDetails = () => {
   const { billableMetricId } = useParams()
   const { isPremium } = useCurrentUser()
 
-  const deleteBillableMetricDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
+  const { openDeleteBillableMetricDialog } = useDeleteBillableMetricDialog()
 
   const { data, loading, error } = useGetBillableMetricForHeaderDetailsQuery({
     variables: {
@@ -106,7 +102,7 @@ const BillableMetricDetails = () => {
           label: translate('text_1748440972215btigjp0mowx'),
           hidden: !hasPermissions(['billableMetricsDelete']),
           onClick: (closePopper) => {
-            deleteBillableMetricDialogRef.current?.openDialog({
+            openDeleteBillableMetricDialog({
               billableMetricId: billableMetricId as string,
               callback: () => {
                 navigate(generatePath(BILLABLE_METRICS_ROUTE))
@@ -164,8 +160,6 @@ const BillableMetricDetails = () => {
       />
 
       <>{activeTabContent}</>
-
-      <DeleteBillableMetricDialog ref={deleteBillableMetricDialogRef} />
     </>
   )
 }
