@@ -31,7 +31,7 @@ jest.mock('~/components/SearchInput', () => ({
 }))
 
 jest.mock('~/components/features/DeleteFeatureDialog', () => ({
-  DeleteFeatureDialog: () => null,
+  useDeleteFeatureDialog: () => ({ openDeleteFeatureDialog: jest.fn() }),
 }))
 
 jest.mock('react-router-dom', () => ({
