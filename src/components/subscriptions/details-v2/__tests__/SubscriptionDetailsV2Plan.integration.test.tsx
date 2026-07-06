@@ -33,6 +33,7 @@ const stubRefDrawer = () => {
     return null
   })
 }
+
 jest.mock('~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer', () => ({
   __esModule: true,
   SubscriptionFeeDrawer: stubRefDrawer(),

@@ -139,7 +139,7 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
       <nav
         ref={ref}
         aria-label="pagination"
-        className={tw('flex items-center gap-3 px-4 py-3', className)}
+        className={tw('flex items-center gap-3 py-3', className)}
         data-test="pagination"
       >
         <button
