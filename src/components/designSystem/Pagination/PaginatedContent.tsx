@@ -25,7 +25,8 @@ interface PaginatedContentProps {
   /** Indent the pager's controls by the standard page gutter (`px-4 md:px-12`). Pass `true`
    *  ONLY for full-page lists rendered directly in the unpadded main scroll area, where the
    *  table fakes the gutter via `containerSize`. Leave `false` (default) inside an already-padded
-   *  container (settings, customer detail) — otherwise the gutter is applied twice. */
+   *  container (settings, customer detail) — otherwise the gutter is applied twice. Only takes
+   *  effect together with `sticky` (a non-sticky pager already sits in a padded wrapper). */
   insetPager?: boolean
   children: ReactNode
 }
@@ -102,10 +103,11 @@ export const PaginatedContent = ({
         // non-sticky: nested lists live inside an already-padded wrapper, so -mt-px just overlaps
         //   the last row's bottom border with the pager's top border.
         sticky ? 'sticky bottom-0 z-10 mt-auto' : '-mt-px',
-        // insetPager: only full-page lists (rendered in the unpadded main scroll area) need the
-        //   page gutter on the pager to align its controls with the table content — the border
-        //   stays full-width, only the controls indent. Padded containers already provide it.
-        insetPager && 'px-4 md:px-12',
+        // insetPager: only full-page STICKY lists (bare siblings in the unpadded main scroll area)
+        //   need the page gutter on the pager to align its controls with the table content — the
+        //   border stays full-width, only the controls indent. Gated on `sticky` because a
+        //   non-sticky pager sits in an already-padded wrapper (its gutter would double).
+        sticky && insetPager && 'px-4 md:px-12',
       )}
       currentPage={metadata?.currentPage ?? 1}
       totalPages={metadata?.totalPages ?? 0}

@@ -78,7 +78,7 @@
 ## Pagination (numbered lists & tables)
 
 All lists use numbered pagination via `PaginatedContent` + `Pagination`
-(`src/components/designSystem/`, prop docs inline). Infinite scroll is gone.
+(`src/components/designSystem/Pagination/`, prop docs inline). Infinite scroll is gone.
 Reference sites: `SubscriptionsPage.tsx` (full-page, sticky),
 `CustomerPaymentsTab.tsx` (nested, non-sticky).
 
@@ -96,16 +96,23 @@ Adding a paginated list:
    <PaginatedContent
      metadata={data?.<field>.metadata}   // MUST pass, else totalCount=0 → pager hidden
      loading={loading}
-     pageSize={DEFAULT_PAGE_SIZE}
+     pageSize={DEFAULT_PAGE_SIZE}         // MUST equal the query `limit`, else "X-Y of N" lies
      onPageChange={(page) => fetchMore({ variables: { page } })}
      sticky={/* full-page: true (default) · list inside a scrolling tab: false */}
+     insetPager={/* true ONLY for full-page lists · see below */}
    >
      <Table data={loading ? [] : rows} loadingRowCount={DEFAULT_PAGE_SIZE} ... />
    </PaginatedContent>
    ```
    - `data={loading ? [] : rows}` → skeletons replace the list (never append).
-   - `sticky` → table `containerClassName="h-auto shrink-0 border-t border-grey-300"`;
+   - `pageSize` **must match the query `limit`** (including custom limits, e.g. 10/5) — it
+     drives the range label; a mismatch shows the wrong count.
+   - `sticky` → table `containerClassName="h-auto shrink-0 -mb-px border-t border-grey-300"`
+     (`-mb-px` overlaps the last-row border with the pager → single divider, no doubled line);
      `sticky={false}` → `containerClassName="border-t border-grey-300"`.
+   - `insetPager` → pass **only** for full-page lists rendered directly in the unpadded main
+     scroll area (they fake the page gutter via `containerSize` 16/48). Padded containers
+     (settings, customer detail) already have the gutter — passing it there doubles it.
    - Rows-per-page menu only if you pass `onPageSizeChange` + local
      `useState(DEFAULT_PAGE_SIZE)`.
 

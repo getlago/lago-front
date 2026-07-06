@@ -195,6 +195,18 @@ describe('PaginatedContent', () => {
     expect(className).toContain('md:px-12')
   })
 
+  it('ignores insetPager when not sticky (nested lists already sit in a padded wrapper)', () => {
+    render(
+      <PaginatedContent onPageChange={onPageChange} insetPager sticky={false}>
+        <div />
+      </PaginatedContent>,
+    )
+
+    const [[{ className }]] = mockPaginationSpy.mock.calls
+
+    expect(className).not.toContain('md:px-12')
+  })
+
   it('wraps children + pager in a single <div> when sticky is false', () => {
     const { container } = render(
       <PaginatedContent onPageChange={onPageChange} sticky={false}>
