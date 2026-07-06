@@ -67,6 +67,7 @@ const renderDiscountBlockView = ({
         value={{
           mode: 'edit',
           mentionValues: {},
+          images: {},
           entities,
           onDiscountCommand,
         }}
@@ -250,6 +251,7 @@ describe('DiscountBlockView', () => {
           value={{
             mode: 'preview',
             mentionValues: {},
+            images: {},
             entities,
           }}
         >
