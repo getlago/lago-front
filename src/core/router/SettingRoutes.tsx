@@ -114,6 +114,7 @@ export const INVOICE_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/invoice-sections`
 export const TAXES_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/taxes`
 export const GENERAL_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/general`
 const ROOT_INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
+
 export const INTEGRATIONS_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/:integrationGroup`
 export const FULL_INTEGRATIONS_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/:integrationGroup/:tab`
 export const FULL_INTEGRATIONS_ROUTE_ID = `${ROOT_INTEGRATIONS_ROUTE}/:integrationGroup/:tab/:id`
@@ -139,6 +140,7 @@ export const FLUTTERWAVE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/flutterwave`
 export const FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/flutterwave/:integrationId`
 export const GOCARDLESS_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless`
 const GOCARDLESS_INTEGRATION_OAUTH_CALLBACK_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/gocardless/callback`
+
 export const GOCARDLESS_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless/:integrationId`
 export const TAX_MANAGEMENT_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/lago-tax-management`
 

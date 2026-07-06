@@ -7,6 +7,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 const mockTableProps: { current?: Record<string, unknown> } = {}
+
 jest.mock('~/components/designSystem/Table/Table', () => ({
   Table: (props: Record<string, unknown>) => {
     mockTableProps.current = props
@@ -15,6 +16,7 @@ jest.mock('~/components/designSystem/Table/Table', () => ({
 }))
 
 const mockInfiniteScrollProps: { current?: Record<string, unknown> } = {}
+
 jest.mock('~/components/designSystem/InfiniteScroll', () => ({
   InfiniteScroll: (props: { children: React.ReactNode; onBottom: () => void }) => {
     mockInfiniteScrollProps.current = props

@@ -30,6 +30,7 @@ export const ACTIVITY_LOG_DETAILS_LOADING_TEST_ID = 'activity-log-details-loadin
 export const ACTIVITY_LOG_DETAILS_CONTENT_TEST_ID = 'activity-log-details-content'
 export const ACTIVITY_LOG_DETAILS_CLOSE_BUTTON_TEST_ID = 'activity-log-details-close-button'
 const ACTIVITY_LOG_DETAILS_RESOURCE_LINK_TEST_ID = 'activity-log-details-resource-link'
+
 export const ACTIVITY_LOG_DETAILS_CUSTOMER_LINK_TEST_ID = 'activity-log-details-customer-link'
 export const ACTIVITY_LOG_DETAILS_SUBSCRIPTION_LINK_TEST_ID =
   'activity-log-details-subscription-link'
