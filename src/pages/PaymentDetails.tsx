@@ -370,8 +370,8 @@ const PaymentDetails = () => {
                     <Button
                       variant="quaternary"
                       align="left"
-                      onClick={async () => {
-                        await downloadPaymentReceipts({
+                      onClick={() => {
+                        downloadPaymentReceipts({
                           paymentReceiptId: payment?.paymentReceipt?.id,
                         })
                         closePopper()
@@ -382,8 +382,8 @@ const PaymentDetails = () => {
                     <Button
                       variant="quaternary"
                       align="left"
-                      onClick={async () => {
-                        await downloadPaymentXmlReceipts({
+                      onClick={() => {
+                        downloadPaymentXmlReceipts({
                           paymentReceiptId: payment?.paymentReceipt?.id,
                         })
                         closePopper()

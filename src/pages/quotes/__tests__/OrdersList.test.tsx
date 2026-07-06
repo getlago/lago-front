@@ -54,6 +54,7 @@ const mockOrders = [
       quote: {
         id: 'q-1',
         number: 'QUO-001',
+        images: {},
         currentVersion: { id: 'qv-1', version: 1, content: '# Hello World', mentionVariables: {} },
       },
     },
@@ -71,6 +72,7 @@ const mockOrders = [
       quote: {
         id: 'q-2',
         number: 'QUO-002',
+        images: {},
         currentVersion: { id: 'qv-2', version: 1, content: '# Hello World', mentionVariables: {} },
       },
     },

@@ -125,6 +125,7 @@ export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
             content={current.props.content}
             entities={current.props.entities}
             mentionValues={current.props.mentionValues}
+            images={current.props.images}
             customerLocale={current.props.customerLocale}
             customerCurrency={current.props.customerCurrency}
             onPreviewReady={handleReady}

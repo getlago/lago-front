@@ -74,6 +74,7 @@ const mockOrderForms = [
     quote: {
       id: 'q-1',
       number: 'QUO-001',
+      images: {},
       currentVersion: { id: 'qv-1', version: 1, content: '# Order Form 1', mentionVariables: {} },
     },
   },
@@ -86,6 +87,7 @@ const mockOrderForms = [
     quote: {
       id: 'q-2',
       number: 'QUO-002',
+      images: {},
       currentVersion: { id: 'qv-2', version: 3, content: '# Order Form 2', mentionVariables: {} },
     },
   },
@@ -98,6 +100,7 @@ const mockOrderForms = [
     quote: {
       id: 'q-3',
       number: 'QUO-003',
+      images: {},
       currentVersion: { id: 'qv-3', version: 2, content: '# Order Form 3', mentionVariables: {} },
     },
   },

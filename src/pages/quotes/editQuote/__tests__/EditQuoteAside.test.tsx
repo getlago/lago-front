@@ -68,6 +68,7 @@ const mockQuote: QuoteDetailItemFragment = {
   __typename: 'Quote',
   id: 'quote-1',
   number: 'Q-001',
+  images: {},
   orderType: OrderTypeEnum.SubscriptionCreation,
   createdAt: '2026-01-01',
   versions: [

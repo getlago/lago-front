@@ -19,6 +19,7 @@ gql`
   fragment QuoteDetailItem on Quote {
     id
     number
+    images
     versions {
       id
       status

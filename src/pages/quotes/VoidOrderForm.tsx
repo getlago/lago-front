@@ -44,6 +44,7 @@ gql`
       quote {
         id
         number
+        images
         currentVersion {
           version
           ...QuotePreviewVersion
@@ -78,8 +79,13 @@ const VoidOrderForm = () => {
   const orderFormNumber = orderForm?.number ?? ''
 
   const previewProps = useMemo(
-    () => buildQuotePreviewProps(orderForm?.quote?.currentVersion, orderForm?.customer),
-    [orderForm?.quote?.currentVersion, orderForm?.customer],
+    () =>
+      buildQuotePreviewProps({
+        version: orderForm?.quote?.currentVersion,
+        customer: orderForm?.customer,
+        images: (orderForm?.quote?.images ?? {}) as Record<string, string>,
+      }),
+    [orderForm?.quote?.currentVersion, orderForm?.customer, orderForm?.quote?.images],
   )
 
   const header = {

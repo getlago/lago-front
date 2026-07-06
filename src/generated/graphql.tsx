@@ -14340,7 +14340,7 @@ export type GetOrderForEditQueryVariables = Exact<{
 }>;
 
 
-export type GetOrderForEditQuery = { __typename?: 'Query', order?: { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, orderType: OrderTypeEnum, executeAt?: any | null, executionMode?: OrderExecutionModeEnum | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: string | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } } | null };
+export type GetOrderForEditQuery = { __typename?: 'Query', order?: { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, orderType: OrderTypeEnum, executeAt?: any | null, executionMode?: OrderExecutionModeEnum | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: string | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } } | null };
 
 export type UpdateOrderMutationVariables = Exact<{
   input: UpdateOrderInput;
@@ -14354,7 +14354,7 @@ export type GetOrderFormForSignQueryVariables = Exact<{
 }>;
 
 
-export type GetOrderFormForSignQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, expiresAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, quote: { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: string | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } | null };
+export type GetOrderFormForSignQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, expiresAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: string | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } | null };
 
 export type MarkOrderFormAsSignedMutationVariables = Exact<{
   input: MarkOrderFormAsSignedInput;
@@ -14368,7 +14368,7 @@ export type GetOrderFormForVoidQueryVariables = Exact<{
 }>;
 
 
-export type GetOrderFormForVoidQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, quote: { __typename?: 'Quote', id: string, number: string, currentVersion: { __typename?: 'QuoteVersion', version: number, content?: string | null, billingItems?: any | null, mentionVariables: any } } } | null };
+export type GetOrderFormForVoidQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, quote: { __typename?: 'Quote', id: string, number: string, images: any, currentVersion: { __typename?: 'QuoteVersion', version: number, content?: string | null, billingItems?: any | null, mentionVariables: any } } } | null };
 
 export type VoidOrderFormMutationVariables = Exact<{
   input: VoidOrderFormInput;
@@ -14383,6 +14383,13 @@ export type VoidQuoteVersionMutationVariables = Exact<{
 
 
 export type VoidQuoteVersionMutation = { __typename?: 'Mutation', voidQuoteVersion?: { __typename?: 'QuoteVersion', id: string, status: StatusEnum } | null };
+
+export type AddQuoteImageMutationVariables = Exact<{
+  input: AddQuoteImageInput;
+}>;
+
+
+export type AddQuoteImageMutation = { __typename?: 'Mutation', addQuoteImage?: { __typename?: 'AddQuoteImagePayload', id: string, url: string } | null };
 
 export type ApproveQuoteVersionMutationVariables = Exact<{
   input: ApproveQuoteVersionInput;
@@ -14417,9 +14424,9 @@ export type GetOrderFormDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetOrderFormDetailsQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, expiresAt?: any | null, signedDocumentUrl?: string | null, customer: { __typename?: 'Customer', id: string, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, quote: { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, currentVersion: { __typename?: 'QuoteVersion', id: string, version: number, content?: string | null, billingItems?: any | null, mentionVariables: any } } } | null };
+export type GetOrderFormDetailsQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, expiresAt?: any | null, signedDocumentUrl?: string | null, customer: { __typename?: 'Customer', id: string, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, currentVersion: { __typename?: 'QuoteVersion', id: string, version: number, content?: string | null, billingItems?: any | null, mentionVariables: any } } } | null };
 
-export type OrderFormListItemFragment = { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, expiresAt?: any | null, customer: { __typename?: 'Customer', id: string, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, quote: { __typename?: 'Quote', id: string, number: string, currentVersion: { __typename?: 'QuoteVersion', id: string, version: number, content?: string | null, billingItems?: any | null, mentionVariables: any } } };
+export type OrderFormListItemFragment = { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, expiresAt?: any | null, customer: { __typename?: 'Customer', id: string, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, quote: { __typename?: 'Quote', id: string, number: string, images: any, currentVersion: { __typename?: 'QuoteVersion', id: string, version: number, content?: string | null, billingItems?: any | null, mentionVariables: any } } };
 
 export type GetOrderFormsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -14434,9 +14441,9 @@ export type GetOrderFormsQueryVariables = Exact<{
 }>;
 
 
-export type GetOrderFormsQuery = { __typename?: 'Query', orderForms: { __typename?: 'OrderFormCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, expiresAt?: any | null, customer: { __typename?: 'Customer', id: string, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, quote: { __typename?: 'Quote', id: string, number: string, currentVersion: { __typename?: 'QuoteVersion', id: string, version: number, content?: string | null, billingItems?: any | null, mentionVariables: any } } }> } };
+export type GetOrderFormsQuery = { __typename?: 'Query', orderForms: { __typename?: 'OrderFormCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, expiresAt?: any | null, customer: { __typename?: 'Customer', id: string, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, quote: { __typename?: 'Quote', id: string, number: string, images: any, currentVersion: { __typename?: 'QuoteVersion', id: string, version: number, content?: string | null, billingItems?: any | null, mentionVariables: any } } }> } };
 
-export type OrderListItemFragment = { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, executionMode?: OrderExecutionModeEnum | null, executedAt?: any | null, customer: { __typename?: 'Customer', id: string, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, currentVersion: { __typename?: 'QuoteVersion', id: string, version: number, content?: string | null, billingItems?: any | null, mentionVariables: any } } } };
+export type OrderListItemFragment = { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, executionMode?: OrderExecutionModeEnum | null, executedAt?: any | null, customer: { __typename?: 'Customer', id: string, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, images: any, currentVersion: { __typename?: 'QuoteVersion', id: string, version: number, content?: string | null, billingItems?: any | null, mentionVariables: any } } } };
 
 export type GetOrdersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -14452,27 +14459,27 @@ export type GetOrdersQueryVariables = Exact<{
 }>;
 
 
-export type GetOrdersQuery = { __typename?: 'Query', orders: { __typename?: 'OrderCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, executionMode?: OrderExecutionModeEnum | null, executedAt?: any | null, customer: { __typename?: 'Customer', id: string, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, currentVersion: { __typename?: 'QuoteVersion', id: string, version: number, content?: string | null, billingItems?: any | null, mentionVariables: any } } } }> } };
+export type GetOrdersQuery = { __typename?: 'Query', orders: { __typename?: 'OrderCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, executionMode?: OrderExecutionModeEnum | null, executedAt?: any | null, customer: { __typename?: 'Customer', id: string, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, images: any, currentVersion: { __typename?: 'QuoteVersion', id: string, version: number, content?: string | null, billingItems?: any | null, mentionVariables: any } } } }> } };
 
 export type QuotePreviewVersionFragment = { __typename?: 'QuoteVersion', content?: string | null, billingItems?: any | null, mentionVariables: any };
 
 export type QuotePreviewCustomerFragment = { __typename?: 'Customer', currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null };
 
-export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: string | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } };
+export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: string | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } };
 
 export type GetQuoteQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: string | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } | null };
+export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: string | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } | null };
 
 export type GetQuotePreviewQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetQuotePreviewQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, customer: { __typename?: 'Customer', id: string, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, content?: string | null, billingItems?: any | null, mentionVariables: any }> } | null };
+export type GetQuotePreviewQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, customer: { __typename?: 'Customer', id: string, displayName: string, currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, content?: string | null, billingItems?: any | null, mentionVariables: any }> } | null };
 
 export type QuoteListItemFragment = { __typename?: 'Quote', id: string, number: string, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number }>, customer: { __typename?: 'Customer', id: string, displayName: string } };
 
@@ -20460,6 +20467,7 @@ export const OrderFormListItemFragmentDoc = gql`
   quote {
     id
     number
+    images
     currentVersion {
       id
       version
@@ -20487,6 +20495,7 @@ export const OrderListItemFragmentDoc = gql`
     quote {
       id
       number
+      images
       currentVersion {
         id
         version
@@ -20501,6 +20510,7 @@ export const QuoteDetailItemFragmentDoc = gql`
     fragment QuoteDetailItem on Quote {
   id
   number
+  images
   versions {
     id
     status
@@ -39173,6 +39183,7 @@ export const GetOrderFormForVoidDocument = gql`
     quote {
       id
       number
+      images
       currentVersion {
         version
         ...QuotePreviewVersion
@@ -39286,6 +39297,40 @@ export function useVoidQuoteVersionMutation(baseOptions?: Apollo.MutationHookOpt
 export type VoidQuoteVersionMutationHookResult = ReturnType<typeof useVoidQuoteVersionMutation>;
 export type VoidQuoteVersionMutationResult = Apollo.MutationResult<VoidQuoteVersionMutation>;
 export type VoidQuoteVersionMutationOptions = Apollo.BaseMutationOptions<VoidQuoteVersionMutation, VoidQuoteVersionMutationVariables>;
+export const AddQuoteImageDocument = gql`
+    mutation addQuoteImage($input: AddQuoteImageInput!) {
+  addQuoteImage(input: $input) {
+    id
+    url
+  }
+}
+    `;
+export type AddQuoteImageMutationFn = Apollo.MutationFunction<AddQuoteImageMutation, AddQuoteImageMutationVariables>;
+
+/**
+ * __useAddQuoteImageMutation__
+ *
+ * To run a mutation, you first call `useAddQuoteImageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddQuoteImageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addQuoteImageMutation, { data, loading, error }] = useAddQuoteImageMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddQuoteImageMutation(baseOptions?: Apollo.MutationHookOptions<AddQuoteImageMutation, AddQuoteImageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddQuoteImageMutation, AddQuoteImageMutationVariables>(AddQuoteImageDocument, options);
+      }
+export type AddQuoteImageMutationHookResult = ReturnType<typeof useAddQuoteImageMutation>;
+export type AddQuoteImageMutationResult = Apollo.MutationResult<AddQuoteImageMutation>;
+export type AddQuoteImageMutationOptions = Apollo.BaseMutationOptions<AddQuoteImageMutation, AddQuoteImageMutationVariables>;
 export const ApproveQuoteVersionDocument = gql`
     mutation approveQuoteVersion($input: ApproveQuoteVersionInput!) {
   approveQuoteVersion(input: $input) {
@@ -39442,6 +39487,7 @@ export const GetOrderFormDetailsDocument = gql`
     quote {
       id
       number
+      images
       orderType
       currentVersion {
         id
@@ -39675,6 +39721,7 @@ export const GetQuotePreviewDocument = gql`
   quote(id: $id) {
     id
     number
+    images
     orderType
     customer {
       id

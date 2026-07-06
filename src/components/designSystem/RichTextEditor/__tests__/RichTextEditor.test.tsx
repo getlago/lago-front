@@ -121,6 +121,26 @@ jest.mock('../extensions/Mention.schema', () => ({
   },
 }))
 
+// Capture the config passed to QuoteImageSchema.extend() and .configure()
+let capturedQuoteImageConfig: Record<string, unknown> = {}
+let capturedQuoteImageExtendConfig: Record<string, unknown> = {}
+
+jest.mock('../extensions/QuoteImage', () => ({
+  QuoteImageSchema: {
+    extend: jest.fn((extendConfig: Record<string, unknown>) => {
+      capturedQuoteImageExtendConfig = extendConfig
+
+      return {
+        configure: jest.fn((config: Record<string, unknown>) => {
+          capturedQuoteImageConfig = config
+
+          return 'quote-image-extension'
+        }),
+      }
+    }),
+  },
+}))
+
 let capturedEditorConfig: Record<string, unknown> = {}
 
 jest.mock('@tiptap/react', () => ({
@@ -595,6 +615,41 @@ describe('RichTextEditor', () => {
       expect(onPreviewReady).toHaveBeenCalledWith('<p>Preview content</p>')
 
       rafSpy.mockRestore()
+    })
+  })
+
+  describe('GIVEN the images and onImageUpload props', () => {
+    describe('WHEN images is provided', () => {
+      it('THEN should pass images to QuoteImageSchema.configure', async () => {
+        const images = { 'blob-1': 'https://signed/blob-1' }
+
+        await act(() => render(<RichTextEditor images={images} />))
+
+        expect(capturedQuoteImageConfig.images).toEqual(images)
+      })
+    })
+
+    describe('WHEN images is not provided (default)', () => {
+      it('THEN should configure QuoteImageSchema with an empty map', async () => {
+        await act(() => render(<RichTextEditor />))
+
+        expect(capturedQuoteImageConfig.images).toEqual({})
+      })
+    })
+
+    it('THEN should provide an addNodeView function on the extended QuoteImageSchema', async () => {
+      await act(() => render(<RichTextEditor />))
+
+      expect(capturedQuoteImageExtendConfig.addNodeView).toBeDefined()
+      expect(typeof capturedQuoteImageExtendConfig.addNodeView).toBe('function')
+    })
+
+    it('THEN should render without errors when onImageUpload is provided', async () => {
+      const onImageUpload = jest.fn()
+
+      await act(() => render(<RichTextEditor onImageUpload={onImageUpload} />))
+
+      expect(screen.getByTestId(RICH_TEXT_EDITOR_TEST_ID)).toBeInTheDocument()
     })
   })
 })
