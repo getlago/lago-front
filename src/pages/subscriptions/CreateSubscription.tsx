@@ -117,7 +117,6 @@ const CreateSubscription = () => {
 
   const warningDialogRef = useRef<WarningDialogRef>(null)
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
-  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
@@ -568,20 +567,18 @@ const CreateSubscription = () => {
                       />
 
                       {/* Section: Payments */}
-                      {hasAccessToMultiPaymentFlow && (
-                        <CenteredPage.PageSection>
-                          <CenteredPage.PageSectionTitle
-                            title={translate('text_17828013737948943pe3k8nc')}
-                            description={translate('text_17828013737955532qxu3wq4')}
-                          />
+                      <CenteredPage.PageSection>
+                        <CenteredPage.PageSectionTitle
+                          title={translate('text_17828013737948943pe3k8nc')}
+                          description={translate('text_17828013737955532qxu3wq4')}
+                        />
 
-                          {/* Payment method lives in a drawer */}
-                          <PaymentSettingsSection
-                            form={subscriptionForm}
-                            externalCustomerId={customer?.externalId ?? ''}
-                          />
-                        </CenteredPage.PageSection>
-                      )}
+                        {/* Payment method lives in a drawer */}
+                        <PaymentSettingsSection
+                          form={subscriptionForm}
+                          externalCustomerId={customer?.externalId ?? ''}
+                        />
+                      </CenteredPage.PageSection>
 
                       {/* Section: Invoicing */}
                       <CenteredPage.PageSection>

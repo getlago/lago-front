@@ -57,12 +57,6 @@ jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: () => true }),
 }))
 
-let mockHasFeatureFlag = true
-
-jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({ hasFeatureFlag: () => mockHasFeatureFlag }),
-}))
-
 const subscription = {
   id: 'sub_1',
   consolidateInvoice: true,
@@ -77,7 +71,6 @@ const renderSection = (overrides: Partial<typeof subscription> = {}) =>
 describe('SubscriptionInvoiceSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockHasFeatureFlag = true
   })
 
   it('renders the invoicing header, consolidation, the custom-section display and the drawer', () => {
@@ -100,10 +93,8 @@ describe('SubscriptionInvoiceSection', () => {
     )
   })
 
-  it('keeps consolidation but hides the custom-section display without the flag', () => {
-    mockHasFeatureFlag = false
-
-    renderSection()
+  it('keeps consolidation but hides the custom-section display without a customer', () => {
+    renderSection({ customer: undefined })
 
     expect(mockInfoGridItem).toHaveBeenCalled()
     expect(mockInvoiceCustomSectionDetails).not.toHaveBeenCalled()

@@ -617,7 +617,6 @@ const CreateInvoice = () => {
     total,
     currency,
   )
-  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   return (
     <>
@@ -638,11 +637,7 @@ const CreateInvoice = () => {
       </PageHeader.Wrapper>
       <div className="size-full">
         <div className="mx-auto my-12 min-h-full max-w-5xl px-4">
-          <Card
-            className={tw('gap-8', {
-              'mb-12': hasAccessToMultiPaymentFlow,
-            })}
-          >
+          <Card className="mb-12 gap-8">
             {loading ? (
               <>
                 <div className="flex items-center justify-between">
@@ -1208,7 +1203,7 @@ const CreateInvoice = () => {
             )}
           </Card>
 
-          {hasAccessToMultiPaymentFlow && (customer?.externalId || customer?.id) && (
+          {(customer?.externalId || customer?.id) && (
             <Card>
               <div className="flex flex-col gap-1">
                 <Typography variant="subhead1">

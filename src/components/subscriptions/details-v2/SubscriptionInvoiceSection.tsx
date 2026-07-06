@@ -9,10 +9,9 @@ import {
   InvoicingSettingsDrawerRef,
 } from '~/components/subscriptions/form/InvoicingSettingsDrawer'
 import { SubscriptionInvoiceCustomSectionDetails } from '~/components/subscriptions/SubscriptionInvoiceCustomSectionDetails'
-import { FeatureFlagEnum, SubscriptionInvoiceSectionFragment } from '~/generated/graphql'
+import { SubscriptionInvoiceSectionFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useUpdateSubscriptionSettings } from '~/hooks/customer/useUpdateSubscriptionSettings'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
@@ -38,12 +37,10 @@ type SubscriptionInvoiceSectionProps = {
 export const SubscriptionInvoiceSection = ({ subscription }: SubscriptionInvoiceSectionProps) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { hasFeatureFlag } = useOrganizationInfos()
   const drawerRef = useRef<InvoicingSettingsDrawerRef>(null)
   const { saveInvoicing } = useUpdateSubscriptionSettings(subscription.id)
 
-  const showCustomSection =
-    hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods) && !!subscription.customer?.id
+  const showCustomSection = !!subscription.customer?.id
 
   return (
     <section className="flex flex-col gap-6">

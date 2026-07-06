@@ -44,12 +44,6 @@ jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: () => true }),
 }))
 
-let mockHasFeatureFlag = true
-
-jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({ hasFeatureFlag: () => mockHasFeatureFlag }),
-}))
-
 const subscription = {
   id: 'sub_1',
   paymentMethodType: PaymentMethodTypeEnum.Provider,
@@ -62,10 +56,9 @@ const renderSection = () => render(<SubscriptionPaymentSection subscription={sub
 describe('SubscriptionPaymentSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockHasFeatureFlag = true
   })
 
-  it('renders the payment section header, display and drawer with the flag on', () => {
+  it('renders the payment section header, display and drawer', () => {
     renderSection()
 
     expect(mockSectionHeader).toHaveBeenCalledWith(
@@ -86,14 +79,5 @@ describe('SubscriptionPaymentSection', () => {
     expect(mockDrawer).toHaveBeenCalledWith(
       expect.objectContaining({ onSave: mockSavePayment, externalCustomerId: 'ext_1' }),
     )
-  })
-
-  it('renders nothing without the multi-payment-method flag', () => {
-    mockHasFeatureFlag = false
-
-    renderSection()
-
-    expect(mockSectionHeader).not.toHaveBeenCalled()
-    expect(mockDrawer).not.toHaveBeenCalled()
   })
 })

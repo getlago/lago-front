@@ -5,10 +5,8 @@ import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
-import { FeatureFlagEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { buildSubscriptionDefaultValues } from './buildSubscriptionDefaultValues'
 import { InvoicingSettingsDrawer, InvoicingSettingsDrawerRef } from './InvoicingSettingsDrawer'
@@ -36,14 +34,13 @@ export const InvoicingSettingsSection = withForm({
   props: invoicingSettingsSectionDefaultProps,
   render: function InvoicingSettingsSectionRender({ form, customerId }) {
     const { translate } = useInternationalization()
-    const { hasFeatureFlag } = useOrganizationInfos()
     const drawerRef = useRef<InvoicingSettingsDrawerRef>(null)
 
     // Reactive slices so the card preview re-renders when the drawer saves.
     const consolidateInvoice = useStore(form.store, (s) => s.values.consolidateInvoice)
     const invoiceCustomSection = useStore(form.store, (s) => s.values.invoiceCustomSection)
 
-    const showCustomSection = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods) && !!customerId
+    const showCustomSection = !!customerId
 
     const summary = useMemo(() => {
       const consolidationKey =

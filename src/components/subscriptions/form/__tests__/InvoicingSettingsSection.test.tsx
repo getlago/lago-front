@@ -25,12 +25,6 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
-let mockHasFeatureFlag = true
-
-jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({ hasFeatureFlag: () => mockHasFeatureFlag }),
-}))
-
 jest.mock('@tanstack/react-form', () => ({
   revalidateLogic: jest.fn(() => ({})),
   useStore: (store: { state: unknown }, selector: (state: unknown) => unknown) =>
@@ -80,7 +74,6 @@ const lastSubtitle = () =>
 describe('InvoicingSettingsSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockHasFeatureFlag = true
   })
 
   it('summarises consolidation + customer-default custom sections', () => {
@@ -120,15 +113,6 @@ describe('InvoicingSettingsSection', () => {
     )
 
     expect(lastSubtitle()).toBe('text_1778745351091h7z5baw0ta6 • text_1782738644347z3azl4u1f15')
-  })
-
-  it('omits the custom-section part (and gates the drawer) without the flag', () => {
-    mockHasFeatureFlag = false
-
-    renderSection({ consolidateInvoice: true }, 'cust-1')
-
-    expect(lastSubtitle()).toBe('text_1778745351091h7z5baw0ta6')
-    expect(mockDrawer).toHaveBeenCalledWith(expect.objectContaining({ showCustomSection: false }))
   })
 
   it('omits the custom-section part when the customer has no id', () => {

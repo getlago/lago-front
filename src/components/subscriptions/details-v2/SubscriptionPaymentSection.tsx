@@ -8,10 +8,9 @@ import {
   PaymentSettingsDrawerRef,
 } from '~/components/subscriptions/form/PaymentSettingsDrawer'
 import { SubscriptionPaymentMethodDetails } from '~/components/subscriptions/SubscriptionPaymentMethodDetails'
-import { FeatureFlagEnum, SubscriptionPaymentSectionFragment } from '~/generated/graphql'
+import { SubscriptionPaymentSectionFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useUpdateSubscriptionSettings } from '~/hooks/customer/useUpdateSubscriptionSettings'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
@@ -35,15 +34,8 @@ type SubscriptionPaymentSectionProps = {
 export const SubscriptionPaymentSection = ({ subscription }: SubscriptionPaymentSectionProps) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { hasFeatureFlag } = useOrganizationInfos()
   const drawerRef = useRef<PaymentSettingsDrawerRef>(null)
   const { savePayment } = useUpdateSubscriptionSettings(subscription.id)
-
-  // Payment method selection is gated behind the multi-payment-method flow
-  // (mirrors the create form and the legacy combined section).
-  if (!hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)) {
-    return null
-  }
 
   const selectedPaymentMethod = {
     paymentMethodType: subscription.paymentMethodType,
