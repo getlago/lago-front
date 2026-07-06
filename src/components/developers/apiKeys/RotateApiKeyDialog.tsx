@@ -1,28 +1,29 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
+import { revalidateLogic } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import { object, string } from 'yup'
+import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
 import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { RadioField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatDateTime } from '~/core/timezone/utils'
 import {
   ApiKeyForRotateApiKeyDialogFragment,
   ApiKeyRevealedForApiKeysListFragment,
   ApiKeyRevealedForApiKeysListFragmentDoc,
-  RotateApiKeyInput,
   TimezoneEnum,
   useRotateApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 export const ROTATE_API_KEY_DIALOG_SUBMIT_BUTTON_TEST_ID = 'rotate-api-key-submit-button'
+
+const ROTATE_API_KEY_FORM_ID = 'rotate-api-key-form'
 
 const ExpirationValuesEnum = {
   Now: 'Now',
@@ -39,6 +40,10 @@ const ExpirationValuesTranslationLookup: Record<keyof typeof ExpirationValuesEnu
   TwoDays: 'text_1732286530467ge3ab3gsu84',
   OneWeek: 'text_17322865304678tljv20a3mg',
 }
+
+const rotateApiKeyValidationSchema = z.object({
+  expiresAt: z.string().min(1),
+})
 
 gql`
   fragment ApiKeyForRotateApiKeyDialog on SanitizedApiKey {
@@ -77,16 +82,15 @@ export const RotateApiKeyDialog = forwardRef<
   const [localData, setLocalData] = useState<RotateApiKeyDialogProps | undefined>(undefined)
   const apiKey = localData?.apiKey
 
-  const formikProps = useFormik<Pick<RotateApiKeyInput, 'expiresAt'>>({
-    initialValues: {
-      expiresAt: ExpirationValuesEnum.Now,
+  const form = useAppForm({
+    defaultValues: {
+      expiresAt: ExpirationValuesEnum.Now as string,
     },
-    validationSchema: object().shape({
-      expiresAt: string().required(''),
-    }),
-    validateOnMount: true,
-    enableReinitialize: true,
-    onSubmit: async ({ expiresAt }) => {
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: rotateApiKeyValidationSchema,
+    },
+    onSubmit: async ({ value: { expiresAt } }) => {
       const ExpirationValuesAsTime = {
         Now: null,
         OneHour: DateTime.now().toUTC().plus({ hours: 1 }).toISO(),
@@ -142,15 +146,19 @@ export const RotateApiKeyDialog = forwardRef<
     },
   }))
 
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    form.handleSubmit()
+  }
+
   return (
     <Dialog
       ref={dialogRef}
       title={translate('text_173151476175058ugha8fd08')}
       description={translate('text_1731514761750dnh1s073j9o')}
-      onClose={() => {
-        formikProps.resetForm()
-        formikProps.validateForm()
-      }}
+      onClose={() => form.reset()}
+      formId={ROTATE_API_KEY_FORM_ID}
+      formSubmit={handleFormSubmit}
       actions={({ closeDialog }) => (
         <>
           <Button variant="quaternary" onClick={closeDialog}>
@@ -158,11 +166,9 @@ export const RotateApiKeyDialog = forwardRef<
           </Button>
           <Button
             danger
+            type="submit"
             variant="primary"
             data-test={ROTATE_API_KEY_DIALOG_SUBMIT_BUTTON_TEST_ID}
-            onClick={async () => {
-              await formikProps.submitForm()
-            }}
           >
             {translate('text_173151476175058ugha8fd08')}
           </Button>
@@ -193,64 +199,60 @@ export const RotateApiKeyDialog = forwardRef<
           </div>
 
           <div className="flex flex-col gap-4">
-            <RadioField
-              name="expiresAt"
-              labelVariant="body"
-              value={ExpirationValuesEnum.Now}
-              label={translate(ExpirationValuesTranslationLookup.Now)}
-              formikProps={formikProps}
-            />
-            {!isPremium && (
-              <div className="flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4">
-                <div className="flex flex-col">
-                  <div className="flex flex-row items-center gap-2">
-                    <Typography variant="bodyHl" color="grey700">
-                      {translate('text_1732286530467ezav2z7ypj1')}
-                    </Typography>
-                    <Icon name="sparkles" />
-                  </div>
+            <form.AppField name="expiresAt">
+              {(field) => (
+                <>
+                  <field.RadioField
+                    labelVariant="body"
+                    value={ExpirationValuesEnum.Now}
+                    label={translate(ExpirationValuesTranslationLookup.Now)}
+                  />
+                  {!isPremium && (
+                    <div className="flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4">
+                      <div className="flex flex-col">
+                        <div className="flex flex-row items-center gap-2">
+                          <Typography variant="bodyHl" color="grey700">
+                            {translate('text_1732286530467ezav2z7ypj1')}
+                          </Typography>
+                          <Icon name="sparkles" />
+                        </div>
 
-                  <Typography variant="caption" color="grey600">
-                    {translate('text_1732286530467gnhwm6q5ftl')}
-                  </Typography>
-                </div>
-                <Button endIcon="sparkles" variant="tertiary" onClick={openPremiumDialog}>
-                  {translate('text_65ae73ebe3a66bec2b91d72d')}
-                </Button>
-              </div>
-            )}
-            <RadioField
-              name="expiresAt"
-              labelVariant="body"
-              disabled={!isPremium}
-              value={ExpirationValuesEnum.OneHour}
-              label={translate(ExpirationValuesTranslationLookup.OneHour)}
-              formikProps={formikProps}
-            />
-            <RadioField
-              name="expiresAt"
-              labelVariant="body"
-              disabled={!isPremium}
-              value={ExpirationValuesEnum.OneDay}
-              label={translate(ExpirationValuesTranslationLookup.OneDay)}
-              formikProps={formikProps}
-            />
-            <RadioField
-              name="expiresAt"
-              labelVariant="body"
-              disabled={!isPremium}
-              value={ExpirationValuesEnum.TwoDays}
-              label={translate(ExpirationValuesTranslationLookup.TwoDays)}
-              formikProps={formikProps}
-            />
-            <RadioField
-              name="expiresAt"
-              labelVariant="body"
-              disabled={!isPremium}
-              value={ExpirationValuesEnum.OneWeek}
-              label={translate(ExpirationValuesTranslationLookup.OneWeek)}
-              formikProps={formikProps}
-            />
+                        <Typography variant="caption" color="grey600">
+                          {translate('text_1732286530467gnhwm6q5ftl')}
+                        </Typography>
+                      </div>
+                      <Button endIcon="sparkles" variant="tertiary" onClick={openPremiumDialog}>
+                        {translate('text_65ae73ebe3a66bec2b91d72d')}
+                      </Button>
+                    </div>
+                  )}
+                  <field.RadioField
+                    labelVariant="body"
+                    disabled={!isPremium}
+                    value={ExpirationValuesEnum.OneHour}
+                    label={translate(ExpirationValuesTranslationLookup.OneHour)}
+                  />
+                  <field.RadioField
+                    labelVariant="body"
+                    disabled={!isPremium}
+                    value={ExpirationValuesEnum.OneDay}
+                    label={translate(ExpirationValuesTranslationLookup.OneDay)}
+                  />
+                  <field.RadioField
+                    labelVariant="body"
+                    disabled={!isPremium}
+                    value={ExpirationValuesEnum.TwoDays}
+                    label={translate(ExpirationValuesTranslationLookup.TwoDays)}
+                  />
+                  <field.RadioField
+                    labelVariant="body"
+                    disabled={!isPremium}
+                    value={ExpirationValuesEnum.OneWeek}
+                    label={translate(ExpirationValuesTranslationLookup.OneWeek)}
+                  />
+                </>
+              )}
+            </form.AppField>
           </div>
         </div>
       </div>
