@@ -567,4 +567,112 @@ describe('useDiscountDrawer', () => {
     expect(screen.getByDisplayValue('42')).toBeInTheDocument()
     expect(screen.getByDisplayValue(CurrencyEnum.Usd)).toBeInTheDocument()
   })
+
+  it('rebuilds the entity to the new coupon when editing to a different coupon', async () => {
+    // Existing block bound to a different coupon than the one offered by the
+    // combobox mock (cpn_fixed / "Ten Off"). Switching coupon must refresh the
+    // block + preview to the newly selected coupon, not keep the old identity.
+    const initialBillingItems: BillingItemsPayload = {
+      addons: [],
+      coupons: [
+        {
+          type: 'coupon',
+          id: 'cpn_edit',
+          localId: 'saved-local',
+          payload: {
+            position: 1,
+            code: 'EDIT',
+            id: 'cpn_edit',
+            name: 'Edit Coupon',
+            type: 'fixed_amount',
+            amount_cents: 5000,
+            percentage_rate: null,
+            currency: CurrencyEnum.Usd,
+            frequency: 'once',
+            frequency_duration: null,
+            expiration_at: null,
+            limited_plans: false,
+            plan_codes: [],
+            limited_billable_metrics: false,
+            billable_metric_codes: [],
+            coupon_overrides: null,
+            catalog_snapshot: null,
+            resolved_payload: null,
+          },
+          overrides: {
+            amount_cents: 5000,
+            percentage_rate: null,
+            frequency: 'once',
+            frequency_duration: null,
+          },
+        },
+      ],
+    }
+
+    const onPersist = jest.fn()
+    const { result } = renderHook(() =>
+      useDiscountDrawer(initialBillingItems, { currency: CurrencyEnum.Usd, onPersist }),
+    )
+
+    // Sanity: entity starts as the old coupon.
+    expect(result.current.entities['saved-local']).toMatchObject({
+      name: 'Edit Coupon',
+      code: 'EDIT',
+    })
+
+    const onSave = jest.fn()
+
+    act(() => {
+      result.current.onDiscountCommand({
+        onSave,
+        editData: { couponId: 'cpn_edit', localId: 'saved-local' },
+      })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(
+      <>
+        {openArgs.children}
+        {openArgs.actions}
+      </>,
+    )
+
+    // Switch to the different coupon offered by the combobox. Editing a prefilled
+    // fixed-amount coupon also renders the locked currency combobox, so target the
+    // coupon selector explicitly — it is the first combobox rendered.
+    const comboBoxInput = screen.getAllByRole('combobox')[0] as HTMLInputElement
+
+    await userEvent.type(comboBoxInput, 'Ten')
+
+    await waitFor(() => {
+      expect(comboBoxInput.getAttribute('aria-controls')).toBeTruthy()
+    })
+
+    const listboxId = comboBoxInput.getAttribute('aria-controls') as string
+    const listbox = document.getElementById(listboxId) as HTMLElement
+
+    await userEvent.click(within(listbox).getByText('Ten Off'))
+
+    const allSaveButtons = screen.getAllByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)
+    const saveButton = allSaveButtons[allSaveButtons.length - 1]
+
+    await waitFor(() => {
+      expect(saveButton).not.toBeDisabled()
+    })
+
+    await userEvent.click(saveButton)
+
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledWith({ couponId: 'cpn_fixed', localId: 'saved-local' })
+    })
+
+    // The rebuilt entity (drives both the editor block and the preview) must
+    // reflect the NEW coupon's identity, not the stale one.
+    expect(result.current.entities['saved-local']).toMatchObject({
+      name: 'Ten Off',
+      code: 'COUPON_CODE',
+      couponType: CouponTypeEnum.FixedAmount,
+    })
+  })
 })

@@ -338,10 +338,16 @@ export const useDiscountDrawer = (
         frequencyDuration: value.frequencyDuration ? Number(value.frequencyDuration) : null,
       }
 
-      // Ensure a payload snapshot exists for newly added coupons.
-      if (!originalPayloadsRef.current[localId]) {
+      // Ensure a fresh payload snapshot for newly added coupons AND when the user
+      // switches an existing line to a different coupon. Without the id check, an
+      // edit that changes the coupon keeps the previous snapshot, so toCoupons
+      // rebuilds the line from the old coupon's identity (name/code/type) and both
+      // the editor block and the preview keep showing the old coupon.
+      const existingSnapshot = originalPayloadsRef.current[localId]
+
+      if (!existingSnapshot || existingSnapshot.id !== value.couponId) {
         originalPayloadsRef.current[localId] = {
-          position: Object.keys(itemsRef.current).length,
+          position: existingSnapshot?.position ?? Object.keys(itemsRef.current).length,
           code: value.code,
           id: value.couponId,
           name: value.name,
