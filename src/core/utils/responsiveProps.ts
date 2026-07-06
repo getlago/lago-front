@@ -4,8 +4,7 @@ type Breakpoint = keyof typeof theme.breakpoints.values
 type BreakpointWithDefault = Breakpoint | 'default'
 
 export type ResponsiveStyleValue<T extends string | number> =
-  | T
-  | Partial<Record<BreakpointWithDefault, T | undefined>>
+  T | Partial<Record<BreakpointWithDefault, T | undefined>>
 
 export const setResponsiveProperty = <T extends string | number>(
   cssProperty: keyof CSSStyleDeclaration,

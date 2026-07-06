@@ -95,12 +95,10 @@ export const EditCustomerIssuingDatePolicyDialog = forwardRef<
     gracePeriod: customer.invoiceGracePeriod || 0,
     subscriptionInvoiceIssuingDateAdjustment: formikProps.values
       .subscriptionInvoiceIssuingDateAdjustment as
-      | (typeof ALL_ADJUSTMENT_VALUES)[keyof typeof ALL_ADJUSTMENT_VALUES]
-      | undefined,
+      (typeof ALL_ADJUSTMENT_VALUES)[keyof typeof ALL_ADJUSTMENT_VALUES] | undefined,
     subscriptionInvoiceIssuingDateAnchor: formikProps.values
       .subscriptionInvoiceIssuingDateAnchor as
-      | (typeof ALL_ANCHOR_VALUES)[keyof typeof ALL_ANCHOR_VALUES]
-      | undefined,
+      (typeof ALL_ANCHOR_VALUES)[keyof typeof ALL_ANCHOR_VALUES] | undefined,
   })
 
   return (

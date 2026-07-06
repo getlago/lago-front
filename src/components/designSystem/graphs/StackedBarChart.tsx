@@ -66,8 +66,7 @@ type StackedBarChartBarHiddenFromGraph<T> = {
 }
 
 export type StackedBarChartBar<T> =
-  | StackedBarChartBarVisibleOnGraph<T>
-  | StackedBarChartBarHiddenFromGraph<T>
+  StackedBarChartBarVisibleOnGraph<T> | StackedBarChartBarHiddenFromGraph<T>
 
 type StackedBarChartProps<T> = {
   blur?: boolean

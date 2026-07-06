@@ -81,8 +81,7 @@ const SalesforceIntegrationDetails = () => {
   })
 
   const salesforceIntegration = data?.integration as
-    | SalesforceIntegrationDetailsFragment
-    | undefined
+    SalesforceIntegrationDetailsFragment | undefined
 
   const deleteDialogCallback = () => {
     const integrations = data?.integrations?.collection || []
