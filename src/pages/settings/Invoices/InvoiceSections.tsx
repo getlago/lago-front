@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -13,10 +12,7 @@ import {
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  DeleteCustomSectionDialog,
-  DeleteCustomSectionDialogRef,
-} from '~/components/settings/invoices/DeleteCustomSectionDialog'
+import { useDeleteCustomSectionDialog } from '~/components/settings/invoices/DeleteCustomSectionDialog'
 import {
   CREATE_INVOICE_CUSTOM_SECTION,
   CREATE_PRICING_UNIT,
@@ -71,7 +67,7 @@ const InvoiceSections = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
-  const deleteCustomSectionDialogRef = useRef<DeleteCustomSectionDialogRef>(null)
+  const { openDeleteCustomSectionDialog } = useDeleteCustomSectionDialog()
 
   const canCreatePricingUnits = hasPermissions(['pricingUnitsCreate'])
   const canEditPricingUnits = hasPermissions(['pricingUnitsUpdate'])
@@ -261,7 +257,7 @@ const InvoiceSections = () => {
                       startIcon: 'trash',
                       title: translate('text_1732638001460kdzkctjfegi'),
                       onAction: () => {
-                        deleteCustomSectionDialogRef.current?.openDialog({
+                        openDeleteCustomSectionDialog({
                           id: section.id,
                         })
                       },
@@ -273,8 +269,6 @@ const InvoiceSections = () => {
           </SettingsListItem>
         </SettingsListWrapper>
       </SettingsPaddedContainer>
-
-      <DeleteCustomSectionDialog ref={deleteCustomSectionDialogRef} />
     </>
   )
 }
