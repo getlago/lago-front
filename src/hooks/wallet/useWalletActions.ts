@@ -4,7 +4,7 @@ import { generatePath } from 'react-router-dom'
 
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
 import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
-import { TerminateCustomerWalletDialogRef } from '~/components/wallets/TerminateCustomerWalletDialog'
+import { useTerminateCustomerWalletDialog } from '~/components/wallets/TerminateCustomerWalletDialog'
 import { VoidWalletDialogRef } from '~/components/wallets/VoidWalletDialog'
 import { addToast } from '~/core/apolloClient'
 import {
@@ -42,7 +42,6 @@ interface UseWalletActionsParams {
 
 interface UseWalletActionsReturn {
   actions: WalletActionItem[]
-  terminateDialogRef: React.RefObject<TerminateCustomerWalletDialogRef>
   voidDialogRef: React.RefObject<VoidWalletDialogRef>
 }
 
@@ -59,9 +58,7 @@ export const useWalletActions = ({
   const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
   const { setUrl, openPanel: open } = useDeveloperTool()
-  const terminateDialogRef = useRef<TerminateCustomerWalletDialogRef>(
-    null,
-  ) as React.RefObject<TerminateCustomerWalletDialogRef>
+  const { openTerminateCustomerWalletDialog } = useTerminateCustomerWalletDialog()
   const voidDialogRef = useRef<VoidWalletDialogRef>(null) as React.RefObject<VoidWalletDialogRef>
 
   const isWalletActive = status === WalletStatusEnum.Active
@@ -157,7 +154,7 @@ export const useWalletActions = ({
       hidden: !isWalletActive || !hasPermissions(['walletsTerminate']),
       danger: true,
       onAction: (closePopper) => {
-        terminateDialogRef?.current?.openDialog({
+        openTerminateCustomerWalletDialog({
           walletId: walletId as string,
         })
         closePopper()
@@ -165,5 +162,5 @@ export const useWalletActions = ({
     },
   ]
 
-  return { actions, terminateDialogRef, voidDialogRef }
+  return { actions, voidDialogRef }
 }

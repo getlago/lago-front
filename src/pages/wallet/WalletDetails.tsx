@@ -9,7 +9,6 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import { TerminateCustomerWalletDialog } from '~/components/wallets/TerminateCustomerWalletDialog'
 import { VoidWalletDialog } from '~/components/wallets/VoidWalletDialog'
 import WalletAlerts from '~/components/wallets/WalletAlerts'
 import WalletInformations from '~/components/wallets/WalletInformations'
@@ -159,11 +158,7 @@ const WalletDetails = () => {
     fallback: wallet?.customer?.externalId,
   })
 
-  const {
-    actions: walletActionItems,
-    terminateDialogRef,
-    voidDialogRef,
-  } = useWalletActions({
+  const { actions: walletActionItems, voidDialogRef } = useWalletActions({
     walletId,
     customerId,
     status: wallet?.status,
@@ -341,7 +336,6 @@ const WalletDetails = () => {
 
       <>{activeTabContent}</>
 
-      <TerminateCustomerWalletDialog ref={terminateDialogRef} />
       <VoidWalletDialog ref={voidDialogRef} />
     </>
   )

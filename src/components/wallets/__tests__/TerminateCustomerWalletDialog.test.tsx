@@ -1,14 +1,13 @@
-import { act, screen } from '@testing-library/react'
-import { createRef } from 'react'
+import { act, renderHook } from '@testing-library/react'
 
-import { render } from '~/test-utils'
-
-import {
-  TerminateCustomerWalletDialog,
-  TerminateCustomerWalletDialogRef,
-} from '../TerminateCustomerWalletDialog'
+import { useTerminateCustomerWalletDialog } from '../TerminateCustomerWalletDialog'
 
 const mockTerminateWallet = jest.fn()
+const mockOpen = jest.fn()
+
+jest.mock('~/components/dialogs/CentralizedDialog', () => ({
+  useCentralizedDialog: () => ({ open: mockOpen, close: jest.fn() }),
+}))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -26,7 +25,12 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: jest.fn(),
 }))
 
-describe('TerminateCustomerWalletDialog', () => {
+jest.mock('~/core/router', () => ({
+  ...jest.requireActual('~/core/router'),
+  useNavigate: () => jest.fn(),
+}))
+
+describe('useTerminateCustomerWalletDialog', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
@@ -34,33 +38,32 @@ describe('TerminateCustomerWalletDialog', () => {
     useParamsMock.mockReturnValue({ customerId: 'customer-1' })
   })
 
-  describe('GIVEN the dialog ref', () => {
-    describe('WHEN openDialog is called with undefined', () => {
-      it('THEN should not open dialog', () => {
-        const ref = createRef<TerminateCustomerWalletDialogRef>()
+  describe('WHEN openTerminateCustomerWalletDialog is called without props', () => {
+    it('THEN should not open the dialog', () => {
+      const { result } = renderHook(() => useTerminateCustomerWalletDialog())
 
-        render(<TerminateCustomerWalletDialog ref={ref} />)
-
-        act(() => {
-          ref.current?.openDialog(undefined)
-        })
-
-        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      act(() => {
+        result.current.openTerminateCustomerWalletDialog(undefined)
       })
+
+      expect(mockOpen).not.toHaveBeenCalled()
     })
+  })
 
-    describe('WHEN openDialog is called with walletId', () => {
-      it('THEN should show the dialog', () => {
-        const ref = createRef<TerminateCustomerWalletDialogRef>()
+  describe('WHEN openTerminateCustomerWalletDialog is called with walletId', () => {
+    it('THEN should open the centralized dialog', () => {
+      const { result } = renderHook(() => useTerminateCustomerWalletDialog())
 
-        render(<TerminateCustomerWalletDialog ref={ref} />)
-
-        act(() => {
-          ref.current?.openDialog({ walletId: 'wallet-1' })
-        })
-
-        expect(screen.getByRole('dialog')).toBeInTheDocument()
+      act(() => {
+        result.current.openTerminateCustomerWalletDialog({ walletId: 'wallet-1' })
       })
+
+      expect(mockOpen).toHaveBeenCalledTimes(1)
+      expect(mockOpen).toHaveBeenCalledWith(
+        expect.objectContaining({
+          colorVariant: 'danger',
+        }),
+      )
     })
   })
 })
