@@ -18,6 +18,7 @@ gql`
       quote {
         id
         number
+        images
         orderType
         currentVersion {
           id

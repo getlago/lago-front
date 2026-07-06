@@ -38,7 +38,6 @@ describe('getBaseExtensions', () => {
         ['subscript'],
         ['highlight'],
         ['textAlign'],
-        ['image'],
         ['table'],
         ['tableRow'],
         ['tableCell'],

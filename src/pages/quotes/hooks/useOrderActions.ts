@@ -44,9 +44,14 @@ export const useOrderActions = () => {
         icon: 'download',
         label: translate('text_17797156485850t8yms6hf7z'),
         onAction: () => {
-          void download(buildQuotePreviewProps(version, order.customer, header)).catch(
-            () => undefined,
-          )
+          void download(
+            buildQuotePreviewProps({
+              version,
+              customer: order.customer,
+              images: (order.orderForm.quote.images ?? {}) as Record<string, string>,
+              header,
+            }),
+          ).catch(() => undefined)
         },
       })
     }

@@ -20,7 +20,7 @@ describe('buildQuotePreviewProps', () => {
       billingConfiguration: { documentLocale: 'fr' },
     }
 
-    const result = buildQuotePreviewProps(version, customer)
+    const result = buildQuotePreviewProps({ version, customer })
 
     expect(buildPreviewEntities).toHaveBeenCalledWith({ addons: [] })
     expect(result).toEqual({
@@ -29,11 +29,12 @@ describe('buildQuotePreviewProps', () => {
       customerLocale: 'fr',
       customerCurrency: CurrencyEnum.Eur,
       mentionValues: {},
+      images: {},
     })
   })
 
   it('returns an empty-safe bundle when version and customer are null', () => {
-    const result = buildQuotePreviewProps(null, null)
+    const result = buildQuotePreviewProps({ version: null, customer: null })
 
     expect(buildPreviewEntities).not.toHaveBeenCalled()
     expect(result).toEqual({
@@ -42,6 +43,7 @@ describe('buildQuotePreviewProps', () => {
       customerLocale: 'en',
       customerCurrency: undefined,
       mentionValues: {},
+      images: {},
     })
   })
 
@@ -49,7 +51,7 @@ describe('buildQuotePreviewProps', () => {
     const version = { content: '<p>x</p>', billingItems: null, mentionVariables: {} }
     const customer = { currency: null, billingConfiguration: null }
 
-    const result = buildQuotePreviewProps(version, customer)
+    const result = buildQuotePreviewProps({ version, customer })
 
     expect(result.customerLocale).toBe('en')
     expect(result.customerCurrency).toBeUndefined()
@@ -67,13 +69,13 @@ describe('buildQuotePreviewProps', () => {
       rows: ['Order form number OF-2026-0012'],
     }
 
-    const result = buildQuotePreviewProps(version, customer, header)
+    const result = buildQuotePreviewProps({ version, customer, images: {}, header })
 
     expect(result.header).toEqual(header)
   })
 
   it('leaves header undefined when not provided', () => {
-    const result = buildQuotePreviewProps(null, null)
+    const result = buildQuotePreviewProps({ version: null, customer: null })
 
     expect(result.header).toBeUndefined()
   })
@@ -85,7 +87,7 @@ describe('buildQuotePreviewProps', () => {
       mentionVariables: { customer_name: 'Keenan Feldspar', organization_logo: null },
     }
 
-    const result = buildQuotePreviewProps(version, null)
+    const result = buildQuotePreviewProps({ version, customer: null })
 
     expect(result.mentionValues).toEqual({
       customer_name: 'Keenan Feldspar',
@@ -94,8 +96,22 @@ describe('buildQuotePreviewProps', () => {
   })
 
   it('falls back to {} when mentionVariables is absent (null version)', () => {
-    const result = buildQuotePreviewProps(null, null)
+    const result = buildQuotePreviewProps({ version: null, customer: null })
 
     expect(result.mentionValues).toEqual({})
+  })
+
+  it('passes through the images map when provided', () => {
+    const images = { 'blob-1': 'https://example.com/signed-url' }
+
+    const result = buildQuotePreviewProps({ version: null, customer: null, images })
+
+    expect(result.images).toEqual(images)
+  })
+
+  it('defaults images to {} when not provided', () => {
+    const result = buildQuotePreviewProps({ version: null, customer: null })
+
+    expect(result.images).toEqual({})
   })
 })
