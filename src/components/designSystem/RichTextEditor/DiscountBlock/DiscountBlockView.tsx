@@ -1,74 +1,28 @@
 import { NodeViewProps, NodeViewWrapper } from '@tiptap/react'
 
-import { Typography } from '~/components/designSystem/Typography'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { CouponFrequency, CouponTypeEnum } from '~/generated/graphql'
+import { Locale, LocaleEnum } from '~/core/translations'
+import { CurrencyEnum } from '~/generated/graphql'
+import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
-import { type EntityData, useRichTextEditorContext } from '../common/RichTextEditorContext'
+import { DiscountPreviewTable } from './DiscountPreviewTable'
+
+import { useRichTextEditorContext } from '../common/RichTextEditorContext'
 import SlashCommandBlockWrapper from '../SlashCommandBlockWrapper/SlashCommandBlockWrapper'
 
 export const DISCOUNT_BLOCK_VIEW_EMPTY_TEST_ID = 'discount-block-view-empty'
 export const DISCOUNT_BLOCK_VIEW_UNRESOLVED_TEST_ID = 'discount-block-view-unresolved'
 
-// Preview-mode rendering: minimal read-only display (no chevron, no click handler).
-// NOTE: this layout is a best-effort default — no Figma design exists yet;
-// confirm copy/layout with design before shipping to customers.
-const DiscountBlockPreview = ({ entity }: { entity: EntityData }) => {
-  const { translate } = useInternationalization()
-
-  const getFrequencyKey = () => {
-    if (entity.frequency === CouponFrequency.Once) {
-      return 'text_632d68358f1fedc68eed3ea3'
-    }
-
-    if (entity.frequency === CouponFrequency.Recurring) {
-      return 'text_632d68358f1fedc68eed3e64'
-    }
-
-    return 'text_63c83a3476e46bc6ab9d85d6'
-  }
-
-  const frequencyLabel = translate(getFrequencyKey())
-
-  let valueLabel = ''
-
-  if (
-    entity.couponType === CouponTypeEnum.FixedAmount &&
-    entity.amountCents &&
-    entity.amountCurrency
-  ) {
-    valueLabel = intlFormatNumber(deserializeAmount(entity.amountCents, entity.amountCurrency), {
-      currency: entity.amountCurrency,
-    })
-  } else if (entity.couponType === CouponTypeEnum.Percentage && entity.percentageRate !== null) {
-    valueLabel = `${entity.percentageRate}%`
-  }
-
-  const caption = valueLabel ? `${valueLabel} • ${frequencyLabel}` : frequencyLabel
-
-  return (
-    <NodeViewWrapper className="spacer" data-type="discountBlock">
-      <div className="block-wrapper">
-        <div className="pricing-block">
-          <div className="pricing-block-content">
-            <div className="pricing-block-text">
-              <Typography variant="bodyHl" color="grey700">
-                {entity.name}
-              </Typography>
-              <Typography variant="caption">{caption}</Typography>
-            </div>
-          </div>
-        </div>
-      </div>
-    </NodeViewWrapper>
-  )
-}
-
 export const DiscountBlockView = ({ node, updateAttributes }: NodeViewProps) => {
-  const { entities, onDiscountCommand, mode } = useRichTextEditorContext()
+  const { entities, onDiscountCommand, mode, customerLocale, customerCurrency } =
+    useRichTextEditorContext()
   const { translate } = useInternationalization()
+  const { organization } = useOrganizationInfos()
+  const currency = customerCurrency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
+
+  const effectiveLocale: Locale = (customerLocale ?? 'en') as Locale
+  const { translateWithContextualLocal } = useContextualLocale(effectiveLocale)
 
   const couponId = (node.attrs.couponId ?? '') as string
   const localId = (node.attrs.localId ?? '') as string
@@ -79,7 +33,16 @@ export const DiscountBlockView = ({ node, updateAttributes }: NodeViewProps) => 
   // Preview mode: read-only, non-interactive
   if (mode === 'preview') {
     if (entity) {
-      return <DiscountBlockPreview entity={entity} />
+      return (
+        <NodeViewWrapper className="spacer" data-type="discountBlock">
+          <DiscountPreviewTable
+            entity={entity}
+            translate={translateWithContextualLocal}
+            currency={currency}
+            locale={LocaleEnum[effectiveLocale]}
+          />
+        </NodeViewWrapper>
+      )
     }
 
     // Empty or unresolved in preview — render nothing interactive
