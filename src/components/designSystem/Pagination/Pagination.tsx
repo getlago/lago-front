@@ -31,7 +31,7 @@ interface PaginationProps {
 // visible hover surface. Reused for prev + next.
 const arrowClassName = tw(
   'flex size-10 items-center justify-center rounded-lg text-grey-600 transition-colors',
-  'hover:bg-grey-200 disabled:pointer-events-none disabled:text-grey-400',
+  'hover:bg-grey-200 focus-visible:ring disabled:pointer-events-none disabled:text-grey-400',
 )
 
 /**
@@ -98,7 +98,10 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
         opener={
           <button
             type="button"
-            className={tw(labelClassName, 'rounded-lg transition-colors hover:bg-grey-200')}
+            className={tw(
+              labelClassName,
+              'rounded-lg transition-colors hover:bg-grey-200 focus-visible:ring',
+            )}
           >
             {rangeLabel}
           </button>
