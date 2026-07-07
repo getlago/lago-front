@@ -17,6 +17,7 @@ const baseForm = (overrides: Partial<TWalletDataForm> = {}): TWalletDataForm => 
   expirationAt: undefined,
   grantedCredits: '',
   name: '',
+  code: '',
   transactionName: undefined,
   appliesTo: { feeTypes: [], billableMetrics: [] },
   paidCredits: '',

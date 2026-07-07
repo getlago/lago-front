@@ -6,8 +6,12 @@ import {
   WalletForScopeSectionFragment,
 } from '~/generated/graphql'
 
-export type TWalletDataForm = Omit<CreateCustomerWalletInput, 'customerId'> &
-  Omit<UpdateCustomerWalletInput, 'id'> & {
+export type TWalletDataForm = Omit<CreateCustomerWalletInput, 'customerId' | 'name' | 'code'> &
+  Omit<UpdateCustomerWalletInput, 'id' | 'name' | 'code'> & {
+    // Always strings in the form ('' when unset) so they stay compatible
+    // with NameAndCodeGroup's field mapping.
+    name: string
+    code: string
     appliesTo?: WalletForScopeSectionFragment['appliesTo']
     paymentMethod?: SelectedPaymentMethod
     invoiceCustomSection?: InvoiceCustomSectionInput

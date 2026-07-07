@@ -99,6 +99,7 @@ describe('Wallet Utils', () => {
   describe('getWordingForWalletCreationAlert', () => {
     const walletValuesFixture: TWalletDataForm = {
       name: 'Wallet Name',
+      code: 'wallet-code',
       currency: CurrencyEnum.Usd,
       grantedCredits: '200',
       paidCredits: '100',

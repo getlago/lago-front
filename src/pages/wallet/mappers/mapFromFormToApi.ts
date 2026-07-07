@@ -119,6 +119,8 @@ export const mapFormToCreateInput = (
 
   return {
     ...values,
+    // Blank code is omitted so the API generates one from the name
+    code: values.code || undefined,
     customerId,
     // `null` (not `undefined`) on clear → BE stores NULL on the
     // wallet column, meaning "inherit from customer".
@@ -168,6 +170,8 @@ export const mapFormToUpdateInput = (
 
   return {
     ...values,
+    // Blank code is ignored to keep the current one, as the API would store it as is
+    code: values.code || undefined,
     recurringTransactionRules: formatRecurringTransactionRules(
       recurringTransactionRules,
       FORM_TYPE_ENUM.edition,
