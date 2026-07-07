@@ -63,6 +63,14 @@ jest.mock('~/components/activityLogs/utils', () => ({
   buildLinkToActivityLog: (id: string, filter: string) => `/activity-log?${filter}=${id}`,
 }))
 
+const mockOpenTerminateCustomerWalletDialog = jest.fn()
+
+jest.mock('~/components/wallets/TerminateCustomerWalletDialog', () => ({
+  useTerminateCustomerWalletDialog: () => ({
+    openTerminateCustomerWalletDialog: mockOpenTerminateCustomerWalletDialog,
+  }),
+}))
+
 const defaultParams = {
   walletId: 'wallet-1',
   customerId: 'customer-1',
@@ -89,10 +97,9 @@ describe('useWalletActions', () => {
         expect(result.current.actions).toHaveLength(7)
       })
 
-      it('THEN should return terminateDialogRef and voidDialogRef', () => {
+      it('THEN should return voidDialogRef', () => {
         const { result } = renderHook(() => useWalletActions(defaultParams))
 
-        expect(result.current.terminateDialogRef).toBeDefined()
         expect(result.current.voidDialogRef).toBeDefined()
       })
 
@@ -295,17 +302,11 @@ describe('useWalletActions', () => {
       it('THEN should open the terminate dialog and close popper', () => {
         const { result } = renderHook(() => useWalletActions(defaultParams))
 
-        const mockOpenDialog = jest.fn()
-
-        ;(
-          result.current.terminateDialogRef as unknown as {
-            current: { openDialog: jest.Mock }
-          }
-        ).current = { openDialog: mockOpenDialog }
-
         result.current.actions[6].onAction(closePopper)
 
-        expect(mockOpenDialog).toHaveBeenCalledWith({ walletId: 'wallet-1' })
+        expect(mockOpenTerminateCustomerWalletDialog).toHaveBeenCalledWith({
+          walletId: 'wallet-1',
+        })
         expect(closePopper).toHaveBeenCalled()
       })
     })
