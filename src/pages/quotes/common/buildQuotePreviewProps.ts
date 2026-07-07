@@ -38,7 +38,10 @@ export const buildQuotePreviewProps = ({
 }): QuotePreviewProps => ({
   content: version?.content ?? '',
   entities: version?.billingItems
-    ? buildPreviewEntities(version.billingItems as BillingItemsPayload)
+    ? buildPreviewEntities(
+        version.billingItems as BillingItemsPayload,
+        customer?.currency ?? undefined,
+      )
     : {},
   customerLocale: (customer?.billingConfiguration?.documentLocale ?? 'en') as Locale,
   customerCurrency: customer?.currency ?? undefined,

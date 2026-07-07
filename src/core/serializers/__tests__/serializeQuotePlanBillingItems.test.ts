@@ -98,12 +98,13 @@ describe('toPlanBillingItems', () => {
     expect(result.plans[0].payload.invoice_custom_footer).toBeNull()
     // New plan config fields from formValues
     expect(result.plans[0].payload.interval).toBe(PlanInterval.Monthly)
-    expect(result.plans[0].payload.amount_cents).toBe('850.00')
+    // $850.00 (form units) is serialized to cents for the payload/overrides.
+    expect(result.plans[0].payload.amount_cents).toBe('85000')
     expect(result.plans[0].payload.amount_currency).toBe(CurrencyEnum.Usd)
     expect(result.plans[0].payload.charges).toEqual([])
     // Overrides are derived from the form values: the subscription fee amount is
     // always carried over (no charges/commitment/thresholds in baseFormValues).
-    expect(result.plans[0].overrides).toEqual({ amount_cents: 850 })
+    expect(result.plans[0].overrides).toEqual({ amount_cents: 85000 })
   })
 
   it('includes subscription settings in the payload', () => {
@@ -150,9 +151,10 @@ describe('toPlanBillingItems', () => {
     }
     const result = toPlanBillingItems(basePricingState, formValues)
 
+    // Form amounts ($850.00 fee, $80,000 commitment) are serialized to cents.
     expect(result.plans[0].overrides).toEqual({
-      amount_cents: 850,
-      minimum_commitment: { amount_cents: 80000, invoice_display_name: undefined },
+      amount_cents: 85000,
+      minimum_commitment: { amount_cents: 8000000, invoice_display_name: undefined },
     })
   })
 
@@ -193,7 +195,8 @@ describe('buildPlanOverrides', () => {
   it('carries over the subscription fee amount', () => {
     const result = buildPlanOverrides({ ...baseFormValues, amountCents: '850.00' })
 
-    expect(result.amount_cents).toBe(850)
+    // $850.00 → 85000 cents
+    expect(result.amount_cents).toBe(85000)
   })
 
   it('omits amount_cents when the fee is zero or empty', () => {
@@ -247,7 +250,7 @@ describe('buildPlanOverrides', () => {
     })
 
     expect(positive.minimum_commitment).toEqual({
-      amount_cents: 5000,
+      amount_cents: 500000,
       invoice_display_name: 'Annual minimum',
     })
 
@@ -277,9 +280,10 @@ describe('buildPlanOverrides', () => {
       },
     })
 
+    // Threshold form amounts ($10,000 and $50,000 units) → cents
     expect(result.usage_thresholds).toEqual([
-      { amount_cents: 10000, recurring: false, threshold_display_name: 'Tier 1' },
-      { amount_cents: 50000, recurring: true, threshold_display_name: 'Monthly cap' },
+      { amount_cents: 1000000, recurring: false, threshold_display_name: 'Tier 1' },
+      { amount_cents: 5000000, recurring: true, threshold_display_name: 'Monthly cap' },
     ])
   })
 })
@@ -426,7 +430,8 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
     expect(deserialized.planId).toBe('plan_123')
     expect(deserialized.formValues).not.toBeNull()
     expect(deserialized.formValues?.interval).toBe(PlanInterval.Monthly)
-    expect(deserialized.formValues?.amountCents).toBe('850.00')
+    // Round-trips through cents: '850.00' → 85000 → deserialize → '850'
+    expect(deserialized.formValues?.amountCents).toBe('850')
     expect(deserialized.formValues?.amountCurrency).toBe(CurrencyEnum.Usd)
     expect(deserialized.formValues?.charges).toHaveLength(1)
 
@@ -596,7 +601,8 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
     expect(result.entityData['plan-1'].plan?.rows[0]).toMatchObject({
       kind: 'main',
       rowType: 'subscriptionFee',
-      price: { type: 'displayAmount', amount: '13050' },
+      // payload cents '13050' → deserialized to currency units '130.5' for display
+      price: { type: 'displayAmount', amount: '130.5' },
     })
   })
 
@@ -625,5 +631,101 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
     const result = fromPlanBillingItems(plans)
 
     expect(result.entityData['plan-legacy'].plan).toEqual({ rows: [] })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Amount serialization: form holds currency units, payload holds cents
+// ---------------------------------------------------------------------------
+
+describe('plan amount cents conversion', () => {
+  it('serializes the subscription fee from currency units to cents (buildPlanOverrides)', () => {
+    const result = buildPlanOverrides({
+      ...baseFormValues,
+      amountCents: '850.00',
+      amountCurrency: CurrencyEnum.Usd,
+    })
+
+    expect(result.amount_cents).toBe(85000)
+  })
+
+  it('serializes minimum commitment and usage thresholds to cents', () => {
+    const result = buildPlanOverrides({
+      ...baseFormValues,
+      amountCents: '0',
+      amountCurrency: CurrencyEnum.Usd,
+      minimumCommitment: {
+        amountCents: '5000',
+        commitmentType: CommitmentTypeEnum.MinimumCommitment,
+      },
+      nonRecurringUsageThresholds: [
+        { amountCents: 100, thresholdDisplayName: 'Tier 1', recurring: false },
+      ],
+      recurringUsageThreshold: {
+        amountCents: 500,
+        thresholdDisplayName: 'Cap',
+        recurring: true,
+      },
+    })
+
+    expect(result.minimum_commitment?.amount_cents).toBe(500000)
+    expect(result.usage_thresholds).toEqual([
+      { amount_cents: 10000, recurring: false, threshold_display_name: 'Tier 1' },
+      { amount_cents: 50000, recurring: true, threshold_display_name: 'Cap' },
+    ])
+  })
+
+  it('serializes the subscription fee to cents in the payload', () => {
+    const result = toPlanBillingItems(basePricingState, {
+      ...baseFormValues,
+      amountCents: '850.00',
+      amountCurrency: CurrencyEnum.Usd,
+    })
+
+    expect(result.plans[0].payload.amount_cents).toBe('85000')
+  })
+
+  it('respects zero-decimal currency (JPY) precision — no ×100', () => {
+    const result = buildPlanOverrides({
+      ...baseFormValues,
+      amountCents: '850',
+      amountCurrency: CurrencyEnum.Jpy,
+    })
+
+    expect(result.amount_cents).toBe(850)
+  })
+
+  it('deserializes payload cents back into currency units on read', () => {
+    const plan: BillingItemPlan = {
+      type: 'plan',
+      id: 'plan_123',
+      overrides: {},
+      payload: {
+        ...baseBillingItemPlan.payload,
+        interval: PlanInterval.Monthly,
+        amount_cents: '85000',
+        amount_currency: 'USD',
+        pay_in_advance: false,
+        charges: [],
+        fixed_charges: [],
+        minimum_commitment: null,
+      },
+    } as unknown as BillingItemPlan
+
+    const result = fromPlanBillingItems([plan])
+
+    expect(result.formValues?.amountCents).toBe('850')
+  })
+
+  it('round-trips subscription fee units → cents → units', () => {
+    const serialized = toPlanBillingItems(basePricingState, {
+      ...baseFormValues,
+      amountCents: '850.00',
+      amountCurrency: CurrencyEnum.Usd,
+      charges: [],
+    })
+    const deserialized = fromPlanBillingItems(serialized.plans)
+
+    expect(deserialized.formValues?.amountCents).toBe('850')
   })
 })

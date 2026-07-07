@@ -232,7 +232,10 @@ describe('useOneOffPricingDrawer', () => {
           wrapper,
         })
 
-        expect(mockedFromBillingItems).toHaveBeenCalledWith(mockBillingItemsPayload)
+        expect(mockedFromBillingItems).toHaveBeenCalledWith(
+          mockBillingItemsPayload,
+          CurrencyEnum.Usd,
+        )
         // Entities should include both localId-keyed and backward-compat catalog-keyed entries
         expect(result.current.entities).toEqual({
           'local-uuid-1': expect.objectContaining({

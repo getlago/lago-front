@@ -1,4 +1,5 @@
 import type { AddOnItem } from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
+import { CurrencyEnum } from '~/generated/graphql'
 
 import {
   type AddOnPayload,
@@ -24,6 +25,7 @@ describe('toBillingItems', () => {
     ...overrides,
   })
 
+  // Form fields hold currency units ($500), the payload holds cents (50000).
   const makeAddOnItem = (overrides: Partial<AddOnItem> = {}): AddOnItem => ({
     localId: 'local-1',
     addOnId: 'addon-1',
@@ -32,8 +34,8 @@ describe('toBillingItems', () => {
     code: 'setup',
     description: 'One-time setup',
     units: '1',
-    unitAmountCents: '50000',
-    totalAmount: '50000',
+    unitAmountCents: '500',
+    totalAmount: '500',
     fromDatetime: '',
     toDatetime: '',
     ...overrides,
@@ -63,8 +65,8 @@ describe('toBillingItems', () => {
       makeAddOnItem({
         invoiceDisplayName: 'Custom Name',
         units: '3',
-        unitAmountCents: '60000',
-        totalAmount: '180000',
+        unitAmountCents: '600',
+        totalAmount: '1800',
         description: 'Custom desc',
         fromDatetime: '2026-04-01',
         toDatetime: '2026-06-30',
@@ -101,9 +103,9 @@ describe('toBillingItems', () => {
     expect(result.addons[1].payload.position).toBe(2)
   })
 
-  it('converts string form values to numbers', () => {
+  it('converts string form values (currency units) to cents numbers', () => {
     const items: AddOnItem[] = [
-      makeAddOnItem({ units: '5', unitAmountCents: '10000', totalAmount: '50001' }),
+      makeAddOnItem({ units: '5', unitAmountCents: '100', totalAmount: '500.01' }),
     ]
     const payloads: Record<string, AddOnPayload> = { 'local-1': makePayload() }
 
@@ -218,8 +220,8 @@ describe('fromBillingItems', () => {
       code: 'setup',
       description: 'One-time setup',
       units: '1',
-      unitAmountCents: '50000',
-      totalAmount: '50000',
+      unitAmountCents: '500',
+      totalAmount: '500',
       fromDatetime: '',
       toDatetime: '',
     })
@@ -262,8 +264,8 @@ describe('fromBillingItems', () => {
 
     expect(result.entities[localId].invoiceDisplayName).toBe('Custom Name')
     expect(result.entities[localId].units).toBe('3')
-    expect(result.entities[localId].unitAmountCents).toBe('60000')
-    expect(result.entities[localId].totalAmount).toBe('180000')
+    expect(result.entities[localId].unitAmountCents).toBe('600')
+    expect(result.entities[localId].totalAmount).toBe('1800')
     expect(result.entities[localId].fromDatetime).toBe('2026-04-01')
     expect(result.entities[localId].toDatetime).toBe('2026-06-30')
   })
@@ -280,8 +282,8 @@ describe('fromBillingItems', () => {
         code: 'setup',
         description: 'One-time setup',
         units: '1',
-        unitAmountCents: '50000',
-        totalAmount: '50000',
+        unitAmountCents: '500',
+        totalAmount: '500',
         fromDatetime: '',
         toDatetime: '',
       },
@@ -522,5 +524,115 @@ describe('buildPreviewEntities', () => {
     expect(entities['plan-1']).toBeDefined()
     expect(entities['plan-1'].entityType).toBe('plan')
     expect(entities['plan-1'].plan?.rows.length).toBeGreaterThan(0)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Amount serialization: form holds currency units, payload holds cents
+// ---------------------------------------------------------------------------
+
+describe('add-on amount cents conversion', () => {
+  // Catalog baseline stored in cents: $500 → 50000
+  const makeCentsPayload = (overrides: Partial<AddOnPayload> = {}): AddOnPayload => ({
+    position: 1,
+    code: 'setup',
+    name: 'Setup Fee',
+    description: 'One-time setup',
+    units: 1,
+    unit_amount_cents: 50000,
+    total_amount_cents: 50000,
+    invoice_display_name: 'Setup Fee',
+    from_datetime: null,
+    to_datetime: null,
+    tax_codes: [],
+    ...overrides,
+  })
+
+  // Form fields hold currency units: $500 → "500"
+  const makeUnitsItem = (overrides: Partial<AddOnItem> = {}): AddOnItem => ({
+    localId: 'local-1',
+    addOnId: 'addon-1',
+    name: 'Setup Fee',
+    invoiceDisplayName: 'Setup Fee',
+    code: 'setup',
+    description: 'One-time setup',
+    units: '1',
+    unitAmountCents: '500',
+    totalAmount: '500',
+    fromDatetime: '',
+    toDatetime: '',
+    ...overrides,
+  })
+
+  it('serializes currency-unit form amounts into cents overrides', () => {
+    const items: AddOnItem[] = [
+      makeUnitsItem({ units: '3', unitAmountCents: '600', totalAmount: '1800' }),
+    ]
+    const payloads: Record<string, AddOnPayload> = { 'local-1': makeCentsPayload() }
+
+    const result = toBillingItems(items, payloads, CurrencyEnum.Usd)
+
+    expect(result.addons[0].overrides.unit_amount_cents).toBe(60000)
+    expect(result.addons[0].overrides.total_amount_cents).toBe(180000)
+  })
+
+  it('emits no amount override when the unit-value form input equals the cents baseline', () => {
+    const items: AddOnItem[] = [makeUnitsItem()]
+    const payloads: Record<string, AddOnPayload> = { 'local-1': makeCentsPayload() }
+
+    const result = toBillingItems(items, payloads, CurrencyEnum.Usd)
+
+    expect(result.addons[0].overrides).toEqual({})
+  })
+
+  it('respects zero-decimal currency precision (no ×100)', () => {
+    // JPY has 0 decimals: form "600" → 600 cents (unchanged)
+    const items: AddOnItem[] = [makeUnitsItem({ unitAmountCents: '600', totalAmount: '600' })]
+    const payloads: Record<string, AddOnPayload> = {
+      'local-1': makeCentsPayload({ unit_amount_cents: 500, total_amount_cents: 500 }),
+    }
+
+    const result = toBillingItems(items, payloads, CurrencyEnum.Jpy)
+
+    expect(result.addons[0].overrides.unit_amount_cents).toBe(600)
+  })
+
+  it('deserializes cents payload back into currency units for form and preview', () => {
+    const billingItems: BillingItemsPayload = {
+      addons: [
+        {
+          type: 'addon',
+          id: 'addon-1',
+          localId: 'local-1',
+          payload: makeCentsPayload(),
+          overrides: {},
+        },
+      ],
+    }
+
+    const result = fromBillingItems(billingItems, CurrencyEnum.Usd)
+
+    expect(result.addOnItems[0].unitAmountCents).toBe('500')
+    expect(result.addOnItems[0].totalAmount).toBe('500')
+    expect(result.entities['local-1'].unitAmountCents).toBe('500')
+    expect(result.entities['local-1'].totalAmount).toBe('500')
+  })
+
+  it('round-trips units → cents → units', () => {
+    const items: AddOnItem[] = [
+      makeUnitsItem({
+        localId: 'local-1',
+        units: '2',
+        unitAmountCents: '600',
+        totalAmount: '1200',
+      }),
+    ]
+    const payloads: Record<string, AddOnPayload> = { 'local-1': makeCentsPayload() }
+
+    const serialized = toBillingItems(items, payloads, CurrencyEnum.Usd)
+    const deserialized = fromBillingItems(serialized, CurrencyEnum.Usd)
+
+    expect(deserialized.addOnItems[0].unitAmountCents).toBe('600')
+    expect(deserialized.addOnItems[0].totalAmount).toBe('1200')
   })
 })
