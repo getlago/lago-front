@@ -5,7 +5,11 @@ import Suggestion, { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/sug
 import { IconName } from 'lago-design-system'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
-import type { OnDiscountCommand, OnPricingCommand } from '../common/RichTextEditorContext'
+import type {
+  OnCreditsCommand,
+  OnDiscountCommand,
+  OnPricingCommand,
+} from '../common/RichTextEditorContext'
 import { SlashMenu, type SlashMenuRef } from '../SlashMenu/SlashMenu'
 
 export interface SlashCommandItem {
@@ -78,6 +82,8 @@ export const SlashCommands = Extension.create({
       onPricingCommand: undefined as OnPricingCommand | undefined,
       isPricingDisabled: undefined as (() => boolean) | undefined,
       onDiscountCommand: undefined as OnDiscountCommand | undefined,
+      onCreditsCommand: undefined as OnCreditsCommand | undefined,
+      isCreditsDisabled: undefined as (() => boolean) | undefined,
       suggestion: {
         char: '/',
         command: ({
@@ -139,7 +145,14 @@ export const SlashCommands = Extension.create({
   },
 
   addProseMirrorPlugins() {
-    const { translate, onPricingCommand, isPricingDisabled, onDiscountCommand } = this.options
+    const {
+      translate,
+      onPricingCommand,
+      isPricingDisabled,
+      onDiscountCommand,
+      onCreditsCommand,
+      isCreditsDisabled,
+    } = this.options
 
     const resolvedItems: SlashCommandItem[] = slashCommandDefinitions.map((def) => ({
       title: translate(def.titleKey),
@@ -199,6 +212,32 @@ export const SlashCommands = Extension.create({
       resolvedItems.push(discountItem)
     }
 
+    let creditsItem: SlashCommandItem | undefined
+
+    if (onCreditsCommand) {
+      creditsItem = {
+        title: translate('text_1783352692386xocpgvrz3na'),
+        description: translate('text_1783352692386nm1wsx38b6v'),
+        command: (editor) => {
+          onCreditsCommand({
+            onSave: (attrs) => {
+              editor.chain().focus().insertContent({ type: 'creditsBlock', attrs }).run()
+
+              // After inserting an atom node, ProseMirror may create a NodeSelection
+              // which triggers the BlockToolbar overlay. Move to a text selection.
+              const { selection } = editor.state
+
+              if (selection instanceof NodeSelection) {
+                editor.commands.setTextSelection(selection.from + selection.node.nodeSize)
+              }
+            },
+          })
+        },
+      }
+
+      resolvedItems.push(creditsItem)
+    }
+
     const editorRef = this.editor
 
     this.storage.triggerMenu = (clientRect: () => DOMRect) => {
@@ -239,7 +278,12 @@ export const SlashCommands = Extension.create({
         props: {
           items: resolvedItems.map((item) => ({
             ...item,
-            disabled: item === pricingItem ? (isPricingDisabled?.() ?? false) : false,
+            disabled:
+              item === pricingItem
+                ? (isPricingDisabled?.() ?? false)
+                : item === creditsItem
+                  ? (isCreditsDisabled?.() ?? false)
+                  : false,
           })),
           command: (item: SlashCommandItem) => {
             if (item.disabled) return
@@ -273,7 +317,12 @@ export const SlashCommands = Extension.create({
             .filter((item) => item.title.toLowerCase().includes(query.toLowerCase()))
             .map((item) => ({
               ...item,
-              disabled: item === pricingItem ? (isPricingDisabled?.() ?? false) : false,
+              disabled:
+                item === pricingItem
+                  ? (isPricingDisabled?.() ?? false)
+                  : item === creditsItem
+                    ? (isCreditsDisabled?.() ?? false)
+                    : false,
             }))
         },
       }),
