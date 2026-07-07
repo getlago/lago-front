@@ -3,7 +3,7 @@ import Stack from '@mui/material/Stack'
 import Nango from '@nangohq/frontend'
 import { useFormik } from 'formik'
 import { GraphQLFormattedError } from 'graphql'
-import { forwardRef, RefObject, useId, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useId, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 import { boolean, object, string } from 'yup'
 
@@ -24,8 +24,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NetsuiteIntegrationDetailsTabs } from '~/pages/settings/NetsuiteIntegrationDetails'
-
-import { DeleteNetsuiteIntegrationDialogRef } from './DeleteNetsuiteIntegrationDialog'
 
 gql`
   fragment NetsuiteForCreateDialogDialog on NetsuiteIntegration {
@@ -57,9 +55,8 @@ gql`
 `
 
 type TAddNetsuiteDialogProps = Partial<{
-  deleteModalRef: RefObject<DeleteNetsuiteIntegrationDialogRef>
+  onDelete: (provider: NetsuiteForCreateDialogDialogFragment) => void
   provider: NetsuiteForCreateDialogDialogFragment
-  deleteDialogCallback: () => void
 }>
 
 export interface AddNetsuiteDialogRef {
@@ -242,10 +239,7 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                localData?.deleteModalRef?.current?.openDialog({
-                  provider: netsuiteProvider,
-                  callback: localData.deleteDialogCallback,
-                })
+                localData?.onDelete?.(netsuiteProvider)
               }}
             >
               {translate('text_65845f35d7d69c3ab4793dad')}

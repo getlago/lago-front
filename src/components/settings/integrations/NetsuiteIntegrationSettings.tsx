@@ -27,10 +27,7 @@ import {
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from './AddEditDeleteSuccessRedirectUrlDialog'
 import { AddNetsuiteDialog, AddNetsuiteDialogRef } from './AddNetsuiteDialog'
-import {
-  DeleteNetsuiteIntegrationDialog,
-  DeleteNetsuiteIntegrationDialogRef,
-} from './DeleteNetsuiteIntegrationDialog'
+import { useDeleteNetsuiteIntegrationDialog } from './DeleteNetsuiteIntegrationDialog'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -98,7 +95,7 @@ const NetsuiteIntegrationSettings = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
   const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteNetsuiteIntegrationDialogRef>(null)
+  const { openDeleteNetsuiteIntegrationDialog } = useDeleteNetsuiteIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetNetsuiteIntegrationsSettingsQuery({
@@ -155,8 +152,11 @@ const NetsuiteIntegrationSettings = () => {
               onClick={() => {
                 addNetsuiteDialogRef.current?.openDialog({
                   provider: netsuiteIntegration,
-                  deleteModalRef: deleteDialogRef,
-                  deleteDialogCallback,
+                  onDelete: (provider) =>
+                    openDeleteNetsuiteIntegrationDialog({
+                      provider,
+                      callback: deleteDialogCallback,
+                    }),
                 })
               }}
             >
@@ -218,7 +218,6 @@ const NetsuiteIntegrationSettings = () => {
       </IntegrationsPage.Container>
 
       <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
-      <DeleteNetsuiteIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
