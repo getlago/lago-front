@@ -31,12 +31,6 @@ export const useFilters = () => {
         // otherwise, remove the filter from the URL
         searchParams.delete(search)
       }
-
-      // Reset URL-persisted pagination (`page` / `${prefix}_page`) whenever filters change:
-      // an out-of-range page after narrowing the result set would otherwise show an empty list.
-      if (search === 'page' || search.endsWith('_page')) {
-        searchParams.delete(search)
-      }
     }
   }
 
@@ -123,12 +117,6 @@ export const useFilters = () => {
     })
 
     Object.keys(searchParamsObject).forEach((key) => {
-      // Drop pagination (`page` / `${prefix}_page`) so switching quick filter returns to page 1,
-      // consistent with the regular filter path (removeExistingFilters).
-      if (key === 'page' || key.endsWith('_page')) {
-        return
-      }
-
       if (!context.availableFilters.includes(keyWithoutPrefix(key) as AvailableFiltersEnum)) {
         newFilters = newFilters.concat(`${key}=${encodeURIComponent(searchParamsObject[key])}`)
       }

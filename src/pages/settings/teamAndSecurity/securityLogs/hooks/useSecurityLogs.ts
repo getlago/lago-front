@@ -54,7 +54,7 @@ export const formatSecurityLogs = (securityLogs: SecurityLogs): Array<SecurityLo
   return securityLogs.map((securityLog) => ({ id: securityLog.logId, ...securityLog }))
 }
 
-export const useSecurityLogs = (pageSize: number = DEFAULT_PAGE_SIZE, page: number = 1) => {
+export const useSecurityLogs = (pageSize: number = DEFAULT_PAGE_SIZE) => {
   const [searchParams] = useSearchParams()
   const defaultToDateTime = DateTime.now().endOf('day').toISO()
 
@@ -75,7 +75,7 @@ export const useSecurityLogs = (pageSize: number = DEFAULT_PAGE_SIZE, page: numb
     refetch,
     error,
   } = useGetSecurityLogsQuery({
-    variables: { page, limit: pageSize, ...filtersForSecurityLogsQuery },
+    variables: { limit: pageSize, ...filtersForSecurityLogsQuery },
     notifyOnNetworkStatusChange: true,
     context: {
       silentErrorCodes: [LagoApiError.FeatureUnavailable],

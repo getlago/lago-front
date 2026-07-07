@@ -9,7 +9,7 @@ import {
 import { computeCustomerInitials } from '~/components/customers/utils'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { formatFiltersForCustomerQuery } from '~/components/designSystem/Filters'
-import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
@@ -112,12 +112,10 @@ const CustomersList = () => {
   }, [searchParams])
 
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const { page, goToPage } = usePageSearchParam()
 
-  const [getCustomers, { data, error, loading, variables }] = useCustomersLazyQuery({
+  const [getCustomers, { data, error, loading, fetchMore, variables }] = useCustomersLazyQuery({
     variables: {
       limit: pageSize,
-      page,
       ...filtersForCustomerQuery,
       accountType: [
         (filtersForCustomerQuery.accountType as CustomerAccountTypeEnum) ??
@@ -133,13 +131,8 @@ const CustomersList = () => {
 
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCustomers, loading)
 
-  const searchAndResetPage = (value: string) => {
-    goToPage(1)
-    debouncedSearch?.(value)
-  }
-
   const headerActions = useCustomersListHeaderActions()
-  const headerFilters = useCustomersListHeaderFilters({ debouncedSearch: searchAndResetPage })
+  const headerFilters = useCustomersListHeaderFilters({ debouncedSearch })
 
   const customersTotalCount = data?.customers?.metadata?.totalCount
 
@@ -168,11 +161,8 @@ const CustomersList = () => {
         metadata={data?.customers?.metadata}
         loading={isLoading}
         pageSize={pageSize}
-        onPageChange={goToPage}
-        onPageSizeChange={(size) => {
-          setPageSize(size)
-          goToPage(1)
-        }}
+        onPageChange={(page) => fetchMore({ variables: { page } })}
+        onPageSizeChange={setPageSize}
       >
         <Table
           name="customers-list"

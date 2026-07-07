@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef } from 'react'
+import { ReactNode, useRef } from 'react'
 
 import { Pagination } from '~/components/designSystem/Pagination/Pagination'
 import { getScrollableAncestor } from '~/components/designSystem/Pagination/utils'
@@ -61,28 +61,6 @@ export const PaginatedContent = ({
 }: PaginatedContentProps) => {
   const pagerRef = useRef<HTMLElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-
-  // Out-of-range page (e.g. a stale/typed `?page=200000`): the collection comes back empty and
-  // reads like a "no data" empty state even though data exists. Clamp to the last real page —
-  // standard pager behaviour — but only when there IS data (a truly empty list keeps its empty
-  // state). `currentPage` echoes the requested page, so this converges after one correction.
-  const currentPage = metadata?.currentPage
-  const totalPages = metadata?.totalPages
-  const totalCount = metadata?.totalCount
-
-  useEffect(() => {
-    if (
-      !loading &&
-      totalCount &&
-      totalCount > 0 &&
-      totalPages &&
-      totalPages >= 1 &&
-      currentPage &&
-      currentPage > totalPages
-    ) {
-      onPageChange(totalPages)
-    }
-  }, [loading, currentPage, totalPages, totalCount, onPageChange])
 
   // After a page change, reposition the list so the new page isn't opened scrolled to its end
   // (e.g. paging from the bottom of a 100-row page):

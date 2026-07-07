@@ -82,17 +82,12 @@ const mockAppliedCoupon = {
 
 const createQueryMock = (
   collection = [mockAppliedCoupon],
-  metadata = {
-    __typename: 'CollectionMetadata' as const,
-    currentPage: 1,
-    totalPages: 1,
-    totalCount: 1,
-  },
+  metadata = { __typename: 'CollectionMetadata' as const, currentPage: 1, totalPages: 1 },
 ): TestMocksType => [
   {
     request: {
       query: GetAppliedCouponsForCustomerDocument,
-      variables: { externalCustomerId: 'ext-customer-1', page: 1, limit: 20 },
+      variables: { externalCustomerId: 'ext-customer-1', page: 0, limit: 20 },
     },
     result: {
       data: {

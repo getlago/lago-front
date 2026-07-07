@@ -1,13 +1,14 @@
 import { Icon } from 'lago-design-system'
 import { useState } from 'react'
 
+import { UseDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { tw } from '~/styles/utils'
 
 import { TextInput } from './form'
 
 interface SearchInputProps {
   className?: string
-  onChange?: (value: string) => void
+  onChange: ReturnType<UseDebouncedSearch>['debouncedSearch']
   placeholder?: string
   disabled?: boolean
   'data-test'?: string

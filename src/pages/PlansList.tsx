@@ -5,7 +5,7 @@ import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
-import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
@@ -58,9 +58,8 @@ const PlansList = () => {
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const deleteDialogRef = useRef<DeletePlanDialogRef>(null)
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const { page, goToPage } = usePageSearchParam()
-  const [getPlans, { data, error, loading, variables }] = usePlansLazyQuery({
-    variables: { limit: pageSize, page },
+  const [getPlans, { data, error, loading, fetchMore, variables }] = usePlansLazyQuery({
+    variables: { limit: pageSize },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
@@ -117,10 +116,7 @@ const PlansList = () => {
         }}
         filtersSection={
           <SearchInput
-            onChange={(value) => {
-              goToPage(1)
-              debouncedSearch?.(value)
-            }}
+            onChange={debouncedSearch}
             placeholder={translate('text_63bee1cc88d85f04deb0d63c')}
           />
         }
@@ -131,11 +127,8 @@ const PlansList = () => {
         metadata={data?.plans?.metadata}
         loading={isLoading}
         pageSize={pageSize}
-        onPageChange={goToPage}
-        onPageSizeChange={(size) => {
-          setPageSize(size)
-          goToPage(1)
-        }}
+        onPageChange={(page) => fetchMore({ variables: { page } })}
+        onPageSizeChange={setPageSize}
       >
         <Table
           name="plans-list"

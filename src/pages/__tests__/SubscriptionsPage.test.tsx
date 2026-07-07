@@ -70,7 +70,6 @@ jest.mock('~/components/subscriptions/SubscriptionsList', () => ({
 
 jest.mock('~/components/designSystem/Pagination', () => ({
   PaginatedContent: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  usePageSearchParam: () => ({ page: 1, goToPage: jest.fn() }),
 }))
 
 describe('SubscriptionsPage', () => {

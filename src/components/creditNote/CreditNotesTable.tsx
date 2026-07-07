@@ -109,7 +109,6 @@ type TCreditNoteTableProps = {
   pageSize?: number
   onPageSizeChange?: (pageSize: number) => void
   sticky?: boolean
-  onPageChange?: (page: number) => void
 }
 
 const CreditNotesTable = ({
@@ -124,7 +123,6 @@ const CreditNotesTable = ({
   pageSize,
   onPageSizeChange,
   sticky = true,
-  onPageChange,
 }: TCreditNoteTableProps) => {
   const { translate } = useInternationalization()
   const { openVoidCreditNoteDialog } = useVoidCreditNoteDialog()
@@ -170,7 +168,7 @@ const CreditNotesTable = ({
       loading={isLoading}
       pageSize={pageSize}
       sticky={sticky}
-      onPageChange={onPageChange ?? ((page) => fetchMore({ variables: { page } }))}
+      onPageChange={(page) => fetchMore({ variables: { page } })}
       onPageSizeChange={onPageSizeChange}
     >
       <Table

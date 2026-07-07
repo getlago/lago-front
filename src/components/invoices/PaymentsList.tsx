@@ -106,7 +106,6 @@ interface PaymentsListProps {
   fetchMore?: GetPaymentsListQueryHookResult['fetchMore']
   pageSize?: number
   onPageSizeChange?: (pageSize: number) => void
-  onPageChange?: (page: number) => void
 }
 
 export const PaymentsList: FC<PaymentsListProps> = ({
@@ -118,7 +117,6 @@ export const PaymentsList: FC<PaymentsListProps> = ({
   fetchMore,
   pageSize,
   onPageSizeChange,
-  onPageChange,
 }) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
@@ -132,7 +130,7 @@ export const PaymentsList: FC<PaymentsListProps> = ({
       metadata={metadata}
       loading={isLoading}
       pageSize={pageSize}
-      onPageChange={onPageChange ?? ((page) => fetchMore?.({ variables: { page } }))}
+      onPageChange={(page) => fetchMore?.({ variables: { page } })}
       onPageSizeChange={onPageSizeChange}
     >
       <Table

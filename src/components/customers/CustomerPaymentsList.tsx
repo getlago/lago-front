@@ -35,7 +35,6 @@ interface CustomerPaymentsListProps {
   loading: boolean
   metadata?: GetPaymentsListQuery['payments']['metadata']
   fetchMore?: GetPaymentsListQueryHookResult['fetchMore']
-  onPageChange?: (page: number) => void
   placeholder?: TableProps<PaymentForPaymentsListFragment>['placeholder']
 }
 
@@ -44,7 +43,6 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
   loading,
   metadata,
   fetchMore,
-  onPageChange,
   placeholder,
 }) => {
   const { translate } = useInternationalization()
@@ -58,9 +56,7 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
     <PaginatedContent
       metadata={metadata}
       loading={loading}
-      onPageChange={(page) =>
-        (onPageChange ?? ((p) => fetchMore?.({ variables: { page: p } })))(page)
-      }
+      onPageChange={(page) => fetchMore?.({ variables: { page } })}
       sticky={false}
     >
       <Table

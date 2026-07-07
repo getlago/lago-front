@@ -3,7 +3,7 @@ import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Chip } from '~/components/designSystem/Chip'
-import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { ActionColumn, ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
@@ -47,10 +47,9 @@ const getRolesColumn = (
 
 const MembersInvitationList = () => {
   const { translate } = useInternationalization()
-  const { page, goToPage } = usePageSearchParam()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const { invitations, metadata, invitesLoading, invitesError, invitesRefetch } =
-    useGetMembersInvitationList(pageSize, page)
+  const { invitations, metadata, invitesLoading, invitesFetchMore, invitesError, invitesRefetch } =
+    useGetMembersInvitationList(pageSize)
   const { roles } = useRolesList()
   const { getDisplayName } = useRoleDisplayInformation()
   const { hasPermissions } = usePermissions()
@@ -195,21 +194,15 @@ const MembersInvitationList = () => {
     <div className="flex min-h-0 flex-1 flex-col">
       <MembersFilters
         searchQuery={searchQuery}
-        setSearchQuery={(value) => {
-          goToPage(1)
-          setSearchQuery(value)
-        }}
+        setSearchQuery={setSearchQuery}
         type="invitations"
       />
       <PaginatedContent
         metadata={metadata}
         loading={invitesLoading}
         pageSize={pageSize}
-        onPageChange={goToPage}
-        onPageSizeChange={(newPageSize) => {
-          goToPage(1)
-          setPageSize(newPageSize)
-        }}
+        onPageChange={(page) => invitesFetchMore({ variables: { page } })}
+        onPageSizeChange={setPageSize}
       >
         <Table
           name="members-setting-invitations-list"

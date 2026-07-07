@@ -3,7 +3,7 @@ import { useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import {
@@ -82,19 +82,15 @@ const InvoiceSections = () => {
 
   const [customSectionsPageSize, setCustomSectionsPageSize] = useState(DEFAULT_PAGE_SIZE)
   const [pricingUnitsPageSize, setPricingUnitsPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const { page: customSectionsPage, goToPage: goToCustomSectionsPage } =
-    usePageSearchParam('custom_sections')
-  const { page: pricingUnitsPage, goToPage: goToPricingUnitsPage } =
-    usePageSearchParam('pricing_units')
 
   const {
     data: invoiceCustomSectionsData,
     error: invoiceCustomSectionsError,
     loading: invoiceCustomSectionsLoading,
+    fetchMore: invoiceCustomSectionsFetchMore,
   } = useGetOrganizationSettingsInvoiceSectionsQuery({
     variables: {
       limit: customSectionsPageSize,
-      page: customSectionsPage,
     },
     notifyOnNetworkStatusChange: true,
   })
@@ -103,10 +99,10 @@ const InvoiceSections = () => {
     data: pricingUnitsData,
     error: pricingUnitsError,
     loading: pricingUnitsLoading,
+    fetchMore: pricingUnitsFetchMore,
   } = useGetOrganizationSettingsPricingUnitsQuery({
     variables: {
       limit: pricingUnitsPageSize,
-      page: pricingUnitsPage,
     },
     skip: !canViewPricingUnits,
     notifyOnNetworkStatusChange: true,
@@ -147,11 +143,8 @@ const InvoiceSections = () => {
                   metadata={pricingUnitsData?.pricingUnits?.metadata}
                   loading={pricingUnitsLoading}
                   pageSize={pricingUnitsPageSize}
-                  onPageChange={goToPricingUnitsPage}
-                  onPageSizeChange={(size) => {
-                    setPricingUnitsPageSize(size)
-                    goToPricingUnitsPage(1)
-                  }}
+                  onPageChange={(page) => pricingUnitsFetchMore?.({ variables: { page } })}
+                  onPageSizeChange={setPricingUnitsPageSize}
                   sticky={false}
                 >
                   <Table
@@ -235,11 +228,8 @@ const InvoiceSections = () => {
                 metadata={invoiceCustomSectionsData?.invoiceCustomSections?.metadata}
                 loading={invoiceCustomSectionsLoading}
                 pageSize={customSectionsPageSize}
-                onPageChange={goToCustomSectionsPage}
-                onPageSizeChange={(size) => {
-                  setCustomSectionsPageSize(size)
-                  goToCustomSectionsPage(1)
-                }}
+                onPageChange={(page) => invoiceCustomSectionsFetchMore?.({ variables: { page } })}
+                onPageSizeChange={setCustomSectionsPageSize}
                 sticky={false}
               >
                 <Table
