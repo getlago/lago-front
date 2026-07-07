@@ -3,10 +3,7 @@ import { Icon } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 
 import { useDeleteCustomerDocumentLocaleDialog } from '~/components/customers/DeleteCustomerDocumentLocaleDialog'
-import {
-  DeleteCustomerFinalizeZeroAmountInvoiceDialog,
-  DeleteCustomerFinalizeZeroAmountInvoiceDialogRef,
-} from '~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog'
+import { useDeleteCustomerFinalizeZeroAmountInvoiceDialog } from '~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog'
 import {
   DeleteCustomerGracePeriodeDialog,
   DeleteCustomerGracePeriodeDialogRef,
@@ -224,8 +221,8 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
     useRef<DeleteOrganizationNetPaymentTermDialogRef>(null)
   const editFinalizeZeroAmountInvoiceDialogRef =
     useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
-  const deleteCustomerFinalizeZeroAmountInvoiceDialogRef =
-    useRef<DeleteCustomerFinalizeZeroAmountInvoiceDialogRef>(null)
+  const { openDeleteCustomerFinalizeZeroAmountInvoiceDialog } =
+    useDeleteCustomerFinalizeZeroAmountInvoiceDialog()
 
   const { issuingDateAnchorSettingCopy, issuingDateAdjustmentSettingCopy } = useMemo(() => {
     const hasUserDefinedAnchor =
@@ -560,7 +557,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                deleteCustomerFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()
+                                if (customer) {
+                                  openDeleteCustomerFinalizeZeroAmountInvoiceDialog({ customer })
+                                }
                                 closePopper()
                               }}
                             >
@@ -976,10 +975,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
             ref={editFinalizeZeroAmountInvoiceDialogRef}
             entity={customer}
             finalizeZeroAmountInvoice={customer?.finalizeZeroAmountInvoice}
-          />
-          <DeleteCustomerFinalizeZeroAmountInvoiceDialog
-            ref={deleteCustomerFinalizeZeroAmountInvoiceDialogRef}
-            customer={customer}
           />
         </>
       )}
