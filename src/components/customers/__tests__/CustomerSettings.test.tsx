@@ -114,13 +114,11 @@ jest.mock('~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog'
   return { DeleteCustomerFinalizeZeroAmountInvoiceDialog: MockDialog }
 })
 
-jest.mock('~/components/customers/DeleteCustomerNetPaymentTermDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'DeleteOrganizationNetPaymentTermDialog'
-  return { DeleteOrganizationNetPaymentTermDialog: MockDialog }
-})
+jest.mock('~/components/customers/DeleteCustomerNetPaymentTermDialog', () => ({
+  useDeleteCustomerNetPaymentTermDialog: () => ({
+    openDeleteCustomerNetPaymentTermDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/components/settings/invoices/EditNetPaymentTermDialog', () => {
   const React = jest.requireActual('react')

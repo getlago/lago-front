@@ -11,10 +11,7 @@ import {
   DeleteCustomerGracePeriodeDialog,
   DeleteCustomerGracePeriodeDialogRef,
 } from '~/components/customers/DeleteCustomerGracePeriodeDialog'
-import {
-  DeleteOrganizationNetPaymentTermDialog,
-  DeleteOrganizationNetPaymentTermDialogRef,
-} from '~/components/customers/DeleteCustomerNetPaymentTermDialog'
+import { useDeleteCustomerNetPaymentTermDialog } from '~/components/customers/DeleteCustomerNetPaymentTermDialog'
 import { useDeleteCustomerVatRateDialog } from '~/components/customers/DeleteCustomerVatRateDialog'
 import { useEditCustomerDocumentLocaleDialog } from '~/components/customers/EditCustomerDocumentLocaleDialog'
 import {
@@ -220,8 +217,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const { openDeleteCustomerDocumentLocaleDialog } = useDeleteCustomerDocumentLocaleDialog()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
-  const deleteOrganizationNetPaymentTermDialogRef =
-    useRef<DeleteOrganizationNetPaymentTermDialogRef>(null)
+  const { openDeleteCustomerNetPaymentTermDialog } = useDeleteCustomerNetPaymentTermDialog()
   const editFinalizeZeroAmountInvoiceDialogRef =
     useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
   const deleteCustomerFinalizeZeroAmountInvoiceDialogRef =
@@ -788,7 +784,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                                   variant="quaternary"
                                   align="left"
                                   onClick={() => {
-                                    deleteOrganizationNetPaymentTermDialogRef?.current?.openDialog()
+                                    if (customer) {
+                                      openDeleteCustomerNetPaymentTermDialog({ customer })
+                                    }
                                     closePopper()
                                   }}
                                 >
@@ -967,10 +965,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
           <EditNetPaymentTermDialog
             ref={editNetPaymentTermDialogRef}
             description={translate('text_64c7a89b6c67eb6c988980eb')}
-          />
-          <DeleteOrganizationNetPaymentTermDialog
-            ref={deleteOrganizationNetPaymentTermDialogRef}
-            customer={customer}
           />
           <EditFinalizeZeroAmountInvoiceDialog
             ref={editFinalizeZeroAmountInvoiceDialogRef}
