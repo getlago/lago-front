@@ -31,7 +31,7 @@ jest.mock('~/components/SearchInput', () => ({
 }))
 
 jest.mock('~/components/plans/DeletePlanDialog', () => ({
-  DeletePlanDialog: () => null,
+  useDeletePlanDialog: () => ({ openDeletePlanDialog: jest.fn() }),
 }))
 
 jest.mock('react-router-dom', () => ({
