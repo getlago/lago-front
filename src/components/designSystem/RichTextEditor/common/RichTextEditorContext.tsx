@@ -11,7 +11,7 @@ import type { RichTextEditorMode } from '../RichTextEditor'
 
 export type EntityData = {
   entityId: string
-  entityType: 'plan' | 'addOn' | 'coupon'
+  entityType: 'plan' | 'addOn' | 'coupon' | 'wallet'
   name: string
   invoiceDisplayName?: string
   code: string

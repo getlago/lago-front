@@ -5,6 +5,7 @@ import { CurrencyEnum } from '~/generated/graphql'
 import { deserializeAmount, serializeAmount } from './serializeAmount'
 import { type BillingItemCoupon, fromCoupons } from './serializeQuoteCoupons'
 import { type BillingItemPlan, fromPlanBillingItems } from './serializeQuotePlanBillingItems'
+import type { BillingItemWallet } from './serializeQuoteWallets'
 
 // --- Backend contract types (snake_case) ---
 
@@ -37,7 +38,20 @@ export interface BillingItemsPayload {
   addOns?: BillingItemAddon[]
   plans?: BillingItemPlan[]
   coupons?: BillingItemCoupon[]
+  wallet_credits?: BillingItemWallet[]
 }
+
+/**
+ * Replace ONLY the wallet_credits slice, preserving every sibling category
+ * (plans/addons/coupons) untouched. This is the single guarantee that
+ * creating/editing/deleting a wallet never drops other categories.
+ * `useCreditsDrawer.rebuild` is the only caller and routes every mutation
+ * (save + delete) through it.
+ */
+export const mergeWalletCredits = (
+  billingItems: BillingItemsPayload | null | undefined,
+  walletCredits: BillingItemWallet[],
+): BillingItemsPayload => ({ ...(billingItems ?? {}), wallet_credits: walletCredits })
 
 // --- Serialization helpers ---
 
