@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { GraphQLFormattedError } from 'graphql'
-import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 import { object, string } from 'yup'
 
@@ -21,8 +21,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
-
-import { DeleteSalesforceIntegrationDialogRef } from './DeleteSalesforceIntegrationDialog'
 
 gql`
   fragment SalesforceForCreateDialog on SalesforceIntegration {
@@ -49,9 +47,8 @@ gql`
 `
 
 type TAddSalesforceDialogProps = Partial<{
-  deleteModalRef: RefObject<DeleteSalesforceIntegrationDialogRef>
+  onDelete: (provider: SalesforceForCreateDialogFragment) => void
   provider: SalesforceForCreateDialogFragment
-  deleteDialogCallback: () => void
 }>
 
 export interface AddSalesforceDialogRef {
@@ -194,10 +191,7 @@ export const AddSalesforceDialog = forwardRef<AddSalesforceDialogRef>((_, ref) =
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                localData?.deleteModalRef?.current?.openDialog({
-                  provider: salesforceProvider,
-                  callback: localData.deleteDialogCallback,
-                })
+                localData?.onDelete?.(salesforceProvider)
               }}
             >
               {translate('text_65845f35d7d69c3ab4793dad')}
