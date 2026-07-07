@@ -42,6 +42,7 @@ interface SubscriptionPricingContentProps {
   initialState?: SubscriptionPricingState | null
   quoteDates?: { startDate?: string; endDate?: string }
   customer?: QuoteCustomer | null
+  currency?: CurrencyEnum | null
   billingItemPlan?: BillingItemPlan
   subscriptionId?: string
 }
@@ -52,6 +53,7 @@ export function SubscriptionPricingContent({
   initialState,
   quoteDates,
   customer,
+  currency,
   billingItemPlan,
   subscriptionId,
 }: Readonly<SubscriptionPricingContentProps>) {
@@ -145,13 +147,12 @@ export function SubscriptionPricingContent({
   const formName = useStore(planForm.store, (s) => s.values.name)
   const formDescription = useStore(planForm.store, (s) => s.values.description)
   const formCode = useStore(planForm.store, (s) => s.values.code)
-  const formCurrency = useStore(planForm.store, (s) => s.values.amountCurrency)
   const formInterval = useStore(planForm.store, (s) => s.values.interval)
   // Full form values — snapshot into formValuesRef so the serializer can derive
   // both the plan payload and the overrides from a single source of truth.
   const formValues = useStore(planForm.store, (s) => s.values)
 
-  const displayCurrency = (formCurrency as CurrencyEnum) || CurrencyEnum.Usd
+  const displayCurrency = currency ?? CurrencyEnum.Usd
   const displayInterval = formInterval || PlanInterval.Monthly
 
   // Sync to stateRef + formValuesRef. Overrides are no longer computed here:
