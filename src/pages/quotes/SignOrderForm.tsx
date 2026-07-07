@@ -132,7 +132,7 @@ const SignOrderForm = () => {
         navigate(
           generatePath(QUOTE_DETAILS_ROUTE, {
             quoteId,
-            tab: QuoteDetailsTabsOptionsEnum.orderForms,
+            tab: QuoteDetailsTabsOptionsEnum.orders,
           }),
         )
       }
