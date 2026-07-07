@@ -4478,5 +4478,6 @@
   "text_17822197712864tnvgq76xou": "Add number",
   "text_17822197712869ou05y6kwt7": "Type a purchase order number",
   "text_1782219771286e8qwitkefxr": "The PO number defined here will display on the invoice.",
-  "text_1782219771287u79diql28g4": "Purchase order number must be 255 characters or fewer."
+  "text_1782219771287u79diql28g4": "Purchase order number must be 255 characters or fewer.",
+  "text_1783371078378djljy5s2hez": "To update the logo, go to the billing entity email settings"
 }

@@ -92,6 +92,7 @@ export const PreviewCampaignEmailDrawer = forwardRef<PreviewCampaignEmailDrawerR
             <PreviewEmailLayout
               name={data?.organization?.name}
               logoUrl={data?.organization?.logoUrl}
+              disableLogoEdit
               isLoading={loading}
               language={locale}
               emailObject={translateWithContextualLocal('text_1729256593854oiy13slixjr', {
