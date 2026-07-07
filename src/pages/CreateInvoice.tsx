@@ -3,7 +3,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import { useFormik } from 'formik'
 import _get from 'lodash/get'
 import { DateTime } from 'luxon'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 import { array, number, object, string } from 'yup'
 
@@ -17,7 +17,7 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { AmountInput, ComboBox, ComboBoxField, ComboboxItem, TextInput } from '~/components/form'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
@@ -29,6 +29,7 @@ import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
 import { useEditInvoiceDisplayNameDialog } from '~/components/invoices/useEditInvoiceDisplayName'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { normalizePurchaseOrderNumber, PO } from '~/components/purchaseOrder/PO'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   ADD_ITEM_FOR_INVOICE_INPUT_NAME,
@@ -227,7 +228,7 @@ const CreateInvoice = () => {
   const [taxProviderTaxesErrorMessage, setTaxProviderTaxesErrorMessage] =
     useState<LocalTaxProviderErrorsEnum | null>(null)
 
-  const warningDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
   const { openEditInvoiceItemDescriptionDialog } = useEditInvoiceItemDescriptionDialog()
   const { openEditInvoiceItemTaxDialog } = useEditInvoiceItemTaxDialog()
   const { openEditInvoiceDisplayNameDialog } = useEditInvoiceDisplayNameDialog()
@@ -370,6 +371,7 @@ const CreateInvoice = () => {
       fees: prefillFees || [],
       paymentMethod: undefined,
       invoiceCustomSection: undefined,
+      purchaseOrderNumber: prefillInvoice?.purchaseOrderNumber || undefined,
     },
     validationSchema: object().shape({
       customerId: string().required(''),
@@ -383,10 +385,17 @@ const CreateInvoice = () => {
           }),
         )
         .required(''),
+      purchaseOrderNumber: string().nullable(),
     }),
     enableReinitialize: true,
     validateOnMount: true,
-    onSubmit: async ({ fees, paymentMethod, invoiceCustomSection, ...values }) => {
+    onSubmit: async ({
+      fees,
+      paymentMethod,
+      invoiceCustomSection,
+      purchaseOrderNumber,
+      ...values
+    }) => {
       if (voidedInvoiceId && prefillInvoice?.id && actions.canVoid(prefillInvoice)) {
         const res = await voidInvoice({
           variables: {
@@ -406,6 +415,7 @@ const CreateInvoice = () => {
         variables: {
           input: {
             ...values,
+            purchaseOrderNumber: normalizePurchaseOrderNumber(purchaseOrderNumber),
             ...(prefillInvoice?.id ? { voidedInvoiceId: prefillInvoice.id } : {}),
             paymentMethod,
             invoiceCustomSection: toInvoiceCustomSectionReference(
@@ -617,7 +627,6 @@ const CreateInvoice = () => {
     total,
     currency,
   )
-  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   return (
     <>
@@ -631,18 +640,22 @@ const CreateInvoice = () => {
             variant="quaternary"
             icon="close"
             onClick={() =>
-              formikProps.dirty ? warningDialogRef.current?.openDialog() : handleClosePage()
+              formikProps.dirty
+                ? centralizedDialog.open({
+                    title: translate('text_645388d5bdbd7b00abffa030'),
+                    description: translate('text_645388d5bdbd7b00abffa031'),
+                    actionText: translate('text_645388d5bdbd7b00abffa033'),
+                    colorVariant: 'danger',
+                    onAction: handleClosePage,
+                  })
+                : handleClosePage()
             }
           />
         )}
       </PageHeader.Wrapper>
       <div className="size-full">
         <div className="mx-auto my-12 min-h-full max-w-5xl px-4">
-          <Card
-            className={tw('gap-8', {
-              'mb-12': hasAccessToMultiPaymentFlow,
-            })}
-          >
+          <Card className="mb-12 gap-8">
             {loading ? (
               <>
                 <div className="flex items-center justify-between">
@@ -699,11 +712,36 @@ const CreateInvoice = () => {
                   </Alert>
                 )}
 
-                <div className="grid grid-cols-[140px_auto] items-baseline gap-4">
-                  <Typography variant="caption" color="grey600">
-                    {translate('text_6453819268763979024ad01b')}
-                  </Typography>
-                  <Typography>{intlFormatDateTime(DateTime.now().toISO()).date}</Typography>
+                <div className="flex flex-col gap-2">
+                  <div className="grid grid-cols-[200px_auto] items-baseline gap-4">
+                    <Typography variant="caption" color="grey600">
+                      {translate('text_6453819268763979024ad01b')}
+                    </Typography>
+                    <Typography variant="body" color="grey700">
+                      {intlFormatDateTime(DateTime.now().toISO()).date}
+                    </Typography>
+                  </div>
+
+                  <PO
+                    className="flex-row items-center gap-4"
+                    value={formikProps.values.purchaseOrderNumber}
+                    onChange={(value) => {
+                      formikProps.setFieldValue('purchaseOrderNumber', value || undefined)
+                    }}
+                    description={translate('text_1782219771286e8qwitkefxr')}
+                  >
+                    <PO.Title className="min-w-[200px]" variant="caption" color="grey600" />
+
+                    {formikProps.values.purchaseOrderNumber ? (
+                      <div className="flex items-center gap-2">
+                        <PO.Number variant="body" color="grey700" />
+                        <PO.EditButton />
+                        <PO.TrashButton />
+                      </div>
+                    ) : (
+                      <PO.AddButton>{translate('text_17822197712864tnvgq76xou')}</PO.AddButton>
+                    )}
+                  </PO>
                 </div>
 
                 <div className="flex flex-row items-start gap-4">
@@ -1208,7 +1246,7 @@ const CreateInvoice = () => {
             )}
           </Card>
 
-          {hasAccessToMultiPaymentFlow && (customer?.externalId || customer?.id) && (
+          {(customer?.externalId || customer?.id) && (
             <Card>
               <div className="flex flex-col gap-1">
                 <Typography variant="subhead1">
@@ -1321,13 +1359,6 @@ const CreateInvoice = () => {
           </div>
         )}
       </div>
-      <WarningDialog
-        ref={warningDialogRef}
-        title={translate('text_645388d5bdbd7b00abffa030')}
-        description={translate('text_645388d5bdbd7b00abffa031')}
-        continueText={translate('text_645388d5bdbd7b00abffa033')}
-        onContinue={handleClosePage}
-      />
     </>
   )
 }

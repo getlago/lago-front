@@ -11,10 +11,7 @@ import {
   AddAnrokDialog,
   AddAnrokDialogRef,
 } from '~/components/settings/integrations/AddAnrokDialog'
-import {
-  DeleteAnrokIntegrationDialog,
-  DeleteAnrokIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteAnrokIntegrationDialog'
+import { useDeleteAnrokIntegrationDialog } from '~/components/settings/integrations/DeleteAnrokIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ANROK_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -59,7 +56,7 @@ const AnrokIntegrations = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteAnrokIntegrationDialogRef>(null)
+  const { openDeleteAnrokIntegrationDialog } = useDeleteAnrokIntegrationDialog()
   const { data, loading } = useGetAnrokIntegrationsListQuery({
     variables: { limit: 1000, types: [IntegrationTypeEnum.Anrok] },
   })
@@ -157,8 +154,11 @@ const AnrokIntegrations = () => {
                           onClick={() => {
                             addAnrokDialogRef.current?.openDialog({
                               integration: connection,
-                              deleteModalRef: deleteDialogRef,
-                              deleteDialogCallback,
+                              onDelete: (provider) =>
+                                openDeleteAnrokIntegrationDialog({
+                                  provider,
+                                  callback: deleteDialogCallback,
+                                }),
                             })
                             closePopper()
                           }}
@@ -170,7 +170,7 @@ const AnrokIntegrations = () => {
                           variant="quaternary"
                           align="left"
                           onClick={() => {
-                            deleteDialogRef.current?.openDialog({
+                            openDeleteAnrokIntegrationDialog({
                               provider: connection,
                               callback: deleteDialogCallback,
                             })
@@ -188,7 +188,6 @@ const AnrokIntegrations = () => {
         </section>
       </IntegrationsPage.Container>
       <AddAnrokDialog ref={addAnrokDialogRef} />
-      <DeleteAnrokIntegrationDialog ref={deleteDialogRef} />
     </>
   )
 }

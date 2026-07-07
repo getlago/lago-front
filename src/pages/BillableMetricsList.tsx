@@ -1,12 +1,9 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import {
-  DeleteBillableMetricDialog,
-  DeleteBillableMetricDialogRef,
-} from '~/components/billableMetrics/DeleteBillableMetricDialog'
+import { useDeleteBillableMetricDialog } from '~/components/billableMetrics/DeleteBillableMetricDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
@@ -58,7 +55,7 @@ const BillableMetricsList = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
+  const { openDeleteBillableMetricDialog } = useDeleteBillableMetricDialog()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const { page, goToPage } = usePageSearchParam()
   const [getBillableMetrics, { data, error, loading, variables }] = useBillableMetricsLazyQuery({
@@ -107,7 +104,7 @@ const BillableMetricsList = () => {
         startIcon: 'trash',
         title: translate('text_6256de3bba111e00b3bfa533'),
         onAction: () => {
-          deleteDialogRef.current?.openDialog({ billableMetricId: id })
+          openDeleteBillableMetricDialog({ billableMetricId: id })
         },
       })
     }
@@ -259,8 +256,6 @@ const BillableMetricsList = () => {
           placeholder={placeholder}
         />
       </PaginatedContent>
-
-      <DeleteBillableMetricDialog ref={deleteDialogRef} />
     </>
   )
 }

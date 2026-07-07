@@ -35,7 +35,7 @@ jest.mock('~/components/features/FeatureDetailsActivityLogs', () => ({
 }))
 
 jest.mock('~/components/features/DeleteFeatureDialog', () => ({
-  DeleteFeatureDialog: () => null,
+  useDeleteFeatureDialog: () => ({ openDeleteFeatureDialog: jest.fn() }),
 }))
 
 jest.mock('~/hooks/usePermissions', () => ({

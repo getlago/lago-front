@@ -51,6 +51,8 @@ const mockTranslate = (key: string): string => {
     text_1774281559657y9saycc2aev: 'Insert a 3x3 table',
     text_1774281559657l4kkx9ws4mz: 'Code Block',
     text_1774281559657qdknwsvn5ka: 'Insert a code block',
+    text_1782889379261hdcd0jhzdm6: 'Discount',
+    text_178288937926153opd9g5cwg: 'Apply a coupon discount to this quote',
   }
 
   return translations[key] ?? key
@@ -1105,6 +1107,228 @@ describe('SlashCommands', () => {
         expect(mockDestroyPopup).not.toHaveBeenCalled()
 
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+  })
+
+  describe('GIVEN onDiscountCommand is configured', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    describe('WHEN onDiscountCommand is provided', () => {
+      it('THEN the resolved items should include a discount item', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnDiscountCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onDiscountCommand: mockOnDiscountCommand,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; command: (editor: Editor) => void }>
+        }
+        const discountItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1782889379261hdcd0jhzdm6'),
+        )
+
+        expect(discountItem).toBeDefined()
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN onDiscountCommand is omitted', () => {
+      it('THEN the resolved items should not include a discount item', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; command: (editor: Editor) => void }>
+        }
+        const discountItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1782889379261hdcd0jhzdm6'),
+        )
+
+        expect(discountItem).toBeUndefined()
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN the discount command is executed via triggerMenu', () => {
+      it('THEN should call onDiscountCommand with an onSave callback', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnDiscountCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onDiscountCommand: mockOnDiscountCommand,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; command: (editor: Editor) => void }>
+          command: (item: { title: string; command: (editor: Editor) => void }) => void
+        }
+        const discountItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1782889379261hdcd0jhzdm6'),
+        )
+
+        expect(discountItem).toBeDefined()
+
+        rendererProps.command(
+          discountItem as { title: string; disabled: boolean; command: jest.Mock },
+        )
+
+        expect(mockOnDiscountCommand).toHaveBeenCalledWith({ onSave: expect.any(Function) })
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN onSave is invoked from the discount command callback', () => {
+      it('THEN should call editor.chain().focus().insertContent() with the discountBlock node', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnDiscountCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onDiscountCommand: mockOnDiscountCommand,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; command: (editor: Editor) => void }>
+          command: (item: { title: string; command: (editor: Editor) => void }) => void
+        }
+        const discountItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1782889379261hdcd0jhzdm6'),
+        )
+
+        // Spy on the editor's chain to track calls
+        const runMock = jest.fn()
+        const chainMethods: Record<string, jest.Mock> = {}
+        const handler: ProxyHandler<Record<string, jest.Mock>> = {
+          get: (_target, prop: string) => {
+            if (prop === 'run') return runMock
+            if (!chainMethods[prop]) {
+              chainMethods[prop] = jest.fn().mockReturnValue(new Proxy({}, handler))
+            }
+
+            return chainMethods[prop]
+          },
+        }
+
+        const mockEditorForCommand = {
+          chain: jest.fn().mockReturnValue(new Proxy({}, handler)),
+          commands: { setTextSelection: jest.fn() },
+          state: { selection: {} },
+        } as unknown as Editor
+
+        // Execute the discount item's command directly with our mock editor
+        ;(discountItem as { command: (e: Editor) => void }).command(mockEditorForCommand)
+
+        // Capture the onSave callback
+        const capturedParams = mockOnDiscountCommand.mock.calls[0][0] as {
+          onSave: (attrs: { couponId: string; localId: string }) => void
+        }
+
+        const attrs = { couponId: 'coupon-1', localId: 'local-1' }
+
+        capturedParams.onSave(attrs)
+
+        expect(mockEditorForCommand.chain).toHaveBeenCalled()
+        expect(chainMethods['insertContent']).toHaveBeenCalledWith({
+          type: 'discountBlock',
+          attrs,
+        })
+        expect(runMock).toHaveBeenCalled()
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN discount item is in the Suggestion items', () => {
+      it('THEN should never be disabled (unlimited coupons)', () => {
+        const SuggestionMock = jest.requireMock('@tiptap/suggestion').default as jest.Mock
+        const mockOnDiscountCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onDiscountCommand: mockOnDiscountCommand,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const suggestionConfig = SuggestionMock.mock.calls[SuggestionMock.mock.calls.length - 1][0]
+        const items = suggestionConfig.items({ query: '' })
+        const discountItem = items.find(
+          (item: { title: string }) =>
+            item.title === mockTranslate('text_1782889379261hdcd0jhzdm6'),
+        )
+
+        expect(discountItem).toBeDefined()
+        expect(discountItem?.disabled).toBe(false)
+
         editor.destroy()
       })
     })

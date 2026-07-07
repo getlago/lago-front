@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Accordion } from '~/components/designSystem/Accordion'
@@ -10,10 +9,7 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { getEntitlementFormattedValue } from '~/components/plans/utils'
-import {
-  DeleteSubscriptionEntitlementDialog,
-  DeleteSubscriptionEntitlementDialogRef,
-} from '~/components/subscriptions/DeleteSubscriptionEntitlementDialog'
+import { useDeleteSubscriptionEntitlementDialog } from '~/components/subscriptions/DeleteSubscriptionEntitlementDialog'
 import { POPPER_GROUP_NAME } from '~/core/constants/popper'
 import {
   CREATE_ENTITLEMENT_CUSTOMER_SUBSCRIPTION_ROUTE,
@@ -50,8 +46,7 @@ gql`
 export const SubscriptionEntitlementsTabContent = () => {
   const { customerId = '', planId = '', subscriptionId = '' } = useParams()
   const { translate } = useInternationalization()
-  const deleteSubscriptionEntitlementDialogRef =
-    useRef<DeleteSubscriptionEntitlementDialogRef>(null)
+  const { openDeleteSubscriptionEntitlementDialog } = useDeleteSubscriptionEntitlementDialog()
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
 
@@ -188,7 +183,7 @@ export const SubscriptionEntitlementsTabContent = () => {
                           align="left"
                           onClick={(e) => {
                             e.stopPropagation()
-                            deleteSubscriptionEntitlementDialogRef.current?.openDialog({
+                            openDeleteSubscriptionEntitlementDialog({
                               subscriptionId,
                               featureCode: entitlement.code,
                               featureName: entitlement.name,
@@ -255,8 +250,6 @@ export const SubscriptionEntitlementsTabContent = () => {
           </Accordion>
         ))}
       </div>
-
-      <DeleteSubscriptionEntitlementDialog ref={deleteSubscriptionEntitlementDialogRef} />
     </section>
   )
 }

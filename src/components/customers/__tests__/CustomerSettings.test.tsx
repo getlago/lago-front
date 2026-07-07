@@ -48,13 +48,11 @@ jest.mock('~/components/customers/EditCustomerInvoiceGracePeriodDialog', () => {
   return { EditCustomerInvoiceGracePeriodDialog: MockDialog }
 })
 
-jest.mock('~/components/customers/DeleteCustomerGracePeriodeDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'DeleteCustomerGracePeriodeDialog'
-  return { DeleteCustomerGracePeriodeDialog: MockDialog }
-})
+jest.mock('~/components/customers/DeleteCustomerGracePeriodeDialog', () => ({
+  useDeleteCustomerGracePeriodeDialog: () => ({
+    openDeleteCustomerGracePeriodeDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/components/customers/EditCustomerDocumentLocaleDialog', () => ({
   useEditCustomerDocumentLocaleDialog: () => ({
@@ -106,21 +104,17 @@ jest.mock('~/components/customers/settings/EditCustomerIssuingDatePolicyDialog',
   return { EditCustomerIssuingDatePolicyDialog: MockDialog }
 })
 
-jest.mock('~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
+jest.mock('~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog', () => ({
+  useDeleteCustomerFinalizeZeroAmountInvoiceDialog: () => ({
+    openDeleteCustomerFinalizeZeroAmountInvoiceDialog: jest.fn(),
+  }),
+}))
 
-  MockDialog.displayName = 'DeleteCustomerFinalizeZeroAmountInvoiceDialog'
-  return { DeleteCustomerFinalizeZeroAmountInvoiceDialog: MockDialog }
-})
-
-jest.mock('~/components/customers/DeleteCustomerNetPaymentTermDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'DeleteOrganizationNetPaymentTermDialog'
-  return { DeleteOrganizationNetPaymentTermDialog: MockDialog }
-})
+jest.mock('~/components/customers/DeleteCustomerNetPaymentTermDialog', () => ({
+  useDeleteCustomerNetPaymentTermDialog: () => ({
+    openDeleteCustomerNetPaymentTermDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/components/settings/invoices/EditNetPaymentTermDialog', () => {
   const React = jest.requireActual('react')

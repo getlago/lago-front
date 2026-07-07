@@ -3,7 +3,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import type { OnPricingCommand } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
+import type {
+  OnDiscountCommand,
+  OnPricingCommand,
+} from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
+import { DiscountBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/DiscountBlock.schema'
 import { PricingBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/PricingBlock.schema'
 import RichTextEditor, {
   type RichTextEditorMode,
@@ -16,12 +20,13 @@ import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import type { Locale } from '~/core/translations'
-import { OrderTypeEnum, type UpdateQuoteVersionInput } from '~/generated/graphql'
+import { CurrencyEnum, OrderTypeEnum, type UpdateQuoteVersionInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { QUOTE_MENTION_VARIABLES } from '~/pages/quotes/common/mentionVariables'
 
 import EditQuoteAside from './editQuote/EditQuoteAside'
 import { useAddQuoteImage } from './hooks/useAddQuoteImage'
+import { useDiscountDrawer } from './hooks/useDiscountDrawer'
 import { useOneOffPricingDrawer } from './hooks/useOneOffPricingDrawer'
 import { useQuote } from './hooks/useQuote'
 import { useSubscriptionPricingDrawer } from './hooks/useSubscriptionPricingDrawer'
@@ -115,6 +120,22 @@ const EditQuote = () => {
 
   const { onPricingCommand, isPricingDisabled, entities, syncEntitiesWithBlocks } =
     isSubscriptionOrder ? subscriptionPricing : oneOffPricing
+
+  const quoteCurrency = quote?.customer?.currency ?? CurrencyEnum.Usd
+
+  // Stable ref so useDiscountDrawer can call savePricingBlock without a
+  // forward-declaration error (savePricingBlock is defined below).
+  const savePricingBlockRef = useRef<(billingItems?: BillingItemsPayload) => void>(() => undefined)
+
+  const discount = useDiscountDrawer(quote?.currentVersion?.billingItems, {
+    currency: quoteCurrency,
+    onPersist: (billingItems) => savePricingBlockRef.current(billingItems),
+  })
+
+  const mergedEntities = useMemo(
+    () => ({ ...entities, ...discount.entities }),
+    [entities, discount.entities],
+  )
 
   const customerLocale = (quote?.customer?.billingConfiguration?.documentLocale ?? 'en') as Locale
 
@@ -212,6 +233,8 @@ const EditQuote = () => {
     }
   }, [])
 
+  // Keep the ref in sync with the latest savePricingBlock so the stable wrapper
+  // passed to useDiscountDrawer always calls the current version.
   const savePricingBlock = useCallback(
     async (billingItems?: BillingItemsPayload) => {
       if (!versionId) return
@@ -222,7 +245,15 @@ const EditQuote = () => {
 
       setSaveStatus('saving')
 
-      const payload: UpdateQuoteVersionInput = { id: versionId, content, billingItems }
+      // Each drawer owns a single billingItems category and passes a partial
+      // ({ plans } / { addons } / { coupons }) merged over the current items.
+      // Normalize here so `addons` is always present on the wire, whichever
+      // drawer saved — keeping the backend payload shape stable.
+      const payload: UpdateQuoteVersionInput = {
+        id: versionId,
+        content,
+        billingItems: billingItems && { addons: [], ...billingItems },
+      }
 
       failedPayloadRef.current = payload
 
@@ -240,6 +271,8 @@ const EditQuote = () => {
     },
     [versionId, refetchQuote],
   )
+
+  savePricingBlockRef.current = savePricingBlock
 
   const handlePricingCommand = useCallback<OnPricingCommand>(
     ({ onSave, editData }) => {
@@ -265,6 +298,24 @@ const EditQuote = () => {
       }
     },
     [syncEntitiesWithBlocks, savePricingBlock],
+  )
+
+  const handleDiscountCommand = useCallback<OnDiscountCommand>(
+    ({ onSave, editData }) => {
+      discount.onDiscountCommand({ onSave, editData })
+    },
+    [discount],
+  )
+
+  const handleDiscountBlocksChange = useCallback(
+    (blocks: DiscountBlockAttributes[]) => {
+      const updated = discount.syncDiscountBlocks(blocks)
+
+      if (updated) {
+        savePricingBlock(updated)
+      }
+    },
+    [discount, savePricingBlock],
   )
 
   const handleClose = () => {
@@ -354,8 +405,10 @@ const EditQuote = () => {
             mode={editorMode}
             onPricingCommand={handlePricingCommand}
             isPricingDisabled={isPricingDisabled}
-            entities={entities}
+            entities={mergedEntities}
             onPricingBlocksChange={handlePricingBlocksChange}
+            onDiscountCommand={isSubscriptionOrder ? handleDiscountCommand : undefined}
+            onDiscountBlocksChange={handleDiscountBlocksChange}
             customerLocale={customerLocale}
             customerCurrency={quote?.customer?.currency ?? undefined}
             variableItems={mentionItems}

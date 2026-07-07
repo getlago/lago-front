@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
-import { forwardRef, RefObject, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 import { object, string } from 'yup'
 
@@ -21,8 +21,6 @@ import {
   useUpdateStripeApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { DeleteStripeIntegrationDialogRef } from './DeleteStripeIntegrationDialog'
 
 gql`
   fragment AddStripeProviderDialog on StripeProvider {
@@ -76,9 +74,8 @@ gql`
 `
 
 type TAddStripeDialogProps = Partial<{
-  deleteModalRef: RefObject<DeleteStripeIntegrationDialogRef>
+  onDelete: (provider: AddStripeProviderDialogFragment) => void
   provider: AddStripeProviderDialogFragment
-  deleteDialogCallback: () => void
 }>
 
 export interface AddStripeDialogRef {
@@ -215,10 +212,7 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef>((_, ref) => {
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                localData?.deleteModalRef?.current?.openDialog({
-                  provider: stripeProvider,
-                  callback: localData?.deleteDialogCallback,
-                })
+                localData?.onDelete?.(stripeProvider)
               }}
             >
               {translate('text_65845f35d7d69c3ab4793dad')}

@@ -10,8 +10,7 @@ import {
 // --- Capture callbacks ---
 
 let capturedOnSubmit:
-  | ((args: { value: Record<string, unknown> }) => void | Promise<void>)
-  | undefined
+  ((args: { value: Record<string, unknown> }) => void | Promise<void>) | undefined
 let capturedDefaultValues: Record<string, unknown> | undefined
 
 // --- Mocks ---

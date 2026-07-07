@@ -3,18 +3,9 @@ import { Icon } from 'lago-design-system'
 import { useMemo, useRef } from 'react'
 
 import { useDeleteCustomerDocumentLocaleDialog } from '~/components/customers/DeleteCustomerDocumentLocaleDialog'
-import {
-  DeleteCustomerFinalizeZeroAmountInvoiceDialog,
-  DeleteCustomerFinalizeZeroAmountInvoiceDialogRef,
-} from '~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog'
-import {
-  DeleteCustomerGracePeriodeDialog,
-  DeleteCustomerGracePeriodeDialogRef,
-} from '~/components/customers/DeleteCustomerGracePeriodeDialog'
-import {
-  DeleteOrganizationNetPaymentTermDialog,
-  DeleteOrganizationNetPaymentTermDialogRef,
-} from '~/components/customers/DeleteCustomerNetPaymentTermDialog'
+import { useDeleteCustomerFinalizeZeroAmountInvoiceDialog } from '~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog'
+import { useDeleteCustomerGracePeriodeDialog } from '~/components/customers/DeleteCustomerGracePeriodeDialog'
+import { useDeleteCustomerNetPaymentTermDialog } from '~/components/customers/DeleteCustomerNetPaymentTermDialog'
 import { useDeleteCustomerVatRateDialog } from '~/components/customers/DeleteCustomerVatRateDialog'
 import { useEditCustomerDocumentLocaleDialog } from '~/components/customers/EditCustomerDocumentLocaleDialog'
 import {
@@ -212,7 +203,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const editIssuingDatePolicyDialogRef = useRef<EditCustomerIssuingDatePolicyDialogRef>(null)
   const { openDeleteCustomerVatRateDialog } = useDeleteCustomerVatRateDialog()
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
-  const deleteGracePeriodDialogRef = useRef<DeleteCustomerGracePeriodeDialogRef>(null)
+  const { openDeleteCustomerGracePeriodeDialog } = useDeleteCustomerGracePeriodeDialog()
   const { openEditCustomerDocumentLocaleDialog } = useEditCustomerDocumentLocaleDialog()
   const editCustomerDunningCampaignDialogRef = useRef<EditCustomerDunningCampaignDialogRef>(null)
   const editCustomerInvoiceCustomSectionsDialogRef =
@@ -220,12 +211,11 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const { openDeleteCustomerDocumentLocaleDialog } = useDeleteCustomerDocumentLocaleDialog()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
-  const deleteOrganizationNetPaymentTermDialogRef =
-    useRef<DeleteOrganizationNetPaymentTermDialogRef>(null)
+  const { openDeleteCustomerNetPaymentTermDialog } = useDeleteCustomerNetPaymentTermDialog()
   const editFinalizeZeroAmountInvoiceDialogRef =
     useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
-  const deleteCustomerFinalizeZeroAmountInvoiceDialogRef =
-    useRef<DeleteCustomerFinalizeZeroAmountInvoiceDialogRef>(null)
+  const { openDeleteCustomerFinalizeZeroAmountInvoiceDialog } =
+    useDeleteCustomerFinalizeZeroAmountInvoiceDialog()
 
   const { issuingDateAnchorSettingCopy, issuingDateAdjustmentSettingCopy } = useMemo(() => {
     const hasUserDefinedAnchor =
@@ -560,7 +550,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                deleteCustomerFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()
+                                if (customer) {
+                                  openDeleteCustomerFinalizeZeroAmountInvoiceDialog({ customer })
+                                }
                                 closePopper()
                               }}
                             >
@@ -644,7 +636,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                                   variant="quaternary"
                                   align="left"
                                   onClick={() => {
-                                    deleteGracePeriodDialogRef.current?.openDialog()
+                                    if (customer) {
+                                      openDeleteCustomerGracePeriodeDialog({ customer })
+                                    }
                                     closePopper()
                                   }}
                                 >
@@ -788,7 +782,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                                   variant="quaternary"
                                   align="left"
                                   onClick={() => {
-                                    deleteOrganizationNetPaymentTermDialogRef?.current?.openDialog()
+                                    if (customer) {
+                                      openDeleteCustomerNetPaymentTermDialog({ customer })
+                                    }
                                     closePopper()
                                   }}
                                 >
@@ -963,23 +959,14 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
             ref={editCustomerInvoiceCustomSectionsDialogRef}
             customerId={customerId}
           />
-          <DeleteCustomerGracePeriodeDialog ref={deleteGracePeriodDialogRef} customer={customer} />
           <EditNetPaymentTermDialog
             ref={editNetPaymentTermDialogRef}
             description={translate('text_64c7a89b6c67eb6c988980eb')}
-          />
-          <DeleteOrganizationNetPaymentTermDialog
-            ref={deleteOrganizationNetPaymentTermDialogRef}
-            customer={customer}
           />
           <EditFinalizeZeroAmountInvoiceDialog
             ref={editFinalizeZeroAmountInvoiceDialogRef}
             entity={customer}
             finalizeZeroAmountInvoice={customer?.finalizeZeroAmountInvoice}
-          />
-          <DeleteCustomerFinalizeZeroAmountInvoiceDialog
-            ref={deleteCustomerFinalizeZeroAmountInvoiceDialogRef}
-            customer={customer}
           />
         </>
       )}

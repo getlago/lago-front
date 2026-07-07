@@ -1,7 +1,7 @@
 import { FetchResult, gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
-import { forwardRef, RefObject, useId, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useId, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 import { object, string } from 'yup'
 
@@ -23,8 +23,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { AnrokIntegrationDetailsTabs } from '~/pages/settings/AnrokIntegrationDetails'
-
-import { DeleteAnrokIntegrationDialogRef } from './DeleteAnrokIntegrationDialog'
 
 gql`
   fragment AddAnrokIntegrationDialog on AnrokIntegration {
@@ -54,9 +52,8 @@ gql`
 `
 
 type TAddAnrokDialogProps = Partial<{
-  deleteModalRef: RefObject<DeleteAnrokIntegrationDialogRef>
+  onDelete: (provider: AddAnrokIntegrationDialogFragment) => void
   integration: AddAnrokIntegrationDialogFragment
-  deleteDialogCallback: () => void
 }>
 
 export interface AddAnrokDialogRef {
@@ -154,8 +151,7 @@ export const AddAnrokDialog = forwardRef<AddAnrokDialogRef>((_, ref) => {
       }
 
       const { errors } = res as
-        | FetchResult<UpdateAnrokIntegrationMutation>
-        | FetchResult<CreateAnrokIntegrationMutation>
+        FetchResult<UpdateAnrokIntegrationMutation> | FetchResult<CreateAnrokIntegrationMutation>
 
       if (!errors) dialogRef.current?.closeDialog()
 
@@ -204,10 +200,7 @@ export const AddAnrokDialog = forwardRef<AddAnrokDialogRef>((_, ref) => {
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                localData?.deleteModalRef?.current?.openDialog({
-                  provider: anrokIntegration,
-                  callback: localData?.deleteDialogCallback,
-                })
+                localData?.onDelete?.(anrokIntegration)
               }}
             >
               {translate('text_65845f35d7d69c3ab4793dad')}

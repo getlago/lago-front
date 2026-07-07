@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -9,10 +9,7 @@ import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
-import {
-  DeleteFeatureDialog,
-  DeleteFeatureDialogRef,
-} from '~/components/features/DeleteFeatureDialog'
+import { useDeleteFeatureDialog } from '~/components/features/DeleteFeatureDialog'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
@@ -55,7 +52,7 @@ gql`
 
 const FeaturesList = () => {
   const navigate = useNavigate()
-  const deleteDialogRef = useRef<DeleteFeatureDialogRef>(null)
+  const { openDeleteFeatureDialog } = useDeleteFeatureDialog()
   const { hasPermissions } = usePermissions()
   const { translate } = useInternationalization()
 
@@ -251,7 +248,7 @@ const FeaturesList = () => {
                 title: translate('text_63ea0f84f400488553caa786'),
                 startIcon: 'trash',
                 onAction: async () => {
-                  deleteDialogRef.current?.openDialog({
+                  openDeleteFeatureDialog({
                     feature: { id: feature.id },
                   })
                 },
@@ -262,8 +259,6 @@ const FeaturesList = () => {
           }}
         />
       </PaginatedContent>
-
-      <DeleteFeatureDialog ref={deleteDialogRef} />
     </>
   )
 }

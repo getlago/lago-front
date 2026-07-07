@@ -1,7 +1,7 @@
 import { FetchResult, gql } from '@apollo/client'
 import { captureException } from '@sentry/react'
 import { useFormik } from 'formik'
-import { forwardRef, RefObject, useId, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useId, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 import { object, string } from 'yup'
 
@@ -26,7 +26,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { AvalaraIntegrationDetailsTabs } from '~/pages/settings/AvalaraIntegrationDetails'
 import { tw } from '~/styles/utils'
 
-import { DeleteAvalaraIntegrationDialogRef } from './DeleteAvalaraIntegrationDialog'
+import { useDeleteAvalaraIntegrationDialog } from './DeleteAvalaraIntegrationDialog'
 
 gql`
   fragment AddAvalaraIntegrationDialog on AvalaraIntegration {
@@ -59,7 +59,6 @@ gql`
 type AddAvalaraDialogProps = {
   integration: AddAvalaraIntegrationDialogFragment
   deleteDialogCallback?: () => void
-  deleteModalRef: RefObject<DeleteAvalaraIntegrationDialogRef>
 }
 
 export interface AddAvalaraDialogRef {
@@ -77,6 +76,7 @@ export const AddAvalaraDialog = forwardRef<AddAvalaraDialogRef>((_, ref) => {
   const [showGlobalError, setShowGlobalError] = useState(false)
   const avalaraIntegration = localData?.integration
   const isEdition = !!avalaraIntegration
+  const { openDeleteAvalaraIntegrationDialog } = useDeleteAvalaraIntegrationDialog()
 
   const [addAvalara] = useCreateAvalaraIntegrationMutation({
     onCompleted({ createAvalaraIntegration }) {
@@ -224,7 +224,7 @@ export const AddAvalaraDialog = forwardRef<AddAvalaraDialogRef>((_, ref) => {
               variant="quaternary"
               onClick={() => {
                 closeDialog()
-                localData?.deleteModalRef?.current?.openDialog({
+                openDeleteAvalaraIntegrationDialog({
                   provider: avalaraIntegration,
                   callback: localData?.deleteDialogCallback,
                 })

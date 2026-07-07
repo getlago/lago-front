@@ -28,10 +28,7 @@ import { AnrokIntegrationDetailsTabs } from '~/pages/settings/AnrokIntegrationDe
 import { theme } from '~/styles'
 
 import { AddAnrokDialog, AddAnrokDialogRef } from './AddAnrokDialog'
-import {
-  DeleteAnrokIntegrationDialog,
-  DeleteAnrokIntegrationDialogRef,
-} from './DeleteAnrokIntegrationDialog'
+import { useDeleteAnrokIntegrationDialog } from './DeleteAnrokIntegrationDialog'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -80,7 +77,7 @@ const AnrokIntegrationSettings = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
   const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteAnrokIntegrationDialogRef>(null)
+  const { openDeleteAnrokIntegrationDialog } = useDeleteAnrokIntegrationDialog()
   const { translate } = useInternationalization()
   const [retryAllInvoices] = useRetryAllInvoicesMutation({
     onCompleted(result) {
@@ -146,8 +143,11 @@ const AnrokIntegrationSettings = () => {
               onClick={() => {
                 addAnrokDialogRef.current?.openDialog({
                   integration: anrokIntegration,
-                  deleteModalRef: deleteDialogRef,
-                  deleteDialogCallback,
+                  onDelete: (provider) =>
+                    openDeleteAnrokIntegrationDialog({
+                      provider,
+                      callback: deleteDialogCallback,
+                    }),
                 })
               }}
             >
@@ -224,7 +224,6 @@ const AnrokIntegrationSettings = () => {
       </IntegrationsPage.Container>
 
       <AddAnrokDialog ref={addAnrokDialogRef} />
-      <DeleteAnrokIntegrationDialog ref={deleteDialogRef} />
     </>
   )
 }

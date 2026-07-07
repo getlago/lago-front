@@ -294,7 +294,7 @@ describe('fromBillingItems', () => {
 
     const localId = result.addOnItems[0].localId
 
-    expect(result.originalPayloads[localId]).toEqual(billingItems.addons[0].payload)
+    expect(result.originalPayloads[localId]).toEqual(billingItems.addons?.[0].payload)
   })
 
   it('sorts by position', () => {
@@ -436,7 +436,7 @@ describe('buildPreviewEntities', () => {
   })
 
   const makeBillingItems = (
-    overrides: Partial<BillingItemsPayload['addons'][number]> = {},
+    overrides: Partial<NonNullable<BillingItemsPayload['addons']>[number]> = {},
   ): BillingItemsPayload => ({
     addons: [
       {

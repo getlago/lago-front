@@ -14,7 +14,7 @@ jest.mock('~/components/settings/integrations/AddAnrokDialog', () => ({
   AddAnrokDialog: () => null,
 }))
 jest.mock('~/components/settings/integrations/DeleteAnrokIntegrationDialog', () => ({
-  DeleteAnrokIntegrationDialog: () => null,
+  useDeleteAnrokIntegrationDialog: () => ({ openDeleteAnrokIntegrationDialog: jest.fn() }),
 }))
 
 describe('AnrokIntegrations', () => {

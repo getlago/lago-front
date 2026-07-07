@@ -1,9 +1,7 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
-import { DialogRef } from '~/components/designSystem/Dialog'
-import { WarningDialog } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_TAB_ROUTE, useNavigate } from '~/core/router'
@@ -31,72 +29,60 @@ gql`
   ${WalletAccordionFragmentDoc}
 `
 
-export type TerminateCustomerWalletDialogRef = {
-  openDialog: (props?: { walletId?: string }) => unknown
-  closeDialog: () => unknown
+type TerminateCustomerWalletDialogProps = {
+  walletId?: string
 }
 
-export const TerminateCustomerWalletDialog = forwardRef<TerminateCustomerWalletDialogRef>(
-  (_, ref) => {
-    const { translate } = useInternationalization()
-    const navigate = useNavigate()
-    const [localData, setLocalData] = useState<{ walletId?: string } | null>(null)
-    const dialogRef = useRef<DialogRef>(null)
-    const { customerId } = useParams()
+export const useTerminateCustomerWalletDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
+  const { translate } = useInternationalization()
+  const navigate = useNavigate()
+  const { customerId } = useParams()
 
-    const [terminateWallet] = useTerminateCustomerWalletMutation({
-      onCompleted(res) {
-        if (res?.terminateCustomerWallet) {
+  const [terminateWallet] = useTerminateCustomerWalletMutation({
+    update(cache, { data }) {
+      if (!data?.terminateCustomerWallet) return
+
+      const cacheId = `Customer:${data.terminateCustomerWallet.customer?.id}`
+
+      const previousData: CustomerDetailsFragment | null = cache.readFragment({
+        id: cacheId,
+        fragment: CustomerDetailsFragmentDoc,
+        fragmentName: 'CustomerDetails',
+      })
+
+      cache.writeFragment({
+        id: cacheId,
+        fragment: CustomerDetailsFragmentDoc,
+        fragmentName: 'CustomerDetails',
+        data: {
+          ...previousData,
+          hasActiveWallet: data.terminateCustomerWallet.customer?.hasActiveWallet,
+        },
+      })
+    },
+    refetchQueries: ['getCustomerWalletList'],
+  })
+
+  const openTerminateCustomerWalletDialog = (props?: TerminateCustomerWalletDialogProps) => {
+    if (!props) {
+      return
+    }
+
+    centralizedDialog.open({
+      title: translate('text_62d9430e8b9fe36851cddd0b'),
+      description: translate('text_62d9430e8b9fe36851cddd0f'),
+      colorVariant: 'danger',
+      actionText: translate('text_62d9430e8b9fe36851cddd17'),
+      onAction: async () => {
+        const result = await terminateWallet({
+          variables: { input: { id: props.walletId as string } },
+        })
+
+        if (result.data?.terminateCustomerWallet) {
           addToast({
             severity: 'success',
             translateKey: 'text_62e257c032ae895bbfead62e',
-          })
-        }
-      },
-      update(cache, { data }) {
-        if (!data?.terminateCustomerWallet) return
-
-        const cacheId = `Customer:${data.terminateCustomerWallet.customer?.id}`
-
-        const previousData: CustomerDetailsFragment | null = cache.readFragment({
-          id: cacheId,
-          fragment: CustomerDetailsFragmentDoc,
-          fragmentName: 'CustomerDetails',
-        })
-
-        cache.writeFragment({
-          id: cacheId,
-          fragment: CustomerDetailsFragmentDoc,
-          fragmentName: 'CustomerDetails',
-          data: {
-            ...previousData,
-            hasActiveWallet: data.terminateCustomerWallet.customer?.hasActiveWallet,
-          },
-        })
-      },
-      refetchQueries: ['getCustomerWalletList'],
-    })
-
-    useImperativeHandle(ref, () => ({
-      openDialog: (props) => {
-        if (!props) {
-          return
-        }
-
-        setLocalData(props)
-        dialogRef.current?.openDialog()
-      },
-      closeDialog: () => dialogRef.current?.closeDialog(),
-    }))
-
-    return (
-      <WarningDialog
-        ref={dialogRef}
-        title={translate('text_62d9430e8b9fe36851cddd0b')}
-        description={translate('text_62d9430e8b9fe36851cddd0f')}
-        onContinue={async () => {
-          await terminateWallet({
-            variables: { input: { id: localData?.walletId as string } },
           })
 
           navigate(
@@ -105,11 +91,10 @@ export const TerminateCustomerWalletDialog = forwardRef<TerminateCustomerWalletD
               tab: CustomerDetailsTabsOptions.wallet,
             }),
           )
-        }}
-        continueText={translate('text_62d9430e8b9fe36851cddd17')}
-      />
-    )
-  },
-)
+        }
+      },
+    })
+  }
 
-TerminateCustomerWalletDialog.displayName = 'TerminateCustomerWalletDialog'
+  return { openTerminateCustomerWalletDialog }
+}

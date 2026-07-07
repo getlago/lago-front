@@ -10,10 +10,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
-import {
-  DisputeInvoiceDialog,
-  DisputeInvoiceDialogRef,
-} from '~/components/invoices/DisputeInvoiceDialog'
+import { useDisputeInvoiceDialog } from '~/components/invoices/DisputeInvoiceDialog'
 import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
 import {
   FinalizeInvoiceDialog,
@@ -105,6 +102,7 @@ gql`
     taxStatus
     totalAmountCents
     currency
+    purchaseOrderNumber
     refundableAmountCents
     creditableAmountCents
     offsettableAmountCents
@@ -320,7 +318,7 @@ const CustomerInvoiceDetails = () => {
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
-  const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
+  const { openDisputeInvoiceDialog } = useDisputeInvoiceDialog()
   const activeTabContent = useMainHeaderTabContent()
 
   const { data, loading, error, refetch } = useGetInvoiceDetailsQuery({
@@ -938,7 +936,7 @@ const CustomerInvoiceDetails = () => {
           label: translate('text_66141e30699a0631f0b2ec71'),
           hidden: !authorizations.canDispute,
           onClick: (closePopper: () => void) => {
-            disputeInvoiceDialogRef.current?.openDialog({
+            openDisputeInvoiceDialog({
               id: data?.invoice?.id || '',
             })
             closePopper()
@@ -1035,7 +1033,6 @@ const CustomerInvoiceDetails = () => {
       )}
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <DisputeInvoiceDialog ref={disputeInvoiceDialogRef} />
       {!!invoice && <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoiceId={invoice.id} />}
     </>
   )

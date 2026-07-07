@@ -38,6 +38,7 @@ gql`
     paymentDueDate
     paymentOverdue
     paymentStatus
+    purchaseOrderNumber
     refundableAmountCents
     regeneratedInvoiceId
     status

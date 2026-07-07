@@ -46,8 +46,8 @@ gql`
 `
 
 enum NetPaymentTermModelTypesEnum {
-  'Customer' = 'Customer',
-  'BillingEntity' = 'BillingEntity',
+  Customer = 'Customer',
+  BillingEntity = 'BillingEntity',
 }
 
 export interface EditNetPaymentTermDialogRef {

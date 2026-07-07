@@ -1036,7 +1036,6 @@ describe('InvoicesList', () => {
       const user = userEvent.setup()
 
       mockCanRetryCollect.mockReturnValue(true)
-      mockHasFeatureFlag.mockReturnValue(true)
 
       await renderInvoicesList({
         invoices: [

@@ -10,7 +10,9 @@ jest.mock('~/components/settings/integrations/AddAvalaraDialog', () => ({
   AddAvalaraDialog: () => null,
 }))
 jest.mock('~/components/settings/integrations/DeleteAvalaraIntegrationDialog', () => ({
-  DeleteAvalaraIntegrationDialog: () => null,
+  useDeleteAvalaraIntegrationDialog: () => ({
+    openDeleteAvalaraIntegrationDialog: jest.fn(),
+  }),
 }))
 jest.mock('~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog', () => ({
   AddEditDeleteSuccessRedirectUrlDialog: () => null,

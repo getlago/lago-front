@@ -39,10 +39,7 @@ export type IntegrationMapItemDrawerProps<FormValues extends FormikValues> = {
   handleDataMutation: (
     inputValues: FormValues['values'],
     initialMapping:
-      | ItemMappingForTaxMapping
-      | ItemMappingForNonTaxMapping
-      | ItemMappingForMappable
-      | undefined,
+      ItemMappingForTaxMapping | ItemMappingForNonTaxMapping | ItemMappingForMappable | undefined,
     formType: MappingTypeEnum | MappableTypeEnum,
     integrationId: string,
     billingEntity: BillingEntityForIntegrationMapping,

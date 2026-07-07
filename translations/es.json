@@ -248,5 +248,12 @@
   "text_1782223048616d9fxvmvy6xk": "A partir de {{from}} unidades",
   "text_17822898603051pryf16s23k": "Tarifa fija para las primeras {{to}} unidades",
   "text_1782289860305xi20ikioh8l": "Tarifa fija para {{from}} a {{to}} unidades",
-  "text_1782289860305wlllob2k8n0": "Tarifa fija a partir de {{from}} unidades"
+  "text_1782289860305wlllob2k8n0": "Tarifa fija a partir de {{from}} unidades",
+  "text_1782889379261hdcd0jhzdm6": "Descuento",
+  "text_1782891666475j9e81afl8in": "Descuento",
+  "text_632d68358f1fedc68eed3e80": "Duración",
+  "text_632d68358f1fedc68eed3ea3": "Una sola vez",
+  "text_63c83a3476e46bc6ab9d85d6": "Para siempre",
+  "text_17830875698228lpz4i09jop": "{{count}} período de facturación|{{count}} períodos de facturación",
+  "text_1783090333139dnllq2q6ege": "Valor del descuento"
 }

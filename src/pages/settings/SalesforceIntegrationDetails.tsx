@@ -10,10 +10,7 @@ import {
   AddSalesforceDialog,
   AddSalesforceDialogRef,
 } from '~/components/settings/integrations/AddSalesforceDialog'
-import {
-  DeleteSalesforceIntegrationDialog,
-  DeleteSalesforceIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteSalesforceIntegrationDialog'
+import { useDeleteSalesforceIntegrationDialog } from '~/components/settings/integrations/DeleteSalesforceIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, SALESFORCE_INTEGRATION_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -69,7 +66,7 @@ const SalesforceIntegrationDetails = () => {
   const navigate = useNavigate()
 
   const addSalesforceDialogRef = useRef<AddSalesforceDialogRef>(null)
-  const deleteSalesforceDialogRef = useRef<DeleteSalesforceIntegrationDialogRef>(null)
+  const { openDeleteSalesforceIntegrationDialog } = useDeleteSalesforceIntegrationDialog()
 
   const { data, loading } = useGetSalesforceIntegrationsDetailsQuery({
     variables: {
@@ -81,8 +78,7 @@ const SalesforceIntegrationDetails = () => {
   })
 
   const salesforceIntegration = data?.integration as
-    | SalesforceIntegrationDetailsFragment
-    | undefined
+    SalesforceIntegrationDetailsFragment | undefined
 
   const deleteDialogCallback = () => {
     const integrations = data?.integrations?.collection || []
@@ -136,8 +132,11 @@ const SalesforceIntegrationDetails = () => {
                   onClick: (closePopper) => {
                     addSalesforceDialogRef.current?.openDialog({
                       provider: salesforceIntegration,
-                      deleteModalRef: deleteSalesforceDialogRef,
-                      deleteDialogCallback,
+                      onDelete: (provider) =>
+                        openDeleteSalesforceIntegrationDialog({
+                          provider,
+                          callback: deleteDialogCallback,
+                        }),
                     })
                     closePopper()
                   },
@@ -147,7 +146,7 @@ const SalesforceIntegrationDetails = () => {
                   hidden: !salesforceIntegration,
                   onClick: (closePopper) => {
                     if (salesforceIntegration) {
-                      deleteSalesforceDialogRef.current?.openDialog({
+                      openDeleteSalesforceIntegrationDialog({
                         provider: salesforceIntegration,
                         callback: deleteDialogCallback,
                       })
@@ -172,8 +171,11 @@ const SalesforceIntegrationDetails = () => {
               onClick={() => {
                 addSalesforceDialogRef.current?.openDialog({
                   provider: salesforceIntegration,
-                  deleteModalRef: deleteSalesforceDialogRef,
-                  deleteDialogCallback,
+                  onDelete: (provider) =>
+                    openDeleteSalesforceIntegrationDialog({
+                      provider,
+                      callback: deleteDialogCallback,
+                    }),
                 })
               }}
             >
@@ -206,7 +208,6 @@ const SalesforceIntegrationDetails = () => {
       </IntegrationsPage.Container>
 
       <AddSalesforceDialog ref={addSalesforceDialogRef} />
-      <DeleteSalesforceIntegrationDialog ref={deleteSalesforceDialogRef} />
     </>
   )
 }

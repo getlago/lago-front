@@ -166,6 +166,39 @@ describe('PreviewEmailLayout', () => {
     expect(plusButton).toBeInTheDocument()
   })
 
+  it('renders a static logo without an edit button when disableLogoEdit is true', () => {
+    render(
+      <PreviewEmailLayout
+        language={LocaleEnum.en}
+        logoUrl="https://example.com/logo.png"
+        name="Test Company"
+        disableLogoEdit
+      >
+        <div>Content</div>
+      </PreviewEmailLayout>,
+    )
+
+    expect(screen.getByAltText('company-logo')).toBeInTheDocument()
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  })
+
+  it('renders a static placeholder box (no edit button) when disableLogoEdit is true and no logo is provided', () => {
+    const { container } = render(
+      <PreviewEmailLayout
+        language={LocaleEnum.en}
+        logoUrl={null}
+        name="Test Company"
+        disableLogoEdit
+      >
+        <div>Content</div>
+      </PreviewEmailLayout>,
+    )
+
+    // A company placeholder avatar is rendered instead of an editable plus button
+    expect(container.querySelector('[data-test="company/medium"]')).toBeInTheDocument()
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  })
+
   it('shows "Powered by" section when organization does not have premium addon', () => {
     mockOrganizationInfos.hasOrganizationPremiumAddon.mockReturnValue(false)
 

@@ -1,15 +1,14 @@
-import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
 
-import { DialogRef } from '~/components/designSystem/Dialog'
-import { Skeleton } from '~/components/designSystem/Skeleton'
-import { WarningDialog } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import {
+  DeleteBillableMetricDialogFragment,
+  GetBillableMetricToDeleteDocument,
+  GetBillableMetricToDeleteQuery,
   useDeleteBillableMetricMutation,
-  useGetBillableMetricToDeleteLazyQuery,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   fragment DeleteBillableMetricDialog on BillableMetric {
@@ -37,104 +36,79 @@ type DeleteBillableMetricDialogProps = {
   callback?: () => void
 }
 
-export interface DeleteBillableMetricDialogRef {
-  openDialog: (props: DeleteBillableMetricDialogProps) => unknown
-  closeDialog: () => unknown
-}
+const buildDescription = (
+  translate: TranslateFunc,
+  billableMetric: DeleteBillableMetricDialogFragment | null | undefined,
+) => {
+  const { hasDraftInvoices, hasActiveSubscriptions } = billableMetric || {}
 
-export const DeleteBillableMetricDialog = forwardRef<DeleteBillableMetricDialogRef>((_, ref) => {
-  const { translate } = useInternationalization()
-  const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<DeleteBillableMetricDialogProps | undefined>(undefined)
-  const [getBillableMetricToDelete, { data, loading }] = useGetBillableMetricToDeleteLazyQuery()
-
-  const billableMetric = data?.billableMetric
-
-  const { id = '', name = '', hasDraftInvoices, hasActiveSubscriptions } = billableMetric || {}
-
-  const [deleteBillableMetric] = useDeleteBillableMetricMutation({
-    onCompleted({ destroyBillableMetric }) {
-      if (destroyBillableMetric) {
-        addToast({
-          message: translate('text_6256f9f1184d3301290c7299'),
-          severity: 'success',
-        })
-
-        if (localData?.callback) {
-          localData.callback()
-          setLocalData(undefined)
-        }
-      }
-    },
-    refetchQueries: ['billableMetrics'],
-  })
-
-  useImperativeHandle(ref, () => ({
-    openDialog: (args) => {
-      setLocalData(args)
-      getBillableMetricToDelete({
-        variables: {
-          id: args.billableMetricId,
-        },
-      })
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
-
-  const getDescription = () => {
-    if (loading) {
-      return (
-        <>
-          <Skeleton className="mb-4 w-full" variant="text" />
-          <Skeleton className="mb-4 w-full" variant="text" />
-          <Skeleton className="w-full" variant="text" />
-        </>
-      )
-    }
-
-    if (!!hasDraftInvoices || !!hasActiveSubscriptions) {
-      return translate(
-        'text_63c842d84a91637c3acf0395',
-        !!hasDraftInvoices && !!hasActiveSubscriptions
-          ? {
-              usedObject1: translate('text_63c842ee2cd5dfeb173c2726'),
-              usedObject2: translate('text_63c8431193e8aca80f14cced'),
-            }
-          : {
-              usedObject1: !!hasActiveSubscriptions
-                ? translate('text_63c842ee2cd5dfeb173c2726')
-                : translate('text_63c8431193e8aca80f14cced'),
-            },
-        !!hasDraftInvoices && !!hasActiveSubscriptions ? 2 : 0,
-      )
-    }
-
+  if (!hasDraftInvoices && !hasActiveSubscriptions) {
     return translate('text_6256f824b6368e01153caa49')
   }
 
-  return (
-    <WarningDialog
-      ref={dialogRef}
-      disableOnContinue={loading}
-      title={
-        loading ? (
-          <Skeleton className="mb-5 h-4 w-full" variant="text" />
-        ) : (
-          translate('text_6256f824b6368e01153caa47', {
-            billableMetricName: name,
-          })
-        )
-      }
-      description={getDescription()}
-      onContinue={async () =>
-        await deleteBillableMetric({
+  const usedObjects =
+    !!hasDraftInvoices && !!hasActiveSubscriptions
+      ? {
+          usedObject1: translate('text_63c842ee2cd5dfeb173c2726'),
+          usedObject2: translate('text_63c8431193e8aca80f14cced'),
+        }
+      : {
+          usedObject1: !!hasActiveSubscriptions
+            ? translate('text_63c842ee2cd5dfeb173c2726')
+            : translate('text_63c8431193e8aca80f14cced'),
+        }
+
+  return translate(
+    'text_63c842d84a91637c3acf0395',
+    usedObjects,
+    !!hasDraftInvoices && !!hasActiveSubscriptions ? 2 : 0,
+  )
+}
+
+export const useDeleteBillableMetricDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
+  const { translate } = useInternationalization()
+  const client = useApolloClient()
+
+  const [deleteBillableMetric] = useDeleteBillableMetricMutation({
+    refetchQueries: ['billableMetrics'],
+  })
+
+  const openDeleteBillableMetricDialog = async ({
+    billableMetricId,
+    callback,
+  }: DeleteBillableMetricDialogProps) => {
+    const { data } = await client.query<GetBillableMetricToDeleteQuery>({
+      query: GetBillableMetricToDeleteDocument,
+      variables: { id: billableMetricId },
+    })
+
+    const billableMetric = data?.billableMetric
+    const { id = '', name = '' } = billableMetric || {}
+
+    centralizedDialog.open({
+      title: translate('text_6256f824b6368e01153caa47', {
+        billableMetricName: name,
+      }),
+      description: buildDescription(translate, billableMetric),
+      colorVariant: 'danger',
+      actionText: translate('text_6256f824b6368e01153caa4d'),
+      onAction: async () => {
+        const result = await deleteBillableMetric({
           variables: { input: { id } },
         })
-      }
-      continueText={translate('text_6256f824b6368e01153caa4d')}
-    />
-  )
-})
 
-DeleteBillableMetricDialog.displayName = 'DeleteBillableMetricDialog'
+        if (result.data?.destroyBillableMetric) {
+          addToast({
+            message: translate('text_6256f9f1184d3301290c7299'),
+            severity: 'success',
+          })
+
+          callback?.()
+        }
+      },
+    })
+  }
+
+  return { openDeleteBillableMetricDialog }
+}

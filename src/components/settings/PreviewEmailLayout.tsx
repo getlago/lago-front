@@ -25,6 +25,9 @@ interface PreviewEmailLayoutProps extends PropsWithChildren {
   isLoading?: boolean
   logoUrl: string | null | undefined
   name?: string | null
+  // When the preview isn't scoped to a billing entity (e.g. org-level dunning preview),
+  // the logo has no valid update target, so editing must be disabled.
+  disableLogoEdit?: boolean
 }
 
 export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
@@ -36,6 +39,7 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
   children,
   logoUrl,
   name,
+  disableLogoEdit,
 }) => {
   const updateLogoDialogRef = useRef<UpdateBillingEntityLogoDialogRef>(null)
 
@@ -47,6 +51,55 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
   const showPoweredBy = !hasOrganizationPremiumAddon(
     PremiumIntegrationTypeEnum.RemoveBrandingWatermark,
   )
+
+  const renderLogo = (): JSX.Element => {
+    const logoAvatar = (
+      <Avatar size="medium" variant="connector">
+        <img src={logoUrl as string} alt="company-logo" />
+      </Avatar>
+    )
+
+    if (disableLogoEdit) {
+      if (!!logoUrl) {
+        return logoAvatar
+      }
+
+      return (
+        <Tooltip title={translate('text_1783371078378djljy5s2hez')} placement="top">
+          <Avatar
+            size="medium"
+            variant="company"
+            identifier={name || ''}
+            initials={(name || '').split(' ').reduce((acc, word) => acc + (word[0] || ''), '')}
+          />
+        </Tooltip>
+      )
+    }
+
+    if (!!logoUrl) {
+      return (
+        <Button
+          className="rounded-xl p-0"
+          size="small"
+          variant="quaternary"
+          onClick={() => updateLogoDialogRef?.current?.openDialog()}
+        >
+          {logoAvatar}
+        </Button>
+      )
+    }
+
+    return (
+      <Tooltip title={translate('text_6411e0aa915fd500a4d92cfb')} placement="top">
+        <Button
+          icon="plus"
+          size="small"
+          variant="secondary"
+          onClick={() => updateLogoDialogRef?.current?.openDialog()}
+        />
+      </Tooltip>
+    )
+  }
 
   return (
     <>
@@ -101,31 +154,7 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
               </>
             ) : (
               <>
-                {!!logoUrl ? (
-                  <Button
-                    className="rounded-xl p-0"
-                    size="small"
-                    variant="quaternary"
-                    onClick={() => {
-                      updateLogoDialogRef?.current?.openDialog()
-                    }}
-                  >
-                    <Avatar size="medium" variant="connector">
-                      <img src={logoUrl} alt="company-logo" />
-                    </Avatar>
-                  </Button>
-                ) : (
-                  <Tooltip title={translate('text_6411e0aa915fd500a4d92cfb')} placement="top">
-                    <Button
-                      icon="plus"
-                      size="small"
-                      variant="secondary"
-                      onClick={() => {
-                        updateLogoDialogRef?.current?.openDialog()
-                      }}
-                    />
-                  </Tooltip>
-                )}
+                {renderLogo()}
                 <Typography variant="subhead1">{name}</Typography>
               </>
             )}
@@ -152,7 +181,9 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
         </div>
       </div>
 
-      <UpdateBillingEntityLogoDialog ref={updateLogoDialogRef} existingLogoUrl={logoUrl} />
+      {!disableLogoEdit && (
+        <UpdateBillingEntityLogoDialog ref={updateLogoDialogRef} existingLogoUrl={logoUrl} />
+      )}
     </>
   )
 }

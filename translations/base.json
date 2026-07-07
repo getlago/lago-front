@@ -4457,5 +4457,22 @@
   "text_1782992964028u0dbq1gbcy4": "{{startNumber}}-{{endNumber}} of {{count}} result|{{startNumber}}-{{endNumber}} of {{count}} results",
   "text_1782992964029cazjloaotl0": "{{count}} rows per page",
   "text_1782918544840f0jput31j5k": "Could not upload the image. Please try again.",
-  "text_1782997762645ugjob60lzff": "PNG, JPG, WEBP, GIF less than 5MB."
+  "text_1782997762645ugjob60lzff": "PNG, JPG, WEBP, GIF less than 5MB.",
+  "text_1782889379261hdcd0jhzdm6": "Discount",
+  "text_178288937926153opd9g5cwg": "Apply a coupon discount to this quote",
+  "text_1782891666475j9e81afl8in": "Discount",
+  "text_1782891666475u5j60v91cv2": "Discount and coupon",
+  "text_1782891666475ht76172d37q": "Apply a coupon to this quote to grant a discount.",
+  "text_1783342959387sv77znuw5yx": "Select a coupon",
+  "text_1783342959387cz07147m6qq": "Coupon: {{couponId}}",
+  "text_17830875698228lpz4i09jop": "{{count}} billing period|{{count}} billing periods",
+  "text_1783090333139dnllq2q6ege": "Discount value",
+  "text_17822197712865r9iwe3lgel": "Purchase order number",
+  "text_17822197712867qhfbaf9fpk": "PO number",
+  "text_1782219771286pz2trdo2ehq": "Add purchase order number",
+  "text_17822197712864tnvgq76xou": "Add number",
+  "text_17822197712869ou05y6kwt7": "Type a purchase order number",
+  "text_1782219771286e8qwitkefxr": "The PO number defined here will display on the invoice.",
+  "text_1782219771287u79diql28g4": "Purchase order number must be 255 characters or fewer.",
+  "text_1783371078378djljy5s2hez": "To update the logo, go to the billing entity email settings"
 }

@@ -50,6 +50,16 @@ export const useSubscriptionPricingDrawer = (
   const subscriptionStateRef = useRef<SubscriptionPricingState | null>(null)
   const formValuesRef = useRef<PlanFormInput | null>(null)
 
+  // Latest saved billingItems, kept in a ref so plan saves/syncs can preserve
+  // sibling categories (coupons, addons) instead of overwriting billingItems and
+  // dropping them — each drawer only owns its own slice of billingItems.
+  const latestBillingItemsRef = useRef<BillingItemsPayload | undefined>(undefined)
+
+  useEffect(() => {
+    latestBillingItemsRef.current =
+      (initialBillingItems as BillingItemsPayload | undefined) ?? undefined
+  }, [initialBillingItems])
+
   // Determine initialization case: extract billing item plan for case 2
   const billingItemPlan = useMemo(() => {
     if (!initialBillingItems) return undefined
@@ -114,7 +124,7 @@ export const useSubscriptionPricingDrawer = (
         setEntities({ ...entitiesRef.current })
 
         onSaveRef.current?.({ pricingType: 'plan', entityIds: [state.planId] }, entityData, {
-          addons: [],
+          ...latestBillingItemsRef.current,
           ...billingItems,
         })
 
@@ -173,7 +183,9 @@ export const useSubscriptionPricingDrawer = (
       entitiesRef.current = updatedEntities
       setEntities(updatedEntities)
 
-      return { addons: [], plans: [] }
+      // Only the plan is this drawer's responsibility; sibling categories
+      // (coupons, addons) are carried through untouched.
+      return { ...latestBillingItemsRef.current, plans: [] }
     },
     [],
   )

@@ -40,8 +40,8 @@ importers:
         specifier: 0.70.9
         version: 0.70.9(debug@4.4.3)
       '@sentry/react':
-        specifier: 10.61.0
-        version: 10.61.0(react@18.3.1)
+        specifier: 10.62.0
+        version: 10.62.0(react@18.3.1)
       '@superset-ui/embedded-sdk':
         specifier: 0.3.0
         version: 0.3.0
@@ -291,7 +291,7 @@ importers:
         version: 14.6.1(@testing-library/dom@10.4.1)
       '@trivago/prettier-plugin-sort-imports':
         specifier: 6.0.2
-        version: 6.0.2(prettier@3.8.4)
+        version: 6.0.2(prettier@3.9.3)
       '@types/actioncable':
         specifier: 5.2.11
         version: 5.2.11
@@ -366,7 +366,7 @@ importers:
         version: 6.10.2(eslint@9.39.4(jiti@2.4.2))
       eslint-plugin-prettier:
         specifier: 5.5.6
-        version: 5.5.6(eslint-config-prettier@9.1.0(eslint@9.39.4(jiti@2.4.2)))(eslint@9.39.4(jiti@2.4.2))(prettier@3.8.4)
+        version: 5.5.6(eslint-config-prettier@9.1.0(eslint@9.39.4(jiti@2.4.2)))(eslint@9.39.4(jiti@2.4.2))(prettier@3.9.3)
       eslint-plugin-react:
         specifier: 7.37.5
         version: 7.37.5(eslint@9.39.4(jiti@2.4.2))
@@ -410,11 +410,11 @@ importers:
         specifier: 11.3.1
         version: 11.3.1(postcss@8.5.15)
       prettier:
-        specifier: 3.8.4
-        version: 3.8.4
+        specifier: 3.9.3
+        version: 3.9.3
       prettier-plugin-tailwindcss:
         specifier: 0.8.0
-        version: 0.8.0(@trivago/prettier-plugin-sort-imports@6.0.2(prettier@3.8.4))(prettier@3.8.4)
+        version: 0.8.0(@trivago/prettier-plugin-sort-imports@6.0.2(prettier@3.9.3))(prettier@3.9.3)
       tailwind-merge:
         specifier: 2.6.1
         version: 2.6.1
@@ -453,7 +453,7 @@ importers:
         version: 9.39.4
       '@trivago/prettier-plugin-sort-imports':
         specifier: 6.0.2
-        version: 6.0.2(prettier@3.8.4)
+        version: 6.0.2(prettier@3.9.3)
       eslint:
         specifier: 9.39.4
         version: 9.39.4(jiti@2.4.2)
@@ -465,7 +465,7 @@ importers:
         version: 6.10.2(eslint@9.39.4(jiti@2.4.2))
       eslint-plugin-prettier:
         specifier: 5.5.6
-        version: 5.5.6(eslint-config-prettier@9.1.0(eslint@9.39.4(jiti@2.4.2)))(eslint@9.39.4(jiti@2.4.2))(prettier@3.8.4)
+        version: 5.5.6(eslint-config-prettier@9.1.0(eslint@9.39.4(jiti@2.4.2)))(eslint@9.39.4(jiti@2.4.2))(prettier@3.9.3)
       eslint-plugin-react:
         specifier: 7.37.5
         version: 7.37.5(eslint@9.39.4(jiti@2.4.2))
@@ -479,11 +479,11 @@ importers:
         specifier: 17.7.0
         version: 17.7.0
       prettier:
-        specifier: 3.8.4
-        version: 3.8.4
+        specifier: 3.9.3
+        version: 3.9.3
       prettier-plugin-tailwindcss:
         specifier: 0.8.0
-        version: 0.8.0(@trivago/prettier-plugin-sort-imports@6.0.2(prettier@3.8.4))(prettier@3.8.4)
+        version: 0.8.0(@trivago/prettier-plugin-sort-imports@6.0.2(prettier@3.9.3))(prettier@3.9.3)
       tailwindcss:
         specifier: 3.4.19
         version: 3.4.19(ts-node@10.9.2(@swc/core@1.15.11)(@swc/wasm@1.13.20)(@types/node@24.13.2)(typescript@6.0.3))
@@ -3138,12 +3138,12 @@ packages:
     resolution: {integrity: sha512-p4q8gn8wcFqZGP/s2MnJCAAd8fTikaU6A0mM97RDHQgStcrYiaS0Sc5zUNfb1V+UOLPuvdEdL6MwyxfzjYJQTA==}
     engines: {node: '>= 18'}
 
-  '@sentry/browser-utils@10.61.0':
-    resolution: {integrity: sha512-kj/Qs5hz/VQPOLesgv9wq8O1z3aKSHSkyFiCSzaOthb8ARISchk8Eiukbvw9GxX2gmgsCd0L35gD6gxnhlE9ag==}
+  '@sentry/browser-utils@10.62.0':
+    resolution: {integrity: sha512-mS9HVVuWIdye9o0xUGFmzNOBqktF4n5kugrF8NCOYYDrr5ZV8Cx7BlquHQn5UpCeViVhZtcDlEm4iOK7++Px7A==}
     engines: {node: '>=18'}
 
-  '@sentry/browser@10.61.0':
-    resolution: {integrity: sha512-I02k3/tpCbQ+Dm3d1eA+JHVS452gY4fCTh+fT3FcfZkovB/WaeJcwc+ywQN1jpTYBRKZ1HbXXZQhEhXYvb8MkA==}
+  '@sentry/browser@10.62.0':
+    resolution: {integrity: sha512-uJi0yPssB3Nt/cZ8/S8opW42gaM59/6IyNtPFYD7C0ciudi/nIo5QMVpCYBBI3jnKFOIQLlsMT4pDlOLuxxNuQ==}
     engines: {node: '>=18'}
 
   '@sentry/bundler-plugin-core@5.3.0':
@@ -3202,26 +3202,26 @@ packages:
     engines: {node: '>= 10'}
     hasBin: true
 
-  '@sentry/core@10.61.0':
-    resolution: {integrity: sha512-Edg8t2w45qEKiFnjeA6zRmU47R6la5FEMG+maZEOB2oTyJ+ujmh8LGaZ3G8aC0VdkKn8CXhHtDesze6oDc1oTA==}
+  '@sentry/core@10.62.0':
+    resolution: {integrity: sha512-tV69fMg2sS5DUFmQSnS7Jd5qJAp0izxwcsvBVz2ieTM9VMRi99IfOSYW9UYr3p1yfuksk41kefN5PEbeedUE+A==}
     engines: {node: '>=18'}
 
-  '@sentry/feedback@10.61.0':
-    resolution: {integrity: sha512-DvG5pc2BibQjdvFC75u1S5DzghcFZ/juCDb2UnRKjiWnNhiUUAweAkUv4mMednrbuOeGOgO2R3CaiqIvDrAUAw==}
+  '@sentry/feedback@10.62.0':
+    resolution: {integrity: sha512-d0BVjJVny6qpBgGJgWL0fbcoQHjtD3z3R8EK/KzTS3RO92JX5n3A536n5D/rh0gZFgcIwiUzBXegmyPOSQn9ng==}
     engines: {node: '>=18'}
 
-  '@sentry/react@10.61.0':
-    resolution: {integrity: sha512-p1Ay3ZfDONSxU2rnX5sMxvxJ9TUi9XzczTN87lVQ29V/PColaRzmRoYVRfrBjffG17ksxYoYhbqipurJk+45cg==}
+  '@sentry/react@10.62.0':
+    resolution: {integrity: sha512-PChimVpY0wzs3H/hJqyl87/ITTHwIZWTSY68QoENZyLnp7DvLcFiZYub/gFws1pzDPhtIQXVLU72fbmUjT5PSg==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^16.14.0 || 17.x || 18.x || 19.x
 
-  '@sentry/replay-canvas@10.61.0':
-    resolution: {integrity: sha512-n6QUN+qylEdKLcijpJsJ58ekY58kg0nG0dKxkD2wecKubl7B1mj/gwP35NmJOZ35vJTk/KbJeWB//finspJqYg==}
+  '@sentry/replay-canvas@10.62.0':
+    resolution: {integrity: sha512-CzPAxmpe5US/ABGA1TzpjFKOFZN5uqlzrRh/uM9/daVuzLVKIAQ0XRNxo/PPEXvlDm/PoMdI5L0qIODuIKnyyw==}
     engines: {node: '>=18'}
 
-  '@sentry/replay@10.61.0':
-    resolution: {integrity: sha512-EkLaPR7A89mRGucZY9WxKLGeiRKMuNeGfIthLrs9cumUP8Smc80qxSAsF3NggRHSQEeYHDAifY/1q1qW16yvJg==}
+  '@sentry/replay@10.62.0':
+    resolution: {integrity: sha512-rWp4hBhZOmdQhisxcKzAwTGiRk/LvWnNaElWe7nbRhjsM/usp2095yfjq4iJ47v9MtO7xxY6eUz++fLBycqXKg==}
     engines: {node: '>=18'}
 
   '@sentry/rollup-plugin@5.3.0':
@@ -7648,8 +7648,8 @@ packages:
       prettier-plugin-svelte:
         optional: true
 
-  prettier@3.8.4:
-    resolution: {integrity: sha512-N2MylSdi48+5N/6S5j+maeHbUSIzzZ5uOcX5Hm4QpV8Dkb1HFjfAKTKX6yNPJQD9AhcT3ifHNB66tWTTJDi11Q==}
+  prettier@3.9.3:
+    resolution: {integrity: sha512-HWmu+K+zvHNpaMfSnYeqdqrDbR16cuIXaPx8WoHaviQkDJh1/0BNtOZmHVQI5jc3wXv0H1yXc9wjvFdXh+n3hQ==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -11835,17 +11835,17 @@ snapshots:
 
   '@sentry/babel-plugin-component-annotate@5.3.0': {}
 
-  '@sentry/browser-utils@10.61.0':
+  '@sentry/browser-utils@10.62.0':
     dependencies:
-      '@sentry/core': 10.61.0
+      '@sentry/core': 10.62.0
 
-  '@sentry/browser@10.61.0':
+  '@sentry/browser@10.62.0':
     dependencies:
-      '@sentry/browser-utils': 10.61.0
-      '@sentry/core': 10.61.0
-      '@sentry/feedback': 10.61.0
-      '@sentry/replay': 10.61.0
-      '@sentry/replay-canvas': 10.61.0
+      '@sentry/browser-utils': 10.62.0
+      '@sentry/core': 10.62.0
+      '@sentry/feedback': 10.62.0
+      '@sentry/replay': 10.62.0
+      '@sentry/replay-canvas': 10.62.0
 
   '@sentry/bundler-plugin-core@5.3.0':
     dependencies:
@@ -11904,27 +11904,27 @@ snapshots:
       - encoding
       - supports-color
 
-  '@sentry/core@10.61.0': {}
+  '@sentry/core@10.62.0': {}
 
-  '@sentry/feedback@10.61.0':
+  '@sentry/feedback@10.62.0':
     dependencies:
-      '@sentry/core': 10.61.0
+      '@sentry/core': 10.62.0
 
-  '@sentry/react@10.61.0(react@18.3.1)':
+  '@sentry/react@10.62.0(react@18.3.1)':
     dependencies:
-      '@sentry/browser': 10.61.0
-      '@sentry/core': 10.61.0
+      '@sentry/browser': 10.62.0
+      '@sentry/core': 10.62.0
       react: 18.3.1
 
-  '@sentry/replay-canvas@10.61.0':
+  '@sentry/replay-canvas@10.62.0':
     dependencies:
-      '@sentry/core': 10.61.0
-      '@sentry/replay': 10.61.0
+      '@sentry/core': 10.62.0
+      '@sentry/replay': 10.62.0
 
-  '@sentry/replay@10.61.0':
+  '@sentry/replay@10.62.0':
     dependencies:
-      '@sentry/browser-utils': 10.61.0
-      '@sentry/core': 10.61.0
+      '@sentry/browser-utils': 10.62.0
+      '@sentry/core': 10.62.0
 
   '@sentry/rollup-plugin@5.3.0(rollup@4.59.0)':
     dependencies:
@@ -12474,7 +12474,7 @@ snapshots:
       '@tiptap/core': 3.27.1(@tiptap/pm@3.27.1)
       '@tiptap/pm': 3.27.1
 
-  '@trivago/prettier-plugin-sort-imports@6.0.2(prettier@3.8.4)':
+  '@trivago/prettier-plugin-sort-imports@6.0.2(prettier@3.9.3)':
     dependencies:
       '@babel/generator': 7.28.5
       '@babel/parser': 7.28.5
@@ -12484,7 +12484,7 @@ snapshots:
       lodash-es: 4.18.1
       minimatch: 9.0.7
       parse-imports-exports: 0.2.4
-      prettier: 3.8.4
+      prettier: 3.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -14166,10 +14166,10 @@ snapshots:
       safe-regex-test: 1.1.0
       string.prototype.includes: 2.0.1
 
-  eslint-plugin-prettier@5.5.6(eslint-config-prettier@9.1.0(eslint@9.39.4(jiti@2.4.2)))(eslint@9.39.4(jiti@2.4.2))(prettier@3.8.4):
+  eslint-plugin-prettier@5.5.6(eslint-config-prettier@9.1.0(eslint@9.39.4(jiti@2.4.2)))(eslint@9.39.4(jiti@2.4.2))(prettier@3.9.3):
     dependencies:
       eslint: 9.39.4(jiti@2.4.2)
-      prettier: 3.8.4
+      prettier: 3.9.3
       prettier-linter-helpers: 1.0.1
       synckit: 0.11.13
     optionalDependencies:
@@ -17004,13 +17004,13 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier-plugin-tailwindcss@0.8.0(@trivago/prettier-plugin-sort-imports@6.0.2(prettier@3.8.4))(prettier@3.8.4):
+  prettier-plugin-tailwindcss@0.8.0(@trivago/prettier-plugin-sort-imports@6.0.2(prettier@3.9.3))(prettier@3.9.3):
     dependencies:
-      prettier: 3.8.4
+      prettier: 3.9.3
     optionalDependencies:
-      '@trivago/prettier-plugin-sort-imports': 6.0.2(prettier@3.8.4)
+      '@trivago/prettier-plugin-sort-imports': 6.0.2(prettier@3.9.3)
 
-  prettier@3.8.4: {}
+  prettier@3.9.3: {}
 
   pretty-bytes@5.6.0: {}
 

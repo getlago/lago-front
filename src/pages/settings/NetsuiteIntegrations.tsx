@@ -11,10 +11,7 @@ import {
   AddNetsuiteDialog,
   AddNetsuiteDialogRef,
 } from '~/components/settings/integrations/AddNetsuiteDialog'
-import {
-  DeleteNetsuiteIntegrationDialog,
-  DeleteNetsuiteIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteNetsuiteIntegrationDialog'
+import { useDeleteNetsuiteIntegrationDialog } from '~/components/settings/integrations/DeleteNetsuiteIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, NETSUITE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -59,7 +56,7 @@ const NetsuiteIntegrations = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteNetsuiteIntegrationDialogRef>(null)
+  const { openDeleteNetsuiteIntegrationDialog } = useDeleteNetsuiteIntegrationDialog()
   const { data, loading } = useGetNetsuiteIntegrationsListQuery({
     variables: { limit: 1000, types: [IntegrationTypeEnum.Netsuite] },
   })
@@ -157,8 +154,11 @@ const NetsuiteIntegrations = () => {
                           onClick={() => {
                             addNetsuiteDialogRef.current?.openDialog({
                               provider: connection,
-                              deleteModalRef: deleteDialogRef,
-                              deleteDialogCallback,
+                              onDelete: (provider) =>
+                                openDeleteNetsuiteIntegrationDialog({
+                                  provider,
+                                  callback: deleteDialogCallback,
+                                }),
                             })
                             closePopper()
                           }}
@@ -170,7 +170,7 @@ const NetsuiteIntegrations = () => {
                           variant="quaternary"
                           align="left"
                           onClick={() => {
-                            deleteDialogRef.current?.openDialog({
+                            openDeleteNetsuiteIntegrationDialog({
                               provider: connection,
                               callback: deleteDialogCallback,
                             })
@@ -188,7 +188,6 @@ const NetsuiteIntegrations = () => {
         </section>
       </IntegrationsPage.Container>
       <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
-      <DeleteNetsuiteIntegrationDialog ref={deleteDialogRef} />
     </>
   )
 }
