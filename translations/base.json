@@ -4471,5 +4471,12 @@
   "text_1783342959387sv77znuw5yx": "Select a coupon",
   "text_1783342959387cz07147m6qq": "Coupon: {{couponId}}",
   "text_17830875698228lpz4i09jop": "{{count}} billing period|{{count}} billing periods",
-  "text_1783090333139dnllq2q6ege": "Discount value"
+  "text_1783090333139dnllq2q6ege": "Discount value",
+  "text_17822197712865r9iwe3lgel": "Purchase order number",
+  "text_17822197712867qhfbaf9fpk": "PO number",
+  "text_1782219771286pz2trdo2ehq": "Add purchase order number",
+  "text_17822197712864tnvgq76xou": "Add number",
+  "text_17822197712869ou05y6kwt7": "Type a purchase order number",
+  "text_1782219771286e8qwitkefxr": "The PO number defined here will display on the invoice.",
+  "text_1782219771287u79diql28g4": "Purchase order number must be 255 characters or fewer."
 }

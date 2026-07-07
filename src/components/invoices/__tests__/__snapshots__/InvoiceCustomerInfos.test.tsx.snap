@@ -62,6 +62,22 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for deleted c
           class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
           data-test="caption"
         >
+          PO number
+        </div>
+        <div
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+          data-test="body"
+        >
+          -
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          data-test="caption"
+        >
           Issuing date
         </div>
         <div
@@ -264,6 +280,22 @@ United States of America
           data-test="body"
         >
           INV-DRAFT
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          PO number
+        </div>
+        <div
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+          data-test="body"
+        >
+          -
         </div>
       </div>
       <div
@@ -479,6 +511,22 @@ United States of America
           class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
           data-test="caption"
         >
+          PO number
+        </div>
+        <div
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+          data-test="body"
+        >
+          -
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          data-test="caption"
+        >
           Issuing date
         </div>
         <div
@@ -597,6 +645,22 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for invoice w
           data-test="body"
         >
           INV-MINIMAL
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          PO number
+        </div>
+        <div
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+          data-test="body"
+        >
+          -
         </div>
       </div>
       <div
@@ -808,6 +872,22 @@ United States of America
           data-test="body"
         >
           INV-DISPUTE
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          PO number
+        </div>
+        <div
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+          data-test="body"
+        >
+          -
         </div>
       </div>
       <div
@@ -1089,6 +1169,22 @@ United States of America
           class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
           data-test="caption"
         >
+          PO number
+        </div>
+        <div
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+          data-test="body"
+        >
+          -
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          data-test="caption"
+        >
           Issuing date
         </div>
         <div
@@ -1301,6 +1397,22 @@ United States of America
           data-test="body"
         >
           INV-PARTNER
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          PO number
+        </div>
+        <div
+          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+          data-test="body"
+        >
+          -
         </div>
       </div>
       <div

@@ -29,6 +29,7 @@ import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
 import { useEditInvoiceDisplayNameDialog } from '~/components/invoices/useEditInvoiceDisplayName'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { normalizePurchaseOrderNumber, PO } from '~/components/purchaseOrder/PO'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   ADD_ITEM_FOR_INVOICE_INPUT_NAME,
@@ -370,6 +371,7 @@ const CreateInvoice = () => {
       fees: prefillFees || [],
       paymentMethod: undefined,
       invoiceCustomSection: undefined,
+      purchaseOrderNumber: prefillInvoice?.purchaseOrderNumber || undefined,
     },
     validationSchema: object().shape({
       customerId: string().required(''),
@@ -383,10 +385,17 @@ const CreateInvoice = () => {
           }),
         )
         .required(''),
+      purchaseOrderNumber: string().nullable(),
     }),
     enableReinitialize: true,
     validateOnMount: true,
-    onSubmit: async ({ fees, paymentMethod, invoiceCustomSection, ...values }) => {
+    onSubmit: async ({
+      fees,
+      paymentMethod,
+      invoiceCustomSection,
+      purchaseOrderNumber,
+      ...values
+    }) => {
       if (voidedInvoiceId && prefillInvoice?.id && actions.canVoid(prefillInvoice)) {
         const res = await voidInvoice({
           variables: {
@@ -406,6 +415,7 @@ const CreateInvoice = () => {
         variables: {
           input: {
             ...values,
+            purchaseOrderNumber: normalizePurchaseOrderNumber(purchaseOrderNumber),
             ...(prefillInvoice?.id ? { voidedInvoiceId: prefillInvoice.id } : {}),
             paymentMethod,
             invoiceCustomSection: toInvoiceCustomSectionReference(
@@ -694,11 +704,36 @@ const CreateInvoice = () => {
                   </Alert>
                 )}
 
-                <div className="grid grid-cols-[140px_auto] items-baseline gap-4">
-                  <Typography variant="caption" color="grey600">
-                    {translate('text_6453819268763979024ad01b')}
-                  </Typography>
-                  <Typography>{intlFormatDateTime(DateTime.now().toISO()).date}</Typography>
+                <div className="flex flex-col gap-2">
+                  <div className="grid grid-cols-[200px_auto] items-baseline gap-4">
+                    <Typography variant="caption" color="grey600">
+                      {translate('text_6453819268763979024ad01b')}
+                    </Typography>
+                    <Typography variant="body" color="grey700">
+                      {intlFormatDateTime(DateTime.now().toISO()).date}
+                    </Typography>
+                  </div>
+
+                  <PO
+                    className="flex-row items-center gap-4"
+                    value={formikProps.values.purchaseOrderNumber}
+                    onChange={(value) => {
+                      formikProps.setFieldValue('purchaseOrderNumber', value || undefined)
+                    }}
+                    description={translate('text_1782219771286e8qwitkefxr')}
+                  >
+                    <PO.Title className="min-w-[200px]" variant="caption" color="grey600" />
+
+                    {formikProps.values.purchaseOrderNumber ? (
+                      <div className="flex items-center gap-2">
+                        <PO.Number variant="body" color="grey700" />
+                        <PO.EditButton />
+                        <PO.TrashButton />
+                      </div>
+                    ) : (
+                      <PO.AddButton>{translate('text_17822197712864tnvgq76xou')}</PO.AddButton>
+                    )}
+                  </PO>
                 </div>
 
                 <div className="flex flex-row items-start gap-4">

@@ -14,6 +14,7 @@ import {
   CustomerAccountTypeEnum,
   InvoiceForInvoiceInfosFragment,
   InvoiceStatusTypeEnum,
+  InvoiceTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
@@ -23,6 +24,8 @@ import { DetailsPage } from '../layouts/DetailsPage'
 gql`
   fragment InvoiceForInvoiceInfos on Invoice {
     number
+    invoiceType
+    purchaseOrderNumber
     issuingDate
     paymentDueDate
     paymentOverdue
@@ -147,6 +150,12 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
             <DetailsPage.OverviewLine
               title={translate('text_634687079be251fdb43833fb')}
               value={invoice?.number}
+            />
+          )}
+          {invoice?.invoiceType === InvoiceTypeEnum.OneOff && (
+            <DetailsPage.OverviewLine
+              title={translate('text_17822197712867qhfbaf9fpk')}
+              value={invoice?.purchaseOrderNumber || '-'}
             />
           )}
           {invoice?.issuingDate && (
