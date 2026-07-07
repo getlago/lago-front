@@ -73,6 +73,7 @@ type TInvoiceListProps = {
   variables: LazyQueryHookOptions['variables'] | undefined
   pageSize?: number
   onPageSizeChange?: (pageSize: number) => void
+  onPageChange?: (page: number) => void
 }
 
 type InvoiceItem = GetInvoicesListQuery['invoices']['collection'][number]
@@ -86,6 +87,7 @@ const InvoicesList = ({
   variables,
   pageSize,
   onPageSizeChange,
+  onPageChange,
 }: TInvoiceListProps) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
@@ -381,7 +383,7 @@ const InvoicesList = ({
         metadata={metadata}
         loading={isLoading}
         pageSize={pageSize}
-        onPageChange={(page) => fetchMore({ variables: { page } })}
+        onPageChange={onPageChange ?? ((page) => fetchMore({ variables: { page } }))}
         onPageSizeChange={onPageSizeChange}
       >
         <Table

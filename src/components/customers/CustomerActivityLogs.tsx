@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 
 import { ActivityLogsTable } from '~/components/activityLogs/ActivityLogsTable'
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
-import { PaginatedContent } from '~/components/designSystem/Pagination'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
@@ -41,17 +41,17 @@ export const CustomerActivityLogs = ({ externalCustomerId }: CustomerActivityLog
   const { openPanel: open, setUrl } = useDeveloperTool()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
+  const { page, goToPage } = usePageSearchParam()
 
   const canViewLogs = isPremium && hasPermissions(['auditLogsView'])
 
-  const { data, loading, error, refetch, fetchMore } = useCustomerActivityLogsQuery({
+  const { data, loading, error, refetch } = useCustomerActivityLogsQuery({
     variables: {
       externalCustomerId: externalCustomerId,
       limit: DEFAULT_PAGE_SIZE,
+      page,
     },
     notifyOnNetworkStatusChange: true,
-    // Skip the cache on entry so re-opening the tab loads a fresh page 1 (skeleton), instead of
-    // flashing the previously-viewed page.
     fetchPolicy: 'network-only',
     context: {
       silentErrorCodes: [LagoApiError.FeatureUnavailable],
@@ -70,7 +70,7 @@ export const CustomerActivityLogs = ({ externalCustomerId }: CustomerActivityLog
         <PaginatedContent
           metadata={data?.activityLogs?.metadata}
           loading={loading}
-          onPageChange={(page) => fetchMore({ variables: { page } })}
+          onPageChange={goToPage}
           sticky={false}
         >
           <ActivityLogsTable

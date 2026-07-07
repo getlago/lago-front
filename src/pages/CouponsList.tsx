@@ -8,7 +8,7 @@ import { useDeleteCoupon } from '~/components/coupons/useDeleteCoupon'
 import { useTerminateCoupon } from '~/components/coupons/useTerminateCoupon'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
-import { PaginatedContent } from '~/components/designSystem/Pagination'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
@@ -86,8 +86,9 @@ const CouponsList = () => {
   const { openDialog: openDeleteDialog } = useDeleteCoupon()
   const { openDialog: openTerminateDialog } = useTerminateCoupon()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const [getCoupons, { data, error, loading, fetchMore, variables }] = useCouponsLazyQuery({
-    variables: { limit: pageSize },
+  const { page, goToPage } = usePageSearchParam()
+  const [getCoupons, { data, error, loading, variables }] = useCouponsLazyQuery({
+    variables: { limit: pageSize, page },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
@@ -185,7 +186,10 @@ const CouponsList = () => {
         }}
         filtersSection={
           <SearchInput
-            onChange={debouncedSearch}
+            onChange={(value) => {
+              goToPage(1)
+              debouncedSearch?.(value)
+            }}
             placeholder={translate('text_63beebbf4f60e2f553232782')}
           />
         }
@@ -196,8 +200,11 @@ const CouponsList = () => {
         metadata={data?.coupons?.metadata}
         loading={isLoading}
         pageSize={pageSize}
-        onPageChange={(page) => fetchMore({ variables: { page } })}
-        onPageSizeChange={setPageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
       >
         <Table
           name="coupons-list"

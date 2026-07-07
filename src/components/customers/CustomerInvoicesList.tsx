@@ -172,6 +172,7 @@ interface CustomerInvoicesListProps {
   customerId: string
   fetchMore?: (options: FetchMoreQueryOptions<{ page: number }>) => Promise<unknown>
   pageSize?: number
+  onPageChange?: (page: number) => void
 }
 
 export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
@@ -183,6 +184,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   customerId,
   fetchMore,
   pageSize = DEFAULT_PAGE_SIZE,
+  onPageChange,
 }) => {
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
@@ -224,7 +226,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
         metadata={invoiceData?.metadata}
         loading={isLoading}
         pageSize={pageSize}
-        onPageChange={(page) => fetchMore?.({ variables: { page } })}
+        onPageChange={onPageChange ?? ((page) => fetchMore?.({ variables: { page } }))}
         sticky={false}
       >
         <Table

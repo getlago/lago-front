@@ -4,6 +4,7 @@ import { generatePath, useSearchParams } from 'react-router-dom'
 import { CustomerPaymentsList } from '~/components/customers/CustomerPaymentsList'
 import { Filters } from '~/components/designSystem/Filters'
 import { formatFiltersForCustomerPaymentsQuery } from '~/components/designSystem/Filters/utils'
+import { usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { CUSTOMER_PAYMENTS_FILTER_PREFIX } from '~/core/constants/filters'
@@ -32,17 +33,17 @@ export const CustomerPaymentsTab: FC<CustomerPaymentsTabProps> = ({ externalCust
     include: ['currency'],
   })
   const [searchParams] = useSearchParams()
+  const { page, goToPage } = usePageSearchParam()
 
   const { currency } = formatFiltersForCustomerPaymentsQuery(searchParams)
 
   const { data, loading, fetchMore } = useGetPaymentsListQuery({
-    // Skip the cache on entry so re-opening the tab loads a fresh page 1 (skeleton), instead of
-    // flashing the previously-viewed page.
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
     variables: {
       externalCustomerId: externalCustomerId as string,
       limit: DEFAULT_PAGE_SIZE,
+      page,
       currency,
     },
     skip: !externalCustomerId,
@@ -90,6 +91,7 @@ export const CustomerPaymentsTab: FC<CustomerPaymentsTabProps> = ({ externalCust
         payments={payments}
         loading={loading}
         fetchMore={fetchMore}
+        onPageChange={goToPage}
         metadata={data?.payments?.metadata}
         placeholder={{
           emptyState: isFiltering

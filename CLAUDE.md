@@ -80,7 +80,10 @@
 All lists use numbered pagination via `PaginatedContent` + `Pagination`
 (`src/components/designSystem/Pagination/`, prop docs inline). Infinite scroll is gone.
 Reference sites: `SubscriptionsPage.tsx` (full-page, sticky),
-`CustomerPaymentsTab.tsx` (nested, non-sticky).
+`CustomerPaymentsTab.tsx` (nested, non-sticky). The **developer-tool** lists
+(`src/components/developers/*`: API logs, activity logs, events, webhook logs, API keys) keep
+numbered pagination but stay `fetchMore`-based (no URL page) — `usePageSearchParam` is
+intentionally not wired there (`onPageChange={(page) => fetchMore({ variables: { page } })}`).
 
 Adding a paginated list:
 
@@ -90,14 +93,15 @@ Adding a paginated list:
    `createSinglePageFieldPolicy()` (replace merge). **Skipping this makes page 2
    silently stop** — `cache.test.ts` guard fails CI. Never use
    `createPaginatedFieldPolicy()` (legacy append/infinite-scroll).
-3. Query hook: `notifyOnNetworkStatusChange: true`, `limit: DEFAULT_PAGE_SIZE`.
+3. Query hook: `notifyOnNetworkStatusChange: true`, `limit: DEFAULT_PAGE_SIZE`. The page lives in
+   the URL — `const { page, goToPage } = usePageSearchParam()` — so pass `page` in the variables.
 4. Wrap the table:
    ```tsx
    <PaginatedContent
      metadata={data?.<field>.metadata}   // MUST pass, else totalCount=0 → pager hidden
      loading={loading}
      pageSize={DEFAULT_PAGE_SIZE}         // MUST equal the query `limit`, else "X-Y of N" lies
-     onPageChange={(page) => fetchMore({ variables: { page } })}
+     onPageChange={goToPage}              // URL-driven: deep-linkable + survives refresh
      sticky={/* full-page: true (default) · list inside a scrolling tab: false */}
      insetPager={/* true ONLY for full-page lists · see below */}
    >
@@ -107,6 +111,20 @@ Adding a paginated list:
    - `data={loading ? [] : rows}` → skeletons replace the list (never append).
    - `pageSize` **must match the query `limit`** (including custom limits, e.g. 10/5) — it
      drives the range label; a mismatch shows the wrong count.
+   - **URL page** via `usePageSearchParam(prefix?)` (`~/components/designSystem/Pagination`):
+     bare `page` for a single list on the route; pass a `prefix` (`usePageSearchParam('draft')`
+     → `draft_page`) **only** when 2+ paginated lists share one view (customer invoices,
+     invoice-sections). Out-of-range pages auto-clamp to the last page (in `PaginatedContent`).
+   - **Reset to page 1** on search (`goToPage(1)` before the debounced search) and on page-size
+     change. Filter changes reset it centrally in `useFilters` — don't handle those.
+   - **Customer-detail tabs** (route-based → the tab subtree remounts on switch and resets to
+     page 1) additionally set `fetchPolicy: 'network-only'` on the list query. Leaving a tab drops
+     `?page`, so on re-entry the single-page cache would briefly flash the previously-viewed page
+     before the page-1 refetch; `network-only` skips that stale read → clean skeleton → page 1.
+     Applied to the 7 customer tabs (subscriptions, payments, creditNotes, appliedCoupons,
+     activityLogs, wallets, customerInvoices). Full-page lists don't need it (they don't remount).
+   - Pager inside a child component (e.g. `InvoicesList`, `CreditNotesTable`, `CustomerInvoicesList`)
+     → thread an optional `onPageChange` prop down and pass `goToPage` (fallback: `fetchMore`).
    - `sticky` → table `containerClassName="h-auto shrink-0 -mb-px border-t border-grey-300"`
      (`-mb-px` overlaps the last-row border with the pager → single divider, no doubled line);
      `sticky={false}` → `containerClassName="border-t border-grey-300"`.

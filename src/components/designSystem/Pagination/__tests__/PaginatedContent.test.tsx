@@ -83,6 +83,59 @@ describe('PaginatedContent', () => {
     )
   })
 
+  it('clamps an out-of-range page to the last page when data exists', () => {
+    render(
+      <PaginatedContent
+        onPageChange={onPageChange}
+        metadata={{ currentPage: 200000, totalPages: 3, totalCount: 45 }}
+      >
+        <div />
+      </PaginatedContent>,
+    )
+
+    expect(onPageChange).toHaveBeenCalledWith(3)
+  })
+
+  it('does not clamp when the current page is in range', () => {
+    render(
+      <PaginatedContent
+        onPageChange={onPageChange}
+        metadata={{ currentPage: 2, totalPages: 3, totalCount: 45 }}
+      >
+        <div />
+      </PaginatedContent>,
+    )
+
+    expect(onPageChange).not.toHaveBeenCalled()
+  })
+
+  it('does not clamp a genuinely empty list (keeps its empty state)', () => {
+    render(
+      <PaginatedContent
+        onPageChange={onPageChange}
+        metadata={{ currentPage: 200000, totalPages: 0, totalCount: 0 }}
+      >
+        <div />
+      </PaginatedContent>,
+    )
+
+    expect(onPageChange).not.toHaveBeenCalled()
+  })
+
+  it('does not clamp while loading (metadata may be stale mid-fetch)', () => {
+    render(
+      <PaginatedContent
+        onPageChange={onPageChange}
+        loading
+        metadata={{ currentPage: 200000, totalPages: 3, totalCount: 45 }}
+      >
+        <div />
+      </PaginatedContent>,
+    )
+
+    expect(onPageChange).not.toHaveBeenCalled()
+  })
+
   it('forwards pageSize, onPageSizeChange, pageSizeOptions and loading', () => {
     const onPageSizeChange = jest.fn()
 

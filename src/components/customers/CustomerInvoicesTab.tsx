@@ -6,6 +6,7 @@ import { useSearchParams } from 'react-router-dom'
 import { CustomerOverview } from '~/components/customers/overview/CustomerOverview'
 import { Filters } from '~/components/designSystem/Filters'
 import { formatFiltersForCustomerInvoicesQuery } from '~/components/designSystem/Filters/utils'
+import { usePageSearchParam } from '~/components/designSystem/Pagination'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { SearchInput } from '~/components/SearchInput'
 import {
@@ -98,6 +99,9 @@ export const CustomerInvoicesTab = ({
     CUSTOMER_INVOICES_FINALIZED_FILTER_PREFIX,
   )
 
+  const { page: draftPage, goToPage: goToDraftPage } = usePageSearchParam('draft')
+  const { page: finalizedPage, goToPage: goToFinalizedPage } = usePageSearchParam('finalized')
+
   const [draftSearchTerm, setDraftSearchTerm] = useState<string | undefined>(undefined)
 
   const {
@@ -113,6 +117,7 @@ export const CustomerInvoicesTab = ({
     variables: {
       customerId,
       limit: INVOICES_ITEMS_PER_PAGE,
+      page: draftPage,
       status: [InvoiceStatusTypeEnum.Draft],
       searchTerm: draftSearchTerm,
       currency: draftFilters.currency,
@@ -131,6 +136,7 @@ export const CustomerInvoicesTab = ({
     variables: {
       customerId,
       limit: INVOICES_ITEMS_PER_PAGE,
+      page: finalizedPage,
       status: [
         InvoiceStatusTypeEnum.Finalized,
         InvoiceStatusTypeEnum.Voided,
@@ -198,7 +204,10 @@ export const CustomerInvoicesTab = ({
 
           <div className="mb-4 flex items-center gap-3">
             <SearchInput
-              onChange={debouncedSetDraftSearchTerm}
+              onChange={(value) => {
+                goToDraftPage(1)
+                debouncedSetDraftSearchTerm(value)
+              }}
               placeholder={translate('text_63c6861d9991cdd5a92c1419')}
             />
             {draftFiltersProps && (
@@ -216,6 +225,7 @@ export const CustomerInvoicesTab = ({
             customerId={customerId}
             invoiceData={dataDraft?.customerInvoices}
             fetchMore={fetchMoreDraft}
+            onPageChange={goToDraftPage}
             pageSize={INVOICES_ITEMS_PER_PAGE}
           />
         </div>
@@ -229,7 +239,10 @@ export const CustomerInvoicesTab = ({
 
         <div className="mb-4 flex items-center gap-3">
           <SearchInput
-            onChange={debouncedSetSearchTerm}
+            onChange={(value) => {
+              goToFinalizedPage(1)
+              debouncedSetSearchTerm(value)
+            }}
             placeholder={translate('text_63c6861d9991cdd5a92c1419')}
           />
           {finalizedFiltersProps && (
@@ -247,6 +260,7 @@ export const CustomerInvoicesTab = ({
           customerId={customerId}
           invoiceData={dataFinalized?.customerInvoices}
           fetchMore={fetchMoreFinalized}
+          onPageChange={goToFinalizedPage}
           pageSize={INVOICES_ITEMS_PER_PAGE}
         />
       </div>

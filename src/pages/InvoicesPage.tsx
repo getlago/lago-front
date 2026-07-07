@@ -9,6 +9,7 @@ import {
   formatFiltersForInvoiceQuery,
   isOutstandingUrlParams,
 } from '~/components/designSystem/Filters'
+import { usePageSearchParam } from '~/components/designSystem/Pagination'
 import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
 import {
   FinalizeInvoiceDialog,
@@ -148,6 +149,7 @@ const InvoicesPage = () => {
   const exportInvoicesDialogRef = useRef<ExportDialogRef>(null)
 
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page, goToPage } = usePageSearchParam()
 
   const filtersForInvoiceQuery = useMemo(() => {
     return formatFiltersForInvoiceQuery(searchParams)
@@ -160,6 +162,7 @@ const InvoicesPage = () => {
       nextFetchPolicy: 'network-only',
       variables: {
         limit: pageSize,
+        page,
         status: [
           InvoiceStatusTypeEnum.Draft,
           InvoiceStatusTypeEnum.Failed,
@@ -282,7 +285,10 @@ const InvoicesPage = () => {
               <Filters.QuickFilters />
               <div className="flex flex-col gap-3 md:flex-row md:items-center">
                 <SearchInput
-                  onChange={invoiceDebounceSearch}
+                  onChange={(value) => {
+                    goToPage(1)
+                    invoiceDebounceSearch?.(value)
+                  }}
                   placeholder={translate('text_63c68131568d582a38233e84')}
                 />
                 <Filters.Component />
@@ -300,7 +306,11 @@ const InvoicesPage = () => {
         metadata={data?.invoices?.metadata}
         variables={variables}
         pageSize={pageSize}
-        onPageSizeChange={setPageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
       />
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />

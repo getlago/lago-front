@@ -8,7 +8,7 @@ import {
   DeleteBillableMetricDialogRef,
 } from '~/components/billableMetrics/DeleteBillableMetricDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
-import { PaginatedContent } from '~/components/designSystem/Pagination'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
@@ -60,13 +60,13 @@ const BillableMetricsList = () => {
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const [getBillableMetrics, { data, error, loading, fetchMore, variables }] =
-    useBillableMetricsLazyQuery({
-      variables: { limit: pageSize },
-      notifyOnNetworkStatusChange: true,
-      fetchPolicy: 'network-only',
-      nextFetchPolicy: 'network-only',
-    })
+  const { page, goToPage } = usePageSearchParam()
+  const [getBillableMetrics, { data, error, loading, variables }] = useBillableMetricsLazyQuery({
+    variables: { limit: pageSize, page },
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
+  })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getBillableMetrics, loading)
 
   const canUpdateBillableMetrics = hasPermissions(['billableMetricsUpdate'])
@@ -220,7 +220,10 @@ const BillableMetricsList = () => {
         }}
         filtersSection={
           <SearchInput
-            onChange={debouncedSearch}
+            onChange={(value) => {
+              goToPage(1)
+              debouncedSearch?.(value)
+            }}
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
           />
         }
@@ -231,8 +234,11 @@ const BillableMetricsList = () => {
         metadata={data?.billableMetrics?.metadata}
         loading={isLoading}
         pageSize={pageSize}
-        onPageChange={(page) => fetchMore({ variables: { page } })}
-        onPageSizeChange={setPageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
       >
         <Table
           name="billable-metrics-list"

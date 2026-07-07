@@ -9,6 +9,7 @@ import { CustomerCreditNotesLegacyCard } from '~/components/customers/CustomerCr
 import { Filters } from '~/components/designSystem/Filters'
 import { formatFiltersForCustomerCreditNotesQuery } from '~/components/designSystem/Filters/utils'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { usePageSearchParam } from '~/components/designSystem/Pagination'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_CREDIT_NOTES_FILTER_PREFIX } from '~/core/constants/filters'
@@ -85,13 +86,12 @@ export const CustomerCreditNotesList = ({
     include: ['currency', 'entity'],
   })
   const [searchParams] = useSearchParams()
+  const { page, goToPage } = usePageSearchParam()
 
   const { currency, billingEntityId } = formatFiltersForCustomerCreditNotesQuery(searchParams)
 
   const [getCreditNotes, { data, loading, error, fetchMore, variables }] =
     useGetCustomerCreditNotesLazyQuery({
-      // Skip the cache on entry so re-opening the tab loads a fresh page 1 (skeleton), instead of
-      // flashing the previously-viewed page.
       fetchPolicy: 'network-only',
       notifyOnNetworkStatusChange: true,
       variables: { customerId, limit: DEFAULT_PAGE_SIZE },
@@ -103,6 +103,7 @@ export const CustomerCreditNotesList = ({
     getCreditNotes({
       variables: {
         customerId,
+        page,
         limit: DEFAULT_PAGE_SIZE,
         searchTerm,
         currency,
@@ -110,7 +111,7 @@ export const CustomerCreditNotesList = ({
       },
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customerId, searchTerm, currency, billingEntityId])
+  }, [customerId, page, searchTerm, currency, billingEntityId])
 
   const debouncedSetSearchTerm = useMemo(
     () => debounce((value: string) => setSearchTerm(value || undefined), DEBOUNCE_SEARCH_MS),
@@ -153,7 +154,10 @@ export const CustomerCreditNotesList = ({
 
       <div className="mb-4 flex items-center gap-3">
         <SearchInput
-          onChange={debouncedSetSearchTerm}
+          onChange={(value) => {
+            goToPage(1)
+            debouncedSetSearchTerm?.(value)
+          }}
           placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
         />
         {filtersProps && (
@@ -176,6 +180,7 @@ export const CustomerCreditNotesList = ({
         <CreditNotesTable
           creditNotes={creditNotes}
           fetchMore={fetchMore}
+          onPageChange={goToPage}
           isLoading={loading}
           metadata={data?.creditNotes?.metadata}
           customerTimezone={customerTimezone}

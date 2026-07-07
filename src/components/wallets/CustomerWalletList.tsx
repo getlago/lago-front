@@ -3,7 +3,7 @@ import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { PaginatedContent } from '~/components/designSystem/Pagination'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table'
@@ -98,12 +98,11 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { page, goToPage } = usePageSearchParam()
 
-  const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
-    variables: { customerId, page: 0, limit: WALLET_LIST_ITEMS_PER_PAGE },
+  const { data, error, loading } = useGetCustomerWalletListQuery({
+    variables: { customerId, page, limit: WALLET_LIST_ITEMS_PER_PAGE },
     notifyOnNetworkStatusChange: true,
-    // Skip the cache on entry so re-opening the tab loads a fresh page 1 (skeleton), instead of
-    // flashing the previously-viewed page.
     fetchPolicy: 'network-only',
   })
   const walletsCollection = data?.wallets?.collection || []
@@ -317,7 +316,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
           metadata={data?.wallets?.metadata}
           loading={loading}
           pageSize={WALLET_LIST_ITEMS_PER_PAGE}
-          onPageChange={(page) => fetchMore({ variables: { page } })}
+          onPageChange={goToPage}
           sticky={false}
         >
           <Table

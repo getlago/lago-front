@@ -6,7 +6,7 @@ import { generatePath } from 'react-router-dom'
 import { useDeleteAddOnDialog } from '~/components/addOns/DeleteAddOnDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
-import { PaginatedContent } from '~/components/designSystem/Pagination'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
@@ -63,8 +63,9 @@ const AddOnsList = () => {
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { openDeleteAddOnDialog } = useDeleteAddOnDialog()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const [getAddOns, { data, error, loading, fetchMore, variables }] = useAddOnsLazyQuery({
-    variables: { limit: pageSize },
+  const { page, goToPage } = usePageSearchParam()
+  const [getAddOns, { data, error, loading, variables }] = useAddOnsLazyQuery({
+    variables: { limit: pageSize, page },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
@@ -121,7 +122,10 @@ const AddOnsList = () => {
         }}
         filtersSection={
           <SearchInput
-            onChange={debouncedSearch}
+            onChange={(value) => {
+              goToPage(1)
+              debouncedSearch?.(value)
+            }}
             placeholder={translate('text_63bee4e10e2d53912bfe4db8')}
           />
         }
@@ -132,8 +136,11 @@ const AddOnsList = () => {
         metadata={data?.addOns?.metadata}
         loading={isLoading}
         pageSize={pageSize}
-        onPageChange={(page) => fetchMore({ variables: { page } })}
-        onPageSizeChange={setPageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
       >
         <Table
           name="add-ons-list"

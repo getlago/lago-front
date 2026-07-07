@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
-import { PaginatedContent } from '~/components/designSystem/Pagination'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
@@ -60,6 +60,7 @@ const FeaturesList = () => {
   const { translate } = useInternationalization()
 
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page, goToPage } = usePageSearchParam()
 
   const [
     getFeatures,
@@ -68,12 +69,12 @@ const FeaturesList = () => {
       error: featuresError,
       loading: featuresLoading,
       variables: featuresVariables,
-      fetchMore: fetchMoreFeatures,
     },
   ] = useGetFeaturesListLazyQuery({
     notifyOnNetworkStatusChange: true,
     variables: {
       limit: pageSize,
+      page,
     },
   })
 
@@ -137,7 +138,10 @@ const FeaturesList = () => {
         }}
         filtersSection={
           <SearchInput
-            onChange={debouncedSearch}
+            onChange={(value) => {
+              goToPage(1)
+              debouncedSearch?.(value)
+            }}
             placeholder={translate('text_1752692673070xf4wtgsrsum')}
           />
         }
@@ -148,8 +152,11 @@ const FeaturesList = () => {
         metadata={featuresData?.features?.metadata}
         loading={isLoading}
         pageSize={pageSize}
-        onPageChange={(page) => fetchMoreFeatures?.({ variables: { page } })}
-        onPageSizeChange={setPageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
       >
         <Table
           name="features-list"

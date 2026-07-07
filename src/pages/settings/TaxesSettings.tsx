@@ -7,7 +7,7 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { PaginatedContent } from '~/components/designSystem/Pagination'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
@@ -67,9 +67,11 @@ const TaxesSettings = () => {
   const { translate } = useInternationalization()
   const { openDeleteTaxDialog } = useDeleteTaxDialog()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const { data, error, loading, fetchMore } = useGetTaxesSettingsInformationsQuery({
+  const { page, goToPage } = usePageSearchParam()
+  const { data, error, loading } = useGetTaxesSettingsInformationsQuery({
     variables: {
       limit: pageSize,
+      page,
     },
     notifyOnNetworkStatusChange: true,
   })
@@ -133,8 +135,11 @@ const TaxesSettings = () => {
               metadata={metadata}
               loading={loading}
               pageSize={pageSize}
-              onPageChange={(page) => fetchMore({ variables: { page } })}
-              onPageSizeChange={setPageSize}
+              onPageChange={goToPage}
+              onPageSizeChange={(newPageSize) => {
+                goToPage(1)
+                setPageSize(newPageSize)
+              }}
             >
               <Table
                 name="tax-settings-taxes"

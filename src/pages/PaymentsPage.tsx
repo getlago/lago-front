@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { useState } from 'react'
 
+import { usePageSearchParam } from '~/components/designSystem/Pagination'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { PaymentsList } from '~/components/invoices/PaymentsList'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
@@ -51,6 +52,7 @@ const PaymentsPage = () => {
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
 
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page, goToPage } = usePageSearchParam()
 
   const [getPayments, { data, loading, error, fetchMore, variables }] = useGetPaymentsListLazyQuery(
     {
@@ -59,6 +61,7 @@ const PaymentsPage = () => {
       nextFetchPolicy: 'network-only',
       variables: {
         limit: pageSize,
+        page,
       },
     },
   )
@@ -95,7 +98,10 @@ const PaymentsPage = () => {
         }}
         filtersSection={
           <SearchInput
-            onChange={paymentsDebounceSearch}
+            onChange={(value) => {
+              goToPage(1)
+              paymentsDebounceSearch?.(value)
+            }}
             placeholder={translate('text_17370296250897aidak5kjcg')}
           />
         }
@@ -109,7 +115,11 @@ const PaymentsPage = () => {
         metadata={data?.payments?.metadata}
         variables={variables}
         pageSize={pageSize}
-        onPageSizeChange={setPageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
       />
     </>
   )

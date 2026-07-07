@@ -8,6 +8,7 @@ import {
   Filters,
   formatFiltersForCreditNotesQuery,
 } from '~/components/designSystem/Filters'
+import { usePageSearchParam } from '~/components/designSystem/Pagination'
 import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
@@ -118,6 +119,7 @@ const CreditNotesPage = () => {
   const exportCreditNotesDialogRef = useRef<ExportDialogRef>(null)
 
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page, goToPage } = usePageSearchParam()
 
   const filtersForCreditNotesQuery = useMemo(() => {
     return formatFiltersForCreditNotesQuery(searchParams)
@@ -138,6 +140,7 @@ const CreditNotesPage = () => {
     nextFetchPolicy: 'network-only',
     variables: {
       limit: pageSize,
+      page,
       ...formatAmountCurrency(filtersForCreditNotesQuery, amountCurrency),
     },
   })
@@ -217,7 +220,10 @@ const CreditNotesPage = () => {
           >
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
               <SearchInput
-                onChange={creditNoteDebounceSearch}
+                onChange={(value) => {
+                  goToPage(1)
+                  creditNoteDebounceSearch?.(value)
+                }}
                 placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
               />
               <Filters.Component />
@@ -234,7 +240,11 @@ const CreditNotesPage = () => {
         metadata={dataCreditNotes?.creditNotes?.metadata}
         variables={variableCreditNotes}
         pageSize={pageSize}
-        onPageSizeChange={setPageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
         tableContainerSize={{
           default: 16,
           md: 48,

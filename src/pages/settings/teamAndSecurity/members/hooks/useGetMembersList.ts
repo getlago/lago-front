@@ -35,14 +35,17 @@ gql`
   ${MemberForEditRoleForDialogFragmentDoc}
 `
 
-export const useGetMembersList = (pageSize: number = DEFAULT_PAGE_SIZE) => {
+export const useGetMembersList = (pageSize: number = DEFAULT_PAGE_SIZE, page: number = 1) => {
   const {
     data: membersData,
     error: membersError,
     loading: membersLoading,
     refetch: membersRefetch,
     fetchMore: membersFetchMore,
-  } = useGetMembersQuery({ variables: { limit: pageSize }, notifyOnNetworkStatusChange: true })
+  } = useGetMembersQuery({
+    variables: { limit: pageSize, page },
+    notifyOnNetworkStatusChange: true,
+  })
 
   return {
     members: membersData?.memberships.collection || [],

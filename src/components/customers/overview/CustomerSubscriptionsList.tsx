@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { generatePath, useParams } from 'react-router-dom'
 
-import { PaginatedContent } from '~/components/designSystem/Pagination'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status, StatusProps, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import { PageSectionTitle } from '~/components/layouts/Section'
@@ -87,12 +87,11 @@ export const CustomerSubscriptionsList = ({
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { data, loading, fetchMore } = useGetCustomerSubscriptionForListQuery({
-    variables: { externalCustomerId: customerExternalId as string, limit: DEFAULT_PAGE_SIZE },
+  const { page, goToPage } = usePageSearchParam()
+  const { data, loading } = useGetCustomerSubscriptionForListQuery({
+    variables: { externalCustomerId: customerExternalId as string, page, limit: DEFAULT_PAGE_SIZE },
     skip: !customerExternalId,
     notifyOnNetworkStatusChange: true,
-    // Skip the cache on entry so re-opening the tab loads a fresh page 1 (skeleton), instead of
-    // flashing the previously-viewed page the single-page cache still holds.
     fetchPolicy: 'network-only',
   })
   const subscriptions = data?.subscriptions?.collection as Subscription[]
@@ -132,7 +131,7 @@ export const CustomerSubscriptionsList = ({
           metadata={metadata}
           loading={loading}
           pageSize={DEFAULT_PAGE_SIZE}
-          onPageChange={(page) => fetchMore({ variables: { page } })}
+          onPageChange={goToPage}
           sticky={false}
         >
           <SubscriptionsList
