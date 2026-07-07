@@ -126,19 +126,29 @@ export const walletFreeAndPaidSchema = (ctx: {
       metadata: z.array(z.object({ key: z.string(), value: z.string() })),
     })
     .superRefine((data, issues) => {
-      if (
-        !topUpWithinLimits({
-          rateAmount: ctx.rateAmount,
-          credits: data.paidCredits,
-          min: ctx.min,
-          max: ctx.max,
-        })
-      ) {
-        issues.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'text_1758285686647a868tiok58q',
-          path: ['paidCredits'],
-        })
+      // Mirror topUpAmountError (src/pages/wallet/form.ts): pick the message that
+      // matches which bound was actually violated, instead of always emitting the
+      // "between min and max" copy (which would reference a bound that isn't set).
+      if (!ctx.rateAmount || data.paidCredits === '' || Number(data.paidCredits) === 0) return
+
+      const amount = Number(ctx.rateAmount) * Number(data.paidCredits)
+      const hasMin = ctx.min !== null && ctx.min !== ''
+      const hasMax = ctx.max !== null && ctx.max !== ''
+      const isBelow = hasMin && amount < Number(ctx.min)
+      const isAbove = hasMax && amount > Number(ctx.max)
+
+      let message: string | null = null
+
+      if (hasMin && hasMax && (isBelow || isAbove)) {
+        message = 'text_1758285686647a868tiok58q' // between {{min}} and {{max}}
+      } else if (hasMin && isBelow) {
+        message = 'text_1758285686647tnf634qa99c' // below {{min}}
+      } else if (hasMax && isAbove) {
+        message = 'text_175828568664787kip4pzn8l' // above {{max}}
+      }
+
+      if (message) {
+        issues.addIssue({ code: z.ZodIssueCode.custom, message, path: ['paidCredits'] })
       }
     })
 
