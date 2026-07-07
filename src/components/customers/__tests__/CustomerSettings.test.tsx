@@ -48,13 +48,11 @@ jest.mock('~/components/customers/EditCustomerInvoiceGracePeriodDialog', () => {
   return { EditCustomerInvoiceGracePeriodDialog: MockDialog }
 })
 
-jest.mock('~/components/customers/DeleteCustomerGracePeriodeDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'DeleteCustomerGracePeriodeDialog'
-  return { DeleteCustomerGracePeriodeDialog: MockDialog }
-})
+jest.mock('~/components/customers/DeleteCustomerGracePeriodeDialog', () => ({
+  useDeleteCustomerGracePeriodeDialog: () => ({
+    openDeleteCustomerGracePeriodeDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/components/customers/EditCustomerDocumentLocaleDialog', () => ({
   useEditCustomerDocumentLocaleDialog: () => ({

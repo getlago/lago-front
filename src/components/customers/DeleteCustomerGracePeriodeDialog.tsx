@@ -1,9 +1,7 @@
 import { gql } from '@apollo/client'
-import { forwardRef } from 'react'
 
-import { DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   DeleteCustomerGracePeriodFragment,
@@ -26,17 +24,15 @@ gql`
   }
 `
 
-export type DeleteCustomerGracePeriodeDialogRef = WarningDialogRef
-
-interface DeleteCustomerGracePeriodeDialogProps {
+type DeleteCustomerGracePeriodeDialogData = {
   customer: DeleteCustomerGracePeriodFragment
 }
 
-export const DeleteCustomerGracePeriodeDialog = forwardRef<
-  DialogRef,
-  DeleteCustomerGracePeriodeDialogProps
->(({ customer }: DeleteCustomerGracePeriodeDialogProps, ref) => {
-  const customerName = customer?.displayName
+export const useDeleteCustomerGracePeriodeDialog = (): {
+  openDeleteCustomerGracePeriodeDialog: (data: DeleteCustomerGracePeriodeDialogData) => void
+} => {
+  const centralizedDialog = useCentralizedDialog()
+  const { translate } = useInternationalization()
 
   const [deleteGracePeriode] = useDeleteCustomerGracePeriodMutation({
     onCompleted(data) {
@@ -48,27 +44,28 @@ export const DeleteCustomerGracePeriodeDialog = forwardRef<
       }
     },
   })
-  const { translate } = useInternationalization()
 
-  return (
-    <WarningDialog
-      ref={ref}
-      title={translate('text_63aa085d28b8510cd464417b')}
-      description={
+  const openDeleteCustomerGracePeriodeDialog = ({
+    customer,
+  }: DeleteCustomerGracePeriodeDialogData): void => {
+    centralizedDialog.open({
+      title: translate('text_63aa085d28b8510cd464417b'),
+      description: (
         <Typography
           html={translate('text_63aa085d28b8510cd464418d', {
-            name: customerName,
+            name: customer?.displayName,
           })}
         />
-      }
-      onContinue={async () =>
+      ),
+      colorVariant: 'danger',
+      actionText: translate('text_63aa085d28b8510cd46441a5'),
+      onAction: async () => {
         await deleteGracePeriode({
           variables: { input: { id: customer?.id, invoiceGracePeriod: null } },
         })
-      }
-      continueText={translate('text_63aa085d28b8510cd46441a5')}
-    />
-  )
-})
+      },
+    })
+  }
 
-DeleteCustomerGracePeriodeDialog.displayName = 'DeleteCustomerGracePeriodeDialog'
+  return { openDeleteCustomerGracePeriodeDialog }
+}
