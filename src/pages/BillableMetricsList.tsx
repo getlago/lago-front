@@ -1,12 +1,8 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import {
-  DeleteBillableMetricDialog,
-  DeleteBillableMetricDialogRef,
-} from '~/components/billableMetrics/DeleteBillableMetricDialog'
+import { useDeleteBillableMetricDialog } from '~/components/billableMetrics/DeleteBillableMetricDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
@@ -57,7 +53,7 @@ const BillableMetricsList = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const deleteDialogRef = useRef<DeleteBillableMetricDialogRef>(null)
+  const { openDeleteBillableMetricDialog } = useDeleteBillableMetricDialog()
   const [getBillableMetrics, { data, error, loading, fetchMore, variables }] =
     useBillableMetricsLazyQuery({
       variables: { limit: 20 },
@@ -106,7 +102,7 @@ const BillableMetricsList = () => {
         startIcon: 'trash',
         title: translate('text_6256de3bba111e00b3bfa533'),
         onAction: () => {
-          deleteDialogRef.current?.openDialog({ billableMetricId: id })
+          openDeleteBillableMetricDialog({ billableMetricId: id })
         },
       })
     }
@@ -254,8 +250,6 @@ const BillableMetricsList = () => {
           placeholder={placeholder}
         />
       </InfiniteScroll>
-
-      <DeleteBillableMetricDialog ref={deleteDialogRef} />
     </>
   )
 }
