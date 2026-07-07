@@ -32,14 +32,20 @@ gql`
   ${InviteForEditRoleForDialogFragmentDoc}
 `
 
-export const useGetMembersInvitationList = (pageSize: number = DEFAULT_PAGE_SIZE) => {
+export const useGetMembersInvitationList = (
+  pageSize: number = DEFAULT_PAGE_SIZE,
+  page: number = 1,
+) => {
   const {
     data: invitesData,
     error: invitesError,
     loading: invitesLoading,
     refetch: invitesRefetch,
     fetchMore: invitesFetchMore,
-  } = useGetInvitesQuery({ variables: { limit: pageSize }, notifyOnNetworkStatusChange: true })
+  } = useGetInvitesQuery({
+    variables: { limit: pageSize, page },
+    notifyOnNetworkStatusChange: true,
+  })
 
   return {
     invitations: invitesData?.invites.collection || [],

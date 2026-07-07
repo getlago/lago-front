@@ -10,7 +10,7 @@ import {
   formatFiltersForSubscriptionQuery,
   SubscriptionAvailableFilters,
 } from '~/components/designSystem/Filters'
-import { PaginatedContent } from '~/components/designSystem/Pagination'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
@@ -139,17 +139,25 @@ const SubscriptionsPage = () => {
   }, [searchParams])
 
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page, goToPage } = usePageSearchParam()
 
-  const [getSubscriptions, { data, error, loading, variables, fetchMore }] =
-    useGetSubscriptionsListLazyQuery({
-      notifyOnNetworkStatusChange: true,
-      variables: {
-        limit: pageSize,
-        ...filtersForSubscriptionQuery,
-      },
-    })
+  const [getSubscriptions, { data, error, loading, variables }] = useGetSubscriptionsListLazyQuery({
+    notifyOnNetworkStatusChange: true,
+    variables: {
+      limit: pageSize,
+      page,
+      ...filtersForSubscriptionQuery,
+    },
+  })
 
   const { debouncedSearch, isLoading } = useDebouncedSearch(getSubscriptions, loading)
+
+  // A new search narrows the result set — jump back to the first page so we never land on a now
+  // out-of-range page (filter changes reset the page centrally in useFilters).
+  const searchAndResetPage = (value: string) => {
+    goToPage(1)
+    debouncedSearch?.(value)
+  }
 
   const subscriptions = data?.subscriptions.collection as Subscription[]
   const hasSearchParams =
@@ -175,7 +183,7 @@ const SubscriptionsPage = () => {
           >
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
               <SearchInput
-                onChange={debouncedSearch}
+                onChange={searchAndResetPage}
                 placeholder={translate('text_1751378926655m4bfald61u4')}
               />
               <Filters.Component />
@@ -189,8 +197,11 @@ const SubscriptionsPage = () => {
         metadata={data?.subscriptions.metadata}
         loading={isLoading}
         pageSize={pageSize}
-        onPageChange={(page) => fetchMore?.({ variables: { page } })}
-        onPageSizeChange={setPageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
       >
         <SubscriptionsList
           name="subscriptions-list"

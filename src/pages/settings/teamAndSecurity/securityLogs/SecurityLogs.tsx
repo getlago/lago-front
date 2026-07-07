@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Filters, SecurityLogsAvailableFilters } from '~/components/designSystem/Filters'
-import { PaginatedContent } from '~/components/designSystem/Pagination'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { LogsLayout } from '~/components/developers/LogsLayout'
@@ -20,17 +20,17 @@ export const SECURITY_LOGS_CONTAINER_TEST_ID = 'security-logs-container'
 
 const SecurityLogs = () => {
   const { translate } = useInternationalization()
+  const { page, goToPage } = usePageSearchParam()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
 
   const {
     securityLogs,
     securityLogsMetadata,
     isLoadingSecurityLogs,
-    fetchMoreSecurityLogs,
     refetchSecurityLogs,
     securityLogsError,
     hasFilters,
-  } = useSecurityLogs(pageSize)
+  } = useSecurityLogs(pageSize, page)
 
   const { getFormattedLogEvent, getSecurityLogDescription, getSecurityLogDate } =
     useSecurityLogsFormatting()
@@ -128,8 +128,11 @@ const SecurityLogs = () => {
         metadata={securityLogsMetadata}
         loading={isLoadingSecurityLogs}
         pageSize={pageSize}
-        onPageChange={(page) => fetchMoreSecurityLogs({ variables: { page } })}
-        onPageSizeChange={setPageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(newPageSize) => {
+          setPageSize(newPageSize)
+          goToPage(1)
+        }}
       >
         <Table
           name="security-logs"

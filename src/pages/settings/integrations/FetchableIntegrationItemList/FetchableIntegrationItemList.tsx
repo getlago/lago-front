@@ -66,6 +66,7 @@ const FetchableIntegrationItemList = ({
 
     return (
       <PaginatedContent
+        insetPager
         metadata={paginationMetadata}
         loading={isLoading}
         onPageChange={(page) => fetchMore({ variables: { page } })}

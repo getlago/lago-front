@@ -7,7 +7,7 @@ import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { PaginatedContent } from '~/components/designSystem/Pagination'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import {
@@ -74,10 +74,12 @@ const Dunnings = () => {
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
 
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page, goToPage } = usePageSearchParam()
 
-  const { data, loading, error, fetchMore } = useGetDunningCampaignsQuery({
+  const { data, loading, error } = useGetDunningCampaignsQuery({
     variables: {
       limit: pageSize,
+      page,
     },
     notifyOnNetworkStatusChange: true,
   })
@@ -179,8 +181,11 @@ const Dunnings = () => {
                         metadata={data?.dunningCampaigns.metadata}
                         loading={loading}
                         pageSize={pageSize}
-                        onPageChange={(page) => fetchMore({ variables: { page } })}
-                        onPageSizeChange={setPageSize}
+                        onPageChange={goToPage}
+                        onPageSizeChange={(newPageSize) => {
+                          setPageSize(newPageSize)
+                          goToPage(1)
+                        }}
                       >
                         <Table
                           name="dunnings-settings-list"

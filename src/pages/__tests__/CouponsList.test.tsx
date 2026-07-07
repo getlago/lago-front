@@ -29,6 +29,7 @@ jest.mock('~/components/designSystem/Table/Table', () => ({
 
 jest.mock('~/components/designSystem/Pagination', () => ({
   PaginatedContent: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  usePageSearchParam: () => ({ page: 1, goToPage: jest.fn() }),
 }))
 
 jest.mock('~/components/SearchInput', () => ({

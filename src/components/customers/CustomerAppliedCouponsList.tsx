@@ -10,7 +10,7 @@ import {
   AddCouponToCustomerDialogRef,
 } from '~/components/customers/AddCouponToCustomerDialog'
 import { Button } from '~/components/designSystem/Button'
-import { PaginatedContent } from '~/components/designSystem/Pagination'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -72,9 +72,10 @@ export const CustomerAppliedCouponsList = ({
   const { terminateCoupon } = useTerminateAppliedCoupon()
   const centralizedDialog = useCentralizedDialog()
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
+  const { page, goToPage } = usePageSearchParam()
 
-  const { data, error, loading, fetchMore } = useGetAppliedCouponsForCustomerQuery({
-    variables: { externalCustomerId: customerExternalId, page: 0, limit: DEFAULT_PAGE_SIZE },
+  const { data, error, loading } = useGetAppliedCouponsForCustomerQuery({
+    variables: { externalCustomerId: customerExternalId, page, limit: DEFAULT_PAGE_SIZE },
     skip: !customerExternalId,
     notifyOnNetworkStatusChange: true,
   })
@@ -183,7 +184,7 @@ export const CustomerAppliedCouponsList = ({
       <PaginatedContent
         metadata={data?.appliedCoupons?.metadata}
         loading={loading}
-        onPageChange={(page) => fetchMore({ variables: { page } })}
+        onPageChange={goToPage}
         sticky={false}
       >
         <Table
