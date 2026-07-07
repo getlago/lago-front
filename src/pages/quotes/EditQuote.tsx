@@ -6,9 +6,11 @@ import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import type {
+  OnCreditsCommand,
   OnDiscountCommand,
   OnPricingCommand,
 } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
+import { CreditsBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/CreditsBlock.schema'
 import { DiscountBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/DiscountBlock.schema'
 import { PricingBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/PricingBlock.schema'
 import RichTextEditor, {
@@ -28,6 +30,7 @@ import { QUOTE_MENTION_VARIABLES } from '~/pages/quotes/common/mentionVariables'
 
 import EditQuoteAside from './editQuote/EditQuoteAside'
 import { useAddQuoteImage } from './hooks/useAddQuoteImage'
+import { useCreditsDrawer } from './hooks/useCreditsDrawer'
 import { useDiscountDrawer } from './hooks/useDiscountDrawer'
 import { useOneOffPricingDrawer } from './hooks/useOneOffPricingDrawer'
 import { useQuote } from './hooks/useQuote'
@@ -144,9 +147,14 @@ const EditQuote = () => {
     },
   })
 
+  const credits = useCreditsDrawer(quote?.currentVersion?.billingItems, {
+    currency: quoteCurrency,
+    onPersist: (billingItems) => savePricingBlockRef.current(billingItems),
+  })
+
   const mergedEntities = useMemo(
-    () => ({ ...entities, ...discount.entities }),
-    [entities, discount.entities],
+    () => ({ ...entities, ...discount.entities, ...credits.entities }),
+    [entities, discount.entities, credits.entities],
   )
 
   const customerLocale = (quote?.customer?.billingConfiguration?.documentLocale ?? 'en') as Locale
@@ -372,6 +380,24 @@ const EditQuote = () => {
     [discount, savePricingBlock],
   )
 
+  const handleCreditsCommand = useCallback<OnCreditsCommand>(
+    ({ onSave, editData }) => {
+      credits.onCreditsCommand({ onSave, editData })
+    },
+    [credits],
+  )
+
+  const handleCreditsBlocksChange = useCallback(
+    (blocks: CreditsBlockAttributes[]) => {
+      const updated = credits.syncCreditsBlocks(blocks)
+
+      if (updated) {
+        savePricingBlock(updated)
+      }
+    },
+    [credits, savePricingBlock],
+  )
+
   const handleClose = () => {
     debouncedSave.cancel()
     onClose()
@@ -464,6 +490,9 @@ const EditQuote = () => {
             onPricingBlocksChange={handlePricingBlocksChange}
             onDiscountCommand={isSubscriptionOrder ? handleDiscountCommand : undefined}
             onDiscountBlocksChange={handleDiscountBlocksChange}
+            onCreditsCommand={isSubscriptionOrder ? handleCreditsCommand : undefined}
+            isCreditsDisabled={credits.isCreditsDisabled}
+            onCreditsBlocksChange={handleCreditsBlocksChange}
             customerLocale={customerLocale}
             customerCurrency={quote?.customer?.currency ?? undefined}
             variableItems={mentionItems}

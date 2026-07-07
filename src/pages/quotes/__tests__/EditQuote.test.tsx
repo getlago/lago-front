@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { act } from 'react'
 
 import { RIGHT_ASIDE_PAGE_HEADER_TEST_ID } from '~/components/layouts/RightAsidePage'
+import { makeEmptyWalletItem, toWallets } from '~/core/serializers/serializeQuoteWallets'
+import { CurrencyEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import EditQuote from '../EditQuote'
@@ -29,6 +31,8 @@ let capturedOnPricingCommand: ((params: PricingCommandParams) => void) | undefin
 let capturedOnPricingBlocksChange: ((blocks: unknown[]) => void) | undefined
 let capturedOnDiscountCommand: ((params: unknown) => void) | undefined
 let capturedOnDiscountBlocksChange: ((blocks: unknown[]) => void) | undefined
+let capturedOnCreditsCommand: ((params: unknown) => void) | undefined
+let capturedOnCreditsBlocksChange: ((blocks: unknown[]) => void) | undefined
 let capturedEditorCustomerLocale: string | undefined
 let capturedEditorCustomerCurrency: string | undefined
 let capturedRemoveBlockRef: { current: ((localId: string) => void) | null } | undefined
@@ -59,6 +63,8 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
     onPricingBlocksChange,
     onDiscountCommand,
     onDiscountBlocksChange,
+    onCreditsCommand,
+    onCreditsBlocksChange,
     customerLocale,
     customerCurrency,
   }: {
@@ -69,6 +75,8 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
     onPricingBlocksChange?: (blocks: unknown[]) => void
     onDiscountCommand?: (params: unknown) => void
     onDiscountBlocksChange?: (blocks: unknown[]) => void
+    onCreditsCommand?: (params: unknown) => void
+    onCreditsBlocksChange?: (blocks: unknown[]) => void
     customerLocale?: string
     customerCurrency?: string
   }) => {
@@ -81,6 +89,8 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
       capturedOnPricingBlocksChange = onPricingBlocksChange
       capturedOnDiscountCommand = onDiscountCommand
       capturedOnDiscountBlocksChange = onDiscountBlocksChange
+      capturedOnCreditsCommand = onCreditsCommand
+      capturedOnCreditsBlocksChange = onCreditsBlocksChange
       capturedEditorCustomerLocale = customerLocale
       capturedEditorCustomerCurrency = customerCurrency
       capturedRemoveBlockRef = removeBlockRef
@@ -98,6 +108,8 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
       onPricingBlocksChange,
       onDiscountCommand,
       onDiscountBlocksChange,
+      onCreditsCommand,
+      onCreditsBlocksChange,
       customerLocale,
       customerCurrency,
     ])
@@ -279,6 +291,8 @@ describe('EditQuote', () => {
     capturedOnPricingBlocksChange = undefined
     capturedOnDiscountCommand = undefined
     capturedOnDiscountBlocksChange = undefined
+    capturedOnCreditsCommand = undefined
+    capturedOnCreditsBlocksChange = undefined
     capturedEditorCustomerLocale = undefined
     capturedEditorCustomerCurrency = undefined
     capturedRemoveBlockRef = undefined
@@ -1193,6 +1207,98 @@ describe('EditQuote', () => {
         // isRollingBackRef guard this would trigger a corrective
         // updateQuoteVersion call that persists the coupon deletion.
         expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the credits command integration', () => {
+    describe('WHEN the quote is a subscription order', () => {
+      it('THEN should pass a defined onCreditsCommand to RichTextEditor', () => {
+        // mockQuote.orderType = 'subscription_creation' by default
+        render(<EditQuote />)
+
+        expect(capturedOnCreditsCommand).toBeDefined()
+      })
+    })
+
+    describe('WHEN the quote is a one-off order', () => {
+      it('THEN should pass undefined onCreditsCommand to RichTextEditor', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            orderType: 'one_off',
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        expect(capturedOnCreditsCommand).toBeUndefined()
+      })
+    })
+
+    describe('WHEN a saved credits block is deleted from the editor', () => {
+      it('THEN should save wallet_credits cleared while leaving plans/addons/coupons untouched', async () => {
+        // useCreditsDrawer is NOT mocked (unlike useDiscountDrawer) so this test
+        // exercises the real syncCreditsBlocks -> mergeWalletCredits route.
+        const originalPlans = [{ type: 'plan' }]
+        const originalAddons = [{ type: 'addon' }]
+        const originalCoupons = [{ type: 'coupon' }]
+        const walletCredits = toWallets(
+          [{ ...makeEmptyWalletItem('wl_1'), rateAmount: '1', paidCredits: '10' }],
+          CurrencyEnum.Usd,
+        )
+
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            currentVersion: {
+              ...mockQuote.currentVersion,
+              billingItems: {
+                plans: originalPlans,
+                addons: originalAddons,
+                coupons: originalCoupons,
+                wallet_credits: walletCredits,
+              },
+            },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: { updateQuoteVersion: { id: 'version-1' } },
+        })
+
+        render(<EditQuote />)
+
+        // Simulate the editor reporting the creditsBlock node was removed from the doc.
+        await act(async () => {
+          capturedOnCreditsBlocksChange?.([])
+        })
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            expect.objectContaining({
+              billingItems: {
+                plans: originalPlans,
+                addons: originalAddons,
+                coupons: originalCoupons,
+                wallet_credits: [],
+              },
+            }),
+            false,
+          )
+        })
+
+        // The create/full-save path (fill a rate + paid credits, click the
+        // credits-drawer-submit button) is not driven here: useFormDrawer is
+        // mocked as a no-op in this harness, so drawer.open() never mounts
+        // CreditsDrawerContent in jsdom. That same sibling-preservation
+        // invariant on create/edit is proven at the pure-function level by the
+        // mergeWalletCredits unit tests (serializeQuoteBillingItems.test.ts)
+        // and by useCreditsDrawer.test.tsx's "rebuild (create/edit path)" test,
+        // which exercise the exact same rebuild -> mergeWalletCredits route.
       })
     })
   })
