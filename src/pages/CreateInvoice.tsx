@@ -3,7 +3,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import { useFormik } from 'formik'
 import _get from 'lodash/get'
 import { DateTime } from 'luxon'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 import { array, number, object, string } from 'yup'
 
@@ -17,7 +17,7 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { AmountInput, ComboBox, ComboBoxField, ComboboxItem, TextInput } from '~/components/form'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
@@ -228,7 +228,7 @@ const CreateInvoice = () => {
   const [taxProviderTaxesErrorMessage, setTaxProviderTaxesErrorMessage] =
     useState<LocalTaxProviderErrorsEnum | null>(null)
 
-  const warningDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
   const { openEditInvoiceItemDescriptionDialog } = useEditInvoiceItemDescriptionDialog()
   const { openEditInvoiceItemTaxDialog } = useEditInvoiceItemTaxDialog()
   const { openEditInvoiceDisplayNameDialog } = useEditInvoiceDisplayNameDialog()
@@ -640,7 +640,15 @@ const CreateInvoice = () => {
             variant="quaternary"
             icon="close"
             onClick={() =>
-              formikProps.dirty ? warningDialogRef.current?.openDialog() : handleClosePage()
+              formikProps.dirty
+                ? centralizedDialog.open({
+                    title: translate('text_645388d5bdbd7b00abffa030'),
+                    description: translate('text_645388d5bdbd7b00abffa031'),
+                    actionText: translate('text_645388d5bdbd7b00abffa033'),
+                    colorVariant: 'danger',
+                    onAction: handleClosePage,
+                  })
+                : handleClosePage()
             }
           />
         )}
@@ -1351,13 +1359,6 @@ const CreateInvoice = () => {
           </div>
         )}
       </div>
-      <WarningDialog
-        ref={warningDialogRef}
-        title={translate('text_645388d5bdbd7b00abffa030')}
-        description={translate('text_645388d5bdbd7b00abffa031')}
-        continueText={translate('text_645388d5bdbd7b00abffa033')}
-        onContinue={handleClosePage}
-      />
     </>
   )
 }
