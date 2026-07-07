@@ -5,6 +5,7 @@ import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBilli
 import type { Locale } from '~/core/translations'
 import { type CouponFrequency, type CouponTypeEnum, type CurrencyEnum } from '~/generated/graphql'
 
+import type { CreditsBlockAttributes } from '../extensions/CreditsBlock.schema'
 import type { DiscountBlockAttributes } from '../extensions/DiscountBlock.schema'
 import type { PricingBlockAttributes, PricingType } from '../extensions/PricingBlock.schema'
 import type { RichTextEditorMode } from '../RichTextEditor'
@@ -49,6 +50,13 @@ export interface DiscountCommandParams {
 
 export type OnDiscountCommand = (params: DiscountCommandParams) => void
 
+export interface CreditsCommandParams {
+  onSave: (attrs: CreditsBlockAttributes) => void
+  editData?: { localId: string }
+}
+
+export type OnCreditsCommand = (params: CreditsCommandParams) => void
+
 interface RichTextEditorContextValue {
   mode: RichTextEditorMode
   mentionValues: Record<string, string>
@@ -57,6 +65,7 @@ interface RichTextEditorContextValue {
   onPricingCommand?: OnPricingCommand
   onImageUpload?: (base64: string) => Promise<string>
   onDiscountCommand?: OnDiscountCommand
+  onCreditsCommand?: OnCreditsCommand
   customerLocale?: Locale
   customerCurrency?: CurrencyEnum
 }
