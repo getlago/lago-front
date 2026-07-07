@@ -29,10 +29,7 @@ import {
   ApplyDunningCampaignDialog,
   ApplyDunningCampaignDialogRef,
 } from '~/pages/settings/BillingEntity/sections/dunning-campaigns/ApplyDunningCampaignDialog'
-import {
-  RemoveAppliedDunningCampaignDialog,
-  RemoveAppliedDunningCampaignDialogRef,
-} from '~/pages/settings/BillingEntity/sections/dunning-campaigns/RemoveAppliedDunningCampaignDialog'
+import { useRemoveAppliedDunningCampaignDialog } from '~/pages/settings/BillingEntity/sections/dunning-campaigns/RemoveAppliedDunningCampaignDialog'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 const BillingEntityDunningCampaigns = () => {
@@ -44,7 +41,7 @@ const BillingEntityDunningCampaigns = () => {
   const hasAccessToFeature = premiumIntegrations?.includes(PremiumIntegrationTypeEnum.AutoDunning)
 
   const applyDunningCampaignDialogRef = useRef<ApplyDunningCampaignDialogRef>(null)
-  const removeAppliedDunningCampaignDialogRef = useRef<RemoveAppliedDunningCampaignDialogRef>(null)
+  const { openRemoveAppliedDunningCampaignDialog } = useRemoveAppliedDunningCampaignDialog()
 
   const {
     data: billingEntityData,
@@ -190,9 +187,8 @@ const BillingEntityDunningCampaigns = () => {
                             variant="quaternary"
                             onClick={() => {
                               if (billingEntity && appliedDunningCampaign) {
-                                removeAppliedDunningCampaignDialogRef.current?.openDialog(
+                                openRemoveAppliedDunningCampaignDialog(
                                   billingEntity as BillingEntity,
-                                  appliedDunningCampaign.id,
                                 )
                               }
                             }}
@@ -209,7 +205,6 @@ const BillingEntityDunningCampaigns = () => {
       </SettingsPaddedContainer>
 
       <ApplyDunningCampaignDialog ref={applyDunningCampaignDialogRef} />
-      <RemoveAppliedDunningCampaignDialog ref={removeAppliedDunningCampaignDialogRef} />
     </>
   )
 }
