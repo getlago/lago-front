@@ -10,7 +10,7 @@ import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { BasicComboBoxData, ComboboxItem } from '~/components/form'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
@@ -115,7 +115,7 @@ const CreateSubscription = () => {
   const { hasFeatureFlag, intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { isRunningInSalesForceIframe, isRunningInIframeContext } = useIframeConfig()
 
-  const warningDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
 
   const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
@@ -430,13 +430,23 @@ const CreateSubscription = () => {
     }
   }, [searchParams, navigate, plan?.id, customerId])
 
+  const openDirtyAttributesWarning = useCallback(() => {
+    centralizedDialog.open({
+      title: translate('text_65118a52df984447c18694ee'),
+      description: translate('text_65118a52df984447c18694fe'),
+      actionText: translate('text_645388d5bdbd7b00abffa033'),
+      colorVariant: 'danger',
+      onAction: () => navigateBack(),
+    })
+  }, [centralizedDialog, navigateBack, translate])
+
   const handleClose = useCallback(() => {
     if (subscriptionIsDirty || planFormIsDirty) {
-      warningDialogRef.current?.openDialog()
+      openDirtyAttributesWarning()
     } else {
       navigateBack()
     }
-  }, [subscriptionIsDirty, planFormIsDirty, navigateBack])
+  }, [subscriptionIsDirty, planFormIsDirty, navigateBack, openDirtyAttributesWarning])
 
   const pageHeaderTitle = useMemo(() => {
     if (formType === FORM_TYPE_ENUM.edition) {
@@ -707,14 +717,6 @@ const CreateSubscription = () => {
           </CenteredPage.StickyFooter>
         </CenteredPage.Wrapper>
       </form>
-
-      <WarningDialog
-        ref={warningDialogRef}
-        title={translate('text_65118a52df984447c18694ee')}
-        description={translate('text_65118a52df984447c18694fe')}
-        continueText={translate('text_645388d5bdbd7b00abffa033')}
-        onContinue={() => navigateBack()}
-      />
     </>
   )
 }
