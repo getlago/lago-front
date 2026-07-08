@@ -21,6 +21,7 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Card } from '~/components/designSystem/Card'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
@@ -44,6 +45,7 @@ import {
   LagoApiError,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import EmptyImage from '~/public/images/maneki/empty.svg'
 import { PageHeader } from '~/styles'
 
 import { useCreateCreditNote } from './common/useCreateCreditNote'
@@ -115,6 +117,7 @@ const CreateCreditNote = () => {
     feeForAddOn,
     feeForCredit,
     hasCreditableOrRefundableAmount,
+    isInvoiceFullyCovered,
     onCreate,
   } = useCreateCreditNote()
   const currency = invoice?.currency || CurrencyEnum.Usd
@@ -283,6 +286,31 @@ const CreateCreditNote = () => {
   const formHasAtLeastOneFeeChecked: boolean = useMemo(() => {
     return creditNoteFormHasAtLeastOneFeeChecked(formikProps.values)
   }, [formikProps.values])
+
+  // Reachable from the invoices list, which no longer knows whether the invoice is fully
+  // covered. Instead of the old hard 404, explain there is nothing left to credit.
+  if (isInvoiceFullyCovered) {
+    return (
+      <div className="flex h-screen w-screen">
+        <GenericPlaceholder
+          image={<EmptyImage width="136" height="104" />}
+          title={translate('text_1783526080347vs608xgb0wg')}
+          subtitle={translate('text_1729082994964zccpjmtotdy')}
+          buttonTitle={translate('text_1783526080347g6rhu312xty')}
+          buttonVariant="primary"
+          buttonAction={() =>
+            navigate(
+              generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+                customerId: customerId ?? '',
+                invoiceId: invoiceId ?? '',
+                tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+              }),
+            )
+          }
+        />
+      </div>
+    )
+  }
 
   return (
     <div>

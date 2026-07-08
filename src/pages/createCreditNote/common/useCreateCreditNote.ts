@@ -156,6 +156,7 @@ type UseCreateCreditNoteReturn = {
   feeForAddOn?: FromFee[]
   feeForCredit?: FromFee[]
   hasCreditableOrRefundableAmount: boolean
+  isInvoiceFullyCovered: boolean
   onCreate: (
     value: CreditNoteForm,
   ) => Promise<{ data?: { createCreditNote?: { id?: string } }; errors?: ApolloError }>
@@ -234,13 +235,14 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
     },
   })
 
-  if (
-    !invoiceId ||
-    hasDefinedGQLError('NotFound', error, 'invoice') ||
-    isCreditNoteCreationDisabled(data?.invoice)
-  ) {
+  if (!invoiceId || hasDefinedGQLError('NotFound', error, 'invoice')) {
     navigate(ERROR_404_ROUTE)
   }
+
+  // A finalized invoice can still be reached here with nothing left to credit (e.g. it was
+  // already fully credited). The invoices list no longer queries the amount fields, so it can't
+  // pre-disable the action — we render a "fully covered" empty state instead of a 404.
+  const isInvoiceFullyCovered = !loading && !error && isCreditNoteCreationDisabled(data?.invoice)
 
   const hasCreditableOrRefundableAmount = hasCreditableOrRefundableAmountUtil(data?.invoice)
 
@@ -377,6 +379,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
     feeForAddOn,
     feeForCredit,
     hasCreditableOrRefundableAmount,
+    isInvoiceFullyCovered,
     onCreate: async (values) => {
       const answer = await create({
         variables: {

@@ -121,6 +121,45 @@ describe('CreateCreditNote', () => {
     })
   })
 
+  describe('fully covered invoice', () => {
+    beforeEach(() => {
+      mockUseCreateCreditNote.mockReturnValue({
+        loading: false,
+        invoice: { ...defaultMockInvoice, creditableAmountCents: '0', refundableAmountCents: '0' },
+        feesPerInvoice: undefined,
+        feeForAddOn: undefined,
+        feeForCredit: undefined,
+        isInvoiceFullyCovered: true,
+        onCreate: mockOnCreate,
+      })
+    })
+
+    it('renders the fully-covered empty state instead of the form', async () => {
+      await act(() => render(<CreateCreditNote />))
+
+      // Title "This invoice is fully covered" + reused "already fully covered" subtitle
+      expect(screen.getByText('This invoice is fully covered')).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          'The credit note can’t be issued as the creditable amount is already fully covered.',
+        ),
+      ).toBeInTheDocument()
+    })
+
+    it('does not render the credit-note form or submit button', async () => {
+      await act(() => render(<CreateCreditNote />))
+
+      expect(screen.queryByText('Items to credit')).not.toBeInTheDocument()
+      expect(screen.queryByText('Issue credit note')).not.toBeInTheDocument()
+    })
+
+    it('offers a button back to the invoice', async () => {
+      await act(() => render(<CreateCreditNote />))
+
+      expect(screen.getByText('Go back to invoice')).toBeInTheDocument()
+    })
+  })
+
   describe('loading state', () => {
     it('does not render form content when loading', async () => {
       mockUseCreateCreditNote.mockReturnValue({
