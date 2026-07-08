@@ -259,11 +259,24 @@ export const createCreditNoteForInvoiceButtonProps = ({
   const isAssociatedWithTerminatedWallet =
     invoiceType === InvoiceTypeEnum.Credit && !associatedActiveWalletPresent
 
-  const disabledIssueCreditNoteButton = isCreditNoteCreationDisabled({
-    creditableAmountCents,
-    refundableAmountCents,
-    offsettableAmountCents,
-  })
+  // The invoices list omits the amount fields on purpose — computing them forces a heavy
+  // `fees → credit_note_items` join. When they are absent we cannot know whether the invoice
+  // is fully covered, so we only apply the cheap terminated-wallet disable. When they are
+  // present (invoice detail page), keep the full "fully covered" check.
+  const hasAmountData =
+    creditableAmountCents !== undefined ||
+    refundableAmountCents !== undefined ||
+    offsettableAmountCents !== undefined
+
+  const isFullyCovered =
+    hasAmountData &&
+    isCreditNoteCreationDisabled({
+      creditableAmountCents,
+      refundableAmountCents,
+      offsettableAmountCents,
+    })
+
+  const disabledIssueCreditNoteButton = isAssociatedWithTerminatedWallet || isFullyCovered
 
   const getDisabledReason = (): keyof typeof TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED => {
     if (isAssociatedWithTerminatedWallet) return 'terminatedWallet'

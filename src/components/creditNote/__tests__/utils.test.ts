@@ -531,6 +531,28 @@ describe('createCreditNoteForInvoiceButtonProps', () => {
       expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_172908299496461z9ejmm2j7')
     })
   })
+
+  describe('GIVEN amount fields are absent (invoices list context)', () => {
+    it('WHEN not a terminated-wallet credit invoice THEN enables the button', () => {
+      const result = createCreditNoteForInvoiceButtonProps({
+        invoiceType: InvoiceTypeEnum.Subscription,
+        associatedActiveWalletPresent: false,
+      })
+
+      expect(result.disabledIssueCreditNoteButton).toBe(false)
+      expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
+    })
+
+    it('WHEN a credit invoice with terminated wallet THEN disables with terminatedWallet message', () => {
+      const result = createCreditNoteForInvoiceButtonProps({
+        invoiceType: InvoiceTypeEnum.Credit,
+        associatedActiveWalletPresent: false,
+      })
+
+      expect(result.disabledIssueCreditNoteButton).toBe(true)
+      expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_172908299496461z9ejmm2j7')
+    })
+  })
 })
 
 describe('getPayBackFields', () => {
