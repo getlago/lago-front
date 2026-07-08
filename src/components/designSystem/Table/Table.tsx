@@ -3,7 +3,8 @@ import MUITableBody from '@mui/material/TableBody'
 import { type TableCellProps } from '@mui/material/TableCell'
 import MUITableHead from '@mui/material/TableHead'
 import MUITableRow, { type TableRowProps } from '@mui/material/TableRow'
-import { MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
+import { Icon } from 'lago-design-system'
+import { MouseEvent, PropsWithChildren, ReactNode, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -85,6 +86,7 @@ export interface TableProps<T> {
   rowSize?: RowSize
   tableInDialog?: boolean
   containerClassName?: string
+  rowAccordion?: (item: T) => ReactNode
 }
 
 const ACTION_COLUMN_ID = 'actionColumn'
@@ -286,6 +288,7 @@ export const Table = <T extends DataItem>({
   actionColumn,
   actionColumnTooltip,
   rowDataTestId,
+  rowAccordion,
 }: TableProps<T>) => {
   const TABLE_ID = `table-${name}`
   const filteredColumns = columns
@@ -306,6 +309,7 @@ export const Table = <T extends DataItem>({
   // `useParams()` can return undefined outside a Router context (e.g. some tests).
   const params = useParams<{ organizationSlug?: string }>()
   const organizationSlug = params?.organizationSlug
+  const [accordionOpenState, setAccordionOpenState] = useState<Record<string, boolean>>({})
 
   const { onKeyDown } = useListKeysNavigation({
     getElmId: (i) => `${TABLE_ID}-row-${i}`,
@@ -401,6 +405,17 @@ export const Table = <T extends DataItem>({
     }
   }
 
+  const toggleAccordion = (id: string) => {
+    if (!id) {
+      return
+    }
+
+    setAccordionOpenState((state) => ({
+      ...state,
+      [id]: !state?.[id],
+    }))
+  }
+
   const renderPlaceholder = () => {
     if (hasError) {
       return (
@@ -490,6 +505,8 @@ export const Table = <T extends DataItem>({
         <MUITableHead>
           <tr>
             <>
+              {rowAccordion && <TableCell></TableCell>}
+
               {filteredColumns.map((column, i) => (
                 <TableCell
                   className="sticky top-0 z-sectionHead border-b-0 bg-white shadow-b"
@@ -520,88 +537,112 @@ export const Table = <T extends DataItem>({
           {renderPlaceholder() ??
             (data.length > 0 &&
               data.map((item, i) => (
-                <TableRow
-                  key={`${TABLE_ID}-row-${i}`}
-                  id={`${TABLE_ID}-row-${i}`}
-                  data-id={item.id}
-                  isClickable={isClickable}
-                  tabIndex={isClickable ? 0 : undefined}
-                  onKeyDown={isClickable ? onKeyDown : undefined}
-                  onClick={isClickable ? (e) => handleRowClick(e, item) : undefined}
-                  data-test={rowDataTestId?.(item) || `table-row-${i}`}
-                >
-                  {filteredColumns.map((column, j) => (
-                    <TableCell
-                      key={`${TABLE_ID}-cell-${i}-${j}`}
-                      align={column.textAlign || 'left'}
-                      maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
-                      tdCellClassName={column.tdCellClassName}
-                    >
-                      <TableInnerCell
-                        align={column.textAlign}
-                        maxWidth={column.maxWidth}
-                        minWidth={column.minWidth}
-                        truncateOverflow={column.truncateOverflow}
+                <>
+                  <TableRow
+                    key={`${TABLE_ID}-row-${i}`}
+                    id={`${TABLE_ID}-row-${i}`}
+                    data-id={item.id}
+                    isClickable={isClickable}
+                    tabIndex={isClickable ? 0 : undefined}
+                    onKeyDown={isClickable ? onKeyDown : undefined}
+                    onClick={isClickable ? (e) => handleRowClick(e, item) : undefined}
+                    data-test={rowDataTestId?.(item) || `table-row-${i}`}
+                  >
+                    {rowAccordion && (
+                      <TableCell className="px-4">
+                        <Icon
+                          name={
+                            accordionOpenState?.[item.id]
+                              ? 'chevron-down-filled'
+                              : 'chevron-right-filled'
+                          }
+                          onClick={() => {
+                            toggleAccordion(item?.id)
+                          }}
+                        />
+                      </TableCell>
+                    )}
+                    {filteredColumns.map((column, j) => (
+                      <TableCell
+                        key={`${TABLE_ID}-cell-${i}-${j}`}
+                        align={column.textAlign || 'left'}
+                        maxSpace={column.maxSpace ? 100 / maxSpaceColumns : undefined}
+                        tdCellClassName={column.tdCellClassName}
                       >
-                        <Typography className="-ml-1 pl-1" noWrap>
-                          {column.content(item)}
-                        </Typography>
-                      </TableInnerCell>
-                    </TableCell>
-                  ))}
-                  {shouldDisplayActionColumn && (
-                    <TableActionCell>
-                      <TableInnerCell data-id={ACTION_COLUMN_ID}>
-                        {Array.isArray(actionColumn(item)) ? (
-                          <Popper
-                            displayInDialog={tableInDialog}
-                            popperGroupName={`${TABLE_ID}-action-cell`}
-                            PopperProps={{ placement: 'bottom-end' }}
-                            opener={({ isOpen }) => (
-                              <PopperOpener className="relative right-0 top-0 h-full md:right-0">
-                                <Tooltip
-                                  className="right-0"
-                                  placement="top-end"
-                                  disableHoverListener={isOpen}
-                                  title={actionColumnTooltip?.(item) || null}
-                                >
-                                  <Button
-                                    icon="dots-horizontal"
-                                    variant="quaternary"
-                                    data-test="open-action-button"
-                                  />
-                                </Tooltip>
-                              </PopperOpener>
-                            )}
-                          >
-                            {({ closePopper }) => (
-                              <MenuPopper data-id={`${TABLE_ID}-popper`}>
-                                {(actionColumn(item) as Array<ActionItem<T> | null>)
-                                  .filter((action) => !!action)
-                                  .map((action, j) => {
-                                    if (!action) {
-                                      return
-                                    }
+                        <TableInnerCell
+                          align={column.textAlign}
+                          maxWidth={column.maxWidth}
+                          minWidth={column.minWidth}
+                          truncateOverflow={column.truncateOverflow}
+                        >
+                          <Typography className="-ml-1 pl-1" noWrap>
+                            {column.content(item)}
+                          </Typography>
+                        </TableInnerCell>
+                      </TableCell>
+                    ))}
+                    {shouldDisplayActionColumn && (
+                      <TableActionCell>
+                        <TableInnerCell data-id={ACTION_COLUMN_ID}>
+                          {Array.isArray(actionColumn(item)) ? (
+                            <Popper
+                              displayInDialog={tableInDialog}
+                              popperGroupName={`${TABLE_ID}-action-cell`}
+                              PopperProps={{ placement: 'bottom-end' }}
+                              opener={({ isOpen }) => (
+                                <PopperOpener className="relative right-0 top-0 h-full md:right-0">
+                                  <Tooltip
+                                    className="right-0"
+                                    placement="top-end"
+                                    disableHoverListener={isOpen}
+                                    title={actionColumnTooltip?.(item) || null}
+                                  >
+                                    <Button
+                                      icon="dots-horizontal"
+                                      variant="quaternary"
+                                      data-test="open-action-button"
+                                    />
+                                  </Tooltip>
+                                </PopperOpener>
+                              )}
+                            >
+                              {({ closePopper }) => (
+                                <MenuPopper data-id={`${TABLE_ID}-popper`}>
+                                  {(actionColumn(item) as Array<ActionItem<T> | null>)
+                                    .filter((action) => !!action)
+                                    .map((action, j) => {
+                                      if (!action) {
+                                        return
+                                      }
 
-                                    return (
-                                      <ActionItemButton
-                                        key={`${TABLE_ID}-popper-action-${i}-${j}`}
-                                        action={action}
-                                        item={item}
-                                        closePopper={closePopper}
-                                      />
-                                    )
-                                  })}
-                              </MenuPopper>
-                            )}
-                          </Popper>
-                        ) : (
-                          (actionColumn(item) as ReactNode)
-                        )}
-                      </TableInnerCell>
-                    </TableActionCell>
+                                      return (
+                                        <ActionItemButton
+                                          key={`${TABLE_ID}-popper-action-${i}-${j}`}
+                                          action={action}
+                                          item={item}
+                                          closePopper={closePopper}
+                                        />
+                                      )
+                                    })}
+                                </MenuPopper>
+                              )}
+                            </Popper>
+                          ) : (
+                            (actionColumn(item) as ReactNode)
+                          )}
+                        </TableInnerCell>
+                      </TableActionCell>
+                    )}
+                  </TableRow>
+
+                  {rowAccordion && accordionOpenState?.[item?.id] && (
+                    <TableRow>
+                      <TableCell colSpan={8}>
+                        <>{rowAccordion(item)}</>
+                      </TableCell>
+                    </TableRow>
                   )}
-                </TableRow>
+                </>
               )))}
           {isLoading &&
             LoadingRows({
