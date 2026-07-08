@@ -706,6 +706,3287 @@ exports[`InvoicesList Snapshot Tests matches snapshot in loading state 1`] = `
             </div>
           </td>
         </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class=MuiTableRow-root css-hash-MuiTableRow-root
+        >
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center justify-end"
+              style="min-width: 160px; max-width: auto;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 80px; max-width: auto;"
+            >
+              <div
+                style="width: 48px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: auto; max-width: auto;"
+            >
+              <div
+                style="width: 100%;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 160px; max-width: 600px;"
+            >
+              <div
+                style="width: 128px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td
+            class=MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium lago-table-cell w-auto whitespace-nowrap p-0 css-hash-MuiTableCell-root
+            style="width: auto; border-bottom: 1px solid rgb(217, 222, 231); box-shadow: none;"
+          >
+            <div
+              class="lago-table-inner-cell flex items-center"
+              style="min-width: 104px; max-width: auto;"
+            >
+              <div
+                style="width: 72px;"
+              >
+                <div
+                  class="flex max-w-full items-center h-6 w-full"
+                >
+                  <div
+                    class="animate-pulse bg-grey-100 h-3 rounded-3xl w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>

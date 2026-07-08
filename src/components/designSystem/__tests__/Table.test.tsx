@@ -2,6 +2,7 @@ import { act, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { Button } from '~/components/designSystem/Button'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { render } from '~/test-utils'
 
 import { Table } from '../Table/Table'
@@ -172,7 +173,7 @@ describe('Table', () => {
     expect(screen.queryAllByRole('rowgroup')).toHaveLength(2)
     const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
 
-    expect(bodyRows).toHaveLength(3)
+    expect(bodyRows).toHaveLength(DEFAULT_PAGE_SIZE)
     expect(within(bodyRows[0]).queryAllByRole('cell')).toHaveLength(2)
   })
 
