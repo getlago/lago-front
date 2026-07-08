@@ -79,9 +79,6 @@ gql`
     paymentDisputeLostAt
     taxProviderVoidable
     invoiceType
-    creditableAmountCents
-    refundableAmountCents
-    offsettableAmountCents
     associatedActiveWalletPresent
     voidedInvoiceId
     regeneratedInvoiceId
@@ -436,9 +433,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
               createCreditNoteForInvoiceButtonProps({
                 invoiceType: invoice?.invoiceType,
-                creditableAmountCents: invoice?.creditableAmountCents,
-                refundableAmountCents: invoice?.refundableAmountCents,
-                offsettableAmountCents: invoice?.offsettableAmountCents,
                 associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
               })
 
