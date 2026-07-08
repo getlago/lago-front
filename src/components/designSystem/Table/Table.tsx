@@ -15,6 +15,7 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
 import { ResponsiveStyleValue, setResponsiveProperty } from '~/core/utils/responsiveProps'
@@ -88,7 +89,7 @@ export interface TableProps<T> {
 }
 
 const ACTION_COLUMN_ID = 'actionColumn'
-const LOADING_ROW_COUNT = 3
+const LOADING_ROW_COUNT = DEFAULT_PAGE_SIZE
 
 const MIN_CONTAINER_PADDING_PX = 4
 
@@ -518,7 +519,8 @@ export const Table = <T extends DataItem>({
 
         <MUITableBody>
           {renderPlaceholder() ??
-            (data.length > 0 &&
+            (!isLoading &&
+              data.length > 0 &&
               data.map((item, i) => (
                 <TableRow
                   key={`${TABLE_ID}-row-${i}`}

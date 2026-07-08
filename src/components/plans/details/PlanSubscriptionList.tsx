@@ -81,12 +81,9 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
       >
         <Table
           name="plan-subscriptions"
-          data={
-            areSubscriptionsLoading ? [] : (subscriptionResult?.subscriptions?.collection ?? [])
-          }
+          data={subscriptionResult?.subscriptions?.collection ?? []}
           containerSize={0}
           isLoading={areSubscriptionsLoading}
-          loadingRowCount={DEFAULT_PAGE_SIZE}
           hasError={!!subscriptionsError}
           rowSize={72}
           onRowActionLink={({ id, plan }) =>

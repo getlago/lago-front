@@ -9,7 +9,6 @@ import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy
 import { buildPaymentDocumentData } from '~/components/emails/buildDocumentData'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
 import { addToast } from '~/core/apolloClient'
-import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { payablePaymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_PAYMENT_DETAILS_ROUTE } from '~/core/router'
@@ -65,10 +64,9 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
     >
       <Table
         name="customer-payments-list"
-        data={loading ? [] : payments}
+        data={payments}
         containerSize={{ default: 4 }}
         isLoading={loading}
-        loadingRowCount={DEFAULT_PAGE_SIZE}
         placeholder={placeholder}
         actionColumn={({ paymentReceipt, customer }) => {
           const canResendEmail =

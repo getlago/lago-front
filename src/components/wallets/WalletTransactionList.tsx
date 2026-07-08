@@ -29,6 +29,7 @@ import {
   WalletDetailsDrawerRef,
 } from '~/components/wallets/WalletDetailsDrawer'
 import { addToast } from '~/core/apolloClient'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CREATE_WALLET_TOP_UP_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
@@ -104,8 +105,6 @@ interface WalletTransactionListProps {
   containerSize?: ResponsiveStyleValue<TableContainerSize>
 }
 
-const WALLET_TRANSACTIONS_ITEMS_PER_PAGE = 10
-
 export const WalletTransactionList: FC<WalletTransactionListProps> = ({
   customerTimezone,
   isOpen,
@@ -121,7 +120,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
 
   const [getWalletTransactions, { data, error, fetchMore, loading, refetch }] =
     useGetWalletTransactionsLazyQuery({
-      variables: { walletId: wallet.id, limit: WALLET_TRANSACTIONS_ITEMS_PER_PAGE },
+      variables: { walletId: wallet.id, limit: DEFAULT_PAGE_SIZE },
       notifyOnNetworkStatusChange: true,
     })
   const list = data?.walletTransactions?.collection
@@ -208,11 +207,10 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
           <>
             <Table
               name="wallet-transactions-list"
-              data={isLoading ? [] : list || []}
+              data={list || []}
               containerSize={containerSize}
               rowSize={72}
               isLoading={isLoading}
-              loadingRowCount={WALLET_TRANSACTIONS_ITEMS_PER_PAGE}
               hasError={!!error}
               actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
               actionColumn={(transaction) =>
@@ -495,7 +493,6 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
           currentPage={currentPage}
           totalPages={totalPages}
           totalCount={totalCount}
-          pageSize={WALLET_TRANSACTIONS_ITEMS_PER_PAGE}
           loading={isLoading}
           onPageChange={(page) => fetchMore({ variables: { page } })}
         />

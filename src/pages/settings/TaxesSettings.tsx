@@ -147,7 +147,7 @@ const TaxesSettings = () => {
                 containerSize={{ default: 0 }}
                 rowSize={72}
                 isLoading={loading}
-                data={loading ? [] : (collection ?? [])}
+                data={collection ?? []}
                 loadingRowCount={pageSize}
                 columns={[
                   {

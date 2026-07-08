@@ -140,7 +140,7 @@ const SecurityLogs = () => {
           containerSize={{ default: 4 }}
           rowSize={72}
           columns={columns}
-          data={isLoadingSecurityLogs ? [] : securityLogs}
+          data={securityLogs}
           loadingRowCount={pageSize}
           isLoading={isLoadingSecurityLogs}
           placeholder={tablePlaceholder}

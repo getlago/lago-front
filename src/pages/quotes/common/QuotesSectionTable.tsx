@@ -52,7 +52,7 @@ export const QuotesSectionTable = <T extends { id: string }>({
         <Table
           name={name}
           containerClassName={containerClassName}
-          data={isLoading ? [] : data}
+          data={data}
           loadingRowCount={pageSize}
           isLoading={isLoading}
           hasError={hasError}

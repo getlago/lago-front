@@ -129,18 +129,15 @@ export const RevenueStreamsCustomerBreakdownSection = () => {
           name="revenue-streams-customer-breakdown"
           containerSize={{ default: 0 }}
           rowSize={72}
-          loadingRowCount={DEFAULT_PAGE_SIZE}
           isLoading={revenueStreamsCustomerBreakdownLoading}
           hasError={!!revenueStreamsCustomerBreakdownError}
           data={
-            revenueStreamsCustomerBreakdownLoading
-              ? []
-              : revenueStreamsCustomerBreakdownData?.dataApiRevenueStreamsCustomers.collection.map(
-                  (c) => ({
-                    id: c.externalCustomerId,
-                    ...c,
-                  }),
-                ) || []
+            revenueStreamsCustomerBreakdownData?.dataApiRevenueStreamsCustomers.collection.map(
+              (c) => ({
+                id: c.externalCustomerId,
+                ...c,
+              }),
+            ) || []
           }
           placeholder={{
             emptyState: {

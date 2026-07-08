@@ -134,16 +134,13 @@ export const RevenueStreamsPlanBreakdownSection = () => {
           name="revenue-streams-plan-breakdown"
           containerSize={{ default: 0 }}
           rowSize={72}
-          loadingRowCount={DEFAULT_PAGE_SIZE}
           isLoading={revenueStreamsPlanBreakdownLoading}
           hasError={!!revenueStreamsPlanBreakdownError}
           data={
-            revenueStreamsPlanBreakdownLoading
-              ? []
-              : revenueStreamsPlanBreakdownData?.dataApiRevenueStreamsPlans.collection.map((p) => ({
-                  id: p.planId,
-                  ...p,
-                })) || []
+            revenueStreamsPlanBreakdownData?.dataApiRevenueStreamsPlans.collection.map((p) => ({
+              id: p.planId,
+              ...p,
+            })) || []
           }
           placeholder={{
             emptyState: {

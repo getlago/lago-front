@@ -190,9 +190,8 @@ export const CustomerAppliedCouponsList = ({
       >
         <Table
           name="customer-coupons-list"
-          data={loading ? [] : appliedCoupons}
+          data={appliedCoupons}
           isLoading={loading}
-          loadingRowCount={DEFAULT_PAGE_SIZE}
           hasError={!!error}
           containerSize={0}
           rowSize={72}

@@ -192,10 +192,9 @@ export const CouponDetailsAppliedCoupons = ({ couponCode }: CouponDetailsApplied
       >
         <Table
           name="coupon-details-applied-coupons"
-          data={loading ? [] : appliedCoupons}
+          data={appliedCoupons}
           containerSize={0}
           isLoading={loading}
-          loadingRowCount={DEFAULT_PAGE_SIZE}
           hasError={!!error}
           rowSize={72}
           onRowActionLink={getRowActionLink}

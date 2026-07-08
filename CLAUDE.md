@@ -100,17 +100,23 @@ Adding a paginated list:
    <PaginatedContent
      metadata={data?.<field>.metadata}   // MUST pass, else totalCount=0 → pager hidden
      loading={loading}
-     pageSize={DEFAULT_PAGE_SIZE}         // MUST equal the query `limit`, else "X-Y of N" lies
      onPageChange={goToPage}              // URL-driven: deep-linkable + survives refresh
      sticky={/* full-page: true (default) · list inside a scrolling tab: false */}
      insetPager={/* true ONLY for full-page lists · see below */}
    >
-     <Table data={loading ? [] : rows} loadingRowCount={DEFAULT_PAGE_SIZE} ... />
+     <Table data={rows} isLoading={loading} ... />
    </PaginatedContent>
    ```
-   - `data={loading ? [] : rows}` → skeletons replace the list (never append).
-   - `pageSize` **must match the query `limit`** (including custom limits, e.g. 10/5) — it
-     drives the range label; a mismatch shows the wrong count.
+   - `Table` auto-blanks data rows while `isLoading` → skeletons render in place (never
+     stacked below existing rows). Pass `data={rows}` directly — no `loading ? [] : rows`
+     ternary needed.
+   - `loadingRowCount` defaults to `DEFAULT_PAGE_SIZE` on `Table` — only pass when the
+     list uses a custom page size (e.g. `loadingRowCount={pageSize}` for rows-per-page menu).
+   - `pageSize` on `PaginatedContent` defaults to `DEFAULT_PAGE_SIZE` and **must match the
+     query `limit`** — mismatch makes the "X-Y of N" label lie. Pass explicitly ONLY when
+     using a custom limit (e.g. `pageSize={pageSize}` for rows-per-page menu, or
+     `pageSize={PORTAL_INVOICES_PAGE_SIZE}` for fixed non-default sizes). Omit for the
+     default 20.
    - **URL page** via `usePageSearchParam(prefix?)` (`~/components/designSystem/Pagination`):
      bare `page` for a single list on the route; pass a `prefix` (`usePageSearchParam('draft')`
      → `draft_page`) **only** when 2+ paginated lists share one view (customer invoices,

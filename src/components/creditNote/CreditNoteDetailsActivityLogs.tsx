@@ -89,7 +89,6 @@ export const CreditNoteDetailsActivityLogs = ({
             data={data?.activityLogs?.collection ?? []}
             error={error}
             isLoading={loading}
-            loadingRowCount={DEFAULT_PAGE_SIZE}
             refetch={refetch}
             onRowActionLink={(row) => {
               const url = buildLinkToActivityLog(row.activityId)

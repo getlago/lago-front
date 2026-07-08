@@ -14,6 +14,7 @@ import { PageSectionTitle } from '~/components/layouts/Section'
 import { formatAmount, formatCredits } from '~/components/wallets/utils'
 import { CREATE_WALLET_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import WalletActions from '~/components/wallets/WalletActions'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_WALLET_ROUTE, useNavigate, WALLET_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -33,8 +34,6 @@ import { WalletDetailsTabsOptionsEnum } from '~/pages/wallet/WalletDetails'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 const ACTIVE_WALLET_COUNT_LIMIT = 6
-
-const WALLET_LIST_ITEMS_PER_PAGE = 10
 
 gql`
   fragment WalletAccordion on Wallet {
@@ -101,7 +100,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
   const { page, goToPage } = usePageSearchParam()
 
   const { data, error, loading } = useGetCustomerWalletListQuery({
-    variables: { customerId, page, limit: WALLET_LIST_ITEMS_PER_PAGE },
+    variables: { customerId, page, limit: DEFAULT_PAGE_SIZE },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
   })
@@ -315,15 +314,13 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
         <PaginatedContent
           metadata={data?.wallets?.metadata}
           loading={loading}
-          pageSize={WALLET_LIST_ITEMS_PER_PAGE}
           onPageChange={goToPage}
           sticky={false}
         >
           <Table
             name="customer-wallet-list"
-            data={loading ? [] : walletsCollection}
+            data={walletsCollection}
             isLoading={loading}
-            loadingRowCount={WALLET_LIST_ITEMS_PER_PAGE}
             hasError={!!error}
             containerSize={0}
             rowSize={72}

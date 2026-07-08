@@ -77,12 +77,11 @@ export const InvoicePaymentList: FC<{
         >
           <Table
             name="payments-list"
-            data={loading ? [] : payments || []}
+            data={payments || []}
             containerSize={{
               default: 0,
             }}
             isLoading={loading}
-            loadingRowCount={DEFAULT_PAGE_SIZE}
             hasError={!!error}
             onRowActionLink={(request) =>
               generatePath(PAYMENT_DETAILS_ROUTE, {

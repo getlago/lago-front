@@ -217,7 +217,7 @@ const MembersInvitationList = () => {
           containerSize={{ default: 0 }}
           rowSize={72}
           isLoading={invitesLoading}
-          data={invitesLoading ? [] : filteredInvitations}
+          data={filteredInvitations}
           loadingRowCount={pageSize}
           hasError={!!invitesError}
           placeholder={getTablePlaceholder()}

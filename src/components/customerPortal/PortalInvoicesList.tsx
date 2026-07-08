@@ -309,7 +309,7 @@ const PortalInvoicesList = () => {
                 subtitle: translate('text_641d6b1ae9019c00b59fe250'),
               },
             }}
-            data={loading || searchIsLoading ? [] : (collection ?? [])}
+            data={collection ?? []}
             columns={[
               {
                 key: 'issuingDate',

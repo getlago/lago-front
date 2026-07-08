@@ -184,7 +184,7 @@ const MemberList = () => {
           containerSize={{ default: 0 }}
           rowSize={72}
           isLoading={membersLoading}
-          data={membersLoading ? [] : filteredMembers}
+          data={filteredMembers}
           loadingRowCount={pageSize}
           hasError={!!membersError}
           placeholder={tablePlaceholder}

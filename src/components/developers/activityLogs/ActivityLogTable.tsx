@@ -33,7 +33,7 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
       onPageSizeChange={onPageSizeChange}
     >
       <Table
-        data={loading ? [] : (data?.activityLogs?.collection ?? [])}
+        data={data?.activityLogs?.collection ?? []}
         isLoading={loading}
         loadingRowCount={pageSize}
         error={error}

@@ -209,7 +209,7 @@ const SubscriptionsPage = () => {
           isLoading={isLoading}
           loadingRowCount={pageSize}
           hasError={!!error}
-          subscriptions={isLoading ? [] : subscriptions}
+          subscriptions={subscriptions}
           containerSize={{
             default: 16,
             md: 48,

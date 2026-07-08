@@ -193,7 +193,7 @@ const Dunnings = () => {
                           containerSize={{ default: 0 }}
                           rowSize={72}
                           isLoading={loading}
-                          data={loading ? [] : sortedTable}
+                          data={sortedTable}
                           loadingRowCount={pageSize}
                           columns={[
                             {

@@ -144,7 +144,7 @@ const AddOnsList = () => {
       >
         <Table
           name="add-ons-list"
-          data={isLoading ? [] : (data?.addOns?.collection ?? [])}
+          data={data?.addOns?.collection ?? []}
           loadingRowCount={pageSize}
           containerSize={{
             default: 16,

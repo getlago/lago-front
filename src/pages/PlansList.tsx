@@ -139,7 +139,7 @@ const PlansList = () => {
       >
         <Table
           name="plans-list"
-          data={isLoading ? [] : (data?.plans?.collection ?? [])}
+          data={data?.plans?.collection ?? []}
           loadingRowCount={pageSize}
           containerSize={{
             default: 16,

@@ -130,18 +130,16 @@ export const CustomerSubscriptionsList = ({
         <PaginatedContent
           metadata={metadata}
           loading={loading}
-          pageSize={DEFAULT_PAGE_SIZE}
           onPageChange={goToPage}
           sticky={false}
         >
           <SubscriptionsList
             name="customer-subscriptions"
-            subscriptions={loading ? [] : subscriptions}
+            subscriptions={subscriptions}
             customerId={customerId}
             customerTimezone={customerTimezone}
             containerSize={4}
             isLoading={loading}
-            loadingRowCount={DEFAULT_PAGE_SIZE}
             actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
             onRowActionLink={({ id }) =>
               generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {

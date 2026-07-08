@@ -155,9 +155,7 @@ const InvoiceSections = () => {
                     name="pricing-units"
                     containerClassName="h-auto"
                     containerSize={{ default: 4 }}
-                    data={
-                      pricingUnitsLoading ? [] : (pricingUnitsData?.pricingUnits?.collection ?? [])
-                    }
+                    data={pricingUnitsData?.pricingUnits?.collection ?? []}
                     isLoading={pricingUnitsLoading}
                     loadingRowCount={pricingUnitsPageSize}
                     hasError={!!pricingUnitsError}

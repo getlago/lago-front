@@ -208,7 +208,7 @@ const CouponsList = () => {
       >
         <Table
           name="coupons-list"
-          data={isLoading ? [] : (data?.coupons?.collection ?? [])}
+          data={data?.coupons?.collection ?? []}
           loadingRowCount={pageSize}
           containerSize={{
             default: 16,

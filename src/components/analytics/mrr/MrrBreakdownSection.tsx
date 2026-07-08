@@ -143,16 +143,13 @@ export const MrrBreakdownSection = () => {
           name="mrr-plan-breakdown"
           containerSize={{ default: 0 }}
           rowSize={72}
-          loadingRowCount={DEFAULT_PAGE_SIZE}
           isLoading={mrrPlanBreakdownLoading}
           hasError={!!mrrPlanBreakdownError}
           data={
-            mrrPlanBreakdownLoading
-              ? []
-              : mrrPlanBreakdownData?.dataApiMrrsPlans.collection.map((p) => ({
-                  id: p.planId,
-                  ...p,
-                })) || []
+            mrrPlanBreakdownData?.dataApiMrrsPlans.collection.map((p) => ({
+              id: p.planId,
+              ...p,
+            })) || []
           }
           placeholder={{
             emptyState: {

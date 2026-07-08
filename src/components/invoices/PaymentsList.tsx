@@ -138,7 +138,7 @@ export const PaymentsList: FC<PaymentsListProps> = ({
       <Table
         name="payments-list"
         containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
-        data={isLoading ? [] : payments || []}
+        data={payments || []}
         containerSize={{
           default: 16,
           md: 48,
