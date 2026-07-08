@@ -1,3 +1,4 @@
+import { tw } from 'lago-design-system'
 import { useEffect, useRef, useState } from 'react'
 
 import { ChatConversation } from '~/components/aiAgent/ChatConversation'
@@ -15,9 +16,10 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 type PanelAiAgentProps = {
   hasAccessToAiAgent: boolean
+  isFullscreen?: boolean
 }
 
-export const PanelAiAgent = ({ hasAccessToAiAgent }: PanelAiAgentProps) => {
+export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentProps) => {
   const { addNewMessage, agentType, conversationId, startNewConversation, state } = useAiAgent()
   const { createAiConversation, loading, error } = useCreateAiConversation()
   const { submitFinanceQuestion } = useAskFinanceAssistant()
@@ -81,7 +83,7 @@ export const PanelAiAgent = ({ hasAccessToAiAgent }: PanelAiAgentProps) => {
   const shouldDisplayWelcomeMessage = !state.messages.length && !loading && !error
 
   return (
-    <div className="flex h-full flex-col bg-grey-100 shadow-l">
+    <div className={tw('flex h-full flex-col bg-grey-100', !isFullscreen && 'shadow-l')}>
       {shouldDisplayWelcomeMessage && (
         <div className="mb-6 mt-auto flex flex-col gap-6 px-6">
           <div className="flex flex-col gap-1">

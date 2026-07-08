@@ -15,6 +15,8 @@ type PanelWrapperProps = {
   onBackButton?: () => void
   showHistoryButton?: boolean
   onShowHistory?: () => void
+  onFullscreen?: () => void
+  isFullscreen?: boolean
 }
 
 export const PanelWrapper = ({
@@ -26,6 +28,8 @@ export const PanelWrapper = ({
   onBackButton,
   showHistoryButton,
   onShowHistory,
+  onFullscreen,
+  isFullscreen,
 }: PanelWrapperProps) => {
   const { agentType, closePanel, setAgentType } = useAiAgent()
   const { translate } = useInternationalization()
@@ -79,6 +83,14 @@ export const PanelWrapper = ({
     </Typography>
   )
 
+  const onClose = () => {
+    if (isFullscreen) {
+      onFullscreen?.()
+    }
+
+    closePanel()
+  }
+
   return (
     <div>
       <div className="flex flex-row items-center justify-between gap-2 px-6 py-4 shadow-b">
@@ -96,13 +108,21 @@ export const PanelWrapper = ({
           )}
         </div>
         <div className="flex flex-row items-center gap-3">
+          {onFullscreen && (
+            <Button
+              size="medium"
+              variant="quaternary"
+              icon={isFullscreen ? 'resize-reduce' : 'resize-expand'}
+              onClick={onFullscreen}
+            />
+          )}
           {showHistoryButton && (
             <Button size="medium" variant="quaternary" icon="history" onClick={onShowHistory} />
           )}
-          <Button size="medium" variant="quaternary" icon="close" onClick={closePanel} />
+          <Button size="medium" variant="quaternary" icon="close" onClick={onClose} />
         </div>
       </div>
-      <div className="height-minus-nav flex flex-col justify-between overflow-y-auto">
+      <div className="height-minus-nav flex flex-col items-center justify-center overflow-y-auto bg-grey-100">
         {children}
       </div>
     </div>

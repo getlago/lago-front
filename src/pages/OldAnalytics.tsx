@@ -1,6 +1,7 @@
 import { Icon } from 'lago-design-system'
 import { useEffect, useMemo, useState } from 'react'
 
+import { FinanceAssistantAnalyticsCta } from '~/components/aiAgent/FinanceAssistantAnalyticsCta'
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
@@ -199,6 +200,10 @@ const Analytics = () => {
           forceLoading={currentUserDataLoading || currentOrganizationDataLoading}
           period={periodScope}
         />
+      </div>
+
+      <div className="absolute inset-x-0 bottom-6 z-10 px-4">
+        <FinanceAssistantAnalyticsCta />
       </div>
     </>
   )
