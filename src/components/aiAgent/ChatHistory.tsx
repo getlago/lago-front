@@ -10,9 +10,10 @@ import { tw } from '~/styles/utils'
 
 type ChatHistoryProps = {
   hideHistory?: () => void
+  isFullscreen?: boolean
 }
 
-export const ChatHistory = ({ hideHistory }: ChatHistoryProps) => {
+export const ChatHistory = ({ hideHistory, isFullscreen }: ChatHistoryProps) => {
   const { setPreviousChatMessages } = useAiAgent()
 
   const { getAiConversation } = useGetAiConversation()
@@ -52,7 +53,7 @@ export const ChatHistory = ({ hideHistory }: ChatHistoryProps) => {
   }
 
   return (
-    <div className="flex h-full flex-col gap-1 bg-grey-100 p-4 pt-6">
+    <div className={tw('flex h-full flex-col gap-1 bg-grey-100 p-6', !isFullscreen && 'shadow-l')}>
       <div className="flex flex-col gap-1">
         {loading &&
           Array.from({ length: 3 }).map((_, index) => (

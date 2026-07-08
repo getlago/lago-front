@@ -1,6 +1,6 @@
 import { tw } from 'lago-design-system'
 import { useState } from 'react'
-import { Panel, PanelResizeHandle } from 'react-resizable-panels'
+import { Panel } from 'react-resizable-panels'
 import { matchRoutes } from 'react-router-dom'
 
 import { ChatHistory } from '~/components/aiAgent/ChatHistory'
@@ -27,6 +27,7 @@ export const AiAgent = () => {
   const { isPremium, currentUser } = useCurrentUser()
   const { translate } = useInternationalization()
   const [showHistory, setShowHistory] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const location = useLocation()
   const { hasPermissions } = usePermissions()
 
@@ -81,6 +82,10 @@ export const AiAgent = () => {
     return resetConversation()
   }
 
+  const onFullscreen = () => {
+    setIsFullscreen((f) => !f)
+  }
+
   return (
     <>
       <div className="relative">
@@ -91,15 +96,18 @@ export const AiAgent = () => {
         </div>
       </div>
 
-      <PanelResizeHandle disabled={currentPanelOpened !== AIPanelEnum.ai} />
-
       <Panel
         id="ai-panel"
         ref={panelRef}
         defaultSize={PANEL_CLOSED}
         minSize={PANEL_CLOSED}
         maxSize={PANEL_OPEN}
-        className={tw(panelOpen ? 'min-w-[360px] max-w-[420px]' : 'min-w-[0px]', 'shadow-l')}
+        className={tw(
+          panelOpen && isFullscreen && 'fixed left-0 top-0 z-[1700] w-full bg-white',
+          panelOpen && !isFullscreen && 'min-w-[360px] max-w-[420px]',
+          !panelOpen && 'min-w-[0px]',
+          'shadow-l',
+        )}
       >
         {currentPanelOpened === AIPanelEnum.ai && (
           <PanelWrapper
@@ -116,10 +124,21 @@ export const AiAgent = () => {
               agentHasHistory && shouldDisplayWelcomeMessage && !showHistory && hasAccessToAiAgent
             }
             onShowHistory={() => setShowHistory(true)}
+            onFullscreen={() => onFullscreen()}
+            isFullscreen={isFullscreen}
           >
-            {showHistory && <ChatHistory hideHistory={() => setShowHistory(false)} />}
+            <div className="h-full w-full max-w-5xl">
+              {showHistory && (
+                <ChatHistory
+                  isFullscreen={isFullscreen}
+                  hideHistory={() => setShowHistory(false)}
+                />
+              )}
 
-            {!showHistory && <PanelAiAgent hasAccessToAiAgent={hasAccessToAiAgent} />}
+              {!showHistory && (
+                <PanelAiAgent isFullscreen={isFullscreen} hasAccessToAiAgent={hasAccessToAiAgent} />
+              )}
+            </div>
           </PanelWrapper>
         )}
       </Panel>

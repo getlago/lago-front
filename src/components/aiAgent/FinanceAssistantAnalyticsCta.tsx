@@ -16,6 +16,7 @@ export const FinanceAssistantAnalyticsCta = () => {
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const [question, setQuestion] = useState('')
+  const [isVisible, setIsVisible] = useState(true)
 
   const hasAccessToAiAgent =
     isPremium && hasPermissions(['aiConversationsView', 'aiConversationsCreate'])
@@ -34,6 +35,11 @@ export const FinanceAssistantAnalyticsCta = () => {
     openPanelWithAgent(AiAgentTypeEnum.finance)
     submitFinanceQuestion(question.trim())
     setQuestion('')
+    setIsVisible(false)
+  }
+
+  if (!isVisible) {
+    return null
   }
 
   return (

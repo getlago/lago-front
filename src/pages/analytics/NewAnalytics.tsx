@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { generatePath } from 'react-router-dom'
 
+import { FinanceAssistantAnalyticsCta } from '~/components/aiAgent/FinanceAssistantAnalyticsCta'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -108,6 +109,10 @@ const NewAnalytics = () => {
       />
 
       {activeTabContent}
+
+      <div className="absolute inset-x-0 bottom-6 z-10 px-4">
+        <FinanceAssistantAnalyticsCta />
+      </div>
     </>
   )
 }
