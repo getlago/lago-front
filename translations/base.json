@@ -4476,5 +4476,7 @@
   "text_1783584917380z3uuxa0ey02": "Rule {{number}}",
   "text_178344708284148puah3a4at": "Failed to save. Please try again.",
   "text_1783447082842231k4gnufxi": "This value was rejected. Please review it.",
-  "text_1783670256902guo0smcgak1": "The total amount of all credit notes matches this invoice's total. No additional credit notes can be created."
+  "text_1783670256902guo0smcgak1": "The total amount of all credit notes matches this invoice's total. No additional credit notes can be created.",
+  "text_1783511588872okv9237slg5": "Define a PO number to display on future finalized invoices linked to this wallet.",
+  "text_1783511588872qmkjh4n14du": "Define a PO number to display on future finalized invoices linked to this subscription."
 }
