@@ -58,7 +58,13 @@ const createMockForm = (values: Record<string, unknown> = {}) => ({
     children,
     name,
   }: {
-    children: (field: Record<string, React.FC<Record<string, unknown>>>) => React.ReactNode
+    children: (field: {
+      TextInputField: React.FC<Record<string, unknown>>
+      DatePickerField: React.FC<Record<string, unknown>>
+      ButtonSelectorField: React.FC<Record<string, unknown>>
+      state: { value: unknown }
+      handleChange: (value: unknown) => void
+    }) => React.ReactNode
     name: string
   }) => {
     const FieldComponent: React.FC<Record<string, unknown>> = (fieldProps) => (
@@ -76,6 +82,8 @@ const createMockForm = (values: Record<string, unknown> = {}) => ({
           TextInputField: FieldComponent,
           DatePickerField: FieldComponent,
           ButtonSelectorField: FieldComponent,
+          state: { value: values[name] },
+          handleChange: mockSetFieldValue,
         })}
       </>
     )

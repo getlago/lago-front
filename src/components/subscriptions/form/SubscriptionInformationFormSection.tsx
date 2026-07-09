@@ -6,6 +6,7 @@ import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/s
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import { SubscriptionActivationRuleSection } from '~/components/subscriptions/SubscriptionActivationRuleSection'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getTimezoneConfig } from '~/core/timezone'
@@ -34,6 +35,7 @@ gql`
     subscriptionAt
     endingAt
     billingTime
+    purchaseOrderNumber
     billingEntityId
     periodEndDate
     status
@@ -313,6 +315,16 @@ export const SubscriptionInformationFormSection = withForm({
               </div>
             </>
           )}
+
+          <form.AppField name="purchaseOrderNumber">
+            {(field) => (
+              <PurchaseOrderFormBlock
+                value={field.state.value}
+                description={translate('text_1783511588872qmkjh4n14du')}
+                onChange={(value) => field.handleChange(value ?? undefined)}
+              />
+            )}
+          </form.AppField>
 
           {!!customerExternalId && (
             <SubscriptionActivationRuleSection
