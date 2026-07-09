@@ -646,7 +646,7 @@ describe('plan amount cents conversion', () => {
       amountCurrency: CurrencyEnum.Usd,
     })
 
-    expect(result.amount_cents).toBe(85000)
+    expect(result.amountCents).toBe(85000)
   })
 
   it('serializes minimum commitment and usage thresholds to cents', () => {
@@ -668,10 +668,10 @@ describe('plan amount cents conversion', () => {
       },
     })
 
-    expect(result.minimum_commitment?.amount_cents).toBe(500000)
-    expect(result.usage_thresholds).toEqual([
-      { amount_cents: 10000, recurring: false, threshold_display_name: 'Tier 1' },
-      { amount_cents: 50000, recurring: true, threshold_display_name: 'Cap' },
+    expect(result.minimumCommitment?.amountCents).toBe(500000)
+    expect(result.usageThresholds).toEqual([
+      { amountCents: 10000, recurring: false, thresholdDisplayName: 'Tier 1' },
+      { amountCents: 50000, recurring: true, thresholdDisplayName: 'Cap' },
     ])
   })
 
@@ -682,7 +682,7 @@ describe('plan amount cents conversion', () => {
       amountCurrency: CurrencyEnum.Usd,
     })
 
-    expect(result.plans[0].payload.amount_cents).toBe('85000')
+    expect(result.plans[0].payload.amountCents).toBe('85000')
   })
 
   it('respects zero-decimal currency (JPY) precision — no ×100', () => {
@@ -692,7 +692,7 @@ describe('plan amount cents conversion', () => {
       amountCurrency: CurrencyEnum.Jpy,
     })
 
-    expect(result.amount_cents).toBe(850)
+    expect(result.amountCents).toBe(850)
   })
 
   it('deserializes payload cents back into currency units on read', () => {
@@ -703,12 +703,12 @@ describe('plan amount cents conversion', () => {
       payload: {
         ...baseBillingItemPlan.payload,
         interval: PlanInterval.Monthly,
-        amount_cents: '85000',
-        amount_currency: 'USD',
-        pay_in_advance: false,
+        amountCents: '85000',
+        amountCurrency: 'USD',
+        payInAdvance: false,
         charges: [],
-        fixed_charges: [],
-        minimum_commitment: null,
+        fixedCharges: [],
+        minimumCommitment: null,
       },
     } as unknown as BillingItemPlan
 

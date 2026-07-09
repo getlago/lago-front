@@ -522,6 +522,89 @@ describe('useDiscountDrawer', () => {
     expect(persistedPayload.coupons[0].localId).toBe('saved-local')
   })
 
+  it('does NOT remove the existing block when editing and the save fails', async () => {
+    const initialBillingItems: BillingItemsPayload = {
+      addOns: [],
+      coupons: [
+        {
+          type: 'coupon',
+          id: 'cpn_fixed',
+          localId: 'saved-local',
+          payload: {
+            position: 1,
+            code: 'COUPON_CODE',
+            id: 'cpn_fixed',
+            name: 'Ten Off',
+            type: 'fixed_amount',
+            amountCents: 1000,
+            percentageRate: null,
+            currency: CurrencyEnum.Usd,
+            frequency: 'once',
+            frequencyDuration: null,
+            expirationAt: null,
+            limitedPlans: false,
+            planCodes: [],
+            limitedBillableMetrics: false,
+            billableMetricCodes: [],
+            couponOverrides: null,
+            catalogSnapshot: null,
+            resolvedPayload: null,
+          },
+          overrides: {
+            amountCents: 1000,
+            percentageRate: null,
+            frequency: 'once',
+            frequencyDuration: null,
+          },
+        },
+      ],
+    }
+
+    const onPersist = jest.fn().mockResolvedValue({ ok: false, error: new ApolloError({}) })
+    const onRemoveBlock = jest.fn()
+
+    const { result } = renderHook(() =>
+      useDiscountDrawer(initialBillingItems, {
+        currency: CurrencyEnum.Usd,
+        onPersist,
+        onRemoveBlock,
+      }),
+    )
+
+    act(() => {
+      result.current.onDiscountCommand({
+        onSave: jest.fn(),
+        editData: { couponId: 'cpn_fixed', localId: 'saved-local' },
+      })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(
+      <>
+        {openArgs.children}
+        {openArgs.actions}
+      </>,
+    )
+
+    const allSaveButtons = screen.getAllByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)
+    const saveButton = allSaveButtons[allSaveButtons.length - 1]
+
+    await waitFor(() => {
+      expect(saveButton).not.toBeDisabled()
+    })
+
+    await userEvent.click(saveButton)
+
+    await waitFor(() => {
+      expect(onPersist).toHaveBeenCalledTimes(1)
+    })
+
+    // A failed edit keeps the drawer open but must NOT remove the existing block.
+    expect(onRemoveBlock).not.toHaveBeenCalled()
+    expect(mockDrawerClose).not.toHaveBeenCalled()
+  })
+
   it('prefills from saved override values when editing', () => {
     const initialBillingItems: BillingItemsPayload = {
       addOns: [],
@@ -760,9 +843,8 @@ describe('useDiscountDrawer', () => {
       expect(onSave).toHaveBeenCalledWith({ couponId: 'cpn_fixed', localId: 'mock-uuid-1' })
       expect(onRemoveBlock).toHaveBeenCalledWith('mock-uuid-1')
 
-      // Field-level error surfaced inline on the amount field via the errorMap
-      // 'onSubmit' slot — the server-error channel that doesn't get clobbered
-      // by Zod revalidation.
+      // Field-level error surfaced inline on the amount field via the `onDynamic`
+      // errorMap slot (gated by messageKey so Zod revalidation can't clobber it).
       await waitFor(() => {
         expect(setServerFieldErrorsSpy).toHaveBeenCalledWith(
           expect.anything(),
@@ -776,6 +858,19 @@ describe('useDiscountDrawer', () => {
 
       // Nothing was committed — the drawer's local state stays empty.
       expect(result.current.entities).not.toHaveProperty('mock-uuid-1')
+
+      // Deadlock recovery: the 422 leaves the server error in the slot, so the
+      // save button is disabled (canSubmit=false). Editing the field clears the
+      // error via the onChange listener, re-enabling the button for a resubmit.
+      await waitFor(() => {
+        expect(saveButton).toBeDisabled()
+      })
+
+      await userEvent.type(screen.getByDisplayValue('10'), '5')
+
+      await waitFor(() => {
+        expect(saveButton).not.toBeDisabled()
+      })
 
       setServerFieldErrorsSpy.mockRestore()
     })

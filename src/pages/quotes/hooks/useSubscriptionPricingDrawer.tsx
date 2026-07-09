@@ -113,7 +113,14 @@ export const useSubscriptionPricingDrawer = (
         const state = subscriptionStateRef.current
         const formValues = formValuesRef.current
 
-        if (!state) return
+        // No submittable plan yet (none selected / form not ready). Surface a
+        // toast and keep the drawer open instead of a silent no-op, so the Save
+        // click always gives feedback — matching the other pricing drawers.
+        if (!state) {
+          addToast({ severity: 'danger', translateKey: QUOTE_SAVE_FAILED_TOAST_KEY })
+
+          throw new Error('Incomplete plan')
+        }
 
         const billingItems = toPlanBillingItems(state, formValues ?? undefined)
         const entityData: Record<string, EntityData> = {

@@ -539,12 +539,12 @@ describe('add-on amount cents conversion', () => {
     name: 'Setup Fee',
     description: 'One-time setup',
     units: 1,
-    unit_amount_cents: 50000,
-    total_amount_cents: 50000,
-    invoice_display_name: 'Setup Fee',
-    from_datetime: null,
-    to_datetime: null,
-    tax_codes: [],
+    unitAmountCents: 50000,
+    totalAmountCents: 50000,
+    invoiceDisplayName: 'Setup Fee',
+    fromDatetime: null,
+    toDatetime: null,
+    taxCodes: [],
     ...overrides,
   })
 
@@ -572,8 +572,8 @@ describe('add-on amount cents conversion', () => {
 
     const result = toBillingItems(items, payloads, CurrencyEnum.Usd)
 
-    expect(result.addons[0].overrides.unit_amount_cents).toBe(60000)
-    expect(result.addons[0].overrides.total_amount_cents).toBe(180000)
+    expect(result.addOns[0].overrides.unitAmountCents).toBe(60000)
+    expect(result.addOns[0].overrides.totalAmountCents).toBe(180000)
   })
 
   it('emits no amount override when the unit-value form input equals the cents baseline', () => {
@@ -582,26 +582,26 @@ describe('add-on amount cents conversion', () => {
 
     const result = toBillingItems(items, payloads, CurrencyEnum.Usd)
 
-    expect(result.addons[0].overrides).toEqual({})
+    expect(result.addOns[0].overrides).toEqual({})
   })
 
   it('respects zero-decimal currency precision (no ×100)', () => {
     // JPY has 0 decimals: form "600" → 600 cents (unchanged)
     const items: AddOnItem[] = [makeUnitsItem({ unitAmountCents: '600', totalAmount: '600' })]
     const payloads: Record<string, AddOnPayload> = {
-      'local-1': makeCentsPayload({ unit_amount_cents: 500, total_amount_cents: 500 }),
+      'local-1': makeCentsPayload({ unitAmountCents: 500, totalAmountCents: 500 }),
     }
 
     const result = toBillingItems(items, payloads, CurrencyEnum.Jpy)
 
-    expect(result.addons[0].overrides.unit_amount_cents).toBe(600)
+    expect(result.addOns[0].overrides.unitAmountCents).toBe(600)
   })
 
   it('deserializes cents payload back into currency units for form and preview', () => {
     const billingItems: BillingItemsPayload = {
-      addons: [
+      addOns: [
         {
-          type: 'addon',
+          type: 'add_on',
           id: 'addon-1',
           localId: 'local-1',
           payload: makeCentsPayload(),
@@ -620,9 +620,9 @@ describe('add-on amount cents conversion', () => {
 
   it('leaves amounts empty when no currency is provided (no default-USD scaling)', () => {
     const billingItems: BillingItemsPayload = {
-      addons: [
+      addOns: [
         {
-          type: 'addon',
+          type: 'add_on',
           id: 'addon-1',
           localId: 'local-1',
           payload: makeCentsPayload(),

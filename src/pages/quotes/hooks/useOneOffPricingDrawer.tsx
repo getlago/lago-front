@@ -3,7 +3,6 @@ import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
 import type {
   EntityData,
   OnPricingCommand,
@@ -199,6 +198,21 @@ export const useOneOffPricingDrawer = (
     validators: {
       onDynamic: validationSchema,
     },
+    listeners: {
+      // Server (422) field errors sit in the `onDynamic` errorMap slot, which
+      // keeps `canSubmit` false and would otherwise deadlock the drawer:
+      // `form.handleSubmit()` won't re-run `onSubmit` (where errors are cleared)
+      // while the stale error stands. Clearing on edit lets `canSubmit` recover
+      // so the user can resubmit once they've fixed the field.
+      onChange: ({ formApi }) => {
+        const paths = (formApi.state.values.addOnItems ?? []).flatMap((_item, index) => [
+          `addOnItems[${index}].units`,
+          `addOnItems[${index}].unitAmountCents`,
+        ])
+
+        clearServerFieldErrors(formApi, paths, QUOTE_FIELD_ERROR_KEY)
+      },
+    },
     onSubmit: async ({ value }) => {
       const confirmedItems = value.addOnItems.filter((item) => item.addOnId)
 
@@ -209,7 +223,7 @@ export const useOneOffPricingDrawer = (
       )
       const unitPaths = confirmedItems.map((_item, index) => `addOnItems[${index}].units`)
 
-      clearServerFieldErrors(form, [...fieldPaths, ...unitPaths])
+      clearServerFieldErrors(form, [...fieldPaths, ...unitPaths], QUOTE_FIELD_ERROR_KEY)
 
       const entityData: Record<string, EntityData> = {}
 
@@ -331,9 +345,11 @@ export const useOneOffPricingDrawer = (
           submit: handleSubmit,
         },
         mainAction: (
-          <Button data-test="pricing-drawer-submit" type="submit">
-            {translate('text_17295436903260tlyb1gp1i7')}
-          </Button>
+          <form.AppForm>
+            <form.SubmitButton dataTest="pricing-drawer-submit">
+              {translate('text_17295436903260tlyb1gp1i7')}
+            </form.SubmitButton>
+          </form.AppForm>
         ),
         cancelOrCloseText: 'cancel',
         closeOnError: false,

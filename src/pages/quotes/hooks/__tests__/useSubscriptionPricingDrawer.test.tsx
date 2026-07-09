@@ -350,7 +350,7 @@ describe('useSubscriptionPricingDrawer', () => {
     expect(billingItems).toEqual(expect.objectContaining({ plans: [], coupons: [existingCoupon] }))
   })
 
-  it('does not save or close the drawer when no subscription state is set', async () => {
+  it('toasts and keeps the drawer open (no save) when no subscription state is set', async () => {
     mockInjectedState = null
 
     const onSave = jest.fn()
@@ -365,11 +365,18 @@ describe('useSubscriptionPricingDrawer', () => {
 
     render(openArgs.children)
 
+    // Submitting an incomplete plan throws (FormDrawer catches it and, with
+    // closeOnError:false, keeps the drawer open) and surfaces a toast rather
+    // than silently doing nothing.
     await act(async () => {
-      await openArgs.form.submit()
+      await expect(openArgs.form.submit()).rejects.toThrow()
     })
 
     expect(onSave).not.toHaveBeenCalled()
     expect(mockDrawerClose).not.toHaveBeenCalled()
+    expect(mockAddToast).toHaveBeenCalledWith({
+      severity: 'danger',
+      translateKey: QUOTE_SAVE_FAILED_TOAST_KEY,
+    })
   })
 })

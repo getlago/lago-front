@@ -316,6 +316,10 @@ const DiscountDrawerContent = withForm({
 interface PendingSave {
   onSave: (attrs: DiscountBlockAttributes) => void
   localId: string
+  // Whether the drawer opened on an existing block (edit) vs a fresh insertion.
+  // A failed edit must NOT roll back (remove) the block — the resubmit path is
+  // `updateAttributes`, which can't resurrect a deleted node.
+  isEdit: boolean
 }
 
 export const useDiscountDrawer = (
@@ -363,14 +367,31 @@ export const useDiscountDrawer = (
     defaultValues: makeDefaults(currency),
     validationLogic: revalidateLogic(),
     validators: { onDynamic: schema },
+    listeners: {
+      // Clear stale server (422) errors on edit so `canSubmit` recovers and the
+      // save button re-enables — otherwise the error parked in the `onDynamic`
+      // slot keeps the form invalid and deadlocks the drawer. Mirrors the
+      // one-off pricing drawer.
+      onChange: ({ formApi }) => {
+        clearServerFieldErrors(
+          formApi,
+          ['amount', 'percentageRate', 'frequencyDuration'],
+          QUOTE_FIELD_ERROR_KEY,
+        )
+      },
+    },
     onSubmit: async ({ value }) => {
       const pending = pendingSaveRef.current
 
       if (!pending) return
 
-      const { onSave, localId } = pending
+      const { onSave, localId, isEdit } = pending
 
-      clearServerFieldErrors(form, ['amount', 'percentageRate', 'frequencyDuration'])
+      clearServerFieldErrors(
+        form,
+        ['amount', 'percentageRate', 'frequencyDuration'],
+        QUOTE_FIELD_ERROR_KEY,
+      )
 
       const nextItem: DiscountFormItem = {
         localId,
@@ -439,8 +460,11 @@ export const useDiscountDrawer = (
         return
       }
 
-      // Roll back the inserted block and surface the error; keep the drawer open.
-      onRemoveBlock?.(localId)
+      // Roll back only a newly inserted block; surface the error and keep the
+      // drawer open. Editing an existing block must NOT remove it (see PendingSave).
+      if (!isEdit) {
+        onRemoveBlock?.(localId)
+      }
 
       const { fieldErrors, unmapped } = mapBillingItemErrors(result.error, COUPONS_ERROR_CONFIG)
 
@@ -462,7 +486,7 @@ export const useDiscountDrawer = (
       const localId = editData?.localId ?? crypto.randomUUID()
       const existing = editData ? itemsRef.current[localId] : undefined
 
-      pendingSaveRef.current = { onSave, localId }
+      pendingSaveRef.current = { onSave, localId, isEdit: !!editData }
 
       form.reset(
         existing

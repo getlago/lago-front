@@ -312,8 +312,12 @@ const EditQuote = () => {
           // 2. Unified save: content + billingItems together.
           const result = await savePricingBlock(billingItems)
 
-          // 3. Roll back the inserted node on failure.
-          if (!result.ok) {
+          // 3. Roll back only a *newly inserted* node on failure — remove the
+          // phantom block that never saved. When editing an existing block
+          // (`editData`), do NOT remove it: the drawer stays open on a fixable
+          // error and the resubmit path is `updateAttributes`, which can't
+          // resurrect a deleted node — removing it would lose saved pricing.
+          if (!result.ok && !editData) {
             const localId = attrs.localEntityIds?.[0] ?? attrs.entityIds?.[0]
 
             if (localId) {
@@ -333,9 +337,16 @@ const EditQuote = () => {
 
   const handlePricingBlocksChange = useCallback(
     (blocks: PricingBlockAttributes[]) => {
+      // A rollback tears the block back out after a failed save. Skip
+      // reconciliation entirely — not just the corrective save: otherwise
+      // `syncEntitiesWithBlocks` prunes the just-failed add-on's cached catalog
+      // payload, and a corrected resubmit (which rebuilds the wire payload from
+      // that cache) crashes in `toBillingItems` on the now-missing baseline.
+      if (isRollingBackRef.current) return
+
       const updatedBillingItems = syncEntitiesWithBlocks(blocks)
 
-      if (updatedBillingItems && !isRollingBackRef.current) {
+      if (updatedBillingItems) {
         savePricingBlock(updatedBillingItems)
       }
     },
@@ -351,9 +362,14 @@ const EditQuote = () => {
 
   const handleDiscountBlocksChange = useCallback(
     (blocks: DiscountBlockAttributes[]) => {
+      // See handlePricingBlocksChange: skip reconciliation during a rollback so
+      // the failed coupon's cached payload isn't pruned, which would break a
+      // corrected resubmit.
+      if (isRollingBackRef.current) return
+
       const updated = discount.syncDiscountBlocks(blocks)
 
-      if (updated && !isRollingBackRef.current) {
+      if (updated) {
         savePricingBlock(updated)
       }
     },

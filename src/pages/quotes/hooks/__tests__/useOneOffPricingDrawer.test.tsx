@@ -78,6 +78,9 @@ const mockSetFieldMeta = jest.fn()
 let capturedOnSubmit:
   ((args: { value: Record<string, unknown> }) => void | Promise<unknown>) | null = null
 
+// Capture the form-level listeners (the `onChange` clears stale server errors).
+let capturedListeners: { onChange?: (args: { formApi: unknown }) => void } | null = null
+
 // Simulates real TanStack form behavior: handleSubmit() runs the captured onSubmit
 // with the current form values.
 const mockHandleSubmit = jest.fn(async () => {
@@ -102,11 +105,16 @@ jest.mock('~/hooks/forms/useAppform', () => ({
       capturedOnSubmit = config.onSubmit as typeof capturedOnSubmit
     }
 
+    if (config.listeners) {
+      capturedListeners = config.listeners as typeof capturedListeners
+    }
+
     return {
       reset: mockFormReset,
       handleSubmit: mockHandleSubmit,
       setFieldValue: mockSetFieldValue,
       setFieldMeta: mockSetFieldMeta,
+      getFieldMeta: jest.fn(() => undefined),
       state: {
         canSubmit: true,
         get values() {
@@ -1057,16 +1065,15 @@ describe('useOneOffPricingDrawer', () => {
           expect.any(Function),
         )
 
-        // `clearServerFieldErrors` also targets this path before the save runs, so
-        // take the last matching call — the one made by `setServerFieldErrors` after
-        // the save fails.
+        // The failed save routes the field error onto the unit-amount input via
+        // `setServerFieldErrors`, which parks it in the `onDynamic` slot.
         const metaUpdaterCall = mockSetFieldMeta.mock.calls
           .filter(([path]) => path === 'addOnItems[0].unitAmountCents')
           .pop()
 
         const updatedMeta = metaUpdaterCall?.[1]({ errorMap: {} })
 
-        expect(updatedMeta.errorMap.onSubmit).toEqual({ message: QUOTE_FIELD_ERROR_KEY })
+        expect(updatedMeta.errorMap.onDynamic).toEqual({ message: QUOTE_FIELD_ERROR_KEY })
 
         // Entities should NOT be committed since the save failed
         expect(result.current.entities).not.toHaveProperty('local-uuid-1')
@@ -1113,6 +1120,54 @@ describe('useOneOffPricingDrawer', () => {
         })
 
         expect(result.current.entities).not.toHaveProperty('local-uuid-1')
+      })
+    })
+  })
+
+  describe('GIVEN a field is edited after a server error (clear-on-edit)', () => {
+    it('THEN the onChange listener clears only fields holding OUR server error (gated by message)', () => {
+      const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
+
+      act(() => {
+        result.current.onPricingCommand({ onSave: jest.fn(), editData: undefined })
+      })
+
+      expect(capturedListeners?.onChange).toBeInstanceOf(Function)
+
+      // Per-path meta: our server error, a genuine Zod error (same slot), and
+      // never-mounted fields.
+      const metaByPath: Record<string, unknown> = {
+        'addOnItems[0].units': undefined,
+        'addOnItems[0].unitAmountCents': {
+          errorMap: { onDynamic: { message: QUOTE_FIELD_ERROR_KEY } },
+        },
+        'addOnItems[1].units': { errorMap: { onDynamic: { message: 'a_zod_error' } } },
+        'addOnItems[1].unitAmountCents': undefined,
+      }
+
+      const setFieldMeta = jest.fn()
+      const getFieldMeta = jest.fn((path: string) => metaByPath[path])
+      const formApi = {
+        state: { values: { addOnItems: [{ addOnId: 'addon-1' }, { addOnId: 'addon-2' }] } },
+        getFieldMeta,
+        setFieldMeta,
+      }
+
+      act(() => {
+        capturedListeners?.onChange?.({ formApi })
+      })
+
+      // Only the field carrying our server error is cleared — the Zod error and
+      // the unmounted fields are left untouched.
+      const clearedPaths = setFieldMeta.mock.calls.map(([path]) => path)
+
+      expect(clearedPaths).toEqual(['addOnItems[0].unitAmountCents'])
+
+      // The updater drops just the onDynamic slot.
+      const updater = setFieldMeta.mock.calls[0][1]
+
+      expect(updater({ errorMap: { onDynamic: { message: QUOTE_FIELD_ERROR_KEY } } })).toEqual({
+        errorMap: { onDynamic: undefined },
       })
     })
   })

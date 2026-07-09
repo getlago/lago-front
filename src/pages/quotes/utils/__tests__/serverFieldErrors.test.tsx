@@ -16,7 +16,7 @@ const Harness = ({ action }: { action: 'set' | 'clear' }) => {
 
   useEffect(() => {
     setServerFieldErrors(form as never, [{ path: 'amount', code: 'x' }], 'FIELD_KEY')
-    if (action === 'clear') clearServerFieldErrors(form as never, ['amount'])
+    if (action === 'clear') clearServerFieldErrors(form as never, ['amount'], 'FIELD_KEY')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

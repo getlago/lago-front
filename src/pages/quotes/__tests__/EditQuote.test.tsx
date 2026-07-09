@@ -847,11 +847,58 @@ describe('EditQuote', () => {
         // Rollback: the inserted block is removed by its localId.
         expect(removeBlockSpy).toHaveBeenCalledWith('local-addon-1')
 
-        // The rollback synchronously re-entered onPricingBlocksChange, and
-        // syncEntitiesWithBlocks resolved truthy — so without the
-        // isRollingBackRef guard this would be a 2nd updateQuoteVersion
-        // call. Only the original failed save should have reached it.
+        // The rollback synchronously re-enters onPricingBlocksChange, but during
+        // a rollback reconciliation is skipped entirely: syncEntitiesWithBlocks
+        // must NOT run (it would prune the failed add-on's cached catalog payload
+        // and crash a corrected resubmit in toBillingItems), and therefore no
+        // corrective updateQuoteVersion is issued either.
+        expect(mockSyncEntitiesWithBlocks).not.toHaveBeenCalled()
         expect(mockUpdateQuoteVersion).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN a drawer-originated pricing EDIT fails', () => {
+      it('THEN should NOT remove the existing block (so a resubmit can recover it)', async () => {
+        mockUpdateQuoteVersion.mockResolvedValueOnce({
+          data: null,
+          errors: [{ message: 'Some GraphQL error' }],
+        })
+
+        render(<EditQuote />)
+
+        const removeBlockSpy = jest.fn()
+
+        if (capturedRemoveBlockRef) {
+          capturedRemoveBlockRef.current = removeBlockSpy
+        }
+
+        act(() => {
+          // editData present → the drawer is editing an existing, saved block.
+          capturedOnPricingCommand?.({
+            onSave: jest.fn(),
+            editData: {
+              pricingType: 'addOns',
+              entityIds: ['addon-1'],
+              localEntityIds: ['local-addon-1'],
+            },
+          })
+        })
+
+        const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+        const mockAttrs = {
+          pricingType: 'addOns',
+          entityIds: ['addon-1'],
+          localEntityIds: ['local-addon-1'],
+        }
+
+        await act(async () => {
+          await wrappedOnSave(mockAttrs, {}, [{ addOnId: 'addon-1' }])
+        })
+
+        // A failed edit must leave the block in place — removing it would lose
+        // the user's saved pricing and the updateAttributes resubmit couldn't
+        // restore it.
+        expect(removeBlockSpy).not.toHaveBeenCalled()
       })
     })
 
