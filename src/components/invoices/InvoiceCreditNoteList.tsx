@@ -9,6 +9,7 @@ import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE } from '~/core/router'
 import {
   CreditNotesForTableFragmentDoc,
@@ -57,7 +58,8 @@ export const InvoiceCreditNoteList = () => {
   const canIssueCreditNote = hasPermissions(['creditNotesCreate'])
   const premiumWarningDialog = usePremiumWarningDialog()
   const { data, loading, error, fetchMore, variables } = useGetInvoiceCreditNotesQuery({
-    variables: { invoiceId: invoiceId as string, limit: 20 },
+    notifyOnNetworkStatusChange: true,
+    variables: { invoiceId: invoiceId as string, limit: DEFAULT_PAGE_SIZE },
     skip: !invoiceId || !customerId,
   })
   const creditNotes = data?.invoiceCreditNotes?.collection
@@ -142,6 +144,7 @@ export const InvoiceCreditNoteList = () => {
             customerTimezone={data?.invoice?.customer.applicableTimezone || TimezoneEnum.TzUtc}
             error={error}
             variables={variables}
+            sticky={false}
           />
         )}
       </>

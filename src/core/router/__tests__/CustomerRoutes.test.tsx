@@ -2,7 +2,6 @@ import {
   CUSTOMER_CREDIT_NOTE_DETAILS_ROUTE,
   CUSTOMER_DETAILS_ROUTE,
   CUSTOMER_DETAILS_TAB_ROUTE,
-  CUSTOMER_DRAFT_INVOICES_LIST_ROUTE,
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_TAB_ROUTE,
@@ -22,7 +21,6 @@ describe('CustomerRoutes', () => {
       expect(CUSTOMERS_LIST_ROUTE).toBe('/customers')
       expect(CUSTOMER_DETAILS_ROUTE).toBe('/customer/:customerId')
       expect(CUSTOMER_DETAILS_TAB_ROUTE).toBe('/customer/:customerId/:tab')
-      expect(CUSTOMER_DRAFT_INVOICES_LIST_ROUTE).toBe('/customer/:customerId/draft-invoices')
       expect(CUSTOMER_INVOICE_DETAILS_ROUTE).toBe('/customer/:customerId/invoice/:invoiceId/:tab')
       expect(CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE).toBe(
         '/customer/:customerId/request-overdue-payment',
@@ -51,7 +49,7 @@ describe('CustomerRoutes', () => {
 
   describe('customerRoutes array', () => {
     it('contains expected number of route definitions', () => {
-      expect(customerRoutes).toHaveLength(5)
+      expect(customerRoutes).toHaveLength(4)
     })
 
     it('all routes are marked as private', () => {
@@ -85,15 +83,6 @@ describe('CustomerRoutes', () => {
 
       expect(invoiceDetailsRoute).toBeDefined()
       expect(invoiceDetailsRoute?.permissions).toEqual(['invoicesView'])
-    })
-
-    it('draft invoices route has correct permissions', () => {
-      const draftInvoicesRoute = customerRoutes.find(
-        (r) => r.path === CUSTOMER_DRAFT_INVOICES_LIST_ROUTE,
-      )
-
-      expect(draftInvoicesRoute).toBeDefined()
-      expect(draftInvoicesRoute?.permissions).toEqual(['invoicesView'])
     })
 
     it('credit note routes have correct permissions', () => {

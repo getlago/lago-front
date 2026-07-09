@@ -1,14 +1,15 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Filters, SecurityLogsAvailableFilters } from '~/components/designSystem/Filters'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { LogsLayout } from '~/components/developers/LogsLayout'
 import { SettingsListItemHeader } from '~/components/layouts/Settings'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { SECURITY_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { SecurityLogWithId } from './common/securityLogsTypes'
@@ -19,16 +20,17 @@ export const SECURITY_LOGS_CONTAINER_TEST_ID = 'security-logs-container'
 
 const SecurityLogs = () => {
   const { translate } = useInternationalization()
+  const { page, goToPage } = usePageSearchParam()
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
 
   const {
     securityLogs,
     securityLogsMetadata,
     isLoadingSecurityLogs,
-    fetchMoreSecurityLogs,
     refetchSecurityLogs,
     securityLogsError,
     hasFilters,
-  } = useSecurityLogs()
+  } = useSecurityLogs(pageSize, page)
 
   const { getFormattedLogEvent, getSecurityLogDescription, getSecurityLogDate } =
     useSecurityLogsFormatting()
@@ -90,7 +92,7 @@ const SecurityLogs = () => {
 
   return (
     <div
-      className="flex flex-col gap-4 px-4 pb-20 pt-10 md:px-12"
+      className="flex min-h-0 flex-1 flex-col gap-4 px-4 pb-0 pt-10 md:px-12"
       data-test={SECURITY_LOGS_CONTAINER_TEST_ID}
     >
       <SettingsListItemHeader
@@ -122,28 +124,29 @@ const SecurityLogs = () => {
           {translate('text_1738748043939zqoqzz350yj')}
         </Button>
       </LogsLayout.CTASection>
-      <InfiniteScroll
-        onBottom={async () => {
-          const { currentPage = 0, totalPages = 0 } = securityLogsMetadata || {}
-
-          if (currentPage < totalPages && !isLoadingSecurityLogs) {
-            await fetchMoreSecurityLogs({
-              variables: { page: currentPage + 1 },
-            })
-          }
+      <PaginatedContent
+        metadata={securityLogsMetadata}
+        loading={isLoadingSecurityLogs}
+        pageSize={pageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(newPageSize) => {
+          setPageSize(newPageSize)
+          goToPage(1)
         }}
       >
         <Table
           name="security-logs"
+          containerClassName="h-auto shrink-0"
           containerSize={{ default: 4 }}
           rowSize={72}
           columns={columns}
           data={securityLogs}
+          loadingRowCount={pageSize}
           isLoading={isLoadingSecurityLogs}
           placeholder={tablePlaceholder}
           hasError={!!securityLogsError}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </div>
   )
 }

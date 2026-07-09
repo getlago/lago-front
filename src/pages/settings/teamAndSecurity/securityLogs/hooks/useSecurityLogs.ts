@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { formatFiltersForSecurityLogsQuery } from '~/components/designSystem/Filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { LagoApiError, useGetSecurityLogsQuery } from '~/generated/graphql'
 
 import { SecurityLogs, SecurityLogWithId } from '../common/securityLogsTypes'
@@ -40,6 +41,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         ...SecurityLogItem
@@ -52,7 +54,7 @@ export const formatSecurityLogs = (securityLogs: SecurityLogs): Array<SecurityLo
   return securityLogs.map((securityLog) => ({ id: securityLog.logId, ...securityLog }))
 }
 
-export const useSecurityLogs = () => {
+export const useSecurityLogs = (pageSize: number = DEFAULT_PAGE_SIZE, page: number = 1) => {
   const [searchParams] = useSearchParams()
   const defaultToDateTime = DateTime.now().endOf('day').toISO()
 
@@ -73,7 +75,7 @@ export const useSecurityLogs = () => {
     refetch,
     error,
   } = useGetSecurityLogsQuery({
-    variables: { limit: 20, ...filtersForSecurityLogsQuery },
+    variables: { page, limit: pageSize, ...filtersForSecurityLogsQuery },
     notifyOnNetworkStatusChange: true,
     context: {
       silentErrorCodes: [LagoApiError.FeatureUnavailable],
@@ -82,7 +84,7 @@ export const useSecurityLogs = () => {
 
   const refetchSecurityLogs = async () => {
     await refetch({
-      limit: 20,
+      limit: pageSize,
       ...filtersForSecurityLogsQuery,
       page: 1,
     })

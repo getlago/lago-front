@@ -65,7 +65,12 @@ export function useCustomerDetailsHeaderTabs({
         }),
         generatePath(CUSTOMER_DETAILS_ROUTE, { customerId }),
       ],
-      content: <CustomerSubscriptionsList />,
+      content: (
+        <CustomerSubscriptionsList
+          customerExternalId={externalId}
+          customerTimezone={safeTimezone}
+        />
+      ),
     },
     {
       title: translate('text_62865498824cc10126ab2956'),

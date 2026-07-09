@@ -4,7 +4,6 @@ import { lazyLoad } from './utils'
 // ----------- Pages -----------
 const CustomersList = lazyLoad(() => import('~/pages/CustomersList'))
 const CustomerDetails = lazyLoad(() => import('~/pages/CustomerDetails'))
-const CustomerDraftInvoicesList = lazyLoad(() => import('~/pages/CustomerDraftInvoicesList'))
 const CustomerInvoiceDetails = lazyLoad(() => import('~/pages/CustomerInvoiceDetails'))
 
 const CustomerRequestOverduePayment = lazyLoad(
@@ -22,7 +21,6 @@ const CreditNoteDetails = lazyLoad(() => import('~/pages/creditNoteDetails/Credi
 export const CUSTOMERS_LIST_ROUTE = '/customers'
 export const CUSTOMER_DETAILS_ROUTE = '/customer/:customerId'
 export const CUSTOMER_DETAILS_TAB_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/:tab`
-export const CUSTOMER_DRAFT_INVOICES_LIST_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/draft-invoices`
 export const CUSTOMER_INVOICE_DETAILS_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/:invoiceId/:tab`
 export const CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/request-overdue-payment`
 export const CUSTOMER_INVOICE_VOID_ROUTE = `${CUSTOMER_DETAILS_ROUTE}/invoice/void/:invoiceId`
@@ -46,12 +44,6 @@ export const customerRoutes: CustomRouteObject[] = [
     private: true,
     element: <CustomerDetails />,
     permissions: ['customersView'],
-  },
-  {
-    path: CUSTOMER_DRAFT_INVOICES_LIST_ROUTE,
-    private: true,
-    element: <CustomerDraftInvoicesList />,
-    permissions: ['invoicesView'],
   },
   {
     path: [CUSTOMER_INVOICE_DETAILS_ROUTE],

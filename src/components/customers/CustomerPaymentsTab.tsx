@@ -4,9 +4,11 @@ import { generatePath, useSearchParams } from 'react-router-dom'
 import { CustomerPaymentsList } from '~/components/customers/CustomerPaymentsList'
 import { Filters } from '~/components/designSystem/Filters'
 import { formatFiltersForCustomerPaymentsQuery } from '~/components/designSystem/Filters/utils'
+import { usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { CUSTOMER_PAYMENTS_FILTER_PREFIX } from '~/core/constants/filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CREATE_PAYMENT_ROUTE, useNavigate } from '~/core/router'
 import { useGetPaymentsListQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -31,11 +33,19 @@ export const CustomerPaymentsTab: FC<CustomerPaymentsTabProps> = ({ externalCust
     include: ['currency'],
   })
   const [searchParams] = useSearchParams()
+  const { page, goToPage } = usePageSearchParam()
 
   const { currency } = formatFiltersForCustomerPaymentsQuery(searchParams)
 
   const { data, loading, fetchMore } = useGetPaymentsListQuery({
-    variables: { externalCustomerId: externalCustomerId as string, limit: 20, currency },
+    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
+    variables: {
+      externalCustomerId: externalCustomerId as string,
+      limit: DEFAULT_PAGE_SIZE,
+      page,
+      currency,
+    },
     skip: !externalCustomerId,
   })
 
@@ -81,6 +91,7 @@ export const CustomerPaymentsTab: FC<CustomerPaymentsTabProps> = ({ externalCust
         payments={payments}
         loading={loading}
         fetchMore={fetchMore}
+        onPageChange={goToPage}
         metadata={data?.payments?.metadata}
         placeholder={{
           emptyState: isFiltering

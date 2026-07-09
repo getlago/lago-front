@@ -1,5 +1,6 @@
 import { FetchMoreQueryOptions, gql, OperationVariables } from '@apollo/client'
 
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   GetOrderFormsQuery,
   GetOrderFormsQueryVariables,
@@ -79,10 +80,11 @@ interface UseOrderFormsReturn {
 
 export const useOrderForms = (
   variables?: Omit<GetOrderFormsQueryVariables, 'limit' | 'page'>,
+  pageSize: number = DEFAULT_PAGE_SIZE,
 ): UseOrderFormsReturn => {
   const { data, loading, error, fetchMore } = useGetOrderFormsQuery({
     variables: {
-      limit: 20,
+      limit: pageSize,
       ...variables,
     },
     notifyOnNetworkStatusChange: true,

@@ -3,10 +3,11 @@ import { useSearchParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Chip } from '~/components/designSystem/Chip'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { ActionColumn, ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { MEMBERS_PAGE_ROLE_FILTER_KEY } from '~/core/constants/roles'
 import { GetMembersQuery, MembershipItemForMembershipSettingsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -38,8 +39,12 @@ const getRolesColumn = (getDisplayName: (role: AllowedElements) => string) =>
 
 const MemberList = () => {
   const { translate } = useInternationalization()
-  const { members, metadata, membersLoading, membersFetchMore, membersError, membersRefetch } =
-    useGetMembersList()
+  const { page, goToPage } = usePageSearchParam()
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { members, metadata, membersLoading, membersError, membersRefetch } = useGetMembersList(
+    pageSize,
+    page,
+  )
   const { hasPermissions } = usePermissions()
   const { currentUser } = useCurrentUser()
   const { getDisplayName } = useRoleDisplayInformation()
@@ -69,16 +74,6 @@ const MemberList = () => {
       return matchesRole && matchesSearch
     })
   }, [members, selectedRole, searchQuery])
-
-  const handleInfiniteScrolling = () => {
-    const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-    currentPage < totalPages &&
-      !membersLoading &&
-      membersFetchMore({
-        variables: { page: currentPage + 1 },
-      })
-  }
 
   const columns: Array<TableColumn<Membership> | null> = [
     {
@@ -164,22 +159,40 @@ const MemberList = () => {
   }
 
   return (
-    <div>
-      <MembersFilters searchQuery={searchQuery} setSearchQuery={setSearchQuery} type="members" />
-      <InfiniteScroll onBottom={handleInfiniteScrolling}>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <MembersFilters
+        searchQuery={searchQuery}
+        setSearchQuery={(value) => {
+          goToPage(1)
+          setSearchQuery(value)
+        }}
+        type="members"
+      />
+      <PaginatedContent
+        metadata={metadata}
+        loading={membersLoading}
+        pageSize={pageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(newPageSize) => {
+          goToPage(1)
+          setPageSize(newPageSize)
+        }}
+      >
         <Table
           name="members-setting-members-list"
+          containerClassName="h-auto shrink-0"
           containerSize={{ default: 0 }}
           rowSize={72}
           isLoading={membersLoading}
           data={filteredMembers}
+          loadingRowCount={pageSize}
           hasError={!!membersError}
           placeholder={tablePlaceholder}
           columns={columns}
           actionColumnTooltip={() => translate('text_626162c62f790600f850b7b6')}
           actionColumn={actionColumn}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </div>
   )
 }

@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { formatFiltersForOrdersQuery } from '~/components/designSystem/Filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { QuotesSectionTable } from './common/QuotesSectionTable'
@@ -26,8 +27,11 @@ const OrdersList = ({ quoteNumber }: OrdersListProps): JSX.Element => {
     ...filtersForOrdersQuery,
   }
 
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+
   const { orders, loading, error, fetchMore, metadata } = useOrders(
     quoteNumber ? { ...defaultFilters, quoteNumber: [quoteNumber] } : defaultFilters,
+    pageSize,
   )
   const { getActions } = useOrderActions()
 
@@ -42,6 +46,8 @@ const OrdersList = ({ quoteNumber }: OrdersListProps): JSX.Element => {
       metadata={metadata}
       fetchMore={fetchMore}
       columns={columns}
+      pageSize={pageSize}
+      onPageSizeChange={setPageSize}
       emptyState={{
         title: translate('text_1782392058759fvp6ye50x8g'),
         subtitle: translate('text_1782392058759ee7h86svmtj'),

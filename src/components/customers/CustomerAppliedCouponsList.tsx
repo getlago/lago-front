@@ -10,7 +10,7 @@ import {
   AddCouponToCustomerDialogRef,
 } from '~/components/customers/AddCouponToCustomerDialog'
 import { Button } from '~/components/designSystem/Button'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -18,6 +18,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { PageSectionTitle } from '~/components/layouts/Section'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE } from '~/core/router'
 import {
@@ -35,6 +36,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         id
@@ -70,11 +72,13 @@ export const CustomerAppliedCouponsList = ({
   const { terminateCoupon } = useTerminateAppliedCoupon()
   const centralizedDialog = useCentralizedDialog()
   const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
+  const { page, goToPage } = usePageSearchParam()
 
-  const { data, error, loading, fetchMore } = useGetAppliedCouponsForCustomerQuery({
-    variables: { externalCustomerId: customerExternalId, page: 0, limit: 20 },
+  const { data, error, loading } = useGetAppliedCouponsForCustomerQuery({
+    variables: { externalCustomerId: customerExternalId, page, limit: DEFAULT_PAGE_SIZE },
     skip: !customerExternalId,
     notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
   })
 
   const appliedCoupons = data?.appliedCoupons?.collection || []
@@ -170,16 +174,6 @@ export const CustomerAppliedCouponsList = ({
       }
     : undefined
 
-  const fetchNextPage = () => {
-    const { currentPage = 0, totalPages = 0 } = data?.appliedCoupons?.metadata || {}
-
-    currentPage < totalPages &&
-      !loading &&
-      fetchMore({
-        variables: { page: currentPage + 1 },
-      })
-  }
-
   return (
     <>
       <PageSectionTitle
@@ -188,7 +182,12 @@ export const CustomerAppliedCouponsList = ({
         action={sectionAction}
       />
 
-      <InfiniteScroll onBottom={fetchNextPage}>
+      <PaginatedContent
+        metadata={data?.appliedCoupons?.metadata}
+        loading={loading}
+        onPageChange={goToPage}
+        sticky={false}
+      >
         <Table
           name="customer-coupons-list"
           data={appliedCoupons}
@@ -206,7 +205,7 @@ export const CustomerAppliedCouponsList = ({
           columns={columns}
           actionColumn={actionColumn}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
 
       <AddCouponToCustomerDialog
         ref={addCouponDialogRef}

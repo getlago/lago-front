@@ -2,12 +2,13 @@ import { FC } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { payablePaymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_INVOICE_PAYMENT_ROUTE, PAYMENT_DETAILS_ROUTE, useNavigate } from '~/core/router'
@@ -29,8 +30,9 @@ export const InvoicePaymentList: FC<{
   const premiumWarningDialog = usePremiumWarningDialog()
 
   const { data, loading, error, fetchMore } = useGetPaymentsListQuery({
-    variables: { invoiceId: invoiceId as string, limit: 20 },
+    variables: { invoiceId: invoiceId as string, limit: DEFAULT_PAGE_SIZE },
     skip: !invoiceId,
+    notifyOnNetworkStatusChange: true,
   })
 
   const { canDownloadPaymentReceipts, downloadPaymentReceipts } = useDownloadPaymentReceipts()
@@ -67,15 +69,11 @@ export const InvoicePaymentList: FC<{
           {translate('text_17380560401785kuvb6m2yfm')}
         </Typography>
       )}
-      {!loading && payments.length > 0 && (
-        <InfiniteScroll
-          onBottom={() => {
-            const { currentPage = 0, totalPages = 0 } = data?.payments.metadata || {}
-
-            currentPage < totalPages &&
-              !loading &&
-              fetchMore?.({ variables: { page: currentPage + 1 } })
-          }}
+      {(loading || payments.length > 0) && (
+        <PaginatedContent
+          metadata={data?.payments.metadata}
+          loading={loading}
+          onPageChange={(page) => fetchMore?.({ variables: { page } })}
         >
           <Table
             name="payments-list"
@@ -173,7 +171,7 @@ export const InvoicePaymentList: FC<{
               },
             ]}
           />
-        </InfiniteScroll>
+        </PaginatedContent>
       )}
     </>
   )

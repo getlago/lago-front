@@ -570,7 +570,7 @@ export const SubscriptionCurrentUsageTableComponent = ({
               // path renders ONLY the skeleton rows. The design-system Table
               // otherwise appends skeletons after the existing rows, leaving
               // stale data visible during refresh — QA flagged this.
-              data={isLoading ? [] : usageData?.chargesUsage || []}
+              data={usageData?.chargesUsage || []}
               onRowActionClick={(row) =>
                 handleOpenUsageDetailDrawer(row as SubscriptionUsageDetailDrawerUsage)
               }

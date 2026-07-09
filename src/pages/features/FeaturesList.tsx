@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
@@ -13,6 +13,7 @@ import { useDeleteFeatureDialog } from '~/components/features/DeleteFeatureDialo
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { FeatureDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { useNavigate } from '~/core/router'
 import {
@@ -55,6 +56,9 @@ const FeaturesList = () => {
   const { hasPermissions } = usePermissions()
   const { translate } = useInternationalization()
 
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page, goToPage } = usePageSearchParam()
+
   const [
     getFeatures,
     {
@@ -62,16 +66,15 @@ const FeaturesList = () => {
       error: featuresError,
       loading: featuresLoading,
       variables: featuresVariables,
-      fetchMore: fetchMoreFeatures,
     },
   ] = useGetFeaturesListLazyQuery({
     notifyOnNetworkStatusChange: true,
     variables: {
-      limit: 20,
+      limit: pageSize,
+      page,
     },
   })
 
-  const features = featuresData?.features.collection
   const { debouncedSearch, isLoading } = useDebouncedSearch(getFeatures, featuresLoading)
 
   const canUpdateFeatures = hasPermissions(['featuresUpdate'])
@@ -117,7 +120,7 @@ const FeaturesList = () => {
         entity={{
           viewName: translate('text_1752692673070k7z0mmf0494'),
           metadata: formatCountToMetadata(featuresTotalCount, translate),
-          metadataLoading: isLoading,
+          metadataLoading: isLoading && featuresTotalCount === undefined,
         }}
         actions={{
           items: [
@@ -132,28 +135,32 @@ const FeaturesList = () => {
         }}
         filtersSection={
           <SearchInput
-            onChange={debouncedSearch}
+            onChange={(value) => {
+              goToPage(1)
+              debouncedSearch?.(value)
+            }}
             placeholder={translate('text_1752692673070xf4wtgsrsum')}
           />
         }
       />
 
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } = featuresData?.features.metadata || {}
-
-          currentPage < totalPages &&
-            !isLoading &&
-            fetchMoreFeatures?.({
-              variables: { page: currentPage + 1 },
-            })
+      <PaginatedContent
+        insetPager
+        metadata={featuresData?.features?.metadata}
+        loading={isLoading}
+        pageSize={pageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
         }}
       >
         <Table
           name="features-list"
           isLoading={isLoading}
           hasError={!!featuresError}
-          data={features || []}
+          data={featuresData?.features?.collection ?? []}
+          loadingRowCount={pageSize}
           containerSize={{
             default: 16,
             md: 48,
@@ -251,7 +258,7 @@ const FeaturesList = () => {
             return actions
           }}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </>
   )
 }

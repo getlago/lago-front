@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
@@ -8,12 +8,14 @@ import {
   Filters,
   formatFiltersForCreditNotesQuery,
 } from '~/components/designSystem/Filters'
+import { usePageSearchParam } from '~/components/designSystem/Pagination'
 import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast } from '~/core/apolloClient'
 import { CREDIT_NOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreditNoteExportTypeEnum,
@@ -116,6 +118,9 @@ const CreditNotesPage = () => {
 
   const exportCreditNotesDialogRef = useRef<ExportDialogRef>(null)
 
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page, goToPage } = usePageSearchParam()
+
   const filtersForCreditNotesQuery = useMemo(() => {
     return formatFiltersForCreditNotesQuery(searchParams)
   }, [searchParams])
@@ -134,7 +139,8 @@ const CreditNotesPage = () => {
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
     variables: {
-      limit: 20,
+      limit: pageSize,
+      page,
       ...formatAmountCurrency(filtersForCreditNotesQuery, amountCurrency),
     },
   })
@@ -179,7 +185,7 @@ const CreditNotesPage = () => {
         entity={{
           viewName: translate('text_66461ada56a84401188e8c63'),
           metadata: formatCountToMetadata(creditNotesTotalCount, translate),
-          metadataLoading: creditNoteIsLoading,
+          metadataLoading: creditNoteIsLoading && creditNotesTotalCount === undefined,
         }}
         actions={{
           loading: creditNoteIsLoading,
@@ -214,7 +220,10 @@ const CreditNotesPage = () => {
           >
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
               <SearchInput
-                onChange={creditNoteDebounceSearch}
+                onChange={(value) => {
+                  goToPage(1)
+                  creditNoteDebounceSearch?.(value)
+                }}
                 placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
               />
               <Filters.Component />
@@ -230,6 +239,12 @@ const CreditNotesPage = () => {
         isLoading={creditNoteIsLoading}
         metadata={dataCreditNotes?.creditNotes?.metadata}
         variables={variableCreditNotes}
+        pageSize={pageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
         tableContainerSize={{
           default: 16,
           md: 48,

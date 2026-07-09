@@ -1,12 +1,13 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
+import { useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
@@ -18,6 +19,7 @@ import {
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useDeleteTaxDialog } from '~/components/taxes/DeleteTaxDialog'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_TAX_ROUTE, UPDATE_TAX_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -46,6 +48,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         id
@@ -63,9 +66,12 @@ const TaxesSettings = () => {
   const { hasTaxProvider } = useIntegrations()
   const { translate } = useInternationalization()
   const { openDeleteTaxDialog } = useDeleteTaxDialog()
-  const { data, error, loading, fetchMore } = useGetTaxesSettingsInformationsQuery({
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page, goToPage } = usePageSearchParam()
+  const { data, error, loading } = useGetTaxesSettingsInformationsQuery({
     variables: {
-      limit: 20,
+      limit: pageSize,
+      page,
     },
     notifyOnNetworkStatusChange: true,
   })
@@ -93,8 +99,8 @@ const TaxesSettings = () => {
         }}
       />
 
-      <SettingsPaddedContainer>
-        {!loading && hasTaxProvider && (
+      <SettingsPaddedContainer className="min-h-0 flex-1 pb-0">
+        {hasTaxProvider && (
           <Alert type="info">
             <Typography variant="body" color="grey700">
               {translate('text_66ba65e562cbc500f04c7dbb')}
@@ -102,8 +108,8 @@ const TaxesSettings = () => {
           </Alert>
         )}
 
-        <SettingsListWrapper>
-          <SettingsListItem>
+        <SettingsListWrapper className="min-h-0 flex-1">
+          <SettingsListItem className="min-h-0 flex-1">
             <SettingsListItemHeader
               label={translate('text_645bb193927b375079d28ae8')}
               sublabel={translate('text_645ca29272ea80007df9d7af')}
@@ -125,24 +131,24 @@ const TaxesSettings = () => {
               }
             />
 
-            <InfiniteScroll
-              onBottom={() => {
-                if (!fetchMore) return
-                const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-                currentPage < totalPages &&
-                  !loading &&
-                  fetchMore({
-                    variables: { page: currentPage + 1 },
-                  })
+            <PaginatedContent
+              metadata={metadata}
+              loading={loading}
+              pageSize={pageSize}
+              onPageChange={goToPage}
+              onPageSizeChange={(newPageSize) => {
+                goToPage(1)
+                setPageSize(newPageSize)
               }}
             >
               <Table
                 name="tax-settings-taxes"
+                containerClassName="h-auto shrink-0"
                 containerSize={{ default: 0 }}
                 rowSize={72}
                 isLoading={loading}
-                data={collection || []}
+                data={collection ?? []}
+                loadingRowCount={pageSize}
                 columns={[
                   {
                     key: 'name',
@@ -212,7 +218,7 @@ const TaxesSettings = () => {
                       }
                 }
               />
-            </InfiniteScroll>
+            </PaginatedContent>
           </SettingsListItem>
         </SettingsListWrapper>
       </SettingsPaddedContainer>

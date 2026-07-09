@@ -3,7 +3,7 @@ import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table'
@@ -14,6 +14,7 @@ import { PageSectionTitle } from '~/components/layouts/Section'
 import { formatAmount, formatCredits } from '~/components/wallets/utils'
 import { CREATE_WALLET_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import WalletActions from '~/components/wallets/WalletActions'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_WALLET_ROUTE, useNavigate, WALLET_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -70,6 +71,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
         customerActiveWalletsCount
       }
       collection {
@@ -95,9 +97,12 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { page, goToPage } = usePageSearchParam()
 
-  const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
-    variables: { customerId, page: 0, limit: 10 },
+  const { data, error, loading } = useGetCustomerWalletListQuery({
+    variables: { customerId, page, limit: DEFAULT_PAGE_SIZE },
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
   })
   const walletsCollection = data?.wallets?.collection || []
   const hasMoreThanActiveWalletsLimit =
@@ -291,7 +296,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
         }
       />
 
-      {loading && (
+      {loading && !walletsCollection.length && (
         <div data-test={CUSTOMER_WALLET_LIST_LOADING_TEST_ID} className="flex flex-col gap-4">
           {[1, 2, 3].map((i) => (
             <Skeleton key={`customer-wallet-list-${i}`} variant="text" />
@@ -305,17 +310,12 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
         </Typography>
       )}
 
-      {!loading && !!walletsCollection.length && (
-        <InfiniteScroll
-          onBottom={() => {
-            const { currentPage = 0, totalPages = 0 } = data?.wallets?.metadata || {}
-
-            currentPage < totalPages &&
-              !loading &&
-              fetchMore({
-                variables: { page: currentPage + 1 },
-              })
-          }}
+      {!!walletsCollection.length && (
+        <PaginatedContent
+          metadata={data?.wallets?.metadata}
+          loading={loading}
+          onPageChange={goToPage}
+          sticky={false}
         >
           <Table
             name="customer-wallet-list"
@@ -345,7 +345,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
               )
             }}
           />
-        </InfiniteScroll>
+        </PaginatedContent>
       )}
     </>
   )

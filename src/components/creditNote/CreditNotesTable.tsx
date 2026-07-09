@@ -3,7 +3,7 @@ import { generatePath } from 'react-router-dom'
 
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
 import { useVoidCreditNoteDialog } from '~/components/customers/creditNotes/VoidCreditNoteDialog'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table, TableColumn, TableContainerSize } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
@@ -106,6 +106,10 @@ type TCreditNoteTableProps = {
   variables: LazyQueryHookOptions['variables'] | undefined
   customerTimezone?: TimezoneEnum
   tableContainerSize?: ResponsiveStyleValue<TableContainerSize>
+  pageSize?: number
+  onPageSizeChange?: (pageSize: number) => void
+  sticky?: boolean
+  onPageChange?: (page: number) => void
 }
 
 const CreditNotesTable = ({
@@ -117,6 +121,10 @@ const CreditNotesTable = ({
   customerTimezone,
   error,
   tableContainerSize,
+  pageSize,
+  onPageSizeChange,
+  sticky = true,
+  onPageChange,
 }: TCreditNoteTableProps) => {
   const { translate } = useInternationalization()
   const { openVoidCreditNoteDialog } = useVoidCreditNoteDialog()
@@ -156,205 +164,203 @@ const CreditNotesTable = ({
   }
 
   return (
-    <div className="border-t border-grey-300">
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-          currentPage < totalPages &&
-            !isLoading &&
-            fetchMore({
-              variables: { page: currentPage + 1 },
-            })
-        }}
-      >
-        <Table
-          name="credit-notes-list"
-          data={creditNotes || []}
-          containerSize={
-            tableContainerSize || {
-              default: 0,
-            }
+    <PaginatedContent
+      insetPager={sticky}
+      metadata={metadata}
+      loading={isLoading}
+      pageSize={pageSize}
+      sticky={sticky}
+      onPageChange={onPageChange ?? ((page) => fetchMore({ variables: { page } }))}
+      onPageSizeChange={onPageSizeChange}
+    >
+      <Table
+        name="credit-notes-list"
+        containerClassName={`border-t border-grey-300${sticky ? ' h-auto shrink-0 -mb-px' : ''}`}
+        data={creditNotes || []}
+        loadingRowCount={pageSize}
+        containerSize={
+          tableContainerSize || {
+            default: 0,
           }
-          isLoading={isLoading}
-          hasError={!!error}
-          placeholder={{ emptyState }}
-          actionColumnTooltip={(creditNote) =>
-            translate(
-              creditNote.canBeVoided && hasPermissions(['creditNotesVoid'])
-                ? 'text_63728c6434e1344aea76347d'
-                : 'text_63728c6434e1344aea76347f',
+        }
+        isLoading={isLoading}
+        hasError={!!error}
+        placeholder={{ emptyState }}
+        actionColumnTooltip={(creditNote) =>
+          translate(
+            creditNote.canBeVoided && hasPermissions(['creditNotesVoid'])
+              ? 'text_63728c6434e1344aea76347d'
+              : 'text_63728c6434e1344aea76347f',
+          )
+        }
+        actionColumn={(creditNote) => {
+          let actions: ActionItem<CreditNoteTableItemFragment>[] = []
+
+          const canDownload = hasPermissions(['creditNotesView']) && !disablePdfGeneration
+          const canVoid = creditNote.canBeVoided && hasPermissions(['creditNotesVoid'])
+          const canResendEmail =
+            hasPermissions(['creditNotesSend']) &&
+            !!creditNote?.billingEntity?.emailSettings?.includes(
+              BillingEntityEmailSettingsEnum.CreditNoteCreated,
             )
-          }
-          actionColumn={(creditNote) => {
-            let actions: ActionItem<CreditNoteTableItemFragment>[] = []
 
-            const canDownload = hasPermissions(['creditNotesView']) && !disablePdfGeneration
-            const canVoid = creditNote.canBeVoided && hasPermissions(['creditNotesVoid'])
-            const canResendEmail =
-              hasPermissions(['creditNotesSend']) &&
-              !!creditNote?.billingEntity?.emailSettings?.includes(
-                BillingEntityEmailSettingsEnum.CreditNoteCreated,
-              )
+          actions = [
+            ...actions,
+            {
+              startIcon: 'duplicate',
+              title: translate('text_636d12ce54c41fccdf0ef731'),
+              onAction: async ({ id }: { id: string }) => {
+                copyToClipboard(id)
 
+                addToast({
+                  severity: 'info',
+                  translateKey: 'text_63720bd734e1344aea75b82d',
+                })
+              },
+            },
+          ]
+
+          if (canDownload) {
             actions = [
               ...actions,
               {
-                startIcon: 'duplicate',
-                title: translate('text_636d12ce54c41fccdf0ef731'),
+                startIcon: 'download',
+                title: translate('text_636d12ce54c41fccdf0ef72d'),
+                disabled: loadingCreditNoteDownload,
                 onAction: async ({ id }: { id: string }) => {
-                  copyToClipboard(id)
-
-                  addToast({
-                    severity: 'info',
-                    translateKey: 'text_63720bd734e1344aea75b82d',
+                  await downloadCreditNote({
+                    variables: { input: { id } },
                   })
                 },
               },
             ]
-
-            if (canDownload) {
-              actions = [
-                ...actions,
-                {
-                  startIcon: 'download',
-                  title: translate('text_636d12ce54c41fccdf0ef72d'),
-                  disabled: loadingCreditNoteDownload,
-                  onAction: async ({ id }: { id: string }) => {
-                    await downloadCreditNote({
-                      variables: { input: { id } },
-                    })
-                  },
-                },
-              ]
-            }
-
-            if (canResendEmail) {
-              actions = [
-                ...actions,
-                {
-                  startIcon: 'at',
-                  title: translate('text_1770392315728uyw3zhs7kzh'),
-                  onAction: async () => {
-                    showResendEmailDialog({
-                      subject: translate('text_17706311399872btwgaui8va', {
-                        organization: creditNote?.billingEntity.name,
-                        creditNoteNumber: creditNote?.number,
-                      }),
-                      type: BillingEntityEmailSettingsEnum.CreditNoteCreated,
-                      billingEntity: creditNote?.billingEntity,
-                      documentId: creditNote?.id,
-                      customerEmail: creditNote?.customer?.email,
-                      documentData: buildCreditNoteDocumentData(creditNote),
-                    })
-                  },
-                },
-              ]
-            }
-
-            if (canVoid) {
-              actions = [
-                ...actions,
-                {
-                  startIcon: 'stop',
-                  title: translate('text_636d12ce54c41fccdf0ef72f'),
-                  onAction: async ({ id, totalAmountCents, currency }) => {
-                    openVoidCreditNoteDialog({
-                      id,
-                      totalAmountCents,
-                      currency,
-                    })
-                  },
-                },
-              ]
-            }
-
-            return actions
-          }}
-          onRowActionLink={(creditNote) =>
-            generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
-              customerId: creditNote?.invoice?.customer?.id as string,
-              invoiceId: creditNote?.invoice?.id as string,
-              creditNoteId: creditNote?.id as string,
-            })
           }
-          columns={[
-            {
-              key: 'totalAmountCents',
-              title: translate('text_1727078012568v9460bmnh8a'),
-              content: (creditNote) => <CreditNoteBadge creditNote={creditNote} />,
-            },
-            {
-              key: 'billingEntity.name',
-              title: translate('text_17436114971570doqrwuwhf0'),
-              content: ({ billingEntity }) => (
-                <Typography variant="body" noWrap>
-                  {billingEntity?.name || billingEntity?.code || '-'}
-                </Typography>
-              ),
-            },
-            {
-              key: 'number',
-              title: translate('text_64188b3d9735d5007d71227f'),
-              minWidth: 160,
-              content: ({ number }) => (
-                <TypographyWithCopy compact noWrap variant="body">
-                  {number}
-                </TypographyWithCopy>
-              ),
-            },
-            {
-              key: 'totalAmountCents',
-              title: translate('text_62544c1db13ca10187214d85'),
-              content: ({ totalAmountCents, currency }) => (
-                <Typography
-                  className="font-medium"
-                  variant="body"
-                  color={showCustomerName ? 'grey700' : 'success600'}
-                  align="right"
-                  noWrap
-                >
-                  {intlFormatNumber(deserializeAmount(totalAmountCents || 0, currency), {
-                    currencyDisplay: 'symbol',
+
+          if (canResendEmail) {
+            actions = [
+              ...actions,
+              {
+                startIcon: 'at',
+                title: translate('text_1770392315728uyw3zhs7kzh'),
+                onAction: async () => {
+                  showResendEmailDialog({
+                    subject: translate('text_17706311399872btwgaui8va', {
+                      organization: creditNote?.billingEntity.name,
+                      creditNoteNumber: creditNote?.number,
+                    }),
+                    type: BillingEntityEmailSettingsEnum.CreditNoteCreated,
+                    billingEntity: creditNote?.billingEntity,
+                    documentId: creditNote?.id,
+                    customerEmail: creditNote?.customer?.email,
+                    documentData: buildCreditNoteDocumentData(creditNote),
+                  })
+                },
+              },
+            ]
+          }
+
+          if (canVoid) {
+            actions = [
+              ...actions,
+              {
+                startIcon: 'stop',
+                title: translate('text_636d12ce54c41fccdf0ef72f'),
+                onAction: async ({ id, totalAmountCents, currency }) => {
+                  openVoidCreditNoteDialog({
+                    id,
+                    totalAmountCents,
                     currency,
-                  })}
-                </Typography>
-              ),
-              maxSpace: !showCustomerName,
-              textAlign: 'right',
-            },
-            ...(showCustomerName
-              ? [
-                  {
-                    key: 'invoice.customer.displayName',
-                    title: translate('text_63ac86d797f728a87b2f9fb3'),
-                    content: (creditNote: CreditNoteTableItemFragment) => (
-                      <Typography variant="body" color="grey600" noWrap>
-                        {creditNote.invoice?.customer.displayName}
-                      </Typography>
-                    ),
-                    maxSpace: true,
-                    tdCellClassName: 'hidden md:table-cell',
-                  } as TableColumn<CreditNoteTableItemFragment>,
-                ]
-              : []),
-            {
-              key: 'createdAt',
-              title: translate('text_62544c1db13ca10187214d7f'),
-              content: ({ createdAt }) => (
-                <Typography variant="body" color="grey600" noWrap>
-                  {
-                    intlFormatDateTime(createdAt, {
-                      timezone: customerTimezone,
-                    }).date
-                  }
-                </Typography>
-              ),
-            },
-          ]}
-        />
-      </InfiniteScroll>
-    </div>
+                  })
+                },
+              },
+            ]
+          }
+
+          return actions
+        }}
+        onRowActionLink={(creditNote) =>
+          generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
+            customerId: creditNote?.invoice?.customer?.id as string,
+            invoiceId: creditNote?.invoice?.id as string,
+            creditNoteId: creditNote?.id as string,
+          })
+        }
+        columns={[
+          {
+            key: 'totalAmountCents',
+            title: translate('text_1727078012568v9460bmnh8a'),
+            content: (creditNote) => <CreditNoteBadge creditNote={creditNote} />,
+          },
+          {
+            key: 'billingEntity.name',
+            title: translate('text_17436114971570doqrwuwhf0'),
+            content: ({ billingEntity }) => (
+              <Typography variant="body" noWrap>
+                {billingEntity?.name || billingEntity?.code || '-'}
+              </Typography>
+            ),
+          },
+          {
+            key: 'number',
+            title: translate('text_64188b3d9735d5007d71227f'),
+            minWidth: 160,
+            content: ({ number }) => (
+              <TypographyWithCopy compact noWrap variant="body">
+                {number}
+              </TypographyWithCopy>
+            ),
+          },
+          {
+            key: 'totalAmountCents',
+            title: translate('text_62544c1db13ca10187214d85'),
+            content: ({ totalAmountCents, currency }) => (
+              <Typography
+                className="font-medium"
+                variant="body"
+                color={showCustomerName ? 'grey700' : 'success600'}
+                align="right"
+                noWrap
+              >
+                {intlFormatNumber(deserializeAmount(totalAmountCents || 0, currency), {
+                  currencyDisplay: 'symbol',
+                  currency,
+                })}
+              </Typography>
+            ),
+            maxSpace: !showCustomerName,
+            textAlign: 'right',
+          },
+          ...(showCustomerName
+            ? [
+                {
+                  key: 'invoice.customer.displayName',
+                  title: translate('text_63ac86d797f728a87b2f9fb3'),
+                  content: (creditNote: CreditNoteTableItemFragment) => (
+                    <Typography variant="body" color="grey600" noWrap>
+                      {creditNote.invoice?.customer.displayName}
+                    </Typography>
+                  ),
+                  maxSpace: true,
+                  tdCellClassName: 'hidden md:table-cell',
+                } as TableColumn<CreditNoteTableItemFragment>,
+              ]
+            : []),
+          {
+            key: 'createdAt',
+            title: translate('text_62544c1db13ca10187214d7f'),
+            content: ({ createdAt }) => (
+              <Typography variant="body" color="grey600" noWrap>
+                {
+                  intlFormatDateTime(createdAt, {
+                    timezone: customerTimezone,
+                  }).date
+                }
+              </Typography>
+            ),
+          },
+        ]}
+      />
+    </PaginatedContent>
   )
 }
 

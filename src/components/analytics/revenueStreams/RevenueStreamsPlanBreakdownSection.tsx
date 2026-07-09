@@ -8,12 +8,13 @@ import {
   formatFiltersForRevenueStreamsPlansQuery,
   RevenueStreamsPlansAvailableFilters,
 } from '~/components/designSystem/Filters'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX } from '~/core/constants/filters'
 import { getIntervalTranslationKey } from '~/core/constants/form'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
@@ -42,6 +43,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
@@ -78,7 +80,7 @@ export const RevenueStreamsPlanBreakdownSection = () => {
     notifyOnNetworkStatusChange: true,
     variables: {
       ...filtersForRevenueStreamsQuery,
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
     },
   })
 
@@ -116,20 +118,17 @@ export const RevenueStreamsPlanBreakdownSection = () => {
         </Filters.Provider>
       </div>
 
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } =
-            revenueStreamsPlanBreakdownData?.dataApiRevenueStreamsPlans.metadata || {}
-
-          currentPage < totalPages &&
-            !revenueStreamsPlanBreakdownLoading &&
-            fetchMore({
-              variables: {
-                ...variables,
-                page: currentPage + 1,
-              },
-            })
-        }}
+      <PaginatedContent
+        metadata={revenueStreamsPlanBreakdownData?.dataApiRevenueStreamsPlans.metadata}
+        loading={revenueStreamsPlanBreakdownLoading}
+        onPageChange={(page) =>
+          fetchMore({
+            variables: {
+              ...variables,
+              page,
+            },
+          })
+        }
       >
         <Table
           name="revenue-streams-plan-breakdown"
@@ -231,7 +230,7 @@ export const RevenueStreamsPlanBreakdownSection = () => {
             },
           ]}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </>
   )
 }

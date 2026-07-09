@@ -1,10 +1,11 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
+import { useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { useDeleteBillableMetricDialog } from '~/components/billableMetrics/DeleteBillableMetricDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
@@ -12,6 +13,7 @@ import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   BILLABLE_METRIC_DETAILS_ROUTE,
@@ -54,15 +56,15 @@ const BillableMetricsList = () => {
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { openDeleteBillableMetricDialog } = useDeleteBillableMetricDialog()
-  const [getBillableMetrics, { data, error, loading, fetchMore, variables }] =
-    useBillableMetricsLazyQuery({
-      variables: { limit: 20 },
-      notifyOnNetworkStatusChange: true,
-      fetchPolicy: 'network-only',
-      nextFetchPolicy: 'network-only',
-    })
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page, goToPage } = usePageSearchParam()
+  const [getBillableMetrics, { data, error, loading, variables }] = useBillableMetricsLazyQuery({
+    variables: { limit: pageSize, page },
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
+  })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getBillableMetrics, loading)
-  const list = data?.billableMetrics?.collection || []
 
   const canUpdateBillableMetrics = hasPermissions(['billableMetricsUpdate'])
   const canDeleteBillableMetrics = hasPermissions(['billableMetricsDelete'])
@@ -199,7 +201,7 @@ const BillableMetricsList = () => {
         entity={{
           viewName: translate('text_623b497ad05b960101be3438'),
           metadata: formatCountToMetadata(billableMetricsTotalCount, translate),
-          metadataLoading: isLoading,
+          metadataLoading: isLoading && billableMetricsTotalCount === undefined,
         }}
         actions={{
           items: [
@@ -215,31 +217,35 @@ const BillableMetricsList = () => {
         }}
         filtersSection={
           <SearchInput
-            onChange={debouncedSearch}
+            onChange={(value) => {
+              goToPage(1)
+              debouncedSearch?.(value)
+            }}
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
           />
         }
       />
 
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } = data?.billableMetrics?.metadata || {}
-
-          currentPage < totalPages &&
-            !isLoading &&
-            fetchMore({
-              variables: { page: currentPage + 1 },
-            })
+      <PaginatedContent
+        insetPager
+        metadata={data?.billableMetrics?.metadata}
+        loading={isLoading}
+        pageSize={pageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
         }}
       >
         <Table
           name="billable-metrics-list"
-          data={list}
+          data={data?.billableMetrics?.collection ?? []}
+          loadingRowCount={pageSize}
           containerSize={{
             default: 16,
             md: 48,
           }}
-          containerClassName={tw('h-[calc(100%-theme(space.nav))] border-t border-grey-300')}
+          containerClassName={tw('-mb-px h-auto shrink-0 border-t border-grey-300')}
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
@@ -249,7 +255,7 @@ const BillableMetricsList = () => {
           actionColumn={({ id }) => getActions(id)}
           placeholder={placeholder}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </>
   )
 }

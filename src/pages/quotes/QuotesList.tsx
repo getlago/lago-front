@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { formatFiltersForQuotesQuery } from '~/components/designSystem/Filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -20,9 +21,14 @@ const QuotesList = (): JSX.Element => {
     [searchParams],
   )
 
-  const { quotes, loading, error, fetchMore, metadata } = useQuotes({
-    ...filtersForQuotesQuery,
-  })
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+
+  const { quotes, loading, error, fetchMore, metadata } = useQuotes(
+    {
+      ...filtersForQuotesQuery,
+    },
+    pageSize,
+  )
   const { getActions } = useQuoteVersionActions()
   const columns = useQuotesColumns()
 
@@ -37,6 +43,8 @@ const QuotesList = (): JSX.Element => {
       metadata={metadata}
       fetchMore={fetchMore}
       columns={columns}
+      pageSize={pageSize}
+      onPageSizeChange={setPageSize}
       getActions={(quote) => getActions(quote)}
       onRowActionLink={({ id }) =>
         generatePath(QUOTE_DETAILS_ROUTE, {

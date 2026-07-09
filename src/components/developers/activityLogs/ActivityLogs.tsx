@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -14,6 +14,7 @@ import { ActivityLogTable } from '~/components/developers/activityLogs/ActivityL
 import { ACTIVITY_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
 import { ACTIVITY_LOG_FILTER_PREFIX } from '~/core/constants/filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { useNavigate } from '~/core/router'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { ActivityItemFragment, LagoApiError, useActivityLogsQuery } from '~/generated/graphql'
@@ -65,6 +66,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
@@ -77,12 +79,14 @@ export const ActivityLogs = () => {
   const [searchParams] = useSearchParams()
   const logListRef = useRef<ListSectionRef>(null)
 
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+
   const filtersForActivityLogsQuery = useMemo(() => {
     return formatFiltersForActivityLogsQuery(searchParams)
   }, [searchParams])
 
   const getActivityLogsResult = useActivityLogsQuery({
-    variables: { limit: 20, ...filtersForActivityLogsQuery },
+    variables: { limit: pageSize, ...filtersForActivityLogsQuery },
     notifyOnNetworkStatusChange: true,
     context: {
       silentErrorCodes: [LagoApiError.FeatureUnavailable],
@@ -171,7 +175,12 @@ export const ActivityLogs = () => {
       <LogsLayout.ListSection
         ref={logListRef}
         leftSide={
-          <ActivityLogTable getActivityLogsResult={getActivityLogsResult} logListRef={logListRef} />
+          <ActivityLogTable
+            getActivityLogsResult={getActivityLogsResult}
+            logListRef={logListRef}
+            pageSize={pageSize}
+            onPageSizeChange={setPageSize}
+          />
         }
         rightSide={<ActivityLogDetails goBack={() => logListRef.current?.updateView('backward')} />}
         shouldDisplayRightSide={shouldDisplayLogDetails}

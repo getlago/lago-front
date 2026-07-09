@@ -3,7 +3,7 @@ import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import {
   WALLET_TRANSACTION_ITEM_ROW_TEST_ID,
@@ -45,6 +45,7 @@ type WalletTransactionItemsProps = {
   pagination: {
     currentPage?: number
     totalPages?: number
+    totalCount?: number
     fetchMore:
       | GetWalletTransactionConsumptionsQueryResult['fetchMore']
       | GetWalletTransactionFundingsQueryResult['fetchMore']
@@ -110,16 +111,14 @@ const WalletTransactionItems = ({
   }
 
   return (
-    <InfiniteScroll
-      onBottom={() => {
-        const { currentPage = 0, totalPages = 0 } = pagination || {}
-
-        currentPage < totalPages &&
-          !isLoading &&
-          pagination.fetchMore({
-            variables: { page: currentPage + 1 },
-          })
+    <PaginatedContent
+      metadata={{
+        currentPage: pagination.currentPage ?? 1,
+        totalPages: pagination.totalPages ?? 0,
+        totalCount: pagination.totalCount ?? 0,
       }}
+      loading={isLoading}
+      onPageChange={(page) => pagination.fetchMore({ variables: { page } })}
     >
       <div className="flex flex-col gap-12" data-test={WALLET_TRANSACTION_ITEMS_LIST_TEST_ID}>
         {transactions?.map((transaction, index) => (
@@ -194,7 +193,7 @@ const WalletTransactionItems = ({
           </div>
         ))}
       </div>
-    </InfiniteScroll>
+    </PaginatedContent>
   )
 }
 

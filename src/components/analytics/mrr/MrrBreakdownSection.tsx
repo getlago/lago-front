@@ -8,12 +8,13 @@ import {
   formatFiltersForMrrPlansQuery,
   MrrBreakdownPlansAvailableFilters,
 } from '~/components/designSystem/Filters'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { MRR_BREAKDOWN_PLANS_FILTER_PREFIX } from '~/core/constants/filters'
 import { getIntervalTranslationKey } from '~/core/constants/form'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
@@ -42,6 +43,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
@@ -78,7 +80,7 @@ export const MrrBreakdownSection = () => {
     notifyOnNetworkStatusChange: true,
     variables: {
       ...filtersForMrrQuery,
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
     },
   })
 
@@ -125,20 +127,17 @@ export const MrrBreakdownSection = () => {
         </Filters.Provider>
       </div>
 
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } =
-            mrrPlanBreakdownData?.dataApiMrrsPlans.metadata || {}
-
-          currentPage < totalPages &&
-            !mrrPlanBreakdownLoading &&
-            fetchMore({
-              variables: {
-                ...variables,
-                page: currentPage + 1,
-              },
-            })
-        }}
+      <PaginatedContent
+        metadata={mrrPlanBreakdownData?.dataApiMrrsPlans.metadata}
+        loading={mrrPlanBreakdownLoading}
+        onPageChange={(page) =>
+          fetchMore({
+            variables: {
+              ...variables,
+              page,
+            },
+          })
+        }
       >
         <Table
           name="mrr-plan-breakdown"
@@ -237,7 +236,7 @@ export const MrrBreakdownSection = () => {
             },
           ]}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </section>
   )
 }

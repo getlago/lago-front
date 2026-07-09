@@ -88,7 +88,7 @@ const NavSection = ({
 const ContentWrapper = forwardRef<HTMLDivElement, PropsWithChildren<{ 'data-test'?: string }>>(
   ({ children, 'data-test': dataTest }, ref) => {
     return (
-      <div className="flex-1 overflow-y-auto" ref={ref} data-test={dataTest}>
+      <div className="flex flex-1 flex-col overflow-y-auto" ref={ref} data-test={dataTest}>
         {children}
       </div>
     )

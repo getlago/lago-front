@@ -1,6 +1,6 @@
 import { IconName } from 'lago-design-system'
 
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -10,7 +10,7 @@ interface QuotesSectionTableProps<T> {
   data: T[]
   isLoading: boolean
   hasError: boolean
-  metadata: { currentPage: number; totalPages: number } | undefined
+  metadata: { currentPage: number; totalPages: number; totalCount: number } | undefined
   fetchMore: ((opts: { variables: { page: number } }) => Promise<unknown>) | undefined
   columns: Array<TableColumn<T>>
   emptyState: { title: string; subtitle: string }
@@ -18,6 +18,8 @@ interface QuotesSectionTableProps<T> {
   onRowActionLink?: (row: T) => string
   className?: string
   containerClassName?: string
+  pageSize?: number
+  onPageSizeChange?: (pageSize: number) => void
 }
 
 export const QuotesSectionTable = <T extends { id: string }>({
@@ -33,22 +35,25 @@ export const QuotesSectionTable = <T extends { id: string }>({
   onRowActionLink,
   className,
   containerClassName,
+  pageSize,
+  onPageSizeChange,
 }: QuotesSectionTableProps<T>): JSX.Element => {
   const { translate } = useInternationalization()
 
-  const onBottom = () => {
-    const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-    currentPage < totalPages && !isLoading && fetchMore?.({ variables: { page: currentPage + 1 } })
-  }
-
   return (
     <DetailsPage.Container className={className}>
-      <InfiniteScroll onBottom={onBottom}>
+      <PaginatedContent
+        metadata={metadata}
+        loading={isLoading}
+        pageSize={pageSize}
+        onPageChange={(page) => fetchMore?.({ variables: { page } })}
+        onPageSizeChange={onPageSizeChange}
+      >
         <Table
           name={name}
           containerClassName={containerClassName}
           data={data}
+          loadingRowCount={pageSize}
           isLoading={isLoading}
           hasError={hasError}
           containerSize={0}
@@ -79,7 +84,7 @@ export const QuotesSectionTable = <T extends { id: string }>({
             },
           }}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </DetailsPage.Container>
   )
 }

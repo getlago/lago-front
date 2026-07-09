@@ -109,6 +109,27 @@ describe('draft', () => {
   })
 })
 
+describe('pagination reset', () => {
+  it('drops the page param so switching quick filter returns to page 1', () => {
+    const { result } = renderHook(() => useFilters(), {
+      wrapper: ({ children }) =>
+        wrapper({
+          children,
+          withStaticFilters: false,
+          withStaticQuickFilters: false,
+          initialSearchParams: 'page=5',
+        }),
+    })
+
+    const params = result.current.buildQuickFilterUrlParams({
+      status: InvoiceStatusTypeEnum.Draft,
+    })
+
+    expect(params).not.toContain('page')
+    expect(params).toContain(`${FILTER_PREFIX}_status=draft`)
+  })
+})
+
 describe('outstanding', () => {
   it('should return search params without initial static filters', () => {
     const { result } = renderHook(() => useFilters(), {

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import {
@@ -9,6 +9,7 @@ import {
   formatFiltersForInvoiceQuery,
   isOutstandingUrlParams,
 } from '~/components/designSystem/Filters'
+import { usePageSearchParam } from '~/components/designSystem/Pagination'
 import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
 import {
   FinalizeInvoiceDialog,
@@ -20,6 +21,7 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
@@ -146,6 +148,9 @@ const InvoicesPage = () => {
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const exportInvoicesDialogRef = useRef<ExportDialogRef>(null)
 
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page, goToPage } = usePageSearchParam()
+
   const filtersForInvoiceQuery = useMemo(() => {
     return formatFiltersForInvoiceQuery(searchParams)
   }, [searchParams])
@@ -156,7 +161,8 @@ const InvoicesPage = () => {
       fetchPolicy: 'network-only',
       nextFetchPolicy: 'network-only',
       variables: {
-        limit: 20,
+        limit: pageSize,
+        page,
         status: [
           InvoiceStatusTypeEnum.Draft,
           InvoiceStatusTypeEnum.Failed,
@@ -221,7 +227,7 @@ const InvoicesPage = () => {
         entity={{
           viewName: translate('text_63ac86d797f728a87b2f9f85'),
           metadata: formatCountToMetadata(invoicesTotalCount, translate),
-          metadataLoading: invoiceIsLoading,
+          metadataLoading: invoiceIsLoading && invoicesTotalCount === undefined,
         }}
         actions={{
           loading: invoiceIsLoading,
@@ -279,7 +285,10 @@ const InvoicesPage = () => {
               <Filters.QuickFilters />
               <div className="flex flex-col gap-3 md:flex-row md:items-center">
                 <SearchInput
-                  onChange={invoiceDebounceSearch}
+                  onChange={(value) => {
+                    goToPage(1)
+                    invoiceDebounceSearch?.(value)
+                  }}
                   placeholder={translate('text_63c68131568d582a38233e84')}
                 />
                 <Filters.Component />
@@ -296,6 +305,12 @@ const InvoicesPage = () => {
         isLoading={invoiceIsLoading}
         metadata={data?.invoices?.metadata}
         variables={variables}
+        pageSize={pageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
       />
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />

@@ -6,6 +6,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
 import { SearchInput } from '~/components/SearchInput'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   AvalaraIntegrationItemsListAddonsFragmentDoc,
   AvalaraIntegrationItemsListBillableMetricsFragmentDoc,
@@ -64,6 +65,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         id
@@ -83,6 +85,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         id
@@ -137,7 +140,7 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
   ] = useGetAddOnsForAvalaraItemsListLazyQuery({
     notifyOnNetworkStatusChange: true,
     variables: {
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
       integrationId,
     },
   })
@@ -154,7 +157,7 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
   ] = useGetBillableMetricsForAvalaraItemsListLazyQuery({
     notifyOnNetworkStatusChange: true,
     variables: {
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
       integrationId,
     },
   })

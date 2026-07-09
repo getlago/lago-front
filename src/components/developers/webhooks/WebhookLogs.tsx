@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -14,6 +14,7 @@ import { WebhookLogDetails } from '~/components/developers/webhooks/WebhookLogDe
 import { WebhookLogTable } from '~/components/developers/webhooks/WebhookLogTable'
 import { SearchInput } from '~/components/SearchInput'
 import { WEBHOOK_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { useNavigate } from '~/core/router'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { useGetWebhookLogLazyQuery, WebhookLogFragment } from '~/generated/graphql'
@@ -55,6 +56,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         id
@@ -81,6 +83,8 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
 
   const logListRef = useRef<ListSectionRef>(null)
 
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+
   const searchParamsString = searchParams.toString()
 
   const filtersForWebhookLogsQuery = useMemo(() => {
@@ -90,10 +94,10 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
   const queryVariables = useMemo(
     () => ({
       webhookEndpointId: webhookId,
-      limit: 20,
+      limit: pageSize,
       ...filtersForWebhookLogsQuery,
     }),
-    [webhookId, filtersForWebhookLogsQuery],
+    [webhookId, pageSize, filtersForWebhookLogsQuery],
   )
 
   const [getWebhookLogs, getWebhookLogsResult] = useGetWebhookLogLazyQuery({
@@ -218,6 +222,8 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
             getWebhookLogsResult={getWebhookLogsResult}
             logListRef={logListRef}
             isLoading={isSearchLoading}
+            pageSize={pageSize}
+            onPageSizeChange={setPageSize}
           />
         }
         rightSide={<WebhookLogDetails goBack={() => logListRef.current?.updateView('backward')} />}

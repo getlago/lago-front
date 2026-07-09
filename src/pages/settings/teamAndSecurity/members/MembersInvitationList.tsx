@@ -3,11 +3,12 @@ import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Chip } from '~/components/designSystem/Chip'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { ActionColumn, ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { addToast } from '~/core/apolloClient'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { MEMBERS_PAGE_ROLE_FILTER_KEY, RoleItem } from '~/core/constants/roles'
 import { INVITATION_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -46,8 +47,10 @@ const getRolesColumn = (
 
 const MembersInvitationList = () => {
   const { translate } = useInternationalization()
-  const { invitations, metadata, invitesLoading, invitesFetchMore, invitesError, invitesRefetch } =
-    useGetMembersInvitationList()
+  const { page, goToPage } = usePageSearchParam()
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { invitations, metadata, invitesLoading, invitesError, invitesRefetch } =
+    useGetMembersInvitationList(pageSize, page)
   const { roles } = useRolesList()
   const { getDisplayName } = useRoleDisplayInformation()
   const { hasPermissions } = usePermissions()
@@ -77,16 +80,6 @@ const MembersInvitationList = () => {
       return matchesRole && matchesSearch
     })
   }, [invitations, selectedRole, searchQuery])
-
-  const handleInfiniteScrolling = () => {
-    const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-    currentPage < totalPages &&
-      !invitesLoading &&
-      invitesFetchMore({
-        variables: { page: currentPage + 1 },
-      })
-  }
 
   const columns: Array<TableColumn<Invitation> | null> = [
     {
@@ -199,26 +192,40 @@ const MembersInvitationList = () => {
   }
 
   return (
-    <div>
+    <div className="flex min-h-0 flex-1 flex-col">
       <MembersFilters
         searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
+        setSearchQuery={(value) => {
+          goToPage(1)
+          setSearchQuery(value)
+        }}
         type="invitations"
       />
-      <InfiniteScroll onBottom={handleInfiniteScrolling}>
+      <PaginatedContent
+        metadata={metadata}
+        loading={invitesLoading}
+        pageSize={pageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(newPageSize) => {
+          goToPage(1)
+          setPageSize(newPageSize)
+        }}
+      >
         <Table
           name="members-setting-invitations-list"
+          containerClassName="h-auto shrink-0"
           containerSize={{ default: 0 }}
           rowSize={72}
           isLoading={invitesLoading}
           data={filteredInvitations}
+          loadingRowCount={pageSize}
           hasError={!!invitesError}
           placeholder={getTablePlaceholder()}
           columns={columns}
           actionColumnTooltip={() => translate('text_626162c62f790600f850b7b6')}
           actionColumn={actionColumn}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </div>
   )
 }

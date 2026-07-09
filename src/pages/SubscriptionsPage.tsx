@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
@@ -10,7 +10,7 @@ import {
   formatFiltersForSubscriptionQuery,
   SubscriptionAvailableFilters,
 } from '~/components/designSystem/Filters'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
@@ -23,6 +23,7 @@ import {
 import { TimezoneDate } from '~/components/TimezoneDate'
 import { SUBSCRIPTION_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { getIntervalTranslationKey } from '~/core/constants/form'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
 import {
@@ -137,16 +138,26 @@ const SubscriptionsPage = () => {
     return formatFiltersForSubscriptionQuery(searchParams)
   }, [searchParams])
 
-  const [getSubscriptions, { data, error, loading, variables, fetchMore }] =
-    useGetSubscriptionsListLazyQuery({
-      notifyOnNetworkStatusChange: true,
-      variables: {
-        limit: 20,
-        ...filtersForSubscriptionQuery,
-      },
-    })
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page, goToPage } = usePageSearchParam()
+
+  const [getSubscriptions, { data, error, loading, variables }] = useGetSubscriptionsListLazyQuery({
+    notifyOnNetworkStatusChange: true,
+    variables: {
+      limit: pageSize,
+      page,
+      ...filtersForSubscriptionQuery,
+    },
+  })
 
   const { debouncedSearch, isLoading } = useDebouncedSearch(getSubscriptions, loading)
+
+  // A new search narrows the result set — jump back to the first page so we never land on a now
+  // out-of-range page (filter changes reset the page centrally in useFilters).
+  const searchAndResetPage = (value: string) => {
+    goToPage(1)
+    debouncedSearch?.(value)
+  }
 
   const subscriptions = data?.subscriptions.collection as Subscription[]
   const hasSearchParams =
@@ -163,7 +174,7 @@ const SubscriptionsPage = () => {
         entity={{
           viewName: translate('text_6250304370f0f700a8fdc28d'),
           metadata: formatCountToMetadata(subscriptionsTotalCount, translate),
-          metadataLoading: isLoading,
+          metadataLoading: isLoading && subscriptionsTotalCount === undefined,
         }}
         filtersSection={
           <Filters.Provider
@@ -172,7 +183,7 @@ const SubscriptionsPage = () => {
           >
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
               <SearchInput
-                onChange={debouncedSearch}
+                onChange={searchAndResetPage}
                 placeholder={translate('text_1751378926655m4bfald61u4')}
               />
               <Filters.Component />
@@ -181,167 +192,167 @@ const SubscriptionsPage = () => {
         }
       />
 
-      <div className="border-t border-grey-300">
-        <InfiniteScroll
-          onBottom={() => {
-            const { currentPage = 0, totalPages = 0 } = data?.subscriptions.metadata || {}
-
-            currentPage < totalPages &&
-              !isLoading &&
-              fetchMore?.({
-                variables: { page: currentPage + 1 },
-              })
+      <PaginatedContent
+        insetPager
+        metadata={data?.subscriptions.metadata}
+        loading={isLoading}
+        pageSize={pageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
+      >
+        <SubscriptionsList
+          name="subscriptions-list"
+          containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
+          isLoading={isLoading}
+          loadingRowCount={pageSize}
+          hasError={!!error}
+          subscriptions={subscriptions}
+          containerSize={{
+            default: 16,
+            md: 48,
           }}
-        >
-          <SubscriptionsList
-            name="subscriptions-list"
-            isLoading={isLoading}
-            hasError={!!error}
-            subscriptions={subscriptions}
-            containerSize={{
-              default: 16,
-              md: 48,
-            }}
-            columns={[
-              {
-                key: 'name',
-                title: translate('text_6419c64eace749372fc72b0f'),
-                content: ({ name, isDowngrade, isScheduled }) => (
-                  <>
-                    <div
-                      className={tw('relative flex items-center gap-3', {
-                        'pl-4': isDowngrade,
-                      })}
-                    >
-                      {isDowngrade && <Icon name="arrow-indent" />}
-                      <Typography variant="bodyHl" color="grey700" noWrap>
-                        {name}
+          columns={[
+            {
+              key: 'name',
+              title: translate('text_6419c64eace749372fc72b0f'),
+              content: ({ name, isDowngrade, isScheduled }) => (
+                <>
+                  <div
+                    className={tw('relative flex items-center gap-3', {
+                      'pl-4': isDowngrade,
+                    })}
+                  >
+                    {isDowngrade && <Icon name="arrow-indent" />}
+                    <Typography variant="bodyHl" color="grey700" noWrap>
+                      {name}
+                    </Typography>
+                    {isDowngrade && <Status type={StatusType.default} label="downgrade" />}
+                    {isScheduled && <Status type={StatusType.default} label="scheduled" />}
+                  </div>
+                </>
+              ),
+            },
+            {
+              key: 'statusType.type',
+              title: translate('text_62d7f6178ec94cd09370e5fb'),
+              content: ({ statusType }) => <Status {...statusType} />,
+            },
+
+            {
+              key: 'customer.name',
+              title: translate('text_63ac86d797f728a87b2f9fb3'),
+              maxSpace: true,
+              minWidth: 160,
+              content: ({ customer }) => (
+                <Typography variant="body" noWrap>
+                  {customer?.displayName || customer?.name || '-'}
+                </Typography>
+              ),
+            },
+
+            ...(showBillingEntityColumn
+              ? [
+                  {
+                    key: 'billingEntityId' as const,
+                    title: translate('text_17436114971570doqrwuwhf0'),
+                    minWidth: 140,
+                    content: ({ billingEntityId, customer }: AnnotatedSubscription) => (
+                      <Typography variant="body" noWrap>
+                        <BillingEntityLabel
+                          ownId={billingEntityId}
+                          customerEntity={customer?.billingEntity}
+                        />
                       </Typography>
-                      {isDowngrade && <Status type={StatusType.default} label="downgrade" />}
-                      {isScheduled && <Status type={StatusType.default} label="scheduled" />}
-                    </div>
-                  </>
-                ),
-              },
-              {
-                key: 'statusType.type',
-                title: translate('text_62d7f6178ec94cd09370e5fb'),
-                content: ({ statusType }) => <Status {...statusType} />,
-              },
-
-              {
-                key: 'customer.name',
-                title: translate('text_63ac86d797f728a87b2f9fb3'),
-                maxSpace: true,
-                minWidth: 160,
-                content: ({ customer }) => (
-                  <Typography variant="body" noWrap>
-                    {customer?.displayName || customer?.name || '-'}
-                  </Typography>
-                ),
-              },
-
-              ...(showBillingEntityColumn
-                ? [
-                    {
-                      key: 'billingEntityId' as const,
-                      title: translate('text_17436114971570doqrwuwhf0'),
-                      minWidth: 140,
-                      content: ({ billingEntityId, customer }: AnnotatedSubscription) => (
-                        <Typography variant="body" noWrap>
-                          <BillingEntityLabel
-                            ownId={billingEntityId}
-                            customerEntity={customer?.billingEntity}
-                          />
-                        </Typography>
-                      ),
-                    },
-                  ]
-                : []),
-
-              {
-                key: 'isOverridden',
-                title: translate('text_65281f686a80b400c8e2f6c4'),
-                content: ({ isOverridden }) => (
-                  <Typography>
-                    {isOverridden
-                      ? translate('text_65281f686a80b400c8e2f6dd')
-                      : translate('text_65281f686a80b400c8e2f6d1')}
-                  </Typography>
-                ),
-              },
-
-              {
-                key: 'frequency',
-                title: translate('text_1736968618645gg26amx8djq'),
-                content: ({ frequency }) => (
-                  <Typography>{translate(getIntervalTranslationKey[frequency])}</Typography>
-                ),
-              },
-
-              {
-                key: 'startedAt',
-                title: translate('text_65201c5a175a4b0238abf29e'),
-                content: ({ startedAt, customer }) =>
-                  !!startedAt ? (
-                    <TimezoneDate
-                      mainTypographyProps={{ variant: 'body', color: 'grey600', noWrap: true }}
-                      date={startedAt}
-                      customerTimezone={customer.applicableTimezone}
-                    />
-                  ) : (
-                    <Typography>-</Typography>
-                  ),
-              },
-              {
-                key: 'endingAt',
-                title: translate('text_65201c5a175a4b0238abf2a0'),
-                content: ({ endingAt, status, terminatedAt, customer }) =>
-                  endingAt || terminatedAt ? (
-                    <TimezoneDate
-                      mainTypographyProps={{ variant: 'body', color: 'grey600', noWrap: true }}
-                      date={status === StatusTypeEnum.Terminated ? terminatedAt : endingAt}
-                      customerTimezone={customer.applicableTimezone}
-                    />
-                  ) : (
-                    <Typography>-</Typography>
-                  ),
-              },
-            ]}
-            actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
-            onRowActionLink={({ id, customer }) =>
-              generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-                customerId: customer.id,
-                subscriptionId: id,
-                tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-              })
-            }
-            placeholder={{
-              errorState: hasSearchParams
-                ? {
-                    title: translate('text_623b53fea66c76017eaebb6e'),
-                    subtitle: translate('text_63bab307a61c62af497e0599'),
-                  }
-                : {
-                    title: translate('text_63ac86d797f728a87b2f9fea'),
-                    subtitle: translate('text_63ac86d797f728a87b2f9ff2'),
-                    buttonTitle: translate('text_63ac86d797f728a87b2f9ffa'),
-                    buttonAction: () => location.reload(),
-                    buttonVariant: 'primary',
+                    ),
                   },
-              emptyState: hasSearchParams
-                ? {
-                    title: translate('text_1751969008731sd4e2mssx90'),
-                    subtitle: translate('text_66ab48ea4ed9cd01084c60b8'),
-                  }
-                : {
-                    title: translate('text_1751969008731m6hlinilrky'),
-                    subtitle: translate('text_1751969070668mwxq0nou1x9'),
-                  },
-            }}
-          />
-        </InfiniteScroll>
-      </div>
+                ]
+              : []),
+
+            {
+              key: 'isOverridden',
+              title: translate('text_65281f686a80b400c8e2f6c4'),
+              content: ({ isOverridden }) => (
+                <Typography>
+                  {isOverridden
+                    ? translate('text_65281f686a80b400c8e2f6dd')
+                    : translate('text_65281f686a80b400c8e2f6d1')}
+                </Typography>
+              ),
+            },
+
+            {
+              key: 'frequency',
+              title: translate('text_1736968618645gg26amx8djq'),
+              content: ({ frequency }) => (
+                <Typography>{translate(getIntervalTranslationKey[frequency])}</Typography>
+              ),
+            },
+
+            {
+              key: 'startedAt',
+              title: translate('text_65201c5a175a4b0238abf29e'),
+              content: ({ startedAt, customer }) =>
+                !!startedAt ? (
+                  <TimezoneDate
+                    mainTypographyProps={{ variant: 'body', color: 'grey600', noWrap: true }}
+                    date={startedAt}
+                    customerTimezone={customer.applicableTimezone}
+                  />
+                ) : (
+                  <Typography>-</Typography>
+                ),
+            },
+            {
+              key: 'endingAt',
+              title: translate('text_65201c5a175a4b0238abf2a0'),
+              content: ({ endingAt, status, terminatedAt, customer }) =>
+                endingAt || terminatedAt ? (
+                  <TimezoneDate
+                    mainTypographyProps={{ variant: 'body', color: 'grey600', noWrap: true }}
+                    date={status === StatusTypeEnum.Terminated ? terminatedAt : endingAt}
+                    customerTimezone={customer.applicableTimezone}
+                  />
+                ) : (
+                  <Typography>-</Typography>
+                ),
+            },
+          ]}
+          actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
+          onRowActionLink={({ id, customer }) =>
+            generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+              customerId: customer.id,
+              subscriptionId: id,
+              tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+            })
+          }
+          placeholder={{
+            errorState: hasSearchParams
+              ? {
+                  title: translate('text_623b53fea66c76017eaebb6e'),
+                  subtitle: translate('text_63bab307a61c62af497e0599'),
+                }
+              : {
+                  title: translate('text_63ac86d797f728a87b2f9fea'),
+                  subtitle: translate('text_63ac86d797f728a87b2f9ff2'),
+                  buttonTitle: translate('text_63ac86d797f728a87b2f9ffa'),
+                  buttonAction: () => location.reload(),
+                  buttonVariant: 'primary',
+                },
+            emptyState: hasSearchParams
+              ? {
+                  title: translate('text_1751969008731sd4e2mssx90'),
+                  subtitle: translate('text_66ab48ea4ed9cd01084c60b8'),
+                }
+              : {
+                  title: translate('text_1751969008731m6hlinilrky'),
+                  subtitle: translate('text_1751969070668mwxq0nou1x9'),
+                },
+          }}
+        />
+      </PaginatedContent>
     </>
   )
 }

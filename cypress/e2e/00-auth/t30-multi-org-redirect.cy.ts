@@ -174,10 +174,13 @@ describe('Multi-organization redirect flows', () => {
       // 1. Login as User A
       cy.login(testUsers.userA.email, testUsers.userA.password)
 
-      // 2. Navigate to customers with query params
-      cy.visitApp('/customers?search=test&page=2')
+      // 2. Navigate to customers with query params.
+      // NB: only `search` is used to prove query-string preservation. `page` is now a managed
+      // pagination param — an out-of-range page (this fresh org has 0 customers, so any page > 1)
+      // is auto-clamped to the last page on load, which strips it from the URL. That clamp is
+      // orthogonal to the redirect mechanism under test, so we don't assert on `page` here.
+      cy.visitApp('/customers?search=test')
       cy.url().should('include', 'search=test')
-      cy.url().should('include', 'page=2')
 
       // 3. logout
       cy.logout()
@@ -188,7 +191,6 @@ describe('Multi-organization redirect flows', () => {
 
       // 5. Should preserve query params after login
       cy.url().should('include', 'search=test')
-      cy.url().should('include', 'page=2')
     })
   })
 

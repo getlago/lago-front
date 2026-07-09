@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { MemberForEditRoleForDialogFragmentDoc, useGetMembersQuery } from '~/generated/graphql'
 
 gql`
@@ -34,14 +35,17 @@ gql`
   ${MemberForEditRoleForDialogFragmentDoc}
 `
 
-export const useGetMembersList = () => {
+export const useGetMembersList = (pageSize: number = DEFAULT_PAGE_SIZE, page: number = 1) => {
   const {
     data: membersData,
     error: membersError,
     loading: membersLoading,
     refetch: membersRefetch,
     fetchMore: membersFetchMore,
-  } = useGetMembersQuery({ variables: { limit: 20 }, notifyOnNetworkStatusChange: true })
+  } = useGetMembersQuery({
+    variables: { limit: pageSize, page },
+    notifyOnNetworkStatusChange: true,
+  })
 
   return {
     members: membersData?.memberships.collection || [],

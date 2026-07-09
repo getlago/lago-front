@@ -3,11 +3,12 @@ import { generatePath } from 'react-router-dom'
 
 import { computeCustomerInitials } from '~/components/customers/utils'
 import { Avatar } from '~/components/designSystem/Avatar'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { PLAN_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router/ObjectsRoutes'
 import { intlFormatDateTime } from '~/core/timezone'
@@ -42,6 +43,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
@@ -55,7 +57,11 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
     error: subscriptionsError,
     fetchMore: fetchMoreSubscriptions,
   } = useGetSubscribtionsForPlanDetailsQuery({
-    variables: { planCode: planCode as string, limit: 20, status: [StatusTypeEnum.Active] },
+    variables: {
+      planCode: planCode as string,
+      limit: DEFAULT_PAGE_SIZE,
+      status: [StatusTypeEnum.Active],
+    },
     skip: !planCode,
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
@@ -67,21 +73,15 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
         {translate('text_65281f686a80b400c8e2f6be')}
       </DetailsPage.SectionTitle>
 
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } =
-            subscriptionResult?.subscriptions?.metadata || {}
-
-          currentPage < totalPages &&
-            !areSubscriptionsLoading &&
-            fetchMoreSubscriptions({
-              variables: { page: currentPage + 1 },
-            })
-        }}
+      <PaginatedContent
+        metadata={subscriptionResult?.subscriptions?.metadata}
+        loading={areSubscriptionsLoading}
+        onPageChange={(page) => fetchMoreSubscriptions({ variables: { page } })}
+        sticky={false}
       >
         <Table
           name="plan-subscriptions"
-          data={subscriptionResult?.subscriptions?.collection || []}
+          data={subscriptionResult?.subscriptions?.collection ?? []}
           containerSize={0}
           isLoading={areSubscriptionsLoading}
           hasError={!!subscriptionsError}
@@ -169,7 +169,7 @@ const PlanSubscriptionList = ({ planCode }: { planCode?: string }) => {
             },
           ]}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </section>
   )
 }

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -8,6 +8,7 @@ import { EVENT_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { EventDetails } from '~/components/developers/events/EventDetails'
 import { EventTable } from '~/components/developers/events/EventTable'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { useNavigate } from '~/core/router'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { EventItemFragment, useEventsQuery } from '~/generated/graphql'
@@ -29,6 +30,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
@@ -40,8 +42,10 @@ export const Events = () => {
   const { '*': eventId } = useParams<{ '*': string }>()
   const logListRef = useRef<ListSectionRef>(null)
 
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+
   const getEventsResult = useEventsQuery({
-    variables: { limit: 20 },
+    variables: { limit: pageSize },
     notifyOnNetworkStatusChange: true,
   })
 
@@ -109,7 +113,14 @@ export const Events = () => {
 
       <LogsLayout.ListSection
         ref={logListRef}
-        leftSide={<EventTable getEventsResult={getEventsResult} logListRef={logListRef} />}
+        leftSide={
+          <EventTable
+            getEventsResult={getEventsResult}
+            logListRef={logListRef}
+            pageSize={pageSize}
+            onPageSizeChange={setPageSize}
+          />
+        }
         rightSide={<EventDetails goBack={() => logListRef.current?.updateView('backward')} />}
         shouldDisplayRightSide={shouldDisplayLogDetails}
       />

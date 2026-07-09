@@ -15,11 +15,14 @@ jest.mock('~/components/designSystem/Table/Table', () => ({
   },
 }))
 
-const mockInfiniteScrollProps: { current?: Record<string, unknown> } = {}
+const mockPaginatedContentProps: { current?: Record<string, unknown> } = {}
 
-jest.mock('~/components/designSystem/InfiniteScroll', () => ({
-  InfiniteScroll: (props: { children: React.ReactNode; onBottom: () => void }) => {
-    mockInfiniteScrollProps.current = props
+jest.mock('~/components/designSystem/Pagination', () => ({
+  PaginatedContent: (props: {
+    children: React.ReactNode
+    onPageChange: (page: number) => void
+  }) => {
+    mockPaginatedContentProps.current = props
     return props.children
   },
 }))
@@ -37,7 +40,7 @@ const baseProps = {
 
 beforeEach(() => {
   mockTableProps.current = undefined
-  mockInfiniteScrollProps.current = undefined
+  mockPaginatedContentProps.current = undefined
 })
 
 describe('QuotesSectionTable', () => {
@@ -47,7 +50,7 @@ describe('QuotesSectionTable', () => {
     render(
       <QuotesSectionTable<Row>
         {...baseProps}
-        metadata={{ currentPage: 1, totalPages: 2 }}
+        metadata={{ currentPage: 1, totalPages: 2, totalCount: 10 }}
         fetchMore={fetchMore}
       />,
     )
@@ -59,47 +62,51 @@ describe('QuotesSectionTable', () => {
     })
   })
 
-  it('onBottom calls fetchMore with the next page when more pages exist', () => {
+  it('threads pagination metadata through to PaginatedContent', () => {
     const fetchMore = jest.fn()
 
     render(
       <QuotesSectionTable<Row>
         {...baseProps}
-        metadata={{ currentPage: 1, totalPages: 3 }}
+        metadata={{ currentPage: 1, totalPages: 3, totalCount: 10 }}
         fetchMore={fetchMore}
       />,
     )
-    ;(mockInfiniteScrollProps.current?.onBottom as () => void)()
+
+    expect(mockPaginatedContentProps.current?.metadata).toEqual({
+      currentPage: 1,
+      totalPages: 3,
+      totalCount: 10,
+    })
+  })
+
+  it('onPageChange calls fetchMore with the requested page', () => {
+    const fetchMore = jest.fn()
+
+    render(
+      <QuotesSectionTable<Row>
+        {...baseProps}
+        metadata={{ currentPage: 1, totalPages: 3, totalCount: 10 }}
+        fetchMore={fetchMore}
+      />,
+    )
+    ;(mockPaginatedContentProps.current?.onPageChange as (page: number) => void)(2)
     expect(fetchMore).toHaveBeenCalledWith({ variables: { page: 2 } })
   })
 
-  it('onBottom is a no-op on the last page', () => {
-    const fetchMore = jest.fn()
-
-    render(
-      <QuotesSectionTable<Row>
-        {...baseProps}
-        metadata={{ currentPage: 3, totalPages: 3 }}
-        fetchMore={fetchMore}
-      />,
-    )
-    ;(mockInfiniteScrollProps.current?.onBottom as () => void)()
-    expect(fetchMore).not.toHaveBeenCalled()
-  })
-
-  it('onBottom is a no-op while loading', () => {
+  it('gates the PaginatedContent controls while loading', () => {
     const fetchMore = jest.fn()
 
     render(
       <QuotesSectionTable<Row>
         {...baseProps}
         isLoading
-        metadata={{ currentPage: 1, totalPages: 3 }}
+        metadata={{ currentPage: 1, totalPages: 3, totalCount: 10 }}
         fetchMore={fetchMore}
       />,
     )
-    ;(mockInfiniteScrollProps.current?.onBottom as () => void)()
-    expect(fetchMore).not.toHaveBeenCalled()
+
+    expect(mockPaginatedContentProps.current?.loading).toBe(true)
   })
 
   it('maps getActions results into action items and returns null when empty', () => {
@@ -111,7 +118,7 @@ describe('QuotesSectionTable', () => {
     render(
       <QuotesSectionTable<Row>
         {...baseProps}
-        metadata={{ currentPage: 1, totalPages: 1 }}
+        metadata={{ currentPage: 1, totalPages: 1, totalCount: 10 }}
         fetchMore={jest.fn()}
         getActions={getActions}
       />,
@@ -136,7 +143,7 @@ describe('QuotesSectionTable', () => {
     render(
       <QuotesSectionTable<Row>
         {...baseProps}
-        metadata={{ currentPage: 1, totalPages: 1 }}
+        metadata={{ currentPage: 1, totalPages: 1, totalCount: 10 }}
         fetchMore={jest.fn()}
       />,
     )

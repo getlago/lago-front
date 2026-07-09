@@ -7,6 +7,7 @@ import {
   cacheArrayInsert,
   cacheArrayRemove,
   createPaginatedFieldPolicy,
+  createSinglePageFieldPolicy,
   mergePaginatedCollection,
 } from '../cacheHelpers'
 
@@ -14,6 +15,11 @@ import {
 type KeyArgsFunction = NonNullable<
   Extract<ReturnType<typeof createPaginatedFieldPolicy>['keyArgs'], (...args: any[]) => any>
 >
+
+type PaginatedPayload = {
+  metadata: CollectionMetadata
+  collection: Record<string, unknown>[]
+}
 
 // Mock context for testing keyArgs functions - matches the actual signature
 const mockFieldContext = {
@@ -532,6 +538,113 @@ describe('cacheHelpers', () => {
         expect(result3).toEqual(['currency', 'searchTerm', 'status'])
         expect(result1).toEqual(result2)
         expect(result2).toEqual(result3)
+      })
+    })
+  })
+
+  describe('createSinglePageFieldPolicy', () => {
+    describe('keyArgs function', () => {
+      it('should return false when args is null', () => {
+        const policy = createSinglePageFieldPolicy()
+        const keyArgsFn = policy.keyArgs as KeyArgsFunction
+        const result = keyArgsFn(null, mockFieldContext)
+
+        expect(result).toBe(false)
+      })
+
+      it('should exclude page, limit and offset from the cache key', () => {
+        const policy = createSinglePageFieldPolicy()
+        const keyArgsFn = policy.keyArgs as KeyArgsFunction
+        const result = keyArgsFn(
+          { page: 2, limit: 20, offset: 20, status: 'active', searchTerm: 'test' },
+          mockFieldContext,
+        )
+
+        expect(result).toEqual(['searchTerm', 'status'])
+      })
+
+      it('should return [] when only pagination params are present', () => {
+        const policy = createSinglePageFieldPolicy()
+        const keyArgsFn = policy.keyArgs as KeyArgsFunction
+        const result = keyArgsFn({ page: 1, limit: 20 }, mockFieldContext)
+
+        expect(result).toEqual([])
+      })
+
+      it('should return the non-pagination keys sorted', () => {
+        const policy = createSinglePageFieldPolicy()
+        const keyArgsFn = policy.keyArgs as KeyArgsFunction
+        const args1 = { page: 1, status: 'active', searchTerm: 'test', currency: 'USD' }
+        const args2 = { currency: 'USD', page: 1, searchTerm: 'test', status: 'active' }
+
+        expect(keyArgsFn(args1, mockFieldContext)).toEqual(['currency', 'searchTerm', 'status'])
+        expect(keyArgsFn(args1, mockFieldContext)).toEqual(keyArgsFn(args2, mockFieldContext))
+      })
+
+      it('should honour additional exclusions on top of the defaults', () => {
+        const policy = createSinglePageFieldPolicy(['customArg'])
+        const keyArgsFn = policy.keyArgs as KeyArgsFunction
+        const result = keyArgsFn(
+          { page: 1, limit: 20, offset: 0, customArg: 'x', status: 'active' },
+          mockFieldContext,
+        )
+
+        expect(result).toEqual(['status'])
+      })
+    })
+
+    describe('merge function', () => {
+      type SinglePageMerge = (
+        existing: PaginatedPayload | undefined,
+        incoming: PaginatedPayload,
+      ) => PaginatedPayload
+
+      it('should replace the cached collection with the incoming one on page 2+ (never append)', () => {
+        const policy = createSinglePageFieldPolicy()
+        const existing: PaginatedPayload = {
+          metadata: { currentPage: 1 } as CollectionMetadata,
+          collection: [{ id: '1' }, { id: '2' }],
+        }
+        const incoming: PaginatedPayload = {
+          metadata: { currentPage: 2 } as CollectionMetadata,
+          collection: [{ id: '3' }, { id: '4' }],
+        }
+
+        const merge = policy.merge as SinglePageMerge
+        const result = merge(existing, incoming)
+
+        expect(result).toBe(incoming)
+        expect(result.collection).toHaveLength(2)
+        expect(result.collection[0]).toEqual({ id: '3' })
+      })
+
+      it('should replace the cached collection when navigating back to page 1', () => {
+        const policy = createSinglePageFieldPolicy()
+        const existing: PaginatedPayload = {
+          metadata: { currentPage: 3 } as CollectionMetadata,
+          collection: [{ id: '5' }, { id: '6' }],
+        }
+        const incoming: PaginatedPayload = {
+          metadata: { currentPage: 1 } as CollectionMetadata,
+          collection: [{ id: '1' }, { id: '2' }],
+        }
+
+        const merge = policy.merge as SinglePageMerge
+        const result = merge(existing, incoming)
+
+        expect(result.collection).toEqual([{ id: '1' }, { id: '2' }])
+      })
+
+      it('should return the incoming payload even when there is no existing entry', () => {
+        const policy = createSinglePageFieldPolicy()
+        const incoming: PaginatedPayload = {
+          metadata: { currentPage: 1 } as CollectionMetadata,
+          collection: [{ id: '1' }],
+        }
+
+        const merge = policy.merge as SinglePageMerge
+
+        expect(merge(undefined, incoming)).toBe(incoming)
       })
     })
   })

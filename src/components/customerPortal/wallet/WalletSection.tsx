@@ -6,6 +6,7 @@ import { LoaderWalletSection } from '~/components/customerPortal/common/SectionL
 import SectionTitle from '~/components/customerPortal/common/SectionTitle'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { Button } from '~/components/designSystem/Button'
+import { Pagination } from '~/components/designSystem/Pagination'
 import { Typography } from '~/components/designSystem/Typography'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -20,7 +21,6 @@ export const WALLET_SECTION_ERROR_TEST_ID = 'wallet-section-error'
 export const WALLET_SECTION_CONTENT_TEST_ID = 'wallet-section-content'
 export const WALLET_SECTION_WALLET_ITEM_TEST_ID = 'wallet-section-wallet-item'
 export const WALLET_SECTION_VIEW_BUTTON_TEST_ID = 'wallet-section-view-button'
-export const WALLET_SECTION_LOAD_MORE_TEST_ID = 'wallet-section-load-more'
 
 gql`
   fragment CustomerPortalWalletInfo on CustomerPortalWallet {
@@ -49,10 +49,13 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
 `
+
+const PORTAL_WALLETS_PAGE_SIZE = 3
 
 type WalletSectionProps = {
   viewWallet: (walletId: string) => void
@@ -97,15 +100,19 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
     refetch: customerWalletRefetch,
     fetchMore,
   } = useGetPortalWalletsQuery({
+    notifyOnNetworkStatusChange: true,
     variables: {
-      limit: 3,
+      limit: PORTAL_WALLETS_PAGE_SIZE,
       status: WalletStatusEnum.Active,
     },
   })
 
   const wallets = customerWalletData?.customerPortalWallets?.collection
-  const { currentPage = 0, totalPages = 0 } =
-    customerWalletData?.customerPortalWallets?.metadata || {}
+  const {
+    currentPage = 0,
+    totalPages = 0,
+    totalCount = 0,
+  } = customerWalletData?.customerPortalWallets?.metadata || {}
   const isLoading = customerWalletLoading || customerPortalUserLoading
   const isError = !isLoading && (customerWalletError || customerPortalUserError)
 
@@ -231,22 +238,14 @@ const WalletSection = ({ viewWallet }: WalletSectionProps) => {
           )
         })}
 
-      {currentPage < totalPages && (
-        <Button
-          className="mt-2"
-          variant="inline"
-          size="medium"
-          startIcon="chevron-down"
-          data-test={WALLET_SECTION_LOAD_MORE_TEST_ID}
-          onClick={() =>
-            fetchMore({
-              variables: { page: currentPage + 1 },
-            })
-          }
-        >
-          {translate('text_62da6ec24a8e24e44f8128aa')}
-        </Button>
-      )}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        pageSize={PORTAL_WALLETS_PAGE_SIZE}
+        loading={isLoading}
+        onPageChange={(page) => fetchMore({ variables: { page } })}
+      />
     </div>
   )
 }
