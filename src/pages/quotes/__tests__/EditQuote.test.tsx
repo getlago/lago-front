@@ -31,6 +31,7 @@ let capturedOnDiscountCommand: ((params: unknown) => void) | undefined
 let capturedOnDiscountBlocksChange: ((blocks: unknown[]) => void) | undefined
 let capturedEditorCustomerLocale: string | undefined
 let capturedEditorCustomerCurrency: string | undefined
+let capturedRemoveBlockRef: { current: ((localId: string) => void) | null } | undefined
 
 // --- Mocks ---
 
@@ -52,6 +53,7 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
 
   const MockRichTextEditor = ({
     getMarkdownRef,
+    removeBlockRef,
     onChange,
     onPricingCommand,
     onPricingBlocksChange,
@@ -61,6 +63,7 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
     customerCurrency,
   }: {
     getMarkdownRef?: React.MutableRefObject<(() => string) | null>
+    removeBlockRef?: React.MutableRefObject<((localId: string) => void) | null>
     onChange?: () => void
     onPricingCommand?: (params: PricingCommandParams) => void
     onPricingBlocksChange?: (blocks: unknown[]) => void
@@ -80,6 +83,7 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
       capturedOnDiscountBlocksChange = onDiscountBlocksChange
       capturedEditorCustomerLocale = customerLocale
       capturedEditorCustomerCurrency = customerCurrency
+      capturedRemoveBlockRef = removeBlockRef
 
       return () => {
         if (getMarkdownRef) {
@@ -88,6 +92,7 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
       }
     }, [
       getMarkdownRef,
+      removeBlockRef,
       onChange,
       onPricingCommand,
       onPricingBlocksChange,
@@ -264,6 +269,7 @@ describe('EditQuote', () => {
     capturedOnDiscountBlocksChange = undefined
     capturedEditorCustomerLocale = undefined
     capturedEditorCustomerCurrency = undefined
+    capturedRemoveBlockRef = undefined
     capturedPricingDrawerArgs = []
     mockSyncEntitiesWithBlocks.mockReturnValue(null)
     mockSyncDiscountBlocks.mockReturnValue(null)
@@ -722,8 +728,8 @@ describe('EditQuote', () => {
       })
     })
 
-    describe('WHEN savePricingBlock fails', () => {
-      it('THEN should set save status to error', async () => {
+    describe('WHEN savePricingBlock throws (drawer-originated save)', () => {
+      it('THEN should not display the header error status chip — the drawer surfaces the error', async () => {
         mockUpdateQuoteVersion.mockRejectedValue(new Error('Network error'))
 
         render(<EditQuote />)
@@ -738,9 +744,101 @@ describe('EditQuote', () => {
           wrappedOnSave({}, {}, [{ addOnId: 'addon-1' }])
         })
 
+        // The header should revert to the neutral/idle chip, not the error chip —
+        // the drawer stays open and surfaces the failure itself.
         await waitFor(() => {
-          expect(screen.getByText('text_1779437694622y666yr137gm')).toBeInTheDocument()
+          expect(screen.getByText('text_1779268404389wpd2ysgatw4')).toBeInTheDocument()
         })
+
+        expect(screen.queryByText('text_1779437694622y666yr137gm')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN savePricingBlock resolves with errors (drawer-originated save)', () => {
+      it('THEN should not display the header error status chip — the drawer surfaces the error', async () => {
+        mockUpdateQuoteVersion.mockResolvedValueOnce({
+          data: null,
+          errors: [{ message: 'Some GraphQL error' }],
+        })
+
+        render(<EditQuote />)
+
+        act(() => {
+          capturedOnPricingCommand?.({ onSave: jest.fn() })
+        })
+
+        const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+
+        await act(async () => {
+          wrappedOnSave({}, {}, [{ addOnId: 'addon-1' }])
+        })
+
+        await waitFor(() => {
+          expect(screen.getByText('text_1779268404389wpd2ysgatw4')).toBeInTheDocument()
+        })
+
+        expect(screen.queryByText('text_1779437694622y666yr137gm')).not.toBeInTheDocument()
+        // refetchQuote should not be triggered for a failed save
+        expect(mockRefetchQuote).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN a drawer-originated pricing save fails', () => {
+      it('THEN should roll back the just-inserted block and not issue a corrective save', async () => {
+        mockUpdateQuoteVersion.mockResolvedValueOnce({
+          data: null,
+          errors: [{ message: 'Some GraphQL error' }],
+        })
+
+        // Make the post-rollback reconciliation resolve to a truthy
+        // billing-items object. Without the isRollingBackRef guard, this
+        // would be enough for handlePricingBlocksChange to fire a second,
+        // corrective savePricingBlock/updateQuoteVersion call.
+        mockSyncEntitiesWithBlocks.mockReturnValue({ addons: [] })
+
+        render(<EditQuote />)
+
+        const removeBlockSpy = jest.fn()
+
+        // The mock RichTextEditor exposes the removeBlockRef instance passed
+        // down by EditQuote. In production, removeBlockRef.current() runs
+        // `editor.chain().focus().deleteRange().run()`, which SYNCHRONOUSLY
+        // triggers the editor's onUpdate → onPricingBlocksChange
+        // reconciliation within the same call stack. Mirror that here so the
+        // isRollingBackRef guard in handlePricingBlocksChange is actually
+        // exercised, instead of removeBlockRef being a no-op spy.
+        if (capturedRemoveBlockRef) {
+          capturedRemoveBlockRef.current = (localId: string) => {
+            removeBlockSpy(localId)
+            // Simulate the real editor: the removed block is no longer
+            // present in the reconciled block list.
+            capturedOnPricingBlocksChange?.([])
+          }
+        }
+
+        act(() => {
+          capturedOnPricingCommand?.({ onSave: jest.fn() })
+        })
+
+        const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+        const mockAttrs = {
+          pricingType: 'addOns',
+          entityIds: ['addon-1'],
+          localEntityIds: ['local-addon-1'],
+        }
+
+        await act(async () => {
+          await wrappedOnSave(mockAttrs, {}, [{ addOnId: 'addon-1' }])
+        })
+
+        // Rollback: the inserted block is removed by its localId.
+        expect(removeBlockSpy).toHaveBeenCalledWith('local-addon-1')
+
+        // The rollback synchronously re-entered onPricingBlocksChange, and
+        // syncEntitiesWithBlocks resolved truthy — so without the
+        // isRollingBackRef guard this would be a 2nd updateQuoteVersion
+        // call. Only the original failed save should have reached it.
+        expect(mockUpdateQuoteVersion).toHaveBeenCalledTimes(1)
       })
     })
 

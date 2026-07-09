@@ -58,6 +58,7 @@ interface RichTextEditorProps {
   content?: string
   templates?: EditorTemplate[]
   getMarkdownRef?: React.MutableRefObject<(() => string) | null>
+  removeBlockRef?: React.MutableRefObject<((localId: string) => void) | null>
   onChange?: () => void
   onPricingCommand?: OnPricingCommand
   isPricingDisabled?: () => boolean
@@ -233,6 +234,7 @@ const RichTextEditor = ({
   content,
   templates,
   getMarkdownRef,
+  removeBlockRef,
   onPricingCommand,
   isPricingDisabled,
   onPricingBlocksChange,
@@ -393,6 +395,42 @@ const RichTextEditor = ({
       }
     }
   }, [getMarkdownRef, getMarkdown])
+
+  useEffect(() => {
+    if (!removeBlockRef) return
+
+    removeBlockRef.current = (localId: string) => {
+      if (!editor) return
+
+      let target: { from: number; to: number } | null = null
+
+      editor.state.doc.descendants((node, pos) => {
+        if (target) return false
+
+        const isTargetBlock =
+          (node.type.name === 'discountBlock' || node.type.name === 'pricingBlock') &&
+          (node.attrs.localId === localId || node.attrs.localEntityIds?.includes(localId))
+
+        if (isTargetBlock) {
+          target = { from: pos, to: pos + node.nodeSize }
+
+          return false
+        }
+
+        return true
+      })
+
+      if (target) {
+        editor.chain().focus().deleteRange(target).run()
+      }
+    }
+
+    return () => {
+      if (removeBlockRef) {
+        removeBlockRef.current = null
+      }
+    }
+  }, [removeBlockRef, editor])
 
   if (!editor) return null
 

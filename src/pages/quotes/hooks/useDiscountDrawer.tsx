@@ -306,7 +306,13 @@ interface PendingSave {
 
 export const useDiscountDrawer = (
   billingItems: BillingItemsPayload | null | undefined,
-  options: { currency: CurrencyEnum; onPersist?: (billingItems: BillingItemsPayload) => void },
+  options: {
+    currency: CurrencyEnum
+    onPersist?: (billingItems: BillingItemsPayload) => void
+    // Consumed by a later task for discount-block rollback; accepted here so
+    // EditQuote can pass it through uniformly with the pricing drawers.
+    onRemoveBlock?: (localId: string) => void
+  },
 ): {
   onDiscountCommand: OnDiscountCommand
   entities: Record<string, EntityData>

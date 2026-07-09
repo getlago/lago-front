@@ -36,7 +36,7 @@ interface PricingCommandParams {
     attrs: PricingBlockAttributes,
     entityData: Record<string, EntityData>,
     billingItems?: BillingItemsPayload,
-  ) => void
+  ) => void | Promise<unknown>
   editData?: { pricingType: PricingType; entityIds: string[]; localEntityIds?: string[] }
 }
 
