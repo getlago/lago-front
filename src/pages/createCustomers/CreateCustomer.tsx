@@ -1,11 +1,11 @@
 import { revalidateLogic } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
+import { useCallback } from 'react'
 
 import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { extractThirdPartyErrorMessage, hasDefinedGQLError } from '~/core/apolloClient'
@@ -34,7 +34,7 @@ const STRIPE_CUSTOMER_ERROR_MESSAGE_DETAILS = 'Stripe: resource_missing'
 
 const CreateCustomer = () => {
   const { translate } = useInternationalization()
-  const warningDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const { getPaymentProvider } = usePaymentProviders()
@@ -118,10 +118,20 @@ const CreateCustomer = () => {
     },
   })
 
+  const openDirtyAttributesWarning = useCallback(() => {
+    centralizedDialog.open({
+      title: translate('text_665deda4babaf700d603ea13'),
+      description: translate('text_665dedd557dc3c00c62eb83d'),
+      actionText: translate('text_645388d5bdbd7b00abffa033'),
+      colorVariant: 'danger',
+      onAction: () => onClose(),
+    })
+  }, [centralizedDialog, onClose, translate])
+
   const handleAbort = () => {
     const isDirty = form.store.state.isDirty
 
-    isDirty ? warningDialogRef.current?.openDialog() : onClose()
+    isDirty ? openDirtyAttributesWarning() : onClose()
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -229,14 +239,6 @@ const CreateCustomer = () => {
           </form.AppForm>
         </CenteredPage.StickyFooter>
       </form>
-
-      <WarningDialog
-        ref={warningDialogRef}
-        title={translate('text_665deda4babaf700d603ea13')}
-        description={translate('text_665dedd557dc3c00c62eb83d')}
-        continueText={translate('text_645388d5bdbd7b00abffa033')}
-        onContinue={onClose}
-      />
     </CenteredPage.Wrapper>
   )
 }
