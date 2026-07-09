@@ -4474,5 +4474,7 @@
   "text_1783584917380ry4fb4b5tpv": "General settings and top-up limits applied to this wallet.",
   "text_17835849173808iwx5j9uoz4": "Restrict the fees and billable metrics this wallet can pay for.",
   "text_1783584917380so6uufk82e0": "Automatic top-ups triggered on a set interval or when a threshold is reached.",
-  "text_1783584917380z3uuxa0ey02": "Rule {{number}}"
+  "text_1783584917380z3uuxa0ey02": "Rule {{number}}",
+  "text_178344708284148puah3a4at": "Failed to save. Please try again.",
+  "text_1783447082842231k4gnufxi": "This value was rejected. Please review it."
 }
