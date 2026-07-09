@@ -21,6 +21,7 @@ export const mapFromApiToForm = ({
   metadata: undefined,
   ignorePaidTopUpLimits: undefined,
   priority: 50,
+  purchaseOrderNumber: undefined,
 })
 
 // Static empty defaults — for `withForm` section typing only.

@@ -1,5 +1,9 @@
 import { z } from 'zod'
 
+import {
+  PURCHASE_ORDER_NUMBER_MAX_LENGTH,
+  PURCHASE_ORDER_TRANSLATIONS,
+} from '~/components/purchaseOrder/constants'
 import { zodMetadataSchema } from '~/formValidation/metadataSchema'
 import { CurrencyEnum } from '~/generated/graphql'
 import { topUpAmountError } from '~/pages/wallet/form'
@@ -78,6 +82,17 @@ export const getTopUpFormValidationSchema = ({
         code: 'custom',
         message: topUpFormErrorLabels.required,
         path: ['grantedCredits'],
+      })
+    }
+
+    // purchaseOrderNumber — optional, bounded length. PurchaseOrderFormBlock
+    // renders its own inline max-length error (plain value/onChange input,
+    // not an AppField), so this issue only gates the submit.
+    if ((data.purchaseOrderNumber?.length ?? 0) > PURCHASE_ORDER_NUMBER_MAX_LENGTH) {
+      ctx.addIssue({
+        code: 'custom',
+        message: PURCHASE_ORDER_TRANSLATIONS.maxLength,
+        path: ['purchaseOrderNumber'],
       })
     }
 

@@ -12,6 +12,7 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
+import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import {
   CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST,
   CREATE_WALLET_TOP_UP_FORM_TEST_ID,
@@ -241,6 +242,12 @@ const CreateWalletTopUp = () => {
 
     form.setFieldValue('grantedCredits', '')
     form.setFieldValue('paidCredits', '')
+
+    // Free credits never generate an invoice, so a PO number set while in
+    // prepaid mode must not survive the switch.
+    if (type === WalletTransactionType.FreeCredits) {
+      form.setFieldValue('purchaseOrderNumber', undefined)
+    }
   }
 
   const navigateBack = useCallback(
@@ -524,6 +531,18 @@ const CreateWalletTopUp = () => {
                   })}
                 </Typography>
               </Alert>
+
+              {transactionType === WalletTransactionType.PrepaidCredits && (
+                <form.AppField name="purchaseOrderNumber">
+                  {(field) => (
+                    <PurchaseOrderFormBlock
+                      value={field.state.value}
+                      description={translate('text_1783511588872okv9237slg5')}
+                      onChange={(value) => field.handleChange(value)}
+                    />
+                  )}
+                </form.AppField>
+              )}
 
               <form.AppField name="priority">
                 {(field) => (

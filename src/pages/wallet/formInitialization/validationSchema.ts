@@ -1,6 +1,10 @@
 import { DateTime } from 'luxon'
 import { z } from 'zod'
 
+import {
+  PURCHASE_ORDER_NUMBER_MAX_LENGTH,
+  PURCHASE_ORDER_TRANSLATIONS,
+} from '~/components/purchaseOrder/constants'
 import { dateErrorCodes } from '~/core/constants/form'
 import { zodMetadataSchema } from '~/formValidation/metadataSchema'
 import {
@@ -57,6 +61,21 @@ export const WALLET_PRIORITY_MAX = 50
  */
 const prepared = <T>(value: T): T | undefined =>
   value === ('' as unknown as T) ? undefined : value
+
+/**
+ * purchaseOrderNumber — optional, bounded length. PurchaseOrderFormBlock
+ * renders its own inline max-length error (it is a plain value/onChange
+ * input, not an AppField), so this issue only gates the submit.
+ */
+const addPurchaseOrderNumberIssue = (
+  ctx: z.RefinementCtx,
+  value: string | null | undefined,
+  path: (string | number)[],
+) => {
+  if ((value?.length ?? 0) > PURCHASE_ORDER_NUMBER_MAX_LENGTH) {
+    ctx.addIssue({ code: 'custom', message: PURCHASE_ORDER_TRANSLATIONS.maxLength, path })
+  }
+}
 
 const addExpirationIssue = (
   ctx: z.RefinementCtx,
@@ -316,6 +335,7 @@ const addRecurringRuleIssues = (
   addStartedAtIssue(args)
   // expirationAt — valid ISO + in the future (unlike startedAt)
   addExpirationIssue(ctx, rule.expirationAt, rulePath('expirationAt'))
+  addPurchaseOrderNumberIssue(ctx, rule.purchaseOrderNumber, rulePath('purchaseOrderNumber'))
   addTransactionMetadataIssues(args)
 }
 
@@ -366,6 +386,8 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
 
   // expirationAt — valid ISO + in the future
   addExpirationIssue(ctx, data.expirationAt, ['expirationAt'])
+
+  addPurchaseOrderNumberIssue(ctx, data.purchaseOrderNumber, ['purchaseOrderNumber'])
 
   // paidCredits (initial top-up) vs wallet min/max bounds.
   // Values are passed through untouched (null → undefined only), exactly
