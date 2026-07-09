@@ -1,18 +1,17 @@
-import { useMemo } from 'react'
-
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { InvoiceCustomSection } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 
 import { InvoiceCustomSectionDisplay } from '../invoceCustomFooter/InvoiceCustomSectionDisplay'
+import { InvoiceCustomSectionBasic } from '../invoceCustomFooter/types'
+import { hasInvoiceCustomSectionsContent } from '../invoceCustomFooter/utils'
 import { ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export const INVOICE_CUSTOM_FOOTER_SECTION = 'invoice-custom-footer-section'
 
 interface SubscriptionInvoiceCustomSectionDetailsProps {
   customerId?: string
-  selectedInvoiceCustomSections?: Pick<InvoiceCustomSection, 'id' | 'name'>[] | null
+  selectedInvoiceCustomSections?: InvoiceCustomSectionBasic[] | null
   skipInvoiceCustomSections?: boolean | null
 }
 
@@ -28,19 +27,11 @@ export const SubscriptionInvoiceCustomSectionDetails = ({
 
   const { data: customerIcsData } = useCustomerInvoiceCustomSections(customerId || '')
 
-  const hasIcsContent = useMemo(() => {
-    if (skipInvoiceCustomSections === true) return true
-    if (selectedInvoiceCustomSections?.length) return true
-    if (!customerIcsData) return false
-
-    const {
-      configurableInvoiceCustomSections: sections,
-      hasOverwrittenInvoiceCustomSectionsSelection: hasOverwritten,
-      skipInvoiceCustomSections: customerSkip,
-    } = customerIcsData
-
-    return (!hasOverwritten && !!customerSkip) || (!customerSkip && sections.length > 0)
-  }, [skipInvoiceCustomSections, selectedInvoiceCustomSections, customerIcsData])
+  const hasIcsContent = hasInvoiceCustomSectionsContent({
+    skipInvoiceCustomSections,
+    selectedInvoiceCustomSections,
+    customerIcsData,
+  })
 
   if (!hasIcsContent) {
     return null
