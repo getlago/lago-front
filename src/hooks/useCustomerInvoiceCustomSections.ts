@@ -26,7 +26,7 @@ gql`
   }
 `
 
-interface CustomerInvoiceCustomSectionsData {
+export interface CustomerInvoiceCustomSectionsData {
   configurableInvoiceCustomSections: InvoiceCustomSectionBasic[]
   hasOverwrittenInvoiceCustomSectionsSelection: boolean
   skipInvoiceCustomSections: boolean

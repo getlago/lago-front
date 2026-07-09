@@ -92,15 +92,33 @@ gql`
       }
     }
     recurringTransactionRules {
+      lagoId
       method
       transactionName
       paidCredits
       grantedCredits
       grantsTargetTopUp
+      targetOngoingBalance
       trigger
       thresholdCredits
       expirationAt
       interval
+      startedAt
+      invoiceRequiresSuccessfulPayment
+      ignorePaidTopUpLimits
+      transactionMetadata {
+        key
+        value
+      }
+      paymentMethodType
+      paymentMethod {
+        id
+      }
+      skipInvoiceCustomSections
+      selectedInvoiceCustomSections {
+        id
+        name
+      }
     }
 
     ...WalletInfosForTransactions

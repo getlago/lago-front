@@ -3851,15 +3851,11 @@
   "text_177253669540873hdqaoks8e": "Alerts",
   "text_1772536695408yflknt6y6q4": "Wallet code",
   "text_1772536695408pz0actopowa": "Expiration date",
-  "text_1772536695408bfc3c38pg36": "Not defined",
   "text_1772536695408sm7gfyxpi58": "Wallet settings",
   "text_1772536695408hukog0udwpx": "Wallet scope limitation",
   "text_1772536695408rpehpvkgn9s": "Payment & invoicing settings",
-  "text_1772536695408zb493jkuibc": "View wallet settings",
-  "text_1772536695408txbgkg82nhy": "View scope limitations",
   "text_1772536695408eev9wm37z9t": "View payment and invoicing settings",
   "text_1772536695409spdoskvq4w5": "Recurring rules",
-  "text_1773043324341of5enpi3z28": "View recurring rules",
   "text_1773043324341gpkiojxh628": "Transaction name",
   "text_1773043324341q5g4muycilq": "Credits to purchase",
   "text_1773043324341cnkdf7j5dmp": "Credits to offer",
@@ -4474,5 +4470,9 @@
   "text_17822197712869ou05y6kwt7": "Type a purchase order number",
   "text_1782219771286e8qwitkefxr": "The PO number defined here will display on the invoice.",
   "text_1782219771287u79diql28g4": "Purchase order number must be 255 characters or fewer.",
-  "text_1783371078378djljy5s2hez": "To update the logo, go to the billing entity email settings"
+  "text_1783371078378djljy5s2hez": "To update the logo, go to the billing entity email settings",
+  "text_1783584917380ry4fb4b5tpv": "General settings and top-up limits applied to this wallet.",
+  "text_17835849173808iwx5j9uoz4": "Restrict the fees and billable metrics this wallet can pay for.",
+  "text_1783584917380so6uufk82e0": "Automatic top-ups triggered on a set interval or when a threshold is reached.",
+  "text_1783584917380z3uuxa0ey02": "Rule {{number}}"
 }

@@ -6,6 +6,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 
 import { InvoiceCustomSectionBasic } from './types'
+import { computeInvoiceCustomSectionsDisplayState } from './utils'
 
 import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
@@ -20,14 +21,6 @@ export const SKIP_LABEL = 'invoice-custom-section-display-skip-label'
 interface InvoiceCustomSectionChipsProps {
   sections: InvoiceCustomSectionBasic[]
 }
-
-type DisplayState =
-  | { type: 'apply'; sections: InvoiceCustomSectionBasic[] }
-  | { type: 'none' }
-  | { type: 'fallback_customer_sections'; sections: InvoiceCustomSectionBasic[] }
-  | { type: 'fallback_customer_skip' }
-  | { type: 'fallback_billing_entity'; sections: InvoiceCustomSectionBasic[] }
-  | { type: 'fallback_empty' }
 
 interface InvoiceCustomSectionDisplayProps {
   selectedSections?: InvoiceCustomSectionBasic[] | null
@@ -65,42 +58,15 @@ export const InvoiceCustomSectionDisplay = ({
   // Customer-level ICS data for fallback
   const { data: customerData } = useCustomerInvoiceCustomSections(customerId || '')
 
-  const displayState = useMemo((): DisplayState => {
-    // NONE - explicitly skip all ICS (takes precedence)
-    if (skipSections === true) {
-      return { type: 'none' }
-    }
-
-    // APPLY - use explicit section selection (not customer data)
-    if (selectedSections?.length) {
-      return { type: 'apply', sections: selectedSections }
-    }
-
-    // FALLBACK - inherit from customer/billing entity
-    if (customerData) {
-      const sections = customerData.configurableInvoiceCustomSections
-      const hasOverwritten = customerData.hasOverwrittenInvoiceCustomSectionsSelection
-      const customerSkipSections = customerData.skipInvoiceCustomSections
-
-      // Customer explicitly skipped ICS
-      if (!hasOverwritten && customerSkipSections) {
-        return { type: 'fallback_customer_skip' }
-      }
-
-      // Customer has overwritten selection with specific sections
-      if (hasOverwritten && !customerSkipSections && sections.length > 0) {
-        return { type: 'fallback_customer_sections', sections }
-      }
-
-      // Fallback to billing entity
-      if (!hasOverwritten && !customerSkipSections && sections.length > 0) {
-        return { type: 'fallback_billing_entity', sections }
-      }
-    }
-
-    // No sections anywhere
-    return { type: 'fallback_empty' }
-  }, [selectedSections, skipSections, customerData])
+  const displayState = useMemo(
+    () =>
+      computeInvoiceCustomSectionsDisplayState({
+        selectedSections,
+        skipSections,
+        customerIcsData: customerData,
+      }),
+    [selectedSections, skipSections, customerData],
+  )
 
   const viewTypeLabel = translate(VIEW_TYPE_TRANSLATION_KEYS[viewType])
 
