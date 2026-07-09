@@ -24,6 +24,7 @@ import {
 } from '~/components/form'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
 import {
   ADD_METADATA_DATA_TEST,
@@ -572,6 +573,17 @@ export const TopUpSection: FC<TopUpSectionProps> = ({
                   form={formikProps}
                   formFieldBasePath="recurringTransactionRules.0"
                   viewType={ViewTypeEnum.WalletRecurringTopUp}
+                />
+
+                <PurchaseOrderFormBlock
+                  value={recurringTransactionRules?.purchaseOrderNumber}
+                  description={translate('text_1783511588872okv9237slg5')}
+                  onChange={(value) => {
+                    formikProps.setFieldValue(
+                      'recurringTransactionRules.0.purchaseOrderNumber',
+                      value,
+                    )
+                  }}
                 />
               </div>
             )}

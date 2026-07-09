@@ -363,6 +363,10 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
               label: translate('text_1758286730208ey87jz8nzuz'),
               value: paidTopUpMaxAmountCents || '-',
             },
+            {
+              label: translate('text_17822197712865r9iwe3lgel'),
+              value: wallet?.purchaseOrderNumber || '-',
+            },
           ]}
         />
       </section>
