@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
 import { getIn, useFormik } from 'formik'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 import { boolean, number, object, string } from 'yup'
 
@@ -10,7 +10,7 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { AmountInputField, SwitchField, TextInputField } from '~/components/form'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
@@ -103,7 +103,7 @@ const CreateWalletTopUp = () => {
 
   const { organization: { defaultCurrency } = {} } = useOrganizationInfos()
   const { customerId = '', walletId = '', voidedInvoiceId = '' } = useParams()
-  const warningDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
 
   const [transactionType, setTransactionType] = useState(WalletTransactionType.PrepaidCredits)
 
@@ -299,9 +299,19 @@ const CreateWalletTopUp = () => {
     [customerId, navigate],
   )
 
+  const openDirtyAttributesWarning = useCallback(() => {
+    centralizedDialog.open({
+      title: translate('text_665deda4babaf700d603ea13'),
+      description: translate('text_665dedd557dc3c00c62eb83d'),
+      actionText: translate('text_645388d5bdbd7b00abffa033'),
+      colorVariant: 'danger',
+      onAction: () => navigateToCustomerWalletTab(wallet?.id),
+    })
+  }, [centralizedDialog, navigateToCustomerWalletTab, translate, wallet?.id])
+
   const onAbort = useCallback(() => {
-    formikProps.dirty ? warningDialogRef.current?.openDialog() : navigateBack()
-  }, [formikProps.dirty, navigateBack])
+    formikProps.dirty ? openDirtyAttributesWarning() : navigateBack()
+  }, [formikProps.dirty, navigateBack, openDirtyAttributesWarning])
 
   const hasMinMax =
     (wallet?.paidTopUpMinAmountCents !== null && wallet?.paidTopUpMinAmountCents !== undefined) ||
@@ -318,174 +328,124 @@ const CreateWalletTopUp = () => {
   })
 
   return (
-    <>
-      <CenteredPage.Wrapper>
-        <CenteredPage.Header>
-          <Typography variant="bodyHl" color="textSecondary" noWrap>
-            {translate('text_62e161ceb87c201025388ada')}
-          </Typography>
-          <Button
-            variant="quaternary"
-            icon="close"
-            onClick={onAbort}
-            data-test={CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST}
+    <CenteredPage.Wrapper>
+      <CenteredPage.Header>
+        <Typography variant="bodyHl" color="textSecondary" noWrap>
+          {translate('text_62e161ceb87c201025388ada')}
+        </Typography>
+        <Button
+          variant="quaternary"
+          icon="close"
+          onClick={onAbort}
+          data-test={CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST}
+        />
+      </CenteredPage.Header>
+
+      {loading && !wallet && (
+        <CenteredPage.Container>
+          <FormLoadingSkeleton id="create-wallet" />
+        </CenteredPage.Container>
+      )}
+
+      {!loading && wallet && (
+        <CenteredPage.Container>
+          <CenteredPage.PageTitle
+            title={translate('text_62e79671d23ae6ff149de924')}
+            description={translate('text_1741103892833sy9e4va0pvb')}
           />
-        </CenteredPage.Header>
 
-        {loading && !wallet && (
-          <CenteredPage.Container>
-            <FormLoadingSkeleton id="create-wallet" />
-          </CenteredPage.Container>
-        )}
+          <section className="flex flex-col gap-6 pb-12 shadow-b">
+            <div className="flex flex-col gap-1">
+              <Typography variant="subhead1">
+                {translate('text_6560809c38fb9de88d8a5090')}
+              </Typography>
+              <Typography variant="caption">
+                {translate('text_17411038928332xzx1hb4wjx')}
+              </Typography>
+            </div>
 
-        {!loading && wallet && (
-          <CenteredPage.Container>
-            <CenteredPage.PageTitle
-              title={translate('text_62e79671d23ae6ff149de924')}
-              description={translate('text_1741103892833sy9e4va0pvb')}
-            />
-
-            <section className="flex flex-col gap-6 pb-12 shadow-b">
-              <div className="flex flex-col gap-1">
-                <Typography variant="subhead1">
-                  {translate('text_6560809c38fb9de88d8a5090')}
-                </Typography>
-                <Typography variant="caption">
-                  {translate('text_17411038928332xzx1hb4wjx')}
-                </Typography>
-              </div>
-
-              <WalletSettingsInfosDisplay
-                infos={[
-                  { label: translate('text_6419c64eace749372fc72b0f'), value: wallet.name },
-                  {
-                    label: translate('text_1755695821678c8hkgkxkh73'),
-                    value: wallet.priority,
-                  },
-                  {
-                    label: translate('text_1750411499858su5b7bbp5t9'),
-                    value: translate('text_62da6ec24a8e24e44f812872', {
-                      rateAmount: intlFormatNumber(wallet.rateAmount, {
-                        currency,
-                        minimumFractionDigits: getCurrencyPrecision(currency),
-                        currencyDisplay: 'symbol',
-                      }),
+            <WalletSettingsInfosDisplay
+              infos={[
+                { label: translate('text_6419c64eace749372fc72b0f'), value: wallet.name },
+                {
+                  label: translate('text_1755695821678c8hkgkxkh73'),
+                  value: wallet.priority,
+                },
+                {
+                  label: translate('text_1750411499858su5b7bbp5t9'),
+                  value: translate('text_62da6ec24a8e24e44f812872', {
+                    rateAmount: intlFormatNumber(wallet.rateAmount, {
+                      currency,
+                      minimumFractionDigits: getCurrencyPrecision(currency),
+                      currencyDisplay: 'symbol',
                     }),
-                  },
-                  {
-                    label: translate('text_1759387047166vuoep9t72ny'),
-                    value: intlFormatNumber(
-                      deserializeAmount(wallet?.paidTopUpMinAmountCents, currency),
-                      {
-                        currency,
-                      },
-                    ),
-                    hide: !wallet?.paidTopUpMinAmountCents,
-                  },
-                  {
-                    label: translate('text_1759387047167hwbqm5hx7ye'),
-                    value: intlFormatNumber(
-                      deserializeAmount(wallet?.paidTopUpMaxAmountCents, currency),
-                      {
-                        currency,
-                      },
-                    ),
-                    hide: !wallet?.paidTopUpMaxAmountCents,
-                  },
-                ]}
-              />
-            </section>
+                  }),
+                },
+                {
+                  label: translate('text_1759387047166vuoep9t72ny'),
+                  value: intlFormatNumber(
+                    deserializeAmount(wallet?.paidTopUpMinAmountCents, currency),
+                    {
+                      currency,
+                    },
+                  ),
+                  hide: !wallet?.paidTopUpMinAmountCents,
+                },
+                {
+                  label: translate('text_1759387047167hwbqm5hx7ye'),
+                  value: intlFormatNumber(
+                    deserializeAmount(wallet?.paidTopUpMaxAmountCents, currency),
+                    {
+                      currency,
+                    },
+                  ),
+                  hide: !wallet?.paidTopUpMaxAmountCents,
+                },
+              ]}
+            />
+          </section>
 
-            <section
-              data-test={CREATE_WALLET_TOP_UP_FORM_TEST_ID}
-              className="flex flex-col gap-6 pb-12 shadow-b"
-            >
-              <div className="flex flex-col gap-1">
-                <Typography variant="subhead1">
-                  {translate('text_6657be42151661006d2f3b89')}
-                </Typography>
-                <Typography variant="caption">
-                  {translate('text_1741103892833plsi99wvuop')}
-                </Typography>
-              </div>
-              <TextInputField
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus
-                name="name"
-                formikProps={formikProps}
-                label={translate('text_17580145853389xkffv9cs1d')}
-                placeholder={translate('text_17580145853390n3v83gao69')}
-                helperText={translate('text_1758014585339ly8tof8ub3r')}
-              />
-              <TopUpTypeSelector
-                selectedType={transactionType}
-                setSelectedType={updateTransactionType}
-              />
-              {transactionType === WalletTransactionType.PrepaidCredits && (
-                <>
-                  <AmountInputField
-                    name="paidCredits"
-                    currency={wallet.currency}
-                    beforeChangeFormatter={['positiveNumber']}
-                    label={translate('text_62e79671d23ae6ff149de944')}
-                    formikProps={formikProps}
-                    silentError={true}
-                    error={paidCreditsError?.label}
-                    helperText={translate('text_62d18855b22699e5cf55f88b', {
-                      paidCredits: intlFormatNumber(
-                        isNaN(Number(formikProps.values.paidCredits))
-                          ? 0
-                          : Number(formikProps.values.paidCredits) * Number(wallet.rateAmount),
-
-                        {
-                          currencyDisplay: 'symbol',
-                          currency: wallet.currency,
-                        },
-                      ),
-                    })}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {translate('text_62e79671d23ae6ff149de94c')}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  {formikProps.values.paidCredits && (
-                    <>
-                      {hasMinMax && (
-                        <SwitchField
-                          name={'ignorePaidTopUpLimits'}
-                          formikProps={formikProps}
-                          label={translate('text_17587075291282to3nmogezj')}
-                          data-test={IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST}
-                        />
-                      )}
-
-                      <SwitchField
-                        name="invoiceRequiresSuccessfulPayment"
-                        formikProps={formikProps}
-                        label={translate('text_66a8aed1c3e07b277ec3990d')}
-                        subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
-                        data-test={INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST}
-                      />
-                    </>
-                  )}
-                </>
-              )}
-              {transactionType === WalletTransactionType.FreeCredits && (
+          <section
+            data-test={CREATE_WALLET_TOP_UP_FORM_TEST_ID}
+            className="flex flex-col gap-6 pb-12 shadow-b"
+          >
+            <div className="flex flex-col gap-1">
+              <Typography variant="subhead1">
+                {translate('text_6657be42151661006d2f3b89')}
+              </Typography>
+              <Typography variant="caption">
+                {translate('text_1741103892833plsi99wvuop')}
+              </Typography>
+            </div>
+            <TextInputField
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
+              name="name"
+              formikProps={formikProps}
+              label={translate('text_17580145853389xkffv9cs1d')}
+              placeholder={translate('text_17580145853390n3v83gao69')}
+              helperText={translate('text_1758014585339ly8tof8ub3r')}
+            />
+            <TopUpTypeSelector
+              selectedType={transactionType}
+              setSelectedType={updateTransactionType}
+            />
+            {transactionType === WalletTransactionType.PrepaidCredits && (
+              <>
                 <AmountInputField
-                  name="grantedCredits"
+                  name="paidCredits"
                   currency={wallet.currency}
                   beforeChangeFormatter={['positiveNumber']}
-                  label={translate('text_62d18855b22699e5cf55f88d')}
+                  label={translate('text_62e79671d23ae6ff149de944')}
                   formikProps={formikProps}
                   silentError={true}
-                  helperText={translate('text_62d18855b22699e5cf55f893', {
-                    grantedCredits: intlFormatNumber(
-                      isNaN(Number(formikProps.values.grantedCredits))
+                  error={paidCreditsError?.label}
+                  helperText={translate('text_62d18855b22699e5cf55f88b', {
+                    paidCredits: intlFormatNumber(
+                      isNaN(Number(formikProps.values.paidCredits))
                         ? 0
-                        : Number(formikProps.values.grantedCredits) * Number(wallet.rateAmount),
+                        : Number(formikProps.values.paidCredits) * Number(wallet.rateAmount),
+
                       {
                         currencyDisplay: 'symbol',
                         currency: wallet.currency,
@@ -495,190 +455,230 @@ const CreateWalletTopUp = () => {
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
-                        {translate('text_62e79671d23ae6ff149de95c')}
+                        {translate('text_62e79671d23ae6ff149de94c')}
                       </InputAdornment>
                     ),
                   }}
                 />
-              )}
-              <Alert type="info">
-                <Typography color="textSecondary">
-                  {translate('text_17411038928333ksu96fbmam', {
-                    totalCreditCount:
-                      Math.round(
-                        Number(formikProps.values.paidCredits || 0) * 100 +
-                          Number(formikProps.values.grantedCredits || 0) * 100,
-                      ) / 100,
-                  })}
-                </Typography>
-              </Alert>
+                {formikProps.values.paidCredits && (
+                  <>
+                    {hasMinMax && (
+                      <SwitchField
+                        name={'ignorePaidTopUpLimits'}
+                        formikProps={formikProps}
+                        label={translate('text_17587075291282to3nmogezj')}
+                        data-test={IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST}
+                      />
+                    )}
 
-              <TextInputField
-                name="priority"
-                type="number"
-                beforeChangeFormatter={['positiveNumber', 'int']}
-                label={translate('text_17708227222843peys0u3ywu')}
-                description={translate('text_17708227222846t71arrz7dn')}
-                placeholder={WALLET_TOP_UP_DEFAULT_PRIORITY}
+                    <SwitchField
+                      name="invoiceRequiresSuccessfulPayment"
+                      formikProps={formikProps}
+                      label={translate('text_66a8aed1c3e07b277ec3990d')}
+                      subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+                      data-test={INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST}
+                    />
+                  </>
+                )}
+              </>
+            )}
+            {transactionType === WalletTransactionType.FreeCredits && (
+              <AmountInputField
+                name="grantedCredits"
+                currency={wallet.currency}
+                beforeChangeFormatter={['positiveNumber']}
+                label={translate('text_62d18855b22699e5cf55f88d')}
                 formikProps={formikProps}
+                silentError={true}
+                helperText={translate('text_62d18855b22699e5cf55f893', {
+                  grantedCredits: intlFormatNumber(
+                    isNaN(Number(formikProps.values.grantedCredits))
+                      ? 0
+                      : Number(formikProps.values.grantedCredits) * Number(wallet.rateAmount),
+                    {
+                      currencyDisplay: 'symbol',
+                      currency: wallet.currency,
+                    },
+                  ),
+                })}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {translate('text_62e79671d23ae6ff149de95c')}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
+            <Alert type="info">
+              <Typography color="textSecondary">
+                {translate('text_17411038928333ksu96fbmam', {
+                  totalCreditCount:
+                    Math.round(
+                      Number(formikProps.values.paidCredits || 0) * 100 +
+                        Number(formikProps.values.grantedCredits || 0) * 100,
+                    ) / 100,
+                })}
+              </Typography>
+            </Alert>
+
+            <TextInputField
+              name="priority"
+              type="number"
+              beforeChangeFormatter={['positiveNumber', 'int']}
+              label={translate('text_17708227222843peys0u3ywu')}
+              description={translate('text_17708227222846t71arrz7dn')}
+              placeholder={WALLET_TOP_UP_DEFAULT_PRIORITY}
+              formikProps={formikProps}
+            />
+          </section>
+
+          {(customerData?.customer?.externalId || customerData?.customer?.id) && (
+            <section className="flex flex-col gap-6 pb-12 shadow-b">
+              <div className="flex flex-col gap-1">
+                <Typography variant="subhead1">
+                  {translate('text_17634566456760qoj7hs7jrh')}
+                </Typography>
+              </div>
+              <PaymentMethodsInvoiceSettings
+                customer={customerData?.customer}
+                form={formikProps}
+                viewType={ViewTypeEnum.WalletTransactionTopUp}
               />
             </section>
+          )}
 
-            {(customerData?.customer?.externalId || customerData?.customer?.id) && (
-              <section className="flex flex-col gap-6 pb-12 shadow-b">
-                <div className="flex flex-col gap-1">
+          <section className="flex flex-col gap-6">
+            <Accordion
+              variant="borderless"
+              summary={
+                <div className="flex flex-col gap-2">
                   <Typography variant="subhead1">
-                    {translate('text_17634566456760qoj7hs7jrh')}
+                    {translate('text_63fcc3218d35b9377840f59b')}
+                  </Typography>
+                  <Typography variant="caption">
+                    {translate('text_1741706729331emiq4h111k8')}
                   </Typography>
                 </div>
-                <PaymentMethodsInvoiceSettings
-                  customer={customerData?.customer}
-                  form={formikProps}
-                  viewType={ViewTypeEnum.WalletTransactionTopUp}
-                />
-              </section>
-            )}
+              }
+            >
+              <div className="flex flex-col gap-6">
+                {(formikProps.values.metadata ?? []).map((_metadata, index) => {
+                  const metadataItemKeyError = getIn(formikProps.errors, `metadata.${index}.key`)
+                  const metadataItemValueError = getIn(
+                    formikProps.errors,
+                    `metadata.${index}.value`,
+                  )
 
-            <section className="flex flex-col gap-6">
-              <Accordion
-                variant="borderless"
-                summary={
-                  <div className="flex flex-col gap-2">
-                    <Typography variant="subhead1">
-                      {translate('text_63fcc3218d35b9377840f59b')}
-                    </Typography>
-                    <Typography variant="caption">
-                      {translate('text_1741706729331emiq4h111k8')}
-                    </Typography>
-                  </div>
-                }
-              >
-                <div className="flex flex-col gap-6">
-                  {(formikProps.values.metadata ?? []).map((_metadata, index) => {
-                    const metadataItemKeyError = getIn(formikProps.errors, `metadata.${index}.key`)
-                    const metadataItemValueError = getIn(
-                      formikProps.errors,
-                      `metadata.${index}.value`,
-                    )
+                  const hasCustomKeyError =
+                    Object.keys(MetadataErrorsEnum).includes(metadataItemKeyError)
+                  const hasCustomValueError =
+                    Object.keys(MetadataErrorsEnum).includes(metadataItemValueError)
 
-                    const hasCustomKeyError =
-                      Object.keys(MetadataErrorsEnum).includes(metadataItemKeyError)
-                    const hasCustomValueError =
-                      Object.keys(MetadataErrorsEnum).includes(metadataItemValueError)
-
-                    return (
-                      <div
-                        className="flex w-full flex-row items-center gap-3"
-                        key={`metadata-item-${index}`}
-                      >
-                        <div className="basis-[200px]">
-                          <Tooltip
-                            placement="top-end"
-                            title={
-                              (metadataItemKeyError === MetadataErrorsEnum.uniqueness &&
-                                translate('text_63fcc3218d35b9377840f5dd')) ||
-                              (metadataItemKeyError === MetadataErrorsEnum.maxLength &&
-                                translate('text_63fcc3218d35b9377840f5d9', { max: 20 }))
-                            }
-                            disableHoverListener={!hasCustomKeyError}
-                          >
-                            <TextInputField
-                              name={`metadata.${index}.key`}
-                              label={translate('text_63fcc3218d35b9377840f5a3')}
-                              silentError={!hasCustomKeyError}
-                              placeholder={translate('text_63fcc3218d35b9377840f5a7')}
-                              formikProps={formikProps}
-                              displayErrorText={false}
-                            />
-                          </Tooltip>
-                        </div>
-                        <div className="grow">
-                          <Tooltip
-                            placement="top-end"
-                            title={
-                              metadataItemValueError === MetadataErrorsEnum.maxLength
-                                ? translate('text_63fcc3218d35b9377840f5e5', {
-                                    max: METADATA_VALUE_MAX_LENGTH_DEFAULT,
-                                  })
-                                : undefined
-                            }
-                            disableHoverListener={!hasCustomValueError}
-                          >
-                            <TextInputField
-                              name={`metadata.${index}.value`}
-                              label={translate('text_63fcc3218d35b9377840f5ab')}
-                              silentError={!hasCustomValueError}
-                              placeholder={translate('text_63fcc3218d35b9377840f5af')}
-                              formikProps={formikProps}
-                              displayErrorText={false}
-                            />
-                          </Tooltip>
-                        </div>
+                  return (
+                    <div
+                      className="flex w-full flex-row items-center gap-3"
+                      key={`metadata-item-${index}`}
+                    >
+                      <div className="basis-[200px]">
                         <Tooltip
-                          className="flex items-center"
                           placement="top-end"
-                          title={translate('text_63fcc3218d35b9377840f5e1')}
+                          title={
+                            (metadataItemKeyError === MetadataErrorsEnum.uniqueness &&
+                              translate('text_63fcc3218d35b9377840f5dd')) ||
+                            (metadataItemKeyError === MetadataErrorsEnum.maxLength &&
+                              translate('text_63fcc3218d35b9377840f5d9', { max: 20 }))
+                          }
+                          disableHoverListener={!hasCustomKeyError}
                         >
-                          <Button
-                            className="mt-7"
-                            variant="quaternary"
-                            size="medium"
-                            icon="trash"
-                            onClick={() => {
-                              formikProps.setFieldValue(
-                                'metadata',
-                                (formikProps.values.metadata ?? []).filter((_, i) => i !== index),
-                              )
-                            }}
+                          <TextInputField
+                            name={`metadata.${index}.key`}
+                            label={translate('text_63fcc3218d35b9377840f5a3')}
+                            silentError={!hasCustomKeyError}
+                            placeholder={translate('text_63fcc3218d35b9377840f5a7')}
+                            formikProps={formikProps}
+                            displayErrorText={false}
                           />
                         </Tooltip>
                       </div>
-                    )
-                  })}
+                      <div className="grow">
+                        <Tooltip
+                          placement="top-end"
+                          title={
+                            metadataItemValueError === MetadataErrorsEnum.maxLength
+                              ? translate('text_63fcc3218d35b9377840f5e5', {
+                                  max: METADATA_VALUE_MAX_LENGTH_DEFAULT,
+                                })
+                              : undefined
+                          }
+                          disableHoverListener={!hasCustomValueError}
+                        >
+                          <TextInputField
+                            name={`metadata.${index}.value`}
+                            label={translate('text_63fcc3218d35b9377840f5ab')}
+                            silentError={!hasCustomValueError}
+                            placeholder={translate('text_63fcc3218d35b9377840f5af')}
+                            formikProps={formikProps}
+                            displayErrorText={false}
+                          />
+                        </Tooltip>
+                      </div>
+                      <Tooltip
+                        className="flex items-center"
+                        placement="top-end"
+                        title={translate('text_63fcc3218d35b9377840f5e1')}
+                      >
+                        <Button
+                          className="mt-7"
+                          variant="quaternary"
+                          size="medium"
+                          icon="trash"
+                          onClick={() => {
+                            formikProps.setFieldValue(
+                              'metadata',
+                              (formikProps.values.metadata ?? []).filter((_, i) => i !== index),
+                            )
+                          }}
+                        />
+                      </Tooltip>
+                    </div>
+                  )
+                })}
 
-                  <Button
-                    className="self-start"
-                    startIcon="plus"
-                    variant="inline"
-                    onClick={() =>
-                      formikProps.setFieldValue('metadata', [
-                        ...(formikProps.values.metadata ?? []),
-                        { key: '', value: '' },
-                      ])
-                    }
-                    data-test={ADD_METADATA_DATA_TEST}
-                  >
-                    {translate('text_63fcc3218d35b9377840f5bb')}
-                  </Button>
-                </div>
-              </Accordion>
-            </section>
-          </CenteredPage.Container>
-        )}
+                <Button
+                  className="self-start"
+                  startIcon="plus"
+                  variant="inline"
+                  onClick={() =>
+                    formikProps.setFieldValue('metadata', [
+                      ...(formikProps.values.metadata ?? []),
+                      { key: '', value: '' },
+                    ])
+                  }
+                  data-test={ADD_METADATA_DATA_TEST}
+                >
+                  {translate('text_63fcc3218d35b9377840f5bb')}
+                </Button>
+              </div>
+            </Accordion>
+          </section>
+        </CenteredPage.Container>
+      )}
 
-        <CenteredPage.StickyFooter>
-          <Button variant="quaternary" onClick={onAbort}>
-            {translate('text_62e79671d23ae6ff149de968')}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={formikProps.submitForm}
-            data-test={SUBMIT_WALLET_DATA_TEST}
-          >
-            {translate('text_1741103892833yi7redcuhoc')}
-          </Button>
-        </CenteredPage.StickyFooter>
-      </CenteredPage.Wrapper>
-
-      <WarningDialog
-        ref={warningDialogRef}
-        title={translate('text_665deda4babaf700d603ea13')}
-        description={translate('text_665dedd557dc3c00c62eb83d')}
-        continueText={translate('text_645388d5bdbd7b00abffa033')}
-        onContinue={() => navigateToCustomerWalletTab(wallet?.id)}
-      />
-    </>
+      <CenteredPage.StickyFooter>
+        <Button variant="quaternary" onClick={onAbort}>
+          {translate('text_62e79671d23ae6ff149de968')}
+        </Button>
+        <Button
+          variant="primary"
+          disabled={!formikProps.isValid || !formikProps.dirty}
+          onClick={formikProps.submitForm}
+          data-test={SUBMIT_WALLET_DATA_TEST}
+        >
+          {translate('text_1741103892833yi7redcuhoc')}
+        </Button>
+      </CenteredPage.StickyFooter>
+    </CenteredPage.Wrapper>
   )
 }
 
