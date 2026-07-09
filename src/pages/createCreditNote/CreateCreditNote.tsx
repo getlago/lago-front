@@ -23,7 +23,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Card } from '~/components/designSystem/Card'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { ComboBoxField, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { hasDefinedGQLError } from '~/core/apolloClient'
@@ -85,8 +85,29 @@ export const CREDIT_NOTE_REASONS: { reason: CreditNoteReasonEnum; label: string 
 const CreateCreditNote = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
-  const warningDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
   const { customerId, invoiceId } = useParams()
+
+  const navigateBack = useCallback(
+    () =>
+      navigate(
+        generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+          customerId: customerId as string,
+          invoiceId: invoiceId as string,
+          tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+        }),
+      ),
+    [customerId, invoiceId, navigate],
+  )
+
+  const openDirtyAttributesWarning = () =>
+    centralizedDialog.open({
+      title: translate('text_636bdf192a28e7cf28abf00d'),
+      description: translate('text_636bed940028096908b735ed'),
+      actionText: translate('text_636beda08285f03477c7e25e'),
+      colorVariant: 'danger',
+      onAction: () => navigateBack(),
+    })
   const {
     loading,
     invoice,
@@ -281,17 +302,7 @@ const CreateCreditNote = () => {
           variant="quaternary"
           icon="close"
           data-test={CLOSE_BUTTON_TEST_ID}
-          onClick={() =>
-            formikProps.dirty
-              ? warningDialogRef.current?.openDialog()
-              : navigate(
-                  generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                    customerId: customerId as string,
-                    invoiceId: invoiceId as string,
-                    tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-                  }),
-                )
-          }
+          onClick={() => (formikProps.dirty ? openDirtyAttributesWarning() : navigateBack())}
         />
       </PageHeader.Wrapper>
       <CenteredPage.Container>
@@ -547,22 +558,6 @@ const CreateCreditNote = () => {
           </Button>
         </div>
       </CenteredPage.StickyFooter>
-
-      <WarningDialog
-        ref={warningDialogRef}
-        title={translate('text_636bdf192a28e7cf28abf00d')}
-        description={translate('text_636bed940028096908b735ed')}
-        continueText={translate('text_636beda08285f03477c7e25e')}
-        onContinue={() =>
-          navigate(
-            generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-              customerId: customerId as string,
-              invoiceId: invoiceId as string,
-              tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-            }),
-          )
-        }
-      />
     </div>
   )
 }
