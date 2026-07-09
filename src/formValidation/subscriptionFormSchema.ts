@@ -3,6 +3,10 @@ import { z } from 'zod'
 
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
+import {
+  PURCHASE_ORDER_NUMBER_MAX_LENGTH,
+  PURCHASE_ORDER_TRANSLATIONS,
+} from '~/components/purchaseOrder/constants'
 import { ActivationRuleFormTypeEnum } from '~/core/constants/subscriptionActivationRules'
 import { BillingTimeEnum } from '~/generated/graphql'
 
@@ -17,6 +21,7 @@ export interface SubscriptionFormValues {
   invoiceCustomSection?: InvoiceCustomSectionInput
   billingEntityId?: string
   consolidateInvoice: boolean
+  purchaseOrderNumber?: string | null
   activationRuleType?: ActivationRuleFormTypeEnum
   activationRuleTimeoutHours?: string
 }
@@ -37,6 +42,14 @@ export const subscriptionFormSchema = z
         code: 'custom',
         message: 'text_624ea7c29103fd010732ab7d',
         path: ['subscriptionAt'],
+      })
+    }
+
+    if ((data.purchaseOrderNumber?.length ?? 0) > PURCHASE_ORDER_NUMBER_MAX_LENGTH) {
+      ctx.addIssue({
+        code: 'custom',
+        message: PURCHASE_ORDER_TRANSLATIONS.maxLength,
+        path: ['purchaseOrderNumber'],
       })
     }
 
