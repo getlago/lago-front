@@ -231,12 +231,24 @@ jest.mock('../hooks/useOneOffPricingDrawer', () => ({
 const mockDiscountOnDiscountCommand = jest.fn()
 const mockSyncDiscountBlocks = jest.fn().mockReturnValue(null)
 
+type DiscountDrawerOptions = {
+  currency?: unknown
+  onPersist?: (...args: unknown[]) => unknown
+  onRemoveBlock?: (localId: string) => void
+}
+
+let capturedDiscountDrawerOptions: DiscountDrawerOptions | undefined
+
 jest.mock('../hooks/useDiscountDrawer', () => ({
-  useDiscountDrawer: () => ({
-    onDiscountCommand: mockDiscountOnDiscountCommand,
-    entities: {},
-    syncDiscountBlocks: mockSyncDiscountBlocks,
-  }),
+  useDiscountDrawer: (_billingItems: unknown, options: DiscountDrawerOptions) => {
+    capturedDiscountDrawerOptions = options
+
+    return {
+      onDiscountCommand: mockDiscountOnDiscountCommand,
+      entities: {},
+      syncDiscountBlocks: mockSyncDiscountBlocks,
+    }
+  },
 }))
 
 jest.mock('../common/getQuoteStatusMapping', () => ({
@@ -271,6 +283,7 @@ describe('EditQuote', () => {
     capturedEditorCustomerCurrency = undefined
     capturedRemoveBlockRef = undefined
     capturedPricingDrawerArgs = []
+    capturedDiscountDrawerOptions = undefined
     mockSyncEntitiesWithBlocks.mockReturnValue(null)
     mockSyncDiscountBlocks.mockReturnValue(null)
 
@@ -1085,6 +1098,53 @@ describe('EditQuote', () => {
         })
 
         expect(mockSyncDiscountBlocks).toHaveBeenCalledWith(mockBlocks)
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN a rejected discount edit removes the coupon block (onRemoveBlock)', () => {
+      it('THEN should not issue a corrective save for the removed coupon', async () => {
+        // Simulate the reconciliation after removal resolving to a truthy
+        // billing-items object (the coupon that was hydrated into itemsRef
+        // is now gone). Without the isRollingBackRef guard, this would be
+        // enough for handleDiscountBlocksChange to fire a corrective
+        // savePricingBlock/updateQuoteVersion call that persists the
+        // deletion.
+        mockSyncDiscountBlocks.mockReturnValue({ coupons: [] })
+
+        render(<EditQuote />)
+
+        const removeBlockSpy = jest.fn()
+
+        // The mock RichTextEditor exposes the removeBlockRef instance passed
+        // down by EditQuote. In production, removeBlockRef.current() runs
+        // `editor.chain().focus().deleteRange().run()`, which SYNCHRONOUSLY
+        // triggers the editor's onUpdate → onDiscountBlocksChange
+        // reconciliation within the same call stack. Mirror that here so the
+        // isRollingBackRef guard on the discount onRemoveBlock wrapper is
+        // actually exercised, instead of removeBlockRef being a no-op spy.
+        if (capturedRemoveBlockRef) {
+          capturedRemoveBlockRef.current = (localId: string) => {
+            removeBlockSpy(localId)
+            // Simulate the real editor: the removed coupon block is no
+            // longer present in the reconciled block list.
+            capturedOnDiscountBlocksChange?.([])
+          }
+        }
+
+        expect(capturedDiscountDrawerOptions?.onRemoveBlock).toBeDefined()
+
+        await act(async () => {
+          capturedDiscountDrawerOptions?.onRemoveBlock?.('local-coupon-1')
+        })
+
+        // Rollback: the coupon block is removed by its localId.
+        expect(removeBlockSpy).toHaveBeenCalledWith('local-coupon-1')
+
+        // The removal synchronously re-entered onDiscountBlocksChange, and
+        // syncDiscountBlocks resolved truthy — so without the
+        // isRollingBackRef guard this would trigger a corrective
+        // updateQuoteVersion call that persists the coupon deletion.
         expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
       })
     })

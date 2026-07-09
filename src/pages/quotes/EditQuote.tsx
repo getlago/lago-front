@@ -141,7 +141,11 @@ const EditQuote = () => {
   const discount = useDiscountDrawer(quote?.currentVersion?.billingItems, {
     currency: quoteCurrency,
     onPersist: (billingItems) => savePricingBlockRef.current(billingItems),
-    onRemoveBlock: (localId) => removeBlockRef.current?.(localId),
+    onRemoveBlock: (localId) => {
+      isRollingBackRef.current = true
+      removeBlockRef.current?.(localId)
+      isRollingBackRef.current = false
+    },
   })
 
   const mergedEntities = useMemo(

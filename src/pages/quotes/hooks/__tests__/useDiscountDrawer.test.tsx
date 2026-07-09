@@ -1,8 +1,15 @@
+import { ApolloError } from '@apollo/client'
 import { act, renderHook, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { addToast } from '~/core/apolloClient'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import { CouponFrequency, CouponTypeEnum, CurrencyEnum } from '~/generated/graphql'
+import {
+  QUOTE_FIELD_ERROR_KEY,
+  QUOTE_SAVE_FAILED_TOAST_KEY,
+} from '~/pages/quotes/utils/quoteSaveErrorKeys'
+import * as serverFieldErrorsUtil from '~/pages/quotes/utils/serverFieldErrors'
 import { render } from '~/test-utils'
 
 import { DISCOUNT_DRAWER_SAVE_TEST_ID, useDiscountDrawer } from '../useDiscountDrawer'
@@ -32,6 +39,13 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
     translate: (key: string) => key,
   }),
 }))
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
+}))
+
+const mockAddToast = addToast as jest.Mock
 
 // Controllable coupon dataset returned by the lazy query. The standalone async
 // ComboBox reads `data` and calls `getCoupons` (the fetch trigger). Must be
@@ -673,6 +687,193 @@ describe('useDiscountDrawer', () => {
       name: 'Ten Off',
       code: 'COUPON_CODE',
       couponType: CouponTypeEnum.FixedAmount,
+    })
+  })
+
+  describe('GIVEN onPersist rejects the save', () => {
+    const selectFixedAmountCoupon = async () => {
+      const comboBoxInput = screen.getByRole('combobox') as HTMLInputElement
+
+      await userEvent.type(comboBoxInput, 'Ten')
+
+      await waitFor(() => {
+        expect(comboBoxInput.getAttribute('aria-controls')).toBeTruthy()
+      })
+
+      const listboxId = comboBoxInput.getAttribute('aria-controls') as string
+      const listbox = document.getElementById(listboxId) as HTMLElement
+
+      await userEvent.click(within(listbox).getByText('Ten Off'))
+    }
+
+    it('keeps the drawer open, rolls back the block, and shows a field error on a mapped 422', async () => {
+      const setServerFieldErrorsSpy = jest.spyOn(serverFieldErrorsUtil, 'setServerFieldErrors')
+
+      const mappedError = new ApolloError({
+        graphQLErrors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              code: 'unprocessable_entity',
+              details: { 'billingItems.coupons.0.amount_cents': ['value_is_invalid'] },
+            },
+          } as never,
+        ],
+      })
+
+      const onPersist = jest.fn().mockResolvedValue({ ok: false, error: mappedError })
+      const onRemoveBlock = jest.fn()
+      const onSave = jest.fn()
+
+      const { result } = renderHook(() =>
+        useDiscountDrawer(undefined, { currency: CurrencyEnum.Usd, onPersist, onRemoveBlock }),
+      )
+
+      act(() => {
+        result.current.onDiscountCommand({ onSave })
+      })
+
+      const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+      render(
+        <>
+          {openArgs.children}
+          {openArgs.actions}
+        </>,
+      )
+
+      await selectFixedAmountCoupon()
+
+      const saveButton = screen.getByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)
+
+      await waitFor(() => {
+        expect(saveButton).not.toBeDisabled()
+      })
+
+      await userEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(onPersist).toHaveBeenCalledTimes(1)
+      })
+
+      // The block was inserted optimistically, then rolled back on failure.
+      expect(onSave).toHaveBeenCalledWith({ couponId: 'cpn_fixed', localId: 'mock-uuid-1' })
+      expect(onRemoveBlock).toHaveBeenCalledWith('mock-uuid-1')
+
+      // Field-level error surfaced inline on the amount field via the errorMap
+      // 'onSubmit' slot — the server-error channel that doesn't get clobbered
+      // by Zod revalidation.
+      await waitFor(() => {
+        expect(setServerFieldErrorsSpy).toHaveBeenCalledWith(
+          expect.anything(),
+          [{ path: 'amount', code: 'value_is_invalid' }],
+          QUOTE_FIELD_ERROR_KEY,
+        )
+      })
+
+      expect(mockAddToast).not.toHaveBeenCalled()
+      expect(mockDrawerClose).not.toHaveBeenCalled()
+
+      // Nothing was committed — the drawer's local state stays empty.
+      expect(result.current.entities).not.toHaveProperty('mock-uuid-1')
+
+      setServerFieldErrorsSpy.mockRestore()
+    })
+
+    it('toasts and stays open on an unmappable failure', async () => {
+      const unmappableError = new ApolloError({
+        graphQLErrors: [
+          {
+            message: 'Internal Server Error',
+            extensions: { code: 'internal_server_error' },
+          } as never,
+        ],
+      })
+
+      const onPersist = jest.fn().mockResolvedValue({ ok: false, error: unmappableError })
+      const onRemoveBlock = jest.fn()
+      const onSave = jest.fn()
+
+      const { result } = renderHook(() =>
+        useDiscountDrawer(undefined, { currency: CurrencyEnum.Usd, onPersist, onRemoveBlock }),
+      )
+
+      act(() => {
+        result.current.onDiscountCommand({ onSave })
+      })
+
+      const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+      render(
+        <>
+          {openArgs.children}
+          {openArgs.actions}
+        </>,
+      )
+
+      await selectFixedAmountCoupon()
+
+      const saveButton = screen.getByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)
+
+      await waitFor(() => {
+        expect(saveButton).not.toBeDisabled()
+      })
+
+      await userEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(mockAddToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          translateKey: QUOTE_SAVE_FAILED_TOAST_KEY,
+        })
+      })
+
+      expect(onRemoveBlock).toHaveBeenCalledWith('mock-uuid-1')
+      expect(mockDrawerClose).not.toHaveBeenCalled()
+      expect(result.current.entities).not.toHaveProperty('mock-uuid-1')
+    })
+
+    it('commits and closes on success', async () => {
+      const onPersist = jest.fn().mockResolvedValue({ ok: true })
+      const onRemoveBlock = jest.fn()
+      const onSave = jest.fn()
+
+      const { result } = renderHook(() =>
+        useDiscountDrawer(undefined, { currency: CurrencyEnum.Usd, onPersist, onRemoveBlock }),
+      )
+
+      act(() => {
+        result.current.onDiscountCommand({ onSave })
+      })
+
+      const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+      render(
+        <>
+          {openArgs.children}
+          {openArgs.actions}
+        </>,
+      )
+
+      await selectFixedAmountCoupon()
+
+      const saveButton = screen.getByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)
+
+      await waitFor(() => {
+        expect(saveButton).not.toBeDisabled()
+      })
+
+      await userEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(mockDrawerClose).toHaveBeenCalled()
+      })
+
+      expect(onRemoveBlock).not.toHaveBeenCalled()
+
+      await waitFor(() => {
+        expect(result.current.entities).toHaveProperty('mock-uuid-1')
+      })
     })
   })
 })

@@ -9,6 +9,7 @@ import type { PricingBlockAttributes } from '~/components/designSystem/RichTextE
 import { SubscriptionPricingContent } from '~/components/designSystem/RichTextEditor/PricingBlock/SubscriptionPricingContent'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import type { PlanFormInput } from '~/components/plans/types'
+import { addToast } from '~/core/apolloClient'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import {
   fromPlanBillingItems,
@@ -17,6 +18,8 @@ import {
 } from '~/core/serializers/serializeQuotePlanBillingItems'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import type { SavePricingResult } from '~/pages/quotes/EditQuote'
+import { QUOTE_SAVE_FAILED_TOAST_KEY } from '~/pages/quotes/utils/quoteSaveErrorKeys'
 
 interface UseSubscriptionPricingDrawerReturn {
   onPricingCommand: OnPricingCommand
@@ -74,7 +77,7 @@ export const useSubscriptionPricingDrawer = (
         attrs: PricingBlockAttributes,
         entityData: Record<string, EntityData>,
         billingItems?: BillingItemsPayload,
-      ) => void)
+      ) => void | Promise<unknown>)
     | null
   >(null)
 
@@ -106,7 +109,7 @@ export const useSubscriptionPricingDrawer = (
     ({ onSave }) => {
       onSaveRef.current = onSave
 
-      const handleSave = () => {
+      const handleSave = async () => {
         const state = subscriptionStateRef.current
         const formValues = formValuesRef.current
 
@@ -122,25 +125,34 @@ export const useSubscriptionPricingDrawer = (
           },
         }
 
+        const result = (await onSaveRef.current?.(
+          { pricingType: 'plan', entityIds: [state.planId] },
+          entityData,
+          {
+            ...latestBillingItemsRef.current,
+            ...billingItems,
+          },
+        )) as SavePricingResult | undefined
+
+        if (result?.ok === false) {
+          addToast({ severity: 'danger', translateKey: QUOTE_SAVE_FAILED_TOAST_KEY })
+
+          throw new Error('Save failed')
+        }
+
         entitiesRef.current = { ...entitiesRef.current, ...entityData }
         setEntities({ ...entitiesRef.current })
-
-        onSaveRef.current?.({ pricingType: 'plan', entityIds: [state.planId] }, entityData, {
-          ...latestBillingItemsRef.current,
-          ...billingItems,
-        })
 
         // Propagate date changes to the quote level
         options?.onDatesChange?.(
           state.subscriptionSettings.startDate || undefined,
           state.subscriptionSettings.endDate || undefined,
         )
-
-        drawer.close()
       }
 
       drawer.open({
         title: translate('text_17791987800302plb0guzxzv'),
+        closeOnError: false,
         form: {
           id: 'subscription-pricing-drawer-form',
           submit: handleSave,

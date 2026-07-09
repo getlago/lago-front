@@ -13,6 +13,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useDrawer } from '~/components/drawers/useDrawer'
 import { ComboBox } from '~/components/form/ComboBox/ComboBox'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { addToast } from '~/core/apolloClient'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import {
@@ -30,6 +31,19 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
+import type { SavePricingResult } from '~/pages/quotes/EditQuote'
+import {
+  COUPONS_ERROR_CONFIG,
+  mapBillingItemErrors,
+} from '~/pages/quotes/utils/mapBillingItemErrors'
+import {
+  QUOTE_FIELD_ERROR_KEY,
+  QUOTE_SAVE_FAILED_TOAST_KEY,
+} from '~/pages/quotes/utils/quoteSaveErrorKeys'
+import {
+  clearServerFieldErrors,
+  setServerFieldErrors,
+} from '~/pages/quotes/utils/serverFieldErrors'
 
 gql`
   query getCouponsForDiscountDrawer(
@@ -308,9 +322,7 @@ export const useDiscountDrawer = (
   billingItems: BillingItemsPayload | null | undefined,
   options: {
     currency: CurrencyEnum
-    onPersist?: (billingItems: BillingItemsPayload) => void
-    // Consumed by a later task for discount-block rollback; accepted here so
-    // EditQuote can pass it through uniformly with the pricing drawers.
+    onPersist?: (billingItems: BillingItemsPayload) => void | Promise<SavePricingResult>
     onRemoveBlock?: (localId: string) => void
   },
 ): {
@@ -321,7 +333,7 @@ export const useDiscountDrawer = (
   const { translate } = useInternationalization()
   const drawer = useDrawer()
   const currency = options.currency
-  const { onPersist } = options
+  const { onPersist, onRemoveBlock } = options
 
   const initial = fromCoupons(billingItems?.coupons ?? [])
 
@@ -358,7 +370,9 @@ export const useDiscountDrawer = (
 
       const { onSave, localId } = pending
 
-      itemsRef.current[localId] = {
+      clearServerFieldErrors(form, ['amount', 'percentageRate', 'frequencyDuration'])
+
+      const nextItem: DiscountFormItem = {
         localId,
         couponId: value.couponId,
         couponType: value.couponType,
@@ -377,35 +391,64 @@ export const useDiscountDrawer = (
       // rebuilds the line from the old coupon's identity (name/code/type) and both
       // the editor block and the preview keep showing the old coupon.
       const existingSnapshot = originalPayloadsRef.current[localId]
+      const nextSnapshot: CouponPayload =
+        !existingSnapshot || existingSnapshot.id !== value.couponId
+          ? {
+              position: existingSnapshot?.position ?? Object.keys(itemsRef.current).length,
+              code: value.code,
+              id: value.couponId,
+              name: value.name,
+              type: value.couponType === CouponTypeEnum.Percentage ? 'percentage' : 'fixed_amount',
+              amount_cents: null,
+              percentage_rate: null,
+              currency,
+              frequency: 'forever',
+              frequency_duration: null,
+              expiration_at: null,
+              limited_plans: false,
+              plan_codes: [],
+              limited_billable_metrics: false,
+              billable_metric_codes: [],
+              coupon_overrides: null,
+              catalog_snapshot: null,
+              resolved_payload: null,
+            }
+          : existingSnapshot
 
-      if (!existingSnapshot || existingSnapshot.id !== value.couponId) {
-        originalPayloadsRef.current[localId] = {
-          position: existingSnapshot?.position ?? Object.keys(itemsRef.current).length,
-          code: value.code,
-          id: value.couponId,
-          name: value.name,
-          type: value.couponType === CouponTypeEnum.Percentage ? 'percentage' : 'fixed_amount',
-          amount_cents: null,
-          percentage_rate: null,
-          currency,
-          frequency: 'forever',
-          frequency_duration: null,
-          expiration_at: null,
-          limited_plans: false,
-          plan_codes: [],
-          limited_billable_metrics: false,
-          billable_metric_codes: [],
-          coupon_overrides: null,
-          catalog_snapshot: null,
-          resolved_payload: null,
-        }
+      // Build the prospective payload WITHOUT committing itemsRef/originalPayloadsRef —
+      // the commit only happens once onPersist confirms the save succeeded.
+      const prospectiveItems = { ...itemsRef.current, [localId]: nextItem }
+      const prospectiveSnapshots = { ...originalPayloadsRef.current, [localId]: nextSnapshot }
+      const prospectiveCoupons = toCoupons(Object.values(prospectiveItems), prospectiveSnapshots)
+      const prospectivePayload: BillingItemsPayload = {
+        ...billingItems,
+        coupons: prospectiveCoupons,
       }
 
-      const updated = rebuild()
-
+      // Insert the block, then save.
       onSave({ couponId: value.couponId, localId })
-      onPersist?.(updated)
-      drawer.close()
+
+      const result = (await onPersist?.(prospectivePayload)) ?? { ok: true }
+
+      if (result.ok) {
+        itemsRef.current[localId] = nextItem
+        originalPayloadsRef.current[localId] = nextSnapshot
+        rebuild()
+        drawer.close()
+
+        return
+      }
+
+      // Roll back the inserted block and surface the error; keep the drawer open.
+      onRemoveBlock?.(localId)
+
+      const { fieldErrors, unmapped } = mapBillingItemErrors(result.error, COUPONS_ERROR_CONFIG)
+
+      setServerFieldErrors(form, fieldErrors, QUOTE_FIELD_ERROR_KEY)
+
+      if (unmapped.length > 0 || fieldErrors.length === 0) {
+        addToast({ severity: 'danger', translateKey: QUOTE_SAVE_FAILED_TOAST_KEY })
+      }
     },
   })
 

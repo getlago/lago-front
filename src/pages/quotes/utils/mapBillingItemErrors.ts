@@ -30,6 +30,35 @@ const extractGraphQLErrors = (
   return ((errorObject as ApolloError)?.graphQLErrors || errorObject || []) as LagoGQLError[]
 }
 
+// Resolve a single backend detail key (e.g. `billingItems.add_ons.0.unit_amount_cents`)
+// to a drawer form field path, or `null` when it doesn't target a mappable field.
+const resolveFieldPath = (rawKey: string, config: BillingItemErrorConfig): string | null => {
+  const stripped = rawKey.replace(/^billing_?items\./i, '')
+  const [categorySeg, ...rest] = stripped.split('.')
+
+  const isCategory = config.category.some(
+    (c) => c.toLowerCase() === (categorySeg ?? '').toLowerCase(),
+  )
+
+  if (!isCategory) return null
+
+  const hasIndexedField = rest.length >= 2
+  const hasFlatField = rest.length === 1 && !/^\d+$/.test(rest[0])
+
+  // coarse key (category only, or category + bare index) — cannot target a field
+  if (!hasIndexedField && !hasFlatField) return null
+
+  const index = hasIndexedField ? Number(rest[0]) : null
+  const snakeField = hasIndexedField ? rest[1] : rest[0]
+  const camel = config.fieldMap[snakeField]
+
+  if (!camel) return null
+
+  return config.arrayField && index !== null && !Number.isNaN(index)
+    ? `${config.arrayField}[${index}].${camel}`
+    : camel
+}
+
 export const mapBillingItemErrors = (
   errorObject: ApolloError | readonly GraphQLFormattedError[] | undefined,
   config: BillingItemErrorConfig,
@@ -42,45 +71,13 @@ export const mapBillingItemErrors = (
 
   for (const [rawKey, codes] of Object.entries(details)) {
     const code = Array.isArray(codes) ? codes[0] : String(codes)
-    const stripped = rawKey.replace(/^billing_?items\./i, '')
-    const [categorySeg, ...rest] = stripped.split('.')
+    const path = resolveFieldPath(rawKey, config)
 
-    const isCategory = config.category.some(
-      (c) => c.toLowerCase() === (categorySeg ?? '').toLowerCase(),
-    )
-
-    if (!isCategory) {
-      result.unmapped.push(rawKey)
-      continue
-    }
-
-    let index: number | null = null
-    let snakeField: string | undefined
-
-    if (rest.length >= 2) {
-      index = Number(rest[0])
-      snakeField = rest[1]
-    } else if (rest.length === 1 && !/^\d+$/.test(rest[0])) {
-      snakeField = rest[0]
+    if (path) {
+      result.fieldErrors.push({ path, code })
     } else {
-      // coarse key (category only, or category + bare index) — cannot target a field
       result.unmapped.push(rawKey)
-      continue
     }
-
-    const camel = snakeField ? config.fieldMap[snakeField] : undefined
-
-    if (!camel) {
-      result.unmapped.push(rawKey)
-      continue
-    }
-
-    const path =
-      config.arrayField && index !== null && !Number.isNaN(index)
-        ? `${config.arrayField}[${index}].${camel}`
-        : camel
-
-    result.fieldErrors.push({ path, code })
   }
 
   return result

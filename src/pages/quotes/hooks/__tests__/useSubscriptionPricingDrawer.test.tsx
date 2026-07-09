@@ -1,10 +1,19 @@
 import { act, renderHook } from '@testing-library/react'
 
+import { addToast } from '~/core/apolloClient'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import type { SubscriptionPricingState } from '~/core/serializers/serializeQuotePlanBillingItems'
+import { QUOTE_SAVE_FAILED_TOAST_KEY } from '~/pages/quotes/utils/quoteSaveErrorKeys'
 import { render } from '~/test-utils'
 
 import { useSubscriptionPricingDrawer } from '../useSubscriptionPricingDrawer'
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
+}))
+
+const mockAddToast = addToast as jest.Mock
 
 const mockDrawerOpen = jest.fn()
 const mockDrawerClose = jest.fn()
@@ -147,7 +156,7 @@ describe('useSubscriptionPricingDrawer', () => {
     expect(result.current.entities).not.toHaveProperty('plan_123')
   })
 
-  it('saves the subscription and closes the drawer when the form is submitted', () => {
+  it('commits entities and propagates dates on success', async () => {
     mockInjectedState = {
       planId: 'plan_123',
       planCode: 'enterprise',
@@ -164,7 +173,7 @@ describe('useSubscriptionPricingDrawer', () => {
       overrides: {},
     }
 
-    const onSave = jest.fn()
+    const onSave = jest.fn().mockResolvedValue({ ok: true })
     const onDatesChange = jest.fn()
 
     const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined, { onDatesChange }))
@@ -178,8 +187,8 @@ describe('useSubscriptionPricingDrawer', () => {
     // Render the drawer children so the mocked content hydrates the state ref
     render(openArgs.children)
 
-    act(() => {
-      openArgs.form.submit()
+    await act(async () => {
+      await openArgs.form.submit()
     })
 
     expect(onSave).toHaveBeenCalledWith(
@@ -193,10 +202,53 @@ describe('useSubscriptionPricingDrawer', () => {
     )
     expect(onDatesChange).toHaveBeenCalledWith('2023-07-26', '2024-07-26')
     expect(result.current.entities).toHaveProperty('plan_123')
-    expect(mockDrawerClose).toHaveBeenCalledTimes(1)
   })
 
-  it('preserves existing coupons in the payload when saving a plan', () => {
+  it('toasts and keeps the drawer open when the save fails', async () => {
+    mockInjectedState = {
+      planId: 'plan_123',
+      planCode: 'enterprise',
+      planName: 'Enterprise Plan',
+      planDescription: '',
+      subscriptionSettings: {
+        externalId: '',
+        subscriptionName: '',
+        billingTime: 'anniversary',
+        startDate: '2023-07-26',
+        endDate: '2024-07-26',
+      },
+      invoicingSettings: { paymentMethodId: '', invoiceCustomFooter: '' },
+      overrides: {},
+    }
+
+    const onSave = jest.fn().mockResolvedValue({ ok: false, error: undefined })
+    const onDatesChange = jest.fn()
+
+    const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined, { onDatesChange }))
+
+    act(() => {
+      result.current.onPricingCommand({ onSave })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    // Render the drawer children so the mocked content hydrates the state ref
+    render(openArgs.children)
+
+    await act(async () => {
+      await expect(openArgs.form.submit()).rejects.toThrow()
+    })
+
+    expect(mockAddToast).toHaveBeenCalledWith({
+      severity: 'danger',
+      translateKey: QUOTE_SAVE_FAILED_TOAST_KEY,
+    })
+    expect(mockDrawerClose).not.toHaveBeenCalled()
+    expect(result.current.entities).not.toHaveProperty('plan_123')
+    expect(onDatesChange).not.toHaveBeenCalled()
+  })
+
+  it('preserves existing coupons in the payload when saving a plan', async () => {
     // Regression: coupons live alongside plans in billingItems. Saving a plan
     // must not overwrite billingItems and drop a previously-added coupon.
     mockInjectedState = {
@@ -228,7 +280,7 @@ describe('useSubscriptionPricingDrawer', () => {
       coupons: [existingCoupon],
     }
 
-    const onSave = jest.fn()
+    const onSave = jest.fn().mockResolvedValue({ ok: true })
 
     const { result } = renderHook(() => useSubscriptionPricingDrawer(initialBillingItems))
 
@@ -240,8 +292,8 @@ describe('useSubscriptionPricingDrawer', () => {
 
     render(openArgs.children)
 
-    act(() => {
-      openArgs.form.submit()
+    await act(async () => {
+      await openArgs.form.submit()
     })
 
     expect(onSave).toHaveBeenCalledWith(
@@ -298,7 +350,7 @@ describe('useSubscriptionPricingDrawer', () => {
     expect(billingItems).toEqual(expect.objectContaining({ plans: [], coupons: [existingCoupon] }))
   })
 
-  it('does not save or close the drawer when no subscription state is set', () => {
+  it('does not save or close the drawer when no subscription state is set', async () => {
     mockInjectedState = null
 
     const onSave = jest.fn()
@@ -313,8 +365,8 @@ describe('useSubscriptionPricingDrawer', () => {
 
     render(openArgs.children)
 
-    act(() => {
-      openArgs.form.submit()
+    await act(async () => {
+      await openArgs.form.submit()
     })
 
     expect(onSave).not.toHaveBeenCalled()

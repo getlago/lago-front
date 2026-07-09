@@ -1,9 +1,15 @@
+import { ApolloError } from '@apollo/client'
 import { act, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 import { z } from 'zod'
 
+import { addToast } from '~/core/apolloClient'
 import { fromBillingItems, toBillingItems } from '~/core/serializers/serializeQuoteBillingItems'
 import { CurrencyEnum } from '~/generated/graphql'
+import {
+  QUOTE_FIELD_ERROR_KEY,
+  QUOTE_SAVE_FAILED_TOAST_KEY,
+} from '~/pages/quotes/utils/quoteSaveErrorKeys'
 import { AllTheProviders } from '~/test-utils'
 
 import { useOneOffPricingDrawer } from '../useOneOffPricingDrawer'
@@ -58,11 +64,25 @@ jest.mock('~/components/drawers/drawerStack', () => ({
   },
 }))
 
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
+}))
+
+const mockAddToast = addToast as jest.Mock
+
 const mockFormReset = jest.fn()
-const mockHandleSubmit = jest.fn()
+const mockSetFieldMeta = jest.fn()
 
 // Capture the onSubmit and setFieldValue calls from useAppForm
-let capturedOnSubmit: ((args: { value: Record<string, unknown> }) => void) | null = null
+let capturedOnSubmit:
+  ((args: { value: Record<string, unknown> }) => void | Promise<unknown>) | null = null
+
+// Simulates real TanStack form behavior: handleSubmit() runs the captured onSubmit
+// with the current form values.
+const mockHandleSubmit = jest.fn(async () => {
+  await capturedOnSubmit?.({ value: mockFormValues })
+})
 const mockSetFieldValue = jest.fn()
 let mockFormValues = { planId: '', addOnItems: [] as Record<string, unknown>[] }
 
@@ -86,6 +106,7 @@ jest.mock('~/hooks/forms/useAppform', () => ({
       reset: mockFormReset,
       handleSubmit: mockHandleSubmit,
       setFieldValue: mockSetFieldValue,
+      setFieldMeta: mockSetFieldMeta,
       state: {
         canSubmit: true,
         get values() {
@@ -782,7 +803,7 @@ describe('useOneOffPricingDrawer', () => {
 
   describe('GIVEN the form onSubmit handler is invoked', () => {
     describe('WHEN submitting for a one-off with confirmed add-on items', () => {
-      it('THEN should call onSave with add-on entity data and billing items', () => {
+      it('THEN should call onSave with add-on entity data and billing items', async () => {
         const mockOnSave = jest.fn()
 
         const { result } = renderHook(() => useOneOffPricingDrawer(), {
@@ -816,8 +837,8 @@ describe('useOneOffPricingDrawer', () => {
           ],
         }
 
-        act(() => {
-          capturedOnSubmit?.({ value: mockFormValues })
+        await act(async () => {
+          await capturedOnSubmit?.({ value: mockFormValues })
         })
 
         expect(mockOnSave).toHaveBeenCalledWith(
@@ -976,6 +997,122 @@ describe('useOneOffPricingDrawer', () => {
         })
 
         expect(mockHandleSubmit).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the save returns an error from the API', () => {
+    const confirmedAddOnItem = {
+      localId: 'local-uuid-1',
+      addOnId: 'addon-1',
+      name: 'Setup Fee',
+      invoiceDisplayName: 'Setup',
+      code: 'setup',
+      description: 'Desc',
+      units: '2',
+      unitAmountCents: '5000',
+      totalAmount: '10000',
+      fromDatetime: '2026-01-01',
+      toDatetime: '2026-01-31',
+    }
+
+    describe('WHEN the save resolves a mapped 422 field error', () => {
+      it('THEN should set a server field error, not commit entities, and keep the drawer open', async () => {
+        const mappedError = new ApolloError({
+          graphQLErrors: [
+            {
+              message: 'Unprocessable Entity',
+              extensions: {
+                code: 'unprocessable_entity',
+                details: { 'billingItems.add_ons.0.unit_amount_cents': ['value_is_invalid'] },
+              },
+            } as never,
+          ],
+        })
+
+        const mockOnSave = jest.fn().mockResolvedValue({ ok: false, error: mappedError })
+
+        const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: mockOnSave,
+            editData: undefined,
+          })
+        })
+
+        mockFormValues = {
+          planId: '',
+          addOnItems: [confirmedAddOnItem],
+        }
+
+        const callArgs = mockFormDrawerOpen.mock.calls[0][0]
+
+        await act(async () => {
+          await expect(callArgs.form.submit()).rejects.toThrow()
+        })
+
+        expect(mockSetFieldMeta).toHaveBeenCalledWith(
+          'addOnItems[0].unitAmountCents',
+          expect.any(Function),
+        )
+
+        // `clearServerFieldErrors` also targets this path before the save runs, so
+        // take the last matching call — the one made by `setServerFieldErrors` after
+        // the save fails.
+        const metaUpdaterCall = mockSetFieldMeta.mock.calls
+          .filter(([path]) => path === 'addOnItems[0].unitAmountCents')
+          .pop()
+
+        const updatedMeta = metaUpdaterCall?.[1]({ errorMap: {} })
+
+        expect(updatedMeta.errorMap.onSubmit).toEqual({ message: QUOTE_FIELD_ERROR_KEY })
+
+        // Entities should NOT be committed since the save failed
+        expect(result.current.entities).not.toHaveProperty('local-uuid-1')
+        expect(mockAddToast).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the save resolves an unmappable error', () => {
+      it('THEN should show a generic failure toast and keep the drawer open', async () => {
+        const unmappableError = new ApolloError({
+          graphQLErrors: [
+            {
+              message: 'Internal Server Error',
+              extensions: { code: 'internal_server_error' },
+            } as never,
+          ],
+        })
+
+        const mockOnSave = jest.fn().mockResolvedValue({ ok: false, error: unmappableError })
+
+        const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: mockOnSave,
+            editData: undefined,
+          })
+        })
+
+        mockFormValues = {
+          planId: '',
+          addOnItems: [confirmedAddOnItem],
+        }
+
+        const callArgs = mockFormDrawerOpen.mock.calls[0][0]
+
+        await act(async () => {
+          await expect(callArgs.form.submit()).rejects.toThrow()
+        })
+
+        expect(mockAddToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          translateKey: QUOTE_SAVE_FAILED_TOAST_KEY,
+        })
+
+        expect(result.current.entities).not.toHaveProperty('local-uuid-1')
       })
     })
   })
