@@ -25,8 +25,8 @@ import {
   INVOICES_ROUTE,
   PAYMENT_DETAILS_ROUTE,
   PAYMENTS_ROUTE,
-  PLAN_CATALOG_ROUTE,
   PLAN_DETAILS_ROUTE,
+  PLAN_PRICING_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   PLANS_ROUTE,
   PRODUCT_CATALOG_ROUTE,
@@ -145,9 +145,9 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
     {
       title: translate('text_62442e40cea25600b0b6d85a'),
       icon: 'board',
-      link: PLAN_CATALOG_ROUTE,
+      link: PLAN_PRICING_ROUTE,
       canBeClickedOnActive: true,
-      match: [PLAN_CATALOG_ROUTE],
+      match: [PLAN_PRICING_ROUTE],
       hidden: !hasFeatureFlag(FeatureFlagEnum.ProductCatalog) || !hasPermissions(['plansView']),
     },
   ]

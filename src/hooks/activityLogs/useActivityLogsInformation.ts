@@ -138,6 +138,18 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.PlanCreated:
       case ActivityTypeEnum.PlanDeleted:
       case ActivityTypeEnum.PlanUpdated:
+      case ActivityTypeEnum.ProductCreated:
+      case ActivityTypeEnum.ProductUpdated:
+      case ActivityTypeEnum.ProductDeleted:
+      case ActivityTypeEnum.ProductItemCreated:
+      case ActivityTypeEnum.ProductItemUpdated:
+      case ActivityTypeEnum.ProductItemDeleted:
+      case ActivityTypeEnum.ProductItemFilterCreated:
+      case ActivityTypeEnum.ProductItemFilterUpdated:
+      case ActivityTypeEnum.ProductItemFilterDeleted:
+      case ActivityTypeEnum.RateCardCreated:
+      case ActivityTypeEnum.RateCardUpdated:
+      case ActivityTypeEnum.RateCardDeleted:
         parameters = {
           code: activityObject.code,
         }
@@ -257,22 +269,6 @@ export const useActivityLogsInformation = () => {
         parameters = {
           walletId: activityObject.lago_wallet_id,
           transactionId: activityObject.lago_id,
-        }
-        break
-      case ActivityTypeEnum.ProductCreated:
-      case ActivityTypeEnum.ProductUpdated:
-      case ActivityTypeEnum.ProductDeleted:
-      case ActivityTypeEnum.ProductItemCreated:
-      case ActivityTypeEnum.ProductItemUpdated:
-      case ActivityTypeEnum.ProductItemDeleted:
-      case ActivityTypeEnum.ProductItemFilterCreated:
-      case ActivityTypeEnum.ProductItemFilterUpdated:
-      case ActivityTypeEnum.ProductItemFilterDeleted:
-      case ActivityTypeEnum.RateCardCreated:
-      case ActivityTypeEnum.RateCardUpdated:
-      case ActivityTypeEnum.RateCardDeleted:
-        parameters = {
-          code: activityObject.code,
         }
         break
       default:

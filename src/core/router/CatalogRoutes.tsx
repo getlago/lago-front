@@ -6,7 +6,7 @@ const Plans = lazyLoad(() => import('~/pages/catalog/Plans'))
 
 export const PRODUCT_CATALOG_ROUTE = '/product-catalog'
 export const PRODUCT_CATALOG_TAB_ROUTE = '/product-catalog/:tab'
-export const PLAN_CATALOG_ROUTE = '/plan-catalog'
+export const PLAN_PRICING_ROUTE = '/plan-pricing'
 
 export const catalogRoutes: CustomRouteObject[] = [
   {
@@ -16,7 +16,7 @@ export const catalogRoutes: CustomRouteObject[] = [
     permissionsOr: ['productsView', 'productItemsView', 'productItemFiltersView', 'rateCardsView'],
   },
   {
-    path: [PLAN_CATALOG_ROUTE],
+    path: [PLAN_PRICING_ROUTE],
     private: true,
     element: <Plans />,
     permissions: ['plansView'],
