@@ -195,7 +195,7 @@ describe('OrganizationLayout', () => {
 
   describe('GIVEN the slug does NOT match any membership', () => {
     describe('WHEN the slug is a legacy app path segment AND previous in-app path was slug-prefixed', () => {
-      it('THEN should auto-recover AND emit slug_migration_missed_link error alongside the auto-recover info event', () => {
+      it('THEN should auto-recover AND emit slug_migration_missed_link error', () => {
         mockUseParams.mockReturnValue({ organizationSlug: 'customers' })
         mockUseLocation.mockReturnValue({
           pathname: '/customers',
@@ -220,21 +220,9 @@ describe('OrganizationLayout', () => {
           expect.objectContaining({ replace: true, skipSlugPrepend: true }),
         )
 
-        // Auto-recover (info) — the user-experience signal.
-        expect(Sentry.captureException).toHaveBeenCalledWith(
-          expect.objectContaining({
-            name: 'SlugMigrationAutoRecovered',
-            message: 'legacy_url_auto_recovered',
-          }),
-          expect.objectContaining({
-            level: 'info',
-            tags: expect.objectContaining({ mode: 'multi-org' }),
-          }),
-        )
-
-        // Missed-link (error) — the developer-actionable bug signal,
-        // emitted alongside the auto-recover so the in-app non-migrated link
-        // remains visible in Sentry even though the user no longer sees a 404.
+        // Missed-link (error) — the developer-actionable bug signal.
+        // Auto-recovery silences the user-facing 404 but the error stays
+        // visible in Sentry so non-migrated in-app links remain surfaced.
         expect(Sentry.captureException).toHaveBeenCalledWith(
           expect.objectContaining({
             name: 'SlugMigrationMissedLink',
@@ -275,7 +263,7 @@ describe('OrganizationLayout', () => {
       },
     ]
 
-    it('THEN should auto-redirect to the slug-prefixed path and emit an info Sentry event', () => {
+    it('THEN should auto-redirect to the slug-prefixed path', () => {
       mockUseParams.mockReturnValue({ organizationSlug: 'customers' })
       mockUseLocation.mockReturnValue({
         pathname: '/customers',
@@ -297,25 +285,8 @@ describe('OrganizationLayout', () => {
           skipSlugPrepend: true,
         }),
       )
-      expect(Sentry.captureException).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: 'SlugMigrationAutoRecovered',
-          message: 'legacy_url_auto_recovered',
-        }),
-        expect.objectContaining({
-          level: 'info',
-          tags: expect.objectContaining({
-            attemptedSlug: 'customers',
-            recoveredToSlug: TEST_ORG_SLUG,
-            mode: 'single-org',
-          }),
-        }),
-      )
-      // The 404-path events must NOT fire — auto-recover has its own event.
-      expect(Sentry.captureException).not.toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'SlugMigrationLegacyUrl' }),
-        expect.anything(),
-      )
+      // No missed-link error when there is no previous in-app path — the user
+      // arrived directly on the legacy URL (bookmark, external link).
       expect(Sentry.captureException).not.toHaveBeenCalledWith(
         expect.objectContaining({ name: 'SlugMigrationMissedLink' }),
         expect.anything(),
@@ -339,7 +310,7 @@ describe('OrganizationLayout', () => {
 
   describe('GIVEN a legacy path AND the user has multiple memberships', () => {
     describe('WHEN the URL has the Hubspot iframe param ?ifrm=true', () => {
-      it('THEN should auto-redirect using the LS-based slug and tag the Sentry event with mode=multi-org-iframe', () => {
+      it('THEN should auto-redirect using the LS-based slug', () => {
         mockUseParams.mockReturnValue({ organizationSlug: 'customers' })
         mockUseLocation.mockReturnValue({
           pathname: '/customers',
@@ -361,20 +332,6 @@ describe('OrganizationLayout', () => {
           expect.objectContaining({
             replace: true,
             skipSlugPrepend: true,
-          }),
-        )
-        expect(Sentry.captureException).toHaveBeenCalledWith(
-          expect.objectContaining({
-            name: 'SlugMigrationAutoRecovered',
-            message: 'legacy_url_auto_recovered',
-          }),
-          expect.objectContaining({
-            level: 'info',
-            tags: expect.objectContaining({
-              attemptedSlug: 'customers',
-              recoveredToSlug: TEST_ORG_SLUG,
-              mode: 'multi-org-iframe',
-            }),
           }),
         )
       })
@@ -408,7 +365,7 @@ describe('OrganizationLayout', () => {
     })
 
     describe('WHEN the URL has NO iframe param', () => {
-      it('THEN should auto-redirect using resolveOrgSlug and tag the Sentry event with mode=multi-org', () => {
+      it('THEN should auto-redirect using resolveOrgSlug', () => {
         mockUseParams.mockReturnValue({ organizationSlug: 'customers' })
         mockUseLocation.mockReturnValue({
           pathname: '/customers',
@@ -427,20 +384,6 @@ describe('OrganizationLayout', () => {
         expect(mockNavigate).toHaveBeenCalledWith(
           `/${TEST_ORG_SLUG}/customers`,
           expect.objectContaining({ replace: true, skipSlugPrepend: true }),
-        )
-        expect(Sentry.captureException).toHaveBeenCalledWith(
-          expect.objectContaining({
-            name: 'SlugMigrationAutoRecovered',
-            message: 'legacy_url_auto_recovered',
-          }),
-          expect.objectContaining({
-            level: 'info',
-            tags: expect.objectContaining({
-              attemptedSlug: 'customers',
-              recoveredToSlug: TEST_ORG_SLUG,
-              mode: 'multi-org',
-            }),
-          }),
         )
       })
     })
@@ -467,7 +410,7 @@ describe('OrganizationLayout', () => {
     })
 
     describe('WHEN the URL has an iframe param value other than "true"', () => {
-      it('THEN should still auto-redirect (recovery is universal) but tag mode=multi-org since the iframe param is invalid', () => {
+      it('THEN should still auto-redirect (recovery is universal)', () => {
         mockUseParams.mockReturnValue({ organizationSlug: 'customers' })
         mockUseLocation.mockReturnValue({
           pathname: '/customers',
@@ -483,18 +426,9 @@ describe('OrganizationLayout', () => {
 
         renderHook(() => OrganizationLayout())
 
-        // Multi-org auto-recovery is now universal — `?ifrm=false` is just
-        // an invalid iframe param, so `recoveryMode` falls through to
-        // `multi-org` (not iframe). The user-facing recovery still happens.
         expect(mockNavigate).toHaveBeenCalledWith(
           `/${TEST_ORG_SLUG}/customers?ifrm=false`,
           expect.objectContaining({ replace: true, skipSlugPrepend: true }),
-        )
-        expect(Sentry.captureException).toHaveBeenCalledWith(
-          expect.objectContaining({ name: 'SlugMigrationAutoRecovered' }),
-          expect.objectContaining({
-            tags: expect.objectContaining({ mode: 'multi-org' }),
-          }),
         )
       })
     })

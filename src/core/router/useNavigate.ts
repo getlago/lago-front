@@ -25,10 +25,11 @@ type SlugAwareNavigate = (to: To | number, options?: NavigateOptions) => void
  * Slug-aware `useNavigate` wrapper.
  *
  * Transparently prepends `/${organizationSlug}` to absolute string targets
- * so call sites keep writing `navigate('/customers')` while the URL ends up
- * `/${slug}/customers`. Pass-through for:
+ * AND to the `pathname` of object-form targets, so call sites keep writing
+ * `navigate('/customers')` or `navigate({ pathname: '/customers', search })`
+ * while the URL ends up `/${slug}/customers`. Pass-through for:
  * - `navigate(-1)` / any number (history delta)
- * - `navigate({ search, pathname })` object form
+ * - object-form targets without a `pathname` (`{ search }` only — same page)
  * - targets starting with any `NEVER_SLUG_PREFIXES` entry
  * - targets already starting with `/${organizationSlug}/` (no double-prepend)
  * - the root path `/` (HOME_ROUTE lives outside org scope)
@@ -49,8 +50,14 @@ export const useNavigate = (): SlugAwareNavigate => {
 
     const { skipSlugPrepend, ...rrOptions } = options || {}
 
-    const finalTo =
-      !skipSlugPrepend && typeof to === 'string' ? prependOrgSlug(to, organizationSlug) : to
+    const finalTo = (() => {
+      if (skipSlugPrepend) return to
+      if (typeof to === 'string') return prependOrgSlug(to, organizationSlug)
+      if (to && typeof to === 'object' && to.pathname) {
+        return { ...to, pathname: prependOrgSlug(to.pathname, organizationSlug) }
+      }
+      return to
+    })()
 
     // Only forward options when the caller actually provided any — otherwise
     // we'd change the call shape to `rrNavigate(path, {})`, which leaks into

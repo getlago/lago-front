@@ -214,12 +214,12 @@ export const CustomerInvoiceBalancesBreakdown = ({
                   params.set('billingEntityId', billingEntityId)
                 }
 
-                navigate({
-                  pathname: generatePath(CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE, {
-                    customerId: customerId ?? '',
-                  }),
-                  search: params.toString() ? `?${params.toString()}` : '',
+                const pathname = generatePath(CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE, {
+                  customerId: customerId ?? '',
                 })
+                const search = params.toString()
+
+                navigate(search ? `${pathname}?${search}` : pathname)
               }}
             >
               {translate('text_66b258f62100490d0eb5caa2')}

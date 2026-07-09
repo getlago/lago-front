@@ -87,14 +87,49 @@ describe('useNavigate', () => {
       })
     })
 
-    describe('WHEN navigating with an object To', () => {
-      it('THEN should pass the object through without slug prepend', () => {
+    describe('WHEN navigating with an object To that has a pathname', () => {
+      it('THEN should prepend the slug to the pathname and preserve other fields', () => {
         const { result } = renderHook(() => useNavigate())
-        const to = { pathname: '/customers', search: '?page=2' }
+
+        result.current({ pathname: '/customers', search: '?page=2' })
+
+        expect(mockNavigate).toHaveBeenCalledWith({
+          pathname: '/acme/customers',
+          search: '?page=2',
+        })
+      })
+
+      it('THEN should not double-prepend an already-prefixed pathname', () => {
+        const { result } = renderHook(() => useNavigate())
+
+        result.current({ pathname: '/acme/customers', search: '?page=2' })
+
+        expect(mockNavigate).toHaveBeenCalledWith({
+          pathname: '/acme/customers',
+          search: '?page=2',
+        })
+      })
+    })
+
+    describe('WHEN navigating with an object To without a pathname', () => {
+      it('THEN should pass the object through unchanged (search-only nav stays on current page)', () => {
+        const { result } = renderHook(() => useNavigate())
+        const to = { search: '?filter=active' }
 
         result.current(to)
 
         expect(mockNavigate).toHaveBeenCalledWith(to)
+      })
+    })
+
+    describe('WHEN navigating with an object To and skipSlugPrepend', () => {
+      it('THEN should pass the object through unchanged', () => {
+        const { result } = renderHook(() => useNavigate())
+        const to = { pathname: '/other-org/customers', search: '?page=2' }
+
+        result.current(to, { skipSlugPrepend: true })
+
+        expect(mockNavigate).toHaveBeenCalledWith(to, {})
       })
     })
   })
