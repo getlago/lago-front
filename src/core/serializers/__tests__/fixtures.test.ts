@@ -1,3 +1,5 @@
+import { CurrencyEnum } from '~/generated/graphql'
+
 import { addOnBillingItemsFixture, planBillingItemsFixture } from './fixtures'
 
 import { fromBillingItems } from '../serializeQuoteBillingItems'
@@ -6,7 +8,10 @@ import { fromPlanBillingItems } from '../serializeQuotePlanBillingItems'
 describe('billing items fixtures', () => {
   describe('addOnBillingItemsFixture', () => {
     it('deserializes the add-on payload (code/name/description) and applies overrides', () => {
-      const { addOnItems, originalPayloads } = fromBillingItems(addOnBillingItemsFixture)
+      const { addOnItems, originalPayloads } = fromBillingItems(
+        addOnBillingItemsFixture,
+        CurrencyEnum.Usd,
+      )
 
       expect(addOnItems).toHaveLength(1)
 
@@ -15,9 +20,9 @@ describe('billing items fixtures', () => {
       expect(item.code).toBe('setup_fee')
       expect(item.name).toBe('Setup Fee')
       expect(item.description).toBe('One-time onboarding and setup')
-      // override wins over baseline payload
-      expect(item.unitAmountCents).toBe('45000')
-      expect(item.totalAmount).toBe('45000')
+      // override wins over baseline payload; cents are deserialized to units for the form
+      expect(item.unitAmountCents).toBe('450')
+      expect(item.totalAmount).toBe('450')
 
       // original (pre-override) payload is preserved, keyed by localId
       const original = originalPayloads['a1b2c3d4-e5f6-0000-1111-222233334444']

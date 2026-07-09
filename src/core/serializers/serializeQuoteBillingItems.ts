@@ -1,6 +1,8 @@
 import type { EntityData } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
 import type { AddOnItem } from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
+import { CurrencyEnum } from '~/generated/graphql'
 
+import { deserializeAmount, serializeAmount } from './serializeAmount'
 import { type BillingItemCoupon, fromCoupons } from './serializeQuoteCoupons'
 import { type BillingItemPlan, fromPlanBillingItems } from './serializeQuotePlanBillingItems'
 
@@ -50,6 +52,7 @@ const normalizeDateTime = (value: string): string | null => (value === '' ? null
 export const toBillingItems = (
   addOnItems: AddOnItem[],
   originalPayloads: Record<string, AddOnPayload>,
+  currency: CurrencyEnum = CurrencyEnum.Usd,
 ): Required<Pick<BillingItemsPayload, 'addons'>> => {
   const addons: BillingItemAddon[] = addOnItems.map((item, index) => {
     const original = originalPayloads[item.localId] ?? originalPayloads[item.addOnId]
@@ -57,10 +60,12 @@ export const toBillingItems = (
 
     const overrides: Partial<OverridableFields> = {}
 
-    // Compare each overridable field
+    // Compare each overridable field. The form holds amounts in currency units
+    // (e.g. "10" for $10); the payload/overrides store cents per the backend
+    // contract, so convert with the quote currency before diffing.
     const formUnits = Number(item.units)
-    const formUnitAmountCents = Number(item.unitAmountCents)
-    const formTotalAmountCents = Number(item.totalAmount)
+    const formUnitAmountCents = serializeAmount(item.unitAmountCents, currency)
+    const formTotalAmountCents = serializeAmount(item.totalAmount, currency)
     const formFromDatetime = normalizeDateTime(item.fromDatetime)
     const formToDatetime = normalizeDateTime(item.toDatetime)
 
@@ -103,7 +108,10 @@ interface FromBillingItemsResult {
   originalPayloads: Record<string, AddOnPayload>
 }
 
-export const fromBillingItems = (billingItems: BillingItemsPayload): FromBillingItemsResult => {
+export const fromBillingItems = (
+  billingItems: BillingItemsPayload,
+  currency?: CurrencyEnum,
+): FromBillingItemsResult => {
   const entities: Record<string, EntityData> = {}
   const addOnItems: AddOnItem[] = []
   const originalPayloads: Record<string, AddOnPayload> = {}
@@ -128,6 +136,16 @@ export const fromBillingItems = (billingItems: BillingItemsPayload): FromBilling
       to_datetime: overrides.to_datetime ?? payload.to_datetime,
     }
 
+    // Payload stores cents; the form and preview expect currency units. With no
+    // currency we can't know the decimal precision, so we leave the amounts empty
+    // rather than fabricate a wrong-scaled value under a default currency.
+    const unitAmountCents = currency
+      ? String(deserializeAmount(effective.unit_amount_cents, currency))
+      : ''
+    const totalAmount = currency
+      ? String(deserializeAmount(effective.total_amount_cents, currency))
+      : ''
+
     entities[localId] = {
       entityId: localId,
       entityType: 'addOn',
@@ -136,8 +154,8 @@ export const fromBillingItems = (billingItems: BillingItemsPayload): FromBilling
       code: payload.code,
       description: effective.description,
       units: String(effective.units),
-      unitAmountCents: String(effective.unit_amount_cents),
-      totalAmount: String(effective.total_amount_cents),
+      unitAmountCents,
+      totalAmount,
       fromDatetime: effective.from_datetime ?? '',
       toDatetime: effective.to_datetime ?? '',
     }
@@ -150,8 +168,8 @@ export const fromBillingItems = (billingItems: BillingItemsPayload): FromBilling
       code: payload.code,
       description: effective.description,
       units: String(effective.units),
-      unitAmountCents: String(effective.unit_amount_cents),
-      totalAmount: String(effective.total_amount_cents),
+      unitAmountCents,
+      totalAmount,
       fromDatetime: effective.from_datetime ?? '',
       toDatetime: effective.to_datetime ?? '',
     })
@@ -174,8 +192,9 @@ export const fromBillingItems = (billingItems: BillingItemsPayload): FromBilling
  */
 export const buildPreviewEntities = (
   billingItems: BillingItemsPayload,
+  currency?: CurrencyEnum,
 ): Record<string, EntityData> => {
-  const { entities, addOnItems } = fromBillingItems(billingItems)
+  const { entities, addOnItems } = fromBillingItems(billingItems, currency)
   const previewEntities: Record<string, EntityData> = { ...entities }
 
   for (const item of addOnItems) {

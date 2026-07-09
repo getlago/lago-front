@@ -4,9 +4,10 @@ import type {
   LocalUsageChargeInput,
   PlanFormInput,
 } from '~/components/plans/types'
-import { CommitmentTypeEnum } from '~/generated/graphql'
+import { CommitmentTypeEnum, CurrencyEnum } from '~/generated/graphql'
 
 import { buildPlanPreviewData } from './buildPlanPreviewData'
+import { deserializeAmount, serializeAmount } from './serializeAmount'
 
 // Re-export so consumers can import PlanFormInput from this serializer module.
 export type { PlanFormInput }
@@ -285,8 +286,14 @@ const serializeFixedCharge = (charge: LocalFixedChargeInput): SerializedFixedCha
 export const buildPlanOverrides = (formValues: PlanFormInput): PlanOverrides => {
   const overrides: PlanOverrides = {}
 
+  // Form amounts are in currency units (e.g. "10" for $10); the backend
+  // contract expects cents. Convert with the plan currency before writing.
+  const currency = (formValues.amountCurrency as CurrencyEnum) ?? CurrencyEnum.Usd
+
   // Subscription fee
-  overrides.amount_cents = Number(formValues.amountCents) || undefined
+  overrides.amount_cents = Number(formValues.amountCents)
+    ? serializeAmount(formValues.amountCents, currency)
+    : undefined
   if (formValues.invoiceDisplayName) {
     overrides.invoice_display_name = formValues.invoiceDisplayName || undefined
   }
@@ -319,7 +326,7 @@ export const buildPlanOverrides = (formValues: PlanFormInput): PlanOverrides => 
 
   if (mcAmount && !Number.isNaN(Number(mcAmount)) && Number(mcAmount) > 0) {
     overrides.minimum_commitment = {
-      amount_cents: Number(mcAmount),
+      amount_cents: serializeAmount(mcAmount, currency),
       invoice_display_name: formValues.minimumCommitment?.invoiceDisplayName || undefined,
     }
   }
@@ -327,14 +334,14 @@ export const buildPlanOverrides = (formValues: PlanFormInput): PlanOverrides => 
   // Progressive billing (usage thresholds)
   const thresholds = [
     ...(formValues.nonRecurringUsageThresholds ?? []).map((t) => ({
-      amount_cents: Number(t.amountCents),
+      amount_cents: serializeAmount(t.amountCents, currency),
       recurring: false as const,
       threshold_display_name: t.thresholdDisplayName ?? undefined,
     })),
     ...(formValues.recurringUsageThreshold
       ? [
           {
-            amount_cents: Number(formValues.recurringUsageThreshold.amountCents),
+            amount_cents: serializeAmount(formValues.recurringUsageThreshold.amountCents, currency),
             recurring: true as const,
             threshold_display_name:
               formValues.recurringUsageThreshold.thresholdDisplayName ?? undefined,
@@ -376,8 +383,15 @@ export const toPlanBillingItems = (
   }
 
   if (formValues) {
+    const currency = (formValues.amountCurrency as CurrencyEnum) ?? CurrencyEnum.Usd
+    // Form amounts are currency units; persist cents per the backend contract.
+    const toCentsString = (value: string | number | null | undefined): string =>
+      value === '' || value === null || value === undefined
+        ? ''
+        : String(serializeAmount(value, currency))
+
     payload.interval = formValues.interval
-    payload.amount_cents = String(formValues.amountCents ?? '')
+    payload.amount_cents = toCentsString(formValues.amountCents)
     payload.amount_currency = formValues.amountCurrency
     payload.pay_in_advance = formValues.payInAdvance ?? false
     payload.bill_charges_monthly = formValues.billChargesMonthly ?? null
@@ -391,7 +405,7 @@ export const toPlanBillingItems = (
     payload.minimum_commitment = formValues.minimumCommitment
       ? {
           id: formValues.minimumCommitment.id ?? undefined,
-          amount_cents: String(formValues.minimumCommitment.amountCents ?? ''),
+          amount_cents: toCentsString(formValues.minimumCommitment.amountCents),
           invoice_display_name:
             (formValues.minimumCommitment.invoiceDisplayName as string | null) ?? null,
           commitment_type: String(
@@ -404,7 +418,7 @@ export const toPlanBillingItems = (
     payload.non_recurring_usage_thresholds = (formValues.nonRecurringUsageThresholds ?? []).map(
       (t) => ({
         id: undefined,
-        amount_cents: t.amountCents as number | string,
+        amount_cents: serializeAmount(t.amountCents, currency),
         threshold_display_name: (t.thresholdDisplayName as string | null) ?? null,
         recurring: t.recurring ?? false,
       }),
@@ -412,7 +426,7 @@ export const toPlanBillingItems = (
     payload.recurring_usage_threshold = formValues.recurringUsageThreshold
       ? {
           id: undefined,
-          amount_cents: formValues.recurringUsageThreshold.amountCents as number | string,
+          amount_cents: serializeAmount(formValues.recurringUsageThreshold.amountCents, currency),
           threshold_display_name:
             (formValues.recurringUsageThreshold.thresholdDisplayName as string | null) ?? null,
           recurring: formValues.recurringUsageThreshold.recurring ?? true,
@@ -529,9 +543,14 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
   let formValues: PlanFormInput | null = null
 
   if (hasFullPlanData) {
+    // Payload stores cents; the plan form expects currency units.
+    const currency = (payload.amount_currency as CurrencyEnum) ?? CurrencyEnum.Usd
+
     formValues = {
       interval: payload.interval as PlanFormInput['interval'],
-      amountCents: payload.amount_cents as PlanFormInput['amountCents'],
+      amountCents: String(
+        deserializeAmount(payload.amount_cents || 0, currency),
+      ) as PlanFormInput['amountCents'],
       amountCurrency: payload.amount_currency as PlanFormInput['amountCurrency'],
       payInAdvance: payload.pay_in_advance ?? false,
       billChargesMonthly: payload.bill_charges_monthly ?? undefined,
@@ -545,7 +564,9 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
       minimumCommitment: payload.minimum_commitment
         ? {
             id: payload.minimum_commitment.id ?? undefined,
-            amountCents: payload.minimum_commitment.amount_cents,
+            amountCents: String(
+              deserializeAmount(payload.minimum_commitment.amount_cents || 0, currency),
+            ),
             invoiceDisplayName: payload.minimum_commitment.invoice_display_name ?? undefined,
             commitmentType: payload.minimum_commitment.commitment_type as CommitmentTypeEnum,
             taxCodes: payload.minimum_commitment.tax_codes ?? [],
@@ -553,13 +574,16 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
           }
         : undefined,
       nonRecurringUsageThresholds: (payload.non_recurring_usage_thresholds ?? []).map((t) => ({
-        amountCents: t.amount_cents,
+        amountCents: deserializeAmount(t.amount_cents || 0, currency),
         thresholdDisplayName: t.threshold_display_name ?? undefined,
         recurring: t.recurring,
       })) as PlanFormInput['nonRecurringUsageThresholds'],
       recurringUsageThreshold: payload.recurring_usage_threshold
         ? {
-            amountCents: payload.recurring_usage_threshold.amount_cents,
+            amountCents: deserializeAmount(
+              payload.recurring_usage_threshold.amount_cents || 0,
+              currency,
+            ),
             thresholdDisplayName:
               payload.recurring_usage_threshold.threshold_display_name ?? undefined,
             recurring: payload.recurring_usage_threshold.recurring,

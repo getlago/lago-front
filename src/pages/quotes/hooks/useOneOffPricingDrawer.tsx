@@ -44,6 +44,14 @@ export const useOneOffPricingDrawer = (
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
   const formDrawer = useFormDrawer()
+
+  // The quote currency drives amount cents (de)serialization. Kept in a ref so
+  // the stable callbacks (form onSubmit, syncEntitiesWithBlocks) always read the
+  // latest value without depending on it.
+  const currency = quoteCurrency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
+  const currencyRef = useRef(currency)
+
+  currencyRef.current = currency
   const entitiesRef = useRef<Record<string, EntityData>>({})
   const [entities, setEntities] = useState<Record<string, EntityData>>({})
   const payloadsRef = useRef<Record<string, AddOnPayload>>({})
@@ -65,7 +73,11 @@ export const useOneOffPricingDrawer = (
 
     if (!parsed.addons?.length) return
 
-    const { entities: formattedEntities, originalPayloads, addOnItems } = fromBillingItems(parsed)
+    const {
+      entities: formattedEntities,
+      originalPayloads,
+      addOnItems,
+    } = fromBillingItems(parsed, currency)
 
     // Populate catalogIdMap and add backward-compat entries keyed by catalog addOnId
     // so old TipTap entityIds (catalog IDs) can still resolve
@@ -86,7 +98,7 @@ export const useOneOffPricingDrawer = (
     entitiesRef.current = updated
     setEntities(updated)
     payloadsRef.current = { ...payloadsRef.current, ...originalPayloads, ...backwardCompatPayloads }
-  }, [initialBillingItems])
+  }, [initialBillingItems, currency])
 
   const captureAddOnPayload = useCallback(
     (localId: string, addOn: AddOnForPricingSectionFragment) => {
@@ -195,7 +207,7 @@ export const useOneOffPricingDrawer = (
         }
       })
 
-      const billingItems = toBillingItems(confirmedItems, payloadsRef.current)
+      const billingItems = toBillingItems(confirmedItems, payloadsRef.current, currencyRef.current)
 
       onSaveRef.current?.(
         {
@@ -219,8 +231,6 @@ export const useOneOffPricingDrawer = (
       if (!editData && Object.keys(entitiesRef.current).length > 0) {
         return
       }
-
-      const currency = quoteCurrency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
 
       onSaveRef.current = onSave
 
@@ -287,7 +297,7 @@ export const useOneOffPricingDrawer = (
         ),
       })
     },
-    [formDrawer, translate, organization?.defaultCurrency, form, captureAddOnPayload],
+    [formDrawer, translate, currency, form, captureAddOnPayload],
   )
 
   const syncEntitiesWithBlocks = useCallback(
@@ -354,7 +364,7 @@ export const useOneOffPricingDrawer = (
         })
         .filter((item): item is AddOnItem => item !== null)
 
-      return toBillingItems(survivingItems, payloadsRef.current)
+      return toBillingItems(survivingItems, payloadsRef.current, currencyRef.current)
     },
     [],
   )

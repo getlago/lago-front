@@ -22,7 +22,7 @@ describe('buildQuotePreviewProps', () => {
 
     const result = buildQuotePreviewProps({ version, customer })
 
-    expect(buildPreviewEntities).toHaveBeenCalledWith({ addons: [] })
+    expect(buildPreviewEntities).toHaveBeenCalledWith({ addons: [] }, CurrencyEnum.Eur)
     expect(result).toEqual({
       content: '<p>Hi</p>',
       entities: { 'addon-1': { entityId: 'addon-1' } },
