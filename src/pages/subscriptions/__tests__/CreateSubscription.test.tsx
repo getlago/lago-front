@@ -1,9 +1,14 @@
+import NiceModal from '@ebay/nice-modal-react'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
+import { CENTRALIZED_DIALOG_NAME } from '~/components/dialogs/const'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import CreateSubscription from '../CreateSubscription'
+
+NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
 // --- Mock state ---
 
@@ -311,9 +316,14 @@ jest.mock('~/components/customers/subscriptions/SubscriptionDatesOffsetHelperCom
 // --- Helpers ---
 
 const renderCreateSubscription = () =>
-  render(<CreateSubscription />, {
-    mocks: [],
-  })
+  render(
+    <NiceModal.Provider>
+      <CreateSubscription />
+    </NiceModal.Provider>,
+    {
+      mocks: [],
+    },
+  )
 
 // --- Tests ---
 
