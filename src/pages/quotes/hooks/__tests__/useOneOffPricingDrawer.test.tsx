@@ -161,18 +161,18 @@ const mockAddOnPayload = {
   name: 'Setup Fee',
   description: 'One-time setup fee',
   units: 1,
-  unit_amount_cents: 10000,
-  total_amount_cents: 10000,
-  invoice_display_name: 'Setup',
-  from_datetime: null,
-  to_datetime: null,
-  tax_codes: ['vat_20'],
+  unitAmountCents: 10000,
+  totalAmountCents: 10000,
+  invoiceDisplayName: 'Setup',
+  fromDatetime: null,
+  toDatetime: null,
+  taxCodes: ['vat_20'],
 }
 
 const mockBillingItemsPayload = {
-  addons: [
+  addOns: [
     {
-      type: 'addon' as const,
+      type: 'add_on' as const,
       id: 'addon-1',
       payload: mockAddOnPayload,
       overrides: {},
@@ -277,7 +277,7 @@ describe('useOneOffPricingDrawer', () => {
 
     describe('WHEN initialBillingItems has no addons', () => {
       it('THEN should not call fromBillingItems', () => {
-        const emptyPayload = { addons: [] }
+        const emptyPayload = { addOns: [] }
 
         renderHook(() => useOneOffPricingDrawer(emptyPayload), { wrapper })
 
@@ -543,13 +543,13 @@ describe('useOneOffPricingDrawer', () => {
         })
 
         const rebuilt = {
-          addons: [
+          addOns: [
             {
-              type: 'addon' as const,
+              type: 'add_on' as const,
               id: 'addon-1',
               localId: 'local-uuid-1',
               payload: mockAddOnPayload,
-              overrides: { units: 2, unit_amount_cents: 2000, total_amount_cents: 4000 },
+              overrides: { units: 2, unitAmountCents: 2000, totalAmountCents: 4000 },
             },
           ],
         }
@@ -557,15 +557,15 @@ describe('useOneOffPricingDrawer', () => {
         mockedToBillingItems.mockReturnValueOnce(rebuilt)
 
         const billingItemsWithTwo = {
-          addons: [
+          addOns: [
             {
-              type: 'addon' as const,
+              type: 'add_on' as const,
               id: 'addon-1',
               payload: mockAddOnPayload,
               overrides: {},
             },
             {
-              type: 'addon' as const,
+              type: 'add_on' as const,
               id: 'addon-2',
               payload: secondPayload,
               overrides: {},
@@ -1024,7 +1024,7 @@ describe('useOneOffPricingDrawer', () => {
               message: 'Unprocessable Entity',
               extensions: {
                 code: 'unprocessable_entity',
-                details: { 'billingItems.add_ons.0.unit_amount_cents': ['value_is_invalid'] },
+                details: { 'billingItems.add_ons.0.unitAmountCents': ['value_is_invalid'] },
               },
             } as never,
           ],

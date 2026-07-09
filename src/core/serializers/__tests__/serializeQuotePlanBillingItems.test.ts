@@ -65,13 +65,13 @@ const baseBillingItemPlan: BillingItemPlan = {
     code: 'enterprise',
     name: 'Enterprise Plan',
     description: 'Custom enterprise offering',
-    subscription_external_id: null,
-    subscription_name: null,
-    billing_time: 'anniversary',
-    start_date: '2023-07-26',
-    end_date: null,
-    payment_method_id: null,
-    invoice_custom_footer: null,
+    subscriptionExternalId: null,
+    subscriptionName: null,
+    billingTime: 'anniversary',
+    startDate: '2023-07-26',
+    endDate: null,
+    paymentMethodId: null,
+    invoiceCustomFooter: null,
   },
   overrides: {},
 }
@@ -90,21 +90,21 @@ describe('toPlanBillingItems', () => {
     expect(result.plans[0].payload.code).toBe('enterprise')
     expect(result.plans[0].payload.name).toBe('Enterprise Plan')
     expect(result.plans[0].payload.description).toBe('Custom enterprise offering')
-    expect(result.plans[0].payload.billing_time).toBe('anniversary')
-    expect(result.plans[0].payload.subscription_external_id).toBeNull()
-    expect(result.plans[0].payload.subscription_name).toBeNull()
-    expect(result.plans[0].payload.end_date).toBeNull()
-    expect(result.plans[0].payload.payment_method_id).toBeNull()
-    expect(result.plans[0].payload.invoice_custom_footer).toBeNull()
+    expect(result.plans[0].payload.billingTime).toBe('anniversary')
+    expect(result.plans[0].payload.subscriptionExternalId).toBeNull()
+    expect(result.plans[0].payload.subscriptionName).toBeNull()
+    expect(result.plans[0].payload.endDate).toBeNull()
+    expect(result.plans[0].payload.paymentMethodId).toBeNull()
+    expect(result.plans[0].payload.invoiceCustomFooter).toBeNull()
     // New plan config fields from formValues
     expect(result.plans[0].payload.interval).toBe(PlanInterval.Monthly)
     // $850.00 (form units) is serialized to cents for the payload/overrides.
-    expect(result.plans[0].payload.amount_cents).toBe('85000')
-    expect(result.plans[0].payload.amount_currency).toBe(CurrencyEnum.Usd)
+    expect(result.plans[0].payload.amountCents).toBe('85000')
+    expect(result.plans[0].payload.amountCurrency).toBe(CurrencyEnum.Usd)
     expect(result.plans[0].payload.charges).toEqual([])
     // Overrides are derived from the form values: the subscription fee amount is
     // always carried over (no charges/commitment/thresholds in baseFormValues).
-    expect(result.plans[0].overrides).toEqual({ amount_cents: 85000 })
+    expect(result.plans[0].overrides).toEqual({ amountCents: 85000 })
   })
 
   it('includes subscription settings in the payload', () => {
@@ -120,10 +120,10 @@ describe('toPlanBillingItems', () => {
     }
     const result = toPlanBillingItems(state, baseFormValues)
 
-    expect(result.plans[0].payload.subscription_external_id).toBe('ext_001')
-    expect(result.plans[0].payload.subscription_name).toBe('My Subscription')
-    expect(result.plans[0].payload.billing_time).toBe('calendar')
-    expect(result.plans[0].payload.end_date).toBe('2024-07-26')
+    expect(result.plans[0].payload.subscriptionExternalId).toBe('ext_001')
+    expect(result.plans[0].payload.subscriptionName).toBe('My Subscription')
+    expect(result.plans[0].payload.billingTime).toBe('calendar')
+    expect(result.plans[0].payload.endDate).toBe('2024-07-26')
   })
 
   it('includes invoicing settings in the payload', () => {
@@ -136,8 +136,8 @@ describe('toPlanBillingItems', () => {
     }
     const result = toPlanBillingItems(state, baseFormValues)
 
-    expect(result.plans[0].payload.payment_method_id).toBe('pm_456')
-    expect(result.plans[0].payload.invoice_custom_footer).toBe('Custom footer text')
+    expect(result.plans[0].payload.paymentMethodId).toBe('pm_456')
+    expect(result.plans[0].payload.invoiceCustomFooter).toBe('Custom footer text')
   })
 
   it('derives overrides from the form values (single source of truth)', () => {
@@ -153,29 +153,29 @@ describe('toPlanBillingItems', () => {
 
     // Form amounts ($850.00 fee, $80,000 commitment) are serialized to cents.
     expect(result.plans[0].overrides).toEqual({
-      amount_cents: 85000,
-      minimum_commitment: { amount_cents: 8000000, invoice_display_name: undefined },
+      amountCents: 85000,
+      minimumCommitment: { amountCents: 8000000, invoiceDisplayName: undefined },
     })
   })
 
   it('falls back to state.overrides when no form values are provided', () => {
     const state: SubscriptionPricingState = {
       ...basePricingState,
-      overrides: { amount_cents: 85000 },
+      overrides: { amountCents: 85000 },
     }
     const result = toPlanBillingItems(state)
 
-    expect(result.plans[0].overrides).toEqual({ amount_cents: 85000 })
+    expect(result.plans[0].overrides).toEqual({ amountCents: 85000 })
   })
 
   it('converts empty strings to null for optional payload fields', () => {
     const result = toPlanBillingItems(basePricingState, baseFormValues)
 
-    expect(result.plans[0].payload.subscription_external_id).toBeNull()
-    expect(result.plans[0].payload.subscription_name).toBeNull()
-    expect(result.plans[0].payload.end_date).toBeNull()
-    expect(result.plans[0].payload.payment_method_id).toBeNull()
-    expect(result.plans[0].payload.invoice_custom_footer).toBeNull()
+    expect(result.plans[0].payload.subscriptionExternalId).toBeNull()
+    expect(result.plans[0].payload.subscriptionName).toBeNull()
+    expect(result.plans[0].payload.endDate).toBeNull()
+    expect(result.plans[0].payload.paymentMethodId).toBeNull()
+    expect(result.plans[0].payload.invoiceCustomFooter).toBeNull()
   })
 
   it('omits plan config fields when formValues is not provided', () => {
@@ -183,7 +183,7 @@ describe('toPlanBillingItems', () => {
 
     expect(result.plans[0].payload.interval).toBeUndefined()
     expect(result.plans[0].payload.charges).toBeUndefined()
-    expect(result.plans[0].payload.fixed_charges).toBeUndefined()
+    expect(result.plans[0].payload.fixedCharges).toBeUndefined()
   })
 })
 
@@ -196,10 +196,10 @@ describe('buildPlanOverrides', () => {
     const result = buildPlanOverrides({ ...baseFormValues, amountCents: '850.00' })
 
     // $850.00 → 85000 cents
-    expect(result.amount_cents).toBe(85000)
+    expect(result.amountCents).toBe(85000)
   })
 
-  it('omits amount_cents when the fee is zero or empty', () => {
+  it('omits amountCents when the fee is zero or empty', () => {
     expect(buildPlanOverrides({ ...baseFormValues, amountCents: '0' })).toEqual({})
     expect(buildPlanOverrides({ ...baseFormValues, amountCents: '' })).toEqual({})
   })
@@ -211,7 +211,7 @@ describe('buildPlanOverrides', () => {
       invoiceDisplayName: 'Platform fee',
     })
 
-    expect(result.invoice_display_name).toBe('Platform fee')
+    expect(result.invoiceDisplayName).toBe('Platform fee')
   })
 
   it('merges fixed charges and usage charges into overrides.charges', () => {
@@ -234,8 +234,8 @@ describe('buildPlanOverrides', () => {
     })
 
     expect(result.charges).toHaveLength(2)
-    expect(result.charges?.[0].billable_metric_code).toBe('setup_fee')
-    expect(result.charges?.[1].billable_metric_code).toBe('api_calls')
+    expect(result.charges?.[0].billableMetricCode).toBe('setup_fee')
+    expect(result.charges?.[1].billableMetricCode).toBe('api_calls')
   })
 
   it('includes a positive minimum commitment and ignores non-positive ones', () => {
@@ -249,9 +249,9 @@ describe('buildPlanOverrides', () => {
       },
     })
 
-    expect(positive.minimum_commitment).toEqual({
-      amount_cents: 500000,
-      invoice_display_name: 'Annual minimum',
+    expect(positive.minimumCommitment).toEqual({
+      amountCents: 500000,
+      invoiceDisplayName: 'Annual minimum',
     })
 
     const zero = buildPlanOverrides({
@@ -263,7 +263,7 @@ describe('buildPlanOverrides', () => {
       },
     })
 
-    expect(zero.minimum_commitment).toBeUndefined()
+    expect(zero.minimumCommitment).toBeUndefined()
   })
 
   it('builds usage thresholds from recurring and non-recurring thresholds', () => {
@@ -281,9 +281,9 @@ describe('buildPlanOverrides', () => {
     })
 
     // Threshold form amounts ($10,000 and $50,000 units) → cents
-    expect(result.usage_thresholds).toEqual([
-      { amount_cents: 1000000, recurring: false, threshold_display_name: 'Tier 1' },
-      { amount_cents: 5000000, recurring: true, threshold_display_name: 'Monthly cap' },
+    expect(result.usageThresholds).toEqual([
+      { amountCents: 1000000, recurring: false, thresholdDisplayName: 'Tier 1' },
+      { amountCents: 5000000, recurring: true, thresholdDisplayName: 'Monthly cap' },
     ])
   })
 })
@@ -308,11 +308,11 @@ describe('fromPlanBillingItems', () => {
       ...baseBillingItemPlan,
       payload: {
         ...baseBillingItemPlan.payload,
-        subscription_external_id: 'ext_001',
-        subscription_name: 'My Sub',
-        billing_time: 'calendar',
-        start_date: '2023-07-26',
-        end_date: '2024-07-26',
+        subscriptionExternalId: 'ext_001',
+        subscriptionName: 'My Sub',
+        billingTime: 'calendar',
+        startDate: '2023-07-26',
+        endDate: '2024-07-26',
       },
     }
     const result = fromPlanBillingItems([plan])
@@ -331,8 +331,8 @@ describe('fromPlanBillingItems', () => {
       ...baseBillingItemPlan,
       payload: {
         ...baseBillingItemPlan.payload,
-        payment_method_id: 'pm_456',
-        invoice_custom_footer: 'Footer text',
+        paymentMethodId: 'pm_456',
+        invoiceCustomFooter: 'Footer text',
       },
     }
     const result = fromPlanBillingItems([plan])
@@ -347,11 +347,11 @@ describe('fromPlanBillingItems', () => {
     const plan: BillingItemPlan = {
       ...baseBillingItemPlan,
       overrides: {
-        amount_cents: 85000,
+        amountCents: 85000,
         charges: [
           {
-            billable_metric_code: 'cpu',
-            charge_model: 'graduated',
+            billableMetricCode: 'cpu',
+            chargeModel: 'graduated',
             properties: { graduated_ranges: [] },
           },
         ],
@@ -359,7 +359,7 @@ describe('fromPlanBillingItems', () => {
     }
     const result = fromPlanBillingItems([plan])
 
-    expect(result.overrides.amount_cents).toBe(85000)
+    expect(result.overrides.amountCents).toBe(85000)
     expect(result.overrides.charges).toHaveLength(1)
   })
 
@@ -540,16 +540,16 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
         code: 'legacy',
         name: 'Legacy Plan',
         description: 'Old plan',
-        subscription_external_id: 'ext_old',
-        subscription_name: null,
-        billing_time: 'calendar',
-        start_date: '2022-01-01',
-        end_date: null,
-        payment_method_id: null,
-        invoice_custom_footer: null,
+        subscriptionExternalId: 'ext_old',
+        subscriptionName: null,
+        billingTime: 'calendar',
+        startDate: '2022-01-01',
+        endDate: null,
+        paymentMethodId: null,
+        invoiceCustomFooter: null,
         // NOTE: no interval, no charges — legacy payload
       },
-      overrides: { amount_cents: 75000 },
+      overrides: { amountCents: 75000 },
     }
 
     const result = fromPlanBillingItems([legacyPlan])
@@ -562,7 +562,7 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
     expect(result.planCode).toBe('legacy')
     expect(result.subscriptionSettings.externalId).toBe('ext_old')
     expect(result.subscriptionSettings.billingTime).toBe('calendar')
-    expect(result.overrides.amount_cents).toBe(75000)
+    expect(result.overrides.amountCents).toBe(75000)
   })
 
   it('attaches PlanPreviewData to the plan entity (fromPlanBillingItems)', () => {
@@ -577,20 +577,20 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
           code: 'p',
           name: 'P',
           description: '',
-          subscription_external_id: null,
-          subscription_name: null,
-          billing_time: 'calendar',
-          start_date: null,
-          end_date: null,
-          payment_method_id: null,
-          invoice_custom_footer: null,
+          subscriptionExternalId: null,
+          subscriptionName: null,
+          billingTime: 'calendar',
+          startDate: null,
+          endDate: null,
+          paymentMethodId: null,
+          invoiceCustomFooter: null,
           interval: 'monthly',
-          amount_cents: '13050',
-          amount_currency: 'USD',
-          pay_in_advance: true,
+          amountCents: '13050',
+          amountCurrency: 'USD',
+          payInAdvance: true,
           charges: [],
-          fixed_charges: [],
-          minimum_commitment: null,
+          fixedCharges: [],
+          minimumCommitment: null,
         },
       },
     ] as any
@@ -617,13 +617,13 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
           code: 'p',
           name: 'P',
           description: '',
-          subscription_external_id: null,
-          subscription_name: null,
-          billing_time: 'calendar',
-          start_date: null,
-          end_date: null,
-          payment_method_id: null,
-          invoice_custom_footer: null,
+          subscriptionExternalId: null,
+          subscriptionName: null,
+          billingTime: 'calendar',
+          startDate: null,
+          endDate: null,
+          paymentMethodId: null,
+          invoiceCustomFooter: null,
         },
       },
     ] as any

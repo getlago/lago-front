@@ -264,13 +264,13 @@ const EditQuote = () => {
       setSaveStatus('saving')
 
       // Each drawer owns a single billingItems category and passes a partial
-      // ({ plans } / { addons } / { coupons }) merged over the current items.
-      // Normalize here so `addons` is always present on the wire, whichever
+      // ({ plans } / { addOns } / { coupons }) merged over the current items.
+      // Normalize here so `addOns` is always present on the wire, whichever
       // drawer saved — keeping the backend payload shape stable.
       const payload: UpdateQuoteVersionInput = {
         id: versionId,
         content,
-        billingItems: billingItems && { addons: [], ...billingItems },
+        billingItems: billingItems && { addOns: [], ...billingItems },
       }
 
       failedPayloadRef.current = payload

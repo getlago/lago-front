@@ -30,8 +30,12 @@ const extractGraphQLErrors = (
   return ((errorObject as ApolloError)?.graphQLErrors || errorObject || []) as LagoGQLError[]
 }
 
-// Resolve a single backend detail key (e.g. `billingItems.add_ons.0.unit_amount_cents`)
-// to a drawer form field path, or `null` when it doesn't target a mappable field.
+// Resolve a single backend detail key (e.g.
+// `billingItems.addOns.0.overrides.unitAmountCents`) to a drawer form field
+// path, or `null` when it doesn't target a mappable field. The mappable field
+// is always the last path segment; intermediate segments (the array index and
+// the `overrides` wrapper the backend nests overridable fields under) are
+// structural and skipped.
 const resolveFieldPath = (rawKey: string, config: BillingItemErrorConfig): string | null => {
   const stripped = rawKey.replace(/^billing_?items\./i, '')
   const [categorySeg, ...rest] = stripped.split('.')
@@ -42,21 +46,19 @@ const resolveFieldPath = (rawKey: string, config: BillingItemErrorConfig): strin
 
   if (!isCategory) return null
 
-  const hasIndexedField = rest.length >= 2
-  const hasFlatField = rest.length === 1 && !/^\d+$/.test(rest[0])
+  const snakeField = rest[rest.length - 1]
 
   // coarse key (category only, or category + bare index) — cannot target a field
-  if (!hasIndexedField && !hasFlatField) return null
+  if (!snakeField || /^\d+$/.test(snakeField)) return null
 
-  const index = hasIndexedField ? Number(rest[0]) : null
-  const snakeField = hasIndexedField ? rest[1] : rest[0]
   const camel = config.fieldMap[snakeField]
 
   if (!camel) return null
 
-  return config.arrayField && index !== null && !Number.isNaN(index)
-    ? `${config.arrayField}[${index}].${camel}`
-    : camel
+  // The index, when present, is the first segment after the category.
+  const index = /^\d+$/.test(rest[0]) ? Number(rest[0]) : null
+
+  return config.arrayField && index !== null ? `${config.arrayField}[${index}].${camel}` : camel
 }
 
 export const mapBillingItemErrors = (
@@ -86,15 +88,21 @@ export const mapBillingItemErrors = (
 export const ADDONS_ERROR_CONFIG: BillingItemErrorConfig = {
   category: ['addons', 'add_ons'],
   arrayField: 'addOnItems',
-  fieldMap: { units: 'units', unit_amount_cents: 'unitAmountCents' },
+  // `totalAmountCents` has no dedicated input (it's derived from units ×
+  // unitAmountCents), so its error is surfaced on the unit-amount field.
+  fieldMap: {
+    units: 'units',
+    unitAmountCents: 'unitAmountCents',
+    totalAmountCents: 'unitAmountCents',
+  },
 }
 
 export const COUPONS_ERROR_CONFIG: BillingItemErrorConfig = {
   category: ['coupons'],
   fieldMap: {
-    amount_cents: 'amount',
-    percentage_rate: 'percentageRate',
-    frequency_duration: 'frequencyDuration',
+    amountCents: 'amount',
+    percentageRate: 'percentageRate',
+    frequencyDuration: 'frequencyDuration',
   },
 }
 

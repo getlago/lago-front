@@ -5,12 +5,12 @@ import type { BillingItemsPayload } from '../serializeQuoteBillingItems'
  *
  * Mirrors the backend contract: `payload` is the API baseline, `overrides`
  * carries only the fields the user changed in the pricing drawer (here, a
- * negotiated discount). `position`, `code` and `tax_codes` are not overridable.
+ * negotiated discount). `position`, `code` and `taxCodes` are not overridable.
  */
 export const addOnBillingItemsFixture: BillingItemsPayload = {
-  addons: [
+  addOns: [
     {
-      type: 'addon',
+      type: 'add_on',
       id: 'addon_01HXY',
       localId: 'a1b2c3d4-e5f6-0000-1111-222233334444',
       payload: {
@@ -19,16 +19,16 @@ export const addOnBillingItemsFixture: BillingItemsPayload = {
         name: 'Setup Fee',
         description: 'One-time onboarding and setup',
         units: 1,
-        unit_amount_cents: 50000,
-        total_amount_cents: 50000,
-        invoice_display_name: 'Initial setup',
-        from_datetime: null,
-        to_datetime: null,
-        tax_codes: ['vat_20'],
+        unitAmountCents: 50000,
+        totalAmountCents: 50000,
+        invoiceDisplayName: 'Initial setup',
+        fromDatetime: null,
+        toDatetime: null,
+        taxCodes: ['vat_20'],
       },
       overrides: {
-        unit_amount_cents: 45000,
-        total_amount_cents: 45000,
+        unitAmountCents: 45000,
+        totalAmountCents: 45000,
       },
     },
   ],
@@ -41,10 +41,10 @@ export const addOnBillingItemsFixture: BillingItemsPayload = {
  * charges) the FE persists for form reconstruction. `overrides` exercises the
  * full `PlanOverrides` shape — plan amount, display name, minimum commitment,
  * a charge override and a usage threshold. Note amounts in `overrides` are
- * numbers, while serialized `payload.amount_cents` is a string.
+ * numbers, while serialized `payload.amountCents` is a string.
  */
 export const planBillingItemsFixture: BillingItemsPayload = {
-  addons: [],
+  addOns: [],
   plans: [
     {
       type: 'plan',
@@ -55,85 +55,85 @@ export const planBillingItemsFixture: BillingItemsPayload = {
         name: 'Enterprise Plan',
         description: 'Custom enterprise offering',
 
-        subscription_external_id: 'sub_ext_acme_001',
-        subscription_name: 'Acme Corp subscription',
-        billing_time: 'anniversary',
-        start_date: '2026-07-01',
-        end_date: null,
-        payment_method_id: null,
-        invoice_custom_footer: null,
+        subscriptionExternalId: 'sub_ext_acme_001',
+        subscriptionName: 'Acme Corp subscription',
+        billingTime: 'anniversary',
+        startDate: '2026-07-01',
+        endDate: null,
+        paymentMethodId: null,
+        invoiceCustomFooter: null,
 
         // --- plan configuration ---
         interval: 'monthly',
-        amount_cents: '100000',
-        amount_currency: 'USD',
-        pay_in_advance: true,
-        bill_charges_monthly: null,
-        bill_fixed_charges_monthly: null,
-        trial_period: 14,
-        invoice_display_name: 'Enterprise',
-        tax_codes: ['vat_20'],
+        amountCents: '100000',
+        amountCurrency: 'USD',
+        payInAdvance: true,
+        billChargesMonthly: null,
+        billFixedChargesMonthly: null,
+        trialPeriod: 14,
+        invoiceDisplayName: 'Enterprise',
+        taxCodes: ['vat_20'],
         taxes: [{ id: 'tax_01H', code: 'vat_20', name: 'VAT 20%', rate: 20 }],
 
         // --- charges ---
         charges: [
           {
             id: 'charge_01H',
-            billable_metric: {
+            billableMetric: {
               id: 'bm_01H',
               code: 'api_calls',
               name: 'API Calls',
-              aggregation_type: 'sum_agg',
+              aggregationType: 'sum_agg',
               recurring: false,
               filters: [],
             },
-            charge_model: 'standard',
+            chargeModel: 'standard',
             properties: { amount: '0.01' },
-            invoice_display_name: 'API usage',
-            min_amount_cents: '0',
-            pay_in_advance: false,
+            invoiceDisplayName: 'API usage',
+            minAmountCents: '0',
+            payInAdvance: false,
             prorated: false,
-            regroup_paid_fees: null,
+            regroupPaidFees: null,
             invoiceable: true,
-            tax_codes: [],
+            taxCodes: [],
             taxes: [],
             filters: [],
-            applied_pricing_unit: null,
+            appliedPricingUnit: null,
           },
         ],
-        fixed_charges: [],
+        fixedCharges: [],
 
         // --- commitments & thresholds ---
-        minimum_commitment: {
+        minimumCommitment: {
           id: 'mc_01H',
-          amount_cents: '50000',
-          invoice_display_name: 'Monthly minimum',
-          commitment_type: 'minimum_commitment',
-          tax_codes: [],
+          amountCents: '50000',
+          invoiceDisplayName: 'Monthly minimum',
+          commitmentType: 'minimum_commitment',
+          taxCodes: [],
           taxes: [],
         },
-        non_recurring_usage_thresholds: [],
-        recurring_usage_threshold: null,
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: null,
       },
       overrides: {
-        amount_cents: 90000,
-        invoice_display_name: 'Enterprise (negotiated)',
-        minimum_commitment: {
-          amount_cents: 45000,
-          invoice_display_name: 'Negotiated monthly minimum',
+        amountCents: 90000,
+        invoiceDisplayName: 'Enterprise (negotiated)',
+        minimumCommitment: {
+          amountCents: 45000,
+          invoiceDisplayName: 'Negotiated monthly minimum',
         },
         charges: [
           {
-            billable_metric_code: 'api_calls',
-            charge_model: 'standard',
+            billableMetricCode: 'api_calls',
+            chargeModel: 'standard',
             properties: { amount: '0.008' },
           },
         ],
-        usage_thresholds: [
+        usageThresholds: [
           {
-            amount_cents: 200000,
+            amountCents: 200000,
             recurring: false,
-            threshold_display_name: 'Annual usage cap',
+            thresholdDisplayName: 'Annual usage cap',
           },
         ],
       },

@@ -86,7 +86,7 @@ export const useOneOffPricingDrawer = (
 
     const parsed = initialBillingItems as BillingItemsPayload
 
-    if (!parsed.addons?.length) return
+    if (!parsed.addOns?.length) return
 
     const {
       entities: formattedEntities,
@@ -124,12 +124,12 @@ export const useOneOffPricingDrawer = (
         name: addOn.name,
         description: addOn.description ?? '',
         units: 1,
-        unit_amount_cents: Number(addOn.amountCents),
-        total_amount_cents: Number(addOn.amountCents), // units=1 × amountCents
-        invoice_display_name: addOn.invoiceDisplayName ?? '',
-        from_datetime: null,
-        to_datetime: null,
-        tax_codes: addOn.taxes?.map((t) => t.code) ?? [],
+        unitAmountCents: Number(addOn.amountCents),
+        totalAmountCents: Number(addOn.amountCents), // units=1 × amountCents
+        invoiceDisplayName: addOn.invoiceDisplayName ?? '',
+        fromDatetime: null,
+        toDatetime: null,
+        taxCodes: addOn.taxes?.map((t) => t.code) ?? [],
       }
     },
     [],

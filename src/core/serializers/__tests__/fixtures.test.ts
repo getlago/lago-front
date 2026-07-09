@@ -28,7 +28,7 @@ describe('billing items fixtures', () => {
       const original = originalPayloads['a1b2c3d4-e5f6-0000-1111-222233334444']
 
       expect(original.code).toBe('setup_fee')
-      expect(original.unit_amount_cents).toBe(50000)
+      expect(original.unitAmountCents).toBe(50000)
     })
   })
 
@@ -47,21 +47,21 @@ describe('billing items fixtures', () => {
       expect(result.formValues?.charges).toHaveLength(1)
 
       // expanded overrides pass through untouched
-      expect(result.overrides.amount_cents).toBe(90000)
-      expect(result.overrides.invoice_display_name).toBe('Enterprise (negotiated)')
-      expect(result.overrides.minimum_commitment).toEqual({
-        amount_cents: 45000,
-        invoice_display_name: 'Negotiated monthly minimum',
+      expect(result.overrides.amountCents).toBe(90000)
+      expect(result.overrides.invoiceDisplayName).toBe('Enterprise (negotiated)')
+      expect(result.overrides.minimumCommitment).toEqual({
+        amountCents: 45000,
+        invoiceDisplayName: 'Negotiated monthly minimum',
       })
       expect(result.overrides.charges).toEqual([
         {
-          billable_metric_code: 'api_calls',
-          charge_model: 'standard',
+          billableMetricCode: 'api_calls',
+          chargeModel: 'standard',
           properties: { amount: '0.008' },
         },
       ])
-      expect(result.overrides.usage_thresholds).toEqual([
-        { amount_cents: 200000, recurring: false, threshold_display_name: 'Annual usage cap' },
+      expect(result.overrides.usageThresholds).toEqual([
+        { amountCents: 200000, recurring: false, thresholdDisplayName: 'Annual usage cap' },
       ])
     })
   })

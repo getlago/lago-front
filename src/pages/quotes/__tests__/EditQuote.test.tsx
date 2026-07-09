@@ -713,7 +713,7 @@ describe('EditQuote', () => {
         const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
         const mockAttrs = { pricingType: 'addOns', entityIds: ['addon-1'] }
         const mockEntityData = { 'addon-1': { name: 'Test Add-on' } }
-        const mockBillingItems = { addons: [{ addOnId: 'addon-1' }] }
+        const mockBillingItems = { addOns: [{ addOnId: 'addon-1' }] }
 
         await act(async () => {
           wrappedOnSave(mockAttrs, mockEntityData, mockBillingItems)
@@ -807,7 +807,7 @@ describe('EditQuote', () => {
         // billing-items object. Without the isRollingBackRef guard, this
         // would be enough for handlePricingBlocksChange to fire a second,
         // corrective savePricingBlock/updateQuoteVersion call.
-        mockSyncEntitiesWithBlocks.mockReturnValue({ addons: [] })
+        mockSyncEntitiesWithBlocks.mockReturnValue({ addOns: [] })
 
         render(<EditQuote />)
 
@@ -857,7 +857,7 @@ describe('EditQuote', () => {
 
     describe('WHEN pricing blocks change and syncEntitiesWithBlocks returns billing items', () => {
       it('THEN should save the updated billing items', async () => {
-        const mockBillingItems = { addons: [{ addOnId: 'addon-1', units: '2' }] }
+        const mockBillingItems = { addOns: [{ addOnId: 'addon-1', units: '2' }] }
 
         mockSyncEntitiesWithBlocks.mockReturnValue(mockBillingItems)
         mockUpdateQuoteVersion.mockResolvedValue({
@@ -1056,7 +1056,7 @@ describe('EditQuote', () => {
     describe('WHEN discount blocks change and syncDiscountBlocks returns billing items', () => {
       it('THEN should save the updated billing items', async () => {
         // The discount drawer owns only the `coupons` key and returns a partial
-        // without `addons`; savePricingBlock normalizes `addons` back in.
+        // without `addOns`; savePricingBlock normalizes `addOns` back in.
         const mockBillingItems = { coupons: [{ id: 'coupon-1', position: 1 }] }
 
         mockSyncDiscountBlocks.mockReturnValue(mockBillingItems)
@@ -1077,7 +1077,7 @@ describe('EditQuote', () => {
         await waitFor(() => {
           expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
             expect.objectContaining({
-              billingItems: { addons: [], coupons: [{ id: 'coupon-1', position: 1 }] },
+              billingItems: { addOns: [], coupons: [{ id: 'coupon-1', position: 1 }] },
             }),
             false,
           )

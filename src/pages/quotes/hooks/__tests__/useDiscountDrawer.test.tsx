@@ -329,10 +329,10 @@ describe('useDiscountDrawer', () => {
         id: string
         localId: string
         overrides: {
-          amount_cents: number | null
-          percentage_rate: number | null
+          amountCents: number | null
+          percentageRate: number | null
           frequency: string
-          frequency_duration: number | null
+          frequencyDuration: number | null
         }
       }>
     }
@@ -344,10 +344,10 @@ describe('useDiscountDrawer', () => {
     expect(coupon.id).toBe('cpn_fixed')
     expect(coupon.localId).toBe('mock-uuid-1')
     expect(coupon.overrides).toEqual({
-      amount_cents: 1000,
-      percentage_rate: null,
+      amountCents: 1000,
+      percentageRate: null,
       frequency: 'once',
-      frequency_duration: null,
+      frequencyDuration: null,
     })
   })
 
@@ -429,17 +429,17 @@ describe('useDiscountDrawer', () => {
 
     const persistedPayload = onPersist.mock.calls[0][0] as {
       coupons: Array<{
-        overrides: { frequency: string; frequency_duration: number | null }
+        overrides: { frequency: string; frequencyDuration: number | null }
       }>
     }
 
     expect(persistedPayload.coupons[0].overrides.frequency).toBe('recurring')
-    expect(persistedPayload.coupons[0].overrides.frequency_duration).toBe(6)
+    expect(persistedPayload.coupons[0].overrides.frequencyDuration).toBe(6)
   })
 
   it('calls onPersist with updated overrides when editing an existing coupon', async () => {
     const initialBillingItems: BillingItemsPayload = {
-      addons: [],
+      addOns: [],
       coupons: [
         {
           type: 'coupon',
@@ -451,25 +451,25 @@ describe('useDiscountDrawer', () => {
             id: 'cpn_fixed',
             name: 'Ten Off',
             type: 'fixed_amount',
-            amount_cents: 1000,
-            percentage_rate: null,
+            amountCents: 1000,
+            percentageRate: null,
             currency: CurrencyEnum.Usd,
             frequency: 'once',
-            frequency_duration: null,
-            expiration_at: null,
-            limited_plans: false,
-            plan_codes: [],
-            limited_billable_metrics: false,
-            billable_metric_codes: [],
-            coupon_overrides: null,
-            catalog_snapshot: null,
-            resolved_payload: null,
+            frequencyDuration: null,
+            expirationAt: null,
+            limitedPlans: false,
+            planCodes: [],
+            limitedBillableMetrics: false,
+            billableMetricCodes: [],
+            couponOverrides: null,
+            catalogSnapshot: null,
+            resolvedPayload: null,
           },
           overrides: {
-            amount_cents: 1000,
-            percentage_rate: null,
+            amountCents: 1000,
+            percentageRate: null,
             frequency: 'once',
-            frequency_duration: null,
+            frequencyDuration: null,
           },
         },
       ],
@@ -524,7 +524,7 @@ describe('useDiscountDrawer', () => {
 
   it('prefills from saved override values when editing', () => {
     const initialBillingItems: BillingItemsPayload = {
-      addons: [],
+      addOns: [],
       coupons: [
         {
           type: 'coupon',
@@ -536,25 +536,25 @@ describe('useDiscountDrawer', () => {
             id: 'cpn_edit',
             name: 'Edit Coupon',
             type: 'fixed_amount',
-            amount_cents: 5000,
-            percentage_rate: null,
+            amountCents: 5000,
+            percentageRate: null,
             currency: CurrencyEnum.Usd,
             frequency: 'recurring',
-            frequency_duration: 3,
-            expiration_at: null,
-            limited_plans: false,
-            plan_codes: [],
-            limited_billable_metrics: false,
-            billable_metric_codes: [],
-            coupon_overrides: null,
-            catalog_snapshot: null,
-            resolved_payload: null,
+            frequencyDuration: 3,
+            expirationAt: null,
+            limitedPlans: false,
+            planCodes: [],
+            limitedBillableMetrics: false,
+            billableMetricCodes: [],
+            couponOverrides: null,
+            catalogSnapshot: null,
+            resolvedPayload: null,
           },
           overrides: {
-            amount_cents: 4200,
-            percentage_rate: null,
+            amountCents: 4200,
+            percentageRate: null,
             frequency: 'recurring',
-            frequency_duration: 6,
+            frequencyDuration: 6,
           },
         },
       ],
@@ -587,7 +587,7 @@ describe('useDiscountDrawer', () => {
     // combobox mock (cpn_fixed / "Ten Off"). Switching coupon must refresh the
     // block + preview to the newly selected coupon, not keep the old identity.
     const initialBillingItems: BillingItemsPayload = {
-      addons: [],
+      addOns: [],
       coupons: [
         {
           type: 'coupon',
@@ -599,25 +599,25 @@ describe('useDiscountDrawer', () => {
             id: 'cpn_edit',
             name: 'Edit Coupon',
             type: 'fixed_amount',
-            amount_cents: 5000,
-            percentage_rate: null,
+            amountCents: 5000,
+            percentageRate: null,
             currency: CurrencyEnum.Usd,
             frequency: 'once',
-            frequency_duration: null,
-            expiration_at: null,
-            limited_plans: false,
-            plan_codes: [],
-            limited_billable_metrics: false,
-            billable_metric_codes: [],
-            coupon_overrides: null,
-            catalog_snapshot: null,
-            resolved_payload: null,
+            frequencyDuration: null,
+            expirationAt: null,
+            limitedPlans: false,
+            planCodes: [],
+            limitedBillableMetrics: false,
+            billableMetricCodes: [],
+            couponOverrides: null,
+            catalogSnapshot: null,
+            resolvedPayload: null,
           },
           overrides: {
-            amount_cents: 5000,
-            percentage_rate: null,
+            amountCents: 5000,
+            percentageRate: null,
             frequency: 'once',
-            frequency_duration: null,
+            frequencyDuration: null,
           },
         },
       ],
@@ -715,7 +715,7 @@ describe('useDiscountDrawer', () => {
             message: 'Unprocessable Entity',
             extensions: {
               code: 'unprocessable_entity',
-              details: { 'billingItems.coupons.0.amount_cents': ['value_is_invalid'] },
+              details: { 'billingItems.coupons.0.amountCents': ['value_is_invalid'] },
             },
           } as never,
         ],

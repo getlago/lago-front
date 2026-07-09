@@ -18,12 +18,38 @@ const makeError = (details: Record<string, string[]>): ApolloError =>
 
 describe('mapBillingItemErrors', () => {
   it('maps an indexed add-on field key to the array field path', () => {
-    const error = makeError({ 'billingItems.add_ons.0.unit_amount_cents': ['value_is_invalid'] })
+    const error = makeError({ 'billingItems.add_ons.0.unitAmountCents': ['value_is_invalid'] })
 
     const result = mapBillingItemErrors(error, ADDONS_ERROR_CONFIG)
 
     expect(result.fieldErrors).toEqual([
       { path: 'addOnItems[0].unitAmountCents', code: 'value_is_invalid' },
+    ])
+    expect(result.unmapped).toEqual([])
+  })
+
+  it('resolves a field nested under the `overrides` wrapper', () => {
+    const error = makeError({
+      'billingItems.addOns.0.overrides.unitAmountCents': ['invalid_value'],
+    })
+
+    const result = mapBillingItemErrors(error, ADDONS_ERROR_CONFIG)
+
+    expect(result.fieldErrors).toEqual([
+      { path: 'addOnItems[0].unitAmountCents', code: 'invalid_value' },
+    ])
+    expect(result.unmapped).toEqual([])
+  })
+
+  it('routes the derived `totalAmountCents` error onto the unit-amount field', () => {
+    const error = makeError({
+      'billingItems.addOns.0.overrides.totalAmountCents': ['invalid_value'],
+    })
+
+    const result = mapBillingItemErrors(error, ADDONS_ERROR_CONFIG)
+
+    expect(result.fieldErrors).toEqual([
+      { path: 'addOnItems[0].unitAmountCents', code: 'invalid_value' },
     ])
     expect(result.unmapped).toEqual([])
   })
@@ -37,7 +63,7 @@ describe('mapBillingItemErrors', () => {
   })
 
   it('maps a flat coupon field key without an index', () => {
-    const error = makeError({ 'billingItems.coupons.0.amount_cents': ['value_is_invalid'] })
+    const error = makeError({ 'billingItems.coupons.0.amountCents': ['value_is_invalid'] })
 
     const result = mapBillingItemErrors(error, COUPONS_ERROR_CONFIG)
 

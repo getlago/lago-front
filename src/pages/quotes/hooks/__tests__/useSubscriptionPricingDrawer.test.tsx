@@ -86,7 +86,7 @@ describe('useSubscriptionPricingDrawer', () => {
 
   it('hydrates entities from initial billingItems with plans', () => {
     const initialBillingItems: BillingItemsPayload = {
-      addons: [],
+      addOns: [],
       plans: [
         {
           type: 'plan',
@@ -96,13 +96,13 @@ describe('useSubscriptionPricingDrawer', () => {
             code: 'enterprise',
             name: 'Enterprise Plan',
             description: '',
-            subscription_external_id: null,
-            subscription_name: null,
-            billing_time: 'anniversary',
-            start_date: '2023-07-26',
-            end_date: null,
-            payment_method_id: null,
-            invoice_custom_footer: null,
+            subscriptionExternalId: null,
+            subscriptionName: null,
+            billingTime: 'anniversary',
+            startDate: '2023-07-26',
+            endDate: null,
+            paymentMethodId: null,
+            invoiceCustomFooter: null,
           },
           overrides: {},
         },
@@ -118,7 +118,7 @@ describe('useSubscriptionPricingDrawer', () => {
 
   it('syncEntitiesWithBlocks removes orphaned entities', () => {
     const initialBillingItems: BillingItemsPayload = {
-      addons: [],
+      addOns: [],
       plans: [
         {
           type: 'plan',
@@ -128,13 +128,13 @@ describe('useSubscriptionPricingDrawer', () => {
             code: 'enterprise',
             name: 'Enterprise Plan',
             description: '',
-            subscription_external_id: null,
-            subscription_name: null,
-            billing_time: 'anniversary',
-            start_date: '2023-07-26',
-            end_date: null,
-            payment_method_id: null,
-            invoice_custom_footer: null,
+            subscriptionExternalId: null,
+            subscriptionName: null,
+            billingTime: 'anniversary',
+            startDate: '2023-07-26',
+            endDate: null,
+            paymentMethodId: null,
+            invoiceCustomFooter: null,
           },
           overrides: {},
         },
@@ -196,7 +196,7 @@ describe('useSubscriptionPricingDrawer', () => {
       expect.objectContaining({
         plan_123: expect.objectContaining({ entityId: 'plan_123', entityType: 'plan' }),
       }),
-      // The drawer owns only the `plans` key; `addons` is normalized in by the
+      // The drawer owns only the `plans` key; `addOns` is normalized in by the
       // save funnel (savePricingBlock), not by this drawer.
       expect.objectContaining({ plans: expect.any(Array) }),
     )
@@ -276,7 +276,7 @@ describe('useSubscriptionPricingDrawer', () => {
     } as unknown as NonNullable<BillingItemsPayload['coupons']>[number]
 
     const initialBillingItems: BillingItemsPayload = {
-      addons: [],
+      addOns: [],
       coupons: [existingCoupon],
     }
 
@@ -313,7 +313,7 @@ describe('useSubscriptionPricingDrawer', () => {
     } as unknown as NonNullable<BillingItemsPayload['coupons']>[number]
 
     const initialBillingItems: BillingItemsPayload = {
-      addons: [],
+      addOns: [],
       plans: [
         {
           type: 'plan',
@@ -323,13 +323,13 @@ describe('useSubscriptionPricingDrawer', () => {
             code: 'enterprise',
             name: 'Enterprise Plan',
             description: '',
-            subscription_external_id: null,
-            subscription_name: null,
-            billing_time: 'anniversary',
-            start_date: '2023-07-26',
-            end_date: null,
-            payment_method_id: null,
-            invoice_custom_footer: null,
+            subscriptionExternalId: null,
+            subscriptionName: null,
+            billingTime: 'anniversary',
+            startDate: '2023-07-26',
+            endDate: null,
+            paymentMethodId: null,
+            invoiceCustomFooter: null,
           },
           overrides: {},
         },

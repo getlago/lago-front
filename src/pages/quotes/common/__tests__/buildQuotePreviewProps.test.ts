@@ -14,7 +14,7 @@ describe('buildQuotePreviewProps', () => {
   })
 
   it('builds entities from billingItems and extracts locale + currency', () => {
-    const version = { content: '<p>Hi</p>', billingItems: { addons: [] }, mentionVariables: {} }
+    const version = { content: '<p>Hi</p>', billingItems: { addOns: [] }, mentionVariables: {} }
     const customer = {
       currency: CurrencyEnum.Eur,
       billingConfiguration: { documentLocale: 'fr' },
@@ -22,7 +22,7 @@ describe('buildQuotePreviewProps', () => {
 
     const result = buildQuotePreviewProps({ version, customer })
 
-    expect(buildPreviewEntities).toHaveBeenCalledWith({ addons: [] }, CurrencyEnum.Eur)
+    expect(buildPreviewEntities).toHaveBeenCalledWith({ addOns: [] }, CurrencyEnum.Eur)
     expect(result).toEqual({
       content: '<p>Hi</p>',
       entities: { 'addon-1': { entityId: 'addon-1' } },
@@ -59,7 +59,7 @@ describe('buildQuotePreviewProps', () => {
   })
 
   it('passes through structured header data when provided', () => {
-    const version = { content: '<p>Hi</p>', billingItems: { addons: [] }, mentionVariables: {} }
+    const version = { content: '<p>Hi</p>', billingItems: { addOns: [] }, mentionVariables: {} }
     const customer = {
       currency: CurrencyEnum.Eur,
       billingConfiguration: { documentLocale: 'fr' },
