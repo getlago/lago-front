@@ -46,7 +46,7 @@ const resolveFieldPath = (rawKey: string, config: BillingItemErrorConfig): strin
 
   if (!isCategory) return null
 
-  const snakeField = rest[rest.length - 1]
+  const snakeField = rest.at(-1)
 
   // coarse key (category only, or category + bare index) — cannot target a field
   if (!snakeField || /^\d+$/.test(snakeField)) return null
