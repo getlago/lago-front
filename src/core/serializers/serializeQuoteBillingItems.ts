@@ -110,7 +110,7 @@ interface FromBillingItemsResult {
 
 export const fromBillingItems = (
   billingItems: BillingItemsPayload,
-  currency: CurrencyEnum = CurrencyEnum.Usd,
+  currency?: CurrencyEnum,
 ): FromBillingItemsResult => {
   const entities: Record<string, EntityData> = {}
   const addOnItems: AddOnItem[] = []
@@ -136,9 +136,15 @@ export const fromBillingItems = (
       to_datetime: overrides.to_datetime ?? payload.to_datetime,
     }
 
-    // Payload stores cents; the form and preview expect currency units.
-    const unitAmountCents = String(deserializeAmount(effective.unit_amount_cents, currency))
-    const totalAmount = String(deserializeAmount(effective.total_amount_cents, currency))
+    // Payload stores cents; the form and preview expect currency units. With no
+    // currency we can't know the decimal precision, so we leave the amounts empty
+    // rather than fabricate a wrong-scaled value under a default currency.
+    const unitAmountCents = currency
+      ? String(deserializeAmount(effective.unit_amount_cents, currency))
+      : ''
+    const totalAmount = currency
+      ? String(deserializeAmount(effective.total_amount_cents, currency))
+      : ''
 
     entities[localId] = {
       entityId: localId,
@@ -186,7 +192,7 @@ export const fromBillingItems = (
  */
 export const buildPreviewEntities = (
   billingItems: BillingItemsPayload,
-  currency: CurrencyEnum = CurrencyEnum.Usd,
+  currency?: CurrencyEnum,
 ): Record<string, EntityData> => {
   const { entities, addOnItems } = fromBillingItems(billingItems, currency)
   const previewEntities: Record<string, EntityData> = { ...entities }

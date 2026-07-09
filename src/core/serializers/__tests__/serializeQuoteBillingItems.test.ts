@@ -207,7 +207,7 @@ describe('fromBillingItems', () => {
   })
 
   it('reconstructs entities keyed by localId from payload with no overrides', () => {
-    const result = fromBillingItems(makeBillingItems())
+    const result = fromBillingItems(makeBillingItems(), CurrencyEnum.Usd)
 
     const localId = result.addOnItems[0].localId
 
@@ -258,7 +258,7 @@ describe('fromBillingItems', () => {
       ],
     }
 
-    const result = fromBillingItems(billingItems)
+    const result = fromBillingItems(billingItems, CurrencyEnum.Usd)
 
     const localId = result.addOnItems[0].localId
 
@@ -271,7 +271,7 @@ describe('fromBillingItems', () => {
   })
 
   it('reconstructs addOnItems with localId and addOnId for form state', () => {
-    const result = fromBillingItems(makeBillingItems())
+    const result = fromBillingItems(makeBillingItems(), CurrencyEnum.Usd)
 
     expect(result.addOnItems).toEqual([
       {
@@ -616,6 +616,27 @@ describe('add-on amount cents conversion', () => {
     expect(result.addOnItems[0].totalAmount).toBe('500')
     expect(result.entities['local-1'].unitAmountCents).toBe('500')
     expect(result.entities['local-1'].totalAmount).toBe('500')
+  })
+
+  it('leaves amounts empty when no currency is provided (no default-USD scaling)', () => {
+    const billingItems: BillingItemsPayload = {
+      addons: [
+        {
+          type: 'addon',
+          id: 'addon-1',
+          localId: 'local-1',
+          payload: makeCentsPayload(),
+          overrides: {},
+        },
+      ],
+    }
+
+    const result = fromBillingItems(billingItems)
+
+    expect(result.addOnItems[0].unitAmountCents).toBe('')
+    expect(result.addOnItems[0].totalAmount).toBe('')
+    expect(result.entities['local-1'].unitAmountCents).toBe('')
+    expect(result.entities['local-1'].totalAmount).toBe('')
   })
 
   it('round-trips units → cents → units', () => {

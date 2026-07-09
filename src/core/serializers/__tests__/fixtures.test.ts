@@ -1,3 +1,5 @@
+import { CurrencyEnum } from '~/generated/graphql'
+
 import { addOnBillingItemsFixture, planBillingItemsFixture } from './fixtures'
 
 import { fromBillingItems } from '../serializeQuoteBillingItems'
@@ -6,7 +8,10 @@ import { fromPlanBillingItems } from '../serializeQuotePlanBillingItems'
 describe('billing items fixtures', () => {
   describe('addOnBillingItemsFixture', () => {
     it('deserializes the add-on payload (code/name/description) and applies overrides', () => {
-      const { addOnItems, originalPayloads } = fromBillingItems(addOnBillingItemsFixture)
+      const { addOnItems, originalPayloads } = fromBillingItems(
+        addOnBillingItemsFixture,
+        CurrencyEnum.Usd,
+      )
 
       expect(addOnItems).toHaveLength(1)
 

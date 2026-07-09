@@ -207,7 +207,7 @@ describe('OneOffAddOnsPreviewTable', () => {
     })
 
     describe('WHEN totalAmount is null', () => {
-      it('THEN should fall back to 0 and render the entity row', () => {
+      it('THEN should render a dash placeholder and still render the entity row', () => {
         const entity = createEntity({ totalAmount: undefined })
 
         render(<OneOffAddOnsPreviewTable {...defaultProps} entities={[entity]} />)
@@ -215,6 +215,20 @@ describe('OneOffAddOnsPreviewTable', () => {
         const rows = screen.getAllByTestId(/^preview-table-one-off-addons-preview-row-/)
 
         expect(rows).toHaveLength(1)
+        expect(screen.getByText('-')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN totalAmount is empty (no currency available to deserialize)', () => {
+      it('THEN should render a dash placeholder instead of a NaN-formatted value', () => {
+        const entity = createEntity({ totalAmount: '' })
+
+        render(<OneOffAddOnsPreviewTable {...defaultProps} entities={[entity]} />)
+
+        const rows = screen.getAllByTestId(/^preview-table-one-off-addons-preview-row-/)
+
+        expect(rows).toHaveLength(1)
+        expect(screen.getByText('-')).toBeInTheDocument()
       })
     })
   })
