@@ -1,12 +1,12 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
 import { DateTime } from 'luxon'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
@@ -164,7 +164,8 @@ const CreateWallet = () => {
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
 
-  const warningDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
+
   const formType = useMemo(() => {
     if (!!walletId) return FORM_TYPE_ENUM.edition
 
@@ -460,99 +461,97 @@ const CreateWallet = () => {
     },
   })
 
+  const openDirtyAttributesWarning = useCallback(() => {
+    centralizedDialog.open({
+      title: translate('text_665deda4babaf700d603ea13'),
+      description: translate('text_665dedd557dc3c00c62eb83d'),
+      actionText: translate('text_645388d5bdbd7b00abffa033'),
+      colorVariant: 'danger',
+      onAction: () => navigateToCustomerWalletTab(wallet?.id),
+    })
+  }, [centralizedDialog, navigateToCustomerWalletTab, translate, wallet?.id])
+
   const onAbort = useCallback(() => {
-    formikProps.dirty
-      ? warningDialogRef.current?.openDialog()
-      : navigateToCustomerWalletTab(walletId)
-  }, [formikProps.dirty, navigateToCustomerWalletTab, walletId])
+    formikProps.dirty ? openDirtyAttributesWarning() : navigateToCustomerWalletTab(walletId)
+  }, [formikProps.dirty, navigateToCustomerWalletTab, openDirtyAttributesWarning, walletId])
 
   return (
-    <>
-      <CenteredPage.Wrapper>
-        <CenteredPage.Header>
-          <Typography variant="bodyHl" color="textSecondary" noWrap>
-            {translate(
+    <CenteredPage.Wrapper>
+      <CenteredPage.Header>
+        <Typography variant="bodyHl" color="textSecondary" noWrap>
+          {translate(
+            formType === FORM_TYPE_ENUM.edition
+              ? 'text_62d9430e8b9fe36851cddd09'
+              : 'text_6560809c38fb9de88d8a505e',
+          )}
+        </Typography>
+        <Button
+          variant="quaternary"
+          icon="close"
+          onClick={onAbort}
+          data-test={CLOSE_CREATE_WALLET_BUTTON_DATA_TEST}
+        />
+      </CenteredPage.Header>
+
+      {isLoading && !wallet && (
+        <CenteredPage.Container>
+          <FormLoadingSkeleton id="create-wallet" />
+        </CenteredPage.Container>
+      )}
+
+      {!isLoading && (
+        <CenteredPage.Container>
+          <CenteredPage.PageTitle
+            title={translate(
               formType === FORM_TYPE_ENUM.edition
                 ? 'text_62d9430e8b9fe36851cddd09'
                 : 'text_6560809c38fb9de88d8a505e',
             )}
-          </Typography>
-          <Button
-            variant="quaternary"
-            icon="close"
-            onClick={onAbort}
-            data-test={CLOSE_CREATE_WALLET_BUTTON_DATA_TEST}
+            description={translate('text_1748422458559917eelhobh5')}
           />
-        </CenteredPage.Header>
 
-        {isLoading && !wallet && (
-          <CenteredPage.Container>
-            <FormLoadingSkeleton id="create-wallet" />
-          </CenteredPage.Container>
-        )}
+          <SettingsSection
+            formikProps={formikProps}
+            formType={formType}
+            customerData={customerData}
+            showExpirationDate={showExpirationDate}
+            setShowExpirationDate={setShowExpirationDate}
+            showMinTopUp={showMinTopUp}
+            setShowMinTopUp={setShowMinTopUp}
+            showMaxTopUp={showMaxTopUp}
+            setShowMaxTopUp={setShowMaxTopUp}
+          />
 
-        {!isLoading && (
-          <CenteredPage.Container>
-            <CenteredPage.PageTitle
-              title={translate(
-                formType === FORM_TYPE_ENUM.edition
-                  ? 'text_62d9430e8b9fe36851cddd09'
-                  : 'text_6560809c38fb9de88d8a505e',
-              )}
-              description={translate('text_1748422458559917eelhobh5')}
-            />
+          <ScopeSection formikProps={formikProps} />
 
-            <SettingsSection
-              formikProps={formikProps}
-              formType={formType}
-              customerData={customerData}
-              showExpirationDate={showExpirationDate}
-              setShowExpirationDate={setShowExpirationDate}
-              showMinTopUp={showMinTopUp}
-              setShowMinTopUp={setShowMinTopUp}
-              showMaxTopUp={showMaxTopUp}
-              setShowMaxTopUp={setShowMaxTopUp}
-            />
+          <TopUpSection
+            formikProps={formikProps}
+            formType={formType}
+            customerData={customerData}
+            isRecurringTopUpEnabled={isRecurringTopUpEnabled}
+            setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
+          />
+        </CenteredPage.Container>
+      )}
 
-            <ScopeSection formikProps={formikProps} />
-
-            <TopUpSection
-              formikProps={formikProps}
-              formType={formType}
-              customerData={customerData}
-              isRecurringTopUpEnabled={isRecurringTopUpEnabled}
-              setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
-            />
-          </CenteredPage.Container>
-        )}
-
-        <CenteredPage.StickyFooter>
-          <Button variant="quaternary" onClick={onAbort}>
-            {translate('text_62e79671d23ae6ff149de968')}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={!formikProps.isValid}
-            onClick={formikProps.submitForm}
-            data-test={SUBMIT_WALLET_DATA_TEST}
-          >
-            {translate(
-              formType === FORM_TYPE_ENUM.edition
-                ? 'text_62e161ceb87c201025388aa2'
-                : 'text_6560809c38fb9de88d8a505e',
-            )}
-          </Button>
-        </CenteredPage.StickyFooter>
-      </CenteredPage.Wrapper>
-
-      <WarningDialog
-        ref={warningDialogRef}
-        title={translate('text_665deda4babaf700d603ea13')}
-        description={translate('text_665dedd557dc3c00c62eb83d')}
-        continueText={translate('text_645388d5bdbd7b00abffa033')}
-        onContinue={() => navigateToCustomerWalletTab(wallet?.id)}
-      />
-    </>
+      <CenteredPage.StickyFooter>
+        <Button variant="quaternary" onClick={onAbort}>
+          {translate('text_62e79671d23ae6ff149de968')}
+        </Button>
+        <Button
+          variant="primary"
+          disabled={!formikProps.isValid}
+          onClick={formikProps.submitForm}
+          data-test={SUBMIT_WALLET_DATA_TEST}
+        >
+          {translate(
+            formType === FORM_TYPE_ENUM.edition
+              ? 'text_62e161ceb87c201025388aa2'
+              : 'text_6560809c38fb9de88d8a505e',
+          )}
+        </Button>
+      </CenteredPage.StickyFooter>
+    </CenteredPage.Wrapper>
   )
 }
 
