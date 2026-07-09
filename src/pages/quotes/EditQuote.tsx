@@ -115,8 +115,12 @@ const EditQuote = () => {
     onDatesChange: handleSubscriptionDatesChange,
     customer: quote?.customer,
     subscriptionId: quote?.subscription?.id,
+    currency: quote?.currentVersion?.currency as CurrencyEnum | undefined,
   })
-  const oneOffPricing = useOneOffPricingDrawer(quote?.currentVersion?.billingItems)
+  const oneOffPricing = useOneOffPricingDrawer(
+    quote?.currentVersion?.billingItems,
+    quote?.currentVersion?.currency as CurrencyEnum | undefined,
+  )
 
   const { onPricingCommand, isPricingDisabled, entities, syncEntitiesWithBlocks } =
     isSubscriptionOrder ? subscriptionPricing : oneOffPricing

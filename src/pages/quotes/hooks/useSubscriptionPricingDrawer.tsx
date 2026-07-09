@@ -15,6 +15,7 @@ import {
   type SubscriptionPricingState,
   toPlanBillingItems,
 } from '~/core/serializers/serializeQuotePlanBillingItems'
+import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 interface UseSubscriptionPricingDrawerReturn {
@@ -35,6 +36,7 @@ export interface SubscriptionPricingDrawerOptions {
   onDatesChange?: (startDate?: string, endDate?: string) => void
   customer?: QuoteCustomer | null
   subscriptionId?: string
+  currency?: CurrencyEnum | null
 }
 
 export const useSubscriptionPricingDrawer = (
@@ -155,6 +157,7 @@ export const useSubscriptionPricingDrawer = (
             initialState={initialStateRef.current}
             quoteDates={options?.quoteDates}
             customer={options?.customer}
+            currency={options?.currency}
             billingItemPlan={billingItemPlan}
             subscriptionId={billingItemPlan ? undefined : options?.subscriptionId}
           />
