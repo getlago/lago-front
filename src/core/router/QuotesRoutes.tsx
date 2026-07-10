@@ -15,6 +15,7 @@ const VoidOrderForm = lazyLoad(() => import('~/pages/quotes/VoidOrderForm'))
 const SignOrderForm = lazyLoad(() => import('~/pages/quotes/SignOrderForm'))
 const OrderFormDetails = lazyLoad(() => import('~/pages/quotes/OrderFormDetails'))
 const EditOrder = lazyLoad(() => import('~/pages/quotes/EditOrder'))
+const ExecuteOrder = lazyLoad(() => import('~/pages/quotes/ExecuteOrder'))
 
 // ----------- Routes -----------
 export const QUOTES_LIST_ROUTE = '/quotes'
@@ -29,6 +30,7 @@ export const VOID_ORDER_FORM_ROUTE = '/order-form/:orderFormId/void'
 export const SIGN_ORDER_FORM_ROUTE = '/order-form/:orderFormId/sign'
 export const ORDER_FORM_DETAILS_ROUTE = '/order-form/:orderFormId'
 export const EDIT_ORDER_ROUTE = '/order/:orderId/edit'
+export const EXECUTE_ORDER_ROUTE = '/order/:orderId/execute'
 
 export const quotesRoutes: CustomRouteObject[] = [
   {
@@ -108,5 +110,11 @@ export const ordersModificationRoutes: CustomRouteObject[] = [
     private: true,
     element: <EditOrder />,
     permissions: ['ordersUpdate'],
+  },
+  {
+    path: EXECUTE_ORDER_ROUTE,
+    private: true,
+    element: <ExecuteOrder />,
+    permissions: ['ordersExecute'],
   },
 ]
