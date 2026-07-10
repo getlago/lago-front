@@ -192,85 +192,87 @@ const ExecuteOrder = () => {
           {loading || !order ? (
             <FormLoadingSkeleton id="execute-order" />
           ) : (
-            <div className="flex flex-col gap-12">
-              <div className="flex flex-col gap-1">
-                <Typography variant="headline" color="grey700">
-                  {translate('text_17836939541581o5vrz4lup5', { orderNumber: order.number })}
-                </Typography>
-                <Typography variant="body" color="grey600">
-                  {translate('text_1783693954158kkhja0v3uez')}
-                </Typography>
-              </div>
+            <div>
+              <div className="flex flex-col gap-10">
+                <div className="flex flex-col gap-1">
+                  <Typography variant="headline" color="grey700">
+                    {translate('text_17836939541581o5vrz4lup5', { orderNumber: order.number })}
+                  </Typography>
+                  <Typography variant="body" color="grey600">
+                    {translate('text_1783693954158kkhja0v3uez')}
+                  </Typography>
+                </div>
 
-              <div className="flex flex-col gap-6">
-                <Typography variant="subhead1">
-                  {translate('text_1781686594125zdfs2dn7aef')}
-                </Typography>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col">
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_1781686594125hr5o1ucifso')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {order.number}
-                    </Typography>
-                  </div>
-                  <div className="flex flex-col">
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_65201c5a175a4b0238abf29a')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {order.customer.displayName}
-                    </Typography>
-                  </div>
-                  <div className="flex flex-col">
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_1781686594125ilr4k8xhb5m')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {order.orderType
-                        ? translate(getQuoteOrderTypeTranslationKey(order.orderType))
-                        : ''}
-                    </Typography>
-                  </div>
-                  <div className="flex flex-col">
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_1779695273381h7tmhdzrv48')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {`${order.orderForm.quote.number} - v${order.orderForm.quote.currentVersion.version}`}
-                    </Typography>
+                <div className="flex flex-col gap-6">
+                  <Typography variant="subhead1">
+                    {translate('text_1781686594125zdfs2dn7aef')}
+                  </Typography>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col">
+                      <Typography variant="caption" color="grey600">
+                        {translate('text_1781686594125hr5o1ucifso')}
+                      </Typography>
+                      <Typography variant="body" color="grey700">
+                        {order.number}
+                      </Typography>
+                    </div>
+                    <div className="flex flex-col">
+                      <Typography variant="caption" color="grey600">
+                        {translate('text_65201c5a175a4b0238abf29a')}
+                      </Typography>
+                      <Typography variant="body" color="grey700">
+                        {order.customer.displayName}
+                      </Typography>
+                    </div>
+                    <div className="flex flex-col">
+                      <Typography variant="caption" color="grey600">
+                        {translate('text_1781686594125ilr4k8xhb5m')}
+                      </Typography>
+                      <Typography variant="body" color="grey700">
+                        {order.orderType
+                          ? translate(getQuoteOrderTypeTranslationKey(order.orderType))
+                          : ''}
+                      </Typography>
+                    </div>
+                    <div className="flex flex-col">
+                      <Typography variant="caption" color="grey600">
+                        {translate('text_1779695273381h7tmhdzrv48')}
+                      </Typography>
+                      <Typography variant="body" color="grey700">
+                        {`${order.orderForm.quote.number} - v${order.orderForm.quote.currentVersion.version}`}
+                      </Typography>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex flex-col gap-6">
-                <Typography variant="subhead1">
-                  {translate('text_1781686594125jxy4tktm5sv')}
-                </Typography>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col">
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_17816865941251f6epdwidgk')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {executionModeLabel}
-                    </Typography>
-                  </div>
-                  <div className="flex flex-col">
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_17816865941256grf5qs2924')}
-                    </Typography>
-                    <Typography variant="body" color="grey700">
-                      {executeAtLabel}
-                    </Typography>
+                <div className="flex flex-col gap-6">
+                  <Typography variant="subhead1">
+                    {translate('text_1781686594125jxy4tktm5sv')}
+                  </Typography>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col">
+                      <Typography variant="caption" color="grey600">
+                        {translate('text_17816865941251f6epdwidgk')}
+                      </Typography>
+                      <Typography variant="body" color="grey700">
+                        {executionModeLabel}
+                      </Typography>
+                    </div>
+                    <div className="flex flex-col">
+                      <Typography variant="caption" color="grey600">
+                        {translate('text_17816865941256grf5qs2924')}
+                      </Typography>
+                      <Typography variant="body" color="grey700">
+                        {executeAtLabel}
+                      </Typography>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <Alert data-test={EXECUTE_ORDER_ALERT_TEST_ID} type="warning">
-                {translate('text_1783693954158ptbr210ec4g')}
-              </Alert>
+                <Alert data-test={EXECUTE_ORDER_ALERT_TEST_ID} type="warning">
+                  {translate('text_1783693954158ptbr210ec4g')}
+                </Alert>
+              </div>
             </div>
           )}
         </Main>
