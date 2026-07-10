@@ -176,7 +176,7 @@ export const ProductDrawerContent = withForm({
       <div ref={rootRef}>
         <div
           key={resetIteration}
-          className={tw('flex flex-col gap-12', resetIteration > 0 && 'animate-fade-in-up')}
+          className={tw('flex flex-col gap-12', resetIteration > 0 && 'animate-fade-in-right')}
         >
           <ProductDrawerFormSections
             form={form}
