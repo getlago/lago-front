@@ -102,11 +102,13 @@ export const ProductDetailsOverview = () => {
           value={product?.description || '-'}
         />
 
-        <DetailsPage.InfoGridItem
-          className="col-span-2"
-          label={translate('text_65018c8e5c6b626f030bcf26')}
-          value={product?.invoiceDisplayName || '-'}
-        />
+        {!!product?.invoiceDisplayName && (
+          <DetailsPage.InfoGridItem
+            className="col-span-2"
+            label={translate('text_65018c8e5c6b626f030bcf26')}
+            value={product?.invoiceDisplayName}
+          />
+        )}
       </div>
     </section>
   )

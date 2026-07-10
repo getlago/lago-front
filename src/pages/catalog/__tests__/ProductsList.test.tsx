@@ -174,7 +174,12 @@ describe('ProductsList', () => {
       const { actionColumn, actionColumnTooltip } = getTableProps()
       const actions = (actionColumn?.(product) ?? []) as ActionItem<ProductListItemFragment>[]
 
-      expect(actionColumnTooltip?.(product)).toBe('text_629728388c4d2300e2d3810d')
+      // Tooltip is composed from the permitted action labels, capitalized.
+      const tooltip = actionColumnTooltip?.(product) ?? ''
+
+      expect(tooltip.toLowerCase()).toBe(
+        'text_629728388c4d2300e2d3816a, text_629728388c4d2300e2d38182',
+      )
       expect(actions).toHaveLength(2)
 
       const [editAction, deleteAction] = actions
@@ -200,7 +205,7 @@ describe('ProductsList', () => {
       const { actionColumn, actionColumnTooltip } = getTableProps()
 
       expect(actionColumn?.(product)).toHaveLength(0)
-      expect(actionColumnTooltip).toBeUndefined()
+      expect(actionColumnTooltip?.(product)).toBe('')
     })
   })
 

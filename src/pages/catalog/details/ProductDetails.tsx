@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { generatePath, useParams } from 'react-router-dom'
 
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
@@ -124,7 +125,9 @@ const ProductDetails = () => {
         entity={{
           viewName: product?.name || '',
           viewNameLoading: loading,
-          metadata: product?.code,
+          metadata: product?.code ? (
+            <TypographyWithCopy variant="body">{product.code}</TypographyWithCopy>
+          ) : undefined,
           metadataLoading: loading,
         }}
         actions={{ items: actions, loading }}

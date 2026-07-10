@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { tw } from 'lago-design-system'
-import { useMemo } from 'react'
+import { useCallback } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
@@ -8,6 +8,7 @@ import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { SearchInput } from '~/components/SearchInput'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { ProductDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -77,9 +78,23 @@ const ProductsList = () => {
   const canUpdateProducts = hasPermissions(['productsUpdate'])
   const canDeleteProducts = hasPermissions(['productsDelete'])
 
-  const composeTooltipLabel = useMemo(() => {
+  const composeTooltipLabel = useCallback((): string => {
     const editLabel = translate('text_629728388c4d2300e2d3816a')
-  })
+    const deleteLabel = translate('text_629728388c4d2300e2d38182')
+
+    let tooltipLabel = [
+      canUpdateProducts && editLabel.toLowerCase(),
+      canDeleteProducts && deleteLabel.toLowerCase(),
+    ]
+      .filter(Boolean)
+      .join(', ')
+
+    // uppercase first letter
+    tooltipLabel = tooltipLabel.charAt(0).toUpperCase() + tooltipLabel.slice(1)
+
+    return tooltipLabel
+  }, [canUpdateProducts, canDeleteProducts, translate])
+
   const getEmptyState = (): Partial<GenericPlaceholderProps> => {
     if (variables?.searchTerm) {
       return {
@@ -139,11 +154,7 @@ const ProductsList = () => {
               tab: ProductDetailsTabsOptionsEnum.overview,
             })
           }
-          actionColumnTooltip={
-            canUpdateProducts && canDeleteProducts
-              ? () => translate('text_629728388c4d2300e2d3810d')
-              : undefined
-          }
+          actionColumnTooltip={composeTooltipLabel}
           actionColumn={(product) => {
             const actions: ActionItem<typeof product>[] = []
 
@@ -179,9 +190,9 @@ const ProductsList = () => {
                   <Typography color="textSecondary" variant="bodyHl" noWrap>
                     {invoiceDisplayName || name}
                   </Typography>
-                  <Typography variant="caption" noWrap>
+                  <TypographyWithCopy compact noWrap variant="caption">
                     {code}
-                  </Typography>
+                  </TypographyWithCopy>
                 </>
               ),
             },
