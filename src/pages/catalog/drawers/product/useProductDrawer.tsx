@@ -65,7 +65,7 @@ const mapProductToFormValues = (product: ProductForProductDrawerFragment): Produ
 
 // `data-text` is a double-quoted HTML attribute in the linked-toast template;
 // escape embedded quotes so a product name cannot break out of the attribute.
-const escapeDoubleQuotes = (value: string) => value.replace(/"/g, '&quot;')
+const escapeDoubleQuotes = (value: string) => value.replaceAll('"', '&quot;')
 
 type ProductFormSuccess = {
   product: ProductForProductDrawerFragment

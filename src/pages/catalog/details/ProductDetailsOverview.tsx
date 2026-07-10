@@ -96,11 +96,13 @@ export const ProductDetailsOverview = () => {
           ]}
         />
 
-        <DetailsPage.InfoGridItem
-          className="col-span-2"
-          label={translate('text_6388b923e514213fed58331c')}
-          value={product?.description || '-'}
-        />
+        {!!product?.description && (
+          <DetailsPage.InfoGridItem
+            className="col-span-2"
+            label={translate('text_6388b923e514213fed58331c')}
+            value={product?.description || '-'}
+          />
+        )}
 
         {!!product?.invoiceDisplayName && (
           <DetailsPage.InfoGridItem
