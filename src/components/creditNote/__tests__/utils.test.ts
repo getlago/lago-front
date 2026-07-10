@@ -469,71 +469,8 @@ describe('isCreditNoteCreationDisabled', () => {
 })
 
 describe('createCreditNoteForInvoiceButtonProps', () => {
-  describe('GIVEN invoice has no amounts available', () => {
-    it('THEN should disable button', () => {
-      const result = createCreditNoteForInvoiceButtonProps({
-        creditableAmountCents: '0',
-        refundableAmountCents: '0',
-        offsettableAmountCents: '0',
-      })
-
-      expect(result.disabledIssueCreditNoteButton).toBe(true)
-      expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_1729082994964zccpjmtotdy')
-    })
-  })
-
-  describe('GIVEN invoice has amounts available', () => {
-    it('WHEN creditableAmountCents > 0 THEN should enable button', () => {
-      const result = createCreditNoteForInvoiceButtonProps({
-        creditableAmountCents: '1000',
-        refundableAmountCents: '0',
-        offsettableAmountCents: '0',
-      })
-
-      expect(result.disabledIssueCreditNoteButton).toBe(false)
-      expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
-    })
-
-    it('WHEN refundableAmountCents > 0 THEN should enable button', () => {
-      const result = createCreditNoteForInvoiceButtonProps({
-        creditableAmountCents: '0',
-        refundableAmountCents: '1000',
-        offsettableAmountCents: '0',
-      })
-
-      expect(result.disabledIssueCreditNoteButton).toBe(false)
-      expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
-    })
-
-    it('WHEN offsettableAmountCents > 0 THEN should enable button', () => {
-      const result = createCreditNoteForInvoiceButtonProps({
-        creditableAmountCents: '0',
-        refundableAmountCents: '0',
-        offsettableAmountCents: '1000',
-      })
-
-      expect(result.disabledIssueCreditNoteButton).toBe(false)
-      expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
-    })
-  })
-
-  describe('GIVEN prepaid credits invoice with terminated wallet', () => {
-    it('WHEN disabled THEN should show terminatedWallet message', () => {
-      const result = createCreditNoteForInvoiceButtonProps({
-        invoiceType: InvoiceTypeEnum.Credit,
-        associatedActiveWalletPresent: false,
-        creditableAmountCents: '0',
-        refundableAmountCents: '0',
-        offsettableAmountCents: '0',
-      })
-
-      expect(result.disabledIssueCreditNoteButton).toBe(true)
-      expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_172908299496461z9ejmm2j7')
-    })
-  })
-
-  describe('GIVEN amount fields are absent (invoices list context)', () => {
-    it('WHEN not a terminated-wallet credit invoice THEN enables the button', () => {
+  describe('GIVEN a non-terminated-wallet invoice', () => {
+    it('THEN enables the button regardless of covered amounts', () => {
       const result = createCreditNoteForInvoiceButtonProps({
         invoiceType: InvoiceTypeEnum.Subscription,
         associatedActiveWalletPresent: false,
@@ -543,7 +480,22 @@ describe('createCreditNoteForInvoiceButtonProps', () => {
       expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
     })
 
-    it('WHEN a credit invoice with terminated wallet THEN disables with terminatedWallet message', () => {
+    it('THEN ignores amount fields even when all are zero (fully covered)', () => {
+      const result = createCreditNoteForInvoiceButtonProps({
+        invoiceType: InvoiceTypeEnum.Subscription,
+        associatedActiveWalletPresent: true,
+        creditableAmountCents: '0',
+        refundableAmountCents: '0',
+        offsettableAmountCents: '0',
+      })
+
+      expect(result.disabledIssueCreditNoteButton).toBe(false)
+      expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
+    })
+  })
+
+  describe('GIVEN a prepaid-credits invoice with a terminated wallet', () => {
+    it('THEN disables the button with the terminatedWallet message', () => {
       const result = createCreditNoteForInvoiceButtonProps({
         invoiceType: InvoiceTypeEnum.Credit,
         associatedActiveWalletPresent: false,
@@ -551,6 +503,18 @@ describe('createCreditNoteForInvoiceButtonProps', () => {
 
       expect(result.disabledIssueCreditNoteButton).toBe(true)
       expect(result.disabledIssueCreditNoteButtonLabel).toBe('text_172908299496461z9ejmm2j7')
+    })
+  })
+
+  describe('GIVEN a prepaid-credits invoice with an active wallet', () => {
+    it('THEN enables the button', () => {
+      const result = createCreditNoteForInvoiceButtonProps({
+        invoiceType: InvoiceTypeEnum.Credit,
+        associatedActiveWalletPresent: true,
+      })
+
+      expect(result.disabledIssueCreditNoteButton).toBe(false)
+      expect(result.disabledIssueCreditNoteButtonLabel).toBeFalsy()
     })
   })
 })

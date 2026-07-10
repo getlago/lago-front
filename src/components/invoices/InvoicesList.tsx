@@ -152,7 +152,7 @@ const InvoicesList = ({
     invoice: InvoiceItem,
     isPartiallyPaid: boolean,
     isDisabledIssueCreditNoteButton: boolean,
-    disabledIssueCreditNoteButtonLabel: string | false,
+    disabledIssueCreditNoteButtonLabel: string | undefined,
   ): ActionItem<InvoiceItem> | null => {
     if (!actions.canIssueCreditNote(invoice)) return null
 
@@ -196,7 +196,7 @@ const InvoicesList = ({
     hasActiveWallet: boolean
     isPartiallyPaid: boolean
     isDisabledIssueCreditNoteButton: boolean
-    disabledIssueCreditNoteButtonLabel: string | false
+    disabledIssueCreditNoteButtonLabel: string | undefined
   }): Array<ActionItem<InvoiceItem>> => {
     const downloadAction: ActionItem<InvoiceItem> | null = actions.canDownload(invoice)
       ? {

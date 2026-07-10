@@ -69,9 +69,6 @@ export const InvoiceCreditNoteList = () => {
   const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
     createCreditNoteForInvoiceButtonProps({
       invoiceType: invoice?.invoiceType,
-      creditableAmountCents: invoice?.creditableAmountCents,
-      refundableAmountCents: invoice?.refundableAmountCents,
-      offsettableAmountCents: invoice?.offsettableAmountCents,
       associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
     })
 
