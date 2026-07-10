@@ -82,6 +82,13 @@ export enum ProductCatalogTabsOptionsEnum {
   rateCards = 'rate-cards',
 }
 
+export enum ProductDetailsTabsOptionsEnum {
+  overview = 'overview',
+  productItems = 'product-items',
+  plans = 'plans',
+  activityLogs = 'activity-logs',
+}
+
 export enum QuoteDetailsTabsOptionsEnum {
   overview = 'overview',
   orderForms = 'order-forms',

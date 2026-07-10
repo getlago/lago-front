@@ -205,6 +205,11 @@ const config: Config = {
           '100%': { transform: 'translateX(0)' },
         },
 
+        fadeInUp: {
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+
         pulseSpeed: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
@@ -212,6 +217,7 @@ const config: Config = {
       },
       animation: {
         enter: 'enter 250ms cubic-bezier(0.4, 0, 0.2, 1) 1',
+        'fade-in-up': 'fadeInUp 300ms ease-out 1',
         'pulse-speed': 'pulseSpeed 500ms ease-out infinite',
       },
     },

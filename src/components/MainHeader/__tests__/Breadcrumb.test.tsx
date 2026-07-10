@@ -80,6 +80,29 @@ describe('Breadcrumb', () => {
     })
   })
 
+  describe('GIVEN a pathless breadcrumb item', () => {
+    const items: BreadcrumbItem[] = [
+      { label: 'Product catalog', path: '/product-catalog/products' },
+      { label: 'Product' },
+    ]
+
+    describe('WHEN the component renders', () => {
+      it('THEN should render the pathless item as static grey text, not a link', () => {
+        render(<Breadcrumb items={items} />)
+
+        expect(screen.getByText('Product')).toBeInTheDocument()
+        expect(screen.queryByRole('link', { name: 'Product' })).not.toBeInTheDocument()
+        expect(screen.getAllByRole('link')).toHaveLength(1)
+      })
+
+      it('THEN should keep the separator between the link and the static item', () => {
+        render(<Breadcrumb items={items} />)
+
+        expect(screen.getAllByText('/')).toHaveLength(1)
+      })
+    })
+  })
+
   describe('GIVEN a loading breadcrumb item', () => {
     const items: BreadcrumbItem[] = [
       { label: 'Customers', path: '/customers' },

@@ -1,9 +1,184 @@
+import { gql } from '@apollo/client'
+import { tw } from 'lago-design-system'
+import { generatePath } from 'react-router-dom'
+
+import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
+import { Table } from '~/components/designSystem/Table/Table'
+import { Typography } from '~/components/designSystem/Typography'
+import { SearchInput } from '~/components/SearchInput'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
+import { ProductDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { PRODUCT_DETAILS_ROUTE } from '~/core/router'
+import { useProductsLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
+
+import { useProductDrawer } from './drawers/product/useProductDrawer'
+
+gql`
+  fragment ProductListItem on Product {
+    id
+    name
+    code
+    invoiceDisplayName
+    productItemsCount
+    createdAt
+  }
+
+  query products($page: Int, $limit: Int, $searchTerm: String) {
+    products(page: $page, limit: $limit, searchTerm: $searchTerm) {
+      metadata {
+        currentPage
+        totalPages
+        totalCount
+      }
+      collection {
+        id
+        ...ProductListItem
+      }
+    }
+  }
+`
 
 const ProductsList = () => {
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { openDrawer: openCreateProductDrawer } = useProductDrawer()
+  const { page, goToPage } = usePageSearchParam()
+  // network-only: tabs are route-based so this component remounts on tab switch
+  // and `?page` is dropped; a cache-first read would flash the previously viewed
+  // page before the page-1 refetch.
+  const [getProducts, { data, error, loading, variables }] = useProductsLazyQuery({
+    variables: { limit: DEFAULT_PAGE_SIZE, page },
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
+  })
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getProducts, loading)
 
-  return <div className="p-4">{translate('text_17831042398244jk9iv71lra')}</div>
+  const canCreateProducts = hasPermissions(['productsCreate'])
+
+  const getEmptyState = (): Partial<GenericPlaceholderProps> => {
+    if (variables?.searchTerm) {
+      return {
+        title: translate('text_1783622030703xtzifa6nivi'),
+        subtitle: translate('text_63bee4e10e2d53912bfe4da7'),
+      }
+    }
+    if (canCreateProducts) {
+      return {
+        title: translate('text_1783622030703gf47xn4zdit'),
+        subtitle: translate('text_1783622030703a20cxlyb5xr'),
+        buttonTitle: translate('text_1783622030703h5vhmp73muk'),
+        buttonVariant: 'primary',
+        buttonAction: () => openCreateProductDrawer(),
+      }
+    }
+    return {
+      title: translate('text_1783622030703gf47xn4zdit'),
+      subtitle: translate('text_1783622030703a20cxlyb5xr'),
+    }
+  }
+
+  return (
+    <>
+      <div className="p-4 md:px-12">
+        <SearchInput
+          onChange={(value) => {
+            goToPage(1)
+            debouncedSearch?.(value)
+          }}
+          placeholder={translate('text_1783622030703pw6jb43diri')}
+          data-test="products-search-input"
+        />
+      </div>
+      <PaginatedContent
+        insetPager
+        metadata={data?.products?.metadata}
+        loading={isLoading}
+        onPageChange={goToPage}
+      >
+        <Table
+          name="products-list"
+          data={data?.products?.collection ?? []}
+          containerSize={{
+            default: 16,
+            md: 48,
+          }}
+          containerClassName={tw('-mb-px h-auto shrink-0 border-t border-grey-300')}
+          rowSize={72}
+          isLoading={isLoading}
+          hasError={!!error}
+          rowDataTestId={(product) => `${product.name}`}
+          onRowActionLink={({ id }) =>
+            generatePath(PRODUCT_DETAILS_ROUTE, {
+              productId: id,
+              tab: ProductDetailsTabsOptionsEnum.overview,
+            })
+          }
+          columns={[
+            {
+              key: 'name',
+              title: translate('text_6419c64eace749372fc72b0f'),
+              minWidth: 200,
+              maxSpace: true,
+              content: ({ name, invoiceDisplayName, code }) => (
+                <>
+                  <Typography color="textSecondary" variant="bodyHl" noWrap>
+                    {invoiceDisplayName || name}
+                  </Typography>
+                  <Typography variant="caption" noWrap>
+                    {code}
+                  </Typography>
+                </>
+              ),
+            },
+            {
+              key: 'productItemsCount',
+              title: translate('text_1783622030703zfer3z2fn5y'),
+              textAlign: 'right',
+              minWidth: 112,
+              content: ({ productItemsCount }) => (
+                <Typography color="grey600" variant="body" noWrap>
+                  {productItemsCount}
+                </Typography>
+              ),
+            },
+            {
+              key: 'createdAt',
+              title: translate('text_629728388c4d2300e2d380e3'),
+              textAlign: 'right',
+              minWidth: 140,
+              content: ({ createdAt }) => (
+                <Typography color="grey600" variant="body" noWrap>
+                  {intlFormatDateTimeOrgaTZ(createdAt).date}
+                </Typography>
+              ),
+            },
+          ]}
+          placeholder={{
+            errorState: variables?.searchTerm
+              ? {
+                  title: translate('text_623b53fea66c76017eaebb6e'),
+                  subtitle: translate('text_63bab307a61c62af497e0599'),
+                }
+              : {
+                  title: translate('text_629728388c4d2300e2d380d5'),
+                  subtitle: translate('text_629728388c4d2300e2d380eb'),
+                  buttonTitle: translate('text_629728388c4d2300e2d38110'),
+                  buttonVariant: 'primary',
+                  buttonAction: () => location.reload(),
+                },
+            emptyState: getEmptyState(),
+          }}
+        />
+      </PaginatedContent>
+    </>
+  )
 }
 
 export default ProductsList

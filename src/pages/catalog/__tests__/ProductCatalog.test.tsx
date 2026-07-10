@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { render } from '~/test-utils'
@@ -14,6 +15,9 @@ const renderPage = () =>
   )
 
 const mockHasPermissions = jest.fn()
+const mockOpenCreateProductDrawer = jest.fn()
+const mockOpenCreateProductItemDrawer = jest.fn()
+const mockOpenCreateProductItemFilterDrawer = jest.fn()
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
@@ -26,6 +30,27 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
     translate: (key: string) => key,
     locale: 'en',
   }),
+}))
+
+// Mock the drawer hooks: the real ones load the NiceModal drawer stack
+// (drawerStack.ts uses import.meta and crashes Jest).
+jest.mock('../drawers/product/useProductDrawer', () => ({
+  useProductDrawer: () => ({ openDrawer: mockOpenCreateProductDrawer }),
+}))
+
+jest.mock('../drawers/productItem/useProductItemDrawer', () => ({
+  useProductItemDrawer: () => ({ openDrawer: mockOpenCreateProductItemDrawer }),
+}))
+
+jest.mock('../drawers/productItemFilter/useProductItemFilterDrawer', () => ({
+  useProductItemFilterDrawer: () => ({ openDrawer: mockOpenCreateProductItemFilterDrawer }),
+}))
+
+// The real ProductsList fires its products query on mount; this suite only
+// covers tab and header wiring.
+jest.mock('../ProductsList', () => ({
+  __esModule: true,
+  default: () => <div>products-list-stub</div>,
 }))
 
 const PRODUCTS_TAB = 'text_17831042398244jk9iv71lra'
@@ -45,8 +70,9 @@ describe('ProductCatalog', () => {
     expect(screen.getByText(PRODUCT_ITEMS_TAB)).toBeInTheDocument()
     expect(screen.getByText(PRODUCT_ITEM_FILTERS_TAB)).toBeInTheDocument()
     expect(screen.getByText(RATE_CARDS_TAB)).toBeInTheDocument()
-    // Products appears in both the tab bar and as the default active content
-    expect(screen.getAllByText(PRODUCTS_TAB).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getByText(PRODUCTS_TAB)).toBeInTheDocument()
+    // Products is the default active tab, so its content renders
+    expect(screen.getByText('products-list-stub')).toBeInTheDocument()
   })
 
   it('hides a tab when its view permission is missing', () => {
@@ -67,5 +93,62 @@ describe('ProductCatalog', () => {
     expect(mockHasPermissions).toHaveBeenCalledWith(['productItemsView'])
     expect(mockHasPermissions).toHaveBeenCalledWith(['productItemFiltersView'])
     expect(mockHasPermissions).toHaveBeenCalledWith(['rateCardsView'])
+  })
+
+  describe('create dropdown', () => {
+    it('lists the three create entries when all create permissions are granted', async () => {
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await user.click(screen.getByTestId('product-catalog-create'))
+
+      expect(screen.getByTestId('create-product')).toBeInTheDocument()
+      expect(screen.getByTestId('create-product-item')).toBeInTheDocument()
+      expect(screen.getByTestId('create-product-item-filter')).toBeInTheDocument()
+    })
+
+    it.each([
+      ['create-product', () => mockOpenCreateProductDrawer],
+      ['create-product-item', () => mockOpenCreateProductItemDrawer],
+      ['create-product-item-filter', () => mockOpenCreateProductItemFilterDrawer],
+    ])('opens the matching drawer from the %s entry', async (itemTestId, getOpenDrawerMock) => {
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await user.click(screen.getByTestId('product-catalog-create'))
+      await user.click(screen.getByTestId(itemTestId))
+
+      expect(getOpenDrawerMock()).toHaveBeenCalledTimes(1)
+    })
+
+    it('hides an entry when its create permission is missing', async () => {
+      mockHasPermissions.mockImplementation(
+        (permissions: string[]) => !permissions.includes('productItemsCreate'),
+      )
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await user.click(screen.getByTestId('product-catalog-create'))
+
+      expect(screen.queryByTestId('create-product-item')).not.toBeInTheDocument()
+      expect(screen.getByTestId('create-product')).toBeInTheDocument()
+      expect(screen.getByTestId('create-product-item-filter')).toBeInTheDocument()
+    })
+
+    it('hides the whole dropdown when no create permission is granted', () => {
+      const createPermissions = ['productsCreate', 'productItemsCreate', 'productItemFiltersCreate']
+
+      mockHasPermissions.mockImplementation(
+        (permissions: string[]) =>
+          !permissions.some((permission) => createPermissions.includes(permission)),
+      )
+
+      renderPage()
+
+      expect(screen.queryByTestId('product-catalog-create')).not.toBeInTheDocument()
+    })
   })
 })

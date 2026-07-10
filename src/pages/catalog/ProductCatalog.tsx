@@ -13,6 +13,9 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 
+import { useProductDrawer } from './drawers/product/useProductDrawer'
+import { useProductItemDrawer } from './drawers/productItem/useProductItemDrawer'
+import { useProductItemFilterDrawer } from './drawers/productItemFilter/useProductItemFilterDrawer'
 import ProductItemFiltersList from './ProductItemFiltersList'
 import ProductItemsList from './ProductItemsList'
 import ProductsList from './ProductsList'
@@ -23,6 +26,9 @@ const ProductCatalog = () => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { hasPermissions } = usePermissions()
+  const { openDrawer: openCreateProductDrawer } = useProductDrawer()
+  const { openDrawer: openCreateProductItemDrawer } = useProductItemDrawer()
+  const { openDrawer: openCreateProductItemFilterDrawer } = useProductItemFilterDrawer()
 
   const tabs = useMemo(
     () => [
@@ -84,6 +90,44 @@ const ProductCatalog = () => {
       <MainHeader.Configure
         entity={{ viewName: translate('text_1783019143196z1oi70j03vt') }}
         tabs={tabs}
+        actions={{
+          items: [
+            {
+              type: 'dropdown',
+              label: translate('text_1742230191029lznwj3y41nb'),
+              dataTest: 'product-catalog-create',
+              items: [
+                {
+                  label: translate('text_1783622030703h5vhmp73muk'),
+                  hidden: !hasPermissions(['productsCreate']),
+                  dataTest: 'create-product',
+                  onClick: (closePopper) => {
+                    openCreateProductDrawer()
+                    closePopper()
+                  },
+                },
+                {
+                  label: translate('text_1783622030703m9jlurg4jsn'),
+                  hidden: !hasPermissions(['productItemsCreate']),
+                  dataTest: 'create-product-item',
+                  onClick: (closePopper) => {
+                    openCreateProductItemDrawer()
+                    closePopper()
+                  },
+                },
+                {
+                  label: translate('text_17836220307039rf790f045t'),
+                  hidden: !hasPermissions(['productItemFiltersCreate']),
+                  dataTest: 'create-product-item-filter',
+                  onClick: (closePopper) => {
+                    openCreateProductItemFilterDrawer()
+                    closePopper()
+                  },
+                },
+              ],
+            },
+          ],
+        }}
       />
       {activeTabContent}
     </>
