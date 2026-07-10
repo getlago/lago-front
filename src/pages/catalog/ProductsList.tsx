@@ -1,21 +1,28 @@
 import { gql } from '@apollo/client'
 import { tw } from 'lago-design-system'
+import { useMemo } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { SearchInput } from '~/components/SearchInput'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { ProductDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { PRODUCT_DETAILS_ROUTE } from '~/core/router'
-import { useProductsLazyQuery } from '~/generated/graphql'
+import {
+  ProductForDeleteProductDialogFragmentDoc,
+  ProductForProductDrawerFragmentDoc,
+  useProductsLazyQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
+import { useDeleteProductDialog } from './dialogs/useDeleteProductDialog'
 import { useProductDrawer } from './drawers/product/useProductDrawer'
 
 gql`
@@ -26,6 +33,8 @@ gql`
     invoiceDisplayName
     productItemsCount
     createdAt
+    ...ProductForProductDrawer
+    ...ProductForDeleteProductDialog
   }
 
   query products($page: Int, $limit: Int, $searchTerm: String) {
@@ -41,13 +50,17 @@ gql`
       }
     }
   }
+
+  ${ProductForProductDrawerFragmentDoc}
+  ${ProductForDeleteProductDialogFragmentDoc}
 `
 
 const ProductsList = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const { openDrawer: openCreateProductDrawer } = useProductDrawer()
+  const { openDrawer: openProductDrawer } = useProductDrawer()
+  const { openDeleteProductDialog } = useDeleteProductDialog()
   const { page, goToPage } = usePageSearchParam()
   // network-only: tabs are route-based so this component remounts on tab switch
   // and `?page` is dropped; a cache-first read would flash the previously viewed
@@ -61,7 +74,12 @@ const ProductsList = () => {
   const { debouncedSearch, isLoading } = useDebouncedSearch(getProducts, loading)
 
   const canCreateProducts = hasPermissions(['productsCreate'])
+  const canUpdateProducts = hasPermissions(['productsUpdate'])
+  const canDeleteProducts = hasPermissions(['productsDelete'])
 
+  const composeTooltipLabel = useMemo(() => {
+    const editLabel = translate('text_629728388c4d2300e2d3816a')
+  })
   const getEmptyState = (): Partial<GenericPlaceholderProps> => {
     if (variables?.searchTerm) {
       return {
@@ -75,7 +93,7 @@ const ProductsList = () => {
         subtitle: translate('text_1783622030703a20cxlyb5xr'),
         buttonTitle: translate('text_1783622030703h5vhmp73muk'),
         buttonVariant: 'primary',
-        buttonAction: () => openCreateProductDrawer(),
+        buttonAction: () => openProductDrawer(),
       }
     }
     return {
@@ -121,6 +139,35 @@ const ProductsList = () => {
               tab: ProductDetailsTabsOptionsEnum.overview,
             })
           }
+          actionColumnTooltip={
+            canUpdateProducts && canDeleteProducts
+              ? () => translate('text_629728388c4d2300e2d3810d')
+              : undefined
+          }
+          actionColumn={(product) => {
+            const actions: ActionItem<typeof product>[] = []
+
+            if (canUpdateProducts) {
+              actions.push({
+                startIcon: 'pen',
+                title: translate('text_629728388c4d2300e2d3816a'),
+                onAction: () => openProductDrawer(product),
+              })
+            }
+
+            if (canDeleteProducts) {
+              actions.push({
+                startIcon: 'trash',
+                title: translate('text_629728388c4d2300e2d38182'),
+                // No callback: the dialog evicts the product from the cached
+                // list optimistically, so the row disappears without waiting
+                // for a refetch.
+                onAction: () => openDeleteProductDialog({ product }),
+              })
+            }
+
+            return actions
+          }}
           columns={[
             {
               key: 'name',

@@ -14797,7 +14797,7 @@ export type GoogleRegisterMutationVariables = Exact<{
 
 export type GoogleRegisterMutation = { __typename?: 'Mutation', googleRegisterUser?: { __typename?: 'RegisterUser', token: string } | null };
 
-export type ProductListItemFragment = { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productItemsCount: number, createdAt: any };
+export type ProductListItemFragment = { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productItemsCount: number, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean };
 
 export type ProductsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -14806,7 +14806,7 @@ export type ProductsQueryVariables = Exact<{
 }>;
 
 
-export type ProductsQuery = { __typename?: 'Query', products: { __typename?: 'ProductCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productItemsCount: number, createdAt: any }> } };
+export type ProductsQuery = { __typename?: 'Query', products: { __typename?: 'ProductCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productItemsCount: number, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean }> } };
 
 export type ProductForProductDetailsFragment = { __typename?: 'Product', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean };
 
@@ -20993,16 +20993,6 @@ export const SubscriptionForSubscriptionsListFragmentDoc = gql`
   }
 }
     `;
-export const ProductListItemFragmentDoc = gql`
-    fragment ProductListItem on Product {
-  id
-  name
-  code
-  invoiceDisplayName
-  productItemsCount
-  createdAt
-}
-    `;
 export const ProductForProductDrawerFragmentDoc = gql`
     fragment ProductForProductDrawer on Product {
   id
@@ -21019,6 +21009,19 @@ export const ProductForDeleteProductDialogFragmentDoc = gql`
   name
 }
     `;
+export const ProductListItemFragmentDoc = gql`
+    fragment ProductListItem on Product {
+  id
+  name
+  code
+  invoiceDisplayName
+  productItemsCount
+  createdAt
+  ...ProductForProductDrawer
+  ...ProductForDeleteProductDialog
+}
+    ${ProductForProductDrawerFragmentDoc}
+${ProductForDeleteProductDialogFragmentDoc}`;
 export const ProductForProductDetailsFragmentDoc = gql`
     fragment ProductForProductDetails on Product {
   id

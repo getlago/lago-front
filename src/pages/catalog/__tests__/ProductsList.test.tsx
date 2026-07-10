@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react'
 import { ReactNode } from 'react'
 
 import { TableProps } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { ProductListItemFragment } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -13,7 +14,8 @@ const mockSearchInputProps = jest.fn()
 const mockHasPermissions = jest.fn()
 const mockGoToPage = jest.fn()
 const mockDebouncedSearch = jest.fn()
-const mockOpenCreateProductDrawer = jest.fn()
+const mockOpenProductDrawer = jest.fn()
+const mockOpenDeleteProductDialog = jest.fn()
 const mockUseProductsLazyQuery = jest.fn()
 
 jest.mock('~/components/designSystem/Table/Table', () => ({
@@ -36,7 +38,11 @@ jest.mock('~/components/SearchInput', () => ({
 }))
 
 jest.mock('../drawers/product/useProductDrawer', () => ({
-  useProductDrawer: () => ({ openDrawer: mockOpenCreateProductDrawer }),
+  useProductDrawer: () => ({ openDrawer: mockOpenProductDrawer }),
+}))
+
+jest.mock('../dialogs/useDeleteProductDialog', () => ({
+  useDeleteProductDialog: () => ({ openDeleteProductDialog: mockOpenDeleteProductDialog }),
 }))
 
 jest.mock('~/hooks/usePermissions', () => ({
@@ -155,6 +161,49 @@ describe('ProductsList', () => {
     )
   })
 
+  describe('row actions', () => {
+    const product = {
+      id: 'prod-1',
+      name: 'Object storage',
+      code: 'object_storage',
+    } as ProductListItemFragment
+
+    it('offers edit and delete, wired to the drawer and the delete dialog', () => {
+      render(<ProductsList />)
+
+      const { actionColumn, actionColumnTooltip } = getTableProps()
+      const actions = (actionColumn?.(product) ?? []) as ActionItem<ProductListItemFragment>[]
+
+      expect(actionColumnTooltip?.(product)).toBe('text_629728388c4d2300e2d3810d')
+      expect(actions).toHaveLength(2)
+
+      const [editAction, deleteAction] = actions
+
+      expect(editAction).toEqual(
+        expect.objectContaining({ startIcon: 'pen', title: 'text_629728388c4d2300e2d3816a' }),
+      )
+      editAction?.onAction(product)
+      expect(mockOpenProductDrawer).toHaveBeenCalledWith(product)
+
+      expect(deleteAction).toEqual(
+        expect.objectContaining({ startIcon: 'trash', title: 'text_629728388c4d2300e2d38182' }),
+      )
+      deleteAction?.onAction(product)
+      expect(mockOpenDeleteProductDialog).toHaveBeenCalledWith({ product })
+    })
+
+    it('hides both actions without the update and delete permissions', () => {
+      mockHasPermissions.mockReturnValue(false)
+
+      render(<ProductsList />)
+
+      const { actionColumn, actionColumnTooltip } = getTableProps()
+
+      expect(actionColumn?.(product)).toHaveLength(0)
+      expect(actionColumnTooltip).toBeUndefined()
+    })
+  })
+
   it('resets to page 1 before searching', () => {
     render(<ProductsList />)
 
@@ -181,7 +230,7 @@ describe('ProductsList', () => {
 
     placeholder?.emptyState?.buttonAction?.()
 
-    expect(mockOpenCreateProductDrawer).toHaveBeenCalledTimes(1)
+    expect(mockOpenProductDrawer).toHaveBeenCalledTimes(1)
   })
 
   it('hides the create CTA without the productsCreate permission', () => {
