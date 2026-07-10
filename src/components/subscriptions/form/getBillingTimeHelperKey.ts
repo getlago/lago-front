@@ -4,8 +4,7 @@ import { DateFormat, intlFormatDateTime } from '~/core/timezone'
 import { BillingTimeEnum, PlanInterval } from '~/generated/graphql'
 
 export type BillingTimeHelperKey =
-  | { key: string; variables?: Record<string, string | number> }
-  | undefined
+  { key: string; variables?: Record<string, string | number> } | undefined
 
 const getDayBasedBillingKey = (
   currentDay: number,
