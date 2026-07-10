@@ -134,29 +134,23 @@ describe('CreateCreditNote', () => {
       })
     })
 
-    it('renders the fully-covered empty state instead of the form', async () => {
+    it('renders the form with a danger alert instead of the fee items', async () => {
       await act(() => render(<CreateCreditNote />))
 
-      // Title "This invoice is fully covered" + reused "already fully covered" subtitle
-      expect(screen.getByText('This invoice is fully covered')).toBeInTheDocument()
+      // Form chrome still renders (invoice information card is present)
+      expect(screen.getByText('Invoice information')).toBeInTheDocument()
+      // Danger alert replaces the fee items
       expect(
         screen.getByText(
-          'The credit note can’t be issued as the creditable amount is already fully covered.',
+          "The total amount of all credit notes matches this invoice's total. No additional credit notes can be created.",
         ),
       ).toBeInTheDocument()
     })
 
-    it('does not render the credit-note form or submit button', async () => {
+    it('disables the submit button', async () => {
       await act(() => render(<CreateCreditNote />))
 
-      expect(screen.queryByText('Items to credit')).not.toBeInTheDocument()
-      expect(screen.queryByText('Issue credit note')).not.toBeInTheDocument()
-    })
-
-    it('offers a button back to the invoice', async () => {
-      await act(() => render(<CreateCreditNote />))
-
-      expect(screen.getByText('Go back to invoice')).toBeInTheDocument()
+      expect(screen.getByText('Issue credit note').closest('button')).toBeDisabled()
     })
   })
 

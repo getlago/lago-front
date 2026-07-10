@@ -21,7 +21,6 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Card } from '~/components/designSystem/Card'
-import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
@@ -45,7 +44,6 @@ import {
   LagoApiError,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import EmptyImage from '~/public/images/maneki/empty.svg'
 import { PageHeader } from '~/styles'
 
 import { useCreateCreditNote } from './common/useCreateCreditNote'
@@ -287,31 +285,6 @@ const CreateCreditNote = () => {
     return creditNoteFormHasAtLeastOneFeeChecked(formikProps.values)
   }, [formikProps.values])
 
-  // Reachable from the invoices list, which no longer knows whether the invoice is fully
-  // covered. Instead of the old hard 404, explain there is nothing left to credit.
-  if (isInvoiceFullyCovered) {
-    return (
-      <div className="flex h-screen w-screen">
-        <GenericPlaceholder
-          image={<EmptyImage width="136" height="104" />}
-          title={translate('text_1783526080347vs608xgb0wg')}
-          subtitle={translate('text_1729082994964zccpjmtotdy')}
-          buttonTitle={translate('text_1783526080347g6rhu312xty')}
-          buttonVariant="primary"
-          buttonAction={() =>
-            navigate(
-              generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                customerId: customerId ?? '',
-                invoiceId: invoiceId ?? '',
-                tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-              }),
-            )
-          }
-        />
-      </div>
-    )
-  }
-
   return (
     <div>
       <PageHeader.Wrapper>
@@ -487,55 +460,61 @@ const CreateCreditNote = () => {
                 </Typography>
               </div>
 
-              <CreditNoteItemsForm
-                isPrepaidCreditsInvoice={isPrepaidCreditsInvoice}
-                formikProps={formikProps}
-                feeForCredit={feeForCredit}
-                feeForAddOn={feeForAddOn}
-                feesPerInvoice={feesPerInvoice}
-                currency={currency}
-              />
-
-              {isPrepaidCreditsInvoice ? (
+              {isInvoiceFullyCovered ? (
+                <Alert type="danger">{translate('text_1783670256902guo0smcgak1')}</Alert>
+              ) : (
                 <>
-                  <div className="ml-auto w-full max-w-100">
-                    <CreditNoteEstimationLine
-                      label={
-                        hasCreditableOrRefundableAmount
-                          ? translate('text_17270794543889mcmuhfq70p')
-                          : translate('text_1767883339943r32jn2ioyeu')
-                      }
-                      value={intlFormatNumber(
-                        Number(formikProps.values.creditFee?.[0]?.value || 0),
-                        {
-                          currency,
-                        },
-                      )}
-                    />
-                  </div>
+                  <CreditNoteItemsForm
+                    isPrepaidCreditsInvoice={isPrepaidCreditsInvoice}
+                    formikProps={formikProps}
+                    feeForCredit={feeForCredit}
+                    feeForAddOn={feeForAddOn}
+                    feesPerInvoice={feesPerInvoice}
+                    currency={currency}
+                  />
 
-                  {hasCreditableOrRefundableAmount && (
-                    <Alert
-                      className="mt-6"
-                      type="info"
-                      data-test={PREPAID_CREDITS_REFUND_ALERT_TEST_ID}
-                    >
-                      {translate('text_1729084495407pcn1mei0hyd')}
-                    </Alert>
+                  {isPrepaidCreditsInvoice ? (
+                    <>
+                      <div className="ml-auto w-full max-w-100">
+                        <CreditNoteEstimationLine
+                          label={
+                            hasCreditableOrRefundableAmount
+                              ? translate('text_17270794543889mcmuhfq70p')
+                              : translate('text_1767883339943r32jn2ioyeu')
+                          }
+                          value={intlFormatNumber(
+                            Number(formikProps.values.creditFee?.[0]?.value || 0),
+                            {
+                              currency,
+                            },
+                          )}
+                        />
+                      </div>
+
+                      {hasCreditableOrRefundableAmount && (
+                        <Alert
+                          className="mt-6"
+                          type="info"
+                          data-test={PREPAID_CREDITS_REFUND_ALERT_TEST_ID}
+                        >
+                          {translate('text_1729084495407pcn1mei0hyd')}
+                        </Alert>
+                      )}
+                    </>
+                  ) : (
+                    <CreditNoteFormCalculation
+                      hasError={hasError}
+                      currency={creditNoteCalculation.currency}
+                      estimationLoading={creditNoteCalculation.estimationLoading}
+                      hasCouponLine={creditNoteCalculation.hasCouponLine}
+                      proRatedCouponAmount={creditNoteCalculation.proRatedCouponAmount}
+                      totalExcludedTax={creditNoteCalculation.totalExcludedTax}
+                      taxes={creditNoteCalculation.taxes}
+                      totalTaxIncluded={creditNoteCalculation.totalTaxIncluded}
+                      canOnlyCredit={creditNoteCalculation.canOnlyCredit}
+                    />
                   )}
                 </>
-              ) : (
-                <CreditNoteFormCalculation
-                  hasError={hasError}
-                  currency={creditNoteCalculation.currency}
-                  estimationLoading={creditNoteCalculation.estimationLoading}
-                  hasCouponLine={creditNoteCalculation.hasCouponLine}
-                  proRatedCouponAmount={creditNoteCalculation.proRatedCouponAmount}
-                  totalExcludedTax={creditNoteCalculation.totalExcludedTax}
-                  taxes={creditNoteCalculation.taxes}
-                  totalTaxIncluded={creditNoteCalculation.totalTaxIncluded}
-                  canOnlyCredit={creditNoteCalculation.canOnlyCredit}
-                />
               )}
             </div>
 
