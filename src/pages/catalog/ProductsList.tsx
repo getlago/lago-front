@@ -84,9 +84,13 @@ const ProductsList = () => {
     }
   }
 
+  // Inset layout (per design, same as the customer subscriptions tab): the
+  // wrapper owns the page gutter so the row dividers and the pager border stop
+  // at it instead of running edge to edge; the table keeps only the minimal
+  // 4px cell gutter.
   return (
-    <>
-      <div className="p-4 md:px-12">
+    <div className="px-4 md:px-12">
+      <div className="py-4">
         <SearchInput
           onChange={(value) => {
             goToPage(1)
@@ -97,19 +101,16 @@ const ProductsList = () => {
         />
       </div>
       <PaginatedContent
-        insetPager
         metadata={data?.products?.metadata}
         loading={isLoading}
         onPageChange={goToPage}
+        sticky={false}
       >
         <Table
           name="products-list"
           data={data?.products?.collection ?? []}
-          containerSize={{
-            default: 16,
-            md: 48,
-          }}
-          containerClassName={tw('-mb-px h-auto shrink-0 border-t border-grey-300')}
+          containerSize={4}
+          containerClassName={tw('border-t border-grey-300')}
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
@@ -177,7 +178,7 @@ const ProductsList = () => {
           }}
         />
       </PaginatedContent>
-    </>
+    </div>
   )
 }
 
