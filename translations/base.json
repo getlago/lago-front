@@ -4478,7 +4478,7 @@
   "text_1784125321861zpfdo292vgj": "You must add at least one item",
   "text_17836939541574skv5dmaj06": "Execute manually",
   "text_17836939541581o5vrz4lup5": "Execute order {{orderNumber}} manually",
-  "text_1783693954158kkhja0v3uez": "You are about to update the order settings and execute the order immediately. This will provision billing.",
+  "text_1783693954158kkhja0v3uez": "You are about to execute the order immediately. This will provision billing.",
   "text_1783693954158ptbr210ec4g": "This action cannot be undone. Please verify all details before proceeding. The order will be executed immediately, and billing will be provisioned.",
   "text_1783693954158o27yno2lfnm": "Execute order",
   "text_1783693954158zdvy0q96esu": "Order executed successfully"
