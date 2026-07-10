@@ -13,19 +13,19 @@ const fixedPayload = {
   id: 'cpn_uuid',
   name: 'Enterprise 20% Discount',
   type: 'fixed_amount' as const,
-  amount_cents: 5000,
-  percentage_rate: null,
+  amountCents: 5000,
+  percentageRate: null,
   currency: 'EUR',
   frequency: 'recurring' as const,
-  frequency_duration: 6,
-  expiration_at: null,
-  limited_plans: false,
-  plan_codes: [],
-  limited_billable_metrics: false,
-  billable_metric_codes: [],
-  coupon_overrides: null,
-  catalog_snapshot: null,
-  resolved_payload: null,
+  frequencyDuration: 6,
+  expirationAt: null,
+  limitedPlans: false,
+  planCodes: [],
+  limitedBillableMetrics: false,
+  billableMetricCodes: [],
+  couponOverrides: null,
+  catalogSnapshot: null,
+  resolvedPayload: null,
 }
 
 describe('serializeQuoteCoupons', () => {
@@ -53,16 +53,16 @@ describe('serializeQuoteCoupons', () => {
       expect(result[0].id).toBe('cpn_uuid')
       expect(result[0].localId).toBe('local-1')
       expect(result[0].overrides).toEqual({
-        amount_cents: 9000,
-        percentage_rate: null,
+        amountCents: 9000,
+        percentageRate: null,
         frequency: 'recurring',
-        frequency_duration: 6,
+        frequencyDuration: 6,
       })
       // currency is NOT in overrides
       expect(result[0].overrides).not.toHaveProperty('currency')
     })
 
-    it('writes percentage_rate (amount_cents null) for percentage coupons', () => {
+    it('writes percentageRate (amountCents null) for percentage coupons', () => {
       const items: DiscountFormItem[] = [
         {
           localId: 'local-2',
@@ -83,16 +83,16 @@ describe('serializeQuoteCoupons', () => {
           ...fixedPayload,
           id: 'cpn_pct',
           type: 'percentage',
-          amount_cents: null,
-          percentage_rate: 10,
+          amountCents: null,
+          percentageRate: 10,
         },
       })
 
       expect(result[0].overrides).toEqual({
-        amount_cents: null,
-        percentage_rate: 12.5,
+        amountCents: null,
+        percentageRate: 12.5,
         frequency: 'forever',
-        frequency_duration: null,
+        frequencyDuration: null,
       })
     })
   })
@@ -106,10 +106,10 @@ describe('serializeQuoteCoupons', () => {
           localId: 'local-1',
           payload: fixedPayload,
           overrides: {
-            amount_cents: 9000,
-            percentage_rate: null,
+            amountCents: 9000,
+            percentageRate: null,
             frequency: CouponFrequency.Recurring,
-            frequency_duration: 6,
+            frequencyDuration: 6,
           },
         },
       ]

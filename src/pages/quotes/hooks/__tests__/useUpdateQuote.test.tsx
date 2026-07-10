@@ -2,6 +2,7 @@ import { act, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
+import { LagoApiError } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
 import { useUpdateQuote } from '../useUpdateQuote'
@@ -66,6 +67,7 @@ describe('useUpdateQuote', () => {
 
         expect(mockUpdateQuoteVersion).toHaveBeenCalledWith({
           variables: { input: { id: 'version-123', name: 'Updated Name' } },
+          context: { silentError: LagoApiError.UnprocessableEntity },
         })
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
       })
@@ -85,6 +87,7 @@ describe('useUpdateQuote', () => {
 
         expect(mockUpdateQuoteVersion).toHaveBeenCalledWith({
           variables: { input: { id: 'version-456' } },
+          context: { silentError: LagoApiError.UnprocessableEntity },
         })
         expect(addToast).not.toHaveBeenCalled()
       })
@@ -121,8 +124,29 @@ describe('useUpdateQuote', () => {
 
         expect(mockUpdateQuoteVersion).toHaveBeenCalledWith({
           variables: { input: { id: 'version-default' } },
+          context: { silentError: LagoApiError.UnprocessableEntity },
         })
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
+    })
+
+    describe('WHEN called with a mutation success response', () => {
+      it('THEN should call the mutation with silentError context for unprocessable entity', async () => {
+        mockUpdateQuoteVersion.mockResolvedValueOnce({
+          data: { updateQuoteVersion: { id: 'version-context' } },
+        })
+
+        const { result } = renderHook(() => useUpdateQuote(), { wrapper })
+
+        await act(async () => {
+          await result.current.updateQuoteVersion({ id: 'version-context' } as never, false)
+        })
+
+        expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+          expect.objectContaining({
+            context: { silentError: LagoApiError.UnprocessableEntity },
+          }),
+        )
       })
     })
   })
@@ -165,6 +189,53 @@ describe('useUpdateQuote', () => {
 
         await act(async () => {
           await result.current.updateQuoteVersion({ id: 'version-fail' } as never, true)
+        })
+
+        expect(onUpdateError).toHaveBeenCalledTimes(1)
+        expect(onUpdateFinished).not.toHaveBeenCalled()
+        expect(addToast).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN mutation returns GraphQL errors', () => {
+      it('THEN should call onUpdateError and NOT onUpdateFinished', async () => {
+        const onUpdateFinished = jest.fn()
+        const onUpdateError = jest.fn()
+
+        mockUpdateQuoteVersion.mockResolvedValueOnce({
+          data: { updateQuoteVersion: null },
+          errors: [{ message: 'Unprocessable Entity' }],
+        })
+
+        const { result } = renderHook(() => useUpdateQuote({ onUpdateFinished, onUpdateError }), {
+          wrapper,
+        })
+
+        await act(async () => {
+          await result.current.updateQuoteVersion({ id: 'v1', content: 'x' } as never, false)
+        })
+
+        expect(onUpdateError).toHaveBeenCalledTimes(1)
+        expect(onUpdateFinished).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN mutation returns truthy data AND a non-empty errors array', () => {
+      it('THEN should call onUpdateError, NOT onUpdateFinished, and NOT show a toast', async () => {
+        const onUpdateFinished = jest.fn()
+        const onUpdateError = jest.fn()
+
+        mockUpdateQuoteVersion.mockResolvedValueOnce({
+          data: { updateQuoteVersion: { id: 'version-123' } },
+          errors: [{ message: 'Unprocessable Entity' }],
+        })
+
+        const { result } = renderHook(() => useUpdateQuote({ onUpdateFinished, onUpdateError }), {
+          wrapper,
+        })
+
+        await act(async () => {
+          await result.current.updateQuoteVersion({ id: 'version-123' } as never, true)
         })
 
         expect(onUpdateError).toHaveBeenCalledTimes(1)

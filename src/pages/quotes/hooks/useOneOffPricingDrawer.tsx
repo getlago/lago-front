@@ -3,7 +3,6 @@ import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
 import type {
   EntityData,
   OnPricingCommand,
@@ -15,6 +14,7 @@ import {
 } from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
 import PricingDrawerContent from '~/components/designSystem/RichTextEditor/PricingBlock/PricingDrawerContent'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
+import { addToast } from '~/core/apolloClient'
 import {
   type AddOnPayload,
   type BillingItemsPayload,
@@ -25,6 +25,19 @@ import { type AddOnForPricingSectionFragment, CurrencyEnum } from '~/generated/g
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import type { SavePricingResult } from '~/pages/quotes/EditQuote'
+import {
+  ADDONS_ERROR_CONFIG,
+  mapBillingItemErrors,
+} from '~/pages/quotes/utils/mapBillingItemErrors'
+import {
+  QUOTE_FIELD_ERROR_KEY,
+  QUOTE_SAVE_FAILED_TOAST_KEY,
+} from '~/pages/quotes/utils/quoteSaveErrorKeys'
+import {
+  clearServerFieldErrors,
+  setServerFieldErrors,
+} from '~/pages/quotes/utils/serverFieldErrors'
 
 // --- Hook ---
 
@@ -61,9 +74,10 @@ export const useOneOffPricingDrawer = (
         attrs: PricingBlockAttributes,
         entityData: Record<string, EntityData>,
         billingItems?: BillingItemsPayload,
-      ) => void)
+      ) => void | Promise<unknown>)
     | null
   >(null)
+  const lastSaveResultRef = useRef<SavePricingResult | null>(null)
 
   // Hydrate from saved billingItems on mount / when quote data arrives
   useEffect(() => {
@@ -71,7 +85,7 @@ export const useOneOffPricingDrawer = (
 
     const parsed = initialBillingItems as BillingItemsPayload
 
-    if (!parsed.addons?.length) return
+    if (!parsed.addOns?.length) return
 
     const {
       entities: formattedEntities,
@@ -109,12 +123,12 @@ export const useOneOffPricingDrawer = (
         name: addOn.name,
         description: addOn.description ?? '',
         units: 1,
-        unit_amount_cents: Number(addOn.amountCents),
-        total_amount_cents: Number(addOn.amountCents), // units=1 × amountCents
-        invoice_display_name: addOn.invoiceDisplayName ?? '',
-        from_datetime: null,
-        to_datetime: null,
-        tax_codes: addOn.taxes?.map((t) => t.code) ?? [],
+        unitAmountCents: Number(addOn.amountCents),
+        totalAmountCents: Number(addOn.amountCents), // units=1 × amountCents
+        invoiceDisplayName: addOn.invoiceDisplayName ?? '',
+        fromDatetime: null,
+        toDatetime: null,
+        taxCodes: addOn.taxes?.map((t) => t.code) ?? [],
       }
     },
     [],
@@ -184,10 +198,32 @@ export const useOneOffPricingDrawer = (
     validators: {
       onDynamic: validationSchema,
     },
-    onSubmit: ({ value }) => {
+    listeners: {
+      // Server (422) field errors sit in the `onDynamic` errorMap slot, which
+      // keeps `canSubmit` false and would otherwise deadlock the drawer:
+      // `form.handleSubmit()` won't re-run `onSubmit` (where errors are cleared)
+      // while the stale error stands. Clearing on edit lets `canSubmit` recover
+      // so the user can resubmit once they've fixed the field.
+      onChange: ({ formApi }) => {
+        const paths = (formApi.state.values.addOnItems ?? []).flatMap((_item, index) => [
+          `addOnItems[${index}].units`,
+          `addOnItems[${index}].unitAmountCents`,
+        ])
+
+        clearServerFieldErrors(formApi, paths, QUOTE_FIELD_ERROR_KEY)
+      },
+    },
+    onSubmit: async ({ value }) => {
       const confirmedItems = value.addOnItems.filter((item) => item.addOnId)
 
       if (confirmedItems.length === 0) return
+
+      const fieldPaths = confirmedItems.map(
+        (_item, index) => `addOnItems[${index}].unitAmountCents`,
+      )
+      const unitPaths = confirmedItems.map((_item, index) => `addOnItems[${index}].units`)
+
+      clearServerFieldErrors(form, [...fieldPaths, ...unitPaths], QUOTE_FIELD_ERROR_KEY)
 
       const entityData: Record<string, EntityData> = {}
 
@@ -209,19 +245,33 @@ export const useOneOffPricingDrawer = (
 
       const billingItems = toBillingItems(confirmedItems, payloadsRef.current, currencyRef.current)
 
-      onSaveRef.current?.(
-        {
-          pricingType: 'addOns' as const,
-          entityIds: confirmedItems.map((item) => item.addOnId),
-          localEntityIds: confirmedItems.map((item) => item.localId),
-        },
-        entityData,
-        billingItems,
-      )
-      const updatedAddOns = { ...entitiesRef.current, ...entityData }
+      const attrs: PricingBlockAttributes = {
+        pricingType: 'addOns' as const,
+        entityIds: confirmedItems.map((item) => item.addOnId),
+        localEntityIds: confirmedItems.map((item) => item.localId),
+      }
 
-      entitiesRef.current = updatedAddOns
-      setEntities(updatedAddOns)
+      const result = (await onSaveRef.current?.(attrs, entityData, billingItems)) as
+        SavePricingResult | undefined
+
+      lastSaveResultRef.current = result ?? { ok: true }
+
+      if (result?.ok !== false) {
+        const updatedAddOns = { ...entitiesRef.current, ...entityData }
+
+        entitiesRef.current = updatedAddOns
+        setEntities(updatedAddOns)
+
+        return
+      }
+
+      const { fieldErrors, unmapped } = mapBillingItemErrors(result.error, ADDONS_ERROR_CONFIG)
+
+      setServerFieldErrors(form, fieldErrors, QUOTE_FIELD_ERROR_KEY)
+
+      if (unmapped.length > 0 || fieldErrors.length === 0) {
+        addToast({ severity: 'danger', translateKey: QUOTE_SAVE_FAILED_TOAST_KEY })
+      }
     },
   })
 
@@ -268,10 +318,23 @@ export const useOneOffPricingDrawer = (
       )
 
       const handleSubmit = async () => {
+        lastSaveResultRef.current = null
+
         await form.handleSubmit()
 
         if (!form.state.canSubmit) {
           throw new Error('Validation failed')
+        }
+
+        // `lastSaveResultRef.current` is mutated by the form's `onSubmit` closure,
+        // invoked indirectly through `form.handleSubmit()` above. TS's control-flow
+        // analysis cannot see through that indirection and otherwise narrows the
+        // property to the literal `null` assigned a few lines up — the cast below
+        // forces a fresh read of the ref's declared type.
+        const lastSaveResult = lastSaveResultRef.current as SavePricingResult | null
+
+        if (lastSaveResult && !lastSaveResult.ok) {
+          throw new Error('Save failed')
         }
       }
 
@@ -282,9 +345,11 @@ export const useOneOffPricingDrawer = (
           submit: handleSubmit,
         },
         mainAction: (
-          <Button data-test="pricing-drawer-submit" type="submit">
-            {translate('text_17295436903260tlyb1gp1i7')}
-          </Button>
+          <form.AppForm>
+            <form.SubmitButton dataTest="pricing-drawer-submit">
+              {translate('text_17295436903260tlyb1gp1i7')}
+            </form.SubmitButton>
+          </form.AppForm>
         ),
         cancelOrCloseText: 'cancel',
         closeOnError: false,

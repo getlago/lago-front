@@ -1,8 +1,15 @@
+import { ApolloError } from '@apollo/client'
 import { act, renderHook, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { addToast } from '~/core/apolloClient'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import { CouponFrequency, CouponTypeEnum, CurrencyEnum } from '~/generated/graphql'
+import {
+  QUOTE_FIELD_ERROR_KEY,
+  QUOTE_SAVE_FAILED_TOAST_KEY,
+} from '~/pages/quotes/utils/quoteSaveErrorKeys'
+import * as serverFieldErrorsUtil from '~/pages/quotes/utils/serverFieldErrors'
 import { render } from '~/test-utils'
 
 import { DISCOUNT_DRAWER_SAVE_TEST_ID, useDiscountDrawer } from '../useDiscountDrawer'
@@ -32,6 +39,13 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
     translate: (key: string) => key,
   }),
 }))
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
+}))
+
+const mockAddToast = addToast as jest.Mock
 
 // Controllable coupon dataset returned by the lazy query. The standalone async
 // ComboBox reads `data` and calls `getCoupons` (the fetch trigger). Must be
@@ -315,10 +329,10 @@ describe('useDiscountDrawer', () => {
         id: string
         localId: string
         overrides: {
-          amount_cents: number | null
-          percentage_rate: number | null
+          amountCents: number | null
+          percentageRate: number | null
           frequency: string
-          frequency_duration: number | null
+          frequencyDuration: number | null
         }
       }>
     }
@@ -330,10 +344,10 @@ describe('useDiscountDrawer', () => {
     expect(coupon.id).toBe('cpn_fixed')
     expect(coupon.localId).toBe('mock-uuid-1')
     expect(coupon.overrides).toEqual({
-      amount_cents: 1000,
-      percentage_rate: null,
+      amountCents: 1000,
+      percentageRate: null,
       frequency: 'once',
-      frequency_duration: null,
+      frequencyDuration: null,
     })
   })
 
@@ -415,17 +429,17 @@ describe('useDiscountDrawer', () => {
 
     const persistedPayload = onPersist.mock.calls[0][0] as {
       coupons: Array<{
-        overrides: { frequency: string; frequency_duration: number | null }
+        overrides: { frequency: string; frequencyDuration: number | null }
       }>
     }
 
     expect(persistedPayload.coupons[0].overrides.frequency).toBe('recurring')
-    expect(persistedPayload.coupons[0].overrides.frequency_duration).toBe(6)
+    expect(persistedPayload.coupons[0].overrides.frequencyDuration).toBe(6)
   })
 
   it('calls onPersist with updated overrides when editing an existing coupon', async () => {
     const initialBillingItems: BillingItemsPayload = {
-      addons: [],
+      addOns: [],
       coupons: [
         {
           type: 'coupon',
@@ -437,25 +451,25 @@ describe('useDiscountDrawer', () => {
             id: 'cpn_fixed',
             name: 'Ten Off',
             type: 'fixed_amount',
-            amount_cents: 1000,
-            percentage_rate: null,
+            amountCents: 1000,
+            percentageRate: null,
             currency: CurrencyEnum.Usd,
             frequency: 'once',
-            frequency_duration: null,
-            expiration_at: null,
-            limited_plans: false,
-            plan_codes: [],
-            limited_billable_metrics: false,
-            billable_metric_codes: [],
-            coupon_overrides: null,
-            catalog_snapshot: null,
-            resolved_payload: null,
+            frequencyDuration: null,
+            expirationAt: null,
+            limitedPlans: false,
+            planCodes: [],
+            limitedBillableMetrics: false,
+            billableMetricCodes: [],
+            couponOverrides: null,
+            catalogSnapshot: null,
+            resolvedPayload: null,
           },
           overrides: {
-            amount_cents: 1000,
-            percentage_rate: null,
+            amountCents: 1000,
+            percentageRate: null,
             frequency: 'once',
-            frequency_duration: null,
+            frequencyDuration: null,
           },
         },
       ],
@@ -508,9 +522,92 @@ describe('useDiscountDrawer', () => {
     expect(persistedPayload.coupons[0].localId).toBe('saved-local')
   })
 
+  it('does NOT remove the existing block when editing and the save fails', async () => {
+    const initialBillingItems: BillingItemsPayload = {
+      addOns: [],
+      coupons: [
+        {
+          type: 'coupon',
+          id: 'cpn_fixed',
+          localId: 'saved-local',
+          payload: {
+            position: 1,
+            code: 'COUPON_CODE',
+            id: 'cpn_fixed',
+            name: 'Ten Off',
+            type: 'fixed_amount',
+            amountCents: 1000,
+            percentageRate: null,
+            currency: CurrencyEnum.Usd,
+            frequency: 'once',
+            frequencyDuration: null,
+            expirationAt: null,
+            limitedPlans: false,
+            planCodes: [],
+            limitedBillableMetrics: false,
+            billableMetricCodes: [],
+            couponOverrides: null,
+            catalogSnapshot: null,
+            resolvedPayload: null,
+          },
+          overrides: {
+            amountCents: 1000,
+            percentageRate: null,
+            frequency: 'once',
+            frequencyDuration: null,
+          },
+        },
+      ],
+    }
+
+    const onPersist = jest.fn().mockResolvedValue({ ok: false, error: new ApolloError({}) })
+    const onRemoveBlock = jest.fn()
+
+    const { result } = renderHook(() =>
+      useDiscountDrawer(initialBillingItems, {
+        currency: CurrencyEnum.Usd,
+        onPersist,
+        onRemoveBlock,
+      }),
+    )
+
+    act(() => {
+      result.current.onDiscountCommand({
+        onSave: jest.fn(),
+        editData: { couponId: 'cpn_fixed', localId: 'saved-local' },
+      })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(
+      <>
+        {openArgs.children}
+        {openArgs.actions}
+      </>,
+    )
+
+    const allSaveButtons = screen.getAllByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)
+    const saveButton = allSaveButtons[allSaveButtons.length - 1]
+
+    await waitFor(() => {
+      expect(saveButton).not.toBeDisabled()
+    })
+
+    await userEvent.click(saveButton)
+
+    await waitFor(() => {
+      expect(onPersist).toHaveBeenCalledTimes(1)
+    })
+
+    // A failed edit keeps the drawer open but must NOT remove the existing block.
+    expect(onRemoveBlock).not.toHaveBeenCalled()
+    expect(mockDrawerClose).not.toHaveBeenCalled()
+  })
+
   it('prefills from saved override values when editing', () => {
     const initialBillingItems: BillingItemsPayload = {
-      addons: [],
+      addOns: [],
       coupons: [
         {
           type: 'coupon',
@@ -522,25 +619,25 @@ describe('useDiscountDrawer', () => {
             id: 'cpn_edit',
             name: 'Edit Coupon',
             type: 'fixed_amount',
-            amount_cents: 5000,
-            percentage_rate: null,
+            amountCents: 5000,
+            percentageRate: null,
             currency: CurrencyEnum.Usd,
             frequency: 'recurring',
-            frequency_duration: 3,
-            expiration_at: null,
-            limited_plans: false,
-            plan_codes: [],
-            limited_billable_metrics: false,
-            billable_metric_codes: [],
-            coupon_overrides: null,
-            catalog_snapshot: null,
-            resolved_payload: null,
+            frequencyDuration: 3,
+            expirationAt: null,
+            limitedPlans: false,
+            planCodes: [],
+            limitedBillableMetrics: false,
+            billableMetricCodes: [],
+            couponOverrides: null,
+            catalogSnapshot: null,
+            resolvedPayload: null,
           },
           overrides: {
-            amount_cents: 4200,
-            percentage_rate: null,
+            amountCents: 4200,
+            percentageRate: null,
             frequency: 'recurring',
-            frequency_duration: 6,
+            frequencyDuration: 6,
           },
         },
       ],
@@ -573,7 +670,7 @@ describe('useDiscountDrawer', () => {
     // combobox mock (cpn_fixed / "Ten Off"). Switching coupon must refresh the
     // block + preview to the newly selected coupon, not keep the old identity.
     const initialBillingItems: BillingItemsPayload = {
-      addons: [],
+      addOns: [],
       coupons: [
         {
           type: 'coupon',
@@ -585,25 +682,25 @@ describe('useDiscountDrawer', () => {
             id: 'cpn_edit',
             name: 'Edit Coupon',
             type: 'fixed_amount',
-            amount_cents: 5000,
-            percentage_rate: null,
+            amountCents: 5000,
+            percentageRate: null,
             currency: CurrencyEnum.Usd,
             frequency: 'once',
-            frequency_duration: null,
-            expiration_at: null,
-            limited_plans: false,
-            plan_codes: [],
-            limited_billable_metrics: false,
-            billable_metric_codes: [],
-            coupon_overrides: null,
-            catalog_snapshot: null,
-            resolved_payload: null,
+            frequencyDuration: null,
+            expirationAt: null,
+            limitedPlans: false,
+            planCodes: [],
+            limitedBillableMetrics: false,
+            billableMetricCodes: [],
+            couponOverrides: null,
+            catalogSnapshot: null,
+            resolvedPayload: null,
           },
           overrides: {
-            amount_cents: 5000,
-            percentage_rate: null,
+            amountCents: 5000,
+            percentageRate: null,
             frequency: 'once',
-            frequency_duration: null,
+            frequencyDuration: null,
           },
         },
       ],
@@ -673,6 +770,205 @@ describe('useDiscountDrawer', () => {
       name: 'Ten Off',
       code: 'COUPON_CODE',
       couponType: CouponTypeEnum.FixedAmount,
+    })
+  })
+
+  describe('GIVEN onPersist rejects the save', () => {
+    const selectFixedAmountCoupon = async () => {
+      const comboBoxInput = screen.getByRole('combobox') as HTMLInputElement
+
+      await userEvent.type(comboBoxInput, 'Ten')
+
+      await waitFor(() => {
+        expect(comboBoxInput.getAttribute('aria-controls')).toBeTruthy()
+      })
+
+      const listboxId = comboBoxInput.getAttribute('aria-controls') as string
+      const listbox = document.getElementById(listboxId) as HTMLElement
+
+      await userEvent.click(within(listbox).getByText('Ten Off'))
+    }
+
+    it('keeps the drawer open, rolls back the block, and shows a field error on a mapped 422', async () => {
+      const setServerFieldErrorsSpy = jest.spyOn(serverFieldErrorsUtil, 'setServerFieldErrors')
+
+      const mappedError = new ApolloError({
+        graphQLErrors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              code: 'unprocessable_entity',
+              details: { 'billingItems.coupons.0.amountCents': ['value_is_invalid'] },
+            },
+          } as never,
+        ],
+      })
+
+      const onPersist = jest.fn().mockResolvedValue({ ok: false, error: mappedError })
+      const onRemoveBlock = jest.fn()
+      const onSave = jest.fn()
+
+      const { result } = renderHook(() =>
+        useDiscountDrawer(undefined, { currency: CurrencyEnum.Usd, onPersist, onRemoveBlock }),
+      )
+
+      act(() => {
+        result.current.onDiscountCommand({ onSave })
+      })
+
+      const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+      render(
+        <>
+          {openArgs.children}
+          {openArgs.actions}
+        </>,
+      )
+
+      await selectFixedAmountCoupon()
+
+      const saveButton = screen.getByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)
+
+      await waitFor(() => {
+        expect(saveButton).not.toBeDisabled()
+      })
+
+      await userEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(onPersist).toHaveBeenCalledTimes(1)
+      })
+
+      // The block was inserted optimistically, then rolled back on failure.
+      expect(onSave).toHaveBeenCalledWith({ couponId: 'cpn_fixed', localId: 'mock-uuid-1' })
+      expect(onRemoveBlock).toHaveBeenCalledWith('mock-uuid-1')
+
+      // Field-level error surfaced inline on the amount field via the `onDynamic`
+      // errorMap slot (gated by messageKey so Zod revalidation can't clobber it).
+      await waitFor(() => {
+        expect(setServerFieldErrorsSpy).toHaveBeenCalledWith(
+          expect.anything(),
+          [{ path: 'amount', code: 'value_is_invalid' }],
+          QUOTE_FIELD_ERROR_KEY,
+        )
+      })
+
+      expect(mockAddToast).not.toHaveBeenCalled()
+      expect(mockDrawerClose).not.toHaveBeenCalled()
+
+      // Nothing was committed — the drawer's local state stays empty.
+      expect(result.current.entities).not.toHaveProperty('mock-uuid-1')
+
+      // Deadlock recovery: the 422 leaves the server error in the slot, so the
+      // save button is disabled (canSubmit=false). Editing the field clears the
+      // error via the onChange listener, re-enabling the button for a resubmit.
+      await waitFor(() => {
+        expect(saveButton).toBeDisabled()
+      })
+
+      await userEvent.type(screen.getByDisplayValue('10'), '5')
+
+      await waitFor(() => {
+        expect(saveButton).not.toBeDisabled()
+      })
+
+      setServerFieldErrorsSpy.mockRestore()
+    })
+
+    it('toasts and stays open on an unmappable failure', async () => {
+      const unmappableError = new ApolloError({
+        graphQLErrors: [
+          {
+            message: 'Internal Server Error',
+            extensions: { code: 'internal_server_error' },
+          } as never,
+        ],
+      })
+
+      const onPersist = jest.fn().mockResolvedValue({ ok: false, error: unmappableError })
+      const onRemoveBlock = jest.fn()
+      const onSave = jest.fn()
+
+      const { result } = renderHook(() =>
+        useDiscountDrawer(undefined, { currency: CurrencyEnum.Usd, onPersist, onRemoveBlock }),
+      )
+
+      act(() => {
+        result.current.onDiscountCommand({ onSave })
+      })
+
+      const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+      render(
+        <>
+          {openArgs.children}
+          {openArgs.actions}
+        </>,
+      )
+
+      await selectFixedAmountCoupon()
+
+      const saveButton = screen.getByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)
+
+      await waitFor(() => {
+        expect(saveButton).not.toBeDisabled()
+      })
+
+      await userEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(mockAddToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          translateKey: QUOTE_SAVE_FAILED_TOAST_KEY,
+        })
+      })
+
+      expect(onRemoveBlock).toHaveBeenCalledWith('mock-uuid-1')
+      expect(mockDrawerClose).not.toHaveBeenCalled()
+      expect(result.current.entities).not.toHaveProperty('mock-uuid-1')
+    })
+
+    it('commits and closes on success', async () => {
+      const onPersist = jest.fn().mockResolvedValue({ ok: true })
+      const onRemoveBlock = jest.fn()
+      const onSave = jest.fn()
+
+      const { result } = renderHook(() =>
+        useDiscountDrawer(undefined, { currency: CurrencyEnum.Usd, onPersist, onRemoveBlock }),
+      )
+
+      act(() => {
+        result.current.onDiscountCommand({ onSave })
+      })
+
+      const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+      render(
+        <>
+          {openArgs.children}
+          {openArgs.actions}
+        </>,
+      )
+
+      await selectFixedAmountCoupon()
+
+      const saveButton = screen.getByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)
+
+      await waitFor(() => {
+        expect(saveButton).not.toBeDisabled()
+      })
+
+      await userEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(mockDrawerClose).toHaveBeenCalled()
+      })
+
+      expect(onRemoveBlock).not.toHaveBeenCalled()
+
+      await waitFor(() => {
+        expect(result.current.entities).toHaveProperty('mock-uuid-1')
+      })
     })
   })
 })

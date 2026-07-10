@@ -12,30 +12,30 @@ import { deserializeAmount, serializeAmount } from './serializeAmount'
 // Re-export so consumers can import PlanFormInput from this serializer module.
 export type { PlanFormInput }
 
-// --- Plan billing item types (snake_case, matches backend contract) ---
+// --- Plan billing item types (camelCase, matches backend contract) ---
 interface PlanChargeOverride {
-  billable_metric_code: string
-  charge_model: string
+  billableMetricCode: string
+  chargeModel: string
   properties: Record<string, unknown>
 }
 
 interface PlanMinimumCommitmentOverride {
-  amount_cents: number
-  invoice_display_name?: string
+  amountCents: number
+  invoiceDisplayName?: string
 }
 
 interface PlanUsageThresholdOverride {
-  amount_cents: number
+  amountCents: number
   recurring: boolean
-  threshold_display_name?: string
+  thresholdDisplayName?: string
 }
 
 export interface PlanOverrides {
-  amount_cents?: number
-  invoice_display_name?: string
-  minimum_commitment?: PlanMinimumCommitmentOverride
+  amountCents?: number
+  invoiceDisplayName?: string
+  minimumCommitment?: PlanMinimumCommitmentOverride
   charges?: PlanChargeOverride[]
-  usage_thresholds?: PlanUsageThresholdOverride[]
+  usageThresholds?: PlanUsageThresholdOverride[]
 }
 
 // --- Serialized plan form types (stored in PlanPayload for form reconstruction) ---
@@ -51,39 +51,39 @@ interface SerializedBillableMetric {
   id: string
   code: string
   name: string
-  aggregation_type: string
+  aggregationType: string
   recurring: boolean
   filters: Array<{ id: string; key: string; values: string[] }>
 }
 
 interface SerializedChargeFilter {
-  invoice_display_name: string | null
+  invoiceDisplayName: string | null
   properties: Record<string, unknown>
   values: string[]
 }
 
 interface SerializedAppliedPricingUnit {
   code: string
-  short_name: string
+  shortName: string
   type: string
-  conversion_rate: string
+  conversionRate: string
 }
 
 interface SerializedCharge {
   id?: string
-  billable_metric: SerializedBillableMetric
-  charge_model: string
+  billableMetric: SerializedBillableMetric
+  chargeModel: string
   properties: Record<string, unknown>
-  invoice_display_name: string
-  min_amount_cents: string | undefined
-  pay_in_advance: boolean
+  invoiceDisplayName: string
+  minAmountCents: string | undefined
+  payInAdvance: boolean
   prorated: boolean
-  regroup_paid_fees: string | null
+  regroupPaidFees: string | null
   invoiceable: boolean
-  tax_codes: string[]
+  taxCodes: string[]
   taxes: SerializedTax[]
   filters: SerializedChargeFilter[]
-  applied_pricing_unit: SerializedAppliedPricingUnit | null
+  appliedPricingUnit: SerializedAppliedPricingUnit | null
 }
 
 interface SerializedAddOn {
@@ -94,31 +94,31 @@ interface SerializedAddOn {
 
 interface SerializedFixedCharge {
   id?: string
-  add_on: SerializedAddOn
-  charge_model: string
+  addOn: SerializedAddOn
+  chargeModel: string
   units: string
-  apply_units_immediately: boolean
-  invoice_display_name: string | null
-  pay_in_advance: boolean
+  applyUnitsImmediately: boolean
+  invoiceDisplayName: string | null
+  payInAdvance: boolean
   prorated: boolean
   properties: Record<string, unknown>
-  tax_codes: string[]
+  taxCodes: string[]
   taxes: SerializedTax[]
 }
 
 interface SerializedMinimumCommitment {
   id?: string
-  amount_cents: string
-  invoice_display_name: string | null
-  commitment_type: string
-  tax_codes: string[]
+  amountCents: string
+  invoiceDisplayName: string | null
+  commitmentType: string
+  taxCodes: string[]
   taxes: SerializedTax[]
 }
 
 interface SerializedUsageThreshold {
   id?: string
-  amount_cents: number | string
-  threshold_display_name: string | null
+  amountCents: number | string
+  thresholdDisplayName: string | null
   recurring: boolean
 }
 
@@ -127,34 +127,34 @@ interface PlanPayload {
   code: string
   name: string
   description: string
-  subscription_external_id: string | null
-  subscription_name: string | null
-  billing_time: 'anniversary' | 'calendar'
-  start_date: string | null
-  end_date: string | null
-  payment_method_id: string | null
-  invoice_custom_footer: string | null
+  subscriptionExternalId: string | null
+  subscriptionName: string | null
+  billingTime: 'anniversary' | 'calendar'
+  startDate: string | null
+  endDate: string | null
+  paymentMethodId: string | null
+  invoiceCustomFooter: string | null
 
   // --- Plan configuration (optional for backward compat with legacy payloads) ---
   interval?: string
-  amount_cents?: string
-  amount_currency?: string
-  pay_in_advance?: boolean
-  bill_charges_monthly?: boolean | null
-  bill_fixed_charges_monthly?: boolean | null
-  trial_period?: number
-  invoice_display_name?: string | null
-  tax_codes?: string[]
+  amountCents?: string
+  amountCurrency?: string
+  payInAdvance?: boolean
+  billChargesMonthly?: boolean | null
+  billFixedChargesMonthly?: boolean | null
+  trialPeriod?: number
+  invoiceDisplayName?: string | null
+  taxCodes?: string[]
   taxes?: SerializedTax[]
 
   // --- Charges (optional for backward compat) ---
   charges?: SerializedCharge[]
-  fixed_charges?: SerializedFixedCharge[]
+  fixedCharges?: SerializedFixedCharge[]
 
   // --- Commitments & thresholds (optional for backward compat) ---
-  minimum_commitment?: SerializedMinimumCommitment | null
-  non_recurring_usage_thresholds?: SerializedUsageThreshold[]
-  recurring_usage_threshold?: SerializedUsageThreshold | null
+  minimumCommitment?: SerializedMinimumCommitment | null
+  nonRecurringUsageThresholds?: SerializedUsageThreshold[]
+  recurringUsageThreshold?: SerializedUsageThreshold | null
 }
 
 export interface BillingItemPlan {
@@ -222,35 +222,35 @@ const serializeCharge = (charge: LocalUsageChargeInput): SerializedCharge => {
 
   return {
     id: charge.id,
-    billable_metric: {
+    billableMetric: {
       id: bm.id,
       code: bm.code,
       name: bm.name,
-      aggregation_type: bm.aggregationType,
+      aggregationType: bm.aggregationType,
       recurring: bm.recurring,
       filters: (bm.filters ?? []).map((f) => ({ id: f.id, key: f.key, values: [...f.values] })),
     },
-    charge_model: charge.chargeModel,
+    chargeModel: charge.chargeModel,
     properties: charge.properties ?? {},
-    invoice_display_name: charge.invoiceDisplayName ?? '',
-    min_amount_cents: charge.minAmountCents === null ? undefined : String(charge.minAmountCents),
-    pay_in_advance: charge.payInAdvance ?? false,
+    invoiceDisplayName: charge.invoiceDisplayName ?? '',
+    minAmountCents: charge.minAmountCents === null ? undefined : String(charge.minAmountCents),
+    payInAdvance: charge.payInAdvance ?? false,
     prorated: charge.prorated ?? false,
-    regroup_paid_fees: (charge.regroupPaidFees as string) ?? null,
+    regroupPaidFees: (charge.regroupPaidFees as string) ?? null,
     invoiceable: charge.invoiceable ?? true,
-    tax_codes: charge.taxCodes ?? [],
+    taxCodes: charge.taxCodes ?? [],
     taxes: serializeTaxes(charge.taxes),
     filters: (charge.filters ?? []).map((f) => ({
-      invoice_display_name: (f.invoiceDisplayName as string | null) ?? null,
+      invoiceDisplayName: (f.invoiceDisplayName as string | null) ?? null,
       properties: f.properties ?? {},
       values: f.values ?? [],
     })),
-    applied_pricing_unit: charge.appliedPricingUnit
+    appliedPricingUnit: charge.appliedPricingUnit
       ? {
           code: charge.appliedPricingUnit.code,
-          short_name: charge.appliedPricingUnit.shortName,
+          shortName: charge.appliedPricingUnit.shortName,
           type: String(charge.appliedPricingUnit.type),
-          conversion_rate: charge.appliedPricingUnit.conversionRate ?? '',
+          conversionRate: charge.appliedPricingUnit.conversionRate ?? '',
         }
       : null,
   }
@@ -259,25 +259,25 @@ const serializeCharge = (charge: LocalUsageChargeInput): SerializedCharge => {
 const serializeFixedCharge = (charge: LocalFixedChargeInput): SerializedFixedCharge => {
   return {
     id: charge.id,
-    add_on: {
+    addOn: {
       id: charge.addOn.id,
       name: charge.addOn.name,
       code: charge.addOn.code,
     },
-    charge_model: charge.chargeModel,
+    chargeModel: charge.chargeModel,
     units: (charge.units as string) ?? '',
-    apply_units_immediately: charge.applyUnitsImmediately ?? false,
-    invoice_display_name: (charge.invoiceDisplayName as string | null) ?? null,
-    pay_in_advance: charge.payInAdvance ?? false,
+    applyUnitsImmediately: charge.applyUnitsImmediately ?? false,
+    invoiceDisplayName: (charge.invoiceDisplayName as string | null) ?? null,
+    payInAdvance: charge.payInAdvance ?? false,
     prorated: charge.prorated ?? false,
     properties: charge.properties ?? {},
-    tax_codes: charge.taxCodes ?? [],
+    taxCodes: charge.taxCodes ?? [],
     taxes: serializeTaxes(charge.taxes),
   }
 }
 
 /**
- * Builds the snake_case `overrides` payload from the plan form state.
+ * Builds the camelCase `overrides` payload from the plan form state.
  *
  * This is the single source of truth for the form → override mapping: it is
  * derived from the same `PlanFormInput` that feeds the plan `payload`, so the
@@ -291,19 +291,19 @@ export const buildPlanOverrides = (formValues: PlanFormInput): PlanOverrides => 
   const currency = (formValues.amountCurrency as CurrencyEnum) ?? CurrencyEnum.Usd
 
   // Subscription fee
-  overrides.amount_cents = Number(formValues.amountCents)
+  overrides.amountCents = Number(formValues.amountCents)
     ? serializeAmount(formValues.amountCents, currency)
     : undefined
   if (formValues.invoiceDisplayName) {
-    overrides.invoice_display_name = formValues.invoiceDisplayName || undefined
+    overrides.invoiceDisplayName = formValues.invoiceDisplayName || undefined
   }
 
   // Fixed charges
   if (formValues.fixedCharges?.length) {
     overrides.charges = [
       ...formValues.fixedCharges.map((c) => ({
-        billable_metric_code: c.addOn?.code ?? '',
-        charge_model: c.chargeModel,
+        billableMetricCode: c.addOn?.code ?? '',
+        chargeModel: c.chargeModel,
         properties: c.properties ?? {},
       })),
     ]
@@ -314,8 +314,8 @@ export const buildPlanOverrides = (formValues: PlanFormInput): PlanOverrides => 
     overrides.charges = [
       ...(overrides.charges ?? []),
       ...formValues.charges.map((c) => ({
-        billable_metric_code: c.billableMetric?.code ?? '',
-        charge_model: c.chargeModel,
+        billableMetricCode: c.billableMetric?.code ?? '',
+        chargeModel: c.chargeModel,
         properties: c.properties ?? {},
       })),
     ]
@@ -325,25 +325,25 @@ export const buildPlanOverrides = (formValues: PlanFormInput): PlanOverrides => 
   const mcAmount = formValues.minimumCommitment?.amountCents
 
   if (mcAmount && !Number.isNaN(Number(mcAmount)) && Number(mcAmount) > 0) {
-    overrides.minimum_commitment = {
-      amount_cents: serializeAmount(mcAmount, currency),
-      invoice_display_name: formValues.minimumCommitment?.invoiceDisplayName || undefined,
+    overrides.minimumCommitment = {
+      amountCents: serializeAmount(mcAmount, currency),
+      invoiceDisplayName: formValues.minimumCommitment?.invoiceDisplayName || undefined,
     }
   }
 
   // Progressive billing (usage thresholds)
   const thresholds = [
     ...(formValues.nonRecurringUsageThresholds ?? []).map((t) => ({
-      amount_cents: serializeAmount(t.amountCents, currency),
+      amountCents: serializeAmount(t.amountCents, currency),
       recurring: false as const,
-      threshold_display_name: t.thresholdDisplayName ?? undefined,
+      thresholdDisplayName: t.thresholdDisplayName ?? undefined,
     })),
     ...(formValues.recurringUsageThreshold
       ? [
           {
-            amount_cents: serializeAmount(formValues.recurringUsageThreshold.amountCents, currency),
+            amountCents: serializeAmount(formValues.recurringUsageThreshold.amountCents, currency),
             recurring: true as const,
-            threshold_display_name:
+            thresholdDisplayName:
               formValues.recurringUsageThreshold.thresholdDisplayName ?? undefined,
           },
         ]
@@ -351,7 +351,7 @@ export const buildPlanOverrides = (formValues: PlanFormInput): PlanOverrides => 
   ]
 
   if (thresholds.length) {
-    overrides.usage_thresholds = thresholds
+    overrides.usageThresholds = thresholds
   }
 
   return overrides
@@ -373,13 +373,13 @@ export const toPlanBillingItems = (
     code: planCode,
     name: planName,
     description: planDescription,
-    subscription_external_id: normalizeOptional(subscriptionSettings.externalId),
-    subscription_name: normalizeOptional(subscriptionSettings.subscriptionName),
-    billing_time: subscriptionSettings.billingTime,
-    start_date: normalizeOptional(subscriptionSettings.startDate),
-    end_date: normalizeOptional(subscriptionSettings.endDate),
-    payment_method_id: normalizeOptional(invoicingSettings.paymentMethodId),
-    invoice_custom_footer: normalizeOptional(invoicingSettings.invoiceCustomFooter),
+    subscriptionExternalId: normalizeOptional(subscriptionSettings.externalId),
+    subscriptionName: normalizeOptional(subscriptionSettings.subscriptionName),
+    billingTime: subscriptionSettings.billingTime,
+    startDate: normalizeOptional(subscriptionSettings.startDate),
+    endDate: normalizeOptional(subscriptionSettings.endDate),
+    paymentMethodId: normalizeOptional(invoicingSettings.paymentMethodId),
+    invoiceCustomFooter: normalizeOptional(invoicingSettings.invoiceCustomFooter),
   }
 
   if (formValues) {
@@ -391,43 +391,43 @@ export const toPlanBillingItems = (
         : String(serializeAmount(value, currency))
 
     payload.interval = formValues.interval
-    payload.amount_cents = toCentsString(formValues.amountCents)
-    payload.amount_currency = formValues.amountCurrency
-    payload.pay_in_advance = formValues.payInAdvance ?? false
-    payload.bill_charges_monthly = formValues.billChargesMonthly ?? null
-    payload.bill_fixed_charges_monthly = formValues.billFixedChargesMonthly ?? null
-    payload.trial_period = formValues.trialPeriod ?? 0
-    payload.invoice_display_name = formValues.invoiceDisplayName ?? null
-    payload.tax_codes = formValues.taxCodes ?? []
+    payload.amountCents = toCentsString(formValues.amountCents)
+    payload.amountCurrency = formValues.amountCurrency
+    payload.payInAdvance = formValues.payInAdvance ?? false
+    payload.billChargesMonthly = formValues.billChargesMonthly ?? null
+    payload.billFixedChargesMonthly = formValues.billFixedChargesMonthly ?? null
+    payload.trialPeriod = formValues.trialPeriod ?? 0
+    payload.invoiceDisplayName = formValues.invoiceDisplayName ?? null
+    payload.taxCodes = formValues.taxCodes ?? []
     payload.taxes = serializeTaxes(formValues.taxes)
     payload.charges = (formValues.charges ?? []).map(serializeCharge)
-    payload.fixed_charges = (formValues.fixedCharges ?? []).map(serializeFixedCharge)
-    payload.minimum_commitment = formValues.minimumCommitment
+    payload.fixedCharges = (formValues.fixedCharges ?? []).map(serializeFixedCharge)
+    payload.minimumCommitment = formValues.minimumCommitment
       ? {
           id: formValues.minimumCommitment.id ?? undefined,
-          amount_cents: toCentsString(formValues.minimumCommitment.amountCents),
-          invoice_display_name:
+          amountCents: toCentsString(formValues.minimumCommitment.amountCents),
+          invoiceDisplayName:
             (formValues.minimumCommitment.invoiceDisplayName as string | null) ?? null,
-          commitment_type: String(
+          commitmentType: String(
             formValues.minimumCommitment.commitmentType ?? 'minimum_commitment',
           ),
-          tax_codes: formValues.minimumCommitment.taxCodes ?? [],
+          taxCodes: formValues.minimumCommitment.taxCodes ?? [],
           taxes: serializeTaxes(formValues.minimumCommitment.taxes),
         }
       : null
-    payload.non_recurring_usage_thresholds = (formValues.nonRecurringUsageThresholds ?? []).map(
+    payload.nonRecurringUsageThresholds = (formValues.nonRecurringUsageThresholds ?? []).map(
       (t) => ({
         id: undefined,
-        amount_cents: serializeAmount(t.amountCents, currency),
-        threshold_display_name: (t.thresholdDisplayName as string | null) ?? null,
+        amountCents: serializeAmount(t.amountCents, currency),
+        thresholdDisplayName: (t.thresholdDisplayName as string | null) ?? null,
         recurring: t.recurring ?? false,
       }),
     )
-    payload.recurring_usage_threshold = formValues.recurringUsageThreshold
+    payload.recurringUsageThreshold = formValues.recurringUsageThreshold
       ? {
           id: undefined,
-          amount_cents: serializeAmount(formValues.recurringUsageThreshold.amountCents, currency),
-          threshold_display_name:
+          amountCents: serializeAmount(formValues.recurringUsageThreshold.amountCents, currency),
+          thresholdDisplayName:
             (formValues.recurringUsageThreshold.thresholdDisplayName as string | null) ?? null,
           recurring: formValues.recurringUsageThreshold.recurring ?? true,
         }
@@ -458,7 +458,7 @@ const deserializeTaxes = (
 }
 
 const deserializeCharge = (charge: SerializedCharge): LocalUsageChargeInput => {
-  const bm = charge.billable_metric
+  const bm = charge.billableMetric
 
   return {
     id: charge.id,
@@ -466,31 +466,31 @@ const deserializeCharge = (charge: SerializedCharge): LocalUsageChargeInput => {
       id: bm.id,
       code: bm.code,
       name: bm.name,
-      aggregationType: bm.aggregation_type,
+      aggregationType: bm.aggregationType,
       recurring: bm.recurring,
       filters: bm.filters.map((f) => ({ id: f.id, key: f.key, values: f.values })),
     } as LocalUsageChargeInput['billableMetric'],
-    chargeModel: charge.charge_model as LocalUsageChargeInput['chargeModel'],
+    chargeModel: charge.chargeModel as LocalUsageChargeInput['chargeModel'],
     properties: charge.properties,
-    invoiceDisplayName: charge.invoice_display_name ?? undefined,
-    minAmountCents: charge.min_amount_cents as LocalUsageChargeInput['minAmountCents'],
-    payInAdvance: charge.pay_in_advance,
+    invoiceDisplayName: charge.invoiceDisplayName ?? undefined,
+    minAmountCents: charge.minAmountCents as LocalUsageChargeInput['minAmountCents'],
+    payInAdvance: charge.payInAdvance,
     prorated: charge.prorated,
-    regroupPaidFees: charge.regroup_paid_fees as LocalUsageChargeInput['regroupPaidFees'],
+    regroupPaidFees: charge.regroupPaidFees as LocalUsageChargeInput['regroupPaidFees'],
     invoiceable: charge.invoiceable,
-    taxCodes: charge.tax_codes,
+    taxCodes: charge.taxCodes,
     taxes: deserializeTaxes(charge.taxes),
     filters: charge.filters.map((f) => ({
-      invoiceDisplayName: f.invoice_display_name ?? undefined,
+      invoiceDisplayName: f.invoiceDisplayName ?? undefined,
       properties: f.properties,
       values: f.values,
     })) as LocalUsageChargeInput['filters'],
-    appliedPricingUnit: charge.applied_pricing_unit
+    appliedPricingUnit: charge.appliedPricingUnit
       ? ({
-          code: charge.applied_pricing_unit.code,
-          shortName: charge.applied_pricing_unit.short_name,
-          type: charge.applied_pricing_unit.type,
-          conversionRate: charge.applied_pricing_unit.conversion_rate,
+          code: charge.appliedPricingUnit.code,
+          shortName: charge.appliedPricingUnit.shortName,
+          type: charge.appliedPricingUnit.type,
+          conversionRate: charge.appliedPricingUnit.conversionRate,
         } as LocalUsageChargeInput['appliedPricingUnit'])
       : undefined,
   }
@@ -500,18 +500,18 @@ const deserializeFixedCharge = (charge: SerializedFixedCharge): LocalFixedCharge
   return {
     id: charge.id,
     addOn: {
-      id: charge.add_on.id,
-      name: charge.add_on.name,
-      code: charge.add_on.code,
+      id: charge.addOn.id,
+      name: charge.addOn.name,
+      code: charge.addOn.code,
     },
-    chargeModel: charge.charge_model as LocalFixedChargeInput['chargeModel'],
+    chargeModel: charge.chargeModel as LocalFixedChargeInput['chargeModel'],
     units: charge.units,
-    applyUnitsImmediately: charge.apply_units_immediately,
-    invoiceDisplayName: charge.invoice_display_name ?? undefined,
-    payInAdvance: charge.pay_in_advance,
+    applyUnitsImmediately: charge.applyUnitsImmediately,
+    invoiceDisplayName: charge.invoiceDisplayName ?? undefined,
+    payInAdvance: charge.payInAdvance,
     prorated: charge.prorated,
     properties: charge.properties,
-    taxCodes: charge.tax_codes,
+    taxCodes: charge.taxCodes,
     taxes: deserializeTaxes(charge.taxes),
   }
 }
@@ -521,16 +521,16 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
   const { payload, overrides, id } = plan
 
   const subscriptionSettings: SubscriptionSettings = {
-    externalId: denormalizeOptional(payload.subscription_external_id),
-    subscriptionName: denormalizeOptional(payload.subscription_name),
-    billingTime: payload.billing_time,
-    startDate: denormalizeOptional(payload.start_date),
-    endDate: denormalizeOptional(payload.end_date),
+    externalId: denormalizeOptional(payload.subscriptionExternalId),
+    subscriptionName: denormalizeOptional(payload.subscriptionName),
+    billingTime: payload.billingTime,
+    startDate: denormalizeOptional(payload.startDate),
+    endDate: denormalizeOptional(payload.endDate),
   }
 
   const invoicingSettings: InvoicingSettings = {
-    paymentMethodId: denormalizeOptional(payload.payment_method_id),
-    invoiceCustomFooter: denormalizeOptional(payload.invoice_custom_footer),
+    paymentMethodId: denormalizeOptional(payload.paymentMethodId),
+    invoiceCustomFooter: denormalizeOptional(payload.invoiceCustomFooter),
   }
 
   // Backward-compat: legacy payloads don't have interval/charges
@@ -544,49 +544,48 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
 
   if (hasFullPlanData) {
     // Payload stores cents; the plan form expects currency units.
-    const currency = (payload.amount_currency as CurrencyEnum) ?? CurrencyEnum.Usd
+    const currency = (payload.amountCurrency as CurrencyEnum) ?? CurrencyEnum.Usd
 
     formValues = {
       interval: payload.interval as PlanFormInput['interval'],
       amountCents: String(
-        deserializeAmount(payload.amount_cents || 0, currency),
+        deserializeAmount(payload.amountCents || 0, currency),
       ) as PlanFormInput['amountCents'],
-      amountCurrency: payload.amount_currency as PlanFormInput['amountCurrency'],
-      payInAdvance: payload.pay_in_advance ?? false,
-      billChargesMonthly: payload.bill_charges_monthly ?? undefined,
-      billFixedChargesMonthly: payload.bill_fixed_charges_monthly ?? undefined,
-      trialPeriod: payload.trial_period,
-      invoiceDisplayName: payload.invoice_display_name ?? undefined,
-      taxCodes: payload.tax_codes ?? [],
+      amountCurrency: payload.amountCurrency as PlanFormInput['amountCurrency'],
+      payInAdvance: payload.payInAdvance ?? false,
+      billChargesMonthly: payload.billChargesMonthly ?? undefined,
+      billFixedChargesMonthly: payload.billFixedChargesMonthly ?? undefined,
+      trialPeriod: payload.trialPeriod,
+      invoiceDisplayName: payload.invoiceDisplayName ?? undefined,
+      taxCodes: payload.taxCodes ?? [],
       taxes: deserializeTaxes(payload.taxes ?? []),
       charges: (payload.charges ?? []).map(deserializeCharge),
-      fixedCharges: (payload.fixed_charges ?? []).map(deserializeFixedCharge),
-      minimumCommitment: payload.minimum_commitment
+      fixedCharges: (payload.fixedCharges ?? []).map(deserializeFixedCharge),
+      minimumCommitment: payload.minimumCommitment
         ? {
-            id: payload.minimum_commitment.id ?? undefined,
+            id: payload.minimumCommitment.id ?? undefined,
             amountCents: String(
-              deserializeAmount(payload.minimum_commitment.amount_cents || 0, currency),
+              deserializeAmount(payload.minimumCommitment.amountCents || 0, currency),
             ),
-            invoiceDisplayName: payload.minimum_commitment.invoice_display_name ?? undefined,
-            commitmentType: payload.minimum_commitment.commitment_type as CommitmentTypeEnum,
-            taxCodes: payload.minimum_commitment.tax_codes ?? [],
-            taxes: deserializeTaxes(payload.minimum_commitment.taxes ?? []),
+            invoiceDisplayName: payload.minimumCommitment.invoiceDisplayName ?? undefined,
+            commitmentType: payload.minimumCommitment.commitmentType as CommitmentTypeEnum,
+            taxCodes: payload.minimumCommitment.taxCodes ?? [],
+            taxes: deserializeTaxes(payload.minimumCommitment.taxes ?? []),
           }
         : undefined,
-      nonRecurringUsageThresholds: (payload.non_recurring_usage_thresholds ?? []).map((t) => ({
-        amountCents: deserializeAmount(t.amount_cents || 0, currency),
-        thresholdDisplayName: t.threshold_display_name ?? undefined,
+      nonRecurringUsageThresholds: (payload.nonRecurringUsageThresholds ?? []).map((t) => ({
+        amountCents: deserializeAmount(t.amountCents || 0, currency),
+        thresholdDisplayName: t.thresholdDisplayName ?? undefined,
         recurring: t.recurring,
       })) as PlanFormInput['nonRecurringUsageThresholds'],
-      recurringUsageThreshold: payload.recurring_usage_threshold
+      recurringUsageThreshold: payload.recurringUsageThreshold
         ? {
             amountCents: deserializeAmount(
-              payload.recurring_usage_threshold.amount_cents || 0,
+              payload.recurringUsageThreshold.amountCents || 0,
               currency,
             ),
-            thresholdDisplayName:
-              payload.recurring_usage_threshold.threshold_display_name ?? undefined,
-            recurring: payload.recurring_usage_threshold.recurring,
+            thresholdDisplayName: payload.recurringUsageThreshold.thresholdDisplayName ?? undefined,
+            recurring: payload.recurringUsageThreshold.recurring,
           }
         : undefined,
       entitlements: [],

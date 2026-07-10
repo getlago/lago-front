@@ -429,7 +429,7 @@ describe('ApproveQuote', () => {
             currentVersion: {
               ...mockQuote.currentVersion,
               content: '<p>Test content</p>',
-              billingItems: { addons: [{ type: 'addon', id: 'addon-1' }] },
+              billingItems: { addOns: [{ type: 'add_on', id: 'addon-1' }] },
             },
           },
           loading: false,

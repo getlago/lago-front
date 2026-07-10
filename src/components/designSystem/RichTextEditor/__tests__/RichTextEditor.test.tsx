@@ -487,6 +487,108 @@ describe('RichTextEditor', () => {
     })
   })
 
+  describe('GIVEN the removeBlockRef prop is provided', () => {
+    // The editor is mocked in this suite, so we assert the effect calls
+    // deleteRange over the matched node's range rather than round-tripping
+    // through real markdown serialization.
+    const originalChain = mockEditor.chain
+    const originalState = mockEditor.state
+
+    afterEach(() => {
+      mockEditor.chain = originalChain
+      mockEditor.state = originalState
+    })
+
+    const setupEditorWith = (nodes: Array<{ type: string; attrs: Record<string, unknown> }>) => {
+      const runSpy = jest.fn()
+      const deleteRangeSpy = jest.fn().mockReturnValue({ run: runSpy })
+      const focusSpy = jest.fn().mockReturnValue({ deleteRange: deleteRangeSpy })
+
+      mockEditor.chain = jest.fn().mockReturnValue({ focus: focusSpy })
+      mockEditor.state = {
+        ...mockEditor.state,
+        doc: {
+          descendants: jest.fn((cb: (node: unknown, pos: number) => boolean) => {
+            let pos = 5
+
+            for (const n of nodes) {
+              const stop = cb({ type: { name: n.type }, attrs: n.attrs, nodeSize: 3 }, pos)
+
+              if (stop === false) break
+              pos += 3
+            }
+          }),
+        },
+      } as unknown as typeof mockEditor.state
+
+      return { runSpy, deleteRangeSpy }
+    }
+
+    it('THEN should assign a function to removeBlockRef.current', async () => {
+      const removeBlockRef = { current: null } as React.MutableRefObject<
+        ((localId: string) => void) | null
+      >
+
+      setupEditorWith([])
+
+      await act(() => render(<RichTextEditor removeBlockRef={removeBlockRef} />))
+
+      expect(typeof removeBlockRef.current).toBe('function')
+    })
+
+    it('THEN removes a discount block matched by localId via deleteRange', async () => {
+      const removeBlockRef = { current: null } as React.MutableRefObject<
+        ((localId: string) => void) | null
+      >
+
+      const { runSpy, deleteRangeSpy } = setupEditorWith([
+        { type: 'discountBlock', attrs: { couponId: 'cpn_1', localId: 'coupon-local-1' } },
+      ])
+
+      await act(() => render(<RichTextEditor removeBlockRef={removeBlockRef} />))
+
+      act(() => removeBlockRef.current?.('coupon-local-1'))
+
+      expect(deleteRangeSpy).toHaveBeenCalledWith({ from: 5, to: 8 })
+      expect(runSpy).toHaveBeenCalled()
+    })
+
+    it('THEN removes a pricing block matched via localEntityIds', async () => {
+      const removeBlockRef = { current: null } as React.MutableRefObject<
+        ((localId: string) => void) | null
+      >
+
+      const { runSpy, deleteRangeSpy } = setupEditorWith([
+        { type: 'pricingBlock', attrs: { localEntityIds: ['addon-local-9'] } },
+      ])
+
+      await act(() => render(<RichTextEditor removeBlockRef={removeBlockRef} />))
+
+      act(() => removeBlockRef.current?.('addon-local-9'))
+
+      expect(deleteRangeSpy).toHaveBeenCalledWith({ from: 5, to: 8 })
+      expect(runSpy).toHaveBeenCalled()
+    })
+
+    it('THEN does nothing when no block matches the localId', async () => {
+      const removeBlockRef = { current: null } as React.MutableRefObject<
+        ((localId: string) => void) | null
+      >
+
+      const { runSpy, deleteRangeSpy } = setupEditorWith([
+        { type: 'discountBlock', attrs: { couponId: 'cpn_1', localId: 'other-local' } },
+        { type: 'paragraph', attrs: {} },
+      ])
+
+      await act(() => render(<RichTextEditor removeBlockRef={removeBlockRef} />))
+
+      act(() => removeBlockRef.current?.('coupon-local-1'))
+
+      expect(deleteRangeSpy).not.toHaveBeenCalled()
+      expect(runSpy).not.toHaveBeenCalled()
+    })
+  })
+
   describe('GIVEN the mention extension addNodeView config', () => {
     beforeEach(async () => {
       await act(() => render(<RichTextEditor />))

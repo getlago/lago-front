@@ -1,9 +1,15 @@
+import { ApolloError } from '@apollo/client'
 import { act, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 import { z } from 'zod'
 
+import { addToast } from '~/core/apolloClient'
 import { fromBillingItems, toBillingItems } from '~/core/serializers/serializeQuoteBillingItems'
 import { CurrencyEnum } from '~/generated/graphql'
+import {
+  QUOTE_FIELD_ERROR_KEY,
+  QUOTE_SAVE_FAILED_TOAST_KEY,
+} from '~/pages/quotes/utils/quoteSaveErrorKeys'
 import { AllTheProviders } from '~/test-utils'
 
 import { useOneOffPricingDrawer } from '../useOneOffPricingDrawer'
@@ -58,11 +64,28 @@ jest.mock('~/components/drawers/drawerStack', () => ({
   },
 }))
 
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
+}))
+
+const mockAddToast = addToast as jest.Mock
+
 const mockFormReset = jest.fn()
-const mockHandleSubmit = jest.fn()
+const mockSetFieldMeta = jest.fn()
 
 // Capture the onSubmit and setFieldValue calls from useAppForm
-let capturedOnSubmit: ((args: { value: Record<string, unknown> }) => void) | null = null
+let capturedOnSubmit:
+  ((args: { value: Record<string, unknown> }) => void | Promise<unknown>) | null = null
+
+// Capture the form-level listeners (the `onChange` clears stale server errors).
+let capturedListeners: { onChange?: (args: { formApi: unknown }) => void } | null = null
+
+// Simulates real TanStack form behavior: handleSubmit() runs the captured onSubmit
+// with the current form values.
+const mockHandleSubmit = jest.fn(async () => {
+  await capturedOnSubmit?.({ value: mockFormValues })
+})
 const mockSetFieldValue = jest.fn()
 let mockFormValues = { planId: '', addOnItems: [] as Record<string, unknown>[] }
 
@@ -82,10 +105,16 @@ jest.mock('~/hooks/forms/useAppform', () => ({
       capturedOnSubmit = config.onSubmit as typeof capturedOnSubmit
     }
 
+    if (config.listeners) {
+      capturedListeners = config.listeners as typeof capturedListeners
+    }
+
     return {
       reset: mockFormReset,
       handleSubmit: mockHandleSubmit,
       setFieldValue: mockSetFieldValue,
+      setFieldMeta: mockSetFieldMeta,
+      getFieldMeta: jest.fn(() => undefined),
       state: {
         canSubmit: true,
         get values() {
@@ -140,18 +169,18 @@ const mockAddOnPayload = {
   name: 'Setup Fee',
   description: 'One-time setup fee',
   units: 1,
-  unit_amount_cents: 10000,
-  total_amount_cents: 10000,
-  invoice_display_name: 'Setup',
-  from_datetime: null,
-  to_datetime: null,
-  tax_codes: ['vat_20'],
+  unitAmountCents: 10000,
+  totalAmountCents: 10000,
+  invoiceDisplayName: 'Setup',
+  fromDatetime: null,
+  toDatetime: null,
+  taxCodes: ['vat_20'],
 }
 
 const mockBillingItemsPayload = {
-  addons: [
+  addOns: [
     {
-      type: 'addon' as const,
+      type: 'add_on' as const,
       id: 'addon-1',
       payload: mockAddOnPayload,
       overrides: {},
@@ -256,7 +285,7 @@ describe('useOneOffPricingDrawer', () => {
 
     describe('WHEN initialBillingItems has no addons', () => {
       it('THEN should not call fromBillingItems', () => {
-        const emptyPayload = { addons: [] }
+        const emptyPayload = { addOns: [] }
 
         renderHook(() => useOneOffPricingDrawer(emptyPayload), { wrapper })
 
@@ -522,13 +551,13 @@ describe('useOneOffPricingDrawer', () => {
         })
 
         const rebuilt = {
-          addons: [
+          addOns: [
             {
-              type: 'addon' as const,
+              type: 'add_on' as const,
               id: 'addon-1',
               localId: 'local-uuid-1',
               payload: mockAddOnPayload,
-              overrides: { units: 2, unit_amount_cents: 2000, total_amount_cents: 4000 },
+              overrides: { units: 2, unitAmountCents: 2000, totalAmountCents: 4000 },
             },
           ],
         }
@@ -536,15 +565,15 @@ describe('useOneOffPricingDrawer', () => {
         mockedToBillingItems.mockReturnValueOnce(rebuilt)
 
         const billingItemsWithTwo = {
-          addons: [
+          addOns: [
             {
-              type: 'addon' as const,
+              type: 'add_on' as const,
               id: 'addon-1',
               payload: mockAddOnPayload,
               overrides: {},
             },
             {
-              type: 'addon' as const,
+              type: 'add_on' as const,
               id: 'addon-2',
               payload: secondPayload,
               overrides: {},
@@ -782,7 +811,7 @@ describe('useOneOffPricingDrawer', () => {
 
   describe('GIVEN the form onSubmit handler is invoked', () => {
     describe('WHEN submitting for a one-off with confirmed add-on items', () => {
-      it('THEN should call onSave with add-on entity data and billing items', () => {
+      it('THEN should call onSave with add-on entity data and billing items', async () => {
         const mockOnSave = jest.fn()
 
         const { result } = renderHook(() => useOneOffPricingDrawer(), {
@@ -816,8 +845,8 @@ describe('useOneOffPricingDrawer', () => {
           ],
         }
 
-        act(() => {
-          capturedOnSubmit?.({ value: mockFormValues })
+        await act(async () => {
+          await capturedOnSubmit?.({ value: mockFormValues })
         })
 
         expect(mockOnSave).toHaveBeenCalledWith(
@@ -976,6 +1005,169 @@ describe('useOneOffPricingDrawer', () => {
         })
 
         expect(mockHandleSubmit).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the save returns an error from the API', () => {
+    const confirmedAddOnItem = {
+      localId: 'local-uuid-1',
+      addOnId: 'addon-1',
+      name: 'Setup Fee',
+      invoiceDisplayName: 'Setup',
+      code: 'setup',
+      description: 'Desc',
+      units: '2',
+      unitAmountCents: '5000',
+      totalAmount: '10000',
+      fromDatetime: '2026-01-01',
+      toDatetime: '2026-01-31',
+    }
+
+    describe('WHEN the save resolves a mapped 422 field error', () => {
+      it('THEN should set a server field error, not commit entities, and keep the drawer open', async () => {
+        const mappedError = new ApolloError({
+          graphQLErrors: [
+            {
+              message: 'Unprocessable Entity',
+              extensions: {
+                code: 'unprocessable_entity',
+                details: { 'billingItems.add_ons.0.unitAmountCents': ['value_is_invalid'] },
+              },
+            } as never,
+          ],
+        })
+
+        const mockOnSave = jest.fn().mockResolvedValue({ ok: false, error: mappedError })
+
+        const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: mockOnSave,
+            editData: undefined,
+          })
+        })
+
+        mockFormValues = {
+          planId: '',
+          addOnItems: [confirmedAddOnItem],
+        }
+
+        const callArgs = mockFormDrawerOpen.mock.calls[0][0]
+
+        await act(async () => {
+          await expect(callArgs.form.submit()).rejects.toThrow()
+        })
+
+        expect(mockSetFieldMeta).toHaveBeenCalledWith(
+          'addOnItems[0].unitAmountCents',
+          expect.any(Function),
+        )
+
+        // The failed save routes the field error onto the unit-amount input via
+        // `setServerFieldErrors`, which parks it in the `onDynamic` slot.
+        const metaUpdaterCall = mockSetFieldMeta.mock.calls
+          .filter(([path]) => path === 'addOnItems[0].unitAmountCents')
+          .pop()
+
+        const updatedMeta = metaUpdaterCall?.[1]({ errorMap: {} })
+
+        expect(updatedMeta.errorMap.onDynamic).toEqual({ message: QUOTE_FIELD_ERROR_KEY })
+
+        // Entities should NOT be committed since the save failed
+        expect(result.current.entities).not.toHaveProperty('local-uuid-1')
+        expect(mockAddToast).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the save resolves an unmappable error', () => {
+      it('THEN should show a generic failure toast and keep the drawer open', async () => {
+        const unmappableError = new ApolloError({
+          graphQLErrors: [
+            {
+              message: 'Internal Server Error',
+              extensions: { code: 'internal_server_error' },
+            } as never,
+          ],
+        })
+
+        const mockOnSave = jest.fn().mockResolvedValue({ ok: false, error: unmappableError })
+
+        const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: mockOnSave,
+            editData: undefined,
+          })
+        })
+
+        mockFormValues = {
+          planId: '',
+          addOnItems: [confirmedAddOnItem],
+        }
+
+        const callArgs = mockFormDrawerOpen.mock.calls[0][0]
+
+        await act(async () => {
+          await expect(callArgs.form.submit()).rejects.toThrow()
+        })
+
+        expect(mockAddToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          translateKey: QUOTE_SAVE_FAILED_TOAST_KEY,
+        })
+
+        expect(result.current.entities).not.toHaveProperty('local-uuid-1')
+      })
+    })
+  })
+
+  describe('GIVEN a field is edited after a server error (clear-on-edit)', () => {
+    it('THEN the onChange listener clears only fields holding OUR server error (gated by message)', () => {
+      const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
+
+      act(() => {
+        result.current.onPricingCommand({ onSave: jest.fn(), editData: undefined })
+      })
+
+      expect(capturedListeners?.onChange).toBeInstanceOf(Function)
+
+      // Per-path meta: our server error, a genuine Zod error (same slot), and
+      // never-mounted fields.
+      const metaByPath: Record<string, unknown> = {
+        'addOnItems[0].units': undefined,
+        'addOnItems[0].unitAmountCents': {
+          errorMap: { onDynamic: { message: QUOTE_FIELD_ERROR_KEY } },
+        },
+        'addOnItems[1].units': { errorMap: { onDynamic: { message: 'a_zod_error' } } },
+        'addOnItems[1].unitAmountCents': undefined,
+      }
+
+      const setFieldMeta = jest.fn()
+      const getFieldMeta = jest.fn((path: string) => metaByPath[path])
+      const formApi = {
+        state: { values: { addOnItems: [{ addOnId: 'addon-1' }, { addOnId: 'addon-2' }] } },
+        getFieldMeta,
+        setFieldMeta,
+      }
+
+      act(() => {
+        capturedListeners?.onChange?.({ formApi })
+      })
+
+      // Only the field carrying our server error is cleared — the Zod error and
+      // the unmounted fields are left untouched.
+      const clearedPaths = setFieldMeta.mock.calls.map(([path]) => path)
+
+      expect(clearedPaths).toEqual(['addOnItems[0].unitAmountCents'])
+
+      // The updater drops just the onDynamic slot.
+      const updater = setFieldMeta.mock.calls[0][1]
+
+      expect(updater({ errorMap: { onDynamic: { message: QUOTE_FIELD_ERROR_KEY } } })).toEqual({
+        errorMap: { onDynamic: undefined },
       })
     })
   })

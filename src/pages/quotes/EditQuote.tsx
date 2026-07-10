@@ -1,3 +1,5 @@
+import { ApolloError } from '@apollo/client'
+import type { GraphQLFormattedError } from 'graphql'
 import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
@@ -35,6 +37,9 @@ import { useUpdateQuote } from './hooks/useUpdateQuote'
 const AUTO_SAVE_DELAY_MS = 2000
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
+
+export type SavePricingResult =
+  { ok: true } | { ok: false; error: ApolloError | readonly GraphQLFormattedError[] | undefined }
 
 const EditQuote = () => {
   const { translate } = useInternationalization()
@@ -129,11 +134,18 @@ const EditQuote = () => {
 
   // Stable ref so useDiscountDrawer can call savePricingBlock without a
   // forward-declaration error (savePricingBlock is defined below).
-  const savePricingBlockRef = useRef<(billingItems?: BillingItemsPayload) => void>(() => undefined)
+  const savePricingBlockRef = useRef<
+    (billingItems?: BillingItemsPayload) => Promise<SavePricingResult>
+  >(async () => ({ ok: true }))
 
   const discount = useDiscountDrawer(quote?.currentVersion?.billingItems, {
     currency: quoteCurrency,
     onPersist: (billingItems) => savePricingBlockRef.current(billingItems),
+    onRemoveBlock: (localId) => {
+      isRollingBackRef.current = true
+      removeBlockRef.current?.(localId)
+      isRollingBackRef.current = false
+    },
   })
 
   const mergedEntities = useMemo(
@@ -144,6 +156,8 @@ const EditQuote = () => {
   const customerLocale = (quote?.customer?.billingConfiguration?.documentLocale ?? 'en') as Locale
 
   const getMarkdownRef = useRef<(() => string) | null>(null)
+  const removeBlockRef = useRef<((localId: string) => void) | null>(null)
+  const isRollingBackRef = useRef(false)
   const lastSavedContentRef = useRef('')
   const isReadyForChangesRef = useRef(false)
   const failedPayloadRef = useRef<UpdateQuoteVersionInput | null>(null)
@@ -240,23 +254,23 @@ const EditQuote = () => {
   // Keep the ref in sync with the latest savePricingBlock so the stable wrapper
   // passed to useDiscountDrawer always calls the current version.
   const savePricingBlock = useCallback(
-    async (billingItems?: BillingItemsPayload) => {
-      if (!versionId) return
+    async (billingItems?: BillingItemsPayload): Promise<SavePricingResult> => {
+      if (!versionId) return { ok: true }
 
       const content = getMarkdownRef.current?.()
 
-      if (content === null || content === undefined) return
+      if (content === null || content === undefined) return { ok: true }
 
       setSaveStatus('saving')
 
       // Each drawer owns a single billingItems category and passes a partial
-      // ({ plans } / { addons } / { coupons }) merged over the current items.
-      // Normalize here so `addons` is always present on the wire, whichever
+      // ({ plans } / { addOns } / { coupons }) merged over the current items.
+      // Normalize here so `addOns` is always present on the wire, whichever
       // drawer saved — keeping the backend payload shape stable.
       const payload: UpdateQuoteVersionInput = {
         id: versionId,
         content,
-        billingItems: billingItems && { addons: [], ...billingItems },
+        billingItems: billingItems && { addOns: [], ...billingItems },
       }
 
       failedPayloadRef.current = payload
@@ -264,13 +278,23 @@ const EditQuote = () => {
       try {
         const result = await updateQuoteVersionRef.current(payload, false)
 
-        if (result.data?.updateQuoteVersion) {
+        if (result.data?.updateQuoteVersion && !result.errors?.length) {
           lastSavedContentRef.current = content
           failedPayloadRef.current = null
           refetchQuote()
+
+          return { ok: true }
         }
-      } catch {
-        setSaveStatus('error')
+
+        // Drawer-originated failure: let the drawer surface field/toast errors and
+        // stay open. Revert the header to a neutral state instead of the error chip.
+        setSaveStatus('idle')
+
+        return { ok: false, error: result.errors }
+      } catch (error) {
+        setSaveStatus('idle')
+
+        return { ok: false, error: error as ApolloError }
       }
     },
     [versionId, refetchQuote],
@@ -281,11 +305,29 @@ const EditQuote = () => {
   const handlePricingCommand = useCallback<OnPricingCommand>(
     ({ onSave, editData }) => {
       onPricingCommand({
-        onSave: (attrs, entityData, billingItems) => {
-          // 1. Insert/update the TipTap node (existing behavior)
+        onSave: async (attrs, entityData, billingItems) => {
+          // 1. Insert/update the TipTap node (needed so the save serializes it).
           onSave(attrs, entityData, billingItems)
-          // 2. Unified save: content + billingItems together
-          savePricingBlock(billingItems)
+
+          // 2. Unified save: content + billingItems together.
+          const result = await savePricingBlock(billingItems)
+
+          // 3. Roll back only a *newly inserted* node on failure — remove the
+          // phantom block that never saved. When editing an existing block
+          // (`editData`), do NOT remove it: the drawer stays open on a fixable
+          // error and the resubmit path is `updateAttributes`, which can't
+          // resurrect a deleted node — removing it would lose saved pricing.
+          if (!result.ok && !editData) {
+            const localId = attrs.localEntityIds?.[0] ?? attrs.entityIds?.[0]
+
+            if (localId) {
+              isRollingBackRef.current = true
+              removeBlockRef.current?.(localId)
+              isRollingBackRef.current = false
+            }
+          }
+
+          return result
         },
         editData,
       })
@@ -295,6 +337,13 @@ const EditQuote = () => {
 
   const handlePricingBlocksChange = useCallback(
     (blocks: PricingBlockAttributes[]) => {
+      // A rollback tears the block back out after a failed save. Skip
+      // reconciliation entirely — not just the corrective save: otherwise
+      // `syncEntitiesWithBlocks` prunes the just-failed add-on's cached catalog
+      // payload, and a corrected resubmit (which rebuilds the wire payload from
+      // that cache) crashes in `toBillingItems` on the now-missing baseline.
+      if (isRollingBackRef.current) return
+
       const updatedBillingItems = syncEntitiesWithBlocks(blocks)
 
       if (updatedBillingItems) {
@@ -313,6 +362,11 @@ const EditQuote = () => {
 
   const handleDiscountBlocksChange = useCallback(
     (blocks: DiscountBlockAttributes[]) => {
+      // See handlePricingBlocksChange: skip reconciliation during a rollback so
+      // the failed coupon's cached payload isn't pruned, which would break a
+      // corrected resubmit.
+      if (isRollingBackRef.current) return
+
       const updated = discount.syncDiscountBlocks(blocks)
 
       if (updated) {
@@ -405,6 +459,7 @@ const EditQuote = () => {
           <RichTextEditor
             content={quote?.currentVersion?.content ?? ''}
             getMarkdownRef={getMarkdownRef}
+            removeBlockRef={removeBlockRef}
             onChange={handleChange}
             mode={editorMode}
             onPricingCommand={handlePricingCommand}

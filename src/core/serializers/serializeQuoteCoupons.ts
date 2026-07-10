@@ -3,32 +3,32 @@ import { CouponFrequency, CouponTypeEnum, CurrencyEnum } from '~/generated/graph
 
 import { deserializeAmount, serializeAmount } from './serializeAmount'
 
-// --- Backend contract (snake_case) ---
+// --- Backend contract (camelCase) ---
 export interface CouponPayload {
   position: number
   code: string
   id: string
   name: string
   type: 'fixed_amount' | 'percentage'
-  amount_cents: number | null
-  percentage_rate: number | null
+  amountCents: number | null
+  percentageRate: number | null
   currency: string
   frequency: 'once' | 'recurring' | 'forever'
-  frequency_duration: number | null
-  expiration_at: string | null
-  limited_plans: boolean
-  plan_codes: string[]
-  limited_billable_metrics: boolean
-  billable_metric_codes: string[]
-  coupon_overrides: unknown
-  catalog_snapshot: unknown
-  resolved_payload: unknown
+  frequencyDuration: number | null
+  expirationAt: string | null
+  limitedPlans: boolean
+  planCodes: string[]
+  limitedBillableMetrics: boolean
+  billableMetricCodes: string[]
+  couponOverrides: unknown
+  catalogSnapshot: unknown
+  resolvedPayload: unknown
 }
 
 // Full UI-editable set, ALWAYS written (not Partial). Excludes currency (locked).
 export type CouponOverrides = Pick<
   CouponPayload,
-  'amount_cents' | 'percentage_rate' | 'frequency' | 'frequency_duration'
+  'amountCents' | 'percentageRate' | 'frequency' | 'frequencyDuration'
 >
 
 export interface BillingItemCoupon {
@@ -64,10 +64,10 @@ export const toCoupons = (
     const isFixed = item.couponType === CouponTypeEnum.FixedAmount
 
     const overrides: CouponOverrides = {
-      amount_cents: isFixed ? serializeAmount(Number(item.amount), item.currency) : null,
-      percentage_rate: isFixed ? null : (item.percentageRate ?? null),
+      amountCents: isFixed ? serializeAmount(Number(item.amount), item.currency) : null,
+      percentageRate: isFixed ? null : (item.percentageRate ?? null),
       frequency: item.frequency as CouponPayload['frequency'],
-      frequency_duration:
+      frequencyDuration:
         item.frequency === CouponFrequency.Recurring ? (item.frequencyDuration ?? null) : null,
     }
 
@@ -92,7 +92,7 @@ export const fromCoupons = (
     const localId = savedLocalId ?? crypto.randomUUID()
     const currency = (payload.currency as CurrencyEnum) ?? CurrencyEnum.Usd
 
-    const effectiveAmountCents = overrides.amount_cents ?? payload.amount_cents ?? 0
+    const effectiveAmountCents = overrides.amountCents ?? payload.amountCents ?? 0
     const couponType =
       payload.type === 'percentage' ? CouponTypeEnum.Percentage : CouponTypeEnum.FixedAmount
     const frequency = (overrides.frequency ?? payload.frequency) as CouponFrequency
@@ -105,9 +105,9 @@ export const fromCoupons = (
       couponType,
       amountCents: String(effectiveAmountCents),
       amountCurrency: currency,
-      percentageRate: overrides.percentage_rate ?? payload.percentage_rate,
+      percentageRate: overrides.percentageRate ?? payload.percentageRate,
       frequency,
-      frequencyDuration: overrides.frequency_duration ?? payload.frequency_duration,
+      frequencyDuration: overrides.frequencyDuration ?? payload.frequencyDuration,
     }
 
     const amountNumber = deserializeAmount(effectiveAmountCents, currency)
@@ -122,9 +122,9 @@ export const fromCoupons = (
       // toString() (not toFixed) so whole amounts show as "90" not "90.00",
       // matching the fresh-coupon-select prefill in useDiscountDrawer.
       amount: amountNumber.toString(),
-      percentageRate: overrides.percentage_rate ?? payload.percentage_rate,
+      percentageRate: overrides.percentageRate ?? payload.percentageRate,
       frequency,
-      frequencyDuration: overrides.frequency_duration ?? payload.frequency_duration,
+      frequencyDuration: overrides.frequencyDuration ?? payload.frequencyDuration,
     })
 
     originalPayloads[localId] = payload
