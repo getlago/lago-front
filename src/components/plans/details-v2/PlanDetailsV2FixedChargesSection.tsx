@@ -7,10 +7,7 @@ import {
   FixedChargeDrawerRef,
 } from '~/components/plans/drawers/fixedCharge/FixedChargeDrawer'
 import { FixedChargeInfo } from '~/components/plans/FixedChargeInfo'
-import {
-  RemoveChargeWarningDialog,
-  RemoveChargeWarningDialogRef,
-} from '~/components/plans/RemoveChargeWarningDialog'
+import { useRemoveChargeWarningDialog } from '~/components/plans/RemoveChargeWarningDialog'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
@@ -136,7 +133,7 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
   const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
   const { gateOnClick, premiumIcon } = useSubscriptionPremiumGate(isInSubscriptionForm)
   const drawerRef = useRef<FixedChargeDrawerRef>(null)
-  const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
+  const { openRemoveChargeWarningDialog } = useRemoveChargeWarningDialog()
 
   const { handleSaveCharge, handleDeleteCharge } = fixedChargeMutations
 
@@ -183,7 +180,7 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
   // subscriptions; delete directly otherwise.
   const handleDelete = (chargeId: string) => {
     if (isUsedInSubscription) {
-      removeChargeWarningDialogRef.current?.openDialog({
+      openRemoveChargeWarningDialog({
         callback: () => handleDeleteCharge(chargeId),
       })
     } else {
@@ -273,11 +270,9 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
 
             if (target) handleDeleteCharge(target.id)
           }}
-          removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+          openRemoveChargeWarningDialog={openRemoveChargeWarningDialog}
         />
       </PlanFormProvider>
-
-      <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} />
     </section>
   )
 })
