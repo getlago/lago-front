@@ -7,6 +7,8 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 
 const PRODUCT_ITEM_FORM_ID = 'product-item-drawer-form'
 
+export const PRODUCT_ITEM_DRAWER_SUBMIT_TEST_ID = 'product-item-drawer-submit'
+
 const PRODUCT_ITEM_FORM_DEFAULTS = {}
 
 const useProductItemForm = ({ onSuccess }: { onSuccess: () => void }) => {
@@ -53,7 +55,7 @@ export const useProductItemDrawer = () => {
       onEntered: focusFirstInput,
       mainAction: (
         <form.AppForm>
-          <form.SubmitButton dataTest="product-item-drawer-submit">
+          <form.SubmitButton dataTest={PRODUCT_ITEM_DRAWER_SUBMIT_TEST_ID}>
             {translate('text_1742230191029lznwj3y41nb')}
           </form.SubmitButton>
         </form.AppForm>

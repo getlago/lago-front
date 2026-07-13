@@ -7,6 +7,8 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 
 const PRODUCT_ITEM_FILTER_FORM_ID = 'product-item-filter-drawer-form'
 
+export const PRODUCT_ITEM_FILTER_DRAWER_SUBMIT_TEST_ID = 'product-item-filter-drawer-submit'
+
 const PRODUCT_ITEM_FILTER_FORM_DEFAULTS = {}
 
 const useProductItemFilterForm = ({ onSuccess }: { onSuccess: () => void }) => {
@@ -53,7 +55,7 @@ export const useProductItemFilterDrawer = () => {
       onEntered: focusFirstInput,
       mainAction: (
         <form.AppForm>
-          <form.SubmitButton dataTest="product-item-filter-drawer-submit">
+          <form.SubmitButton dataTest={PRODUCT_ITEM_FILTER_DRAWER_SUBMIT_TEST_ID}>
             {translate('text_1742230191029lznwj3y41nb')}
           </form.SubmitButton>
         </form.AppForm>
