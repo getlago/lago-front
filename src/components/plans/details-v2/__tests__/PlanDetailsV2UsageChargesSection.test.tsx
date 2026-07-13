@@ -4,7 +4,8 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createRef, ReactNode } from 'react'
 
-import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
+import { CENTRALIZED_DIALOG_NAME, FORM_DIALOG_NAME } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
 
 import { buildUsageChargeFixture, planDetailsV2Fixture } from './fixtures'
@@ -14,6 +15,7 @@ import {
   PlanDetailsV2UsageChargesSectionRef,
 } from '../PlanDetailsV2UsageChargesSection'
 
+NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 
 const mockOpenDrawer = jest.fn()
