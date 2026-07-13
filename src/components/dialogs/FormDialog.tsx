@@ -22,6 +22,7 @@ export type FormDialogProps = {
   cancelOrCloseText?: 'close' | 'cancel'
   closeOnError?: boolean
   onError?: (error: Error) => void
+  onEntered?: (container: HTMLElement) => void
   form: FormProps
 }
 
@@ -35,6 +36,7 @@ const FormDialog = create(
     cancelOrCloseText = 'close',
     closeOnError = true,
     onError,
+    onEntered,
     form,
   }: FormDialogProps) => {
     const modal = useModal()
@@ -56,6 +58,7 @@ const FormDialog = create(
         isOpen={modal.visible}
         closeDialog={handleCancel}
         removeDialog={modal.remove}
+        onEntered={onEntered}
         title={title}
         description={description}
         headerContent={headerContent}
