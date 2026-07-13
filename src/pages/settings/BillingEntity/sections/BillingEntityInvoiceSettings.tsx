@@ -31,10 +31,7 @@ import {
   EditBillingEntityInvoiceNumberingDialog,
   EditBillingEntityInvoiceNumberingDialogRef,
 } from '~/components/settings/invoices/EditBillingEntityInvoiceNumberingDialog'
-import {
-  EditBillingEntityInvoiceTemplateDialog,
-  EditBillingEntityInvoiceTemplateDialogRef,
-} from '~/components/settings/invoices/EditBillingEntityInvoiceTemplateDialog'
+import { useEditBillingEntityInvoiceTemplateDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceTemplateDialog'
 import { useEditDefaultCurrencyDialog } from '~/components/settings/invoices/EditDefaultCurrencyDialog'
 import {
   EditFinalizeZeroAmountInvoiceDialog,
@@ -135,7 +132,6 @@ const BillingEntityInvoiceSettings = () => {
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
 
-  const editInvoiceTemplateDialogRef = useRef<EditBillingEntityInvoiceTemplateDialogRef>(null)
   const editInvoiceNumberingDialogRef = useRef<EditBillingEntityInvoiceNumberingDialogRef>(null)
   const editBillingEntityInvoiceIssuingDatePolicyDialogRef =
     useRef<EditBillingEntityInvoiceIssuingDatePolicyDialogRef>(null)
@@ -146,6 +142,7 @@ const BillingEntityInvoiceSettings = () => {
     useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
   const premiumWarningDialog = usePremiumWarningDialog()
   const { openEditDefaultCurrencyDialog } = useEditDefaultCurrencyDialog()
+  const { openEditBillingEntityInvoiceTemplateDialog } = useEditBillingEntityInvoiceTemplateDialog()
 
   const { data, error, loading } = useGetBillingEntitySettingsQuery({
     variables: {
@@ -276,7 +273,12 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={() => editInvoiceTemplateDialogRef?.current?.openDialog()}
+          onClick={() =>
+            openEditBillingEntityInvoiceTemplateDialog({
+              id: billingEntity?.id as string,
+              invoiceFooter,
+            })
+          }
         >
           {translate('text_6380d7e60f081e5b777c4b24')}
         </Button>
@@ -296,13 +298,6 @@ const BillingEntityInvoiceSettings = () => {
             />
           )}
         </>
-      ),
-      dialog: (
-        <EditBillingEntityInvoiceTemplateDialog
-          ref={editInvoiceTemplateDialogRef}
-          invoiceFooter={invoiceFooter}
-          id={billingEntity?.id as string}
-        />
       ),
     },
     {

@@ -16,6 +16,7 @@ export type BaseDialogProps = {
   isOpen: boolean
   closeDialog: () => Promise<unknown>
   removeDialog: () => void
+  onEntered?: (container: HTMLElement) => void
   'data-test'?: string
   form?: FormProps
 }
@@ -29,6 +30,7 @@ const BaseDialog = ({
   isOpen,
   closeDialog,
   removeDialog,
+  onEntered,
   'data-test': dataTest,
   form,
 }: BaseDialogProps) => {
@@ -92,6 +94,7 @@ const BaseDialog = ({
       }}
       TransitionProps={{
         onExited: () => removeDialog(),
+        onEntered: (node) => onEntered?.(node as HTMLElement),
       }}
       slotProps={{
         backdrop: {
