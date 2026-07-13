@@ -1,4 +1,5 @@
 import { TextInputProps } from '~/components/form/TextInput/TextInput'
+import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import { formatCodeFromName } from '~/core/utils/formatCodeFromName'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withFieldGroup } from '~/hooks/forms/useAppform'
@@ -56,7 +57,24 @@ const NameAndCodeGroup = withFieldGroup({
             />
           )}
         </group.AppField>
-        <group.AppField name="code">
+        <group.AppField
+          name="code"
+          listeners={{
+            // Clear the server "code already exists" error once the user edits
+            // the code so the submit button re-enables. Gated by the message so
+            // the zod required-check isn't wiped.
+            onChange: () => {
+              const meta = group.getFieldMeta('code')
+
+              if (meta?.errorMap?.onDynamic?.message === EXISTING_CODE_ERROR_MESSAGE) {
+                group.setFieldMeta('code', (current) => ({
+                  ...current,
+                  errorMap: { ...current.errorMap, onDynamic: undefined },
+                }))
+              }
+            },
+          }}
+        >
           {(field) => (
             <field.TextInputField
               label={translate('text_629728388c4d2300e2d380b7')}

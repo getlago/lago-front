@@ -450,6 +450,10 @@ This component:
 
 > **Reference**: See `src/components/form/NameAndCodeGroup/NameAndCodeGroup.tsx` and its usage in `CreateCoupon.tsx`.
 
+**Duplicate-code errors:** for a unique `code` field, surface the backend "already exists" rejection inline by calling `applyExistingCodeError(formApi)` (`~/core/form/existingCodeError.ts`) in the mutation catch on `LagoApiError.ValueAlreadyExist`. It sets the `code` field's `onDynamic` error to `EXISTING_CODE_ERROR_MESSAGE`; `NameAndCodeGroup` auto-clears it when the user edits the code so submit re-enables.
+
+> **Reference**: `useProductDrawer.tsx` (product) and the charge drawers via `chargeCode.ts`.
+
 #### Step 2.7: Update Field Components
 
 **Text Input Field:**
