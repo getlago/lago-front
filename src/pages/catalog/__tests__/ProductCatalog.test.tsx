@@ -4,7 +4,12 @@ import userEvent from '@testing-library/user-event'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { render } from '~/test-utils'
 
-import ProductCatalog from '../ProductCatalog'
+import ProductCatalog, {
+  CREATE_PRODUCT_ITEM_FILTER_TEST_ID,
+  CREATE_PRODUCT_ITEM_TEST_ID,
+  CREATE_PRODUCT_TEST_ID,
+  PRODUCT_CATALOG_CREATE_TEST_ID,
+} from '../ProductCatalog'
 
 const renderPage = () =>
   render(
@@ -101,23 +106,23 @@ describe('ProductCatalog', () => {
 
       renderPage()
 
-      await user.click(screen.getByTestId('product-catalog-create'))
+      await user.click(screen.getByTestId(PRODUCT_CATALOG_CREATE_TEST_ID))
 
-      expect(screen.getByTestId('create-product')).toBeInTheDocument()
-      expect(screen.getByTestId('create-product-item')).toBeInTheDocument()
-      expect(screen.getByTestId('create-product-item-filter')).toBeInTheDocument()
+      expect(screen.getByTestId(CREATE_PRODUCT_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(CREATE_PRODUCT_ITEM_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(CREATE_PRODUCT_ITEM_FILTER_TEST_ID)).toBeInTheDocument()
     })
 
     it.each([
-      ['create-product', () => mockOpenCreateProductDrawer],
-      ['create-product-item', () => mockOpenCreateProductItemDrawer],
-      ['create-product-item-filter', () => mockOpenCreateProductItemFilterDrawer],
+      [CREATE_PRODUCT_TEST_ID, () => mockOpenCreateProductDrawer],
+      [CREATE_PRODUCT_ITEM_TEST_ID, () => mockOpenCreateProductItemDrawer],
+      [CREATE_PRODUCT_ITEM_FILTER_TEST_ID, () => mockOpenCreateProductItemFilterDrawer],
     ])('opens the matching drawer from the %s entry', async (itemTestId, getOpenDrawerMock) => {
       const user = userEvent.setup()
 
       renderPage()
 
-      await user.click(screen.getByTestId('product-catalog-create'))
+      await user.click(screen.getByTestId(PRODUCT_CATALOG_CREATE_TEST_ID))
       await user.click(screen.getByTestId(itemTestId))
 
       expect(getOpenDrawerMock()).toHaveBeenCalledTimes(1)
@@ -131,11 +136,11 @@ describe('ProductCatalog', () => {
 
       renderPage()
 
-      await user.click(screen.getByTestId('product-catalog-create'))
+      await user.click(screen.getByTestId(PRODUCT_CATALOG_CREATE_TEST_ID))
 
-      expect(screen.queryByTestId('create-product-item')).not.toBeInTheDocument()
-      expect(screen.getByTestId('create-product')).toBeInTheDocument()
-      expect(screen.getByTestId('create-product-item-filter')).toBeInTheDocument()
+      expect(screen.queryByTestId(CREATE_PRODUCT_ITEM_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.getByTestId(CREATE_PRODUCT_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(CREATE_PRODUCT_ITEM_FILTER_TEST_ID)).toBeInTheDocument()
     })
 
     it('hides the whole dropdown when no create permission is granted', () => {
@@ -148,7 +153,7 @@ describe('ProductCatalog', () => {
 
       renderPage()
 
-      expect(screen.queryByTestId('product-catalog-create')).not.toBeInTheDocument()
+      expect(screen.queryByTestId(PRODUCT_CATALOG_CREATE_TEST_ID)).not.toBeInTheDocument()
     })
   })
 })
