@@ -6,6 +6,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 
 import {
+  BASE_DRAWER_CONTENT_ATTR,
   BASE_DRAWER_CONTENT_TEST_ID,
   DRAWER_PUSH_BACK_OFFSET,
   DRAWER_PUSH_BACK_SCALE,
@@ -203,6 +204,7 @@ export const BaseDrawer = ({
           withPadding && 'px-4 pb-20 pt-12 md:px-12',
         )}
         data-test={BASE_DRAWER_CONTENT_TEST_ID}
+        {...{ [BASE_DRAWER_CONTENT_ATTR]: '' }}
       >
         {children}
       </div>

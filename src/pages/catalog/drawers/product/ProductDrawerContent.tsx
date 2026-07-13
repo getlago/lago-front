@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { BASE_DRAWER_CONTENT_TEST_ID } from '~/components/drawers/const'
+import { BASE_DRAWER_CONTENT_ATTR } from '~/components/drawers/const'
 import {
   CreateMoreResetSignal,
   useCreateMoreResetIteration,
@@ -167,7 +167,7 @@ export const ProductDrawerContent = withForm({
       if (resetIteration === 0) return
 
       rootRef.current
-        ?.closest<HTMLElement>(`[data-test="${BASE_DRAWER_CONTENT_TEST_ID}"]`)
+        ?.closest<HTMLElement>(`[${BASE_DRAWER_CONTENT_ATTR}]`)
         ?.scrollTo({ top: 0, behavior: 'smooth' })
       focusFirstInput(rootRef.current)
     }, [resetIteration])
