@@ -24,6 +24,7 @@ import {
   ORDER_FORM_LIST_FILTER_PREFIX,
   ORDER_LIST_FILTER_PREFIX,
   PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX,
+  PRODUCT_ITEM_LIST_FILTER_PREFIX,
   QUOTE_LIST_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
@@ -58,6 +59,7 @@ import {
   type GetWebhookLogQueryVariables,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
+  type ProductItemsQueryVariables,
 } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
@@ -84,6 +86,7 @@ import {
   MrrOverviewAvailableFilters,
   OrderAvailableFilters,
   OrderFormAvailableFilters,
+  ProductItemAvailableFilters,
   QuoteAvailableFilters,
   RevenueStreamsAvailablePopperFilters,
   RevenueStreamsCustomersAvailableFilters,
@@ -242,6 +245,9 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.planCode]: (value: string) => value,
+  [AvailableFiltersEnum.productItemProduct]: (value: string) =>
+    value.split(filterDataInlineSeparator)[0],
+  [AvailableFiltersEnum.productItemType]: (value: string) => value,
   [AvailableFiltersEnum.orderFormCreatedAt]: (value: string) => {
     return {
       createdAtFrom: value.split(',')[0],
@@ -421,6 +427,24 @@ export const formatFiltersForCreditNotesQuery = (
     keyMap,
     availableFilters: CreditNoteAvailableFilters,
     filtersNamePrefix: CREDIT_NOTE_LIST_FILTER_PREFIX,
+  })
+}
+
+type ProductItemsQueryFilters = Partial<Pick<ProductItemsQueryVariables, 'productId' | 'itemType'>>
+
+export const formatFiltersForProductItemsQuery = (
+  searchParams: URLSearchParams,
+): ProductItemsQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof ProductItemsQueryFilters & string>> = {
+    [AvailableFiltersEnum.productItemProduct]: 'productId',
+    [AvailableFiltersEnum.productItemType]: 'itemType',
+  }
+
+  return formatFiltersForQuery<ProductItemsQueryFilters>({
+    searchParams,
+    keyMap,
+    availableFilters: ProductItemAvailableFilters,
+    filtersNamePrefix: PRODUCT_ITEM_LIST_FILTER_PREFIX,
   })
 }
 
@@ -947,6 +971,7 @@ export const formatActiveFilterValueDisplay = (
         .join(', ')
     case AvailableFiltersEnum.customerExternalId:
     case AvailableFiltersEnum.billingEntityId:
+    case AvailableFiltersEnum.productItemProduct:
       return unescapeFilterLabel(
         value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
       )

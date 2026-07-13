@@ -24,6 +24,12 @@ jest.mock('~/pages/catalog/dialogs/useDeleteProductDialog', () => ({
   useDeleteProductDialog: () => ({ openDeleteProductDialog: mockOpenDeleteProductDialog }),
 }))
 
+// The product-items tab preview pulls the product-item drawer chain (drawerStack
+// uses import.meta and crashes Jest); this suite only exercises the header/tabs.
+jest.mock('../ProductDetailsProductItems', () => ({
+  ProductDetailsProductItems: () => null,
+}))
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))

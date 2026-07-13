@@ -23,6 +23,7 @@ import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { ProductDetailsOverview } from './ProductDetailsOverview'
+import { ProductDetailsProductItems } from './ProductDetailsProductItems'
 
 import { useDeleteProductDialog } from '../dialogs/useDeleteProductDialog'
 import { useProductDrawer } from '../drawers/product/useProductDrawer'
@@ -150,7 +151,15 @@ const ProductDetails = () => {
               productId: productId as string,
               tab: ProductDetailsTabsOptionsEnum.productItems,
             }),
-            content: <div className="p-4">{translate('text_17831042398250iwa2xp8pba')}</div>,
+            content: (
+              <DetailsPage.Container>
+                <ProductDetailsProductItems
+                  product={
+                    product ? { id: product.id, name: product.name, code: product.code } : undefined
+                  }
+                />
+              </DetailsPage.Container>
+            ),
           },
           {
             title: translate('text_62442e40cea25600b0b6d85a'),
