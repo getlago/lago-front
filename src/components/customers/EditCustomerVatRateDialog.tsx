@@ -1,12 +1,14 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { ComboBox, ComboboxItem } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
-import { SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME } from '~/core/constants/form'
+import {
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+  SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME,
+} from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_TAX_ROUTE } from '~/core/router'
 import {
@@ -17,6 +19,10 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
+import {
+  DialogActionButton,
+  useSetDisabledRef,
+} from '~/pages/createCoupon/dialogs/DialogActionButton'
 
 gql`
   fragment EditCustomerVatRate on Customer {
@@ -55,130 +61,170 @@ gql`
   ${CustomerAppliedTaxRatesForSettingsFragmentDoc}
 `
 
-export type EditCustomerVatRateDialogRef = DialogRef
+export const EDIT_CUSTOMER_VAT_RATE_FORM_ID = 'edit-customer-vat-rate-form'
 
-interface EditCustomerVatRateDialogProps {
-  customer: EditCustomerVatRateFragment
+interface EditCustomerVatRateContentProps {
   appliedTaxRatesTaxesIds?: string[]
-  forceOpen?: boolean
+  onSelect: (taxCode: string) => void
 }
 
-export const EditCustomerVatRateDialog = forwardRef<DialogRef, EditCustomerVatRateDialogProps>(
-  (
-    { appliedTaxRatesTaxesIds, customer, forceOpen = false }: EditCustomerVatRateDialogProps,
-    ref,
-  ) => {
-    const { translate } = useInternationalization()
-    const { hasPermissions } = usePermissions()
-    const [localTax, setLocalTax] = useState<string>('')
-    const [getTaxRates, { loading, data }] = useGetTaxRatesForEditCustomerLazyQuery({
-      variables: { limit: 500 },
+const EditCustomerVatRateContent = ({
+  appliedTaxRatesTaxesIds,
+  onSelect,
+}: EditCustomerVatRateContentProps) => {
+  const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
+  const [localTax, setLocalTax] = useState<string>('')
+  const [getTaxRates, { loading, data }] = useGetTaxRatesForEditCustomerLazyQuery({
+    variables: { limit: 500 },
+  })
+
+  const comboboxTaxRatesData = useMemo(() => {
+    if (!data || !data?.taxes || !data?.taxes?.collection) return []
+
+    return data?.taxes?.collection.map((taxRate) => {
+      const { id, name, rate, code } = taxRate
+      const formatedRate = intlFormatNumber(Number(rate) / 100 || 0, {
+        style: 'percent',
+      })
+
+      return {
+        label: `${name} (${formatedRate})`,
+        labelNode: (
+          <ComboboxItem>
+            <Typography variant="body" color="grey700" noWrap>
+              {name}
+            </Typography>
+            <Typography variant="caption" color="grey600" noWrap>
+              {formatedRate}
+            </Typography>
+          </ComboboxItem>
+        ),
+        value: code,
+        disabled: appliedTaxRatesTaxesIds?.includes(id),
+      }
     })
-    const customerName = customer?.displayName
-    const [createCustomerAppliedTax] = useCreateCustomerAppliedTaxMutation({
-      onCompleted({ updateCustomer: mutationRes }) {
-        if (mutationRes?.id) {
-          addToast({
-            message: translate('text_64639f5e63a5cc0076779de0'),
-            severity: 'success',
-          })
+  }, [appliedTaxRatesTaxesIds, data])
+
+  return (
+    <div className="p-6">
+      <ComboBox
+        allowAddValue
+        className={SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME}
+        addValueProps={
+          hasPermissions(['organizationTaxesUpdate'])
+            ? {
+                label: translate('text_64639c4d172d7a006ef30516'),
+                redirectionUrl: CREATE_TAX_ROUTE,
+              }
+            : undefined
         }
+        data={comboboxTaxRatesData}
+        label={translate('text_64639c4d172d7a006ef30514')}
+        loading={loading}
+        onChange={(value) => {
+          setLocalTax(value)
+          onSelect(value)
+        }}
+        placeholder={translate('text_64639c4d172d7a006ef30515')}
+        PopperProps={{ displayInDialog: true }}
+        searchQuery={getTaxRates}
+        value={localTax}
+      />
+    </div>
+  )
+}
+
+interface OpenEditCustomerVatRateDialogParams {
+  customer: EditCustomerVatRateFragment
+  appliedTaxRatesTaxesIds?: string[]
+}
+
+export const useEditCustomerVatRateDialog = () => {
+  const formDialog = useFormDialog()
+  const { translate } = useInternationalization()
+  const customerRef = useRef<EditCustomerVatRateFragment | null>(null)
+  const taxCodeRef = useRef<string>('')
+  const setDisabledRef = useSetDisabledRef()
+
+  const [createCustomerAppliedTax] = useCreateCustomerAppliedTaxMutation({
+    onCompleted({ updateCustomer: mutationRes }) {
+      if (mutationRes?.id) {
+        addToast({
+          message: translate('text_64639f5e63a5cc0076779de0'),
+          severity: 'success',
+        })
+      }
+    },
+  })
+
+  const openEditCustomerVatRateDialog = ({
+    customer,
+    appliedTaxRatesTaxesIds,
+  }: OpenEditCustomerVatRateDialogParams) => {
+    customerRef.current = customer
+    taxCodeRef.current = ''
+
+    formDialog.open({
+      title: translate('text_64639f5e63a5cc0076779d42', {
+        name: customer.displayName,
+      }),
+      description: translate('text_64639f5e63a5cc0076779d46'),
+      closeOnError: false,
+      onEntered: (container) => {
+        container
+          .querySelector<HTMLElement>(
+            `.${SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+          )
+          ?.click()
+      },
+      children: (
+        <EditCustomerVatRateContent
+          appliedTaxRatesTaxesIds={appliedTaxRatesTaxesIds}
+          onSelect={(taxCode) => {
+            taxCodeRef.current = taxCode
+            setDisabledRef.current(!taxCode)
+          }}
+        />
+      ),
+      mainAction: (
+        <DialogActionButton
+          label={translate('text_64639f5e63a5cc0076779d57')}
+          setDisabledRef={setDisabledRef}
+        />
+      ),
+      form: {
+        id: EDIT_CUSTOMER_VAT_RATE_FORM_ID,
+        submit: async () => {
+          const activeCustomer = customerRef.current
+
+          if (!activeCustomer || !taxCodeRef.current) {
+            throw new Error('No tax rate selected')
+          }
+
+          const res = await createCustomerAppliedTax({
+            variables: {
+              input: {
+                id: activeCustomer.id,
+                taxCodes: [
+                  ...(activeCustomer?.taxes?.map((t) => t.code) || []),
+                  taxCodeRef.current,
+                ],
+                // NOTE: API should not require those fields on customer update
+                // To be tackled as improvement
+                externalId: activeCustomer.externalId,
+                name: activeCustomer.name || '',
+              },
+            },
+          })
+
+          if (res.errors) {
+            throw new Error('Failed to update customer applied tax')
+          }
+        },
       },
     })
+  }
 
-    const comboboxTaxRatesData = useMemo(() => {
-      if (!data || !data?.taxes || !data?.taxes?.collection) return []
-
-      return data?.taxes?.collection.map((taxRate) => {
-        const { id, name, rate, code } = taxRate
-        const formatedRate = intlFormatNumber(Number(rate) / 100 || 0, {
-          style: 'percent',
-        })
-
-        return {
-          label: `${name} (${formatedRate})`,
-          labelNode: (
-            <ComboboxItem>
-              <Typography variant="body" color="grey700" noWrap>
-                {name}
-              </Typography>
-              <Typography variant="caption" color="grey600" noWrap>
-                {formatedRate}
-              </Typography>
-            </ComboboxItem>
-          ),
-          value: code,
-          disabled: appliedTaxRatesTaxesIds?.includes(id),
-        }
-      })
-    }, [appliedTaxRatesTaxesIds, data])
-
-    return (
-      <Dialog
-        open={!!forceOpen}
-        ref={ref}
-        title={translate('text_64639f5e63a5cc0076779d42', { name: customerName })}
-        description={translate('text_64639f5e63a5cc0076779d46')}
-        onClose={() => {
-          setLocalTax('')
-        }}
-        actions={({ closeDialog }) => (
-          <>
-            <Button variant="quaternary" onClick={closeDialog}>
-              {translate('text_627387d5053a1000c5287cab')}
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!localTax}
-              onClick={async () => {
-                const res = await createCustomerAppliedTax({
-                  variables: {
-                    input: {
-                      id: customer.id,
-                      taxCodes: [...(customer?.taxes?.map((t) => t.code) || []), localTax],
-                      // NOTE: API should not require those fields on customer update
-                      // To be tackled as improvement
-                      externalId: customer.externalId,
-                      name: customer.name || '',
-                    },
-                  },
-                })
-
-                if (res.errors) return
-                closeDialog()
-              }}
-            >
-              {translate('text_64639f5e63a5cc0076779d57')}
-            </Button>
-          </>
-        )}
-        data-test="edit-customer-vat-rate-dialog"
-      >
-        <div className="mb-8">
-          <ComboBox
-            allowAddValue
-            className={SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME}
-            addValueProps={
-              hasPermissions(['organizationTaxesUpdate'])
-                ? {
-                    label: translate('text_64639c4d172d7a006ef30516'),
-                    redirectionUrl: CREATE_TAX_ROUTE,
-                  }
-                : undefined
-            }
-            data={comboboxTaxRatesData}
-            label={translate('text_64639c4d172d7a006ef30514')}
-            loading={loading}
-            onChange={setLocalTax}
-            placeholder={translate('text_64639c4d172d7a006ef30515')}
-            PopperProps={{ displayInDialog: true }}
-            searchQuery={getTaxRates}
-            value={localTax}
-          />
-        </div>
-      </Dialog>
-    )
-  },
-)
-
-EditCustomerVatRateDialog.displayName = 'forwardRef'
+  return { openEditCustomerVatRateDialog }
+}
