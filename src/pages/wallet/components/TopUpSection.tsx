@@ -7,17 +7,22 @@ import { DateTime } from 'luxon'
 import { FC, useState } from 'react'
 
 import { Accordion } from '~/components/designSystem/Accordion'
+import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
+import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { ButtonSelector, ComboBox, Switch } from '~/components/form'
+import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
 import {
   RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
   RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST,
   RECURRING_TOPUP_TYPE_DATA_TEST,
+  SHOW_RECURRING_EXPIRATION_AT_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
-import { FORM_TYPE_ENUM } from '~/core/constants/form'
+import { dateErrorCodes, FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   CurrencyEnum,
   GetCustomerInfosForWalletFormQuery,
@@ -104,10 +109,9 @@ const topUpSectionDefaultProps: TopUpSectionExtraProps = {
 export const TopUpSection = withForm({
   defaultValues: emptyWalletFormDefaultValues(),
   props: topUpSectionDefaultProps,
-  // NOTE: `customerData` is part of the props but only consumed by the
-  // PaymentMethodsInvoiceSettings blocks re-added in PR5 (ING-383).
   render: function TopUpSectionRender({
     form,
+    customerData,
     isRecurringTopUpEnabled,
     setIsRecurringTopUpEnabled,
   }) {
@@ -120,6 +124,9 @@ export const TopUpSection = withForm({
       form.store,
       (state) => state.values.recurringTransactionRules?.[0],
     )
+    // Whole-values subscription: feeds the live recap alert (parity with the
+    // Formik full re-render behaviour).
+    const walletValues = useStore(form.store, (state) => state.values)
     const currency = useStore(form.store, (state) => state.values.currency)
     const rateAmount = useStore(form.store, (state) => state.values.rateAmount)
     const paidTopUpMinAmountCents = useStore(
@@ -156,6 +163,13 @@ export const TopUpSection = withForm({
     })
 
     const hasMinMax = !!paidTopUpMinAmountCents || !!paidTopUpMaxAmountCents
+
+    const canDisplayAccordionAlert =
+      !!recurringTransactionRules?.method &&
+      ((recurringTransactionRules?.trigger === RecurringTransactionTriggerEnum.Interval &&
+        !!recurringTransactionRules?.interval) ||
+        (recurringTransactionRules?.trigger === RecurringTransactionTriggerEnum.Threshold &&
+          !!recurringTransactionRules?.thresholdCredits))
 
     return (
       <>
@@ -398,7 +412,200 @@ export const TopUpSection = withForm({
                   </>
                 )}
 
-                {/* TODO(ING-426): trigger axis (Interval/Threshold) + dates + alert re-added in PR4b */}
+                <div className="flex w-full flex-row gap-3">
+                  <ComboBox
+                    containerClassName="flex-1"
+                    disableClearable
+                    sortValues
+                    placeholder={translate('text_6657c29c84ad4500ad764ee2')}
+                    label={translate('text_6657c29c84ad4500ad764ee1')}
+                    name="recurringTransactionRules[0].trigger"
+                    data={[
+                      {
+                        label: translate('text_65201b8216455901fe273dc1'),
+                        value: RecurringTransactionTriggerEnum.Interval,
+                      },
+                      {
+                        label: translate('text_6560809c38fb9de88d8a5315'),
+                        value: RecurringTransactionTriggerEnum.Threshold,
+                      },
+                    ]}
+                    value={recurringTransactionRules?.trigger}
+                    onChange={(value) => {
+                      // Cascading resets: switching trigger wipes the other
+                      // axis' field back to its default (parity with Formik).
+                      if (value === RecurringTransactionTriggerEnum.Interval) {
+                        form.setFieldValue(
+                          'recurringTransactionRules[0].thresholdCredits',
+                          DEFAULT_RULES.thresholdCredits,
+                        )
+                      }
+
+                      if (value === RecurringTransactionTriggerEnum.Threshold) {
+                        form.setFieldValue(
+                          'recurringTransactionRules[0].interval',
+                          DEFAULT_RULES.interval,
+                        )
+                      }
+
+                      form.setFieldValue(
+                        'recurringTransactionRules[0].trigger',
+                        value as RecurringTransactionTriggerEnum,
+                      )
+                    }}
+                  />
+                  {recurringTransactionRules?.trigger ===
+                    RecurringTransactionTriggerEnum.Interval && (
+                    <>
+                      <form.AppField name="recurringTransactionRules[0].interval">
+                        {(field) => (
+                          <field.ComboBoxField
+                            containerClassName="flex-1"
+                            disableClearable
+                            sortValues={false}
+                            label={translate('text_65201b8216455901fe273dc1')}
+                            placeholder={translate('text_6560c252c4f33631aff1ab27')}
+                            data={[
+                              {
+                                label: translate(
+                                  getIntervalTranslationKey[
+                                    RecurringTransactionIntervalEnum.Weekly
+                                  ],
+                                ),
+                                value: RecurringTransactionIntervalEnum.Weekly,
+                              },
+                              {
+                                label: translate(
+                                  getIntervalTranslationKey[
+                                    RecurringTransactionIntervalEnum.Monthly
+                                  ],
+                                ),
+                                value: RecurringTransactionIntervalEnum.Monthly,
+                              },
+                              {
+                                label: translate(
+                                  getIntervalTranslationKey[
+                                    RecurringTransactionIntervalEnum.Quarterly
+                                  ],
+                                ),
+                                value: RecurringTransactionIntervalEnum.Quarterly,
+                              },
+                              {
+                                label: translate(
+                                  getIntervalTranslationKey[
+                                    RecurringTransactionIntervalEnum.Semiannual
+                                  ],
+                                ),
+                                value: RecurringTransactionIntervalEnum.Semiannual,
+                              },
+                              {
+                                label: translate(
+                                  getIntervalTranslationKey[
+                                    RecurringTransactionIntervalEnum.Yearly
+                                  ],
+                                ),
+                                value: RecurringTransactionIntervalEnum.Yearly,
+                              },
+                            ]}
+                          />
+                        )}
+                      </form.AppField>
+                      <div className="flex-1">
+                        <form.AppField name="recurringTransactionRules[0].startedAt">
+                          {(field) => (
+                            <field.DatePickerField
+                              placement="top-end"
+                              label={translate('text_66599bfb69fba1010535c5c2')}
+                              placeholder={translate('text_62d18855b22699e5cf55f899')}
+                            />
+                          )}
+                        </form.AppField>
+                      </div>
+                    </>
+                  )}
+                  {recurringTransactionRules?.trigger ===
+                    RecurringTransactionTriggerEnum.Threshold && (
+                    <form.AppField name="recurringTransactionRules[0].thresholdCredits">
+                      {(field) => (
+                        <field.AmountInputField
+                          className="flex-[2_2_0%]"
+                          currency={currency}
+                          label={translate('text_6560809c38fb9de88d8a5315')}
+                          errorOverride={
+                            (field.state.meta.errors as unknown as { message?: string }[]).some(
+                              (error) =>
+                                error?.message ===
+                                walletFormErrorCodes.thresholdShouldBeLessThanTargetOngoingBalance,
+                            )
+                              ? translate('text_66584178ee91f801012606ac')
+                              : undefined
+                          }
+                          {...inputAdornment(translate('text_62d18855b22699e5cf55f889'))}
+                        />
+                      )}
+                    </form.AppField>
+                  )}
+                </div>
+
+                {canDisplayAccordionAlert && (
+                  <Alert type="info">
+                    {getWordingForWalletCreationAlert({
+                      translate,
+                      currency: walletValues?.currency,
+                      customerTimezone: customerData?.customer?.timezone,
+                      recurringRulesValues: recurringTransactionRules,
+                      walletValues,
+                    })}
+                  </Alert>
+                )}
+
+                {!!recurringTransactionRules?.expirationAt ||
+                recurringTransactionRules?.expirationAt === '' ? (
+                  <div className="flex items-center gap-4">
+                    <form.AppField name="recurringTransactionRules[0].expirationAt">
+                      {(field) => (
+                        <field.DatePickerField
+                          className="grow"
+                          disablePast
+                          placement="top-end"
+                          label={translate('text_62d18855b22699e5cf55f897')}
+                          placeholder={translate('text_62d18855b22699e5cf55f899')}
+                          helperText={translate('text_1741689608703zttwsl2nnq2')}
+                          errorOverride={
+                            (field.state.meta.errors as unknown as { message?: string }[]).some(
+                              (error) => error?.message === dateErrorCodes.shouldBeInFuture,
+                            )
+                              ? translate('text_630ccd87b251590eaa5f9831', {
+                                  date: intlFormatDateTime(DateTime.now().toISO()).date,
+                                })
+                              : false
+                          }
+                        />
+                      )}
+                    </form.AppField>
+                    <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
+                      <Button
+                        icon="trash"
+                        variant="quaternary"
+                        onClick={() => {
+                          form.setFieldValue('recurringTransactionRules[0].expirationAt', null)
+                        }}
+                      />
+                    </Tooltip>
+                  </div>
+                ) : (
+                  <Button
+                    className="self-start"
+                    startIcon="plus"
+                    variant="inline"
+                    onClick={() =>
+                      form.setFieldValue('recurringTransactionRules[0].expirationAt', '')
+                    }
+                    data-test={SHOW_RECURRING_EXPIRATION_AT_DATA_TEST}
+                  >
+                    {translate('text_6560809c38fb9de88d8a517e')}
+                  </Button>
+                )}
               </div>
 
               {/* TODO(ING-383): rule-level PaymentMethodsInvoiceSettings re-added in PR5 */}
