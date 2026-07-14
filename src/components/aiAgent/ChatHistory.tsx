@@ -8,6 +8,9 @@ import { ChatRole, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { tw } from '~/styles/utils'
 
+export const CHAT_HISTORY_TEST_ID = 'chat-history'
+export const CHAT_HISTORY_ITEM_TEST_ID = 'chat-history-item'
+
 type ChatHistoryProps = {
   hideHistory?: () => void
   isFullscreen?: boolean
@@ -53,7 +56,10 @@ export const ChatHistory = ({ hideHistory, isFullscreen }: ChatHistoryProps) => 
   }
 
   return (
-    <div className={tw('flex h-full flex-col gap-1 bg-grey-100 p-6', !isFullscreen && 'shadow-l')}>
+    <div
+      className={tw('flex h-full flex-col gap-1 bg-grey-100 p-6', !isFullscreen && 'shadow-l')}
+      data-test={CHAT_HISTORY_TEST_ID}
+    >
       <div className="flex flex-col gap-1">
         {loading &&
           Array.from({ length: 3 }).map((_, index) => (
@@ -75,6 +81,7 @@ export const ChatHistory = ({ hideHistory, isFullscreen }: ChatHistoryProps) => 
               <button
                 onClick={() => handleGetAiConversation(conversation.id)}
                 className="text-left"
+                data-test={CHAT_HISTORY_ITEM_TEST_ID}
               >
                 <Typography variant="caption" className="justify-start" color="grey600">
                   {conversation.name}

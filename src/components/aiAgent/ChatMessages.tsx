@@ -7,6 +7,13 @@ import { Typography } from '~/components/designSystem/Typography'
 import { AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const CHAT_MESSAGE_SENT_TEST_ID = 'chat-message-sent'
+export const CHAT_MESSAGE_RECEIVED_TEST_ID = 'chat-message-received'
+export const CHAT_MESSAGE_LOADING_TEST_ID = 'chat-message-loading'
+export const CHAT_MESSAGE_LOADING_FINANCE_TEST_ID = 'chat-message-loading-finance'
+export const CHAT_MESSAGE_ERROR_TEST_ID = 'chat-message-error'
+export const CHAT_MESSAGE_INFO_TEST_ID = 'chat-message-info'
+
 /**
  * Converts a number (in seconds) into a human-readable duration string
  * @param seconds - The duration in seconds
@@ -27,6 +34,7 @@ const SentMessage = ({ children }: { children: ReactNode }) => {
   return (
     <Typography
       data-id="sent-message"
+      data-test={CHAT_MESSAGE_SENT_TEST_ID}
       className="max-w-[324px] self-end whitespace-normal break-words rounded-xl border border-grey-300 bg-white px-4 py-3"
       variant="captionHl"
       color="grey700"
@@ -38,7 +46,12 @@ const SentMessage = ({ children }: { children: ReactNode }) => {
 
 const ReceivedMessage = ({ children }: { children: ReactNode }) => {
   return (
-    <Typography data-id="received-message" className="whitespace-normal" color="grey700">
+    <Typography
+      data-id="received-message"
+      data-test={CHAT_MESSAGE_RECEIVED_TEST_ID}
+      className="whitespace-normal"
+      color="grey700"
+    >
       {children}
     </Typography>
   )
@@ -49,7 +62,7 @@ const LoadingMessage = ({ agentType }: { agentType: AiAgentTypeEnum }) => {
 
   if (agentType === AiAgentTypeEnum.finance) {
     return (
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1" data-test={CHAT_MESSAGE_LOADING_FINANCE_TEST_ID}>
         <Typography variant="caption" color="grey500">
           {translate('text_1782903800979dsgmc2xp79z')}
         </Typography>
@@ -59,7 +72,7 @@ const LoadingMessage = ({ agentType }: { agentType: AiAgentTypeEnum }) => {
   }
 
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-1" data-test={CHAT_MESSAGE_LOADING_TEST_ID}>
       <div className="h-5 w-3 animate-pulse rounded-sm bg-grey-600" />
     </div>
   )
@@ -84,7 +97,7 @@ const ErrorMessage = ({
 }) => {
   return (
     <ChipWrapper>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2" data-test={CHAT_MESSAGE_ERROR_TEST_ID}>
         <Icon name="error-unfilled" color="error" />
         <Typography variant="captionHl" color="danger600">
           {children}
@@ -110,7 +123,7 @@ const InfoMessage = ({
 }) => {
   return (
     <ChipWrapper>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2" data-test={CHAT_MESSAGE_INFO_TEST_ID}>
         <Icon
           name={isLoading ? 'processing' : 'checkmark'}
           color="input"

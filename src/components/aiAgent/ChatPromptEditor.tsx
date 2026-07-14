@@ -11,6 +11,11 @@ import { AGENT_TYPE_LABELS, AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper } from '~/styles'
 
+export const CHAT_PROMPT_EDITOR_TEST_ID = 'chat-prompt-editor'
+export const CHAT_PROMPT_EDITOR_INPUT_TEST_ID = 'chat-prompt-editor-input'
+export const CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID = 'chat-prompt-editor-submit-button'
+export const CHAT_PROMPT_EDITOR_AGENT_SELECTOR_TEST_ID = 'chat-prompt-editor-agent-selector'
+
 interface ChatPromptEditorProps {
   disabled?: boolean
   onSubmit: FormikConfig<CreateAiConversationInput>['onSubmit']
@@ -55,6 +60,7 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({
     <form
       className="relative mx-6 mb-6 mt-0 flex w-[calc(100%-16px*3)] shrink-0 flex-col gap-4"
       onSubmit={formikProps.handleSubmit}
+      data-test={CHAT_PROMPT_EDITOR_TEST_ID}
     >
       <div className="pointer-events-none absolute bottom-full h-16 w-full bg-[linear-gradient(180deg,rgba(243,244,246,0)_0%,#F3F4F6_100%)] pt-1" />
 
@@ -78,6 +84,7 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({
           inputProps={{
             className:
               '!resize-none w-full !px-4 !py-0 !min-h-14 !max-h-[364px] !overflow-y-auto text-sm',
+            'data-test': CHAT_PROMPT_EDITOR_INPUT_TEST_ID,
           }}
           disabled={isWaitingForResponse || disabled}
         />
@@ -97,7 +104,7 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({
               ],
             }}
             opener={
-              <div className="px-3">
+              <div className="px-3" data-test={CHAT_PROMPT_EDITOR_AGENT_SELECTOR_TEST_ID}>
                 <Button
                   className="disabled:!bg-transparent !text-grey-600 disabled:!text-grey-400"
                   variant="inline"
@@ -139,6 +146,7 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({
               canSubmit && 'bg-blue-600',
             )}
             disabled={!canSubmit}
+            data-test={CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID}
           >
             <Icon
               name="arrow-right"

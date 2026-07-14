@@ -9,6 +9,10 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
+export const FINANCE_ASSISTANT_CTA_TEST_ID = 'finance-assistant-cta'
+export const FINANCE_ASSISTANT_CTA_INPUT_TEST_ID = 'finance-assistant-cta-input'
+export const FINANCE_ASSISTANT_CTA_SUBMIT_BUTTON_TEST_ID = 'finance-assistant-cta-submit-button'
+
 export const FinanceAssistantAnalyticsCta = () => {
   const { openPanelWithAgent, state } = useAiAgent()
   const { submitFinanceQuestion } = useAskFinanceAssistant()
@@ -47,6 +51,7 @@ export const FinanceAssistantAnalyticsCta = () => {
       <form
         onSubmit={handleSubmit}
         className="flex w-full items-center gap-3 rounded-2xl bg-white px-7 py-6 shadow-xl"
+        data-test={FINANCE_ASSISTANT_CTA_TEST_ID}
       >
         <AiBadge className="shrink-0" iconSize={16}>
           <Typography variant="captionHl" color="infoMain">
@@ -59,9 +64,15 @@ export const FinanceAssistantAnalyticsCta = () => {
           placeholder={translate('text_17805629795209jls35q0dyn')}
           value={question}
           onChange={(event) => setQuestion(event.target.value)}
+          data-test={FINANCE_ASSISTANT_CTA_INPUT_TEST_ID}
         />
 
-        <button type="submit" disabled={!canSubmit} className="shrink-0">
+        <button
+          type="submit"
+          disabled={!canSubmit}
+          className="shrink-0"
+          data-test={FINANCE_ASSISTANT_CTA_SUBMIT_BUTTON_TEST_ID}
+        >
           <Icon
             name="arrow-indent"
             className={tw('-scale-x-100', canSubmit ? 'text-grey-600' : 'text-grey-400')}
